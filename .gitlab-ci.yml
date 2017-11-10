@@ -1,0 +1,163 @@
+#
+# Notes: $CI_COMMIT_REF_NAME => master or branch-xyz
+#
+
+variables:
+    PYPI_USER: SECURE
+    PYPI_PASSWORD: SECURE
+
+
+stages:
+  - build
+  - test
+  - deploy
+#  - cleanup
+
+#
+# Build stage
+#
+
+# Generate the Sphinx documentation into 'doc/html'
+#doc:
+#  image: continuumio/anaconda3
+#  stage: build
+#  script:
+#    - pip install sphinx sphinx_rtd_theme
+
+#    - export PYTHONPATH=$PWD
+#    - sphinx-build doc/source doc/html
+
+#    - ls
+#  artifacts:
+#    paths:
+#      - doc/html
+#  cache:
+#    key: "$CI_COMMIT_REF_NAME"
+#    paths:
+#      - doc/html
+
+
+#
+# Test Stage
+#
+
+# Run pytest + coverage and create html report (pytest_report.html)
+python36:
+  image: python:3.6
+  stage: test
+  script:
+    - pip install pytest pytest-cov pytest-html
+
+    - pip install -r requirements.txt
+    - export PYTHONPATH=$PWD
+    - pytest --cov=pyxel --cov-report html --html=pytest_report.html --self-contained-html --color=yes --full-trace --showlocals --verbose
+
+    - ls
+  artifacts:
+    paths:
+      - htmlcov
+      - pytest_report.html
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    paths:
+      - htmlcov
+      - pytest_report.html
+
+## Run pytest on anaconda3
+#anaconda3:
+#  image: continuumio/anaconda3
+#  stage: test
+#  script:
+#    - pip install pytest
+#
+#    - pip install -r requirements.txt
+#    - export PYTHONPATH=$PWD
+#    - pytest --color=yes --full-trace --showlocals --verbose
+#
+#    - ls
+
+# Run pylint (with pytest) and generate HTML report
+lint:
+  image: python:3.6
+  stage: test
+  script:
+    - pip install pytest-pylint pytest-html
+
+    - pip install -r requirements.txt
+    - pytest --pylint --color=yes --verbose --pylint-rcfile=pylint.cfg --html=pylint_report.html --self-contained-html -m pylint || echo 1
+
+    - ls
+  artifacts:
+    paths:
+      - pylint_report.html
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    paths:
+      - pylint_report.html
+
+#
+# Deploy Stage
+#
+
+# Create the pages into http://sci-fv.io.esa.int/steam
+pages:
+  image: python:3.6
+  stage: deploy
+  script:
+    - pip install docutils
+    - pip install pygments
+    - rst2html.py --stylesheet=README.css pages.rst pages.html
+
+    - mkdir public
+    - ls
+
+#    - mv doc/html public/doc
+    - mv pages.html public/index.html
+    - mv htmlcov public/coverage
+    - mv pytest_report.html public
+    - mv pylint_report.html public
+    - ls public
+  artifacts:
+    paths:
+      - public
+  only:
+    - tags
+
+
+# Create wheel file
+#deploy:
+#  image: python:3.6
+#  stage: deploy
+#  environment: deploy
+#  script:
+#    - pip install wheel setuptools
+#    - python setup.py bdist_wheel
+#  artifacts:
+#    paths:
+#      - dist
+
+# Upload to pypi
+# Reference: http://samb.io/blog/2016/devops/python/gitlab/continuous-deployment/continuous-deployment-to-python-packaging
+deploy_pypi:
+  image: python:3.6
+  stage: deploy
+  environment: deploy
+  script:   # Configure the PyPI credentials, then push the package, and cleanup the creds.
+    - echo "[server-login]" >> ~/.pypirc
+    - echo "repository=http://lab-linux-server.estec.esa.int/pypi/" >> ~/.pypirc
+    - echo "username=" ${PYPI_USER} >> ~/.pypirc
+    - echo "password=" ${PYPI_PASSWORD} >> ~/.pypirc
+    - python setup.py check bdist_wheel upload # This will fail if your creds are bad.
+    - echo "" > ~/.pypirc && rm ~/.pypirc  # If the above fails, this won't run.
+#  only:
+#    - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
+#  except:
+#    - branches
+  only:
+    - tags
+
+#cleanup_pypirc:
+#   stage: cleanup
+##   when: always   # this is important; run even if preceding stages failed.
+#   script:
+#    - rm -vf ~/.pypirc  # we don't want to leave these around, but GitLab may clean up anyway.

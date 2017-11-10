@@ -1,0 +1,22 @@
+--extra-index-url http://lab-linux-server.estec.esa.int/pypi/simple/
+--trusted-host lab-linux-server.estec.esa.int
+
+########################
+# ESA libraries        #
+########################
+
+
+########################
+# Others               #
+########################
+
+versioneer
+
+########################
+# Scientific / Imaging #
+########################
+
+numpy
+astropy
+pandas
+matplotlib

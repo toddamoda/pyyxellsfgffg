@@ -1,0 +1,7 @@
+common:
+  root_dir: ./examples
+  input_dir: '{common/root_dir}/data'
+
+model:
+  file: '{common/input_dir}/model.ini'
+  points: 100
