@@ -11,6 +11,7 @@
 ########################
 
 versioneer
+pyyaml
 
 ########################
 # Scientific / Imaging #
