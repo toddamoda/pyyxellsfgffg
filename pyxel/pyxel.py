@@ -8,9 +8,9 @@ in MCT, diffusion, cross-talk etc.) on a given image.
 import logging
 import argparse
 
-from configparser import ConfigParser, ExtendedInterpolation
-
 import pyxel
+
+from pyxel.util import config
 
 
 def main():
