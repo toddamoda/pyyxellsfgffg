@@ -5,6 +5,7 @@
 #   --------------------------------------------------------------------------
 """ Utility module to aid in loading in a configuration file. """
 
+from ast import literal_eval
 from configparser import ConfigParser, ExtendedInterpolation
 import yaml
 from pathlib import Path
@@ -35,7 +36,20 @@ def load_ini(path):
     with open(path, 'r') as file_obj:
         cfg = ConfigParser(interpolation=ExtendedInterpolation())
         cfg.read_file(file_obj)
-        return cfg
+
+        obj = type('cfg', (object,), {})
+        for section in cfg.sections():
+            section_obj = type('section', (object,), {})
+            setattr(obj, section, section_obj)
+            for key, val in cfg.items(section):
+                val = val.split('#')[0]
+                try:
+                    val = eval(val.split('#')[0])
+                except ValueError as exc:
+                    print("ERROR:" + key + "=" + val + ";" + str(exc))
+                setattr(section_obj, key, val)
+
+        return obj
 
 
 def load(config_path):
