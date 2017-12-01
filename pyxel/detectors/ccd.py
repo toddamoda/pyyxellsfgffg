@@ -8,6 +8,7 @@ from os import path
 from pathlib import Path
 
 from pyxel.util import fitsfile
+from pyxel.util import get_data_dir
 
 
 def convert_to_int(value):
@@ -66,7 +67,7 @@ class CcdTransferFunction(object):
         """
         if fits_file:  # OPEN EXISTING FITS IMAGE
             if not Path(fits_file).exists():
-                fits_file = Path(__file__).parents[2].joinpath('data', fits_file)
+                fits_file = get_data_dir(fits_file)
             if not Path(fits_file).exists():
                 raise IOError('File not found: %s' % fits_file)
 

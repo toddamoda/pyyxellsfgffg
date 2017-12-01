@@ -17,36 +17,38 @@ from pyxel.detectors.ccd import CcdTransferFunction
 from pyxel.models.ccd_noise import CcdNoiseGenerator
 from pyxel.util.fitsfile import FitsFile
 from pyxel.util import config
+from pyxel.util import get_data_dir
+
 
 BASE_DIR = path.dirname(path.abspath(__file__))
 REPO_DIR = path.dirname(BASE_DIR)
 DATA_DIR = path.join(REPO_DIR, 'data')
 OUTPUT_FILE = path.join(DATA_DIR, 'output.data')
-
 #
-# if r'C:\dev\work\pyxel' not in sys.path:
-#     sys.path.append(r'C:\dev\work\pyxel')
-
-
+# #
+# # if r'C:\dev\work\pyxel' not in sys.path:
+# #     sys.path.append(r'C:\dev\work\pyxel')
+#
+#
 OPEN_FITS = False
 # OPEN_FITS = True
-
-OUTPUT_FITS = False
-# OUTPUT_FITS = True
-
-OUTPUT_DATA = True
+#
+# OUTPUT_FITS = False
+# # OUTPUT_FITS = True
+#
 # OUTPUT_DATA = True
-
-# SHOT_NOISE = False
-SHOT_NOISE = True
-
-# FIX_PATTERN_NOISE = False
-FIX_PATTERN_NOISE = True
-
-# READOUT_NOISE = False
-READOUT_NOISE = True
-
-FITS_FILE = path.join(DATA_DIR, 'HorseHead_orig.fits')
+# # OUTPUT_DATA = True
+#
+# # SHOT_NOISE = False
+# SHOT_NOISE = True
+#
+# # FIX_PATTERN_NOISE = False
+# FIX_PATTERN_NOISE = True
+#
+# # READOUT_NOISE = False
+# READOUT_NOISE = True
+#
+# FITS_FILE = path.join(DATA_DIR, 'HorseHead_orig.fits')
 NOISE_FILE = path.join(DATA_DIR, 'non_uniformity_array_normal_stdev0.03.data')
 
 
@@ -156,8 +158,9 @@ def process(opts):
     # OUTPUTS
     head = None
     # creating new fits file with new data
-    if OUTPUT_FITS:
-        new_fits_file = FitsFile(r'C:\dev\work\pyxel_alpha\new.fits')
+    if opts.output.fits:
+        out_file = get_data_dir(opts.output.fits)
+        new_fits_file = FitsFile(out_file)
         if OPEN_FITS:
             new_fits_file.save(ccd.signal, head)
         else:
@@ -166,8 +169,9 @@ def process(opts):
             # check bitpix of FITS image during opening and convert type of input data according to that
 
     # writing ascii output file
-    if OUTPUT_DATA:
-        with open(OUTPUT_FILE, 'a+') as file_obj:
+    if opts.output.data:
+        out_file = get_data_dir(opts.output.data)
+        with open(out_file, 'a+') as file_obj:
             data = [
                 '{:6d}'.format(opts.ccd.photons),
                 '{:8.2f}'.format(signal_mean),
