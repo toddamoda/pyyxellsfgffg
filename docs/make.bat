@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=source
 set BUILDDIR=build
-set SPHINXPROJ={{package}}
+set SPHINXPROJ=pyxel
 
 if "%1" == "" goto help
 
