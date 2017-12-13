@@ -1,0 +1,15 @@
+# Byte-compiled
+*.pyc
+
+# Distribution / packaging
+dist/
+build/
+
+# Pycharm
+.idea/*
+
+# Sphinx
+_build
+
+# Tox
+.tox/
