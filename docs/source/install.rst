@@ -1,0 +1,22 @@
+Installation
+************
+
+**{{package}}** is available on our own ``PyPI server`` at the following
+url: `<http://lab-linux-server.estec.esa.int/{{package}}/>`.
+By using this server, you are sure to have the latest stable version.
+
+To install, simply use ``pip``:
+
+.. code-block:: bash
+
+   pip install {{package}}
+   pip install --index-url=http://lab-linux-server.estec.esa.int/pypi/simple \
+   ...         --extra-index-url=http://lab-linux-server.estec.esa.int/pypi/simple \
+   ...         --trusted-host=lab-linux-server.estec.esa.int \
+   ...         {{package}}
+
+To upgrade {{package}} to the latest version:
+
+.. code-block:: bash
+
+   pip install --upgrade {{package}}
