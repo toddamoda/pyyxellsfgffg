@@ -39,9 +39,9 @@ class CcdTransferFunction(object):
         """
         self._p = None    # np int 2D array of incident photon number per pixel
         self._row = kwargs.get('row', 0)      # number of rows in image
-        self._col = kwargs.get('row', 0)      # number of columns in image
+        self._col = kwargs.get('col', 0)      # number of columns in image
         self._k = kwargs.get('k', 0.0)        # camera gain constant in digital number (DN)
-        self._j = kwargs.get('k', 0.0)        # camera gain constant in photon number
+        self._j = kwargs.get('j', 0.0)        # camera gain constant in photon number
         self._charge = kwargs.get('charge', 0)  # int number of electrons per pixel
         self._qe = kwargs.get('qe', 0.0)      # quantum efficiency
         self._eta = kwargs.get('eta', 0.0)    # quantum yield
