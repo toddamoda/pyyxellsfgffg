@@ -1,0 +1,45 @@
+#processor:
+#  runner: pyxel_alpha.simulate_ccd
+#  xx : pyxel.models.ccd_noise.CcdNoiseGenerator
+#  pipeline : pyxel.detectors.ccd.CcdTransferFunction
+
+#[pipeline_options]
+#shot_noise: True
+#fix_pattern_noise: True
+#readout_noise: True
+
+inputs: !input
+  detector_input: !frame
+    photons:  !photons
+      num_photons: 1000
+      rows: 100
+      cols: 100
+    fits: "som input.fits"
+
+  detector: !detector
+    qe: 0.5        # -
+    eta: 1         # e/photon
+    sv: 1E-6       # V/e
+    accd: 0.8      # V/V
+    a1: 100        # V/V
+    a2: 2 ** 16    # DN/V
+    fwc: 4500      # e (full well capacity)
+#    rows: 100
+#    cols: 100
+
+  model: !ccd_noise_generator
+    noise_file: "non_uniformity_array_normal_stdev0.03.data"
+    shot_noise: True
+    fix_pattern_noise: True
+    readout_noise: True
+
+
+# fits_file: "HorseHead_orig.fits"
+
+processor: !processor
+  xx: pyxel_alpha.simulate_ccd
+
+
+output:
+  data: "output.data"
+  fits: "test.fits"
