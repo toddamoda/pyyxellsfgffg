@@ -6,7 +6,6 @@ detector effects (e.g., cosmics, radiation-induced CTI  in CCDs, persistency
 in MCT, diffusion, cross-talk etc.) on a given image.
 """
 
-import sys
 import argparse
 import shlex
 from os import path
@@ -18,12 +17,13 @@ from pyxel.models.ccd_noise import CcdNoiseGenerator
 from pyxel.util.fitsfile import FitsFile
 from pyxel.util import config
 from pyxel.util import get_data_dir
-
+from pyxel.models.tars.tars_v3 import TARS
 
 BASE_DIR = path.dirname(path.abspath(__file__))
 REPO_DIR = path.dirname(BASE_DIR)
 DATA_DIR = path.join(REPO_DIR, 'data')
 OUTPUT_FILE = path.join(DATA_DIR, 'output.data')
+TARS_DIR = r'C:\dev\work\pyxel\pyxel\models\tars'
 #
 # #
 # # if r'C:\dev\work\pyxel' not in sys.path:
@@ -117,6 +117,8 @@ def process(opts):
     # kwargs.update(vars(opts.ccd))
     # kwargs.update(vars(opts.input))
     ccd = CcdTransferFunction(**vars(opts.ccd))
+
+    # MODELS:
     noise = CcdNoiseGenerator()
 
     # set_transfer_parameters(ccd)
@@ -133,6 +135,24 @@ def process(opts):
     # FIXED PATTERN NOISE
     if opts.model.fix_pattern_noise:
         ccd.charge = noise.add_fix_pattern_noise(ccd.charge, NOISE_FILE)
+
+    cosmics = TARS(ccd)
+
+    cosmics.set_initial_energy('random')
+    cosmics.set_particle_number(100)
+    cosmics.set_incident_angles('random', 'random')
+    # z=0. -> cosmic ray events, z='random' -> snowflakes (radioactive decay inside ccd)
+    cosmics.set_starting_position('random', 'random', 0.0)
+    cosmics.set_stepping_length(1.0)   # um !
+
+    stopping_file = TARS_DIR + r'\data\inputs\stopping_power_protons.txt'
+    spectrum_file = TARS_DIR + r'\data\inputs\proton_L2_solarMax_11mm_Shielding.txt'
+    cosmics.set_particle_spectrum(spectrum_file)
+    cosmics.set_stopping_power(stopping_file)
+
+    cosmics.run()
+
+    ccd.charge = ccd.charge + cosmics.get_deposited_charge()
 
     # limiting charges per pixel due to Full Well Capacity
     ccd.charge_excess()
@@ -195,8 +215,8 @@ def main(cmdline=None):
 
     # ARGUMENT PARSER
     parser = argparse.ArgumentParser(description='Adding noises to CCD signal')
-    parser.add_argument('--photons', '-p', type=int,
-                        help='average number of photons per pixel')
+    # parser.add_argument('--photons', '-p', type=int,
+    #                     help='average number of photons per pixel')
     parser.add_argument('--config', '-c', type=str, default='settings.ini',
                         help='the configuration file to load')
 
@@ -207,7 +227,7 @@ def main(cmdline=None):
     if opts.config:
         settings = config.load(opts.config)
 
-    settings.ccd.photons = opts.photons
+    # settings.ccd.photons = opts.photons
 
     process(settings)
 
