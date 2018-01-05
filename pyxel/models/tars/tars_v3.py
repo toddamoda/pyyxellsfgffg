@@ -22,10 +22,9 @@ import numpy as np
 import time
 from tqdm import tqdm
 from scipy import interpolate
-
-from lib.simulation import Simulation
-
 import matplotlib.pyplot as plt
+
+from pyxel.models.tars.lib.simulation import Simulation
 
 TARS_DIR = path.dirname(path.abspath(__file__))
 

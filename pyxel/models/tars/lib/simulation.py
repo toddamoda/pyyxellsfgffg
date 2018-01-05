@@ -21,7 +21,8 @@ from math import sqrt, log
 from scipy.special import erf
 import numpy as np
 import bisect
-from lib.particle import Particle
+
+from pyxel.models.tars.lib.particle import Particle
 
 
 def get_func_value_with_interpolation(function_array, x_value):
