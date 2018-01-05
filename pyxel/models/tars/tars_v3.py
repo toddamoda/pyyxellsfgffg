@@ -149,16 +149,16 @@ class TARS:
         lin_energy_range = np.arange(np.min(self.sim_obj.spectrum[:, 0]), np.max(self.sim_obj.spectrum[:, 0]), 0.01)
         flux_dist = self.sim_obj.spectrum_function(lin_energy_range)
 
-        plt.figure()
-        plt.loglog(lin_energy_range, flux_dist)
-        plt.draw()
+        # plt.figure()
+        # plt.loglog(lin_energy_range, flux_dist)
+        # plt.draw()
 
         cum_sum = np.cumsum(flux_dist)
         cum_sum /= np.max(cum_sum)
         self.sim_obj.CDF = (lin_energy_range, cum_sum)
 
-        plt.figure()
-        plt.semilogx(lin_energy_range, cum_sum)
-        plt.draw()
-        #
-        plt.show()
+        # plt.figure()
+        # plt.semilogx(lin_energy_range, cum_sum)
+        # plt.draw()
+        # #
+        # plt.show()
