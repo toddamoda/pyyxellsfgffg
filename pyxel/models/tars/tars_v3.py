@@ -43,6 +43,8 @@ class TARS:
     
     def __init__(self, pyxel_ccd_obj=None):
 
+        self.ccd = pyxel_ccd_obj
+
         self.init_energy = 0
         self.particle_number = 0
         self.angle_alpha = 0
@@ -55,7 +57,7 @@ class TARS:
         self.data_folder = TARS_DIR + r'\data'
         self.results_folder = self.data_folder + r'\results'
 
-        self.sim_obj = Simulation(pyxel_ccd_obj)
+        self.sim_obj = Simulation(self.ccd)
 
     def set_initial_energy(self, energy):
         self.init_energy = energy
@@ -138,23 +140,25 @@ class TARS:
         """
         self.sim_obj.spectrum = read_data(file_name)  # nuc/m2*s*sr*MeV
 
-        self.sim_obj.spectrum[:, 1] *= 4 * math.pi * 1e-4  # nuc/s*MeV  for every cm2
+        ccd_area = self.ccd.ver_dimension * self.ccd.hor_dimension * 1.0e-8     # cm2
+
+        self.sim_obj.spectrum[:, 1] *= 4 * math.pi * 1.0e-4 * ccd_area     # nuc/s*MeV
 
         self.sim_obj.spectrum_function = interpolate_data(self.sim_obj.spectrum)
 
         lin_energy_range = np.arange(np.min(self.sim_obj.spectrum[:, 0]), np.max(self.sim_obj.spectrum[:, 0]), 0.01)
         flux_dist = self.sim_obj.spectrum_function(lin_energy_range)
 
-        # plt.figure()
-        # plt.loglog(lin_energy_range, flux_dist)
-        # plt.draw()
+        plt.figure()
+        plt.loglog(lin_energy_range, flux_dist)
+        plt.draw()
 
         cum_sum = np.cumsum(flux_dist)
         cum_sum /= np.max(cum_sum)
         self.sim_obj.CDF = (lin_energy_range, cum_sum)
 
-        # plt.figure()
-        # plt.semilogx(lin_energy_range, cum_sum)
-        # plt.draw()
-        
-        # plt.show()
+        plt.figure()
+        plt.semilogx(lin_energy_range, cum_sum)
+        plt.draw()
+        #
+        plt.show()

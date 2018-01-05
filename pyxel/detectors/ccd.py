@@ -54,13 +54,13 @@ class CcdTransferFunction(object):
         self._signal = None  # np int 2D array mutable the image data plus the accumulated noise after processing
 
         # we should put these in a GEOMETRY class
-        self._row = kwargs.get('rows', 0)                                # number of rows in image
-        self._col = kwargs.get('columns', 0)                                # number of columns in image
-        self._depletion_zone = kwargs.get('depletion_thickness', 0)     # depletion zone thickness
-        self._field_free_zone = kwargs.get('field_free_thickness', 0)   # field free zone thickness
-        self._sub_thickness = kwargs.get('substrate_thickness', 0)      # substrate thickness
-        self._pix_ver_size = kwargs.get('pixel_ver_size', 0)            # pixel vertical size (row)
-        self._pix_hor_size = kwargs.get('pixel_hor_size', 0)            # pixel horizontal size (col)
+        self._row = kwargs.get('rows', 0)                                 # number of rows in image
+        self._col = kwargs.get('columns', 0)                              # number of columns in image
+        self._depletion_zone = kwargs.get('depletion_thickness', 0.0)     # depletion zone thickness
+        self._field_free_zone = kwargs.get('field_free_thickness', 0.0)   # field free zone thickness
+        self._sub_thickness = kwargs.get('substrate_thickness', 0.0)      # substrate thickness
+        self._pix_ver_size = kwargs.get('pixel_ver_size', 0.0)            # pixel vertical size (row)
+        self._pix_hor_size = kwargs.get('pixel_hor_size', 0.0)            # pixel horizontal size (col)
 
         # self._total_thickness = kwargs.get('total_thickness', 0)  # total detector thickness
         self._total_thickness = self._depletion_zone + self._field_free_zone + self._sub_thickness   # total detector thickness
