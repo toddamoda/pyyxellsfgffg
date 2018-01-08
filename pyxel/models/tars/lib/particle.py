@@ -87,7 +87,7 @@ class Particle:
             beta = input_beta
         self.angle = np.array([alpha, beta])
 
-        self.dir_z = math.sin(alpha)
+        self.dir_z = -1 * math.sin(alpha)
         self.dir_ver = math.cos(alpha) * math.cos(beta)
         self.dir_hor = math.cos(alpha) * math.sin(beta)
 
@@ -134,7 +134,7 @@ class Particle:
         plt.xlabel('horizontal ($\mu$m)')
         plt.ylabel('z ($\mu$m)')
         plt.title('p trajectory in CCD')
-        plt.axis([0, self.ccd.hor_dimension, 0, self.ccd.total_thickness])
+        plt.axis([0, self.ccd.hor_dimension, -1*self.ccd.total_thickness, 0])
         plt.grid(True)
         plt.draw()
         # plt.show()

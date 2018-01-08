@@ -11,6 +11,7 @@ import shlex
 from os import path
 
 import numpy as np
+from math import pi
 
 from pyxel.detectors.ccd import CcdTransferFunction
 from pyxel.models.ccd_noise import CcdNoiseGenerator
@@ -138,11 +139,18 @@ def process(opts):
 
     cosmics = TARS(ccd)
 
-    cosmics.set_initial_energy('random')
-    cosmics.set_particle_number(100)
-    cosmics.set_incident_angles('random', 'random')
+    # cosmics.set_initial_energy('random')      # MeV
+    # cosmics.set_particle_number(1)
+    # cosmics.set_incident_angles('random', 'random')
+    # # z=0. -> cosmic ray events, z='random' -> snowflakes (radioactive decay inside ccd)
+    # cosmics.set_starting_position('random', 'random', 0.0)
+    # cosmics.set_stepping_length(1.0)   # um !
+
+    cosmics.set_initial_energy(100)     # MeV
+    cosmics.set_particle_number(1)
+    cosmics.set_incident_angles(pi/4, pi/4)     # rad
     # z=0. -> cosmic ray events, z='random' -> snowflakes (radioactive decay inside ccd)
-    cosmics.set_starting_position('random', 'random', 0.0)
+    cosmics.set_starting_position(500.0, 500.0, 0.0)      # um
     cosmics.set_stepping_length(1.0)   # um !
 
     stopping_file = TARS_DIR + r'\data\inputs\stopping_power_protons.txt'

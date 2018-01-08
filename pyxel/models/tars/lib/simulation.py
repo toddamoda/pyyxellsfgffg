@@ -20,6 +20,7 @@
 from math import sqrt, log
 from scipy.special import erf
 import numpy as np
+import matplotlib.pyplot as plt
 import bisect
 
 from pyxel.models.tars.lib.particle import Particle
@@ -138,7 +139,7 @@ class Simulation:
         # check if p is still inside CCD and have enough energy
         while 0.0 <= p.position[0] <= self.ccd.ver_dimension \
                 and 0.0 <= p.position[1] <= self.ccd.hor_dimension \
-                and 0.0 <= p.position[2] <= self.ccd.total_thickness \
+                and -1*self.ccd.total_thickness <= p.position[2] <= 0.0 \
                 and self.energy_cut < p.energy:
 
             track_left = True
@@ -153,8 +154,8 @@ class Simulation:
             if p.deposited_energy >= p.energy * 1e3:
                 p.deposited_energy = p.energy * 1e3
 
-            p.electrons = int(p.deposited_energy * 1e3 / self.ccd.material_ionization_energy)  # eV/eV = 1
-            p.deposited_energy = p.electrons * self.ccd.material_ionization_energy * 1e-3  # keV
+            p.electrons = int(p.deposited_energy * 1e3 / self.ccd.material_ionization_energy)       # eV/eV = 1
+            p.deposited_energy = p.electrons * self.ccd.material_ionization_energy * 1e-3           # keV
             # else:
             p.energy -= p.deposited_energy * 1e-3
 
@@ -184,9 +185,9 @@ class Simulation:
 
         if track_left:
             # plot particle trajectory in 2d
-            # p.plot_trajectory_xy()
-            # p.plot_trajectory_xz()
-            # plt.show()
+            p.plot_trajectory_xy()
+            p.plot_trajectory_xz()
+            plt.show()
 
             self.total_edep_per_particle.append(p.total_edep)   # keV
     
@@ -236,9 +237,9 @@ class Simulation:
 
         sig = 0
 
-        if 0.0 <= particle.position[2] < self.ccd.depletion_zone:
+        if 0.0 <= abs(particle.position[2]) < self.ccd.depletion_zone:
 
-            cf = con * sqrt(sat * particle.position[2] / self.ccd.depletion_zone + log(self.ccd.depletion_zone / (self.ccd.depletion_zone - particle.position[2])))
+            cf = con * sqrt(sat * abs(particle.position[2]) / self.ccd.depletion_zone + log(self.ccd.depletion_zone / (self.ccd.depletion_zone - abs(particle.position[2]))))
 
             if cf > cfr:
                 cf = cfr
@@ -246,23 +247,22 @@ class Simulation:
             sig = sqrt(ci ** 2 + cf ** 2)  # WTF ???????
             # hh = 1.0
 
-        elif self.ccd.depletion_zone <= particle.position[2] < self.ccd.depletion_zone + self.ccd.field_free_zone:
+        elif self.ccd.depletion_zone <= abs(particle.position[2]) < self.ccd.depletion_zone + self.ccd.field_free_zone:
 
-            d = particle.position[2] - self.ccd.depletion_zone
+            d = abs(particle.position[2]) - self.ccd.depletion_zone
 
             # hh = (exp(self.ccd.field_free_zone / l1 - d / l1)
             #       + exp(d / l1 - self.ccd.field_free_zone / l1)) / (
             #     exp(self.ccd.field_free_zone / l1)
             #     + exp(-self.ccd.field_free_zone / l1))
 
-            cff = self.ccd.field_free_zone / 1.0 * sqrt(1 - (
-                (self.ccd.field_free_zone - d) / self.ccd.field_free_zone) ** 2)
+            cff = self.ccd.field_free_zone / 1.0 * sqrt(1 - ((self.ccd.field_free_zone - d) / self.ccd.field_free_zone) ** 2)
 
             sig = sqrt(ci ** 2 + cfr ** 2 + cff ** 2)
 
-        elif self.ccd.depletion_zone + self.ccd.field_free_zone <= particle.position[2] <= self.ccd.depletion_zone + self.ccd.field_free_zone + self.ccd.sub_thickness:
+        elif self.ccd.depletion_zone + self.ccd.field_free_zone <= abs(particle.position[2]) <= self.ccd.depletion_zone + self.ccd.field_free_zone + self.ccd.sub_thickness:
 
-            d = particle.position[2] - self.ccd.field_free_zone - self.ccd.depletion_zone
+            d = abs(particle.position[2]) - self.ccd.field_free_zone - self.ccd.depletion_zone
 
             cff = self.ccd.field_free_zone / 1.0
 
