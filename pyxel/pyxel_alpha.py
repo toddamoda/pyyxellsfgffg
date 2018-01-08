@@ -148,7 +148,7 @@ def process(opts):
 
     cosmics.set_initial_energy(100)     # MeV
     cosmics.set_particle_number(1)
-    cosmics.set_incident_angles(pi/4, pi/4)     # rad
+    cosmics.set_incident_angles(pi/10, pi/4)     # rad
     # z=0. -> cosmic ray events, z='random' -> snowflakes (radioactive decay inside ccd)
     cosmics.set_starting_position(500.0, 500.0, 0.0)      # um
     cosmics.set_stepping_length(1.0)   # um !
