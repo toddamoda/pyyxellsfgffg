@@ -136,11 +136,17 @@ class Simulation:
         p.position[1] += p.dir_hor * self.step_length * 0.1
         p.position[2] += p.dir_z * self.step_length * 0.1
 
-        # check if p is still inside CCD and have enough energy
-        while 0.0 <= p.position[0] <= self.ccd.ver_dimension \
-                and 0.0 <= p.position[1] <= self.ccd.hor_dimension \
-                and -1*self.ccd.total_thickness <= p.position[2] <= 0.0 \
-                and self.energy_cut < p.energy:
+        while True:
+
+            # check if p is still inside CCD and have enough energy:
+            if p.position[0] < 0.0 or p.position[0] > self.ccd.ver_dimension:
+                break
+            if p.position[1] < 0.0 or p.position[1] > self.ccd.hor_dimension:
+                break
+            if p.position[2] < -1 * self.ccd.total_thickness or p.position[2] > 0.0:
+                break
+            if p.energy <= self.energy_cut:
+                break
 
             track_left = True
 
