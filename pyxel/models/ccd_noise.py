@@ -6,27 +6,17 @@ PyXel! CCD noise generator class
 """
 import numpy as np
 
+from . import Model
 
-class CcdNoiseGenerator(object):
-    """
-    Noise generator class for CCD detectors
-    """
-    def __init__(self):
-        """
-        Arrays storing the different noise components and standard deviations
-        """
-        self._shot_noise_array = 0
-        self._pixel_non_uniform_array = 0
-        self._readout_noise_array = 0
-        self._readout_sigma = 0
 
-    @property
-    def readout_sigma(self):
-        return self._readout_sigma
+class CCDNoiseGenerator(Model):
 
-    @readout_sigma.setter
-    def readout_sigma(self, new_sigma):
-        self._readout_sigma = new_sigma
+    def __init__(self, **kwargs):
+        super(CCDNoiseGenerator, self).__init__(**kwargs)
+        self.shot_noise = kwargs.get('shot_noise', False)
+        self.fix_pattern_noise = kwargs.get('fix_pattern_noise', False)
+        self.readout_noise = kwargs.get('readout_noise', False)
+        self.noise_file = kwargs.get('noise_file', '')
 
     # SHOT NOISE
     def add_shot_noise(self, photon_mean_array):
