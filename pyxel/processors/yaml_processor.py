@@ -1,15 +1,44 @@
+import copy
 import yaml
-
+from pyxel import util
 from pyxel.detectors.ccd import CCDDetector
 from pyxel.processors.config import CCDCharacteristics, Environment, Geometry, CCD, DetectionPipeline
+
+
+class Function:
+
+    def __init__(self, ref, args):
+        self.ref = util.evaluate_reference(ref)   # type: callable
+        self.args = args                          # type: list
+
+    def __call__(self):
+        return self.ref(*self.args)
+
+
+class Method:
+
+    def __init__(self, ref, obj, args):
+        self.ref = getattr(obj, ref)             # type: callable
+        self.args = args                         # type: list
+
+    def __call__(self):
+        return self.ref(*self.args)
 
 
 class PipelineYAML(yaml.SafeLoader):
     pass
 
 
+def _constructor_function(loader: PipelineYAML, node: yaml.MappingNode):
+    mapping = loader.construct_mapping(node)     # type: dict
+
+    obj = Function(**mapping)
+
+    return obj
+
+
 def _constructor_ccd_pipeline(loader: PipelineYAML, node: yaml.MappingNode):
-    mapping = loader.construct_mapping(node)      # type: dict
+    mapping = loader.construct_mapping(node)     # type: dict
 
     obj = DetectionPipeline(**mapping)
 
@@ -110,6 +139,8 @@ def main():
     # ccd = CCDDetector(**params)
 
     ccd = CCDDetector.from_ccd(cfg.ccd)     # type: CCDDetector
+
+    ccd_copy = copy.deepcopy(ccd)
     pass
 
 

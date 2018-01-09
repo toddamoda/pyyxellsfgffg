@@ -9,6 +9,44 @@ import numpy as np
 from . import Model
 
 
+def apply_shot_noise(ccd: CCDDetector) -> CCDDetector:
+    """ Extract the shot noise
+
+    :param photon_array: (unit photons)
+    :return: (unit photons)
+    """
+    new_ccd = ccd.copy()
+    # photon_array = ccd.p
+
+    new_ccd.p = np.random.poisson(lam=new_ccd.p)
+    #
+    # # return new_photon_array
+    #
+    # new_ccd.p = new_photon_array
+    #
+    return new_ccd
+
+
+def add_fix_pattern_noise(charge_array, noise_file):
+    m, n = charge_array.shape
+    pixel_non_uniform_array = np.fromfile(noise_file, dtype=float, sep=' ').reshape((m, n))
+    pixel_non_uniform_array = pixel_non_uniform_array.reshape((m, n))
+    charge_array = charge_array * pixel_non_uniform_array
+    charge_array = np.int16(np.rint(charge_array))
+
+    return charge_array
+
+
+class CCD:
+
+
+    def shot_noise(self):
+        self.p -= shot_noise(self)
+
+    def fixed_pattern_noise(self):
+        self.charge -= add_fix_pattern_noise(self, self.noise_file)
+
+
 class CCDNoiseGenerator(Model):
 
     def __init__(self, **kwargs):

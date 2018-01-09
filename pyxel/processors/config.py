@@ -46,6 +46,7 @@ class CCD:
 
 class DetectionPipeline:
 
-    def __init__(self, ccd: CCD, doc=None):
+    def __init__(self, ccd: CCD, optics: list, doc=None):
         self.ccd = ccd
         self.doc = doc
+        self.optics = optics

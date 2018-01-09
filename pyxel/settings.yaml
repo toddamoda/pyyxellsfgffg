@@ -32,8 +32,36 @@
       sv: 1E-6        # V/e
       accd: 0.8       # V/V
       a1: 100         # V/V
-      a2: 2 ** 16     # DN/V
+      a2: 65536       # DN/V
       fwc: 4500       # e (full well capacity)
+
+  # photons -> photons
+  optics:
+    shot_noise: true
+#    fixed_pattern_noise: false
+#    ray_tracing: true
+#    diffraction: false
+#    other_model: false
+
+
+
+#    - !Function
+#        ref: pyxel.models.add_shot_noise
+#        args:
+#          - self.ccd.p
+#
+#    - !Method
+#        ref: compute
+#        obj: self
+#        args:
+#          - CCD.photons
+#
+##    - !shot_noise
+#    - !OPTICS_MODEL
+#        name: shot_noise
+#        func: CCDNoiseGenerator.add_shot_noise
+#        params:
+#          sss,,s
 
 
 #    geometry:

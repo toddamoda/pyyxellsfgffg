@@ -14,6 +14,18 @@ from pyxel.util import fitsfile
 from pyxel.util import get_data_dir
 
 
+def convert_to_int(value):
+    """
+    Convert any type of numbers to integers
+    :param value:
+    :type value: ndarray
+    :return value:
+    :rtype: int ndarray
+    """
+    int_value = np.rint(value)
+    int_value = int_value.astype(int)
+    return int_value
+
 
 class CCDDetector(Detector):
 
@@ -106,7 +118,7 @@ class CCDDetector(Detector):
         return self._signal
 
     @signal.setter
-    def signal(self, new_sig):
+    def signal(self, new_sig: np.ndarray):
         self._signal = new_sig
         self._signal = convert_to_int(self._signal)
 
@@ -195,7 +207,7 @@ class CCDDetector(Detector):
         return self._charge
 
     @charge.setter
-    def charge(self, new_charge):
+    def charge(self, new_charge: np.ndarray):
         self._charge = new_charge
 
     @property
