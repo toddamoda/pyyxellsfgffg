@@ -63,6 +63,6 @@ def load(config_path):
         raise ValueError('Expected file')
 
     if pth.suffix.lower() in ['.yaml', '.yml']:
-        return load_yaml(pth)
+        return load_yaml(str(pth))
     else:
-        return load_ini(pth)
+        return load_ini(str(pth))

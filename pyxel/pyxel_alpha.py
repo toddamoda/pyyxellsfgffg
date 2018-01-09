@@ -9,12 +9,16 @@ in MCT, diffusion, cross-talk etc.) on a given image.
 import argparse
 import shlex
 from os import path
+import astropy.units as u
+from astropy.io import fits
 
 import numpy as np
 from math import pi
 
-from pyxel.detectors.ccd import CcdTransferFunction
-from pyxel.models.ccd_noise import CcdNoiseGenerator
+from pyxel.detectors.ccd import CCDDetector
+from pyxel.models.ccd_noise import CCDNoiseGenerator
+from pyxel.processors.ccd_transfer_function import CCDTransferFunction
+
 from pyxel.util.fitsfile import FitsFile
 from pyxel.util import config
 from pyxel.util import get_data_dir
@@ -25,88 +29,26 @@ REPO_DIR = path.dirname(BASE_DIR)
 DATA_DIR = path.join(REPO_DIR, 'data')
 OUTPUT_FILE = path.join(DATA_DIR, 'output.data')
 TARS_DIR = r'C:\dev\work\pyxel\pyxel\models\tars'
-#
-# #
-# # if r'C:\dev\work\pyxel' not in sys.path:
-# #     sys.path.append(r'C:\dev\work\pyxel')
-#
-#
 OPEN_FITS = False
-# OPEN_FITS = True
-#
-# OUTPUT_FITS = False
-# # OUTPUT_FITS = True
-#
-# OUTPUT_DATA = True
-# # OUTPUT_DATA = True
-#
-# # SHOT_NOISE = False
-# SHOT_NOISE = True
-#
-# # FIX_PATTERN_NOISE = False
-# FIX_PATTERN_NOISE = True
-#
-# # READOUT_NOISE = False
-# READOUT_NOISE = True
-#
-# FITS_FILE = path.join(DATA_DIR, 'HorseHead_orig.fits')
 NOISE_FILE = path.join(DATA_DIR, 'non_uniformity_array_normal_stdev0.03.data')
 
 
-# def open_fits():
-#     """
-#     Opening FITS image
-#     :return: data and header of FITS
-#     :rtype: 2d numpy array, text array
-#     """
-#     fits_file = FitsFile(FITS_FILE)
-#     data = fits_file.data
-#     head = fits_file.header
-#     return data, head
-#
-#
-# def set_transfer_parameters(ccd):
-#     """
-#     Setting the parameters for CCD detector, needed for calculating the signal, charge
-#     or incident photon number per pixel
-#
-#     :param ccd: CCD transfer function
-#     :type ccd: CcdTransferFunction
-#     """
-#     ccd.qe = 0.5        # -
-#     ccd.eta = 1         # e/photon
-#     ccd.sv = 1E-6       # V/e
-#     ccd.accd = 0.8      # V/V
-#     ccd.a1 = 100        # V/V
-#     ccd.a2 = 2 ** 16    # DN/V
-#     ccd.fwc = 4500      # e (full well capacity)
-#
-#
-# def init_transfer_function(ccd, photon_mean):
-#     """
-#     Initialization of the transfer function: reading data from FITS
-#     file or generating new data array and calculating the incident
-#     photon array for each pixel.
-#
-#     :param ccd: CCD transfer function
-#     :param photon_mean: incident photon mean
-#     :type ccd: CcdTransferFunction
-#     :type photon_mean: 2d numpy array
-#     """
-#     if OPEN_FITS:  # OPEN EXISTING FITS IMAGE
-#         data, head = open_fits()
-#         ccd.row, ccd.col = data.shape
-#         ccd.signal = data  # DN
-#         ccd.compute_photon()  # gives ccd.p in photon/pixel
-#         # now we have the incident photon number per pixel (ccd.p) from the image
-#     else:  # GENERATE NEW DATA with uniform illumination / gradient
-#         ccd.row = 100
-#         ccd.col = 100
-#         # UNIFORM ILLUMINATION / DARK IMAGE:
-#         print('photon mean: ', photon_mean)
-#         ccd.p = np.ones((ccd.row, ccd.col)) * photon_mean  # photon average/pixel
-#         # SIGNAL GRADIENT ON ONE IMAGE:
-#         # ccd.p = np.arange(1, m*n+1, 1).reshape((m, n))    # photon average/pixel
+def frame_photons(num_photons, rows, cols):
+    return np.ones((rows, cols)) * num_photons * u.ph   # photon average/pixel
+
+
+def frame_file(fits):
+    return fits.get_data(fits) * u.ADU
+
+
+def run(opts):
+
+    ccd = CCDDetector(**opts.detector)
+    model = CCDNoiseGenerator(**opts.model)
+    proc = CCDTransferFunction(ccd, model)
+    result = proc()
+    # need to do somwthing result
+
 
 
 def process(opts):
@@ -238,6 +180,7 @@ def main(cmdline=None):
     # settings.ccd.photons = opts.photons
 
     process(settings)
+    run(settings)
 
 
 if __name__ == '__main__':

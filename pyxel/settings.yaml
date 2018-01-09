@@ -1,0 +1,108 @@
+#processor:
+#  runner: pyxel_alpha.simulate_ccd
+#  xx : pyxel.models.ccd_noise.CcdNoiseGenerator
+#  pipeline : pyxel.detectors.ccd.CcdTransferFunction
+
+#[pipeline_options]
+#shot_noise: True
+#fix_pattern_noise: True
+#readout_noise: True
+
+
+!CCD_PIPELINE
+  doc: blah blah
+
+  ccd: !CCD
+    photons: null
+    signal: null
+    charge: null
+
+    geometry:
+      row: 0                # compulsory
+      col: 0                # compulsory
+
+    environment:
+      temperature: 0  # detector temperature Kelvin
+
+    characteristics:
+      k: 0            # camera gain constant in digital number (DN)
+      j: 0            # camera gain constant in photon number
+      qe: 0.5         # -
+      eta: 1          # e/photon
+      sv: 1E-6        # V/e
+      accd: 0.8       # V/V
+      a1: 100         # V/V
+      a2: 2 ** 16     # DN/V
+      fwc: 4500       # e (full well capacity)
+
+
+#    geometry:
+#      row: 0                # compulsory
+#      col: 0                # compulsory
+#      depletion_zone: 0
+#      field_free_zone: 0    # opt.
+#      sub_thickness: 0      # opt.
+#      pix_ver_size: 0       # opt.
+#      pix_hor_size: 0       # opt.
+
+    # compulsory
+#    transfer_function_parameters:
+#      k: 0
+#      j: 0
+#      qe: 0
+#      eta: 0
+#      sv: 0
+#      accd: 0
+#      a1: 0
+#      a2: 0
+#      fwc: 0
+#      temperature: 0
+
+
+#  # photons -> photons
+#  optics:
+#    - !shot_noise
+#    - !OPTICS_MODEL
+#        func: CCDNoiseGenerator.add_shot_noise
+#        params:
+#          sss,,s
+#
+#  # photons -> electrons
+#  charge_generation:
+#    # !compute_charge(qe, eta)
+#    params:
+#      qe: 0
+#      eta: 0
+#    extra_models:
+#      - !fixed_pattern_noise #(opt)
+#        noise_filename: none  # 2d array
+##      - !tars
+##        depletion_zone: 0
+##        field_free_zone: 0
+##        sub_thickness: 0
+##        pix_ver_size: 0
+##        pix_hor_size: 0
+#      - !super_fancy_model
+##        depletion_zone: 0.0
+#
+#  # electrons -> electrons
+#  charge_collection:
+#    # !charge_excess
+#    params:
+#      fwc: 0
+#
+#  # electrons -> electrons
+#  charge_transfer:
+#
+#  # electrons -> ADU
+#  charge_readout:
+#    # !compute_signal
+#    params:
+#      sv: 0
+#      accd: 0
+#      a1: 0
+#      a2: 0
+#    extra_models:
+#      - !add_readout_noise (opt)
+#        sigma_readout: 0
+#

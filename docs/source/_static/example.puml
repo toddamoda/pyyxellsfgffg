@@ -1,0 +1,178 @@
+@startuml
+
+skinparam class {
+    BackgroundColor White
+    ArrowColor Grey
+    BorderColor Black
+}
+title esapy_rpc
+
+
+
+package proxy <<Folder>> {
+class ProxyObject
+class ProxyObjectOverloaded
+class ClassRegistry
+class ReturnSelf
+class _Magic
+class Empty
+}
+
+package rpc <<Folder>> {
+class ProxyConnection
+class ProxyClient
+class ProxyServerObject
+class ProxySocketServer
+class ProxySocketClient
+class MissingBytes
+class FunctionCall
+class Protocol
+class Serializer
+class SimpleSerializer
+class SimpleProtocol
+}
+
+package httpprotocol <<Folder>> {
+class _Parser
+class _Request
+class _Response
+class FileServer
+class _Builder
+class _GetFile
+class Server
+class Client
+}
+
+package fake_socket <<Folder>> {
+class Connection
+class _Manager
+class ClassRegistry
+class ReturnSelf
+class _Magic
+}
+
+package runner <<Folder>> {
+class Runner
+class ServerRunner
+}
+
+
+class ProxyServerObject {
+    +handle_request(self, conn)
+}
+class ProxySocketServer {
+    +accept(self)
+    +close(self)
+    +handler_loop(self, conn)
+}
+class Protocol {
+    +recv(self, envelope)
+    +send(self, message)
+}
+class ProxyConnection {
+    +close(self)
+}
+class SimpleSerializer {
+    +dumps(obj)
+    +loads(bytes_seq)
+}
+class ProxySocketClient 
+class ProxyClient {
+    +on_request(self)
+}
+class SimpleProtocol {
+    +recv(self, envelope)
+    +send(self, message)
+}
+class FunctionCall 
+class Serializer {
+    +dumps(obj)
+    +loads(bytes_seq)
+}
+class MissingBytes {
+    +count
+}
+class Connection {
+    +buf
+    +bind(self, address)
+    +close(self)
+    +connect(self, address)
+    +recv(self, buf_size=8192)
+    +send(self, data)
+}
+class _Manager {
+    +listeners
+    +add_connection(cls, host_port, connection)
+    +remove_connection(cls, connection)
+}
+class ClassRegistry {
+    +types
+    +register(cls, class_type)
+}
+class _Magic {
+    +call(proxy, *args, **kwargs)
+}
+class Empty 
+class ProxyObjectOverloaded 
+class ProxyObject {
+    +proxy_call_method(self, func, *args, **kwargs)
+}
+class ReturnSelf 
+class _Parser {
+    +body
+    +headers
+    +heading
+    +header(self, key, default_value)
+}
+class _Request {
+    +action
+    +protocol
+    +url
+}
+class FileServer {
+    +get_mime_type(url)
+    +recv(self, envelope)
+    +send(self, message)
+}
+class Server {
+    +recv(self, envelope)
+    +send(self, message)
+}
+class _Builder {
+    +get_bytes(self)
+}
+class _GetFile 
+class Client {
+    +recv(self, envelope)
+    +send(self, message)
+}
+class _Response {
+    +protocol
+    +status
+    +status_desc
+}
+class Runner {
+    +run(self)
+    +start(self)
+    +stop(self)
+}
+class ServerRunner 
+
+ProxyConnection <|-- ProxyServerObject
+ProxyServerObject <|-- ProxySocketServer
+Serializer <|-- SimpleSerializer
+ProxyClient <|-- ProxySocketClient
+ProxyConnection <|-- ProxyClient
+ProxyObject <|-- ProxyObjectOverloaded
+_Parser <|-- _Request
+Server <|-- FileServer
+Protocol <|-- Server
+Protocol <|-- Client
+_Parser <|-- _Response
+Runner <|-- ServerRunner
+ProxyConnection o-- SimpleSerializer
+ProxyConnection o-- SimpleProtocol
+
+
+
+@enduml
