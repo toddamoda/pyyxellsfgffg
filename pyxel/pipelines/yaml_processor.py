@@ -1,13 +1,16 @@
 import functools
 import typing as t
 
+from pathlib import Path
+
 import numpy as np
 import yaml
 
-from pyxel.detectors.ccd import CCDDetector
-from pyxel.processors import config
-from pyxel.processors.config import CCDCharacteristics, Environment, Geometry, CCD, DetectionPipeline
+from pyxel.pipelines import config
+from pyxel.pipelines.config import CCDCharacteristics, Environment, Geometry, CCD, DetectionPipeline
 from pyxel.util import util
+
+from pyxel.pipelines import ccd_pipeline
 
 
 class PipelineYAML(yaml.SafeLoader):
@@ -16,11 +19,6 @@ class PipelineYAML(yaml.SafeLoader):
 
 def _constructor_ccd_pipeline(loader: PipelineYAML, node: yaml.MappingNode):
     mapping = loader.construct_mapping(node, deep=True)     # type: dict
-
-    # if 'optics' in mapping:
-    #     optics = Optics(**mapping['optics'])
-    # else:
-    #     optics = None
 
     obj = DetectionPipeline(**mapping)
 
@@ -57,13 +55,6 @@ def _constructor_ccd(loader: PipelineYAML, node: yaml.MappingNode):
               characteristics=characteristics)
 
     return obj
-
-# class Function:
-#
-#     def __init__(self, name, *args, **kwargs):
-#         self.name = name
-#         self.args = args
-#         self.kwarg
 
 
 def _constructor_from_file(loader: PipelineYAML, node: yaml.ScalarNode):
@@ -105,38 +96,12 @@ def load_config(yaml_file):
 
 def main():
     # Get the pipeline configuration
-    cfg = load_config(r'settings.yaml')     # type: DetectionPipeline
-    ccd = CCDDetector.from_ccd(cfg.ccd)     # type: CCDDetector
-
-    steps = ['shot_noise', 'ray_tracing', 'diffraction']
-    for step in steps:
-        func = cfg.optics.models.get(step)
-        if func:
-            ccd = func(ccd)
-
-    # calculate charges per pixel
-    ccd.compute_charge()
-
-    steps = ['fixed_pattern_noise', 'tars', 'xray', 'snowballs', 'darkcurrent', 'hotpixel']
-    for step in steps:
-        func = cfg.charge_generation.models.get(step)
-        if func:
-            ccd = func(ccd)
-
-    # limiting charges per pixel due to Full Well Capacity
-    ccd.charge_excess()
-
-    # Signal with shot and fix pattern noise
-    ccd.compute_signal()
-
-    steps = ['readout_noise']
-    for step in steps:
-        func = cfg.charge_readout.models.get(step)
-        if func:
-            ccd = func(ccd)
-
-    return ccd
-
+    config_path = Path(__file__).parent.parent.joinpath('settings.yaml')
+    # cwd = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    # cfg = load_config(os.path.join(cwd, 'settings.yaml'))     # type: DetectionPipeline
+    cfg = load_config(str(config_path))
+    result = ccd_pipeline.run_pipeline(cfg)
+    return result
 
 if __name__ == '__main__':
     main()

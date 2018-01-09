@@ -17,7 +17,7 @@ from math import pi
 
 from pyxel.detectors.ccd import CCDDetector
 from pyxel.models.ccd_noise import CCDNoiseGenerator
-from pyxel.processors.ccd_transfer_function import CCDTransferFunction
+# from pyxel.pipelines.ccd_transfer_function import CCDTransferFunction
 
 from pyxel.util.fitsfile import FitsFile
 from pyxel.util import config

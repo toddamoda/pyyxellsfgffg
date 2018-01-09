@@ -7,7 +7,7 @@ import numpy as np
 # from os import path
 from pathlib import Path
 
-import pyxel.processors.config
+import pyxel.pipelines.config
 from . import Detector
 
 from pyxel.util import fitsfile
@@ -292,7 +292,7 @@ class CCDDetector(Detector):
 
     # check whether everything is defined necessary for computations below
     @classmethod
-    def from_ccd(cls, ccd: pyxel.processors.config.CCD):
+    def from_ccd(cls, ccd: pyxel.pipelines.config.CCD):
         # Create the CCD object
         params = {'photons': ccd.photons,
                   'signal': ccd.signal,
