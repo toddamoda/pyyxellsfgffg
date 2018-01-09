@@ -1,44 +1,26 @@
-import copy
+import functools
+import typing as t
+
+import numpy as np
 import yaml
-from pyxel import util
+
 from pyxel.detectors.ccd import CCDDetector
+from pyxel.processors import config
 from pyxel.processors.config import CCDCharacteristics, Environment, Geometry, CCD, DetectionPipeline
-
-
-class Function:
-
-    def __init__(self, ref, args):
-        self.ref = util.evaluate_reference(ref)   # type: callable
-        self.args = args                          # type: list
-
-    def __call__(self):
-        return self.ref(*self.args)
-
-
-class Method:
-
-    def __init__(self, ref, obj, args):
-        self.ref = getattr(obj, ref)             # type: callable
-        self.args = args                         # type: list
-
-    def __call__(self):
-        return self.ref(*self.args)
+from pyxel.util import util
 
 
 class PipelineYAML(yaml.SafeLoader):
     pass
 
 
-def _constructor_function(loader: PipelineYAML, node: yaml.MappingNode):
-    mapping = loader.construct_mapping(node)     # type: dict
-
-    obj = Function(**mapping)
-
-    return obj
-
-
 def _constructor_ccd_pipeline(loader: PipelineYAML, node: yaml.MappingNode):
-    mapping = loader.construct_mapping(node)     # type: dict
+    mapping = loader.construct_mapping(node, deep=True)     # type: dict
+
+    # if 'optics' in mapping:
+    #     optics = Optics(**mapping['optics'])
+    # else:
+    #     optics = None
 
     obj = DetectionPipeline(**mapping)
 
@@ -76,44 +58,41 @@ def _constructor_ccd(loader: PipelineYAML, node: yaml.MappingNode):
 
     return obj
 
+# class Function:
+#
+#     def __init__(self, name, *args, **kwargs):
+#         self.name = name
+#         self.args = args
+#         self.kwarg
+
+
+def _constructor_from_file(loader: PipelineYAML, node: yaml.ScalarNode):
+    noise_file = loader.construct_scalar(node)
+    result = np.fromfile(noise_file, dtype=float, sep=' ')
+    return result
+
+
+def _constructor_models(loader: PipelineYAML, node: yaml.ScalarNode):
+    mapping = loader.construct_mapping(node)             # type: dict
+
+    return config.Models(mapping)
+
+
+def _constructor_function(loader: PipelineYAML, node: yaml.ScalarNode):
+    mapping = loader.construct_mapping(node)             # type: dict
+
+    function_name = mapping['name']                      # type: str
+    kwargs = mapping.get('kwargs', {})
+
+    func = util.evaluate_reference(function_name)        # type: t.Callable
+    return functools.partial(func, **kwargs)
+
 
 PipelineYAML.add_constructor('!CCD_PIPELINE', _constructor_ccd_pipeline)
 PipelineYAML.add_constructor('!CCD', _constructor_ccd)
-
-#
-# def run_pipeline(obj):
-#     ccd_params = obj.ccd
-#
-#     # Create the CCD object
-#     ccd = CCD(dict(obj.ccd))
-#
-#     # Start the CCD pipeline
-#
-#     # Apply Optics Model (if necessary)
-#     if obj.optics:
-#         for cfg_optics in obj.optics.item():
-#             assert isinstance(cfg_optics, OPTICS_MODEL)
-#
-#             params = cfg_optics.params  # type: dict
-#             func = cfg_optcs.func  # type: callable
-#
-#             ccd.p = func(photons=self.ccd.p, **params)
-#             # ccd.p = cfg_optics.apply(photons=self.ccd.p, **params)
-#
-#     # Apply Charge Generation Model (if necessary)
-#     params = obj.charge_generation
-#     qe = params['qe']
-#     eta = params['eta']
-#
-#     # calculate charges per pixel
-#     ccd.compute_charge(**params)
-#
-#     if obj.charge_generation.extra_models:
-
-
-# FIXED PATTERN NOISE
-# if self.model.fix_pattern_noise:
-#     self.ccd.charge = self.model.add_fix_pattern_noise(self.ccd.charge, self.model.noise_file)
+PipelineYAML.add_constructor('!from_file', _constructor_from_file)
+PipelineYAML.add_constructor('!function', _constructor_function)
+PipelineYAML.add_constructor('!models', _constructor_models)
 
 
 def load_config(yaml_file):
@@ -127,21 +106,36 @@ def load_config(yaml_file):
 def main():
     # Get the pipeline configuration
     cfg = load_config(r'settings.yaml')     # type: DetectionPipeline
-
-    # Create the CCD object
-    # params = {'photons': cfg.ccd.photons,
-    #           'signal': cfg.ccd.signal,
-    #           'charge': cfg.ccd.charge,
-    #           **vars(cfg.ccd.geometry),
-    #           **vars(cfg.ccd.environment),
-    #           **vars(cfg.ccd.characteristics)}
-    #
-    # ccd = CCDDetector(**params)
-
     ccd = CCDDetector.from_ccd(cfg.ccd)     # type: CCDDetector
 
-    ccd_copy = copy.deepcopy(ccd)
-    pass
+    steps = ['shot_noise', 'ray_tracing', 'diffraction']
+    for step in steps:
+        func = cfg.optics.models.get(step)
+        if func:
+            ccd = func(ccd)
+
+    # calculate charges per pixel
+    ccd.compute_charge()
+
+    steps = ['fixed_pattern_noise', 'tars', 'xray', 'snowballs', 'darkcurrent', 'hotpixel']
+    for step in steps:
+        func = cfg.charge_generation.models.get(step)
+        if func:
+            ccd = func(ccd)
+
+    # limiting charges per pixel due to Full Well Capacity
+    ccd.charge_excess()
+
+    # Signal with shot and fix pattern noise
+    ccd.compute_signal()
+
+    steps = ['readout_noise']
+    for step in steps:
+        func = cfg.charge_readout.models.get(step)
+        if func:
+            ccd = func(ccd)
+
+    return ccd
 
 
 if __name__ == '__main__':

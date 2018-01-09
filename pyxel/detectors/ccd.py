@@ -62,6 +62,10 @@ class CCDDetector(Detector):
         self._ver_dimension = self._row * self._pix_ver_size        # detector vertical size
         self._hor_dimension = self._col * self._pix_hor_size        # detector horizontal size
 
+        self._pix_non_uniformity = kwargs.get('pix_non_uniformity', None)
+
+        # self._row = kwargs.get('noise_file', 0)      # number of rows in image
+
         self._material_density = 2.329                              # (silicon) material density [g/cm3]
         self._material_ionization_energy = 3.65                     # (silicon) ionization energy [eV]
 
@@ -96,6 +100,10 @@ class CCDDetector(Detector):
             self._p = np.ones((self._row, self._col)) * photons  # photon average/pixel
             # SIGNAL GRADIENT ON ONE IMAGE:
             # ccd.p = np.arange(1, m*n+1, 1).reshape((m, n))    # photon average/pixel
+
+    @property
+    def pix_non_uniformity(self):
+        return self._pix_non_uniformity.reshape((self.col, self.row))
 
     @property
     def row(self):

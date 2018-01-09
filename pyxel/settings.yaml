@@ -13,13 +13,13 @@
   doc: blah blah
 
   ccd: !CCD
-    photons: null
+    photons: 10
     signal: null
     charge: null
 
     geometry:
-      row: 0                # compulsory
-      col: 0                # compulsory
+      row: 100                # compulsory
+      col: 100                # compulsory
 
     environment:
       temperature: 0  # detector temperature Kelvin
@@ -29,20 +29,30 @@
       j: 0            # camera gain constant in photon number
       qe: 0.5         # -
       eta: 1          # e/photon
-      sv: 1E-6        # V/e
+      sv: 1.0e-6      # V/e
       accd: 0.8       # V/V
       a1: 100         # V/V
       a2: 65536       # DN/V
       fwc: 4500       # e (full well capacity)
+      pix_non_uniformity: !from_file ../data/non_uniformity_array_normal_stdev0.03.data
 
   # photons -> photons
-  optics:
-    shot_noise: true
+  optics: !models
+    shot_noise: pyxel.models.ccd_noise.apply_shot_noise
+#    shot_noise: true
 #    fixed_pattern_noise: false
 #    ray_tracing: true
 #    diffraction: false
 #    other_model: false
 
+  charge_generation: !models
+    fixed_pattern_noise: pyxel.models.ccd_noise.add_fix_pattern_noise
+
+  charge_readout: !models
+    readout_noise: !function
+      name: pyxel.models.ccd_noise.add_readout_noise
+      kwargs:
+        readout_sigma: 1
 
 
 #    - !Function

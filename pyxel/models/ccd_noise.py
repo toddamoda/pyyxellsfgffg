@@ -4,9 +4,14 @@
 """
 PyXel! CCD noise generator class
 """
+import copy
+from astropy import units as u
+
 import numpy as np
 
 from . import Model
+
+from pyxel.detectors.ccd import CCDDetector
 
 
 def apply_shot_noise(ccd: CCDDetector) -> CCDDetector:
@@ -15,36 +20,48 @@ def apply_shot_noise(ccd: CCDDetector) -> CCDDetector:
     :param photon_array: (unit photons)
     :return: (unit photons)
     """
-    new_ccd = ccd.copy()
-    # photon_array = ccd.p
+    new_ccd = copy.deepcopy(ccd)
+    new_ccd.p = np.random.poisson(lam=new_ccd.p.value) * u.ph
 
-    new_ccd.p = np.random.poisson(lam=new_ccd.p)
-    #
-    # # return new_photon_array
-    #
-    # new_ccd.p = new_photon_array
-    #
     return new_ccd
 
 
-def add_fix_pattern_noise(charge_array, noise_file):
-    m, n = charge_array.shape
-    pixel_non_uniform_array = np.fromfile(noise_file, dtype=float, sep=' ').reshape((m, n))
-    pixel_non_uniform_array = pixel_non_uniform_array.reshape((m, n))
-    charge_array = charge_array * pixel_non_uniform_array
-    charge_array = np.int16(np.rint(charge_array))
+def add_fix_pattern_noise(ccd: CCDDetector) -> CCDDetector:
 
-    return charge_array
+    new_ccd = copy.deepcopy(ccd)
+    new_ccd.charge = new_ccd.charge * new_ccd.pix_non_uniformity
+    new_ccd.charge = np.int16(np.rint(new_ccd.charge))
 
-
-class CCD:
+    return new_ccd
 
 
-    def shot_noise(self):
-        self.p -= shot_noise(self)
+def add_readout_noise(ccd: CCDDetector, readout_sigma: float) -> CCDDetector:
+    """
+    Adding readout noise to signal array using normal random distribution
+    Signal unit: DN
+    :param signal_mean_array: signal
+    :type signal_mean_array: 2d numpy array
+    :return: signal with readout noise
+    :rtype: 2d numpy array
+    """
+    new_ccd = copy.deepcopy(ccd)
+    signal_mean_array = new_ccd.signal.astype('float64')
+    sigma_readout_array = readout_sigma * np.ones(new_ccd.signal.shape)
 
-    def fixed_pattern_noise(self):
-        self.charge -= add_fix_pattern_noise(self, self.noise_file)
+    signal = np.random.normal(loc=signal_mean_array, scale=sigma_readout_array)
+    new_ccd.signal = np.int16(np.rint(signal)) * u.adu
+
+    return new_ccd
+
+#
+# class CCD:
+#
+#
+#     def shot_noise(self):
+#         self.p -= shot_noise(self)
+#
+#     def fixed_pattern_noise(self):
+#         self.charge -= add_fix_pattern_noise(self, self.noise_file)
 
 
 class CCDNoiseGenerator(Model):
