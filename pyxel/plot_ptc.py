@@ -9,11 +9,11 @@ and plotting Photon Transfer Curve from data file, fitting linear to noise on lo
 
 import matplotlib.pyplot as plt
 import numpy as np
-import pyxel_alpha
+# import pyxel
 
 FIT_READ = False
 FIT_SHOT = False
-FIT_FIX = True
+FIT_FIX = False
 GENERATE_DATA = False
 
 
@@ -21,13 +21,11 @@ def main():
     """ main entry point of script. """
 
     # if GENERATE_DATA:
-        # for i in range(0, 100, 1):
-        #   # pyxel_alpha.py i  - HOW TO CALL THIS USING ARG PARSER?
-        # for i in np.logspace(2.0, 4.0, 200, dtype=int):
-        #   # pyxel_alpha.py i
+    #     for i in np.logspace(2.0, 4.0, 200, dtype=int):
+    #         pyxel_alpha.main()
 
     # Plotting Photon Transfer Curve data
-    data = np.loadtxt('output.data')
+    data = np.loadtxt(r'C:\dev\work\pyxel\data\output.data')
 
     # x_photons = data[1:, 0].flatten()    # mean photon
     x_signal = data[1:, 1].flatten()    # mean signal

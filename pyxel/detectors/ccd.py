@@ -4,7 +4,7 @@
 """ PyXel! CCD detector modelling class
 """
 import numpy as np
-from os import path
+# from os import path
 from pathlib import Path
 
 import pyxel.processors.config
@@ -36,7 +36,241 @@ class CCDDetector(Detector):
         self._a1 = kwargs.get('a1', 0)        # is the gain of the signal processor
         self._a2 = kwargs.get('a2', 0)        # gain of the ADC
         self._fwc = kwargs.get('fwc', 0)      # full well compacity
-    
+        self._temperature = kwargs.get('temperature', 0)  # temperature
+
+        # we should put these in a GEOMETRY class
+        self._depletion_zone = kwargs.get('depletion_thickness', 0.0)     # depletion zone thickness
+        self._field_free_zone = kwargs.get('field_free_thickness', 0.0)   # field free zone thickness
+        self._sub_thickness = kwargs.get('substrate_thickness', 0.0)      # substrate thickness
+        self._pix_ver_size = kwargs.get('pixel_ver_size', 0.0)            # pixel vertical size (row)
+        self._pix_hor_size = kwargs.get('pixel_hor_size', 0.0)            # pixel horizontal size (col)
+
+        # self._total_thickness = kwargs.get('total_thickness', 0)  # total detector thickness
+        self._total_thickness = self._depletion_zone + self._field_free_zone + self._sub_thickness   # total detector thickness
+        self._ver_dimension = self._row * self._pix_ver_size        # detector vertical size
+        self._hor_dimension = self._col * self._pix_hor_size        # detector horizontal size
+
+        self._material_density = 2.329                              # (silicon) material density [g/cm3]
+        self._material_ionization_energy = 3.65                     # (silicon) ionization energy [eV]
+
+        self.init_transfer_function(kwargs.get('photons', 0), kwargs.get('fits_file', ''))
+
+    def init_transfer_function(self, photons=0, fits_file=''):
+        """
+        Initialization of the transfer function: reading data from FITS
+        file or generating new data array and calculating the incident
+        photon array for each pixel.
+
+        :param photons: incident photon mean
+        :type photons: 2d numpy array
+        """
+        if fits_file:  # OPEN EXISTING FITS IMAGE
+            if not Path(fits_file).exists():
+                fits_file = get_data_dir(fits_file)
+            if not Path(fits_file).exists():
+                raise IOError('File not found: %s' % fits_file)
+
+            fits_obj = fitsfile.FitsFile(fits_file)
+            data = fits_obj.data
+            self._row, self._col = data.shape
+            self._signal = data  # DN
+            self.compute_photon()  # gives ccd.p in photon/pixel
+            # now we have the incident photon number per pixel (ccd.p) from the image
+        else:  # GENERATE NEW DATA with uniform illumination / gradient
+            # self._row = 100
+            # self._col = 100
+            # UNIFORM ILLUMINATION / DARK IMAGE:
+            print('photon mean: ', photons)
+            self._p = np.ones((self._row, self._col)) * photons  # photon average/pixel
+            # SIGNAL GRADIENT ON ONE IMAGE:
+            # ccd.p = np.arange(1, m*n+1, 1).reshape((m, n))    # photon average/pixel
+
+    @property
+    def row(self):
+        return self._row
+
+    @row.setter
+    def row(self, new_row):
+        self._row = new_row
+
+    @property
+    def col(self):
+        return self._col
+
+    @col.setter
+    def col(self, new_col):
+        self._col = new_col
+
+    @property
+    def signal(self):
+        return self._signal
+
+    @signal.setter
+    def signal(self, new_sig):
+        self._signal = new_sig
+        self._signal = convert_to_int(self._signal)
+
+    @property
+    def k(self):
+        return self._k
+
+    @k.setter
+    def k(self, new_k):
+        self._k = new_k
+
+    @property
+    def j(self):
+        return self._j
+
+    @j.setter
+    def j(self, new_j):
+        self._j = new_j
+
+    @property
+    def p(self):
+        return self._p
+
+    @p.setter
+    def p(self, new_p):
+        self._p = convert_to_int(new_p)
+
+    @property
+    def qe(self):
+        return self._qe
+
+    @qe.setter
+    def qe(self, new_qe):
+        self._qe = new_qe
+
+    @property
+    def eta(self):
+        return self._eta
+
+    @eta.setter
+    def eta(self, new_eta):
+        self._eta = new_eta
+
+    @property
+    def sv(self):
+        return self._sv
+
+    @sv.setter
+    def sv(self, new_sv):
+        self._sv = new_sv
+
+    @property
+    def accd(self):
+        return self._accd
+
+    @accd.setter
+    def accd(self, new_accd):
+        self._accd = new_accd
+
+    @property
+    def a1(self):
+        return self._a1
+
+    @a1.setter
+    def a1(self, new_a1):
+        self._a1 = new_a1
+
+    @property
+    def a2(self):
+        return self._a2
+
+    @a2.setter
+    def a2(self, new_a2):
+        self._a2 = new_a2
+
+    @property
+    def fwc(self):
+        return self._fwc
+
+    @fwc.setter
+    def fwc(self, new_fwc):
+        self._fwc = new_fwc
+
+    @property
+    def charge(self):
+        return self._charge
+
+    @charge.setter
+    def charge(self, new_charge):
+        self._charge = new_charge
+
+    @property
+    def temperature(self):
+        return self._temperature
+
+    @temperature.setter
+    def temperature(self, new_temperature):
+        self._temperature = new_temperature
+
+    @property
+    def depletion_zone(self):
+        return self._depletion_zone
+
+    @depletion_zone.setter
+    def depletion_zone(self, new_depletion_zone):
+        self._depletion_zone = new_depletion_zone
+
+    @property
+    def field_free_zone(self):
+        return self._field_free_zone
+
+    @field_free_zone.setter
+    def field_free_zone(self, new_field_free_zone):
+        self._field_free_zone = new_field_free_zone
+
+    @property
+    def sub_thickness(self):
+        return self._sub_thickness
+
+    @sub_thickness.setter
+    def sub_thickness(self, new_sub_thickness):
+        self._sub_thickness = new_sub_thickness
+
+    @property
+    def pix_ver_size(self):
+        return self._pix_ver_size
+
+    @pix_ver_size.setter
+    def pix_ver_size(self, new_pix_ver_size):
+        self._pix_ver_size = new_pix_ver_size
+
+    @property
+    def pix_hor_size(self):
+        return self._pix_hor_size
+
+    @pix_hor_size.setter
+    def pix_hor_size(self, new_pix_hor_size):
+        self._pix_hor_size = new_pix_hor_size
+
+    @property
+    def total_thickness(self):
+        return self._total_thickness
+
+    # @total_thickness.setter
+    # def total_thickness(self, new_total_thickness):
+    #     self._total_thickness = new_total_thickness
+
+    @property
+    def ver_dimension(self):
+        return self._ver_dimension
+
+    @property
+    def hor_dimension(self):
+        return self._hor_dimension
+
+    @property
+    def material_density(self):
+        return self._material_density
+
+    @property
+    def material_ionization_energy(self):
+        return self._material_ionization_energy
+
+    # check whether everything is defined necessary for computations below
     @classmethod
     def from_ccd(cls, ccd: pyxel.processors.config.CCD):
         # Create the CCD object
