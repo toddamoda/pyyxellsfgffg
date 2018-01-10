@@ -70,6 +70,9 @@
           - 0.0
         stepping_length: 1.0  # um
 
+  charge_collection: !models
+
+  charge_transfer: !models
 
   charge_readout: !models
     readout_noise: !function

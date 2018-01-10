@@ -90,12 +90,16 @@ class DetectionPipeline:
     def __init__(self, ccd: CCD,
                  optics: Models,
                  charge_generation: Models,
+                 charge_collection: Models,
+                 charge_transfer: Models,
                  charge_readout: Models,
                  doc=None):
         self.ccd = ccd
         self.doc = doc
         self.optics = optics
         self.charge_generation = charge_generation
+        self.charge_collection = charge_collection
+        self.charge_transfer = charge_transfer
         self.charge_readout = charge_readout
 
 

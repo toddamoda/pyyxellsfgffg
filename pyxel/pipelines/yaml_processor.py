@@ -65,7 +65,11 @@ def _constructor_from_file(loader: PipelineYAML, node: yaml.ScalarNode):
 
 
 def _constructor_models(loader: PipelineYAML, node: yaml.ScalarNode):
-    mapping = loader.construct_mapping(node)             # type: dict
+    try:
+        mapping = loader.construct_mapping(node)             # type: dict
+    except:
+    # except yaml.construtor.ConstructorError:
+        mapping = {}
 
     return config.Models(mapping)
 
@@ -122,17 +126,17 @@ def save_signal(ccd: CCDDetector, output_filename: Path):
 
 
 def main():
-    # Get the pipeline configuration
+    # Step 1: Get the pipeline configuration
     config_path = Path(__file__).parent.parent.joinpath('settings.yaml')
     # cwd = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     # cfg = load_config(os.path.join(cwd, 'settings.yaml'))     # type: DetectionPipeline
     cfg = load_config(str(config_path))
 
-    # Run the pipeline
+    # Step 2: Run the pipeline
     result = ccd_pipeline.run_pipeline(cfg)         # type: CCDDetector
     print('Pipeline completed.')
 
-    # Save the result(s)
+    # Step 3: Save the result(s) in FITS, ASCII, Jupyter Notebook(s), ...
     save_signal(ccd=result, output_filename='result.fits')
 
 

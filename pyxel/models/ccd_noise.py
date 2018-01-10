@@ -17,39 +17,13 @@ from pyxel.models.tars.tars_v3 import TARS
 from pyxel.models.tars.tars_v3 import TARS_DIR
 from numpy import pi
 
-#
-# class Optics:
-#     pass
-#
-#
-# class OpticsModelRayTracerFernel(Optics):
-#
-#     def __init__(self, path):
-#         self.settings_file = path
-#
-#     def compute(self, ccd: CCDDetector) -> CCDDetector:
-#         return ccd
-#
-#     def __call__(self, ccd: CCDDetector) -> CCDDetector:
-#         return ccd
-#
-#
-# class OpticsModelRayTracerHansSmit(Optics):
-#
-#     def __init__(self, path):
-#         self.settings_file = path
-#
-#     def __call__(self, ccd: CCDDetector) -> CCDDetector:
-#         return ccd
-#
-#
-# def apply_optics_model_ray_tracer_model_1(ccd: CCDDetector) -> CCDDetector:
-#     obj = OpticsModelRayTracerFernel()
-#     return obj.compute()
-#
-#
-# def apply_optics_model_ray_tracer_model_2(ccd: CCDDetector) -> CCDDetector:
-#     OpticsModelRayTracerHansSmit()
+
+def foo(ccd, cls, method_name, kwargs_init, kwargs_method):
+    obj = cls(**kwargs_init)
+
+    new_ccd = getattr(obj, method_name)(**kwargs_method)
+
+    return new_ccd
 
 
 def apply_tars(ccd: CCDDetector,
@@ -62,13 +36,6 @@ def apply_tars(ccd: CCDDetector,
     new_ccd = copy.deepcopy(ccd)
 
     cosmics = TARS(new_ccd)
-
-    # cosmics.set_initial_energy('random')      # MeV
-    # cosmics.set_particle_number(1)
-    # cosmics.set_incident_angles('random', 'random')
-    # # z=0. -> cosmic ray events, z='random' -> snowflakes (radioactive decay inside ccd)
-    # cosmics.set_starting_position('random', 'random', 0.0)
-    # cosmics.set_stepping_length(1.0)   # um !
 
     cosmics.set_initial_energy(initial_energy)     # MeV
     cosmics.set_particle_number(particule_number)
@@ -130,77 +97,67 @@ def add_readout_noise(ccd: CCDDetector, readout_sigma: float) -> CCDDetector:
 
     return new_ccd
 
+
+# class CCDNoiseGenerator(Model):
 #
-# class CCD:
+#     def __init__(self, **kwargs):
+#         super(CCDNoiseGenerator, self).__init__(**kwargs)
+#         self.shot_noise = kwargs.get('shot_noise', False)
+#         self.fix_pattern_noise = kwargs.get('fix_pattern_noise', False)
+#         self.readout_noise = kwargs.get('readout_noise', False)
+#         self.noise_file = kwargs.get('noise_file', '')
 #
+#     # SHOT NOISE
+#     def add_shot_noise(self, photon_mean_array):
+#         """
+#         Adding shot noise to incident mean photon array using a Poisson random distribution
+#         :param photon_mean_array: mean photon number
+#         :type photon_mean_array: 2d numpy array
+#         :return: photon array with shot noise
+#         :rtype: 2d numpy array
+#         .. note:: mean photon = lambda = sigma**2
+#         """
+#         self._shot_noise_array = photon_mean_array - np.random.poisson(lam=photon_mean_array)
+#         photon_mean_array -= self._shot_noise_array
 #
-#     def shot_noise(self):
-#         self.p -= shot_noise(self)
+#         return photon_mean_array
 #
-#     def fixed_pattern_noise(self):
-#         self.charge -= add_fix_pattern_noise(self, self.noise_file)
-
-
-class CCDNoiseGenerator(Model):
-
-    def __init__(self, **kwargs):
-        super(CCDNoiseGenerator, self).__init__(**kwargs)
-        self.shot_noise = kwargs.get('shot_noise', False)
-        self.fix_pattern_noise = kwargs.get('fix_pattern_noise', False)
-        self.readout_noise = kwargs.get('readout_noise', False)
-        self.noise_file = kwargs.get('noise_file', '')
-
-    # SHOT NOISE
-    def add_shot_noise(self, photon_mean_array):
-        """
-        Adding shot noise to incident mean photon array using a Poisson random distribution
-        :param photon_mean_array: mean photon number
-        :type photon_mean_array: 2d numpy array
-        :return: photon array with shot noise
-        :rtype: 2d numpy array
-        .. note:: mean photon = lambda = sigma**2
-        """
-        self._shot_noise_array = photon_mean_array - np.random.poisson(lam=photon_mean_array)
-        photon_mean_array -= self._shot_noise_array
-
-        return photon_mean_array
-
-    # FIXED PATTERN NOISE (periodic)
-    def add_fix_pattern_noise(self, charge_array, noise_file):
-        """
-        Adding fix pattern noise to charge array using the same pixel non-uniformity array loaded from a text file
-        Charge unit: e-
-        :param charge_array: charge
-        :type charge_array: 2d numpy array
-        :return: modified charge with pixel non-uniformity
-        :rtype: 2d numpy array
-        .. todo:: calc and save PN value, check and regenerate the pixel non-uniformity array if PN value has changed
-        .. note:: pixel non-uniformity: Pn = sigma_signal(DN) / S(DN)  # percentage
-        """
-        m, n = charge_array.shape
-
-        self._pixel_non_uniform_array = np.fromfile(noise_file, dtype=float, sep=' ').reshape((m, n))
-        self._pixel_non_uniform_array = self._pixel_non_uniform_array.reshape((m, n))
-        charge_array = charge_array * self._pixel_non_uniform_array
-        charge_array = np.int16(np.rint(charge_array))
-
-        return charge_array
-
-    # READOUT NOISE
-    def add_readout_noise(self, signal_mean_array):
-        """
-        Adding readout noise to signal array using normal random distribution
-        Signal unit: DN
-        :param signal_mean_array: signal
-        :type signal_mean_array: 2d numpy array
-        :return: signal with readout noise
-        :rtype: 2d numpy array
-        """
-        m, n = signal_mean_array.shape
-        sigma_readout_array = self._readout_sigma * np.ones((m, n)).reshape((m, n))
-
-        self._readout_noise_array = np.random.normal(loc=0.0, scale=sigma_readout_array)
-        signal_mean_array = signal_mean_array.astype('float64') + self._readout_noise_array
-        signal_mean_array = np.int16(np.rint(signal_mean_array))
-
-        return signal_mean_array
+#     # FIXED PATTERN NOISE (periodic)
+#     def add_fix_pattern_noise(self, charge_array, noise_file):
+#         """
+#         Adding fix pattern noise to charge array using the same pixel non-uniformity array loaded from a text file
+#         Charge unit: e-
+#         :param charge_array: charge
+#         :type charge_array: 2d numpy array
+#         :return: modified charge with pixel non-uniformity
+#         :rtype: 2d numpy array
+#         .. todo:: calc and save PN value, check and regenerate the pixel non-uniformity array if PN value has changed
+#         .. note:: pixel non-uniformity: Pn = sigma_signal(DN) / S(DN)  # percentage
+#         """
+#         m, n = charge_array.shape
+#
+#         self._pixel_non_uniform_array = np.fromfile(noise_file, dtype=float, sep=' ').reshape((m, n))
+#         self._pixel_non_uniform_array = self._pixel_non_uniform_array.reshape((m, n))
+#         charge_array = charge_array * self._pixel_non_uniform_array
+#         charge_array = np.int16(np.rint(charge_array))
+#
+#         return charge_array
+#
+#     # READOUT NOISE
+#     def add_readout_noise(self, signal_mean_array):
+#         """
+#         Adding readout noise to signal array using normal random distribution
+#         Signal unit: DN
+#         :param signal_mean_array: signal
+#         :type signal_mean_array: 2d numpy array
+#         :return: signal with readout noise
+#         :rtype: 2d numpy array
+#         """
+#         m, n = signal_mean_array.shape
+#         sigma_readout_array = self._readout_sigma * np.ones((m, n)).reshape((m, n))
+#
+#         self._readout_noise_array = np.random.normal(loc=0.0, scale=sigma_readout_array)
+#         signal_mean_array = signal_mean_array.astype('float64') + self._readout_noise_array
+#         signal_mean_array = np.int16(np.rint(signal_mean_array))
+#
+#         return signal_mean_array

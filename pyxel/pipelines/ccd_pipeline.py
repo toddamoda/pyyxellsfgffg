@@ -22,6 +22,18 @@ def run_pipeline(cfg):
     # limiting charges per pixel due to Full Well Capacity
     ccd.charge_excess()
 
+    steps = []
+    for step in steps:
+        func = cfg.charge_collection.models.get(step)
+        if func:
+            ccd = func(ccd)
+
+    steps = []
+    for step in steps:
+        func = cfg.charge_transfer.models.get(step)
+        if func:
+            ccd = func(ccd)
+
     # Signal with shot and fix pattern noise
     ccd.compute_signal()
 
