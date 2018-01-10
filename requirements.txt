@@ -20,3 +20,8 @@ numpy
 astropy
 pandas
 matplotlib
+
+########################
+# TARS                 #
+########################
+tqdm
