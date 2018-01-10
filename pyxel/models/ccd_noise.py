@@ -65,7 +65,8 @@ def apply_shot_noise(ccd: CCDDetector) -> CCDDetector:
     :return: (unit photons)
     """
     new_ccd = copy.deepcopy(ccd)
-    new_ccd.p = np.random.poisson(lam=new_ccd.p.value) * u.ph
+
+    new_ccd.photons = np.random.poisson(lam=new_ccd.photons.value) * u.ph
 
     return new_ccd
 
@@ -73,6 +74,10 @@ def apply_shot_noise(ccd: CCDDetector) -> CCDDetector:
 def add_fix_pattern_noise(ccd: CCDDetector) -> CCDDetector:
 
     new_ccd = copy.deepcopy(ccd)
+
+    temp = new_ccd.charge
+    temp2 = new_ccd.pix_non_uniformity
+
     new_ccd.charge = new_ccd.charge * new_ccd.pix_non_uniformity
     new_ccd.charge = np.int16(np.rint(new_ccd.charge))
 
@@ -83,13 +88,13 @@ def add_readout_noise(ccd: CCDDetector, readout_sigma: float) -> CCDDetector:
     """
     Adding readout noise to signal array using normal random distribution
     Signal unit: DN
-    :param signal_mean_array: signal
-    :type signal_mean_array: 2d numpy array
+    :param ccd:
+    :param readout_sigma:
     :return: signal with readout noise
-    :rtype: 2d numpy array
     """
     new_ccd = copy.deepcopy(ccd)
-    signal_mean_array = new_ccd.signal.astype('float64')
+
+    signal_mean_array = new_ccd.signal_updated.astype('float64')
     sigma_readout_array = readout_sigma * np.ones(new_ccd.signal.shape)
 
     signal = np.random.normal(loc=signal_mean_array, scale=sigma_readout_array)

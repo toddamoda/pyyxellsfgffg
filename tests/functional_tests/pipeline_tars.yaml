@@ -13,9 +13,9 @@
   doc: blah blah
 
   ccd: !CCD
-    photons: null
+    photons: null  # type: int
 #    photons: 10
-    signal: !from_file ../data/HorseHead_orig.fits
+    signal: !from_file data/HorseHead_orig.fits
     charge: null
 
     geometry:
@@ -40,7 +40,7 @@
       a1: 100         # V/V
       a2: 65536       # DN/V
       fwc: 4500       # e (full well capacity)
-      pix_non_uniformity: !from_file ../data/non_uniformity_array_normal_stdev0.03.data
+      pix_non_uniformity: !from_file data/non_uniformity_array_normal_stdev0.03.data
 
   # -> photons
   optics: !models
@@ -59,7 +59,7 @@
 
   # -> charge
   charge_generation: !models
-    fixed_pattern_noise: pyxel.models.ccd_noise.add_fix_pattern_noise
+#    fixed_pattern_noise: pyxel.models.ccd_noise.add_fix_pattern_noise
     tars: !function
       name: pyxel.models.ccd_noise.apply_tars
       kwargs:
@@ -86,94 +86,3 @@
       name: pyxel.models.ccd_noise.add_readout_noise
       kwargs:
         readout_sigma: 1
-
-
-#    - !Function
-#        ref: pyxel.models.add_shot_noise
-#        args:
-#          - self.ccd.p
-#
-#    - !Method
-#        ref: compute
-#        obj: self
-#        args:
-#          - CCD.photons
-#
-##    - !shot_noise
-#    - !OPTICS_MODEL
-#        name: shot_noise
-#        func: CCDNoiseGenerator.add_shot_noise
-#        params:
-#          sss,,s
-
-
-#    geometry:
-#      row: 0                # compulsory
-#      col: 0                # compulsory
-#      depletion_zone: 0
-#      field_free_zone: 0    # opt.
-#      sub_thickness: 0      # opt.
-#      pix_ver_size: 0       # opt.
-#      pix_hor_size: 0       # opt.
-
-    # compulsory
-#    transfer_function_parameters:
-#      k: 0
-#      j: 0
-#      qe: 0
-#      eta: 0
-#      sv: 0
-#      accd: 0
-#      a1: 0
-#      a2: 0
-#      fwc: 0
-#      temperature: 0
-
-
-#  # photons -> photons
-#  optics:
-#    - !shot_noise
-#    - !OPTICS_MODEL
-#        func: CCDNoiseGenerator.add_shot_noise
-#        params:
-#          sss,,s
-#
-#  # photons -> electrons
-#  charge_generation:
-#    # !compute_charge(qe, eta)
-#    params:
-#      qe: 0
-#      eta: 0
-#    extra_models:
-#      - !fixed_pattern_noise #(opt)
-#        noise_filename: none  # 2d array
-##      - !tars
-##        depletion_zone: 0
-##        field_free_zone: 0
-##        sub_thickness: 0
-##        pix_ver_size: 0
-##        pix_hor_size: 0
-#      - !super_fancy_model
-##        depletion_zone: 0.0
-#
-#  # electrons -> electrons
-#  charge_collection:
-#    # !charge_excess
-#    params:
-#      fwc: 0
-#
-#  # electrons -> electrons
-#  charge_transfer:
-#
-#  # electrons -> ADU
-#  charge_readout:
-#    # !compute_signal
-#    params:
-#      sv: 0
-#      accd: 0
-#      a1: 0
-#      a2: 0
-#    extra_models:
-#      - !add_readout_noise (opt)
-#        sigma_readout: 0
-#

@@ -76,9 +76,19 @@ class CCD:
                  environment: Environment = None,
                  characteristics: CCDCharacteristics = None,
                  photons=None, signal=None, charge=None):
-        self.photons = photons * u.ph   # unit: photons
-        self.signal = signal            # unit: ADU
-        self.charge = charge            # unit: electrons
+
+        if photons is not None:
+            photons = photons * u.ph   # unit: photons
+
+        if signal is not None:
+            signal = signal * u.adu  # unit: ADU
+
+        if charge is not None:
+            charge = charge * u.electron  # unit: electrons
+
+        self.photons = photons
+        self.signal = signal
+        self.charge = charge
 
         self.geometry = geometry
         self.environment = environment
