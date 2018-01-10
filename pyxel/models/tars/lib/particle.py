@@ -21,7 +21,7 @@ import math
 import random
 import bisect
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 
 class Particle:

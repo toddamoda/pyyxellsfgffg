@@ -17,7 +17,7 @@ class Models:
                 func = value                        # type: t.Callable
 
             else:
-                raise NotImplemented
+                raise NotImplementedError
 
             new_dct[key] = func
 

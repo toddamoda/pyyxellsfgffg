@@ -74,9 +74,10 @@ def _constructor_function(loader: PipelineYAML, node: yaml.ScalarNode):
 
     function_name = mapping['name']                      # type: str
     kwargs = mapping.get('kwargs', {})
+    args = mapping.get('args', {})
 
     func = util.evaluate_reference(function_name)        # type: t.Callable
-    return functools.partial(func, **kwargs)
+    return functools.partial(func, *args, **kwargs)
 
 
 PipelineYAML.add_constructor('!CCD_PIPELINE', _constructor_ccd_pipeline)
@@ -101,7 +102,9 @@ def main():
     # cfg = load_config(os.path.join(cwd, 'settings.yaml'))     # type: DetectionPipeline
     cfg = load_config(str(config_path))
     result = ccd_pipeline.run_pipeline(cfg)
+    print('Pipeline completed.')
     return result
+
 
 if __name__ == '__main__':
     main()

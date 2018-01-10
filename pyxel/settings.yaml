@@ -22,7 +22,7 @@
       col: 100                # compulsory
 
     environment:
-      temperature: 0  # detector temperature Kelvin
+      temperature: 320  # detector temperature Kelvin
 
     characteristics:
       k: 0            # camera gain constant in digital number (DN)
@@ -39,6 +39,10 @@
   # photons -> photons
   optics: !models
     shot_noise: pyxel.models.ccd_noise.apply_shot_noise
+#    ray_tracing: !class
+#      name: pyxel.models.ccd_noise.OpticsModelRayTracer
+#      args:
+#        path: null
 #    shot_noise: true
 #    fixed_pattern_noise: false
 #    ray_tracing: true
@@ -47,6 +51,20 @@
 
   charge_generation: !models
     fixed_pattern_noise: pyxel.models.ccd_noise.add_fix_pattern_noise
+    tars: !function
+      name: pyxel.models.ccd_noise.apply_tars
+      kwargs:
+        initial_energy: 100.0   # MeV
+        particule_number: 1
+        incident_angles:      # rad
+          - 0.31416  # pi / 10
+          - 0.7853   # pi / 4
+        starting_position:    # um
+          - 500.0
+          - 500.0
+          - 0.0
+        stepping_length: 1.0  # um
+
 
   charge_readout: !models
     readout_noise: !function

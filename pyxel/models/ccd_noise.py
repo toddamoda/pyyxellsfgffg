@@ -13,6 +13,81 @@ from . import Model
 
 from pyxel.detectors.ccd import CCDDetector
 
+from pyxel.models.tars.tars_v3 import TARS
+from pyxel.models.tars.tars_v3 import TARS_DIR
+from numpy import pi
+
+#
+# class Optics:
+#     pass
+#
+#
+# class OpticsModelRayTracerFernel(Optics):
+#
+#     def __init__(self, path):
+#         self.settings_file = path
+#
+#     def compute(self, ccd: CCDDetector) -> CCDDetector:
+#         return ccd
+#
+#     def __call__(self, ccd: CCDDetector) -> CCDDetector:
+#         return ccd
+#
+#
+# class OpticsModelRayTracerHansSmit(Optics):
+#
+#     def __init__(self, path):
+#         self.settings_file = path
+#
+#     def __call__(self, ccd: CCDDetector) -> CCDDetector:
+#         return ccd
+#
+#
+# def apply_optics_model_ray_tracer_model_1(ccd: CCDDetector) -> CCDDetector:
+#     obj = OpticsModelRayTracerFernel()
+#     return obj.compute()
+#
+#
+# def apply_optics_model_ray_tracer_model_2(ccd: CCDDetector) -> CCDDetector:
+#     OpticsModelRayTracerHansSmit()
+
+
+def apply_tars(ccd: CCDDetector,
+               initial_energy: float = 100.0,
+               particule_number: int = 1,
+               incident_angles: tuple = (pi/10, pi/4),
+               starting_position: tuple = (500.0, 500.0, 0.0),
+               stepping_length: float = 1.0) -> CCDDetector:
+
+    new_ccd = copy.deepcopy(ccd)
+
+    cosmics = TARS(new_ccd)
+
+    # cosmics.set_initial_energy('random')      # MeV
+    # cosmics.set_particle_number(1)
+    # cosmics.set_incident_angles('random', 'random')
+    # # z=0. -> cosmic ray events, z='random' -> snowflakes (radioactive decay inside ccd)
+    # cosmics.set_starting_position('random', 'random', 0.0)
+    # cosmics.set_stepping_length(1.0)   # um !
+
+    cosmics.set_initial_energy(initial_energy)     # MeV
+    cosmics.set_particle_number(particule_number)
+    cosmics.set_incident_angles(*incident_angles)     # rad
+    # z=0. -> cosmic ray events, z='random' -> snowflakes (radioactive decay inside ccd)
+    cosmics.set_starting_position(*starting_position)      # um
+    cosmics.set_stepping_length(stepping_length)   # um !
+
+    stopping_file = TARS_DIR + '/data/inputs/stopping_power_protons.txt'
+    spectrum_file = TARS_DIR + '/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
+    cosmics.set_particle_spectrum(spectrum_file)
+    cosmics.set_stopping_power(stopping_file)
+
+    cosmics.run()
+
+    new_ccd.charge += cosmics.get_deposited_charge()
+
+    return new_ccd
+
 
 def apply_shot_noise(ccd: CCDDetector) -> CCDDetector:
     """ Extract the shot noise
