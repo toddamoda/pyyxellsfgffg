@@ -84,7 +84,9 @@ def apply_tars(ccd: CCDDetector,
 
     cosmics.run()
 
-    new_ccd.charge += cosmics.get_deposited_charge()
+    # TODO: why is 'new_ccd.charge.dtype == np.int16' ??
+    deposited_charge = cosmics.get_deposited_charge()
+    new_ccd.charge = new_ccd.charge + deposited_charge.astype(np.int16) * u.electron
 
     return new_ccd
 
