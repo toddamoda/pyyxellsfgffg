@@ -22,7 +22,7 @@ import numpy as np
 import time
 from tqdm import tqdm
 from scipy import interpolate
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 from pyxel.models.tars.lib.simulation import Simulation
 

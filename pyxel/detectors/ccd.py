@@ -7,12 +7,24 @@ import numpy as np
 # from os import path
 from pathlib import Path
 
-import pyxel.processors.config
+import pyxel.pipelines.config
 from . import Detector
 
 from pyxel.util import fitsfile
 from pyxel.util import get_data_dir
 
+
+def convert_to_int(value):
+    """
+    Convert any type of numbers to integers
+    :param value:
+    :type value: ndarray
+    :return value:
+    :rtype: int ndarray
+    """
+    int_value = np.rint(value)
+    int_value = int_value.astype(int)
+    return int_value
 
 
 class CCDDetector(Detector):
@@ -50,6 +62,10 @@ class CCDDetector(Detector):
         self._ver_dimension = self._row * self._pix_ver_size        # detector vertical size
         self._hor_dimension = self._col * self._pix_hor_size        # detector horizontal size
 
+        self._pix_non_uniformity = kwargs.get('pix_non_uniformity', None)
+
+        # self._row = kwargs.get('noise_file', 0)      # number of rows in image
+
         self._material_density = 2.329                              # (silicon) material density [g/cm3]
         self._material_ionization_energy = 3.65                     # (silicon) ionization energy [eV]
 
@@ -86,6 +102,10 @@ class CCDDetector(Detector):
             # ccd.p = np.arange(1, m*n+1, 1).reshape((m, n))    # photon average/pixel
 
     @property
+    def pix_non_uniformity(self):
+        return self._pix_non_uniformity.reshape((self.col, self.row))
+
+    @property
     def row(self):
         return self._row
 
@@ -106,7 +126,7 @@ class CCDDetector(Detector):
         return self._signal
 
     @signal.setter
-    def signal(self, new_sig):
+    def signal(self, new_sig: np.ndarray):
         self._signal = new_sig
         self._signal = convert_to_int(self._signal)
 
@@ -195,7 +215,7 @@ class CCDDetector(Detector):
         return self._charge
 
     @charge.setter
-    def charge(self, new_charge):
+    def charge(self, new_charge: np.ndarray):
         self._charge = new_charge
 
     @property
@@ -272,7 +292,7 @@ class CCDDetector(Detector):
 
     # check whether everything is defined necessary for computations below
     @classmethod
-    def from_ccd(cls, ccd: pyxel.processors.config.CCD):
+    def from_ccd(cls, ccd: pyxel.pipelines.config.CCD):
         # Create the CCD object
         params = {'photons': ccd.photons,
                   'signal': ccd.signal,
