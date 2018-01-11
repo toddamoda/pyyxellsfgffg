@@ -37,8 +37,8 @@ class Particle:
                  starting_pos_z='random',
                  input_alpha='random',
                  input_beta='random',
-                 spectrum_cdf=None,
-                 spectrum_e_limit=None):
+                 spectrum_cdf=None):
+                 # spectrum_e_limit=None):
         """
         Creation of a particle according to some parameters
 
@@ -91,15 +91,15 @@ class Particle:
         self.dir_ver = math.cos(alpha) * math.cos(beta)
         self.dir_hor = math.cos(alpha) * math.sin(beta)
 
-        self.energy = 2 * spectrum_e_limit
+        # self.energy = 2 * spectrum_e_limit
         if input_energy == 'random':
-            while self.energy > spectrum_e_limit:
-                self.__get_energy_from_spectrum__(spectrum_cdf)
+            # while self.energy > spectrum_e_limit:
+            self.__get_energy_from_spectrum__(spectrum_cdf)
         elif isinstance(input_energy, int) or isinstance(input_energy, float):
-            if input_energy <= spectrum_e_limit:
-                self.energy = input_energy
-            else:
-                raise ValueError('Given particle energy is too high, no stopping power data available')
+            # if input_energy <= spectrum_e_limit:
+            self.energy = input_energy
+            # else:
+            #     raise ValueError('Given particle energy is too high, no stopping power data available')
         else:
             raise ValueError('Given particle energy could not be read')
 

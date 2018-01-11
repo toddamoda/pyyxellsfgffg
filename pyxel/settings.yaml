@@ -64,7 +64,7 @@
       name: pyxel.models.ccd_noise.apply_tars
       kwargs:
         initial_energy: random  #100.0  # MeV
-        particule_number: 100
+        particule_number: 1000
         incident_angles:      # rad
           - random  #0.31416  # pi / 10
           - random  #0.7853   # pi / 4

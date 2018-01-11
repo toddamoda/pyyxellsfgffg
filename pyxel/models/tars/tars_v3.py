@@ -22,7 +22,7 @@ import numpy as np
 import time
 from tqdm import tqdm
 from scipy import interpolate
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 from pyxel.models.tars.lib.simulation import Simulation
 
@@ -100,9 +100,9 @@ class TARS:
         # np.save('orig2_edep_per_step_10k', self.sim_obj.edep_per_step)
         # np.save('orig2_edep_per_particle_10k', self.sim_obj.total_edep_per_particle)
 
-        # self.plot_edep_per_step()
-        # self.plot_edep_per_particle()
-        # plt.show()
+        self.plot_edep_per_step()
+        self.plot_edep_per_particle()
+        plt.show()
 
         self.sim_obj.processing_time = time.time() - start_time
 
@@ -128,9 +128,9 @@ class TARS:
         plt.draw()
         return n, bins, patches
 
-    def set_stopping_power(self, stopping_file):
-        self.sim_obj.stopping_power_function = read_data(stopping_file)
-        self.sim_obj.energy_max_limit = self.sim_obj.stopping_power_function[-1, 0]
+    # def set_stopping_power(self, stopping_file):
+    #     self.sim_obj.stopping_power_function = read_data(stopping_file)
+    #     self.sim_obj.energy_max_limit = self.sim_obj.stopping_power_function[-1, 0]
 
     def set_particle_spectrum(self, file_name):
         """
@@ -149,16 +149,41 @@ class TARS:
         lin_energy_range = np.arange(np.min(self.sim_obj.spectrum[:, 0]), np.max(self.sim_obj.spectrum[:, 0]), 0.01)
         flux_dist = self.sim_obj.spectrum_function(lin_energy_range)
 
-        # plt.figure()
-        # plt.loglog(lin_energy_range, flux_dist)
-        # plt.draw()
+        plt.figure()
+        plt.loglog(lin_energy_range, flux_dist)
+        plt.draw()
 
         cum_sum = np.cumsum(flux_dist)
         cum_sum /= np.max(cum_sum)
         self.sim_obj.CDF = (lin_energy_range, cum_sum)
 
-        # plt.figure()
-        # plt.semilogx(lin_energy_range, cum_sum)
-        # plt.draw()
-        # #
-        # plt.show()
+        plt.figure()
+        plt.semilogx(lin_energy_range, cum_sum)
+        plt.draw()
+
+        plt.show()
+
+    def set_let_distribution(self, data_filename, data_det_thickness=100):
+        # data_det_thickness = 100 um
+
+        let_histo = read_data(data_filename)    # counts in function of keV
+
+        # normalize histogram
+        max_in_array = np.max(let_histo[:, 2])
+        let_histo[:, 2] /= max_in_array
+        # divide by detector thickness to get energy in keV/um
+        let_histo[:, 1] /= data_det_thickness   # keV/um
+
+        cum_sum = np.cumsum(let_histo[:, 2])
+        cum_sum /= np.max(cum_sum)
+        self.sim_obj.let_cdf = (let_histo[:, 1], cum_sum)
+
+        plt.figure()
+        plt.plot(let_histo[:, 1], let_histo[:, 2])
+        plt.draw()
+
+        plt.figure()
+        plt.plot(let_histo[:, 1], cum_sum)
+        plt.draw()
+
+        plt.show()

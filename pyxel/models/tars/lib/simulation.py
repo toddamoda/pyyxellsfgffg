@@ -40,6 +40,17 @@ eps_null = 8.85e-12
 
 q_elec = 1.6e-19
 
+
+def sampling_distribution(distribution):
+
+    u = np.random.random()
+    random_value_from_dist = distribution[0][bisect.bisect(distribution[1], u) - 1]  # from down
+
+    # random_value_from_dist = get_func_value_with_interpolation(distribution, u)
+
+    return random_value_from_dist
+
+
 def get_func_value_with_interpolation(function_array, x_value):
     x_index_bot = bisect.bisect(function_array[:, 0], x_value) - 1
     x_index_top = x_index_bot + 1
@@ -70,10 +81,11 @@ class Simulation:
         self.spectrum = 0
         self.spectrum_function = None
         self.CDF = 0
+        self.let_cdf = 0
 
-        # self.stopping_power_data = 0
-        self.stopping_power_function = None
-        self.energy_max_limit = None
+        # # self.stopping_power_data = 0
+        # self.stopping_power_function = None
+        # self.energy_max_limit = None
 
         self.processing_time = 0
 
@@ -133,8 +145,8 @@ class Simulation:
                      self.initial_energy,
                      self.position_ver, self.position_hor, self.position_z,
                      self.angle_alpha, self.angle_beta,
-                     self.CDF,
-                     self.energy_max_limit)
+                     self.CDF)
+                     # self.energy_max_limit)
 
         # main loop : electrons generation and collection at each step while the particle is in the CCD and
         # have enough energy to spread
@@ -202,9 +214,10 @@ class Simulation:
 
         # particle.energy is in MeV !
         # particle.deposited_energy is in keV !
-        stopping_power = get_func_value_with_interpolation(self.stopping_power_function, particle.energy)  # MeV*cm2/g
-        let = 0.1 * stopping_power * self.ccd.material_density  # keV / um
-        particle.deposited_energy = let * self.step_length  # keV
+        # stopping_power = get_func_value_with_interpolation(self.stopping_power_function, particle.energy)  # MeV*cm2/g
+        # let = 0.1 * stopping_power * self.ccd.material_density  # keV / um
+
+        particle.deposited_energy = sampling_distribution(self.let_cdf) * self.step_length  # keV
 
         if particle.deposited_energy >= particle.energy * 1e3:
             particle.deposited_energy = particle.energy * 1e3
