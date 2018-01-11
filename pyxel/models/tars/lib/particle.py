@@ -21,7 +21,7 @@ import math
 import random
 import bisect
 import numpy as np
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 
 class Particle:
@@ -54,16 +54,16 @@ class Particle:
         starting_position_horizontal = None
         starting_position_z = None
 
-        if starting_pos_ver is 'random':
+        if starting_pos_ver == 'random':
             starting_position_vertical = self.ccd.ver_dimension * random.random()
         elif isinstance(starting_pos_ver, int) or isinstance(starting_pos_ver, float):
             starting_position_vertical = starting_pos_ver
-        if starting_pos_hor is 'random':
+        if starting_pos_hor == 'random':
             starting_position_horizontal = self.ccd.hor_dimension * random.random()
         elif isinstance(starting_pos_hor, int) or isinstance(starting_pos_hor, float):
             starting_position_horizontal = starting_pos_hor
 
-        if starting_pos_z is 'random':
+        if starting_pos_z == 'random':
             starting_position_z = self.ccd.total_thickness * random.random()
         elif isinstance(starting_pos_z, int) or isinstance(starting_pos_z, float):
             starting_position_z = starting_pos_z
@@ -74,14 +74,14 @@ class Particle:
         self.position = np.copy(self.starting_position)
         self.trajectory = np.copy(self.starting_position)
 
-        if input_alpha is 'random' and starting_pos_z == 0.:
+        if input_alpha == 'random' and starting_pos_z == 0.:
             alpha = math.pi * random.random()
-        elif input_alpha is 'random' and starting_pos_z != 0.:
+        elif input_alpha == 'random' and starting_pos_z != 0.:
             alpha = 2 * math.pi * random.random()
         else:
             alpha = input_alpha  # between 0 and pi
 
-        if input_beta is 'random':
+        if input_beta == 'random':
             beta = 2. * math.pi * random.random()
         else:
             beta = input_beta
@@ -92,7 +92,7 @@ class Particle:
         self.dir_hor = math.cos(alpha) * math.sin(beta)
 
         self.energy = 2 * spectrum_e_limit
-        if input_energy is 'random':
+        if input_energy == 'random':
             while self.energy > spectrum_e_limit:
                 self.__get_energy_from_spectrum__(spectrum_cdf)
         elif isinstance(input_energy, int) or isinstance(input_energy, float):

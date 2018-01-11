@@ -13,9 +13,9 @@
   doc: blah blah
 
   ccd: !CCD
-    photons: null
-#    photons: 10
-    signal: !from_file ../data/HorseHead_orig.fits
+#    photons: null
+    photons: 10
+    signal: null #!from_file ../data/HorseHead_orig.fits
     charge: null
 
     geometry:
@@ -63,7 +63,8 @@
     tars: !function
       name: pyxel.models.ccd_noise.apply_tars
       kwargs:
-        initial_energy: 100.0   # MeV
+#        initial_energy: 100.0   # MeV
+        initial_energy: random   # MeV
         particule_number: 1
         incident_angles:      # rad
           - 0.31416  # pi / 10
