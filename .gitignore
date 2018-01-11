@@ -1,6 +1,9 @@
-.idea
+# Pyxel data
 data
-**/__pycache__
+*.fits
+
+# temp files
+**/tmp*
 
 # Byte-compiled
 *.pyc
@@ -11,6 +14,7 @@ build/
 
 # Pycharm
 .idea/*
+**/__pycache__
 
 # Sphinx
 _build
