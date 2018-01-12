@@ -31,14 +31,10 @@ class Particle:
 
     def __init__(self,
                  ccd=None,
-                 input_energy='random',
-                 starting_pos_ver='random',
-                 starting_pos_hor='random',
-                 starting_pos_z='random',
-                 input_alpha='random',
-                 input_beta='random',
-                 spectrum_cdf=None):
-                 # spectrum_e_limit=None):
+                 particle_type='proton',
+                 input_energy='random', spectrum_cdf=None,
+                 starting_pos_ver='random', starting_pos_hor='random', starting_pos_z='random',
+                 input_alpha='random', input_beta='random'):
         """
         Creation of a particle according to some parameters
 
@@ -109,9 +105,18 @@ class Particle:
 
         self.minmax = np.array([100000, -1, 100000, -1])
 
-    # def __get_energy_from_spectrum__(self, cdf):
-    #     u = np.random.random()
-    #     self.energy = cdf[0][bisect.bisect(cdf[1], u) - 1]
+        self.particle_type = particle_type
+        ionizing_particles = ['proton', 'ion', 'alpha', 'beta', 'electron']
+        non_ionizing_particles = ['gamma', 'x-ray', 'photon']
+
+        if self.particle_type in ionizing_particles:
+            pass    # call direct ionization func
+
+        elif self.particle_type in non_ionizing_particles:
+            pass    # call non-direct ionization func
+
+        else:
+            raise ValueError('Given particle type can not be simulated')
 
     def plot_trajectory_xy(self):
         plt.figure()

@@ -24,6 +24,7 @@ TARS_DIR = path.dirname(path.abspath(__file__))
 
 
 def run_tars(ccd: CCDDetector,
+             particle_type: str = 'proton',
              initial_energy: float = 100.0,
              particle_number: int = 1,
              incident_angles: tuple = (pi/10, pi/4),
@@ -34,6 +35,7 @@ def run_tars(ccd: CCDDetector,
 
     cosmics = TARS(new_ccd)
 
+    cosmics.set_particle_type(particle_type)     # MeV
     cosmics.set_initial_energy(initial_energy)     # MeV
     cosmics.set_particle_number(particle_number)
     cosmics.set_incident_angles(*incident_angles)     # rad
@@ -62,19 +64,23 @@ class TARS:
 
         self.ccd = pyxel_ccd_obj
 
-        self.init_energy = 0
-        self.particle_number = 0
-        self.angle_alpha = 0
-        self.angle_beta = 0
-        self.position_ver = 0
-        self.position_hor = 0
-        self.position_z = 0
-        self.step_length = 0
+        self.part_type = None
+        self.init_energy = None
+        self.particle_number = None
+        self.angle_alpha = None
+        self.angle_beta = None
+        self.position_ver = None
+        self.position_hor = None
+        self.position_z = None
+        self.step_length = None
 
         self.data_folder = TARS_DIR + r'\data'
         self.results_folder = self.data_folder + r'\results'
 
         self.sim_obj = Simulation(self.ccd)
+
+    def set_particle_type(self, particle_type):
+        self.part_type = particle_type
 
     def set_initial_energy(self, energy):
         self.init_energy = energy
@@ -102,7 +108,8 @@ class TARS:
         start_time = time.time()
         print("TARS - simulation processing...\n")
 
-        self.sim_obj.parameters(self.init_energy,
+        self.sim_obj.parameters(self.part_type,
+                                self.init_energy,
                                 self.position_ver, self.position_hor, self.position_z,
                                 self.angle_alpha, self.angle_beta,
                                 self.step_length)
@@ -154,21 +161,20 @@ class TARS:
 
         :param string file_name: path of the file containing the spectrum
         """
-        self.sim_obj.spectrum = read_data(file_name)  # nuc/m2*s*sr*MeV
+        spectrum = read_data(file_name)  # nuc/m2*s*sr*MeV
 
         ccd_area = self.ccd.ver_dimension * self.ccd.hor_dimension * 1.0e-8  # cm2
 
-        self.sim_obj.spectrum[:, 1] *= 4 * math.pi * 1.0e-4 * ccd_area  # nuc/s*MeV
+        spectrum[:, 1] *= 4 * math.pi * 1.0e-4 * ccd_area  # nuc/s*MeV
 
-        self.sim_obj.spectrum_function = interpolate_data(self.sim_obj.spectrum)
+        spectrum_function = interpolate_data(spectrum)
 
-        lin_energy_range = np.arange(np.min(self.sim_obj.spectrum[:, 0]), np.max(self.sim_obj.spectrum[:, 0]), 0.01)
-        flux_dist = self.sim_obj.spectrum_function(lin_energy_range)
+        lin_energy_range = np.arange(np.min(spectrum[:, 0]), np.max(spectrum[:, 0]), 0.01)
+        flux_dist = spectrum_function(lin_energy_range)
 
         cum_sum = np.cumsum(flux_dist)
         cum_sum /= np.max(cum_sum)
-        # self.sim_obj.CDF = (lin_energy_range, cum_sum)
-        self.sim_obj.CDF = np.stack((lin_energy_range, cum_sum), axis=1)
+        self.sim_obj.spectrum_cdf = np.stack((lin_energy_range, cum_sum), axis=1)
 
         # plt.figure()
         # plt.loglog(lin_energy_range, flux_dist)

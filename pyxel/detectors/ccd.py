@@ -102,7 +102,6 @@ class CCDDetector(Detector):
                 # uniform illumination
                 self._photons = np.ones((self._row, self._col)) * self._photons
 
-
     def compute_charge(self):
         """
         Calculate charges per pixel from incident photon number and CCD parameters

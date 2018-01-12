@@ -63,6 +63,7 @@
     tars: !function
       name: pyxel.models.tars.tars.run_tars
       kwargs:
+        particle_type: proton  # ion # alpha
         initial_energy: random # 1000  # MeV
         particle_number: 100
         incident_angles:      # rad

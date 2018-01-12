@@ -54,9 +54,8 @@ class Simulation:
 
         self.ccd = ccd_sim
 
-        self.spectrum = 0
-        self.spectrum_function = None
-        self.CDF = 0
+        # self.spectrum = None
+        self.spectrum_cdf = None
         self.let_cdf = np.zeros((1, 2))
 
         # # self.stopping_power_data = 0
@@ -76,13 +75,14 @@ class Simulation:
         #   Here is an image of all the last simulated CRs events on the CCD
         self.pcmap_last = np.zeros((self.ccd.row, self.ccd.col))
 
-        self.initial_energy = 0
-        self.position_ver = 0
-        self.position_hor = 0
-        self.position_z = 0
-        self.angle_alpha = 0
-        self.angle_beta = 0
-        self.step_length = 0            # um
+        self.particle_type = None
+        self.initial_energy = None
+        self.position_ver = None
+        self.position_hor = None
+        self.position_z = None
+        self.angle_alpha = None
+        self.angle_beta = None
+        self.step_length = None
         self.energy_cut = 1.0e-5        # MeV
         
         self.edep_per_step = []
@@ -96,7 +96,8 @@ class Simulation:
         #     spreading across entire depletion region
         self.cfr = self.con * sqrt(self.sat + bound)
 
-    def parameters(self, init_energy, pos_ver, pos_hor, pos_z, alpha, beta, step_length):
+    def parameters(self, part_type, init_energy, pos_ver, pos_hor, pos_z, alpha, beta, step_length):
+        self.particle_type = part_type
         self.initial_energy = init_energy
         self.position_ver = pos_ver
         self.position_hor = pos_hor
@@ -118,11 +119,10 @@ class Simulation:
         track_left = False
 
         p = Particle(self.ccd,
-                     self.initial_energy,
+                     self.particle_type,
+                     self.initial_energy, self.spectrum_cdf,
                      self.position_ver, self.position_hor, self.position_z,
-                     self.angle_alpha, self.angle_beta,
-                     self.CDF)
-                     # self.energy_max_limit)
+                     self.angle_alpha, self.angle_beta)
 
         # main loop : electrons generation and collection at each step while the particle is in the CCD and
         # have enough energy to spread
