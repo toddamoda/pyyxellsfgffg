@@ -176,14 +176,16 @@ class TARS:
 
         cum_sum = np.cumsum(let_histo[:, 2])
         cum_sum /= np.max(cum_sum)
-        self.sim_obj.let_cdf = (let_histo[:, 1], cum_sum)
+        # self.sim_obj.let_cdf = (let_histo[:, 1], cum_sum)
+        # self.sim_obj.let_cdf = [let_histo[:, 1], cum_sum]
+        self.sim_obj.let_cdf = np.stack((let_histo[:, 1], cum_sum), axis=1)
 
         plt.figure()
         plt.plot(let_histo[:, 1], let_histo[:, 2])
         plt.draw()
 
         plt.figure()
-        plt.plot(let_histo[:, 1], cum_sum)
+        plt.plot(self.sim_obj.let_cdf[:, 0], self.sim_obj.let_cdf[:, 1])
         plt.draw()
 
         plt.show()
