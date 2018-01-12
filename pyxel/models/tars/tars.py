@@ -1,32 +1,59 @@
 #   --------------------------------------------------------------------------
-#   Copyright 2016 SRE-F, ESA (European Space Agency)
-#       Lionel Garcia <lionel_garcia@live.fr>
-#
-#   This is restricted software and is only to be used with permission
-#   from the author, or from ESA.
-#
-#   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-#   THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-#   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-#   DEALINGS IN THE SOFTWARE.
+#   Copyright 2017 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-#
-# Not fully commented
+"""
+PyXel! TARS model for charge generation by ionization
+"""
 
+import copy
+from astropy import units as u
 from os import path
 import math
 import numpy as np
+from numpy import pi
 import time
 from tqdm import tqdm
 from scipy import interpolate
 import matplotlib.pyplot as plt
 
+from pyxel.detectors.ccd import CCDDetector
 from pyxel.models.tars.lib.simulation import Simulation
 
 TARS_DIR = path.dirname(path.abspath(__file__))
+
+
+def run_tars(ccd: CCDDetector,
+             initial_energy: float = 100.0,
+             particle_number: int = 1,
+             incident_angles: tuple = (pi/10, pi/4),
+             starting_position: tuple = (500.0, 500.0, 0.0),
+             stepping_length: float = 1.0) -> CCDDetector:
+
+    new_ccd = copy.deepcopy(ccd)
+
+    cosmics = TARS(new_ccd)
+
+    cosmics.set_initial_energy(initial_energy)     # MeV
+    cosmics.set_particle_number(particle_number)
+    cosmics.set_incident_angles(*incident_angles)     # rad
+    # z=0. -> cosmic ray events, z='random' -> snowflakes (radioactive decay inside ccd)
+    cosmics.set_starting_position(*starting_position)      # um
+    cosmics.set_stepping_length(stepping_length)   # um !
+
+    # particle_let_file = TARS_DIR + '/data/inputs/let_proton_12GeV_100um_geant4.ascii'
+    particle_let_file = TARS_DIR + '/data/inputs/let_proton_1GeV_100um_geant4_HighResHist.ascii'
+    cosmics.set_let_distribution(particle_let_file)
+
+    spectrum_file = TARS_DIR + '/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
+    cosmics.set_particle_spectrum(spectrum_file)
+
+    cosmics.run()
+
+    # TODO: why is 'new_ccd.charge.dtype == np.int16' ??
+    deposited_charge = cosmics.get_deposited_charge()
+    new_ccd.charge = new_ccd.charge + deposited_charge.astype(np.int16) * u.electron
+
+    return new_ccd
 
 
 def read_data(file_name):
@@ -40,7 +67,6 @@ def interpolate_data(data):
 
 
 class TARS:
-    
     def __init__(self, pyxel_ccd_obj=None):
 
         self.ccd = pyxel_ccd_obj
@@ -94,8 +120,7 @@ class TARS:
             dep = 0
             while dep == 0:
                 dep = self.sim_obj.event_generation()
-            # print('total deposited E: {0:4.2f} keV'.format(dep))
-
+                # print('total deposited E: {0:4.2f} keV'.format(dep))
 
         # np.save('orig2_edep_per_step_10k', self.sim_obj.edep_per_step)
         # np.save('orig2_edep_per_particle_10k', self.sim_obj.total_edep_per_particle)
@@ -108,7 +133,7 @@ class TARS:
 
     def plot_edep_per_step(self):
         plt.figure()
-        n, bins, patches = plt.hist(self.sim_obj.edep_per_step, 500, facecolor='b')
+        n, bins, patches = plt.hist(self.sim_obj.edep_per_step, 300, facecolor='b')
         plt.xlabel('E_dep (keV)')
         plt.ylabel('Counts')
         plt.title('Histogram of E deposited per step')
@@ -119,7 +144,7 @@ class TARS:
 
     def plot_edep_per_particle(self):
         plt.figure()
-        n, bins, patches = plt.hist(self.sim_obj.total_edep_per_particle, 500, facecolor='g')
+        n, bins, patches = plt.hist(self.sim_obj.total_edep_per_particle, 200, facecolor='g')
         plt.xlabel('E_dep (keV)')
         plt.ylabel('Counts')
         plt.title('Histogram of total E deposited per particle')
@@ -140,22 +165,22 @@ class TARS:
         """
         self.sim_obj.spectrum = read_data(file_name)  # nuc/m2*s*sr*MeV
 
-        ccd_area = self.ccd.ver_dimension * self.ccd.hor_dimension * 1.0e-8     # cm2
+        ccd_area = self.ccd.ver_dimension * self.ccd.hor_dimension * 1.0e-8  # cm2
 
-        self.sim_obj.spectrum[:, 1] *= 4 * math.pi * 1.0e-4 * ccd_area     # nuc/s*MeV
+        self.sim_obj.spectrum[:, 1] *= 4 * math.pi * 1.0e-4 * ccd_area  # nuc/s*MeV
 
         self.sim_obj.spectrum_function = interpolate_data(self.sim_obj.spectrum)
 
         lin_energy_range = np.arange(np.min(self.sim_obj.spectrum[:, 0]), np.max(self.sim_obj.spectrum[:, 0]), 0.01)
         flux_dist = self.sim_obj.spectrum_function(lin_energy_range)
 
-        # plt.figure()
-        # plt.loglog(lin_energy_range, flux_dist)
-        # plt.draw()
-
         cum_sum = np.cumsum(flux_dist)
         cum_sum /= np.max(cum_sum)
         self.sim_obj.CDF = (lin_energy_range, cum_sum)
+
+        # plt.figure()
+        # plt.loglog(lin_energy_range, flux_dist)
+        # plt.draw()
 
         # plt.figure()
         # plt.semilogx(lin_energy_range, cum_sum)
@@ -165,12 +190,13 @@ class TARS:
 
     def set_let_distribution(self, data_filename):
 
-        let_histo = read_data(data_filename)    # counts in function of keV
+        let_histo = read_data(data_filename)  # counts in function of keV
 
         ############
-        # WE NEED THE DATA PER UNIT LENGTH (keV/um) BUT DO NOT DO THIS !
-        ##### data_det_thickness = 100    #um
-        ##### let_histo[:, 1] /= data_det_thickness   # keV/um
+        # Todo: THE DATA NEED TO BE EXTRACTED FROM G4: DEPOSITED ENERGY PER UNIT LENGTH (keV/um)
+        # THIS 2 LINE IS TEMPORARY, DO NOT USE THIS!
+        data_det_thickness = 100    #um
+        let_histo[:, 1] /= data_det_thickness   # keV/um
         ###########
 
         self.sim_obj.let_cdf = np.stack((let_histo[:, 1], let_histo[:, 2]), axis=1)
@@ -180,11 +206,11 @@ class TARS:
         self.sim_obj.let_cdf = np.stack((self.sim_obj.let_cdf[:, 0], cum_sum), axis=1)
         # self.sim_obj.let_cdf = np.stack((lin_energy_range, cum_sum), axis=1)
 
-        plt.figure()
-        plt.plot(let_histo[:, 1], let_histo[:, 2], '.')
-        plt.draw()
-
-        plt.figure()
-        plt.plot(self.sim_obj.let_cdf[:, 0], self.sim_obj.let_cdf[:, 1], '.')
-        plt.draw()
+        # plt.figure()
+        # plt.plot(let_histo[:, 1], let_histo[:, 2], '.')
+        # plt.draw()
+        #
+        # plt.figure()
+        # plt.plot(self.sim_obj.let_cdf[:, 0], self.sim_obj.let_cdf[:, 1], '.')
+        # plt.draw()
         # plt.show()

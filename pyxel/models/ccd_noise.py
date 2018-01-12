@@ -9,56 +9,19 @@ from astropy import units as u
 
 import numpy as np
 
-from . import Model
+# from . import Model
 
 from pyxel.detectors.ccd import CCDDetector
 
-from pyxel.models.tars.tars_v3 import TARS
-from pyxel.models.tars.tars_v3 import TARS_DIR
-from numpy import pi
+# from pyxel.models.tars.tars_v3 import TARS
+# from pyxel.models.tars.tars_v3 import TARS_DIR
+# from numpy import pi
 
 
 def foo(ccd, cls, method_name, kwargs_init, kwargs_method):
     obj = cls(**kwargs_init)
 
     new_ccd = getattr(obj, method_name)(**kwargs_method)
-
-    return new_ccd
-
-
-def apply_tars(ccd: CCDDetector,
-               initial_energy: float = 100.0,
-               particule_number: int = 1,
-               incident_angles: tuple = (pi/10, pi/4),
-               starting_position: tuple = (500.0, 500.0, 0.0),
-               stepping_length: float = 1.0) -> CCDDetector:
-
-    new_ccd = copy.deepcopy(ccd)
-
-    cosmics = TARS(new_ccd)
-
-    cosmics.set_initial_energy(initial_energy)     # MeV
-    cosmics.set_particle_number(particule_number)
-    cosmics.set_incident_angles(*incident_angles)     # rad
-    # z=0. -> cosmic ray events, z='random' -> snowflakes (radioactive decay inside ccd)
-    cosmics.set_starting_position(*starting_position)      # um
-    cosmics.set_stepping_length(stepping_length)   # um !
-
-    # stopping_file = TARS_DIR + '/data/inputs/stopping_power_protons.txt'
-    # cosmics.set_stopping_power(stopping_file)
-
-    # particle_let_file = TARS_DIR + '/data/inputs/let_proton_12GeV_100um_geant4.ascii'
-    particle_let_file = TARS_DIR + '/data/inputs/let_proton_1GeV_100um_geant4_HighResHist.ascii'
-    cosmics.set_let_distribution(particle_let_file)
-
-    spectrum_file = TARS_DIR + '/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
-    cosmics.set_particle_spectrum(spectrum_file)
-
-    cosmics.run()
-
-    # TODO: why is 'new_ccd.charge.dtype == np.int16' ??
-    deposited_charge = cosmics.get_deposited_charge()
-    new_ccd.charge = new_ccd.charge + deposited_charge.astype(np.int16) * u.electron
 
     return new_ccd
 
