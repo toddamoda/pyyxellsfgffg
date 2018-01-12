@@ -69,6 +69,7 @@ def _constructor_from_file(loader: PipelineYAML, node: yaml.ScalarNode):
 
 
 def _constructor_models(loader: PipelineYAML, node: yaml.ScalarNode):
+    # TODO: Catch only the YAML exceptions
     try:
         mapping = loader.construct_mapping(node)             # type: dict
     except:

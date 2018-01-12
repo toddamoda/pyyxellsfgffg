@@ -6,18 +6,19 @@ PyXel! TARS model for charge generation by ionization
 """
 
 import copy
-from astropy import units as u
-from os import path
 import math
-import numpy as np
-from numpy import pi
 import time
-from tqdm import tqdm
-from scipy import interpolate
+from os import path
+
 import matplotlib.pyplot as plt
+import numpy as np
+from astropy import units as u
+from numpy import pi
+from tqdm import tqdm
 
 from pyxel.detectors.ccd import CCDDetector
 from pyxel.models.tars.lib.simulation import Simulation
+from pyxel.models.tars.lib.util import read_data, interpolate_data
 
 TARS_DIR = path.dirname(path.abspath(__file__))
 
@@ -54,16 +55,6 @@ def run_tars(ccd: CCDDetector,
     new_ccd.charge = new_ccd.charge + deposited_charge.astype(np.int16) * u.electron
 
     return new_ccd
-
-
-def read_data(file_name):
-    data = np.loadtxt(file_name, 'float', '#')
-    return data
-
-
-def interpolate_data(data):
-    data_function = interpolate.interp1d(data[:, 0], data[:, 1], kind='linear')
-    return data_function
 
 
 class TARS:
@@ -125,8 +116,8 @@ class TARS:
         # np.save('orig2_edep_per_step_10k', self.sim_obj.edep_per_step)
         # np.save('orig2_edep_per_particle_10k', self.sim_obj.total_edep_per_particle)
 
-        self.plot_edep_per_step()
-        self.plot_edep_per_particle()
+        # self.plot_edep_per_step()
+        # self.plot_edep_per_particle()
         plt.show()
 
         self.sim_obj.processing_time = time.time() - start_time
@@ -176,7 +167,8 @@ class TARS:
 
         cum_sum = np.cumsum(flux_dist)
         cum_sum /= np.max(cum_sum)
-        self.sim_obj.CDF = (lin_energy_range, cum_sum)
+        # self.sim_obj.CDF = (lin_energy_range, cum_sum)
+        self.sim_obj.CDF = np.stack((lin_energy_range, cum_sum), axis=1)
 
         # plt.figure()
         # plt.loglog(lin_energy_range, flux_dist)
@@ -195,7 +187,7 @@ class TARS:
         ############
         # Todo: THE DATA NEED TO BE EXTRACTED FROM G4: DEPOSITED ENERGY PER UNIT LENGTH (keV/um)
         # THIS 2 LINE IS TEMPORARY, DO NOT USE THIS!
-        data_det_thickness = 100    #um
+        data_det_thickness = 100.0    #um
         let_histo[:, 1] /= data_det_thickness   # keV/um
         ###########
 

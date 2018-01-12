@@ -19,9 +19,9 @@
 
 import math
 import random
-import bisect
 import numpy as np
 import matplotlib.pyplot as plt
+from pyxel.models.tars.lib.util import sampling_distribution
 
 
 class Particle:
@@ -94,7 +94,7 @@ class Particle:
         # self.energy = 2 * spectrum_e_limit
         if input_energy == 'random':
             # while self.energy > spectrum_e_limit:
-            self.__get_energy_from_spectrum__(spectrum_cdf)
+            self.energy = sampling_distribution(spectrum_cdf)
         elif isinstance(input_energy, int) or isinstance(input_energy, float):
             # if input_energy <= spectrum_e_limit:
             self.energy = input_energy
@@ -109,9 +109,9 @@ class Particle:
 
         self.minmax = np.array([100000, -1, 100000, -1])
 
-    def __get_energy_from_spectrum__(self, cdf):
-        u = np.random.random()
-        self.energy = cdf[0][bisect.bisect(cdf[1], u) - 1]
+    # def __get_energy_from_spectrum__(self, cdf):
+    #     u = np.random.random()
+    #     self.energy = cdf[0][bisect.bisect(cdf[1], u) - 1]
 
     def plot_trajectory_xy(self):
         plt.figure()
