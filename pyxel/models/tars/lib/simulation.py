@@ -95,7 +95,7 @@ class Simulation:
         self.spectrum = 0
         self.spectrum_function = None
         self.CDF = 0
-        self.let_cdf = 0
+        self.let_cdf = np.zeros((1, 2))
 
         # # self.stopping_power_data = 0
         # self.stopping_power_function = None

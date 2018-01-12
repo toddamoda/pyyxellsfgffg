@@ -108,7 +108,7 @@ class TARS:
 
     def plot_edep_per_step(self):
         plt.figure()
-        n, bins, patches = plt.hist(self.sim_obj.edep_per_step, 200, facecolor='b')
+        n, bins, patches = plt.hist(self.sim_obj.edep_per_step, 500, facecolor='b')
         plt.xlabel('E_dep (keV)')
         plt.ylabel('Counts')
         plt.title('Histogram of E deposited per step')
@@ -119,7 +119,7 @@ class TARS:
 
     def plot_edep_per_particle(self):
         plt.figure()
-        n, bins, patches = plt.hist(self.sim_obj.total_edep_per_particle, 200, facecolor='g')
+        n, bins, patches = plt.hist(self.sim_obj.total_edep_per_particle, 500, facecolor='g')
         plt.xlabel('E_dep (keV)')
         plt.ylabel('Counts')
         plt.title('Histogram of total E deposited per particle')
@@ -149,43 +149,42 @@ class TARS:
         lin_energy_range = np.arange(np.min(self.sim_obj.spectrum[:, 0]), np.max(self.sim_obj.spectrum[:, 0]), 0.01)
         flux_dist = self.sim_obj.spectrum_function(lin_energy_range)
 
-        plt.figure()
-        plt.loglog(lin_energy_range, flux_dist)
-        plt.draw()
+        # plt.figure()
+        # plt.loglog(lin_energy_range, flux_dist)
+        # plt.draw()
 
         cum_sum = np.cumsum(flux_dist)
         cum_sum /= np.max(cum_sum)
         self.sim_obj.CDF = (lin_energy_range, cum_sum)
 
-        plt.figure()
-        plt.semilogx(lin_energy_range, cum_sum)
-        plt.draw()
+        # plt.figure()
+        # plt.semilogx(lin_energy_range, cum_sum)
+        # plt.draw()
 
-        plt.show()
+        # plt.show()
 
-    def set_let_distribution(self, data_filename, data_det_thickness=100):
-        # data_det_thickness = 100 um
+    def set_let_distribution(self, data_filename):
+
 
         let_histo = read_data(data_filename)    # counts in function of keV
 
-        # normalize histogram
-        max_in_array = np.max(let_histo[:, 2])
-        let_histo[:, 2] /= max_in_array
-        # divide by detector thickness to get energy in keV/um
-        let_histo[:, 1] /= data_det_thickness   # keV/um
+        ############
+        #### data_det_thickness = 100 um
+        #### let_histo[:, 1] /= data_det_thickness   # keV/um  # DO NOT DO THIS !
+        ############
 
-        cum_sum = np.cumsum(let_histo[:, 2])
+        self.sim_obj.let_cdf = np.stack((let_histo[:, 1], let_histo[:, 2]), axis=1)
+        cum_sum = np.cumsum(self.sim_obj.let_cdf[:, 1])
+        # cum_sum = np.cumsum(let_dist_interpol)
         cum_sum /= np.max(cum_sum)
-        # self.sim_obj.let_cdf = (let_histo[:, 1], cum_sum)
-        # self.sim_obj.let_cdf = [let_histo[:, 1], cum_sum]
-        self.sim_obj.let_cdf = np.stack((let_histo[:, 1], cum_sum), axis=1)
+        self.sim_obj.let_cdf = np.stack((self.sim_obj.let_cdf[:, 0], cum_sum), axis=1)
+        # self.sim_obj.let_cdf = np.stack((lin_energy_range, cum_sum), axis=1)
 
         plt.figure()
-        plt.plot(let_histo[:, 1], let_histo[:, 2])
+        plt.plot(let_histo[:, 1], let_histo[:, 2], '.')
         plt.draw()
 
         plt.figure()
-        plt.plot(self.sim_obj.let_cdf[:, 0], self.sim_obj.let_cdf[:, 1])
+        plt.plot(self.sim_obj.let_cdf[:, 0], self.sim_obj.let_cdf[:, 1], '.')
         plt.draw()
-
-        plt.show()
+        # plt.show()
