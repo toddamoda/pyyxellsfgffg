@@ -17,27 +17,14 @@
 # Fully documented
 # Fully Commented
 
+from os import path
 from math import sqrt
 import numpy as np
 from scipy.special import erf
+# from pyxel.models.tars.tars import TARS_DIR
 from pyxel.models.tars.lib.particle import Particle
-from pyxel.models.tars.lib.util import sampling_distribution
+from pyxel.models.tars.lib.util import sampling_distribution, read_data
 # import matplotlib.pyplot as plt
-
-#     specify na in /m3 for evaluation of con in SI units
-na = 1e19
-#     specify diffusion length in um (field free region)
-l1 = 1000.
-#     depletion/field free boundary parameter
-bound = 2.
-
-k_boltzmann = 1.38e-23
-
-eps_rel = 11.8
-
-eps_null = 8.85e-12
-
-q_elec = 1.6e-19
 
 
 class Simulation:
@@ -79,14 +66,6 @@ class Simulation:
         self.edep_per_step = []
         self.total_edep_per_particle = []
 
-        #     constant includes factor of 1.d6 for conversion of m to um
-        self.con = 1e6 * sqrt((2. * k_boltzmann * self.ccd.temperature * eps_rel * eps_null) / (na * q_elec ** 2))
-        # !!!!!!!!!!!!!!!!!!!!!!!!!!!! constans not equal with one in ppt
-        #     electron velocity saturation parameter
-        self.sat = q_elec * na * self.ccd.depletion_zone / eps_rel / eps_null / self.ccd.temperature ** 1.55 / 1.01e8
-        #     spreading across entire depletion region
-        self.cfr = self.con * sqrt(self.sat + bound)
-
     def parameters(self, part_type, init_energy, pos_ver, pos_hor, pos_z, alpha, beta, step_length):
         self.particle_type = part_type
         self.initial_energy = init_energy
@@ -96,6 +75,39 @@ class Simulation:
         self.angle_alpha = alpha
         self.angle_beta = beta
         self.step_length = step_length
+
+################# EXPERIMENTAL - NOT FINSHED YET ###############################
+    def set_let_distribution(self):
+
+        TARS_DIR = path.dirname(path.abspath(__file__))
+        # particle_let_file = TARS_DIR + '../data/inputs/let_proton_12GeV_100um_geant4.ascii'
+        particle_let_file = TARS_DIR + '/../data/inputs/let_proton_1GeV_100um_geant4_HighResHist.ascii'
+
+        let_histo = read_data(particle_let_file)  # counts in function of keV
+
+        ############
+        # Todo: THE DATA NEED TO BE EXTRACTED FROM G4: DEPOSITED ENERGY PER UNIT LENGTH (keV/um)
+        # THIS 2 LINE IS TEMPORARY, DO NOT USE THIS!
+        data_det_thickness = 100.0    #um
+        let_histo[:, 1] /= data_det_thickness   # keV/um
+        ###########
+
+        self.let_cdf = np.stack((let_histo[:, 1], let_histo[:, 2]), axis=1)
+        cum_sum = np.cumsum(self.let_cdf[:, 1])
+        # cum_sum = np.cumsum(let_dist_interpol)
+        cum_sum /= np.max(cum_sum)
+        self.let_cdf = np.stack((self.let_cdf[:, 0], cum_sum), axis=1)
+        # self.sim_obj.let_cdf = np.stack((lin_energy_range, cum_sum), axis=1)
+
+        # plt.figure()
+        # plt.plot(let_histo[:, 1], let_histo[:, 2], '.')
+        # plt.draw()
+        #
+        # plt.figure()
+        # plt.plot(self.sim_obj.let_cdf[:, 0], self.sim_obj.let_cdf[:, 1], '.')
+        # plt.draw()
+        # plt.show()
+################# EXPERIMENTAL - NOT FINSHED YET ###############################
 
     def event_generation(self):
         """
@@ -114,6 +126,8 @@ class Simulation:
                      self.initial_energy, self.spectrum_cdf,
                      self.position_ver, self.position_hor, self.position_z,
                      self.angle_alpha, self.angle_beta)
+
+        self.set_let_distribution()
 
         # main loop : electrons generation and collection at each step while the particle is in the CCD and
         # have enough energy to spread
@@ -139,10 +153,8 @@ class Simulation:
             # IONIZATION
             self._ionization_(p)
 
-            # DIFFUSION
+            # DIFFUSION AND COLLECTING ELECTRONS IN PIXELS -> make a Pyxel charge collection model from this
             sig = self._electron_diffusion_(p)
-
-            # ASSIGNING ELECTRONS TO PIXELS
             # self._electron_collection_(p, sig, sig)
             self._electron_collection_(p, 1.0, 1.0)         # JUST FOR TESTING
 
@@ -153,7 +165,7 @@ class Simulation:
 
             # save particle trajectory
             p.trajectory = np.vstack((p.trajectory, p.position))
-            # (should be changed to np.stack or np.concatenate)
+            # (should be changed to np.stack)
         # END of loop
 
         if track_left:
@@ -188,6 +200,7 @@ class Simulation:
         self.edep_per_step.append(particle.deposited_energy)    # keV
         particle.total_edep += particle.deposited_energy        # keV
 
+    # DIFFUSION -> make a Pyxel charge collection model from this
     def _electron_diffusion_(self, particle):
         """
         spread the particle into the material and compute the density and size of the electronic cloud generated
@@ -196,19 +209,24 @@ class Simulation:
         :param Particle particle: particle
         :return: float sigma : diameter of the electronic cloud at the generation point (um)
         """
+        #     specify na in /m3 for evaluation of con in SI units
+        na = 1e19
+        #     specify diffusion length in um (field free region)
+        l1 = 1000.
+        #     depletion/field free boundary parameter
+        bound = 2.
+        k_boltzmann = 1.38e-23
+        eps_rel = 11.8
+        eps_null = 8.85e-12
+        q_elec = 1.6e-19
 
-        # #     specify na in /m3 for evaluation of con in SI units
-        # na = 1e19
-        # #     specify diffusion length in um (field free region)
-        # l1 = 1000.
-        # #     depletion/field free boundary parameter
-        # bound = 2.
-        # #     constant includes factor of 1.d6 for conversion of m to um
-        # con = 1e6 * sqrt((2. * 1.38e-23 * self.ccd.temperature * 11.8 * 8.85e-12) / (na * 1.6e-19 ** 2))
-        # # !!!!!!!!!!!!!!!!!!!!!!!!!!!! constans not equal with one in ppt
-        #
-        # #     electron velocity saturation parameter
-        # sat = 1.6e-19 * na * self.ccd.depletion_zone / 11.8 / 8.85e-12 / self.ccd.temperature ** 1.55 / 1.01e8
+        #     constant includes factor of 1.d6 for conversion of m to um
+        self.con = 1e6 * sqrt((2. * k_boltzmann * self.ccd.temperature * eps_rel * eps_null) / (na * q_elec ** 2))
+        # !!!!!!!!!!!!!!!!!!!!!!!!!!!! constans not equal with one in ppt
+        #     electron velocity saturation parameter
+        self.sat = q_elec * na * self.ccd.depletion_zone / eps_rel / eps_null / self.ccd.temperature ** 1.55 / 1.01e8
+        #     spreading across entire depletion region
+        self.cfr = self.con * sqrt(self.sat + bound)
 
         #     calculate initial 1 sigma cloud size in um (many refs)
         ci = 0.0044 * ((particle.electrons * self.ccd.material_ionization_energy / 1000.) ** 1.75)
@@ -260,6 +278,7 @@ class Simulation:
 
         return sig
 
+    # ELECTRON COLLECTION -> make a Pyxel charge collection model from this
     def _electron_collection_(self, particle, sig_ac, sig_al):
         """
         Compute the charge collection function to determine the number of electron collected by each pixel based on the

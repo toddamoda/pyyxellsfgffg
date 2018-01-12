@@ -98,8 +98,6 @@ class Particle:
         self.electrons = 0
         self.total_edep = 0
 
-        # self.minmax = np.array([100000, -1, 100000, -1])
-
         self.particle_type = particle_type
         ionizing_particles = ['proton', 'ion', 'alpha', 'beta', 'electron']
         non_ionizing_particles = ['gamma', 'x-ray', 'photon']

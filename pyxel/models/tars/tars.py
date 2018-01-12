@@ -43,10 +43,6 @@ def run_tars(ccd: CCDDetector,
     cosmics.set_starting_position(*starting_position)      # um
     cosmics.set_stepping_length(stepping_length)   # um !
 
-    # particle_let_file = TARS_DIR + '/data/inputs/let_proton_12GeV_100um_geant4.ascii'
-    particle_let_file = TARS_DIR + '/data/inputs/let_proton_1GeV_100um_geant4_HighResHist.ascii'
-    cosmics.set_let_distribution(particle_let_file)
-
     spectrum_file = TARS_DIR + '/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
     cosmics.set_particle_spectrum(spectrum_file)
 
@@ -184,31 +180,4 @@ class TARS:
         # plt.semilogx(lin_energy_range, cum_sum)
         # plt.draw()
 
-        # plt.show()
-
-    def set_let_distribution(self, data_filename):
-
-        let_histo = read_data(data_filename)  # counts in function of keV
-
-        ############
-        # Todo: THE DATA NEED TO BE EXTRACTED FROM G4: DEPOSITED ENERGY PER UNIT LENGTH (keV/um)
-        # THIS 2 LINE IS TEMPORARY, DO NOT USE THIS!
-        data_det_thickness = 100.0    #um
-        let_histo[:, 1] /= data_det_thickness   # keV/um
-        ###########
-
-        self.sim_obj.let_cdf = np.stack((let_histo[:, 1], let_histo[:, 2]), axis=1)
-        cum_sum = np.cumsum(self.sim_obj.let_cdf[:, 1])
-        # cum_sum = np.cumsum(let_dist_interpol)
-        cum_sum /= np.max(cum_sum)
-        self.sim_obj.let_cdf = np.stack((self.sim_obj.let_cdf[:, 0], cum_sum), axis=1)
-        # self.sim_obj.let_cdf = np.stack((lin_energy_range, cum_sum), axis=1)
-
-        # plt.figure()
-        # plt.plot(let_histo[:, 1], let_histo[:, 2], '.')
-        # plt.draw()
-        #
-        # plt.figure()
-        # plt.plot(self.sim_obj.let_cdf[:, 0], self.sim_obj.let_cdf[:, 1], '.')
-        # plt.draw()
         # plt.show()
