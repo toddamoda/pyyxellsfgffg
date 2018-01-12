@@ -54,24 +54,15 @@ class Simulation:
 
         self.ccd = ccd_sim
 
-        # self.spectrum = None
         self.spectrum_cdf = None
         self.let_cdf = np.zeros((1, 2))
 
-        # # self.stopping_power_data = 0
-        # self.stopping_power_function = None
-        # self.energy_max_limit = None
-
         self.processing_time = 0
 
-        self.event_pixel_position = []
-        self.event_charge = []
-        self.counter = 0
+        self.event_counter = 0
         self.total_charge_array = np.zeros((self.ccd.row, self.ccd.col), int)
         self.ver_limit, self.hor_limit = self.total_charge_array.shape
 
-        #   Here is an image of all the simulated CRs events on the CCD
-        # self.pcmap = np.zeros((self.ccd.row, self.ccd.col))
         #   Here is an image of all the last simulated CRs events on the CCD
         self.pcmap_last = np.zeros((self.ccd.row, self.ccd.col))
 
@@ -173,16 +164,10 @@ class Simulation:
 
             self.total_edep_per_particle.append(p.total_edep)  # keV
 
-            new_map = np.copy(self.pcmap_last[p.minmax[0]:(p.minmax[1] + 1), p.minmax[2]:(p.minmax[3] + 1)])
-            new_map = np.rint(new_map).astype(int)
-            p.starting_position_ccd = np.rint([p.starting_position[0]/self.ccd.pix_ver_size,
-                                               p.starting_position[1]/self.ccd.pix_hor_size]).astype(int)
+            self.pcmap_last = np.rint(self.pcmap_last).astype(int)
 
-            # list of charge arrays per event
-            self.event_charge.append(new_map)
-            # list of charge arrays' position per event on image
-            self.event_pixel_position.append(p.starting_position_ccd)
-            self._add_to_total_deposited_charge_(self.event_charge[-1], self.event_pixel_position[-1])
+            self.total_charge_array += self.pcmap_last
+            self.event_counter += 1
 
         return p.total_edep
 
@@ -190,41 +175,18 @@ class Simulation:
 
         # particle.energy is in MeV !
         # particle.deposited_energy is in keV !
-        # stopping_power = get_func_value_with_interpolation(self.stopping_power_function, particle.energy)  # MeV*cm2/g
-        # let = 0.1 * stopping_power * self.ccd.material_density  # keV / um
-
         particle.deposited_energy = sampling_distribution(self.let_cdf) * self.step_length  # keV
 
         if particle.deposited_energy >= particle.energy * 1e3:
             particle.deposited_energy = particle.energy * 1e3
 
-        particle.electrons = int(particle.deposited_energy * 1e3 / self.ccd.material_ionization_energy)  # eV/eV = 1
-        particle.deposited_energy = particle.electrons * self.ccd.material_ionization_energy * 1e-3  # keV
+        particle.electrons = int(particle.deposited_energy * 1e3 / self.ccd.material_ionization_energy)     # eV/eV = 1
+        particle.deposited_energy = particle.electrons * self.ccd.material_ionization_energy * 1e-3         # keV
         # else:
         particle.energy -= particle.deposited_energy * 1e-3
 
-        self.edep_per_step.append(particle.deposited_energy)  # keV
-        particle.total_edep += particle.deposited_energy  # keV
-
-        # print('stop_pow: ', stopping_power, ' MeV*cm2/g')
-        # print('let: ', let, ' keV/um')
-        # print('particle.deposited_energy: ', particle.deposited_energy, ' keV')
-        # print('particle.energy: ', particle.energy, ' MeV')
-        # print('particle.electrons: ', particle.electrons)
-
-    def _add_to_total_deposited_charge_(self, event_charge_array, event_position):
-        ind_row = event_position[0]
-        ind_col = event_position[1]
-
-        ver_size, hor_size = event_charge_array.shape
-
-        if ind_row + ver_size <= self.ver_limit and ind_col + hor_size <= self.hor_limit:
-            self.total_charge_array[ind_row:ind_row + ver_size, ind_col:ind_col + hor_size] += event_charge_array
-            self.counter += 1
-        else:
-            # need to implement event_charge_array cutting here if it is on the edge of image
-            # OOOR need to implement p tracing and checking if it leaving the detector <<< would be better
-            pass
+        self.edep_per_step.append(particle.deposited_energy)    # keV
+        particle.total_edep += particle.deposited_energy        # keV
 
     def _electron_diffusion_(self, particle):
         """
@@ -337,7 +299,6 @@ class Simulation:
                             ((x_steps + 1) * self.ccd.pix_ver_size - dx),
                             self.ccd.pix_ver_size):
 
-            # if sig_ac is not 0:
             if sig_ac != 0:
                 case1 = (xi + self.ccd.pix_ver_size) / 1.41 / sig_ac
                 case2 = xi / 1.41 / sig_ac
@@ -351,7 +312,6 @@ class Simulation:
                             ((y_steps + 1) * self.ccd.pix_hor_size - dy),
                             self.ccd.pix_hor_size):
 
-            # if sig_ac is not 0:
             if sig_al != 0:
                 case1 = (yi + self.ccd.pix_hor_size) / 1.41 / sig_al
                 case2 = yi / 1.41 / sig_al
@@ -366,20 +326,10 @@ class Simulation:
         for ix in range(int(particle.position[0] / self.ccd.pix_ver_size) - x_steps,
                         int(particle.position[0] / self.ccd.pix_ver_size) + x_steps + 1, 1):
 
-            if ix < particle.minmax[0]:
-                particle.minmax[0] = ix
-            if ix > particle.minmax[1]:
-                particle.minmax[1] = ix
-
             cy = 0
 
             for iy in range(int(particle.position[1] / self.ccd.pix_hor_size) - y_steps,
                             int(particle.position[1] / self.ccd.pix_hor_size) + y_steps + 1, 1):
-
-                if iy < particle.minmax[2]:
-                    particle.minmax[2] = iy
-                if iy > particle.minmax[3]:
-                    particle.minmax[3] = iy
 
                 if 0 <= ix < self.ccd.row and 0 <= iy < self.ccd.col:
                     self.pcmap_last[ix, iy] += px[cx] * py[cy] * particle.electrons
@@ -387,11 +337,3 @@ class Simulation:
                 cy += 1
 
             cx += 1
-
-            if particle.minmax[0] < 0:
-                particle.minmax[0] = 0
-            if particle.minmax[2] < 0:
-                particle.minmax[2] = 0
-
-        # return particle.electrons
-        # pass

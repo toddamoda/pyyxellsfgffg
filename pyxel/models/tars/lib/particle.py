@@ -87,15 +87,10 @@ class Particle:
         self.dir_ver = math.cos(alpha) * math.cos(beta)
         self.dir_hor = math.cos(alpha) * math.sin(beta)
 
-        # self.energy = 2 * spectrum_e_limit
         if input_energy == 'random':
-            # while self.energy > spectrum_e_limit:
             self.energy = sampling_distribution(spectrum_cdf)
         elif isinstance(input_energy, int) or isinstance(input_energy, float):
-            # if input_energy <= spectrum_e_limit:
             self.energy = input_energy
-            # else:
-            #     raise ValueError('Given particle energy is too high, no stopping power data available')
         else:
             raise ValueError('Given particle energy could not be read')
 
@@ -103,17 +98,19 @@ class Particle:
         self.electrons = 0
         self.total_edep = 0
 
-        self.minmax = np.array([100000, -1, 100000, -1])
+        # self.minmax = np.array([100000, -1, 100000, -1])
 
         self.particle_type = particle_type
         ionizing_particles = ['proton', 'ion', 'alpha', 'beta', 'electron']
         non_ionizing_particles = ['gamma', 'x-ray', 'photon']
 
         if self.particle_type in ionizing_particles:
-            pass    # call direct ionization func
+            # call direct ionization func when needed - already implemented in simulation
+            pass
 
         elif self.particle_type in non_ionizing_particles:
-            pass    # call non-direct ionization func
+            # call NON-direct ionization func when needed - need to be implemented
+            raise NotImplementedError('Given particle type simulation is not yet implemented')
 
         else:
             raise ValueError('Given particle type can not be simulated')
@@ -129,7 +126,6 @@ class Particle:
         plt.axis([0, self.ccd.hor_dimension, 0, self.ccd.ver_dimension])
         plt.grid(True)
         plt.draw()
-        # plt.show()
 
     def plot_trajectory_xz(self):
         plt.figure()
@@ -142,4 +138,3 @@ class Particle:
         plt.axis([0, self.ccd.hor_dimension, -1*self.ccd.total_thickness, 0])
         plt.grid(True)
         plt.draw()
-        # plt.show()
