@@ -165,13 +165,13 @@ class TARS:
 
     def set_let_distribution(self, data_filename):
 
-
         let_histo = read_data(data_filename)    # counts in function of keV
 
         ############
-        #### data_det_thickness = 100 um
-        #### let_histo[:, 1] /= data_det_thickness   # keV/um  # DO NOT DO THIS !
-        ############
+        # WE NEED THE DATA PER UNIT LENGTH (keV/um) BUT DO NOT DO THIS !
+        ##### data_det_thickness = 100    #um
+        ##### let_histo[:, 1] /= data_det_thickness   # keV/um
+        ###########
 
         self.sim_obj.let_cdf = np.stack((let_histo[:, 1], let_histo[:, 2]), axis=1)
         cum_sum = np.cumsum(self.sim_obj.let_cdf[:, 1])

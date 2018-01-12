@@ -47,7 +47,8 @@ def apply_tars(ccd: CCDDetector,
     # stopping_file = TARS_DIR + '/data/inputs/stopping_power_protons.txt'
     # cosmics.set_stopping_power(stopping_file)
 
-    particle_let_file = TARS_DIR + '/data/inputs/let_proton_12GeV_100um_geant4.ascii'
+    # particle_let_file = TARS_DIR + '/data/inputs/let_proton_12GeV_100um_geant4.ascii'
+    particle_let_file = TARS_DIR + '/data/inputs/let_proton_1GeV_100um_geant4_HighResHist.ascii'
     cosmics.set_let_distribution(particle_let_file)
 
     spectrum_file = TARS_DIR + '/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
