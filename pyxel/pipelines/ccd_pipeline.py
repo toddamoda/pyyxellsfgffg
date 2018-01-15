@@ -42,7 +42,7 @@ def run_pipeline(cfg):
     # CHARGE READOUT
     # Signal with shot and fix pattern noise
     ccd.compute_ccd_signal()
-    steps = [] #['readout_noise']
+    steps = ['output_node_noise']
     for step in steps:
         func = cfg.charge_readout.models.get(step)
         if func:

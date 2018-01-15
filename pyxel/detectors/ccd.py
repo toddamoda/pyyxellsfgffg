@@ -5,13 +5,14 @@
 """
 import numpy as np
 # from os import path
-from pathlib import Path
+# from pathlib import Path
+from astropy import units as u
 
 import pyxel.pipelines.config
 from . import Detector
 
-from pyxel.util import fitsfile
-from pyxel.util import get_data_dir
+# from pyxel.util import fitsfile
+# from pyxel.util import get_data_dir
 
 
 def convert_to_int(value):
@@ -149,7 +150,7 @@ class CCDDetector(Detector):
         :return:
         """
         self._readout_signal = self._ccd_signal * self._a1 * self._a2
-        self._readout_signal = np.rint(self._readout_signal).astype(int)
+        self._readout_signal = np.rint(self._readout_signal).astype(int)   # DN
 
 
     @property

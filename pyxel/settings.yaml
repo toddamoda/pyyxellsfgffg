@@ -84,10 +84,10 @@
 
   # -> signal
   charge_readout: !models
-    readout_noise: !function
-      name: pyxel.models.ccd_noise.add_readout_noise
+    output_node_noise: !function
+      name: pyxel.models.ccd_noise.add_output_node_noise
       kwargs:
-        readout_sigma: 1
+        std_deviation: 0.00001
 
   # -> signal
   readout_electronics: !models

@@ -52,21 +52,22 @@ def add_fix_pattern_noise(ccd: CCDDetector) -> CCDDetector:
     return new_ccd
 
 
-def add_readout_noise(ccd: CCDDetector, readout_sigma: float) -> CCDDetector:
+def add_output_node_noise(ccd: CCDDetector, std_deviation: float) -> CCDDetector:
     """
-    Adding readout noise to signal array using normal random distribution
-    Signal unit: DN
+    Adding noise to signal array of ccd output node using normal random distribution
+    CCD Signal unit: Volt
     :param ccd:
-    :param readout_sigma:
-    :return: signal with readout noise
+    :param std_deviation:
+    :return: ccd output signal with noise
     """
     new_ccd = copy.deepcopy(ccd)
 
     signal_mean_array = new_ccd.ccd_signal.astype('float64')
-    sigma_readout_array = readout_sigma * np.ones(new_ccd.ccd_signal.shape)
+    sigma_array = std_deviation * np.ones(new_ccd.ccd_signal.shape)
 
-    signal = np.random.normal(loc=signal_mean_array, scale=sigma_readout_array)
-    new_ccd.ccd_signal = np.int16(np.rint(signal)) * u.adu
+    signal = np.random.normal(loc=signal_mean_array, scale=sigma_array)
+    # new_ccd.ccd_signal = np.int16(np.rint(signal)) * u.adu
+    new_ccd.ccd_signal = signal * u.V
 
     return new_ccd
 
