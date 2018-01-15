@@ -78,6 +78,11 @@
 
   # -> charge
   charge_collection: !models
+    diffusion: pyxel.models.diffusion_model.diffusion
+#    diffusion: !function
+#      name: pyxel.models.diffusion_model.diffusion
+#      kwargs:
+#        variable: 1.0
 
   # -> charge
   charge_transfer: !models

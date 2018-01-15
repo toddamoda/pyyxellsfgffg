@@ -24,7 +24,7 @@ def run_pipeline(cfg):
             ccd = func(ccd)
 
     # CHARGE COLLECTION
-    steps = []
+    steps = ['diffusion']
     for step in steps:
         func = cfg.charge_collection.models.get(step)
         if func:

@@ -20,7 +20,7 @@ from pyxel.detectors.ccd import CCDDetector
 from pyxel.models.tars.lib.simulation import Simulation
 from pyxel.models.tars.lib.util import read_data, interpolate_data
 
-# from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d import Axes3D
 
 TARS_DIR = path.dirname(path.abspath(__file__))
 

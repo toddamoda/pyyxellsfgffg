@@ -76,6 +76,8 @@ def _constructor_models(loader: PipelineYAML, node: yaml.ScalarNode):
     #### except yaml.construtor.ConstructorError:
         mapping = {}
 
+    # mapping = loader.construct_mapping(node)             # type: dict
+
     return config.Models(mapping)
 
 

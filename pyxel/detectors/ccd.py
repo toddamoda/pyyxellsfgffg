@@ -6,7 +6,7 @@
 import numpy as np
 # from os import path
 # from pathlib import Path
-from astropy import units as u
+# from astropy import units as u
 
 import pyxel.pipelines.config
 from . import Detector
