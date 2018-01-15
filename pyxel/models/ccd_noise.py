@@ -66,7 +66,6 @@ def add_output_node_noise(ccd: CCDDetector, std_deviation: float) -> CCDDetector
     sigma_array = std_deviation * np.ones(new_ccd.ccd_signal.shape)
 
     signal = np.random.normal(loc=signal_mean_array, scale=sigma_array)
-    # new_ccd.ccd_signal = np.int16(np.rint(signal)) * u.adu
     new_ccd.ccd_signal = signal * u.V
 
     return new_ccd
