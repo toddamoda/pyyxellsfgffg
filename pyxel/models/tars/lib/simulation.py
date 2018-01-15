@@ -163,9 +163,9 @@ class Simulation:
             self._ionization_(p)
 
             # DIFFUSION AND COLLECTING ELECTRONS IN PIXELS -> make a Pyxel charge collection model from this
-            # sig = self._electron_diffusion_(p)
+            sig = self._electron_diffusion_(p)
             # self._electron_collection_(p, sig, sig)
-            # self._electron_collection_(p, 1.0, 1.0)         # JUST FOR TESTING
+            self._electron_collection_(p, 1.0, 1.0)         # JUST FOR TESTING
 
             # UPDATE POSITION OF IONIZING PARTICLES
             p.position[0] += p.dir_ver * self.step_length

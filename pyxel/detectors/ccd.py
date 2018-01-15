@@ -34,9 +34,11 @@ class CCDDetector(Detector):
         CCD parameters
         """
         self._dirty = False
-        self._photons = kwargs.get('photons')    # np int 2D array of incident photon number per pixel
-        self._charge = kwargs.get('charge')  # int number of electrons per pixel
-        self._signal = kwargs.get('signal')  # np int 2D array mutable the image data plus the accumulated noise after processing
+        self._photons = kwargs.get('photons')                   # np int 2D array of incident photon number per pixel
+        self._charge = kwargs.get('charge')                     # int number of electrons per pixel
+        self._ccd_signal = kwargs.get('ccd_signal')             # np int 2D array mutable signal read out from CCD
+        self._readout_signal = kwargs.get('readout_signal')     # np int 2D array mutable the image data
+        # after signal (and image) processing
 
         self._row = kwargs.get('row', 0)      # number of rows in image
         self._col = kwargs.get('col', 0)      # number of columns in image
@@ -91,8 +93,8 @@ class CCDDetector(Detector):
         """
         # TODO: can both signal and photons be passed?
 
-        if self._signal is not None:
-            self._photons = self._signal / (self._qe * self._eta * self._sv * self._accd * self._a1 * self._a2)
+        if self._ccd_signal is not None:
+            self._photons = self._ccd_signal / (self._qe * self._eta * self._sv * self._accd * self._a1 * self._a2)
             self._photons = np.rint(self._photons).astype(int)
             self._row, self._col = self._photons.shape
 
@@ -133,13 +135,21 @@ class CCDDetector(Detector):
         """
         self._j = 1 / (self._eta * self._sv * self._accd * self._a1 * self._a2)
 
-    def compute_signal(self):
+    def compute_ccd_signal(self):
         """
         Calculate CCD signal per pixel in units of DN from charges and CCD parameters
         :return:
         """
-        self._signal = self._charge * self._sv * self._accd * self._a1 * self._a2
-        self._signal = np.rint(self._signal).astype(int)
+        self._ccd_signal = self._charge * self._sv * self._accd     # what is self._accd exactly??
+        # self._ccd_signal = np.rint(self._ccd_signal).astype(int)  # let's assume it could be real number (float)
+
+    def compute_readout_signal(self):
+        """
+        Calculate CCD signal per pixel in units of DN from charges and CCD parameters
+        :return:
+        """
+        self._readout_signal = self._ccd_signal * self._a1 * self._a2
+        self._readout_signal = np.rint(self._readout_signal).astype(int)
 
 
     @property
@@ -179,18 +189,27 @@ class CCDDetector(Detector):
         self._charge = new_charge
 
     @property
-    def signal(self):
-        return self._signal
+    def ccd_signal(self):
+        return self._ccd_signal
+
+    # @property
+    # def ccd_signal_updated(self):
+    #     self.compute_ccd_signal()
+    #     return self._ccd_signal
+
+    @ccd_signal.setter
+    def ccd_signal(self, new_sig: np.ndarray):
+        self._ccd_signal = new_sig
+        # self._ccd_signal = convert_to_int(self._ccd_signal)
 
     @property
-    def signal_updated(self):
-        self.compute_signal()
-        return self._signal
+    def readout_signal(self):
+        return self._readout_signal
 
-    @signal.setter
-    def signal(self, new_sig: np.ndarray):
-        self._signal = new_sig
-        self._signal = convert_to_int(self._signal)
+    @readout_signal.setter
+    def readout_signal(self, new_read_sig: np.ndarray):
+        self._readout_signal = new_read_sig
+        self._readout_signal = convert_to_int(self._readout_signal)
 
     @property
     def k(self):

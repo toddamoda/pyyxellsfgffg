@@ -103,6 +103,7 @@ class DetectionPipeline:
                  charge_collection: Models,
                  charge_transfer: Models,
                  charge_readout: Models,
+                 readout_electronics: Models,
                  doc=None):
         self.ccd = ccd
         self.doc = doc
@@ -111,6 +112,7 @@ class DetectionPipeline:
         self.charge_collection = charge_collection
         self.charge_transfer = charge_transfer
         self.charge_readout = charge_readout
+        self.readout_electronics = readout_electronics
 
 
 

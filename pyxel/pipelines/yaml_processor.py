@@ -111,7 +111,7 @@ def save_signal(ccd: CCDDetector, output_filename: Path):
     :param ccd:
     :param output_filename:
     """
-    data = ccd.signal.value         # remove the unit
+    data = ccd.readout_signal.value         # remove the unit
 
     # creating new fits file with new data
     new_fits_file = FitsFile(output_filename)

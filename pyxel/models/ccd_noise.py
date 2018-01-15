@@ -62,11 +62,11 @@ def add_readout_noise(ccd: CCDDetector, readout_sigma: float) -> CCDDetector:
     """
     new_ccd = copy.deepcopy(ccd)
 
-    signal_mean_array = new_ccd.signal_updated.astype('float64')
-    sigma_readout_array = readout_sigma * np.ones(new_ccd.signal.shape)
+    signal_mean_array = new_ccd.ccd_signal.astype('float64')
+    sigma_readout_array = readout_sigma * np.ones(new_ccd.ccd_signal.shape)
 
     signal = np.random.normal(loc=signal_mean_array, scale=sigma_readout_array)
-    new_ccd.signal = np.int16(np.rint(signal)) * u.adu
+    new_ccd.ccd_signal = np.int16(np.rint(signal)) * u.adu
 
     return new_ccd
 

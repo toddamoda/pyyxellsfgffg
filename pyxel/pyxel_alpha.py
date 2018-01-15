@@ -107,19 +107,19 @@ def process(opts):
     # limiting charges per pixel due to Full Well Capacity
     ccd.charge_excess()
     # Signal with shot and fix pattern noise
-    ccd.compute_signal()
+    ccd.compute_ccd_signal()
 
     # READOUT NOISE
     if opts.model.readout_noise:
         noise.readout_sigma = 10.0
-        ccd.signal = noise.add_readout_noise(ccd.signal)
+        ccd.ccd_signal = noise.add_readout_noise(ccd.ccd_signal)
 
     # SIGNAL MEAN AND DEVIATION, in case of uniform illumination
     n_pixel = ccd.row * ccd.col
     signal_offset = 0
 
-    signal_mean = np.sum(ccd.signal) / n_pixel - signal_offset
-    signal_variance = np.sum((ccd.signal - signal_mean) ** 2) / n_pixel
+    signal_mean = np.sum(ccd.ccd_signal) / n_pixel - signal_offset
+    signal_variance = np.sum((ccd.ccd_signal - signal_mean) ** 2) / n_pixel
     signal_sigma = np.sqrt(signal_variance)
     # here is no differencing aka pixel non-uniformity removal
     print('\nsignal mean: ', signal_mean)
@@ -132,9 +132,9 @@ def process(opts):
         out_file = get_data_dir(opts.output.fits)
         new_fits_file = FitsFile(out_file)
         if OPEN_FITS:
-            new_fits_file.save(ccd.signal, head)
+            new_fits_file.save(ccd.ccd_signal, head)
         else:
-            new_fits_file.save(ccd.signal)
+            new_fits_file.save(ccd.ccd_signal)
             # *** BUG here: HEADER is not the same in the new file, EXTEND keyword and value are missing!
             # check bitpix of FITS image during opening and convert type of input data according to that
 
