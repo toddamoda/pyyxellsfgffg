@@ -41,6 +41,10 @@ class CCDDetector(Detector):
         self._readout_signal = kwargs.get('readout_signal')     # np int 2D array mutable the image data
         # after signal (and image) processing
 
+        ###### experimental: models will append the newly generated charges to this list
+        self.charge_list = []                 # list of Charge class objects
+        ###### later it should replace the self._charge 2d np array
+
         self._row = kwargs.get('row', 0)      # number of rows in image
         self._col = kwargs.get('col', 0)      # number of columns in image
         self._k = kwargs.get('k', 0.0)        # camera gain constant in digital number (DN)
@@ -151,7 +155,6 @@ class CCDDetector(Detector):
         """
         self._readout_signal = self._ccd_signal * self._a1 * self._a2
         self._readout_signal = np.rint(self._readout_signal).astype(int)   # DN
-
 
     @property
     def pix_non_uniformity(self):

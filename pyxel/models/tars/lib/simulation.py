@@ -25,6 +25,7 @@ from scipy.special import erf
 from pyxel.models.tars.lib.particle import Particle
 from pyxel.models.tars.lib.util import sampling_distribution, read_data
 # import matplotlib.pyplot as plt
+from pyxel.physics.charge import Charge
 
 
 class Simulation:
@@ -52,6 +53,9 @@ class Simulation:
 
         #   Here is an image of all the last simulated CRs events on the CCD
         self.pcmap_last = np.zeros((self.ccd.row, self.ccd.col))
+
+        self.clusters_per_track = []
+        self.all_charge_clusters = []
 
         self.particle_type = None
         self.initial_energy = None
@@ -124,8 +128,7 @@ class Simulation:
         :return:
         """
 
-        # charge_cluster = np.zeros((1, 4))
-
+        self.clusters_per_track = []
         self.pcmap_last[:, :] = 0
 
         track_left = False
@@ -160,7 +163,7 @@ class Simulation:
             track_left = True
 
             # IONIZATION
-            self._ionization_(p)
+            cluster = self._ionization_(p)
 
             # DIFFUSION AND COLLECTING ELECTRONS IN PIXELS -> make a Pyxel charge collection model from this
             sig = self._electron_diffusion_(p)
@@ -176,9 +179,7 @@ class Simulation:
             p.trajectory = np.vstack((p.trajectory, p.position))
             # (should be changed to np.stack)
 
-            # charge_cluster = np.stack((p.position, p.electrons), axis=??) # NOT GOOOD  YET   # horizontal
-
-            # p.charge_clusters = np.stack((p.charge_clusters, charge_cluster), axis=1)  # vertical
+            self.clusters_per_track.append(cluster)
 
         # END of loop
 
@@ -195,6 +196,8 @@ class Simulation:
             self.total_charge_array += self.pcmap_last
             self.event_counter += 1
 
+            self.all_charge_clusters += self.clusters_per_track
+
         return p.total_edep
 
     def _ionization_(self, particle):
@@ -207,12 +210,19 @@ class Simulation:
             particle.deposited_energy = particle.energy * 1e3
 
         particle.electrons = int(particle.deposited_energy * 1e3 / self.ccd.material_ionization_energy)     # eV/eV = 1
+        cluster_of_ionized_e = Charge(self.ccd,
+                                      'e',
+                                      particle.position[0], particle.position[1], particle.position[2],
+                                      particle.electrons)
+
         particle.deposited_energy = particle.electrons * self.ccd.material_ionization_energy * 1e-3         # keV
         # else:
         particle.energy -= particle.deposited_energy * 1e-3
 
         self.edep_per_step.append(particle.deposited_energy)    # keV
         particle.total_edep += particle.deposited_energy        # keV
+
+        return cluster_of_ionized_e
 
     # DIFFUSION -> make a Pyxel charge collection model from this
     def _electron_diffusion_(self, particle):

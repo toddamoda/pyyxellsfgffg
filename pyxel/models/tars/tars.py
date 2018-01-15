@@ -12,13 +12,15 @@ from os import path
 
 import matplotlib.pyplot as plt
 import numpy as np
-from astropy import units as u
+# from astropy import units as u
 from numpy import pi
 from tqdm import tqdm
 
 from pyxel.detectors.ccd import CCDDetector
 from pyxel.models.tars.lib.simulation import Simulation
 from pyxel.models.tars.lib.util import read_data, interpolate_data
+
+# from mpl_toolkits.mplot3d import Axes3D
 
 TARS_DIR = path.dirname(path.abspath(__file__))
 
@@ -35,8 +37,8 @@ def run_tars(ccd: CCDDetector,
 
     cosmics = TARS(new_ccd)
 
-    cosmics.set_particle_type(particle_type)     # MeV
-    cosmics.set_initial_energy(initial_energy)     # MeV
+    cosmics.set_particle_type(particle_type)        # MeV
+    cosmics.set_initial_energy(initial_energy)      # MeV
     cosmics.set_particle_number(particle_number)
     cosmics.set_incident_angles(*incident_angles)     # rad
     # z=0. -> cosmic ray events, z='random' -> snowflakes (radioactive decay inside ccd)
@@ -48,9 +50,9 @@ def run_tars(ccd: CCDDetector,
 
     cosmics.run()
 
-    # TODO: why is 'new_ccd.charge.dtype == np.int16' ??
-    deposited_charge = cosmics.get_deposited_charge()
-    new_ccd.charge = new_ccd.charge + deposited_charge.astype(np.int16) * u.electron
+    # list of many electron clusters (Charge objects)
+    # append deposited charge cluster list to the new_ccd object charge list
+    new_ccd.charge_list += cosmics.get_deposited_charge()
 
     return new_ccd
 
@@ -97,8 +99,8 @@ class TARS:
         self.step_length = stepping  # micrometer
 
     def get_deposited_charge(self):
-        # print('counter:', self.sim_obj.counter)
-        return self.sim_obj.total_charge_array
+        # return self.sim_obj.total_charge_array
+        return self.sim_obj.all_charge_clusters
 
     def run(self):
         start_time = time.time()
@@ -121,6 +123,7 @@ class TARS:
 
         # self.plot_edep_per_step()
         # self.plot_edep_per_particle()
+        self.plot_charges_3d()
         plt.show()
 
         self.sim_obj.processing_time = time.time() - start_time
@@ -181,3 +184,29 @@ class TARS:
         # plt.draw()
 
         # plt.show()
+
+    def plot_charges_3d(self):
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+
+        # generator expression
+        # sum(c.A for c in c_list)
+        # asc = self.sim_obj.all_charge_clusters[0].position
+
+        pos0 = [cluster.position[0] for cluster in self.sim_obj.all_charge_clusters]
+        pos1 = [cluster.position[1] for cluster in self.sim_obj.all_charge_clusters]
+        pos2 = [cluster.position[2] for cluster in self.sim_obj.all_charge_clusters]
+
+        cluster_size = [cluster.number.value for cluster in self.sim_obj.all_charge_clusters]
+
+        ax.scatter(pos0, pos1, pos2, c='b', marker='.', s=cluster_size)
+
+        ax.set_xlim(0, self.ccd.ver_dimension)
+        ax.set_ylim(0, self.ccd.hor_dimension)
+        ax.set_zlim(-1*self.ccd.total_thickness, 0)
+        ax.set_xlabel('vertical ($\mu$m)')
+        ax.set_ylabel('horizontal ($\mu$m)')
+        ax.set_zlabel('z ($\mu$m)')
+
+        plt.show()

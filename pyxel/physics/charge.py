@@ -8,13 +8,14 @@ from astropy import units as u
 
 class Charge:
     """
-     Charged particle class defining an electron/hole with its properties like charge, mass, position, velocity(?)
+    Charged particle class defining an electron/hole with its properties like charge, mass, position, velocity(?)
     """
 
     def __init__(self,
                  detector=None,
                  particle_type='e',
-                 starting_pos_ver=0.0, starting_pos_hor=0.0, starting_pos_z=0.0
+                 starting_pos_ver=0.0, starting_pos_hor=0.0, starting_pos_z=0.0,
+                 particles_per_cluster=1
                  ):
         '''
         Creation of a charged particle (electron or hole) with its parameters
@@ -61,18 +62,18 @@ class Charge:
         self.position = np.copy(self.starting_position)
         self.trajectory = np.copy(self.starting_position)
 
-        self.pixel = np.array([0, 0])
+        # self.pixel = np.array([0, 0])
         # which pixel contains this charge at the end of charge collection phase
         # and after charge transfer
 
-        # Maybe later we will need this as well:
+        # Velocity - Maybe later we will need this as well:
         # alpha = 2 * math.pi * random.random()
         # beta = 2. * math.pi * random.random()
-        # self.dir_z = -1 * math.sin(alpha) #?????
-        # self.dir_ver = math.cos(alpha) * math.cos(beta)
-        # self.dir_hor = math.cos(alpha) * math.sin(beta)
+        # self.v_z = v_abs * -1 * math.sin(alpha) #?????
+        # self.v_ver = v_abs * math.cos(alpha) * math.cos(beta)
+        # self.v_hor = v_abs * math.cos(alpha) * math.sin(beta)
 
-        # Maybe later we will need this as well:
+        # Energy - Maybe later we will need this as well:
         # if isinstance(input_energy, int) or isinstance(input_energy, float):
         #     self.energy = input_energy
         # else:
@@ -86,6 +87,9 @@ class Charge:
             self.charge = +1 * q_elementary
         else:
             raise ValueError('Given charged particle type can not be simulated')
+
+        self.number = particles_per_cluster * u.electron
+        # number of particles per cluster (it is called cluster if there are more than 1 charge)
 
         self.mass = 1.0 * u.M_e     # = 9.1094e-31 kg
 
