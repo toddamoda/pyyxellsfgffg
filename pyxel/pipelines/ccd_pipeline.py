@@ -20,13 +20,14 @@ def run_pipeline(cfg):
         if func:
             ccd = func(ccd)
 
-    # limiting charges per pixel due to Full Well Capacity
-    ccd.charge_excess()  # TODO: does this come after charge_collection
     steps = []
     for step in steps:
         func = cfg.charge_collection.models.get(step)
         if func:
             ccd = func(ccd)
+
+    # limiting charges per pixel due to Full Well Capacity
+    ccd.charge_excess()
 
     steps = []
     for step in steps:

@@ -78,6 +78,13 @@ class Simulation:
 
 ################# EXPERIMENTAL - NOT FINSHED YET ###############################
     def set_let_distribution(self):
+        '''
+        Read/generate a Linear Energy Transport distribution from Geant4 data
+        for each new particle based on its initial energy (from input spectrum)
+        and track length inside the detector
+        :return:
+        '''
+
 
         TARS_DIR = path.dirname(path.abspath(__file__))
         # particle_let_file = TARS_DIR + '../data/inputs/let_proton_12GeV_100um_geant4.ascii'
@@ -117,6 +124,8 @@ class Simulation:
         :return:
         """
 
+        # charge_cluster = np.zeros((1, 4))
+
         self.pcmap_last[:, :] = 0
 
         track_left = False
@@ -154,9 +163,9 @@ class Simulation:
             self._ionization_(p)
 
             # DIFFUSION AND COLLECTING ELECTRONS IN PIXELS -> make a Pyxel charge collection model from this
-            sig = self._electron_diffusion_(p)
+            # sig = self._electron_diffusion_(p)
             # self._electron_collection_(p, sig, sig)
-            self._electron_collection_(p, 1.0, 1.0)         # JUST FOR TESTING
+            # self._electron_collection_(p, 1.0, 1.0)         # JUST FOR TESTING
 
             # UPDATE POSITION OF IONIZING PARTICLES
             p.position[0] += p.dir_ver * self.step_length
@@ -166,6 +175,11 @@ class Simulation:
             # save particle trajectory
             p.trajectory = np.vstack((p.trajectory, p.position))
             # (should be changed to np.stack)
+
+            # charge_cluster = np.stack((p.position, p.electrons), axis=??) # NOT GOOOD  YET   # horizontal
+
+            # p.charge_clusters = np.stack((p.charge_clusters, charge_cluster), axis=1)  # vertical
+
         # END of loop
 
         if track_left:

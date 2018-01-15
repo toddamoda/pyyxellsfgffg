@@ -46,6 +46,8 @@ class Particle:
 
         self.ccd = ccd
 
+        # self.charge_clusters = np.zeros((1, 4))
+
         starting_position_vertical = None
         starting_position_horizontal = None
         starting_position_z = None
