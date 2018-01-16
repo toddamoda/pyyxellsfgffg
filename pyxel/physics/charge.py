@@ -3,8 +3,10 @@
 # import random
 import numpy as np
 import matplotlib.pyplot as plt
-from astropy import units as u
 
+from astropy import units as u
+from astropy.units import cds
+cds.enable()
 
 class Charge:
     """
@@ -15,7 +17,8 @@ class Charge:
                  detector=None,
                  particle_type='e',
                  starting_pos_ver=0.0, starting_pos_hor=0.0, starting_pos_z=0.0,
-                 particles_per_cluster=1
+                 particles_per_cluster=1,
+                 initial_energy=0.0
                  ):
         '''
         Creation of a charged particle (electron or hole) with its parameters
@@ -56,11 +59,11 @@ class Charge:
         else:
             raise ValueError('Z position of charge is not a number')
 
-        self.starting_position = np.array([starting_position_vertical,
-                                           starting_position_horizontal,
-                                           starting_position_z])
-        self.position = np.copy(self.starting_position)
-        self.trajectory = np.copy(self.starting_position)
+        self.initial_position = np.array([starting_position_vertical,
+                                          starting_position_horizontal,
+                                          starting_position_z])
+        self.position = np.copy(self.initial_position)
+        self.trajectory = np.copy(self.initial_position)
 
         # self.pixel = np.array([0, 0])
         # which pixel contains this charge at the end of charge collection phase
@@ -74,24 +77,23 @@ class Charge:
         # self.v_hor = v_abs * math.cos(alpha) * math.sin(beta)
 
         # Energy - Maybe later we will need this as well:
-        # if isinstance(input_energy, int) or isinstance(input_energy, float):
-        #     self.energy = input_energy
-        # else:
-        #     raise ValueError('Given charge (electron/hole) energy could not be read')
+        if isinstance(initial_energy, int) or isinstance(initial_energy, float):
+            self.energy = initial_energy * u.eV
+        else:
+            raise ValueError('Given charge (electron/hole) energy could not be read')
 
         self.type = particle_type
-        q_elementary = 1.60217662e-19 * u.C
         if self.type == 'e':
-            self.charge = -1 * q_elementary
+            self.charge = -1 * cds.e
         elif self.type == 'h':
-            self.charge = +1 * q_elementary
+            self.charge = +1 * cds.e
         else:
             raise ValueError('Given charged particle type can not be simulated')
 
         self.number = particles_per_cluster * u.electron
         # number of particles per cluster (it is called cluster if there are more than 1 charge)
 
-        self.mass = 1.0 * u.M_e     # = 9.1094e-31 kg
+        self.mass = 1.0 * cds.me
 
     def _plot_trajectory_xy_(self):
         plt.figure()

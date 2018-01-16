@@ -187,20 +187,28 @@ class TARS:
 
     def plot_charges_3d(self):
 
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
+        # set up a figure twice as wide as it is tall
+        fig = plt.figure(figsize=plt.figaspect(0.5))
+        ax = fig.add_subplot(1, 2, 1, projection='3d')
 
         # generator expression
         # sum(c.A for c in c_list)
         # asc = self.sim_obj.all_charge_clusters[0].position
 
+        init_pos0 = [cluster.initial_position[0] for cluster in self.sim_obj.all_charge_clusters]
+        init_pos1 = [cluster.initial_position[1] for cluster in self.sim_obj.all_charge_clusters]
+        init_pos2 = [cluster.initial_position[2] for cluster in self.sim_obj.all_charge_clusters]
+        cluster_size = [cluster.number.value for cluster in self.sim_obj.all_charge_clusters]
+
+        ax.scatter(init_pos0, init_pos1, init_pos2, c='b', marker='.', s=cluster_size)
+
+        ax2 = fig.add_subplot(1, 2, 2, projection='3d')
+
         pos0 = [cluster.position[0] for cluster in self.sim_obj.all_charge_clusters]
         pos1 = [cluster.position[1] for cluster in self.sim_obj.all_charge_clusters]
         pos2 = [cluster.position[2] for cluster in self.sim_obj.all_charge_clusters]
 
-        cluster_size = [cluster.number.value for cluster in self.sim_obj.all_charge_clusters]
-
-        ax.scatter(pos0, pos1, pos2, c='b', marker='.', s=cluster_size)
+        ax2.scatter(pos0, pos1, 0, c='r', marker='.', s=cluster_size)
 
         ax.set_xlim(0, self.ccd.ver_dimension)
         ax.set_ylim(0, self.ccd.hor_dimension)
@@ -209,4 +217,11 @@ class TARS:
         ax.set_ylabel('horizontal ($\mu$m)')
         ax.set_zlabel('z ($\mu$m)')
 
-        plt.show()
+        ax2.set_xlim(0, self.ccd.ver_dimension)
+        ax2.set_ylim(0, self.ccd.hor_dimension)
+        ax2.set_zlim(-1*self.ccd.total_thickness, 0)
+        ax2.set_xlabel('vertical ($\mu$m)')
+        ax2.set_ylabel('horizontal ($\mu$m)')
+        ax2.set_zlabel('z ($\mu$m)')
+
+        # plt.show()
