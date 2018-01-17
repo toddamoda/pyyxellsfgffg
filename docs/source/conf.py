@@ -76,7 +76,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = pkg.__pkgname__
-copyright = '2017, European Space Agency'
+copyright = '2018, European Space Agency'
 author = pkg.__author__
 
 # The version info for the project you're documenting, acts as replacement for
