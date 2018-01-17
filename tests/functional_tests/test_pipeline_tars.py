@@ -5,9 +5,8 @@ import pytest
 from astropy.io import fits
 import numpy as np
 
-import pyxel.pipelines.detection_pipeline
+from pyxel.pipelines import detection_pipeline
 from pyxel.detectors.ccd import CCD
-from pyxel.pipelines import ccd_pipeline
 from pyxel.pipelines.yaml_processor import load_config
 from pyxel.util.fitsfile import FitsFile
 
@@ -50,14 +49,10 @@ def test_pipeline_tars(input_filename):
     processor = cfg['process']          # type:
 
     # Step 2: Run the pipeline
-    result = pyxel.pipelines.detection_pipeline.run_pipeline(processor.ccd, processor.pipeline)  # type: CCD
+    result = detection_pipeline.run_pipeline(processor.ccd, processor.pipeline)  # type: CCD
     print('Pipeline completed.')
 
-    # Step 3: Save the result(s) in FITS, ASCII, Jupyter Notebook(s), ...
-    save_signal(ccd=result, output_filename='result.fits')
+    expected = fits.getdata('tests/functional_tests/expected_result.fits')
+    np.testing.assert_array_equal(result.readout_signal.value, expected)
 
-    data_out = fits.getdata('result.fits')
-    data_exp = fits.getdata('tests/functional_tests/expected_result.fits')
-
-    np.testing.assert_array_equal(data_out, data_exp)
-
+    # save_signal(ccd=result, output_filename='result')

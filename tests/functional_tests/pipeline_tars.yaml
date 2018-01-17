@@ -22,8 +22,8 @@ process: !PROCESSOR
       depletion_thickness: 10.0     # um
       field_free_thickness: 0.0     # um
       substrate_thickness: 0.0      # um
-      pixel_ver_size: 10.0          # um
-      pixel_hor_size: 10.0          # um
+      pixel_vert_size: 10.0         # um
+      pixel_horz_size: 10.0         # um
 
     environment:
       temperature: 320  # detector temperature Kelvin
@@ -44,7 +44,8 @@ process: !PROCESSOR
   pipeline: !CCD_PIPELINE
     # -> photons
     optics: !models
-      shot_noise: pyxel.models.ccd_noise.apply_shot_noise
+      shot_noise: !function
+        name: pyxel.models.ccd_noise.apply_shot_noise
   #    ray_tracing: !class
   #      name: pyxel.models.ccd_noise.OpticsModelRayTracer
   #      args:
@@ -61,10 +62,10 @@ process: !PROCESSOR
     charge_generation: !models
   #    fixed_pattern_noise: pyxel.models.ccd_noise.add_fix_pattern_noise
       tars: !function
-        name: pyxel.models.ccd_noise.apply_tars
+        name: pyxel.models.tars.tars.run_tars
         kwargs:
           initial_energy: 100.0   # MeV
-          particule_number: 1
+          particle_number: 1
           incident_angles:      # rad
             - 0.31416  # pi / 10
             - 0.7853   # pi / 4
@@ -83,9 +84,9 @@ process: !PROCESSOR
     # -> signal
     charge_readout: !models
       readout_noise: !function
-        name: pyxel.models.ccd_noise.add_readout_noise
+        name: pyxel.models.ccd_noise.add_output_node_noise
         kwargs:
-          readout_sigma: 1
+          std_deviation: 1.0
 
     # -> signal
     readout_electronics: !models
@@ -190,7 +191,7 @@ process: !PROCESSOR
 #      name: pyxel.models.ccd_noise.apply_tars
 #      kwargs:
 #        initial_energy: 100.0   # MeV
-#        particule_number: 1
+#        particle_number: 1
 #        incident_angles:      # rad
 #          - 0.31416  # pi / 10
 #          - 0.7853   # pi / 4
