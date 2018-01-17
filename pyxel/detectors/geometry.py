@@ -14,9 +14,3 @@ class Geometry:
         self.substrate_thickness = substrate_thickness
         self.pixel_ver_size = pixel_ver_size
         self.pixel_hor_size = pixel_hor_size
-
-
-class Environment:
-
-    def __init__(self, temperature: float = None):
-        self.temperature = temperature          # unit: K

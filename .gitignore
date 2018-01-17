@@ -1,6 +1,5 @@
 # Pyxel output data files
 *.data
-*.fits
 
 # Geant4 i/o files
 *.mac

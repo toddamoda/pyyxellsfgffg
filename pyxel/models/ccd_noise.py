@@ -11,7 +11,7 @@ import numpy as np
 
 # from . import Model
 
-from pyxel.detectors.ccd import CCDDetector
+from pyxel.detectors.ccd import CCD
 
 # from pyxel.models.tars.tars_v3 import TARS
 # from pyxel.models.tars.tars_v3 import TARS_DIR
@@ -26,7 +26,7 @@ def foo(ccd, cls, method_name, kwargs_init, kwargs_method):
     return new_ccd
 
 
-def apply_shot_noise(ccd: CCDDetector) -> CCDDetector:
+def apply_shot_noise(ccd: CCD) -> CCD:
     """ Extract the shot noise
 
     :param photon_array: (unit photons)
@@ -34,12 +34,12 @@ def apply_shot_noise(ccd: CCDDetector) -> CCDDetector:
     """
     new_ccd = copy.deepcopy(ccd)
 
-    new_ccd.photons = np.random.poisson(lam=new_ccd.photons.value) * u.ph
+    new_ccd._photons = np.random.poisson(lam=new_ccd._photons.value) * u.ph
 
     return new_ccd
 
 
-def add_fix_pattern_noise(ccd: CCDDetector, inplace=True) -> CCDDetector:
+def add_fix_pattern_noise(ccd: CCD, inplace=True) -> CCD:
 
     if inplace:
         new_ccd = copy.deepcopy(ccd)
@@ -50,16 +50,16 @@ def add_fix_pattern_noise(ccd: CCDDetector, inplace=True) -> CCDDetector:
     else:
         new_ccd = ccd
 
-    temp = new_ccd.charge
+    temp = new_ccd._charge
     temp2 = new_ccd.pix_non_uniformity
 
-    new_ccd.charge = new_ccd.charge * new_ccd.pix_non_uniformity
-    new_ccd.charge = np.int16(np.rint(new_ccd.charge))
+    new_ccd._charge = new_ccd._charge * new_ccd.pix_non_uniformity
+    new_ccd._charge = np.int16(np.rint(new_ccd._charge))
 
     return new_ccd
 
 
-def add_output_node_noise(ccd: CCDDetector, std_deviation: float) -> CCDDetector:
+def add_output_node_noise(ccd: CCD, std_deviation: float) -> CCD:
     """
     Adding noise to signal array of ccd output node using normal random distribution
     CCD Signal unit: Volt

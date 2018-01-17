@@ -1,8 +1,8 @@
 from astropy import units as u
 import typing as t
 
-from pyxel.detectors.ccd_characteristics import CCDCharacteristics
-from pyxel.detectors.geometry import Geometry, Environment
+from pyxel.detectors.ccd import CCD
+
 from pyxel.util import util
 
 
@@ -26,31 +26,6 @@ class Models:
 
         self.models = new_dct                   # type: t.Dict[str, t.Callable]
 
-
-class CCD:
-
-    def __init__(self,
-                 geometry: Geometry = None,
-                 environment: Environment = None,
-                 characteristics: CCDCharacteristics = None,
-                 photons=None, signal=None, charge=None):
-
-        if photons is not None:
-            photons = photons * u.ph   # unit: photons
-
-        if signal is not None:
-            signal = signal * u.adu  # unit: ADU
-
-        if charge is not None:
-            charge = charge * u.electron  # unit: electrons
-
-        self.photons = photons
-        self.signal = signal
-        self.charge = charge
-
-        self.geometry = geometry
-        self.environment = environment
-        self.characteristics = characteristics
 
 
 class DetectionPipeline:

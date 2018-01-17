@@ -1,9 +1,9 @@
-from pyxel.detectors.ccd import CCDDetector
+from pyxel.detectors.ccd import CCD
 
 
 def run_pipeline(cfg):
 
-    ccd = CCDDetector.from_ccd(cfg.ccd)     # type: CCDDetector
+    ccd = cfg.ccd     # type: CCD
 
     # OPTICS
     # Stage 1: Apply the Optics model(s). only '.photons' is modified
@@ -40,7 +40,7 @@ def run_pipeline(cfg):
             ccd = func(ccd)
 
     # CHARGE READOUT
-    ccd.compute_ccd_signal()
+    ccd.compute_signal()
     # TODO: Convert here the charge object list into a 2d signal array
 
     steps = ['output_node_noise']

@@ -8,7 +8,7 @@ import yaml
 import pyxel.detectors.ccd_characteristics
 import pyxel.detectors.geometry
 from pyxel.util import fitsfile
-from pyxel.detectors.ccd import CCDDetector
+from pyxel.detectors.ccd import CCD
 from pyxel.pipelines import ccd_pipeline
 from pyxel.pipelines import config
 from pyxel.util import util
@@ -38,7 +38,7 @@ def _constructor_ccd(loader: PipelineYAML, node: yaml.MappingNode):
         geometry = None
 
     if 'environment' in mapping:
-        environment = pyxel.detectors.geometry.Environment(**mapping['environment'])
+        environment = pyxel.detectors.environment.Environment(**mapping['environment'])
     else:
         environment = None
 
@@ -51,12 +51,12 @@ def _constructor_ccd(loader: PipelineYAML, node: yaml.MappingNode):
     signal = mapping.get('signal', None)
     charge = mapping.get('charge', None)
 
-    obj = config.CCD(photons=photons,
-                     signal=signal,
-                     charge=charge,
-                     geometry=geometry,
-                     environment=environment,
-                     characteristics=characteristics)
+    obj = CCD(photons=photons,
+              signal=signal,
+              charge=charge,
+              geometry=geometry,
+              environment=environment,
+              characteristics=characteristics)
 
     return obj
 
@@ -109,7 +109,7 @@ def load_config(yaml_file):
     return cfg
 
 
-def save_signal(ccd: CCDDetector, output_filename: Path):
+def save_signal(ccd: CCD, output_filename: Path):
     """ Save the 'signal' from a `CCDDetector` object into a FITS file.
 
     :param ccd:
@@ -142,7 +142,7 @@ def main():
     cfg = load_config(str(config_path))
 
     # Step 2: Run the pipeline
-    result = ccd_pipeline.run_pipeline(cfg)         # type: CCDDetector
+    result = ccd_pipeline.run_pipeline(cfg)         # type: CCD
     print('Pipeline completed.')
 
     # Step 3: Save the result(s) in FITS, ASCII, Jupyter Notebook(s), ...
