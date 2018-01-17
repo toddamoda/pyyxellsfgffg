@@ -9,10 +9,10 @@ CI Output Results
 
 * `Documentation <doc>`_
 * `Coverage <coverage>`_
-* `Unit tests <pytest_report.html>`_
+* `Tests <pytest_report.html>`_
 * `Pylint <pylint_report.html>`_
 
 
 .. footer:: This document was generated on |date| at |time|.
 
-Copyright (c) 2017 - SCI-FV, Estec, ESA
+Copyright (c) 2018 - SCI-FV, Estec, ESA
