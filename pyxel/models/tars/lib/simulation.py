@@ -62,7 +62,7 @@ class Simulation:
         self.step_length = None
         self.energy_cut = 1.0e-5        # MeV
 
-        self.electron_clusters = Charge(self.ccd, 'e')
+        self.electron_clusters = Charge(self.ccd)
         
         self.edep_per_step = []
         self.total_edep_per_particle = []
@@ -147,9 +147,9 @@ class Simulation:
 
         while True:
             # check if p is still inside CCD and have enough energy:
-            if p.position[0] < 0.0 or p.position[0] > self.ccd.ver_dimension:
+            if p.position[0] < 0.0 or p.position[0] > self.ccd.vert_dimension:
                 break
-            if p.position[1] < 0.0 or p.position[1] > self.ccd.hor_dimension:
+            if p.position[1] < 0.0 or p.position[1] > self.ccd.horz_dimension:
                 break
             if p.position[2] < -1 * self.ccd.total_thickness or p.position[2] > 0.0:
                 break

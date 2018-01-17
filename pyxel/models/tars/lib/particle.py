@@ -53,11 +53,11 @@ class Particle:
         starting_position_z = None
 
         if starting_pos_ver == 'random':
-            starting_position_vertical = self.ccd.ver_dimension * random.random()
+            starting_position_vertical = self.ccd.vert_dimension * random.random()
         elif isinstance(starting_pos_ver, int) or isinstance(starting_pos_ver, float):
             starting_position_vertical = starting_pos_ver
         if starting_pos_hor == 'random':
-            starting_position_horizontal = self.ccd.hor_dimension * random.random()
+            starting_position_horizontal = self.ccd.horz_dimension * random.random()
         elif isinstance(starting_pos_hor, int) or isinstance(starting_pos_hor, float):
             starting_position_horizontal = starting_pos_hor
 
@@ -115,26 +115,26 @@ class Particle:
         else:
             raise ValueError('Given particle type can not be simulated')
 
-    def plot_trajectory_xy(self):
-        plt.figure()
-        # self.trajectory[:, 0] - VERTICAL COORDINATE
-        # self.trajectory[:, 1] - HORIZONTAL COORDINATE
-        plt.plot(self.trajectory[:, 1], self.trajectory[:, 0], '.')
-        plt.xlabel('horizontal ($\mu$m)')
-        plt.ylabel('vertical ($\mu$m)')
-        plt.title('p trajectory in CCD')
-        plt.axis([0, self.ccd.hor_dimension, 0, self.ccd.ver_dimension])
-        plt.grid(True)
-        plt.draw()
-
-    def plot_trajectory_xz(self):
-        plt.figure()
-        # self.trajectory[:, 2] - Z COORDINATE
-        # self.trajectory[:, 1] - HORIZONTAL COORDINATE
-        plt.plot(self.trajectory[:, 1], self.trajectory[:, 2], '.')
-        plt.xlabel('horizontal ($\mu$m)')
-        plt.ylabel('z ($\mu$m)')
-        plt.title('p trajectory in CCD')
-        plt.axis([0, self.ccd.hor_dimension, -1*self.ccd.total_thickness, 0])
-        plt.grid(True)
-        plt.draw()
+    # def plot_trajectory_xy(self):
+    #     plt.figure()
+    #     # self.trajectory[:, 0] - VERTICAL COORDINATE
+    #     # self.trajectory[:, 1] - HORIZONTAL COORDINATE
+    #     plt.plot(self.trajectory[:, 1], self.trajectory[:, 0], '.')
+    #     plt.xlabel('horizontal ($\mu$m)')
+    #     plt.ylabel('vertical ($\mu$m)')
+    #     plt.title('p trajectory in CCD')
+    #     plt.axis([0, self.ccd.horz_dimension, 0, self.ccd.vert_dimension])
+    #     plt.grid(True)
+    #     plt.draw()
+    #
+    # def plot_trajectory_xz(self):
+    #     plt.figure()
+    #     # self.trajectory[:, 2] - Z COORDINATE
+    #     # self.trajectory[:, 1] - HORIZONTAL COORDINATE
+    #     plt.plot(self.trajectory[:, 1], self.trajectory[:, 2], '.')
+    #     plt.xlabel('horizontal ($\mu$m)')
+    #     plt.ylabel('z ($\mu$m)')
+    #     plt.title('p trajectory in CCD')
+    #     plt.axis([0, self.ccd.horz_dimension, -1*self.ccd.total_thickness, 0])
+    #     plt.grid(True)
+    #     plt.draw()

@@ -43,8 +43,8 @@ class Charge:
                       ):
 
         if isinstance(initial_position, np.ndarray):
-            if 0.0 <= initial_position[0] <= self.detector.ver_dimension:
-                if 0.0 <= initial_position[1] <= self.detector.hor_dimension:
+            if 0.0 <= initial_position[0] <= self.detector.vert_dimension:
+                if 0.0 <= initial_position[1] <= self.detector.horz_dimension:
                     if -1 * self.detector.total_thickness <= initial_position[2] <= 0.0:
                         pass
                     else:
@@ -57,7 +57,7 @@ class Charge:
             raise ValueError
 
         # if isinstance(initial_position[0], int) or isinstance(initial_position[0], float):
-        #     if 0.0 <= initial_position[0] <= self.detector.ver_dimension:
+        #     if 0.0 <= initial_position[0] <= self.detector.vert_dimension:
         #         initial_position_vertical = initial_position[0]
         #     else:
         #         raise ValueError('Vertical position of charge is outside the detector')
@@ -65,7 +65,7 @@ class Charge:
         #     raise ValueError('Vertical position of charge is not a number')
         #
         # if isinstance(initial_position[1], int) or isinstance(initial_position[1], float):
-        #     if 0.0 <= initial_position[1] <= self.detector.hor_dimension:
+        #     if 0.0 <= initial_position[1] <= self.detector.horz_dimension:
         #         initial_position_horizontal = initial_position[1]
         #     else:
         #         raise ValueError('Horizontal position of charge is outside the detector')
@@ -144,7 +144,7 @@ class Charge:
     #     plt.xlabel('horizontal ($\mu$m)')
     #     plt.ylabel('vertical ($\mu$m)')
     #     plt.title('charge (e/h) trajectory in detector')
-    #     plt.axis([0, self.detector.hor_dimension, 0, self.detector.ver_dimension])
+    #     plt.axis([0, self.detector.horz_dimension, 0, self.detector.vert_dimension])
     #     plt.grid(True)
     #     plt.draw()
     #
@@ -156,6 +156,6 @@ class Charge:
     #     plt.xlabel('horizontal ($\mu$m)')
     #     plt.ylabel('z ($\mu$m)')
     #     plt.title('charge (e/h) trajectory in detector')
-    #     plt.axis([0, self.detector.hor_dimension, -1*self.detector.total_thickness, 0])
+    #     plt.axis([0, self.detector.horz_dimension, -1*self.detector.total_thickness, 0])
     #     plt.grid(True)
     #     plt.draw()

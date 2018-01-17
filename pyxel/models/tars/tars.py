@@ -113,9 +113,9 @@ class TARS:
                                 self.step_length)
 
         for i in tqdm(range(0, self.particle_number)):
-            dep = 0
-            while dep == 0:
-                dep = self.sim_obj.event_generation()
+            # dep = 0
+            # while dep == 0:
+            dep = self.sim_obj.event_generation()
                 # print('total deposited E: {0:4.2f} keV'.format(dep))
 
         # np.save('orig2_edep_per_step_10k', self.sim_obj.edep_per_step)
@@ -123,32 +123,32 @@ class TARS:
 
         # self.plot_edep_per_step()
         # self.plot_edep_per_particle()
-        self.plot_charges_3d()
-        plt.show()
+        # self.plot_charges_3d()
+        # plt.show()
 
         self.sim_obj.processing_time = time.time() - start_time
 
-    def plot_edep_per_step(self):
-        plt.figure()
-        n, bins, patches = plt.hist(self.sim_obj.edep_per_step, 300, facecolor='b')
-        plt.xlabel('E_dep (keV)')
-        plt.ylabel('Counts')
-        plt.title('Histogram of E deposited per step')
-        # plt.axis([0, 0.003, 0, 1.05*max(n)])
-        plt.grid(True)
-        plt.draw()
-        return n, bins, patches
-
-    def plot_edep_per_particle(self):
-        plt.figure()
-        n, bins, patches = plt.hist(self.sim_obj.total_edep_per_particle, 200, facecolor='g')
-        plt.xlabel('E_dep (keV)')
-        plt.ylabel('Counts')
-        plt.title('Histogram of total E deposited per particle')
-        # plt.axis([0, 0.4, 0, 1.05*max(n)])
-        plt.grid(True)
-        plt.draw()
-        return n, bins, patches
+    # def plot_edep_per_step(self):
+    #     plt.figure()
+    #     n, bins, patches = plt.hist(self.sim_obj.edep_per_step, 300, facecolor='b')
+    #     plt.xlabel('E_dep (keV)')
+    #     plt.ylabel('Counts')
+    #     plt.title('Histogram of E deposited per step')
+    #     # plt.axis([0, 0.003, 0, 1.05*max(n)])
+    #     plt.grid(True)
+    #     plt.draw()
+    #     return n, bins, patches
+    #
+    # def plot_edep_per_particle(self):
+    #     plt.figure()
+    #     n, bins, patches = plt.hist(self.sim_obj.total_edep_per_particle, 200, facecolor='g')
+    #     plt.xlabel('E_dep (keV)')
+    #     plt.ylabel('Counts')
+    #     plt.title('Histogram of total E deposited per particle')
+    #     # plt.axis([0, 0.4, 0, 1.05*max(n)])
+    #     plt.grid(True)
+    #     plt.draw()
+    #     return n, bins, patches
 
     # def set_stopping_power(self, stopping_file):
     #     self.sim_obj.stopping_power_function = read_data(stopping_file)
@@ -162,7 +162,7 @@ class TARS:
         """
         spectrum = read_data(file_name)  # nuc/m2*s*sr*MeV
 
-        ccd_area = self.ccd.ver_dimension * self.ccd.hor_dimension * 1.0e-8  # cm2
+        ccd_area = self.ccd.vert_dimension * self.ccd.horz_dimension * 1.0e-8  # cm2
 
         spectrum[:, 1] *= 4 * math.pi * 1.0e-4 * ccd_area  # nuc/s*MeV
 
@@ -185,44 +185,44 @@ class TARS:
 
         # plt.show()
 
-    def plot_charges_3d(self):
-
-        # set up a figure twice as wide as it is tall
-        fig = plt.figure(figsize=plt.figaspect(0.5))
-        ax = fig.add_subplot(1, 2, 1, projection='3d')
-
-        # generator expression
-        # sum(c.A for c in c_list)
-        # asc = self.sim_obj.all_charge_clusters[0].position
-
-        ############################### need to be fixed
-        # init_pos0 = [cluster.initial_position[0] for cluster in self.sim_obj.all_charge_clusters]
-        # init_pos1 = [cluster.initial_position[1] for cluster in self.sim_obj.all_charge_clusters]
-        # init_pos2 = [cluster.initial_position[2] for cluster in self.sim_obj.all_charge_clusters]
-        # cluster_size = [cluster.number.value for cluster in self.sim_obj.all_charge_clusters]
-        #
-        # ax.scatter(init_pos0, init_pos1, init_pos2, c='b', marker='.', s=cluster_size)
-        #
-        # ax2 = fig.add_subplot(1, 2, 2, projection='3d')
-        #
-        # pos0 = [cluster.position[0] for cluster in self.sim_obj.all_charge_clusters]
-        # pos1 = [cluster.position[1] for cluster in self.sim_obj.all_charge_clusters]
-        # pos2 = [cluster.position[2] for cluster in self.sim_obj.all_charge_clusters]
-        #
-        # ax2.scatter(pos0, pos1, 0, c=r', marker='.', s=cluster_size)
-        #
-        # ax.set_xlim(0, self.ccd.ver_dimension)
-        # ax.set_ylim(0, self.ccd.hor_dimension)
-        # ax.set_zlim(-1*self.ccd.total_thickness, 0)
-        # ax.set_xlabel('vertical ($\mu$m)')
-        # ax.set_ylabel('horizontal ($\mu$m)')
-        # ax.set_zlabel('z ($\mu$m)')
-        #
-        # ax2.set_xlim(0, self.ccd.ver_dimension)
-        # ax2.set_ylim(0, self.ccd.hor_dimension)
-        # ax2.set_zlim(-1*self.ccd.total_thickness, 0)
-        # ax2.set_xlabel('vertical ($\mu$m)')
-        # ax2.set_ylabel('horizontal ($\mu$m)')
-        # ax2.set_zlabel('z ($\mu$m)')
-        ##################################
-        # plt.show()
+    # def plot_charges_3d(self):
+    #
+    #     # set up a figure twice as wide as it is tall
+    #     fig = plt.figure(figsize=plt.figaspect(0.5))
+    #     ax = fig.add_subplot(1, 2, 1, projection='3d')
+    #
+    #     # generator expression
+    #     # sum(c.A for c in c_list)
+    #     # asc = self.sim_obj.all_charge_clusters[0].position
+    #
+    #     ############################### need to be fixed
+    #     # init_pos0 = [cluster.initial_position[0] for cluster in self.sim_obj.all_charge_clusters]
+    #     # init_pos1 = [cluster.initial_position[1] for cluster in self.sim_obj.all_charge_clusters]
+    #     # init_pos2 = [cluster.initial_position[2] for cluster in self.sim_obj.all_charge_clusters]
+    #     # cluster_size = [cluster.number.value for cluster in self.sim_obj.all_charge_clusters]
+    #     #
+    #     # ax.scatter(init_pos0, init_pos1, init_pos2, c='b', marker='.', s=cluster_size)
+    #     #
+    #     # ax2 = fig.add_subplot(1, 2, 2, projection='3d')
+    #     #
+    #     # pos0 = [cluster.position[0] for cluster in self.sim_obj.all_charge_clusters]
+    #     # pos1 = [cluster.position[1] for cluster in self.sim_obj.all_charge_clusters]
+    #     # pos2 = [cluster.position[2] for cluster in self.sim_obj.all_charge_clusters]
+    #     #
+    #     # ax2.scatter(pos0, pos1, 0, c=r', marker='.', s=cluster_size)
+    #     #
+    #     # ax.set_xlim(0, self.ccd.vert_dimension)
+    #     # ax.set_ylim(0, self.ccd.horz_dimension)
+    #     # ax.set_zlim(-1*self.ccd.total_thickness, 0)
+    #     # ax.set_xlabel('vertical ($\mu$m)')
+    #     # ax.set_ylabel('horizontal ($\mu$m)')
+    #     # ax.set_zlabel('z ($\mu$m)')
+    #     #
+    #     # ax2.set_xlim(0, self.ccd.vert_dimension)
+    #     # ax2.set_ylim(0, self.ccd.horz_dimension)
+    #     # ax2.set_zlim(-1*self.ccd.total_thickness, 0)
+    #     # ax2.set_xlabel('vertical ($\mu$m)')
+    #     # ax2.set_ylabel('horizontal ($\mu$m)')
+    #     # ax2.set_zlabel('z ($\mu$m)')
+    #     ##################################
+    #     # plt.show()

@@ -51,6 +51,8 @@ class CCD:
         self.environment = environment
         self.characteristics = characteristics
 
+        self.charge_list = []                 # list of Charge class objects
+
     #
     # def __init__(self, **kwargs):
     #     """
