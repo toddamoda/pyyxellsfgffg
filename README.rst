@@ -3,6 +3,8 @@ PYXEL a detector simulation framework
 
 tbd
 
+See http://sci-fv.io.esa.int/pyxel
+
 
 Requirements
 ------------
