@@ -111,7 +111,7 @@ pages:
     - mkdir public
     - ls
 
-#    - mv doc/html public/doc
+    - mv docs/html public/doc
     - mv pages.html public/index.html
     - mv htmlcov public/coverage
     - mv pytest_report.html public
