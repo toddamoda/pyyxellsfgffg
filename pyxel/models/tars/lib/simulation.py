@@ -61,6 +61,8 @@ class Simulation:
         self.angle_beta = None
         self.step_length = None
         self.energy_cut = 1.0e-5        # MeV
+
+        self.electron_clusters = Charge(self.ccd, 'e')
         
         self.edep_per_step = []
         self.total_edep_per_particle = []
@@ -157,7 +159,7 @@ class Simulation:
             track_left = True
 
             # IONIZATION
-            cluster = self._ionization_(p)
+            self._ionization_(p)
 
             # DIFFUSION AND COLLECTING ELECTRONS IN PIXELS -> make a Pyxel charge collection model from this
             # sig = self._electron_diffusion_(p)
@@ -173,7 +175,7 @@ class Simulation:
             p.trajectory = np.vstack((p.trajectory, p.position))
             # (should be changed to np.stack)
 
-            self.clusters_per_track.append(cluster)
+            # self.clusters_per_track.append(cluster)
 
         # END of loop
 
@@ -201,10 +203,11 @@ class Simulation:
             particle.deposited_energy = particle.energy * 1e3
 
         particle.electrons = int(particle.deposited_energy * 1e3 / self.ccd.material_ionization_energy)     # eV/eV = 1
-        cluster_of_ionized_e = Charge(self.ccd,
-                                      'e',
-                                      particle.position[0], particle.position[1], particle.position[2],
-                                      particle.electrons)
+
+        self.electron_clusters.create_charge(particle.electrons,
+                                             0.1,
+                                             particle.position,
+                                             np.array([0., 0., 0.]))
 
         particle.deposited_energy = particle.electrons * self.ccd.material_ionization_energy * 1e-3         # keV
         # else:
@@ -212,5 +215,3 @@ class Simulation:
 
         self.edep_per_step.append(particle.deposited_energy)    # keV
         particle.total_edep += particle.deposited_energy        # keV
-
-        return cluster_of_ionized_e
