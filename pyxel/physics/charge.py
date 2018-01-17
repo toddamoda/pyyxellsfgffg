@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 from astropy import units as u
 from astropy.units import cds
 cds.enable()
+import pandas as pd
+
 
 class Charge:
     """
