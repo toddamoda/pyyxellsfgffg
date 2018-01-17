@@ -18,23 +18,23 @@ stages:
 #
 
 # Generate the Sphinx documentation into 'doc/html'
-#doc:
-#  image: continuumio/anaconda3
-#  stage: build
-#  script:
-#    - pip install sphinx sphinx_rtd_theme
+doc:
+  image: continuumio/anaconda3
+  stage: build
+  script:
+    - pip install sphinx sphinx_rtd_theme
 
-#    - export PYTHONPATH=$PWD
-#    - sphinx-build doc/source doc/html
+    - export PYTHONPATH=$PWD
+    - sphinx-build docs/source docs/html
 
-#    - ls
-#  artifacts:
-#    paths:
-#      - doc/html
-#  cache:
-#    key: "$CI_COMMIT_REF_NAME"
-#    paths:
-#      - doc/html
+    - ls
+  artifacts:
+    paths:
+      - docs/html
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    paths:
+      - docs/html
 
 
 #

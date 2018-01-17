@@ -1,6 +1,13 @@
-.idea
-data
-**/__pycache__
+# Pyxel output data files
+*.data
+*.fits
+
+# Geant4 i/o files
+*.mac
+*.ascii
+
+# temp files
+**/tmp*
 
 # Byte-compiled
 *.pyc
@@ -11,6 +18,7 @@ build/
 
 # Pycharm
 .idea/*
+**/__pycache__
 
 # Sphinx
 _build

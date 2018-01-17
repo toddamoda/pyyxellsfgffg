@@ -19,9 +19,9 @@
 
 import math
 import random
-import bisect
 import numpy as np
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
+from pyxel.models.tars.lib.util import sampling_distribution
 
 
 class Particle:
@@ -31,14 +31,10 @@ class Particle:
 
     def __init__(self,
                  ccd=None,
-                 input_energy='random',
-                 starting_pos_ver='random',
-                 starting_pos_hor='random',
-                 starting_pos_z='random',
-                 input_alpha='random',
-                 input_beta='random',
-                 spectrum_cdf=None,
-                 spectrum_e_limit=None):
+                 particle_type='proton',
+                 input_energy='random', spectrum_cdf=None,
+                 starting_pos_ver='random', starting_pos_hor='random', starting_pos_z='random',
+                 input_alpha='random', input_beta='random'):
         """
         Creation of a particle according to some parameters
 
@@ -50,20 +46,22 @@ class Particle:
 
         self.ccd = ccd
 
+        # self.charge_clusters = np.zeros((1, 4))
+
         starting_position_vertical = None
         starting_position_horizontal = None
         starting_position_z = None
 
-        if starting_pos_ver is 'random':
+        if starting_pos_ver == 'random':
             starting_position_vertical = self.ccd.ver_dimension * random.random()
         elif isinstance(starting_pos_ver, int) or isinstance(starting_pos_ver, float):
             starting_position_vertical = starting_pos_ver
-        if starting_pos_hor is 'random':
+        if starting_pos_hor == 'random':
             starting_position_horizontal = self.ccd.hor_dimension * random.random()
         elif isinstance(starting_pos_hor, int) or isinstance(starting_pos_hor, float):
             starting_position_horizontal = starting_pos_hor
 
-        if starting_pos_z is 'random':
+        if starting_pos_z == 'random':
             starting_position_z = self.ccd.total_thickness * random.random()
         elif isinstance(starting_pos_z, int) or isinstance(starting_pos_z, float):
             starting_position_z = starting_pos_z
@@ -74,14 +72,14 @@ class Particle:
         self.position = np.copy(self.starting_position)
         self.trajectory = np.copy(self.starting_position)
 
-        if input_alpha is 'random' and starting_pos_z == 0.:
+        if input_alpha == 'random' and starting_pos_z == 0.:
             alpha = math.pi * random.random()
-        elif input_alpha is 'random' and starting_pos_z != 0.:
+        elif input_alpha == 'random' and starting_pos_z != 0.:
             alpha = 2 * math.pi * random.random()
         else:
             alpha = input_alpha  # between 0 and pi
 
-        if input_beta is 'random':
+        if input_beta == 'random':
             beta = 2. * math.pi * random.random()
         else:
             beta = input_beta
@@ -91,15 +89,10 @@ class Particle:
         self.dir_ver = math.cos(alpha) * math.cos(beta)
         self.dir_hor = math.cos(alpha) * math.sin(beta)
 
-        self.energy = 2 * spectrum_e_limit
-        if input_energy is 'random':
-            while self.energy > spectrum_e_limit:
-                self.__get_energy_from_spectrum__(spectrum_cdf)
+        if input_energy == 'random':
+            self.energy = sampling_distribution(spectrum_cdf)
         elif isinstance(input_energy, int) or isinstance(input_energy, float):
-            if input_energy <= spectrum_e_limit:
-                self.energy = input_energy
-            else:
-                raise ValueError('Given particle energy is too high, no stopping power data available')
+            self.energy = input_energy
         else:
             raise ValueError('Given particle energy could not be read')
 
@@ -107,11 +100,20 @@ class Particle:
         self.electrons = 0
         self.total_edep = 0
 
-        self.minmax = np.array([100000, -1, 100000, -1])
+        self.particle_type = particle_type
+        ionizing_particles = ['proton', 'ion', 'alpha', 'beta', 'electron']
+        non_ionizing_particles = ['gamma', 'x-ray', 'photon']
 
-    def __get_energy_from_spectrum__(self, cdf):
-        u = np.random.random()
-        self.energy = cdf[0][bisect.bisect(cdf[1], u) - 1]
+        if self.particle_type in ionizing_particles:
+            # call direct ionization func when needed - already implemented in simulation
+            pass
+
+        elif self.particle_type in non_ionizing_particles:
+            # call NON-direct ionization func when needed - need to be implemented
+            raise NotImplementedError('Given particle type simulation is not yet implemented')
+
+        else:
+            raise ValueError('Given particle type can not be simulated')
 
     def plot_trajectory_xy(self):
         plt.figure()
@@ -124,7 +126,6 @@ class Particle:
         plt.axis([0, self.ccd.hor_dimension, 0, self.ccd.ver_dimension])
         plt.grid(True)
         plt.draw()
-        # plt.show()
 
     def plot_trajectory_xz(self):
         plt.figure()
@@ -137,4 +138,3 @@ class Particle:
         plt.axis([0, self.ccd.hor_dimension, -1*self.ccd.total_thickness, 0])
         plt.grid(True)
         plt.draw()
-        # plt.show()

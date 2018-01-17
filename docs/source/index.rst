@@ -1,8 +1,8 @@
-===========
-{{package}}
-===========
+=====
+Pyxel
+=====
 
-The **{{package}}** documentation.
+The **pyxel** documentation.
 
 
 Table of Contents

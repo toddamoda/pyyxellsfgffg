@@ -4,6 +4,12 @@ PYXEL a detector simulation framework
 tbd
 
 
+Requirements
+------------
+
+- ``python >= 3.5``
+
+
 Build and Test Commands
 -----------------------
 
@@ -66,3 +72,15 @@ If the above has
 
 Make sure the `.pypirc` file is defined in your home folder before running
 the above commands.
+
+
+Documentation
+-------------
+
+The documentation of **Pyxel** can be found at this link: http://sci-fv.io.esa.int/pyxel/doc
+
+
+License
+-------
+
+ESA Software Community License - Type 3. See License File.

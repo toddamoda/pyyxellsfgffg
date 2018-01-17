@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 import yaml
 
+from pyxel.util import fitsfile
 from pyxel.detectors.ccd import CCDDetector
 from pyxel.pipelines import ccd_pipeline
 from pyxel.pipelines import config
@@ -59,17 +60,23 @@ def _constructor_ccd(loader: PipelineYAML, node: yaml.MappingNode):
 
 
 def _constructor_from_file(loader: PipelineYAML, node: yaml.ScalarNode):
-    noise_file = loader.construct_scalar(node)
-    result = np.fromfile(noise_file, dtype=float, sep=' ')
+    noise_filename = Path(loader.construct_scalar(node))
+    if noise_filename.suffix.lower().startswith('.fit'):
+        result = fitsfile.FitsFile(str(noise_filename)).data
+    else:
+        result = np.fromfile(str(noise_filename), dtype=float, sep=' ')
     return result
 
 
 def _constructor_models(loader: PipelineYAML, node: yaml.ScalarNode):
+    # TODO: Catch only the YAML exceptions
     try:
         mapping = loader.construct_mapping(node)             # type: dict
     except:
-    # except yaml.construtor.ConstructorError:
+    #### except yaml.construtor.ConstructorError:
         mapping = {}
+
+    # mapping = loader.construct_mapping(node)             # type: dict
 
     return config.Models(mapping)
 
@@ -106,7 +113,7 @@ def save_signal(ccd: CCDDetector, output_filename: Path):
     :param ccd:
     :param output_filename:
     """
-    data = ccd.signal.value         # remove the unit
+    data = ccd.readout_signal.value         # remove the unit
 
     # creating new fits file with new data
     new_fits_file = FitsFile(output_filename)
