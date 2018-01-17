@@ -7,12 +7,10 @@ import yaml
 
 import pyxel.detectors.ccd_characteristics
 import pyxel.detectors.geometry
-from pyxel.util import fitsfile
 from pyxel.detectors.ccd import CCD
-from pyxel.pipelines import ccd_pipeline
-from pyxel.pipelines import config
+from pyxel.pipelines import detection_pipeline
+from pyxel.util import fitsfile
 from pyxel.util import util
-from pyxel.util.fitsfile import FitsFile
 
 
 # from pyxel.pipelines.ccd_transfer_function import CCDTransferFunction
@@ -21,10 +19,18 @@ class PipelineYAML(yaml.SafeLoader):
     pass
 
 
+def _constructor_processor(loader: PipelineYAML, node: yaml.MappingNode):
+    mapping = loader.construct_mapping(node, deep=True)     # type: dict
+
+    obj = detection_pipeline.Processor(**mapping)
+
+    return obj
+
+
 def _constructor_ccd_pipeline(loader: PipelineYAML, node: yaml.MappingNode):
     mapping = loader.construct_mapping(node, deep=True)     # type: dict
 
-    obj = config.DetectionPipeline(**mapping)
+    obj = detection_pipeline.DetectionPipeline(**mapping)
 
     return obj
 
@@ -80,7 +86,7 @@ def _constructor_models(loader: PipelineYAML, node: yaml.ScalarNode):
 
     # mapping = loader.construct_mapping(node)             # type: dict
 
-    return config.Models(mapping)
+    return detection_pipeline.Models(mapping)
 
 
 def _constructor_function(loader: PipelineYAML, node: yaml.ScalarNode):
@@ -94,6 +100,7 @@ def _constructor_function(loader: PipelineYAML, node: yaml.ScalarNode):
     return functools.partial(func, *args, **kwargs)
 
 
+PipelineYAML.add_constructor('!PROCESSOR', _constructor_processor)
 PipelineYAML.add_constructor('!CCD_PIPELINE', _constructor_ccd_pipeline)
 PipelineYAML.add_constructor('!CCD', _constructor_ccd)
 PipelineYAML.add_constructor('!from_file', _constructor_from_file)
@@ -107,47 +114,3 @@ def load_config(yaml_file):
         cfg = yaml.load(file_obj, Loader=PipelineYAML)
 
     return cfg
-
-
-def save_signal(ccd: CCD, output_filename: Path):
-    """ Save the 'signal' from a `CCDDetector` object into a FITS file.
-
-    :param ccd:
-    :param output_filename:
-    """
-    data = ccd.readout_signal.value         # remove the unit
-
-    # creating new fits file with new data
-    new_fits_file = FitsFile(output_filename)
-    new_fits_file.save(data)
-
-    # # writing ascii output file
-    # if opts.output.data:
-    #     out_file = get_data_dir(opts.output.data)
-    #     with open(out_file, 'a+') as file_obj:
-    #         data = [
-    #             '{:6d}'.format(opts.ccd.photons),
-    #             '{:8.2f}'.format(signal_mean),
-    #             '{:7.2f}'.format(signal_sigma)
-    #         ]
-    #         out_str = '\t'.join(data) + '\n'
-    #         file_obj.write(out_str)
-
-
-def main():
-    # Step 1: Get the pipeline configuration
-    config_path = Path(__file__).parent.parent.joinpath('settings.yaml')
-    # cwd = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    # cfg = load_config(os.path.join(cwd, 'settings.yaml'))     # type: DetectionPipeline
-    cfg = load_config(str(config_path))
-
-    # Step 2: Run the pipeline
-    result = ccd_pipeline.run_pipeline(cfg)         # type: CCD
-    print('Pipeline completed.')
-
-    # Step 3: Save the result(s) in FITS, ASCII, Jupyter Notebook(s), ...
-    save_signal(ccd=result, output_filename='result.fits')
-
-
-if __name__ == '__main__':
-    main()
