@@ -69,11 +69,11 @@ def add_output_node_noise(ccd: CCD, std_deviation: float) -> CCD:
     """
     new_ccd = copy.deepcopy(ccd)
 
-    signal_mean_array = new_ccd.ccd_signal.astype('float64')
-    sigma_array = std_deviation * np.ones(new_ccd.ccd_signal.shape)
+    signal_mean_array = new_ccd.signal.astype('float64')
+    sigma_array = std_deviation * np.ones(new_ccd.signal.shape)
 
     signal = np.random.normal(loc=signal_mean_array, scale=sigma_array)
-    new_ccd.ccd_signal = signal * u.V
+    new_ccd.signal = signal * u.V
 
     return new_ccd
 

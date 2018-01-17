@@ -32,7 +32,7 @@ class CCD:
                  geometry: Geometry = None,
                  environment: Environment = None,
                  characteristics: CCDCharacteristics = None,
-                 photons=None, signal=None, charge=None):
+                 photons=None, signal=None, charge=None) -> None:
 
         if photons is not None:
             photons = photons * u.ph   # unit: photons

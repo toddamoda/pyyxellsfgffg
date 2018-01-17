@@ -79,9 +79,10 @@ def _constructor_from_file(loader: PipelineYAML, node: yaml.ScalarNode):
 def _constructor_models(loader: PipelineYAML, node: yaml.ScalarNode):
 
     if isinstance(node, yaml.ScalarNode):
-        mapping = {}  # OK: no kwargs provided
+        # OK: no kwargs provided
+        mapping = {}  # type: dict
     else:
-        mapping = loader.construct_mapping(node, deep=True)  # type: dict
+        mapping = loader.construct_mapping(node, deep=True)
 
     return detection_pipeline.Models(mapping)
 

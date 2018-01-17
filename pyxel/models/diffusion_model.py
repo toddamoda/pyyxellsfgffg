@@ -9,13 +9,13 @@ from math import sqrt, log
 import numpy as np
 from scipy.special import erf
 from pyxel.models.tars.lib.particle import Particle
-from pyxel.detectors.ccd import CCDDetector
+from pyxel.detectors.ccd import CCD
 from astropy import units as u
 from astropy.units import cds
 cds.enable()
 
 
-def diffusion(ccd: CCDDetector) -> CCDDetector:
+def diffusion(ccd: CCD) -> CCD:
 
     new_ccd = copy.deepcopy(ccd)
 
