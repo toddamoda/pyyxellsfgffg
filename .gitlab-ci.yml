@@ -63,6 +63,29 @@ anaconda3:
       - htmlcov
       - pytest_report.html
 
+
+# Run pytest for Python 3.6
+python36:
+  image: python:3.6
+  stage: test
+  script:
+    - pip install pytest
+
+    - pip install -r requirements.txt
+    - pytest --color=yes --full-trace --showlocals --verbose
+
+
+# Run pytest for Python 3.5
+python35:
+  image: python:3.5
+  stage: test
+  script:
+    - pip install pytest
+
+    - pip install -r requirements.txt
+    - pytest --color=yes --full-trace --showlocals --verbose
+
+
 ## Run pytest on anaconda3
 #anaconda3:
 #  image: continuumio/anaconda3
