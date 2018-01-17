@@ -37,7 +37,7 @@ class CCDDetector(Detector):
         self._dirty = False
         self._photons = kwargs.get('photons')                   # np int 2D array of incident photon number per pixel
         self._charge = kwargs.get('charge')                     # int number of electrons per pixel
-        self._ccd_signal = kwargs.get('ccd_signal')             # np int 2D array mutable signal read out from CCD
+        self._ccd_signal = kwargs.get('signal')             # np int 2D array mutable signal read out from CCD
         self._readout_signal = kwargs.get('readout_signal')     # np int 2D array mutable the image data
         # after signal (and image) processing
 
