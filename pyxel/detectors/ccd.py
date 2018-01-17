@@ -85,8 +85,8 @@ class CCD:
     #     self._depletion_zone = kwargs.get('depletion_thickness', 0.0)     # depletion zone thickness
     #     self._field_free_zone = kwargs.get('field_free_thickness', 0.0)   # field free zone thickness
     #     self._sub_thickness = kwargs.get('substrate_thickness', 0.0)      # substrate thickness
-    #     self._pix_ver_size = kwargs.get('pixel_ver_size', 0.0)            # pixel vertical size (row)
-    #     self._pix_hor_size = kwargs.get('pixel_hor_size', 0.0)            # pixel horizontal size (col)
+    #     self._pix_ver_size = kwargs.get('pixel_vert_size', 0.0)            # pixel vertical size (row)
+    #     self._pix_hor_size = kwargs.get('pixel_horz_size', 0.0)            # pixel horizontal size (col)
     #
     #     # self._total_thickness = kwargs.get('total_thickness', 0)  # total detector thickness
     #     self._total_thickness = self._depletion_zone + self._field_free_zone + self._sub_thickness   # total detector thickness
@@ -176,8 +176,8 @@ class CCD:
         Calculate CCD signal per pixel in units of DN from charges and CCD parameters
         :return:
         """
-        self.readout_signal = self._signal * self.a1 * self.a2
-        self.readout_signal = np.rint(self.readout_signal).astype(int)   # DN
+        self._readout_signal = self._signal * self.a1 * self.a2
+        self._readout_signal = np.rint(self._readout_signal).astype(int)   # DN
 
     @property
     def pix_non_uniformity(self):
@@ -229,10 +229,10 @@ class CCD:
     #     self.signal = new_sig
     #     # self.signal = convert_to_int(self.signal)
 
-    # @property
-    # def readout_signal(self):
-    #     return self._readout_signal
-    #
+    @property
+    def readout_signal(self):
+        return self._readout_signal
+
     # @readout_signal.setter
     # def readout_signal(self, new_read_sig: np.ndarray):
     #     self._readout_signal = new_read_sig
@@ -343,16 +343,16 @@ class CCD:
     #     self._sub_thickness = new_sub_thickness
 
     @property
-    def pix_ver_size(self):
-        return self.geometry.pix_ver_size
+    def pix_vert_size(self):
+        return self.geometry.pix_vert_size
 
     # @pix_ver_size.setter
     # def pix_ver_size(self, new_pix_ver_size):
     #     self._pix_ver_size = new_pix_ver_size
 
     @property
-    def pix_hor_size(self):
-        return self.geometry.pix_hor_size
+    def pix_horz_size(self):
+        return self.geometry.pix_horz_size
 
     # @pix_hor_size.setter
     # def pix_hor_size(self, new_pix_hor_size):
@@ -367,12 +367,12 @@ class CCD:
     #     self._total_thickness = new_total_thickness
 
     @property
-    def ver_dimension(self):
-        return self.geometry.ver_dimension
+    def vert_dimension(self):
+        return self.geometry.vert_dimension
 
     @property
-    def hor_dimension(self):
-        return self.geometry.hor_dimension
+    def horz_dimension(self):
+        return self.geometry.horz_dimension
 
     @property
     def material_density(self):

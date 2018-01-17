@@ -67,7 +67,7 @@ def run_pipeline(detector, pipeline):
     # CHARGE GENERATION
     # calculate charges per pixel
     detector.compute_charge()
-    steps = ['fixed_pattern_noise', 'tars', 'xray', 'snowballs', 'darkcurrent', 'hotpixel']
+    steps = ['fixed_pattern_noise', 'tars', 'xray', 'snowballs', 'darkcurrent', 'hotpixel', 'particle_number']
     for step in steps:
         func = pipeline.charge_generation.models.get(step)
         if func:

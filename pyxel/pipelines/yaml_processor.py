@@ -77,14 +77,11 @@ def _constructor_from_file(loader: PipelineYAML, node: yaml.ScalarNode):
 
 
 def _constructor_models(loader: PipelineYAML, node: yaml.ScalarNode):
-    # TODO: Catch only the YAML exceptions
-    try:
-        mapping = loader.construct_mapping(node)             # type: dict
-    except:
-    #### except yaml.construtor.ConstructorError:
-        mapping = {}
 
-    # mapping = loader.construct_mapping(node)             # type: dict
+    if isinstance(node, yaml.ScalarNode):
+        mapping = {}  # OK: no kwargs provided
+    else:
+        mapping = loader.construct_mapping(node, deep=True)  # type: dict
 
     return detection_pipeline.Models(mapping)
 
@@ -97,6 +94,7 @@ def _constructor_function(loader: PipelineYAML, node: yaml.ScalarNode):
     args = mapping.get('args', {})
 
     func = util.evaluate_reference(function_name)        # type: t.Callable
+
     return functools.partial(func, *args, **kwargs)
 
 

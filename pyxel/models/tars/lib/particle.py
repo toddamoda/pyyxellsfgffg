@@ -20,7 +20,7 @@
 import math
 import random
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from pyxel.models.tars.lib.util import sampling_distribution
 
 

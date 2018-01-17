@@ -10,13 +10,13 @@ import math
 import time
 from os import path
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 # from astropy import units as u
 from numpy import pi
 from tqdm import tqdm
 
-from pyxel.detectors.ccd import CCDDetector
+from pyxel.detectors.ccd import CCD
 from pyxel.models.tars.lib.simulation import Simulation
 from pyxel.models.tars.lib.util import read_data, interpolate_data
 
@@ -25,13 +25,13 @@ from mpl_toolkits.mplot3d import Axes3D
 TARS_DIR = path.dirname(path.abspath(__file__))
 
 
-def run_tars(ccd: CCDDetector,
+def run_tars(ccd: CCD,
              particle_type: str = 'proton',
              initial_energy: float = 100.0,
              particle_number: int = 1,
              incident_angles: tuple = (pi/10, pi/4),
              starting_position: tuple = (500.0, 500.0, 0.0),
-             stepping_length: float = 1.0) -> CCDDetector:
+             stepping_length: float = 1.0) -> CCD:
 
     new_ccd = copy.deepcopy(ccd)
 
