@@ -106,6 +106,16 @@ lint:
     paths:
       - pylint_report.html
 
+
+flake8:
+  image: python:3.6
+  stage: test
+  script:
+    - pip install flake8
+
+    - flake8 pyxel
+  allow_failure: true   # TODO: This line should be removed
+
 #
 # Deploy Stage
 #
