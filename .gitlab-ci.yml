@@ -138,23 +138,23 @@ pages:
 
 # Upload to pypi
 # Reference: http://samb.io/blog/2016/devops/python/gitlab/continuous-deployment/continuous-deployment-to-python-packaging
-deploy_pypi:
-  image: python:3.6
-  stage: deploy
-  environment: deploy
-  script:   # Configure the PyPI credentials, then push the package, and cleanup the creds.
-    - echo "[server-login]" >> ~/.pypirc
-    - echo "repository=http://lab-linux-server.estec.esa.int/pypi/" >> ~/.pypirc
-    - echo "username=" ${PYPI_USER} >> ~/.pypirc
-    - echo "password=" ${PYPI_PASSWORD} >> ~/.pypirc
-    - python setup.py check bdist_wheel upload # This will fail if your creds are bad.
-    - echo "" > ~/.pypirc && rm ~/.pypirc  # If the above fails, this won't run.
+#deploy_pypi:
+#  image: python:3.6
+#  stage: deploy
+#  environment: deploy
+#  script:   # Configure the PyPI credentials, then push the package, and cleanup the creds.
+#    - echo "[server-login]" >> ~/.pypirc
+#    - echo "repository=http://lab-linux-server.estec.esa.int/pypi/" >> ~/.pypirc
+#    - echo "username=" ${PYPI_USER} >> ~/.pypirc
+#    - echo "password=" ${PYPI_PASSWORD} >> ~/.pypirc
+#    - python setup.py check bdist_wheel upload # This will fail if your creds are bad.
+#    - echo "" > ~/.pypirc && rm ~/.pypirc  # If the above fails, this won't run.
 #  only:
 #    - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
 #  except:
 #    - branches
-  only:
-    - tags
+#  only:
+#    - tags
 
 #cleanup_pypirc:
 #   stage: cleanup
