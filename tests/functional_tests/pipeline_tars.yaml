@@ -86,3 +86,6 @@
       name: pyxel.models.ccd_noise.add_readout_noise
       kwargs:
         readout_sigma: 1
+
+  # -> signal
+  readout_electronics: !models

@@ -5,28 +5,44 @@
 """
 
 import copy
-from math import sqrt
+from math import sqrt, log
 import numpy as np
 from scipy.special import erf
 from pyxel.models.tars.lib.particle import Particle
 from pyxel.detectors.ccd import CCDDetector
+from astropy import units as u
+from astropy.units import cds
+cds.enable()
 
 
-def diffusion(ccd: CCDDetector,
-              variable: float = 1.0) -> CCDDetector:
+def diffusion(ccd: CCDDetector) -> CCDDetector:
 
     new_ccd = copy.deepcopy(ccd)
 
     diff = Diffusion(new_ccd)
 
-    # Modifying the positions and shapes of charge clusters in list of Charge class instances
-    # sigma = diff.electron_diffusion()
+    collected_charge_list = []
 
-    # sigma = 1.0     # temporarily
-    # collected_charge_list = diff.electron_collection(sigma, sigma)
+    cluster_generator = [cluster for cluster in new_ccd.charge_list]
+
+    for cluster in cluster_generator:
+
+        # Modifying the positions and shapes of charge clusters in list of Charge class instances
+
+        # sigma_hiraga = diff.hiraga_diffusion_model(cluster)
+
+        sigma_janesick = diff.janesick_diffusion_model(cluster)
+
+        sigma = 1.0     # temporarily
+        collected_charge = diff.gaussian_pixel_separation(cluster, sigma, sigma)
+
+        collected_charge_list += collected_charge
 
     # Overwrite the list of charge clusters in the new_ccd object because Charge attributes have changed
     # new_ccd.charge_list = collected_charge_list
+    new_ccd.charge = collected_charge_list      # TEMPORARY
+
+
 
     return new_ccd
 
@@ -36,10 +52,58 @@ class Diffusion:
     def __init__(self, ccd):
 
         self.ccd = ccd
-        self.ccd.charges = ccd.charge_list
 
-    # DIFFUSION -> make a Pyxel charge collection model from this
-    def electron_diffusion(self):
+        # Here is an image of all the last simulated CRs events on the CCD
+        self.pcmap_last = np.zeros((self.ccd.row, self.ccd.col))
+
+
+    # DIFFUSION
+    def janesick_diffusion_model(self, cluster):
+
+        # Initial cloud diameter:
+        c_init = 0.0171 * (cluster.energy.value ** 1.75)
+
+        # 10 keV deposited by an X-ray photon results a 1 um diameter charge (e-h) cloud
+        # CCD Advances For X - Ray Scientific Measurements In 1985,
+        # James Janesick et al.
+        # deltaE != cluster.number / u.electron * self.ccd.material_ionization_energy / (1000 * u.eV)
+        # deltaE == kin. energy of an electron
+        # By analogy with high - energy electron beam interaction with silicon, one can approximate the
+        # energy / depth relationship as R = k * E**n , where k and n are numerical constants
+        # for the material and R is the penetration depth.
+
+        x_backside = self.ccd.total_thickness      # um  # boundary of the ccd backside
+        x_ff = self.ccd.field_free_zone            # um # boundary of the field-free region near backside
+        x_p = self.ccd.depletion_zone              # um # boundary of the depletion region near ccd channel
+
+        # z position of charge generation event relative to the backside (>= 0)
+        x_a = x_backside + cluster.initial_position[2]
+
+        n_acceptor = 1e15 * u.cm ** (-3)
+
+        c_fieldfree = 0.0
+        c_field = 0.0
+
+        if x_a == 0:
+            raise ValueError
+
+        # Cloud diameter after passing through a thin field-free region:
+        if 0 < x_a < x_ff:
+            c_fieldfree = 2 * x_ff * (1 - (x_a / x_ff) ** 2) ** 0.5
+
+        # Cloud diameter after passing through the field region:
+        if x_ff <= x_a < x_ff + x_p:
+            c_field = (-2 * (5.1e-6 * (1e15 / n_acceptor.value) ** 0.5) ** 2 * log((x_a - x_ff) / x_p)) ** 0.5
+            c_field_max = 1.85e-5 * (1e15 / n_acceptor.value) ** 0.5
+            c_field = max(c_field, c_field_max)
+
+        # Final cloud diameter: (um)
+        c_diameter = sqrt(c_init ** 2 + c_fieldfree ** 2 + c_field ** 2) ** 0.5 * u.um
+
+        return c_diameter
+
+    # DIFFUSION
+    def hiraga_diffusion_model(self, cluster):
         """
         spread the particle into the material and compute the density and size of the electronic cloud generated
         at each step
@@ -47,78 +111,39 @@ class Diffusion:
         :param Particle particle: particle
         :return: float sigma : diameter of the electronic cloud at the generation point (um)
         """
-        #     specify na in /m3 for evaluation of con in SI units
-        na = 1e19
-        #     specify diffusion length in um (field free region)
-        l1 = 1000.
-        #     depletion/field free boundary parameter
-        bound = 2.
-        k_boltzmann = 1.38e-23
-        eps_rel = 11.8
-        eps_null = 8.85e-12
-        q_elec = 1.6e-19
 
-        #     constant includes factor of 1.d6 for conversion of m to um
-        self.con = 1e6 * sqrt((2. * k_boltzmann * self.ccd.temperature * eps_rel * eps_null) / (na * q_elec ** 2))
-        # !!!!!!!!!!!!!!!!!!!!!!!!!!!! constans not equal with one in ppt
-        #     electron velocity saturation parameter
-        self.sat = q_elec * na * self.ccd.depletion_zone / eps_rel / eps_null / self.ccd.temperature ** 1.55 / 1.01e8
+        eps_rel = 11.8                       # TODO: implement this in CCDDetector class
+        eps_si = eps_rel * cds.eps0
+
+        n_acceptor = 1e15 * u.cm**(-3)       # TODO: implement this in CCDDetector class
+
+        # voltage = cds.e * n_acceptor / (2 * eps_si) * l_dep**2    # V
+        # TODO: implement this in CCDDetector class
+        # assumptions made: V=0, dV/dz = 0 at z = ld
+        voltage = 50 * u.V
+        # voltage = self.ccd.bias_voltage
+
+        # depletion depth                      # TODO: implement this in CCDDetector class
+        l_dep = sqrt(2 * eps_si * voltage / (cds.e * n_acceptor))   # cm
+        # l_dep = self.ccd.depletion_zone
+
+        # critical field
+        efield_crit = 1.01 * u.V/u.cm * self.ccd.temperature ** 1.55        # V/cm
+        # For instance, typical value at T = 210 K are vs = 1.46e7 cm*sec−1, Ecrit = 4.4e3 V*cm−1 and α = 0.88
+        # Ecrit ~ 1e2 - 1e4 V*cm−1
+
+        # electron velocity saturation parameter
+        sat = u.e * n_acceptor * l_dep / (eps_si * efield_crit)
+
+        # r_final =
+
         #     spreading across entire depletion region
-        self.cfr = self.con * sqrt(self.sat + bound)
+        # self.cfr = self.con * sqrt(self.sat + bound)
 
-        #     calculate initial 1 sigma cloud size in um (many refs)
-        ci = 0.0044 * ((particle.electrons * self.ccd.material_ionization_energy / 1000.) ** 1.75)
-        # !!!!!!!!!!!!!!!!!!!!!!!!!!!! constans not equal with one in ppt
+        # return r_final
 
-        sig = 0
-
-        # if 0.0 <= abs(particle.position[2]) < self.ccd.depletion_zone:
-        #
-        #     cf = self.con * sqrt(self.sat * abs(particle.position[2]) / self.ccd.depletion_zone + log(self.ccd.depletion_zone / (self.ccd.depletion_zone - abs(particle.position[2]))))
-        #
-        #     if cf > self.cfr:
-        #         cf = self.cfr
-        #
-        #     sig = sqrt(ci ** 2 + cf ** 2)  # WTF ???????
-        #     # hh = 1.0
-        #
-        # elif self.ccd.depletion_zone <= abs(particle.position[2]) < self.ccd.depletion_zone + self.ccd.field_free_zone:
-        #
-        #     d = abs(particle.position[2]) - self.ccd.depletion_zone
-        #
-        #     # hh = (exp(self.ccd.field_free_zone / l1 - d / l1)
-        #     #       + exp(d / l1 - self.ccd.field_free_zone / l1)) / (
-        #     #     exp(self.ccd.field_free_zone / l1)
-        #     #     + exp(-self.ccd.field_free_zone / l1))
-        #
-        #     cff = self.ccd.field_free_zone / 1.0 * sqrt(1 - ((self.ccd.field_free_zone - d) / self.ccd.field_free_zone) ** 2)
-        #
-        #     sig = sqrt(ci ** 2 + self.cfr ** 2 + cff ** 2)
-        #
-        # elif self.ccd.depletion_zone + self.ccd.field_free_zone <= abs(particle.position[2]) <= self.ccd.depletion_zone + self.ccd.field_free_zone + self.ccd.sub_thickness:
-        #
-        #     d = abs(particle.position[2]) - self.ccd.field_free_zone - self.ccd.depletion_zone
-        #
-        #     cff = self.ccd.field_free_zone / 1.0
-        #
-        #     # hhsub = sinh((self.ccd.sub_thickness - d) / 10.) / sinh(self.ccd.sub_thickness / 10.)
-        #     # hhff = 2. / (exp(self.ccd.field_free_zone / l1) + exp(-self.ccd.field_free_zone / l1))
-        #     # hh = hhsub * hhff
-        #
-        #     cfsub = 0.5 * self.ccd.sub_thickness * sqrt(1 - ((self.ccd.sub_thickness - d) / self.ccd.sub_thickness) ** 2)
-        #
-        #     sig = sqrt(ci ** 2 + self.cfr ** 2 + cfsub ** 2 + cff ** 2)
-
-        # else:
-        #     hh = 0
-
-        # particle.electrons *= hh  # WTF????
-
-        return sig
-
-
-    # ELECTRON COLLECTION -> make a Pyxel charge collection model from this
-    def electron_collection(self, sig_ac, sig_al):
+    # ELECTRON COLLECTION
+    def gaussian_pixel_separation(self, cluster, sig_ac, sig_al):
         """
         Compute the charge collection function to determine the number of electron collected by each pixel based on the
         generated electronic cloud shape
@@ -128,18 +153,19 @@ class Diffusion:
         :param float sig_al: diameter of the resulting electronic cloud in the AL (along scan, horizontal) dimension
         """
 
+        self.pcmap_last[:, :] = 0
         px = []
         py = []
 
-        dx = particle.position[0] - self.ccd.pix_ver_size \
-                                    * int(particle.position[0] / self.ccd.pix_ver_size)
-        dy = particle.position[1] - self.ccd.pix_hor_size \
-                                    * int(particle.position[1] / self.ccd.pix_hor_size)
+        dx = cluster.initial_position[0] - self.ccd.pix_ver_size \
+                                    * int(cluster.initial_position[0] / self.ccd.pix_ver_size)
+        dy = cluster.initial_position[1] - self.ccd.pix_hor_size \
+                                    * int(cluster.initial_position[1] / self.ccd.pix_hor_size)
 
         try:
             int(4 * sig_ac / self.ccd.pix_ver_size)  # WTF?
         except ValueError:
-            print(sig_ac, particle.electrons)
+            print(sig_ac, cluster.number)
 
         x_steps = int(4 * sig_ac / self.ccd.pix_ver_size)
         if x_steps > 49:  # WHY????
@@ -181,19 +207,22 @@ class Diffusion:
 
         cx = 0
 
-        for ix in range(int(particle.position[0] / self.ccd.pix_ver_size) - x_steps,
-                        int(particle.position[0] / self.ccd.pix_ver_size) + x_steps + 1, 1):
+        for ix in range(int(cluster.initial_position[0] / self.ccd.pix_ver_size) - x_steps,
+                        int(cluster.initial_position[0] / self.ccd.pix_ver_size) + x_steps + 1, 1):
 
             cy = 0
 
-            for iy in range(int(particle.position[1] / self.ccd.pix_hor_size) - y_steps,
-                            int(particle.position[1] / self.ccd.pix_hor_size) + y_steps + 1, 1):
+            for iy in range(int(cluster.initial_position[1] / self.ccd.pix_hor_size) - y_steps,
+                            int(cluster.initial_position[1] / self.ccd.pix_hor_size) + y_steps + 1, 1):
 
                 if 0 <= ix < self.ccd.row and 0 <= iy < self.ccd.col:
-                    self.pcmap_last[ix, iy] += px[cx] * py[cy] * particle.electrons
+                    self.pcmap_last[ix, iy] += px[cx] * py[cy] * cluster.number
 
                 cy += 1
 
             cx += 1
 
-        return pcmap_last
+        # diff.pcmap_last = np.rint(diff.pcmap_last).astype(int)
+        # diff.total_charge_array += diff.pcmap_last
+
+        return self.pcmap_last

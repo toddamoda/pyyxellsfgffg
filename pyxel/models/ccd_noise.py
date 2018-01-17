@@ -39,9 +39,16 @@ def apply_shot_noise(ccd: CCDDetector) -> CCDDetector:
     return new_ccd
 
 
-def add_fix_pattern_noise(ccd: CCDDetector) -> CCDDetector:
+def add_fix_pattern_noise(ccd: CCDDetector, inplace=True) -> CCDDetector:
 
-    new_ccd = copy.deepcopy(ccd)
+    if inplace:
+        new_ccd = copy.deepcopy(ccd)
+        # new_ccd = CCD(ccd)
+        # new_ccd.to_pickle(filename)
+        # new_ccd.to_fits(filename)
+        # CCD.from_fits(filename)
+    else:
+        new_ccd = ccd
 
     temp = new_ccd.charge
     temp2 = new_ccd.pix_non_uniformity

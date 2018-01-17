@@ -49,9 +49,6 @@ class Simulation:
         self.total_charge_array = np.zeros((self.ccd.row, self.ccd.col), int)
         self.ver_limit, self.hor_limit = self.total_charge_array.shape
 
-        #   Here is an image of all the last simulated CRs events on the CCD
-        self.pcmap_last = np.zeros((self.ccd.row, self.ccd.col))
-
         self.clusters_per_track = []
         self.all_charge_clusters = []
 
@@ -127,7 +124,6 @@ class Simulation:
         """
 
         self.clusters_per_track = []
-        self.pcmap_last[:, :] = 0
 
         track_left = False
 
@@ -189,9 +185,6 @@ class Simulation:
 
             self.total_edep_per_particle.append(p.total_edep)  # keV
 
-            # self.pcmap_last = np.rint(self.pcmap_last).astype(int)
-            #
-            # self.total_charge_array += self.pcmap_last
             self.event_counter += 1
 
             self.all_charge_clusters += self.clusters_per_track

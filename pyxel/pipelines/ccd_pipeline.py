@@ -24,7 +24,7 @@ def run_pipeline(cfg):
             ccd = func(ccd)
 
     # CHARGE COLLECTION
-    steps = ['diffusion']
+    steps = [] # ['diffusion']
     for step in steps:
         func = cfg.charge_collection.models.get(step)
         if func:
@@ -40,8 +40,9 @@ def run_pipeline(cfg):
             ccd = func(ccd)
 
     # CHARGE READOUT
-    # Signal with shot and fix pattern noise
     ccd.compute_ccd_signal()
+    # TODO: Convert here the charge object list into a 2d signal array
+
     steps = ['output_node_noise']
     for step in steps:
         func = cfg.charge_readout.models.get(step)
