@@ -76,6 +76,17 @@ anaconda3:
 #
 #    - ls
 
+
+# Run mypy
+mypy:
+  image: continuumio/anaconda3
+  stage: test
+  script:
+    - pip install mypy
+    - mypy --ignore-missing-imports pyxel
+  allow_failure: true   # TODO: This line should be removed
+
+
 # Run pylint (with pytest) and generate HTML report
 lint:
   image: python:3.6
