@@ -56,7 +56,6 @@ class Diffusion:
         # Here is an image of all the last simulated CRs events on the CCD
         self.pcmap_last = np.zeros((self.ccd.row, self.ccd.col))
 
-
     # DIFFUSION
     def janesick_diffusion_model(self, cluster):
 
@@ -81,24 +80,28 @@ class Diffusion:
 
         n_acceptor = 1e15 * u.cm ** (-3)
 
-        c_fieldfree = 0.0
-        c_field = 0.0
+        c_field_free = 0.0
+        # c_field = 0.0
 
         if x_a == 0:
             raise ValueError
 
         # Cloud diameter after passing through a thin field-free region:
         if 0 < x_a < x_ff:
-            c_fieldfree = 2 * x_ff * (1 - (x_a / x_ff) ** 2) ** 0.5
+            c_field_free = 2 * x_ff * (1 - (x_a / x_ff) ** 2) ** 0.5
 
         # Cloud diameter after passing through the field region:
-        if x_ff <= x_a < x_ff + x_p:
-            c_field = (-2 * (5.1e-6 * (1e15 / n_acceptor.value) ** 0.5) ** 2 * log((x_a - x_ff) / x_p)) ** 0.5
-            c_field_max = 1.85e-5 * (1e15 / n_acceptor.value) ** 0.5
-            c_field = max(c_field, c_field_max)
+        # if x_ff <= x_a < x_ff + x_p:
+        c_field = (-2 * (5.1e-6 * (1e15 / n_acceptor.value) ** 0.5) ** 2 * log((x_a - x_ff) / x_p)) ** 0.5
+        c_field_max = 1.85e-5 * (1e15 / n_acceptor.value) ** 0.5
+        c_field = max(c_field, c_field_max)
+
+        # Charges already created inside CCD channel, not needed to diffuse them
+        if x_ff + x_p <= x_a:
+            c_field = 0.0
 
         # Final cloud diameter: (um)
-        c_diameter = sqrt(c_init ** 2 + c_fieldfree ** 2 + c_field ** 2) ** 0.5 * u.um
+        c_diameter = sqrt(c_init ** 2 + c_field_free ** 2 + c_field ** 2) ** 0.5 * u.um
 
         return c_diameter
 

@@ -7,7 +7,7 @@ Calling pyxel_alpha with different uniform photon average number as an input to 
 and plotting Photon Transfer Curve from data file, fitting linear to noise on log scale
 """
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 # import pyxel
 

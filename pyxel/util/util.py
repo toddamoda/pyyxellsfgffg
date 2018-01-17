@@ -111,17 +111,24 @@ def evaluate_reference(reference_str):
         This is usually a reference to a class or a function.
     :return: the module attribute or object.
     :rtype: object
-    :raises ValueError: if reference_str is empty or does not
-        contain a '.' module path.
+    :raises ImportError: if reference_str cannot be evaulated to a callable.
     """
     if not reference_str:
-        raise ValueError('Empty string cannot be evaluated')
+        raise ImportError('Empty string cannot be evaluated')
 
     if '.' not in reference_str:
-        raise ValueError('Missing module path')
+        raise ImportError('Missing module path')
 
     # reference to a module class, function, or constant
     module_str, function_str = reference_str.rsplit('.', 1)
-    module = importlib.import_module(module_str)
-    reference = getattr(module, function_str)
+    try:
+        module = importlib.import_module(module_str)
+    except ImportError as exc:
+        raise ImportError('Cannot import module: %s. exc: %s' % (module_str, str(exc)))
+
+    try:
+        reference = getattr(module, function_str)
+    except AttributeError:
+        raise ImportError('Module: %s, does not contain %s' % (module_str, function_str))
+
     return reference
