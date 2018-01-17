@@ -25,16 +25,16 @@ doc:
     - pip install sphinx sphinx_rtd_theme
 
     - export PYTHONPATH=$PWD
-    - sphinx-build doc/source doc/html
+    - sphinx-build docs/source docs/html
 
     - ls
   artifacts:
     paths:
-      - doc/html
+      - docs/html
   cache:
     key: "$CI_COMMIT_REF_NAME"
     paths:
-      - doc/html
+      - docs/html
 
 
 #
