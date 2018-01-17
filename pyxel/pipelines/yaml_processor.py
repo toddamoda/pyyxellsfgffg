@@ -5,6 +5,8 @@ from pathlib import Path
 import numpy as np
 import yaml
 
+import pyxel.detectors.ccd_characteristics
+import pyxel.detectors.geometry
 from pyxel.util import fitsfile
 from pyxel.detectors.ccd import CCDDetector
 from pyxel.pipelines import ccd_pipeline
@@ -31,17 +33,17 @@ def _constructor_ccd(loader: PipelineYAML, node: yaml.MappingNode):
     mapping = loader.construct_mapping(node, deep=True)  # type: dict
 
     if 'geometry' in mapping:
-        geometry = config.Geometry(**mapping['geometry'])
+        geometry = pyxel.detectors.geometry.Geometry(**mapping['geometry'])
     else:
         geometry = None
 
     if 'environment' in mapping:
-        environment = config.Environment(**mapping['environment'])
+        environment = pyxel.detectors.geometry.Environment(**mapping['environment'])
     else:
         environment = None
 
     if 'characteristics' in mapping:
-        characteristics = config.CCDCharacteristics(**mapping['characteristics'])
+        characteristics = pyxel.detectors.ccd_characteristics.CCDCharacteristics(**mapping['characteristics'])
     else:
         characteristics = None
 

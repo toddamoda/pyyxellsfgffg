@@ -3,10 +3,6 @@
 import unittest
 from pathlib import Path
 
-import pyxel
-
-from pyxel.util import config
-
 # ROOT_DIR = Path(pyxel.__file__).parent.parent
 ROOT_DIR = Path(__file__).parent
 
