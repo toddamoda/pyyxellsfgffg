@@ -7,6 +7,9 @@ class Geometry:
                  pixel_vert_size=0.0,
                  pixel_horz_size=0.0,
                  material='',
+                 n_acceptor=0.0,
+                 n_donor=0.0,
+                 bias_voltage=0.0,
                  ):
         """
         Initialize the geometry
@@ -26,6 +29,10 @@ class Geometry:
         self.field_free_thickness = field_free_thickness        # TODO: calculate this or get from config if defined
         self.pixel_vert_size = pixel_vert_size
         self.pixel_horz_size = pixel_horz_size
+
+        self.n_acceptor = n_acceptor
+        self.n_donor = n_donor
+        self.bias_voltage = bias_voltage
 
         self.material_density = None
         self.material_ionization_energy = None
@@ -59,3 +66,9 @@ class Geometry:
 
         self.horz_dimension = self.pixel_horz_size * self.col
         self.vert_dimension = self.pixel_vert_size * self.row
+
+    def calculate_field_free_thickness(self):
+        pass
+
+    def calculate_depletion_thickness(self):
+        pass

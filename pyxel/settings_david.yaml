@@ -25,6 +25,9 @@ process: !PROCESSOR
       pixel_vert_size: 10.0         # um
       pixel_horz_size: 10.0         # um
       material: 'silicon'
+      n_acceptor: 0.0               # cm-3
+      n_donor: 0.0                  # cm-3
+      bias_voltage: 0.0             # V
 
     environment:
       temperature: 320  # detector temperature Kelvin
