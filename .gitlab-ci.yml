@@ -11,7 +11,6 @@ stages:
   - build
   - test
   - deploy
-#  - cleanup
 
 #
 # Build stage
@@ -63,18 +62,30 @@ anaconda3:
       - htmlcov
       - pytest_report.html
 
-## Run pytest on anaconda3
-#anaconda3:
-#  image: continuumio/anaconda3
-#  stage: test
-#  script:
-#    - pip install pytest
-#
-#    - pip install -r requirements.txt
-#    - export PYTHONPATH=$PWD
-#    - pytest --color=yes --full-trace --showlocals --verbose
-#
-#    - ls
+
+# Run pytest for Python 3.6
+python36:
+  image: python:3.6
+  stage: test
+  script:
+    - pip install pytest
+
+    - pip install -r requirements.txt
+    - pytest --color=yes --full-trace --showlocals --verbose
+  allow_failure: true   # TODO: This line should be removed
+
+
+# Run pytest for Python 3.5
+python35:
+  image: python:3.5
+  stage: test
+  script:
+    - pip install pytest
+
+    - pip install -r requirements.txt
+    - pytest --color=yes --full-trace --showlocals --verbose
+  allow_failure: true   # TODO: This line should be removed
+
 
 
 # Run mypy
