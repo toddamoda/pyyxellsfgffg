@@ -50,11 +50,8 @@ def add_fix_pattern_noise(ccd: CCD, inplace=True) -> CCD:
     else:
         new_ccd = ccd
 
-    temp = new_ccd._charge
-    temp2 = new_ccd.pix_non_uniformity
-
-    new_ccd._charge = new_ccd._charge * new_ccd.pix_non_uniformity
-    new_ccd._charge = np.int16(np.rint(new_ccd._charge))
+    new_ccd._charge = new_ccd.charge * new_ccd.pix_non_uniformity
+    new_ccd._charge = np.int16(np.rint(new_ccd.charge))
 
     return new_ccd
 

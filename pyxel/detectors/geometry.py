@@ -31,4 +31,3 @@ class Geometry:
         self.depletion_zone = depletion_zone
         self.field_free_zone = field_free_zone
         self.sub_thickness = sub_thickness
-

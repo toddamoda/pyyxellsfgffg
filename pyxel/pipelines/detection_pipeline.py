@@ -1,8 +1,6 @@
-from astropy import units as u
-import typing as t
+import typing as t  # noqa: F401
 
 from pyxel.detectors.ccd import CCD
-
 from pyxel.util import util
 
 
@@ -74,7 +72,7 @@ def run_pipeline(detector: CCD, pipeline: DetectionPipeline) -> CCD:
             detector = func(detector)
 
     # CHARGE COLLECTION
-    steps = [] # ['diffusion']
+    steps = []  # ['diffusion']
     for step in steps:
         func = pipeline.charge_collection.models.get(step)
         if func:

@@ -1,13 +1,10 @@
-
-# import math
-# import random
 import numpy as np
-# import matplotlib.pyplot as plt
 
 from astropy import units as u
 from astropy.units import cds
-cds.enable()
 import pandas as pd
+
+cds.enable()
 
 
 class Charge:
@@ -117,7 +114,7 @@ class Charge:
         # TODO: what if it is a class for holes? should we count them with negative numbers?
         # number of particles per cluster (it is called cluster if there are more than 1 charge)
 
-        mass = 1.0 * cds.me
+        # mass = 1.0 * cds.me
 
         # dict
         new_charge = {'number': number,                                      # int
@@ -134,7 +131,6 @@ class Charge:
                       'velocity z': initial_velocity[2]}
         new_charge_df = pd.DataFrame(new_charge, index=[0])
         self.frame = pd.concat([self.frame, new_charge_df], ignore_index=True)
-
 
     # def _plot_trajectory_xy_(self):
     #     plt.figure()

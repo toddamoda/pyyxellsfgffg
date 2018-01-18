@@ -1,3 +1,4 @@
+""" PyXEL is an detector simulation framework. """
 __appname__ = 'Pyxel'
 __author__ = 'David Lucsanyi'
 __pkgname__ = 'pyxel'

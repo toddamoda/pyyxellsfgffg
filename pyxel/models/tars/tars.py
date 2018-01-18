@@ -4,7 +4,7 @@
 """
 PyXel! TARS model for charge generation by ionization
 """
-
+import logging
 import copy
 import math
 import time
@@ -17,10 +17,10 @@ from numpy import pi
 from tqdm import tqdm
 
 from pyxel.detectors.ccd import CCD
-from pyxel.models.tars.lib.simulation import Simulation
-from pyxel.models.tars.lib.util import read_data, interpolate_data
+from pyxel.models.tars.simulation import Simulation
+from pyxel.models.tars.util import read_data, interpolate_data
 
-from mpl_toolkits.mplot3d import Axes3D
+# from mpl_toolkits.mplot3d import Axes3D
 
 TARS_DIR = path.dirname(path.abspath(__file__))
 
@@ -76,6 +76,7 @@ class TARS:
         self.results_folder = self.data_folder + r'\results'
 
         self.sim_obj = Simulation(self.ccd)
+        self.log = logging.getLogger(__name__)
 
     def set_particle_type(self, particle_type):
         self.part_type = particle_type
@@ -112,11 +113,11 @@ class TARS:
                                 self.angle_alpha, self.angle_beta,
                                 self.step_length)
 
-        for i in tqdm(range(0, self.particle_number)):
+        for _ in tqdm(range(0, self.particle_number)):
             # dep = 0
             # while dep == 0:
             dep = self.sim_obj.event_generation()
-                # print('total deposited E: {0:4.2f} keV'.format(dep))
+            self.log.debug('total deposited E: %4.2f keV', dep)
 
         # np.save('orig2_edep_per_step_10k', self.sim_obj.edep_per_step)
         # np.save('orig2_edep_per_particle_10k', self.sim_obj.total_edep_per_particle)
