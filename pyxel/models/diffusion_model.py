@@ -18,6 +18,7 @@ cds.enable()
 
 
 def diffusion(ccd: CCD) -> CCD:
+    """ TBD """
 
     new_ccd = copy.deepcopy(ccd)
 
@@ -48,6 +49,7 @@ def diffusion(ccd: CCD) -> CCD:
 
 
 class Diffusion:
+    """ TBD """
 
     def __init__(self, ccd):
 
@@ -58,6 +60,7 @@ class Diffusion:
 
     # DIFFUSION
     def janesick_diffusion_model(self, cluster):
+        """ TBD """
 
         # Initial cloud diameter:
         c_init = 0.0171 * (cluster.energy.value ** 1.75)

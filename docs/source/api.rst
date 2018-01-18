@@ -5,16 +5,6 @@ UML from file location
 
 # .. uml:: _static/example.puml
 
-Detectors
----------
-
-List of available detectors.
-
-.. currentmodule:: pyxel
-
-.. autosummary::
-    detectors.ccd.CCDDetector
-
 
 run module
 ----------
@@ -27,12 +17,56 @@ run module
     :show-inheritance:
 
 
-CCDDetector
------------
+Detectors
+---------
 
-.. currentmodule:: pyxel.detectors.ccd
+List of available detectors.
 
-.. autoclass:: CCDDetector
+.. currentmodule:: pyxel.detectors
+
+.. autosummary::
+    ccd.CCD
+
+.. currentmodule:: pyxel.detectors
+.. autoclass:: pyxel.detectors.ccd.CCD
     :members:
     :undoc-members:
     :show-inheritance:
+
+.. autoclass:: pyxel.detectors.ccd_characteristics.CCDCharacteristics
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. autoclass:: pyxel.detectors.environment.Environment
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. autoclass:: pyxel.detectors.geometry.Geometry
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. autoclass:: pyxel.detectors.optics.Optics
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Models
+------
+
+List of available models.
+
+.. currentmodule:: pyxel.models
+
+.. autosummary::
+    ccd_noise
+    diffusion_model
+
+.. automodule:: pyxel.models.ccd_noise
+    :members:
+
+.. automodule:: pyxel.models.diffusion_model
+    :members:

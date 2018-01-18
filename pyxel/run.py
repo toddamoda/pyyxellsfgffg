@@ -8,7 +8,26 @@ in MCT, diffusion, cross-talk etc.) on a given image.
 import logging
 import argparse
 
+from pathlib import Path
+
 import pyxel
+from pyxel.util import FitsFile
+
+
+def run_pipeline(input_filename, output_file, **kwargs):
+
+    config_path = Path(__file__).parent.joinpath(input_filename)
+    cfg = pyxel.load_config(str(config_path))
+    processor = cfg['process']          # type: pyxel.detection_pipeline.Processor
+
+    # Step 2: Run the pipeline
+    result = pyxel.detection_pipeline.run_pipeline(processor.ccd, processor.pipeline)  # type: CCD
+    print('Pipeline completed.')
+
+    if output_file:
+        out = FitsFile(output_file)
+        out.data = result
+        out.save(output_file, override=True)
 
 
 def main():
@@ -22,8 +41,12 @@ def main():
                         version='%(prog)s (version {version})'.format(version=pyxel.__version__))
 
     # Required positional arguments
-    parser.add_argument('config', nargs=1,
+    parser.add_argument('config',
                         help='Configuration file to load (YAML or INI)')
+
+    # Required positional arguments
+    parser.add_argument('output',
+                        help='output file')
 
     opts = parser.parse_args()
 

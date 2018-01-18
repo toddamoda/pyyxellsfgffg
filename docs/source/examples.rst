@@ -4,4 +4,4 @@ Examples
 
 A very basic example,
 
-# .. literalinclude:: ../../examples/basic_example.py
+.. literalinclude:: ../../examples/example_pyxel.py

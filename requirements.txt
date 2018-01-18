@@ -20,6 +20,7 @@ numpy
 astropy
 pandas
 matplotlib
+scipy
 
 ########################
 # TARS                 #

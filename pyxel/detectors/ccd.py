@@ -1,7 +1,7 @@
 #   --------------------------------------------------------------------------
-#   Copyright 2017 SCI-FIV, ESA (European Space Agency)
+#   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-""" PyXel! CCD detector modelling class
+""" CCD detector modeling class
 """
 import numpy as np
 from astropy import units as u
@@ -25,6 +25,7 @@ def convert_to_int(value):
 
 
 class CCD:
+    """ The CCD detector class. """
 
     def __init__(self,
                  geometry: Geometry = None,
