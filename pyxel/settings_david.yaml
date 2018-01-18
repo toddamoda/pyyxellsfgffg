@@ -1,0 +1,258 @@
+#processor:
+#  runner: pyxel_alpha.simulate_ccd
+#  xx : pyxel.models.ccd_noise.CcdNoiseGenerator
+#  pipeline : pyxel.detectors.ccd.CcdTransferFunction
+
+#[pipeline_options]
+#shot_noise: True
+#fix_pattern_noise: True
+#readout_noise: True
+
+process: !PROCESSOR
+
+  ccd: !CCD
+    photons: null  # type: int
+#    photons: 10
+    signal: !from_file data/HorseHead_orig.fits
+    charge: null
+
+    geometry:
+      row: 100                      # compulsory
+      col: 100                      # compulsory
+      depletion_thickness: 10.0     # um
+      field_free_thickness: 0.0     # um
+      substrate_thickness: 0.0      # um
+      pixel_vert_size: 10.0         # um
+      pixel_horz_size: 10.0         # um
+
+    environment:
+      temperature: 320  # detector temperature Kelvin
+
+    characteristics:
+      k: 0            # camera gain constant in digital number (DN)
+      j: 0            # camera gain constant in photon number
+      qe: 0.5         # -
+      eta: 1          # e/photon
+      sv: 1.0e-6      # V/e
+      accd: 0.8       # V/V
+      a1: 100         # V/V
+      a2: 65536       # DN/V
+      fwc: 4500       # e (full well capacity)
+      pix_non_uniformity: !from_file data/non_uniformity_array_normal_stdev0.03.data
+
+
+  pipeline: !CCD_PIPELINE
+    # -> photons
+    optics: !models
+      shot_noise: !function
+        name: pyxel.models.ccd_noise.apply_shot_noise
+  #    ray_tracing: !class
+  #      name: pyxel.models.ccd_noise.OpticsModelRayTracer
+  #      args:
+  #        path: null
+  #    shot_noise: true
+  #    fixed_pattern_noise: false
+  #    ray_tracing: true
+  #    diffraction: false
+  #    other_model: false
+
+    # photons -> compute_charge -> charge
+
+    # -> charge
+    charge_generation: !models
+  #    fixed_pattern_noise: pyxel.models.ccd_noise.add_fix_pattern_noise
+      tars: !function
+        name: pyxel.models.tars.tars.run_tars
+        kwargs:
+          initial_energy: 100.0   # MeV
+          particle_number: 1
+          incident_angles:      # rad
+            - 0.31416  # pi / 10
+            - 0.7853   # pi / 4
+          starting_position:    # um
+            - 500.0
+            - 500.0
+            - 0.0
+          stepping_length: 1.0  # um
+
+    # -> charge
+    charge_collection: !models
+
+    # -> charge
+    charge_transfer: !models
+
+    # -> signal
+    charge_readout: !models
+      readout_noise: !function
+        name: pyxel.models.ccd_noise.add_output_node_noise
+        kwargs:
+          std_deviation: 1.0
+
+    # -> signal
+    readout_electronics: !models
+
+
+#
+#
+#!CCD_PIPELINE
+#  doc: blah blah
+#
+#  ccd: !CCD
+#    photons: null  # type: int
+##    photons: 10
+#    signal: !from_file data/HorseHead_orig.fits
+#    charge: null
+#
+#    geometry:
+#      row: 100                      # compulsory
+#      col: 100                      # compulsory
+#      depletion_thickness: 10.0     # um
+#      field_free_thickness: 0.0     # um
+#      substrate_thickness: 0.0      # um
+#      pixel_ver_size: 10.0          # um
+#      pixel_hor_size: 10.0          # um
+#
+#    environment:
+#      temperature: 320  # detector temperature Kelvin
+#
+#    characteristics:
+#      k: 0            # camera gain constant in digital number (DN)
+#      j: 0            # camera gain constant in photon number
+#      qe: 0.5         # -
+#      eta: 1          # e/photon
+#      sv: 1.0e-6      # V/e
+#      accd: 0.8       # V/V
+#      a1: 100         # V/V
+#      a2: 65536       # DN/V
+#      fwc: 4500       # e (full well capacity)
+#      pix_non_uniformity: !from_file data/non_uniformity_array_normal_stdev0.03.data
+#
+#  # -> photons
+#  optics: !models
+#    shot_noise: pyxel.models.ccd_noise.apply_shot_noise
+##    ray_tracing: !class
+##      name: pyxel.models.ccd_noise.OpticsModelRayTracer
+##      args:
+##        path: null
+##    shot_noise: true#
+#
+#!CCD_PIPELINE
+#  doc: blah blah
+#
+#  ccd: !CCD
+#    photons: null  # type: int
+##    photons: 10
+#    signal: !from_file data/HorseHead_orig.fits
+#    charge: null
+#
+#    geometry:
+#      row: 100                      # compulsory
+#      col: 100                      # compulsory
+#      depletion_thickness: 10.0     # um
+#      field_free_thickness: 0.0     # um
+#      substrate_thickness: 0.0      # um
+#      pixel_ver_size: 10.0          # um
+#      pixel_hor_size: 10.0          # um
+#
+#    environment:
+#      temperature: 320  # detector temperature Kelvin
+#
+#    characteristics:
+#      k: 0            # camera gain constant in digital number (DN)
+#      j: 0            # camera gain constant in photon number
+#      qe: 0.5         # -
+#      eta: 1          # e/photon
+#      sv: 1.0e-6      # V/e
+#      accd: 0.8       # V/V
+#      a1: 100         # V/V
+#      a2: 65536       # DN/V
+#      fwc: 4500       # e (full well capacity)
+#      pix_non_uniformity: !from_file data/non_uniformity_array_normal_stdev0.03.data
+#
+#  # -> photons
+#  optics: !models
+#    shot_noise: pyxel.models.ccd_noise.apply_shot_noise
+##    ray_tracing: !class
+##      name: pyxel.models.ccd_noise.OpticsModelRayTracer
+##      args:
+##        path: null
+##    shot_noise: true
+##    fixed_pattern_noise: false
+##    ray_tracing: true
+##    diffraction: false
+##    other_model: false
+#
+#  # photons -> compute_charge -> charge
+#
+#  # -> charge
+#  charge_generation: !models
+##    fixed_pattern_noise: pyxel.models.ccd_noise.add_fix_pattern_noise
+#    tars: !function
+#      name: pyxel.models.ccd_noise.apply_tars
+#      kwargs:
+#        initial_energy: 100.0   # MeV
+#        particle_number: 1
+#        incident_angles:      # rad
+#          - 0.31416  # pi / 10
+#          - 0.7853   # pi / 4
+#        starting_position:    # um
+#          - 500.0
+#          - 500.0
+#          - 0.0
+#        stepping_length: 1.0  # um
+#
+#  # -> charge
+#  charge_collection: !models
+#
+#  # -> charge
+#  charge_transfer: !models
+#
+#  # -> signal
+#  charge_readout: !models
+#    readout_noise: !function
+#      name: pyxel.models.ccd_noise.add_readout_noise
+#      kwargs:
+#        readout_sigma: 1
+#
+#  # -> signal
+#  readout_electronics: !models
+
+##    fixed_pattern_noise: false
+##    ray_tracing: true
+##    diffraction: false
+##    other_model: false
+#
+#  # photons -> compute_charge -> charge
+#
+#  # -> charge
+#  charge_generation: !models
+##    fixed_pattern_noise: pyxel.models.ccd_noise.add_fix_pattern_noise
+#    tars: !function
+#      name: pyxel.models.ccd_noise.apply_tars
+#      kwargs:
+#        initial_energy: 100.0   # MeV
+#        particule_number: 1
+#        incident_angles:      # rad
+#          - 0.31416  # pi / 10
+#          - 0.7853   # pi / 4
+#        starting_position:    # um
+#          - 500.0
+#          - 500.0
+#          - 0.0
+#        stepping_length: 1.0  # um
+#
+#  # -> charge
+#  charge_collection: !models
+#
+#  # -> charge
+#  charge_transfer: !models
+#
+#  # -> signal
+#  charge_readout: !models
+#    readout_noise: !function
+#      name: pyxel.models.ccd_noise.add_readout_noise
+#      kwargs:
+#        readout_sigma: 1
+#
+#  # -> signal
+#  readout_electronics: !models
