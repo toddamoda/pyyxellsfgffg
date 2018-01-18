@@ -17,8 +17,8 @@ from numpy import pi
 from tqdm import tqdm
 
 from pyxel.detectors.ccd import CCD
-from pyxel.models.tars.lib.simulation import Simulation
-from pyxel.models.tars.lib.util import read_data, interpolate_data
+from pyxel.models.tars.simulation import Simulation
+from pyxel.models.tars.util import read_data, interpolate_data
 
 # from mpl_toolkits.mplot3d import Axes3D
 
