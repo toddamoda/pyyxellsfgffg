@@ -127,6 +127,16 @@ flake8:
     - flake8 pyxel
   allow_failure: true   # TODO: This line should be removed
 
+
+doc8
+  image: python:3.6
+  stage: test
+  script:
+    - pip install sphinx doc8
+
+    - doc8 -v docs/source
+  allow_failure: true   # TODO: This line should be removed
+
 #
 # Deploy Stage
 #
