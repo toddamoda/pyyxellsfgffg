@@ -140,3 +140,19 @@ class Charge:
 
         # Adding new particle to the DataFrame
         self.frame = pd.concat([self.frame, new_charge_df], ignore_index=True)
+
+    def kill_charges(self, id):  # TODO delete a row of df
+        pass
+
+    def move_charges(self, id):  # TODO update a position in df
+        # user should choose if want to update only one or more or all positions
+        pass
+
+    def change_velocities(self, id):  # TODO update a velocity in df
+        pass
+
+    def change_energies(self, id):  # TODO update an energy in df
+        pass
+
+    # def collide(self, id):  # TODO ???
+    #     pass
