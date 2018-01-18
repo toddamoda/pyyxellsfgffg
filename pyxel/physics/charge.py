@@ -1,3 +1,9 @@
+#   --------------------------------------------------------------------------
+#   Copyright 2018 SCI-FIV, ESA (European Space Agency)
+#   --------------------------------------------------------------------------
+"""
+PyXel! Charge class to generate electrons or holes inside detector
+"""
 import numpy as np
 
 from astropy import units as u
@@ -7,9 +13,61 @@ import pandas as pd
 cds.enable()
 
 
+def check_energy(initial_energy):
+    """
+    Checking energy of the particle if it is a float or int
+    :param initial_energy:
+    :return:
+    """
+    if isinstance(initial_energy, int) or isinstance(initial_energy, float):
+        pass
+    else:
+        raise ValueError('Given charge (electron/hole) energy could not be read')
+
+
+def check_position(detector, initial_position):
+    """
+    Checking position of the particle if it is a numpy array and inside the detector
+    :param detector:
+    :param initial_position:
+    :return:
+    """
+
+    if isinstance(initial_position, np.ndarray):
+        if 0.0 <= initial_position[0] <= detector.vert_dimension:
+            if 0.0 <= initial_position[1] <= detector.horz_dimension:
+                if -1 * detector.total_thickness <= initial_position[2] <= 0.0:
+                    pass
+                else:
+                    raise ValueError('Z position of charge is outside the detector')
+            else:
+                raise ValueError('Horizontal position of charge is outside the detector')
+        else:
+            raise ValueError('Vertical position of charge is outside the detector')
+    else:
+        raise ValueError('Position of charge is not a numpy array (int or float)')
+
+
+def random_direction(v_abs):
+    """
+    Generating random direction for charge
+    Not used yet.
+    :param v_abs:
+    :return:
+    """
+    # alpha = 2 * math.pi * random.random()
+    # beta = 2. * math.pi * random.random()
+    # v_z = v_abs * -1 * math.sin(alpha)
+    # v_ver = v_abs * math.cos(alpha) * math.cos(beta)
+    # v_hor = v_abs * math.cos(alpha) * math.sin(beta)
+    # vel_array = np.array([0., 0., 0.])
+    # return vel_array
+    pass
+
+
 class Charge:
     """
-    Charged particle class defining an electron/hole with its properties like charge, mass, position, velocity(?)
+    Charged particle class defining an electron/hole with its properties like charge, position, velocity
     """
 
     def __init__(self,
@@ -19,7 +77,8 @@ class Charge:
         self.detector = detector
 
         self.frame = pd.DataFrame(columns=['number',
-                                           'initial energy',
+                                           'charge',
+                                           'init_energy',
                                            'energy',
                                            'init pos ver',
                                            'init pos hor',
@@ -38,88 +97,36 @@ class Charge:
                       initial_position=np.array([0., 0., 0.]),
                       initial_velocity=np.array([0., 0., 0.])
                       ):
+        """
+        Creating new charge (electron or hole) inside the detector
+        :param particle_type:
+        :param particles_per_cluster:
+        :param initial_energy:
+        :param initial_position:
+        :param initial_velocity:
+        :return:
+        """
 
-        if isinstance(initial_position, np.ndarray):
-            if 0.0 <= initial_position[0] <= self.detector.vert_dimension:
-                if 0.0 <= initial_position[1] <= self.detector.horz_dimension:
-                    if -1 * self.detector.total_thickness <= initial_position[2] <= 0.0:
-                        pass
-                    else:
-                        raise ValueError
-                else:
-                    raise ValueError
-            else:
-                raise ValueError
-        else:
-            raise ValueError
+        check_position(self.detector, initial_position)
+        check_energy(initial_energy)
 
-        # if isinstance(initial_position[0], int) or isinstance(initial_position[0], float):
-        #     if 0.0 <= initial_position[0] <= self.detector.vert_dimension:
-        #         initial_position_vertical = initial_position[0]
-        #     else:
-        #         raise ValueError('Vertical position of charge is outside the detector')
-        # else:
-        #     raise ValueError('Vertical position of charge is not a number')
-        #
-        # if isinstance(initial_position[1], int) or isinstance(initial_position[1], float):
-        #     if 0.0 <= initial_position[1] <= self.detector.horz_dimension:
-        #         initial_position_horizontal = initial_position[1]
-        #     else:
-        #         raise ValueError('Horizontal position of charge is outside the detector')
-        # else:
-        #     raise ValueError('Horizontal position of charge is not a number')
-        #
-        # if isinstance(initial_position[2], int) or isinstance(initial_position[2], float):
-        #     if -1 * self.detector.total_thickness <= initial_position[2] <= 0.0:
-        #         initial_position_z = initial_position[2]
-        #     else:
-        #         raise ValueError('Z position of charge is outside the detector')
-        # else:
-        #     raise ValueError('Z position of charge is not a number')
-
-        # initial_position = np.array([initial_position_vertical,
-        #                              initial_position_horizontal,
-        #                              initial_position_z])
-        # position = np.copy(initial_position)
-
-        # trajectory = np.copy(initial_position)
-
-        # pixel = np.array([0, 0])
-        # which pixel contains this charge at the end of charge collection phase
-        # and after charge transfer
-
-        # Velocity - Maybe later we will need this as well:
-        # alpha = 2 * math.pi * random.random()
-        # beta = 2. * math.pi * random.random()
-        # v_z = v_abs * -1 * math.sin(alpha) #?????
-        # v_ver = v_abs * math.cos(alpha) * math.cos(beta)
-        # v_hor = v_abs * math.cos(alpha) * math.sin(beta)
-
-        # self.type = particle_type
         if particle_type == 'e':
-            particle_type = -1 * cds.e
+            charge = -1 * cds.e
+            number = +1 * particles_per_cluster * u.electron
         elif particle_type == 'h':
-            particle_type = +1 * cds.e
+            charge = +1 * cds.e
+            number = -1 * particles_per_cluster * u.electron
         else:
             raise ValueError('Given charged particle type can not be simulated')
 
         # Energy - Maybe later we will need this as well:
-        energy = 0. * u.eV
-        if isinstance(initial_energy, int) or isinstance(initial_energy, float):
-            energy = initial_energy * u.eV
-        else:
-            raise ValueError('Given charge (electron/hole) energy could not be read')
-
-        number = particles_per_cluster * u.electron
-        # TODO: what if it is a class for holes? should we count them with negative numbers?
-        # number of particles per cluster (it is called cluster if there are more than 1 charge)
-
-        # mass = 1.0 * cds.me
+        energy = initial_energy * u.eV
 
         # dict
-        new_charge = {'number': number,                                      # int
-                      'initial energy': energy,                             # float
-                      'energy': energy,                                     # float
+        new_charge = {'number': number,
+                      'charge': charge,
+                      'init_energy': energy,
+                      'energy': energy,
                       'init pos ver': initial_position[0],
                       'init pos hor': initial_position[1],
                       'init pos z': initial_position[2],
@@ -130,28 +137,6 @@ class Charge:
                       'velocity hor': initial_velocity[1],
                       'velocity z': initial_velocity[2]}
         new_charge_df = pd.DataFrame(new_charge, index=[0])
-        self.frame = pd.concat([self.frame, new_charge_df], ignore_index=True)
 
-    # def _plot_trajectory_xy_(self):
-    #     plt.figure()
-    #     # self.trajectory[:, 0] - VERTICAL COORDINATE
-    #     # self.trajectory[:, 1] - HORIZONTAL COORDINATE
-    #     # plt.plot(self.trajectory[:, 1], self.trajectory[:, 0], '.')
-    #     plt.xlabel('horizontal ($\mu$m)')
-    #     plt.ylabel('vertical ($\mu$m)')
-    #     plt.title('charge (e/h) trajectory in detector')
-    #     plt.axis([0, self.detector.horz_dimension, 0, self.detector.vert_dimension])
-    #     plt.grid(True)
-    #     plt.draw()
-    #
-    # def _plot_trajectory_xz_(self):
-    #     plt.figure()
-    #     # self.trajectory[:, 2] - Z COORDINATE
-    #     # self.trajectory[:, 1] - HORIZONTAL COORDINATE
-    #     # plt.plot(self.trajectory[:, 1], self.trajectory[:, 2], '.')
-    #     plt.xlabel('horizontal ($\mu$m)')
-    #     plt.ylabel('z ($\mu$m)')
-    #     plt.title('charge (e/h) trajectory in detector')
-    #     plt.axis([0, self.detector.horz_dimension, -1*self.detector.total_thickness, 0])
-    #     plt.grid(True)
-    #     plt.draw()
+        # Adding new particle to the DataFrame
+        self.frame = pd.concat([self.frame, new_charge_df], ignore_index=True)
