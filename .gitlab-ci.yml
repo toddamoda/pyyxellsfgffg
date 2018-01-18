@@ -134,7 +134,7 @@ doc8:
   script:
     - pip install sphinx doc8
 
-    - doc8 -v docs/source
+    - doc8 docs/source
   allow_failure: true   # TODO: This line should be removed
 
 #
