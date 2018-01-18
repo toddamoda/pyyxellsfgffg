@@ -348,8 +348,10 @@ class HeaderAccess(object):
             if fits_name in header:
                 try:
                     value = entry_type(header[fits_name])
-                except:
-                    value = entry_type()
+                except KeyError:
+                    value = entry_type()  # fits_name no in header
+                except ValueError:
+                    value = entry_type()  # conversion to type with default value failed.
                     # TODO: log this exception but keep going with default value
                     # raise
             else:
