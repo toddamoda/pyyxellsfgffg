@@ -189,7 +189,15 @@ class Simulation:
 
         particle.electrons = int(particle.deposited_energy * 1e3 / self.ccd.material_ionization_energy)     # eV/eV = 1
 
-        self.electron_clusters.create_charge(particle.electrons,
+        # def create_charge(self,
+        #                   particle_type='e',
+        #                   particles_per_cluster=1,
+        #                   initial_energy=0.0,
+        #                   initial_position=np.array([0., 0., 0.]),
+        #                   initial_velocity=np.array([0., 0., 0.])
+        #                   ):
+        self.electron_clusters.create_charge('e',
+                                             particle.electrons,
                                              0.1,
                                              particle.position,
                                              np.array([0., 0., 0.]))
