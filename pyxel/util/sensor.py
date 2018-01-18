@@ -62,31 +62,31 @@ class SensorHeader(HeaderAccess):
     # TODO: add method to access fits header directly, i.e. PARAM2
 
 
-class HeaderPLATO(SensorHeader):
-    """ FITS key header mapping """
-
-    gain = ('GAIN', float, 1.0)
-    pre_int_time = ('PRETIME', float, 0.0)
-    int_time = ('INTTIME', float, 0.0)
-    post_int_time = ('POSTTIME', float, 0.0)
-    bins = ('BINROW', int, 1)
-    temperature = ('SENSOR11', float, 180.0)
-    acq_index = ('ACQ_IDX', int, 1)
-    acq_length = ('ACQ_LEN', int, 1)
-    n_rows = ('NAXIS2', int, 100)
-    n_cols = ('NAXIS1', int, 100)
-    wave_len = ('WAVELEN', float, 0.0)
-    sw_version = ('SW_VERSI', str, '')
-    file_name = ('FILENAME', str, '')
-    injections = ('PARAM16', int, 100)
-    no_injections = ('PARAM17', int, 100)
-    blocks = ('PARAM18', int, 100)
-    rd = ('HV_RDE', float, 0.00)
-    od = ('HV_ODE', float, 0.00)
-    gd = ('HV_GD', float, 0.00)
-    date = ('DATE', str, '')
-    pt = ('PARAM11', int, 100)
-    ser_pump_delay = ('PARAM19', int, 100)
+# class HeaderPLATO(SensorHeader):
+#     """ FITS key header mapping """
+#
+#     gain = ('GAIN', float, 1.0)
+#     pre_int_time = ('PRETIME', float, 0.0)
+#     int_time = ('INTTIME', float, 0.0)
+#     post_int_time = ('POSTTIME', float, 0.0)
+#     bins = ('BINROW', int, 1)
+#     temperature = ('SENSOR11', float, 180.0)
+#     acq_index = ('ACQ_IDX', int, 1)
+#     acq_length = ('ACQ_LEN', int, 1)
+#     n_rows = ('NAXIS2', int, 100)
+#     n_cols = ('NAXIS1', int, 100)
+#     wave_len = ('WAVELEN', float, 0.0)
+#     sw_version = ('SW_VERSI', str, '')
+#     file_name = ('FILENAME', str, '')
+#     injections = ('PARAM16', int, 100)
+#     no_injections = ('PARAM17', int, 100)
+#     blocks = ('PARAM18', int, 100)
+#     rd = ('HV_RDE', float, 0.00)
+#     od = ('HV_ODE', float, 0.00)
+#     gd = ('HV_GD', float, 0.00)
+#     date = ('DATE', str, '')
+#     pt = ('PARAM11', int, 100)
+#     ser_pump_delay = ('PARAM19', int, 100)
 
 
 class CCDSensorGeometry(SensorGeometry):

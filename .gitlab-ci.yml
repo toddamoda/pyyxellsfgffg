@@ -95,7 +95,7 @@ mypy:
   script:
     - pip install mypy
     - mypy --ignore-missing-imports pyxel
-  allow_failure: true   # TODO: This line should be removed
+  allow_failure: false
 
 
 # Run pylint (with pytest) and generate HTML report
@@ -125,7 +125,7 @@ flake8:
     - pip install flake8
 
     - flake8 pyxel
-  allow_failure: false   # TODO: This line should be removed
+  allow_failure: false
 
 
 doc8:
