@@ -1,5 +1,4 @@
 import functools
-import typing as t
 from pathlib import Path
 
 import numpy as np
@@ -94,7 +93,7 @@ def _constructor_function(loader: PipelineYAML, node: yaml.ScalarNode):
     kwargs = mapping.get('kwargs', {})
     args = mapping.get('args', {})
 
-    func = util.evaluate_reference(function_name)        # type: t.Callable
+    func = util.evaluate_reference(function_name)
 
     return functools.partial(func, *args, **kwargs)
 

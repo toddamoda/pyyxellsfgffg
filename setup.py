@@ -41,6 +41,7 @@ def get_requires(filenames):
 
     return requires
 
+
 setup(
     name=pyxel.__appname__,
     version=versioneer.get_version(),

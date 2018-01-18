@@ -75,8 +75,6 @@ class ImageData(object):
         """ Set the image header dictionary. """
         self._header = value
 
-""""""
-
 
 class FitsFile(ImageData):
     """ Class to read/write data from/into a FITS file.

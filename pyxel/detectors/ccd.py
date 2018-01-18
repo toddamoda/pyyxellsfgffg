@@ -9,8 +9,6 @@ from astropy import units as u
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.environment import Environment
 from pyxel.detectors.geometry import Geometry
-# from pyxel.detectors.optics import Optics
-
 
 
 def convert_to_int(value):
@@ -91,7 +89,7 @@ class CCD:
     #     self._pix_hor_size = kwargs.get('pixel_horz_size', 0.0)            # pixel horizontal size (col)
     #
     #     # self._total_thickness = kwargs.get('total_thickness', 0)  # total detector thickness
-    #     self._total_thickness = self._depletion_zone + self._field_free_zone + self._sub_thickness   # total detector thickness
+    #     self._total_thickness = self._depletion_zone + self._field_free_zone + self._sub_thickness
     #     self._ver_dimension = self._row * self._pix_ver_size        # detector vertical size
     #     self._hor_dimension = self._col * self._pix_hor_size        # detector horizontal size
     #

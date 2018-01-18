@@ -6,12 +6,15 @@
 
 import copy
 from math import sqrt, log
+
 import numpy as np
-from scipy.special import erf
-from pyxel.models.tars.lib.particle import Particle
-from pyxel.detectors.ccd import CCD
 from astropy import units as u
 from astropy.units import cds
+from scipy.special import erf
+
+from pyxel.detectors.ccd import CCD
+from pyxel.models.tars.lib.particle import Particle
+
 cds.enable()
 
 
