@@ -135,7 +135,7 @@ doc8:
     - pip install sphinx doc8
 
     - doc8 docs/source
-  allow_failure: true   # TODO: This line should be removed
+  allow_failure: false
 
 #
 # Deploy Stage

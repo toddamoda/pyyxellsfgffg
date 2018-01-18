@@ -18,14 +18,6 @@ from pyxel.detectors.ccd import CCD
 # from numpy import pi
 
 
-def foo(ccd, cls, method_name, kwargs_init, kwargs_method):
-    obj = cls(**kwargs_init)
-
-    new_ccd = getattr(obj, method_name)(**kwargs_method)
-
-    return new_ccd
-
-
 def apply_shot_noise(ccd: CCD) -> CCD:
     """ Extract the shot noise
 

@@ -1,9 +1,5 @@
 """ Utility functions. """
-from pathlib import Path
 
+from pyxel.util.fitsfile import FitsFile
 
-def get_data_dir(file_name=''):
-    path_out = Path(__file__).parents[2].joinpath('data')
-    if file_name:
-        path_out = path_out.joinpath(file_name)
-    return str(path_out)
+__all__ = ['FitsFile']
