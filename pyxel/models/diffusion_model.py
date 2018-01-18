@@ -24,7 +24,7 @@ def diffusion(ccd: CCD) -> CCD:
 
     diff = Diffusion(new_ccd)
 
-    collected_charge_list = []
+    collected_charge_list = []  # type: list
 
     cluster_generator = [cluster for cluster in new_ccd.charge_list]
 
