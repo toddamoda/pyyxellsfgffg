@@ -3,6 +3,8 @@
 #   --------------------------------------------------------------------------
 """ PyXel! CCD detector modelling class
 """
+# import typing as t  # noqa: F401
+
 import numpy as np
 from astropy import units as u
 
@@ -49,7 +51,8 @@ class CCD:
         self.environment = environment
         self.characteristics = characteristics
 
-        self.charge_list = []                 # list of Charge class objects
+        # list of Charge class objects
+        self.charge_list = []                 # type: list
 
     #
     # def __init__(self, **kwargs):
@@ -211,13 +214,17 @@ class CCD:
     def charge(self):
         return self._charge
 
-    # @charge.setter
-    # def charge(self, newcharge: np.ndarray):
-    #     self.charge = newcharge
+    @charge.setter
+    def charge(self, new_charge: np.ndarray):
+        self._charge = new_charge
 
     @property
     def signal(self):
         return self._signal
+
+    @signal.setter
+    def signal(self, new_signal: np.ndarray):
+        self._signal = new_signal
 
     # @property
     # def ccd_signal_updated(self):

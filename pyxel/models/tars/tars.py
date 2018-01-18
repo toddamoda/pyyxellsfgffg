@@ -52,7 +52,7 @@ def run_tars(ccd: CCD,
 
     # list of many electron clusters (Charge objects)
     # append deposited charge cluster list to the new_ccd object charge list
-    new_ccd.charge_list += cosmics.get_deposited_charge()
+    # new_ccd.charge_list += cosmics.get_deposited_charge()
 
     return new_ccd
 
