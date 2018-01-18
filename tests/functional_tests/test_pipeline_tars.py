@@ -41,7 +41,7 @@ def save_signal(ccd: CCD, output_filename: Path):
 @pytest.mark.parametrize("input_filename", [
     'pipeline_tars.yaml',
 ])
-def test_pipeline_tars(input_filename='pipeline_tars.yaml'):
+def test_pipeline_tars(input_filename):
 
     # Step 1: Get the pipeline configuration
     config_path = Path(__file__).parent.joinpath(input_filename)
