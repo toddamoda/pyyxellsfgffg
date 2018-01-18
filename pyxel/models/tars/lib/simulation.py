@@ -63,7 +63,7 @@ class Simulation:
         self.energy_cut = 1.0e-5        # MeV
 
         self.electron_clusters = Charge(self.ccd)
-        
+
         self.edep_per_step = []
         self.total_edep_per_particle = []
 
@@ -77,15 +77,15 @@ class Simulation:
         self.angle_beta = beta
         self.step_length = step_length
 
-################# EXPERIMENTAL - NOT FINSHED YET ###############################
     def set_let_distribution(self):
-        '''
+        """
         Read/generate a Linear Energy Transport distribution from Geant4 data
         for each new particle based on its initial energy (from input spectrum)
         and track length inside the detector
         :return:
-        '''
 
+        .. warning:: EXPERIMENTAL - NOT FINSHED YET
+        """
 
         TARS_DIR = path.dirname(path.abspath(__file__))
         # particle_let_file = TARS_DIR + '../data/inputs/let_proton_12GeV_100um_geant4.ascii'
@@ -93,12 +93,10 @@ class Simulation:
 
         let_histo = read_data(particle_let_file)  # counts in function of keV
 
-        ############
-        # Todo: THE DATA NEED TO BE EXTRACTED FROM G4: DEPOSITED ENERGY PER UNIT LENGTH (keV/um)
+        # TODO: THE DATA NEED TO BE EXTRACTED FROM G4: DEPOSITED ENERGY PER UNIT LENGTH (keV/um)
         # THIS 2 LINE IS TEMPORARY, DO NOT USE THIS!
-        data_det_thickness = 100.0    #um
+        data_det_thickness = 100.0    # um
         let_histo[:, 1] /= data_det_thickness   # keV/um
-        ###########
 
         self.let_cdf = np.stack((let_histo[:, 1], let_histo[:, 2]), axis=1)
         cum_sum = np.cumsum(self.let_cdf[:, 1])
@@ -115,7 +113,6 @@ class Simulation:
         # plt.plot(self.sim_obj.let_cdf[:, 0], self.sim_obj.let_cdf[:, 1], '.')
         # plt.draw()
         # plt.show()
-################# EXPERIMENTAL - NOT FINSHED YET ###############################
 
     def event_generation(self):
         """

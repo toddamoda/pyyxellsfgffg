@@ -10,8 +10,6 @@ import argparse
 
 import pyxel
 
-from pyxel.util import config
-
 
 def main():
     """ main entry point. """

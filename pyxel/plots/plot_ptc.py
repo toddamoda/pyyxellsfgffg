@@ -60,7 +60,9 @@ def main():
     #         y_read_fit = y_sigma[read_fit1:read_fit2]
     #         fit_read = np.polyfit(np.log10(x_read_fit), np.log10(y_read_fit), 1)
     #         print('readout noise fit (slope and intercept): ', fit_read)
-    #         plt.plot(np.log10(x_signal), fit_read[0] * np.log10(x_signal) + fit_read[1], 'y-', label="readout noise fit")
+    #         plt.plot(np.log10(x_signal),
+    #                  fit_read[0] * np.log10(x_signal) + fit_read[1],
+    #                  'y-', label="readout noise fit")
     #     if FIT_SHOT:
     #         # shot_fit1 = np.argmax(x_signal > 100)
     #         # shot_fit2 = np.argmax(x_signal > 500)
@@ -70,7 +72,9 @@ def main():
     #         y_shot_fit = y_sigma[shot_fit1:shot_fit2]
     #         fit_shot = np.polyfit(np.log10(x_shot_fit), np.log10(y_shot_fit), 1)
     #         print('shot noise fit (slope and intercept): ', fit_shot)
-    #         plt.plot(np.log10(x_signal), fit_shot[0] * np.log10(x_signal) + fit_shot[1], 'b-', label="shot noise fit")
+    #         plt.plot(np.log10(x_signal),
+    #                  fit_shot[0] * np.log10(x_signal) + fit_shot[1],
+    #                  'b-', label="shot noise fit")
     #     if FIT_FIX:
     #         # fix_fit1 = np.argmax(x_signal > 13000)
     #         fix_fit1 = 1
@@ -79,7 +83,9 @@ def main():
     #         y_fix_fit = y_sigma[fix_fit1:fix_fwc]
     #         fit_fix = np.polyfit(np.log10(x_fix_fit), np.log10(y_fix_fit), 1)
     #         print('fix pattern noise fit (slope and intercept): ', fit_fix)
-    #         plt.plot(np.log10(x_signal), fit_fix[0] * np.log10(x_signal) + fit_fix[1], 'r-', label="fix pattern noise fit")
+    #         plt.plot(np.log10(x_signal),
+    #                  fit_fix[0] * np.log10(x_signal) + fit_fix[1],
+    #                  'r-', label="fix pattern noise fit")
     #
     #     ax2 = plt.gca()
     #     ax2.set_title('CCD Photon Transfer Curve')

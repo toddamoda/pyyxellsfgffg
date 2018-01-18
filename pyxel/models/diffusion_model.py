@@ -13,7 +13,6 @@ from astropy.units import cds
 from scipy.special import erf
 
 from pyxel.detectors.ccd import CCD
-from pyxel.models.tars.lib.particle import Particle
 
 cds.enable()
 
@@ -34,7 +33,7 @@ def diffusion(ccd: CCD) -> CCD:
 
         # sigma_hiraga = diff.hiraga_diffusion_model(cluster)
 
-        sigma_janesick = diff.janesick_diffusion_model(cluster)
+        # sigma_janesick = diff.janesick_diffusion_model(cluster)
 
         sigma = 1.0     # temporarily
         collected_charge = diff.gaussian_pixel_separation(cluster, sigma, sigma)
@@ -44,8 +43,6 @@ def diffusion(ccd: CCD) -> CCD:
     # Overwrite the list of charge clusters in the new_ccd object because Charge attributes have changed
     # new_ccd.charge_list = collected_charge_list
     new_ccd.charge = collected_charge_list      # TEMPORARY
-
-
 
     return new_ccd
 
@@ -65,7 +62,7 @@ class Diffusion:
         # Initial cloud diameter:
         c_init = 0.0171 * (cluster.energy.value ** 1.75)
 
-        # 10 keV deposited by an X-ray photon results a 1 um diameter charge (e-h) cloud
+        # 10 keV deposited by an X-ray photon resultsParticle a 1 um diameter charge (e-h) cloud
         # CCD Advances For X - Ray Scientific Measurements In 1985,
         # James Janesick et al.
         # deltaE != cluster.number / u.electron * self.ccd.material_ionization_energy / (1000 * u.eV)
@@ -113,33 +110,30 @@ class Diffusion:
         """
         spread the particle into the material and compute the density and size of the electronic cloud generated
         at each step
-
-        :param Particle particle: particle
-        :return: float sigma : diameter of the electronic cloud at the generation point (um)
         """
+        pass
+        # eps_rel = 11.8                       # TODO: implement this in CCDDetector class
+        # eps_si = eps_rel * cds.eps0
 
-        eps_rel = 11.8                       # TODO: implement this in CCDDetector class
-        eps_si = eps_rel * cds.eps0
-
-        n_acceptor = 1e15 * u.cm**(-3)       # TODO: implement this in CCDDetector class
+        # n_acceptor = 1e15 * u.cm**(-3)       # TODO: implement this in CCDDetector class
 
         # voltage = cds.e * n_acceptor / (2 * eps_si) * l_dep**2    # V
         # TODO: implement this in CCDDetector class
         # assumptions made: V=0, dV/dz = 0 at z = ld
-        voltage = 50 * u.V
+        # voltage = 50 * u.V
         # voltage = self.ccd.bias_voltage
 
         # depletion depth                      # TODO: implement this in CCDDetector class
-        l_dep = sqrt(2 * eps_si * voltage / (cds.e * n_acceptor))   # cm
+        # l_dep = sqrt(2 * eps_si * voltage / (cds.e * n_acceptor))   # cm
         # l_dep = self.ccd.depletion_zone
 
         # critical field
-        efield_crit = 1.01 * u.V/u.cm * self.ccd.temperature ** 1.55        # V/cm
+        # efield_crit = 1.01 * u.V/u.cm * self.ccd.temperature ** 1.55        # V/cm
         # For instance, typical value at T = 210 K are vs = 1.46e7 cm*sec−1, Ecrit = 4.4e3 V*cm−1 and α = 0.88
         # Ecrit ~ 1e2 - 1e4 V*cm−1
 
         # electron velocity saturation parameter
-        sat = u.e * n_acceptor * l_dep / (eps_si * efield_crit)
+        # sat = u.e * n_acceptor * l_dep / (eps_si * efield_crit)
 
         # r_final =
 
@@ -154,7 +148,7 @@ class Diffusion:
         Compute the charge collection function to determine the number of electron collected by each pixel based on the
         generated electronic cloud shape
 
-        :param Particle particle: particle responsible of the electronic cloud
+        :param cluster:
         :param float sig_ac: diameter of the resulting electronic cloud in the AC (across scan, vertical) dimension
         :param float sig_al: diameter of the resulting electronic cloud in the AL (along scan, horizontal) dimension
         """
@@ -163,10 +157,10 @@ class Diffusion:
         px = []
         py = []
 
-        dx = cluster.initial_position[0] - self.ccd.pix_ver_size \
-                                    * int(cluster.initial_position[0] / self.ccd.pix_ver_size)
-        dy = cluster.initial_position[1] - self.ccd.pix_hor_size \
-                                    * int(cluster.initial_position[1] / self.ccd.pix_hor_size)
+        dx = (cluster.initial_position[0] - self.ccd.pix_ver_size
+              * int(cluster.initial_position[0] / self.ccd.pix_ver_size))
+        dy = (cluster.initial_position[1] - self.ccd.pix_hor_size
+              * int(cluster.initial_position[1] / self.ccd.pix_hor_size))
 
         try:
             int(4 * sig_ac / self.ccd.pix_ver_size)  # WTF?
@@ -174,6 +168,7 @@ class Diffusion:
             print(sig_ac, cluster.number)
 
         x_steps = int(4 * sig_ac / self.ccd.pix_ver_size)
+
         if x_steps > 49:  # WHY????
             x_steps = 49
         if x_steps < 1:

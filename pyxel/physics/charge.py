@@ -132,7 +132,6 @@ class Charge:
         new_charge_df = pd.DataFrame(new_charge, index=[0])
         self.frame = pd.concat([self.frame, new_charge_df], ignore_index=True)
 
-
     # def _plot_trajectory_xy_(self):
     #     plt.figure()
     #     # self.trajectory[:, 0] - VERTICAL COORDINATE
