@@ -8,7 +8,7 @@ from pyxel.util import util
 
 class Models:
 
-    def __init__(self, models: dict):
+    def __init__(self, models: dict) -> None:
 
         new_dct = {}
         for key, value in models.items():
@@ -17,7 +17,7 @@ class Models:
                 func = util.evaluate_reference(value)  # type: t.Callable
 
             elif callable(value):
-                func = value                        # type: t.Callable
+                func = value
 
             else:
                 raise NotImplementedError
@@ -36,7 +36,7 @@ class DetectionPipeline:
                  charge_transfer: Models,
                  charge_readout: Models,
                  readout_electronics: Models,
-                 doc=None):
+                 doc=None) -> None:
         self.doc = doc
         self.optics = optics
         self.charge_generation = charge_generation
@@ -48,12 +48,12 @@ class DetectionPipeline:
 
 class Processor:
 
-    def __init__(self, ccd: CCD, pipeline: DetectionPipeline):
+    def __init__(self, ccd: CCD, pipeline: DetectionPipeline) -> None:
         self.ccd = ccd
         self.pipeline = pipeline
 
 
-def run_pipeline(detector, pipeline):
+def run_pipeline(detector: CCD, pipeline: DetectionPipeline) -> CCD:
 
     # OPTICS
     # Stage 1: Apply the Optics model(s). only '.photons' is modified
