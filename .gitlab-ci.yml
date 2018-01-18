@@ -128,7 +128,7 @@ flake8:
   allow_failure: true   # TODO: This line should be removed
 
 
-doc8
+doc8:
   image: python:3.6
   stage: test
   script:
