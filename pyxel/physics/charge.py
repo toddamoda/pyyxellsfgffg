@@ -76,7 +76,8 @@ class Charge:
 
         self.detector = detector
 
-        self.frame = pd.DataFrame(columns=['number',
+        self.frame = pd.DataFrame(columns=['id',
+                                           'number',
                                            'charge',
                                            'init_energy',
                                            'energy',
@@ -89,6 +90,7 @@ class Charge:
                                            'velocity ver',
                                            'velocity hor',
                                            'velocity z'])
+        self.nextid = 0
 
     def create_charge(self,
                       particle_type='e',
@@ -123,7 +125,8 @@ class Charge:
         energy = initial_energy * u.eV
 
         # dict
-        new_charge = {'number': number,
+        new_charge = {'id': self.nextid,
+                      'number': number,
                       'charge': charge,
                       'init_energy': energy,
                       'energy': energy,
@@ -136,13 +139,20 @@ class Charge:
                       'velocity ver': initial_velocity[0],
                       'velocity hor': initial_velocity[1],
                       'velocity z': initial_velocity[2]}
+
+        # new_charge_df = pd.DataFrame(new_charge, index=[self.nextid])
         new_charge_df = pd.DataFrame(new_charge, index=[0])
+        self.nextid += 1
 
         # Adding new particle to the DataFrame
         self.frame = pd.concat([self.frame, new_charge_df], ignore_index=True)
 
-    def kill_charges(self, id):  # TODO delete a row of df
-        pass
+    def remove_charges(self, ids_to_delete):
+
+        if ids_to_delete == 'all':
+            self.frame.drop(self.frame.id[:], inplace=True)
+        else:
+            self.frame.query('id not in %s' % ids_to_delete, inplace=True)
 
     def move_charges(self, id):  # TODO update a position in df
         # user should choose if want to update only one or more or all positions

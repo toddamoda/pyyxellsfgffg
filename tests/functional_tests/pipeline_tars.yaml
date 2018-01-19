@@ -21,9 +21,9 @@ process: !PROCESSOR
       col: 100                      # compulsory
       depletion_thickness: 10.0     # um
       field_free_thickness: 0.0     # um
-      substrate_thickness: 0.0      # um
       pixel_vert_size: 10.0         # um
       pixel_horz_size: 10.0         # um
+      total_thickness: 10.0         # um
 
     environment:
       temperature: 320  # detector temperature Kelvin
