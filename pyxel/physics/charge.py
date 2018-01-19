@@ -81,15 +81,15 @@ class Charge:
                                            'charge',
                                            'init_energy',
                                            'energy',
-                                           'init pos ver',
-                                           'init pos hor',
-                                           'init pos z',
-                                           'position ver',
-                                           'position hor',
-                                           'position z',
-                                           'velocity ver',
-                                           'velocity hor',
-                                           'velocity z'])
+                                           'init_pos_ver',
+                                           'init_pos_hor',
+                                           'init_pos_z',
+                                           'position_ver',
+                                           'position_hor',
+                                           'position_z',
+                                           'velocity_ver',
+                                           'velocity_hor',
+                                           'velocity_z'])
         self.nextid = 0
 
     def create_charge(self,
@@ -130,15 +130,15 @@ class Charge:
                       'charge': charge,
                       'init_energy': energy,
                       'energy': energy,
-                      'init pos ver': initial_position[0],
-                      'init pos hor': initial_position[1],
-                      'init pos z': initial_position[2],
-                      'position ver': initial_position[0],
-                      'position hor': initial_position[1],
-                      'position z': initial_position[2],
-                      'velocity ver': initial_velocity[0],
-                      'velocity hor': initial_velocity[1],
-                      'velocity z': initial_velocity[2]}
+                      'init_pos_ver': initial_position[0],
+                      'init_pos_hor': initial_position[1],
+                      'init_pos_z': initial_position[2],
+                      'position_ver': initial_position[0],
+                      'position_hor': initial_position[1],
+                      'position_z': initial_position[2],
+                      'velocity_ver': initial_velocity[0],
+                      'velocity_hor': initial_velocity[1],
+                      'velocity_z': initial_velocity[2]}
 
         # new_charge_df = pd.DataFrame(new_charge, index=[self.nextid])
         new_charge_df = pd.DataFrame(new_charge, index=[0])
@@ -154,8 +154,11 @@ class Charge:
         else:
             self.frame.query('id not in %s' % ids_to_delete, inplace=True)
 
-    def move_charges(self, id):  # TODO update a position in df
+    # def move_charges(self, id):  # TODO update a position in df
         # user should choose if want to update only one or more or all positions
+        # pass
+
+    def change_positions(self, id):  # TODO update a velocity in df
         pass
 
     def change_velocities(self, id):  # TODO update a velocity in df
