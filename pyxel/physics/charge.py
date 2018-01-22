@@ -67,7 +67,8 @@ def random_direction(v_abs):
 
 class Charge:
     """
-    Charged particle class defining an electron/hole with its properties like charge, position, velocity
+    Charged particle class defining and storing information of all electrons and holes with their properties
+    like charge, position, velocity, energy
     """
 
     def __init__(self,
@@ -100,7 +101,7 @@ class Charge:
                       initial_velocity=np.array([0., 0., 0.])
                       ):
         """
-        Creating new charge (electron or hole) inside the detector
+        Creating new charge or group of charges (electron/hole) inside the detector stored in a pandas DataFrame
         :param particle_type:
         :param particles_per_cluster:
         :param initial_energy:
@@ -147,25 +148,148 @@ class Charge:
         # Adding new particle to the DataFrame
         self.frame = pd.concat([self.frame, new_charge_df], ignore_index=True)
 
-    def remove_charges(self, ids_to_delete):
-
-        if ids_to_delete == 'all':
+    def remove_charges(self, id_list='all'):
+        """
+        Remove list of charges from DataFrame if they are not needed, tracked anymore
+        :param id_list:
+        :return:
+        """
+        if id_list == 'all':
             self.frame.drop(self.frame.id[:], inplace=True)
         else:
-            self.frame.query('id not in %s' % ids_to_delete, inplace=True)
+            self.frame.query('id not in %s' % id_list, inplace=True)
 
-    # def move_charges(self, id):  # TODO update a position in df
-        # user should choose if want to update only one or more or all positions
-        # pass
+    def get_positions(self, id_list='all'):
+        """
+        Get all 3 positions of a list of charges as a numpy array
+        :param id_list:
+        :return:
+        """
+        return np.stack((self.get_positions_ver(id_list),
+                         self.get_positions_hor(id_list),
+                         self.get_positions_z(id_list)), axis=1)
 
-    def change_positions(self, id):  # TODO update a velocity in df
-        pass
+    def get_positions_ver(self, id_list='all'):
+        """
+        Get vertical positions of a list of charges
+        :param id_list:
+        :return:
+        """
+        if id_list == 'all':
+            array = self.frame.position_ver.values
+        else:
+            array = self.frame.query('id in %s' % id_list).position_ver.values
+        return array
 
-    def change_velocities(self, id):  # TODO update a velocity in df
-        pass
+    def get_positions_hor(self, id_list='all'):
+        """
+        Get horizontal positions of a list of charges
+        :param id_list:
+        :return:
+        """
+        if id_list == 'all':
+            array = self.frame.position_hor.values
+        else:
+            array = self.frame.query('id in %s' % id_list).position_hor.values
+        return array
 
-    def change_energies(self, id):  # TODO update an energy in df
-        pass
+    def get_positions_z(self, id_list='all'):
+        """
+        Get z positions (height) of a list of charges
+        :param id_list:
+        :return:
+        """
+        if id_list == 'all':
+            array = self.frame.position_z.values
+        else:
+            array = self.frame.query('id in %s' % id_list).position_z.values
+        return array
 
-    # def collide(self, id):  # TODO ???
-    #     pass
+    def get_velocities(self, id_list='all'):
+        """
+         Get all 3 velocities of a list of charges as a numpy array
+         :param id_list:
+         :return:
+         """
+        return np.stack((self.get_velocities_ver(id_list),
+                         self.get_velocities_hor(id_list),
+                         self.get_velocities_z(id_list)), axis=1)
+
+    def get_velocities_ver(self, id_list='all'):
+        """
+        Get vertical velocities of a list of charges
+        :param id_list:
+        :return:
+        """
+        if id_list == 'all':
+            array = self.frame.velocity_ver.values
+        else:
+            array = self.frame.query('id in %s' % id_list).velocity_ver.values
+        return array
+
+    def get_velocities_hor(self, id_list='all'):
+        """
+        Get horizontal velocities of a list of charges
+        :param id_list:
+        :return:
+        """
+        if id_list == 'all':
+            array = self.frame.velocity_hor.values
+        else:
+            array = self.frame.query('id in %s' % id_list).velocity_hor.values
+        return array
+
+    def get_velocities_z(self, id_list='all'):
+        """
+        Get z velocities (height) of a list of charges
+        :param id_list:
+        :return:
+        """
+        if id_list == 'all':
+            array = self.frame.velocity_z.values
+        else:
+            array = self.frame.query('id in %s' % id_list).velocity_z.values
+        return array
+
+    def get_energies(self, id_list='all'):
+        """
+        Get energies of a list of charges
+        :param id_list:
+        :return:
+        """
+        if id_list == 'all':
+            array = self.frame.energy.values
+        else:
+            array = self.frame.query('id in %s' % id_list).energy.values
+        return array
+
+    def change_positions(self, id_pos, new_positions):
+        """
+        Update positions of one charge
+        :param id_pos:
+        :param new_positions:
+        :return:
+        """
+        self.frame.at[self.frame.index[self.frame['id'] == id_pos], 'position_ver'] = new_positions[0]
+        self.frame.at[self.frame.index[self.frame['id'] == id_pos], 'position_hor'] = new_positions[1]
+        self.frame.at[self.frame.index[self.frame['id'] == id_pos], 'position_z'] = new_positions[2]
+
+    def change_velocities(self, id_vel, new_velocities):
+        """
+        Update velocities of one charge
+        :param id_vel:
+        :param new_velocities:
+        :return:
+        """
+        self.frame.at[self.frame.index[self.frame['id'] == id_vel], 'velocity_ver'] = new_velocities[0]
+        self.frame.at[self.frame.index[self.frame['id'] == id_vel], 'velocity_hor'] = new_velocities[1]
+        self.frame.at[self.frame.index[self.frame['id'] == id_vel], 'velocity_z'] = new_velocities[2]
+
+    def change_energy(self, id_en, new_energy):
+        """
+        Update energy of one charge
+        :param id_en:
+        :param new_energy:
+        :return:
+        """
+        self.frame.at[self.frame.index[self.frame['id'] == id_en], 'energy'] = new_energy
