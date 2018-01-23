@@ -30,11 +30,10 @@ class Simulation:
         self.spectrum_cdf = None
         self.let_cdf = np.zeros((1, 2))
 
-        self.processing_time = 0
-
+        # self.processing_time = 0
         # self.event_counter = 0
-        self.total_charge_array = np.zeros((self.ccd.row, self.ccd.col), int)
-        self.ver_limit, self.hor_limit = self.total_charge_array.shape
+        # self.total_charge_array = np.zeros((self.ccd.row, self.ccd.col), int)
+        # self.ver_limit, self.hor_limit = self.total_charge_array.shape
 
         self.clusters_per_track = []
         self.all_charge_clusters = []
@@ -49,8 +48,8 @@ class Simulation:
         self.step_length = None
         self.energy_cut = 1.0e-5        # MeV
 
-        # self.electron_clusters = Charge(self.ccd)
-        self.electron_clusters = self.ccd.charge
+        # self.charge_obj = Charge(self.ccd)
+        self.charge_obj = self.ccd.charges
 
         self.edep_per_step = []
         self.total_edep_per_particle = []
@@ -171,16 +170,16 @@ class Simulation:
         particle.electrons = int(particle.deposited_energy * 1e3 /
                                  (self.ccd.material_ionization_energy + e_kin_energy))     # eV/eV = 1
 
-        self.electron_clusters.create_charge('e',
-                                             particle.electrons,
-                                             e_kin_energy,
-                                             particle.position,
-                                             np.array([0., 0., 0.]))
-        # self.electron_clusters.create_charge('h',
-        #                                      particle.electrons,
-        #                                      e_kin_energy,
-        #                                      particle.position,
-        #                                      np.array([0., 0., 0.]))
+        self.charge_obj.create_charge('e',
+                                      particle.electrons,
+                                      e_kin_energy,
+                                      particle.position,
+                                      np.array([0., 0., 0.]))
+        # self.charge_obj.create_charge('h',
+        #                               particle.electrons,
+        #                               e_kin_energy,
+        #                               particle.position,
+        #                               np.array([0., 0., 0.]))
 
         # keV
         particle.deposited_energy = particle.electrons * (e_kin_energy + self.ccd.material_ionization_energy) * 1e-3

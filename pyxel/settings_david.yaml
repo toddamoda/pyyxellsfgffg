@@ -14,7 +14,7 @@ process: !PROCESSOR
     photons: null  # type: int
 #    photons: 10
     signal: !from_file data/HorseHead_orig.fits
-    charge: null
+    charges: null
 
     geometry:
       row: 100                      # compulsory
@@ -65,7 +65,7 @@ process: !PROCESSOR
     # -> charge
     charge_generation: !models
   #    fixed_pattern_noise: pyxel.models.ccd_noise.add_fix_pattern_noise
-      photoelectrons: !function
+      photoelectrons: pyxel.models.photoelectrons.simple_conversion
       tars: !function
         name: pyxel.models.tars.tars.run_tars
         kwargs:

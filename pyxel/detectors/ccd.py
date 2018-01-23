@@ -33,7 +33,7 @@ class CCD:
                  geometry: Geometry = None,
                  environment: Environment = None,
                  characteristics: CCDCharacteristics = None,
-                 photons=None, signal=None, charge=None) -> None:
+                 photons=None, signal=None, charges=None) -> None:
 
         if photons is not None:
             photons = photons * u.ph   # unit: photons
@@ -41,12 +41,12 @@ class CCD:
         if signal is not None:
             signal = signal * u.adu  # unit: ADU
 
-        if charge is not None:
-            charge = charge * u.electron  # unit: electrons
+        if charges is not None:
+            charges = charges * u.electron  # unit: electrons
 
         self._photons = photons
         self._signal = signal
-        self._charge = charge
+        self._charges = charges
 
         self.geometry = geometry
         self.environment = environment
@@ -150,9 +150,9 @@ class CCD:
         Limiting charges per pixel according to full well capacity
         :return:
         """
-        excess_x, excess_y = np.where(self._charge > self.fwc)
-        self._charge[excess_x, excess_y] = self.fwc
-        self._charge = np.rint(self._charge).astype(int)
+        excess_x, excess_y = np.where(self._charges > self.fwc)
+        self._charges[excess_x, excess_y] = self.fwc
+        self._charges = np.rint(self._charges).astype(int)
 
     def compute_k(self):
         """
@@ -173,7 +173,7 @@ class CCD:
         Calculate CCD signal per pixel in units of DN from charges and CCD parameters
         :return:
         """
-        self._signal = self._charge * self.sv * self.accd     # what is self.accd exactly??
+        self._signal = self._charges * self.sv * self.accd     # what is self.accd exactly??
         # self.signal = np.rint(self.signal).astype(int)  # let's assume it could be real number (float)
 
     def compute_readout_signal(self):
@@ -213,12 +213,12 @@ class CCD:
     #     self.photons = convert_to_int(newphotons)
 
     @property
-    def charge(self):
-        return self._charge
+    def charges(self):
+        return self._charges
 
-    @charge.setter
-    def charge(self, new_charge: np.ndarray):
-        self._charge = new_charge
+    @charges.setter
+    def charges(self, new_charge: np.ndarray):
+        self._charges = new_charge
 
     @property
     def signal(self):
