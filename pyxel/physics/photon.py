@@ -75,46 +75,60 @@ class Photon:
                                            'velocity_hor',
                                            'velocity_z'])
 
+        pass
+
     def create_photon(self,
-                      photons_per_group=1,
-                      initial_energy=0.0,
-                      initial_position=np.array([0., 0., 0.]),
-                      initial_velocity=np.array([0., 0., 0.])
+                      photons_per_group,
+                      init_energy,
+                      init_ver_position,
+                      init_hor_position,
+                      init_z_position,
+                      init_ver_velocity,
+                      init_hor_velocity,
+                      init_z_velocity,
                       ):
         """
         Creating new photon or group of photons inside the detector stored in a pandas DataFrame
         :param photons_per_group:
-        :param initial_energy:
-        :param initial_position:
-        :param initial_velocity:
+        :param init_energy:
+        :param init_ver_position:
+        :param init_hor_position:
+        :param init_z_position:
+        :param init_ver_velocity:
+        :param init_hor_velocity:
+        :param init_z_velocity:
         :return:
         """
 
         # check_position(self.detector, initial_position)
-        check_energy(initial_energy)
+        # check_energy(initial_energy)
 
-        energy = initial_energy                     # * u.eV
+        # if np.all(initial_velocity == 0):
+        #     initial_velocity = random_direction(1.0)
 
-        if np.all(initial_velocity == 0):
-            initial_velocity = random_direction(1.0)
+        if len(photons_per_group) == len(init_energy) == len(init_ver_position) == len(init_ver_velocity):
+            elements = len(init_energy)
+        else:
+            raise ValueError('List arguments have different lengths')
 
         # dict
-        new_photon = {'id': self.nextid,
+        new_photon = {'id': range(self.nextid, self.nextid + elements),
                       'number': photons_per_group,
-                      'init_energy': energy,
-                      'energy': energy,
-                      'init_pos_ver': initial_position[0],
-                      'init_pos_hor': initial_position[1],
-                      'init_pos_z': initial_position[2],
-                      'position_ver': initial_position[0],
-                      'position_hor': initial_position[1],
-                      'position_z': initial_position[2],
-                      'velocity_ver': initial_velocity[0],
-                      'velocity_hor': initial_velocity[1],
-                      'velocity_z': initial_velocity[2]}
+                      'init_energy': init_energy,
+                      'energy': init_energy,
+                      'init_pos_ver': init_ver_position,
+                      'init_pos_hor': init_hor_position,
+                      'init_pos_z': init_z_position,
+                      'position_ver': init_ver_position,
+                      'position_hor': init_hor_position,
+                      'position_z': init_z_position,
+                      'velocity_ver': init_ver_velocity,
+                      'velocity_hor': init_hor_velocity,
+                      'velocity_z': init_z_velocity}
 
-        new_photon_df = pd.DataFrame(new_photon, index=[0])
-        self.nextid += 1
+        new_photon_df = pd.DataFrame(new_photon)    # index=[0])
+        self.nextid = self.nextid + elements
+
         # Adding new particle to the DataFrame
         self.frame = pd.concat([self.frame, new_photon_df], ignore_index=True)
 
