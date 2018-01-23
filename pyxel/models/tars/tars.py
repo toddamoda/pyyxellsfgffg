@@ -50,10 +50,6 @@ def run_tars(ccd: CCD,
 
     cosmics.run()
 
-    # list of many electron clusters (Charge objects)
-    # append deposited charge cluster list to the new_ccd object charge list
-    # new_ccd.charge_list += cosmics.get_deposited_charge()
-
     return new_ccd
 
 
@@ -97,11 +93,10 @@ class TARS:
         self.position_z = position_z
 
     def set_stepping_length(self, stepping):
-        self.step_length = stepping  # micrometer
+        self.step_length = stepping  # um
 
-    def get_deposited_charge(self):
-        # return self.sim_obj.total_charge_array
-        return self.sim_obj.all_charge_clusters
+    def get_all_deposited_charge(self):
+        return self.sim_obj.electron_clusters
 
     def run(self):
         start_time = time.time()

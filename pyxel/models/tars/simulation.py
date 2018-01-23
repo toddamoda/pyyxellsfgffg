@@ -11,7 +11,6 @@ import numpy as np
 from pyxel.models.tars.particle import Particle
 from pyxel.models.tars.util import sampling_distribution, read_data
 # import matplotlib.pyplot as plt
-from pyxel.physics.charge import Charge
 
 
 class Simulation:
@@ -33,7 +32,7 @@ class Simulation:
 
         self.processing_time = 0
 
-        self.event_counter = 0
+        # self.event_counter = 0
         self.total_charge_array = np.zeros((self.ccd.row, self.ccd.col), int)
         self.ver_limit, self.hor_limit = self.total_charge_array.shape
 
@@ -50,7 +49,8 @@ class Simulation:
         self.step_length = None
         self.energy_cut = 1.0e-5        # MeV
 
-        self.electron_clusters = Charge(self.ccd)
+        # self.electron_clusters = Charge(self.ccd)
+        self.electron_clusters = self.ccd.charge
 
         self.edep_per_step = []
         self.total_edep_per_particle = []
@@ -146,11 +146,6 @@ class Simulation:
             # IONIZATION
             self._ionization_(p)
 
-            # DIFFUSION AND COLLECTING ELECTRONS IN PIXELS -> make a Pyxel charge collection model from this
-            # sig = self._electron_diffusion_(p)
-            # self._electron_collection_(p, sig, sig)
-            # self._electron_collection_(p, 1.0, 1.0)         # JUST FOR TESTING
-
             # UPDATE POSITION OF IONIZING PARTICLES
             p.position[0] += p.dir_ver * self.step_length
             p.position[1] += p.dir_hor * self.step_length
@@ -158,25 +153,10 @@ class Simulation:
 
             # save particle trajectory
             p.trajectory = np.vstack((p.trajectory, p.position))
-            # (should be changed to np.stack)
-
-            # self.clusters_per_track.append(cluster)
-
         # END of loop
 
         if track_left:
-            # plot particle trajectory in 2d
-            # p.plot_trajectory_xy()
-            # p.plot_trajectory_xz()
-            # plt.show()
-
             self.total_edep_per_particle.append(p.total_edep)  # keV
-
-            self.event_counter += 1
-
-            self.all_charge_clusters += self.clusters_per_track
-
-        return p.total_edep
 
     def _ionization_(self, particle):
 
@@ -187,24 +167,24 @@ class Simulation:
         if particle.deposited_energy >= particle.energy * 1e3:
             particle.deposited_energy = particle.energy * 1e3
 
-        particle.electrons = int(particle.deposited_energy * 1e3 / self.ccd.material_ionization_energy)     # eV/eV = 1
+        e_kin_energy = 0.1  # eV
+        particle.electrons = int(particle.deposited_energy * 1e3 /
+                                 (self.ccd.material_ionization_energy + e_kin_energy))     # eV/eV = 1
 
-        # def create_charge(self,
-        #                   particle_type='e',
-        #                   particles_per_cluster=1,
-        #                   initial_energy=0.0,
-        #                   initial_position=np.array([0., 0., 0.]),
-        #                   initial_velocity=np.array([0., 0., 0.])
-        #                   ):
         self.electron_clusters.create_charge('e',
                                              particle.electrons,
-                                             0.1,
+                                             e_kin_energy,
                                              particle.position,
                                              np.array([0., 0., 0.]))
+        # self.electron_clusters.create_charge('h',
+        #                                      particle.electrons,
+        #                                      e_kin_energy,
+        #                                      particle.position,
+        #                                      np.array([0., 0., 0.]))
 
-        particle.deposited_energy = particle.electrons * self.ccd.material_ionization_energy * 1e-3         # keV
-        # else:
-        particle.energy -= particle.deposited_energy * 1e-3
+        # keV
+        particle.deposited_energy = particle.electrons * (e_kin_energy + self.ccd.material_ionization_energy) * 1e-3
+        particle.energy -= particle.deposited_energy * 1e-3     # MeV
 
         self.edep_per_step.append(particle.deposited_energy)    # keV
         particle.total_edep += particle.deposited_energy        # keV

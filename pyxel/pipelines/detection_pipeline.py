@@ -2,6 +2,7 @@ import typing as t  # noqa: F401
 
 from pyxel.detectors.ccd import CCD
 from pyxel.util import util
+from pyxel.physics.charge import Charge
 
 
 class Models:
@@ -63,9 +64,10 @@ def run_pipeline(detector: CCD, pipeline: DetectionPipeline) -> CCD:
             detector = func(detector)
 
     # CHARGE GENERATION
+    detector.charge = Charge(detector)
     # calculate charges per pixel
-    detector.compute_charge()
-    steps = ['fixed_pattern_noise', 'tars', 'xray', 'snowballs', 'darkcurrent', 'hotpixel', 'particle_number']
+    # detector.compute_charge()
+    steps = ['fixed_pattern_noise', 'tars', 'xray', 'snowballs']  # 'photoelectrons'
     for step in steps:
         func = pipeline.charge_generation.models.get(step)
         if func:

@@ -136,13 +136,14 @@ class CCD:
                 # uniform illumination
                 self._photons = np.ones((self.row, self.col)) * self._photons
 
-    def compute_charge(self):
+    def compute_charge_array(self):
         """
         Calculate charges per pixel from incident photon number and CCD parameters
         :return:
         """
-        self._charge = self._photons * self.qe * self.eta
-        self._charge = np.rint(self._charge).astype(int)
+        # self._charge = self._photons * self.qe * self.eta
+        # self._charge = np.rint(self._charge).astype(int)
+        pass
 
     def charge_excess(self):
         """

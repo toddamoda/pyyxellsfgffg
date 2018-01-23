@@ -5,8 +5,9 @@
 PyXel! Charge class to generate electrons or holes inside detector
 """
 import numpy as np
-
-from astropy import units as u
+import math
+import random
+# from astropy import units as u
 from astropy.units import cds
 import pandas as pd
 
@@ -51,18 +52,15 @@ def check_position(detector, initial_position):
 def random_direction(v_abs):
     """
     Generating random direction for charge
-    Not used yet.
     :param v_abs:
     :return:
     """
-    # alpha = 2 * math.pi * random.random()
-    # beta = 2. * math.pi * random.random()
-    # v_z = v_abs * -1 * math.sin(alpha)
-    # v_ver = v_abs * math.cos(alpha) * math.cos(beta)
-    # v_hor = v_abs * math.cos(alpha) * math.sin(beta)
-    # vel_array = np.array([0., 0., 0.])
-    # return vel_array
-    pass
+    alpha = 2 * math.pi * random.random()
+    beta = 2. * math.pi * random.random()
+    v_z = v_abs * math.sin(alpha)
+    v_ver = v_abs * math.cos(alpha) * math.cos(beta)
+    v_hor = v_abs * math.cos(alpha) * math.sin(beta)
+    return np.array([v_ver, v_hor, v_z])
 
 
 class Charge:
@@ -72,8 +70,7 @@ class Charge:
     """
 
     def __init__(self,
-                 detector=None,
-                 ):
+                 detector=None):
 
         self.detector = detector
 
@@ -114,16 +111,19 @@ class Charge:
         check_energy(initial_energy)
 
         if particle_type == 'e':
-            charge = -1 * cds.e
-            number = +1 * particles_per_cluster * u.electron
+            charge = -1                             # * cds.e
+            number = +1 * particles_per_cluster     # * u.electron
         elif particle_type == 'h':
-            charge = +1 * cds.e
-            number = -1 * particles_per_cluster * u.electron
+            charge = +1                             # * cds.e
+            number = -1 * particles_per_cluster     # * u.electron
         else:
             raise ValueError('Given charged particle type can not be simulated')
 
         # Energy - Maybe later we will need this as well:
-        energy = initial_energy * u.eV
+        energy = initial_energy                     # * u.eV
+
+        if np.all(initial_velocity == 0):
+            initial_velocity = random_direction(1.0)
 
         # dict
         new_charge = {'id': self.nextid,
