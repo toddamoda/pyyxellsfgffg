@@ -2,7 +2,7 @@
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
 """
-PyXel! Charge class to generate electrons or holes inside detector
+PyXel! Photon class to generate and track photons
 """
 import numpy as np
 import math
@@ -36,7 +36,7 @@ def check_position(detector, initial_position):
     pass
 
 
-def random_direction(v_abs=1.0):
+def random_direction(v_abs=1.0):    # TODO check random angles and direction
     """
     Generating random direction for a photon
     :param v_abs:

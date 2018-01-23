@@ -6,7 +6,8 @@
 # import typing as t  # noqa: F401
 
 import numpy as np
-from astropy import units as u
+# import random
+# from astropy import units as u
 
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.environment import Environment
@@ -33,108 +34,75 @@ class CCD:
                  geometry: Geometry = None,
                  environment: Environment = None,
                  characteristics: CCDCharacteristics = None,
-                 photons=None, signal=None, charges=None) -> None:
+                 photons: int = None,
+                 signal=None,
+                 ) -> None:
 
-        if photons is not None:
-            photons = photons * u.ph   # unit: photons
+        if photons is not None and signal is None:
+            self._photon_mean = photons
+            self._signal = None
+            # self._photon_mean = photons * u.ph      # unit: photons
+        elif photons is None and signal is not None:
+            self._photon_mean = None
+            self._signal = signal
+            # self._signal = signal * u.adu       # unit: ADU
+        else:
+            raise ValueError("Only signal or photon number has to be provided as input")
 
-        if signal is not None:
-            signal = signal * u.adu  # unit: ADU
-
-        if charges is not None:
-            charges = charges * u.electron  # unit: electrons
-
-        self._photons = photons
-        self._signal = signal
-        self._charges = charges
+        self._photon_2d_array = None
+        self._photons = None
+        self._charges = None
 
         self.geometry = geometry
         self.environment = environment
         self.characteristics = characteristics
 
-        # list of Charge class objects
-        self.charge_list = []                 # type: list
-
-    #
-    # def __init__(self, **kwargs):
-    #     """
-    #     CCD parameters
-    #     """
-    #
-    #     self._dirty = False
-    #     self.photons = kwargs.get('photons')                   # np int 2D array of incident photon number per pixel
-    #     self.charge = kwargs.get('charge')                     # int number of electrons per pixel
-    #     self.signal = kwargs.get('signal')             # np int 2D array mutable signal read out from CCD
-    #     self._readout_signal = kwargs.get('readout_signal')     # np int 2D array mutable the image data
-    #     # after signal (and image) processing
-    #
-    #     ###### experimental: models will append the newly generated charges to this list
-    #     self.charge_list = []                 # list of Charge class objects
-    #     ###### later it should replace the self.charge 2d np array
-    #
-    #     self._row = kwargs.get('row', 0)      # number of rows in image
-    #     self._col = kwargs.get('col', 0)      # number of columns in image
-    #     self._k = kwargs.get('k', 0.0)        # camera gain constant in digital number (DN)
-    #     self._j = kwargs.get('j', 0.0)        # camera gain constant in photon number
-    #     self.qe = kwargs.get('qe', 0.0)      # quantum efficiency
-    #     self.eta = kwargs.get('eta', 0.0)    # quantum yield
-    #     self.sv = kwargs.get('sv', 0.0)      # sensitivity of CCD amplifier [V/-e]
-    #     self.accd = kwargs.get('accd', 0.0)  # output amplifier gain
-    #     self.a1 = kwargs.get('a1', 0)        # is the gain of the signal processor
-    #     self.a2 = kwargs.get('a2', 0)        # gain of the ADC
-    #     self.fwc = kwargs.get('fwc', 0)      # full well compacity
-    #     self._temperature = kwargs.get('temperature', 0)  # temperature
-    #
-    #     # we should put these in a GEOMETRY class
-    #     self._depletion_zone = kwargs.get('depletion_thickness', 0.0)     # depletion zone thickness
-    #     self._field_free_zone = kwargs.get('field_free_thickness', 0.0)   # field free zone thickness
-    #     self._sub_thickness = kwargs.get('substrate_thickness', 0.0)      # substrate thickness
-    #     self._pix_ver_size = kwargs.get('pixel_vert_size', 0.0)            # pixel vertical size (row)
-    #     self._pix_hor_size = kwargs.get('pixel_horz_size', 0.0)            # pixel horizontal size (col)
-    #
-    #     # self._total_thickness = kwargs.get('total_thickness', 0)  # total detector thickness
-    #     self._total_thickness = self._depletion_zone + self._field_free_zone + self._sub_thickness
-    #     self._ver_dimension = self._row * self._pix_ver_size        # detector vertical size
-    #     self._hor_dimension = self._col * self._pix_hor_size        # detector horizontal size
-    #
-    #     self._pix_non_uniformity = kwargs.get('pix_non_uniformity', None)
-    #
-    #     # self._row = kwargs.get('noise_file', 0)      # number of rows in image
-    #
-    #     self._material_density = 2.329                              # (silicon) material density [g/cm3]
-    #     self._material_ionization_energy = 3.65                     # (silicon) ionization energy [eV]
-
-    # # check whether everything is defined necessary for computations below
-    # @classmethod
-    # def from_ccd(cls, ccd: pyxel.pipelines.config.CCD):
-    #     # Create the CCD object
-    #     params = {'photons': ccd.photons,
-    #               'signal': ccd.signal,
-    #               'charge': ccd.charge,
-    #               **vars(ccd.geometry),
-    #               **vars(ccd.environment),
-    #               **vars(ccd.characteristics)}
-    #
-    #     ccd_obj = CCDDetector(**params)
-    #     return ccd_obj
-
-    def compute_photons(self):
+    def generate_photons(self):
         """
-        Calculate incident photon number per pixel from signal and CCD parameters
+        Calculate incident photon number per pixel from signal or illumination
         :return:
         """
         # TODO: can both signal and photons be passed?
+        photon_2d_array = None
 
-        if self._signal is not None:
-            self._photons = self._signal / (self.qe * self.eta * self.sv * self.accd * self.a1 * self.a2)
-            self._photons = np.rint(self._photons).astype(int)
-            self.row, self.col = self._photons.shape
+        if self._signal is not None and self._photon_mean is None:
+            photon_2d_array = self._signal / (self.qe * self.eta * self.sv * self.accd * self.a1 * self.a2)
+            photon_2d_array = np.rint(photon_2d_array).astype(int)
+            self.row, self.col = photon_2d_array.shape
 
-        elif self._photons is not None:
-            # TODO: photon illumination generator to be implement
-            if isinstance(self._photons, int):
+        if self._photon_mean is not None and self._signal is None:
+            # TODO: photon illumination generator to be implemented
+            if isinstance(self._photon_mean, int):
                 # uniform illumination
-                self._photons = np.ones((self.row, self.col)) * self._photons
+                photon_2d_array = np.ones((self.row, self.col), dtype=int) * self._photon_mean
+
+        self._create_photons_per_pixel_(photon_2d_array)
+
+    def _create_photons_per_pixel_(self, photon_2d_array):
+        """
+        Create photons randomly distributed inside pixels with Photon class from self._photon_2d_array
+        :param photon_2d_array:
+        :return:
+        """
+        sub_pix_pos1 = self.pix_vert_size / 2.
+        sub_pix_pos2 = self.pix_horz_size / 2.
+
+        for i in range(0, self.row):
+            vert_pos = i * self.pix_vert_size
+
+            for j in range(0, self.col):
+                horz_pos = j * self.pix_horz_size
+
+                for _ in range(0, photon_2d_array[i, j]):
+                    # sub_pix_pos1 = self.pix_vert_size * random.random()
+                    # sub_pix_pos2 = self.pix_horz_size * random.random()
+
+                    self._photons.create_photon(photons_per_group=1,
+                                                initial_energy=1.0,
+                                                initial_position=np.array([vert_pos + sub_pix_pos1,
+                                                                           horz_pos + sub_pix_pos2,
+                                                                           0.]),
+                                                initial_velocity=np.array([0., 0., -1.]))
 
     def compute_charge_array(self):
         """
@@ -208,9 +176,9 @@ class CCD:
     def photons(self):
         return self._photons
 
-    # @photons.setter
-    # def photons(self, newphotons):  # TODO: check that type is photons
-    #     self.photons = convert_to_int(newphotons)
+    @photons.setter
+    def photons(self, new_photon):
+        self._photons = new_photon
 
     @property
     def charges(self):
@@ -307,73 +275,33 @@ class CCD:
     def a2(self):
         return self.characteristics.a2
 
-    # @a2.setter
-    # def a2(self, newa2):
-    #     self.a2 = newa2
-
     @property
     def fwc(self):
         return self.characteristics.fwc
-
-    # @fwc.setter
-    # def fwc(self, newfwc):
-    #     self.fwc = newfwc
 
     @property
     def temperature(self):
         return self.environment.temperature
 
-    # @temperature.setter
-    # def temperature(self, new_temperature):
-    #     self._temperature = new_temperature
-
     @property
     def depletion_zone(self):
-        return self.geometry.depletion_zone
-
-    # @depletion_zone.setter
-    # def depletion_zone(self, new_depletion_zone):
-    #     self._depletion_zone = new_depletion_zone
+        return self.geometry.depletion_thickness
 
     @property
     def field_free_zone(self):
-        return self.geometry.field_free_zone
-
-    # @field_free_zone.setter
-    # def field_free_zone(self, new_field_free_zone):
-    #     self._field_free_zone = new_field_free_zone
-
-    @property
-    def sub_thickness(self):
-        return self.geometry.sub_thickness
-
-    # @sub_thickness.setter
-    # def sub_thickness(self, new_sub_thickness):
-    #     self._sub_thickness = new_sub_thickness
+        return self.geometry.field_free_thickness
 
     @property
     def pix_vert_size(self):
-        return self.geometry.pix_vert_size
-
-    # @pix_ver_size.setter
-    # def pix_ver_size(self, new_pix_ver_size):
-    #     self._pix_ver_size = new_pix_ver_size
+        return self.geometry.pixel_vert_size
 
     @property
     def pix_horz_size(self):
-        return self.geometry.pix_horz_size
-
-    # @pix_hor_size.setter
-    # def pix_hor_size(self, new_pix_hor_size):
-    #     self._pix_hor_size = new_pix_hor_size
+        return self.geometry.pixel_horz_size
 
     @property
     def total_thickness(self):
         return self.geometry.total_thickness
-
-    # @total_thickness.setter
-    # def total_thickness(self, new_total_thickness):
-    #     self._total_thickness = new_total_thickness
 
     @property
     def vert_dimension(self):

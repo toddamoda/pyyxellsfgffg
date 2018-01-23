@@ -20,8 +20,6 @@ from pyxel.detectors.ccd import CCD
 
 def apply_shot_noise(ccd: CCD) -> CCD:
     """ Extract the shot noise
-
-    :param photon_array: (unit photons)
     :return: (unit photons)
     """
     new_ccd = copy.deepcopy(ccd)

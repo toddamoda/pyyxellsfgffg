@@ -49,7 +49,7 @@ def check_position(detector, initial_position):
         raise ValueError('Position of charge is not a numpy array (int or float)')
 
 
-def random_direction(v_abs=1.0):
+def random_direction(v_abs=1.0):    # TODO check random angles and direction
     """
     Generating random direction for charge
     :param v_abs:

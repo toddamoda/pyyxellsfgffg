@@ -54,11 +54,11 @@ def _constructor_ccd(loader: PipelineYAML, node: yaml.MappingNode):
 
     photons = mapping.get('photons', None)
     signal = mapping.get('signal', None)
-    charges = mapping.get('charges', None)
+    # charges = mapping.get('charges', None)
 
     obj = CCD(photons=photons,
               signal=signal,
-              charges=charges,
+              # charges=charges,
               geometry=geometry,
               environment=environment,
               characteristics=characteristics)

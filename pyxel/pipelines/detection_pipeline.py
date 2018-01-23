@@ -3,6 +3,7 @@ import typing as t  # noqa: F401
 from pyxel.detectors.ccd import CCD
 from pyxel.util import util
 from pyxel.physics.charge import Charge
+from pyxel.physics.photon import Photon
 
 
 class Models:
@@ -55,9 +56,11 @@ class Processor:
 def run_pipeline(detector: CCD, pipeline: DetectionPipeline) -> CCD:
 
     # OPTICS
+    detector.photons = Photon(detector)
     # Stage 1: Apply the Optics model(s). only '.photons' is modified
-    detector.compute_photons()
-    steps = ['shot_noise', 'ray_tracing', 'diffraction']
+    detector.generate_photons()
+
+    steps = []  # ['shot_noise', 'ray_tracing', 'diffraction']
     for step in steps:
         func = pipeline.optics.models.get(step)
         if func:
