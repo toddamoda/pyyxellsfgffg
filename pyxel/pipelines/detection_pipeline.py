@@ -57,10 +57,9 @@ def run_pipeline(detector: CCD, pipeline: DetectionPipeline) -> CCD:
 
     # OPTICS
     detector.photons = Photon(detector)
-    # Stage 1: Apply the Optics model(s). only '.photons' is modified
     detector.generate_photons()
-
-    steps = []  # ['shot_noise', 'ray_tracing', 'diffraction']
+    # Stage 1: Apply the Optics model(s). only '.photons' is modified
+    steps = ['shot_noise', 'ray_tracing', 'diffraction']
     for step in steps:
         func = pipeline.optics.models.get(step)
         if func:
@@ -68,9 +67,7 @@ def run_pipeline(detector: CCD, pipeline: DetectionPipeline) -> CCD:
 
     # CHARGE GENERATION
     detector.charges = Charge(detector)
-    # calculate charges per pixel
-    # detector.compute_charge()
-    steps = ['photoelectrons', 'fixed_pattern_noise', 'tars', 'xray', 'snowballs']  #
+    steps = ['photoelectrons', 'fixed_pattern_noise', 'tars', 'xray', 'snowballs']
     for step in steps:
         func = pipeline.charge_generation.models.get(step)
         if func:

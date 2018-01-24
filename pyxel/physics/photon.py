@@ -132,6 +132,18 @@ class Photon:
         # Adding new particle to the DataFrame
         self.frame = pd.concat([self.frame, new_photon_df], ignore_index=True)
 
+    def get_photon_numbers(self, id_list='all'):
+        """
+        Get number of photons per dataframe row
+        :param id_list:
+        :return:
+        """
+        if id_list == 'all':
+            array = self.frame.number.values
+        else:
+            array = self.frame.query('id in %s' % id_list).number.values
+        return array
+
     def remove_photons(self, id_list='all'):
         """
         Remove list of photons from DataFrame if they are not needed, tracked anymore
@@ -247,7 +259,27 @@ class Photon:
             array = self.frame.query('id in %s' % id_list).energy.values
         return array
 
-    def change_positions(self, id_pos, new_positions):
+    def change_all_number(self, new_number_list):
+        """
+        Update number of photons in each row
+        :param new_number_list:
+        :return:
+        """
+        new_df = pd.DataFrame({'number': new_number_list})
+        self.frame.update(new_df)
+        # TODO: update all rows with given ids in list (id_list can be a 2nd optional arg)
+        # https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.update.html
+
+    def change_number(self, id_num, new_number):
+        """
+        Update number of photons in one row
+        :param id_num:
+        :param new_number:
+        :return:
+        """
+        self.frame.at[self.frame.index[self.frame['id'] == id_num], 'number'] = new_number
+
+    def change_position(self, id_pos, new_positions):
         """
         Update positions of one charge
         :param id_pos:
@@ -258,7 +290,7 @@ class Photon:
         self.frame.at[self.frame.index[self.frame['id'] == id_pos], 'position_hor'] = new_positions[1]
         self.frame.at[self.frame.index[self.frame['id'] == id_pos], 'position_z'] = new_positions[2]
 
-    def change_velocities(self, id_vel, new_velocities):
+    def change_velocity(self, id_vel, new_velocities):
         """
         Update velocities of one charge
         :param id_vel:

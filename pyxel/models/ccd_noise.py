@@ -6,27 +6,26 @@ PyXel! CCD noise generator class
 """
 import copy
 from astropy import units as u
-
 import numpy as np
+# from pyxel.physics.photon import Photon
 
 # from . import Model
 
 from pyxel.detectors.ccd import CCD
 
-# from pyxel.models.tars.tars_v3 import TARS
-# from pyxel.models.tars.tars_v3 import TARS_DIR
-# from numpy import pi
 
-
-def apply_shot_noise(ccd: CCD) -> CCD:
-    """ Extract the shot noise
-    :return: (unit photons)
+def apply_shot_noise(detector: CCD) -> CCD:
+    """ Add shot noise to number of photons
+    :return:
     """
-    new_ccd = copy.deepcopy(ccd)
+    new_detector = copy.deepcopy(detector)
 
-    new_ccd._photons = np.random.poisson(lam=new_ccd._photons.value) * u.ph
+    lambda_list = new_detector.photons.get_photon_numbers()
+    lambda_list = [float(i) for i in lambda_list]
+    new_list = np.random.poisson(lam=lambda_list)  # * u.ph
+    new_detector.photons.change_all_number(new_list)
 
-    return new_ccd
+    return new_detector
 
 
 def add_fix_pattern_noise(ccd: CCD, inplace=True) -> CCD:
