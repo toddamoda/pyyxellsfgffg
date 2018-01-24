@@ -106,23 +106,14 @@ class CCD:
                                     init_hor_velocity,
                                     init_z_velocity)
 
-    def compute_charge_array(self):
-        """
-        Calculate charges per pixel from incident photon number and CCD parameters
-        :return:
-        """
-        # self._charge = self._photons * self.qe * self.eta
-        # self._charge = np.rint(self._charge).astype(int)
-        pass
-
-    def charge_excess(self):
-        """
-        Limiting charges per pixel according to full well capacity
-        :return:
-        """
-        excess_x, excess_y = np.where(self._charges > self.fwc)
-        self._charges[excess_x, excess_y] = self.fwc
-        self._charges = np.rint(self._charges).astype(int)
+    # def compute_charge_array(self):
+    #     """
+    #     Calculate charges per pixel from incident photon number and CCD parameters
+    #     :return:
+    #     """
+    #     # self._charge = self._photons * self.qe * self.eta
+    #     # self._charge = np.rint(self._charge).astype(int)
+    #     pass
 
     def compute_k(self):
         """
@@ -138,21 +129,23 @@ class CCD:
         """
         self.characteristics.j = 1 / (self.eta * self.sv * self.accd * self.a1 * self.a2)
 
-    def compute_signal(self):
+    def compute_signal(self):   # TODO reimplement
         """
         Calculate CCD signal per pixel in units of DN from charges and CCD parameters
         :return:
         """
-        self._signal = self._charges * self.sv * self.accd     # what is self.accd exactly??
+        # self._signal = self._charges * self.sv * self.accd     # what is self.accd exactly??
         # self.signal = np.rint(self.signal).astype(int)  # let's assume it could be real number (float)
+        pass
 
-    def compute_readout_signal(self):
+    def compute_readout_signal(self):   # TODO reimplement
         """
         Calculate CCD signal per pixel in units of DN from charges and CCD parameters
         :return:
         """
-        self._readout_signal = self._signal * self.a1 * self.a2
-        self._readout_signal = np.rint(self._readout_signal).astype(int)   # DN
+        # self._readout_signal = self._signal * self.a1 * self.a2
+        # self._readout_signal = np.rint(self._readout_signal).astype(int)   # DN
+        pass
 
     @property
     def pix_non_uniformity(self):

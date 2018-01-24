@@ -4,6 +4,7 @@ from pyxel.detectors.ccd import CCD
 from pyxel.util import util
 from pyxel.physics.charge import Charge
 from pyxel.physics.photon import Photon
+from pyxel.physics.pixel import Pixel
 
 
 class Models:
@@ -58,6 +59,7 @@ def run_pipeline(detector: CCD, pipeline: DetectionPipeline) -> CCD:
     # OPTICS
     detector.photons = Photon(detector)
     detector.generate_incident_photons()
+
     # Stage 1: Apply the Optics model(s). only '.photons' is modified
     steps = ['shot_noise', 'ray_tracing', 'diffraction']
     for step in steps:
@@ -67,20 +69,24 @@ def run_pipeline(detector: CCD, pipeline: DetectionPipeline) -> CCD:
 
     # CHARGE GENERATION
     detector.charges = Charge(detector)
-    steps = ['photoelectrons', 'fixed_pattern_noise', 'tars', 'xray', 'snowballs']
+
+    steps = ['photoelectrons']  # , 'fixed_pattern_noise', 'tars', 'xray', 'snowballs']
     for step in steps:
         func = pipeline.charge_generation.models.get(step)
         if func:
             detector = func(detector)
 
     # CHARGE COLLECTION
+    detector.pixels = Pixel(detector)
+    detector.pixels.fill_with_charge()
+
     steps = []  # ['diffusion']
     for step in steps:
         func = pipeline.charge_collection.models.get(step)
         if func:
             detector = func(detector)
-    # limiting charges per pixel due to Full Well Capacity
-    detector.charge_excess()
+
+    detector.pixels.charge_excess()
 
     # CHARGE TRANSFER
     steps = []
@@ -90,7 +96,7 @@ def run_pipeline(detector: CCD, pipeline: DetectionPipeline) -> CCD:
             detector = func(detector)
 
     # CHARGE READOUT
-    detector.compute_signal()
+    # detector.compute_signal()
     # TODO: Convert here the charge object list into a 2d signal array
 
     steps = ['output_node_noise']

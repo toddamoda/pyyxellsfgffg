@@ -87,7 +87,9 @@ class Charge:
                                            'position_z',
                                            'velocity_ver',
                                            'velocity_hor',
-                                           'velocity_z'])
+                                           'velocity_z',
+                                           'pixel_ver',
+                                           'pixel_hor'])
 
     def create_charge(self,
                       particle_type,
@@ -164,6 +166,18 @@ class Charge:
             self.frame.drop(self.frame.id[:], inplace=True)
         else:
             self.frame.query('id not in %s' % id_list, inplace=True)
+
+    def get_numbers(self, id_list='all'):
+        """
+        Get number of charges per DataFrame row
+        :param id_list:
+        :return:
+        """
+        if id_list == 'all':
+            array = self.frame.number.values
+        else:
+            array = self.frame.query('id in %s' % id_list).number.values
+        return array
 
     def get_positions(self, id_list='all'):
         """
