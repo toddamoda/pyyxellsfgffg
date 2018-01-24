@@ -6,7 +6,6 @@
 # import typing as t  # noqa: F401
 
 import numpy as np
-# import random
 # from astropy import units as u
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.environment import Environment
@@ -48,7 +47,7 @@ class CCD:
         else:
             raise ValueError("Only signal or photon number has to be provided as input")
 
-        self._photon_2d_array = None
+        # self._photon_number_list = None
         self._photons = None
         self._charges = None
 
@@ -62,74 +61,50 @@ class CCD:
         :return:
         """
         # TODO: can both signal and photons be passed?
-        photon_2d_array = None
+        photon_number_list = []
+        photon_energy_list = []
 
         if self._signal is not None and self._photon_mean is None:
-            photon_2d_array = self._signal / (self.qe * self.eta * self.sv * self.accd * self.a1 * self.a2)
-            photon_2d_array = np.rint(photon_2d_array).astype(int)
-            self.row, self.col = photon_2d_array.shape
+            self.row, self.col = self._signal.shape
+            photon_number_list = self._signal / (self.qe * self.eta * self.sv * self.accd * self.a1 * self.a2)
+            photon_number_list = np.rint(photon_number_list).astype(int).flatten()
+            photon_energy_list = [0.] * self.row * self.col
 
         if self._photon_mean is not None and self._signal is None:
             # TODO: photon illumination generator to be implemented
             if isinstance(self._photon_mean, int):
                 # uniform illumination
-                photon_2d_array = np.ones((self.row, self.col), dtype=int) * self._photon_mean
+                photon_number_list = np.ones(self.row * self.col, dtype=int) * self._photon_mean
+                photon_energy_list = [0.] * self.row * self.col
 
-        self._create_photons_per_pixel_(photon_2d_array)
+        self._create_photons_per_pixel_(photon_number_list, photon_energy_list)
 
-    def _create_photons_per_pixel_(self, photon_2d_array):
+    def _create_photons_per_pixel_(self, photon_number_list, photon_energy_list):
         """
-        Create photons randomly distributed inside pixels with Photon class from photon_2d_array
-        :param photon_2d_array:
+        Create photons randomly distributed inside pixels with Photon class from photon_number_list
+        :param photon_number_list:
         :return:
         """
-        sub_pix_pos1 = self.pix_vert_size / 2.
-        sub_pix_pos2 = self.pix_horz_size / 2.
-        # sub_pix_pos1 = self.pix_vert_size * random.random()
-        # sub_pix_pos2 = self.pix_horz_size * random.random()
-
         pixel_numbers = self.row * self.col
 
-        photons_per_group = [1] * pixel_numbers
-        init_energy = [1.] * pixel_numbers
-
-    #########################################
-        init_ver_position = np.arange(0.0, self.row, 1.0) * self.pix_vert_size + sub_pix_pos1
-        init_hor_position = np.arange(0.0, self.col, 1.0) * self.pix_horz_size + sub_pix_pos2
-     ##########################################
-
+        init_ver_position = (np.arange(0.0, self.row, 1.0) + np.random.rand(self.row)) * self.pix_vert_size
+        init_hor_position = (np.arange(0.0, self.col, 1.0) + np.random.rand(self.col)) * self.pix_horz_size
+        init_ver_position = np.tile(init_ver_position, self.col)
+        init_hor_position = np.tile(init_hor_position, self.row)
         init_z_position = [0.] * pixel_numbers
 
         init_ver_velocity = [0.] * pixel_numbers
         init_hor_velocity = [0.] * pixel_numbers
         init_z_velocity = [0.] * pixel_numbers
 
-        self._photons.create_photon(photons_per_group,
-                                    init_energy,
+        self._photons.create_photon(photon_number_list,
+                                    photon_energy_list,
                                     init_ver_position,
                                     init_hor_position,
                                     init_z_position,
                                     init_ver_velocity,
                                     init_hor_velocity,
                                     init_z_velocity)
-
-        pass
-        # for i in range(0, self.row):
-        #     vert_pos = i * self.pix_vert_size
-        #
-        #     for j in range(0, self.col):
-        #         horz_pos = j * self.pix_horz_size
-        #
-        #         for _ in range(0, photon_2d_array[i, j]):
-        #             # sub_pix_pos1 = self.pix_vert_size * random.random()
-        #             # sub_pix_pos2 = self.pix_horz_size * random.random()
-        #
-        #             self._photons.create_photon(photons_per_group=1,
-        #                                         initial_energy=1.0,
-        #                                         initial_position=np.array([vert_pos + sub_pix_pos1,
-        #                                                                    horz_pos + sub_pix_pos2,
-        #                                                                    0.]),
-        #                                         initial_velocity=np.array([0., 0., -1.]))
 
     def compute_charge_array(self):
         """
