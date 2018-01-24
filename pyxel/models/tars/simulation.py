@@ -171,15 +171,14 @@ class Simulation:
                                  (self.ccd.material_ionization_energy + e_kin_energy))     # eV/eV = 1
 
         self.charge_obj.create_charge('e',
-                                      particle.electrons,
-                                      e_kin_energy,
-                                      particle.position,
-                                      np.array([0., 0., 0.]))
-        # self.charge_obj.create_charge('h',
-        #                               particle.electrons,
-        #                               e_kin_energy,
-        #                               particle.position,
-        #                               np.array([0., 0., 0.]))
+                                      [particle.electrons],
+                                      [e_kin_energy],
+                                      [particle.position[0]],
+                                      [particle.position[1]],
+                                      [particle.position[2]],
+                                      [0.],
+                                      [0.],
+                                      [0.])
 
         # keV
         particle.deposited_energy = particle.electrons * (e_kin_energy + self.ccd.material_ionization_energy) * 1e-3

@@ -57,7 +57,7 @@ def run_pipeline(detector: CCD, pipeline: DetectionPipeline) -> CCD:
 
     # OPTICS
     detector.photons = Photon(detector)
-    detector.generate_photons()
+    detector.generate_incident_photons()
     # Stage 1: Apply the Optics model(s). only '.photons' is modified
     steps = ['shot_noise', 'ray_tracing', 'diffraction']
     for step in steps:

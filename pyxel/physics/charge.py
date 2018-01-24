@@ -75,8 +75,8 @@ class Charge:
         self.detector = detector
         self.nextid = 0
         self.frame = pd.DataFrame(columns=['id',
-                                           'number',
                                            'charge',
+                                           'number',
                                            'init_energy',
                                            'energy',
                                            'init_pos_ver',
@@ -90,59 +90,68 @@ class Charge:
                                            'velocity_z'])
 
     def create_charge(self,
-                      particle_type='e',
-                      particles_per_cluster=1,
-                      initial_energy=0.0,
-                      initial_position=np.array([0., 0., 0.]),
-                      initial_velocity=np.array([0., 0., 0.])
+                      particle_type,
+                      particles_per_cluster,
+                      init_energy,
+                      init_ver_position,
+                      init_hor_position,
+                      init_z_position,
+                      init_ver_velocity,
+                      init_hor_velocity,
+                      init_z_velocity
                       ):
         """
-        Creating new charge or group of charges (electron/hole) inside the detector stored in a pandas DataFrame
+        Creating new photon or group of photons inside the detector stored in a pandas DataFrame
         :param particle_type:
         :param particles_per_cluster:
-        :param initial_energy:
-        :param initial_position:
-        :param initial_velocity:
+        :param init_energy:
+        :param init_ver_position:
+        :param init_hor_position:
+        :param init_z_position:
+        :param init_ver_velocity:
+        :param init_hor_velocity:
+        :param init_z_velocity:
         :return:
         """
 
-        check_position(self.detector, initial_position)
-        check_energy(initial_energy)
+        if len(particles_per_cluster) == len(init_energy) == len(init_ver_position) == len(init_ver_velocity):
+            elements = len(init_energy)
+        else:
+            raise ValueError('List arguments have different lengths')
+
+        # check_position(self.detector, init_ver_position, init_hor_position, init_z_position)
+        # check_energy(init_energy)
 
         if particle_type == 'e':
-            charge = -1                             # * cds.e
-            number = +1 * particles_per_cluster     # * u.electron
+            charge = [-1] * elements            # * cds.e
         elif particle_type == 'h':
-            charge = +1                             # * cds.e
-            number = -1 * particles_per_cluster     # * u.electron
+            charge = [+1] * elements            # * cds.e
         else:
             raise ValueError('Given charged particle type can not be simulated')
 
-        energy = initial_energy                     # * u.eV
-
-        if np.all(initial_velocity == 0):
-            initial_velocity = random_direction(1.0)
+        # if all(init_ver_velocity) == 0 and all(init_hor_velocity) == 0 and all(init_z_velocity) == 0:
+        #     random_direction(1.0)
 
         # dict
-        new_charge = {'id': self.nextid,
-                      'number': number,
+        new_charge = {'id': range(self.nextid, self.nextid + elements),
                       'charge': charge,
-                      'init_energy': energy,
-                      'energy': energy,
-                      'init_pos_ver': initial_position[0],
-                      'init_pos_hor': initial_position[1],
-                      'init_pos_z': initial_position[2],
-                      'position_ver': initial_position[0],
-                      'position_hor': initial_position[1],
-                      'position_z': initial_position[2],
-                      'velocity_ver': initial_velocity[0],
-                      'velocity_hor': initial_velocity[1],
-                      'velocity_z': initial_velocity[2]}
+                      'number': particles_per_cluster,
+                      'init_energy': init_energy,
+                      'energy': init_energy,
+                      'init_pos_ver': init_ver_position,
+                      'init_pos_hor': init_hor_position,
+                      'init_pos_z': init_z_position,
+                      'position_ver': init_ver_position,
+                      'position_hor': init_hor_position,
+                      'position_z': init_z_position,
+                      'velocity_ver': init_ver_velocity,
+                      'velocity_hor': init_hor_velocity,
+                      'velocity_z': init_z_velocity}
 
-        new_charge_df = pd.DataFrame(new_charge, index=[0])
-        self.nextid += 1
+        new_charge_df = pd.DataFrame(new_charge)
+        self.nextid = self.nextid + elements
 
-        # Adding new particle to the DataFrame
+        # Adding new particles to the DataFrame
         self.frame = pd.concat([self.frame, new_charge_df], ignore_index=True)
 
     def remove_charges(self, id_list='all'):

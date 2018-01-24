@@ -100,16 +100,16 @@ class Photon:
         :return:
         """
 
-        # check_position(self.detector, initial_position)
-        # check_energy(initial_energy)
-
-        # if np.all(initial_velocity == 0):
-        #     initial_velocity = random_direction(1.0)
+        # check_position(self.detector, init_ver_position, init_hor_position, init_z_position)
+        # check_energy(init_energy)
 
         if len(photons_per_group) == len(init_energy) == len(init_ver_position) == len(init_ver_velocity):
             elements = len(init_energy)
         else:
             raise ValueError('List arguments have different lengths')
+
+        # if all(init_ver_velocity) == 0 and all(init_hor_velocity) == 0 and all(init_z_velocity) == 0:
+        #     random_direction(1.0)
 
         # dict
         new_photon = {'id': range(self.nextid, self.nextid + elements),
@@ -126,10 +126,10 @@ class Photon:
                       'velocity_hor': init_hor_velocity,
                       'velocity_z': init_z_velocity}
 
-        new_photon_df = pd.DataFrame(new_photon)    # index=[0])
+        new_photon_df = pd.DataFrame(new_photon)
         self.nextid = self.nextid + elements
 
-        # Adding new particle to the DataFrame
+        # Adding new photons to the DataFrame
         self.frame = pd.concat([self.frame, new_photon_df], ignore_index=True)
 
     def get_photon_numbers(self, id_list='all'):

@@ -55,7 +55,7 @@ class CCD:
         self.environment = environment
         self.characteristics = characteristics
 
-    def generate_photons(self):
+    def generate_incident_photons(self):
         """
         Calculate incident photon number per pixel from signal or illumination
         :return:

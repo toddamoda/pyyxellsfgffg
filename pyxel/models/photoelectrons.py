@@ -19,25 +19,27 @@ def simple_conversion(detector: CCD) -> CCD:
     """
     new_detector = copy.deepcopy(detector)
 
-    # Get photon class object from detector
-    # detector.photons
-
-    # Extract photon info
-    photon_number = 10
+    # photon_number = detector.photons.get_photon_numbers()
+    # size = len(photon_number)
 
     # Calc the average charge numbers per pixel
     # qe and eta should be a single float number
-    charge_number = photon_number   # * detector.qe * detector.eta
+    # charge_number = photon_number
+
+    # detector.qe <= 1
+    # detector.eta <= 1
+
+    # if np.random.rand(size) <= detector.qe:
+    #     pass    # 1 e
+    # else:
+    #     pass
+    # if np.random.rand(size) <= detector.eta:
+    #     pass    # 1 e
+    # else:
+    #     pass
 
     # Convert to int
     # charge_number = np.rint(charge_number).astype(int)
-
-    for _ in range(0, charge_number):
-        new_detector.charges.create_charge('e',
-                                           1,
-                                           0.0,
-                                           random_pos(new_detector),
-                                           np.array([0., 0., 0.]))
 
     return new_detector
 
