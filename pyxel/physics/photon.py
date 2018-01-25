@@ -75,7 +75,38 @@ class Photon:
                                            'velocity_hor',
                                            'velocity_z'])
 
-        pass
+    def generate_photons(self, photon_number_list, photon_energy_list):
+        """
+        Create photons randomly distributed inside pixels with Photon class from photon_number_list
+        :param photon_number_list:
+        :param photon_energy_list:
+        :return:
+        """
+        pixel_numbers = self.detector.row * self.detector.col
+
+        init_ver_position = np.arange(0.0, self.detector.row, 1.0) * self.detector.pix_vert_size
+        init_hor_position = np.arange(0.0, self.detector.col, 1.0) * self.detector.pix_horz_size
+
+        init_ver_position = np.repeat(init_ver_position, self.detector.col)
+        init_hor_position = np.tile(init_hor_position, self.detector.row)
+
+        init_ver_position += np.random.rand(pixel_numbers) * self.detector.pix_vert_size
+        init_hor_position += np.random.rand(pixel_numbers) * self.detector.pix_horz_size
+
+        init_z_position = [0.] * pixel_numbers
+
+        init_ver_velocity = [0.] * pixel_numbers
+        init_hor_velocity = [0.] * pixel_numbers
+        init_z_velocity = [0.] * pixel_numbers
+
+        self.add_photon(photon_number_list,
+                        photon_energy_list,
+                        init_ver_position,
+                        init_hor_position,
+                        init_z_position,
+                        init_ver_velocity,
+                        init_hor_velocity,
+                        init_z_velocity)
 
     def add_photon(self,
                    photons_per_group,

@@ -6,6 +6,7 @@
 # import typing as t  # noqa: F401
 
 import numpy as np
+
 # from astropy import units as u
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.environment import Environment
@@ -56,61 +57,28 @@ class CCD:
         self.environment = environment
         self.characteristics = characteristics
 
-    def generate_photons(self):
+    def initialize_detector(self):
         """
         Calculate incident photon number per pixel from image or illumination
         :return:
         """
         # TODO: can both image and photons be passed?
         photon_number_list = []
-        photon_energy_list = []
 
         if self._image is not None and self._photon_mean is None:
             self.row, self.col = self._image.shape
             photon_number_list = self._image / (self.qe * self.eta * self.sv * self.accd * self.a1 * self.a2)
             photon_number_list = np.rint(photon_number_list).astype(int).flatten()
-            photon_energy_list = [0.] * self.row * self.col
 
         if self._photon_mean is not None and self._image is None:
             # TODO: photon illumination generator to be implemented
             if isinstance(self._photon_mean, int):
                 # uniform illumination
                 photon_number_list = np.ones(self.row * self.col, dtype=int) * self._photon_mean
-                photon_energy_list = [0.] * self.row * self.col
 
-        self._create_photons_per_pixel_(photon_number_list, photon_energy_list)
+        photon_energy_list = [0.] * self.row * self.col
 
-    def _create_photons_per_pixel_(self, photon_number_list, photon_energy_list):
-        """
-        Create photons randomly distributed inside pixels with Photon class from photon_number_list
-        :param photon_number_list:
-        :return:
-        """
-        pixel_numbers = self.row * self.col
-
-        init_ver_position = np.arange(0.0, self.row, 1.0) * self.pix_vert_size
-        init_hor_position = np.arange(0.0, self.col, 1.0) * self.pix_horz_size
-
-        init_ver_position = np.repeat(init_ver_position, self.col)
-        init_hor_position = np.tile(init_hor_position, self.row)
-
-        init_ver_position += np.random.rand(pixel_numbers) * self.pix_vert_size
-        init_hor_position += np.random.rand(pixel_numbers) * self.pix_horz_size
-
-        init_z_position = [0.] * pixel_numbers
-
-        init_ver_velocity = [0.] * pixel_numbers
-        init_hor_velocity = [0.] * pixel_numbers
-        init_z_velocity = [0.] * pixel_numbers
-
-        self._photons.add_photon(photon_number_list,
-                                 photon_energy_list,
-                                 init_ver_position,
-                                 init_hor_position,
-                                 init_z_position,
-                                 init_ver_velocity,
-                                 init_hor_velocity,
-                                 init_z_velocity)
+        return photon_number_list, photon_energy_list
 
     def compute_k(self):
         """
