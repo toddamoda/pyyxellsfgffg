@@ -34,7 +34,6 @@ process: !PROCESSOR
       accd: 0.8       # V/V
       a1: 100         # V/V
       a2: 65536       # DN/V
-      fwc: 4500       # e (full well capacity)
 
   pipeline: !CCD_PIPELINE
     # -> photons
@@ -71,8 +70,13 @@ process: !PROCESSOR
         name: pyxel.models.ccd_noise.add_fix_pattern_noise
         kwargs:
           pix_non_uniformity: !from_file data/non_uniformity_array_normal_stdev0.03.data
-#      diffusion:
-#      full_well:
+      diffusion: !function
+        name: pyxel.models.diffusion.diffusion
+#        kwargs:
+      full_well: !function
+        name: pyxel.models.full_well.simple_pixel_full_well
+        kwargs:
+          fwc: 100       # e (full well capacity)
 
     # -> charge
     charge_transfer: !models

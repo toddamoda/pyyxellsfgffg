@@ -87,7 +87,7 @@ def run_pipeline(detector: CCD, pipeline: DetectionPipeline) -> CCD:
     detector.pixels = Pixel(detector)
     detector.pixels.generate_pixels()
 
-    steps = ['fixed_pattern_noise']  # ['diffusion', 'full_well', ... , 'full_well']
+    steps = ['fixed_pattern_noise', 'full_well']  # ['diffusion', ... , 'full_well']
     for step in steps:
         func = pipeline.charge_collection.models.get(step)
         if func:
