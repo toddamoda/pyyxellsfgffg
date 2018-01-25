@@ -56,37 +56,45 @@ class Processor:
 
 def run_pipeline(detector: CCD, pipeline: DetectionPipeline) -> CCD:
 
-    # OPTICS
-    detector.photons = Photon(detector)
+    # INITIALIZATION (open or generate image):
+    # START -> create photons ->
     photon_numbers, photon_energies = detector.initialize_detector()
+
+    detector.photons = Photon(detector)
     detector.photons.generate_photons(photon_numbers, photon_energies)
 
-    # Stage 1: Apply the Optics model(s). only '.photons' is modified
+    # OPTICS:
+    # -> transport/modify photons ->
     steps = ['shot_noise', 'ray_tracing', 'diffraction']
     for step in steps:
         func = pipeline.optics.models.get(step)
         if func:
             detector = func(detector)
 
-    # CHARGE GENERATION
+    # CHARGE GENERATION:
+    # -> create charges & remove photons ->
     detector.charges = Charge(detector)
 
-    steps = ['photoelectrons', 'tars']  # , 'fixed_pattern_noise',  'xray', 'snowballs']
+    steps = ['photoelectrons', 'tars']   # 'xray', 'snowballs']
     for step in steps:
         func = pipeline.charge_generation.models.get(step)
         if func:
             detector = func(detector)
 
-    # CHARGE COLLECTION
-    steps = []  # ['diffusion', 'full_well', ... , 'full_well']
+    # CHARGE COLLECTION:
+    # -> transport/modify charges ->
+    # -> collect charges in pixels ->
+    detector.pixels = Pixel(detector)
+    detector.pixels.generate_pixels()
+
+    steps = ['fixed_pattern_noise']  # ['diffusion', 'full_well', ... , 'full_well']
     for step in steps:
         func = pipeline.charge_collection.models.get(step)
         if func:
             detector = func(detector)
 
-    # CHARGE TRANSFER
-    detector.pixels = Pixel(detector)
-    detector.pixels.generate_pixels()
+    # CHARGE TRANSFER:
+    # -> transport/modify pixels ->
 
     steps = []  # ['cdm']
     for step in steps:
@@ -95,6 +103,7 @@ def run_pipeline(detector: CCD, pipeline: DetectionPipeline) -> CCD:
             detector = func(detector)
 
     # CHARGE READOUT
+    # -> create signal -> modify signal ->
     detector.signal = detector.pixels.generate_signal()
 
     steps = ['output_node_noise']
@@ -104,6 +113,7 @@ def run_pipeline(detector: CCD, pipeline: DetectionPipeline) -> CCD:
             detector = func(detector)
 
     # READOUT ELECTRONICS
+    # -> create image -> modify image -> END
     # detector.image = detector.signal.generate_image()
 
     steps = []

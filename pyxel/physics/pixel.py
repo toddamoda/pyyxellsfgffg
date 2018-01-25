@@ -119,3 +119,14 @@ class Pixel:
         else:
             array = self.frame.query('id in %s' % id_list).pixel_index_hor.values
         return array.astype(int)
+
+    def change_all_charges(self, new_charge_list):
+        """
+        Update number of photons in each row
+        :param new_charge_list:
+        :return:
+        """
+        new_df = pd.DataFrame({'charge': new_charge_list})
+        self.frame.update(new_df)
+        # TODO: update all rows with given ids in list (id_list can be a 2nd optional arg)
+        # https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.update.html

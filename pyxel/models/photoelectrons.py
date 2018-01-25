@@ -38,6 +38,8 @@ def simple_conversion(detector: CCD) -> CCD:
                                     [0.] * size,
                                     [0.] * size)
 
+    # TODO remove photons!
+
     return new_detector
 
 

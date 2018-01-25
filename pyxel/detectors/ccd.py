@@ -80,19 +80,19 @@ class CCD:
 
         return photon_number_list, photon_energy_list
 
-    def compute_k(self):
-        """
-        Calculate camera gain constant in units of e-/DN from CCD parameters
-        :return:
-        """
-        self.characteristics.k = 1 / (self.sv * self.accd * self.a1 * self.a2)
-
-    def compute_j(self):
-        """
-        Calculate camera gain constant in units of photons/DN from CCD parameters
-        :return:
-        """
-        self.characteristics.j = 1 / (self.eta * self.sv * self.accd * self.a1 * self.a2)
+    # def compute_k(self):
+    #     """
+    #     Calculate camera gain constant in units of e-/DN from CCD parameters
+    #     :return:
+    #     """
+    #     self.characteristics.k = 1 / (self.sv * self.accd * self.a1 * self.a2)
+    #
+    # def compute_j(self):
+    #     """
+    #     Calculate camera gain constant in units of photons/DN from CCD parameters
+    #     :return:
+    #     """
+    #     self.characteristics.j = 1 / (self.eta * self.sv * self.accd * self.a1 * self.a2)
 
     def compute_signal(self):   # TODO reimplement
         """
@@ -111,10 +111,6 @@ class CCD:
         # self._image = self._signal * self.a1 * self.a2
         # self._image = np.rint(self._image).astype(int)   # DN
         pass
-
-    @property
-    def pix_non_uniformity(self):
-        return self.characteristics.pix_non_uniformity.reshape((self.col, self.row))
 
     @property
     def row(self):

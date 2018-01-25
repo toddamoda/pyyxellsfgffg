@@ -14,8 +14,9 @@ import numpy as np
 from pyxel.detectors.ccd import CCD
 
 
-def apply_shot_noise(detector: CCD) -> CCD:
-    """ Add shot noise to number of photons
+def add_shot_noise(detector: CCD) -> CCD:
+    """
+    Add shot noise to number of photons
     :return:
     """
     new_detector = copy.deepcopy(detector)
@@ -28,7 +29,18 @@ def apply_shot_noise(detector: CCD) -> CCD:
     return new_detector
 
 
-def add_fix_pattern_noise(detector: CCD, inplace=True) -> CCD:
+def add_fix_pattern_noise(detector: CCD,
+                          pix_non_uniformity=None,
+                          percentage=None,
+                          inplace=True) -> CCD:
+    """
+    Add fix pattern noise caused by pixel non-uniformity during charge collection
+    :param detector:
+    :param pix_non_uniformity:
+    :param percentage:
+    :param inplace:
+    :return:
+    """
 
     if inplace:
         new_detector = copy.deepcopy(detector)
@@ -39,8 +51,22 @@ def add_fix_pattern_noise(detector: CCD, inplace=True) -> CCD:
     else:
         new_detector = detector
 
-    # new_detector.charges = new_detector.charges * new_detector.pix_non_uniformity
-    # new_detector.charges = np.int16(np.rint(new_detector.charges))
+    if pix_non_uniformity is None and percentage is not None:
+        # generate_pixel_non_uniformity_data(percentage)   # TODO
+        pass
+    else:
+        pix_non_uniformity = pix_non_uniformity.reshape((new_detector.row, new_detector.col))
+
+    pix_rows = new_detector.pixels.get_pixel_positions_ver()
+    pix_cols = new_detector.pixels.get_pixel_positions_hor()
+
+    charge_with_noise = np.zeros((new_detector.row, new_detector.col), dtype=float)
+    charge_with_noise[pix_rows, pix_cols] = new_detector.pixels.get_pixel_charges()
+
+    charge_with_noise *= pix_non_uniformity
+
+    new_detector.pixels.change_all_charges(np.rint(charge_with_noise).astype(int).flatten())
+    # TODO add np.rint and np.int to Pixels class funcs
 
     return new_detector
 

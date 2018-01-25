@@ -6,13 +6,12 @@ import yaml
 
 import pyxel.detectors.ccd_characteristics
 import pyxel.detectors.geometry
+import pyxel.detectors.environment
 from pyxel.detectors.ccd import CCD
 from pyxel.pipelines import detection_pipeline
 from pyxel.util import fitsfile
 from pyxel.util import util
 
-
-# from pyxel.pipelines.ccd_transfer_function import CCDTransferFunction
 
 class PipelineYAML(yaml.SafeLoader):
     pass
@@ -66,11 +65,11 @@ def _constructor_ccd(loader: PipelineYAML, node: yaml.MappingNode):
 
 
 def _constructor_from_file(loader: PipelineYAML, node: yaml.ScalarNode):
-    noise_filename = Path(loader.construct_scalar(node))
-    if noise_filename.suffix.lower().startswith('.fit'):
-        result = fitsfile.FitsFile(str(noise_filename)).data
+    filename = Path(loader.construct_scalar(node))
+    if filename.suffix.lower().startswith('.fit'):
+        result = fitsfile.FitsFile(str(filename)).data
     else:
-        result = np.fromfile(str(noise_filename), dtype=float, sep=' ')
+        result = np.fromfile(str(filename), dtype=float, sep=' ')
     return result
 
 

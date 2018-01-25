@@ -6,7 +6,7 @@
 process: !PROCESSOR
 
   ccd: !CCD
-    photons: 100
+    photons: 10
     image: null # !from_file data/HorseHead_orig.fits
 
     geometry:
@@ -35,14 +35,12 @@ process: !PROCESSOR
       a1: 100         # V/V
       a2: 65536       # DN/V
       fwc: 4500       # e (full well capacity)
-      pix_non_uniformity: !from_file data/non_uniformity_array_normal_stdev0.03.data
-
 
   pipeline: !CCD_PIPELINE
     # -> photons
     optics: !models
       shot_noise: !function
-        name: pyxel.models.ccd_noise.apply_shot_noise
+        name: pyxel.models.ccd_noise.add_shot_noise
   #    ray_tracing: !class
   #      name: pyxel.models.ccd_noise.OpticsModelRayTracer
   #      args:
@@ -52,7 +50,6 @@ process: !PROCESSOR
 
     # -> charge
     charge_generation: !models
-  #    fixed_pattern_noise: pyxel.models.ccd_noise.add_fix_pattern_noise
       photoelectrons: pyxel.models.photoelectrons.simple_conversion
       tars: !function
         name: pyxel.models.tars.tars.run_tars
@@ -70,9 +67,16 @@ process: !PROCESSOR
 
     # -> charge
     charge_collection: !models
+      fixed_pattern_noise: !function
+        name: pyxel.models.ccd_noise.add_fix_pattern_noise
+        kwargs:
+          pix_non_uniformity: !from_file data/non_uniformity_array_normal_stdev0.03.data
+#      diffusion:
+#      full_well:
 
     # -> charge
     charge_transfer: !models
+#      cdm:
 
     # -> signal
     charge_readout: !models

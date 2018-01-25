@@ -103,7 +103,7 @@ class Charge:
                    init_z_velocity
                    ):
         """
-        Creating new photon or group of photons inside the detector stored in a pandas DataFrame
+        Creating new charge or group of charges inside the detector stored in a pandas DataFrame
         :param particle_type:
         :param particles_per_cluster:
         :param init_energy:
@@ -282,6 +282,17 @@ class Charge:
         else:
             array = self.frame.query('id in %s' % id_list).energy.values
         return array
+
+    def change_all_number(self, new_number_list):
+        """
+        Update number of charges in each row
+        :param new_number_list:
+        :return:
+        """
+        new_df = pd.DataFrame({'number': new_number_list})
+        self.frame.update(new_df)
+        # TODO: update all rows with given ids in list (id_list can be a 2nd optional arg)
+        # https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.update.html
 
     def change_positions(self, id_pos, new_positions):
         """

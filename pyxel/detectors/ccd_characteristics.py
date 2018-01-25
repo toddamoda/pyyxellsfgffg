@@ -12,4 +12,4 @@ class CCDCharacteristics:
         self.a1 = kwargs.get('a1', 0)   # * u.V / u.V               # gain of the signal processor
         self.a2 = kwargs.get('a2', 0)   # * u.adu / u.V             # gain of the ADC
         self.fwc = kwargs.get('fwc', 0)     # * u.electron            # full well capacity
-        self.pix_non_uniformity = kwargs.get('pix_non_uniformity', None)  # 2d array
+        # self.pix_non_uniformity = kwargs.get('pix_non_uniformity', None)  # 2d array
