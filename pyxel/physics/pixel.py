@@ -69,15 +69,3 @@ class Pixel:
 
         # Adding new pixels to the DataFrame
         self.frame = pd.concat([self.frame, new_pixel_df], ignore_index=True)
-
-    def charge_excess(self):        # TODO
-        """
-        Limiting charges per pixel due to full well capacity
-        :return:
-        """
-        # full = self.frame['charge'] > self.detector.fwc
-
-        self.frame.at[self.frame.index[self.frame['charge'] > self.detector.fwc],
-                      'charge'] = self.detector.fwc
-
-        pass
