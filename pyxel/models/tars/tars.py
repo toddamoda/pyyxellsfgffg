@@ -7,19 +7,18 @@ PyXel! TARS model for charge generation by ionization
 import logging
 import copy
 import math
-import time
 from os import path
 
-# import matplotlib.pyplot as plt
 import numpy as np
-# from astropy import units as u
 from numpy import pi
 from tqdm import tqdm
+# from astropy import units as u
 
 from pyxel.detectors.ccd import CCD
 from pyxel.models.tars.simulation import Simulation
 from pyxel.models.tars.util import read_data, interpolate_data
 
+# import matplotlib.pyplot as plt
 # from mpl_toolkits.mplot3d import Axes3D
 
 TARS_DIR = path.dirname(path.abspath(__file__))
@@ -68,10 +67,11 @@ class TARS:
         self.position_z = None
         self.step_length = None
 
-        self.data_folder = TARS_DIR + r'\data'
-        self.results_folder = self.data_folder + r'\results'
+        # self.data_folder = TARS_DIR + r'\data'
+        # self.results_folder = self.data_folder + r'\results'
 
         self.sim_obj = Simulation(self.ccd)
+        self.charge_obj = self.ccd.charges
         self.log = logging.getLogger(__name__)
 
     def set_particle_type(self, particle_type):
@@ -95,11 +95,7 @@ class TARS:
     def set_stepping_length(self, stepping):
         self.step_length = stepping  # um
 
-    def get_all_deposited_charge(self):
-        return self.sim_obj.electron_clusters
-
     def run(self):
-        start_time = time.time()
         print("TARS - simulation processing...\n")
 
         self.sim_obj.parameters(self.part_type,
@@ -109,10 +105,23 @@ class TARS:
                                 self.step_length)
 
         for _ in tqdm(range(0, self.particle_number)):
-            # dep = 0
-            # while dep == 0:
             dep = self.sim_obj.event_generation()
             self.log.debug('total deposited E: %4.2f keV', dep)
+
+        size = len(self.sim_obj.e_num_lst)
+        self.sim_obj.e_vel0_lst = [0.] * size
+        self.sim_obj.e_vel1_lst = [0.] * size
+        self.sim_obj.e_vel2_lst = [0.] * size
+
+        self.charge_obj.add_charge('e',
+                                   self.sim_obj.e_num_lst,
+                                   self.sim_obj.e_energy_lst,
+                                   self.sim_obj.e_pos0_lst,
+                                   self.sim_obj.e_pos1_lst,
+                                   self.sim_obj.e_pos2_lst,
+                                   self.sim_obj.e_vel0_lst,
+                                   self.sim_obj.e_vel1_lst,
+                                   self.sim_obj.e_vel2_lst)
 
         # np.save('orig2_edep_per_step_10k', self.sim_obj.edep_per_step)
         # np.save('orig2_edep_per_particle_10k', self.sim_obj.total_edep_per_particle)
@@ -121,8 +130,6 @@ class TARS:
         # self.plot_edep_per_particle()
         # self.plot_charges_3d()
         # plt.show()
-
-        self.sim_obj.processing_time = time.time() - start_time
 
     # def plot_edep_per_step(self):
     #     plt.figure()

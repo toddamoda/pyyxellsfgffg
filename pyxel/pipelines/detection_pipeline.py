@@ -71,7 +71,7 @@ def run_pipeline(detector: CCD, pipeline: DetectionPipeline) -> CCD:
     # CHARGE GENERATION
     detector.charges = Charge(detector)
 
-    steps = ['photoelectrons']  # , 'fixed_pattern_noise', 'tars', 'xray', 'snowballs']
+    steps = ['photoelectrons', 'tars']  # , 'fixed_pattern_noise',  'xray', 'snowballs']
     for step in steps:
         func = pipeline.charge_generation.models.get(step)
         if func:

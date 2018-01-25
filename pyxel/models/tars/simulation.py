@@ -7,7 +7,6 @@ PyXel! Simulation code for TARS model to generate charges by ionization
 
 from os import path
 import numpy as np
-# from pyxel.models.tars.tars import TARS_DIR
 from pyxel.models.tars.particle import Particle
 from pyxel.models.tars.util import sampling_distribution, read_data
 # import matplotlib.pyplot as plt
@@ -30,14 +29,6 @@ class Simulation:
         self.spectrum_cdf = None
         self.let_cdf = np.zeros((1, 2))
 
-        # self.processing_time = 0
-        # self.event_counter = 0
-        # self.total_charge_array = np.zeros((self.ccd.row, self.ccd.col), int)
-        # self.ver_limit, self.hor_limit = self.total_charge_array.shape
-
-        self.clusters_per_track = []
-        self.all_charge_clusters = []
-
         self.particle_type = None
         self.initial_energy = None
         self.position_ver = None
@@ -48,8 +39,14 @@ class Simulation:
         self.step_length = None
         self.energy_cut = 1.0e-5        # MeV
 
-        # self.charge_obj = Charge(self.ccd)
-        self.charge_obj = self.ccd.charges
+        self.e_num_lst = []
+        self.e_energy_lst = []
+        self.e_pos0_lst = []
+        self.e_pos1_lst = []
+        self.e_pos2_lst = []
+        self.e_vel0_lst = []
+        self.e_vel1_lst = []
+        self.e_vel2_lst = []
 
         self.edep_per_step = []
         self.total_edep_per_particle = []
@@ -109,8 +106,6 @@ class Simulation:
         :return:
         """
 
-        self.clusters_per_track = []
-
         track_left = False
 
         p = Particle(self.ccd,
@@ -120,9 +115,6 @@ class Simulation:
                      self.angle_alpha, self.angle_beta)
 
         self.set_let_distribution()
-
-        # main loop : electrons generation and collection at each step while the particle is in the CCD and
-        # have enough energy to spread
 
         # p.position is inside CCD, ionization can not happen in this first step
         p.position[0] += p.dir_ver * self.step_length * 0.1
@@ -170,15 +162,11 @@ class Simulation:
         particle.electrons = int(particle.deposited_energy * 1e3 /
                                  (self.ccd.material_ionization_energy + e_kin_energy))     # eV/eV = 1
 
-        self.charge_obj.add_charge('e',
-                                   [particle.electrons],
-                                   [e_kin_energy],
-                                   [particle.position[0]],
-                                   [particle.position[1]],
-                                   [particle.position[2]],
-                                   [0.],
-                                   [0.],
-                                   [0.])
+        self.e_num_lst += [particle.electrons]
+        self.e_energy_lst += [e_kin_energy]
+        self.e_pos0_lst += [particle.position[0]]
+        self.e_pos1_lst += [particle.position[1]]
+        self.e_pos2_lst += [particle.position[2]]
 
         # keV
         particle.deposited_energy = particle.electrons * (e_kin_energy + self.ccd.material_ionization_energy) * 1e-3

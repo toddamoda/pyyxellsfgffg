@@ -60,11 +60,11 @@ process: !PROCESSOR
           initial_energy: 100.0   # MeV
           particle_number: 10
           incident_angles:      # rad
-            - 0.31416  # pi / 10
-            - 0.7853   # pi / 4
+            - random # 0.31416  # pi / 10
+            - random # 0.7853   # pi / 4
           starting_position:    # um
-            - 500.0
-            - 500.0
+            - random # 500.0
+            - random # 500.0
             - 0.0
           stepping_length: 1.0  # um
 

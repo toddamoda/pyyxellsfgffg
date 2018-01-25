@@ -165,7 +165,7 @@ class Photon:
 
     def get_photon_numbers(self, id_list='all'):
         """
-        Get number of photons per dataframe row
+        Get number of photons per DataFrame row
         :param id_list:
         :return:
         """
