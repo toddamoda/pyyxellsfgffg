@@ -58,7 +58,7 @@ def run_pipeline(detector: CCD, pipeline: DetectionPipeline) -> CCD:
 
     # OPTICS
     detector.photons = Photon(detector)
-    detector.generate_incident_photons()
+    detector.generate_photons()
 
     # Stage 1: Apply the Optics model(s). only '.photons' is modified
     steps = ['shot_noise', 'ray_tracing', 'diffraction']
@@ -77,27 +77,24 @@ def run_pipeline(detector: CCD, pipeline: DetectionPipeline) -> CCD:
             detector = func(detector)
 
     # CHARGE COLLECTION
-    detector.pixels = Pixel(detector)
-    detector.pixels.fill_with_charge()
-
-    steps = []  # ['diffusion']
+    steps = []  # ['diffusion', 'full_well', ... , 'full_well']
     for step in steps:
         func = pipeline.charge_collection.models.get(step)
         if func:
             detector = func(detector)
 
-    # detector.pixels.charge_excess()     # TODO should be a model
-
     # CHARGE TRANSFER
-    steps = []
+    detector.pixels = Pixel(detector)
+    detector.pixels.generate_pixels()
+
+    steps = []  # ['cdm']
     for step in steps:
         func = pipeline.charge_transfer.models.get(step)
         if func:
             detector = func(detector)
 
     # CHARGE READOUT
-    # detector.compute_signal()
-    # TODO: Convert here the charge object list into a 2d signal array
+    detector.signal = detector.pixels.generate_signal()
 
     steps = ['output_node_noise']
     for step in steps:
@@ -106,7 +103,8 @@ def run_pipeline(detector: CCD, pipeline: DetectionPipeline) -> CCD:
             detector = func(detector)
 
     # READOUT ELECTRONICS
-    detector.compute_image()
+    # detector.image = detector.signal.generate_image()
+
     steps = []
     for step in steps:
         func = pipeline.readout_electronics.models.get(step)

@@ -56,7 +56,7 @@ class CCD:
         self.environment = environment
         self.characteristics = characteristics
 
-    def generate_incident_photons(self):
+    def generate_photons(self):
         """
         Calculate incident photon number per pixel from image or illumination
         :return:
@@ -88,24 +88,29 @@ class CCD:
         """
         pixel_numbers = self.row * self.col
 
-        init_ver_position = (np.arange(0.0, self.row, 1.0) + np.random.rand(self.row)) * self.pix_vert_size
-        init_hor_position = (np.arange(0.0, self.col, 1.0) + np.random.rand(self.col)) * self.pix_horz_size
-        init_ver_position = np.tile(init_ver_position, self.col)
+        init_ver_position = np.arange(0.0, self.row, 1.0) * self.pix_vert_size
+        init_hor_position = np.arange(0.0, self.col, 1.0) * self.pix_horz_size
+
+        init_ver_position = np.repeat(init_ver_position, self.col)
         init_hor_position = np.tile(init_hor_position, self.row)
+
+        init_ver_position += np.random.rand(pixel_numbers) * self.pix_vert_size
+        init_hor_position += np.random.rand(pixel_numbers) * self.pix_horz_size
+
         init_z_position = [0.] * pixel_numbers
 
         init_ver_velocity = [0.] * pixel_numbers
         init_hor_velocity = [0.] * pixel_numbers
         init_z_velocity = [0.] * pixel_numbers
 
-        self._photons.create_photon(photon_number_list,
-                                    photon_energy_list,
-                                    init_ver_position,
-                                    init_hor_position,
-                                    init_z_position,
-                                    init_ver_velocity,
-                                    init_hor_velocity,
-                                    init_z_velocity)
+        self._photons.add_photon(photon_number_list,
+                                 photon_energy_list,
+                                 init_ver_position,
+                                 init_hor_position,
+                                 init_z_position,
+                                 init_ver_velocity,
+                                 init_hor_velocity,
+                                 init_z_velocity)
 
     def compute_k(self):
         """

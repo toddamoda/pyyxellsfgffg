@@ -77,16 +77,16 @@ class Photon:
 
         pass
 
-    def create_photon(self,
-                      photons_per_group,
-                      init_energy,
-                      init_ver_position,
-                      init_hor_position,
-                      init_z_position,
-                      init_ver_velocity,
-                      init_hor_velocity,
-                      init_z_velocity,
-                      ):
+    def add_photon(self,
+                   photons_per_group,
+                   init_energy,
+                   init_ver_position,
+                   init_hor_position,
+                   init_z_position,
+                   init_ver_velocity,
+                   init_hor_velocity,
+                   init_z_velocity,
+                   ):
         """
         Creating new photon or group of photons inside the detector stored in a pandas DataFrame
         :param photons_per_group:

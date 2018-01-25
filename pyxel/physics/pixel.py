@@ -28,28 +28,42 @@ class Pixel:
                                            'pixel_index_ver',
                                            'pixel_index_hor'])
 
-    def fill_with_charge(self):
+    def generate_pixels(self):
         """
-        :return:
+        Group charges into packets and fill pixel DataFrame
         """
         charge_per_pixel = self.detector.charges.get_numbers()
 
         charge_pos_ver = self.detector.charges.get_positions_ver()
         charge_pos_hor = self.detector.charges.get_positions_hor()
-        pixel_index_ver = np.floor_divide(charge_pos_ver, self.detector.pix_vert_size)
-        pixel_index_hor = np.floor_divide(charge_pos_hor, self.detector.pix_horz_size)
 
-        self.create_pixel(charge_per_pixel,
-                          pixel_index_ver,
-                          pixel_index_hor)
+        pixel_index_ver = np.floor_divide(charge_pos_ver, self.detector.pix_vert_size).astype(int)
+        pixel_index_hor = np.floor_divide(charge_pos_hor, self.detector.pix_horz_size).astype(int)
 
-    def create_pixel(self,
-                     charge,
-                     pixel_index_ver,
-                     pixel_index_hor):
+        self.add_pixel(charge_per_pixel,
+                       pixel_index_ver,
+                       pixel_index_hor)
+
+    def generate_signal(self):
+        """
+        Read output signal of detector pixels as a 2d numpy array
+        :return:
+        """
+        charge_per_pixel = self.get_pixel_charges()
+        pixel_index_ver = self.get_pixel_positions_ver()
+        pixel_index_hor = self.get_pixel_positions_hor()
+
+        signal_2d_array = np.zeros((self.detector.row, self.detector.col), dtype=int)
+        signal_2d_array[pixel_index_ver, pixel_index_hor] = charge_per_pixel
+
+        return signal_2d_array
+
+    def add_pixel(self,
+                  charge,
+                  pixel_index_ver,
+                  pixel_index_hor):
         """
         Creating new pixel charge packet which is stored in a pandas DataFrame
-
         :return:
         """
 
@@ -69,3 +83,39 @@ class Pixel:
 
         # Adding new pixels to the DataFrame
         self.frame = pd.concat([self.frame, new_pixel_df], ignore_index=True)
+
+    def get_pixel_charges(self, id_list='all'):
+        """
+        Get number of charges per pixel DataFrame row
+        :param id_list:
+        :return:
+        """
+        if id_list == 'all':
+            array = self.frame.charge.values
+        else:
+            array = self.frame.query('id in %s' % id_list).charge.values
+        return array.astype(int)
+
+    def get_pixel_positions_ver(self, id_list='all'):
+        """
+        Get vertical positions of pixels
+        :param id_list:
+        :return:
+        """
+        if id_list == 'all':
+            array = self.frame.pixel_index_ver.values
+        else:
+            array = self.frame.query('id in %s' % id_list).pixel_index_ver.values
+        return array.astype(int)
+
+    def get_pixel_positions_hor(self, id_list='all'):
+        """
+        Get horizontal positions of pixels
+        :param id_list:
+        :return:
+        """
+        if id_list == 'all':
+            array = self.frame.pixel_index_hor.values
+        else:
+            array = self.frame.query('id in %s' % id_list).pixel_index_hor.values
+        return array.astype(int)

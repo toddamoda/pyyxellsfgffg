@@ -26,8 +26,8 @@ def run_pipeline(input_filename, output_file):
 
     if output_file:
         out = FitsFile(output_file)
-        out.data = result
-        out.save(output_file, override=True)
+        out.data = result.signal    # TODO should replace result.signal to result.image
+        out.save(output_file, overwrite=True)
 
 
 def main():

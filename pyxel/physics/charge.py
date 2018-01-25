@@ -91,17 +91,17 @@ class Charge:
                                            'pixel_ver',
                                            'pixel_hor'])
 
-    def create_charge(self,
-                      particle_type,
-                      particles_per_cluster,
-                      init_energy,
-                      init_ver_position,
-                      init_hor_position,
-                      init_z_position,
-                      init_ver_velocity,
-                      init_hor_velocity,
-                      init_z_velocity
-                      ):
+    def add_charge(self,
+                   particle_type,
+                   particles_per_cluster,
+                   init_energy,
+                   init_ver_position,
+                   init_hor_position,
+                   init_z_position,
+                   init_ver_velocity,
+                   init_hor_velocity,
+                   init_z_velocity
+                   ):
         """
         Creating new photon or group of photons inside the detector stored in a pandas DataFrame
         :param particle_type:

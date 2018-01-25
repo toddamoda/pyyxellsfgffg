@@ -28,15 +28,15 @@ def simple_conversion(detector: CCD) -> CCD:
     # converting to int, TODO: do proper rounding or floor -> numpy object problem
     charge_number = charge_number.astype(int)
 
-    new_detector.charges.create_charge('e',
-                                       charge_number,
-                                       [0.]*size,
-                                       detector.photons.get_positions_ver(),
-                                       detector.photons.get_positions_hor(),
-                                       detector.photons.get_positions_z(),
-                                       [0.]*size,
-                                       [0.]*size,
-                                       [0.]*size)
+    new_detector.charges.add_charge('e',
+                                    charge_number,
+                                    [0.] * size,
+                                    detector.photons.get_positions_ver(),
+                                    detector.photons.get_positions_hor(),
+                                    detector.photons.get_positions_z(),
+                                    [0.] * size,
+                                    [0.] * size,
+                                    [0.] * size)
 
     return new_detector
 
