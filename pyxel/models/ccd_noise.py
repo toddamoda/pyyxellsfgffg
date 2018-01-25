@@ -28,21 +28,21 @@ def apply_shot_noise(detector: CCD) -> CCD:
     return new_detector
 
 
-def add_fix_pattern_noise(ccd: CCD, inplace=True) -> CCD:
+def add_fix_pattern_noise(detector: CCD, inplace=True) -> CCD:
 
     if inplace:
-        new_ccd = copy.deepcopy(ccd)
-        # new_ccd = CCD(ccd)
-        # new_ccd.to_pickle(filename)
-        # new_ccd.to_fits(filename)
+        new_detector = copy.deepcopy(detector)
+        # new_detector = CCD(detector)
+        # new_detector.to_pickle(filename)
+        # new_detector.to_fits(filename)
         # CCD.from_fits(filename)
     else:
-        new_ccd = ccd
+        new_detector = detector
 
-    new_ccd.charge = new_ccd.charge * new_ccd.pix_non_uniformity
-    new_ccd.charge = np.int16(np.rint(new_ccd.charge))
+    # new_detector.charges = new_detector.charges * new_detector.pix_non_uniformity
+    # new_detector.charges = np.int16(np.rint(new_detector.charges))
 
-    return new_ccd
+    return new_detector
 
 
 def add_output_node_noise(ccd: CCD, std_deviation: float) -> CCD:

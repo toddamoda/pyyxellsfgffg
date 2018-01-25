@@ -17,46 +17,41 @@ from pyxel.detectors.ccd import CCD
 cds.enable()
 
 
-def diffusion(ccd: CCD) -> CCD:
+def diffusion(detector: CCD) -> CCD:
     """ TBD """
 
-    new_ccd = copy.deepcopy(ccd)
+    new_detector = copy.deepcopy(detector)
 
-    diff = Diffusion(new_ccd)
+    # diff = Diffusion(new_detector)
 
-    collected_charge_list = []  # type: list
+    # collected_charge_list = []  # type: list
 
-    cluster_generator = [cluster for cluster in new_ccd.charge_list]
+    # cluster_generator = [cluster for cluster in new_detector.charge_list]
 
-    for cluster in cluster_generator:
+    # for cluster in cluster_generator:
+    # Modifying the positions and shapes of charge clusters in list of Charge class instances
+    # sigma_hiraga = diff.hiraga_diffusion_model(cluster)
+    # sigma_janesick = diff.janesick_diffusion_model(cluster)
+    # sigma = 1.0     # temporarily
+    # collected_charge = diff.gaussian_pixel_separation(cluster, sigma, sigma)
+    # collected_charge_list += collected_charge
 
-        # Modifying the positions and shapes of charge clusters in list of Charge class instances
+    # Overwrite the list of charge clusters in the new_detector object because Charge attributes have changed
+    # new_detector.charge_list = collected_charge_list
+    # new_detector.charge = collected_charge_list      # TEMPORARY
 
-        # sigma_hiraga = diff.hiraga_diffusion_model(cluster)
-
-        # sigma_janesick = diff.janesick_diffusion_model(cluster)
-
-        sigma = 1.0     # temporarily
-        collected_charge = diff.gaussian_pixel_separation(cluster, sigma, sigma)
-
-        collected_charge_list += collected_charge
-
-    # Overwrite the list of charge clusters in the new_ccd object because Charge attributes have changed
-    # new_ccd.charge_list = collected_charge_list
-    new_ccd.charge = collected_charge_list      # TEMPORARY
-
-    return new_ccd
+    return new_detector
 
 
 class Diffusion:
     """ TBD """
 
-    def __init__(self, ccd):
+    def __init__(self, detector):
 
-        self.ccd = ccd
+        self.detector = detector
 
         # Here is an image of all the last simulated CRs events on the CCD
-        self.pcmap_last = np.zeros((self.ccd.row, self.ccd.col))
+        self.pcmap_last = np.zeros((self.detector.row, self.detector.col))
 
     # DIFFUSION
     def janesick_diffusion_model(self, cluster):
@@ -68,15 +63,15 @@ class Diffusion:
         # 10 keV deposited by an X-ray photon resultsParticle a 1 um diameter charge (e-h) cloud
         # CCD Advances For X - Ray Scientific Measurements In 1985,
         # James Janesick et al.
-        # deltaE != cluster.number / u.electron * self.ccd.material_ionization_energy / (1000 * u.eV)
+        # deltaE != cluster.number / u.electron * self.detector.material_ionization_energy / (1000 * u.eV)
         # deltaE == kin. energy of an electron
         # By analogy with high - energy electron beam interaction with silicon, one can approximate the
         # energy / depth relationship as R = k * E**n , where k and n are numerical constants
         # for the material and R is the penetration depth.
 
-        x_backside = self.ccd.total_thickness      # um  # boundary of the ccd backside
-        x_ff = self.ccd.field_free_zone            # um # boundary of the field-free region near backside
-        x_p = self.ccd.depletion_zone              # um # boundary of the depletion region near ccd channel
+        x_backside = self.detector.total_thickness      # um  # boundary of the detector backside
+        x_ff = self.detector.field_free_zone            # um # boundary of the field-free region near backside
+        x_p = self.detector.depletion_zone              # um # boundary of the depletion region near detector channel
 
         # z position of charge generation event relative to the backside (>= 0)
         x_a = x_backside + cluster.initial_position[2]
@@ -124,14 +119,14 @@ class Diffusion:
         # TODO: implement this in CCDDetector class
         # assumptions made: V=0, dV/dz = 0 at z = ld
         # voltage = 50 * u.V
-        # voltage = self.ccd.bias_voltage
+        # voltage = self.detector.bias_voltage
 
         # depletion depth                      # TODO: implement this in CCDDetector class
         # l_dep = sqrt(2 * eps_si * voltage / (cds.e * n_acceptor))   # cm
-        # l_dep = self.ccd.depletion_zone
+        # l_dep = self.detector.depletion_zone
 
         # critical field
-        # efield_crit = 1.01 * u.V/u.cm * self.ccd.temperature ** 1.55        # V/cm
+        # efield_crit = 1.01 * u.V/u.cm * self.detector.temperature ** 1.55        # V/cm
         # For instance, typical value at T = 210 K are vs = 1.46e7 cm*sec−1, Ecrit = 4.4e3 V*cm−1 and α = 0.88
         # Ecrit ~ 1e2 - 1e4 V*cm−1
 
@@ -140,7 +135,7 @@ class Diffusion:
 
         # r_final =
 
-        #     spreading across entire depletion region
+        # spreading across entire depletion region
         # self.cfr = self.con * sqrt(self.sat + bound)
 
         # return r_final
@@ -160,35 +155,35 @@ class Diffusion:
         px = []
         py = []
 
-        dx = (cluster.initial_position[0] - self.ccd.pix_ver_size
-              * int(cluster.initial_position[0] / self.ccd.pix_ver_size))
-        dy = (cluster.initial_position[1] - self.ccd.pix_hor_size
-              * int(cluster.initial_position[1] / self.ccd.pix_hor_size))
+        dx = (cluster.initial_position[0] - self.detector.pix_ver_size
+              * int(cluster.initial_position[0] / self.detector.pix_ver_size))
+        dy = (cluster.initial_position[1] - self.detector.pix_hor_size
+              * int(cluster.initial_position[1] / self.detector.pix_hor_size))
 
         try:
-            int(4 * sig_ac / self.ccd.pix_ver_size)  # WTF?
+            int(4 * sig_ac / self.detector.pix_ver_size)  # WTF?
         except ValueError:
             print(sig_ac, cluster.number)
 
-        x_steps = int(4 * sig_ac / self.ccd.pix_ver_size)
+        x_steps = int(4 * sig_ac / self.detector.pix_ver_size)
 
         if x_steps > 49:  # WHY????
             x_steps = 49
         if x_steps < 1:
             x_steps = 1
 
-        y_steps = int(4 * sig_al / self.ccd.pix_hor_size)
+        y_steps = int(4 * sig_al / self.detector.pix_hor_size)
         if y_steps > 49:
             y_steps = 49
         if y_steps < 1:
             y_steps = 1
 
-        for xi in np.arange(-(x_steps * self.ccd.pix_ver_size + dx),
-                            ((x_steps + 1) * self.ccd.pix_ver_size - dx),
-                            self.ccd.pix_ver_size):
+        for xi in np.arange(-(x_steps * self.detector.pix_ver_size + dx),
+                            ((x_steps + 1) * self.detector.pix_ver_size - dx),
+                            self.detector.pix_ver_size):
 
             if sig_ac != 0:
-                case1 = (xi + self.ccd.pix_ver_size) / 1.41 / sig_ac
+                case1 = (xi + self.detector.pix_ver_size) / 1.41 / sig_ac
                 case2 = xi / 1.41 / sig_ac
             else:
                 case1 = 0
@@ -196,12 +191,12 @@ class Diffusion:
 
             px.append((erf(case1) - erf(case2)) / 2)
 
-        for yi in np.arange(-(y_steps * self.ccd.pix_hor_size + dy),
-                            ((y_steps + 1) * self.ccd.pix_hor_size - dy),
-                            self.ccd.pix_hor_size):
+        for yi in np.arange(-(y_steps * self.detector.pix_hor_size + dy),
+                            ((y_steps + 1) * self.detector.pix_hor_size - dy),
+                            self.detector.pix_hor_size):
 
             if sig_al != 0:
-                case1 = (yi + self.ccd.pix_hor_size) / 1.41 / sig_al
+                case1 = (yi + self.detector.pix_hor_size) / 1.41 / sig_al
                 case2 = yi / 1.41 / sig_al
             else:
                 case1 = 0
@@ -211,15 +206,15 @@ class Diffusion:
 
         cx = 0
 
-        for ix in range(int(cluster.initial_position[0] / self.ccd.pix_ver_size) - x_steps,
-                        int(cluster.initial_position[0] / self.ccd.pix_ver_size) + x_steps + 1, 1):
+        for ix in range(int(cluster.initial_position[0] / self.detector.pix_ver_size) - x_steps,
+                        int(cluster.initial_position[0] / self.detector.pix_ver_size) + x_steps + 1, 1):
 
             cy = 0
 
-            for iy in range(int(cluster.initial_position[1] / self.ccd.pix_hor_size) - y_steps,
-                            int(cluster.initial_position[1] / self.ccd.pix_hor_size) + y_steps + 1, 1):
+            for iy in range(int(cluster.initial_position[1] / self.detector.pix_hor_size) - y_steps,
+                            int(cluster.initial_position[1] / self.detector.pix_hor_size) + y_steps + 1, 1):
 
-                if 0 <= ix < self.ccd.row and 0 <= iy < self.ccd.col:
+                if 0 <= ix < self.detector.row and 0 <= iy < self.detector.col:
                     self.pcmap_last[ix, iy] += px[cx] * py[cy] * cluster.number
 
                 cy += 1

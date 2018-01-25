@@ -86,7 +86,7 @@ def run_pipeline(detector: CCD, pipeline: DetectionPipeline) -> CCD:
         if func:
             detector = func(detector)
 
-    detector.pixels.charge_excess()
+    # detector.pixels.charge_excess()     # TODO should be a model
 
     # CHARGE TRANSFER
     steps = []
@@ -106,7 +106,7 @@ def run_pipeline(detector: CCD, pipeline: DetectionPipeline) -> CCD:
             detector = func(detector)
 
     # READOUT ELECTRONICS
-    detector.compute_readout_signal()
+    detector.compute_image()
     steps = []
     for step in steps:
         func = pipeline.readout_electronics.models.get(step)

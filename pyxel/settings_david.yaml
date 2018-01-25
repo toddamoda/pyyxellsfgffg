@@ -12,7 +12,7 @@ process: !PROCESSOR
 
   ccd: !CCD
     photons: 100
-    signal: null # !from_file data/HorseHead_orig.fits
+    image: null # !from_file data/HorseHead_orig.fits
 
     geometry:
       row: 100                      # compulsory

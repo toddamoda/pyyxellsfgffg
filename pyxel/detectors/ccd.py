@@ -33,23 +33,24 @@ class CCD:
                  environment: Environment = None,
                  characteristics: CCDCharacteristics = None,
                  photons: int = None,
-                 signal=None,
+                 image=None,
                  ) -> None:
 
-        if photons is not None and signal is None:
+        if photons is not None and image is None:
             self._photon_mean = photons
-            self._signal = None
+            self._image = None
             # self._photon_mean = photons * u.ph      # unit: photons
-        elif photons is None and signal is not None:
+        elif photons is None and image is not None:
             self._photon_mean = None
-            self._signal = signal
-            # self._signal = signal * u.adu       # unit: ADU
+            self._image = image                    # final signal after processing , unit: ADU
         else:
             raise ValueError("Only signal or photon number has to be provided as input")
 
         # self._photon_number_list = None
         self._photons = None
         self._charges = None
+        self._pixels = None
+        self._signal = None     # signal read out directly from CCD
 
         self.geometry = geometry
         self.environment = environment
@@ -57,20 +58,20 @@ class CCD:
 
     def generate_incident_photons(self):
         """
-        Calculate incident photon number per pixel from signal or illumination
+        Calculate incident photon number per pixel from image or illumination
         :return:
         """
-        # TODO: can both signal and photons be passed?
+        # TODO: can both image and photons be passed?
         photon_number_list = []
         photon_energy_list = []
 
-        if self._signal is not None and self._photon_mean is None:
-            self.row, self.col = self._signal.shape
-            photon_number_list = self._signal / (self.qe * self.eta * self.sv * self.accd * self.a1 * self.a2)
+        if self._image is not None and self._photon_mean is None:
+            self.row, self.col = self._image.shape
+            photon_number_list = self._image / (self.qe * self.eta * self.sv * self.accd * self.a1 * self.a2)
             photon_number_list = np.rint(photon_number_list).astype(int).flatten()
             photon_energy_list = [0.] * self.row * self.col
 
-        if self._photon_mean is not None and self._signal is None:
+        if self._photon_mean is not None and self._image is None:
             # TODO: photon illumination generator to be implemented
             if isinstance(self._photon_mean, int):
                 # uniform illumination
@@ -106,15 +107,6 @@ class CCD:
                                     init_hor_velocity,
                                     init_z_velocity)
 
-    # def compute_charge_array(self):
-    #     """
-    #     Calculate charges per pixel from incident photon number and CCD parameters
-    #     :return:
-    #     """
-    #     # self._charge = self._photons * self.qe * self.eta
-    #     # self._charge = np.rint(self._charge).astype(int)
-    #     pass
-
     def compute_k(self):
         """
         Calculate camera gain constant in units of e-/DN from CCD parameters
@@ -138,13 +130,13 @@ class CCD:
         # self.signal = np.rint(self.signal).astype(int)  # let's assume it could be real number (float)
         pass
 
-    def compute_readout_signal(self):   # TODO reimplement
+    def compute_image(self):   # TODO reimplement
         """
-        Calculate CCD signal per pixel in units of DN from charges and CCD parameters
+        Calculate CCD image in units of DN from charges and CCD parameters
         :return:
         """
-        # self._readout_signal = self._signal * self.a1 * self.a2
-        # self._readout_signal = np.rint(self._readout_signal).astype(int)   # DN
+        # self._image = self._signal * self.a1 * self.a2
+        # self._image = np.rint(self._image).astype(int)   # DN
         pass
 
     @property
@@ -180,8 +172,16 @@ class CCD:
         return self._charges
 
     @charges.setter
-    def charges(self, new_charge: np.ndarray):
+    def charges(self, new_charge):
         self._charges = new_charge
+
+    @property
+    def pixels(self):
+        return self._pixels
+
+    @pixels.setter
+    def pixels(self, new_pixel):
+        self._pixels = new_pixel
 
     @property
     def signal(self):
@@ -191,24 +191,9 @@ class CCD:
     def signal(self, new_signal: np.ndarray):
         self._signal = new_signal
 
-    # @property
-    # def ccd_signal_updated(self):
-    #     self.computesignal()
-    #     return self.signal
-
-    # @ccd_signal.setter
-    # def ccd_signal(self, new_sig: np.ndarray):
-    #     self.signal = new_sig
-    #     # self.signal = convert_to_int(self.signal)
-
     @property
-    def readout_signal(self):
-        return self._readout_signal
-
-    # @readout_signal.setter
-    # def readout_signal(self, new_read_sig: np.ndarray):
-    #     self._readout_signal = new_read_sig
-    #     self._readout_signal = convert_to_int(self._readout_signal)
+    def image(self):
+        return self._image
 
     @property
     def k(self):
