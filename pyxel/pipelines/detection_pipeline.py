@@ -131,16 +131,16 @@ class CMOSDetectionPipeline:
                  optics: Models,
                  charge_generation: Models,
                  charge_collection: Models,
-                 # charge_transfer: Models,
                  charge_measurement: Models,
+                 signal_transfer: Models,
                  readout_electronics: Models,
                  doc=None) -> None:
         self.doc = doc
         self.optics = optics
         self.charge_generation = charge_generation
         self.charge_collection = charge_collection
-        # self.charge_transfer = charge_transfer
         self.charge_measurement = charge_measurement
+        self.signal_transfer = signal_transfer
         self.readout_electronics = readout_electronics
 
     def run_pipeline(self, detector: CMOS) -> CMOS:
@@ -183,12 +183,22 @@ class CMOSDetectionPipeline:
                 detector = func(detector)
 
         # CHARGE MEASUREMENT
-        # -> create signal -> modify signal ->
+        # -> create signal ->
         detector.signal = detector.pixels.generate_signal()
 
         steps = ['output_node_noise']
         for step in steps:
             func = self.charge_measurement.models.get(step)
+            if func:
+                detector = func(detector)
+
+        # SIGNAL TRANSFER
+        # -> modify signal ->
+        detector.signal = detector.pixels.generate_signal()
+
+        steps = ['nghxrg']
+        for step in steps:
+            func = self.signal_transfer.models.get(step)
             if func:
                 detector = func(detector)
 

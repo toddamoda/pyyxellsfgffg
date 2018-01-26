@@ -85,5 +85,11 @@ process: !PROCESSOR
         kwargs:
           std_deviation: 1.0
 
+   # -> signal
+    signal_transfer: !models
+      nghxrg: !function
+        name: pyxel.models.nghxrg.nghxrg.run_nghxrg_v26beta
+#        kwargs:
+
     # -> signal
     readout_electronics: !models
