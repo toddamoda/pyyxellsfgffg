@@ -138,7 +138,6 @@ PipelineYAML.add_constructor('!PROCESSOR', _constructor_processor)
 
 PipelineYAML.add_constructor('!CCD_PIPELINE', _constructor_ccd_pipeline)
 PipelineYAML.add_constructor('!CMOS_PIPELINE', _constructor_cmos_pipeline)
-# PipelineYAML.add_constructor('!PIPELINE', _constructor_detector_pipeline)
 
 PipelineYAML.add_constructor('!CCD', _constructor_ccd)
 PipelineYAML.add_constructor('!CMOS', _constructor_cmos)

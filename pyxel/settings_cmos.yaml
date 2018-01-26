@@ -5,7 +5,7 @@
 
 process: !PROCESSOR
 
-  detector: !CCD # CMOS   # !CCD
+  detector: !CMOS   # !CCD
     photons: 10
     image: null # !from_file data/HorseHead_orig.fits
 
@@ -35,7 +35,7 @@ process: !PROCESSOR
       a1: 100         # V/V
       a2: 65536       # DN/V
 
-  pipeline: !CCD_PIPELINE # !CMOS_PIPELINE   # !CCD_PIPELINE
+  pipeline: !CMOS_PIPELINE   # !CCD_PIPELINE
     # -> photons
     optics: !models
       shot_noise: !function
@@ -78,12 +78,8 @@ process: !PROCESSOR
         kwargs:
           fwc: 100       # e (full well capacity)
 
-    # -> charge
-    charge_transfer: !models
-#      cdm:
-
     # -> signal
-    charge_readout: !models
+    charge_measurement: !models
       readout_noise: !function
         name: pyxel.models.ccd_noise.add_output_node_noise
         kwargs:

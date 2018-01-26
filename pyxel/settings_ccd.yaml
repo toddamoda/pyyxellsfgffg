@@ -83,7 +83,7 @@ process: !PROCESSOR
 #      cdm:
 
     # -> signal
-    charge_readout: !models
+    charge_measurement: !models
       readout_noise: !function
         name: pyxel.models.ccd_noise.add_output_node_noise
         kwargs:

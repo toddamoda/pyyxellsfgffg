@@ -43,7 +43,7 @@ class CCDDetectionPipeline:
                  charge_generation: Models,
                  charge_collection: Models,
                  charge_transfer: Models,
-                 charge_readout: Models,
+                 charge_measurement: Models,
                  readout_electronics: Models,
                  doc=None) -> None:
         self.doc = doc
@@ -51,7 +51,7 @@ class CCDDetectionPipeline:
         self.charge_generation = charge_generation
         self.charge_collection = charge_collection
         self.charge_transfer = charge_transfer
-        self.charge_readout = charge_readout
+        self.charge_measurement = charge_measurement
         self.readout_electronics = readout_electronics
 
     def run_pipeline(self, detector: CCD) -> CCD:
@@ -108,7 +108,7 @@ class CCDDetectionPipeline:
 
         steps = ['output_node_noise']
         for step in steps:
-            func = self.charge_readout.models.get(step)
+            func = self.charge_measurement.models.get(step)
             if func:
                 detector = func(detector)
 
@@ -132,7 +132,7 @@ class CMOSDetectionPipeline:
                  charge_generation: Models,
                  charge_collection: Models,
                  # charge_transfer: Models,
-                 charge_readout: Models,
+                 charge_measurement: Models,
                  readout_electronics: Models,
                  doc=None) -> None:
         self.doc = doc
@@ -140,7 +140,7 @@ class CMOSDetectionPipeline:
         self.charge_generation = charge_generation
         self.charge_collection = charge_collection
         # self.charge_transfer = charge_transfer
-        self.charge_readout = charge_readout
+        self.charge_measurement = charge_measurement
         self.readout_electronics = readout_electronics
 
     def run_pipeline(self, detector: CMOS) -> CMOS:
@@ -176,28 +176,19 @@ class CMOSDetectionPipeline:
         detector.pixels = Pixel(detector)
         detector.pixels.generate_pixels()
 
-        steps = ['fixed_pattern_noise', 'full_well']  # ['diffusion', ... , 'full_well']
+        steps = ['fixed_pattern_noise']  # ['diffusion', ... , 'full_well']
         for step in steps:
             func = self.charge_collection.models.get(step)
             if func:
                 detector = func(detector)
 
-        # CHARGE TRANSFER:
-        # -> transport/modify pixels ->
-
-        # steps = []  # ['cdm']
-        # for step in steps:
-        #     func = self.charge_transfer.models.get(step)
-        #     if func:
-        #         detector = func(detector)
-
-        # CHARGE READOUT
+        # CHARGE MEASUREMENT
         # -> create signal -> modify signal ->
         detector.signal = detector.pixels.generate_signal()
 
         steps = ['output_node_noise']
         for step in steps:
-            func = self.charge_readout.models.get(step)
+            func = self.charge_measurement.models.get(step)
             if func:
                 detector = func(detector)
 
