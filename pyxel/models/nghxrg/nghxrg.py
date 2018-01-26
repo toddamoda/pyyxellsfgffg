@@ -6,12 +6,10 @@ PyXel! wrapper class for NGHXRG - Teledyne HxRG Noise Generator model
 """
 # import logging
 import copy
-# from os import path
-from astropy.io import fits
-import numpy as np
-from pyxel.models.nghxrg.nghxrg_v2_6beta import HXRGNoise
 
 from pyxel.detectors.cmos import CMOS
+
+from pyxel.models.nghxrg.nghxrg_v2_6beta import HXRGNoise
 
 
 def run_nghxrg_v26beta(detector: CMOS) -> CMOS:
