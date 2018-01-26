@@ -1,6 +1,7 @@
 import typing as t  # noqa: F401
 
 from pyxel.detectors.ccd import CCD
+from pyxel.detectors.cmos import CMOS
 from pyxel.util import util
 from pyxel.physics.charge import Charge
 from pyxel.physics.photon import Photon
@@ -49,12 +50,20 @@ class DetectionPipeline:
 
 class Processor:
 
-    def __init__(self, ccd: CCD, pipeline: DetectionPipeline) -> None:
-        self.ccd = ccd
+    def __init__(self, cmos: CMOS, pipeline: DetectionPipeline) -> None:
+        self.cmos = cmos
         self.pipeline = pipeline
 
 
-def run_pipeline(detector: CCD, pipeline: DetectionPipeline) -> CCD:
+# class Processor:
+#
+#     def __init__(self, ccd: CCD, pipeline: DetectionPipeline) -> None:
+#         self.ccd = ccd
+#         self.pipeline = pipeline
+
+
+# def run_pipeline(detector: CCD, pipeline: DetectionPipeline) -> CCD:
+def run_pipeline(detector: CMOS, pipeline: DetectionPipeline) -> CCD:
 
     # INITIALIZATION (open or generate image):
     # START -> create photons ->
@@ -65,7 +74,7 @@ def run_pipeline(detector: CCD, pipeline: DetectionPipeline) -> CCD:
 
     # OPTICS:
     # -> transport/modify photons ->
-    steps = ['shot_noise', 'ray_tracing', 'diffraction']
+    steps = ['shot_noise']  # , 'ray_tracing', 'diffraction']
     for step in steps:
         func = pipeline.optics.models.get(step)
         if func:

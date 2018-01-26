@@ -45,7 +45,7 @@ class CCD:
             self._photon_mean = None
             self._image = image                    # final signal after processing , unit: ADU
         else:
-            raise ValueError("Only signal or photon number has to be provided as input")
+            raise ValueError("Only image or photon number can be provided as input")
 
         # self._photon_number_list = None
         self._photons = None

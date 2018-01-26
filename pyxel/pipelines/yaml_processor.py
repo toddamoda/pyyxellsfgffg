@@ -8,6 +8,7 @@ import pyxel.detectors.ccd_characteristics
 import pyxel.detectors.geometry
 import pyxel.detectors.environment
 from pyxel.detectors.ccd import CCD
+from pyxel.detectors.cmos import CMOS
 from pyxel.pipelines import detection_pipeline
 from pyxel.util import fitsfile
 from pyxel.util import util
@@ -26,6 +27,14 @@ def _constructor_processor(loader: PipelineYAML, node: yaml.MappingNode):
 
 
 def _constructor_ccd_pipeline(loader: PipelineYAML, node: yaml.MappingNode):
+    mapping = loader.construct_mapping(node, deep=True)     # type: dict
+
+    obj = detection_pipeline.DetectionPipeline(**mapping)
+
+    return obj
+
+
+def _constructor_cmos_pipeline(loader: PipelineYAML, node: yaml.MappingNode):
     mapping = loader.construct_mapping(node, deep=True)     # type: dict
 
     obj = detection_pipeline.DetectionPipeline(**mapping)
@@ -53,13 +62,42 @@ def _constructor_ccd(loader: PipelineYAML, node: yaml.MappingNode):
 
     photons = mapping.get('photons', None)
     image = mapping.get('image', None)
-    # charges = mapping.get('charges', None)
 
     obj = CCD(photons=photons,
               image=image,
               geometry=geometry,
               environment=environment,
               characteristics=characteristics)
+
+    return obj
+
+
+def _constructor_cmos(loader: PipelineYAML, node: yaml.MappingNode):
+    mapping = loader.construct_mapping(node, deep=True)  # type: dict
+
+    if 'geometry' in mapping:
+        geometry = pyxel.detectors.geometry.Geometry(**mapping['geometry'])
+    else:
+        geometry = None
+
+    if 'environment' in mapping:
+        environment = pyxel.detectors.environment.Environment(**mapping['environment'])
+    else:
+        environment = None
+
+    if 'characteristics' in mapping:
+        characteristics = pyxel.detectors.ccd_characteristics.CCDCharacteristics(**mapping['characteristics'])
+    else:
+        characteristics = None
+
+    photons = mapping.get('photons', None)
+    image = mapping.get('image', None)
+
+    obj = CMOS(photons=photons,
+               image=image,
+               geometry=geometry,
+               environment=environment,
+               characteristics=characteristics)
 
     return obj
 
@@ -97,8 +135,13 @@ def _constructor_function(loader: PipelineYAML, node: yaml.ScalarNode):
 
 
 PipelineYAML.add_constructor('!PROCESSOR', _constructor_processor)
+
 PipelineYAML.add_constructor('!CCD_PIPELINE', _constructor_ccd_pipeline)
+PipelineYAML.add_constructor('!CMOS_PIPELINE', _constructor_cmos_pipeline)
+
 PipelineYAML.add_constructor('!CCD', _constructor_ccd)
+PipelineYAML.add_constructor('!CMOS', _constructor_cmos)
+
 PipelineYAML.add_constructor('!from_file', _constructor_from_file)
 PipelineYAML.add_constructor('!function', _constructor_function)
 PipelineYAML.add_constructor('!models', _constructor_models)

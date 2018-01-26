@@ -21,7 +21,8 @@ def run_pipeline(input_filename, output_file):
     processor = cfg['process']          # type: pyxel.detection_pipeline.Processor
 
     # Step 2: Run the pipeline
-    result = pyxel.detection_pipeline.run_pipeline(processor.ccd, processor.pipeline)  # type: CCD
+    # result = pyxel.detection_pipeline.run_pipeline(processor.ccd, processor.pipeline)  # type: CCD
+    result = pyxel.detection_pipeline.run_pipeline(processor.cmos, processor.pipeline)  # type: CCD
     print('Pipeline completed.')
 
     if output_file:
