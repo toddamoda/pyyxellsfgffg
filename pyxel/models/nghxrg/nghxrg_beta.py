@@ -11,7 +11,7 @@ Modification History:
   Chaz Shapiro (NASA/JPL).
 - Change from setting the shell variable H2RG_PCA0 to point to the PCA-zero
   file to having a shell variable point to the NG home directory. This is per
-  a suggestion from Chaz Shapiro (NASA/JPL) that would allow seamlessly adding  
+  a suggestion from Chaz Shapiro (NASA/JPL) that would allow seamlessly adding
   more PCA-zero templates.
 - Implement a request form Chaz Shapiro (NASA/JPL) for status
   reporting. This was done by adding the "verbose" arguement.
@@ -37,7 +37,7 @@ Modification History:
 - Address PASP referee comments
     * Fast scan direction is now reversible. To reverse the slow scan
       direction use the numpy flipud() function.
-    * Modifications to support subarrays. Specifically, 
+    * Modifications to support subarrays. Specifically,
         > Setting reference_pixel_border_width=0 (integer zero);
             + (1) eliminates the reference pixel border and
             + (2) turns off adding in a bias pattern
@@ -106,7 +106,7 @@ def white_noise(nstep=None):
 class HXRGNoise:
     """
     HXRGNoise is a class for making realistic Teledyne HxRG system
-    noise. The noise model includes correlated,  uncorrelated, 
+    noise. The noise model includes correlated,  uncorrelated,
     stationary,  and non-stationary components. The default parameters
     make noise that resembles Channel 1 of JWST NIRSpec. NIRSpec uses
     H2RG detectors. They are read out using four video outputs at
@@ -116,9 +116,9 @@ class HXRGNoise:
     # These class variables are common to all HxRG detectors
     nghxrg_version = 2.7    # Sofware version
 
-    def __init__(self,  naxis1=None,  naxis2=None,  naxis3=None,  n_out=None, 
-                 dt=None,  nroh=None,  nfoh=None,  pca0_file=None,  verbose=False, 
-                 reverse_scan_direction=False,  reference_pixel_border_width=None, 
+    def __init__(self,  naxis1=None,  naxis2=None,  naxis3=None,  n_out=None,
+                 dt=None,  nroh=None,  nfoh=None,  pca0_file=None,  verbose=False,
+                 reverse_scan_direction=False,  reference_pixel_border_width=None,
                  wind_mode='FULL',  x0=0,  y0=0,  det_size=None):
         """
         Simulate Teledyne HxRG+SIDECAR ASIC system noise.
@@ -198,7 +198,7 @@ class HXRGNoise:
             self.nfoh = 1
         if reference_pixel_border_width is None:
             self.reference_pixel_border_width = 4
-                                              
+
         # Check that det_size is greater than self.naxis1 and self.naxis2 in WINDOW mode (JML)
         if wind_mode == 'WINDOW':
             if self.naxis1 > det_size:
@@ -210,8 +210,9 @@ class HXRGNoise:
 
         # Initialize PCA-zero file and make sure that it exists and is a file
         # self.pca0_file = os.getenv('NGHXRG_HOME')+'/nirspec_pca0.fits' if \
-        self.pca0_file = NGHXRG_HOME + '/nirspec_pca0.fits' if \
-            pca0_file is None else pca0_file
+        if pca0_file is None:
+            self.pca0_file = NGHXRG_HOME + '/nirspec_pca0.fits'
+
         if os.path.isfile(self.pca0_file) is False:
             print('There was an error finding pca0_file! Check to be')
             print('sure that the NGHXRG_HOME shell environment')
@@ -233,11 +234,11 @@ class HXRGNoise:
 
         # Configure readout direction
         self.reverse_scan_direction = reverse_scan_direction
-    
+
         # Compute the number of pixels in the fast-scan direction per
         # output
         self.xsize = self.naxis1 // self.n_out
-            
+
         # Compute the number of time steps per integration,  per
         # output
         self.nstep = (self.xsize+self.nroh) * (self.naxis2+self.nfoh) * self.naxis3
@@ -257,7 +258,7 @@ class HXRGNoise:
         # Also for adding in ACN,  we need a mask that point to just
         # the real pixels in ordered vectors of just the even or odd
         # pixels
-        self.m_short = np.zeros((self.naxis3,  self.naxis2+self.nfoh, 
+        self.m_short = np.zeros((self.naxis3,  self.naxis2+self.nfoh,
                                  (self.xsize+self.nroh)//2))
         self.m_short[:, :self.naxis2, :self.xsize//2] = 1
         self.m_short = np.reshape(self.m_short,  np.size(self.m_short))
@@ -274,7 +275,7 @@ class HXRGNoise:
         self.p_filter1[0] = 0.
         self.p_filter2[0] = 0.
 
-        # Initialize pca0. This includes scaling to the correct size, 
+        # Initialize pca0. This includes scaling to the correct size,
         # zero offsetting,  and renormalization. We use robust statistics
         # because pca0 is real data
         hdu = fits.open(self.pca0_file)
@@ -282,7 +283,7 @@ class HXRGNoise:
         ny_pca0 = hdu[0].header['naxis2']
 
         zoom_factor = 0
-        # Do this slightly differently,  taking into account the 
+        # Do this slightly differently,  taking into account the
         # different types of readout modes (JML)
         # if (nx_pca0 != self.naxis1 or naxis2 != self.naxis2):
         #    zoom_factor = self.naxis1 / nx_pca0
@@ -306,14 +307,14 @@ class HXRGNoise:
             scale1 = self.det_size / nx_pca0
             scale2 = self.det_size / ny_pca0
             zoom_factor = np.max([scale1,  scale2])
-        
+
         # Resize PCA0 data
         if zoom_factor != 1:
             data = zoom(data,  zoom_factor,  order=1,  mode='wrap')
 
         data -= np.median(data)     # Zero offset
         data /= (1.4826*mad(data))  # Renormalize
-    
+
         # Select region of pca0 associated with window position
         if self.wind_mode == 'WINDOW':
             x1 = self.x0
@@ -324,7 +325,7 @@ class HXRGNoise:
         else:
             x1 = 0
             y1 = 0
-    
+
         # print(y1,  self.naxis2) This appears to be a stub
         x2 = x1 + self.naxis1
         y2 = y1 + self.naxis2
@@ -335,7 +336,7 @@ class HXRGNoise:
                          (x1, x2, y1, y2, data.shape[0], data.shape[1]))
             os.sys.exit()
         self.pca0 = data[y1:y2, x1:x2]
-        
+
         # How many reference pixels on each border?
         w = self.reference_pixel_border_width   # Easier to work with
         lower = w-y1
@@ -351,13 +352,13 @@ class HXRGNoise:
         Used for status reporting
         """
         if self.verbose is True:
-            print('NG: ' + message_text + ' at DATETIME = ', 
+            print('NG: ' + message_text + ' at DATETIME = ',
                   datetime.datetime.now().time())
 
     def pink_noise(self,  mode):
         """
         Generate a vector of non-periodic pink noise.
-  
+
         Parameters:
             mode - Selected from {'pink',  'acn'}
         """
@@ -376,14 +377,14 @@ class HXRGNoise:
 
         # Generate seed noise
         mynoise = white_noise(nstep2)
-  
+
         # Save the mean and standard deviation of the first
         # half. These are restored later. We do not subtract the mean
         # here. This happens when we multiply the FFT by the pinkening
         # filter which has no power at f=0.
         the_mean = np.mean(mynoise[:nstep2//2])
         the_std = np.std(mynoise[:nstep2//2])
-  
+
         # Apply the pinkening filter.
         thefft = np.fft.rfft(mynoise)
         thefft = np.multiply(thefft,  p_filter)
@@ -393,13 +394,13 @@ class HXRGNoise:
         # Restore the mean and standard deviation
         result *= the_std / np.std(result)
         result = result - np.mean(result) + the_mean
-          
+
         # Done
         return result
 
-    def mknoise(self,  o_file,  rd_noise=None,  pedestal=None,  c_pink=None, 
-                u_pink=None,  acn=None,  pca0_amp=None, 
-                reference_pixel_noise_ratio=None,  ktc_noise=None, 
+    def mknoise(self,  o_file,  rd_noise=None,  pedestal=None,  c_pink=None,
+                u_pink=None,  acn=None,  pca0_amp=None,
+                reference_pixel_noise_ratio=None,  ktc_noise=None,
                 bias_offset=None,  bias_amp=None):
         """
         Generate a FITS cube containing only noise.
@@ -495,7 +496,7 @@ class HXRGNoise:
 
         # ======================================================================
 
-        # Initialize the result cube. For up-the-ramp integrations, 
+        # Initialize the result cube. For up-the-ramp integrations,
         # we also add a bias pattern. Otherwise,  we assume
         # that the aim was to simulate a two dimensional correlated
         # double sampling image or slope image.
@@ -503,17 +504,17 @@ class HXRGNoise:
         result = np.zeros((self.naxis3,  self.naxis2,  self.naxis1),
                           dtype=np.float32)
         if self.naxis3 > 1:
-            # Inject a bias pattern and kTC noise. If there are no reference pixels, 
+            # Inject a bias pattern and kTC noise. If there are no reference pixels,
             # we know that we are dealing with a subarray. In this case,  we do not
             # inject any bias pattern for now.
             # if self.reference_pixel_border_width > 0:
             #    bias_pattern = self.pca0*bias_amp + bias_offset
             # else:
             #    bias_pattern = bias_offset
-            
+
             # Always inject bias pattern. Works for WINDOW and STRIPE (JML)
             bias_pattern = self.pca0 * bias_amp + bias_offset
-            
+
             # Add in some kTC noise. Since this should always come out
             # in calibration,  we do not attempt to model it in detail.
             bias_pattern += ktc_noise * np.random.standard_normal((self.naxis2,  self.naxis1))
@@ -524,7 +525,7 @@ class HXRGNoise:
             # Updated to conform to Python >=2.6. (JML)
             # bias_pattern[bias_pattern < 0] = 0
             # Actually,  I think this makes the most sense to do at the very end (JML)
-        
+
             # Add in the bias pattern
             for z in np.arange(self.naxis3):
                 result[z, :, :] += bias_pattern
@@ -536,7 +537,7 @@ class HXRGNoise:
             r = reference_pixel_noise_ratio  # Easier to work with
             for z in np.arange(self.naxis3):
                 here = np.zeros((self.naxis2,  self.naxis1))
-                
+
                 # Noisy reference pixels for each side of detector
                 if w[0] > 0:    # lower
                     here[:w[0], :] = r * rd_noise * np.random.standard_normal((w[0], self.naxis1))
@@ -546,14 +547,14 @@ class HXRGNoise:
                     here[:, :w[2]] = r * rd_noise * np.random.standard_normal((self.naxis2, w[2]))
                 if w[3] > 0:    # right
                     here[:, -w[3]:] = r * rd_noise * np.random.standard_normal((self.naxis2, w[3]))
-                                    
+
                 # Noisy regular pixels
                 if np.sum(w) > 0:   # Ref. pixels exist in frame
                     here[w[0]:self.naxis2-w[1], w[2]:self.naxis1-w[3]] = \
                         rd_noise * np.random.standard_normal((self.naxis2-w[0]-w[1], self.naxis1-w[2]-w[3]))
                 else:   # No Ref. pixels,  so add only regular pixels
                     here = rd_noise * np.random.standard_normal((self.naxis2, self.naxis1))
-                
+
                 # Add the noise in to the result
                 result[z, :, :] += here
 
@@ -605,7 +606,7 @@ class HXRGNoise:
 
                 # Reformat into an image section. This uses the formula
                 # mentioned above.
-                acn_cube = np.reshape(np.transpose(np.vstack((a, b))), 
+                acn_cube = np.reshape(np.transpose(np.vstack((a, b))),
                                       (self.naxis3, self.naxis2, self.xsize))
 
                 # Add in the ACN. Because pink noise is stationary,  we can
@@ -636,14 +637,14 @@ class HXRGNoise:
         # integer
         if self.naxis3 > 1:
             # Data will be converted to 16-bit unsigned int
-            # Ensure that there are no negative pixel values. 
+            # Ensure that there are no negative pixel values.
             result[result < 0] = 0
             # And that anything higher than 65535 gets tacked to the top end
             result[result >= 2**16] = 2**16 - 1
 
             self.message('Converting to 16-bit unsigned integer')
             result = result.astype('uint16')
-       
+
         # Create HDU
         hdu = fits.PrimaryHDU(result)
         hdu.header.append()
@@ -656,12 +657,12 @@ class HXRGNoise:
                            'PCA zero,  AKA picture frame'))
         hdu.header['HISTORY'] = 'Created by NGHXRG version ' \
                                 + str(self.nghxrg_version)
-                                
+
         # Write the result to a FITS file
         if o_file is not None:
             self.message('Writing FITS file')
             hdu.writeto(o_file,  clobber='True')
 
         self.message('Exiting mknoise()')
-        
+
         return hdu
