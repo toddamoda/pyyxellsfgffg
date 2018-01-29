@@ -163,15 +163,22 @@ class HXRGNoise:
             x0 = 0
 
         # Default clocking pattern is JWST NIRSpec
-        self.naxis1 = 2048  if naxis1   is None else naxis1
-        self.naxis2 = 2048  if naxis2   is None else naxis2
-        self.naxis3 = 1     if naxis3   is None else naxis3
-        self.n_out  = 4     if n_out    is None else n_out
-        self.dt     = 1.e-5 if dt       is None else dt
-        self.nroh   = 12    if nroh     is None else nroh
-        self.nfoh   = 1     if nfoh     is None else nfoh
-        self.reference_pixel_border_width = 4 if reference_pixel_border_width is None \
-                                              else reference_pixel_border_width
+        if naxis1 is None:
+            self.naxis1 = 2048
+        if naxis2 is None:
+            self.naxis2 = 2048
+        if naxis3 is None:
+            self.naxis3 = 1
+        if n_out is None:
+            self.n_out = 4
+        if dt is None:
+            self.dt = 1.e-5
+        if nroh is None:
+            self.nroh = 12
+        if nfoh is None:
+            self.nfoh = 1
+        if reference_pixel_border_width is None:
+            self.reference_pixel_border_width = 4
                                               
         # Check that det_size is greater than self.naxis1 and self.naxis2 in WINDOW mode (JML)
         if wind_mode == 'WINDOW':
@@ -200,7 +207,7 @@ class HXRGNoise:
 
         # Configure Subarray (JML)
         self.wind_mode = wind_mode
-        self.det_size  = det_size
+        self.det_size = det_size
         self.x0 = x0
         self.y0 = y0
 
@@ -244,7 +251,7 @@ class HXRGNoise:
 
         # Define pinkening filters. F1 and p_filter1 are used to
         # generate ACN. F2 and p_filter2 are used to generate 1/f noise.
-        self.alpha = -1 # Hard code for 1/f noise until proven otherwise
+        self.alpha = -1     # Hard code for 1/f noise until proven otherwise
         self.p_filter1 = np.sqrt(self.f1**self.alpha)
         self.p_filter2 = np.sqrt(self.f2**self.alpha)
         self.p_filter1[0] = 0.
@@ -308,7 +315,7 @@ class HXRGNoise:
         if x2 > data.shape[0] or y2 > data.shape[1]:
             _log.warning('Specified window size does not fit within detector array!')
             _log.warning('X indices: [%s, %s]; Y indices: [%s, %s]; XY Size: [%s,  %s]' %
-                        (x1, x2, y1, y2, data.shape[0], data.shape[1]))
+                         (x1, x2, y1, y2, data.shape[0], data.shape[1]))
             os.sys.exit()
         self.pca0 = data[y1:y2, x1:x2]
         
@@ -350,14 +357,14 @@ class HXRGNoise:
 
         # Configure depending on mode setting
         if mode is 'pink':
-            nstep  = 2*self.nstep
-            nstep2 = 2*self.nstep2 # JML
-            f = self.f2
+            nstep = 2*self.nstep
+            nstep2 = 2*self.nstep2  # JML
+            # f = self.f2
             p_filter = self.p_filter2
         else:
-            nstep  = self.nstep
-            nstep2 = self.nstep2 # JML
-            f = self.f1
+            nstep = self.nstep
+            nstep2 = self.nstep2    # JML
+            # f = self.f1
             p_filter = self.p_filter1
 
         # Generate seed noise
@@ -450,26 +457,34 @@ class HXRGNoise:
         # These defaults create noise similar to that seen in the JWST NIRSpec.
         #
         # ======================================================================
-
-        self.rd_noise  = 5.2      if rd_noise     is None else rd_noise
-        self.pedestal  = 4        if pedestal     is None else pedestal
-        self.c_pink    = 3        if c_pink       is None else c_pink
-        self.u_pink    = 1        if u_pink       is None else u_pink
-        self.acn       = 0.5      if acn          is None else acn
-        self.pca0_amp  = 0.2      if pca0_amp     is None else pca0_amp
+        if rd_noise is None:
+            self.rd_noise = 5.2
+        if pedestal is None:
+            self.pedestal = 4
+        if c_pink is None:
+            self.c_pink = 3
+        if u_pink is None:
+            self.u_pink = 1
+        if acn is None:
+            self.acn = 0.5
+        if pca0_amp is None:
+            self.pca0_amp = 0.2
 
         # Change this only if you know that your detector is different from a
         # typical H2RG.
-        self.reference_pixel_noise_ratio = 0.8 if \
-            reference_pixel_noise_ratio is None else reference_pixel_noise_ratio
+        if reference_pixel_noise_ratio is None:
+            self.reference_pixel_noise_ratio = 0.8
 
         # These are used only when generating cubes. They are
         # completely removed when the data are calibrated to
         # correlated double sampling or slope images. We include
         # them in here to make more realistic looking raw cubes.
-        self.ktc_noise = 29.     if ktc_noise   is None else ktc_noise 
-        self.bias_offset = 5000. if bias_offset is None else bias_offset
-        self.bias_amp    = 500.  if bias_amp    is None else bias_amp
+        if ktc_noise is None:
+            self.ktc_noise = 29.
+        if bias_offset is None:
+            self.bias_offset = 5000.
+        if bias_amp is None:
+            self.bias_amp = 500.
 
         # ======================================================================
 
