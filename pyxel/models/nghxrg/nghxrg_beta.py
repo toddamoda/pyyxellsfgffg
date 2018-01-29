@@ -64,9 +64,10 @@ Modification History:
 
 29 Jan 2018,  David Lucsanyi, ESA/ESTEC
 - Code has been made PEP8 compatible
-- fixed NGHXRG_HOME file path
-- fixed make_noise() variables (which are not self)
-- commented out unused code for acn arrays
+- Fixed NGHXRG_HOME file path
+- Fixed make_noise() variables
+- Bug fixed in ACN mask, now code works with any naxis1, naxis2 and n_out values not just default arguments
+- Commented out unused code for ACN arrays
 - make_noise() now returns result numpy array to be able to add to PyXel! signal
 - Integrated into PyXel! detector simulation framework via a wrapper function
 - Version 2.7
@@ -119,7 +120,7 @@ class HXRGNoise:
     nghxrg_version = 2.7    # Sofware version
 
     def __init__(self,  naxis1=2048,  naxis2=2048,  naxis3=1,  n_out=4,
-                 dt=1.e-5,  nroh=12,  nfoh=1,  pca0_file=PCA0FILE,  verbose=False,
+                 dt=1.e-5,  nroh=0,  nfoh=0,  pca0_file=PCA0FILE,  verbose=False,
                  reverse_scan_direction=False,  reference_pixel_border_width=4,
                  wind_mode='FULL',  x0=0,  y0=0,  det_size=2048):
         """
@@ -250,8 +251,7 @@ class HXRGNoise:
         # Compute the number of pixels in the fast-scan direction per output
         self.xsize = self.naxis1 // self.n_out
 
-        # Compute the number of time steps per integration,  per
-        # output
+        # Compute the number of time steps per integration,  per output
         self.nstep = (self.xsize+self.nroh) * (self.naxis2+self.nfoh) * self.naxis3
         # Pad nsteps to a power of 2,  which is much faster (JML)
         self.nstep2 = int(2**np.ceil(np.log2(self.nstep)))
@@ -269,12 +269,11 @@ class HXRGNoise:
         # UNUSED CODE COMMENTED OUT
 
         # Also for adding in ACN,  we need a mask that point to just
-        # the real pixels in ordered vectors of just the even or odd
-        # pixels
-        self.m_short = np.zeros((self.naxis3,  self.naxis2+self.nfoh,
-                                 (self.xsize+self.nroh)//2))
-        self.m_short[:, :self.naxis2, :self.xsize//2] = 1
-        self.m_short = np.reshape(self.m_short,  np.size(self.m_short))
+        # the real pixels in ordered vectors of just the even or odd pixels - BUG FIXED HERE (D.L.)
+        self.m_short = np.zeros((self.naxis3,  (self.naxis2+self.nfoh)//2, self.xsize+self.nroh))
+        self.m_short[:, :self.naxis2//2, :self.xsize] = 1
+        # self.m_short = np.reshape(self.m_short,  np.size(self.m_short))
+        self.m_short = self.m_short.flatten()
 
         # Define frequency arrays
         self.f1 = np.fft.rfftfreq(self.nstep2)         # Frequencies for nstep elements
@@ -407,6 +406,8 @@ class HXRGNoise:
         # Restore the mean and standard deviation
         result *= the_std / np.std(result)
         result = result - np.mean(result) + the_mean
+
+        # if mode is 'acn':
 
         # Done
         return result
@@ -616,10 +617,16 @@ class HXRGNoise:
                 a = a[np.where(self.m_short == 1)]
                 b = b[np.where(self.m_short == 1)]
 
-                # Reformat into an image section. This uses the formula
-                # mentioned above.
-                acn_cube = np.reshape(np.transpose(np.vstack((a, b))),
-                                      (self.naxis3, self.naxis2, self.xsize))
+                half_ch_pixels = self.naxis1 * self.naxis2 // (2*self.n_out)
+                if len(a) != half_ch_pixels:
+                    ValueError('This should not happen: in ACN noise len(a) != number of half ch pixels')
+                    # a = np.append(a, np.zeros(halfchpixels-len(a)))
+                if len(b) != half_ch_pixels:
+                    ValueError('This should not happen: in ACN noise len(b) != number of half ch pixels')
+                    # b = np.append(b, np.zeros(halfchpixels-len(b)))
+
+                # Reformat into an image section. This uses the formula mentioned above.
+                acn_cube = np.reshape(np.transpose(np.vstack((a, b))), (self.naxis3, self.naxis2, self.xsize))
 
                 # Add in the ACN. Because pink noise is stationary,  we can
                 # ignore the readout directions. There is no need to flip
