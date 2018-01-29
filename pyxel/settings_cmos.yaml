@@ -38,14 +38,8 @@ process: !PROCESSOR
   pipeline: !CMOS_PIPELINE   # !CCD_PIPELINE
     # -> photons
     optics: !models
-      shot_noise: !function
-        name: pyxel.models.ccd_noise.add_shot_noise
-  #    ray_tracing: !class
-  #      name: pyxel.models.ccd_noise.OpticsModelRayTracer
-  #      args:
-  #        path: null
-
-    # photons -> compute_charge -> charge
+#      shot_noise: !function
+#        name: pyxel.models.ccd_noise.add_shot_noise
 
     # -> charge
     charge_generation: !models
@@ -66,10 +60,10 @@ process: !PROCESSOR
 
     # -> charge
     charge_collection: !models
-      fixed_pattern_noise: !function
-        name: pyxel.models.ccd_noise.add_fix_pattern_noise
-        kwargs:
-          pix_non_uniformity: !from_file data/non_uniformity_array_normal_stdev0.03.data
+#      fixed_pattern_noise: !function
+#        name: pyxel.models.ccd_noise.add_fix_pattern_noise
+#        kwargs:
+#          pix_non_uniformity: !from_file data/non_uniformity_array_normal_stdev0.03.data
       diffusion: !function
         name: pyxel.models.diffusion.diffusion
 #        kwargs:
@@ -80,10 +74,10 @@ process: !PROCESSOR
 
     # -> signal
     charge_measurement: !models
-      readout_noise: !function
-        name: pyxel.models.ccd_noise.add_output_node_noise
-        kwargs:
-          std_deviation: 1.0
+#      readout_noise: !function
+#        name: pyxel.models.ccd_noise.add_output_node_noise
+#        kwargs:
+#          std_deviation: 1.0
 
    # -> signal
     signal_transfer: !models

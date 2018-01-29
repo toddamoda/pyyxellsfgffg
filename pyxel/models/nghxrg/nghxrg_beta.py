@@ -59,13 +59,13 @@ Modification History:
     * nstep2 = int(2**np.ceil(np.log2(nstep)))
     * Speeds up FFT calculations by ~5x
 - Don't generate noise elements if their magnitudes are equal to 0.
-- mknoise() now returns copy of final HDU result for easy retrieval
+- make_noise() now returns copy of final HDU result for easy retrieval
 - Version 2.6
 
 29 Jan 2018,  David Lucsanyi, ESA/ESTEC
 - Code has been made PEP8 compatible
 - fixed NGHXRG_HOME file path
-- fixed mknoise variables (which are not self)
+- fixed make_noise variables (which are not self)
 - Integrated in PyXel! detector simulation framework
 - Version 2.7
 """
@@ -89,7 +89,7 @@ warnings.filterwarnings('ignore')
 # Have not verified this in Python 3.x (JML):
 _log = logging.getLogger('nghxrg')
 
-NGHXRG_HOME = path.dirname(path.abspath(__file__))
+PCA0FILE = path.dirname(path.abspath(__file__)) + '/nirspec_pca0.fits'
 
 
 def white_noise(nstep=None):
@@ -116,10 +116,10 @@ class HXRGNoise:
     # These class variables are common to all HxRG detectors
     nghxrg_version = 2.7    # Sofware version
 
-    def __init__(self,  naxis1=None,  naxis2=None,  naxis3=None,  n_out=None,
-                 dt=None,  nroh=None,  nfoh=None,  pca0_file=None,  verbose=False,
-                 reverse_scan_direction=False,  reference_pixel_border_width=None,
-                 wind_mode='FULL',  x0=0,  y0=0,  det_size=None):
+    def __init__(self,  naxis1=2048,  naxis2=2048,  naxis3=1,  n_out=4,
+                 dt=1.e-5,  nroh=12,  nfoh=1,  pca0_file=PCA0FILE,  verbose=False,
+                 reverse_scan_direction=False,  reference_pixel_border_width=4,
+                 wind_mode='FULL',  x0=0,  y0=0,  det_size=2048):
         """
         Simulate Teledyne HxRG+SIDECAR ASIC system noise.
 
@@ -159,15 +159,15 @@ class HXRGNoise:
         #
         # The following parameters define the default HxRG clocking pattern. The
         # parameters that define the default noise model are defined in the
-        # mknoise() method.
+        # make_noise() method.
         #
         # ======================================================================
 
         # Subarray Mode? (JML)
-        if wind_mode is None:
-            wind_mode = 'FULL'
-        if det_size is None:
-            det_size = 2048
+        # if wind_mode is None:
+        #     wind_mode = 'FULL'
+        # if det_size is None:
+        #     det_size = 2048
         wind_mode = wind_mode.upper()
         modes = ['FULL',  'STRIPE',  'WINDOW']
         if wind_mode not in modes:
@@ -181,23 +181,33 @@ class HXRGNoise:
         if wind_mode == 'STRIPE':
             x0 = 0
 
+        self.naxis1 = naxis1
+        self.naxis2 = naxis2
+        self.naxis3 = naxis3
+        self.n_out = n_out
+        self.dt = dt
+        self.nroh = nroh
+        self.nfoh = nfoh
+        self.reference_pixel_border_width = reference_pixel_border_width
+        self.pca0_file = pca0_file
+
         # Default clocking pattern is JWST NIRSpec
-        if naxis1 is None:
-            self.naxis1 = 2048
-        if naxis2 is None:
-            self.naxis2 = 2048
-        if naxis3 is None:
-            self.naxis3 = 1
-        if n_out is None:
-            self.n_out = 4
-        if dt is None:
-            self.dt = 1.e-5
-        if nroh is None:
-            self.nroh = 12
-        if nfoh is None:
-            self.nfoh = 1
-        if reference_pixel_border_width is None:
-            self.reference_pixel_border_width = 4
+        # if naxis1 is None:
+        #     self.naxis1 = 2048
+        # if naxis2 is None:
+        #     self.naxis2 = 2048
+        # if naxis3 is None:
+        #     self.naxis3 = 1
+        # if n_out is None:
+        #     self.n_out = 4
+        # if dt is None:
+        #     self.dt = 1.e-5
+        # if nroh is None:
+        #     self.nroh = 12
+        # if nfoh is None:
+        #     self.nfoh = 1
+        # if reference_pixel_border_width is None:
+        #     self.reference_pixel_border_width = 4
 
         # Check that det_size is greater than self.naxis1 and self.naxis2 in WINDOW mode (JML)
         if wind_mode == 'WINDOW':
@@ -210,8 +220,8 @@ class HXRGNoise:
 
         # Initialize PCA-zero file and make sure that it exists and is a file
         # self.pca0_file = os.getenv('NGHXRG_HOME')+'/nirspec_pca0.fits' if \
-        if pca0_file is None:
-            self.pca0_file = NGHXRG_HOME + '/nirspec_pca0.fits'
+        # if pca0_file is None:
+        #     self.pca0_file = NGHXRG_HOME + '/nirspec_pca0.fits'
 
         if os.path.isfile(self.pca0_file) is False:
             print('There was an error finding pca0_file! Check to be')
@@ -235,8 +245,7 @@ class HXRGNoise:
         # Configure readout direction
         self.reverse_scan_direction = reverse_scan_direction
 
-        # Compute the number of pixels in the fast-scan direction per
-        # output
+        # Compute the number of pixels in the fast-scan direction per output
         self.xsize = self.naxis1 // self.n_out
 
         # Compute the number of time steps per integration,  per
@@ -326,7 +335,7 @@ class HXRGNoise:
             x1 = 0
             y1 = 0
 
-        # print(y1,  self.naxis2) This appears to be a stub
+        # print(y1, self.naxis2) This appears to be a stub
         x2 = x1 + self.naxis1
         y2 = y1 + self.naxis2
         # Make sure x2 and y2 are valid
@@ -398,23 +407,19 @@ class HXRGNoise:
         # Done
         return result
 
-    def mknoise(self,  o_file,  rd_noise=None,  pedestal=None,  c_pink=None,
-                u_pink=None,  acn=None,  pca0_amp=None,
-                reference_pixel_noise_ratio=None,  ktc_noise=None,
-                bias_offset=None,  bias_amp=None):
+    def make_noise(self, rd_noise=5.2, c_pink=3, u_pink=1, acn=0.5, pca0_amp=0.2,
+                   reference_pixel_noise_ratio=0.8, ktc_noise=29., bias_offset=5000., bias_amp=500.):
         """
         Generate a FITS cube containing only noise.
 
         Parameters:
-            o_file   - Output filename
-            pedestal - NOT IMPLEMENTED! Magnitude of pedestal drift in electrons
             rd_noise - Standard deviation of read noise in electrons
             c_pink   - Standard deviation of correlated pink noise in electrons
             u_pink   - Standard deviation of uncorrelated pink noise in
                        electrons
             acn      - Standard deviation of alternating column noise in
                        electrons
-            pca0     - Standard deviation of pca0 in electrons
+            pca0_amp - Standard deviation of pca0 in electrons
             reference_pixel_noise_ratio - Ratio of the standard deviation of
                                           the reference pixels to the regular
                                           pixels. Reference pixels are usually
@@ -430,6 +435,8 @@ class HXRGNoise:
                           to simulate a bias pattern. This is completely
                           independent from adding in "picture frame" noise.
 
+            pedestal - NOT IMPLEMENTED! Magnitude of pedestal drift in electrons
+
         Note1:
         Because of the noise correlations,  there is no simple way to
         predict the noise of the simulated images. However,  to a
@@ -442,9 +449,7 @@ class HXRGNoise:
         actually the physical entity that is collected in Teledyne's p-on-n
         (p-type implants in n-type bulk) HgCdTe architecture.
 
-        :param o_file:
         :param rd_noise:
-        :param pedestal:
         :param c_pink:
         :param u_pink:
         :param acn:
@@ -456,7 +461,7 @@ class HXRGNoise:
         :return:
         """
 
-        self.message('Starting mknoise()')
+        self.message('Starting make_noise()')
 
         # ======================================================================
         #
@@ -465,34 +470,34 @@ class HXRGNoise:
         # These defaults create noise similar to that seen in the JWST NIRSpec.
         #
         # ======================================================================
-        if rd_noise is None:
-            rd_noise = 5.2
-        # if pedestal is None:
-        #     pedestal = 4
-        if c_pink is None:
-            c_pink = 3
-        if u_pink is None:
-            u_pink = 1
-        if acn is None:
-            acn = 0.5
-        if pca0_amp is None:
-            pca0_amp = 0.2
+        # if rd_noise is None:
+        #     rd_noise = 5.2
+        # # if pedestal is None:
+        # #     pedestal = 4
+        # if c_pink is None:
+        #     c_pink = 3
+        # if u_pink is None:
+        #     u_pink = 1
+        # if acn is None:
+        #     acn = 0.5
+        # if pca0_amp is None:
+        #     pca0_amp = 0.2
 
         # Change this only if you know that your detector is different from a
         # typical H2RG.
-        if reference_pixel_noise_ratio is None:
-            reference_pixel_noise_ratio = 0.8
+        # if reference_pixel_noise_ratio is None:
+        #     reference_pixel_noise_ratio = 0.8
 
         # These are used only when generating cubes. They are
         # completely removed when the data are calibrated to
         # correlated double sampling or slope images. We include
         # them in here to make more realistic looking raw cubes.
-        if ktc_noise is None:
-            ktc_noise = 29.
-        if bias_offset is None:
-            bias_offset = 5000.
-        if bias_amp is None:
-            bias_amp = 500.
+        # if ktc_noise is None:
+        #     ktc_noise = 29.
+        # if bias_offset is None:
+        #     bias_offset = 5000.
+        # if bias_amp is None:
+        #     bias_amp = 500.
 
         # ======================================================================
 
@@ -570,7 +575,10 @@ class HXRGNoise:
                 # By default fast-scan readout direction is [-->, <--, -->, <--]
                 # If reverse_scan_direction is True,  then [<--, -->, <--, -->]
                 # Would be nice to include option for all --> or all <--
-                modnum = 1 if self.reverse_scan_direction else 0
+                if self.reverse_scan_direction:
+                    modnum = 1
+                else:
+                    modnum = 0
                 if np.mod(op, 2) == modnum:
                     result[:, :, x0:x1] += tt
                 else:
@@ -645,24 +653,26 @@ class HXRGNoise:
             self.message('Converting to 16-bit unsigned integer')
             result = result.astype('uint16')
 
-        # Create HDU
+        self.message('Exiting make_noise()')
+
+        return result
+
+    def create_hdu(self, result, o_file=None):
+        """
+        Create HDU file and saving data to it
+        :return:
+        """
         hdu = fits.PrimaryHDU(result)
-        hdu.header.append()
-        hdu.header.append(('RD_NOISE',  rd_noise,  'Read noise'))
-        # hdu.header.append(('PEDESTAL',  pedestal,  'Pedestal drifts'))
-        hdu.header.append(('C_PINK',  c_pink,  'Correlated pink'))
-        hdu.header.append(('U_PINK',  u_pink,  'Uncorrelated pink'))
-        hdu.header.append(('ACN',  acn,  'Alternating column noise'))
-        hdu.header.append(('PCA0',  pca0_amp,
-                           'PCA zero,  AKA picture frame'))
-        hdu.header['HISTORY'] = 'Created by NGHXRG version ' \
-                                + str(self.nghxrg_version)
+        # hdu.header.append()
+        # hdu.header.append(('RD_NOISE',  rd_noise,  'Read noise'))
+        # # hdu.header.append(('PEDESTAL',  pedestal,  'Pedestal drifts'))
+        # hdu.header.append(('C_PINK',  c_pink,  'Correlated pink'))
+        # hdu.header.append(('U_PINK',  u_pink,  'Uncorrelated pink'))
+        # hdu.header.append(('ACN',  acn,  'Alternating column noise'))
+        # hdu.header.append(('PCA0',  pca0_amp, 'PCA zero,  AKA picture frame'))
+        # hdu.header['HISTORY'] = 'Created by NGHXRG version ' + str(self.nghxrg_version)
 
         # Write the result to a FITS file
         if o_file is not None:
             self.message('Writing FITS file')
             hdu.writeto(o_file,  clobber='True')
-
-        self.message('Exiting mknoise()')
-
-        return hdu
