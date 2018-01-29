@@ -1,2 +1,2 @@
 include versioneer.py
-include pyxerl/_version.py
+include pyxel/_version.py
