@@ -22,7 +22,7 @@ def run_nghxrg(detector: CMOS,
     new_detector = copy.deepcopy(detector)
 
     ng_h2rg = HXRGNoise(naxis1=new_detector.col, naxis2=new_detector.row, naxis3=1,
-                        n_out=1,
+                        n_out=4,
                         # dt=None,
                         # nroh=None, nfoh=None,
                         # pca0_file=None,
@@ -47,6 +47,7 @@ def run_nghxrg(detector: CMOS,
     # if we add this to the signal(V) then it should be float otherwise int
 
     new_detector.signal += result   # TODO: Use new_detector.signal OR new_detector.image ?
+    # new_detector.signal = result   # TEMPORARY
 
     ng_h2rg.create_hdu(result, 'pyxel/hxrg_noise.fits')
 

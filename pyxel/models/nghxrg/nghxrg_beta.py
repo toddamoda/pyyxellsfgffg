@@ -65,8 +65,10 @@ Modification History:
 29 Jan 2018,  David Lucsanyi, ESA/ESTEC
 - Code has been made PEP8 compatible
 - fixed NGHXRG_HOME file path
-- fixed make_noise variables (which are not self)
-- Integrated in PyXel! detector simulation framework
+- fixed make_noise() variables (which are not self)
+- commented out unused code for acn arrays
+- make_noise() now returns result numpy array to be able to add to PyXel! signal
+- Integrated into PyXel! detector simulation framework via a wrapper function
 - Version 2.7
 """
 # Necessary for Python 2.6 and later (JML)
@@ -254,15 +256,17 @@ class HXRGNoise:
         # Pad nsteps to a power of 2,  which is much faster (JML)
         self.nstep2 = int(2**np.ceil(np.log2(self.nstep)))
 
-        # For adding in ACN,  it is handy to have masks of the even
+        # For adding in ACN, it is handy to have masks of the even
         # and odd pixels on one output neglecting any gaps
-        self.m_even = np.zeros((self.naxis3, self.naxis2, self.xsize))
-        self.m_odd = np.zeros_like(self.m_even)
-        for x in np.arange(0, self.xsize, 2):
-            self.m_even[:, :self.naxis2, x] = 1
-            self.m_odd[:, :self.naxis2, x+1] = 1
-        self.m_even = np.reshape(self.m_even,  np.size(self.m_even))
-        self.m_odd = np.reshape(self.m_odd,  np.size(self.m_odd))
+        # UNUSED CODE COMMENTED OUT
+        # self.m_even = np.zeros((self.naxis3, self.naxis2, self.xsize))
+        # self.m_odd = np.zeros_like(self.m_even)
+        # for x in np.arange(0, self.xsize, 2):
+        #     self.m_even[:, :self.naxis2, x] = 1
+        #     self.m_odd[:, :self.naxis2, x+1] = 1
+        # self.m_even = np.reshape(self.m_even,  np.size(self.m_even))
+        # self.m_odd = np.reshape(self.m_odd,  np.size(self.m_odd))
+        # UNUSED CODE COMMENTED OUT
 
         # Also for adding in ACN,  we need a mask that point to just
         # the real pixels in ordered vectors of just the even or odd
@@ -506,8 +510,8 @@ class HXRGNoise:
         # that the aim was to simulate a two dimensional correlated
         # double sampling image or slope image.
         self.message('Initializing results cube')
-        result = np.zeros((self.naxis3,  self.naxis2,  self.naxis1),
-                          dtype=np.float32)
+        result = np.zeros((self.naxis3,  self.naxis2,  self.naxis1), dtype=np.float32)
+
         if self.naxis3 > 1:
             # Inject a bias pattern and kTC noise. If there are no reference pixels,
             # we know that we are dealing with a subarray. In this case,  we do not
@@ -633,7 +637,7 @@ class HXRGNoise:
             gamma = np.reshape(gamma,  (self.naxis3, self.naxis2))
             for z in np.arange(self.naxis3):
                 for y in np.arange(self.naxis2):
-                    result[z, y, :] += pca0_amp*self.pca0[y, :]*gamma[z, y]
+                    result[z, y, :] += pca0_amp * self.pca0[y, :] * gamma[z, y]
 
         # If the data cube has only 1 frame,  reformat into a 2-dimensional
         # image.
