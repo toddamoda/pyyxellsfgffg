@@ -412,61 +412,61 @@ class HXRGNoise:
         # Done
         return result
 
-    def make_noise(self, rd_noise=5.2, c_pink=3, u_pink=1, acn=0.5, pca0_amp=0.2,
-                   reference_pixel_noise_ratio=0.8, ktc_noise=29., bias_offset=5000., bias_amp=500.):
-        """
-        Generate a FITS cube containing only noise.
-
-        Parameters:
-            rd_noise - Standard deviation of read noise in electrons
-            c_pink   - Standard deviation of correlated pink noise in electrons
-            u_pink   - Standard deviation of uncorrelated pink noise in
-                       electrons
-            acn      - Standard deviation of alternating column noise in
-                       electrons
-            pca0_amp - Standard deviation of pca0 in electrons
-            reference_pixel_noise_ratio - Ratio of the standard deviation of
-                                          the reference pixels to the regular
-                                          pixels. Reference pixels are usually
-                                          a little lower noise.
-            ktc_noise   - kTC noise in electrons. Set this equal to
-                          sqrt(k*T*C_pixel)/q_e,  where k is Boltzmann's
-                          constant,  T is detector temperature,  and C_pixel is
-                          pixel capacitance. For an H2RG,  the pixel capacitance
-                          is typically about 40 fF.
-            bias_offset - On average,  integrations start here in electrons. Set
-                          this so that all pixels are in range.
-            bias_amp    - A multiplicative factor that we multiply PCA-zero by
-                          to simulate a bias pattern. This is completely
-                          independent from adding in "picture frame" noise.
-
-            pedestal - NOT IMPLEMENTED! Magnitude of pedestal drift in electrons
-
-        Note1:
-        Because of the noise correlations,  there is no simple way to
-        predict the noise of the simulated images. However,  to a
-        crude first approximation,  these components add in
-        quadrature.
-
-        Note2:
-        The units in the above are mostly "electrons". This follows convention
-        in the astronomical community. From a physics perspective,  holes are
-        actually the physical entity that is collected in Teledyne's p-on-n
-        (p-type implants in n-type bulk) HgCdTe architecture.
-
-        :param rd_noise:
-        :param c_pink:
-        :param u_pink:
-        :param acn:
-        :param pca0_amp:
-        :param reference_pixel_noise_ratio:
-        :param ktc_noise:
-        :param bias_offset:
-        :param bias_amp:
-        :return:
-        """
-
-        self.message('Starting make_noise()')
+    # def make_noise(self, rd_noise=5.2, c_pink=3, u_pink=1, acn=0.5, pca0_amp=0.2,
+    #                reference_pixel_noise_ratio=0.8, ktc_noise=29., bias_offset=5000., bias_amp=500.):
+    #     """
+    #     Generate a FITS cube containing only noise.
+    #
+    #     Parameters:
+    #         rd_noise - Standard deviation of read noise in electrons
+    #         c_pink   - Standard deviation of correlated pink noise in electrons
+    #         u_pink   - Standard deviation of uncorrelated pink noise in
+    #                    electrons
+    #         acn      - Standard deviation of alternating column noise in
+    #                    electrons
+    #         pca0_amp - Standard deviation of pca0 in electrons
+    #         reference_pixel_noise_ratio - Ratio of the standard deviation of
+    #                                       the reference pixels to the regular
+    #                                       pixels. Reference pixels are usually
+    #                                       a little lower noise.
+    #         ktc_noise   - kTC noise in electrons. Set this equal to
+    #                       sqrt(k*T*C_pixel)/q_e,  where k is Boltzmann's
+    #                       constant,  T is detector temperature,  and C_pixel is
+    #                       pixel capacitance. For an H2RG,  the pixel capacitance
+    #                       is typically about 40 fF.
+    #         bias_offset - On average,  integrations start here in electrons. Set
+    #                       this so that all pixels are in range.
+    #         bias_amp    - A multiplicative factor that we multiply PCA-zero by
+    #                       to simulate a bias pattern. This is completely
+    #                       independent from adding in "picture frame" noise.
+    #
+    #         pedestal - NOT IMPLEMENTED! Magnitude of pedestal drift in electrons
+    #
+    #     Note1:
+    #     Because of the noise correlations,  there is no simple way to
+    #     predict the noise of the simulated images. However,  to a
+    #     crude first approximation,  these components add in
+    #     quadrature.
+    #
+    #     Note2:
+    #     The units in the above are mostly "electrons". This follows convention
+    #     in the astronomical community. From a physics perspective,  holes are
+    #     actually the physical entity that is collected in Teledyne's p-on-n
+    #     (p-type implants in n-type bulk) HgCdTe architecture.
+    #
+    #     :param rd_noise:
+    #     :param c_pink:
+    #     :param u_pink:
+    #     :param acn:
+    #     :param pca0_amp:
+    #     :param reference_pixel_noise_ratio:
+    #     :param ktc_noise:
+    #     :param bias_offset:
+    #     :param bias_amp:
+    #     :return:
+    #     """
+    #
+    #     self.message('Starting make_noise()')
 
         # ======================================================================
         #
@@ -510,11 +510,22 @@ class HXRGNoise:
         # we also add a bias pattern. Otherwise,  we assume
         # that the aim was to simulate a two dimensional correlated
         # double sampling image or slope image.
-        self.message('Initializing results cube')
-        result = np.zeros((self.naxis3,  self.naxis2,  self.naxis1), dtype=np.float32)
+        # self.message('Initializing results cube')
+        # result = np.zeros((self.naxis3,  self.naxis2,  self.naxis1), dtype=np.float32)
+
+    def add_ktc_bias_noise(self, ktc_noise, bias_amp, bias_offset):
+        """
+        Inject a bias pattern and kTC noise.
+        :param ktc_noise:
+        :param bias_amp:
+        :param bias_offset:
+        :return:
+        """
+        result = np.zeros((self.naxis3, self.naxis2, self.naxis1), dtype=np.float32)
 
         if self.naxis3 > 1:
-            # Inject a bias pattern and kTC noise. If there are no reference pixels,
+            self.message('Generating ktc_bias_noise')
+            # If there are no reference pixels,
             # we know that we are dealing with a subarray. In this case,  we do not
             # inject any bias pattern for now.
             # if self.reference_pixel_border_width > 0:
@@ -540,7 +551,17 @@ class HXRGNoise:
             for z in np.arange(self.naxis3):
                 result[z, :, :] += bias_pattern
 
-        # Make white read noise. This is the same for all pixels.
+        return result
+
+    def add_white_read_noise(self, rd_noise, reference_pixel_noise_ratio):
+        """
+        Make white read noise. This is the same for all pixels.
+        :param rd_noise:
+        :param reference_pixel_noise_ratio:
+        :return:
+        """
+        result = np.zeros((self.naxis3, self.naxis2, self.naxis1), dtype=np.float32)
+
         if rd_noise > 0:
             self.message('Generating rd_noise')
             w = self.ref_all
@@ -568,7 +589,16 @@ class HXRGNoise:
                 # Add the noise in to the result
                 result[z, :, :] += here
 
-        # Add correlated pink noise.
+        return result
+
+    def add_corr_pink_noise(self, c_pink):
+        """
+        Add correlated pink noise.
+        :param c_pink:
+        :return:
+        """
+        result = np.zeros((self.naxis3, self.naxis2, self.naxis1), dtype=np.float32)
+
         if c_pink > 0:
             self.message('Adding c_pink noise')
             tt = c_pink * self.pink_noise('pink')   # tt is a temp. variable
@@ -581,16 +611,25 @@ class HXRGNoise:
                 # If reverse_scan_direction is True,  then [<--, -->, <--, -->]
                 # Would be nice to include option for all --> or all <--
                 if self.reverse_scan_direction:
-                    modnum = 1
+                    mod_num = 1
                 else:
-                    modnum = 0
-                if np.mod(op, 2) == modnum:
+                    mod_num = 0
+                if np.mod(op, 2) == mod_num:
                     result[:, :, x0:x1] += tt
                 else:
                     result[:, :, x0:x1] += tt[:, :, ::-1]
 
-        # Add uncorrelated pink noise. Because this pink noise is stationary and
-        # different for each output,  we don't need to flip it.
+        return result
+
+    def add_uncorr_pink_noise(self, u_pink):
+        """
+        Add uncorrelated pink noise. Because this pink noise is stationary and
+        different for each output,  we don't need to flip it.
+        :param u_pink:
+        :return:
+        """
+        result = np.zeros((self.naxis3, self.naxis2, self.naxis1), dtype=np.float32)
+
         if u_pink > 0:
             self.message('Adding u_pink noise')
             for op in np.arange(self.n_out):
@@ -601,11 +640,19 @@ class HXRGNoise:
                                      self.xsize+self.nroh))[:, :self.naxis2, :self.xsize]
                 result[:, :, x0:x1] += tt
 
-        # Add ACN
+        return result
+
+    def add_acn_noise(self, acn):
+        """
+        Add Alternating Column Noise (ACN)
+        :param acn:
+        :return:
+        """
+        result = np.zeros((self.naxis3, self.naxis2, self.naxis1), dtype=np.float32)
+
         if acn > 0:
             self.message('Adding acn noise')
             for op in np.arange(self.n_out):
-
                 # Generate new pink noise for each even and odd vector.
                 # We give these the abstract names 'a' and 'b' so that we
                 # can use a previously worked out formula to turn them
@@ -635,7 +682,16 @@ class HXRGNoise:
                 x1 = x0 + self.xsize
                 result[:, :, x0:x1] += acn_cube
 
-        # Add PCA-zero. The PCA-zero template is modulated by 1/f.
+        return result
+
+    def add_pca_zero_noise(self, pca0_amp):
+        """
+        Add PCA-zero. The PCA-zero template is modulated by 1/f.
+        :param pca0_amp:
+        :return:
+        """
+        result = np.zeros((self.naxis3, self.naxis2, self.naxis1), dtype=np.float32)
+
         if pca0_amp > 0:
             self.message('Adding PCA-zero "picture frame" noise')
             gamma = self.pink_noise(mode='pink')
@@ -646,8 +702,15 @@ class HXRGNoise:
                 for y in np.arange(self.naxis2):
                     result[z, y, :] += pca0_amp * self.pca0[y, :] * gamma[z, y]
 
-        # If the data cube has only 1 frame,  reformat into a 2-dimensional
-        # image.
+        return result
+
+    def format_result(self, result):
+        """
+        If the data cube has only 1 frame,  reformat into a 2-dimensional image.
+        :param result:
+        :return:
+        """
+
         if self.naxis3 == 1:
             self.message('Reformatting cube into image')
             result = result[0, :, :]
