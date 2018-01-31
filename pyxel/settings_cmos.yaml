@@ -87,8 +87,8 @@ process: !PROCESSOR
           rd_noise: 4.  # 4.       # White read noise per integration
           c_pink: 3.   # 3.         # Correlated pink noise
           u_pink: 1.    # 1.         # Uncorrelated pink noise
-          acn: 0.                # Correlated ACN
-          pca0_amp: .2   # 0.2      # Amplitude of PCA zero "picture frame" noise
+          acn: 5.               # Correlated ACN
+          pca0_amp: 0.2   # 0.2      # Amplitude of PCA zero "picture frame" noise
 
     # -> signal
     readout_electronics: !models

@@ -513,7 +513,7 @@ class HXRGNoise:
         # self.message('Initializing results cube')
         # result = np.zeros((self.naxis3,  self.naxis2,  self.naxis1), dtype=np.float32)
 
-    def add_ktc_bias_noise(self, ktc_noise, bias_amp, bias_offset):
+    def add_ktc_bias_noise(self, ktc_noise=29., bias_offset=5000., bias_amp=500.):
         """
         Inject a bias pattern and kTC noise.
         :param ktc_noise:
@@ -553,7 +553,7 @@ class HXRGNoise:
 
         return result
 
-    def add_white_read_noise(self, rd_noise, reference_pixel_noise_ratio):
+    def add_white_read_noise(self, rd_noise=5.2, reference_pixel_noise_ratio=0.8):
         """
         Make white read noise. This is the same for all pixels.
         :param rd_noise:
@@ -591,7 +591,7 @@ class HXRGNoise:
 
         return result
 
-    def add_corr_pink_noise(self, c_pink):
+    def add_corr_pink_noise(self, c_pink=3.):
         """
         Add correlated pink noise.
         :param c_pink:
@@ -621,7 +621,7 @@ class HXRGNoise:
 
         return result
 
-    def add_uncorr_pink_noise(self, u_pink):
+    def add_uncorr_pink_noise(self, u_pink=1.):
         """
         Add uncorrelated pink noise. Because this pink noise is stationary and
         different for each output,  we don't need to flip it.
@@ -642,7 +642,7 @@ class HXRGNoise:
 
         return result
 
-    def add_acn_noise(self, acn):
+    def add_acn_noise(self, acn=0.5):
         """
         Add Alternating Column Noise (ACN)
         :param acn:
@@ -684,7 +684,7 @@ class HXRGNoise:
 
         return result
 
-    def add_pca_zero_noise(self, pca0_amp):
+    def add_pca_zero_noise(self, pca0_amp=0.2):
         """
         Add PCA-zero. The PCA-zero template is modulated by 1/f.
         :param pca0_amp:

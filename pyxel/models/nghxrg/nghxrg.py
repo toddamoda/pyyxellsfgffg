@@ -31,17 +31,16 @@ def run_nghxrg(detector: CMOS,
                         # wind_mode='FULL',
                         # x0=0, y0=0,
                         # det_size=100,
-                        verbose=True
-                        )
+                        verbose=True)
 
-    result = ng_h2rg.make_noise(rd_noise=rd_noise,
-                                c_pink=c_pink, u_pink=u_pink,
-                                acn=acn,
-                                pca0_amp=pca0_amp,
-                                # reference_pixel_noise_ratio=None,
-                                # ktc_noise=None,
-                                # bias_offset=None, bias_amp=None
-                                )
+    result = ng_h2rg.add_ktc_bias_noise()   # ktc_noise=None, bias_offset=None, bias_amp=None)
+    result += ng_h2rg.add_white_read_noise(rd_noise=rd_noise)   # , reference_pixel_noise_ratio=None)
+    result += ng_h2rg.add_corr_pink_noise(c_pink=c_pink)
+    result += ng_h2rg.add_uncorr_pink_noise(u_pink=u_pink)
+    result += ng_h2rg.add_acn_noise(acn=acn)
+    result += ng_h2rg.add_pca_zero_noise(pca0_amp=pca0_amp)
+
+    result = ng_h2rg.format_result(result)
 
     result = np.rint(result).astype(int)
     # if we add this to the signal(V) then it should be float otherwise int
