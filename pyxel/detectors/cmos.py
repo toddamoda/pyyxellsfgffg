@@ -9,8 +9,8 @@ import numpy as np
 
 from pyxel.detectors.cmos_characteristics import CMOSCharacteristics
 from pyxel.detectors.environment import Environment
-from pyxel.detectors.geometry import Geometry
-from pyxel.detectors.optics import Optics
+from pyxel.detectors.cmos_geometry import CMOSGeometry
+# from pyxel.detectors.optics import Optics
 
 
 def convert_to_int(value):
@@ -30,7 +30,7 @@ class CMOS:
     """ The CMOS detector class. """
 
     def __init__(self,
-                 geometry: Geometry = None,
+                 geometry: CMOSGeometry = None,
                  environment: Environment = None,
                  characteristics: CMOSCharacteristics = None,
                  photons: int = None,
@@ -156,9 +156,9 @@ class CMOS:
     # def sv(self, newsv):
     #     self.sv = newsv
 
-    @property
-    def accd(self):
-        return self.characteristics.accd
+    # @property
+    # def accd(self):
+    #     return self.characteristics.accd
 
     # @accd.setter
     # def accd(self, newaccd):
@@ -215,3 +215,23 @@ class CMOS:
     @property
     def material_ionization_energy(self):
         return self.geometry.material_ionization_energy
+
+    @property
+    def n_output(self):
+        return self.geometry.n_output
+
+    @property
+    def n_row_overhead(self):
+        return self.geometry.n_row_overhead
+
+    @property
+    def n_frame_overhead(self):
+        return self.geometry.n_frame_overhead
+
+    @property
+    def reverse_scan_direction(self):
+        return self.geometry.reverse_scan_direction
+
+    @property
+    def reference_pixel_border_width(self):
+        return self.geometry.reference_pixel_border_width

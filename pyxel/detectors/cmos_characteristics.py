@@ -2,12 +2,28 @@
 
 class CMOSCharacteristics:
 
-    def __init__(self, **kwargs):
-        self.k = kwargs.get('k', 0.0)   # * u.adu                   # camera gain constant in digital number (DN)
-        self.j = kwargs.get('j', 0.0)   # * u.ph                    # camera gain constant in photon number
-        self.qe = kwargs.get('qe', 0.0)                             # quantum efficiency
-        self.eta = kwargs.get('eta', 0.0)   # * u.electron / u.ph   # quantum yield
-        self.sv = kwargs.get('sv', 0.0)     # * u.V / u.electron      # sensitivity of CCD amplifier [V/-e]
-        self.accd = kwargs.get('accd', 0.0)     # * u.V / u.V         # output amplifier gain
-        self.a1 = kwargs.get('a1', 0)   # * u.V / u.V               # gain of the signal processor
-        self.a2 = kwargs.get('a2', 0)   # * u.adu / u.V             # gain of the ADC
+    def __init__(self,
+                 qe: float = None,
+                 eta: float = None,
+                 sv: float = None,
+                 amp: float = None,
+                 a1: float = None,
+                 a2: float = None
+                 ):
+        """
+
+
+        :param qe:
+        :param eta:
+        :param sv:
+        :param amp:
+        :param a1:
+        :param a2:
+        """
+
+        self.qe = qe        # quantum efficiency
+        self.eta = eta      # * u.electron / u.ph       # quantum yield
+        self.sv = sv        # * u.V / u.electron        # sensitivity of output amplifier [V/-e]
+        self.amp = amp    # * u.V / u.V               # output amplifier gain
+        self.a1 = a1        # * u.V / u.V               # gain of the signal processor
+        self.a2 = a2        # * u.adu / u.V             # gain of the ADC

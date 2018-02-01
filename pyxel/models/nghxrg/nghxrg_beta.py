@@ -121,9 +121,10 @@ class HXRGNoise:
     nghxrg_version = 2.7    # Sofware version
 
     def __init__(self,  naxis1=2048,  naxis2=2048,  naxis3=1,  n_out=4,
-                 dt=1.e-5,  nroh=0,  nfoh=0,  pca0_file=PCA0FILE,  verbose=False,
+                 nroh=0,  nfoh=0,  pca0_file=PCA0FILE,
                  reverse_scan_direction=False,  reference_pixel_border_width=4,
-                 wind_mode='FULL',  x0=0,  y0=0,  det_size=2048):
+                 wind_mode='FULL',  x0=0,  y0=0,  det_size=2048,
+                 verbose=False):
         """
         Simulate Teledyne HxRG+SIDECAR ASIC system noise.
 
@@ -138,7 +139,6 @@ class HXRGNoise:
                           one.
             nroh        - New row overhead in pixels. This allows for a short
                           wait at the end of a row before starting the next one.
-            dt          - Pixel dwell time in seconds
             pca0_file   - Name of a FITS file that contains PCA-zero
             verbose     - Enable this to provide status reporting
             wind_mode   - 'FULL',  'STRIPE',  or 'WINDOW' (JML)
@@ -189,7 +189,7 @@ class HXRGNoise:
         self.naxis2 = naxis2
         self.naxis3 = naxis3
         self.n_out = n_out
-        self.dt = dt
+        # self.dt = dt
         self.nroh = nroh
         self.nfoh = nfoh
         self.reference_pixel_border_width = reference_pixel_border_width
@@ -308,7 +308,7 @@ class HXRGNoise:
 
         data = hdu[0].data
         # Make sure the real PCA image is correctly scaled to size of fake data (JML)
-        # Depends if we're FULL,  STRIPE,  or WINDOW
+        # Depends if we're FULL, STRIPE or WINDOW
         if wind_mode == 'FULL':
             scale1 = self.naxis1 / nx_pca0
             scale2 = self.naxis2 / ny_pca0

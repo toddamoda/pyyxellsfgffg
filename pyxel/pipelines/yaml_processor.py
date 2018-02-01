@@ -4,11 +4,13 @@ from pathlib import Path
 import numpy as np
 import yaml
 
-import pyxel.detectors.ccd_characteristics
-import pyxel.detectors.geometry
-import pyxel.detectors.environment
 from pyxel.detectors.ccd import CCD
 from pyxel.detectors.cmos import CMOS
+import pyxel.detectors.ccd_characteristics
+import pyxel.detectors.cmos_characteristics
+import pyxel.detectors.geometry
+import pyxel.detectors.cmos_geometry
+import pyxel.detectors.environment
 from pyxel.pipelines import detection_pipeline
 from pyxel.util import fitsfile
 from pyxel.util import util
@@ -76,7 +78,7 @@ def _constructor_cmos(loader: PipelineYAML, node: yaml.MappingNode):
     mapping = loader.construct_mapping(node, deep=True)  # type: dict
 
     if 'geometry' in mapping:
-        geometry = pyxel.detectors.geometry.Geometry(**mapping['geometry'])
+        geometry = pyxel.detectors.cmos_geometry.CMOSGeometry(**mapping['geometry'])
     else:
         geometry = None
 
@@ -86,7 +88,7 @@ def _constructor_cmos(loader: PipelineYAML, node: yaml.MappingNode):
         environment = None
 
     if 'characteristics' in mapping:
-        characteristics = pyxel.detectors.ccd_characteristics.CCDCharacteristics(**mapping['characteristics'])
+        characteristics = pyxel.detectors.cmos_characteristics.CMOSCharacteristics(**mapping['characteristics'])
     else:
         characteristics = None
 
