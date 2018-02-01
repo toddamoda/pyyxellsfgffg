@@ -68,7 +68,8 @@ Modification History:
 - Fixed make_noise() variables
 - Bug fixed in ACN mask, now code works with any naxis1, naxis2 and n_out values not just default arguments
 - Commented out unused code for ACN arrays
-- make_noise() now returns result numpy array to be able to add to PyXel! signal
+- make_noise() function separated into different noise generator functions,
+which returns result numpy array to be able to add to PyXel! signal
 - Integrated into PyXel! detector simulation framework via a wrapper function
 - Version 2.7
 """

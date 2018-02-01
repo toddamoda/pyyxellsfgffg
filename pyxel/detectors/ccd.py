@@ -11,6 +11,7 @@ import numpy as np
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.environment import Environment
 from pyxel.detectors.geometry import Geometry
+from pyxel.detectors.optics import Optics
 
 
 def convert_to_int(value):

@@ -1,3 +1,8 @@
+"""
+Geometry class for detector
+"""
+
+
 class Geometry:
 
     def __init__(self, row=0, col=0,

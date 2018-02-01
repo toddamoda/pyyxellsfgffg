@@ -1,9 +1,8 @@
 
 
-class CCDCharacteristics:
+class CMOSCharacteristics:
 
     def __init__(self, **kwargs):
-
         self.k = kwargs.get('k', 0.0)   # * u.adu                   # camera gain constant in digital number (DN)
         self.j = kwargs.get('j', 0.0)   # * u.ph                    # camera gain constant in photon number
         self.qe = kwargs.get('qe', 0.0)                             # quantum efficiency
