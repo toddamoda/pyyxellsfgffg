@@ -50,3 +50,35 @@ def run_nghxrg(detector: CMOS,
     ng_h2rg.create_hdu(result, 'pyxel/hxrg_noise.fits')
 
     return new_detector
+
+
+def white_read_noise(detector: CMOS,
+                     rd_noise: float,
+                     ref_pixel_noise_ratio: float) -> CMOS:
+
+    new_detector = copy.deepcopy(detector)
+
+    ng_h2rg = HXRGNoise(naxis1=new_detector.col, naxis2=new_detector.row, naxis3=1,
+                        n_out=4,    # TODO
+                        # dt=None,   # TODO
+                        # nroh=None, nfoh=None,      # TODO
+                        # pca0_file=None,
+                        # reverse_scan_direction=False,
+                        # reference_pixel_border_width=None,
+                        # wind_mode='FULL',
+                        # x0=0, y0=0,
+                        # det_size=100,
+                        verbose=True)
+
+    result = ng_h2rg.add_white_read_noise(rd_noise=rd_noise, reference_pixel_noise_ratio=ref_pixel_noise_ratio)
+
+    result = ng_h2rg.format_result(result)
+
+    result = np.rint(result).astype(int)
+    # if we add this to the signal(V) then it should be float otherwise int
+
+    new_detector.signal += result   # TODO: Use new_detector.signal OR new_detector.image ?
+
+    ng_h2rg.create_hdu(result, 'pyxel/hxrg_noise.fits')
+
+    return new_detector

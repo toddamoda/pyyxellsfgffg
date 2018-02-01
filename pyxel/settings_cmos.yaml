@@ -90,5 +90,12 @@ process: !PROCESSOR
           acn: 5.               # Correlated ACN
           pca0_amp: 0.2   # 0.2      # Amplitude of PCA zero "picture frame" noise
 
+      nghxrg_read: !function
+        name: pyxel.models.nghxrg.nghxrg.white_read_noise
+        kwargs:
+          rd_noise: 4.  # 4.       # White read noise per integration
+          ref_pixel_noise_ratio: 0.8
+
+
     # -> signal
     readout_electronics: !models

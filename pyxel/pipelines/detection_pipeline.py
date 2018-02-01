@@ -196,7 +196,7 @@ class CMOSDetectionPipeline:
         # -> modify signal ->
         detector.signal = detector.pixels.generate_signal()
 
-        steps = ['nghxrg']
+        steps = ['nghxrg_read']     # 'nghxrg',
         for step in steps:
             func = self.signal_transfer.models.get(step)
             if func:
