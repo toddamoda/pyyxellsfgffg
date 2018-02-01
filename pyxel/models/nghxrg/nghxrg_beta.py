@@ -175,8 +175,9 @@ class HXRGNoise:
         wind_mode = wind_mode.upper()
         modes = ['FULL',  'STRIPE',  'WINDOW']
         if wind_mode not in modes:
+            raise ValueError()
             # _log.warning('%s not a valid window readout mode! Returning...' % inst_params['wind_mode'])  # ERROR WTF
-            os.sys.exit()
+            # os.sys.exit()
         if wind_mode == 'WINDOW':
             n_out = 1
         if wind_mode == 'FULL':
@@ -216,11 +217,13 @@ class HXRGNoise:
         # Check that det_size is greater than self.naxis1 and self.naxis2 in WINDOW mode (JML)
         if wind_mode == 'WINDOW':
             if self.naxis1 > det_size:
-                _log.warning('NAXIS1 %s greater than det_size %s! Returning...' % (self.naxis1, det_size))
-                os.sys.exit()
+                raise ValueError()
+                # _log.warning('NAXIS1 %s greater than det_size %s! Returning...' % (self.naxis1, det_size))
+                # os.sys.exit()
             if self.naxis2 > det_size:
-                _log.warning('NAXIS2 %s greater than det_size %s! Returning...' % (self.naxis1, det_size))
-                os.sys.exit()
+                raise ValueError()
+                # _log.warning('NAXIS2 %s greater than det_size %s! Returning...' % (self.naxis1, det_size))
+                # os.sys.exit()
 
         # Initialize PCA-zero file and make sure that it exists and is a file
         # self.pca0_file = os.getenv('NGHXRG_HOME')+'/nirspec_pca0.fits' if \
@@ -233,7 +236,8 @@ class HXRGNoise:
             print('variable is set correctly and that the')
             print('$NGHXRG_HOME/ directory contains the desired PCA0')
             print('file. The default is nirspec_pca0.fits.')
-            os.sys.exit()
+            raise ValueError()
+            # os.sys.exit()
 
         # ======================================================================
 
@@ -344,10 +348,11 @@ class HXRGNoise:
         y2 = y1 + self.naxis2
         # Make sure x2 and y2 are valid
         if x2 > data.shape[0] or y2 > data.shape[1]:
-            _log.warning('Specified window size does not fit within detector array!')
-            _log.warning('X indices: [%s, %s]; Y indices: [%s, %s]; XY Size: [%s,  %s]' %
-                         (x1, x2, y1, y2, data.shape[0], data.shape[1]))
-            os.sys.exit()
+            raise ValueError()
+            # _log.warning('Specified window size does not fit within detector array!')
+            # _log.warning('X indices: [%s, %s]; Y indices: [%s, %s]; XY Size: [%s,  %s]' %
+            #              (x1, x2, y1, y2, data.shape[0], data.shape[1]))
+            # os.sys.exit()
         self.pca0 = data[y1:y2, x1:x2]
 
         # How many reference pixels on each border?

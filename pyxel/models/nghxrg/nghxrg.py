@@ -56,20 +56,47 @@ def run_nghxrg(detector: CMOS,
 def white_read_noise(detector: CMOS,
                      rd_noise: float = None,
                      ref_pixel_noise_ratio: float = None,
-                     window_mode: str = 'FULL',
+                     # window_mode: str = 'FULL',
+                     window_mode: str = 'WINDOW',
                      x0: int = 0,
-                     y0: int = 0) -> CMOS:
+                     y0: int = 0,
+                     wind_x_size: int = 0,
+                     wind_y_size: int = 0
+                     ) -> CMOS:
 
     new_detector = copy.deepcopy(detector)
 
+    # TODO need another det_size parameter, then this can be deleted
     # check whether detector has a square shape:
     det_size = 0
     if new_detector.col == new_detector.row:
-        det_size = new_detector.col     # TODO modify det_size in HXRGNoise class
+        det_size = new_detector.col  # TODO modify det_size in HXRGNoise class
     else:
         NotImplemented()
 
-    ng_h2rg = HXRGNoise(naxis1=new_detector.col, naxis2=new_detector.row, naxis3=1,
+    # TODO move these into a function
+    naxis1 = None
+    naxis2 = None
+    naxis3 = 1
+
+    if window_mode == 'FULL':
+        naxis1 = new_detector.col
+        naxis2 = new_detector.row
+
+    if window_mode == 'WINDOW':
+        naxis1 = wind_x_size
+        naxis2 = wind_y_size
+
+    if window_mode == 'STRIPE':
+        # naxis1 = ????
+        # naxis2 = ????
+        pass
+    else:
+        pass
+
+    ng_h2rg = HXRGNoise(
+                        # naxis1=20, naxis2=20, naxis3=1,
+                        naxis1=naxis1, naxis2=naxis2, naxis3=naxis3,
                         n_out=new_detector.n_output,
                         nroh=new_detector.n_row_overhead,
                         nfoh=new_detector.n_frame_overhead,
@@ -85,11 +112,12 @@ def white_read_noise(detector: CMOS,
 
     result = ng_h2rg.format_result(result)
 
-    result = np.rint(result).astype(int)
-    # if we add this to the signal(V) then it should be float otherwise int
+    # new_detector.signal += result
+    # TODO: add to new_detector.signal OR new_detector.image OR charge dataframe ?
+    # TODO: if result array smaller than signal array ('WINDOW' mode), then find x0,y0 position and add to it there
 
-    new_detector.signal += result   # TODO: Use new_detector.signal OR new_detector.image ?
 
-    ng_h2rg.create_hdu(result, 'pyxel/hxrg_noise.fits')
+
+    ng_h2rg.create_hdu(result, 'pyxel/hxrg_read_noise.fits')
 
     return new_detector
