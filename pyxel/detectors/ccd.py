@@ -58,6 +58,20 @@ class CCD:
         self.environment = environment
         self.characteristics = characteristics
 
+    def __getstate__(self):
+        return {
+            'photons': self._photons,
+            'image': self._image,
+            'geometry': self.geometry,
+            'environment': self.environment,
+            'characteristics': self.characteristics
+        }
+
+    # TODO: create unittests for this method
+    def __eq__(self, obj):
+        assert isinstance(obj, CCD)
+        return self.__getstate__() == obj.__getstate__()
+
     def initialize_detector(self):
         """
         Calculate incident photon number per pixel from image or illumination

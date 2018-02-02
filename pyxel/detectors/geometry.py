@@ -62,6 +62,11 @@ class Geometry:
             'bias_voltage': self.bias_voltage
         }
 
+    # TODO: create unittests for this method
+    def __eq__(self, obj):
+        assert isinstance(obj, Geometry)
+        return self.__getstate__() == obj.__getstate__()
+
     def set_material(self, material):
         """
         Set material properties
