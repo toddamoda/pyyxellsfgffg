@@ -46,7 +46,7 @@ def _constructor_processor(loader: PyxelLoader, node: yaml.MappingNode):
     return obj
 
 
-def _constructor_ccd_characteristics(loader: PyxelLoader, node: yaml.MappingNode):
+def _ccd_characteristics_constructor(loader: PyxelLoader, node: yaml.MappingNode):
     """TBW.
 
     :param loader:
@@ -181,7 +181,7 @@ def _constructor_function(loader: PyxelLoader, node: yaml.ScalarNode):
 
 PyxelLoader.add_constructor('!PROCESSOR', _constructor_processor)
 
-PyxelLoader.add_constructor('!ccd_characteristics', _constructor_ccd_characteristics)
+PyxelLoader.add_constructor('!ccd_characteristics', _ccd_characteristics_constructor)
 PyxelDumper.add_representer(CCDCharacteristics, _ccd_characteristics_representer)
 
 PyxelLoader.add_constructor('!CCD_PIPELINE', _constructor_ccd_pipeline)
