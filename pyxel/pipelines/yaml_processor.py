@@ -16,6 +16,7 @@ from pyxel.pipelines import detection_pipeline
 from pyxel.util import fitsfile
 from pyxel.util import util
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
+from pyxel.detectors.environment import Environment
 
 
 class PyxelLoader(yaml.SafeLoader):
@@ -68,6 +69,31 @@ def _ccd_characteristics_representer(dumper: PyxelDumper, obj: CCDCharacteristic
     """
     mapping = obj.__getstate__()  # type: dict
     out = dumper.represent_mapping('!ccd_characteristics', mapping, flow_style=True)
+    return out
+
+
+def _environment_constructor(loader: PyxelLoader, node: yaml.MappingNode):
+    """TBW.
+
+    :param loader:
+    :param node:
+    :return:
+    """
+    mapping = loader.construct_mapping(node, deep=True)  # type: dict
+
+    obj = Environment(**mapping)
+    return obj
+
+
+def _environment_representer(dumper: PyxelDumper, obj: Environment):
+    """TBW.
+
+    :param dumper:
+    :param obj:
+    :return:
+    """
+    mapping = obj.__getstate__()  # type: dict
+    out = dumper.represent_mapping('!environment', mapping, flow_style=True)
     return out
 
 
@@ -183,6 +209,9 @@ PyxelLoader.add_constructor('!PROCESSOR', _constructor_processor)
 
 PyxelLoader.add_constructor('!ccd_characteristics', _ccd_characteristics_constructor)
 PyxelDumper.add_representer(CCDCharacteristics, _ccd_characteristics_representer)
+
+PyxelLoader.add_constructor('!environment', _environment_constructor)
+PyxelDumper.add_representer(Environment, _environment_representer)
 
 PyxelLoader.add_constructor('!CCD_PIPELINE', _constructor_ccd_pipeline)
 PyxelLoader.add_constructor('!CMOS_PIPELINE', _constructor_cmos_pipeline)

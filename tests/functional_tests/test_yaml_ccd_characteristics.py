@@ -1,30 +1,25 @@
 """Test `PyxelLoader` with `CCDChararacteristics`."""
 
-import pytest
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
-from pyxel.pipelines.yaml_processor import load
 from pyxel.pipelines.yaml_processor import dump
+from pyxel.pipelines.yaml_processor import load
 
 
-@pytest.fixture
-def content1():
-    """Example of YAML content."""
-    return """
-    !ccd_characteristics
-        k: 1
-        j: 2
-        qe: 3
-        eta: 4
-        sv: 5
-        accd: 6
-        a1: 7
-        a2: 8    
-    """
-
-
-def test_loader(content1):
+def test_loader():
     """Test `PyxelLoader`."""
-    obj = load(content1)
+    data = """
+!ccd_characteristics
+  k: 1
+  j: 2
+  qe: 3
+  eta: 4
+  sv: 5
+  accd: 6
+  a1: 7
+  a2: 8
+"""
+
+    obj = load(data)
 
     assert isinstance(obj, CCDCharacteristics)
     assert obj.k == 1
