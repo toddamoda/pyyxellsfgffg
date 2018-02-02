@@ -154,7 +154,7 @@ class CMOSDetectionPipeline:
 
         # OPTICS:
         # -> transport/modify photons ->
-        steps = ['shot_noise']  # , 'ray_tracing', 'diffraction']
+        steps = []  # ['shot_noise']  # , 'ray_tracing', 'diffraction']
         for step in steps:
             func = self.optics.models.get(step)
             if func:
@@ -176,7 +176,7 @@ class CMOSDetectionPipeline:
         detector.pixels = Pixel(detector)
         detector.pixels.generate_pixels()
 
-        steps = ['fixed_pattern_noise']  # ['diffusion', ... , 'full_well']
+        steps = []  # ['fixed_pattern_noise']  # ['diffusion', ... , 'full_well']
         for step in steps:
             func = self.charge_collection.models.get(step)
             if func:
@@ -186,7 +186,7 @@ class CMOSDetectionPipeline:
         # -> create signal ->
         detector.signal = detector.pixels.generate_signal()
 
-        steps = ['output_node_noise']
+        steps = []  # ['output_node_noise']
         for step in steps:
             func = self.charge_measurement.models.get(step)
             if func:
@@ -196,7 +196,7 @@ class CMOSDetectionPipeline:
         # -> modify signal ->
         detector.signal = detector.pixels.generate_signal()
 
-        steps = ['nghxrg_read']     # 'nghxrg',
+        steps = ['nghxrg_read', 'nghxrg_ktc_bias', 'nghxrg_u_pink', 'nghxrg_c_pink', 'nghxrg_acn', 'nghxrg_pca_zero']
         for step in steps:
             func = self.signal_transfer.models.get(step)
             if func:
