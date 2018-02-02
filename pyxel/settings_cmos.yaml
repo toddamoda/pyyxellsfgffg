@@ -6,12 +6,12 @@
 process: !PROCESSOR
 
   detector: !CMOS
-    photons: 10
-    image: null # !from_file data/HorseHead_orig.fits
+    photons: #10
+    image: !from_file data/HorseHead_orig.fits
 
     geometry:
-      row: 100                      # compulsory
-      col: 100                      # compulsory
+      row: 150                      # compulsory
+      col: 200                      # compulsory
       total_thickness: 10.0         # um
       depletion_thickness: 10.0     # um
       field_free_thickness: 0.0     # um
@@ -96,9 +96,13 @@ process: !PROCESSOR
       nghxrg_read: !function
         name: pyxel.models.nghxrg.nghxrg.white_read_noise
         kwargs:
-          rd_noise: 4.                  # White read noise per integration
+          rd_noise: 400.                  # White read noise per integration
           ref_pixel_noise_ratio: 0.8
-
+          window_mode: WINDOW
+          wind_x0: 100
+          wind_y0: 100
+          wind_x_size: 300
+          wind_y_size: 300
 
     # -> signal
     readout_electronics: !models

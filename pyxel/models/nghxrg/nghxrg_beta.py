@@ -48,7 +48,7 @@ Modification History:
 - Make compatible with Python 2.x
     * from __future__ import division
 - Included options for subarray modes (FULL,  WINDOW,  and STRIPE)
-    * Keywords x0 and y0 define a subarray position (lower left corner)
+    * Keywords wind_x0 and wind_y0 define a subarray position (lower left corner)
     * Selects correct pca0 region for subarray underlay
     * Adds reference pixels if they exist within subarray window
 - Tie negative values to 0 and anything >=2^16 to 2^16-1
@@ -121,10 +121,15 @@ class HXRGNoise:
     # These class variables are common to all HxRG detectors
     nghxrg_version = 2.7    # Sofware version
 
-    def __init__(self,  naxis1=2048,  naxis2=2048,  naxis3=1,  n_out=4,
-                 nroh=0,  nfoh=0,  pca0_file=PCA0FILE,
-                 reverse_scan_direction=False,  reference_pixel_border_width=4,
-                 wind_mode='FULL',  x0=0,  y0=0,  det_size=2048,
+    def __init__(self, det_size_x=2048, det_size_y=2048,       # naxis1=2048,  naxis2=2048,
+                 cube_z=1,  n_out=4,   
+                 nroh=0,  nfoh=0,
+                 pca0_file=PCA0FILE,
+                 reverse_scan_direction=False,
+                 reference_pixel_border_width=4,
+                 wind_mode='FULL',
+                 wind_x_size=0, wind_y_size=0, 
+                 wind_x0=0, wind_y0=0,
                  verbose=False):
         """
         Simulate Teledyne HxRG+SIDECAR ASIC system noise.
@@ -143,8 +148,8 @@ class HXRGNoise:
             pca0_file   - Name of a FITS file that contains PCA-zero
             verbose     - Enable this to provide status reporting
             wind_mode   - 'FULL' or 'WINDOW' (JML)
-            x0/y0       - Pixel positions of subarray mode (JML)
-            det_size    - Pixel dimension of full detector (square),  used only
+            wind_x0/wind_y0       - Pixel positions of subarray mode (JML)
+            det_size_x    - Pixel dimension of full detector (square),  used only
                           for WINDOW mode (JML)
             reference_pixel_border_width - Width of reference pixel border
                                            around image area
@@ -156,8 +161,22 @@ class HXRGNoise:
                                      setting =False corresponds to
                                      what HxRG detectors default to
                                      upon power up.
+        :param det_size_x: 
+        :param det_size_y: 
+        :param cube_z: 
+        :param n_out: 
+        :param nroh: 
+        :param nfoh: 
+        :param pca0_file: 
+        :param reverse_scan_direction: 
+        :param reference_pixel_border_width: 
+        :param wind_mode: 
+        :param wind_x_size: 
+        :param wind_y_size: 
+        :param wind_x0: 
+        :param wind_y0: 
+        :param verbose: 
         """
-
         # ======================================================================
         #
         # DEFAULT CLOCKING PARAMETERS
@@ -168,29 +187,24 @@ class HXRGNoise:
         #
         # ======================================================================
 
-        # Subarray Mode? (JML)
-        # if wind_mode is None:
-        #     wind_mode = 'FULL'
-        # if det_size is None:
-        #     det_size = 2048
         wind_mode = wind_mode.upper()
-        # modes = ['FULL',  'STRIPE',  'WINDOW']
-        modes = ['FULL', 'WINDOW']
-        if wind_mode not in modes:
-            raise ValueError()
-            # _log.warning('%s not a valid window readout mode! Returning...' % inst_params['wind_mode'])  # ERROR WTF
-            # os.sys.exit()
         if wind_mode == 'WINDOW':
             n_out = 1
-        if wind_mode == 'FULL':
-            x0 = 0
-            y0 = 0
-        # if wind_mode == 'STRIPE':
-        #     x0 = 0
+            self.naxis1 = wind_x_size
+            self.naxis2 = wind_y_size
+        elif wind_mode == 'FULL':
+            wind_x0 = 0
+            wind_y0 = 0
+            self.naxis1 = det_size_x
+            self.naxis2 = det_size_y
+        # elif wind_mode == 'STRIPE':
+        #     wind_x0 = 0
+        else:
+            raise ValueError("Not a valid window readout mode!")
+            # _log.warning('%s not a valid window readout mode! Returning...' % inst_params['wind_mode'])  # ERROR WTF
+            # os.sys.exit()
 
-        self.naxis1 = naxis1
-        self.naxis2 = naxis2
-        self.naxis3 = naxis3
+        self.naxis3 = cube_z
         self.n_out = n_out
         # self.dt = dt
         self.nroh = nroh
@@ -216,15 +230,15 @@ class HXRGNoise:
         # if reference_pixel_border_width is None:
         #     self.reference_pixel_border_width = 4
 
-        # Check that det_size is greater than self.naxis1 and self.naxis2 in WINDOW mode (JML)
+        # Check that det_size_x is greater than self.naxis1 and self.naxis2 in WINDOW mode (JML)
         if wind_mode == 'WINDOW':
-            if self.naxis1 > det_size:
+            if self.naxis1 > det_size_x:
                 raise ValueError()
-                # _log.warning('NAXIS1 %s greater than det_size %s! Returning...' % (self.naxis1, det_size))
+                # _log.warning('NAXIS1 %s greater than det_size_x %s! Returning...' % (self.naxis1, det_size_x))
                 # os.sys.exit()
-            if self.naxis2 > det_size:
+            if self.naxis2 > det_size_y:
                 raise ValueError()
-                # _log.warning('NAXIS2 %s greater than det_size %s! Returning...' % (self.naxis1, det_size))
+                # _log.warning('NAXIS2 %s greater than det_size_y %s! Returning...' % (self.naxis1, det_size_y))
                 # os.sys.exit()
 
         # Initialize PCA-zero file and make sure that it exists and is a file
@@ -245,9 +259,10 @@ class HXRGNoise:
 
         # Configure Subarray (JML)
         self.wind_mode = wind_mode
-        self.det_size = det_size
-        self.x0 = x0
-        self.y0 = y0
+        self.det_size_x = det_size_x
+        self.det_size_y = det_size_y
+        self.wind_x0 = wind_x0
+        self.wind_y0 = wind_y0
 
         # Configure status reporting
         self.verbose = verbose
@@ -322,9 +337,9 @@ class HXRGNoise:
         # if wind_mode == 'STRIPE':
         #     zoom_factor = self.naxis1 / nx_pca0
         if wind_mode == 'WINDOW':
-            # Scale based on det_size
-            scale1 = self.det_size / nx_pca0
-            scale2 = self.det_size / ny_pca0
+            # Scale based on det_size_x
+            scale1 = self.det_size_x / nx_pca0
+            scale2 = self.det_size_y / ny_pca0
             zoom_factor = np.max([scale1,  scale2])
 
         # Resize PCA0 data
@@ -336,11 +351,11 @@ class HXRGNoise:
 
         # Select region of pca0 associated with window position
         if self.wind_mode == 'WINDOW':
-            x1 = self.x0
-            y1 = self.y0
+            x1 = self.wind_x0
+            y1 = self.wind_y0
         # elif self.wind_mode == 'STRIPE':
         #     x1 = 0
-        #     y1 = self.y0
+        #     y1 = self.wind_y0
         else:
             x1 = 0
             y1 = 0
@@ -360,9 +375,9 @@ class HXRGNoise:
         # How many reference pixels on each border?
         w = self.reference_pixel_border_width   # Easier to work with
         lower = w-y1
-        upper = w-(det_size-y2)
+        upper = w-(det_size_y-y2)
         left = w-x1
-        right = w-(det_size-x2)
+        right = w-(det_size_x-x2)
         ref_all = np.array([lower, upper, left, right])
         ref_all[ref_all < 0] = 0
         self.ref_all = ref_all
@@ -613,8 +628,8 @@ class HXRGNoise:
             tt = np.reshape(tt, (self.naxis3,  self.naxis2+self.nfoh,
                                  self.xsize+self.nroh))[:, :self.naxis2, :self.xsize]
             for op in np.arange(self.n_out):
-                x0 = op * self.xsize
-                x1 = x0 + self.xsize
+                wind_x0 = op * self.xsize
+                x1 = wind_x0 + self.xsize
                 # By default fast-scan readout direction is [-->, <--, -->, <--]
                 # If reverse_scan_direction is True,  then [<--, -->, <--, -->]
                 # Would be nice to include option for all --> or all <--
@@ -623,9 +638,9 @@ class HXRGNoise:
                 else:
                     mod_num = 0
                 if np.mod(op, 2) == mod_num:
-                    result[:, :, x0:x1] += tt
+                    result[:, :, wind_x0:x1] += tt
                 else:
-                    result[:, :, x0:x1] += tt[:, :, ::-1]
+                    result[:, :, wind_x0:x1] += tt[:, :, ::-1]
 
         return result
 
@@ -641,12 +656,12 @@ class HXRGNoise:
         if u_pink > 0:
             self.message('Adding u_pink noise')
             for op in np.arange(self.n_out):
-                x0 = op * self.xsize
-                x1 = x0 + self.xsize
+                wind_x0 = op * self.xsize
+                x1 = wind_x0 + self.xsize
                 tt = u_pink * self.pink_noise('pink')
                 tt = np.reshape(tt, (self.naxis3,  self.naxis2+self.nfoh,
                                      self.xsize+self.nroh))[:, :self.naxis2, :self.xsize]
-                result[:, :, x0:x1] += tt
+                result[:, :, wind_x0:x1] += tt
 
         return result
 
@@ -686,9 +701,9 @@ class HXRGNoise:
                 # Add in the ACN. Because pink noise is stationary,  we can
                 # ignore the readout directions. There is no need to flip
                 # acn_cube before adding it in.
-                x0 = op * self.xsize
-                x1 = x0 + self.xsize
-                result[:, :, x0:x1] += acn_cube
+                wind_x0 = op * self.xsize
+                x1 = wind_x0 + self.xsize
+                result[:, :, wind_x0:x1] += acn_cube
 
         return result
 
