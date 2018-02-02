@@ -17,6 +17,7 @@ from pyxel.util import fitsfile
 from pyxel.util import util
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.environment import Environment
+from pyxel.detectors.geometry import Geometry
 
 
 class PyxelLoader(yaml.SafeLoader):
@@ -47,7 +48,7 @@ def _constructor_processor(loader: PyxelLoader, node: yaml.MappingNode):
     return obj
 
 
-def _ccd_characteristics_constructor(loader: PyxelLoader, node: yaml.MappingNode):
+def _geometry_constructor(loader: PyxelLoader, node: yaml.MappingNode):
     """TBW.
 
     :param loader:
@@ -56,11 +57,11 @@ def _ccd_characteristics_constructor(loader: PyxelLoader, node: yaml.MappingNode
     """
     mapping = loader.construct_mapping(node, deep=True)  # type: dict
 
-    obj = CCDCharacteristics(**mapping)
+    obj = Geometry(**mapping)
     return obj
 
 
-def _ccd_characteristics_representer(dumper: PyxelDumper, obj: CCDCharacteristics):
+def _geometry_representer(dumper: PyxelDumper, obj: Geometry):
     """TBW.
 
     :param dumper:
@@ -68,7 +69,7 @@ def _ccd_characteristics_representer(dumper: PyxelDumper, obj: CCDCharacteristic
     :return:
     """
     mapping = obj.__getstate__()  # type: dict
-    out = dumper.represent_mapping('!ccd_characteristics', mapping, flow_style=True)
+    out = dumper.represent_mapping('!geometry', mapping, flow_style=True)
     return out
 
 
@@ -94,6 +95,31 @@ def _environment_representer(dumper: PyxelDumper, obj: Environment):
     """
     mapping = obj.__getstate__()  # type: dict
     out = dumper.represent_mapping('!environment', mapping, flow_style=True)
+    return out
+
+
+def _ccd_characteristics_constructor(loader: PyxelLoader, node: yaml.MappingNode):
+    """TBW.
+
+    :param loader:
+    :param node:
+    :return:
+    """
+    mapping = loader.construct_mapping(node, deep=True)  # type: dict
+
+    obj = CCDCharacteristics(**mapping)
+    return obj
+
+
+def _ccd_characteristics_representer(dumper: PyxelDumper, obj: CCDCharacteristics):
+    """TBW.
+
+    :param dumper:
+    :param obj:
+    :return:
+    """
+    mapping = obj.__getstate__()  # type: dict
+    out = dumper.represent_mapping('!ccd_characteristics', mapping, flow_style=True)
     return out
 
 
@@ -207,11 +233,14 @@ def _constructor_function(loader: PyxelLoader, node: yaml.ScalarNode):
 
 PyxelLoader.add_constructor('!PROCESSOR', _constructor_processor)
 
-PyxelLoader.add_constructor('!ccd_characteristics', _ccd_characteristics_constructor)
-PyxelDumper.add_representer(CCDCharacteristics, _ccd_characteristics_representer)
+PyxelLoader.add_constructor('!geometry', _geometry_constructor)
+PyxelDumper.add_representer(Geometry, _geometry_representer)
 
 PyxelLoader.add_constructor('!environment', _environment_constructor)
 PyxelDumper.add_representer(Environment, _environment_representer)
+
+PyxelLoader.add_constructor('!ccd_characteristics', _ccd_characteristics_constructor)
+PyxelDumper.add_representer(CCDCharacteristics, _ccd_characteristics_representer)
 
 PyxelLoader.add_constructor('!CCD_PIPELINE', _constructor_ccd_pipeline)
 PyxelLoader.add_constructor('!CMOS_PIPELINE', _constructor_cmos_pipeline)
