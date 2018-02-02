@@ -142,29 +142,30 @@ def _constructor_cmos_pipeline(loader: PyxelLoader, node: yaml.MappingNode):
 def _constructor_ccd(loader: PyxelLoader, node: yaml.MappingNode):
     mapping = loader.construct_mapping(node, deep=True)  # type: dict
 
-    if 'geometry' in mapping:
-        geometry = pyxel.detectors.geometry.Geometry(**mapping['geometry'])
-    else:
-        geometry = None
+    # if 'geometry' in mapping:
+    #     geometry = pyxel.detectors.geometry.Geometry(**mapping['geometry'])
+    # else:
+    #     geometry = None
+    #
+    # if 'environment' in mapping:
+    #     environment = pyxel.detectors.environment.Environment(**mapping['environment'])
+    # else:
+    #     environment = None
+    #
+    # if 'characteristics' in mapping:
+    #     characteristics = pyxel.detectors.ccd_characteristics.CCDCharacteristics(**mapping['characteristics'])
+    # else:
+    #     characteristics = None
 
-    if 'environment' in mapping:
-        environment = pyxel.detectors.environment.Environment(**mapping['environment'])
-    else:
-        environment = None
+    # photons = mapping.get('photons', None)
+    # image = mapping.get('image', None)
 
-    if 'characteristics' in mapping:
-        characteristics = pyxel.detectors.ccd_characteristics.CCDCharacteristics(**mapping['characteristics'])
-    else:
-        characteristics = None
-
-    photons = mapping.get('photons', None)
-    image = mapping.get('image', None)
-
-    obj = CCD(photons=photons,
-              image=image,
-              geometry=geometry,
-              environment=environment,
-              characteristics=characteristics)
+    obj = CCD(**mapping)
+    # obj = CCD(photons=photons,
+    #           image=image,
+    #           geometry=geometry,
+    #           environment=environment,
+    #           characteristics=characteristics)
 
     return obj
 
@@ -251,6 +252,10 @@ PyxelLoader.add_constructor('!CMOS', _constructor_cmos)
 PyxelLoader.add_constructor('!from_file', _constructor_from_file)
 PyxelLoader.add_constructor('!function', _constructor_function)
 PyxelLoader.add_constructor('!models', _constructor_models)
+
+yaml.add_path_resolver('!geometry', ['geometry'], dict, Loader=PyxelLoader)
+yaml.add_path_resolver('!environment', ['environment'], dict, Loader=PyxelLoader)
+yaml.add_path_resolver('!ccd_characteristics', ['characteristics'], dict, Loader=PyxelLoader)
 
 
 def load(stream: t.Union[str, t.TextIO]):
