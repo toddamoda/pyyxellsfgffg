@@ -19,7 +19,23 @@ from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 
 
 class PyxelLoader(yaml.SafeLoader):
-    pass
+    """Custom `SafeLoader` that constructs Pyxel objects.
+
+    This class is not directly instantiated by user code, but instead is
+    used to maintain the available constructor functions that are
+    called when parsing a YAML stream.  See the `PyYaml documentation
+    <http://pyyaml.org/wiki/PyYAMLDocumentation>`_ for details of the
+    class signature."""
+
+
+class PyxelDumper(yaml.SafeDumper):
+    """Custom `SafeDumper` that represents Pyxel objects.
+
+    This class is not directly instantiated by user code, but instead is
+    used to maintain the available constructor functions that are
+    called when parsing a YAML stream.  See the `PyYaml documentation
+    <http://pyyaml.org/wiki/PyYAMLDocumentation>`_ for details of the
+    class signature."""
 
 
 def _constructor_processor(loader: PyxelLoader, node: yaml.MappingNode):
@@ -41,6 +57,18 @@ def _constructor_ccd_characteristics(loader: PyxelLoader, node: yaml.MappingNode
 
     obj = CCDCharacteristics(**mapping)
     return obj
+
+
+def _ccd_characteristics_representer(dumper: PyxelDumper, obj: CCDCharacteristics):
+    """TBW.
+
+    :param dumper:
+    :param obj:
+    :return:
+    """
+    mapping = obj.__getstate__()  # type: dict
+    out = dumper.represent_mapping('!ccd_characteristics', mapping, flow_style=True)
+    return out
 
 
 def _constructor_ccd_pipeline(loader: PyxelLoader, node: yaml.MappingNode):
@@ -154,6 +182,7 @@ def _constructor_function(loader: PyxelLoader, node: yaml.ScalarNode):
 PyxelLoader.add_constructor('!PROCESSOR', _constructor_processor)
 
 PyxelLoader.add_constructor('!ccd_characteristics', _constructor_ccd_characteristics)
+PyxelDumper.add_representer(CCDCharacteristics, _ccd_characteristics_representer)
 
 PyxelLoader.add_constructor('!CCD_PIPELINE', _constructor_ccd_pipeline)
 PyxelLoader.add_constructor('!CMOS_PIPELINE', _constructor_cmos_pipeline)
@@ -173,6 +202,15 @@ def load(stream: t.Union[str, t.TextIO]):
     :return: a python object
     """
     return yaml.load(stream, Loader=PyxelLoader)
+
+
+def dump(data) -> str:
+    """Serialize a Python object into a YAML stream using `PyxelDumper`
+
+    :param data: Object to serialize to YAML.
+    :return: the YAML output as a `str`.
+    """
+    return yaml.dump(data, Dumper=PyxelDumper)
 
 
 def load_config(yaml_file: str):
