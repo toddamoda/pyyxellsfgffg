@@ -1,4 +1,5 @@
 import functools
+import typing as t
 from pathlib import Path
 
 import numpy as np
@@ -149,9 +150,18 @@ PyxelLoader.add_constructor('!function', _constructor_function)
 PyxelLoader.add_constructor('!models', _constructor_models)
 
 
-def load_config(yaml_file):
+def load(stream: t.Union[str, t.TextIO]):
+    """Parse a YAML document.
+
+    :param stream: document to process.
+    :return: a python object
+    """
+    return yaml.load(stream, Loader=PyxelLoader)
+
+
+def load_config(yaml_file: str):
 
     with open(yaml_file, 'r') as file_obj:
-        cfg = yaml.load(file_obj, Loader=PyxelLoader)
+        cfg = load(file_obj)
 
     return cfg
