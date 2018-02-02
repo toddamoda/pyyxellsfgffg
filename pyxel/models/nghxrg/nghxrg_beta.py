@@ -70,6 +70,7 @@ Modification History:
 - Commented out unused code for ACN arrays
 - make_noise() function separated into different noise generator functions,
 which returns result numpy array to be able to add to PyXel! signal
+- removed STRIPE mode (did not work), use WINDOW instead -> BUG: code doesn't work with different x and y array sizes
 - Integrated into PyXel! detector simulation framework via a wrapper function
 - Version 2.7
 """
@@ -141,7 +142,7 @@ class HXRGNoise:
                           wait at the end of a row before starting the next one.
             pca0_file   - Name of a FITS file that contains PCA-zero
             verbose     - Enable this to provide status reporting
-            wind_mode   - 'FULL',  'STRIPE',  or 'WINDOW' (JML)
+            wind_mode   - 'FULL' or 'WINDOW' (JML)
             x0/y0       - Pixel positions of subarray mode (JML)
             det_size    - Pixel dimension of full detector (square),  used only
                           for WINDOW mode (JML)
@@ -173,7 +174,8 @@ class HXRGNoise:
         # if det_size is None:
         #     det_size = 2048
         wind_mode = wind_mode.upper()
-        modes = ['FULL',  'STRIPE',  'WINDOW']
+        # modes = ['FULL',  'STRIPE',  'WINDOW']
+        modes = ['FULL', 'WINDOW']
         if wind_mode not in modes:
             raise ValueError()
             # _log.warning('%s not a valid window readout mode! Returning...' % inst_params['wind_mode'])  # ERROR WTF
@@ -183,8 +185,8 @@ class HXRGNoise:
         if wind_mode == 'FULL':
             x0 = 0
             y0 = 0
-        if wind_mode == 'STRIPE':
-            x0 = 0
+        # if wind_mode == 'STRIPE':
+        #     x0 = 0
 
         self.naxis1 = naxis1
         self.naxis2 = naxis2
@@ -317,8 +319,8 @@ class HXRGNoise:
             scale1 = self.naxis1 / nx_pca0
             scale2 = self.naxis2 / ny_pca0
             zoom_factor = np.max([scale1,  scale2])
-        if wind_mode == 'STRIPE':
-            zoom_factor = self.naxis1 / nx_pca0
+        # if wind_mode == 'STRIPE':
+        #     zoom_factor = self.naxis1 / nx_pca0
         if wind_mode == 'WINDOW':
             # Scale based on det_size
             scale1 = self.det_size / nx_pca0
@@ -336,9 +338,9 @@ class HXRGNoise:
         if self.wind_mode == 'WINDOW':
             x1 = self.x0
             y1 = self.y0
-        elif self.wind_mode == 'STRIPE':
-            x1 = 0
-            y1 = self.y0
+        # elif self.wind_mode == 'STRIPE':
+        #     x1 = 0
+        #     y1 = self.y0
         else:
             x1 = 0
             y1 = 0

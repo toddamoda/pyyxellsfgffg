@@ -60,8 +60,8 @@ def white_read_noise(detector: CMOS,
                      window_mode: str = 'WINDOW',
                      x0: int = 0,
                      y0: int = 0,
-                     wind_x_size: int = 0,
-                     wind_y_size: int = 0
+                     wind_x_size: int = 4,
+                     wind_y_size: int = 4
                      ) -> CMOS:
 
     new_detector = copy.deepcopy(detector)
@@ -75,28 +75,17 @@ def white_read_noise(detector: CMOS,
         NotImplemented()
 
     # TODO move these into a function
-    naxis1 = None
-    naxis2 = None
     naxis3 = 1
-
-    if window_mode == 'FULL':
-        naxis1 = new_detector.col
+    if window_mode == 'FULL':         # this works with different x and y array sizes
+        naxis1 = new_detector.col     # * 2
         naxis2 = new_detector.row
-
-    if window_mode == 'WINDOW':
+    elif window_mode == 'WINDOW':     # TODO: BUG - code doesn't work with different x and y array sizes
         naxis1 = wind_x_size
         naxis2 = wind_y_size
-
-    if window_mode == 'STRIPE':
-        # naxis1 = ????
-        # naxis2 = ????
-        pass
     else:
-        pass
+        raise ValueError()
 
-    ng_h2rg = HXRGNoise(
-                        # naxis1=20, naxis2=20, naxis3=1,
-                        naxis1=naxis1, naxis2=naxis2, naxis3=naxis3,
+    ng_h2rg = HXRGNoise(naxis1=naxis1, naxis2=naxis2, naxis3=naxis3,
                         n_out=new_detector.n_output,
                         nroh=new_detector.n_row_overhead,
                         nfoh=new_detector.n_frame_overhead,
@@ -115,8 +104,6 @@ def white_read_noise(detector: CMOS,
     # new_detector.signal += result
     # TODO: add to new_detector.signal OR new_detector.image OR charge dataframe ?
     # TODO: if result array smaller than signal array ('WINDOW' mode), then find x0,y0 position and add to it there
-
-
 
     ng_h2rg.create_hdu(result, 'pyxel/hxrg_read_noise.fits')
 
