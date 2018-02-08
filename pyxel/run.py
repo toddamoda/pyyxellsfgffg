@@ -21,13 +21,16 @@ def run_pipeline(input_filename, output_file):
     processor = cfg['process']          # type: pyxel.detection_pipeline.Processor
 
     # Step 2: Run the pipeline
-    result = pyxel.detection_pipeline.run_pipeline(processor.ccd, processor.pipeline)  # type: CCD
+    # result = pyxel.detection_pipeline.run_ccd_pipeline(processor.detector, processor.pipeline)  # type: CCD
+    # result = pyxel.detection_pipeline.run_cmos_pipeline(processor.detector, processor.pipeline)  # type: CMOS
+
+    result = processor.pipeline.run_pipeline(processor.detector)  # type: CCD or CMOS
+
     print('Pipeline completed.')
 
     if output_file:
         out = FitsFile(output_file)
-        out.data = result
-        out.save(output_file, override=True)
+        out.save(result.signal, header=None, overwrite=True)        # TODO should replace result.signal to result.image
 
 
 def main():

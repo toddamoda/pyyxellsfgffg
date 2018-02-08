@@ -1,7 +1,18 @@
 import typing as t  # noqa: F401
 
 from pyxel.detectors.ccd import CCD
+from pyxel.detectors.cmos import CMOS
 from pyxel.util import util
+from pyxel.physics.charge import Charge
+from pyxel.physics.photon import Photon
+from pyxel.physics.pixel import Pixel
+
+
+class Processor:
+
+    def __init__(self, detector, pipeline) -> None:
+        self.detector = detector
+        self.pipeline = pipeline
 
 
 class Models:
@@ -18,21 +29,21 @@ class Models:
                 func = value
 
             else:
-                raise NotImplementedError
+                raise NotImplementedError('Model defined in config file is not implemented yet')
 
             new_dct[key] = func
 
         self.models = new_dct                   # type: t.Dict[str, t.Callable]
 
 
-class DetectionPipeline:
+class CCDDetectionPipeline:
 
     def __init__(self,
                  optics: Models,
                  charge_generation: Models,
                  charge_collection: Models,
                  charge_transfer: Models,
-                 charge_readout: Models,
+                 charge_measurement: Models,
                  readout_electronics: Models,
                  doc=None) -> None:
         self.doc = doc
@@ -40,69 +51,165 @@ class DetectionPipeline:
         self.charge_generation = charge_generation
         self.charge_collection = charge_collection
         self.charge_transfer = charge_transfer
-        self.charge_readout = charge_readout
+        self.charge_measurement = charge_measurement
         self.readout_electronics = readout_electronics
 
+    def run_pipeline(self, detector: CCD) -> CCD:
 
-class Processor:
+        # INITIALIZATION (open or generate image):
+        # START -> create photons ->
+        photon_numbers, photon_energies = detector.initialize_detector()
 
-    def __init__(self, ccd: CCD, pipeline: DetectionPipeline) -> None:
-        self.ccd = ccd
-        self.pipeline = pipeline
+        detector.photons = Photon(detector)
+        detector.photons.generate_photons(photon_numbers, photon_energies)
+
+        # OPTICS:
+        # -> transport/modify photons ->
+        steps = ['shot_noise']  # , 'ray_tracing', 'diffraction']
+        for step in steps:
+            func = self.optics.models.get(step)
+            if func:
+                detector = func(detector)
+
+        # CHARGE GENERATION:
+        # -> create charges & remove photons ->
+        detector.charges = Charge(detector)
+
+        steps = ['photoelectrons', 'tars']   # 'xray', 'snowballs']
+        for step in steps:
+            func = self.charge_generation.models.get(step)
+            if func:
+                detector = func(detector)
+
+        # CHARGE COLLECTION:
+        # -> transport/modify charges ->
+        # -> collect charges in pixels ->
+        detector.pixels = Pixel(detector)
+        detector.pixels.generate_pixels()
+
+        steps = ['fixed_pattern_noise', 'full_well']  # ['diffusion', ... , 'full_well']
+        for step in steps:
+            func = self.charge_collection.models.get(step)
+            if func:
+                detector = func(detector)
+
+        # CHARGE TRANSFER:
+        # -> transport/modify pixels ->
+
+        steps = []  # ['cdm']
+        for step in steps:
+            func = self.charge_transfer.models.get(step)
+            if func:
+                detector = func(detector)
+
+        # CHARGE READOUT
+        # -> create signal -> modify signal ->
+        detector.signal = detector.pixels.generate_signal()
+
+        steps = ['output_node_noise']
+        for step in steps:
+            func = self.charge_measurement.models.get(step)
+            if func:
+                detector = func(detector)
+
+        # READOUT ELECTRONICS
+        # -> create image -> modify image -> END
+        # detector.image = detector.signal.generate_image()
+
+        steps = []
+        for step in steps:
+            func = self.readout_electronics.models.get(step)
+            if func:
+                detector = func(detector)
+
+        return detector
 
 
-def run_pipeline(detector: CCD, pipeline: DetectionPipeline) -> CCD:
+class CMOSDetectionPipeline:
 
-    # OPTICS
-    # Stage 1: Apply the Optics model(s). only '.photons' is modified
-    detector.compute_photons()
-    steps = ['shot_noise', 'ray_tracing', 'diffraction']
-    for step in steps:
-        func = pipeline.optics.models.get(step)
-        if func:
-            detector = func(detector)
+    def __init__(self,
+                 optics: Models,
+                 charge_generation: Models,
+                 charge_collection: Models,
+                 charge_measurement: Models,
+                 signal_transfer: Models,
+                 readout_electronics: Models,
+                 doc=None) -> None:
+        self.doc = doc
+        self.optics = optics
+        self.charge_generation = charge_generation
+        self.charge_collection = charge_collection
+        self.charge_measurement = charge_measurement
+        self.signal_transfer = signal_transfer
+        self.readout_electronics = readout_electronics
 
-    # CHARGE GENERATION
-    # calculate charges per pixel
-    detector.compute_charge()
-    steps = ['fixed_pattern_noise', 'tars', 'xray', 'snowballs', 'darkcurrent', 'hotpixel', 'particle_number']
-    for step in steps:
-        func = pipeline.charge_generation.models.get(step)
-        if func:
-            detector = func(detector)
+    def run_pipeline(self, detector: CMOS) -> CMOS:
 
-    # CHARGE COLLECTION
-    steps = []  # ['diffusion']
-    for step in steps:
-        func = pipeline.charge_collection.models.get(step)
-        if func:
-            detector = func(detector)
-    # limiting charges per pixel due to Full Well Capacity
-    detector.charge_excess()
+        # INITIALIZATION (open or generate image):
+        # START -> create photons ->
+        photon_numbers, photon_energies = detector.initialize_detector()
 
-    # CHARGE TRANSFER
-    steps = []
-    for step in steps:
-        func = pipeline.charge_transfer.models.get(step)
-        if func:
-            detector = func(detector)
+        detector.photons = Photon(detector)
+        detector.photons.generate_photons(photon_numbers, photon_energies)
 
-    # CHARGE READOUT
-    detector.compute_signal()
-    # TODO: Convert here the charge object list into a 2d signal array
+        # OPTICS:
+        # -> transport/modify photons ->
+        steps = ['shot_noise']  # , 'ray_tracing', 'diffraction']
+        for step in steps:
+            func = self.optics.models.get(step)
+            if func:
+                detector = func(detector)
 
-    steps = ['output_node_noise']
-    for step in steps:
-        func = pipeline.charge_readout.models.get(step)
-        if func:
-            detector = func(detector)
+        # CHARGE GENERATION:
+        # -> create charges & remove photons ->
+        detector.charges = Charge(detector)
 
-    # READOUT ELECTRONICS
-    detector.compute_readout_signal()
-    steps = []
-    for step in steps:
-        func = pipeline.readout_electronics.models.get(step)
-        if func:
-            detector = func(detector)
+        steps = ['photoelectrons', 'tars']   # 'xray', 'snowballs']
+        for step in steps:
+            func = self.charge_generation.models.get(step)
+            if func:
+                detector = func(detector)
 
-    return detector
+        # CHARGE COLLECTION:
+        # -> transport/modify charges ->
+        # -> collect charges in pixels ->
+        detector.pixels = Pixel(detector)
+        detector.pixels.generate_pixels()
+
+        steps = ['fixed_pattern_noise']  # ['diffusion', ... , 'full_well']
+        for step in steps:
+            func = self.charge_collection.models.get(step)
+            if func:
+                detector = func(detector)
+
+        # CHARGE MEASUREMENT
+        # -> create signal ->
+        detector.signal = detector.pixels.generate_signal()
+
+        steps = ['output_node_noise']
+        for step in steps:
+            func = self.charge_measurement.models.get(step)
+            if func:
+                detector = func(detector)
+
+        # SIGNAL TRANSFER
+        # -> modify signal ->
+        detector.signal = detector.pixels.generate_signal()
+
+        steps = ['nghxrg']
+        for step in steps:
+            func = self.signal_transfer.models.get(step)
+            if func:
+                detector = func(detector)
+
+        # READOUT ELECTRONICS
+        # -> create image -> modify image -> END
+        # detector.image = detector.signal.generate_image()
+
+        steps = []
+        for step in steps:
+            func = self.readout_electronics.models.get(step)
+            if func:
+                detector = func(detector)
+
+        return detector

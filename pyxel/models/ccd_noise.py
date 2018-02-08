@@ -1,51 +1,74 @@
 #   --------------------------------------------------------------------------
-#   Copyright 2017 SCI-FIV, ESA (European Space Agency)
+#   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
 """
 PyXel! CCD noise generator class
 """
 import copy
 from astropy import units as u
-
 import numpy as np
+# from pyxel.physics.photon import Photon
 
 # from . import Model
 
 from pyxel.detectors.ccd import CCD
 
-# from pyxel.models.tars.tars_v3 import TARS
-# from pyxel.models.tars.tars_v3 import TARS_DIR
-# from numpy import pi
 
-
-def apply_shot_noise(ccd: CCD) -> CCD:
-    """ Extract the shot noise
-
-    :param photon_array: (unit photons)
-    :return: (unit photons)
+def add_shot_noise(detector: CCD) -> CCD:
     """
-    new_ccd = copy.deepcopy(ccd)
+    Add shot noise to number of photons
+    :return:
+    """
+    new_detector = copy.deepcopy(detector)
 
-    new_ccd._photons = np.random.poisson(lam=new_ccd._photons.value) * u.ph
+    lambda_list = new_detector.photons.get_photon_numbers()
+    lambda_list = [float(i) for i in lambda_list]
+    new_list = np.random.poisson(lam=lambda_list)  # * u.ph
+    new_detector.photons.change_all_number(new_list)
 
-    return new_ccd
+    return new_detector
 
 
-def add_fix_pattern_noise(ccd: CCD, inplace=True) -> CCD:
+def add_fix_pattern_noise(detector: CCD,
+                          pix_non_uniformity=None,
+                          percentage=None,
+                          inplace=True) -> CCD:
+    """
+    Add fix pattern noise caused by pixel non-uniformity during charge collection
+    :param detector:
+    :param pix_non_uniformity:
+    :param percentage:
+    :param inplace:
+    :return:
+    """
 
     if inplace:
-        new_ccd = copy.deepcopy(ccd)
-        # new_ccd = CCD(ccd)
-        # new_ccd.to_pickle(filename)
-        # new_ccd.to_fits(filename)
+        new_detector = copy.deepcopy(detector)
+        # new_detector = CCD(detector)
+        # new_detector.to_pickle(filename)
+        # new_detector.to_fits(filename)
         # CCD.from_fits(filename)
     else:
-        new_ccd = ccd
+        new_detector = detector
 
-    new_ccd.charge = new_ccd.charge * new_ccd.pix_non_uniformity
-    new_ccd.charge = np.int16(np.rint(new_ccd.charge))
+    if pix_non_uniformity is None and percentage is not None:
+        # generate_pixel_non_uniformity_data(percentage)   # TODO
+        pass
+    else:
+        pix_non_uniformity = pix_non_uniformity.reshape((new_detector.row, new_detector.col))
 
-    return new_ccd
+    pix_rows = new_detector.pixels.get_pixel_positions_ver()
+    pix_cols = new_detector.pixels.get_pixel_positions_hor()
+
+    charge_with_noise = np.zeros((new_detector.row, new_detector.col), dtype=float)
+    charge_with_noise[pix_rows, pix_cols] = new_detector.pixels.get_pixel_charges()
+
+    charge_with_noise *= pix_non_uniformity
+
+    new_detector.pixels.change_all_charges(np.rint(charge_with_noise).astype(int).flatten())
+    # TODO add np.rint and np.int to Pixels class funcs
+
+    return new_detector
 
 
 def add_output_node_noise(ccd: CCD, std_deviation: float) -> CCD:
