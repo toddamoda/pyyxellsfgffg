@@ -96,7 +96,7 @@ class CCDDetectionPipeline:
         # CHARGE TRANSFER:
         # -> transport/modify pixels ->
 
-        steps = []  # ['cdm']
+        steps = ['cdm']  # ['cdm']
         for step in steps:
             func = self.charge_transfer.models.get(step)
             if func:

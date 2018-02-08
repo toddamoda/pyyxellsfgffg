@@ -14,22 +14,26 @@ parameters in parallel and serial direction.
 
 :version: 0.35
 """
-
+import copy
+from os import path
 import numpy as np
 from pyxel.models.cdm.CDMtest import write_fits_file
+from pyxel.detectors.ccd import CCD
 
 
-def main():
-    """ main entry point. """
+def cdm(detector: CCD) -> CCD:
+    """ CDM wrapper """
+
+    new_detector = copy.deepcopy(detector)
 
     # lines = dict(
-    ystart1 = 15     # 1064
-    ystop1 = 16      # 1075
-    xstart1 = 25
-    xstop1 = 26
+    ystart1 = 5     # 1064
+    ystop1 = 6      # 1075
+    xstart1 = 5
+    xstop1 = 6
 
     # image = np.zeros((2066, 2048), dtype=np.float32)
-    image = np.zeros((50, 50), dtype=np.float32)
+    image = np.zeros((10, 10), dtype=np.float32)
 
     charge_injection = 100.
 
@@ -38,13 +42,15 @@ def main():
     # add vertical charge injection lines
     image[:, xstart1:xstop1] = charge_injection
 
-    write_fits_file(image, 'before_cti.fits', unsigned16bit=False)
+    # write_fits_file(image, 'before_cti.fits', unsigned16bit=False)
 
-    cdm = CDM03Python(image)
+    cdm = CDM03Python()
     # image_cti = cdm.radiate_ccd()
     # image_cti = cdm.radiate_ccd_transpose()
     image_cti = cdm.apply_radiation_damage(image, iquadrant=0)
     write_fits_file(image_cti, 'after_cti.fits', unsigned16bit=False)
+
+    return new_detector
 
 
 class CDM03Python:
@@ -52,57 +58,28 @@ class CDM03Python:
     Class to run CDM03 CTI model, class Fortran routine to perform the actual CDM03 calculations.
     """
 
-    def __init__(self, data):     # settings , log=None
+    def __init__(self):     # data, settings , log=None
         """
         Class constructor.
 
         # :param settings: input parameters
         # :type settings: dict
-        :param data: input data to be radiated
-        :type data: ndarray
+        # :param data: input data to be radiated
+        # :type data: ndarray
         # :param log: instance to Python logging
         # :type log: logging instance
         """
-        self.data = data
+        # self.data = data
 
         # self.quads = (0, 1, 2, 3)
-        self.quads = 0
+        # self.quads = 0
 
-        self.xsize = 50     # 2048      # BUG has to be same as image shape
-        self.ysize = 50     # 2066      # BUG has to be same as image shape
+        # self.xsize = 50     # 2048      # BUG has to be same as image shape
+        # self.ysize = 50     # 2066      # BUG has to be same as image shape
 
-        # self.values = dict(quads=(0, 1, 2, 3), xsize=2048, ysize=2066, dob=0.0, rdose=8.0e9)
-        # self.dob=0.0
-        # self.rdose=8.0e9
-        # self.values.update(settings)
+        parallel_trap_file = path.dirname(path.abspath(__file__)) + '\cdm_euclid_parallel.dat'
+        serial_trap_file = path.dirname(path.abspath(__file__)) + '\cdm_euclid_serial.dat'
 
-        # self.log = log
-        # self.logger = True
-        # self._setupLogger()
-
-        # default CDM03 settings
-        # self.params = dict(beta_p=0.6, beta_s=0.6, fwc=200000., vth=1.168e7, vg=6.e-11, t=20.48e-3,
-        #                    sfwc=730000., svg=1.0e-10, st=5.0e-6, parallel=1., serial=1.)
-        # update with inputs
-        # self.params.update(self.values)
-
-        parallel_trap_file = 'cdm_euclid_parallel.dat'
-        serial_trap_file = 'cdm_euclid_serial.dat'
-
-        # trapdata = np.loadtxt(parallel_trap_file)
-        # nt_p = trapdata[:, 0]
-        # sigma_p = trapdata[:, 1]
-        # tr_p = trapdata[:, 2]
-        #
-        # trapdata = np.loadtxt(serial_trap_file)
-        # nt_s = trapdata[:, 0]
-        # sigma_s = trapdata[:, 1]
-        # tr_s = trapdata[:, 2]
-
-        self.sigma_p = 0.
-        self.sigma_s = 0.
-        self.nt_p = 0.
-        self.nt_s = 0.
         # read in trap information
         trapdata = np.loadtxt(parallel_trap_file)
         if trapdata.ndim > 1:
@@ -114,7 +91,7 @@ class CDM03Python:
             # self.nt_p = [trapdata[0], ]
             # self.sigma_p = [trapdata[1], ]
             # self.tr_p = [trapdata[2], ]
-            pass
+            pass    # TODO
 
         trapdata = np.loadtxt(serial_trap_file)
         if trapdata.ndim > 1:
@@ -126,7 +103,7 @@ class CDM03Python:
             # self.nt_s = [trapdata[0], ]
             # self.sigma_s = [trapdata[1], ]
             # self.tr_s = [trapdata[2], ]
-            pass
+            pass    # TODO
 
         self.rdose = 8.0e11
         self.dob = 0.0
@@ -393,18 +370,20 @@ class CDM03Python:
         if parallel_cti:
             print('adding parallel')
             alpha_p = self.t * self.sigma_p * self.vth * self.fwc ** self.beta_p / 2. / self.vg
-            g_p = self.nt_p * 2.0 * self.vg / self.fwc ** self.beta_p
+            g_p = self.nt_p * 2. * self.vg / self.fwc ** self.beta_p
+
+            gamm_p = g_p * np.arange(ydim).reshape((ydim, 1))
 
             for i in range(ydim):
                 print(i)
-                gamm_p = g_p * i
+                # gamm_p = g_p * i
                 for k in range(zdim_p):
                     for j in range(xdim):
                         nc = 0.
 
-                        if s[i,  j] > 0.01:
-                            nc = max((gamm_p[k] * s[i, j] ** self.beta_p - no[j, k]) /
-                                     (gamm_p[k] * s[i, j] ** (self.beta_p - 1.) + 1.) *
+                        if s[i, j] > 0.01:
+                            nc = max((gamm_p[i, k] * s[i, j] ** self.beta_p - no[j, k]) /
+                                     (gamm_p[i, k] * s[i, j] ** (self.beta_p - 1.) + 1.) *
                                      (1. - np.exp(-alpha_p[k] * s[i, j] ** (1. - self.beta_p))), 0.)
 
                         no[j, k] += nc
@@ -418,17 +397,19 @@ class CDM03Python:
             alpha_s = self.st * self.sigma_s * self.vth * self.sfwc ** self.beta_s / 2. / self.svg
             g_s = self.nt_s * 2. * self.svg / self.sfwc ** self.beta_s
 
+            gamm_s = g_s * np.arange(xdim).reshape((xdim, 1))
+
             for j in range(xdim):
                 print(j)
-                gamm_s = g_s * j
+                # gamm_s = g_s * j
                 for k in range(zdim_s):
-                    if self.tr_s[k] < self.t:
+                    if self.tr_s[k] < self.t:       # TODO repalce this condition
                         for i in range(ydim):
                             nc = 0.
 
                             if s[i, j] > 0.01:
-                                nc = max((gamm_s[k] * s[i, j] ** self.beta_s-sno[i, k]) /
-                                         (gamm_s[k] * s[i, j] ** (self.beta_s-1.)+1.) *
+                                nc = max((gamm_s[j, k] * s[i, j] ** self.beta_s - sno[i, k]) /
+                                         (gamm_s[j, k] * s[i, j] ** (self.beta_s - 1.) + 1.) *
                                          (1. - np.exp(-alpha_s[k] * s[i, j] ** (1. - self.beta_s))), 0.)
 
                             sno[i, k] += nc
@@ -436,12 +417,9 @@ class CDM03Python:
                             s[i, j] += -1 * nc + nr
                             sno[i, k] -= nr
 
-        for i in range(ydim):
-            for j in range(xdim):
-                sout[i + iflip * (xdim + 1 - 2 * i), j + jflip * (ydim + 1 - 2 * j)] = s[i, j]
+        # for i in range(ydim):
+        #     for j in range(xdim):
+                # sout[i + iflip * (xdim + 1 - 2 * i), j + jflip * (ydim + 1 - 2 * j)] = s[i, j]
 
-        return sout
-
-
-if __name__ == '__main__':
-    main()
+        # return sout
+        return s
