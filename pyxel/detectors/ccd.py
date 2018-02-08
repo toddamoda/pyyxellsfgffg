@@ -11,6 +11,7 @@ import numpy as np
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.environment import Environment
 from pyxel.detectors.geometry import Geometry
+# from pyxel.detectors.optics import Optics
 
 
 def convert_to_int(value):
@@ -34,8 +35,7 @@ class CCD:
                  environment: Environment = None,
                  characteristics: CCDCharacteristics = None,
                  photons: int = None,
-                 image=None,
-                 ) -> None:
+                 image=None) -> None:
 
         if photons is not None and image is None:
             self._photon_mean = photons
@@ -56,6 +56,20 @@ class CCD:
         self.geometry = geometry
         self.environment = environment
         self.characteristics = characteristics
+
+    def __getstate__(self):
+        return {
+            'photons': self._photons,
+            'image': self._image,
+            'geometry': self.geometry,
+            'environment': self.environment,
+            'characteristics': self.characteristics
+        }
+
+    # TODO: create unittests for this method
+    def __eq__(self, obj):
+        assert isinstance(obj, CCD)
+        return self.__getstate__() == obj.__getstate__()
 
     def initialize_detector(self):
         """

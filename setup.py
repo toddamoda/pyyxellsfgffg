@@ -48,6 +48,7 @@ setup(
     description=versioneer.get_cmdclass(),
     long_description=open('README.rst').read(),
     author=pyxel.__author__,
+    author_email=pyxel.__author_email__,
     url='http://www.esa.int',
     license='MIT',
     keywords='esa',

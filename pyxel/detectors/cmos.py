@@ -7,9 +7,10 @@ CMOS detector modeling class
 
 import numpy as np
 
-from pyxel.detectors.ccd_characteristics import CCDCharacteristics
+from pyxel.detectors.cmos_characteristics import CMOSCharacteristics
 from pyxel.detectors.environment import Environment
-from pyxel.detectors.geometry import Geometry
+from pyxel.detectors.cmos_geometry import CMOSGeometry
+# from pyxel.detectors.optics import Optics
 
 
 def convert_to_int(value):
@@ -29,9 +30,9 @@ class CMOS:
     """ The CMOS detector class. """
 
     def __init__(self,
-                 geometry: Geometry = None,
+                 geometry: CMOSGeometry = None,
                  environment: Environment = None,
-                 characteristics: CCDCharacteristics = None,
+                 characteristics: CMOSCharacteristics = None,
                  photons: int = None,
                  image=None,
                  ) -> None:
@@ -66,7 +67,7 @@ class CMOS:
 
         if self._image is not None and self._photon_mean is None:
             self.row, self.col = self._image.shape
-            photon_number_list = self._image / (self.qe * self.eta * self.sv * self.accd * self.a1 * self.a2)
+            photon_number_list = self._image / (self.qe * self.eta * self.sv * self.amp * self.a1 * self.a2)
             photon_number_list = np.rint(photon_number_list).astype(int).flatten()
 
         if self._photon_mean is not None and self._image is None:
@@ -156,12 +157,8 @@ class CMOS:
     #     self.sv = newsv
 
     @property
-    def accd(self):
-        return self.characteristics.accd
-
-    # @accd.setter
-    # def accd(self, newaccd):
-    #     self.accd = newaccd
+    def amp(self):
+        return self.characteristics.amp
 
     @property
     def a1(self):
@@ -214,3 +211,23 @@ class CMOS:
     @property
     def material_ionization_energy(self):
         return self.geometry.material_ionization_energy
+
+    @property
+    def n_output(self):
+        return self.geometry.n_output
+
+    @property
+    def n_row_overhead(self):
+        return self.geometry.n_row_overhead
+
+    @property
+    def n_frame_overhead(self):
+        return self.geometry.n_frame_overhead
+
+    @property
+    def reverse_scan_direction(self):
+        return self.geometry.reverse_scan_direction
+
+    @property
+    def reference_pixel_border_width(self):
+        return self.geometry.reference_pixel_border_width

@@ -63,10 +63,6 @@ List of available models.
 
 .. autosummary::
     ccd_noise
-    diffusion_model
 
 .. automodule:: pyxel.models.ccd_noise
-    :members:
-
-.. automodule:: pyxel.models.diffusion_model
     :members:

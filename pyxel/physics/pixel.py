@@ -46,14 +46,14 @@ class Pixel:
 
     def generate_signal(self):
         """
-        Read output signal of detector pixels as a 2d numpy array
+        Read output signal of detector pixels as a 2d numpy array, unit: Volts
         :return:
         """
         charge_per_pixel = self.get_pixel_charges()
         pixel_index_ver = self.get_pixel_positions_ver()
         pixel_index_hor = self.get_pixel_positions_hor()
 
-        signal_2d_array = np.zeros((self.detector.row, self.detector.col), dtype=int)
+        signal_2d_array = np.zeros((self.detector.row, self.detector.col), dtype=float)
         signal_2d_array[pixel_index_ver, pixel_index_hor] = charge_per_pixel
 
         return signal_2d_array

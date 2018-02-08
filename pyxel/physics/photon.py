@@ -4,12 +4,13 @@
 """
 PyXel! Photon class to generate and track photons
 """
-import numpy as np
 import math
 import random
+
+import numpy as np
+import pandas as pd
 # from astropy import units as u
 from astropy.units import cds
-import pandas as pd
 
 cds.enable()
 
@@ -116,8 +117,7 @@ class Photon:
                    init_z_position,
                    init_ver_velocity,
                    init_hor_velocity,
-                   init_z_velocity,
-                   ):
+                   init_z_velocity):
         """
         Creating new photon or group of photons inside the detector stored in a pandas DataFrame
         :param photons_per_group:

@@ -5,13 +5,13 @@
 
 process: !PROCESSOR
 
-  detector: !CMOS   # !CCD
-    photons: 10
-    image: null # !from_file data/HorseHead_orig.fits
+  detector: !CMOS
+    photons: #10
+    image: !from_file data/HorseHead_orig.fits
 
     geometry:
-      row: 100                      # compulsory
-      col: 100                      # compulsory
+      row: 150                      # compulsory
+      col: 200                      # compulsory
       total_thickness: 10.0         # um
       depletion_thickness: 10.0     # um
       field_free_thickness: 0.0     # um
@@ -21,21 +21,24 @@ process: !PROCESSOR
       n_acceptor: 0.0               # cm-3
       n_donor: 0.0                  # cm-3
       bias_voltage: 0.0             # V
+      n_output: 4
+      n_row_overhead: 0
+      n_frame_overhead: 0
+      reverse_scan_direction: False
+      reference_pixel_border_width: 4
 
     environment:
       temperature: 320  # detector temperature Kelvin
 
     characteristics:
-      k: 0            # camera gain constant in digital number (DN)
-      j: 0            # camera gain constant in photon number
       qe: 0.5         # -
       eta: 1          # e/photon
       sv: 1.0e-6      # V/e
-      accd: 0.8       # V/V
+      amp: 0.8       # V/V
       a1: 100         # V/V
       a2: 65536       # DN/V
 
-  pipeline: !CMOS_PIPELINE   # !CCD_PIPELINE
+  pipeline: !CMOS_PIPELINE
     # -> photons
     optics: !models
 #      shot_noise: !function
@@ -81,14 +84,69 @@ process: !PROCESSOR
 
    # -> signal
     signal_transfer: !models
-      nghxrg: !function
-        name: pyxel.models.nghxrg.nghxrg.run_nghxrg
+
+      nghxrg_read: !function
+        name: pyxel.models.nghxrg.nghxrg.white_read_noise
         kwargs:
-          rd_noise: 0.  # 4.       # White read noise per integration
-          c_pink: 0.   # 3.         # Correlated pink noise
-          u_pink: 0.    # 1.         # Uncorrelated pink noise
-          acn: 10.                # Correlated ACN
-          pca0_amp: 0   # 0.2      # Amplitude of PCA zero "picture frame" noise
+          rd_noise: 400.           # White read noise per integration
+          ref_pixel_noise_ratio: 80.
+          window_mode: WINDOW
+          wind_x0: 50
+          wind_y0: 100
+          wind_x_size: 200
+          wind_y_size: 200
+
+      nghxrg_pca_zero: !function
+        name: pyxel.models.nghxrg.nghxrg.pca_zero_noise
+        kwargs:
+          pca0_amp: 450.           # Amplitude of PCA zero "picture frame" noise
+          window_mode: WINDOW
+          wind_x0: 300
+          wind_y0: 100
+          wind_x_size: 200
+          wind_y_size: 200
+
+      nghxrg_c_pink: !function
+        name: pyxel.models.nghxrg.nghxrg.corr_pink_noise
+        kwargs:
+          c_pink: 300.             # Correlated pink noise
+          window_mode: WINDOW
+          wind_x0: 550
+          wind_y0: 100
+          wind_x_size: 200
+          wind_y_size: 200
+
+      nghxrg_u_pink: !function
+        name: pyxel.models.nghxrg.nghxrg.uncorr_pink_noise
+        kwargs:
+          u_pink: 200.             # Uncorrelated pink noise
+          window_mode: WINDOW
+          wind_x0: 50
+          wind_y0: 350
+          wind_x_size: 200
+          wind_y_size: 200
+
+      nghxrg_acn: !function
+        name: pyxel.models.nghxrg.nghxrg.acn_noise
+        kwargs:
+          acn: 500.                 # Correlated ACN
+          window_mode: WINDOW
+          wind_x0: 300
+          wind_y0: 350
+          wind_x_size: 200
+          wind_y_size: 200
+
+      nghxrg_ktc_bias: !function
+        name: pyxel.models.nghxrg.nghxrg.ktc_bias_noise
+        kwargs:
+          ktc_noise: 500.
+          bias_offset: 300.
+          bias_amp: 400.
+          window_mode: WINDOW
+          wind_x0: 550
+          wind_y0: 350
+          wind_x_size: 200
+          wind_y_size: 200
 
     # -> signal
     readout_electronics: !models

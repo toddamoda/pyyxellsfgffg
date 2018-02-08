@@ -4,12 +4,13 @@
 """
 PyXel! Charge class to generate electrons or holes inside detector
 """
-import numpy as np
 import math
 import random
+
+import numpy as np
+import pandas as pd
 # from astropy import units as u
 from astropy.units import cds
-import pandas as pd
 
 cds.enable()
 
@@ -100,8 +101,7 @@ class Charge:
                    init_z_position,
                    init_ver_velocity,
                    init_hor_velocity,
-                   init_z_velocity
-                   ):
+                   init_z_velocity):
         """
         Creating new charge or group of charges inside the detector stored in a pandas DataFrame
         :param particle_type:

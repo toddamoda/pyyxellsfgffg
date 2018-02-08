@@ -3,28 +3,27 @@ Geometry class for detector
 """
 
 
-class Geometry:
+class CMOSGeometry:
 
-    def __init__(self, row=0, col=0,
-                 depletion_thickness=0.0,
-                 field_free_thickness=0.0,
-                 total_thickness=0.0,
-                 pixel_vert_size=0.0,
-                 pixel_horz_size=0.0,
-                 material='',
-                 n_acceptor=0.0,
-                 n_donor=0.0,
-                 bias_voltage=0.0):
+    def __init__(self,
+                 row: int = None, col: int = None,
+                 depletion_thickness: float = None,
+                 field_free_thickness: float = None,
+                 total_thickness: float = None,
+                 pixel_vert_size: float = None,
+                 pixel_horz_size: float = None,
+                 material: str = None,
+                 n_acceptor: float = None,
+                 n_donor: float = None,
+                 bias_voltage: float = None,
+                 n_output: int = None,
+                 n_row_overhead: int = None,
+                 n_frame_overhead: int = None,
+                 reverse_scan_direction: bool = None,
+                 reference_pixel_border_width: int = None) -> None:
         """
-        Initialize the geometry
-        :param row:
-        :param col:
-        :param depletion_thickness:
-        :param field_free_thickness:
-        :param total_thickness:
-        :param pixel_vert_size:
-        :param pixel_horz_size:
-        :param material:
+        Initialize the CMOS geometry
+
         """
         self.row = row
         self.col = col
@@ -47,24 +46,12 @@ class Geometry:
         self.calculate_geometry_parameters()
         self.set_material(material)
 
-    def __getstate__(self):
-        return {
-            'row': self.row,
-            'col': self.col,
-            'total_thickness': self.total_thickness,
-            'depletion_thickness': self.depletion_thickness,
-            'field_free_thickness': self.field_free_thickness,
-            'pixel_vert_size': self.pixel_vert_size,
-            'pixel_horz_size': self.pixel_horz_size,
-            'n_acceptor': self.n_acceptor,
-            'n_donor': self.n_donor,
-            'bias_voltage': self.bias_voltage
-        }
-
-    # TODO: create unittests for this method
-    def __eq__(self, obj):
-        assert isinstance(obj, Geometry)
-        return self.__getstate__() == obj.__getstate__()
+        # CMOS specific geometry parameters
+        self.n_row_overhead = n_row_overhead
+        self.n_frame_overhead = n_frame_overhead
+        self.n_output = n_output
+        self.reverse_scan_direction = reverse_scan_direction
+        self.reference_pixel_border_width = reference_pixel_border_width
 
     def set_material(self, material):
         """
