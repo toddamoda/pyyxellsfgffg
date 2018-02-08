@@ -67,7 +67,7 @@ class CMOS:
 
         if self._image is not None and self._photon_mean is None:
             self.row, self.col = self._image.shape
-            photon_number_list = self._image / (self.qe * self.eta * self.sv * self.accd * self.a1 * self.a2)
+            photon_number_list = self._image / (self.qe * self.eta * self.sv * self.amp * self.a1 * self.a2)
             photon_number_list = np.rint(photon_number_list).astype(int).flatten()
 
         if self._photon_mean is not None and self._image is None:
@@ -156,13 +156,9 @@ class CMOS:
     # def sv(self, newsv):
     #     self.sv = newsv
 
-    # @property
-    # def accd(self):
-    #     return self.characteristics.accd
-
-    # @accd.setter
-    # def accd(self, newaccd):
-    #     self.accd = newaccd
+    @property
+    def amp(self):
+        return self.characteristics.amp
 
     @property
     def a1(self):
