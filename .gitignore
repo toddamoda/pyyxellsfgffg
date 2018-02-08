@@ -1,5 +1,6 @@
 # Pyxel output data files
 *.data
+*.fits
 
 # Geant4 i/o files
 *.mac
@@ -9,18 +10,25 @@
 **/tmp*
 
 # Byte-compiled
+__pycache__/
 *.pyc
 
 # Distribution / packaging
-dist/
 build/
+dist/
+*.egg-info/
 
 # Pycharm
-.idea/*
-**/__pycache__
+.idea/
 
-# Sphinx
-_build
-
-# Tox
+# Unit test / coverage reports
 .tox/
+.coverage
+.coverage.
+*.cache
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# mypy
+.mypy_cache/
