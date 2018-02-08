@@ -8,9 +8,9 @@ import yaml
 
 try:
     # Use LibYAML library
-    from yaml import CSafeLoader as SafeLoader
+    from yaml import CSafeLoader as SafeLoader  # type: ignore
 except ImportError:
-    from yaml import SafeLoader
+    from yaml import SafeLoader  # noqa: F401
 
 from pyxel.detectors.ccd import CCD
 from pyxel.detectors.cmos import CMOS
