@@ -161,21 +161,21 @@ class HXRGNoise:
                                      setting =False corresponds to
                                      what HxRG detectors default to
                                      upon power up.
-        :param det_size_x: 
-        :param det_size_y: 
-        :param cube_z: 
-        :param n_out: 
-        :param nroh: 
-        :param nfoh: 
-        :param pca0_file: 
-        :param reverse_scan_direction: 
-        :param reference_pixel_border_width: 
-        :param wind_mode: 
-        :param wind_x_size: 
-        :param wind_y_size: 
-        :param wind_x0: 
-        :param wind_y0: 
-        :param verbose: 
+        :param det_size_x:
+        :param det_size_y:
+        :param cube_z:
+        :param n_out:
+        :param nroh:
+        :param nfoh:
+        :param pca0_file:
+        :param reverse_scan_direction:
+        :param reference_pixel_border_width:
+        :param wind_mode:
+        :param wind_x_size:
+        :param wind_y_size:
+        :param wind_x0:
+        :param wind_y0:
+        :param verbose:
         """
         # ======================================================================
         #
