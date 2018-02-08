@@ -14,8 +14,7 @@ class Geometry:
                  material='',
                  n_acceptor=0.0,
                  n_donor=0.0,
-                 bias_voltage=0.0,
-                 ):
+                 bias_voltage=0.0):
         """
         Initialize the geometry
         :param row:

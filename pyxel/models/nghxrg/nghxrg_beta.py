@@ -76,18 +76,20 @@ which returns result numpy array to be able to add to PyXel! signal
 """
 # Necessary for Python 2.6 and later (JML)
 # Should still work under Python 3.x (JML)
-from __future__ import division,  print_function
+from __future__ import division, print_function
 
-import os
-import warnings
-from astropy.io import fits
-import numpy as np
-from scipy.ndimage.interpolation import zoom
-from astropy.stats.funcs import median_absolute_deviation as mad
 import datetime
-from os import path
 # Have not verified this in Python 3.x (JML):
 import logging
+import os
+import warnings
+from os import path
+
+import numpy as np
+from astropy.io import fits
+from astropy.stats.funcs import median_absolute_deviation as mad
+from scipy.ndimage.interpolation import zoom
+
 # import matplotlib.pyplot as plt # Handy for debugging
 
 warnings.filterwarnings('ignore')
@@ -122,8 +124,8 @@ class HXRGNoise:
     nghxrg_version = 2.7    # Sofware version
 
     def __init__(self, det_size_x=2048, det_size_y=2048,       # naxis1=2048,  naxis2=2048,
-                 cube_z=1,  n_out=4,
-                 nroh=0,  nfoh=0,
+                 cube_z=1, n_out=4,
+                 nroh=0, nfoh=0,
                  pca0_file=PCA0FILE,
                  reverse_scan_direction=False,
                  reference_pixel_border_width=4,
@@ -292,7 +294,7 @@ class HXRGNoise:
 
         # Also for adding in ACN,  we need a mask that point to just
         # the real pixels in ordered vectors of just the even or odd pixels - BUG FIXED HERE (D.L.)
-        self.m_short = np.zeros((self.naxis3,  (self.naxis2+self.nfoh)//2, self.xsize+self.nroh))
+        self.m_short = np.zeros((self.naxis3, (self.naxis2+self.nfoh)//2, self.xsize+self.nroh))
         self.m_short[:, :self.naxis2//2, :self.xsize] = 1
         # self.m_short = np.reshape(self.m_short,  np.size(self.m_short))
         self.m_short = self.m_short.flatten()
@@ -333,7 +335,7 @@ class HXRGNoise:
         if wind_mode == 'FULL':
             scale1 = self.naxis1 / nx_pca0
             scale2 = self.naxis2 / ny_pca0
-            zoom_factor = np.max([scale1,  scale2])
+            zoom_factor = np.max([scale1, scale2])
         # if wind_mode == 'STRIPE':
         #     zoom_factor = self.naxis1 / nx_pca0
         if wind_mode == 'WINDOW':
@@ -344,7 +346,7 @@ class HXRGNoise:
 
         # Resize PCA0 data
         if zoom_factor != 1:
-            data = zoom(data,  zoom_factor,  order=1,  mode='wrap')
+            data = zoom(data, zoom_factor, order=1, mode='wrap')
 
         data -= np.median(data)     # Zero offset
         data /= (1.4826*mad(data))  # Renormalize
@@ -390,7 +392,7 @@ class HXRGNoise:
             print('NG: ' + message_text + ' at DATETIME = ',
                   datetime.datetime.now().time())
 
-    def pink_noise(self,  mode):
+    def pink_noise(self, mode):
         """
         Generate a vector of non-periodic pink noise.
 
@@ -422,7 +424,7 @@ class HXRGNoise:
 
         # Apply the pinkening filter.
         thefft = np.fft.rfft(mynoise)
-        thefft = np.multiply(thefft,  p_filter)
+        thefft = np.multiply(thefft, p_filter)
         result = np.fft.irfft(thefft)
         result = result[:nstep//2]  # Keep 1st half of nstep
 
@@ -561,7 +563,7 @@ class HXRGNoise:
 
             # Add in some kTC noise. Since this should always come out
             # in calibration,  we do not attempt to model it in detail.
-            bias_pattern += ktc_noise * np.random.standard_normal((self.naxis2,  self.naxis1))
+            bias_pattern += ktc_noise * np.random.standard_normal((self.naxis2, self.naxis1))
 
             # Ensure that there are no negative pixel values. Data cubes
             # are converted to unsigned integer before writing.
@@ -590,7 +592,7 @@ class HXRGNoise:
             w = self.ref_all
             r = reference_pixel_noise_ratio  # Easier to work with
             for z in np.arange(self.naxis3):
-                here = np.zeros((self.naxis2,  self.naxis1))
+                here = np.zeros((self.naxis2, self.naxis1))
 
                 # Noisy reference pixels for each side of detector
                 if w[0] > 0:    # lower
@@ -625,7 +627,7 @@ class HXRGNoise:
         if c_pink > 0:
             self.message('Adding c_pink noise')
             tt = c_pink * self.pink_noise('pink')   # tt is a temp. variable
-            tt = np.reshape(tt, (self.naxis3,  self.naxis2+self.nfoh,
+            tt = np.reshape(tt, (self.naxis3, self.naxis2+self.nfoh,
                                  self.xsize+self.nroh))[:, :self.naxis2, :self.xsize]
             for op in np.arange(self.n_out):
                 wind_x0 = op * self.xsize
@@ -659,7 +661,7 @@ class HXRGNoise:
                 wind_x0 = op * self.xsize
                 x1 = wind_x0 + self.xsize
                 tt = u_pink * self.pink_noise('pink')
-                tt = np.reshape(tt, (self.naxis3,  self.naxis2+self.nfoh,
+                tt = np.reshape(tt, (self.naxis3, self.naxis2+self.nfoh,
                                      self.xsize+self.nroh))[:, :self.naxis2, :self.xsize]
                 result[:, :, wind_x0:x1] += tt
 
@@ -719,8 +721,8 @@ class HXRGNoise:
             self.message('Adding PCA-zero "picture frame" noise')
             gamma = self.pink_noise(mode='pink')
             zoom_factor = self.naxis2 * self.naxis3 / np.size(gamma)
-            gamma = zoom(gamma,  zoom_factor,  order=1,  mode='mirror')
-            gamma = np.reshape(gamma,  (self.naxis3, self.naxis2))
+            gamma = zoom(gamma, zoom_factor, order=1, mode='mirror')
+            gamma = np.reshape(gamma, (self.naxis3, self.naxis2))
             for z in np.arange(self.naxis3):
                 for y in np.arange(self.naxis2):
                     result[z, y, :] += pca0_amp * self.pca0[y, :] * gamma[z, y]
@@ -772,4 +774,4 @@ class HXRGNoise:
         # Write the result to a FITS file
         if o_file is not None:
             self.message('Writing FITS file')
-            hdu.writeto(o_file,  clobber='True')
+            hdu.writeto(o_file, clobber='True')

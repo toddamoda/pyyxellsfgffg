@@ -7,9 +7,9 @@ PyXel! wrapper class for NGHXRG - Teledyne HxRG Noise Generator model
 # import logging
 import copy
 from os import path
+
 # import numpy as np
 from pyxel.detectors.cmos import CMOS
-
 from pyxel.models.nghxrg.nghxrg_beta import HXRGNoise
 
 
@@ -18,8 +18,7 @@ def white_read_noise(detector: CMOS,
                      ref_pixel_noise_ratio: float = None,
                      window_mode: str = 'FULL',
                      wind_x0: int = 0, wind_y0: int = 0,
-                     wind_x_size: int = 0, wind_y_size: int = 0
-                     ) -> CMOS:
+                     wind_x_size: int = 0, wind_y_size: int = 0) -> CMOS:
 
     new_detector = copy.deepcopy(detector)
 
@@ -59,8 +58,7 @@ def ktc_bias_noise(detector: CMOS,
                    bias_amp: float = None,
                    window_mode: str = 'FULL',
                    wind_x0: int = 0, wind_y0: int = 0,
-                   wind_x_size: int = 0, wind_y_size: int = 0
-                   ) -> CMOS:
+                   wind_x_size: int = 0, wind_y_size: int = 0) -> CMOS:
 
     new_detector = copy.deepcopy(detector)
 
@@ -98,8 +96,7 @@ def corr_pink_noise(detector: CMOS,
                     c_pink: float = None,
                     window_mode: str = 'FULL',
                     wind_x0: int = 0, wind_y0: int = 0,
-                    wind_x_size: int = 0, wind_y_size: int = 0
-                    ) -> CMOS:
+                    wind_x_size: int = 0, wind_y_size: int = 0) -> CMOS:
 
     new_detector = copy.deepcopy(detector)
 
@@ -137,8 +134,7 @@ def uncorr_pink_noise(detector: CMOS,
                       u_pink: float = None,
                       window_mode: str = 'FULL',
                       wind_x0: int = 0, wind_y0: int = 0,
-                      wind_x_size: int = 0, wind_y_size: int = 0
-                      ) -> CMOS:
+                      wind_x_size: int = 0, wind_y_size: int = 0) -> CMOS:
 
     new_detector = copy.deepcopy(detector)
 
@@ -176,8 +172,7 @@ def acn_noise(detector: CMOS,
               acn: float = None,
               window_mode: str = 'FULL',
               wind_x0: int = 0, wind_y0: int = 0,
-              wind_x_size: int = 0, wind_y_size: int = 0
-              ) -> CMOS:
+              wind_x_size: int = 0, wind_y_size: int = 0) -> CMOS:
 
     new_detector = copy.deepcopy(detector)
 
@@ -215,8 +210,7 @@ def pca_zero_noise(detector: CMOS,
                    pca0_amp: float = None,
                    window_mode: str = 'FULL',
                    wind_x0: int = 0, wind_y0: int = 0,
-                   wind_x_size: int = 0, wind_y_size: int = 0
-                   ) -> CMOS:
+                   wind_x_size: int = 0, wind_y_size: int = 0) -> CMOS:
 
     new_detector = copy.deepcopy(detector)
 

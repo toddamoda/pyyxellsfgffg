@@ -35,8 +35,7 @@ class CCD:
                  environment: Environment = None,
                  characteristics: CCDCharacteristics = None,
                  photons: int = None,
-                 image=None,
-                 ) -> None:
+                 image=None) -> None:
 
         if photons is not None and image is None:
             self._photon_mean = photons

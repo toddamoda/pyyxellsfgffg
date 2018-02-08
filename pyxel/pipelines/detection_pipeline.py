@@ -154,7 +154,7 @@ class CMOSDetectionPipeline:
 
         # OPTICS:
         # -> transport/modify photons ->
-        steps = []  # ['shot_noise']  # , 'ray_tracing', 'diffraction']
+        steps = []  # type: list    # ['shot_noise']  # , 'ray_tracing', 'diffraction']
         for step in steps:
             func = self.optics.models.get(step)
             if func:

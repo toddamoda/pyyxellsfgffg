@@ -8,8 +8,7 @@ class CMOSCharacteristics:
                  sv: float = None,
                  amp: float = None,
                  a1: float = None,
-                 a2: float = None
-                 ) -> None:
+                 a2: float = None) -> None:
         """
 
 

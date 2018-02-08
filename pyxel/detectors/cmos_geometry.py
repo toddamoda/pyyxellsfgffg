@@ -20,8 +20,7 @@ class CMOSGeometry:
                  n_row_overhead: int = None,
                  n_frame_overhead: int = None,
                  reverse_scan_direction: bool = None,
-                 reference_pixel_border_width: int = None
-                 ) -> None:
+                 reference_pixel_border_width: int = None) -> None:
         """
         Initialize the CMOS geometry
 
