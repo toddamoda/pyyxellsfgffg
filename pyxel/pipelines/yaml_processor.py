@@ -1,9 +1,16 @@
 import functools
 import typing as t
 from pathlib import Path
+import re
 
 import numpy as np
 import yaml
+
+try:
+    # Use LibYAML library
+    from yaml import CSafeLoader as SafeLoader  # type: ignore
+except ImportError:
+    from yaml import SafeLoader  # noqa: F401
 
 from pyxel.detectors.ccd import CCD
 from pyxel.detectors.cmos import CMOS
@@ -38,6 +45,17 @@ class PyxelDumper(yaml.SafeDumper):
     called when parsing a YAML stream.  See the `PyYaml documentation
     <http://pyyaml.org/wiki/PyYAMLDocumentation>`_ for details of the
     class signature."""
+
+
+def _expr_processor(loader: PyxelLoader, node: yaml.ScalarNode):
+    value = loader.construct_scalar(node)
+
+    try:
+        result = eval(value, np.__dict__, {})
+    except NameError:
+        result = value
+
+    return result
 
 
 def _constructor_processor(loader: PyxelLoader, node: yaml.MappingNode):
@@ -142,31 +160,7 @@ def _constructor_cmos_pipeline(loader: PyxelLoader, node: yaml.MappingNode):
 def _constructor_ccd(loader: PyxelLoader, node: yaml.MappingNode):
     mapping = loader.construct_mapping(node, deep=True)  # type: dict
 
-    # if 'geometry' in mapping:
-    #     geometry = pyxel.detectors.geometry.Geometry(**mapping['geometry'])
-    # else:
-    #     geometry = None
-    #
-    # if 'environment' in mapping:
-    #     environment = pyxel.detectors.environment.Environment(**mapping['environment'])
-    # else:
-    #     environment = None
-    #
-    # if 'characteristics' in mapping:
-    #     characteristics = pyxel.detectors.ccd_characteristics.CCDCharacteristics(**mapping['characteristics'])
-    # else:
-    #     characteristics = None
-
-    # photons = mapping.get('photons', None)
-    # image = mapping.get('image', None)
-
     obj = CCD(**mapping)
-    # obj = CCD(photons=photons,
-    #           image=image,
-    #           geometry=geometry,
-    #           environment=environment,
-    #           characteristics=characteristics)
-
     return obj
 
 
@@ -231,6 +225,9 @@ def _constructor_function(loader: PyxelLoader, node: yaml.ScalarNode):
 
     return functools.partial(func, *args, **kwargs)
 
+
+PyxelLoader.add_implicit_resolver('!expr', re.compile(r'^.*$'), None)
+PyxelLoader.add_constructor('!expr', _expr_processor)
 
 PyxelLoader.add_constructor('!PROCESSOR', _constructor_processor)
 

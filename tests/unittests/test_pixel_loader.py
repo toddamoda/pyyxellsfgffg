@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from pyxel.pipelines.yaml_processor import load_stream
+from pyxel.pipelines.yaml_processor import load
 
 
 @pytest.mark.parametrize('data, expected', [
@@ -34,7 +34,7 @@ from pyxel.pipelines.yaml_processor import load_stream
 ])
 def test_expr_with_tag(data, expected):
     """Test tag '!expr'."""
-    obj = load_stream(data)
+    obj = load(data)
 
     if isinstance(expected, np.ndarray):
         # Test `numpy.ndarray`
