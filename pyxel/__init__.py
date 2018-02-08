@@ -6,6 +6,7 @@ __all__ = ['load_config', 'detection_pipeline']
 
 __appname__ = 'Pyxel'
 __author__ = 'David Lucsanyi'
+__author_email__ = 'david.lucsanyi@esa.int'
 __pkgname__ = 'pyxel'
 
 from ._version import get_versions
