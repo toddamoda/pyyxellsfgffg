@@ -7,7 +7,7 @@ PyXel! wrapper class for NGHXRG - Teledyne HxRG Noise Generator model
 # import logging
 import copy
 from os import path
-import numpy as np
+# import numpy as np
 from pyxel.detectors.cmos import CMOS
 
 from pyxel.models.nghxrg.nghxrg_beta import HXRGNoise

@@ -122,13 +122,13 @@ class HXRGNoise:
     nghxrg_version = 2.7    # Sofware version
 
     def __init__(self, det_size_x=2048, det_size_y=2048,       # naxis1=2048,  naxis2=2048,
-                 cube_z=1,  n_out=4,   
+                 cube_z=1,  n_out=4,
                  nroh=0,  nfoh=0,
                  pca0_file=PCA0FILE,
                  reverse_scan_direction=False,
                  reference_pixel_border_width=4,
                  wind_mode='FULL',
-                 wind_x_size=0, wind_y_size=0, 
+                 wind_x_size=0, wind_y_size=0,
                  wind_x0=0, wind_y0=0,
                  verbose=False):
         """
