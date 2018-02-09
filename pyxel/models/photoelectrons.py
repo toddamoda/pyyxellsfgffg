@@ -4,7 +4,7 @@
 """ Simple model to convert photons into photo-electrons inside detector
 """
 
-import copy
+# import copy
 # import numpy as np
 
 from pyxel.detectors.ccd import CCD
@@ -16,7 +16,8 @@ def simple_conversion(detector: CCD) -> CCD:
     :param detector:
     :return:
     """
-    new_detector = copy.deepcopy(detector)
+    # new_detector = copy.deepcopy(detector)
+    new_detector = detector
 
     photon_number = detector.photons.get_photon_numbers()
     size = len(photon_number)
@@ -50,7 +51,8 @@ def monte_carlo_conversion(detector: CCD) -> CCD:
     :param detector:
     :return:
     """
-    new_detector = copy.deepcopy(detector)
+    # new_detector = copy.deepcopy(detector)
+    new_detector = detector
 
     # detector.qe <= 1
     # detector.eta <= 1

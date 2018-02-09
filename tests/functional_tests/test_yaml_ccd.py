@@ -2,7 +2,7 @@ from pyxel.detectors.ccd import CCD
 from pyxel.detectors.environment import Environment
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.geometry import Geometry
-from pyxel.pipelines.yaml_processor import dump
+# from pyxel.pipelines.yaml_processor import dump
 from pyxel.pipelines.yaml_processor import load
 
 
@@ -25,10 +25,10 @@ def test_loader_with_extra_tags():
    n_acceptor: 6.0
    n_donor: 7.0
    bias_voltage: 8.0
-   
+
   environment: !environment
     temperature: 3.14
-    
+
   characteristics: !ccd_characteristics
     k: 1
     j: 2
@@ -92,10 +92,10 @@ def test_loader2_without_extra_tags():
    n_acceptor: 6.0
    n_donor: 7.0
    bias_voltage: 8.0
-   
+
   environment:
     temperature: 3.14
-    
+
   characteristics:
     k: 1
     j: 2

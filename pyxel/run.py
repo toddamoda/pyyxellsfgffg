@@ -17,7 +17,7 @@ from pyxel.util import FitsFile
 def run_pipeline(input_filename, output_file):
 
     config_path = Path(__file__).parent.joinpath(input_filename)
-    cfg = pyxel.load_config(str(config_path))
+    cfg = pyxel.load_config(config_path)
     processor = cfg['process']          # type: pyxel.detection_pipeline.Processor
 
     # Step 2: Run the pipeline

@@ -9,7 +9,7 @@ process: !PROCESSOR
     photons: 10
     image: null # !from_file data/HorseHead_orig.fits
 
-    geometry:
+    geometry: !geometry
       row: 100                      # compulsory
       col: 100                      # compulsory
       total_thickness: 10.0         # um
@@ -22,10 +22,10 @@ process: !PROCESSOR
       n_donor: 0.0                  # cm-3
       bias_voltage: 0.0             # V
 
-    environment:
+    environment: !environment
       temperature: 320  # detector temperature Kelvin
 
-    characteristics:
+    characteristics: !ccd_characteristics
       k: 0            # camera gain constant in digital number (DN)
       j: 0            # camera gain constant in photon number
       qe: 0.5         # -
@@ -49,20 +49,20 @@ process: !PROCESSOR
 
     # -> charge
     charge_generation: !models
-#      photoelectrons: pyxel.models.photoelectrons.simple_conversion
-#      tars: !function
-#        name: pyxel.models.tars.tars.run_tars
-#        kwargs:
-#          initial_energy: 100.0   # MeV
-#          particle_number: 10
-#          incident_angles:      # rad
-#            - random # 0.31416  # pi / 10
-#            - random # 0.7853   # pi / 4
-#          starting_position:    # um
-#            - random # 500.0
-#            - random # 500.0
-#            - 0.0
-#          stepping_length: 1.0  # um
+      photoelectrons: pyxel.models.photoelectrons.simple_conversion
+      tars: !function
+        name: pyxel.models.tars.tars.run_tars
+        kwargs:
+          initial_energy: 100.0   # MeV
+          particle_number: 10
+          incident_angles:      # rad
+            - random # 0.31416  # pi / 10
+            - random # 0.7853   # pi / 4
+          starting_position:    # um
+            - random # 500.0
+            - random # 500.0
+            - 0.0
+          stepping_length: 1.0  # um
 
     # -> charge
     charge_collection: !models

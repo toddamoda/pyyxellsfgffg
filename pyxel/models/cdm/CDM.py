@@ -49,6 +49,8 @@ def cdm(detector: CCD) -> CCD:
     image_with_cti = cdm_obj.apply_cti(charge_data)
     write_fits_file(image_with_cti, 'image_with_cti.fits', unsigned16bit=False)
 
+    # EXPERIMENTAL - TEMPORARY
+    new_detector.signal = image_with_cti
     # new_detector.pixels.update_charge_from_array()    # TODO TO BE IMPLEMENTED
 
     return new_detector
