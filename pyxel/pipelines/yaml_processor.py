@@ -1,7 +1,7 @@
 import functools
+import re
 import typing as t
 from pathlib import Path
-import re
 
 import numpy as np
 import yaml
@@ -25,6 +25,7 @@ from pyxel.util import util
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.environment import Environment
 from pyxel.detectors.geometry import Geometry
+from pyxel.detectors.cmos_geometry import CMOSGeometry
 
 
 class PyxelLoader(yaml.SafeLoader):
@@ -66,7 +67,7 @@ def _constructor_processor(loader: PyxelLoader, node: yaml.MappingNode):
     return obj
 
 
-def _geometry_constructor(loader: PyxelLoader, node: yaml.MappingNode):
+def _ccd_geometry_constructor(loader: PyxelLoader, node: yaml.MappingNode):
     """TBW.
 
     :param loader:
@@ -79,16 +80,37 @@ def _geometry_constructor(loader: PyxelLoader, node: yaml.MappingNode):
     return obj
 
 
-def _geometry_representer(dumper: PyxelDumper, obj: Geometry):
+def _ccd_geometry_representer(dumper: PyxelDumper, obj: Geometry):
     """TBW.
 
     :param dumper:
     :param obj:
     :return:
     """
-    mapping = obj.__getstate__()  # type: dict
-    out = dumper.represent_mapping('!geometry', mapping, flow_style=True)
-    return out
+    return dumper.represent_yaml_object('!geometry', data=obj, cls=None, flow_style=False)
+
+
+def _cmos_geometry_constructor(loader: PyxelLoader, node: yaml.MappingNode):
+    """TBW.
+
+    :param loader:
+    :param node:
+    :return:
+    """
+    mapping = loader.construct_mapping(node, deep=True)  # type: dict
+
+    obj = CMOSGeometry(**mapping)
+    return obj
+
+
+def _cmos_geometry_representer(dumper: PyxelDumper, obj: Geometry):
+    """TBW.
+
+    :param dumper:
+    :param obj:
+    :return:
+    """
+    return dumper.represent_yaml_object('!cmos_geometry', data=obj, cls=None, flow_style=False)
 
 
 def _environment_constructor(loader: PyxelLoader, node: yaml.MappingNode):
@@ -111,9 +133,7 @@ def _environment_representer(dumper: PyxelDumper, obj: Environment):
     :param obj:
     :return:
     """
-    mapping = obj.__getstate__()  # type: dict
-    out = dumper.represent_mapping('!environment', mapping, flow_style=True)
-    return out
+    return dumper.represent_yaml_object('!environment', data=obj, cls=None, flow_style=False)
 
 
 def _ccd_characteristics_constructor(loader: PyxelLoader, node: yaml.MappingNode):
@@ -136,9 +156,7 @@ def _ccd_characteristics_representer(dumper: PyxelDumper, obj: CCDCharacteristic
     :param obj:
     :return:
     """
-    mapping = obj.__getstate__()  # type: dict
-    out = dumper.represent_mapping('!ccd_characteristics', mapping, flow_style=True)
-    return out
+    return dumper.represent_yaml_object('!ccd_characteristics', data=obj, cls=None, flow_style=False)
 
 
 def _constructor_ccd_pipeline(loader: PyxelLoader, node: yaml.MappingNode) -> detection_pipeline.CCDDetectionPipeline:
@@ -157,11 +175,21 @@ def _constructor_cmos_pipeline(loader: PyxelLoader, node: yaml.MappingNode):
     return obj
 
 
-def _constructor_ccd(loader: PyxelLoader, node: yaml.MappingNode):
+def _ccd_constructor(loader: PyxelLoader, node: yaml.MappingNode):
     mapping = loader.construct_mapping(node, deep=True)  # type: dict
 
     obj = CCD(**mapping)
     return obj
+
+
+def _ccd_representer(dumper: PyxelDumper, obj: CCD):
+    """TBW.
+
+    :param dumper:
+    :param obj:
+    :return:
+    """
+    return dumper.represent_yaml_object('!CCD', data=obj, cls=None, flow_style=False)
 
 
 def _constructor_cmos(loader: PyxelLoader, node: yaml.MappingNode):
@@ -231,8 +259,11 @@ PyxelLoader.add_constructor('!expr', _expr_processor)
 
 PyxelLoader.add_constructor('!PROCESSOR', _constructor_processor)
 
-PyxelLoader.add_constructor('!geometry', _geometry_constructor)
-PyxelDumper.add_representer(Geometry, _geometry_representer)
+PyxelLoader.add_constructor('!geometry', _ccd_geometry_constructor)
+PyxelDumper.add_representer(Geometry, _ccd_geometry_representer)
+
+PyxelLoader.add_constructor('!cmos_geometry', _cmos_geometry_constructor)
+PyxelDumper.add_representer(CMOSGeometry, _cmos_geometry_representer)
 
 PyxelLoader.add_constructor('!environment', _environment_constructor)
 PyxelDumper.add_representer(Environment, _environment_representer)
@@ -243,7 +274,9 @@ PyxelDumper.add_representer(CCDCharacteristics, _ccd_characteristics_representer
 PyxelLoader.add_constructor('!CCD_PIPELINE', _constructor_ccd_pipeline)
 PyxelLoader.add_constructor('!CMOS_PIPELINE', _constructor_cmos_pipeline)
 
-PyxelLoader.add_constructor('!CCD', _constructor_ccd)
+PyxelLoader.add_constructor('!CCD', _ccd_constructor)
+PyxelDumper.add_representer(CCD, _ccd_representer)
+
 PyxelLoader.add_constructor('!CMOS', _constructor_cmos)
 
 PyxelLoader.add_constructor('!from_file', _constructor_from_file)
