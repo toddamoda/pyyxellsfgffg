@@ -8,13 +8,6 @@ from pyxel.physics.photon import Photon
 from pyxel.physics.pixel import Pixel
 
 
-class Processor:
-
-    def __init__(self, detector, pipeline) -> None:
-        self.detector = detector
-        self.pipeline = pipeline
-
-
 class Models:
 
     def __init__(self, models: dict) -> None:
@@ -213,3 +206,12 @@ class CMOSDetectionPipeline:
                 detector = func(detector)
 
         return detector
+
+
+class Processor:
+
+    def __init__(self,
+                 detector: t.Union[CCD, CMOS],
+                 pipeline: t.Union[CCDDetectionPipeline, CMOSDetectionPipeline]) -> None:
+        self.detector = detector
+        self.pipeline = pipeline

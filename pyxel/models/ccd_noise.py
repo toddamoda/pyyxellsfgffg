@@ -4,14 +4,14 @@
 """
 PyXel! CCD noise generator class
 """
-import copy
-from astropy import units as u
 import numpy as np
-# from pyxel.physics.photon import Photon
-
-# from . import Model
+from astropy import units as u
 
 from pyxel.detectors.ccd import CCD
+
+
+# from pyxel.physics.photon import Photon
+# from . import Model
 
 
 def add_shot_noise(detector: CCD) -> CCD:
@@ -19,7 +19,9 @@ def add_shot_noise(detector: CCD) -> CCD:
     Add shot noise to number of photons
     :return:
     """
-    new_detector = copy.deepcopy(detector)
+    # TODO: Fix this. Use variable 'inplace' ?
+    # new_detector = copy.deepcopy(detector)
+    new_detector = detector
 
     lambda_list = new_detector.photons.get_photon_numbers()
     lambda_list = [float(i) for i in lambda_list]
@@ -41,15 +43,16 @@ def add_fix_pattern_noise(detector: CCD,
     :param inplace:
     :return:
     """
-
-    if inplace:
-        new_detector = copy.deepcopy(detector)
-        # new_detector = CCD(detector)
-        # new_detector.to_pickle(filename)
-        # new_detector.to_fits(filename)
-        # CCD.from_fits(filename)
-    else:
-        new_detector = detector
+    # TODO: Fix this. Use variable 'inplace' ?
+    # if not inplace:
+    #     new_detector = copy.deepcopy(detector)
+    #     # new_detector = CCD(detector)
+    #     # new_detector.to_pickle(filename)
+    #     # new_detector.to_fits(filename)
+    #     # CCD.from_fits(filename)
+    # else:
+    #     new_detector = detector
+    new_detector = detector
 
     if pix_non_uniformity is None and percentage is not None:
         # generate_pixel_non_uniformity_data(percentage)   # TODO
@@ -79,7 +82,9 @@ def add_output_node_noise(ccd: CCD, std_deviation: float) -> CCD:
     :param std_deviation:
     :return: ccd output signal with noise
     """
-    new_ccd = copy.deepcopy(ccd)
+    # TODO: Fix this. Use variable 'inplace' ?
+    # new_ccd = copy.deepcopy(ccd)
+    new_ccd = ccd
 
     signal_mean_array = new_ccd.signal.astype('float64')
     sigma_array = std_deviation * np.ones(new_ccd.signal.shape)

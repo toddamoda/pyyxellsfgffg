@@ -11,6 +11,11 @@ import numpy as np
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.environment import Environment
 from pyxel.detectors.geometry import Geometry
+from pyxel.physics.photon import Photon
+from pyxel.physics.charge import Charge
+from pyxel.physics.pixel import Pixel
+
+
 # from pyxel.detectors.optics import Optics
 
 
@@ -48,9 +53,9 @@ class CCD:
             raise ValueError("Only image or photon number can be provided as input")
 
         # self._photon_number_list = None
-        self._photons = None
-        self._charges = None
-        self._pixels = None
+        self._photons = None  # type: Photon
+        self._charges = None  # type: Charge
+        self._pixels = None  # type: Pixel
         self._signal = None     # signal read out directly from CCD
 
         self.geometry = geometry

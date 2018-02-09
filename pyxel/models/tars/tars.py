@@ -5,18 +5,18 @@
 PyXel! TARS model for charge generation by ionization
 """
 import logging
-import copy
 import math
 from os import path
 
 import numpy as np
 from numpy import pi
 from tqdm import tqdm
-# from astropy import units as u
 
 from pyxel.detectors.ccd import CCD
 from pyxel.models.tars.simulation import Simulation
 from pyxel.models.tars.util import read_data, interpolate_data
+
+# from astropy import units as u
 
 # import matplotlib.pyplot as plt
 # from mpl_toolkits.mplot3d import Axes3D
@@ -31,8 +31,9 @@ def run_tars(ccd: CCD,
              incident_angles: tuple = (pi/10, pi/4),
              starting_position: tuple = (500.0, 500.0, 0.0),
              stepping_length: float = 1.0) -> CCD:
-
-    new_ccd = copy.deepcopy(ccd)
+    # TODO: Fix this. Use variable 'inplace' ?
+    # new_ccd = copy.deepcopy(ccd)
+    new_ccd = ccd
 
     cosmics = TARS(new_ccd)
 
