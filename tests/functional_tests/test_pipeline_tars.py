@@ -38,10 +38,10 @@ def save_signal(ccd: CCD, output_filename: Path):
     #         file_obj.write(out_str)
 
 
-@pytest.mark.parametrize("input_filename", [
-    'tests/data/pipeline_tars.yaml',
+@pytest.mark.parametrize("input_filename, exp_filename", [
+    ('tests/data/pipeline_tars.yaml', 'tests/data/expected_ccd_pipeline01.fits'),
 ])
-def test_pipeline_tars(input_filename):
+def test_pipeline_tars(input_filename, exp_filename):
 
     # Step 1: Get the pipeline configuration
     cfg = load_config(Path(input_filename))
@@ -53,7 +53,7 @@ def test_pipeline_tars(input_filename):
     result = pipeline.run_pipeline(processor.detector)  # type: CCD
     print('Pipeline completed.')
 
-    expected = fits.getdata('tests/functional_tests/expected_result.fits')
+    expected = fits.getdata(exp_filename)
     image = result.image  # type: np.ndarray
 
     assert isinstance(image, np.ndarray)
