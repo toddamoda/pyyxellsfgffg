@@ -104,7 +104,7 @@ class CCDDetectionPipeline:
 
         # CHARGE READOUT
         # -> create signal -> modify signal ->
-        detector.signal = detector.pixels.generate_signal()
+        detector.signal = detector.pixels.generate_2d_charge_array()
 
         steps = ['output_node_noise']
         for step in steps:
@@ -184,7 +184,7 @@ class CMOSDetectionPipeline:
 
         # CHARGE MEASUREMENT
         # -> create signal ->
-        detector.signal = detector.pixels.generate_signal()
+        detector.signal = detector.pixels.generate_2d_charge_array()
 
         steps = []  # ['output_node_noise']
         for step in steps:
@@ -194,7 +194,6 @@ class CMOSDetectionPipeline:
 
         # SIGNAL TRANSFER
         # -> modify signal ->
-        detector.signal = detector.pixels.generate_signal()
 
         steps = ['nghxrg_read', 'nghxrg_ktc_bias', 'nghxrg_u_pink', 'nghxrg_c_pink', 'nghxrg_acn', 'nghxrg_pca_zero']
         for step in steps:
