@@ -3,14 +3,17 @@
 #   --------------------------------------------------------------------------
 """ CCD detector modeling class
 """
-# import typing as t  # noqa: F401
-
 import numpy as np
 
 # from astropy import units as u
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.environment import Environment
 from pyxel.detectors.geometry import Geometry
+from pyxel.physics.charge import Charge  # noqa: F401
+from pyxel.physics.photon import Photon  # noqa: F401
+from pyxel.physics.pixel import Pixel  # noqa: F401
+
+
 # from pyxel.detectors.optics import Optics
 
 
@@ -32,6 +35,7 @@ class CCD:
 
     def __init__(self,
                  geometry: Geometry = None,
+                 # geometry = None,
                  environment: Environment = None,
                  characteristics: CCDCharacteristics = None,
                  photons: int = None,
@@ -48,9 +52,9 @@ class CCD:
             raise ValueError("Only image or photon number can be provided as input")
 
         # self._photon_number_list = None
-        self._photons = None
-        self._charges = None
-        self._pixels = None
+        self._photons = None  # type: Photon
+        self._charges = None  # type: Charge
+        self._pixels = None  # type: Pixel
         self._signal = None     # signal read out directly from CCD
 
         self.geometry = geometry
@@ -129,6 +133,7 @@ class CCD:
     @property
     def row(self):
         return self.geometry.row
+        # return self.geometry['row']
 
     @row.setter
     def row(self, new_row):
@@ -137,6 +142,7 @@ class CCD:
     @property
     def col(self):
         return self.geometry.col
+        # return self.geometry['col']
 
     @col.setter
     def col(self, new_col):
@@ -253,10 +259,12 @@ class CCD:
     @property
     def pix_vert_size(self):
         return self.geometry.pixel_vert_size
+        # return self.geometry['pixel_vert_size']
 
     @property
     def pix_horz_size(self):
         return self.geometry.pixel_horz_size
+        # return self.geometry['pixel_horz_size']
 
     @property
     def total_thickness(self):

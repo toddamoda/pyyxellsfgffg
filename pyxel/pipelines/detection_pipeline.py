@@ -8,13 +8,6 @@ from pyxel.physics.photon import Photon
 from pyxel.physics.pixel import Pixel
 
 
-class Processor:
-
-    def __init__(self, detector, pipeline) -> None:
-        self.detector = detector
-        self.pipeline = pipeline
-
-
 class Models:
 
     def __init__(self, models: dict) -> None:
@@ -96,7 +89,7 @@ class CCDDetectionPipeline:
         # CHARGE TRANSFER:
         # -> transport/modify pixels ->
 
-        steps = []  # ['cdm']
+        steps = ['cdm']  # ['cdm']
         for step in steps:
             func = self.charge_transfer.models.get(step)
             if func:
@@ -104,7 +97,7 @@ class CCDDetectionPipeline:
 
         # CHARGE READOUT
         # -> create signal -> modify signal ->
-        detector.signal = detector.pixels.generate_signal()
+        detector.signal = detector.pixels.generate_2d_charge_array()
 
         steps = ['output_node_noise']
         for step in steps:
@@ -184,7 +177,7 @@ class CMOSDetectionPipeline:
 
         # CHARGE MEASUREMENT
         # -> create signal ->
-        detector.signal = detector.pixels.generate_signal()
+        detector.signal = detector.pixels.generate_2d_charge_array()
 
         steps = []  # ['output_node_noise']
         for step in steps:
@@ -194,7 +187,6 @@ class CMOSDetectionPipeline:
 
         # SIGNAL TRANSFER
         # -> modify signal ->
-        detector.signal = detector.pixels.generate_signal()
 
         steps = ['nghxrg_read', 'nghxrg_ktc_bias', 'nghxrg_u_pink', 'nghxrg_c_pink', 'nghxrg_acn', 'nghxrg_pca_zero']
         for step in steps:
@@ -213,3 +205,12 @@ class CMOSDetectionPipeline:
                 detector = func(detector)
 
         return detector
+
+
+class Processor:
+
+    def __init__(self,
+                 detector: t.Union[CCD, CMOS],
+                 pipeline: t.Union[CCDDetectionPipeline, CMOSDetectionPipeline]) -> None:
+        self.detector = detector
+        self.pipeline = pipeline

@@ -6,7 +6,7 @@
 process: !PROCESSOR
 
   detector: !CMOS
-    photons: #10
+    photons: null #10
     image: !from_file data/HorseHead_orig.fits
 
     geometry:

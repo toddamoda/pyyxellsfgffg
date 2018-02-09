@@ -10,13 +10,12 @@
 
 process: !PROCESSOR
 
-  ccd: !CCD
+  detector: !CCD
     photons: null  # type: int
 #    photons: 10
-    signal: !from_file data/HorseHead_orig.fits
-    charge: null
+    image: !from_file data/HorseHead_orig.fits
 
-    geometry:
+    geometry: !geometry
       row: 100                      # compulsory
       col: 100                      # compulsory
       depletion_thickness: 10.0     # um
@@ -25,10 +24,10 @@ process: !PROCESSOR
       pixel_horz_size: 10.0         # um
       total_thickness: 10.0         # um
 
-    environment:
+    environment: !environment
       temperature: 320  # detector temperature Kelvin
 
-    characteristics:
+    characteristics: !ccd_characteristics
       k: 0            # camera gain constant in digital number (DN)
       j: 0            # camera gain constant in photon number
       qe: 0.5         # -
@@ -45,7 +44,7 @@ process: !PROCESSOR
     # -> photons
     optics: !models
       shot_noise: !function
-        name: pyxel.models.ccd_noise.apply_shot_noise
+        name: pyxel.models.ccd_noise.add_shot_noise
   #    ray_tracing: !class
   #      name: pyxel.models.ccd_noise.OpticsModelRayTracer
   #      args:
@@ -82,7 +81,7 @@ process: !PROCESSOR
     charge_transfer: !models
 
     # -> signal
-    charge_readout: !models
+    charge_measurement: !models
       readout_noise: !function
         name: pyxel.models.ccd_noise.add_output_node_noise
         kwargs:

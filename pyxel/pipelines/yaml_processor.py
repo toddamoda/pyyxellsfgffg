@@ -141,7 +141,7 @@ def _ccd_characteristics_representer(dumper: PyxelDumper, obj: CCDCharacteristic
     return out
 
 
-def _constructor_ccd_pipeline(loader: PyxelLoader, node: yaml.MappingNode):
+def _constructor_ccd_pipeline(loader: PyxelLoader, node: yaml.MappingNode) -> detection_pipeline.CCDDetectionPipeline:
     mapping = loader.construct_mapping(node, deep=True)     # type: dict
 
     obj = detection_pipeline.CCDDetectionPipeline(**mapping)
@@ -250,12 +250,12 @@ PyxelLoader.add_constructor('!from_file', _constructor_from_file)
 PyxelLoader.add_constructor('!function', _constructor_function)
 PyxelLoader.add_constructor('!models', _constructor_models)
 
-yaml.add_path_resolver('!geometry', ['geometry'], dict, Loader=PyxelLoader)
-yaml.add_path_resolver('!environment', ['environment'], dict, Loader=PyxelLoader)
-yaml.add_path_resolver('!ccd_characteristics', ['characteristics'], dict, Loader=PyxelLoader)
+yaml.add_path_resolver('!geometry', path=['geometry'], kind=dict, Loader=PyxelLoader)
+yaml.add_path_resolver('!environment', path=['environment'], kind=dict, Loader=PyxelLoader)
+yaml.add_path_resolver('!ccd_characteristics', path=['characteristics'], kind=dict, Loader=PyxelLoader)
 
 
-def load(stream: t.Union[str, t.TextIO]):
+def load(stream: t.Union[str, t.IO]):
     """Parse a YAML document.
 
     :param stream: document to process.
@@ -273,9 +273,8 @@ def dump(data) -> str:
     return yaml.dump(data, Dumper=PyxelDumper)
 
 
-def load_config(yaml_file: str):
-
-    with open(yaml_file, 'r') as file_obj:
+def load_config(yaml_filename: Path):
+    with yaml_filename.open('r') as file_obj:
         cfg = load(file_obj)
 
     return cfg

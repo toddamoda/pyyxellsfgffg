@@ -38,22 +38,25 @@ def save_signal(ccd: CCD, output_filename: Path):
     #         file_obj.write(out_str)
 
 
-@pytest.mark.skip(reason='Fix this test')
-@pytest.mark.parametrize("input_filename", [
-    'pipeline_tars.yaml',
+@pytest.mark.parametrize("input_filename, exp_filename", [
+    ('tests/data/pipeline_tars.yaml', 'tests/data/expected_ccd_pipeline01.fits'),
 ])
-def test_pipeline_tars(input_filename):
+def test_pipeline_tars(input_filename, exp_filename):
 
     # Step 1: Get the pipeline configuration
-    config_path = Path(__file__).parent.joinpath(input_filename)
-    cfg = load_config(str(config_path))
-    processor = cfg['process']          # type:
+    cfg = load_config(Path(input_filename))
+    processor = cfg['process']  # type: detection_pipeline.Processor
+
+    pipeline = processor.pipeline  # type: t.Union[CCDDetectionPipeline, CMOSDetectionPipeline]
 
     # Step 2: Run the pipeline
-    result = detection_pipeline.run_pipeline(processor.ccd, processor.pipeline)  # type: CCD
+    result = pipeline.run_pipeline(processor.detector)  # type: CCD
     print('Pipeline completed.')
 
-    expected = fits.getdata('tests/functional_tests/expected_result.fits')
-    np.testing.assert_array_equal(result.readout_signal.value, expected)
+    expected = fits.getdata(exp_filename)
+    image = result.image  # type: np.ndarray
+
+    assert isinstance(image, np.ndarray)
+    np.testing.assert_array_equal(image, expected)
 
     # save_signal(ccd=result, output_filename='result')
