@@ -28,7 +28,8 @@ from pyxel.detectors.ccd import CCD
 def cdm(detector: CCD) -> CCD:
     """ CDM wrapper """
 
-    new_detector = copy.deepcopy(detector)
+    # new_detector = copy.deepcopy(detector)
+    new_detector = detector
 
     # Charge injection:
     # image = np.zeros((100, 100), dtype=np.float32)
