@@ -1,7 +1,8 @@
 import functools
+import inspect
+import re
 import typing as t
 from pathlib import Path
-import re
 
 import numpy as np
 import yaml
@@ -52,6 +53,10 @@ def _expr_processor(loader: PyxelLoader, node: yaml.ScalarNode):
 
     try:
         result = eval(value, np.__dict__, {})
+
+        if callable(result) or inspect.ismodule(result):
+            result = value
+
     except NameError:
         result = value
 
