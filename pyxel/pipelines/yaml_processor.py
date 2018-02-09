@@ -255,7 +255,7 @@ yaml.add_path_resolver('!environment', path=['environment'], kind=dict, Loader=P
 yaml.add_path_resolver('!ccd_characteristics', path=['characteristics'], kind=dict, Loader=PyxelLoader)
 
 
-def load(stream: t.Union[str, t.TextIO]):
+def load(stream: t.Union[str, t.IO]):
     """Parse a YAML document.
 
     :param stream: document to process.
