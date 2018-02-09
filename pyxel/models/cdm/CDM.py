@@ -14,7 +14,7 @@ parameters in parallel and serial direction.
 
 :version: 0.35
 """
-import copy
+# import copy
 from os import path
 import numpy as np
 import datetime
