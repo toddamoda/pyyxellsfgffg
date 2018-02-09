@@ -141,7 +141,7 @@ def _ccd_characteristics_representer(dumper: PyxelDumper, obj: CCDCharacteristic
     return out
 
 
-def _constructor_ccd_pipeline(loader: PyxelLoader, node: yaml.MappingNode):
+def _constructor_ccd_pipeline(loader: PyxelLoader, node: yaml.MappingNode) -> detection_pipeline.CCDDetectionPipeline:
     mapping = loader.construct_mapping(node, deep=True)     # type: dict
 
     obj = detection_pipeline.CCDDetectionPipeline(**mapping)
@@ -273,9 +273,8 @@ def dump(data) -> str:
     return yaml.dump(data, Dumper=PyxelDumper)
 
 
-def load_config(yaml_file: str):
-
-    with open(yaml_file, 'r') as file_obj:
+def load_config(yaml_filename: Path):
+    with yaml_filename.open('r') as file_obj:
         cfg = load(file_obj)
 
     return cfg
