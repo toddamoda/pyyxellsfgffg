@@ -250,9 +250,9 @@ PyxelLoader.add_constructor('!from_file', _constructor_from_file)
 PyxelLoader.add_constructor('!function', _constructor_function)
 PyxelLoader.add_constructor('!models', _constructor_models)
 
-yaml.add_path_resolver('!geometry', ['geometry'], dict, Loader=PyxelLoader)
-yaml.add_path_resolver('!environment', ['environment'], dict, Loader=PyxelLoader)
-yaml.add_path_resolver('!ccd_characteristics', ['characteristics'], dict, Loader=PyxelLoader)
+yaml.add_path_resolver('!geometry', path=['geometry'], kind=dict, Loader=PyxelLoader)
+yaml.add_path_resolver('!environment', path=['environment'], kind=dict, Loader=PyxelLoader)
+yaml.add_path_resolver('!ccd_characteristics', path=['characteristics'], kind=dict, Loader=PyxelLoader)
 
 
 def load(stream: t.Union[str, t.TextIO]):
