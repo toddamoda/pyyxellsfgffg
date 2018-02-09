@@ -34,8 +34,8 @@ class CCD:
     """ The CCD detector class. """
 
     def __init__(self,
-                 # geometry: Geometry = None,
-                 geometry = None,
+                 geometry: Geometry = None,
+                 # geometry = None,
                  environment: Environment = None,
                  characteristics: CCDCharacteristics = None,
                  photons: int = None,
@@ -132,8 +132,8 @@ class CCD:
 
     @property
     def row(self):
-        # return self.geometry.row
-        return self.geometry['row']
+        return self.geometry.row
+        # return self.geometry['row']
 
     @row.setter
     def row(self, new_row):
@@ -141,8 +141,8 @@ class CCD:
 
     @property
     def col(self):
-        # return self.geometry.col
-        return self.geometry['col']
+        return self.geometry.col
+        # return self.geometry['col']
 
     @col.setter
     def col(self, new_col):
@@ -258,13 +258,13 @@ class CCD:
 
     @property
     def pix_vert_size(self):
-        # return self.geometry.pixel_vert_size
-        return self.geometry['pixel_vert_size']
+        return self.geometry.pixel_vert_size
+        # return self.geometry['pixel_vert_size']
 
     @property
     def pix_horz_size(self):
-        # return self.geometry.pixel_horz_size
-        return self.geometry['pixel_horz_size']
+        return self.geometry.pixel_horz_size
+        # return self.geometry['pixel_horz_size']
 
     @property
     def total_thickness(self):
