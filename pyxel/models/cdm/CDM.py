@@ -46,9 +46,10 @@ def cdm(detector: CCD) -> CCD:
     cdm_obj = CDM03Python()
 
     charge_data = new_detector.pixels.generate_2d_charge_array()
+
     image_with_cti = cdm_obj.apply_cti(charge_data)
 
-    write_fits_file(image_with_cti, 'image_with_cti.fits', unsigned16bit=False)
+    # write_fits_file(image_with_cti, 'image_with_cti.fits', unsigned16bit=False)
 
     new_detector.pixels.update_from_2d_charge_array(image_with_cti)
 
@@ -104,7 +105,7 @@ class CDM03Python:
         self.svg = 1.0e-10
         self.st = 5.0e-6
         self.parallel_cti = True
-        self.serial_cti = True
+        self.serial_cti = False
 
     # def radiate_ccd_transpose(self):
     #     """

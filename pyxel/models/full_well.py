@@ -19,7 +19,7 @@ def simple_pixel_full_well(detector: CCD,
 
     new_detector = copy.deepcopy(detector)
 
-    charge = new_detector.pixels.get_pixel_charges()
+    charge = new_detector.pixels.get_pixel_charges()        # TODO not working
 
     excess_pos = np.where(charge > fwc)
     charge[excess_pos] = fwc

@@ -6,8 +6,8 @@
 process: !PROCESSOR
 
   detector: !CCD
-    photons: 10
-    image: null # !from_file data/HorseHead_orig.fits
+    photons: null   # 10
+    image: !from_file data/HorseHead_orig.fits
 
     geometry: !geometry
       row: 100                      # compulsory
@@ -38,8 +38,8 @@ process: !PROCESSOR
   pipeline: !CCD_PIPELINE
     # -> photons
     optics: !models
-#      shot_noise: !function
-#        name: pyxel.models.ccd_noise.add_shot_noise
+      shot_noise: !function
+        name: pyxel.models.ccd_noise.add_shot_noise
   #    ray_tracing: !class
   #      name: pyxel.models.ccd_noise.OpticsModelRayTracer
   #      args:
@@ -76,7 +76,7 @@ process: !PROCESSOR
 #      full_well: !function
 #        name: pyxel.models.full_well.simple_pixel_full_well
 #        kwargs:
-#          fwc: 100       # e (full well capacity)
+#          fwc: 10000       # e (full well capacity)
 
     # -> charge
     charge_transfer: !models
