@@ -53,6 +53,25 @@ class CMOSGeometry:
         self.reverse_scan_direction = reverse_scan_direction
         self.reference_pixel_border_width = reference_pixel_border_width
 
+    def __getstate__(self):
+        return {
+            'row': self.row,
+            'col': self.col,
+            'total_thickness': self.total_thickness,
+            'depletion_thickness': self.depletion_thickness,
+            'field_free_thickness': self.field_free_thickness,
+            'pixel_vert_size': self.pixel_vert_size,
+            'pixel_horz_size': self.pixel_horz_size,
+            'n_acceptor': self.n_acceptor,
+            'n_donor': self.n_donor,
+            'bias_voltage': self.bias_voltage,
+            'n_output': self.n_output,
+            'n_row_overhead': self.n_row_overhead,
+            'n_frame_overhead': self.n_frame_overhead,
+            'reverse_scan_direction': self.reverse_scan_direction,
+            'reference_pixel_border_width': self.reference_pixel_border_width
+        }
+
     def set_material(self, material):
         """
         Set material properties
