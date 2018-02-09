@@ -16,7 +16,7 @@ process: !PROCESSOR
     signal: !from_file data/HorseHead_orig.fits
     charge: null
 
-    geometry:
+    geometry: !geometry
       row: 100                      # compulsory
       col: 100                      # compulsory
       depletion_thickness: 10.0     # um
@@ -25,10 +25,10 @@ process: !PROCESSOR
       pixel_horz_size: 10.0         # um
       total_thickness: 10.0         # um
 
-    environment:
+    environment: !environment
       temperature: 320  # detector temperature Kelvin
 
-    characteristics:
+    characteristics: !ccd_characteristics
       k: 0            # camera gain constant in digital number (DN)
       j: 0            # camera gain constant in photon number
       qe: 0.5         # -
