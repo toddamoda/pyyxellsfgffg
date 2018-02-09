@@ -22,6 +22,13 @@ class Pixel:
                  detector=None):
 
         self.detector = detector
+        self.__create_dataframe__()
+
+    def __create_dataframe__(self):
+        """
+
+        :return:
+        """
         self.nextid = 0
         self.frame = pd.DataFrame(columns=['id',
                                            'charge',
@@ -46,7 +53,7 @@ class Pixel:
 
     def generate_2d_charge_array(self):
         """
-        Read output signal of detector pixels as a 2d numpy array, unit: Volts
+        Generating 2d numpy array from pixel DataFrame
         :return:
         """
         charge_per_pixel = self.get_pixel_charges()
@@ -57,6 +64,26 @@ class Pixel:
         charge_2d_array[pixel_index_ver, pixel_index_hor] = charge_per_pixel
 
         return charge_2d_array
+
+    def update_from_2d_charge_array(self, array):
+        """
+        Recreate pixel DataFrame from a 2d numpy array
+        :return:
+        """
+        self.__create_dataframe__()
+
+        row, col = array.shape
+        if row != self.detector.row or col != self.detector.col:
+            raise ValueError
+
+        ver_index = list(range(0, row))
+        hor_index = list(range(0, col))
+        ver_index = np.repeat(ver_index, col)
+        hor_index = np.tile(hor_index, row)
+
+        self.add_pixel(array.flatten(),
+                       ver_index,
+                       hor_index)
 
     def add_pixel(self,
                   charge,
