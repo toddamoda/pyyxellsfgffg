@@ -38,4 +38,13 @@ def test_dumper():
 
     data = dump(obj)
 
-    assert data == "!ccd_characteristics {a1: 7, a2: 8, accd: 6, eta: 4, j: 2, k: 1, qe: 3, sv: 5}\n"
+    assert data == """!ccd_characteristics
+a1: 7
+a2: 8
+accd: 6
+eta: 4
+j: 2
+k: 1
+qe: 3
+sv: 5
+"""

@@ -24,4 +24,6 @@ def test_dumper():
 
     data = dump(obj)
 
-    assert data == "!environment {temperature: 100.234}\n"
+    assert data == """!environment
+temperature: 100.234
+"""
