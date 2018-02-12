@@ -26,12 +26,9 @@ from pyxel.detectors.ccd import CCD
 
 
 def cdm(detector: CCD,
-        # dose: float = None,
-        vth: float = None,
         beta_p: float = None, beta_s: float = None,
         vg: float = None, svg: float = None,
         t: float = None, st: float = None,
-        # fwc: int = None, sfwc: int = None,
         parallel_trap_file: str = None,
         serial_trap_file: str = None) -> CCD:
     """
@@ -93,7 +90,7 @@ def cdm(detector: CCD,
     cdm_obj = CDM03Python(rdose=new_detector.total_non_ionising_dose,
                           fwc=new_detector.fwc_parallel,
                           sfwc=new_detector.fwc_serial,
-                          vth=vth,
+                          vth=new_detector.e_thermal_velocity,
                           beta_p=beta_p, beta_s=beta_s,
                           vg=vg, svg=svg,
                           t=t, st=st,

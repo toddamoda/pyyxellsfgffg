@@ -1,6 +1,8 @@
 """
 Geometry class for detector
 """
+# Universal global constants
+M_ELECTRON = 9.10938356e-31    # kg
 
 
 class CCDGeometry:
@@ -42,6 +44,7 @@ class CCDGeometry:
         self.material_density = None
         self.material_ionization_energy = None
         self.band_gap = None
+        self.e_effective_mass = None
         self.horz_dimension = None
         self.vert_dimension = None
 
@@ -75,9 +78,10 @@ class CCDGeometry:
         """
 
         if material == 'silicon' or 'Si' or 'si':
-            self.material_density = 2.328               # TODO add unit (g/cm3)
-            self.material_ionization_energy = 3.6       # TODO add unit (eV)
-            self.band_gap = 1.12                        # TODO add unit (eV)
+            self.material_density = 2.328                   # TODO add unit (g/cm3)
+            self.material_ionization_energy = 3.6           # TODO add unit (eV)
+            self.band_gap = 1.12                            # TODO add unit (eV)
+            self.e_effective_mass = 0.5 * M_ELECTRON        # TODO add unit (kg)
 
         else:
             raise NotImplementedError('Given material has not implemented yet')

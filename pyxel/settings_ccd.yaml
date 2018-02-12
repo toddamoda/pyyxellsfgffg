@@ -23,7 +23,7 @@ process: !PROCESSOR
       bias_voltage: 0.0             # V
 
     environment: !environment
-      temperature: 320                    # Kelvin, detector temperature
+      temperature: 300                    # Kelvin, detector temperature
       total_ionising_dose: 8.0e11         # total ionising dose (IEL)
       total_non_ionising_dose: 8.0e11     # total non-ionising dose (NIEL)
 
@@ -87,7 +87,7 @@ process: !PROCESSOR
       cdm: !function
         name: pyxel.models.cdm.CDM.cdm
         kwargs:
-         vth: 1.168e7
+#         vth: 1.168e7
          beta_p: 0.6
          beta_s: 0.6
          vg: 6.e-11

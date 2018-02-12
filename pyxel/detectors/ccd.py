@@ -4,7 +4,7 @@
 """ CCD detector modeling class
 """
 import numpy as np
-
+from math import sqrt
 # from astropy import units as u
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.environment import Environment
@@ -81,6 +81,15 @@ class CCD:
         photon_energy_list = [0.] * self.row * self.col
 
         return photon_number_list, photon_energy_list
+
+    @property
+    def e_effective_mass(self):
+        return self.geometry.e_effective_mass   # kg
+
+    @property
+    def e_thermal_velocity(self):
+        k_boltzmann = 1.38064852e-23   # J/K
+        return sqrt(3 * k_boltzmann * self.temperature / self.e_effective_mass)
 
     @property
     def row(self):
