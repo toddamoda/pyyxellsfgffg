@@ -12,13 +12,15 @@ from pathlib import Path
 
 import pyxel
 from pyxel.util import FitsFile
+import pyxel.pipelines.processor
 
 
 def run_pipeline(input_filename, output_file):
 
     config_path = Path(__file__).parent.joinpath(input_filename)
     cfg = pyxel.load_config(config_path)
-    processor = cfg['process']          # type: pyxel.detection_pipeline.Processor
+
+    processor = cfg['process']
 
     # Step 2: Run the pipeline
     # result = pyxel.detection_pipeline.run_ccd_pipeline(processor.detector, processor.pipeline)  # type: CCD

@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from pyxel.pipelines.yaml_processor import load
+from pyxel.io.yaml_processor import load
 
 
 @pytest.mark.parametrize('data, expected', [

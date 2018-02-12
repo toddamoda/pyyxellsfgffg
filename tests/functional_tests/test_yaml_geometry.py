@@ -1,6 +1,6 @@
 from pyxel.detectors.ccd_geometry import CCDGeometry
-from pyxel.pipelines.yaml_processor import dump
-from pyxel.pipelines.yaml_processor import load
+from pyxel.io.yaml_processor import dump
+from pyxel.io.yaml_processor import load
 
 
 def test_loader():

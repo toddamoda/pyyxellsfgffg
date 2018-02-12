@@ -1,9 +1,9 @@
 from pyxel.detectors.ccd import CCD
-from pyxel.detectors.environment import Environment
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.ccd_geometry import CCDGeometry
+from pyxel.detectors.environment import Environment
 # from pyxel.pipelines.yaml_processor import dump
-from pyxel.pipelines.yaml_processor import load
+from pyxel.io.yaml_processor import load
 
 
 def test_loader_with_extra_tags():

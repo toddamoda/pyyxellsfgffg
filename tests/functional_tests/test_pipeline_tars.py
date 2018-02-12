@@ -1,13 +1,14 @@
 from pathlib import Path
-
-import pytest
-
-from astropy.io import fits
+# import typing as t
 import numpy as np
+import pytest
+from astropy.io import fits
 
-# from pyxel.pipelines import detection_pipeline
+# from pyxel.pipelines.processor import Processor
+# from pyxel.pipelines.ccd_pipeline import CCDDetectionPipeline
+# from pyxel.pipelines.cmos_pipeline import CMOSDetectionPipeline
 # from pyxel.detectors.ccd import CCD
-from pyxel.pipelines.yaml_processor import load_config
+from pyxel.io.yaml_processor import load_config
 
 np.random.seed(19690906)
 
@@ -19,7 +20,7 @@ def test_pipeline_tars(input_filename, exp_filename):
 
     # Step 1: Get the pipeline configuration
     cfg = load_config(Path(input_filename))
-    processor = cfg['process']  # type: detection_pipeline.Processor
+    processor = cfg['process']      # type: pyxel.pipelines.processor.Processor
 
     pipeline = processor.pipeline  # type: t.Union[CCDDetectionPipeline, CMOSDetectionPipeline]
 

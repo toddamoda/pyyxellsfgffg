@@ -7,6 +7,11 @@ from pathlib import Path
 import numpy as np
 import yaml
 
+import pyxel.pipelines.ccd_pipeline
+import pyxel.pipelines.cmos_pipeline
+import pyxel.pipelines.models
+import pyxel.pipelines.processor
+
 try:
     # Use LibYAML library
     from yaml import CSafeLoader as SafeLoader  # type: ignore
@@ -20,7 +25,6 @@ import pyxel.detectors.cmos_characteristics
 import pyxel.detectors.ccd_geometry
 import pyxel.detectors.cmos_geometry
 import pyxel.detectors.environment
-from pyxel.pipelines import detection_pipeline
 from pyxel.util import fitsfile
 from pyxel.util import util
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
@@ -66,7 +70,7 @@ def _expr_processor(loader: PyxelLoader, node: yaml.ScalarNode):
 def _constructor_processor(loader: PyxelLoader, node: yaml.MappingNode):
     mapping = loader.construct_mapping(node, deep=True)     # type: dict
 
-    obj = detection_pipeline.Processor(**mapping)
+    obj = pyxel.pipelines.processor.Processor(**mapping)
 
     return obj
 
@@ -146,10 +150,12 @@ def _ccd_characteristics_representer(dumper: PyxelDumper, obj: CCDCharacteristic
     return out
 
 
-def _constructor_ccd_pipeline(loader: PyxelLoader, node: yaml.MappingNode) -> detection_pipeline.CCDDetectionPipeline:
+def _constructor_ccd_pipeline(loader: PyxelLoader,
+                              node: yaml.MappingNode) -> pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline:
+
     mapping = loader.construct_mapping(node, deep=True)     # type: dict
 
-    obj = detection_pipeline.CCDDetectionPipeline(**mapping)
+    obj = pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline(**mapping)
 
     return obj
 
@@ -157,7 +163,7 @@ def _constructor_ccd_pipeline(loader: PyxelLoader, node: yaml.MappingNode) -> de
 def _constructor_cmos_pipeline(loader: PyxelLoader, node: yaml.MappingNode):
     mapping = loader.construct_mapping(node, deep=True)     # type: dict
 
-    obj = detection_pipeline.CMOSDetectionPipeline(**mapping)
+    obj = pyxel.pipelines.cmos_pipeline.CMOSDetectionPipeline(**mapping)
 
     return obj
 
@@ -216,15 +222,15 @@ def _constructor_models(loader: PyxelLoader, node: yaml.ScalarNode):
     else:
         mapping = loader.construct_mapping(node, deep=True)
 
-    return detection_pipeline.Models(mapping)
+    return pyxel.pipelines.models.Models(mapping)
 
 
 def _constructor_function(loader: PyxelLoader, node: yaml.ScalarNode):
     mapping = loader.construct_mapping(node)             # type: dict
 
     function_name = mapping['name']                      # type: str
-    kwargs = mapping.get('kwargs', {})
     args = mapping.get('args', {})
+    kwargs = mapping.get('arguments', {})
 
     func = util.evaluate_reference(function_name)
 

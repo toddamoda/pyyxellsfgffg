@@ -54,7 +54,7 @@ process: !PROCESSOR
       photoelectrons: pyxel.models.photoelectrons.simple_conversion
       tars: !function
         name: pyxel.models.tars.tars.run_tars
-        kwargs:
+        arguments:
           initial_energy: 100.0   # MeV
           particle_number: 10
           incident_angles:      # rad
@@ -70,24 +70,23 @@ process: !PROCESSOR
     charge_collection: !models
 #      fixed_pattern_noise: !function
 #        name: pyxel.models.ccd_noise.add_fix_pattern_noise
-#        kwargs:
+#        arguments:
 #          pix_non_uniformity: !from_file data/non_uniformity_array_normal_stdev0.03.data
 
 #      diffusion: !function
 #        name: pyxel.models.diffusion.diffusion
-##        kwargs:
+##        arguments:
 
 #      full_well: !function
 #        name: pyxel.models.full_well.simple_pixel_full_well
-#        kwargs:
+#        arguments:
 #          fwc: 10000       # e (full well capacity)  # if defined use this, if not use the default parameter from characteristics
 
     # -> charge
     charge_transfer: !models
       cdm: !function
         name: pyxel.models.cdm.CDM.cdm
-        kwargs:
-#         vth: 1.168e7
+        arguments:
          beta_p: 0.6
          beta_s: 0.6
          vg: 6.e-11
@@ -101,7 +100,7 @@ process: !PROCESSOR
     charge_measurement: !models
 #      readout_noise: !function
 #        name: pyxel.models.ccd_noise.add_output_node_noise
-#        kwargs:
+#        arguments:
 #          std_deviation: 1.0
 
     # -> signal
