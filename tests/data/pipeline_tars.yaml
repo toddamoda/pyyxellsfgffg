@@ -28,8 +28,8 @@ process: !PROCESSOR
       temperature: 320  # detector temperature Kelvin
 
     characteristics: !ccd_characteristics
-      k: 0            # camera gain constant in digital number (DN)
-      j: 0            # camera gain constant in photon number
+#      k: 0            # camera gain constant in digital number (DN)
+#      j: 0            # camera gain constant in photon number
       qe: 0.5         # -
       eta: 1          # e/photon
       sv: 1.0e-6      # V/e

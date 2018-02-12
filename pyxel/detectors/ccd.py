@@ -98,20 +98,6 @@ class CCD:
 
         return photon_number_list, photon_energy_list
 
-    # def compute_k(self):
-    #     """
-    #     Calculate camera gain constant in units of e-/DN from CCD parameters
-    #     :return:
-    #     """
-    #     self.characteristics.k = 1 / (self.sv * self.accd * self.a1 * self.a2)
-    #
-    # def compute_j(self):
-    #     """
-    #     Calculate camera gain constant in units of photons/DN from CCD parameters
-    #     :return:
-    #     """
-    #     self.characteristics.j = 1 / (self.eta * self.sv * self.accd * self.a1 * self.a2)
-
     def compute_signal(self):   # TODO reimplement
         """
         Calculate CCD signal per pixel in units of DN from charges and CCD parameters
@@ -133,7 +119,6 @@ class CCD:
     @property
     def row(self):
         return self.geometry.row
-        # return self.geometry['row']
 
     @row.setter
     def row(self, new_row):
@@ -142,7 +127,6 @@ class CCD:
     @property
     def col(self):
         return self.geometry.col
-        # return self.geometry['col']
 
     @col.setter
     def col(self, new_col):
@@ -183,22 +167,6 @@ class CCD:
     @property
     def image(self):
         return self._image
-
-    @property
-    def k(self):
-        return self.characteristics.k
-
-    # @k.setter
-    # def k(self, new_k):
-    #     self._k = new_k
-
-    @property
-    def j(self):
-        return self.characteristics.j
-
-    # @j.setter
-    # def j(self, new_j):
-    #     self._j = new_j
 
     @property
     def qe(self):
@@ -259,12 +227,10 @@ class CCD:
     @property
     def pix_vert_size(self):
         return self.geometry.pixel_vert_size
-        # return self.geometry['pixel_vert_size']
 
     @property
     def pix_horz_size(self):
         return self.geometry.pixel_horz_size
-        # return self.geometry['pixel_horz_size']
 
     @property
     def total_thickness(self):

@@ -26,8 +26,8 @@ process: !PROCESSOR
       temperature: 320  # detector temperature Kelvin
 
     characteristics: !ccd_characteristics
-      k: 0            # camera gain constant in digital number (DN)
-      j: 0            # camera gain constant in photon number
+#      k: 0            # camera gain constant in digital number (DN)
+#      j: 0            # camera gain constant in photon number
       qe: 0.5         # -
       eta: 1          # e/photon
       sv: 1.0e-6      # V/e
@@ -84,7 +84,6 @@ process: !PROCESSOR
         name: pyxel.models.cdm.CDM.cdm
         kwargs:
          dose: 8.0e11
-         dob: 0.0
          vth: 1.168e7
          beta_p: 0.6
          beta_s: 0.6
