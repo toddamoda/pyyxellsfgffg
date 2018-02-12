@@ -8,7 +8,7 @@ import numpy as np
 # from astropy import units as u
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.environment import Environment
-from pyxel.detectors.geometry import Geometry
+from pyxel.detectors.ccd_geometry import Geometry
 from pyxel.physics.charge import Charge  # noqa: F401
 from pyxel.physics.photon import Photon  # noqa: F401
 from pyxel.physics.pixel import Pixel  # noqa: F401

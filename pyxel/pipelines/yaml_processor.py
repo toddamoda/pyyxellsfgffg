@@ -17,7 +17,7 @@ from pyxel.detectors.ccd import CCD
 from pyxel.detectors.cmos import CMOS
 import pyxel.detectors.ccd_characteristics
 import pyxel.detectors.cmos_characteristics
-import pyxel.detectors.geometry
+import pyxel.detectors.ccd_geometry
 import pyxel.detectors.cmos_geometry
 import pyxel.detectors.environment
 from pyxel.pipelines import detection_pipeline
@@ -25,7 +25,7 @@ from pyxel.util import fitsfile
 from pyxel.util import util
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.environment import Environment
-from pyxel.detectors.geometry import Geometry
+from pyxel.detectors.ccd_geometry import Geometry
 
 
 class PyxelLoader(yaml.SafeLoader):

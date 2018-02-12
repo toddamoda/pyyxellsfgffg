@@ -25,14 +25,6 @@ class CCDCharacteristics:
         self.a1 = a1        # * u.V / u.V               # gain of the signal processor
         self.a2 = a2        # * u.adu / u.V             # gain of the ADC
 
-    # **kwargs):
-    #     self.qe = kwargs.get('qe', 0.0)                             # quantum efficiency
-    #     self.eta = kwargs.get('eta', 0.0)   # * u.electron / u.ph   # quantum yield
-    #     self.sv = kwargs.get('sv', 0.0)     # * u.V / u.electron      # sensitivity of CCD amplifier [V/-e]
-    #     self.accd = kwargs.get('accd', 0.0)     # * u.V / u.V         # output amplifier gain
-    #     self.a1 = kwargs.get('a1', 0)   # * u.V / u.V               # gain of the signal processor
-    #     self.a2 = kwargs.get('a2', 0)   # * u.adu / u.V             # gain of the ADC
-
     def __getstate__(self):
         return {'qe': self.qe,
                 'eta': self.eta,

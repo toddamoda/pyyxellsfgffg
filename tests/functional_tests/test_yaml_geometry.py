@@ -1,4 +1,4 @@
-from pyxel.detectors.geometry import Geometry
+from pyxel.detectors.ccd_geometry import Geometry
 from pyxel.pipelines.yaml_processor import dump
 from pyxel.pipelines.yaml_processor import load
 
