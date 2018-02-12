@@ -5,16 +5,17 @@ Geometry class for detector
 
 class Geometry:
 
-    def __init__(self, row=0, col=0,
-                 depletion_thickness=0.0,
-                 field_free_thickness=0.0,
-                 total_thickness=0.0,
-                 pixel_vert_size=0.0,
-                 pixel_horz_size=0.0,
-                 material='',
-                 n_acceptor=0.0,
-                 n_donor=0.0,
-                 bias_voltage=0.0):
+    def __init__(self,
+                 row: int = None, col: int = None,
+                 depletion_thickness: float = None,
+                 field_free_thickness: float = None,
+                 total_thickness: float = None,
+                 pixel_vert_size: float = None,
+                 pixel_horz_size: float = None,
+                 material: str = None,
+                 n_acceptor: float = None,
+                 n_donor: float = None,
+                 bias_voltage: float = None) -> None:
         """
         Initialize the geometry
         :param row:
