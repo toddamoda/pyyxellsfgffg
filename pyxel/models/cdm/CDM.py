@@ -15,7 +15,7 @@ parameters in parallel and serial direction.
 :version: 0.35
 """
 # import copy
-from os import path
+# from os import path
 import numpy as np
 import datetime
 import os
@@ -26,20 +26,51 @@ from pyxel.detectors.ccd import CCD
 
 
 def cdm(detector: CCD,
-        rdose: float = None,
-        dob: float = None,
-        beta_p: float = None,
-        beta_s: float = None,
-        # fwc: int = None,
+        dose: float = None,
         vth: float = None,
-        vg: float = None,
-        t: float = None,
-        sfwc: float = None,
-        svg: float = None,
-        st: float = None,
+        beta_p: float = None, beta_s: float = None,
+        vg: float = None, svg: float = None,
+        t: float = None, st: float = None,
+        fwc: int = None, sfwc: int = None,
         parallel_trap_file: str = None,
         serial_trap_file: str = None) -> CCD:
-    """ CDM wrapper """
+    """
+    CDM model wrapper
+    :param detector: PyXel CCD detector object
+    :param dose: NIEL OR Total Ionizing Dose            # TODO find out
+    :param vth: electron thermal velocity
+    :param beta_p: electron cloud expansion coefficient (parallel)
+    :param beta_s: electron cloud expansion coefficient (serial)
+    :param vg: assumed maximum geometrical volume electrons can occupy within a pixel (parallel)
+    :param svg: assumed maximum geometrical volume electrons can occupy within a pixel (serial)
+    :param t: constant TDI period (parallel)
+    :param st: constant TDI period (serial)
+    :param fwc: Full Well Capacity in electrons (parallel)
+    :param sfwc: Full Well Capacity in electrons (serial)
+    :param parallel_trap_file: ascii file with trap densities (nt),
+        trap capture cross-sections (σ), trap release time constants (τr)
+    :param serial_trap_file: ascii file with trap densities (nt),
+        trap capture cross-sections (σ), trap release time constants (τr)
+
+    :return:
+
+    Ne - number of electrons in a pixel
+    ne - electron density in the vicinity of the trap
+    Vc - volume of the charge cloud
+
+    nt - trap density
+    σ - trap capture cross-section
+    τr - trap release time constant
+    Pr - the probability that the trap will release the electron into the sample
+    τc - capture time constant
+    Pc - capture probability (per vacant trap) as a function of the number of sample electrons Ne
+
+    NT - number of traps in the column,
+        NT = 2*nt*Vg*x  where x is the number of TDI transfers or the column length in pixels.
+    Nc - number of electrons captured by a given trap species during the transit of an integrating signal packet
+    N0 - initial trap occupancy
+    Nr - number of electrons released into the sample during a transit along the column
+    """
 
     # new_detector = copy.deepcopy(detector)
     new_detector = detector
@@ -56,17 +87,12 @@ def cdm(detector: CCD,
     # # add vertical charge injection lines
     # image[:, x_start1:x_stop1] = charge_injection
 
-    cdm_obj = CDM03Python(rdose=rdose,
-                          dob=dob,
-                          beta_p=beta_p,
-                          beta_s=beta_s,
-                          fwc=200000,  # new_detector.fwc,     # Todo
+    cdm_obj = CDM03Python(rdose=dose,
                           vth=vth,
-                          vg=vg,
-                          t=t,
-                          sfwc=sfwc,
-                          svg=svg,
-                          st=st,
+                          beta_p=beta_p, beta_s=beta_s,
+                          vg=vg, svg=svg,
+                          t=t, st=st,
+                          fwc=fwc, sfwc=sfwc,   # TODO
                           parallel_trap_file=parallel_trap_file,
                           serial_trap_file=serial_trap_file)
 
@@ -88,28 +114,28 @@ class CDM03Python:
 
     def __init__(self,
                  rdose: float = 8.0e11,
-                 dob: float = 0.0,
-                 beta_p: float = 0.6,
-                 beta_s: float = 0.6,
-                 fwc: int = 200000.,
                  vth: float = 1.168e7,
-                 vg: float = 6.e-11,
-                 t: float = 20.48e-3,
-                 sfwc: float = 730000.,
-                 svg: float = 1.0e-10,
-                 st: float = 5.0e-6,
+                 beta_p: float = 0.6, beta_s: float = 0.6,
+                 vg: float = 6.e-11, svg: float = 1.0e-10,
+                 t: float = 20.48e-3, st: float = 5.0e-6,
+                 fwc: int = 200000, sfwc: int = 730000,
                  parallel_trap_file: str = None,
                  serial_trap_file: str = None):
 
         """
         Class constructor.
-
-        # :param settings: input parameters
-        # :type settings: dict
-        # :param data: input data to be radiated
-        # :type data: ndarray
-        # :param log: instance to Python logging
-        # :type log: logging instance
+        :param rdose:
+        :param beta_p:
+        :param beta_s:
+        :param fwc:
+        :param vth:
+        :param vg:
+        :param t:
+        :param sfwc:
+        :param svg:
+        :param st:
+        :param parallel_trap_file:
+        :param serial_trap_file:
         """
 
         # read in trap information
@@ -132,16 +158,21 @@ class CDM03Python:
                 raise ValueError('Trap data can not be read')
 
         self.rdose = rdose
-        self.dob = dob
+        # self.dob = dob
+        self.vth = vth
+
         self.beta_p = beta_p
         self.beta_s = beta_s
-        self.fwc = fwc
-        self.vth = vth
+
         self.vg = vg
-        self.t = t
-        self.sfwc = sfwc
         self.svg = svg
+
+        self.t = t
         self.st = st
+
+        self.fwc = fwc
+        self.sfwc = sfwc
+
         self.parallel_cti = parallel_trap_file
         self.serial_cti = serial_trap_file
 
@@ -273,6 +304,7 @@ class CDM03Python:
     def _run_cdm_(self,
                   image=None):
         """
+        Electron trapping in imaging mode (non-TDI)
 
         :param image:
         :return:
@@ -282,14 +314,14 @@ class CDM03Python:
 
         # array sizes
         ydim, xdim = image.shape
-
-        # add background electrons
         s = image
-        s += self.dob
 
-        # apply FWC (anti-blooming)
-        msk = s > self.fwc
-        s[msk] = self.fwc
+        # add background electrons (diffuse optical background level)
+        # s += self.dob
+
+        # apply FWC (anti-blooming) - not needed we apply this model elsewhere
+        # msk = s > self.fwc
+        # s[msk] = self.fwc
 
         # start with parallel direction
         if self.parallel_cti:
@@ -299,10 +331,10 @@ class CDM03Python:
             self.nt_p *= self.rdose             # absolute trap density [per cm**3]
             zdim_p = len(self.nt_p)
 
-            alpha_p = self.t * self.sigma_p * self.vth * self.fwc ** self.beta_p / 2. / self.vg
-            g_p = self.nt_p * 2. * self.vg / self.fwc ** self.beta_p
+            alpha_p = self.t * self.sigma_p * self.vth * self.fwc ** self.beta_p / (2. * self.vg)
+            g_p = 2. * self.nt_p * self.vg / self.fwc ** self.beta_p
 
-            gamm_p = g_p * np.arange(ydim).reshape((ydim, 1))
+            gamma_p = g_p * np.arange(ydim).reshape((ydim, 1))
 
             for i in range(ydim):
                 print(i)
@@ -311,8 +343,8 @@ class CDM03Python:
                         nc = 0.
 
                         if s[i, j] > 0.01:
-                            nc = max((gamm_p[i, k] * s[i, j] ** self.beta_p - no[j, k]) /
-                                     (gamm_p[i, k] * s[i, j] ** (self.beta_p - 1.) + 1.) *
+                            nc = max((gamma_p[i, k] * s[i, j] ** self.beta_p - no[j, k]) /
+                                     (gamma_p[i, k] * s[i, j] ** (self.beta_p - 1.) + 1.) *
                                      (1. - np.exp(-alpha_p[k] * s[i, j] ** (1. - self.beta_p))), 0.)
 
                         no[j, k] += nc
@@ -328,10 +360,10 @@ class CDM03Python:
             self.nt_s *= self.rdose             # absolute trap density [per cm**3]
             zdim_s = len(self.nt_s)
 
-            alpha_s = self.st * self.sigma_s * self.vth * self.sfwc ** self.beta_s / 2. / self.svg
-            g_s = self.nt_s * 2. * self.svg / self.sfwc ** self.beta_s
+            alpha_s = self.st * self.sigma_s * self.vth * self.sfwc ** self.beta_s / (2. * self.svg)
+            g_s = 2. * self.nt_s * self.svg / self.sfwc ** self.beta_s
 
-            gamm_s = g_s * np.arange(xdim).reshape((xdim, 1))
+            gamma_s = g_s * np.arange(xdim).reshape((xdim, 1))
 
             for j in range(xdim):
                 print(j)
@@ -341,8 +373,8 @@ class CDM03Python:
                             nc = 0.
 
                             if s[i, j] > 0.01:
-                                nc = max((gamm_s[j, k] * s[i, j] ** self.beta_s - sno[i, k]) /
-                                         (gamm_s[j, k] * s[i, j] ** (self.beta_s - 1.) + 1.) *
+                                nc = max((gamma_s[j, k] * s[i, j] ** self.beta_s - sno[i, k]) /
+                                         (gamma_s[j, k] * s[i, j] ** (self.beta_s - 1.) + 1.) *
                                          (1. - np.exp(-alpha_s[k] * s[i, j] ** (1. - self.beta_s))), 0.)
 
                             sno[i, k] += nc
