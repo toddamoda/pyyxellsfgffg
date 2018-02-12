@@ -35,7 +35,6 @@ class CCD:
 
     def __init__(self,
                  geometry: Geometry = None,
-                 # geometry = None,
                  environment: Environment = None,
                  characteristics: CCDCharacteristics = None,
                  photons: int = None,
@@ -98,23 +97,23 @@ class CCD:
 
         return photon_number_list, photon_energy_list
 
-    def compute_signal(self):   # TODO reimplement
-        """
-        Calculate CCD signal per pixel in units of DN from charges and CCD parameters
-        :return:
-        """
-        # self._signal = self._charges * self.sv * self.accd     # what is self.accd exactly??
-        # self.signal = np.rint(self.signal).astype(int)  # let's assume it could be real number (float)
-        pass
+    # def compute_signal(self):
+    #     """
+    #     Calculate CCD signal per pixel in units of DN from charges and CCD parameters
+    #     :return:
+    #     """
+    #     # self._signal = self._charges * self.sv * self.accd     # what is self.accd exactly??
+    #     # self.signal = np.rint(self.signal).astype(int)  # let's assume it could be real number (float)
+    #     pass
 
-    def compute_image(self):   # TODO reimplement
-        """
-        Calculate CCD image in units of DN from charges and CCD parameters
-        :return:
-        """
-        # self._image = self._signal * self.a1 * self.a2
-        # self._image = np.rint(self._image).astype(int)   # DN
-        pass
+    # def compute_image(self):
+    #     """
+    #     Calculate CCD image in units of DN from charges and CCD parameters
+    #     :return:
+    #     """
+    #     # self._image = self._signal * self.a1 * self.a2
+    #     # self._image = np.rint(self._image).astype(int)   # DN
+    #     pass
 
     @property
     def row(self):

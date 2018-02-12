@@ -120,7 +120,7 @@ class CDM03Python:
                  t: float = 20.48e-3, st: float = 5.0e-6,
                  fwc: int = 200000, sfwc: int = 730000,
                  parallel_trap_file: str = None,
-                 serial_trap_file: str = None):
+                 serial_trap_file: str = None) -> None:
 
         """
         Class constructor.

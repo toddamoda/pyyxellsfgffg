@@ -61,8 +61,6 @@ def test_loader_with_extra_tags():
     assert obj.environment.temperature == 3.14
 
     assert isinstance(obj.characteristics, CCDCharacteristics)
-    # assert obj.characteristics.k == 1
-    # assert obj.characteristics.j == 2
     assert obj.characteristics.qe == 3
     assert obj.characteristics.eta == 4
     assert obj.characteristics.sv == 5
@@ -126,8 +124,6 @@ def test_loader2_without_extra_tags():
     assert obj.environment.temperature == 3.14
 
     assert isinstance(obj.characteristics, CCDCharacteristics)
-    # assert obj.characteristics.k == 1
-    # assert obj.characteristics.j == 2
     assert obj.characteristics.qe == 3
     assert obj.characteristics.eta == 4
     assert obj.characteristics.sv == 5
