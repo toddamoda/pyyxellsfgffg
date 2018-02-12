@@ -82,24 +82,6 @@ class CCD:
 
         return photon_number_list, photon_energy_list
 
-    # def compute_signal(self):
-    #     """
-    #     Calculate CCD signal per pixel in units of DN from charges and CCD parameters
-    #     :return:
-    #     """
-    #     # self._signal = self._charges * self.sv * self.accd     # what is self.accd exactly??
-    #     # self.signal = np.rint(self.signal).astype(int)  # let's assume it could be real number (float)
-    #     pass
-
-    # def compute_image(self):
-    #     """
-    #     Calculate CCD image in units of DN from charges and CCD parameters
-    #     :return:
-    #     """
-    #     # self._image = self._signal * self.a1 * self.a2
-    #     # self._image = np.rint(self._image).astype(int)   # DN
-    #     pass
-
     @property
     def row(self):
         return self.geometry.row
@@ -156,49 +138,45 @@ class CCD:
     def qe(self):
         return self.characteristics.qe
 
-    # @qe.setter
-    # def qe(self, newqe):
-    #     self.qe = newqe
-
     @property
     def eta(self):
         return self.characteristics.eta
-
-    # @eta.setter
-    # def eta(self, neweta):
-    #     self.eta = neweta
 
     @property
     def sv(self):
         return self.characteristics.sv
 
-    # @sv.setter
-    # def sv(self, newsv):
-    #     self.sv = newsv
-
     @property
     def accd(self):
         return self.characteristics.accd
 
-    # @accd.setter
-    # def accd(self, newaccd):
-    #     self.accd = newaccd
-
     @property
     def a1(self):
         return self.characteristics.a1
-
-    # @a1.setter
-    # def a1(self, newa1):
-    #     self.a1 = newa1
 
     @property
     def a2(self):
         return self.characteristics.a2
 
     @property
+    def fwc_parallel(self):
+        return self.characteristics.fwc_parallel
+
+    @property
+    def fwc_serial(self):
+        return self.characteristics.fwc_serial
+
+    @property
     def temperature(self):
         return self.environment.temperature
+
+    @property
+    def total_ionising_dose(self):
+        return self.environment.total_ionising_dose
+
+    @property
+    def total_non_ionising_dose(self):
+        return self.environment.total_non_ionising_dose
 
     @property
     def depletion_zone(self):

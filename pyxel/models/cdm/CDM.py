@@ -26,18 +26,20 @@ from pyxel.detectors.ccd import CCD
 
 
 def cdm(detector: CCD,
-        dose: float = None,
+        # dose: float = None,
         vth: float = None,
         beta_p: float = None, beta_s: float = None,
         vg: float = None, svg: float = None,
         t: float = None, st: float = None,
-        fwc: int = None, sfwc: int = None,
+        # fwc: int = None, sfwc: int = None,
         parallel_trap_file: str = None,
         serial_trap_file: str = None) -> CCD:
     """
     CDM model wrapper
+
+    Currently using Total Non-ionising (NIEL) Dose for the model as an input parameter !
+
     :param detector: PyXel CCD detector object
-    :param dose: NIEL OR Total Ionizing Dose            # TODO find out
     :param vth: electron thermal velocity
     :param beta_p: electron cloud expansion coefficient (parallel)
     :param beta_s: electron cloud expansion coefficient (serial)
@@ -45,8 +47,6 @@ def cdm(detector: CCD,
     :param svg: assumed maximum geometrical volume electrons can occupy within a pixel (serial)
     :param t: constant TDI period (parallel)
     :param st: constant TDI period (serial)
-    :param fwc: Full Well Capacity in electrons (parallel)
-    :param sfwc: Full Well Capacity in electrons (serial)
     :param parallel_trap_file: ascii file with trap densities (nt),
         trap capture cross-sections (σ), trap release time constants (τr)
     :param serial_trap_file: ascii file with trap densities (nt),
@@ -70,12 +70,15 @@ def cdm(detector: CCD,
     Nc - number of electrons captured by a given trap species during the transit of an integrating signal packet
     N0 - initial trap occupancy
     Nr - number of electrons released into the sample during a transit along the column
+
+    fwc: Full Well Capacity in electrons (parallel)
+    sfwc: Full Well Capacity in electrons (serial)
     """
 
     # new_detector = copy.deepcopy(detector)
     new_detector = detector
 
-    # Charge injection:
+    # Charge injection:     # todo make a new function from this
     # image = np.zeros((100, 100), dtype=np.float32)
     # y_start1 = 50
     # y_stop1 = 55
@@ -87,12 +90,13 @@ def cdm(detector: CCD,
     # # add vertical charge injection lines
     # image[:, x_start1:x_stop1] = charge_injection
 
-    cdm_obj = CDM03Python(rdose=dose,
+    cdm_obj = CDM03Python(rdose=new_detector.total_non_ionising_dose,
+                          fwc=new_detector.fwc_parallel,
+                          sfwc=new_detector.fwc_serial,
                           vth=vth,
                           beta_p=beta_p, beta_s=beta_s,
                           vg=vg, svg=svg,
                           t=t, st=st,
-                          fwc=fwc, sfwc=sfwc,   # TODO
                           parallel_trap_file=parallel_trap_file,
                           serial_trap_file=serial_trap_file)
 

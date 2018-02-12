@@ -23,17 +23,19 @@ process: !PROCESSOR
       bias_voltage: 0.0             # V
 
     environment: !environment
-      temperature: 320  # detector temperature Kelvin
+      temperature: 320                    # Kelvin, detector temperature
+      total_ionising_dose: 8.0e11         # total ionising dose (IEL)
+      total_non_ionising_dose: 8.0e11     # total non-ionising dose (NIEL)
 
     characteristics: !ccd_characteristics
-#      k: 0            # camera gain constant in digital number (DN)
-#      j: 0            # camera gain constant in photon number
-      qe: 0.5         # -
-      eta: 1          # e/photon
-      sv: 1.0e-6      # V/e
-      accd: 0.8       # V/V
-      a1: 100         # V/V
-      a2: 65536       # DN/V
+      qe: 0.5               # -
+      eta: 1                # e/photon
+      sv: 1.0e-6            # V/e
+      accd: 0.8             # V/V
+      a1: 100               # V/V
+      a2: 65536             # DN/V
+      fwc_parallel: 20000   # e
+      fwc_serial: 30000     # e
 
   pipeline: !CCD_PIPELINE
     # -> photons
@@ -70,25 +72,24 @@ process: !PROCESSOR
 #        name: pyxel.models.ccd_noise.add_fix_pattern_noise
 #        kwargs:
 #          pix_non_uniformity: !from_file data/non_uniformity_array_normal_stdev0.03.data
+
 #      diffusion: !function
 #        name: pyxel.models.diffusion.diffusion
 ##        kwargs:
+
 #      full_well: !function
 #        name: pyxel.models.full_well.simple_pixel_full_well
 #        kwargs:
-#          fwc: 10000       # e (full well capacity)
+#          fwc: 10000       # e (full well capacity)  # if defined use this, if not use the default parameter from characteristics
 
     # -> charge
     charge_transfer: !models
       cdm: !function
         name: pyxel.models.cdm.CDM.cdm
         kwargs:
-         dose: 8.0e11
          vth: 1.168e7
          beta_p: 0.6
          beta_s: 0.6
-         fwc: 200000
-         sfwc: 730000
          vg: 6.e-11
          svg: 1.0e-10
          t: 20.48e-3
