@@ -46,7 +46,7 @@ def test_dumper():
                       pixel_vert_size=4.0,
                       pixel_horz_size=5.0,
                       # material=foo,
-                   n_acceptor=6.0,
+                      n_acceptor=6.0,
                       n_donor=7.0,
                       bias_voltage=8.0)
 
