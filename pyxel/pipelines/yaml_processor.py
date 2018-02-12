@@ -25,7 +25,7 @@ from pyxel.util import fitsfile
 from pyxel.util import util
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.environment import Environment
-from pyxel.detectors.ccd_geometry import Geometry
+from pyxel.detectors.ccd_geometry import CCDGeometry
 
 
 class PyxelLoader(yaml.SafeLoader):
@@ -80,11 +80,11 @@ def _geometry_constructor(loader: PyxelLoader, node: yaml.MappingNode):
     """
     mapping = loader.construct_mapping(node, deep=True)  # type: dict
 
-    obj = Geometry(**mapping)
+    obj = CCDGeometry(**mapping)
     return obj
 
 
-def _geometry_representer(dumper: PyxelDumper, obj: Geometry):
+def _geometry_representer(dumper: PyxelDumper, obj: CCDGeometry):
     """TBW.
 
     :param dumper:
@@ -237,7 +237,7 @@ PyxelLoader.add_constructor('!expr', _expr_processor)
 PyxelLoader.add_constructor('!PROCESSOR', _constructor_processor)
 
 PyxelLoader.add_constructor('!geometry', _geometry_constructor)
-PyxelDumper.add_representer(Geometry, _geometry_representer)
+PyxelDumper.add_representer(CCDGeometry, _geometry_representer)
 
 PyxelLoader.add_constructor('!environment', _environment_constructor)
 PyxelDumper.add_representer(Environment, _environment_representer)

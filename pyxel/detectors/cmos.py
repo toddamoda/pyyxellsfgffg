@@ -8,22 +8,9 @@ CMOS detector modeling class
 import numpy as np
 
 from pyxel.detectors.cmos_characteristics import CMOSCharacteristics
-from pyxel.detectors.environment import Environment
 from pyxel.detectors.cmos_geometry import CMOSGeometry
+from pyxel.detectors.environment import Environment
 # from pyxel.detectors.optics import Optics
-
-
-def convert_to_int(value):
-    """
-    Convert any type of numbers to integers
-    :param value:
-    :type value: ndarray
-    :return value:
-    :rtype: int ndarray
-    """
-    int_value = np.rint(value)
-    int_value = int_value.astype(int)
-    return int_value
 
 
 class CMOS:

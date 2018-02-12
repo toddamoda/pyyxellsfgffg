@@ -8,33 +8,18 @@ import numpy as np
 # from astropy import units as u
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.environment import Environment
-from pyxel.detectors.ccd_geometry import Geometry
+from pyxel.detectors.ccd_geometry import CCDGeometry
 from pyxel.physics.charge import Charge  # noqa: F401
 from pyxel.physics.photon import Photon  # noqa: F401
 from pyxel.physics.pixel import Pixel  # noqa: F401
-
-
 # from pyxel.detectors.optics import Optics
-
-
-def convert_to_int(value):
-    """
-    Convert any type of numbers to integers
-    :param value:
-    :type value: ndarray
-    :return value:
-    :rtype: int ndarray
-    """
-    int_value = np.rint(value)
-    int_value = int_value.astype(int)
-    return int_value
 
 
 class CCD:
     """ The CCD detector class. """
 
     def __init__(self,
-                 geometry: Geometry = None,
+                 geometry: CCDGeometry = None,
                  environment: Environment = None,
                  characteristics: CCDCharacteristics = None,
                  photons: int = None,

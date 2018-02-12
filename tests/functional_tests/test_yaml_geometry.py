@@ -1,4 +1,4 @@
-from pyxel.detectors.ccd_geometry import Geometry
+from pyxel.detectors.ccd_geometry import CCDGeometry
 from pyxel.pipelines.yaml_processor import dump
 from pyxel.pipelines.yaml_processor import load
 
@@ -22,7 +22,7 @@ def test_loader():
 
     obj = load(data)
 
-    assert isinstance(obj, Geometry)
+    assert isinstance(obj, CCDGeometry)
     assert obj.row == 1000
     assert obj.col == 1001
     assert obj.depletion_thickness == 1.0
@@ -38,17 +38,17 @@ def test_loader():
 
 def test_dumper():
     """Test `PyxelDumper`."""
-    obj = Geometry(row=1000,
-                   col=1001,
-                   depletion_thickness=1.0,
-                   field_free_thickness=2.0,
-                   total_thickness=3.0,
-                   pixel_vert_size=4.0,
-                   pixel_horz_size=5.0,
-                   # material=foo,
+    obj = CCDGeometry(row=1000,
+                      col=1001,
+                      depletion_thickness=1.0,
+                      field_free_thickness=2.0,
+                      total_thickness=3.0,
+                      pixel_vert_size=4.0,
+                      pixel_horz_size=5.0,
+                      # material=foo,
                    n_acceptor=6.0,
-                   n_donor=7.0,
-                   bias_voltage=8.0)
+                      n_donor=7.0,
+                      bias_voltage=8.0)
 
     data = dump(obj)
     assert data == "!geometry {bias_voltage: 8.0, col: 1001, depletion_thickness: 1.0, field_free_thickness: 2.0,\n  " \

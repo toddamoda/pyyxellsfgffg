@@ -3,7 +3,7 @@ Geometry class for detector
 """
 
 
-class Geometry:
+class CCDGeometry:
 
     def __init__(self,
                  row: int = None, col: int = None,
@@ -64,7 +64,7 @@ class Geometry:
 
     # TODO: create unittests for this method
     def __eq__(self, obj):
-        assert isinstance(obj, Geometry)
+        assert isinstance(obj, CCDGeometry)
         return self.__getstate__() == obj.__getstate__()
 
     def set_material(self, material):

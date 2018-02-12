@@ -23,7 +23,22 @@ class CMOSGeometry:
                  reference_pixel_border_width: int = None) -> None:
         """
         Initialize the CMOS geometry
-
+        :param row:
+        :param col:
+        :param depletion_thickness:
+        :param field_free_thickness:
+        :param total_thickness:
+        :param pixel_vert_size:
+        :param pixel_horz_size:
+        :param material:
+        :param n_acceptor:
+        :param n_donor:
+        :param bias_voltage:
+        :param n_output:
+        :param n_row_overhead:
+        :param n_frame_overhead:
+        :param reverse_scan_direction:
+        :param reference_pixel_border_width:
         """
         self.row = row
         self.col = col

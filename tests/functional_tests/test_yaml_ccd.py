@@ -1,7 +1,7 @@
 from pyxel.detectors.ccd import CCD
 from pyxel.detectors.environment import Environment
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
-from pyxel.detectors.ccd_geometry import Geometry
+from pyxel.detectors.ccd_geometry import CCDGeometry
 # from pyxel.pipelines.yaml_processor import dump
 from pyxel.pipelines.yaml_processor import load
 
@@ -44,7 +44,7 @@ def test_loader_with_extra_tags():
     # assert obj.photons == 10
     # assert obj.image is None
 
-    assert isinstance(obj.geometry, Geometry)
+    assert isinstance(obj.geometry, CCDGeometry)
     assert obj.geometry.row == 1000
     assert obj.geometry.col == 1001
     assert obj.geometry.depletion_thickness == 1.0
@@ -107,7 +107,7 @@ def test_loader2_without_extra_tags():
     # assert obj.photons == 10
     # assert obj.image is None
 
-    assert isinstance(obj.geometry, Geometry)
+    assert isinstance(obj.geometry, CCDGeometry)
     assert obj.geometry.row == 1000
     assert obj.geometry.col == 1001
     assert obj.geometry.depletion_thickness == 1.0
