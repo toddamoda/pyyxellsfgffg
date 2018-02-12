@@ -25,7 +25,20 @@ import numba    # todo: remove or add to requirements, but only if it works
 from pyxel.detectors.ccd import CCD
 
 
-def cdm(detector: CCD) -> CCD:
+def cdm(detector: CCD,
+        rdose: float = None,
+        dob: float = None,
+        beta_p: float = None,
+        beta_s: float = None,
+        # fwc: int = None,
+        vth: float = None,
+        vg: float = None,
+        t: float = None,
+        sfwc: float = None,
+        svg: float = None,
+        st: float = None,
+        parallel_trap_file: str = None,
+        serial_trap_file: str = None) -> CCD:
     """ CDM wrapper """
 
     # new_detector = copy.deepcopy(detector)
@@ -43,7 +56,19 @@ def cdm(detector: CCD) -> CCD:
     # # add vertical charge injection lines
     # image[:, x_start1:x_stop1] = charge_injection
 
-    cdm_obj = CDM03Python()
+    cdm_obj = CDM03Python(rdose=rdose,
+                          dob=dob,
+                          beta_p=beta_p,
+                          beta_s=beta_s,
+                          fwc=200000,  # new_detector.fwc,     # Todo
+                          vth=vth,
+                          vg=vg,
+                          t=t,
+                          sfwc=sfwc,
+                          svg=svg,
+                          st=st,
+                          parallel_trap_file=parallel_trap_file,
+                          serial_trap_file=serial_trap_file)
 
     charge_data = new_detector.pixels.generate_2d_charge_array()
 
@@ -61,7 +86,21 @@ class CDM03Python:
     Class to run CDM03 CTI model, class Fortran routine to perform the actual CDM03 calculations.
     """
 
-    def __init__(self):
+    def __init__(self,
+                 rdose: float = 8.0e11,
+                 dob: float = 0.0,
+                 beta_p: float = 0.6,
+                 beta_s: float = 0.6,
+                 fwc: int = 200000.,
+                 vth: float = 1.168e7,
+                 vg: float = 6.e-11,
+                 t: float = 20.48e-3,
+                 sfwc: float = 730000.,
+                 svg: float = 1.0e-10,
+                 st: float = 5.0e-6,
+                 parallel_trap_file: str = None,
+                 serial_trap_file: str = None):
+
         """
         Class constructor.
 
@@ -73,39 +112,38 @@ class CDM03Python:
         # :type log: logging instance
         """
 
-        parallel_trap_file = path.dirname(path.abspath(__file__)) + '\cdm_euclid_parallel.dat'
-        serial_trap_file = path.dirname(path.abspath(__file__)) + '\cdm_euclid_serial.dat'
-
         # read in trap information
-        trapdata = np.loadtxt(parallel_trap_file)
-        if trapdata.ndim > 1:
-            self.nt_p = trapdata[:, 0]
-            self.sigma_p = trapdata[:, 1]
-            self.tr_p = trapdata[:, 2]
-        else:
-            raise ValueError('Trap data can not be read')
+        if parallel_trap_file is not None:
+            trapdata = np.loadtxt(parallel_trap_file)
+            if trapdata.ndim > 1:
+                self.nt_p = trapdata[:, 0]
+                self.sigma_p = trapdata[:, 1]
+                self.tr_p = trapdata[:, 2]
+            else:
+                raise ValueError('Trap data can not be read')
 
-        trapdata = np.loadtxt(serial_trap_file)
-        if trapdata.ndim > 1:
-            self.nt_s = trapdata[:, 0]
-            self.sigma_s = trapdata[:, 1]
-            self.tr_s = trapdata[:, 2]
-        else:
-            raise ValueError('Trap data can not be read')
+        if serial_trap_file is not None:
+            trapdata = np.loadtxt(serial_trap_file)
+            if trapdata.ndim > 1:
+                self.nt_s = trapdata[:, 0]
+                self.sigma_s = trapdata[:, 1]
+                self.tr_s = trapdata[:, 2]
+            else:
+                raise ValueError('Trap data can not be read')
 
-        self.rdose = 8.0e11
-        self.dob = 0.0
-        self.beta_p = 0.6
-        self.beta_s = 0.6
-        self.fwc = 200000.
-        self.vth = 1.168e7
-        self.vg = 6.e-11
-        self.t = 20.48e-3
-        self.sfwc = 730000.
-        self.svg = 1.0e-10
-        self.st = 5.0e-6
-        self.parallel_cti = True
-        self.serial_cti = False
+        self.rdose = rdose
+        self.dob = dob
+        self.beta_p = beta_p
+        self.beta_s = beta_s
+        self.fwc = fwc
+        self.vth = vth
+        self.vg = vg
+        self.t = t
+        self.sfwc = sfwc
+        self.svg = svg
+        self.st = st
+        self.parallel_cti = parallel_trap_file
+        self.serial_cti = serial_trap_file
 
     # def radiate_ccd_transpose(self):
     #     """
@@ -227,42 +265,26 @@ class CDM03Python:
         # iflip = iquadrant % 2
         # jflip = iquadrant % 2
 
-        image_with_cti = self._run_cdm_(image=data,
-                                        parallel_cti=self.parallel_cti,
-                                        serial_cti=self.serial_cti)
+        image_with_cti = self._run_cdm_(image=data)
 
         return np.asanyarray(image_with_cti)
 
     @numba.jit
     def _run_cdm_(self,
-                  image=None,
-                  parallel_cti=None,
-                  serial_cti=None):
+                  image=None):
         """
 
         :param image:
-        :param parallel_cti:
-        :param serial_cti:
         :return:
         """
-
         # absolute trap density which should be scaled according to radiation dose
         # (nt=1.5e10 gives approx fit to GH data for a dose of 8e9 10MeV equiv. protons)
-        self.nt_p *= self.rdose                    # absolute trap density [per cm**3]
-        self.nt_s *= self.rdose                    # absolute trap density [per cm**3]
 
         # array sizes
         ydim, xdim = image.shape
-        zdim_p = len(self.nt_p)
-        zdim_s = len(self.nt_s)
-
-        # work arrays
-        no = np.zeros_like(image, dtype=np.float64)
-        sno = np.zeros_like(image, dtype=np.float64)
-
-        s = image
 
         # add background electrons
+        s = image
         s += self.dob
 
         # apply FWC (anti-blooming)
@@ -270,8 +292,13 @@ class CDM03Python:
         s[msk] = self.fwc
 
         # start with parallel direction
-        if parallel_cti:
+        if self.parallel_cti:
             print('adding parallel')
+
+            no = np.zeros_like(image, dtype=np.float64)
+            self.nt_p *= self.rdose             # absolute trap density [per cm**3]
+            zdim_p = len(self.nt_p)
+
             alpha_p = self.t * self.sigma_p * self.vth * self.fwc ** self.beta_p / 2. / self.vg
             g_p = self.nt_p * 2. * self.vg / self.fwc ** self.beta_p
 
@@ -294,8 +321,13 @@ class CDM03Python:
                         no[j, k] -= nr
 
         # now serial direction
-        if serial_cti:
+        if self.serial_cti:
             print('adding serial')
+
+            sno = np.zeros_like(image, dtype=np.float64)
+            self.nt_s *= self.rdose             # absolute trap density [per cm**3]
+            zdim_s = len(self.nt_s)
+
             alpha_s = self.st * self.sigma_s * self.vth * self.sfwc ** self.beta_s / 2. / self.svg
             g_s = self.nt_s * 2. * self.svg / self.sfwc ** self.beta_s
 

@@ -6,8 +6,8 @@
 process: !PROCESSOR
 
   detector: !CCD
-    photons: null   # 10
-    image: !from_file data/HorseHead_orig.fits
+    photons: 100
+    image: null   # !from_file data/HorseHead_orig.fits
 
     geometry: !geometry
       row: 100                      # compulsory
@@ -82,6 +82,20 @@ process: !PROCESSOR
     charge_transfer: !models
       cdm: !function
         name: pyxel.models.cdm.CDM.cdm
+        kwargs:
+         rdose: 8.0e11
+         dob: 0.0
+         beta_p: 0.6
+         beta_s: 0.6
+#         fwc:
+         vth: 1.168e7
+         vg: 6.e-11
+         t: 20.48e-3
+         sfwc: 730000.
+         svg: 1.0e-10
+         st: 5.0e-6
+         parallel_trap_file: pyxel/models/cdm/cdm_euclid_parallel.dat
+         serial_trap_file: null   # pyxel/models/cdm/cdm_euclid_serial.dat
 
     # -> signal
     charge_measurement: !models
