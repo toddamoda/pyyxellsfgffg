@@ -10,8 +10,6 @@ class CMOSCharacteristics:
                  a1: float = None,
                  a2: float = None) -> None:
         """
-
-
         :param qe:
         :param eta:
         :param sv:
@@ -26,3 +24,16 @@ class CMOSCharacteristics:
         self.amp = amp    # * u.V / u.V               # output amplifier gain
         self.a1 = a1        # * u.V / u.V               # gain of the signal processor
         self.a2 = a2        # * u.adu / u.V             # gain of the ADC
+
+    def __getstate__(self):
+        return {'qe': self.qe,
+                'eta': self.eta,
+                'sv': self.sv,
+                'amp': self.amp,
+                'a1': self.a1,
+                'a2': self.a2}
+
+    # TODO: create unittests for this method
+    def __eq__(self, obj):
+        assert isinstance(obj, CMOSCharacteristics)
+        return self.__getstate__() == obj.__getstate__()
