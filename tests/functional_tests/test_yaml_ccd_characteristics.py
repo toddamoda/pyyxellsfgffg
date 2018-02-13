@@ -43,8 +43,13 @@ a1: 7
 a2: 8
 accd: 6
 eta: 4
+<<<<<<< HEAD
 fwc: 2
 fwc_serial: 3
+=======
+j: 2
+k: 1
+>>>>>>> master
 qe: 3
 sv: 5
 """

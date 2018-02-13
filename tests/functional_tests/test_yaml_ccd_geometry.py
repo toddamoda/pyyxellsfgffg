@@ -51,6 +51,15 @@ def test_dumper():
                       bias_voltage=8.0)
 
     data = dump(obj)
-    assert data == "!geometry {bias_voltage: 8.0, col: 1001, depletion_thickness: 1.0, field_free_thickness: 2.0,\n  " \
-                   "n_acceptor: 6.0, n_donor: 7.0, pixel_horz_size: 5.0, pixel_vert_size: 4.0, row: 1000,\n  " \
-                   "total_thickness: 3.0}\n"
+    assert data == """!geometry
+bias_voltage: 8.0
+col: 1001
+depletion_thickness: 1.0
+field_free_thickness: 2.0
+n_acceptor: 6.0
+n_donor: 7.0
+pixel_horz_size: 5.0
+pixel_vert_size: 4.0
+row: 1000
+total_thickness: 3.0
+"""
