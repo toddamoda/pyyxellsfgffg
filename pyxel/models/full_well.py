@@ -5,7 +5,6 @@
 PyXel! CCD full well models
 """
 # import copy
-import numpy as np
 
 from pyxel.detectors.ccd import CCD
 
@@ -27,8 +26,6 @@ def simple_pixel_full_well(detector: CCD,
 
     mask = charge_array > fwc
     charge_array[mask] = fwc
-
-    charge_array = np.rint(charge_array).astype(int)         # TODO add np.rint and np.int to Pixels class funcs
 
     new_detector.pixels.update_from_2d_charge_array(charge_array)
 

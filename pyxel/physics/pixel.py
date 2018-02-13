@@ -8,8 +8,30 @@ import numpy as np
 # from astropy import units as u
 from astropy.units import cds
 import pandas as pd
-
 cds.enable()
+
+
+def round_convert_to_int(input_array: np.ndarray):
+    """
+    Round list of floats in numpy array and convert to integers
+    Use on data before adding into DataFrame
+    :param input_array: numpy array object OR numpy array (float, int)
+    :return:
+    """
+    array = input_array.astype(float)
+    array = np.rint(array)
+    array = array.astype(int)
+    return array
+
+
+def convert_to_int(input_array: np.ndarray):
+    """
+    Convert numpy array to integer
+    Use on data after getting it from DataFrame
+    :param input_array: numpy array object OR numpy array (float, int)
+    :return:
+    """
+    return input_array.astype(int)
 
 
 class Pixel:
@@ -22,6 +44,8 @@ class Pixel:
                  detector=None):
 
         self.detector = detector
+        self.nextid = None
+        self.frame = None
         self.__create_dataframe__()
 
     def __create_dataframe__(self):
@@ -51,6 +75,37 @@ class Pixel:
                        pixel_index_ver,
                        pixel_index_hor)
 
+    def add_pixel(self,
+                  charge,
+                  pixel_index_ver,
+                  pixel_index_hor):
+        """
+        Creating new pixel charge packet which is stored in a pandas DataFrame
+        :return:
+        """
+
+        if len(charge) == len(pixel_index_ver) == len(pixel_index_hor):
+            elements = len(charge)
+        else:
+            raise ValueError('List arguments have different lengths')
+
+        # Rounding and converting to integer
+        charge = round_convert_to_int(charge)
+        pixel_index_ver = round_convert_to_int(pixel_index_ver)
+        pixel_index_hor = round_convert_to_int(pixel_index_hor)
+
+        # dict
+        new_pixel = {'id': range(self.nextid, self.nextid + elements),
+                     'charge': charge,
+                     'pixel_index_ver': pixel_index_ver,
+                     'pixel_index_hor': pixel_index_hor}
+
+        new_pixel_df = pd.DataFrame(new_pixel)
+        self.nextid += elements
+
+        # Adding new pixels to the DataFrame
+        self.frame = pd.concat([self.frame, new_pixel_df], ignore_index=True)
+
     def generate_2d_charge_array(self):
         """
         Generating 2d numpy array from pixel DataFrame
@@ -63,7 +118,7 @@ class Pixel:
         charge_2d_array = np.zeros((self.detector.row, self.detector.col), dtype=float)
         charge_2d_array[pixel_index_ver, pixel_index_hor] = charge_per_pixel
 
-        return charge_2d_array
+        return convert_to_int(charge_2d_array)
 
     def update_from_2d_charge_array(self, array):
         """
@@ -81,35 +136,7 @@ class Pixel:
         ver_index = np.repeat(ver_index, col)
         hor_index = np.tile(hor_index, row)
 
-        self.add_pixel(array.flatten(),
-                       ver_index,
-                       hor_index)
-
-    def add_pixel(self,
-                  charge,
-                  pixel_index_ver,
-                  pixel_index_hor):
-        """
-        Creating new pixel charge packet which is stored in a pandas DataFrame
-        :return:
-        """
-
-        if len(charge) == len(pixel_index_ver) == len(pixel_index_hor):
-            elements = len(charge)
-        else:
-            raise ValueError('List arguments have different lengths')
-
-        # dict
-        new_pixel = {'id': range(self.nextid, self.nextid + elements),
-                     'charge': charge,
-                     'pixel_index_ver': pixel_index_ver,
-                     'pixel_index_hor': pixel_index_hor}
-
-        new_pixel_df = pd.DataFrame(new_pixel)
-        self.nextid = self.nextid + elements
-
-        # Adding new pixels to the DataFrame
-        self.frame = pd.concat([self.frame, new_pixel_df], ignore_index=True)
+        self.add_pixel(array.flatten(), ver_index, hor_index)
 
     def get_pixel_charges(self, id_list='all'):
         """
@@ -121,7 +148,8 @@ class Pixel:
             array = self.frame.charge.values
         else:
             array = self.frame.query('id in %s' % id_list).charge.values
-        return array.astype(int)
+
+        return convert_to_int(array)
 
     def get_pixel_positions_ver(self, id_list='all'):
         """
@@ -133,7 +161,7 @@ class Pixel:
             array = self.frame.pixel_index_ver.values
         else:
             array = self.frame.query('id in %s' % id_list).pixel_index_ver.values
-        return array.astype(int)
+        return convert_to_int(array)
 
     def get_pixel_positions_hor(self, id_list='all'):
         """
@@ -145,15 +173,15 @@ class Pixel:
             array = self.frame.pixel_index_hor.values
         else:
             array = self.frame.query('id in %s' % id_list).pixel_index_hor.values
-        return array.astype(int)
+        return convert_to_int(array)
 
-    def change_all_charges(self, new_charge_list):
-        """
-        Update number of photons in each row
-        :param new_charge_list:
-        :return:
-        """
-        new_df = pd.DataFrame({'charge': new_charge_list})
-        self.frame.update(new_df)
-        # TODO: update all rows with given ids in list (id_list can be a 2nd optional arg)
-        # https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.update.html
+    # def change_all_charges(self, new_charge_list):
+    #     """
+    #     Update number of photons in each row
+    #     :param new_charge_list:
+    #     :return:
+    #     """
+    #     new_df = pd.DataFrame({'charge': new_charge_list})
+    #     self.frame.update(new_df)
+    #     # TODO: update all rows with given ids in list (id_list can be a 2nd optional arg)
+    #     # https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.update.html

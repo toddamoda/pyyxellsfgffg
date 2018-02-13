@@ -84,17 +84,17 @@ process: !PROCESSOR
 
     # -> charge
     charge_transfer: !models
-      cdm: !function
-        name: pyxel.models.cdm.CDM.cdm
-        arguments:
-         beta_p: 0.6
-         beta_s: 0.6
-         vg: 6.e-11
-         svg: 1.0e-10
-         t: 20.48e-3
-         st: 5.0e-6
-         parallel_trap_file: pyxel/models/cdm/cdm_euclid_parallel.dat
-         serial_trap_file: pyxel/models/cdm/cdm_euclid_serial.dat
+#      cdm: !function
+#        name: pyxel.models.cdm.CDM.cdm
+#        arguments:
+#         beta_p: 0.6
+#         beta_s: 0.6
+#         vg: 6.e-11
+#         svg: 1.0e-10
+#         t: 20.48e-3
+#         st: 5.0e-6
+#         parallel_trap_file: pyxel/models/cdm/cdm_euclid_parallel.dat
+#         serial_trap_file: pyxel/models/cdm/cdm_euclid_serial.dat
 
     # -> signal
     charge_measurement: !models
