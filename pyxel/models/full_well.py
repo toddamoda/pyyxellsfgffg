@@ -5,7 +5,7 @@
 PyXel! CCD full well models
 """
 # import copy
-# import numpy as np
+import numpy as np
 
 from pyxel.detectors.ccd import CCD
 
@@ -23,16 +23,14 @@ def simple_pixel_full_well(detector: CCD,
     if fwc is None:
         fwc = new_detector.fwc
 
-    # charge = new_detector.pixels.get_pixel_charges()  # TODO not working
-    # charge_array =
-    # mask = charge_array > fwc
+    charge_array = new_detector.pixels.generate_2d_charge_array()
 
-    # mask = np.where(charge_array > fwc)
-    # charge_array[mask] = fwc
+    mask = charge_array > fwc
+    charge_array[mask] = fwc
 
-    # charge_array = np.rint(charge_array).astype(int)
-    # new_detector.pixels.change_all_charges(charge_array)
-    # TODO add np.rint and np.int to Pixels class funcs
+    charge_array = np.rint(charge_array).astype(int)         # TODO add np.rint and np.int to Pixels class funcs
+
+    new_detector.pixels.update_from_2d_charge_array(charge_array)
 
     return new_detector
 

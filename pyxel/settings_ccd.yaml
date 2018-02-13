@@ -77,10 +77,10 @@ process: !PROCESSOR
 #        name: pyxel.models.diffusion.diffusion
 ##        arguments:
 
-#      full_well: !function
-#        name: pyxel.models.full_well.simple_pixel_full_well
-#        arguments:
-#          fwc: 10000       # e (full well capacity)  # if defined use this, if not use the default parameter from characteristics
+      full_well: !function
+        name: pyxel.models.full_well.simple_pixel_full_well
+        arguments:
+          fwc: 100       # e  # if defined use this, if not use the default parameter from characteristics
 
     # -> charge
     charge_transfer: !models
