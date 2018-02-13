@@ -2,7 +2,7 @@ from pyxel.detectors.ccd import CCD
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.ccd_geometry import CCDGeometry
 from pyxel.detectors.environment import Environment
-# from pyxel.pipelines.yaml_processor import dump
+from pyxel.io.yaml_processor import dump
 from pyxel.io.yaml_processor import load
 
 
@@ -77,8 +77,7 @@ def test_dumper():
                                    pixel_horz_size=5.0, n_acceptor=6.0,
                                    n_donor=7.0, bias_voltage=8.0),
               environment=Environment(temperature=3.14),
-              characteristics=CCDCharacteristics(k=1, j=2,
-                                                 qe=3, eta=4,
+              characteristics=CCDCharacteristics(qe=3, eta=4,
                                                  sv=5, accd=6,
                                                  a1=7, a2=8),
               photons=10,
@@ -92,12 +91,14 @@ characteristics: !ccd_characteristics
   a2: 8
   accd: 6
   eta: 4
-  j: 2
-  k: 1
+  fwc: null
+  fwc_serial: null
   qe: 3
   sv: 5
 environment: !environment
   temperature: 3.14
+  total_ionising_dose: null
+  total_non_ionising_dose: null
 geometry: !geometry
   bias_voltage: 8.0
   col: 1001

@@ -28,10 +28,8 @@ def test_dumper():
 
     data = dump(obj)
 
-<<<<<<< HEAD
-    assert data == "!environment {temperature: 100.234, total_ionising_dose: 1.0, total_non_ionising_dose: 1.0}\n"
-=======
     assert data == """!environment
 temperature: 100.234
+total_ionising_dose: 1.0
+total_non_ionising_dose: 1.0
 """
->>>>>>> master

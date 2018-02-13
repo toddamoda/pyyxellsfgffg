@@ -38,8 +38,7 @@ class CCDCharacteristics:
                 'a1': self.a1,
                 'a2': self.a2,
                 'fwc': self.fwc,
-                'fwc_serial': self.fwc_serial
-                }
+                'fwc_serial': self.fwc_serial}
 
     # TODO: create unittests for this method
     def __eq__(self, obj):
