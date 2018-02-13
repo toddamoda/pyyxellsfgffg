@@ -37,6 +37,7 @@ process: !PROCESSOR
       amp: 0.8       # V/V
       a1: 100         # V/V
       a2: 65536       # DN/V
+      fwc: 20000   # e
 
   pipeline: !CMOS_PIPELINE
     # -> photons

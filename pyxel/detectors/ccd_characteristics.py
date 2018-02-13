@@ -9,7 +9,7 @@ class CCDCharacteristics:
                  accd: float = None,
                  a1: float = None,
                  a2: float = None,
-                 fwc_parallel: int = None,
+                 fwc: int = None,
                  fwc_serial: int = None
                  ) -> None:
         """
@@ -27,7 +27,7 @@ class CCDCharacteristics:
         self.accd = accd                        # * u.V / u.V               # output amplifier gain
         self.a1 = a1                            # * u.V / u.V               # gain of the signal processor
         self.a2 = a2                            # * u.adu / u.V             # gain of the ADC
-        self.fwc_parallel = fwc_parallel        # * u.electrons             # full well capacity (parallel)
+        self.fwc = fwc        # * u.electrons             # full well capacity (parallel)
         self.fwc_serial = fwc_serial            # * u.electrons             # full well capacity (serial)
 
     def __getstate__(self):
@@ -37,7 +37,7 @@ class CCDCharacteristics:
                 'accd': self.accd,
                 'a1': self.a1,
                 'a2': self.a2,
-                'fwc_parallel': self.fwc_parallel,
+                'fwc': self.fwc,
                 'fwc_serial': self.fwc_serial
                 }
 

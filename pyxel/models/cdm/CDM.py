@@ -88,7 +88,7 @@ def cdm(detector: CCD,
     # image[:, x_start1:x_stop1] = charge_injection
 
     cdm_obj = CDM03Python(rdose=new_detector.total_non_ionising_dose,
-                          fwc=new_detector.fwc_parallel,
+                          fwc=new_detector.fwc,
                           sfwc=new_detector.fwc_serial,
                           vth=new_detector.e_thermal_velocity,
                           beta_p=beta_p, beta_s=beta_s,
@@ -126,19 +126,18 @@ class CDM03Python:
         """
         Class constructor.
         :param rdose:
+        :param vth:
         :param beta_p:
         :param beta_s:
-        :param fwc:
-        :param vth:
         :param vg:
-        :param t:
-        :param sfwc:
         :param svg:
+        :param t:
         :param st:
+        :param fwc:
+        :param sfwc:
         :param parallel_trap_file:
         :param serial_trap_file:
         """
-
         # read in trap information
         if parallel_trap_file is not None:
             trapdata = np.loadtxt(parallel_trap_file)

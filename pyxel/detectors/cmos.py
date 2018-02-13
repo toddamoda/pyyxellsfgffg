@@ -170,6 +170,10 @@ class CMOS:
         return self.characteristics.a2
 
     @property
+    def fwc(self):
+        return self.characteristics.fwc
+
+    @property
     def temperature(self):
         return self.environment.temperature
 

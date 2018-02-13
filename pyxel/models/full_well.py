@@ -4,8 +4,8 @@
 """
 PyXel! CCD full well models
 """
-import copy
-import numpy as np
+# import copy
+# import numpy as np
 
 from pyxel.detectors.ccd import CCD
 
@@ -17,35 +17,42 @@ def simple_pixel_full_well(detector: CCD,
     :return:
     """
 
-    new_detector = copy.deepcopy(detector)
+    # new_detector = copy.deepcopy(detector)
+    new_detector = detector
 
-    charge = new_detector.pixels.get_pixel_charges()        # TODO not working
+    if fwc is None:
+        fwc = new_detector.fwc
 
-    excess_pos = np.where(charge > fwc)
-    charge[excess_pos] = fwc
+    # charge = new_detector.pixels.get_pixel_charges()  # TODO not working
+    # charge_array =
+    # mask = charge_array > fwc
 
-    charge = np.rint(charge).astype(int)
-    new_detector.pixels.change_all_charges(charge)
+    # mask = np.where(charge_array > fwc)
+    # charge_array[mask] = fwc
+
+    # charge_array = np.rint(charge_array).astype(int)
+    # new_detector.pixels.change_all_charges(charge_array)
     # TODO add np.rint and np.int to Pixels class funcs
 
     return new_detector
 
 
-def mc_full_well(detector: CCD,
-                 fwc: np.ndarray = None) -> CCD:
-    """
-    Moving charges to random neighbour pixels due to full well which depends on pixel location
-    :return:
-    """
-
-    new_detector = copy.deepcopy(detector)
-
-    # detector.charges
-
-    # pix_rows = new_detector.pixels.get_pixel_positions_ver()
-    # pix_cols = new_detector.pixels.get_pixel_positions_hor()
-    #
-    # charge = np.zeros((new_detector.row, new_detector.col), dtype=float)
-    # charge[pix_rows, pix_cols] = new_detector.pixels.get_pixel_charges()
-
-    return new_detector
+# def mc_full_well(detector: CCD,
+#                  fwc: np.ndarray = None) -> CCD:
+#     """
+#     Moving charges to random neighbour pixels due to full well which depends on pixel location
+#     :return:
+#     """
+#
+#     # new_detector = copy.deepcopy(detector)
+#     new_detector =detector
+#
+#     # detector.charges
+#
+#     # pix_rows = new_detector.pixels.get_pixel_positions_ver()
+#     # pix_cols = new_detector.pixels.get_pixel_positions_hor()
+#     #
+#     # charge = np.zeros((new_detector.row, new_detector.col), dtype=float)
+#     # charge[pix_rows, pix_cols] = new_detector.pixels.get_pixel_charges()
+#
+#     return new_detector

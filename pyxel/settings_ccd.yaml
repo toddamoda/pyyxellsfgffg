@@ -34,7 +34,7 @@ process: !PROCESSOR
       accd: 0.8             # V/V
       a1: 100               # V/V
       a2: 65536             # DN/V
-      fwc_parallel: 20000   # e
+      fwc: 20000            # e
       fwc_serial: 30000     # e
 
   pipeline: !CCD_PIPELINE
@@ -94,7 +94,7 @@ process: !PROCESSOR
          t: 20.48e-3
          st: 5.0e-6
          parallel_trap_file: pyxel/models/cdm/cdm_euclid_parallel.dat
-         serial_trap_file: null   # pyxel/models/cdm/cdm_euclid_serial.dat
+         serial_trap_file: pyxel/models/cdm/cdm_euclid_serial.dat
 
     # -> signal
     charge_measurement: !models

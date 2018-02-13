@@ -15,7 +15,7 @@ def test_loader():
   accd: 6
   a1: 7
   a2: 8
-  fwc_parallel: 2
+  fwc: 2
   fwc_serial: 3
 """
 
@@ -28,14 +28,23 @@ def test_loader():
     assert obj.accd == 6
     assert obj.a1 == 7
     assert obj.a2 == 8
-    assert obj.fwc_parallel == 2
+    assert obj.fwc == 2
     assert obj.fwc_serial == 3
 
 
 def test_dumper():
     """Test `PyxelDumper`."""
-    obj = CCDCharacteristics(qe=3, eta=4, sv=5, accd=6, a1=7, a2=8, fwc_parallel=2, fwc_serial=3)
+    obj = CCDCharacteristics(qe=3, eta=4, sv=5, accd=6, a1=7, a2=8, fwc=2, fwc_serial=3)
 
     data = dump(obj)
 
-    assert data == "!ccd_characteristics {qe: 3, eta: 4, sv: 5, accd: 6, a1: 7, a2: 8, fwc_parallel: 2, fwc_serial: 3}\n"
+    assert data == """!ccd_characteristics
+a1: 7
+a2: 8
+accd: 6
+eta: 4
+fwc: 2
+fwc_serial: 3
+qe: 3
+sv: 5
+"""

@@ -168,8 +168,8 @@ class CCD:
         return self.characteristics.a2
 
     @property
-    def fwc_parallel(self):
-        return self.characteristics.fwc_parallel
+    def fwc(self):
+        return self.characteristics.fwc
 
     @property
     def fwc_serial(self):
