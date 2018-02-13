@@ -1,8 +1,8 @@
 """Test `PyxelLoader` with `Environment`."""
 
 from pyxel.detectors.environment import Environment
-from pyxel.pipelines.yaml_processor import dump
-from pyxel.pipelines.yaml_processor import load
+from pyxel.io.yaml_processor import dump
+from pyxel.io.yaml_processor import load
 
 
 def test_loader():
@@ -10,6 +10,8 @@ def test_loader():
     data = """
 !environment
   temperature: 3.14
+  total_ionising_dose: 1.0
+  total_non_ionising_dose: 1.0
 """
 
     obj = load(data)
@@ -20,10 +22,14 @@ def test_loader():
 
 def test_dumper():
     """Test `PyxelDumper`."""
-    obj = Environment(temperature=100.234)
+    obj = Environment(temperature=100.234,
+                      total_ionising_dose=1.0,
+                      total_non_ionising_dose=1.0)
 
     data = dump(obj)
 
     assert data == """!environment
 temperature: 100.234
+total_ionising_dose: 1.0
+total_non_ionising_dose: 1.0
 """

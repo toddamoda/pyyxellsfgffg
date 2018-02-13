@@ -15,7 +15,7 @@ parameters in parallel and serial direction.
 :version: 0.35
 """
 # import copy
-from os import path
+# from os import path
 import numpy as np
 import datetime
 import os
@@ -25,13 +25,57 @@ import numba    # todo: remove or add to requirements, but only if it works
 from pyxel.detectors.ccd import CCD
 
 
-def cdm(detector: CCD) -> CCD:
-    """ CDM wrapper """
+def cdm(detector: CCD,
+        beta_p: float = None, beta_s: float = None,
+        vg: float = None, svg: float = None,
+        t: float = None, st: float = None,
+        parallel_trap_file: str = None,
+        serial_trap_file: str = None) -> CCD:
+    """
+    CDM model wrapper
+
+    Currently using Total Non-ionising (NIEL) Dose for the model as an input parameter !
+
+    :param detector: PyXel CCD detector object
+    :param vth: electron thermal velocity
+    :param beta_p: electron cloud expansion coefficient (parallel)
+    :param beta_s: electron cloud expansion coefficient (serial)
+    :param vg: assumed maximum geometrical volume electrons can occupy within a pixel (parallel)
+    :param svg: assumed maximum geometrical volume electrons can occupy within a pixel (serial)
+    :param t: constant TDI period (parallel)
+    :param st: constant TDI period (serial)
+    :param parallel_trap_file: ascii file with trap densities (nt),
+        trap capture cross-sections (σ), trap release time constants (τr)
+    :param serial_trap_file: ascii file with trap densities (nt),
+        trap capture cross-sections (σ), trap release time constants (τr)
+
+    :return:
+
+    Ne - number of electrons in a pixel
+    ne - electron density in the vicinity of the trap
+    Vc - volume of the charge cloud
+
+    nt - trap density
+    σ - trap capture cross-section
+    τr - trap release time constant
+    Pr - the probability that the trap will release the electron into the sample
+    τc - capture time constant
+    Pc - capture probability (per vacant trap) as a function of the number of sample electrons Ne
+
+    NT - number of traps in the column,
+        NT = 2*nt*Vg*x  where x is the number of TDI transfers or the column length in pixels.
+    Nc - number of electrons captured by a given trap species during the transit of an integrating signal packet
+    N0 - initial trap occupancy
+    Nr - number of electrons released into the sample during a transit along the column
+
+    fwc: Full Well Capacity in electrons (parallel)
+    sfwc: Full Well Capacity in electrons (serial)
+    """
 
     # new_detector = copy.deepcopy(detector)
     new_detector = detector
 
-    # Charge injection:
+    # Charge injection:     # todo make a new function from this
     # image = np.zeros((100, 100), dtype=np.float32)
     # y_start1 = 50
     # y_stop1 = 55
@@ -43,13 +87,23 @@ def cdm(detector: CCD) -> CCD:
     # # add vertical charge injection lines
     # image[:, x_start1:x_stop1] = charge_injection
 
-    cdm_obj = CDM03Python()
+    cdm_obj = CDM03Python(rdose=new_detector.total_non_ionising_dose,
+                          fwc=new_detector.fwc,
+                          sfwc=new_detector.fwc_serial,
+                          vth=new_detector.e_thermal_velocity,
+                          beta_p=beta_p, beta_s=beta_s,
+                          vg=vg, svg=svg,
+                          t=t, st=st,
+                          parallel_trap_file=parallel_trap_file,
+                          serial_trap_file=serial_trap_file)
 
     charge_data = new_detector.pixels.generate_2d_charge_array()
-    image_with_cti = cdm_obj.apply_cti(charge_data)
-    write_fits_file(image_with_cti, 'image_with_cti.fits', unsigned16bit=False)
 
-    # new_detector.pixels.update_charge_from_array()    # TODO TO BE IMPLEMENTED
+    image_with_cti = cdm_obj.apply_cti(charge_data)
+
+    # write_fits_file(image_with_cti, 'image_with_cti.fits', unsigned16bit=False)
+
+    new_detector.pixels.update_from_2d_charge_array(image_with_cti)
 
     return new_detector
 
@@ -59,51 +113,68 @@ class CDM03Python:
     Class to run CDM03 CTI model, class Fortran routine to perform the actual CDM03 calculations.
     """
 
-    def __init__(self):
+    def __init__(self,
+                 rdose: float = 8.0e11,
+                 vth: float = 1.168e7,
+                 beta_p: float = 0.6, beta_s: float = 0.6,
+                 vg: float = 6.e-11, svg: float = 1.0e-10,
+                 t: float = 20.48e-3, st: float = 5.0e-6,
+                 fwc: int = 200000, sfwc: int = 730000,
+                 parallel_trap_file: str = None,
+                 serial_trap_file: str = None) -> None:
+
         """
         Class constructor.
-
-        # :param settings: input parameters
-        # :type settings: dict
-        # :param data: input data to be radiated
-        # :type data: ndarray
-        # :param log: instance to Python logging
-        # :type log: logging instance
+        :param rdose:
+        :param vth:
+        :param beta_p:
+        :param beta_s:
+        :param vg:
+        :param svg:
+        :param t:
+        :param st:
+        :param fwc:
+        :param sfwc:
+        :param parallel_trap_file:
+        :param serial_trap_file:
         """
-
-        parallel_trap_file = path.dirname(path.abspath(__file__)) + '\cdm_euclid_parallel.dat'
-        serial_trap_file = path.dirname(path.abspath(__file__)) + '\cdm_euclid_serial.dat'
-
         # read in trap information
-        trapdata = np.loadtxt(parallel_trap_file)
-        if trapdata.ndim > 1:
-            self.nt_p = trapdata[:, 0]
-            self.sigma_p = trapdata[:, 1]
-            self.tr_p = trapdata[:, 2]
-        else:
-            raise ValueError('Trap data can not be read')
+        if parallel_trap_file is not None:
+            trapdata = np.loadtxt(parallel_trap_file)
+            if trapdata.ndim > 1:
+                self.nt_p = trapdata[:, 0]
+                self.sigma_p = trapdata[:, 1]
+                self.tr_p = trapdata[:, 2]
+            else:
+                raise ValueError('Trap data can not be read')
 
-        trapdata = np.loadtxt(serial_trap_file)
-        if trapdata.ndim > 1:
-            self.nt_s = trapdata[:, 0]
-            self.sigma_s = trapdata[:, 1]
-            self.tr_s = trapdata[:, 2]
-        else:
-            raise ValueError('Trap data can not be read')
+        if serial_trap_file is not None:
+            trapdata = np.loadtxt(serial_trap_file)
+            if trapdata.ndim > 1:
+                self.nt_s = trapdata[:, 0]
+                self.sigma_s = trapdata[:, 1]
+                self.tr_s = trapdata[:, 2]
+            else:
+                raise ValueError('Trap data can not be read')
 
-        self.rdose = 8.0e11
-        self.dob = 0.0
-        self.beta_p = 0.6
-        self.beta_s = 0.6
-        self.fwc = 200000.
-        self.vth = 1.168e7
-        self.vg = 6.e-11
-        self.t = 20.48e-3
-        self.sfwc = 730000.
-        self.svg = 1.0e-10
-        self.st = 5.0e-6
-        self.parallel_cti = True
-        self.serial_cti = True
+        self.rdose = rdose
+        # self.dob = dob
+        self.vth = vth
+
+        self.beta_p = beta_p
+        self.beta_s = beta_s
+
+        self.vg = vg
+        self.svg = svg
+
+        self.t = t
+        self.st = st
+
+        self.fwc = fwc
+        self.sfwc = sfwc
+
+        self.parallel_cti = parallel_trap_file
+        self.serial_cti = serial_trap_file
 
     # def radiate_ccd_transpose(self):
     #     """
@@ -225,55 +296,45 @@ class CDM03Python:
         # iflip = iquadrant % 2
         # jflip = iquadrant % 2
 
-        image_with_cti = self._run_cdm_(image=data,
-                                        parallel_cti=self.parallel_cti,
-                                        serial_cti=self.serial_cti)
+        image_with_cti = self._run_cdm_(image=data)
 
         return np.asanyarray(image_with_cti)
 
     @numba.jit
     def _run_cdm_(self,
-                  image=None,
-                  parallel_cti=None,
-                  serial_cti=None):
+                  image=None):
         """
+        Electron trapping in imaging mode (non-TDI)
 
         :param image:
-        :param parallel_cti:
-        :param serial_cti:
         :return:
         """
-
         # absolute trap density which should be scaled according to radiation dose
         # (nt=1.5e10 gives approx fit to GH data for a dose of 8e9 10MeV equiv. protons)
-        self.nt_p *= self.rdose                    # absolute trap density [per cm**3]
-        self.nt_s *= self.rdose                    # absolute trap density [per cm**3]
 
         # array sizes
         ydim, xdim = image.shape
-        zdim_p = len(self.nt_p)
-        zdim_s = len(self.nt_s)
-
-        # work arrays
-        no = np.zeros_like(image, dtype=np.float64)
-        sno = np.zeros_like(image, dtype=np.float64)
-
         s = image
 
-        # add background electrons
-        s += self.dob
+        # add background electrons (diffuse optical background level)
+        # s += self.dob
 
-        # apply FWC (anti-blooming)
-        msk = s > self.fwc
-        s[msk] = self.fwc
+        # apply FWC (anti-blooming) - not needed we apply this model elsewhere
+        # msk = s > self.fwc
+        # s[msk] = self.fwc
 
         # start with parallel direction
-        if parallel_cti:
+        if self.parallel_cti:
             print('adding parallel')
-            alpha_p = self.t * self.sigma_p * self.vth * self.fwc ** self.beta_p / 2. / self.vg
-            g_p = self.nt_p * 2. * self.vg / self.fwc ** self.beta_p
 
-            gamm_p = g_p * np.arange(ydim).reshape((ydim, 1))
+            no = np.zeros_like(image, dtype=np.float64)
+            self.nt_p *= self.rdose             # absolute trap density [per cm**3]
+            zdim_p = len(self.nt_p)
+
+            alpha_p = self.t * self.sigma_p * self.vth * self.fwc ** self.beta_p / (2. * self.vg)
+            g_p = 2. * self.nt_p * self.vg / self.fwc ** self.beta_p
+
+            gamma_p = g_p * np.arange(ydim).reshape((ydim, 1))
 
             for i in range(ydim):
                 print(i)
@@ -282,8 +343,8 @@ class CDM03Python:
                         nc = 0.
 
                         if s[i, j] > 0.01:
-                            nc = max((gamm_p[i, k] * s[i, j] ** self.beta_p - no[j, k]) /
-                                     (gamm_p[i, k] * s[i, j] ** (self.beta_p - 1.) + 1.) *
+                            nc = max((gamma_p[i, k] * s[i, j] ** self.beta_p - no[j, k]) /
+                                     (gamma_p[i, k] * s[i, j] ** (self.beta_p - 1.) + 1.) *
                                      (1. - np.exp(-alpha_p[k] * s[i, j] ** (1. - self.beta_p))), 0.)
 
                         no[j, k] += nc
@@ -292,12 +353,17 @@ class CDM03Python:
                         no[j, k] -= nr
 
         # now serial direction
-        if serial_cti:
+        if self.serial_cti:
             print('adding serial')
-            alpha_s = self.st * self.sigma_s * self.vth * self.sfwc ** self.beta_s / 2. / self.svg
-            g_s = self.nt_s * 2. * self.svg / self.sfwc ** self.beta_s
 
-            gamm_s = g_s * np.arange(xdim).reshape((xdim, 1))
+            sno = np.zeros_like(image, dtype=np.float64)
+            self.nt_s *= self.rdose             # absolute trap density [per cm**3]
+            zdim_s = len(self.nt_s)
+
+            alpha_s = self.st * self.sigma_s * self.vth * self.sfwc ** self.beta_s / (2. * self.svg)
+            g_s = 2. * self.nt_s * self.svg / self.sfwc ** self.beta_s
+
+            gamma_s = g_s * np.arange(xdim).reshape((xdim, 1))
 
             for j in range(xdim):
                 print(j)
@@ -307,8 +373,8 @@ class CDM03Python:
                             nc = 0.
 
                             if s[i, j] > 0.01:
-                                nc = max((gamm_s[j, k] * s[i, j] ** self.beta_s - sno[i, k]) /
-                                         (gamm_s[j, k] * s[i, j] ** (self.beta_s - 1.) + 1.) *
+                                nc = max((gamma_s[j, k] * s[i, j] ** self.beta_s - sno[i, k]) /
+                                         (gamma_s[j, k] * s[i, j] ** (self.beta_s - 1.) + 1.) *
                                          (1. - np.exp(-alpha_s[k] * s[i, j] ** (1. - self.beta_s))), 0.)
 
                             sno[i, k] += nc

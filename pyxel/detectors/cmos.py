@@ -6,24 +6,12 @@ CMOS detector modeling class
 """
 
 import numpy as np
+from math import sqrt
 
 from pyxel.detectors.cmos_characteristics import CMOSCharacteristics
-from pyxel.detectors.environment import Environment
 from pyxel.detectors.cmos_geometry import CMOSGeometry
+from pyxel.detectors.environment import Environment
 # from pyxel.detectors.optics import Optics
-
-
-def convert_to_int(value):
-    """
-    Convert any type of numbers to integers
-    :param value:
-    :type value: ndarray
-    :return value:
-    :rtype: int ndarray
-    """
-    int_value = np.rint(value)
-    int_value = int_value.astype(int)
-    return int_value
 
 
 class CMOS:
@@ -79,6 +67,15 @@ class CMOS:
         photon_energy_list = [0.] * self.row * self.col
 
         return photon_number_list, photon_energy_list
+
+    @property
+    def e_effective_mass(self):
+        return self.geometry.e_effective_mass   # kg
+
+    @property
+    def e_thermal_velocity(self):
+        k_boltzmann = 1.38064852e-23   # J/K
+        return sqrt(3 * k_boltzmann * self.temperature / self.e_effective_mass)
 
     @property
     def row(self):
@@ -171,6 +168,10 @@ class CMOS:
     @property
     def a2(self):
         return self.characteristics.a2
+
+    @property
+    def fwc(self):
+        return self.characteristics.fwc
 
     @property
     def temperature(self):

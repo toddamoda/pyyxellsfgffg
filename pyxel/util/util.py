@@ -8,7 +8,21 @@
 import importlib
 import inspect
 
+import numpy as np
 import pandas as pd
+
+
+def convert_to_int(value):
+    """
+    Convert any type of numbers to integers
+    :param value:
+    :type value: ndarray
+    :return value:
+    :rtype: int ndarray
+    """
+    int_value = np.rint(value)
+    int_value = int_value.astype(int)
+    return int_value
 
 
 def convert_date_to_string(date):
@@ -90,7 +104,7 @@ def get_missing_arguments(func, func_kwargs):
     :rtype: bool
     """
     missing = []
-    argspec = inspect.getargspec(func)
+    argspec = inspect.getargspec(func)      # todo
     defaults = {}
     if argspec.defaults is not None:
         defaults = dict(zip(argspec.args[-len(argspec.defaults):], argspec.defaults))

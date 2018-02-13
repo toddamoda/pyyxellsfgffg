@@ -1,20 +1,23 @@
 """
 Geometry class for detector
 """
+# Universal global constants
+M_ELECTRON = 9.10938356e-31    # kg
 
 
-class Geometry:
+class CCDGeometry:
 
-    def __init__(self, row=0, col=0,
-                 depletion_thickness=0.0,
-                 field_free_thickness=0.0,
-                 total_thickness=0.0,
-                 pixel_vert_size=0.0,
-                 pixel_horz_size=0.0,
-                 material='',
-                 n_acceptor=0.0,
-                 n_donor=0.0,
-                 bias_voltage=0.0):
+    def __init__(self,
+                 row: int = None, col: int = None,
+                 depletion_thickness: float = None,
+                 field_free_thickness: float = None,
+                 total_thickness: float = None,
+                 pixel_vert_size: float = None,
+                 pixel_horz_size: float = None,
+                 material: str = None,
+                 n_acceptor: float = None,
+                 n_donor: float = None,
+                 bias_voltage: float = None) -> None:
         """
         Initialize the geometry
         :param row:
@@ -41,6 +44,7 @@ class Geometry:
         self.material_density = None
         self.material_ionization_energy = None
         self.band_gap = None
+        self.e_effective_mass = None
         self.horz_dimension = None
         self.vert_dimension = None
 
@@ -63,7 +67,7 @@ class Geometry:
 
     # TODO: create unittests for this method
     def __eq__(self, obj):
-        assert isinstance(obj, Geometry)
+        assert isinstance(obj, CCDGeometry)
         return self.__getstate__() == obj.__getstate__()
 
     def set_material(self, material):
@@ -74,9 +78,10 @@ class Geometry:
         """
 
         if material == 'silicon' or 'Si' or 'si':
-            self.material_density = 2.328               # TODO add unit (g/cm3)
-            self.material_ionization_energy = 3.6       # TODO add unit (eV)
-            self.band_gap = 1.12                        # TODO add unit (eV)
+            self.material_density = 2.328                   # TODO add unit (g/cm3)
+            self.material_ionization_energy = 3.6           # TODO add unit (eV)
+            self.band_gap = 1.12                            # TODO add unit (eV)
+            self.e_effective_mass = 0.5 * M_ELECTRON        # TODO add unit (kg)
 
         else:
             raise NotImplementedError('Given material has not implemented yet')

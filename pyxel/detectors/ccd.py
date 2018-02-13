@@ -4,38 +4,22 @@
 """ CCD detector modeling class
 """
 import numpy as np
-
+from math import sqrt
 # from astropy import units as u
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.environment import Environment
-from pyxel.detectors.geometry import Geometry
+from pyxel.detectors.ccd_geometry import CCDGeometry
 from pyxel.physics.charge import Charge  # noqa: F401
 from pyxel.physics.photon import Photon  # noqa: F401
 from pyxel.physics.pixel import Pixel  # noqa: F401
-
-
 # from pyxel.detectors.optics import Optics
-
-
-def convert_to_int(value):
-    """
-    Convert any type of numbers to integers
-    :param value:
-    :type value: ndarray
-    :return value:
-    :rtype: int ndarray
-    """
-    int_value = np.rint(value)
-    int_value = int_value.astype(int)
-    return int_value
 
 
 class CCD:
     """ The CCD detector class. """
 
     def __init__(self,
-                 geometry: Geometry = None,
-                 # geometry = None,
+                 geometry: CCDGeometry = None,
                  environment: Environment = None,
                  characteristics: CCDCharacteristics = None,
                  photons: int = None,
@@ -98,42 +82,18 @@ class CCD:
 
         return photon_number_list, photon_energy_list
 
-    # def compute_k(self):
-    #     """
-    #     Calculate camera gain constant in units of e-/DN from CCD parameters
-    #     :return:
-    #     """
-    #     self.characteristics.k = 1 / (self.sv * self.accd * self.a1 * self.a2)
-    #
-    # def compute_j(self):
-    #     """
-    #     Calculate camera gain constant in units of photons/DN from CCD parameters
-    #     :return:
-    #     """
-    #     self.characteristics.j = 1 / (self.eta * self.sv * self.accd * self.a1 * self.a2)
+    @property
+    def e_effective_mass(self):
+        return self.geometry.e_effective_mass   # kg
 
-    def compute_signal(self):   # TODO reimplement
-        """
-        Calculate CCD signal per pixel in units of DN from charges and CCD parameters
-        :return:
-        """
-        # self._signal = self._charges * self.sv * self.accd     # what is self.accd exactly??
-        # self.signal = np.rint(self.signal).astype(int)  # let's assume it could be real number (float)
-        pass
-
-    def compute_image(self):   # TODO reimplement
-        """
-        Calculate CCD image in units of DN from charges and CCD parameters
-        :return:
-        """
-        # self._image = self._signal * self.a1 * self.a2
-        # self._image = np.rint(self._image).astype(int)   # DN
-        pass
+    @property
+    def e_thermal_velocity(self):
+        k_boltzmann = 1.38064852e-23   # J/K
+        return sqrt(3 * k_boltzmann * self.temperature / self.e_effective_mass)
 
     @property
     def row(self):
         return self.geometry.row
-        # return self.geometry['row']
 
     @row.setter
     def row(self, new_row):
@@ -142,7 +102,6 @@ class CCD:
     @property
     def col(self):
         return self.geometry.col
-        # return self.geometry['col']
 
     @col.setter
     def col(self, new_col):
@@ -185,68 +144,48 @@ class CCD:
         return self._image
 
     @property
-    def k(self):
-        return self.characteristics.k
-
-    # @k.setter
-    # def k(self, new_k):
-    #     self._k = new_k
-
-    @property
-    def j(self):
-        return self.characteristics.j
-
-    # @j.setter
-    # def j(self, new_j):
-    #     self._j = new_j
-
-    @property
     def qe(self):
         return self.characteristics.qe
-
-    # @qe.setter
-    # def qe(self, newqe):
-    #     self.qe = newqe
 
     @property
     def eta(self):
         return self.characteristics.eta
 
-    # @eta.setter
-    # def eta(self, neweta):
-    #     self.eta = neweta
-
     @property
     def sv(self):
         return self.characteristics.sv
-
-    # @sv.setter
-    # def sv(self, newsv):
-    #     self.sv = newsv
 
     @property
     def accd(self):
         return self.characteristics.accd
 
-    # @accd.setter
-    # def accd(self, newaccd):
-    #     self.accd = newaccd
-
     @property
     def a1(self):
         return self.characteristics.a1
-
-    # @a1.setter
-    # def a1(self, newa1):
-    #     self.a1 = newa1
 
     @property
     def a2(self):
         return self.characteristics.a2
 
     @property
+    def fwc(self):
+        return self.characteristics.fwc
+
+    @property
+    def fwc_serial(self):
+        return self.characteristics.fwc_serial
+
+    @property
     def temperature(self):
         return self.environment.temperature
+
+    @property
+    def total_ionising_dose(self):
+        return self.environment.total_ionising_dose
+
+    @property
+    def total_non_ionising_dose(self):
+        return self.environment.total_non_ionising_dose
 
     @property
     def depletion_zone(self):
@@ -259,12 +198,10 @@ class CCD:
     @property
     def pix_vert_size(self):
         return self.geometry.pixel_vert_size
-        # return self.geometry['pixel_vert_size']
 
     @property
     def pix_horz_size(self):
         return self.geometry.pixel_horz_size
-        # return self.geometry['pixel_horz_size']
 
     @property
     def total_thickness(self):

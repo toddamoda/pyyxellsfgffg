@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from pyxel.pipelines.yaml_processor import load
+from pyxel.io.yaml_processor import load
 
 
 @pytest.mark.parametrize('data, expected', [
@@ -18,6 +18,8 @@ from pyxel.pipelines.yaml_processor import load
     ('- !expr range(3)', [range(3)]),
     ('- !expr range(3, 10, 2)', [range(3, 10, 2)]),
     ('!expr arange(4)', np.array([0, 1, 2, 3])),
+    ('!expr random', 'random'),
+    ('random', 'random'),
 
     ('a: 3.14', {'a': 3.14}),
     ('x: 2**16', {'x': 65536}),
