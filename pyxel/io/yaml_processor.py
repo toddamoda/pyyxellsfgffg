@@ -165,13 +165,7 @@ def _ccd_characteristics_representer(dumper: PyxelDumper, obj: CCDCharacteristic
     :param obj:
     :return:
     """
-<<<<<<< HEAD
     return dumper.represent_yaml_object('!ccd_characteristics', data=obj, cls=None, flow_style=False)
-=======
-    mapping = obj.__getstate__()  # type: dict
-    out = dumper.represent_mapping('!ccd_characteristics', mapping, flow_style=False)
-    return out
->>>>>>> full_well
 
 
 def _constructor_ccd_pipeline(loader: PyxelLoader,
