@@ -43,7 +43,7 @@ List of available detectors.
     :undoc-members:
     :show-inheritance:
 
-.. autoclass:: pyxel.detectors.geometry.Geometry
+.. autoclass:: pyxel.detectors.ccd_geometry.CCDGeometry
     :members:
     :undoc-members:
     :show-inheritance:

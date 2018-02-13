@@ -146,7 +146,7 @@ def _ccd_characteristics_representer(dumper: PyxelDumper, obj: CCDCharacteristic
     :return:
     """
     mapping = obj.__getstate__()  # type: dict
-    out = dumper.represent_mapping('!ccd_characteristics', mapping, flow_style=True)
+    out = dumper.represent_mapping('!ccd_characteristics', mapping, flow_style=False)
     return out
 
 
