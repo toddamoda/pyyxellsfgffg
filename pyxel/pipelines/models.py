@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import typing as t  # noqa: F401
+=======
+import typing as t # noqa: F401
+>>>>>>> full_well
 from pyxel.util import util
 
 

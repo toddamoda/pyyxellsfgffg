@@ -77,24 +77,24 @@ process: !PROCESSOR
 #        name: pyxel.models.diffusion.diffusion
 ##        arguments:
 
-#      full_well: !function
-#        name: pyxel.models.full_well.simple_pixel_full_well
-#        arguments:
-#          fwc: 10000       # e (full well capacity)  # if defined use this, if not use the default parameter from characteristics
+      full_well: !function
+        name: pyxel.models.full_well.simple_pixel_full_well
+        arguments:
+          fwc: 100       # e  # if defined use this, if not use the default parameter from characteristics
 
     # -> charge
     charge_transfer: !models
-      cdm: !function
-        name: pyxel.models.cdm.CDM.cdm
-        arguments:
-         beta_p: 0.6
-         beta_s: 0.6
-         vg: 6.e-11
-         svg: 1.0e-10
-         t: 20.48e-3
-         st: 5.0e-6
-         parallel_trap_file: pyxel/models/cdm/cdm_euclid_parallel.dat
-         serial_trap_file: pyxel/models/cdm/cdm_euclid_serial.dat
+#      cdm: !function
+#        name: pyxel.models.cdm.CDM.cdm
+#        arguments:
+#         beta_p: 0.6
+#         beta_s: 0.6
+#         vg: 6.e-11
+#         svg: 1.0e-10
+#         t: 20.48e-3
+#         st: 5.0e-6
+#         parallel_trap_file: pyxel/models/cdm/cdm_euclid_parallel.dat
+#         serial_trap_file: pyxel/models/cdm/cdm_euclid_serial.dat
 
     # -> signal
     charge_measurement: !models
