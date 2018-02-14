@@ -1,0 +1,84 @@
+{
+  "actions": [
+    {
+      "class": "setting",
+      "click": {
+          "sender": "api",
+          "signal": "SET-SETTING",
+          "args": ["@id", "@value"]
+        }
+    },
+    {
+      "id": "config_file2",
+      "toggle": [
+        {
+          "label": "Run",
+          "sender": "api",
+          "signal": "RUN-APPLICATION",
+          "args_selector": ["#schema_file2 input", "#config_file2 input"]
+        },
+        {
+          "label": "Stop",
+          "sender": "sequencer",
+          "signal": "STOP"
+        }
+      ]
+    },
+    {
+      "id": "sequence_state2",
+      "toggle": [
+        {
+          "label": "Pause",
+          "sender": "sequencer",
+          "signal": "PAUSE"
+        },
+        {
+          "label": "Resume",
+          "sender": "sequencer",
+          "signal": "RESUME"
+        }
+      ]
+    }
+  ],
+
+  "messages": [
+    {
+      "name": "Sequencer",
+      "format": "%(state)s (step %(step)d / %(total_steps)d)",
+      "ind_selector": "#sequence_state2 .indicator",
+      "state_field": "state",
+      "state_map": [
+        {
+          "state": "running",
+          "selector": ["#sequence_state2 button", "#config_file2 button"],
+          "label": ["Pause", "Stop"]
+        },
+        {
+          "state": "paused",
+          "selector": ["#sequence_state2 button", "#config_file2 button"],
+          "label": ["Resume", "Stop"]
+        },
+        {
+          "state": "default",
+          "selector": ["#sequence_state2 button", "#config_file2 button"],
+          "label": ["Pause", "Run"]
+        }
+      ]
+    },
+    {
+      "name": "Blackbody",
+      "format": "%(temperature)0.1f / %(set_point)0.1f",
+      "ind_selector": "#temperature .indicator"
+    },
+    {
+      "name": "Monochromator",
+      "format": "%(wavelength)d",
+      "ind_selector": "#wavelength .indicator"
+    },
+    {
+      "name": "Merlin",
+      "format": "%(reading)s (sample %(sample)d / %(samples)d)",
+      "ind_selector": "#merlin .indicator"
+    }
+  ]
+}
