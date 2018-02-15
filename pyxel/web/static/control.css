@@ -22,12 +22,14 @@ body {
     display: none;
 }
 
+.pe-form {
+    width: 675px;
+    margin: 0 auto;
+    padding: 0px;
+}
 .pe-table {
     background-color: lightgrey;
     border-collapse: collapse;
-    margin: 0 auto;
-    padding: 0px;
-    width: 675px;
 }
 .pe-table th {
     padding: 5px;
@@ -50,7 +52,6 @@ body {
 }
 
 .pe-table input {
-    width: 100%;
 }
 
 .pe-output {
@@ -96,4 +97,18 @@ select.custom::-ms-expand {
 
 .pe-table tr td .indicator-hilite {
     background-color: lightgreen;
+}
+
+
+.pe-sz1 {
+    width: 100%;
+}
+.pe-sz2 {
+    width: 45%;
+    float: left;
+}
+
+.pe-sz3 {
+    width: 30%;
+    float: left;
 }

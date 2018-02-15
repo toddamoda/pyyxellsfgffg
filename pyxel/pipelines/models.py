@@ -21,3 +21,8 @@ class Models:
             new_dct[key] = func
 
         self.models = new_dct                   # type: t.Dict[str, t.Callable]
+
+    def __getattr__(self, item):
+        if item in self.models:
+            return self.models[item]
+        return super().__getattr__(item)

@@ -41,6 +41,7 @@ class CCDGeometry:
         self.n_donor = n_donor
         self.bias_voltage = bias_voltage
 
+        self._material = material
         self.material_density = None
         self.material_ionization_energy = None
         self.band_gap = None
@@ -62,13 +63,23 @@ class CCDGeometry:
             'pixel_horz_size': self.pixel_horz_size,
             'n_acceptor': self.n_acceptor,
             'n_donor': self.n_donor,
-            'bias_voltage': self.bias_voltage
+            'bias_voltage': self.bias_voltage,
+            'material': self.material
         }
 
     # TODO: create unittests for this method
     def __eq__(self, obj):
         assert isinstance(obj, CCDGeometry)
         return self.__getstate__() == obj.__getstate__()
+
+    @property
+    def material(self):
+        return self._material
+
+    @material.setter
+    def material(self, new_material):
+        self._material = new_material
+        self.set_material(new_material)
 
     def set_material(self, material):
         """

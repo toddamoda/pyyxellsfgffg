@@ -125,7 +125,18 @@ function on_response(data) {
 }
 
 function get_value(context) {
-    return $('input', context).val();
+    var value = null;
+    if ($('select', context).length) {
+        value = $('select', context).val();
+    } else if ($('input', context).length == 1) {
+        value = $('input', context).val();
+    } else if ($('input', context).length > 1) {
+        value = [];
+        $('input', context).each(function() {
+            value.push($(this).val());
+        });
+    }
+    return value;
 }
 
 function init_controls() {
@@ -152,11 +163,11 @@ function init_controls() {
         send_signal('api', 'GET-SETTING', [id]);
     });
 
-    $('#setting-set-all button').click(function() {
+    $('#setting-set-all').click(function() {
         console.log('set-all')
         $('.setting button').click();
     });
-    $('#setting-get-all button').click(function() {
+    $('#setting-get-all').click(function() {
         console.log('get-all')
         $('.setting .indicator').click();
     });
@@ -250,6 +261,12 @@ $(document).ready(function() {
     $('.pe-table td button').addClass('btn')
     $('.pe-table td button').addClass('btn-primary')
 
+    $('#pe-expand').click(function() {
+        $('.pe-section-hide').find('caption').click();
+    });
+    $('#pe-collapse').click(function() {
+        $('.pe-table').not('.pe-section-hide').find('caption').click();
+    });
     $('.pe-section').each(function() {
         $(this).prop('title', $(this).text());
         $(this).html('&#x25BC ' + $(this).text());

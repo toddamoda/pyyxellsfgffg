@@ -44,14 +44,14 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 class IndexPageHandler(tornado.web.RequestHandler):
     """ The index.html HTML generation handler. """
     def get(self):
-        self.render("index.html")
+        self.render("index.html", controller=self.application.controller)
 
 
 class WebApplication(tornado.web.Application):
     """ The Application that host several objects to communicate with. """
 
-    def __init__(self, processor):
-        self.processor = processor
+    def __init__(self, controller):
+        self.controller = controller
 
         handlers = [
             (r'/', IndexPageHandler),

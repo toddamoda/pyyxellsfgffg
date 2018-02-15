@@ -1,6 +1,8 @@
 
 import logging
 import argparse
+import yaml
+import functools
 
 from pathlib import Path
 
@@ -22,6 +24,72 @@ class API:
 
     def __init__(self, processor):
         self.processor = processor
+
+    def atts(self, entry):
+        result = []
+        for key in entry:
+            result.append('%s="%s"' % (key, entry[key]))
+        return ' '.join(result)
+
+    def items(self):
+
+        with open('gui.yaml', 'r') as fd:
+            cfg = yaml.load(fd)
+
+        return cfg
+        # result = [
+        #     {
+        #         'label': 'Detector',
+        #         'items':
+        #             [
+        #                 {
+        #                     {
+        #                         'id': 'detector.photons', 'label': 'Photons',
+        #                         'type': 'number', 'step': 1, 'min': 1, 'max': 1000000,
+        #                     },
+        #
+        #                 },
+        #                 {
+        #                     {
+        #                         'id': 'detector.image', 'label': 'Image',
+        #                         'type': 'text',
+        #                     },
+        #
+        #                 },
+        #             ]
+        #     },
+        #     {
+        #         'label': 'Detector Geometry',
+        #         'items':
+        #             [
+        #                 {
+        #                     'id': 'detector.geometry.row', 'label': 'Rows',
+        #                     'type': 'number', 'step': 2, 'min': 10, 'max': 5000,
+        #                 },
+        #                 {
+        #                     'id': 'detector.geometry.col', 'label': 'Columns',
+        #                     'type': 'number', 'step': 2, 'min': 10, 'max': 5000,
+        #                 },
+        #                 {
+        #                     'id': 'detector.geometry.total_thickness', 'label': 'Total Thickness',
+        #                     'type': 'number', 'step': 0.1, 'min': 0.1, 'max': 100.0,
+        #                 },
+        #             ]
+        #     },
+        #     {
+        #         'label': 'Characteristics',
+        #         'items':
+        #             [
+        #                 {
+        #                     'id': 'detector.characteristics.qe', 'label': 'QE',
+        #                     'type': 'number', 'step': 0.01, 'min': 0.0, 'max': 1.0,
+        #                 },
+        #             ]
+        #     },
+        # ]
+        #
+        # return result
+
 
     # @staticmethod
     # def pause():
@@ -76,10 +144,17 @@ class API:
         att = obj_atts[-1]
         obj = self.processor
         for part in obj_atts[:-1]:
-            obj = getattr(obj, part)
+            if isinstance(obj, functools.partial) and part == 'arguments':
+                obj = obj.keywords
+            else:
+                obj = getattr(obj, part)
         if att == 'image':
             att = '_image'
-        value = getattr(obj, att)
+
+        if isinstance(obj, dict) and att in obj:
+            value = obj[att]
+        else:
+            value = getattr(obj, att)
 
         if isinstance(value, FitsFile):
             value = str(value.filename)
@@ -110,7 +185,10 @@ class API:
         att = obj_atts[-1]
         obj = self.processor
         for part in obj_atts[:-1]:
-            obj = getattr(obj, part)
+            if isinstance(obj, functools.partial) and part == 'arguments':
+                obj = obj.keywords
+            else:
+                obj = getattr(obj, part)
 
         if att == 'photons':
             setattr(obj, '_photon_mean', value)
@@ -122,7 +200,10 @@ class API:
             setattr(obj, '_image', value.data)
             return
 
-        setattr(obj, att, value)
+        if isinstance(obj, dict) and att in obj:
+            obj[att] = value
+        else:
+            setattr(obj, att, value)
         self.get_setting(key)
 
 
@@ -139,8 +220,7 @@ def run_web_server(input_filename, port=8888):
     # signals.dispatcher.connect(sender='*', signal=signals.PROGRESS, callback=API.progress)
     # signals.dispatcher.connect(sender='sequencer', signal=signals.HK_SIGNAL, callback=API.state_change)
 
-
-    api = webapp.WebApplication(processor)
+    api = webapp.WebApplication(controller)
     thread = webapp.TornadoServer(api, ('0.0.0.0', port))
     try:
         thread.run()
@@ -148,39 +228,6 @@ def run_web_server(input_filename, port=8888):
         logging.info("Exiting web server")
     finally:
         thread.stop()
-
-
-def set_parameter(cfg, key, value):
-
-    processor = cfg['process']
-    obj = processor
-    obj_atts = key.split('.')
-    att = obj_atts[-1]
-    for part in obj_atts[:-1]:
-        obj = getattr(obj, part)
-    setattr(obj, att, value)
-
-    # cfg['process'].geometry.total_thickness = 1.0
-
-#
-# def run_pipeline(input_filename, output_file):
-#
-#     config_path = Path(__file__).parent.joinpath(input_filename)
-#     cfg = pyxel.load_config(config_path)
-#
-#     processor = cfg['process']
-#
-#     # Step 2: Run the pipeline
-#     # result = pyxel.detection_pipeline.run_ccd_pipeline(processor.detector, processor.pipeline)  # type: CCD
-#     # result = pyxel.detection_pipeline.run_cmos_pipeline(processor.detector, processor.pipeline)  # type: CMOS
-#
-#     result = processor.pipeline.run_pipeline(processor.detector)
-#
-#     print('Pipeline completed.')
-#
-#     if output_file:
-#         out = FitsFile(output_file)
-#         out.save(result.signal, header=None, overwrite=True)        # TODO should replace result.signal to result.image
 
 
 def main():
@@ -213,4 +260,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

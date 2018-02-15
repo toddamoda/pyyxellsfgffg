@@ -1,74 +1,58 @@
+{% autoescape None %}
+
 <div class="container">
     <br/>
-    <table class="pe-table">
+    <div class="pe-form">
+        <button class="btn btn-primary" id="pe-expand" >Expand</button>
+        <button class="btn btn-primary" id="pe-collapse" >Collapse</button>
+        <button class="btn btn-primary" id="setting-get-all" >Get All</button>
+        <button class="btn btn-primary" id="setting-set-all" >Set All</button>
+    </div>
+    <table class="pe-table pe-form">
         <caption class="pe-section">PyXEL Pipeline Runner</caption>
         <tr id="connection_status">
             <td><div>Status</div></td>
             <td><div class="indicator">-</div></td>
             <td><button>Connect</button></td>
         </tr>
-        <!--<tr id="schema_file2">-->
-            <!--<td><div>Schema file (yaml)</div></td>-->
-            <!--<td><input type="text" value="schema/config.yaml" title="The sequencer processor schema to run"></td>-->
-            <!--<td></td>-->
-        <!--</tr>-->
         <tr id="output_file">
             <td><div>Output file (fits)</div></td>
             <td><input type="text" value="../tests/data/test.fits"></td>
             <td><button>Run</button></td>
         </tr>
-        <!--<tr id="sequence_state2">-->
-            <!--<td><div>Sequence State</div></td>-->
-            <!--<td><div class="indicator">-</div></td>-->
-            <!--<td><button>Pause</button></td>-->
-        <!--</tr>-->
+        <tr id="state">
+            <td><div>State</div></td>
+            <td><div class="indicator">-</div></td>
+            <td><button>Pause</button></td>
+        </tr>
     </table>
 
-
-    <table class="pe-table">
-        <caption class="pe-section">Settings</caption>
-        <tr id="setting-set-all">
-            <td colspan="3"></td>
-            <td><button>Set All</button></td>
-        </tr>
-        <tr id="setting-get-all">
-            <td colspan="3"></td>
-            <td><button>Get All</button></td>
-        </tr>
-
-        <tr><th colspan="4">Detector</th></tr>
-        <tr class="setting" id="detector.photons">
-            <td><div>Photons</div></td>
-            <td><div class="indicator"></div></td>
-            <td colspan="1"><input type="number" step="2" value="100"></td>
-            <td><button>Set</button></td>
-        </tr>
-        <tr class="setting" id="detector.image">
-            <td><div>Image File</div></td>
+{% for section in controller.items()['gui'] %}
+    <table class="pe-table pe-form">
+        <caption class="pe-section">{{ section['label'] }}</caption>
+    {% for item in section['items'] %}
+        {% set entry_count = item.get('entry_count', 1) %}
+        <tr class="setting" id="{{ item['id'] }}">
+            <td><div>{{ item['label'] }}</div></td>
             <td><div class="indicator">-</div></td>
-            <td colspan="1"><input type="text" value=""></td>
+            <td colspan="1">
+        {% for _ in range(entry_count) %}
+            {% if item['entry']['tag'] == 'input' %}
+                <input {{ controller.atts(item["entry"]) }} class="pe-sz{{entry_count}}">
+            {% elif item['entry']['tag'] == 'select' %}
+                <select>
+                {% for option in item['entry']['options'] %}
+                    <option value="{{ option }}">{{ option }}</option>
+                {% end %}
+                </select>
+            {% end %}
+        {% end %}
+            </td>
             <td><button>Set</button></td>
         </tr>
-
-        <tr><th colspan="4">Detector Geometry</th></tr>
-        <tr class="setting" id="detector.geometry.row">
-            <td><div>Rows</div></td>
-            <td><div class="indicator">-</div></td>
-            <td colspan="1"><input type="number" step="2" value="100"></td>
-            <td><button>Set</button></td>
-        </tr>
-        <tr class="setting" id="detector.geometry.col">
-            <td><div>Columns</div></td>
-            <td><div class="indicator">-</div></td>
-            <td colspan="1"><input type="number" step="2" value="100"></td>
-            <td><button>Set</button></td>
-        </tr>
-        <tr class="setting" id="detector.geometry.total_thickness">
-            <td><div>Total Thickness</div></td>
-            <td><div class="indicator">-</div></td>
-            <td colspan="1"><input type="number" step="0.1" value="10.0"></td>
-            <td><button>Set</button></td>
-        </tr>
+    {% end %}
     </table>
+{% end %}
+
 </div>
 
