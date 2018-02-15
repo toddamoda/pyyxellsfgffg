@@ -37,59 +37,6 @@ class API:
             cfg = yaml.load(fd)
 
         return cfg
-        # result = [
-        #     {
-        #         'label': 'Detector',
-        #         'items':
-        #             [
-        #                 {
-        #                     {
-        #                         'id': 'detector.photons', 'label': 'Photons',
-        #                         'type': 'number', 'step': 1, 'min': 1, 'max': 1000000,
-        #                     },
-        #
-        #                 },
-        #                 {
-        #                     {
-        #                         'id': 'detector.image', 'label': 'Image',
-        #                         'type': 'text',
-        #                     },
-        #
-        #                 },
-        #             ]
-        #     },
-        #     {
-        #         'label': 'Detector Geometry',
-        #         'items':
-        #             [
-        #                 {
-        #                     'id': 'detector.geometry.row', 'label': 'Rows',
-        #                     'type': 'number', 'step': 2, 'min': 10, 'max': 5000,
-        #                 },
-        #                 {
-        #                     'id': 'detector.geometry.col', 'label': 'Columns',
-        #                     'type': 'number', 'step': 2, 'min': 10, 'max': 5000,
-        #                 },
-        #                 {
-        #                     'id': 'detector.geometry.total_thickness', 'label': 'Total Thickness',
-        #                     'type': 'number', 'step': 0.1, 'min': 0.1, 'max': 100.0,
-        #                 },
-        #             ]
-        #     },
-        #     {
-        #         'label': 'Characteristics',
-        #         'items':
-        #             [
-        #                 {
-        #                     'id': 'detector.characteristics.qe', 'label': 'QE',
-        #                     'type': 'number', 'step': 0.01, 'min': 0.0, 'max': 1.0,
-        #                 },
-        #             ]
-        #     },
-        # ]
-        #
-        # return result
-
 
     # @staticmethod
     # def pause():
@@ -167,7 +114,7 @@ class API:
         webapp.WebSocketHandler.announce(msg)
         return value
 
-    def set_setting(self, key, value):
+    def _eval(self, value):
         try:
             literal_eval(value)
         except (SyntaxError, ValueError, NameError):
@@ -180,6 +127,15 @@ class API:
                 value = '"' + value + '"'
 
         value = literal_eval(value)
+        return value
+
+    def set_setting(self, key, value):
+
+        if isinstance(value, list):
+            for i, val in enumerate(value):
+                value[i] = self._eval(val)
+        else:
+            value = self._eval(value)
 
         obj_atts = key.split('.')
         att = obj_atts[-1]

@@ -84,15 +84,15 @@ function on_update_indicator(measurement, fields) {
 
 
 function on_response(data) {
-
+    console.log('on_response:' + data);
     var obj = JSON.parse(data);
     if (obj.type == 'progress') {
         var id = obj.id;
         var fields = obj.fields;
         var label = fields.label;
-        var selector = '#' + obj.id.replace(/\./g, '\\.') + ' .indicator'
+        var selector = '#' + obj.id.replace(/\./g, '\\.')
         var ind_text = $.format('%(value)s', fields);
-        var ind = $(selector);
+        var ind = $(selector + ' .indicator');
         on_highlight_indicator(ind, ind_text)
         $('.pe-progress .pe-progress-running').css('background-color', '')
         if (label == 'pause') {
@@ -113,17 +113,31 @@ function on_response(data) {
     if (obj.type == 'get') {
         var id = obj.id;
         var fields = obj.fields;
-        var selector = '#' + obj.id.replace(/\./g, '\\.') + ' .indicator'
+        var selector = '#' + obj.id.replace(/\./g, '\\.');
         var ind_text = 'None'
         if (fields.value) {
             ind_text = $.format('%(value)s', fields);
         }
-        var ind = $(selector);
+        var ind = $(selector + ' .indicator');
         on_highlight_indicator(ind, ind_text)
+        set_value($(selector), fields.value);
         //$('.pe-progress .pe-progress-running').removeClass('pe-progress-running')
     }
 }
 
+function set_value(context, value) {
+
+    if ($('select', context).length) {
+        $('select', context).val(value);
+    } else if ($('input', context).length == 1) {
+        $('input', context).val(value);
+    } else if ($('input', context).length > 1) {
+        console.log(value);
+        $('input', context).each(function(index) {
+            $(this).val(value[index]);
+        });
+    }
+}
 function get_value(context) {
     var value = null;
     if ($('select', context).length) {
