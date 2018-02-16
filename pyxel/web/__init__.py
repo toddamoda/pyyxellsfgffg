@@ -41,4 +41,14 @@ dropdown list box.
 15. Question: Enable multiple pipelines to be interconnected?
 
 16. Improve error reporting to web interface.
+
+17. Include numpy and logrithmic ranges
+
+18. Include DS9 as viewer.
+
+19. Save current web interface settings to YAML.
+
+20. Add 'enable' attribute to YAML model definitions
+
+21. Add 'seed' value to random number entry fields.
 """
