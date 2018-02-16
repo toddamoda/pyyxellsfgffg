@@ -4,6 +4,7 @@ import argparse
 import yaml
 import functools
 import os
+import threading
 
 from pathlib import Path
 
@@ -25,6 +26,13 @@ class API:
 
     def __init__(self, processor):
         self.processor = processor
+        self.sequence = [
+            {'key': '', 'values': [], 'enabled': False},
+            {'key': '', 'values': [], 'enabled': False},
+            {'key': '', 'values': [], 'enabled': False},
+            {'key': '', 'values': [], 'enabled': False},
+            {'key': '', 'values': [], 'enabled': False},
+        ]
 
     def atts(self, entry):
         result = []
@@ -39,33 +47,7 @@ class API:
 
         return cfg
 
-    # @staticmethod
-    # def pause():
-    #     signals.dispatcher.emit(sender='sequencer', signal=signals.PAUSE)()
-    #
-    # @staticmethod
-    # def resume():
-    #     signals.dispatcher.emit(sender='sequencer', signal=signals.RESUME)()
-    #
-    # @staticmethod
-    # def set_sequencer_state(signal):
-    #     signals.dispatcher.emit(sender='sequencer', signal=signal)()
-    #
-    # @staticmethod
-    # def run_sequencer(schema_file, config_file):
-    #     signals.dispatcher.emit(sender='api', signal=signals.RUN_APPLICATION)(schema_file, config_file)
-    #
-    # @staticmethod
-    # def state_change(measurement: str, fields: dict, tags: t.Optional[dict] = None):
-    #     msg = {
-    #         'type': 'hk',
-    #         'measurement': measurement,
-    #         'fields': fields,
-    #         'tags': tags,
-    #     }
-    #     webapp.WebSocketHandler.announce(msg)
-
-    def run_pipeline(self, output_file=None):
+    def _run_pipeline(self, output_file=None):
         try:
             signals.progress('state', {'value': 'running', 'state': 1})
             result = self.processor.pipeline.run_pipeline(self.processor.detector)
@@ -74,7 +56,6 @@ class API:
             logging.exception(exc)
             return
 
-        # print('Pipeline completed.')
         if result and output_file:
             try:
                 output_file = os.path.abspath(output_file)
@@ -101,6 +82,33 @@ class API:
 
         signals.progress('state', {'value': 'completed', 'state': 0})
 
+    def run_pipeline(self, output_file=None):
+        threading.Thread(target=self.run_pipeline_sequence, args=[output_file]).start()
+
+    def run_pipeline_sequence(self, output_file=None):
+        is_sequence_enabled = False
+        for seq_index, sequence in enumerate(self.sequence):
+            if sequence['enabled']:
+                key = sequence['key']
+                values = sequence['values']
+                for index, value in enumerate(values):
+                    is_sequence_enabled = True
+                    self.set_setting(key, value)
+                    self.progress('sequence_%d' % seq_index, fields={'value': value, 'state': 1})
+                    # msg = {
+                    #     'type': 'sequence',
+                    #     'index': seq_index,
+                    #     'fields': {'value': value},
+                    # }
+                    # webapp.WebSocketHandler.announce(msg)
+                    # signals.progress('state', {'value': 'completed', 'state': 0})
+                    self._run_pipeline(output_file)
+                    self.progress('sequence_%d' % seq_index, fields={'value': value, 'state': 0})
+
+        if not is_sequence_enabled:
+            # run a single time with the current settings
+            self._run_pipeline(output_file)
+
     def progress(self, idn: str, fields: dict):
         msg = {
             'type': 'progress',
@@ -108,6 +116,19 @@ class API:
             'fields': fields,
         }
         webapp.WebSocketHandler.announce(msg)
+
+    def set_sequence(self, index, key, values, enabled):
+        if values:
+            if isinstance(values, str):
+                values = literal_eval(values)
+
+            if not isinstance(values, (list, tuple)):
+                values = [values]
+        else:
+            values = []
+        self.sequence[index]['key'] = key
+        self.sequence[index]['values'] = values
+        self.sequence[index]['enabled'] = enabled
 
     def get_setting(self, key):
         obj_atts = key.split('.')
@@ -138,18 +159,19 @@ class API:
         return value
 
     def _eval(self, value):
-        try:
-            literal_eval(value)
-        except (SyntaxError, ValueError, NameError):
-            # ensure quotes incase of string literal value
-            if value[0] == "'" and value[-1] == "'":
-                pass
-            elif value[0] == '"' and value[-1] == '"':
-                pass
-            else:
-                value = '"' + value + '"'
+        if isinstance(value, str):
+            try:
+                literal_eval(value)
+            except (SyntaxError, ValueError, NameError):
+                # ensure quotes incase of string literal value
+                if value[0] == "'" and value[-1] == "'":
+                    pass
+                elif value[0] == '"' and value[-1] == '"':
+                    pass
+                else:
+                    value = '"' + value + '"'
 
-        value = literal_eval(value)
+            value = literal_eval(value)
         return value
 
     def set_setting(self, key, value):
@@ -195,6 +217,7 @@ def run_web_server(input_filename, port=8888):
     signals.dispatcher.connect(sender='api', signal=signals.RUN_PIPELINE, callback=controller.run_pipeline)
     signals.dispatcher.connect(sender='api', signal=signals.SET_SETTING, callback=controller.set_setting)
     signals.dispatcher.connect(sender='api', signal=signals.GET_SETTING, callback=controller.get_setting)
+    signals.dispatcher.connect(sender='api', signal=signals.SET_SEQUENCE, callback=controller.set_sequence)
     signals.dispatcher.connect(sender='*', signal=signals.PROGRESS, callback=controller.progress)
     # signals.dispatcher.connect(sender='*', signal=signals.HK_SIGNAL, callback=API.state_change)
     # signals.dispatcher.connect(sender='*', signal=signals.PROGRESS, callback=API.progress)

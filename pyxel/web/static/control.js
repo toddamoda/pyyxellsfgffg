@@ -102,13 +102,9 @@ function on_response(data) {
         } else if (label == 'error') {
             ind.css('background-color', 'red');
         }
-        ind.addClass('pe-progress-running');
-    }
-    if (obj.type == 'hk') {
-        var measurement = obj.measurement;
-        var fields = obj.fields;
-        on_update_indicator(measurement, fields)
-        //$('.pe-progress .pe-progress-running').removeClass('pe-progress-running')
+        if (fields.state > 0) {
+            ind.addClass('pe-progress-running');
+        }
     }
 
     if (obj.type == 'get') {
@@ -122,7 +118,6 @@ function on_response(data) {
         var ind = $(selector + ' .indicator');
         on_highlight_indicator(ind, ind_text)
         set_value($(selector), fields.value);
-        //$('.pe-progress .pe-progress-running').removeClass('pe-progress-running')
     }
 }
 
@@ -154,6 +149,16 @@ function get_value(context) {
     return value;
 }
 
+function apply_sequencer() {
+
+    $('.sequence').each(function(index) {
+        var is_enabled = $('input[type="checkbox"]', $(this)).is(":checked");
+        var key = $('select', $(this)).val();
+        var range = $('input[type="text"]', $(this)).val();
+        send_signal('api', 'SET-SEQUENCE', [index, key, range, is_enabled])
+    });
+}
+
 function init_controls() {
 
     $('#connection_status button').click(function() {
@@ -166,6 +171,7 @@ function init_controls() {
     });
 
     $('#output_file button').click(function() {
+        apply_sequencer();
         var value = $('#output_file input').val();
         send_signal('api', 'RUN-PIPELINE', [value]);
     });
@@ -186,6 +192,20 @@ function init_controls() {
         console.log('get-all')
         $('.setting .indicator').click();
     });
+    $('#setting-reset').click(function() {
+        alert('To be implemented');
+    });
+    $('#start-imager').click(function() {
+        alert('To be implemented');
+    });
+
+    $('.pe-table .enable-row').change(function() {
+        var is_enabled = $(this).is(":checked") ? false : 'disabled';
+        var row_elem = $(this).parents('tr');
+        $('select', row_elem).prop('disabled', is_enabled);
+        $('input[type="text"]', row_elem).prop('disabled', is_enabled);
+    });
+    $('.pe-table .enable-row').change();
 
     $('.pe-table button').click(function() {
         var signals = cfg.actions;

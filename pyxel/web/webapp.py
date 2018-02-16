@@ -58,15 +58,7 @@ class WebApplication(tornado.web.Application):
             (r'/(favicon\.ico)', tornado.web.StaticFileHandler),
             (r'/static/(.*)', tornado.web.StaticFileHandler),
             (r'/websocket', WebSocketHandler),
-            # (r'/rpc', RpcWebSocketHandler),
-            # (r'/rpc_post', RpcPostHandler),
-            # (r'/rpc_get/(.*)', RpcGetHandler),
         ]
-
-        # for key in obj_map:
-        #     self._rpc_handlers[key] = RpcHandler(obj_map[key])
-        #     handlers.append((r'/(%s)/(.*)' % key, RpcGetHandler))
-        #     handlers.append((r'/(%s)' % key, RpcPostHandler))
 
         settings = {
             'template_path': os.path.join(MODULE_DIR, 'template'),

@@ -8,6 +8,7 @@
         <button class="btn btn-primary" id="setting-get-all" >Get All</button>
         <button class="btn btn-primary" id="setting-set-all" >Set All</button>
         <button class="btn btn-primary" id="setting-reset" >Reset</button>
+        <button class="btn btn-primary" id="start-imager" >Start Imager</button>
     </div>
     <table class="pe-table pe-form">
         <caption class="pe-section">PyXEL Pipeline Runner</caption>
@@ -21,11 +22,35 @@
             <td><input type="text" value="../tests/data/test.fits"></td>
             <td><button>Run</button></td>
         </tr>
-        <tr id="state">
+        <tr id="state" class="xpe-progress">
             <td><div>State</div></td>
             <td><div class="indicator">-</div></td>
-            <td><button>Pause</button></td>
+            <td></td>
         </tr>
+    </table>
+
+    <table class="pe-table pe-form">
+        <caption class="pe-section">Sequencer</caption>
+{% for i in range(1, 5) %}
+        <tr id="sequence_{{ i-1 }}" class="sequence pe-progress">
+            <td style="width:100px"><div>Sequence {{ i }}</div></td>
+            <td><div class="indicator">-</div></td>
+            <td>
+                <select>
+                    <option value=""></option>
+    {% for section in controller.items()['gui'] %}
+                    <optgroup label="{{ section['label'] }}">
+        {% for item in section['items'] %}
+                        <option value="{{ item['id'] }}">{{ item['label'] }}</option>
+        {% end %}
+                    </optgroup>
+    {% end %}
+                </select>
+            </td>
+            <td><input type="text" value=""></td>
+            <td><input class="enable-row" type="checkbox"/></td>
+        </tr>
+{% end %}
     </table>
 
 {% for section in controller.items()['gui'] %}

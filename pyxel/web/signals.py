@@ -14,6 +14,7 @@ RUN_PIPELINE = 'RUN-PIPELINE'
 SET_SETTING = 'SET-SETTING'
 GET_SETTING = 'GET-SETTING'
 PROGRESS = 'PROGRESS'
+SET_SEQUENCE = 'SET-SEQUENCE'
 
 
 class DispatcherBlockingAutoRemoveDeadEndPoints(DispatcherBlocking):
