@@ -1,0 +1,84 @@
+{% autoescape None %}
+
+<div class="container">
+    <br/>
+    <div class="pe-form">
+        <button class="btn btn-primary" id="pe-expand" >Expand</button>
+        <button class="btn btn-primary" id="pe-collapse" >Collapse</button>
+        <button class="btn btn-primary" id="setting-get-all" >Get All</button>
+        <button class="btn btn-primary" id="setting-set-all" >Set All</button>
+        <button class="btn btn-primary" id="setting-reset" >Reset</button>
+        <button class="btn btn-primary" id="start-imager" >Start Imager</button>
+    </div>
+    <table class="pe-table pe-form">
+        <caption class="pe-section">PyXEL Pipeline Runner</caption>
+        <tr id="connection_status">
+            <td><div>Status</div></td>
+            <td><div class="indicator">-</div></td>
+            <td><button>Connect</button></td>
+        </tr>
+        <tr id="output_file">
+            <td><div>Output file (fits)</div></td>
+            <td><input type="text" value="../tests/data/test.fits"></td>
+            <td><button>Run</button></td>
+        </tr>
+        <tr id="state" class="xpe-progress">
+            <td><div>State</div></td>
+            <td><div class="indicator">-</div></td>
+            <td></td>
+        </tr>
+    </table>
+
+    <table class="pe-table pe-form">
+        <caption class="pe-section">Sequencer</caption>
+{% for i in range(1, 5) %}
+        <tr id="sequence_{{ i-1 }}" class="sequence pe-progress">
+            <td style="width:100px"><div>Sequence {{ i }}</div></td>
+            <td><div class="indicator">-</div></td>
+            <td>
+                <select>
+                    <option value=""></option>
+    {% for section in controller.items()['gui'] %}
+                    <optgroup label="{{ section['label'] }}">
+        {% for item in section['items'] %}
+                        <option value="{{ item['id'] }}">{{ item['label'] }}</option>
+        {% end %}
+                    </optgroup>
+    {% end %}
+                </select>
+            </td>
+            <td><input type="text" value=""></td>
+            <td><input class="enable-row" type="checkbox"/></td>
+        </tr>
+{% end %}
+    </table>
+
+{% for section in controller.items()['gui'] %}
+    <table class="pe-table pe-form">
+        <caption class="pe-section">{{ section['label'] }}</caption>
+    {% for item in section['items'] %}
+        {% set entry_count = item.get('entry_count', 1) %}
+        <tr class="setting" id="{{ item['id'] }}">
+            <td><div>{{ item['label'] }}</div></td>
+            <td><div class="indicator">-</div></td>
+            <td colspan="1">
+        {% for _ in range(entry_count) %}
+            {% if item['entry']['tag'] == 'input' %}
+                <input {{ controller.atts(item["entry"]) }} class="pe-sz{{entry_count}}">
+            {% elif item['entry']['tag'] == 'select' %}
+                <select>
+                {% for option in item['entry']['options'] %}
+                    <option value="{{ option }}">{{ option }}</option>
+                {% end %}
+                </select>
+            {% end %}
+        {% end %}
+            </td>
+            <td><button>Set</button></td>
+        </tr>
+    {% end %}
+    </table>
+{% end %}
+
+</div>
+
