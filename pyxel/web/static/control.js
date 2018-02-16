@@ -94,13 +94,14 @@ function on_response(data) {
         var ind_text = $.format('%(value)s', fields);
         var ind = $(selector + ' .indicator');
         on_highlight_indicator(ind, ind_text)
+
         $('.pe-progress .pe-progress-running').css('background-color', '')
+        $('.pe-progress .pe-progress-running').removeClass('pe-progress-running')
         if (label == 'pause') {
             ind.css('background-color', 'orange');
-        } else if (label == 'abort') {
+        } else if (label == 'error') {
             ind.css('background-color', 'red');
         }
-        $('.pe-progress .pe-progress-running').removeClass('pe-progress-running')
         ind.addClass('pe-progress-running');
     }
     if (obj.type == 'hk') {

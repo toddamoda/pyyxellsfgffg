@@ -3,6 +3,7 @@ import logging
 import argparse
 import yaml
 import functools
+import os
 
 from pathlib import Path
 
@@ -65,18 +66,40 @@ class API:
     #     webapp.WebSocketHandler.announce(msg)
 
     def run_pipeline(self, output_file=None):
-        result = self.processor.pipeline.run_pipeline(self.processor.detector)
-        print('Pipeline completed.')
-        if output_file:
-            out = FitsFile(output_file)
-            out.save(result.signal, header=None, overwrite=True)
+        try:
+            signals.progress('state', {'value': 'running', 'state': 1})
+            result = self.processor.pipeline.run_pipeline(self.processor.detector)
+        except Exception as exc:
+            signals.progress('state', {'value': 'error', 'state': -1})
+            logging.exception(exc)
+            return
 
-            address = ('localhost', 8891)
-            client = rpc.ProxySocketClient(address,
-                                           serializer=SimpleSerializer(),
-                                           protocol=rpc.http.Client(action='POST'))
-            proxy = rpc.ProxyObject(client)
-            proxy.load_file(output_file)
+        # print('Pipeline completed.')
+        if result and output_file:
+            try:
+                output_file = os.path.abspath(output_file)
+                signals.progress('state', {'value': 'saving', 'state': 2})
+                out = FitsFile(output_file)
+                out.save(result.signal, header=None, overwrite=True)
+            except Exception as exc:
+                signals.progress('state', {'value': 'error', 'state': -2})
+                logging.exception(exc)
+                return
+
+            try:
+                signals.progress('state', {'value': 'loading', 'state': 3})
+                address = ('localhost', 8891)
+                client = rpc.ProxySocketClient(address,
+                                               serializer=SimpleSerializer(),
+                                               protocol=rpc.http.Client(action='POST'))
+                proxy = rpc.ProxyObject(client)
+                proxy.load_file(output_file)
+            except Exception as exc:
+                signals.progress('state', {'value': 'error', 'state': -3})
+                logging.exception(exc)
+                return
+
+        signals.progress('state', {'value': 'completed', 'state': 0})
 
     def progress(self, idn: str, fields: dict):
         msg = {
@@ -172,6 +195,7 @@ def run_web_server(input_filename, port=8888):
     signals.dispatcher.connect(sender='api', signal=signals.RUN_PIPELINE, callback=controller.run_pipeline)
     signals.dispatcher.connect(sender='api', signal=signals.SET_SETTING, callback=controller.set_setting)
     signals.dispatcher.connect(sender='api', signal=signals.GET_SETTING, callback=controller.get_setting)
+    signals.dispatcher.connect(sender='*', signal=signals.PROGRESS, callback=controller.progress)
     # signals.dispatcher.connect(sender='*', signal=signals.HK_SIGNAL, callback=API.state_change)
     # signals.dispatcher.connect(sender='*', signal=signals.PROGRESS, callback=API.progress)
     # signals.dispatcher.connect(sender='sequencer', signal=signals.HK_SIGNAL, callback=API.state_change)
@@ -209,6 +233,7 @@ def main():
     # Set logger
     log_level = [logging.ERROR, logging.INFO, logging.DEBUG][min(opts.verbosity, 2)]
     log_format = '%(asctime)s - %(name)s - %(funcName)s - %(thread)d - %(levelname)s - %(message)s'
+    del logging.root.handlers[:]
     logging.basicConfig(level=log_level, format=log_format)
 
     run_web_server(opts.config)
