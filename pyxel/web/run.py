@@ -19,8 +19,6 @@ from ast import literal_eval
 import esapy_rpc as rpc
 from esapy_rpc.rpc import SimpleSerializer
 
-CFG_DEFAULT = {}
-
 
 class API:
 
