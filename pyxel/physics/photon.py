@@ -83,16 +83,17 @@ class Photon:
         :param photon_energy_list:
         :return:
         """
-        pixel_numbers = self.detector.row * self.detector.col
+        geo = self.detector.geometry
+        pixel_numbers = geo.row * geo.col
 
-        init_ver_position = np.arange(0.0, self.detector.row, 1.0) * self.detector.pix_vert_size
-        init_hor_position = np.arange(0.0, self.detector.col, 1.0) * self.detector.pix_horz_size
+        init_ver_position = np.arange(0.0, geo.row, 1.0) * geo.pixel_vert_size
+        init_hor_position = np.arange(0.0, geo.col, 1.0) * geo.pixel_horz_size
 
-        init_ver_position = np.repeat(init_ver_position, self.detector.col)
-        init_hor_position = np.tile(init_hor_position, self.detector.row)
+        init_ver_position = np.repeat(init_ver_position, geo.col)
+        init_hor_position = np.tile(init_hor_position, geo.row)
 
-        init_ver_position += np.random.rand(pixel_numbers) * self.detector.pix_vert_size
-        init_hor_position += np.random.rand(pixel_numbers) * self.detector.pix_horz_size
+        init_ver_position += np.random.rand(pixel_numbers) * geo.pixel_vert_size
+        init_hor_position += np.random.rand(pixel_numbers) * geo.pixel_horz_size
 
         init_z_position = [0.] * pixel_numbers
 
