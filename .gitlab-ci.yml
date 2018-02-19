@@ -95,7 +95,7 @@ mypy:
   script:
     - pip install mypy
     - mypy --ignore-missing-imports pyxel
-  allow_failure: false
+  allow_failure: true
 
 
 # Run pylint (with pytest) and generate HTML report

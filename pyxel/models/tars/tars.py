@@ -31,7 +31,6 @@ def run_tars(detector: Detector,
              incident_angles: tuple = (pi/10, pi/4),
              starting_position: tuple = (500.0, 500.0, 0.0),
              stepping_length: float = 1.0) -> Detector:
-    # TODO: Fix this. Use variable 'inplace' ?
     # new_ccd = copy.deepcopy(ccd)
     new_detector = detector
 

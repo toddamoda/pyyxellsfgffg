@@ -20,7 +20,7 @@ def white_read_noise(detector: CMOS,
                      wind_x0: int = 0, wind_y0: int = 0,
                      wind_x_size: int = 0, wind_y_size: int = 0) -> CMOS:
 
-    new_detector = detector
+    new_detector = detector  # type: CMOS
     geo = new_detector.geometry  # type: CMOSGeometry
     number_of_fits = 1
 

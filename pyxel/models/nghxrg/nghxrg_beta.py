@@ -342,7 +342,7 @@ class HXRGNoise:
             # Scale based on det_size_x
             scale1 = self.det_size_x / nx_pca0
             scale2 = self.det_size_y / ny_pca0
-            zoom_factor = np.max([scale1,  scale2])
+            zoom_factor = np.max([scale1, scale2])
 
         # Resize PCA0 data
         if zoom_factor != 1:
