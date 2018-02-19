@@ -1,9 +1,12 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2017 SRE-F, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-"""PYXEL is a detector simulation framework, that can simulate a variety of
+"""PYXEL detector simulation framework.
+
+PYXEL is a detector simulation framework, that can simulate a variety of
 detector effects (e.g., cosmics, radiation-induced CTI  in CCDs, persistency
-in MCT, diffusion, cross-talk etc.) on a given image."""
+in MCT, diffusion, cross-talk etc.) on a given image.
+"""
 import logging
 import argparse
 
@@ -21,7 +24,6 @@ def run_pipeline(input_filename, output_file):
     :param output_file:
     :return:
     """
-
     config_path = Path(__file__).parent.joinpath(input_filename)
     cfg = pyxel.load_config(config_path)
 
@@ -41,7 +43,7 @@ def run_pipeline(input_filename, output_file):
 
 
 def main():
-    """ main entry point. """
+    """Define the argument parser and run the pipeline."""
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter,
                                      description=__doc__)
 

@@ -19,6 +19,7 @@ class Geometry:
                  n_donor: float = None,
                  bias_voltage: float = None) -> None:
         """Initialize the geometry.
+
         :param row:
         :param col:
         :param depletion_thickness:
@@ -93,7 +94,8 @@ class Geometry:
         self.set_material(new_material)
 
     def set_material(self, material):
-        """Set material properties
+        """Set material properties.
+
         :param material:
         """
         if material == 'silicon' or 'Si' or 'si':

@@ -3,8 +3,7 @@
 #       Hans Smit <Hans.Smit@esa.int>
 #       Frederic Lemmel <Frederic.Lemmel@esa.int>
 #   --------------------------------------------------------------------------
-
-""" Class to access 'data' and 'header' from a FITS file. """
+"""Class to access 'data' and 'header' from a FITS file."""
 
 import logging
 import sys
@@ -33,51 +32,60 @@ if sys.version_info < (3, 0):
     import errno
 
     class PermissionError(OSError):
-        """ Not enough permissions. """
+        """Not enough permissions."""
+
         def __init__(self, *args, **kwargs):
+            """TBW."""
             super(PermissionError, self).__init__(errno.EACCES, *args, **kwargs)
 
 
 class ImageData(object):
-    """ Parent class of all image like data. This class may be constructed directly
-    with a 2d image numpy array and a key/value header dictionary. This class
-    is compatible with the SensorFrame, and also provides a convenient class
-    to construct images in memory with when constructing unittests.
+    """Parent class of all image like data.
+
+    This class may be constructed directly with a 2d image numpy array and
+    a key/value header dictionary. This class is compatible with the SensorFrame,
+    and also provides a convenient class to construct images in memory with
+    when constructing unittests.
     """
 
     def __init__(self, data, header=None):
+        """TBW.
+
+        :param data:
+        :param header:
+        """
         if header is None:
             header = {}
         self._data = data
         self._header = header
 
     def is_loaded(self):
-        """ Check if the image data is loaded. """
+        """Check if the image data is loaded."""
         return self._data is not None
 
     @property
     def data(self):
-        """ Return the image array. """
+        """Return the image array."""
         return self._data
 
     @data.setter
     def data(self, value):
-        """ Set the image pixel values array. """
+        """Set the image pixel values array."""
         self._data = value
 
     @property
     def header(self):
-        """ Return the image header dictionary. """
+        """Return the image header dictionary."""
         return self._header
 
     @header.setter
     def header(self, value):
-        """ Set the image header dictionary. """
+        """Set the image header dictionary."""
         self._header = value
 
 
 class FitsFile(ImageData):
-    """ Class to read/write data from/into a FITS file.
+    """Class to read/write data from/into a FITS file.
 
     >>> fits_file = FitsFile(filename='hello.fits')
     >>> fits_file.data
@@ -87,7 +95,7 @@ class FitsFile(ImageData):
     """
 
     def __init__(self, filename, hdu_index=0, is_readonly=False):
-        """ Initialize the FitsFile object
+        """Initialize the FitsFile object.
 
         :param filename: filename of the FITS file
         :param hdu_index: (optional) HDU index
@@ -115,12 +123,11 @@ class FitsFile(ImageData):
         self._is_readonly = bool(is_readonly)
 
     def load(self, only_header=False):
-        """ Read the FITS file.
+        """Read the FITS file.
 
         :param bool only_header: if True then reads only the header,
                                  if False then reads the data and header.
         """
-
         self._log.debug("Load file: '%s', hdu_index: %i, "
                         "only_header: %s", self._filename, self._hdu_index, only_header)
 
@@ -133,7 +140,7 @@ class FitsFile(ImageData):
             self._header = header
 
     def save(self, data=None, header=None, overwrite=True):
-        """ Save the data and header in the FITS file
+        """Save the data and header in the FITS file.
 
         :param data: (optional) data to write in the FITS file.
         :param header: (optional) header to write in the FITS file.
@@ -144,7 +151,6 @@ class FitsFile(ImageData):
         :raises PermissionError:
         :raises ValueError:
         """
-
         if self._is_readonly:
             raise PermissionError("Cannot save the file.")
 
@@ -213,7 +219,7 @@ class FitsFile(ImageData):
 
     @property
     def filename(self):
-        """ Get the filename of the FITS file
+        """Get the filename of the FITS file.
 
         :return: the filename
         :rtype: str
@@ -222,7 +228,7 @@ class FitsFile(ImageData):
 
     @filename.setter
     def filename(self, new_path):
-        """
+        """TBW.
 
         :param str new_path: may also be a Path type
         """
@@ -233,7 +239,7 @@ class FitsFile(ImageData):
 
     @property
     def hdu_index(self):
-        """ Get the current HDU index.
+        """Get the current HDU index.
 
         :return: the index
         :rtype: int
@@ -242,13 +248,11 @@ class FitsFile(ImageData):
 
     @property
     def data(self):
-        """ Get the data from the FITS file. Load the FITS file if necessary.
+        """Get the data from the FITS file. Load the FITS file if necessary.
 
         :return:
         :rtype: numpy.ndarray
         """
-        # self._log.debug("In filename '%s', get data", self._filename)
-
         if self._data is None:
             # Load 'data' and 'header'
             self.load()
@@ -257,7 +261,7 @@ class FitsFile(ImageData):
 
     @data.setter
     def data(self, value):
-        """ Write data in the FITS file
+        """Write data in the FITS file.
 
         :param numpy.ndarray value:
         """
@@ -266,14 +270,13 @@ class FitsFile(ImageData):
 
     @property
     def header(self):
-        """ Get the header from the FITS file. Load only the header from the
-        FITS file if necessary.
+        """Get the header from the FITS file.
+
+        Load only the header from the FITS file if necessary.
 
         :return: the header
         :rtype: pyfits.header.Header
         """
-        # self._log.debug("In filename '%s', get header", self._filename)
-
         if self._header is None:
             # Load only 'header'
             self.load(only_header=True)
@@ -282,7 +285,7 @@ class FitsFile(ImageData):
 
     @header.setter
     def header(self, value):
-        """ Write the header in the FITS file
+        """Write the header in the FITS file.
 
         :param value: the header to write
         :type value: pyfits.header.Header
@@ -292,27 +295,30 @@ class FitsFile(ImageData):
 
     @property
     def is_readonly(self):
-        """ Return the reading/writing modes of the FITS file.
+        """Return the reading/writing modes of the FITS file.
 
         :return: if True then the file is only available in read mode.
         :rtype: bool
         """
-
         return self._is_readonly
 
 
 class HeaderAccess(object):
-    """ Convenience class to convert a dictionary of Fits header into a
-    test-bench independent manner. """
+    """Convenience class to convert a dictionary of Fits header into a test-bench independent manner."""
 
     class Attributes(object):
-        """ This class will be constructed dynamically in the to_object
+        """Header attribute class definition.
+
+        This class will be constructed dynamically in the to_object
         routine and will enable header access using attribute de-referencing.
         """
 
     @classmethod
     def entry_generator(cls):
-        """ Used internally to iterate of the header class dictionary entries. """
+        """TBW.
+
+        Used internally to iterate of the header class dictionary entries.
+        """
         keys = [key for key in cls.__dict__.keys() if not key.startswith('__')]
         for entry_name in keys:
             entry = cls.__dict__[entry_name]
@@ -340,9 +346,12 @@ class HeaderAccess(object):
 
     @classmethod
     def to_dict(cls, header):
-        """ Retrieve the dictionary of key/value pairs where the key is the
+        """Convert Fits header to dict object.
+
+        Retrieve the dictionary of key/value pairs where the key is the
         string representation of the header class attribute, and the value is
-        the builtin type dependent on the header class type information. """
+        the builtin type dependent on the header class type information.
+        """
         result = {}
         for fits_name, entry_name, entry_type, entry_default in cls.entry_generator():
             if fits_name in header:
@@ -361,8 +370,10 @@ class HeaderAccess(object):
 
     @classmethod
     def to_object(cls, header):
-        """ Convert the header to a HeaderAccess.Attributes instance. This enables
-        the result to be dereference by direct attribute access (not key string).
+        """Convert the header to a HeaderAccess.Attributes instance.
+
+        This enables the result to be dereference by direct attribute
+        access (not key string).
         """
         dict_res = cls.to_dict(header)
         keys = list(dict_res.keys())
@@ -373,13 +384,18 @@ class HeaderAccess(object):
 
 
 class FileCollector(object):
-    """ A class that gathers files in a directory and groups them into
-    lists.
-    """
+    """A class that gathers files in a directory and groups them into lists."""
 
     def __init__(self, file_template, header_class=None,
                  criteria_func=None, group_values=None, file_nums=None):
+        """TBW.
 
+        :param file_template:
+        :param header_class:
+        :param criteria_func:
+        :param group_values:
+        :param file_nums:
+        """
         self._index = -1
         files = glob.glob(file_template)
         files.sort()
@@ -407,15 +423,19 @@ class FileCollector(object):
         self._files_per_group = files_per_group
 
     def __getitem__(self, index):
+        """TBW."""
         return self._files_per_group[index]
 
     def __len__(self):
+        """TBW."""
         return len(self._files_per_group)
 
     def __iter__(self):
+        """TBW."""
         return self
 
     def next(self):  # Python 3: def __next__(self)
+        """TBW."""
         self._index += 1
         if 0 <= self._index < len(self._files_per_group):
             return self._files_per_group[self._index]
@@ -423,11 +443,13 @@ class FileCollector(object):
         raise StopIteration
 
     def get_grouped_files(self):
+        """TBW."""
         return self._files_per_group
 
     @staticmethod
     def filter_files(header, files, criteria):
-        """
+        """TBW.
+
         :param HeaderAccess header:
         :param list files:
         :param callable criteria:
@@ -435,7 +457,6 @@ class FileCollector(object):
         :rtype: list
         :raises TypeError:
         """
-
         if not callable(criteria):
             raise TypeError('Invalid criteria argument: %s' % repr(criteria))
 
@@ -454,7 +475,7 @@ class FileCollector(object):
 
     @staticmethod
     def group_files(header, files, groups, criteria):
-        """
+        """TBW.
 
         :param HeaderAccess header:
         :param list files:
@@ -493,7 +514,7 @@ class FileCollector(object):
 
     @staticmethod
     def numbered_files(file_template, file_nums, header, criteria):
-        """
+        """TBW.
 
         :param str file_template:
         :param list file_nums:

@@ -5,11 +5,11 @@ from pyxel.util import util
 
 class Models:
     """TBW."""
-    
+
     def __init__(self, models: dict) -> None:
         """TBW.
-        
-        :param models: 
+
+        :param models:
         """
         new_dct = {}
         for key, value in models.items():

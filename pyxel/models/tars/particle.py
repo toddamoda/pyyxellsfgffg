@@ -40,7 +40,6 @@ class Particle:
         :param float or 'random' input_alpha: alpha incident angle of the particle in the ccd
         :param float or 'random' input_beta: beta incident angle of the particle in the ccd
         """
-
         self.detector = detector
         geo = self.detector.geometry
 

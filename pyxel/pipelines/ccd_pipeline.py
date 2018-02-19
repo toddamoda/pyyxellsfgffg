@@ -1,3 +1,4 @@
+"""TBW."""
 from pyxel.pipelines.detector_pipeline import DetectionPipeline
 from pyxel.detectors.detector import Detector
 from pyxel.physics.charge import Charge

@@ -13,7 +13,6 @@ def simple_pixel_full_well(detector: Detector,
 
     :return:
     """
-
     # new_detector = copy.deepcopy(detector)
     new_detector = detector
 

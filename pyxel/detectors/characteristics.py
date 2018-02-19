@@ -14,6 +14,7 @@ class Characteristics:
                  fwc: int = None,
                  ) -> None:
         """TBW.
+
         :param qe:
         :param eta:
         :param sv:

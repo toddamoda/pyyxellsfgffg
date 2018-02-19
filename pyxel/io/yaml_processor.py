@@ -41,7 +41,8 @@ class PyxelLoader(yaml.SafeLoader):
     used to maintain the available constructor functions that are
     called when parsing a YAML stream.  See the `PyYaml documentation
     <http://pyyaml.org/wiki/PyYAMLDocumentation>`_ for details of the
-    class signature."""
+    class signature.
+    """
 
 
 class PyxelDumper(yaml.SafeDumper):
@@ -51,7 +52,8 @@ class PyxelDumper(yaml.SafeDumper):
     used to maintain the available constructor functions that are
     called when parsing a YAML stream.  See the `PyYaml documentation
     <http://pyyaml.org/wiki/PyYAMLDocumentation>`_ for details of the
-    class signature."""
+    class signature.
+    """
 
 
 def _expr_processor(loader: PyxelLoader, node: yaml.ScalarNode):
@@ -310,7 +312,7 @@ def load(stream: t.Union[str, t.IO]):
 
 
 def dump(data) -> str:
-    """Serialize a Python object into a YAML stream using `PyxelDumper`
+    """Serialize a Python object into a YAML stream using `PyxelDumper`.
 
     :param data: Object to serialize to YAML.
     :return: the YAML output as a `str`.
@@ -319,6 +321,11 @@ def dump(data) -> str:
 
 
 def load_config(yaml_filename: Path):
+    """Load the YAML configuration file.
+
+    :param yaml_filename:
+    :return:
+    """
     with yaml_filename.open('r') as file_obj:
         cfg = load(file_obj)
 

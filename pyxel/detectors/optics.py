@@ -1,5 +1,6 @@
 """TBW."""
 
+
 class Optics:
     """TBW."""
 

@@ -44,8 +44,7 @@ def simple_conversion(detector: Detector) -> Detector:
 
 
 def monte_carlo_conversion(detector: Detector) -> Detector:
-    """Generate charges from incident photons via photoelectric effect,
-    more exact, stochastic (Monte Carlo) model.
+    """Generate charges from incident photons via photoelectric effect, more exact, stochastic (Monte Carlo) model.
 
     :param detector:
     :return:

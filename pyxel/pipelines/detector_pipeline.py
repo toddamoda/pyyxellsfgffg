@@ -1,6 +1,6 @@
 """TBW."""
 
-import typing as t
+import typing as t  # noqa: F401
 
 from pyxel.detectors.detector import Detector
 from pyxel.pipelines.models import Models

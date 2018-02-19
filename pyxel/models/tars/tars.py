@@ -210,7 +210,7 @@ class TARS:
     #     self.sim_obj.energy_max_limit = self.sim_obj.stopping_power_function[-1, 0]
 
     def set_particle_spectrum(self, file_name):
-        """Setting up the particle specs according to a spectrum.
+        """Set up the particle specs according to a spectrum.
 
         :param string file_name: path of the file containing the spectrum
         """
