@@ -18,6 +18,7 @@ SET_SEQUENCE = 'SET-SEQUENCE'
 
 
 class DispatcherBlockingAutoRemoveDeadEndPoints(DispatcherBlocking):
+    """ TODO: integrate this into esapy_dispatcher """
 
     def _find_endpoints(self, sender='', signal=''):
         endpoints = super()._find_endpoints(sender=sender, signal=signal)
@@ -45,7 +46,7 @@ class DispatcherBlockingAutoRemoveDeadEndPoints(DispatcherBlocking):
 
 dispatcher = DispatcherBlockingAutoRemoveDeadEndPoints()
 # send_to_influxdb = dispatcher.emit(sender='*', signal=HK_SIGNAL)
-progress = dispatcher.emit(sender='*', signal=PROGRESS)
+progress = dispatcher.emit(sender='api', signal=PROGRESS)
 
 
 class SequencerState:

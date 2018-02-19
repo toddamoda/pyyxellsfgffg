@@ -1,6 +1,6 @@
 {% autoescape None %}
 
-<div class="container">
+<div class="container" id="pyxel">
     <br/>
     <div class="pe-form">
         <button class="btn btn-primary" id="pe-expand" >Expand</button>
@@ -15,12 +15,12 @@
         <tr id="connection_status">
             <td><div>Status</div></td>
             <td><div class="indicator">-</div></td>
-            <td><button>Connect</button></td>
+            <td><button id="connect">Connect</button></td>
         </tr>
         <tr id="output_file">
             <td><div>Output file (fits)</div></td>
             <td><input type="text" value="../tests/data/test.fits"></td>
-            <td><button>Run</button></td>
+            <td><button id="run-pipeline">Run</button></td>
         </tr>
         <tr id="state" class="pe-progress">
             <td><div>State</div></td>

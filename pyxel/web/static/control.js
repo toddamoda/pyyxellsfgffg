@@ -1,292 +1,12 @@
-var cfg = null;
-var ws = null;
-
-function send_signal(sender, signal, params) {
-
-    var kwargs = {};
-    var args = [];
-    if (params) {
-        if (Array.isArray(args)) {
-            args = params;
-        } else {
-            kwargs = params;
-        }
-    }
-    var msg = {
-        'sender': sender,
-        'signal': signal,
-        'args': args,
-        'kwargs': kwargs
-    }
-    msg_str = JSON.stringify(msg);
-    ws.send(msg_str);
-}
 
 
-function get(json_obj, att_name, att_value) {
-    for (i in json_obj) {
-        if (att_name in json_obj[i] && json_obj[i][att_name] == att_value) {
-            return json_obj[i];
-        }
-    }
-    return null;
-}
 
 
-function keys(obj) {
-    var keys = [];
-    for (key in obj) {
-        keys.push(key);
-    }
-    return keys;
-}
-
-
-function on_highlight_indicator(ind, ind_text) {
-    ind.text(ind_text);
-    ind.prop('title', ind_text);
-    ind.addClass('indicator-hilite');
-    setTimeout(function() { ind.removeClass('indicator-hilite'); }, 500);
-}
-
-
-function on_connect_state_change(ind_text, btn_text) {
-    var btn = $('#connection_status button');
-    var ind = $('#connection_status .indicator');
-    btn.text(btn_text)
-    on_highlight_indicator(ind, ind_text)
-}
-
-
-function on_update_indicator(measurement, fields) {
-
-    var messages = cfg.messages;
-    var msg = get(messages, 'name', measurement);
-    if (!msg) {
-        return;
-    }
-    if (msg.format) {
-        var text = $.format(msg.format, fields)
-        var ind = $(msg.ind_selector);
-        on_highlight_indicator(ind, text)
-    }
-    if (msg.state_field && msg.state_map) {
-        var state = fields[msg.state_field];
-        var state_obj = get(msg.state_map, 'state', state);
-        if (!state_obj) {
-            state_obj = get(msg.state_map, 'state', 'default')
-        }
-        for (var i in state_obj.selector) {
-            $(state_obj.selector[i]).text(state_obj.label[i]);
-        }
-    }
-}
-
-
-function on_response(data) {
-    console.log('on_response:' + data);
-    var obj = JSON.parse(data);
-    if (obj.type == 'progress') {
-        var id = obj.id;
-        var fields = obj.fields;
-        var label = fields.label;
-        var selector = '#' + obj.id.replace(/\./g, '\\.')
-        var ind_text = $.format('%(value)s', fields);
-        var ind = $(selector + ' .indicator');
-        on_highlight_indicator(ind, ind_text)
-
-        $('.pe-progress .pe-progress-running').css('background-color', '')
-        $('.pe-progress .pe-progress-running').removeClass('pe-progress-running')
-        if (label == 'pause') {
-            ind.css('background-color', 'orange');
-        } else if (label == 'error') {
-            ind.css('background-color', 'red');
-        }
-        if (fields.state > 0) {
-            ind.addClass('pe-progress-running');
-        }
-    }
-
-    if (obj.type == 'get') {
-        var id = obj.id;
-        var fields = obj.fields;
-        var selector = '#' + obj.id.replace(/\./g, '\\.');
-        var ind_text = 'None'
-        if (fields.value) {
-            ind_text = $.format('%(value)s', fields);
-        }
-        var ind = $(selector + ' .indicator');
-        on_highlight_indicator(ind, ind_text)
-        set_value($(selector), fields.value);
-    }
-}
-
-function set_value(context, value) {
-
-    if ($('select', context).length) {
-        $('select', context).val(value);
-    } else if ($('input', context).length == 1) {
-        $('input', context).val(value);
-    } else if ($('input', context).length > 1) {
-        console.log(value);
-        $('input', context).each(function(index) {
-            $(this).val(value[index]);
-        });
-    }
-}
-function get_value(context) {
-    var value = null;
-    if ($('select', context).length) {
-        value = $('select', context).val();
-    } else if ($('input', context).length == 1) {
-        value = $('input', context).val();
-    } else if ($('input', context).length > 1) {
-        value = [];
-        $('input', context).each(function() {
-            value.push($(this).val());
-        });
-    }
-    return value;
-}
-
-function apply_sequencer() {
-
-    $('.sequence').each(function(index) {
-        var is_enabled = $('input[type="checkbox"]', $(this)).is(":checked");
-        var key = $('select', $(this)).val();
-        var range = $('input[type="text"]', $(this)).val();
-        send_signal('api', 'SET-SEQUENCE', [index, key, range, is_enabled])
-    });
-}
-
-function init_controls() {
-
-    $('#connection_status button').click(function() {
-        var text = $('#connection_status button').text();
-        if (text == 'Connect') {
-            init_socket_stream()
-        } else {
-            ws.close()
-        }
-    });
-
-    $('#output_file button').click(function() {
-        apply_sequencer();
-        var value = $('#output_file input').val();
-        send_signal('api', 'RUN-PIPELINE', [value]);
-    });
-
-    $('.setting .indicator').click(function() {
-        console.log('get')
-        var row_elem = $(this).parents('tr');
-        var id = row_elem.attr('id');
-        console.log('Sending signal: %s, %s, %s','api', 'GET-SETTING', [id])
-        send_signal('api', 'GET-SETTING', [id]);
-    });
-
-    $('#setting-set-all').click(function() {
-        console.log('set-all')
-        $('.setting button').click();
-    });
-    $('#setting-get-all').click(function() {
-        console.log('get-all')
-        $('.setting .indicator').click();
-    });
-    $('#setting-reset').click(function() {
-        alert('To be implemented');
-    });
-    $('#start-imager').click(function() {
-        alert('To be implemented');
-    });
-
-    $('.pe-table .enable-row').change(function() {
-        var is_enabled = $(this).is(":checked") ? false : 'disabled';
-        var row_elem = $(this).parents('tr');
-        $('select', row_elem).prop('disabled', is_enabled);
-        $('input[type="text"]', row_elem).prop('disabled', is_enabled);
-    });
-    $('.pe-table .enable-row').change();
-
-    $('.pe-table button').click(function() {
-        var signals = cfg.actions;
-        var i;
-        var params = [];
-        var action = null;
-        var row_elem = $(this).parents('tr');
-        var id = row_elem.attr('id');
-        var cls = row_elem.attr('class');
-        var signal = get(signals, "id", id);
-        if (signal && signal.toggle) {
-            var text = $(this).text();
-            action = get(signal.toggle, "label", text);
-            for (i in action.args_selector) {
-                params.push($(action.args_selector[i]).val());
-            }
-        }
-        var signal = get(signals, "class", cls);
-        if (signal && signal.click) {
-            action = signal.click;
-            for (i in action.args) {
-                var value = null;
-                var to_eval = action.args[i];
-                var expr = to_eval.charAt(0);
-                if (to_eval == '@value') {
-                    value = get_value(row_elem)
-                } else if (to_eval == '@id') {
-                    value = id;
-                } else if (expr == '#' || expr == '.') {
-                    value = $(to_eval).val();
-                }
-                params.push(value);
-            }
-        }
-        if (action) {
-            console.log('Sending signal: %s, %s, %s', action.sender, action.signal, params)
-            send_signal(action.sender, action.signal, params);
-        }
-    });
-}
-
-
-function init_socket_stream() {
-    var protocol = 'ws:';
-    if (window.location.protocol === 'https:') {
-        protocol = 'wss:';
-    }
-    var host = window.location.host;
-    var path = window.location.pathname;
-    var url = protocol + '//' + host + path + 'websocket';  // rpc
-    ws = new WebSocket(url);
-    console.log('ws=' + ws);
-
-    ws.onmessage = function(e) {
-        console.log(e.data);
-        on_response(e.data);
-    };
-    ws.onerror = function() {
-        console.log('error...');
-        on_connect_state_change('Error', 'Close')
-    };
-
-    ws.onopen = function() {
-        console.log('connected...');
-        on_connect_state_change('Connected', 'Close')
-    };
-
-    ws.onclose = function() {
-        console.log('closed');
-        on_connect_state_change('Not Connected', 'Connect')
-        ws = null;
-    };
-
-    return ws;
-}
 
 
 $(document).ready(function() {
 
-    ws = init_socket_stream();
-
+    // set bootstrap styles
     $('.pe-table td:nth-child(2) div').addClass('form-control')
     $('.pe-table td:nth-child(2) div').addClass('pe-output')
 
@@ -296,6 +16,7 @@ $(document).ready(function() {
     $('.pe-table td button').addClass('btn')
     $('.pe-table td button').addClass('btn-primary')
 
+    // define the section event handlers
     $('#pe-expand').click(function() {
         $('.pe-section-hide').find('caption').click();
     });
@@ -313,8 +34,63 @@ $(document).ready(function() {
         $(this).html(arrow + $(this).prop('title'));
     });
 
-    $.getJSON('/static/control.json', function(data) {
-        cfg = data;
-        init_controls();
+    // define the row enablement checkboxs
+    $('.pe-table .enable-row').change(function() {
+        $(this).parents('tr').set_enabled($(this).is(":checked"));
     });
+    $('.pe-table .enable-row').change();
+
+    // define the getter/setters
+    $('.setting button').click(function() {
+        var id = $(this).parents('tr').attr('id');
+        var value = $(this).parents('tr').get_value();
+        connection.emit('api', 'SET-SETTING', [id, value])
+    });
+    $('#setting-set-all').click(function() {
+        $('.setting button').click();
+    });
+    $('.setting .indicator').click(function() {
+        var id = $(this).parents('tr').attr('id');
+        connection.emit('api', 'GET-SETTING', [id]);
+    });
+    $('#setting-get-all').click(function() {
+        console.log('get-all')
+        $('.setting .indicator').click();
+    });
+
+    // define the application action handlers
+    $('#connection_status button').click(function() {
+        connection.toggle();
+    });
+    $('#output_file button').click(function() {
+        $('.sequence').each(function(index) {
+            var is_enabled = $(this).is_enabled();
+            var key = $('select', $(this)).val();
+            var range = $('input[type="text"]', $(this)).val();
+            connection.emit('api', 'SET-SEQUENCE', [index, key, range, is_enabled])
+        });
+        var value = $(this).get_value();
+        connection.emit('api', 'RUN-PIPELINE', [value]);
+    });
+
+    $('#setting-reset').click(function() {
+        alert('To be implemented');
+    });
+    $('#start-imager').click(function() {
+        alert('To be implemented');
+    });
+
+    $('#pyxel').on('message:progress', function(event, selector, fields) {
+        $('.pe-table').trigger('message:get', [selector, fields]);
+        var label_color = {'pause': 'orange', 'error': 'red'};
+        $(selector).progress(fields.state > 0, label_color[fields.label]);
+    });
+    $('#pyxel').on('message:get', function(event, selector, fields) {
+        var text = $.format('%(value)s', fields);
+        $(selector).highlight(text);
+    });
+
+    connection.init($('#connection_status'), $('#pyxel'))
+    connection.open();
+
 });
