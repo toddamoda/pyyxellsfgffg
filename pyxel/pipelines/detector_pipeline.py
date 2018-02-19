@@ -1,3 +1,5 @@
+import typing as t
+
 from pyxel.detectors.detector import Detector
 from pyxel.pipelines.models import Models
 
@@ -18,9 +20,8 @@ class DetectionPipeline:
         self.charge_measurement = charge_measurement
         self.readout_electronics = readout_electronics
 
-        self._model_groups = []
-        self._model_steps = {}
-        self._model_map = {}
+        self._model_groups = []  # type: t.List[str]
+        self._model_steps = {}   # type: t.Dict[str, t.List[str]]
 
     def run_model_group(self, name, detector):
         if name in self._model_groups:
