@@ -139,8 +139,6 @@ class API:
                 obj = obj.keywords
             else:
                 obj = getattr(obj, part)
-        if att == 'image':
-            att = '_image'
 
         if isinstance(obj, dict) and att in obj:
             value = obj[att]
@@ -190,16 +188,6 @@ class API:
                 obj = obj.keywords
             else:
                 obj = getattr(obj, part)
-
-        if att == 'photons':
-            setattr(obj, '_photon_mean', value)
-            setattr(obj, '_image', None)
-
-        elif att == 'image':
-            value = FitsFile(value)
-            setattr(obj, '_photon_mean', None)
-            setattr(obj, '_image', value.data)
-            return
 
         if isinstance(obj, dict) and att in obj:
             obj[att] = value

@@ -48,9 +48,8 @@ class CCDDetectionPipeline(DetectionPipeline):
         """
         # INITIALIZATION (open or generate image):
         # START -> create photons ->
-        photon_numbers, photon_energies = detector.initialize_detector()
         detector.photons = Photon(detector)
-        detector.photons.generate_photons(photon_numbers, photon_energies)
+        detector.photons.generate_photons()
 
         # OPTICS:
         # -> transport/modify photons ->

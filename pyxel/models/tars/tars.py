@@ -157,8 +157,7 @@ class TARS:
                                 self.step_length)
 
         for _ in tqdm(range(0, self.particle_number)):
-            dep = self.sim_obj.event_generation()
-            self.log.debug('total deposited E: %4.2f keV', dep)
+            self.sim_obj.event_generation()
 
         size = len(self.sim_obj.e_num_lst)
         self.sim_obj.e_vel0_lst = [0.] * size
