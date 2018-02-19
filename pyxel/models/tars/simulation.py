@@ -16,11 +16,10 @@ class Simulation:
     """Main class of the program, Simulation contain all the methods to set and run a simulation."""
 
     def __init__(self, detector: Detector) -> None:
-        """Initialisation of the simulation.
+        """Initialize the simulation.
 
         :param Detector detector: Detector object(from CCD/CMSO library) containing all the simulated detector specs
         """
-
         self.detector = detector
 
         self.spectrum_cdf = None
@@ -79,7 +78,6 @@ class Simulation:
 
         .. warning:: EXPERIMENTAL - NOT FINSHED YET
         """
-
         TARS_DIR = path.dirname(path.abspath(__file__))
         # particle_let_file = TARS_DIR + '../data/inputs/let_proton_12GeV_100um_geant4.ascii'
         particle_let_file = TARS_DIR + '/data/inputs/let_proton_1GeV_100um_geant4_HighResHist.ascii'
@@ -113,7 +111,6 @@ class Simulation:
 
         :return:
         """
-
         track_left = False
 
         p = Particle(self.detector,

@@ -12,7 +12,8 @@ cds.enable()
 
 
 def round_convert_to_int(input_array: np.ndarray):
-    """Round list of floats in numpy array and convert to integers
+    """Round list of floats in numpy array and convert to integers.
+
     Use on data before adding into DataFrame.
 
     :param input_array: numpy array object OR numpy array (float, int)
@@ -25,7 +26,8 @@ def round_convert_to_int(input_array: np.ndarray):
 
 
 def convert_to_int(input_array: np.ndarray):
-    """Convert numpy array to integer
+    """Convert numpy array to integer.
+
     Use on data after getting it from DataFrame.
 
     :param input_array: numpy array object OR numpy array (float, int)
@@ -61,7 +63,7 @@ class Pixel:
                                            'pixel_index_hor'])
 
     def generate_pixels(self):
-        """Group charges into packets and fill pixel DataFrame"""
+        """Group charges into packets and fill pixel DataFrame."""
         charge_per_pixel = self.detector.charges.get_numbers()
 
         charge_pos_ver = self.detector.charges.get_positions_ver()
@@ -78,11 +80,10 @@ class Pixel:
                   charge,
                   pixel_index_ver,
                   pixel_index_hor):
-        """Creating new pixel charge packet which is stored in a pandas DataFrame.
+        """Create new pixel charge packet which is stored in a pandas DataFrame.
 
         :return:
         """
-
         if len(charge) == len(pixel_index_ver) == len(pixel_index_hor):
             elements = len(charge)
         else:
@@ -106,7 +107,7 @@ class Pixel:
         self.frame = pd.concat([self.frame, new_pixel_df], ignore_index=True)
 
     def generate_2d_charge_array(self):
-        """Generating 2d numpy array from pixel DataFrame.
+        """Generate 2d numpy array from pixel DataFrame.
 
         :return:
         """

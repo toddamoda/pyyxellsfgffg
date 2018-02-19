@@ -16,7 +16,7 @@ cds.enable()
 
 
 def check_energy(initial_energy):
-    """Checking energy of the particle if it is a float or int.
+    """Check energy of the particle if it is a float or int.
 
     :param initial_energy:
     :return:
@@ -28,7 +28,7 @@ def check_energy(initial_energy):
 
 
 def check_position(detector, initial_position):
-    """Checking position.
+    """Check position.
 
     :param detector:
     :param initial_position:
@@ -38,7 +38,7 @@ def check_position(detector, initial_position):
 
 
 def random_direction(v_abs=1.0):    # TODO check random angles and direction
-    """Generating random direction for a photon.
+    """Generate random direction for a photon.
 
     :param v_abs:
     :return:
@@ -52,8 +52,7 @@ def random_direction(v_abs=1.0):    # TODO check random angles and direction
 
 
 class Photon:
-    """Photon class defining and storing information of all photons including their
-    position, velocity, energy."""
+    """Photon class defining and storing information of all photons including their position, velocity, energy."""
 
     def __init__(self, detector=None):
         """TBW.
@@ -77,6 +76,7 @@ class Photon:
                                            'velocity_z'])
 
     def generate_photons(self):
+        """TBW."""
         photon_number_list = []
         cht = self.detector.characteristics
         geo = self.detector.geometry
@@ -137,7 +137,7 @@ class Photon:
                    init_ver_velocity,
                    init_hor_velocity,
                    init_z_velocity):
-        """Creating new photon or group of photons inside the detector stored in a pandas DataFrame.
+        """Create new photon or group of photons inside the detector stored in a pandas DataFrame.
 
         :param photons_per_group:
         :param init_energy:
@@ -149,7 +149,6 @@ class Photon:
         :param init_z_velocity:
         :return:
         """
-
         # check_position(self.detector, init_ver_position, init_hor_position, init_z_position)
         # check_energy(init_energy)
 
@@ -229,6 +228,7 @@ class Photon:
 
     def get_positions_hor(self, id_list='all'):
         """Get horizontal positions of a list of photons.
+
         :param id_list:
         :return:
         """
@@ -240,6 +240,7 @@ class Photon:
 
     def get_positions_z(self, id_list='all'):
         """Get z positions (height) of a list of photons.
+
         :param id_list:
         :return:
         """
@@ -251,15 +252,17 @@ class Photon:
 
     def get_velocities(self, id_list='all'):
         """Get all 3 velocities of a list of photons as a numpy array.
-         :param id_list:
-         :return:
-         """
+
+        :param id_list:
+        :return:
+        """
         return np.stack((self.get_velocities_ver(id_list),
                          self.get_velocities_hor(id_list),
                          self.get_velocities_z(id_list)), axis=1)
 
     def get_velocities_ver(self, id_list='all'):
         """Get vertical velocities of a list of photons.
+
         :param id_list:
         :return:
         """
@@ -271,6 +274,7 @@ class Photon:
 
     def get_velocities_hor(self, id_list='all'):
         """Get horizontal velocities of a list of photons.
+
         :param id_list:
         :return:
         """
@@ -282,6 +286,7 @@ class Photon:
 
     def get_velocities_z(self, id_list='all'):
         """Get z velocities (height) of a list of photons.
+
         :param id_list:
         :return:
         """

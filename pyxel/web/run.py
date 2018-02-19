@@ -1,3 +1,4 @@
+"""TBW."""
 
 import logging
 import argparse
@@ -12,6 +13,12 @@ from pyxel.web.controller import API
 
 
 def run_web_server(input_filename, port=8888):
+    """TBW.
+
+    :param input_filename:
+    :param port:
+    :return:
+    """
     config_path = Path(__file__).parent.parent.joinpath(input_filename)
     cfg = pyxel.load_config(config_path)
     processor = cfg['process']
@@ -29,7 +36,7 @@ def run_web_server(input_filename, port=8888):
 
 
 def main():
-    """ main entry point. """
+    """Main entry point."""
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter,
                                      description=__doc__)
 

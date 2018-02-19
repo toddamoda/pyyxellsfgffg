@@ -4,7 +4,7 @@
 #       Frederic Lemmel <Frederic.Lemmel@esa.int>
 #   --------------------------------------------------------------------------
 
-""" Implementation of a Datacube. """
+"""Implementation of a Datacube."""
 
 import logging
 from collections import OrderedDict
@@ -16,20 +16,20 @@ from .fitsfile import FitsFile
 
 
 class DataCubeItems(object):
-    """ Class to access the items from the MetaDatacube. """
+    """Class to access the items from the MetaDatacube."""
 
     def __init__(self, instance, attribute):
-        """
+        """TBW.
+
+        ... Example::
+
+            >>> dc = MetaDatacube(param=[param0, param1, param2], dtype=Foo)
+            >>> dc_items = DataCubeItems(instance=dc, attribute='val')
 
         :param MetaDatacube instance:
         :param str attribute:
         :raises ValueError: if the instance does not have the 'attribute'
-
-        ... Example::
-            >>> dc = MetaDatacube(param=[param0, param1, param2], dtype=Foo)
-            >>> dc_items = DataCubeItems(instance=dc, attribute='val')
         """
-
         # Check if the 'attribute' exists
         if not hasattr(instance.dtype, attribute):
             raise ValueError("Attribute '%s' is missing in "
@@ -39,22 +39,23 @@ class DataCubeItems(object):
         self._attribute = attribute
 
     def __len__(self):
-        """ Number of elements in the Datacube
-
-        :return: total number of elements
-        :rtype: int
+        """Number of elements in the Datacube.
 
         ..Example::
+
             >>> dc = MetaDatacube(param=[param0, param1, param2], dtype=Foo)
             >>> dc_items = DataCubeItems(dc, 'val')
 
             >>> len(dc_items)
             3
+
+        :return: total number of elements
+        :rtype: int
         """
         return self._instance.size
 
     def __iter__(self):
-        """ Returns an iterator
+        """Returns an iterator.
 
         :return: the iterator for the specified attribute
         :rtype: collections.Iterator
@@ -66,12 +67,11 @@ class DataCubeItems(object):
             >>> iter(dc_items)
             iter([Foo(param0).val, Foo(param1).val, Foo(param2).val])
         """
-
         # Get all the elements
         return self.__getitem__(slice(None))
 
     def _get_sliced_idx(self, item):
-        """
+        """TBW.
 
         :param item:
         :type item: int, slice
@@ -88,7 +88,6 @@ class DataCubeItems(object):
             >>> dc_items.get_idx(slice(0, 2))
             iter([0, 1])
         """
-
         # Get the list of all indexes (e.g. [0, 1, 2, ...] or [(0, 0), (0, 1), ...]
         indexes_flat = list(self._instance.ndindex())
 
@@ -100,7 +99,7 @@ class DataCubeItems(object):
         return iter(indexes.tolist())
 
     def __getitem__(self, item):
-        """ Get one value or multiple values (as an iterator)
+        """Get one value or multiple values (as an iterator).
 
         :param item:
         :type item: int, slice
@@ -118,7 +117,6 @@ class DataCubeItems(object):
             >>> dc_items[0:2]
             iter([Foo(param0).val, Foo(param1).val])
         """
-
         if isinstance(item, int):
             # Get only one element
             obj = self._instance.load_one_element(index=item)
@@ -135,7 +133,7 @@ class DataCubeItems(object):
         return ret
 
     def __setitem__(self, key, value):
-        """ Set one value or multiple values (from an iterator)
+        """Set one value or multiple values (from an iterator).
 
         :param key:
         :param value:
@@ -158,7 +156,6 @@ class DataCubeItems(object):
             >>> Foo[param0].val = data0
             >>> Foo[param1].val = data1
         """
-
         if isinstance(key, int):
             obj = self._instance.load_one_element(index=key)
             setattr(obj, self._attribute, value)
@@ -176,7 +173,7 @@ class DataCubeItems(object):
 
 
 class MetaDataCube(object):
-    """ Generic implementation of a Datacube.
+    """Generic implementation of a Datacube.
 
      A Datacube is a one-(or higher) dimensional array of elements.
 
@@ -185,7 +182,7 @@ class MetaDataCube(object):
      """
 
     def __init__(self, params, dtype, params_dtype=None, cache_capacity=1, readonly=False):
-        """ Create a new DataCube
+        """Create a new DataCube.
 
         :param params: list of parameters used to initialize the items
         :param dtype: data type of the items
@@ -214,7 +211,6 @@ class MetaDataCube(object):
             ...                   params_dtype=dt)
 
         """
-
         self._log = logging.getLogger(__name__)
 
         if not isinstance(params, (list, np.ndarray)):
@@ -241,7 +237,7 @@ class MetaDataCube(object):
 
     @property
     def cache_capacity(self):
-        """ Get the number of elements that can be stored in the cache
+        """Get the number of elements that can be stored in the cache.
 
         :return: the cache capacity
         :rtype: int, None
@@ -250,7 +246,7 @@ class MetaDataCube(object):
 
     @property
     def cache_misses(self):
-        """ Get the number of cache misses
+        """Get the number of cache misses.
 
         :return: cache misses
         :rtype: int
@@ -259,7 +255,7 @@ class MetaDataCube(object):
 
     @property
     def cache_hits(self):
-        """ Get the number of cache hits
+        """Get the number of cache hits.
 
         :return: cache hits
         :rtype: int
@@ -268,7 +264,7 @@ class MetaDataCube(object):
 
     @property
     def shape(self):
-        """ Get the shape of the Datacube
+        """Get the shape of the Datacube.
 
         :return: tuple of dimensions
         :rtype: tuple
@@ -277,7 +273,7 @@ class MetaDataCube(object):
 
     @property
     def ndim(self):
-        """ Get the number of dimension(s) of the Datacube
+        """Get the number of dimension(s) of the Datacube.
 
         :return: number of dimensions
         :rtype: int
@@ -286,7 +282,7 @@ class MetaDataCube(object):
 
     @property
     def size(self):
-        """ Get the number of elements in the Datacube
+        """Get the number of elements in the Datacube.
 
         :return: number of elements
         :rtype: int
@@ -295,7 +291,7 @@ class MetaDataCube(object):
 
     @property
     def dtype(self):
-        """ Data type of the items
+        """Data type of the items.
 
         :return:
         :rtype: type
@@ -304,7 +300,7 @@ class MetaDataCube(object):
 
     @property
     def readonly(self):
-        """
+        """TBW.
 
         :return:
         :rtype: bool
@@ -313,7 +309,7 @@ class MetaDataCube(object):
 
     @property
     def params(self):
-        """ Returns a list of all parameters
+        """Returns a list of all parameters.
 
         :return: Copy of the parameters
         :rtype: list
@@ -325,27 +321,28 @@ class MetaDataCube(object):
         return self._params_array.tolist()
 
     def ndindex(self):
-        """ Returns a N-dimensional iterator object to index arrays.
+        """Returns a N-dimensional iterator object to index arrays.
 
         :return: the iterator
         :rtype: collections.Iterator
 
-        >>> dc = MetaDataCube(['param0', 'param1', 'param2', 'param3'], dtype=Foo)
-        >>> dc.ndindex()
-        iter([0, 1, 2, 3])
+        .. Example::
 
-        >>> dc = MetaDataCube([['param0', 'param1', 'param2'],
-        ...                    ['param3', 'param4', 'param5']], dtype=Foo)
-        >>> for idx in dc.ndindex():
-        ...     print(idx)
-        (0, 0)
-        (0, 1)
-        (0, 2)
-        (1, 0)
-        (1, 1)
-        (1, 2)
+            >>> dc = MetaDataCube(['param0', 'param1', 'param2', 'param3'], dtype=Foo)
+            >>> dc.ndindex()
+            iter([0, 1, 2, 3])
+
+            >>> dc = MetaDataCube([['param0', 'param1', 'param2'],
+            ...                    ['param3', 'param4', 'param5']], dtype=Foo)
+            >>> for idx in dc.ndindex():
+            ...     print(idx)
+            (0, 0)
+            (0, 1)
+            (0, 2)
+            (1, 0)
+            (1, 1)
+            (1, 2)
         """
-
         shape = self.shape
 
         if len(shape) == 1:
@@ -356,7 +353,7 @@ class MetaDataCube(object):
             return np.ndindex(shape)
 
     def __len__(self):
-        """ Pythonic convenience method so that the user can use `len(dc)`:
+        """Pythonic convenience method so that the user can use `len(dc)`.
 
         :return: the number of elements in the data cube
         :rtype: int
@@ -364,7 +361,7 @@ class MetaDataCube(object):
         return self.size
 
     def __iter__(self):
-        """
+        """TBW.
 
         :return: Iterator of the objects
         :rtype: collections.Iterator
@@ -373,7 +370,6 @@ class MetaDataCube(object):
         >>> iter(dc)
         iter([Foo('param0'), Foo('param1')])
         """
-
         # Gets the iterator for the index of this Datacube
         indexes_iter = self.ndindex()
 
@@ -382,7 +378,7 @@ class MetaDataCube(object):
         return obj_iter
 
     def __getitem__(self, item):
-        """ Get one or more elements from the Datacube
+        """Get one or more elements from the Datacube.
 
         :param int item: may also be a slice type, i.e. slice(start, end, step)
         :return: New datacube if a slice is passed, else a datacube element if an int.
@@ -396,7 +392,6 @@ class MetaDataCube(object):
         >>> dc[1:3]
         MetaDataCube(['param1', 'param2', 'param3'], dtype=Foo)
         """
-
         if isinstance(item, int):
             result = self.load_one_element(index=item)
         elif isinstance(item, slice):
@@ -410,14 +405,10 @@ class MetaDataCube(object):
         return result
 
     def _get_obj(self, params):
-        """ Create a new object of type 'dtype'
+        """Create a new object of type 'dtype'.
 
-        :param params: the parameters to initialized the new object
-        :type params: list, dict
-        :return:
-        :rtype: object
+        .. Example::
 
-        ..Example::
             >>> dc = MetaDataCube(params=..., dtype=Foo)
 
             >>> dc._get_obj(params=param0)
@@ -428,8 +419,12 @@ class MetaDataCube(object):
 
             >>> dc._get_obj(params={'a': param0, 'b': param1})
             Foo(a=param0, b=param1)
-        """
 
+        :param params: the parameters to initialized the new object
+        :type params: list, dict
+        :return:
+        :rtype: object
+        """
         if isinstance(params, (np.ndarray, np.void)):
             params = params.tolist()
 
@@ -443,8 +438,9 @@ class MetaDataCube(object):
         return obj
 
     def load_one_element(self, index):
-        """ Get one element object from the MetaDataCube. The element could be
-        instantiated or retrieved from the internal cache.
+        """Get one element object from the MetaDataCube.
+
+        The element could be instantiated or retrieved from the internal cache.
 
         :param index: index to find the element in the Datacube
         :type index: int, tuple
@@ -459,7 +455,6 @@ class MetaDataCube(object):
             >>> dc.load_one_element(0)
             Foo(param0)
         """
-
         if not isinstance(index, int):
             raise IndexError("Wrong 'index': {!r}".format(index))
 
@@ -519,16 +514,15 @@ class MetaDataCube(object):
 
 
 class FitsDataCube(MetaDataCube):
-    """ FitsFile data cube. """
+    """FitsFile data cube."""
 
     def __init__(self, data, cache_capacity=1):
-        """ Create a Datacube of FITS files.
+        """Create a Datacube of FITS files.
 
         :param data: list of strings or Path
         :param int cache_capacity:
         :type data: list, np.ndarray
         """
-
         super(FitsDataCube, self).__init__(params=data,
                                            dtype=FitsFile,
                                            cache_capacity=cache_capacity)
@@ -538,26 +532,25 @@ class FitsDataCube(MetaDataCube):
 
     @property
     def data(self):
-        """ Return the 2d image pixel array. """
+        """Return the 2d image pixel array."""
         return self._data
 
     @property
     def header(self):
-        """ Return the dictionary like key/value header. """
+        """Return the dictionary like key/value header."""
         return self._header
 
 
 class CCDDataCube(MetaDataCube):
-    """ Datacube for the CCDs. """
+    """Datacube for the CCDs."""
 
     def __init__(self, data, cache_capacity=1):
-        """ Create a CCD datacube.
+        """Create a CCD datacube.
 
         :param data: list of str or Path
         :param int cache_capacity:
         :type data: list, np.ndarray
         """
-
         super(CCDDataCube, self).__init__(params=data,
                                           dtype=CCDFrame,
                                           cache_capacity=cache_capacity)
@@ -566,5 +559,5 @@ class CCDDataCube(MetaDataCube):
 
     @property
     def box(self):
-        """ Retrieve the box. """
+        """Retrieve the box."""
         return self._box
