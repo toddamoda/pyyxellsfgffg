@@ -1,8 +1,7 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-""" CCD detector modeling class
-"""
+"""CCD detector modeling class."""
 from math import sqrt
 
 import numpy as np
@@ -20,7 +19,7 @@ from pyxel.physics.pixel import Pixel  # noqa: F401
 
 
 class Detector:
-    """ The CCD detector class. """
+    """The CCD detector class."""
 
     def __init__(self,
                  geometry: Geometry,
@@ -28,7 +27,14 @@ class Detector:
                  characteristics: Characteristics,
                  photons: int = None,
                  image=None) -> None:
+        """TBW.
 
+        :param geometry:
+        :param environment:
+        :param characteristics:
+        :param photons:
+        :param image:
+        """
         if photons is not None and image is None:
             self._photon_mean = photons
             self._image = None
@@ -50,6 +56,10 @@ class Detector:
         self.characteristics = characteristics
 
     def __getstate__(self):
+        """TBW.
+
+        :return:
+        """
         return {
             'photons': self._photons,
             'image': self._image,
@@ -59,13 +69,18 @@ class Detector:
         }
 
     # TODO: create unittests for this method
-    def __eq__(self, obj):
+    def __eq__(self, obj) -> bool:
+        """TBW.
+
+        :param obj:
+        :return:
+        """
         assert isinstance(obj, Detector)
         return self.__getstate__() == obj.__getstate__()
 
     def initialize_detector(self):
-        """
-        Calculate incident photon number per pixel from image or illumination
+        """Calculate incident photon number per pixel from image or illumination.
+
         :return:
         """
         # TODO: can both image and photons be passed?
@@ -90,45 +105,89 @@ class Detector:
 
     @property
     def e_effective_mass(self):
+        """TBW.
+
+        :return:
+        """
         return self.geometry.e_effective_mass   # kg
 
     @property
     def e_thermal_velocity(self):
+        """TBW.
+
+        :return:
+        """
         k_boltzmann = 1.38064852e-23   # J/K
         return sqrt(3 * k_boltzmann * self.environment.temperature / self.geometry.e_effective_mass)
 
     @property
     def photons(self):
+        """TBW.
+
+        :return:
+        """
         return self._photons
 
     @photons.setter
     def photons(self, new_photon):
+        """TBW.
+
+        :param new_photon:
+        """
         self._photons = new_photon
 
     @property
     def charges(self):
+        """TBW.
+
+        :return:
+        """
         return self._charges
 
     @charges.setter
     def charges(self, new_charge):
+        """TBW.
+
+        :param new_charge:
+        """
         self._charges = new_charge
 
     @property
     def pixels(self):
+        """TBW.
+
+        :return:
+        """
         return self._pixels
 
     @pixels.setter
     def pixels(self, new_pixel):
+        """TBW.
+
+        :param new_pixel:
+        """
         self._pixels = new_pixel
 
     @property
     def signal(self):
+        """TBW.
+
+        :return:
+        """
         return self._signal
 
     @signal.setter
     def signal(self, new_signal: np.ndarray):
+        """TBW.
+
+        :param new_signal:
+        """
         self._signal = new_signal
 
     @property
     def image(self):
+        """TBW.
+
+        :return:
+        """
         return self._image

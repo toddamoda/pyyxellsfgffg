@@ -1,8 +1,7 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-""" Simple model to convert photons into photo-electrons inside detector
-"""
+"""Simple model to convert photons into photo-electrons inside detector."""
 
 # import copy
 # import numpy as np
@@ -11,8 +10,8 @@ from pyxel.detectors.detector import Detector
 
 
 def simple_conversion(detector: Detector) -> Detector:
-    """
-    Generate charges from incident photons via photoelectric effect, simple statistical model
+    """Generate charges from incident photons via photoelectric effect, simple statistical model.
+
     :param detector:
     :return:
     """
@@ -45,9 +44,9 @@ def simple_conversion(detector: Detector) -> Detector:
 
 
 def monte_carlo_conversion(detector: Detector) -> Detector:
-    """
-    Generate charges from incident photons via photoelectric effect,
-    more exact, stochastic (Monte Carlo) model
+    """Generate charges from incident photons via photoelectric effect,
+    more exact, stochastic (Monte Carlo) model.
+
     :param detector:
     :return:
     """
@@ -72,8 +71,8 @@ def monte_carlo_conversion(detector: Detector) -> Detector:
 
 
 def random_pos(detector: Detector) -> Detector:
-    """
-    Generate random position for photoelectric effect inside detector
+    """Generate random position for photoelectric effect inside detector.
+
     :param detector:
     :return:
     """

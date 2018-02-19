@@ -1,3 +1,4 @@
+"""TBW."""
 import functools
 import inspect
 import re

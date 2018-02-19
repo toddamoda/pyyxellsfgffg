@@ -1,9 +1,7 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-"""
-PyXel! Charge class to generate electrons or holes inside detector
-"""
+"""PyXel! Charge class to generate electrons or holes inside detector."""
 import math
 import random
 
@@ -16,8 +14,8 @@ cds.enable()
 
 
 def check_energy(initial_energy):
-    """
-    Checking energy of the particle if it is a float or int
+    """Checking energy of the particle if it is a float or int. 
+    
     :param initial_energy:
     :return:
     """
@@ -28,8 +26,8 @@ def check_energy(initial_energy):
 
 
 def check_position(detector, initial_position):
-    """
-    Checking position of the particle if it is a numpy array and inside the detector
+    """Checking position of the particle if it is a numpy array and inside the detector.
+    
     :param detector:
     :param initial_position:
     :return:
@@ -51,8 +49,8 @@ def check_position(detector, initial_position):
 
 
 def random_direction(v_abs=1.0):    # TODO check random angles and direction
-    """
-    Generating random direction for charge
+    """Generating random direction for charge.
+    
     :param v_abs:
     :return:
     """
@@ -65,13 +63,15 @@ def random_direction(v_abs=1.0):    # TODO check random angles and direction
 
 
 class Charge:
-    """
-    Charged particle class defining and storing information of all electrons and holes with their properties
-    like charge, position, velocity, energy
-    """
+    """Charged particle class defining and storing information of all electrons and holes with their properties
+    like charge, position, velocity, energy."""
 
     def __init__(self,
                  detector=None):
+        """TBW.
+        
+        :param detector: 
+        """
 
         self.detector = detector
         self.nextid = 0
@@ -102,8 +102,8 @@ class Charge:
                    init_ver_velocity,
                    init_hor_velocity,
                    init_z_velocity):
-        """
-        Creating new charge or group of charges inside the detector stored in a pandas DataFrame
+        """Creating new charge or group of charges inside the detector stored in a pandas DataFrame.
+        
         :param particle_type:
         :param particles_per_cluster:
         :param init_energy:
@@ -157,8 +157,8 @@ class Charge:
         self.frame = pd.concat([self.frame, new_charge_df], ignore_index=True)
 
     def remove_charges(self, id_list='all'):
-        """
-        Remove list of charges from DataFrame if they are not needed, tracked anymore
+        """Remove list of charges from DataFrame if they are not needed, tracked anymore.
+        
         :param id_list:
         :return:
         """
@@ -168,8 +168,8 @@ class Charge:
             self.frame.query('id not in %s' % id_list, inplace=True)
 
     def get_numbers(self, id_list='all'):
-        """
-        Get number of charges per DataFrame row
+        """Get number of charges per DataFrame row.
+        
         :param id_list:
         :return:
         """
@@ -180,8 +180,8 @@ class Charge:
         return array
 
     def get_positions(self, id_list='all'):
-        """
-        Get all 3 positions of a list of charges as a numpy array
+        """Get all 3 positions of a list of charges as a numpy array.
+        
         :param id_list:
         :return:
         """
@@ -190,8 +190,8 @@ class Charge:
                          self.get_positions_z(id_list)), axis=1)
 
     def get_positions_ver(self, id_list='all'):
-        """
-        Get vertical positions of a list of charges
+        """Get vertical positions of a list of charges.
+        
         :param id_list:
         :return:
         """
@@ -202,8 +202,8 @@ class Charge:
         return array
 
     def get_positions_hor(self, id_list='all'):
-        """
-        Get horizontal positions of a list of charges
+        """Get horizontal positions of a list of charges.
+        
         :param id_list:
         :return:
         """
@@ -214,8 +214,7 @@ class Charge:
         return array
 
     def get_positions_z(self, id_list='all'):
-        """
-        Get z positions (height) of a list of charges
+        """Get z positions (height) of a list of charges.
         :param id_list:
         :return:
         """
@@ -226,8 +225,8 @@ class Charge:
         return array
 
     def get_velocities(self, id_list='all'):
-        """
-         Get all 3 velocities of a list of charges as a numpy array
+        """Get all 3 velocities of a list of charges as a numpy array.
+        
          :param id_list:
          :return:
          """
@@ -236,8 +235,7 @@ class Charge:
                          self.get_velocities_z(id_list)), axis=1)
 
     def get_velocities_ver(self, id_list='all'):
-        """
-        Get vertical velocities of a list of charges
+        """Get vertical velocities of a list of charges.
         :param id_list:
         :return:
         """
@@ -248,8 +246,7 @@ class Charge:
         return array
 
     def get_velocities_hor(self, id_list='all'):
-        """
-        Get horizontal velocities of a list of charges
+        """Get horizontal velocities of a list of charges.
         :param id_list:
         :return:
         """
@@ -260,8 +257,7 @@ class Charge:
         return array
 
     def get_velocities_z(self, id_list='all'):
-        """
-        Get z velocities (height) of a list of charges
+        """Get z velocities (height) of a list of charges.
         :param id_list:
         :return:
         """
@@ -272,8 +268,8 @@ class Charge:
         return array
 
     def get_energies(self, id_list='all'):
-        """
-        Get energies of a list of charges
+        """Get energies of a list of charges.
+        
         :param id_list:
         :return:
         """
@@ -284,8 +280,8 @@ class Charge:
         return array
 
     def change_all_number(self, new_number_list):
-        """
-        Update number of charges in each row
+        """Update number of charges in each row.
+        
         :param new_number_list:
         :return:
         """
@@ -295,8 +291,8 @@ class Charge:
         # https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.update.html
 
     def change_positions(self, id_pos, new_positions):
-        """
-        Update positions of one charge
+        """Update positions of one charge.
+        
         :param id_pos:
         :param new_positions:
         :return:
@@ -306,8 +302,8 @@ class Charge:
         self.frame.at[self.frame.index[self.frame['id'] == id_pos], 'position_z'] = new_positions[2]
 
     def change_velocities(self, id_vel, new_velocities):
-        """
-        Update velocities of one charge
+        """Update velocities of one charge.
+        
         :param id_vel:
         :param new_velocities:
         :return:
@@ -317,8 +313,8 @@ class Charge:
         self.frame.at[self.frame.index[self.frame['id'] == id_vel], 'velocity_z'] = new_velocities[2]
 
     def change_energy(self, id_en, new_energy):
-        """
-        Update energy of one charge
+        """Update energy of one charge.
+        
         :param id_en:
         :param new_energy:
         :return:

@@ -13,9 +13,8 @@
 #   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 #   DEALINGS IN THE SOFTWARE.
 #   --------------------------------------------------------------------------
-#
-# Fully documented
-# Not fully commented
+
+"""TBW."""
 
 import math
 import random
@@ -26,9 +25,7 @@ from pyxel.detectors.detector import Detector
 
 
 class Particle:
-    """
-     particle class define a particle together with its characteristics
-    """
+    """Particle class define a particle together with its characteristics."""
 
     def __init__(self,
                  detector: Detector,
@@ -36,8 +33,7 @@ class Particle:
                  input_energy='random', spectrum_cdf=None,
                  starting_pos_ver='random', starting_pos_hor='random', starting_pos_z='random',
                  input_alpha='random', input_beta='random') -> None:
-        """
-        Creation of a particle according to some parameters
+        """Creation of a particle according to some parameters.
 
         :param detector: Detector in which the particle is going to interact
         :param float or 'random' input_energy: initial energy of the incident particle

@@ -33,8 +33,7 @@ def cdm(detector: CCD,
         t: float = None, st: float = None,
         parallel_trap_file: str = None,
         serial_trap_file: str = None) -> CCD:
-    """
-    CDM model wrapper
+    """CDM model wrapper.
 
     Currently using Total Non-ionising (NIEL) Dose for the model as an input parameter !
 
@@ -111,9 +110,7 @@ def cdm(detector: CCD,
 
 
 class CDM03Python:
-    """
-    Class to run CDM03 CTI model, class Fortran routine to perform the actual CDM03 calculations.
-    """
+    """Class to run CDM03 CTI model, class Fortran routine to perform the actual CDM03 calculations."""
 
     def __init__(self,
                  rdose: float = 8.0e11,
@@ -124,9 +121,8 @@ class CDM03Python:
                  fwc: int = 200000, sfwc: int = 730000,
                  parallel_trap_file: str = None,
                  serial_trap_file: str = None) -> None:
+        """Class constructor.
 
-        """
-        Class constructor.
         :param rdose:
         :param vth:
         :param beta_p:
@@ -257,8 +253,7 @@ class CDM03Python:
     #     return out
 
     def apply_cti(self, data, iquadrant=0):
-        """
-        Apply radian damage based on FORTRAN CDM03 model. The method assumes that
+        """Apply radian damage based on FORTRAN CDM03 model. The method assumes that
         input data covers only a single quadrant defined by the iquadrant integer.
 
         :param data: imaging data to which the CDM03 model will be applied to.
@@ -305,8 +300,7 @@ class CDM03Python:
     @numba.jit
     def _run_cdm_(self,
                   image=None):
-        """
-        Electron trapping in imaging mode (non-TDI)
+        """Electron trapping in imaging mode (non-TDI)
 
         :param image:
         :return:
@@ -388,8 +382,7 @@ class CDM03Python:
 
 
 def write_fits_file(data, output, unsigned16bit=True):
-    """
-    Write out FITS files using PyFITS.
+    """Write out FITS files using PyFITS.
 
     :param data: data to write to a FITS file
     :type data: ndarray
@@ -427,6 +420,10 @@ def write_fits_file(data, output, unsigned16bit=True):
 
 
 def mssl_cdm03_params():
+    """TBW.
+
+    :return:
+    """
     return dict(beta_p=0.29, beta_s=0.29,
                 fwc=200000.,
                 vth=1.168e7,

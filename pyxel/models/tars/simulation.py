@@ -1,9 +1,7 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-"""
-PyXel! Simulation code for TARS model to generate charges by ionization
-"""
+"""PyXel! Simulation code for TARS model to generate charges by ionization."""
 
 from os import path
 import typing as t  # noqa: F401
@@ -15,13 +13,10 @@ from pyxel.detectors.detector import Detector
 
 
 class Simulation:
-    """
-    Main class of the program, Simulation contain all the methods to set and run a simulation
-    """
+    """Main class of the program, Simulation contain all the methods to set and run a simulation."""
 
     def __init__(self, detector: Detector) -> None:
-        """
-        Initialisation of the simulation
+        """Initialisation of the simulation.
 
         :param Detector detector: Detector object(from CCD/CMSO library) containing all the simulated detector specs
         """
@@ -54,6 +49,18 @@ class Simulation:
         self.total_edep_per_particle = []   # type: t.List[float]
 
     def parameters(self, part_type, init_energy, pos_ver, pos_hor, pos_z, alpha, beta, step_length):
+        """TBW.
+
+        :param part_type:
+        :param init_energy:
+        :param pos_ver:
+        :param pos_hor:
+        :param pos_z:
+        :param alpha:
+        :param beta:
+        :param step_length:
+        :return:
+        """
         self.particle_type = part_type
         self.initial_energy = init_energy
         self.position_ver = pos_ver
@@ -64,10 +71,10 @@ class Simulation:
         self.step_length = step_length
 
     def set_let_distribution(self):
-        """
-        Read/generate a Linear Energy Transport distribution from Geant4 data
+        """Read/generate a Linear Energy Transport distribution from Geant4 data
         for each new particle based on its initial energy (from input spectrum)
-        and track length inside the detector
+        and track length inside the detector.
+
         :return:
 
         .. warning:: EXPERIMENTAL - NOT FINSHED YET
@@ -101,9 +108,8 @@ class Simulation:
         # plt.show()
 
     def event_generation(self):
-        """
-        Generation of an event on the CCD due to an incident particle taken according to the simulation configuration
-        file
+        """Generation of an event on the CCD due to an incident particle taken according to the simulation configuration
+        file.
 
         :return:
         """
@@ -152,7 +158,11 @@ class Simulation:
             self.total_edep_per_particle.append(p.total_edep)  # keV
 
     def _ionization_(self, particle):
+        """TBW.
 
+        :param particle:
+        :return:
+        """
         mat_ioniz_energy = self.detector.geometry.material_ionization_energy
         # particle.energy is in MeV !
         # particle.deposited_energy is in keV !

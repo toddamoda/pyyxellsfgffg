@@ -1,9 +1,7 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-"""
-PyXel! CCD full well models
-"""
+"""PyXel! CCD full well models."""
 # import copy
 
 from pyxel.detectors.detector import Detector
@@ -11,8 +9,8 @@ from pyxel.detectors.detector import Detector
 
 def simple_pixel_full_well(detector: Detector,
                            fwc: int = None) -> Detector:
-    """
-    Simply removing charges from pixels due to full well
+    """Simply removing charges from pixels due to full well.
+
     :return:
     """
 

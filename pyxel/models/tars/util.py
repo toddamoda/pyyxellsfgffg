@@ -1,10 +1,8 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2017 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-"""
-PyXel!
-util funcs for TARS charge generation model
-"""
+"""PyXel!
+util funcs for TARS charge generation model."""
 
 import bisect
 import numpy as np
@@ -12,7 +10,11 @@ from scipy import interpolate
 
 
 def sampling_distribution(distribution):
-
+    """TBW.
+    
+    :param distribution: 
+    :return: 
+    """
     u = np.random.random()
     # random_value_from_dist = distribution[bisect.bisect(distribution[:, 1], u) - 1, 0]
     random_value_from_dist = get_xvalue_with_interpolation(distribution, u)
@@ -21,7 +23,12 @@ def sampling_distribution(distribution):
 
 
 def get_xvalue_with_interpolation(function_array, y_value):
-
+    """TBW.
+    
+    :param function_array: 
+    :param y_value: 
+    :return: 
+    """
     y_index_bot = bisect.bisect(function_array[:, 1], y_value) - 1
     y_index_top = y_index_bot + 1
     y_value_bot = function_array[y_index_bot, 1]
@@ -49,10 +56,20 @@ def get_xvalue_with_interpolation(function_array, y_value):
 
 
 def read_data(file_name):
+    """TBW.
+    
+    :param file_name: 
+    :return: 
+    """
     data = np.loadtxt(file_name, 'float', '#')
     return data
 
 
 def interpolate_data(data):
+    """TBW.
+    
+    :param data: 
+    :return: 
+    """
     data_function = interpolate.interp1d(data[:, 0], data[:, 1], kind='linear')
     return data_function

@@ -1,5 +1,4 @@
-"""
-NGHXRG - Teledyne HxRG Noise Generator
+"""NGHXRG - Teledyne HxRG Noise Generator.
 
 Modification History:
 
@@ -100,8 +99,7 @@ PCA0FILE = path.dirname(path.abspath(__file__)) + '/nirspec_pca0.fits'
 
 
 def white_noise(nstep=None):
-    """
-    Generate white noise for an HxRG including all time steps
+    """Generate white noise for an HxRG including all time steps
     (actual pixels and overheads).
 
     Parameters:
@@ -111,8 +109,7 @@ def white_noise(nstep=None):
 
 
 class HXRGNoise:
-    """
-    HXRGNoise is a class for making realistic Teledyne HxRG system
+    """HXRGNoise is a class for making realistic Teledyne HxRG system
     noise. The noise model includes correlated,  uncorrelated,
     stationary,  and non-stationary components. The default parameters
     make noise that resembles Channel 1 of JWST NIRSpec. NIRSpec uses
@@ -133,8 +130,7 @@ class HXRGNoise:
                  wind_x_size=0, wind_y_size=0,
                  wind_x0=0, wind_y0=0,
                  verbose=False):
-        """
-        Simulate Teledyne HxRG+SIDECAR ASIC system noise.
+        """Simulate Teledyne HxRG+SIDECAR ASIC system noise.
 
         Parameters:
             naxis1      - X-dimension of the FITS cube
@@ -385,9 +381,7 @@ class HXRGNoise:
         self.ref_all = ref_all
 
     def message(self, message_text):
-        """
-        Used for status reporting
-        """
+        """Used for status reporting."""
         if self.verbose is True:
             print('NG: ' + message_text + ' at DATETIME = ',
                   datetime.datetime.now().time())

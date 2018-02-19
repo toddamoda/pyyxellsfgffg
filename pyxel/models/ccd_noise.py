@@ -1,9 +1,7 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-"""
-PyXel! CCD noise generator class
-"""
+"""PyXel! CCD noise generator class."""
 import numpy as np
 from astropy import units as u
 
@@ -15,8 +13,8 @@ from pyxel.detectors.geometry import Geometry  # noqa: F401
 
 
 def add_shot_noise(detector: Detector) -> Detector:
-    """
-    Add shot noise to number of photons
+    """Add shot noise to number of photons.
+
     :return:
     """
     # TODO: Fix this. Use variable 'inplace' ?
@@ -34,8 +32,8 @@ def add_shot_noise(detector: Detector) -> Detector:
 def add_fix_pattern_noise(detector: Detector,
                           pix_non_uniformity=None,
                           percentage=None) -> Detector:
-    """
-    Add fix pattern noise caused by pixel non-uniformity during charge collection
+    """Add fix pattern noise caused by pixel non-uniformity during charge collection.
+
     :param detector:
     :param pix_non_uniformity:
     :param percentage:
@@ -74,8 +72,8 @@ def add_fix_pattern_noise(detector: Detector,
 
 
 def add_output_node_noise(ccd: Detector, std_deviation: float) -> Detector:
-    """
-    Adding noise to signal array of ccd output node using normal random distribution
+    """Adding noise to signal array of ccd output node using normal random distribution.
+
     CCD Signal unit: Volt
     :param ccd:
     :param std_deviation:

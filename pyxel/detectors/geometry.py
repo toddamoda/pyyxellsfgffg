@@ -1,11 +1,11 @@
-"""
-Geometry class for detector
-"""
+"""Geometry class for detector."""
+
 # Universal global constants
 M_ELECTRON = 9.10938356e-31    # kg
 
 
 class Geometry:
+    """TBW."""
 
     def __init__(self,
                  row: int = None, col: int = None,
@@ -18,8 +18,7 @@ class Geometry:
                  n_acceptor: float = None,
                  n_donor: float = None,
                  bias_voltage: float = None) -> None:
-        """
-        Initialize the geometry
+        """Initialize the geometry.
         :param row:
         :param col:
         :param depletion_thickness:
@@ -53,6 +52,7 @@ class Geometry:
         self.set_material(material)
 
     def __getstate__(self):
+        """TBW."""
         return {
             'row': self.row,
             'col': self.col,
@@ -69,25 +69,33 @@ class Geometry:
 
     # TODO: create unittests for this method
     def __eq__(self, obj):
+        """TBW.
+
+        :param obj:
+        :return:
+        """
         assert isinstance(obj, Geometry)
         return self.__getstate__() == obj.__getstate__()
 
     @property
     def material(self):
+        """TBW."""
         return self._material
 
     @material.setter
     def material(self, new_material):
+        """TBW.
+
+        :param new_material:
+        :return:
+        """
         self._material = new_material
         self.set_material(new_material)
 
     def set_material(self, material):
-        """
-        Set material properties
+        """Set material properties
         :param material:
-        :return:
         """
-
         if material == 'silicon' or 'Si' or 'si':
             self.material_density = 2.328                   # TODO add unit (g/cm3)
             self.material_ionization_energy = 3.6           # TODO add unit (eV)
@@ -98,16 +106,14 @@ class Geometry:
             raise NotImplementedError('Given material has not implemented yet')
 
     def calculate_geometry_parameters(self):
-        """
-        Calculate and update missing geometry parameters from other provided by the user
-        :return:
-        """
-
+        """Calculate and update missing geometry parameters from other provided by the user."""
         self.horz_dimension = self.pixel_horz_size * self.col
         self.vert_dimension = self.pixel_vert_size * self.row
 
     def calculate_field_free_thickness(self):
+        """TBW."""
         pass
 
     def calculate_depletion_thickness(self):
+        """TBW."""
         pass

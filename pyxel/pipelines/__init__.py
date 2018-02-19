@@ -1,1 +1,1 @@
-""" The pipeline code for the different detector simulation routines. """
+"""The pipeline code for the different detector simulation routines."""

@@ -1,3 +1,5 @@
+"""TBW."""
+
 from pyxel.pipelines.detector_pipeline import DetectionPipeline
 from pyxel.detectors.detector import Detector
 from pyxel.physics.charge import Charge
@@ -7,10 +9,16 @@ from pyxel.pipelines.models import Models
 
 
 class CMOSDetectionPipeline(DetectionPipeline):
+    """TBW."""
 
     def __init__(self,
                  signal_transfer: Models,
                  **kwargs) -> None:
+        """TBW.
+
+        :param signal_transfer:
+        :param kwargs:
+        """
         super().__init__(**kwargs)
         self.signal_transfer = signal_transfer
 
@@ -28,7 +36,7 @@ class CMOSDetectionPipeline(DetectionPipeline):
         }
 
     def run_pipeline(self, detector: Detector) -> Detector:
-
+        """TBW."""
         # INITIALIZATION (open or generate image):
         # START -> create photons ->
         photon_numbers, photon_energies = detector.initialize_detector()

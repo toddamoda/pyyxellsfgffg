@@ -1,7 +1,7 @@
-class Optics:
+"""TBW."""
 
-    # def __init__(self, models: list) -> None:
-    #     self.models = models
+class Optics:
+    """TBW."""
 
     def __init__(self):
-        pass
+        """TBW."""

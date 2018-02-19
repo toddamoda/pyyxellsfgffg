@@ -1,3 +1,5 @@
+"""TBW."""
+
 import typing as t
 
 from pyxel.detectors.detector import Detector
@@ -5,6 +7,7 @@ from pyxel.pipelines.models import Models
 
 
 class DetectionPipeline:
+    """TBW."""
 
     def __init__(self,
                  optics: Models,
@@ -13,6 +16,15 @@ class DetectionPipeline:
                  charge_measurement: Models,
                  readout_electronics: Models,
                  doc=None) -> None:
+        """TBW.
+
+        :param optics:
+        :param charge_generation:
+        :param charge_collection:
+        :param charge_measurement:
+        :param readout_electronics:
+        :param doc:
+        """
         self.doc = doc
         self.optics = optics
         self.charge_generation = charge_generation
@@ -24,6 +36,12 @@ class DetectionPipeline:
         self._model_steps = {}   # type: t.Dict[str, t.List[str]]
 
     def run_model_group(self, name, detector):
+        """TBW.
+
+        :param name:
+        :param detector:
+        :return:
+        """
         if name in self._model_groups:
             steps = self._model_steps[name]
             model = getattr(self, name)
@@ -34,4 +52,9 @@ class DetectionPipeline:
         return detector
 
     def run_pipeline(self, detector: Detector) -> Detector:
+        """TBW.
+
+        :param detector:
+        :return:
+        """
         raise NotImplementedError

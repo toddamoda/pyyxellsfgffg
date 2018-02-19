@@ -1,9 +1,7 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-"""
-PyXel! Photon class to generate and track photons
-"""
+"""PyXel! Photon class to generate and track photons."""
 import math
 import random
 
@@ -16,8 +14,8 @@ cds.enable()
 
 
 def check_energy(initial_energy):
-    """
-    Checking energy of the particle if it is a float or int
+    """Checking energy of the particle if it is a float or int.
+
     :param initial_energy:
     :return:
     """
@@ -28,8 +26,8 @@ def check_energy(initial_energy):
 
 
 def check_position(detector, initial_position):
-    """
-    Checking position
+    """Checking position.
+
     :param detector:
     :param initial_position:
     :return:
@@ -38,8 +36,8 @@ def check_position(detector, initial_position):
 
 
 def random_direction(v_abs=1.0):    # TODO check random angles and direction
-    """
-    Generating random direction for a photon
+    """Generating random direction for a photon.
+
     :param v_abs:
     :return:
     """
@@ -52,14 +50,15 @@ def random_direction(v_abs=1.0):    # TODO check random angles and direction
 
 
 class Photon:
-    """
-    Photon class defining and storing information of all photons including their
-    position, velocity, energy
-    """
+    """Photon class defining and storing information of all photons including their
+    position, velocity, energy."""
 
     def __init__(self,
                  detector=None):
+        """TBW.
 
+        :param detector:
+        """
         self.detector = detector
         self.nextid = 0
         self.frame = pd.DataFrame(columns=['id',
@@ -77,8 +76,8 @@ class Photon:
                                            'velocity_z'])
 
     def generate_photons(self, photon_number_list, photon_energy_list):
-        """
-        Create photons randomly distributed inside pixels with Photon class from photon_number_list
+        """Create photons randomly distributed inside pixels with Photon class from photon_number_list.
+
         :param photon_number_list:
         :param photon_energy_list:
         :return:
@@ -119,8 +118,8 @@ class Photon:
                    init_ver_velocity,
                    init_hor_velocity,
                    init_z_velocity):
-        """
-        Creating new photon or group of photons inside the detector stored in a pandas DataFrame
+        """Creating new photon or group of photons inside the detector stored in a pandas DataFrame.
+
         :param photons_per_group:
         :param init_energy:
         :param init_ver_position:
@@ -165,8 +164,8 @@ class Photon:
         self.frame = pd.concat([self.frame, new_photon_df], ignore_index=True)
 
     def get_photon_numbers(self, id_list='all'):
-        """
-        Get number of photons per DataFrame row
+        """Get number of photons per DataFrame row.
+
         :param id_list:
         :return:
         """
@@ -177,8 +176,8 @@ class Photon:
         return array
 
     def remove_photons(self, id_list='all'):
-        """
-        Remove list of photons from DataFrame if they are not needed, tracked anymore
+        """Remove list of photons from DataFrame if they are not needed, tracked anymore.
+
         :param id_list:
         :return:
         """
@@ -188,8 +187,8 @@ class Photon:
             self.frame.query('id not in %s' % id_list, inplace=True)
 
     def get_positions(self, id_list='all'):
-        """
-        Get all 3 positions of a list of photons as a numpy array
+        """Get all 3 positions of a list of photons as a numpy array.
+
         :param id_list:
         :return:
         """
@@ -198,8 +197,8 @@ class Photon:
                          self.get_positions_z(id_list)), axis=1)
 
     def get_positions_ver(self, id_list='all'):
-        """
-        Get vertical positions of a list of photons
+        """Get vertical positions of a list of photons.
+
         :param id_list:
         :return:
         """
@@ -210,8 +209,7 @@ class Photon:
         return array
 
     def get_positions_hor(self, id_list='all'):
-        """
-        Get horizontal positions of a list of photons
+        """Get horizontal positions of a list of photons.
         :param id_list:
         :return:
         """
@@ -222,8 +220,7 @@ class Photon:
         return array
 
     def get_positions_z(self, id_list='all'):
-        """
-        Get z positions (height) of a list of photons
+        """Get z positions (height) of a list of photons.
         :param id_list:
         :return:
         """
@@ -234,8 +231,7 @@ class Photon:
         return array
 
     def get_velocities(self, id_list='all'):
-        """
-         Get all 3 velocities of a list of photons as a numpy array
+        """Get all 3 velocities of a list of photons as a numpy array.
          :param id_list:
          :return:
          """
@@ -244,8 +240,7 @@ class Photon:
                          self.get_velocities_z(id_list)), axis=1)
 
     def get_velocities_ver(self, id_list='all'):
-        """
-        Get vertical velocities of a list of photons
+        """Get vertical velocities of a list of photons.
         :param id_list:
         :return:
         """
@@ -256,8 +251,7 @@ class Photon:
         return array
 
     def get_velocities_hor(self, id_list='all'):
-        """
-        Get horizontal velocities of a list of photons
+        """Get horizontal velocities of a list of photons.
         :param id_list:
         :return:
         """
@@ -268,8 +262,7 @@ class Photon:
         return array
 
     def get_velocities_z(self, id_list='all'):
-        """
-        Get z velocities (height) of a list of photons
+        """Get z velocities (height) of a list of photons.
         :param id_list:
         :return:
         """
@@ -280,8 +273,8 @@ class Photon:
         return array
 
     def get_energies(self, id_list='all'):
-        """
-        Get energies of a list of photons
+        """Get energies of a list of photons.
+
         :param id_list:
         :return:
         """
@@ -292,8 +285,8 @@ class Photon:
         return array
 
     def change_all_number(self, new_number_list):
-        """
-        Update number of photons in each row
+        """Update number of photons in each row.
+
         :param new_number_list:
         :return:
         """
@@ -303,8 +296,8 @@ class Photon:
         # https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.update.html
 
     def change_number(self, id_num, new_number):
-        """
-        Update number of photons in one row
+        """Update number of photons in one row.
+
         :param id_num:
         :param new_number:
         :return:
@@ -312,8 +305,8 @@ class Photon:
         self.frame.at[self.frame.index[self.frame['id'] == id_num], 'number'] = new_number
 
     def change_position(self, id_pos, new_positions):
-        """
-        Update positions of one charge
+        """Update positions of one charge.
+
         :param id_pos:
         :param new_positions:
         :return:
@@ -323,8 +316,8 @@ class Photon:
         self.frame.at[self.frame.index[self.frame['id'] == id_pos], 'position_z'] = new_positions[2]
 
     def change_velocity(self, id_vel, new_velocities):
-        """
-        Update velocities of one charge
+        """Update velocities of one charge.
+
         :param id_vel:
         :param new_velocities:
         :return:
@@ -334,8 +327,8 @@ class Photon:
         self.frame.at[self.frame.index[self.frame['id'] == id_vel], 'velocity_z'] = new_velocities[2]
 
     def change_energy(self, id_en, new_energy):
-        """
-        Update energy of one charge
+        """Update energy of one charge.
+
         :param id_en:
         :param new_energy:
         :return:

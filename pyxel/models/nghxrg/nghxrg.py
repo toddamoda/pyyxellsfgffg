@@ -1,9 +1,8 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-"""
-PyXel! wrapper class for NGHXRG - Teledyne HxRG Noise Generator model
-"""
+"""PyXel! wrapper class for NGHXRG - Teledyne HxRG Noise Generator model."""
+
 # import logging
 from os import path
 
@@ -19,7 +18,18 @@ def white_read_noise(detector: CMOS,
                      window_mode: str = 'FULL',
                      wind_x0: int = 0, wind_y0: int = 0,
                      wind_x_size: int = 0, wind_y_size: int = 0) -> CMOS:
+    """TBW.
 
+    :param detector:
+    :param rd_noise:
+    :param ref_pixel_noise_ratio:
+    :param window_mode:
+    :param wind_x0:
+    :param wind_y0:
+    :param wind_x_size:
+    :param wind_y_size:
+    :return:
+    """
     new_detector = detector  # type: CMOS
     geo = new_detector.geometry  # type: CMOSGeometry
     number_of_fits = 1
@@ -59,7 +69,19 @@ def ktc_bias_noise(detector: CMOS,
                    window_mode: str = 'FULL',
                    wind_x0: int = 0, wind_y0: int = 0,
                    wind_x_size: int = 0, wind_y_size: int = 0) -> CMOS:
+    """TBW.
 
+    :param detector:
+    :param ktc_noise:
+    :param bias_offset:
+    :param bias_amp:
+    :param window_mode:
+    :param wind_x0:
+    :param wind_y0:
+    :param wind_x_size:
+    :param wind_y_size:
+    :return:
+    """
     new_detector = detector
     geo = new_detector.geometry  # type: CMOSGeometry
 
@@ -98,7 +120,17 @@ def corr_pink_noise(detector: CMOS,
                     window_mode: str = 'FULL',
                     wind_x0: int = 0, wind_y0: int = 0,
                     wind_x_size: int = 0, wind_y_size: int = 0) -> CMOS:
+    """TBW.
 
+    :param detector:
+    :param c_pink:
+    :param window_mode:
+    :param wind_x0:
+    :param wind_y0:
+    :param wind_x_size:
+    :param wind_y_size:
+    :return:
+    """
     new_detector = detector
     geo = new_detector.geometry  # type: CMOSGeometry
 
@@ -137,7 +169,17 @@ def uncorr_pink_noise(detector: CMOS,
                       window_mode: str = 'FULL',
                       wind_x0: int = 0, wind_y0: int = 0,
                       wind_x_size: int = 0, wind_y_size: int = 0) -> CMOS:
+    """TBW.
 
+    :param detector:
+    :param u_pink:
+    :param window_mode:
+    :param wind_x0:
+    :param wind_y0:
+    :param wind_x_size:
+    :param wind_y_size:
+    :return:
+    """
     new_detector = detector
     geo = new_detector.geometry  # type: CMOSGeometry
 
@@ -176,7 +218,17 @@ def acn_noise(detector: CMOS,
               window_mode: str = 'FULL',
               wind_x0: int = 0, wind_y0: int = 0,
               wind_x_size: int = 0, wind_y_size: int = 0) -> CMOS:
+    """TBW.
 
+    :param detector:
+    :param acn:
+    :param window_mode:
+    :param wind_x0:
+    :param wind_y0:
+    :param wind_x_size:
+    :param wind_y_size:
+    :return:
+    """
     new_detector = detector
     geo = new_detector.geometry  # type: CMOSGeometry
 
@@ -215,7 +267,17 @@ def pca_zero_noise(detector: CMOS,
                    window_mode: str = 'FULL',
                    wind_x0: int = 0, wind_y0: int = 0,
                    wind_x_size: int = 0, wind_y_size: int = 0) -> CMOS:
+    """TBW.
 
+    :param detector:
+    :param pca0_amp:
+    :param window_mode:
+    :param wind_x0:
+    :param wind_y0:
+    :param wind_x_size:
+    :param wind_y_size:
+    :return:
+    """
     new_detector = detector
     geo = new_detector.geometry  # type: CMOSGeometry
     number_of_fits = 1

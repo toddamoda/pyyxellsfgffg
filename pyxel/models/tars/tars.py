@@ -1,9 +1,8 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-"""
-PyXel! TARS model for charge generation by ionization
-"""
+"""PyXel! TARS model for charge generation by ionization."""
+
 import logging
 import math
 from os import path
@@ -31,6 +30,17 @@ def run_tars(detector: Detector,
              incident_angles: tuple = (pi/10, pi/4),
              starting_position: tuple = (500.0, 500.0, 0.0),
              stepping_length: float = 1.0) -> Detector:
+    """TBW.
+
+    :param detector:
+    :param particle_type:
+    :param initial_energy:
+    :param particle_number:
+    :param incident_angles:
+    :param starting_position:
+    :param stepping_length:
+    :return:
+    """
     # new_ccd = copy.deepcopy(ccd)
     new_detector = detector
 
@@ -53,8 +63,13 @@ def run_tars(detector: Detector,
 
 
 class TARS:
-    def __init__(self, detector: Detector) -> None:
+    """TBW."""
 
+    def __init__(self, detector: Detector) -> None:
+        """TBW.
+
+        :param detector:
+        """
         self.detector = detector
 
         self.part_type = None
@@ -75,27 +90,64 @@ class TARS:
         self.log = logging.getLogger(__name__)
 
     def set_particle_type(self, particle_type):
+        """TBW.
+
+        :param particle_type:
+        :return:
+        """
         self.part_type = particle_type
 
     def set_initial_energy(self, energy):
+        """TBW.
+
+        :param energy:
+        :return:
+        """
         self.init_energy = energy
 
     def set_particle_number(self, number):
+        """TBW.
+
+        :param number:
+        :return:
+        """
         self.particle_number = number
 
     def set_incident_angles(self, alpha, beta):
+        """TBW.
+
+        :param alpha:
+        :param beta:
+        :return:
+        """
         self.angle_alpha = alpha
         self.angle_beta = beta
 
     def set_starting_position(self, position_vertical, position_horizontal, position_z):
+        """TBW.
+
+        :param position_vertical:
+        :param position_horizontal:
+        :param position_z:
+        :return:
+        """
         self.position_ver = position_vertical
         self.position_hor = position_horizontal
         self.position_z = position_z
 
     def set_stepping_length(self, stepping):
+        """TBW.
+
+        :param stepping:
+        :return:
+        """
         self.step_length = stepping  # um
 
     def run(self):
+        """TBW.
+
+        :return:
+        """
         print("TARS - simulation processing...\n")
 
         self.sim_obj.parameters(self.part_type,
@@ -158,8 +210,7 @@ class TARS:
     #     self.sim_obj.energy_max_limit = self.sim_obj.stopping_power_function[-1, 0]
 
     def set_particle_spectrum(self, file_name):
-        """
-        Setting up the particle specs according to a spectrum
+        """Setting up the particle specs according to a spectrum.
 
         :param string file_name: path of the file containing the spectrum
         """

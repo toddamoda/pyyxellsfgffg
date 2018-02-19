@@ -1,10 +1,9 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2017 SRE-F, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-""" PYXEL is a detector simulation framework, that can simulate a variety of
+"""PYXEL is a detector simulation framework, that can simulate a variety of
 detector effects (e.g., cosmics, radiation-induced CTI  in CCDs, persistency
-in MCT, diffusion, cross-talk etc.) on a given image.
-"""
+in MCT, diffusion, cross-talk etc.) on a given image."""
 import logging
 import argparse
 
@@ -16,6 +15,12 @@ import pyxel.pipelines.processor
 
 
 def run_pipeline(input_filename, output_file):
+    """TBW.
+
+    :param input_filename:
+    :param output_file:
+    :return:
+    """
 
     config_path = Path(__file__).parent.joinpath(input_filename)
     cfg = pyxel.load_config(config_path)

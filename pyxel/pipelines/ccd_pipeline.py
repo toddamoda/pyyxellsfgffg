@@ -7,11 +7,16 @@ from pyxel.pipelines.models import Models
 
 
 class CCDDetectionPipeline(DetectionPipeline):
-    """ TBW. """
+    """TBW."""
 
     def __init__(self,
                  charge_transfer: Models,
                  **kwargs) -> None:
+        """TBW.
+
+        :param charge_transfer:
+        :param kwargs:
+        """
         super().__init__(**kwargs)
         self.charge_transfer = charge_transfer
 
@@ -35,6 +40,11 @@ class CCDDetectionPipeline(DetectionPipeline):
         }
 
     def run_pipeline(self, detector: Detector) -> Detector:
+        """TBW.
+
+        :param detector:
+        :return:
+        """
         # INITIALIZATION (open or generate image):
         # START -> create photons ->
         photon_numbers, photon_energies = detector.initialize_detector()
