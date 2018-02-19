@@ -31,7 +31,7 @@ process: !PROCESSOR
       qe: 0.5         # -
       eta: 1          # e/photon
       sv: 1.0e-6      # V/e
-      accd: 0.8       # V/V
+      amp: 0.8       # V/V
       a1: 100         # V/V
       a2: 65536       # DN/V
 

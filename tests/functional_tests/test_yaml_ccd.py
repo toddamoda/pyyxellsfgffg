@@ -33,7 +33,7 @@ def test_loader_with_extra_tags():
     qe: 3
     eta: 4
     sv: 5
-    accd: 6
+    amp: 6
     a1: 7
     a2: 8
 """
@@ -64,7 +64,7 @@ def test_loader_with_extra_tags():
     assert obj.characteristics.qe == 3
     assert obj.characteristics.eta == 4
     assert obj.characteristics.sv == 5
-    assert obj.characteristics.accd == 6
+    assert obj.characteristics.amp == 6
     assert obj.characteristics.a1 == 7
     assert obj.characteristics.a2 == 8
 
@@ -78,7 +78,7 @@ def test_dumper():
                                    n_donor=7.0, bias_voltage=8.0),
               environment=Environment(temperature=3.14),
               characteristics=CCDCharacteristics(qe=3, eta=4,
-                                                 sv=5, accd=6,
+                                                 sv=5, amp=6,
                                                  a1=7, a2=8),
               photons=10,
               image=None)
@@ -89,7 +89,7 @@ def test_dumper():
 characteristics: !ccd_characteristics
   a1: 7
   a2: 8
-  accd: 6
+  amp: 6
   eta: 4
   fwc: null
   fwc_serial: null
