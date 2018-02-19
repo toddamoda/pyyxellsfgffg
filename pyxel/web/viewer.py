@@ -3,6 +3,14 @@ import os
 import time
 
 
+class ViewerException(Exception):
+    """ Base class for all exceptions raised in the :module:`viewer.py` module."""
+
+
+class DS9Exception(ViewerException):
+    """ Base class for all exceptions raised in the :class:`DS9` class."""
+
+
 class DS9(object):
     """ This class remotely controls a DS9 application remotely using the XPA interface.
 
@@ -13,9 +21,6 @@ class DS9(object):
 
     These are installed into the /usr/bin directory.
     """
-
-    class Exception(Exception):
-        """ Base class for all exceptions raised in the :class:`DS9` class."""
 
     def __init__(self, ds9_exe='/usr/bin/ds9'):
         self._ds9_exe = os.path.abspath(ds9_exe)
@@ -31,7 +36,7 @@ class DS9(object):
         try:
             self.xpaget()
             return True
-        except DS9.Exception as _:
+        except DS9Exception as _:
             return False
 
     def start(self):
@@ -52,7 +57,7 @@ class DS9(object):
                     break
 
         if not self.is_ready():
-            raise DS9.Exception('Failed to start DS9 in XPA communication mode')
+            raise DS9Exception('Failed to start DS9 in XPA communication mode')
 
     def xpaset(self, cmd, arg, stdin_input=None):
         """ Executes a XPA set command.
@@ -77,7 +82,7 @@ class DS9(object):
         )
         stdout_stderr = process.communicate()
         if len(stdout_stderr[0]):
-            raise DS9.Exception(stdout_stderr[0])
+            raise DS9Exception(stdout_stderr[0])
 
     def xpaget(self, cmd=None, arg=None):
         """ Executes a XPA get command.
@@ -99,7 +104,7 @@ class DS9(object):
         stdout, stderr = process.communicate()
 
         if len(stderr):
-            raise DS9.Exception(stderr)
+            raise DS9Exception(stderr)
 
         return stdout
 
