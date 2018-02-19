@@ -7,7 +7,7 @@ class CCDCharacteristics(Characteristics):
 
     def __init__(self,
                  fwc_serial: int = None,
-                 **kwargs):
+                 **kwargs) -> None:
         super().__init__(**kwargs)
         self.fwc_serial = fwc_serial   # * u.electrons
 

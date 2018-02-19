@@ -14,15 +14,17 @@ parameters in parallel and serial direction.
 
 :version: 0.35
 """
+import datetime
+import os
+
+import astropy.io.fits as fits
+import numba  # todo: remove or add to requirements, but only if it works
 # import copy
 # from os import path
 import numpy as np
-import datetime
-import os
-import astropy.io.fits as fits
-import numba    # todo: remove or add to requirements, but only if it works
 
 from pyxel.detectors.ccd import CCD
+from pyxel.detectors.ccd_characteristics import CCDCharacteristics  # noqa: F401
 
 
 def cdm(detector: CCD,
@@ -37,7 +39,6 @@ def cdm(detector: CCD,
     Currently using Total Non-ionising (NIEL) Dose for the model as an input parameter !
 
     :param detector: PyXel CCD detector object
-    :param vth: electron thermal velocity
     :param beta_p: electron cloud expansion coefficient (parallel)
     :param beta_s: electron cloud expansion coefficient (serial)
     :param vg: assumed maximum geometrical volume electrons can occupy within a pixel (parallel)
@@ -73,7 +74,8 @@ def cdm(detector: CCD,
     """
 
     # new_detector = copy.deepcopy(detector)
-    new_detector = detector
+    new_detector = detector  # type: CCD
+    chr = new_detector.characteristics  # type: CCDCharacteristics
 
     # Charge injection:     # todo make a new function from this
     # image = np.zeros((100, 100), dtype=np.float32)
@@ -87,9 +89,9 @@ def cdm(detector: CCD,
     # # add vertical charge injection lines
     # image[:, x_start1:x_stop1] = charge_injection
 
-    cdm_obj = CDM03Python(rdose=new_detector.total_non_ionising_dose,
-                          fwc=new_detector.fwc,
-                          sfwc=new_detector.fwc_serial,
+    cdm_obj = CDM03Python(rdose=new_detector.environment.total_non_ionising_dose,
+                          fwc=chr.fwc,
+                          sfwc=chr.fwc_serial,
                           vth=new_detector.e_thermal_velocity,
                           beta_p=beta_p, beta_s=beta_s,
                           vg=vg, svg=svg,

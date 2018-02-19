@@ -7,14 +7,14 @@ PyXel! CCD noise generator class
 import numpy as np
 from astropy import units as u
 
-from pyxel.detectors.ccd import CCD
-
+from pyxel.detectors.detector import Detector
+from pyxel.detectors.geometry import Geometry  # noqa: F401
 
 # from pyxel.physics.photon import Photon
 # from . import Model
 
 
-def add_shot_noise(detector: CCD) -> CCD:
+def add_shot_noise(detector: Detector) -> Detector:
     """
     Add shot noise to number of photons
     :return:
@@ -31,16 +31,14 @@ def add_shot_noise(detector: CCD) -> CCD:
     return new_detector
 
 
-def add_fix_pattern_noise(detector: CCD,
+def add_fix_pattern_noise(detector: Detector,
                           pix_non_uniformity=None,
-                          percentage=None,
-                          inplace=True) -> CCD:
+                          percentage=None) -> Detector:
     """
     Add fix pattern noise caused by pixel non-uniformity during charge collection
     :param detector:
     :param pix_non_uniformity:
     :param percentage:
-    :param inplace:
     :return:
     """
     # TODO: Fix this. Use variable 'inplace' ?
@@ -53,17 +51,18 @@ def add_fix_pattern_noise(detector: CCD,
     # else:
     #     new_detector = detector
     new_detector = detector
+    geo = new_detector.geometry  # type: Geometry
 
     if pix_non_uniformity is None and percentage is not None:
         # generate_pixel_non_uniformity_data(percentage)   # TODO
         pass
     else:
-        pix_non_uniformity = pix_non_uniformity.reshape((new_detector.row, new_detector.col))
+        pix_non_uniformity = pix_non_uniformity.reshape((geo.row, geo.col))
 
     pix_rows = new_detector.pixels.get_pixel_positions_ver()
     pix_cols = new_detector.pixels.get_pixel_positions_hor()
 
-    charge_with_noise = np.zeros((new_detector.row, new_detector.col), dtype=float)
+    charge_with_noise = np.zeros((geo.row, geo.col), dtype=float)
     charge_with_noise[pix_rows, pix_cols] = new_detector.pixels.get_pixel_charges()
 
     charge_with_noise *= pix_non_uniformity
@@ -74,7 +73,7 @@ def add_fix_pattern_noise(detector: CCD,
     return new_detector
 
 
-def add_output_node_noise(ccd: CCD, std_deviation: float) -> CCD:
+def add_output_node_noise(ccd: Detector, std_deviation: float) -> Detector:
     """
     Adding noise to signal array of ccd output node using normal random distribution
     CCD Signal unit: Volt

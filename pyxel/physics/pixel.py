@@ -5,9 +5,11 @@
 PyXel! Pixel class to store and transfer charge packets inside detector
 """
 import numpy as np
+import pandas as pd
 # from astropy import units as u
 from astropy.units import cds
-import pandas as pd
+
+
 cds.enable()
 
 
@@ -41,7 +43,7 @@ class Pixel:
     """
 
     def __init__(self,
-                 detector=None):
+                 detector):
 
         self.detector = detector
         self.nextid = None
@@ -68,8 +70,8 @@ class Pixel:
         charge_pos_ver = self.detector.charges.get_positions_ver()
         charge_pos_hor = self.detector.charges.get_positions_hor()
 
-        pixel_index_ver = np.floor_divide(charge_pos_ver, self.detector.pix_vert_size).astype(int)
-        pixel_index_hor = np.floor_divide(charge_pos_hor, self.detector.pix_horz_size).astype(int)
+        pixel_index_ver = np.floor_divide(charge_pos_ver, self.detector.geometry.pixel_vert_size).astype(int)
+        pixel_index_hor = np.floor_divide(charge_pos_hor, self.detector.geometry.pixel_horz_size).astype(int)
 
         self.add_pixel(charge_per_pixel,
                        pixel_index_ver,
@@ -115,7 +117,7 @@ class Pixel:
         pixel_index_ver = self.get_pixel_positions_ver()
         pixel_index_hor = self.get_pixel_positions_hor()
 
-        charge_2d_array = np.zeros((self.detector.row, self.detector.col), dtype=float)
+        charge_2d_array = np.zeros((self.detector.geometry.row, self.detector.geometry.col), dtype=float)
         charge_2d_array[pixel_index_ver, pixel_index_hor] = charge_per_pixel
 
         return convert_to_int(charge_2d_array)
@@ -128,7 +130,7 @@ class Pixel:
         self.__create_dataframe__()
 
         row, col = array.shape
-        if row != self.detector.row or col != self.detector.col:
+        if row != self.detector.geometry.row or col != self.detector.geometry.col:
             raise ValueError
 
         ver_index = list(range(0, row))

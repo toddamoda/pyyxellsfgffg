@@ -12,7 +12,7 @@ import numpy as np
 from numpy import pi
 from tqdm import tqdm
 
-from pyxel.detectors.ccd import CCD
+from pyxel.detectors.detector import Detector
 from pyxel.models.tars.simulation import Simulation
 from pyxel.models.tars.util import read_data, interpolate_data
 
@@ -24,18 +24,18 @@ from pyxel.models.tars.util import read_data, interpolate_data
 TARS_DIR = path.dirname(path.abspath(__file__))
 
 
-def run_tars(ccd: CCD,
+def run_tars(detector: Detector,
              particle_type: str = 'proton',
              initial_energy: float = 100.0,
              particle_number: int = 1,
              incident_angles: tuple = (pi/10, pi/4),
              starting_position: tuple = (500.0, 500.0, 0.0),
-             stepping_length: float = 1.0) -> CCD:
+             stepping_length: float = 1.0) -> Detector:
     # TODO: Fix this. Use variable 'inplace' ?
     # new_ccd = copy.deepcopy(ccd)
-    new_ccd = ccd
+    new_detector = detector
 
-    cosmics = TARS(new_ccd)
+    cosmics = TARS(new_detector)
 
     cosmics.set_particle_type(particle_type)        # MeV
     cosmics.set_initial_energy(initial_energy)      # MeV
@@ -50,13 +50,13 @@ def run_tars(ccd: CCD,
 
     cosmics.run()
 
-    return new_ccd
+    return new_detector
 
 
 class TARS:
-    def __init__(self, pyxel_ccd_obj=None):
+    def __init__(self, detector: Detector) -> None:
 
-        self.ccd = pyxel_ccd_obj
+        self.detector = detector
 
         self.part_type = None
         self.init_energy = None
@@ -71,8 +71,8 @@ class TARS:
         # self.data_folder = TARS_DIR + r'\data'
         # self.results_folder = self.data_folder + r'\results'
 
-        self.sim_obj = Simulation(self.ccd)
-        self.charge_obj = self.ccd.charges
+        self.sim_obj = Simulation(self.detector)
+        self.charge_obj = self.detector.charges
         self.log = logging.getLogger(__name__)
 
     def set_particle_type(self, particle_type):
@@ -166,9 +166,9 @@ class TARS:
         """
         spectrum = read_data(file_name)  # nuc/m2*s*sr*MeV
 
-        ccd_area = self.ccd.vert_dimension * self.ccd.horz_dimension * 1.0e-8  # cm2
+        detector_area = self.detector.geometry.vert_dimension * self.detector.geometry.horz_dimension * 1.0e-8  # cm2
 
-        spectrum[:, 1] *= 4 * math.pi * 1.0e-4 * ccd_area  # nuc/s*MeV
+        spectrum[:, 1] *= 4 * math.pi * 1.0e-4 * detector_area  # nuc/s*MeV
 
         spectrum_function = interpolate_data(spectrum)
 

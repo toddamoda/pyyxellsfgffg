@@ -5,11 +5,11 @@
 PyXel! wrapper class for NGHXRG - Teledyne HxRG Noise Generator model
 """
 # import logging
-import copy
 from os import path
 
 # import numpy as np
 from pyxel.detectors.cmos import CMOS
+from pyxel.detectors.cmos_geometry import CMOSGeometry  # noqa: F401
 from pyxel.models.nghxrg.nghxrg_beta import HXRGNoise
 
 
@@ -20,17 +20,17 @@ def white_read_noise(detector: CMOS,
                      wind_x0: int = 0, wind_y0: int = 0,
                      wind_x_size: int = 0, wind_y_size: int = 0) -> CMOS:
 
-    new_detector = copy.deepcopy(detector)
-
+    new_detector = detector
+    geo = new_detector.geometry  # type: CMOSGeometry
     number_of_fits = 1
 
-    ng_h2rg = HXRGNoise(n_out=new_detector.n_output,
-                        nroh=new_detector.n_row_overhead,
-                        nfoh=new_detector.n_frame_overhead,
-                        reverse_scan_direction=new_detector.reverse_scan_direction,
-                        reference_pixel_border_width=new_detector.reference_pixel_border_width,
+    ng_h2rg = HXRGNoise(n_out=geo.n_output,
+                        nroh=geo.n_row_overhead,
+                        nfoh=geo.n_frame_overhead,
+                        reverse_scan_direction=geo.reverse_scan_direction,
+                        reference_pixel_border_width=geo.reference_pixel_border_width,
                         pca0_file=path.dirname(path.abspath(__file__)) + '/nirspec_pca0.fits',
-                        det_size_x=new_detector.col, det_size_y=new_detector.row,
+                        det_size_x=geo.col, det_size_y=geo.row,
                         wind_mode=window_mode,
                         wind_x_size=wind_x_size, wind_y_size=wind_y_size,
                         wind_x0=wind_x0, wind_y0=wind_y0,
@@ -60,17 +60,18 @@ def ktc_bias_noise(detector: CMOS,
                    wind_x0: int = 0, wind_y0: int = 0,
                    wind_x_size: int = 0, wind_y_size: int = 0) -> CMOS:
 
-    new_detector = copy.deepcopy(detector)
+    new_detector = detector
+    geo = new_detector.geometry  # type: CMOSGeometry
 
     number_of_fits = 1
 
-    ng_h2rg = HXRGNoise(n_out=new_detector.n_output,
-                        nroh=new_detector.n_row_overhead,
-                        nfoh=new_detector.n_frame_overhead,
-                        reverse_scan_direction=new_detector.reverse_scan_direction,
-                        reference_pixel_border_width=new_detector.reference_pixel_border_width,
+    ng_h2rg = HXRGNoise(n_out=geo.n_output,
+                        nroh=geo.n_row_overhead,
+                        nfoh=geo.n_frame_overhead,
+                        reverse_scan_direction=geo.reverse_scan_direction,
+                        reference_pixel_border_width=geo.reference_pixel_border_width,
                         pca0_file=path.dirname(path.abspath(__file__)) + '/nirspec_pca0.fits',
-                        det_size_x=new_detector.col, det_size_y=new_detector.row,
+                        det_size_x=geo.col, det_size_y=geo.row,
                         wind_mode=window_mode,
                         wind_x_size=wind_x_size, wind_y_size=wind_y_size,
                         wind_x0=wind_x0, wind_y0=wind_y0,
@@ -98,17 +99,18 @@ def corr_pink_noise(detector: CMOS,
                     wind_x0: int = 0, wind_y0: int = 0,
                     wind_x_size: int = 0, wind_y_size: int = 0) -> CMOS:
 
-    new_detector = copy.deepcopy(detector)
+    new_detector = detector
+    geo = new_detector.geometry  # type: CMOSGeometry
 
     number_of_fits = 1
 
-    ng_h2rg = HXRGNoise(n_out=new_detector.n_output,
-                        nroh=new_detector.n_row_overhead,
-                        nfoh=new_detector.n_frame_overhead,
-                        reverse_scan_direction=new_detector.reverse_scan_direction,
-                        reference_pixel_border_width=new_detector.reference_pixel_border_width,
+    ng_h2rg = HXRGNoise(n_out=geo.n_output,
+                        nroh=geo.n_row_overhead,
+                        nfoh=geo.n_frame_overhead,
+                        reverse_scan_direction=geo.reverse_scan_direction,
+                        reference_pixel_border_width=geo.reference_pixel_border_width,
                         pca0_file=path.dirname(path.abspath(__file__)) + '/nirspec_pca0.fits',
-                        det_size_x=new_detector.col, det_size_y=new_detector.row,
+                        det_size_x=geo.col, det_size_y=geo.row,
                         wind_mode=window_mode,
                         wind_x_size=wind_x_size, wind_y_size=wind_y_size,
                         wind_x0=wind_x0, wind_y0=wind_y0,
@@ -136,17 +138,18 @@ def uncorr_pink_noise(detector: CMOS,
                       wind_x0: int = 0, wind_y0: int = 0,
                       wind_x_size: int = 0, wind_y_size: int = 0) -> CMOS:
 
-    new_detector = copy.deepcopy(detector)
+    new_detector = detector
+    geo = new_detector.geometry  # type: CMOSGeometry
 
     number_of_fits = 1
 
-    ng_h2rg = HXRGNoise(n_out=new_detector.n_output,
-                        nroh=new_detector.n_row_overhead,
-                        nfoh=new_detector.n_frame_overhead,
-                        reverse_scan_direction=new_detector.reverse_scan_direction,
-                        reference_pixel_border_width=new_detector.reference_pixel_border_width,
+    ng_h2rg = HXRGNoise(n_out=geo.n_output,
+                        nroh=geo.n_row_overhead,
+                        nfoh=geo.n_frame_overhead,
+                        reverse_scan_direction=geo.reverse_scan_direction,
+                        reference_pixel_border_width=geo.reference_pixel_border_width,
                         pca0_file=path.dirname(path.abspath(__file__)) + '/nirspec_pca0.fits',
-                        det_size_x=new_detector.col, det_size_y=new_detector.row,
+                        det_size_x=geo.col, det_size_y=geo.row,
                         wind_mode=window_mode,
                         wind_x_size=wind_x_size, wind_y_size=wind_y_size,
                         wind_x0=wind_x0, wind_y0=wind_y0,
@@ -174,17 +177,18 @@ def acn_noise(detector: CMOS,
               wind_x0: int = 0, wind_y0: int = 0,
               wind_x_size: int = 0, wind_y_size: int = 0) -> CMOS:
 
-    new_detector = copy.deepcopy(detector)
+    new_detector = detector
+    geo = new_detector.geometry  # type: CMOSGeometry
 
     number_of_fits = 1
 
-    ng_h2rg = HXRGNoise(n_out=new_detector.n_output,
-                        nroh=new_detector.n_row_overhead,
-                        nfoh=new_detector.n_frame_overhead,
-                        reverse_scan_direction=new_detector.reverse_scan_direction,
-                        reference_pixel_border_width=new_detector.reference_pixel_border_width,
+    ng_h2rg = HXRGNoise(n_out=geo.n_output,
+                        nroh=geo.n_row_overhead,
+                        nfoh=geo.n_frame_overhead,
+                        reverse_scan_direction=geo.reverse_scan_direction,
+                        reference_pixel_border_width=geo.reference_pixel_border_width,
                         pca0_file=path.dirname(path.abspath(__file__)) + '/nirspec_pca0.fits',
-                        det_size_x=new_detector.col, det_size_y=new_detector.row,
+                        det_size_x=geo.col, det_size_y=geo.row,
                         wind_mode=window_mode,
                         wind_x_size=wind_x_size, wind_y_size=wind_y_size,
                         wind_x0=wind_x0, wind_y0=wind_y0,
@@ -212,17 +216,17 @@ def pca_zero_noise(detector: CMOS,
                    wind_x0: int = 0, wind_y0: int = 0,
                    wind_x_size: int = 0, wind_y_size: int = 0) -> CMOS:
 
-    new_detector = copy.deepcopy(detector)
-
+    new_detector = detector
+    geo = new_detector.geometry  # type: CMOSGeometry
     number_of_fits = 1
 
-    ng_h2rg = HXRGNoise(n_out=new_detector.n_output,
-                        nroh=new_detector.n_row_overhead,
-                        nfoh=new_detector.n_frame_overhead,
-                        reverse_scan_direction=new_detector.reverse_scan_direction,
-                        reference_pixel_border_width=new_detector.reference_pixel_border_width,
+    ng_h2rg = HXRGNoise(n_out=geo.n_output,
+                        nroh=geo.n_row_overhead,
+                        nfoh=geo.n_frame_overhead,
+                        reverse_scan_direction=geo.reverse_scan_direction,
+                        reference_pixel_border_width=geo.reference_pixel_border_width,
                         pca0_file=path.dirname(path.abspath(__file__)) + '/nirspec_pca0.fits',
-                        det_size_x=new_detector.col, det_size_y=new_detector.row,
+                        det_size_x=geo.col, det_size_y=geo.row,
                         wind_mode=window_mode,
                         wind_x_size=wind_x_size, wind_y_size=wind_y_size,
                         wind_x0=wind_x0, wind_y0=wind_y0,
