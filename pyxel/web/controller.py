@@ -1,4 +1,3 @@
-import functools
 import yaml
 import functools
 import os
@@ -30,7 +29,7 @@ class API:
         signals.dispatcher.connect(sender='api', signal=signals.SET_SETTING, callback=self.set_setting)
         signals.dispatcher.connect(sender='api', signal=signals.GET_SETTING, callback=self.get_setting)
         signals.dispatcher.connect(sender='api', signal=signals.SET_SEQUENCE, callback=self.set_sequence)
-        signals.dispatcher.connect(sender='*', signal=signals.PROGRESS, callback=self.progress)
+        signals.dispatcher.connect(sender='api', signal=signals.PROGRESS, callback=self.progress)
 
     def atts(self, entry):
         """ Appends all the GUI properties into a key="value" string
