@@ -283,7 +283,6 @@ def _model_representer(dumper: PyxelDumper, obj: Model):
     return dumper.represent_yaml_object('!model', data=obj, cls=None, flow_style=False)
 
 
-
 PyxelLoader.add_implicit_resolver('!expr', re.compile(r'^.*$'), None)
 PyxelLoader.add_constructor('!expr', _expr_processor)
 
