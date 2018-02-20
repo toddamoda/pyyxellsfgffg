@@ -14,16 +14,13 @@ class CCD(Detector):
     def __init__(self,
                  geometry: CCDGeometry,
                  environment: Environment,
-                 characteristics: CCDCharacteristics,
-                 **kwargs) -> None:
+                 characteristics: CCDCharacteristics) -> None:
         """TBW.
 
         :param geometry:
         :param environment:
         :param characteristics:
-        :param kwargs:
         """
         super().__init__(geometry=geometry,
                          environment=environment,
-                         characteristics=characteristics,
-                         **kwargs)
+                         characteristics=characteristics)

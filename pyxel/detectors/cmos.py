@@ -15,16 +15,13 @@ class CMOS(Detector):
     def __init__(self,
                  geometry: CMOSGeometry,
                  environment: Environment,
-                 characteristics: CMOSCharacteristics,
-                 **kwargs) -> None:
+                 characteristics: CMOSCharacteristics) -> None:
         """TBW.
 
         :param geometry:
         :param environment:
         :param characteristics:
-        :param kwargs:
         """
         super().__init__(geometry=geometry,
                          environment=environment,
-                         characteristics=characteristics,
-                         **kwargs)
+                         characteristics=characteristics)

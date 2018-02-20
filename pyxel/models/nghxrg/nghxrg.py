@@ -6,6 +6,8 @@
 # import logging
 from os import path
 
+import typing as t
+
 # import numpy as np
 from pyxel.detectors.cmos import CMOS
 from pyxel.detectors.cmos_geometry import CMOSGeometry  # noqa: F401
@@ -31,7 +33,8 @@ def white_read_noise(detector: CMOS,
     :return:
     """
     new_detector = detector  # type: CMOS
-    geo = new_detector.geometry  # type: CMOSGeometry
+    geo = t.cast(CMOSGeometry, new_detector.geometry)
+
     number_of_fits = 1
 
     ng_h2rg = HXRGNoise(n_out=geo.n_output,
@@ -83,7 +86,7 @@ def ktc_bias_noise(detector: CMOS,
     :return:
     """
     new_detector = detector
-    geo = new_detector.geometry  # type: CMOSGeometry
+    geo = t.cast(CMOSGeometry, new_detector.geometry)
 
     number_of_fits = 1
 
@@ -132,7 +135,7 @@ def corr_pink_noise(detector: CMOS,
     :return:
     """
     new_detector = detector
-    geo = new_detector.geometry  # type: CMOSGeometry
+    geo = t.cast(CMOSGeometry, new_detector.geometry)
 
     number_of_fits = 1
 
@@ -181,7 +184,7 @@ def uncorr_pink_noise(detector: CMOS,
     :return:
     """
     new_detector = detector
-    geo = new_detector.geometry  # type: CMOSGeometry
+    geo = t.cast(CMOSGeometry, new_detector.geometry)
 
     number_of_fits = 1
 
@@ -230,7 +233,7 @@ def acn_noise(detector: CMOS,
     :return:
     """
     new_detector = detector
-    geo = new_detector.geometry  # type: CMOSGeometry
+    geo = t.cast(CMOSGeometry, new_detector.geometry)
 
     number_of_fits = 1
 
@@ -279,7 +282,7 @@ def pca_zero_noise(detector: CMOS,
     :return:
     """
     new_detector = detector
-    geo = new_detector.geometry  # type: CMOSGeometry
+    geo = t.cast(CMOSGeometry, new_detector.geometry)
     number_of_fits = 1
 
     ng_h2rg = HXRGNoise(n_out=geo.n_output,

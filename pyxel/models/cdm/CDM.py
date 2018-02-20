@@ -23,6 +23,7 @@ import numba  # todo: remove or add to requirements, but only if it works
 # import copy
 # from os import path
 import numpy as np
+from typing import cast
 
 from pyxel.detectors.ccd import CCD
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics  # noqa: F401
@@ -74,7 +75,7 @@ def cdm(detector: CCD,
     """
     # new_detector = copy.deepcopy(detector)
     new_detector = detector  # type: CCD
-    chr = new_detector.characteristics  # type: CCDCharacteristics
+    chr = cast(CCDCharacteristics, new_detector.characteristics)  # type: CCDCharacteristics
 
     # Charge injection:     # todo make a new function from this
     # image = np.zeros((100, 100), dtype=np.float32)
