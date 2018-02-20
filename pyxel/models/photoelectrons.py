@@ -1,18 +1,17 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-""" Simple model to convert photons into photo-electrons inside detector
-"""
+"""Simple model to convert photons into photo-electrons inside detector."""
 
 # import copy
 # import numpy as np
 
-from pyxel.detectors.ccd import CCD
+from pyxel.detectors.detector import Detector
 
 
-def simple_conversion(detector: CCD) -> CCD:
-    """
-    Generate charges from incident photons via photoelectric effect, simple statistical model
+def simple_conversion(detector: Detector) -> Detector:
+    """Generate charges from incident photons via photoelectric effect, simple statistical model.
+
     :param detector:
     :return:
     """
@@ -24,7 +23,7 @@ def simple_conversion(detector: CCD) -> CCD:
 
     # Calc the average charge numbers per pixel
     # qe and eta should be a single float number OR list
-    charge_number = photon_number * new_detector.qe * new_detector.eta
+    charge_number = photon_number * new_detector.characteristics.qe * new_detector.characteristics.eta
 
     # converting to int, TODO: do proper rounding or floor -> numpy object problem
     charge_number = charge_number.astype(int)
@@ -44,10 +43,9 @@ def simple_conversion(detector: CCD) -> CCD:
     return new_detector
 
 
-def monte_carlo_conversion(detector: CCD) -> CCD:
-    """
-    Generate charges from incident photons via photoelectric effect,
-    more exact, stochastic (Monte Carlo) model
+def monte_carlo_conversion(detector: Detector) -> Detector:
+    """Generate charges from incident photons via photoelectric effect, more exact, stochastic (Monte Carlo) model.
+
     :param detector:
     :return:
     """
@@ -71,9 +69,9 @@ def monte_carlo_conversion(detector: CCD) -> CCD:
     return new_detector
 
 
-def random_pos(detector):
-    """
-    Generate random position for photoelectric effect inside detector
+def random_pos(detector: Detector) -> Detector:
+    """Generate random position for photoelectric effect inside detector.
+
     :param detector:
     :return:
     """
@@ -83,4 +81,4 @@ def random_pos(detector):
     # size = 0
     # pos3 = -1 * detector.total_thickness * np.random.rand(size)
     # return pos3
-    pass
+    raise NotImplementedError

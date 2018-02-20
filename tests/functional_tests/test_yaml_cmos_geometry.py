@@ -71,6 +71,7 @@ bias_voltage: 8.0
 col: 1001
 depletion_thickness: 1.0
 field_free_thickness: 2.0
+material: null
 n_acceptor: 6.0
 n_donor: 7.0
 n_frame_overhead: 11

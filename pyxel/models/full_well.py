@@ -1,26 +1,23 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-"""
-PyXel! CCD full well models
-"""
+"""PyXel! CCD full well models."""
 # import copy
 
-from pyxel.detectors.ccd import CCD
+from pyxel.detectors.detector import Detector
 
 
-def simple_pixel_full_well(detector: CCD,
-                           fwc: int = None) -> CCD:
-    """
-    Simply removing charges from pixels due to full well
+def simple_pixel_full_well(detector: Detector,
+                           fwc: int = None) -> Detector:
+    """Simply removing charges from pixels due to full well.
+
     :return:
     """
-
     # new_detector = copy.deepcopy(detector)
     new_detector = detector
 
     if fwc is None:
-        fwc = new_detector.fwc
+        fwc = new_detector.characteristics.fwc
 
     charge_array = new_detector.pixels.generate_2d_charge_array()
 

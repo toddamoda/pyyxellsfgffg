@@ -1,8 +1,7 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2017 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-""" PyXel! Charge diffusion and collection model extracted from TARS
-"""
+"""PyXel! Charge diffusion and collection model extracted from TARS."""
 
 import copy
 from math import sqrt, log
@@ -18,8 +17,7 @@ cds.enable()
 
 
 def diffusion(detector: CCD) -> CCD:
-    """ TBD """
-
+    """TBD."""
     new_detector = copy.deepcopy(detector)
 
     # diff = Diffusion(new_detector)
@@ -44,10 +42,13 @@ def diffusion(detector: CCD) -> CCD:
 
 
 class Diffusion:
-    """ TBD """
+    """TBD."""
 
     def __init__(self, detector):
+        """TBW.
 
+        :param detector:
+        """
         self.detector = detector
 
         # Here is an image of all the last simulated CRs events on the CCD
@@ -55,8 +56,7 @@ class Diffusion:
 
     # DIFFUSION
     def janesick_diffusion_model(self, cluster):
-        """ TBD """
-
+        """TBW."""
         # Initial cloud diameter:
         c_init = 0.0171 * (cluster.energy.value ** 1.75)
 
@@ -105,9 +105,9 @@ class Diffusion:
 
     # DIFFUSION
     def hiraga_diffusion_model(self, cluster):
-        """
-        spread the particle into the material and compute the density and size of the electronic cloud generated
-        at each step
+        """Spread the particle into the material.
+
+        Compute the density and size of the electronic cloud generated at each step.
         """
         pass
         # eps_rel = 11.8                       # TODO: implement this in CCDDetector class
@@ -142,15 +142,15 @@ class Diffusion:
 
     # ELECTRON COLLECTION
     def gaussian_pixel_separation(self, cluster, sig_ac, sig_al):
-        """
-        Compute the charge collection function to determine the number of electron collected by each pixel based on the
-        generated electronic cloud shape
+        """Compute the charge collection function.
+
+        Determine the number of electron collected by each pixel based on the
+        generated electronic cloud shape.
 
         :param cluster:
         :param float sig_ac: diameter of the resulting electronic cloud in the AC (across scan, vertical) dimension
         :param float sig_al: diameter of the resulting electronic cloud in the AL (along scan, horizontal) dimension
         """
-
         self.pcmap_last[:, :] = 0
         px = []
         py = []

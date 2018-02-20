@@ -1,30 +1,26 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-"""
-PyXel! Simulation code for TARS model to generate charges by ionization
-"""
+"""PyXel! Simulation code for TARS model to generate charges by ionization."""
 
 from os import path
+import typing as t  # noqa: F401
 import numpy as np
 from pyxel.models.tars.particle import Particle
 from pyxel.models.tars.util import sampling_distribution, read_data
+from pyxel.detectors.detector import Detector
 # import matplotlib.pyplot as plt
 
 
 class Simulation:
-    """
-    Main class of the program, Simulation contain all the methods to set and run a simulation
-    """
+    """Main class of the program, Simulation contain all the methods to set and run a simulation."""
 
-    def __init__(self, ccd_sim):
+    def __init__(self, detector: Detector) -> None:
+        """Initialize the simulation.
+
+        :param Detector detector: Detector object(from CCD/CMSO library) containing all the simulated detector specs
         """
-        Initialisation of the simulation
-
-        :param CCD ccd_sim: CCD object(from CCD library) containing all the simulated CCD specs
-        """
-
-        self.ccd = ccd_sim
+        self.detector = detector
 
         self.spectrum_cdf = None
         self.let_cdf = np.zeros((1, 2))
@@ -39,19 +35,31 @@ class Simulation:
         self.step_length = None
         self.energy_cut = 1.0e-5        # MeV
 
-        self.e_num_lst = []
-        self.e_energy_lst = []
-        self.e_pos0_lst = []
-        self.e_pos1_lst = []
-        self.e_pos2_lst = []
-        self.e_vel0_lst = []
-        self.e_vel1_lst = []
-        self.e_vel2_lst = []
+        self.e_num_lst = []     # type: t.List[int]
+        self.e_energy_lst = []  # type: t.List[float]
+        self.e_pos0_lst = []    # type: t.List[float]
+        self.e_pos1_lst = []    # type: t.List[float]
+        self.e_pos2_lst = []    # type: t.List[float]
+        self.e_vel0_lst = []    # type: t.List[float]
+        self.e_vel1_lst = []    # type: t.List[float]
+        self.e_vel2_lst = []    # type: t.List[float]
 
-        self.edep_per_step = []
-        self.total_edep_per_particle = []
+        self.edep_per_step = []             # type: t.List[float]
+        self.total_edep_per_particle = []   # type: t.List[float]
 
     def parameters(self, part_type, init_energy, pos_ver, pos_hor, pos_z, alpha, beta, step_length):
+        """TBW.
+
+        :param part_type:
+        :param init_energy:
+        :param pos_ver:
+        :param pos_hor:
+        :param pos_z:
+        :param alpha:
+        :param beta:
+        :param step_length:
+        :return:
+        """
         self.particle_type = part_type
         self.initial_energy = init_energy
         self.position_ver = pos_ver
@@ -62,18 +70,18 @@ class Simulation:
         self.step_length = step_length
 
     def set_let_distribution(self):
-        """
-        Read/generate a Linear Energy Transport distribution from Geant4 data
-        for each new particle based on its initial energy (from input spectrum)
-        and track length inside the detector
+        """Read/generate a Linear Energy Transport distribution from Geant4 data.
+
+        Execute this for each new particle based on its initial energy (from
+        input spectrum) and track length inside the detector.
+
         :return:
 
         .. warning:: EXPERIMENTAL - NOT FINSHED YET
         """
-
-        TARS_DIR = path.dirname(path.abspath(__file__))
-        # particle_let_file = TARS_DIR + '../data/inputs/let_proton_12GeV_100um_geant4.ascii'
-        particle_let_file = TARS_DIR + '/data/inputs/let_proton_1GeV_100um_geant4_HighResHist.ascii'
+        tars_dir = path.dirname(path.abspath(__file__))
+        # particle_let_file = tars_dir + '../data/inputs/let_proton_12GeV_100um_geant4.ascii'
+        particle_let_file = tars_dir + '/data/inputs/let_proton_1GeV_100um_geant4_HighResHist.ascii'
 
         let_histo = read_data(particle_let_file)  # counts in function of keV
 
@@ -99,16 +107,16 @@ class Simulation:
         # plt.show()
 
     def event_generation(self):
-        """
-        Generation of an event on the CCD due to an incident particle taken according to the simulation configuration
-        file
+        """Generate an event on the CCD.
+
+        The event occurs due to an incident particle taken according to the
+        simulation configuration file.
 
         :return:
         """
-
         track_left = False
 
-        p = Particle(self.ccd,
+        p = Particle(self.detector,
                      self.particle_type,
                      self.initial_energy, self.spectrum_cdf,
                      self.position_ver, self.position_hor, self.position_z,
@@ -123,11 +131,11 @@ class Simulation:
 
         while True:
             # check if p is still inside CCD and have enough energy:
-            if p.position[0] < 0.0 or p.position[0] > self.ccd.vert_dimension:
+            if p.position[0] < 0.0 or p.position[0] > self.detector.geometry.vert_dimension:
                 break
-            if p.position[1] < 0.0 or p.position[1] > self.ccd.horz_dimension:
+            if p.position[1] < 0.0 or p.position[1] > self.detector.geometry.horz_dimension:
                 break
-            if p.position[2] < -1 * self.ccd.total_thickness or p.position[2] > 0.0:
+            if p.position[2] < -1 * self.detector.geometry.total_thickness or p.position[2] > 0.0:
                 break
             if p.energy <= self.energy_cut:
                 break
@@ -150,7 +158,12 @@ class Simulation:
             self.total_edep_per_particle.append(p.total_edep)  # keV
 
     def _ionization_(self, particle):
+        """TBW.
 
+        :param particle:
+        :return:
+        """
+        mat_ioniz_energy = self.detector.geometry.material_ionization_energy
         # particle.energy is in MeV !
         # particle.deposited_energy is in keV !
         particle.deposited_energy = sampling_distribution(self.let_cdf) * self.step_length  # keV
@@ -159,8 +172,7 @@ class Simulation:
             particle.deposited_energy = particle.energy * 1e3
 
         e_kin_energy = 0.1  # eV
-        particle.electrons = int(particle.deposited_energy * 1e3 /
-                                 (self.ccd.material_ionization_energy + e_kin_energy))     # eV/eV = 1
+        particle.electrons = int(particle.deposited_energy * 1e3 / (mat_ioniz_energy + e_kin_energy))  # eV/eV = 1
 
         self.e_num_lst += [particle.electrons]
         self.e_energy_lst += [e_kin_energy]
@@ -169,7 +181,7 @@ class Simulation:
         self.e_pos2_lst += [particle.position[2]]
 
         # keV
-        particle.deposited_energy = particle.electrons * (e_kin_energy + self.ccd.material_ionization_energy) * 1e-3
+        particle.deposited_energy = particle.electrons * (e_kin_energy + mat_ioniz_energy) * 1e-3
         particle.energy -= particle.deposited_energy * 1e-3     # MeV
 
         self.edep_per_step.append(particle.deposited_energy)    # keV

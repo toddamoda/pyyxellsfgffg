@@ -13,38 +13,35 @@
 #   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 #   DEALINGS IN THE SOFTWARE.
 #   --------------------------------------------------------------------------
-#
-# Fully documented
-# Not fully commented
+
+"""TBW."""
 
 import math
 import random
 import numpy as np
 # import matplotlib.pyplot as plt
 from pyxel.models.tars.util import sampling_distribution
+from pyxel.detectors.detector import Detector
 
 
 class Particle:
-    """
-     particle class define a particle together with its characteristics
-    """
+    """Particle class define a particle together with its characteristics."""
 
     def __init__(self,
-                 ccd=None,
+                 detector: Detector,
                  particle_type='proton',
                  input_energy='random', spectrum_cdf=None,
                  starting_pos_ver='random', starting_pos_hor='random', starting_pos_z='random',
-                 input_alpha='random', input_beta='random'):
-        """
-        Creation of a particle according to some parameters
+                 input_alpha='random', input_beta='random') -> None:
+        """Creation of a particle according to some parameters.
 
-        :param ccd: CCD in which the particle is going to interact
+        :param detector: Detector in which the particle is going to interact
         :param float or 'random' input_energy: initial energy of the incident particle
-        :param  float or 'random' input_alpha: alpha incident angle of the particle in the ccd
+        :param float or 'random' input_alpha: alpha incident angle of the particle in the ccd
         :param float or 'random' input_beta: beta incident angle of the particle in the ccd
         """
-
-        self.ccd = ccd
+        self.detector = detector
+        geo = self.detector.geometry
 
         # self.charge_clusters = np.zeros((1, 4))
 
@@ -53,16 +50,16 @@ class Particle:
         starting_position_z = None
 
         if starting_pos_ver == 'random':
-            starting_position_vertical = self.ccd.vert_dimension * random.random()
+            starting_position_vertical = geo.vert_dimension * random.random()
         elif isinstance(starting_pos_ver, int) or isinstance(starting_pos_ver, float):
             starting_position_vertical = starting_pos_ver
         if starting_pos_hor == 'random':
-            starting_position_horizontal = self.ccd.horz_dimension * random.random()
+            starting_position_horizontal = geo.horz_dimension * random.random()
         elif isinstance(starting_pos_hor, int) or isinstance(starting_pos_hor, float):
             starting_position_horizontal = starting_pos_hor
 
         if starting_pos_z == 'random':
-            starting_position_z = self.ccd.total_thickness * random.random()
+            starting_position_z = geo.total_thickness * random.random()
         elif isinstance(starting_pos_z, int) or isinstance(starting_pos_z, float):
             starting_position_z = starting_pos_z
 

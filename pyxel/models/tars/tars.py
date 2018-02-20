@@ -1,9 +1,8 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-"""
-PyXel! TARS model for charge generation by ionization
-"""
+"""PyXel! TARS model for charge generation by ionization."""
+
 import logging
 import math
 from os import path
@@ -12,7 +11,7 @@ import numpy as np
 from numpy import pi
 from tqdm import tqdm
 
-from pyxel.detectors.ccd import CCD
+from pyxel.detectors.detector import Detector
 from pyxel.models.tars.simulation import Simulation
 from pyxel.models.tars.util import read_data, interpolate_data
 
@@ -24,18 +23,28 @@ from pyxel.models.tars.util import read_data, interpolate_data
 TARS_DIR = path.dirname(path.abspath(__file__))
 
 
-def run_tars(ccd: CCD,
+def run_tars(detector: Detector,
              particle_type: str = 'proton',
              initial_energy: float = 100.0,
              particle_number: int = 1,
              incident_angles: tuple = (pi/10, pi/4),
              starting_position: tuple = (500.0, 500.0, 0.0),
-             stepping_length: float = 1.0) -> CCD:
-    # TODO: Fix this. Use variable 'inplace' ?
-    # new_ccd = copy.deepcopy(ccd)
-    new_ccd = ccd
+             stepping_length: float = 1.0) -> Detector:
+    """TBW.
 
-    cosmics = TARS(new_ccd)
+    :param detector:
+    :param particle_type:
+    :param initial_energy:
+    :param particle_number:
+    :param incident_angles:
+    :param starting_position:
+    :param stepping_length:
+    :return:
+    """
+    # new_ccd = copy.deepcopy(ccd)
+    new_detector = detector
+
+    cosmics = TARS(new_detector)
 
     cosmics.set_particle_type(particle_type)        # MeV
     cosmics.set_initial_energy(initial_energy)      # MeV
@@ -50,13 +59,18 @@ def run_tars(ccd: CCD,
 
     cosmics.run()
 
-    return new_ccd
+    return new_detector
 
 
 class TARS:
-    def __init__(self, pyxel_ccd_obj=None):
+    """TBW."""
 
-        self.ccd = pyxel_ccd_obj
+    def __init__(self, detector: Detector) -> None:
+        """TBW.
+
+        :param detector:
+        """
+        self.detector = detector
 
         self.part_type = None
         self.init_energy = None
@@ -71,32 +85,69 @@ class TARS:
         # self.data_folder = TARS_DIR + r'\data'
         # self.results_folder = self.data_folder + r'\results'
 
-        self.sim_obj = Simulation(self.ccd)
-        self.charge_obj = self.ccd.charges
+        self.sim_obj = Simulation(self.detector)
+        self.charge_obj = self.detector.charges
         self.log = logging.getLogger(__name__)
 
     def set_particle_type(self, particle_type):
+        """TBW.
+
+        :param particle_type:
+        :return:
+        """
         self.part_type = particle_type
 
     def set_initial_energy(self, energy):
+        """TBW.
+
+        :param energy:
+        :return:
+        """
         self.init_energy = energy
 
     def set_particle_number(self, number):
+        """TBW.
+
+        :param number:
+        :return:
+        """
         self.particle_number = number
 
     def set_incident_angles(self, alpha, beta):
+        """TBW.
+
+        :param alpha:
+        :param beta:
+        :return:
+        """
         self.angle_alpha = alpha
         self.angle_beta = beta
 
     def set_starting_position(self, position_vertical, position_horizontal, position_z):
+        """TBW.
+
+        :param position_vertical:
+        :param position_horizontal:
+        :param position_z:
+        :return:
+        """
         self.position_ver = position_vertical
         self.position_hor = position_horizontal
         self.position_z = position_z
 
     def set_stepping_length(self, stepping):
+        """TBW.
+
+        :param stepping:
+        :return:
+        """
         self.step_length = stepping  # um
 
     def run(self):
+        """TBW.
+
+        :return:
+        """
         print("TARS - simulation processing...\n")
 
         self.sim_obj.parameters(self.part_type,
@@ -106,8 +157,7 @@ class TARS:
                                 self.step_length)
 
         for _ in tqdm(range(0, self.particle_number)):
-            dep = self.sim_obj.event_generation()
-            self.log.debug('total deposited E: %4.2f keV', dep)
+            self.sim_obj.event_generation()
 
         size = len(self.sim_obj.e_num_lst)
         self.sim_obj.e_vel0_lst = [0.] * size
@@ -159,16 +209,15 @@ class TARS:
     #     self.sim_obj.energy_max_limit = self.sim_obj.stopping_power_function[-1, 0]
 
     def set_particle_spectrum(self, file_name):
-        """
-        Setting up the particle specs according to a spectrum
+        """Set up the particle specs according to a spectrum.
 
         :param string file_name: path of the file containing the spectrum
         """
         spectrum = read_data(file_name)  # nuc/m2*s*sr*MeV
 
-        ccd_area = self.ccd.vert_dimension * self.ccd.horz_dimension * 1.0e-8  # cm2
+        detector_area = self.detector.geometry.vert_dimension * self.detector.geometry.horz_dimension * 1.0e-8  # cm2
 
-        spectrum[:, 1] *= 4 * math.pi * 1.0e-4 * ccd_area  # nuc/s*MeV
+        spectrum[:, 1] *= 4 * math.pi * 1.0e-4 * detector_area  # nuc/s*MeV
 
         spectrum_function = interpolate_data(spectrum)
 

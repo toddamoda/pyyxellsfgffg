@@ -1,4 +1,4 @@
-""" Utility functions. """
+"""Utility functions."""
 
 from pyxel.util.fitsfile import FitsFile
 

@@ -1,3 +1,4 @@
+"""TBW."""
 import typing as t
 
 from pyxel.detectors.ccd import CCD
@@ -7,9 +8,15 @@ from pyxel.pipelines.cmos_pipeline import CMOSDetectionPipeline
 
 
 class Processor:
+    """TBW."""
 
     def __init__(self,
                  detector: t.Union[CCD, CMOS],
                  pipeline: t.Union[CCDDetectionPipeline, CMOSDetectionPipeline]) -> None:
+        """TBW.
+
+        :param detector:
+        :param pipeline:
+        """
         self.detector = detector
         self.pipeline = pipeline

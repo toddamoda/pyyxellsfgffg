@@ -5,9 +5,9 @@
 #       Frederic Lemmel <Frederic.Lemmel@esa.int>
 #   --------------------------------------------------------------------------
 # pylint: disable=missing-docstring
-""" This module defines the CCD sensor types and the various regions
-of the sensor area.
-"""
+
+"""This module defines the CCD sensor types and the various regions of the sensor area."""
+
 from collections import OrderedDict
 
 import numpy as np
@@ -20,22 +20,23 @@ from .fitsfile import ImageData
 
 
 class SensorException(Exception):
-    """ All exception in this module should inherit from this class. """
+    """All exception in this module should inherit from this class."""
 
 
 class ChannelConfig(object):
-    """ Abstract class that defines the layout of a channel. """
+    """Abstract class that defines the layout of a channel."""
 
 
 class SensorGeometry(object):
-    """ Abstract class that defines the sensor invariants related to
-    geometry. """
+    """Abstract class that defines the sensor invariants related to geometry."""
 
 
 class SensorHeader(HeaderAccess):
-    """ This class defines the required FITS header keys and type
-    information. This is to be sub-classed for each different test bench.
+    """This class defines the required FITS header keys and type information.
+
+    This is to be sub-classed for each different test bench.
     """
+
     gain = (None, float)
     post_int_time = (None, float)
     int_time = (None, float)
@@ -90,8 +91,11 @@ class SensorHeader(HeaderAccess):
 
 
 class CCDSensorGeometry(SensorGeometry):
-    """ This class contains the CCD sensor invariants related to channel layout and geometry.
-    It also includes several convenience methods. """
+    """This class contains the CCD sensor invariants related to channel layout and geometry.
+
+    It also includes several convenience methods.
+
+    """
 
     def __init__(self,
                  channels_layout,
@@ -102,7 +106,8 @@ class CCDSensorGeometry(SensorGeometry):
                  active_x,
                  masked_slices=None,
                  **_kwargs):
-        """
+        """TBW.
+
         :param tuple channels_layout: (rows, cols) tuple of channels
         :param list readout_direction: serial readout direction per channel
         :param int p_pre_scan_y: number of pixels of parallel pre-scan
@@ -134,15 +139,25 @@ class CCDSensorGeometry(SensorGeometry):
 
     @property
     def channel_active_shape(self):
-        return self.active_shape[0] // self.channels_layout[0], \
-               self.active_shape[1] // self.channels_layout[1]
+        """TBW.
+
+        :return:
+        """
+        return (self.active_shape[0] // self.channels_layout[0],
+                self.active_shape[1] // self.channels_layout[1])
 
 
 def x_shifter(channels):
+    """TBW.
+
+    :param channels:
+    :return:
+    """
     return lambda data, ch_count=channels: np.roll(data, -data.shape[1] // ch_count)
 
 
 class CCDChannelConfig(ChannelConfig):
+    """TBW."""
 
     channel_transformations = {
         (1, 1): [[]],
@@ -153,7 +168,8 @@ class CCDChannelConfig(ChannelConfig):
     }
 
     def __init__(self, sensor_geometry, image_shape, binned_rows=1):
-        """
+        """TBW.
+
         :param CCDSensorGeometry sensor_geometry:
         :param tuple image_shape:
         :param int binned_rows:
@@ -165,14 +181,13 @@ class CCDChannelConfig(ChannelConfig):
         self._binned_rows = binned_rows
 
     def get_channel_data(self, channel, image):
-        """
+        """TBW.
 
         :param int channel:
         :param ndarray image:
         :return: the masked and transformed channel data
         :rtype: ndarray
         """
-
         # apply the global frame mask on the entire image
         mask = MaskedBox.create_nan_mask(self._image_shape,
                                          self._geometry.masked_slices,
@@ -199,36 +214,68 @@ class CCDChannelConfig(ChannelConfig):
 
     @property
     def p_pre_scan_y(self):
+        """TBW.
+
+        :return:
+        """
         return self._geometry.p_pre_scan_y
 
     @property
     def s_pre_scan_x(self):
+        """TBW.
+
+        :return:
+        """
         return self._geometry.s_pre_scan_x
 
     @property
     def channel_active_shape(self):
+        """TBW.
+
+        :return:
+        """
         return self._geometry.channel_active_shape
 
     @property
     def image_shape(self):
+        """TBW.
+
+        :return:
+        """
         return self._image_shape
 
     @property
     def channel_width(self):
+        """TBW.
+
+        :return:
+        """
         return self._image_shape[1] // self._geometry.channels_layout[1]
 
     @property
     def channel_height(self):
+        """TBW.
+
+        :return:
+        """
         return self._image_shape[0] // self._geometry.channels_layout[0]
 
     @property
     def channel_shape(self):
-        return self._image_shape[0] // self._geometry.channels_layout[0], \
-               self._image_shape[1] // self._geometry.channels_layout[1]
+        """TBW.
+
+        :return:
+        """
+        return (self._image_shape[0] // self._geometry.channels_layout[0],
+                self._image_shape[1] // self._geometry.channels_layout[1])
 
     @property
     def p_over_scan_y(self):
-        """ p_over_scan = height - active_y - p_pre_scan_y """
+        """TBW.
+
+        :return:
+        """
+        # p_over_scan = height - active_y - p_pre_scan_y
         ch_total = self._image_shape[0] // self._geometry.channels_layout[0]
         ch_active = self._geometry.active_shape[0] // self._geometry.channels_layout[0]
         ch_pre_scan = self._geometry.p_pre_scan_y
@@ -238,7 +285,8 @@ class CCDChannelConfig(ChannelConfig):
 
     @property
     def s_over_scan_x(self):
-        """ s_over_scan = width - active_x - s_pre_scan_y """
+        """TBW."""
+        # s_over_scan = width - active_x - s_pre_scan_y.
         ch_total = self._image_shape[1] // self._geometry.channels_layout[1]
         ch_active = self._geometry.active_shape[1] // self._geometry.channels_layout[1]
         ch_pre_scan = self._geometry.s_pre_scan_x
@@ -248,9 +296,17 @@ class CCDChannelConfig(ChannelConfig):
 
 
 class SensorFrame(object):
-    """ Generic Image Frame """
+    """Generic Image Frame."""
 
     def __init__(self, fits_file, header_class, geometry, roi_class, channel_config_type):
+        """TBW.
+
+        :param fits_file:
+        :param header_class:
+        :param geometry:
+        :param roi_class:
+        :param channel_config_type:
+        """
         super(SensorFrame, self).__init__()
 
         if isinstance(fits_file, np.ndarray):
@@ -271,7 +327,7 @@ class SensorFrame(object):
         self._channel_class = channel_config_type
 
     def load(self, fits_file=None):
-        """ This forces the data and header to be loaded in one-go.
+        """Force the data and header to be loaded into memory.
 
         :param str fits_file: optionally load a different file
         """
@@ -284,6 +340,10 @@ class SensorFrame(object):
 
     @property
     def roi(self):
+        """TBW.
+
+        :return:
+        """
         if self._channel_object is None:
             self._channel_object = self._channel_class(self._geometry, self.data.shape, self.param.bins)
 
@@ -302,29 +362,49 @@ class SensorFrame(object):
 
     @property
     def filename(self):
+        """TBW.
+
+        :return:
+        """
         if isinstance(self._fits, FitsFile):
             return self._fits.filename
 
     @property
     def channels(self):
+        """TBW.
+
+        :return:
+        """
         return self._geometry.channels_layout[0] * self._geometry.channels_layout[1]
 
     @property
     def param(self):
+        """TBW.
+
+        :return:
+        """
         if self._header_object is None:
             self._header_object = self._header_class.to_object(self.header)
         return self._header_object
 
     @property
     def header(self):
+        """TBW.
+
+        :return:
+        """
         return self._fits.header
 
     @property
     def data(self):
+        """TBW.
+
+        :return:
+        """
         return self._fits.data
 
     def get_data(self, channel):
-        """ Retrieve the sub-image for the corresponding channel.
+        """Retrieve the sub-image for the corresponding channel.
 
         :param int channel:
         :return: image array for specified channel
@@ -337,8 +417,8 @@ class SensorFrame(object):
         return ch_image
 
     def box(self, channel, rect):
-        """ Factory method to construct a new channel masked slice of the
-        image.
+        """Construct a new channel masked slice of the image using this factory method.
+
         :return: 2d ndarray
         :rtype: MaskedBox
         """
@@ -348,14 +428,32 @@ class SensorFrame(object):
         return MaskedBox(data, y_x_slice)
 
     def set_user_defined_roi(self, y_0, y_1, x_0, x_1):
+        """TBW.
+
+        :param y_0:
+        :param y_1:
+        :param x_0:
+        :param x_1:
+        :return:
+        """
         self.add_roi('user_defined', [y_0, y_1, x_0, x_1])
 
     def add_roi(self, name, rect):
+        """TBW.
+
+        :param name:
+        :param rect:
+        :return:
+        """
         y_x_slice = util.rect_to_slice(rect)
         setattr(self.roi, name, y_x_slice)
 
     @property
     def roi_dict(self):
+        """TBW.
+
+        :return:
+        """
         result = {}
         for name in self.roi.__dict__:
             att = self.roi.__dict__[name]
@@ -386,6 +484,7 @@ class SensorFrame(object):
     #     return result
 
     def get_stats(self, channel):
+        """TBW."""
         result = OrderedDict()
         for name in self.roi_dict:
             box = self.box(channel, self.roi_dict[name])
@@ -397,9 +496,9 @@ class SensorFrame(object):
             data,
             sensor_type,
             header_type,
-            geometry_config,
-    ):
-        """
+            geometry_config):
+        """TBW.
+
         :param str data: may be a file or a ndarray
         :param str sensor_type:
         :param str header_type:
@@ -408,7 +507,6 @@ class SensorFrame(object):
         :rtype: SensorFrame
         :raises TypeError: if any of the arguments passed have an incorrect type.
         """
-
         if isinstance(header_type, str):
             header_type = util.evaluate_reference(header_type)
 
@@ -443,15 +541,21 @@ class SensorFrame(object):
 
 
 class CCDFrame(SensorFrame):
-    """ Generic E2V CCD sensor methods are defined in this class.
-    TODO: rename to CCD since all CCD's have the same region names"""
+    """Generic E2V CCD sensor methods are defined in this class.
+
+    .. TODO: rename to CCD since all CCD's have the same region names
+    """
 
     geometry_type = CCDSensorGeometry
 
     class ROI(object):
-        """ Region of interest slice coordinates for channel 0"""
+        """Region of interest slice coordinates for channel 0."""
 
         def __init__(self, ch_cfg):
+            """TBW.
+
+            :param ch_cfg:
+            """
             # TODO: s_pre_scan_x should be configurable per channel and passed as an array
             self.active = (
                 slice(ch_cfg.p_pre_scan_y, ch_cfg.channel_height - ch_cfg.p_over_scan_y),
@@ -479,7 +583,7 @@ class CCDFrame(SensorFrame):
             )
 
     def get_readout_noise(self, output_idx=0, gain=1.0):
-        """ Return the readout noise of the image.
+        """Return the readout noise of the image.
 
         :param int output_idx: channel index number 0 - 3
         :param float gain: the gain setting
@@ -493,7 +597,7 @@ class CCDFrame(SensorFrame):
         raise ValueError('output_idx is out of range: %d' % output_idx)
 
     def get_offset(self, output_idx=0):
-        """ Return the electronic offset mean value.
+        """Return the electronic offset mean value.
 
         :param int output_idx: channel index number 0 - 3
         :return: the mean value of the parallel + serial over-scan area
@@ -506,7 +610,11 @@ class CCDFrame(SensorFrame):
         raise ValueError('output_idx is out of range: %d' % output_idx)
 
     def __init__(self, fits_file, header_keys, geometry):
-        """ Constructor
+        """TBW.
+
+        :param fits_file:
+        :param header_keys:
+        :param geometry:
         """
         super(CCDFrame, self).__init__(fits_file,
                                        header_keys,

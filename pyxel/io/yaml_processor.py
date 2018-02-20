@@ -1,4 +1,4 @@
-import functools
+"""TBW."""
 import inspect
 import re
 import typing as t
@@ -6,6 +6,7 @@ from pathlib import Path
 
 import numpy as np
 import yaml
+from astropy.io import fits
 
 import pyxel.pipelines.ccd_pipeline
 import pyxel.pipelines.cmos_pipeline
@@ -25,12 +26,11 @@ import pyxel.detectors.cmos_characteristics
 import pyxel.detectors.ccd_geometry
 import pyxel.detectors.cmos_geometry
 import pyxel.detectors.environment
-from pyxel.util import fitsfile
-from pyxel.util import util
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.environment import Environment
 from pyxel.detectors.ccd_geometry import CCDGeometry
 from pyxel.detectors.cmos_geometry import CMOSGeometry
+from pyxel.pipelines.models import Model
 
 
 class PyxelLoader(yaml.SafeLoader):
@@ -40,7 +40,8 @@ class PyxelLoader(yaml.SafeLoader):
     used to maintain the available constructor functions that are
     called when parsing a YAML stream.  See the `PyYaml documentation
     <http://pyyaml.org/wiki/PyYAMLDocumentation>`_ for details of the
-    class signature."""
+    class signature.
+    """
 
 
 class PyxelDumper(yaml.SafeDumper):
@@ -50,7 +51,8 @@ class PyxelDumper(yaml.SafeDumper):
     used to maintain the available constructor functions that are
     called when parsing a YAML stream.  See the `PyYaml documentation
     <http://pyyaml.org/wiki/PyYAMLDocumentation>`_ for details of the
-    class signature."""
+    class signature.
+    """
 
 
 def _expr_processor(loader: PyxelLoader, node: yaml.ScalarNode):
@@ -70,7 +72,6 @@ def _expr_processor(loader: PyxelLoader, node: yaml.ScalarNode):
 
 def _constructor_processor(loader: PyxelLoader, node: yaml.MappingNode):
     mapping = loader.construct_mapping(node, deep=True)     # type: dict
-
     obj = pyxel.pipelines.processor.Processor(**mapping)
 
     return obj
@@ -221,12 +222,7 @@ def _constructor_cmos(loader: PyxelLoader, node: yaml.MappingNode):
     else:
         characteristics = None
 
-    photons = mapping.get('photons', None)
-    image = mapping.get('image', None)
-
-    obj = CMOS(photons=photons,
-               image=image,
-               geometry=geometry,
+    obj = CMOS(geometry=geometry,
                environment=environment,
                characteristics=characteristics)
 
@@ -236,14 +232,13 @@ def _constructor_cmos(loader: PyxelLoader, node: yaml.MappingNode):
 def _constructor_from_file(loader: PyxelLoader, node: yaml.ScalarNode):
     filename = Path(loader.construct_scalar(node))
     if filename.suffix.lower().startswith('.fit'):
-        result = fitsfile.FitsFile(str(filename)).data
+        result = fits.getdata(str(filename))
     else:
         result = np.fromfile(str(filename), dtype=float, sep=' ')
     return result
 
 
 def _constructor_models(loader: PyxelLoader, node: yaml.ScalarNode):
-
     if isinstance(node, yaml.ScalarNode):
         # OK: no kwargs provided
         mapping = {}  # type: dict
@@ -253,46 +248,78 @@ def _constructor_models(loader: PyxelLoader, node: yaml.ScalarNode):
     return pyxel.pipelines.models.Models(mapping)
 
 
-def _constructor_function(loader: PyxelLoader, node: yaml.ScalarNode):
+# def _constructor_function(loader: PyxelLoader, node: yaml.MappingNode):
+#     mapping = loader.construct_mapping(node)             # type: dict
+#
+#     function_name = mapping['name']                      # type: str
+#     enable = mapping.get('enable', None)
+#     args = mapping.get('args', {})
+#     kwargs = mapping.get('arguments', {})
+#
+#     func = util.evaluate_reference(function_name)
+#
+#     result = functools.partial(func, *args, **kwargs)
+#     setattr(result, 'enable', enable)
+#     return result
+
+
+def _model_constructor(loader: PyxelLoader, node: yaml.MappingNode):
     mapping = loader.construct_mapping(node)             # type: dict
+    model = Model(**mapping)
+    return model
 
-    function_name = mapping['name']                      # type: str
-    args = mapping.get('args', {})
-    kwargs = mapping.get('arguments', {})
 
-    func = util.evaluate_reference(function_name)
+def _model_representer(dumper: PyxelDumper, obj: Model):
+    """TBW.
 
-    return functools.partial(func, *args, **kwargs)
+    :param dumper:
+    :param obj:
+    :return:
+    """
+    return dumper.represent_yaml_object('!model', data=obj, cls=None, flow_style=False)
 
 
 PyxelLoader.add_implicit_resolver('!expr', re.compile(r'^.*$'), None)
 PyxelLoader.add_constructor('!expr', _expr_processor)
 
+PyxelLoader.add_path_resolver('!PROCESSOR', ['ccd_process'])
 PyxelLoader.add_constructor('!PROCESSOR', _constructor_processor)
 
+PyxelLoader.add_path_resolver('!geometry', ['ccd_process', 'detector', 'geometry'])
 PyxelLoader.add_constructor('!geometry', _ccd_geometry_constructor)
 PyxelDumper.add_representer(CCDGeometry, _ccd_geometry_representer)
 
 PyxelLoader.add_constructor('!cmos_geometry', _cmos_geometry_constructor)
 PyxelDumper.add_representer(CMOSGeometry, _cmos_geometry_representer)
 
+PyxelLoader.add_path_resolver('!environment', ['ccd_process', 'detector', 'environment'])
 PyxelLoader.add_constructor('!environment', _environment_constructor)
 PyxelDumper.add_representer(Environment, _environment_representer)
 
+PyxelLoader.add_path_resolver('!ccd_characteristics', ['ccd_process', 'detector', 'characteristics'])
 PyxelLoader.add_constructor('!ccd_characteristics', _ccd_characteristics_constructor)
 PyxelDumper.add_representer(CCDCharacteristics, _ccd_characteristics_representer)
 
+PyxelLoader.add_path_resolver('!CCD_PIPELINE', ['ccd_process', 'pipeline'])
 PyxelLoader.add_constructor('!CCD_PIPELINE', _constructor_ccd_pipeline)
 PyxelLoader.add_constructor('!CMOS_PIPELINE', _constructor_cmos_pipeline)
 
+PyxelLoader.add_path_resolver('!CCD', ['ccd_process', 'detector'])
 PyxelLoader.add_constructor('!CCD', _ccd_constructor)
 PyxelDumper.add_representer(CCD, _ccd_representer)
+
+PyxelLoader.add_path_resolver('!model', ['ccd_process', 'pipeline', None, None])
+PyxelLoader.add_constructor('!model', _model_constructor)
+PyxelDumper.add_representer(Model, _model_representer)
 
 PyxelLoader.add_constructor('!CMOS', _constructor_cmos)
 
 PyxelLoader.add_constructor('!from_file', _constructor_from_file)
-PyxelLoader.add_constructor('!function', _constructor_function)
+# PyxelLoader.add_constructor('!function', _constructor_function)
+
+PyxelLoader.add_path_resolver('!models', ['ccd_process', 'pipeline', None])
 PyxelLoader.add_constructor('!models', _constructor_models)
+# TODO: Implement add_representer for '!models'
 
 yaml.add_path_resolver('!geometry', path=['geometry'], kind=dict, Loader=PyxelLoader)
 yaml.add_path_resolver('!environment', path=['environment'], kind=dict, Loader=PyxelLoader)
@@ -309,7 +336,7 @@ def load(stream: t.Union[str, t.IO]):
 
 
 def dump(data) -> str:
-    """Serialize a Python object into a YAML stream using `PyxelDumper`
+    """Serialize a Python object into a YAML stream using `PyxelDumper`.
 
     :param data: Object to serialize to YAML.
     :return: the YAML output as a `str`.
@@ -318,6 +345,11 @@ def dump(data) -> str:
 
 
 def load_config(yaml_filename: Path):
+    """Load the YAML configuration file.
+
+    :param yaml_filename:
+    :return:
+    """
     with yaml_filename.open('r') as file_obj:
         cfg = load(file_obj)
 

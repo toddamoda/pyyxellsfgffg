@@ -4,7 +4,7 @@ gui:
     label: Detector
     items:
       -
-        id: detector.photons
+        id: pipeline.photon_generation.photon_level.arguments.level
         label: Photons
         entry:
           tag: input
@@ -14,7 +14,7 @@ gui:
           max: 100000
 
       -
-        id: detector.image
+        id: pipeline.photon_generation.load_image.arguments.image_file
         label: Image
         entry:
           tag: input
@@ -86,7 +86,7 @@ gui:
           max: 1000
           title: sensitivity of CCD amplifier
       -
-        id: detector.characteristics.accd
+        id: detector.characteristics.amp
         label: Output amplifier gain
         entry:
           tag: input

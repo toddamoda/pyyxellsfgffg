@@ -1,4 +1,5 @@
-"""
+"""TBW.
+
 Charge Transfer Inefficiency
 ============================
 
@@ -14,15 +15,18 @@ parameters in parallel and serial direction.
 
 :version: 0.35
 """
+import datetime
+import os
+
+import astropy.io.fits as fits
+import numba  # todo: remove or add to requirements, but only if it works
 # import copy
 # from os import path
 import numpy as np
-import datetime
-import os
-import astropy.io.fits as fits
-import numba    # todo: remove or add to requirements, but only if it works
+from typing import cast
 
 from pyxel.detectors.ccd import CCD
+from pyxel.detectors.ccd_characteristics import CCDCharacteristics  # noqa: F401
 
 
 def cdm(detector: CCD,
@@ -31,13 +35,11 @@ def cdm(detector: CCD,
         t: float = None, st: float = None,
         parallel_trap_file: str = None,
         serial_trap_file: str = None) -> CCD:
-    """
-    CDM model wrapper
+    """CDM model wrapper.
 
     Currently using Total Non-ionising (NIEL) Dose for the model as an input parameter !
 
     :param detector: PyXel CCD detector object
-    :param vth: electron thermal velocity
     :param beta_p: electron cloud expansion coefficient (parallel)
     :param beta_s: electron cloud expansion coefficient (serial)
     :param vg: assumed maximum geometrical volume electrons can occupy within a pixel (parallel)
@@ -71,9 +73,9 @@ def cdm(detector: CCD,
     fwc: Full Well Capacity in electrons (parallel)
     sfwc: Full Well Capacity in electrons (serial)
     """
-
     # new_detector = copy.deepcopy(detector)
-    new_detector = detector
+    new_detector = detector  # type: CCD
+    chr = cast(CCDCharacteristics, new_detector.characteristics)  # type: CCDCharacteristics
 
     # Charge injection:     # todo make a new function from this
     # image = np.zeros((100, 100), dtype=np.float32)
@@ -87,9 +89,9 @@ def cdm(detector: CCD,
     # # add vertical charge injection lines
     # image[:, x_start1:x_stop1] = charge_injection
 
-    cdm_obj = CDM03Python(rdose=new_detector.total_non_ionising_dose,
-                          fwc=new_detector.fwc,
-                          sfwc=new_detector.fwc_serial,
+    cdm_obj = CDM03Python(rdose=new_detector.environment.total_non_ionising_dose,
+                          fwc=chr.fwc,
+                          sfwc=chr.fwc_serial,
                           vth=new_detector.e_thermal_velocity,
                           beta_p=beta_p, beta_s=beta_s,
                           vg=vg, svg=svg,
@@ -109,9 +111,7 @@ def cdm(detector: CCD,
 
 
 class CDM03Python:
-    """
-    Class to run CDM03 CTI model, class Fortran routine to perform the actual CDM03 calculations.
-    """
+    """Class to run CDM03 CTI model, class Fortran routine to perform the actual CDM03 calculations."""
 
     def __init__(self,
                  rdose: float = 8.0e11,
@@ -122,9 +122,8 @@ class CDM03Python:
                  fwc: int = 200000, sfwc: int = 730000,
                  parallel_trap_file: str = None,
                  serial_trap_file: str = None) -> None:
+        """Class constructor.
 
-        """
-        Class constructor.
         :param rdose:
         :param vth:
         :param beta_p:
@@ -255,8 +254,9 @@ class CDM03Python:
     #     return out
 
     def apply_cti(self, data, iquadrant=0):
-        """
-        Apply radian damage based on FORTRAN CDM03 model. The method assumes that
+        """Apply radian damage based on FORTRAN CDM03 model.
+
+        The method assumes that
         input data covers only a single quadrant defined by the iquadrant integer.
 
         :param data: imaging data to which the CDM03 model will be applied to.
@@ -291,8 +291,7 @@ class CDM03Python:
 
         :return: image that has been run through the CDM03 model
         :rtype: ndarray
-        """""
-
+        """
         # iflip = iquadrant % 2
         # jflip = iquadrant % 2
 
@@ -303,8 +302,7 @@ class CDM03Python:
     @numba.jit
     def _run_cdm_(self,
                   image=None):
-        """
-        Electron trapping in imaging mode (non-TDI)
+        """Electron trapping in imaging mode (non-TDI).
 
         :param image:
         :return:
@@ -386,8 +384,7 @@ class CDM03Python:
 
 
 def write_fits_file(data, output, unsigned16bit=True):
-    """
-    Write out FITS files using PyFITS.
+    """Write out FITS files using PyFITS.
 
     :param data: data to write to a FITS file
     :type data: ndarray
@@ -425,6 +422,10 @@ def write_fits_file(data, output, unsigned16bit=True):
 
 
 def mssl_cdm03_params():
+    """TBW.
+
+    :return:
+    """
     return dict(beta_p=0.29, beta_s=0.29,
                 fwc=200000.,
                 vth=1.168e7,

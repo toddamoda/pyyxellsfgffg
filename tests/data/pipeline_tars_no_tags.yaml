@@ -8,10 +8,10 @@
 #fix_pattern_noise: True
 #readout_noise: True
 
-ccd_process: !PROCESSOR
-  detector: !CCD
+ccd_process:
+  detector:
 
-    geometry: !geometry
+    geometry:
       row: 100                      # compulsory
       col: 100                      # compulsory
       depletion_thickness: 10.0     # um
@@ -20,10 +20,10 @@ ccd_process: !PROCESSOR
       pixel_horz_size: 10.0         # um
       total_thickness: 10.0         # um
 
-    environment: !environment
+    environment:
       temperature: 320  # detector temperature Kelvin
 
-    characteristics: !ccd_characteristics
+    characteristics:
       qe: 0.5         # -
       eta: 1          # e/photon
       sv:  1.0e-6      # V/e
@@ -32,24 +32,24 @@ ccd_process: !PROCESSOR
       a2: 65536       # DN/V
 
 
-  pipeline: !CCD_PIPELINE
+  pipeline:
 
-    photon_generation: !models
-      load_image: !model
+    photon_generation:
+      load_image:
         name: pyxel.models.photon_generation.load_image
         enabled: true
         arguments:
           image_file: data/HorseHead_orig.fits
 
-      photon_level: !model
+      photon_level:
         name: pyxel.models.photon_generation.add_photon_level
         enabled: false
         arguments:
           level: 0
 
     # -> photons
-    optics: !models
-      shot_noise: !model
+    optics:
+      shot_noise:
         name: pyxel.models.ccd_noise.add_shot_noise
   #    ray_tracing: !class
   #      name: pyxel.models.ccd_noise.OpticsModelRayTracer
@@ -64,15 +64,15 @@ ccd_process: !PROCESSOR
     # photons -> compute_charge -> charge
 
     # -> charge
-    charge_generation: !models
+    charge_generation:
 #      fixed_pattern_noise: !function
 #        name: pyxel.models.ccd_noise.add_fix_pattern_noise
 #        kwargs:
 #          pix_non_uniformity: !from_file data/non_uniformity_array_normal_stdev0.03.data
-      photoelectrons: !model
+      photoelectrons: 
         name: pyxel.models.photoelectrons.simple_conversion
 
-      tars: !model
+      tars: 
         name: pyxel.models.tars.tars.run_tars
         arguments:
           initial_energy: 100.0   # MeV
@@ -87,17 +87,17 @@ ccd_process: !PROCESSOR
           stepping_length: 1.0  # um
 
     # -> charge
-    charge_collection: !models
+    charge_collection:
 
     # -> charge
-    charge_transfer: !models
+    charge_transfer: 
 
     # -> signal
-    charge_measurement: !models
-      readout_noise: !model
+    charge_measurement: 
+      readout_noise: 
         name: pyxel.models.ccd_noise.add_output_node_noise
         arguments:
           std_deviation: 1.0
 
     # -> signal
-    readout_electronics: !models
+    readout_electronics: 

@@ -1,5 +1,4 @@
-"""
-NGHXRG - Teledyne HxRG Noise Generator
+"""NGHXRG - Teledyne HxRG Noise Generator.
 
 Modification History:
 
@@ -100,20 +99,19 @@ PCA0FILE = path.dirname(path.abspath(__file__)) + '/nirspec_pca0.fits'
 
 
 def white_noise(nstep=None):
-    """
-    Generate white noise for an HxRG including all time steps
-    (actual pixels and overheads).
+    """Generate white noise for an HxRG including all time steps (actual pixels and overheads).
 
     Parameters:
         nstep - Length of vector returned
+
     """
     return np.random.standard_normal(nstep)
 
 
 class HXRGNoise:
-    """
-    HXRGNoise is a class for making realistic Teledyne HxRG system
-    noise. The noise model includes correlated,  uncorrelated,
+    """HXRGNoise is a class for making realistic Teledyne HxRG system noise.
+
+    The noise model includes correlated,  uncorrelated,
     stationary,  and non-stationary components. The default parameters
     make noise that resembles Channel 1 of JWST NIRSpec. NIRSpec uses
     H2RG detectors. They are read out using four video outputs at
@@ -133,8 +131,7 @@ class HXRGNoise:
                  wind_x_size=0, wind_y_size=0,
                  wind_x0=0, wind_y0=0,
                  verbose=False):
-        """
-        Simulate Teledyne HxRG+SIDECAR ASIC system noise.
+        """Simulate Teledyne HxRG+SIDECAR ASIC system noise.
 
         Parameters:
             naxis1      - X-dimension of the FITS cube
@@ -163,6 +160,7 @@ class HXRGNoise:
                                      setting =False corresponds to
                                      what HxRG detectors default to
                                      upon power up.
+
         :param det_size_x:
         :param det_size_y:
         :param cube_z:
@@ -178,6 +176,7 @@ class HXRGNoise:
         :param wind_x0:
         :param wind_y0:
         :param verbose:
+
         """
         # ======================================================================
         #
@@ -342,7 +341,7 @@ class HXRGNoise:
             # Scale based on det_size_x
             scale1 = self.det_size_x / nx_pca0
             scale2 = self.det_size_y / ny_pca0
-            zoom_factor = np.max([scale1,  scale2])
+            zoom_factor = np.max([scale1, scale2])
 
         # Resize PCA0 data
         if zoom_factor != 1:
@@ -385,21 +384,20 @@ class HXRGNoise:
         self.ref_all = ref_all
 
     def message(self, message_text):
-        """
-        Used for status reporting
-        """
+        """Print a message to the terminal."""
         if self.verbose is True:
             print('NG: ' + message_text + ' at DATETIME = ',
                   datetime.datetime.now().time())
 
     def pink_noise(self, mode):
-        """
+        """TBW.
+
         Generate a vector of non-periodic pink noise.
 
         Parameters:
             mode - Selected from {'pink',  'acn'}
-        """
 
+        """
         # Configure depending on mode setting
         if mode is 'pink':
             nstep = 2*self.nstep
@@ -539,7 +537,8 @@ class HXRGNoise:
         # result = np.zeros((self.naxis3,  self.naxis2,  self.naxis1), dtype=np.float32)
 
     def add_ktc_bias_noise(self, ktc_noise=29., bias_offset=5000., bias_amp=500.):
-        """
+        """TBW.
+
         Inject a bias pattern and kTC noise.
         :param ktc_noise:
         :param bias_amp:
@@ -579,8 +578,10 @@ class HXRGNoise:
         return result
 
     def add_white_read_noise(self, rd_noise=5.2, reference_pixel_noise_ratio=0.8):
-        """
+        """TBW.
+
         Make white read noise. This is the same for all pixels.
+
         :param rd_noise:
         :param reference_pixel_noise_ratio:
         :return:
@@ -617,7 +618,8 @@ class HXRGNoise:
         return result
 
     def add_corr_pink_noise(self, c_pink=3.):
-        """
+        """TBW.
+
         Add correlated pink noise.
         :param c_pink:
         :return:
@@ -647,7 +649,8 @@ class HXRGNoise:
         return result
 
     def add_uncorr_pink_noise(self, u_pink=1.):
-        """
+        """TBW.
+
         Add uncorrelated pink noise. Because this pink noise is stationary and
         different for each output,  we don't need to flip it.
         :param u_pink:
@@ -668,7 +671,8 @@ class HXRGNoise:
         return result
 
     def add_acn_noise(self, acn=0.5):
-        """
+        """TBW.
+
         Add Alternating Column Noise (ACN)
         :param acn:
         :return:
@@ -710,8 +714,10 @@ class HXRGNoise:
         return result
 
     def add_pca_zero_noise(self, pca0_amp=0.2):
-        """
+        """TBW.
+
         Add PCA-zero. The PCA-zero template is modulated by 1/f.
+
         :param pca0_amp:
         :return:
         """
@@ -730,12 +736,13 @@ class HXRGNoise:
         return result
 
     def format_result(self, result):
-        """
+        """TBW.
+
         If the data cube has only 1 frame,  reformat into a 2-dimensional image.
+
         :param result:
         :return:
         """
-
         if self.naxis3 == 1:
             self.message('Reformatting cube into image')
             result = result[0, :, :]
@@ -757,7 +764,8 @@ class HXRGNoise:
         return result
 
     def create_hdu(self, result, o_file=None):
-        """
+        """TBW.
+
         Create HDU file and saving data to it
         :return:
         """

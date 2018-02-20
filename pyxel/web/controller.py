@@ -1,3 +1,5 @@
+"""TBW."""
+
 import yaml
 import functools
 import os
@@ -15,8 +17,13 @@ from pyxel.web import webapp
 
 
 class API:
+    """TBW."""
 
     def __init__(self, processor):
+        """TBW.
+
+        :param processor:
+        """
         self.processor = processor
         self.sequence = [
             {'key': '', 'values': [], 'enabled': False},
@@ -32,8 +39,7 @@ class API:
         signals.dispatcher.connect(sender='api', signal=signals.PROGRESS, callback=self.progress)
 
     def atts(self, entry):
-        """ Appends all the GUI properties into a key="value" string
-        that is inserted into the generated HTML template.
+        """Append all the GUI properties into a key="value" string that is inserted into the generated HTML template.
 
         This method is referenced in control.html template file.
         """
@@ -43,18 +49,21 @@ class API:
         return ' '.join(result)
 
     def items(self):
-        """ Retrieves the dictionary object model that is defined
-        in the gui.yaml configuration file.
+        """Retrieve the dictionary object model that is defined in the gui.yaml configuration file.
 
         This method is referenced in control.html template file.
         """
-
         with open('gui.yaml', 'r') as fd:
             cfg = yaml.load(fd)
 
         return cfg
 
     def _run_pipeline(self, output_file=None):
+        """TBW.
+
+        :param output_file:
+        :return:
+        """
         try:
             signals.progress('state', {'value': 'running', 'state': 1})
             result = self.processor.pipeline.run_pipeline(self.processor.detector)
@@ -90,9 +99,11 @@ class API:
         signals.progress('state', {'value': 'completed', 'state': 0})
 
     def run_pipeline(self, output_file=None):
+        """TBW."""
         threading.Thread(target=self.run_pipeline_sequence, args=[output_file]).start()
 
     def run_pipeline_sequence(self, output_file=None):
+        """TBW."""
         is_sequence_enabled = False
         for seq_index, sequence in enumerate(self.sequence):
             if sequence['enabled']:
@@ -110,6 +121,12 @@ class API:
             self._run_pipeline(output_file)
 
     def progress(self, idn: str, fields: dict):
+        """TBW.
+
+        :param idn:
+        :param fields:
+        :return:
+        """
         msg = {
             'type': 'progress',
             'id': idn,
@@ -118,6 +135,14 @@ class API:
         webapp.WebSocketHandler.announce(msg)
 
     def set_sequence(self, index, key, values, enabled):
+        """TBW.
+
+        :param index:
+        :param key:
+        :param values:
+        :param enabled:
+        :return:
+        """
         if values:
             if isinstance(values, str):
                 values = literal_eval(values)
@@ -131,6 +156,11 @@ class API:
         self.sequence[index]['enabled'] = enabled
 
     def get_setting(self, key):
+        """TBW.
+
+        :param key:
+        :return:
+        """
         obj_atts = key.split('.')
         att = obj_atts[-1]
         obj = self.processor
@@ -139,8 +169,6 @@ class API:
                 obj = obj.keywords
             else:
                 obj = getattr(obj, part)
-        if att == 'image':
-            att = '_image'
 
         if isinstance(obj, dict) and att in obj:
             value = obj[att]
@@ -159,6 +187,11 @@ class API:
         return value
 
     def _eval(self, value):
+        """TBW.
+
+        :param value:
+        :return:
+        """
         if isinstance(value, str):
             try:
                 literal_eval(value)
@@ -175,7 +208,12 @@ class API:
         return value
 
     def set_setting(self, key, value):
+        """TBW.
 
+        :param key:
+        :param value:
+        :return:
+        """
         if isinstance(value, list):
             for i, val in enumerate(value):
                 value[i] = self._eval(val)
@@ -190,16 +228,6 @@ class API:
                 obj = obj.keywords
             else:
                 obj = getattr(obj, part)
-
-        if att == 'photons':
-            setattr(obj, '_photon_mean', value)
-            setattr(obj, '_image', None)
-
-        elif att == 'image':
-            value = FitsFile(value)
-            setattr(obj, '_photon_mean', None)
-            setattr(obj, '_image', value.data)
-            return
 
         if isinstance(obj, dict) and att in obj:
             obj[att] = value

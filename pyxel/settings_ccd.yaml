@@ -3,11 +3,9 @@
 #  xx : pyxel.models.ccd_noise.CcdNoiseGenerator
 #  pipeline : pyxel.detectors.ccd.CcdTransferFunction
 
-process: !PROCESSOR
+ccd_process: !PROCESSOR
 
   detector: !CCD
-    photons: 100
-    image: null   # !from_file data/HorseHead_orig.fits
 
     geometry: !geometry
       row: 100                      # compulsory
@@ -31,16 +29,31 @@ process: !PROCESSOR
       qe: 0.5               # -
       eta: 1                # e/photon
       sv: 1.0e-6            # V/e
-      accd: 0.8             # V/V
+      amp: 0.8             # V/V
       a1: 100               # V/V
       a2: 65536             # DN/V
       fwc: 20000            # e
       fwc_serial: 30000     # e
 
   pipeline: !CCD_PIPELINE
+
+    photon_generation: !models
+      load_image: !model
+        name: pyxel.models.photon_generation.load_image
+        enabled: false
+        arguments:
+          image_file: null
+
+      photon_level: !model
+        name: pyxel.models.photon_generation.add_photon_level
+        enabled: true
+        arguments:
+          level: 100
+
     # -> photons
     optics: !models
-      shot_noise: !function
+      shot_noise: !model
+        enabled: true
         name: pyxel.models.ccd_noise.add_shot_noise
   #    ray_tracing: !class
   #      name: pyxel.models.ccd_noise.OpticsModelRayTracer
@@ -51,8 +64,10 @@ process: !PROCESSOR
 
     # -> charge
     charge_generation: !models
-      photoelectrons: pyxel.models.photoelectrons.simple_conversion
-      tars: !function
+      photoelectrons: !model
+        name: pyxel.models.photoelectrons.simple_conversion
+
+      tars: !model
         name: pyxel.models.tars.tars.run_tars
         arguments:
           initial_energy: 100.0   # MeV
@@ -77,13 +92,13 @@ process: !PROCESSOR
 #        name: pyxel.models.diffusion.diffusion
 ##        arguments:
 
-      full_well: !function
+      full_well: !model
         name: pyxel.models.full_well.simple_pixel_full_well
         arguments:
           fwc: 100       # e  # if defined use this, if not use the default parameter from characteristics
 
     # -> charge
-    charge_transfer: !models
+    charge_transfer:
 #      cdm: !function
 #        name: pyxel.models.cdm.CDM.cdm
 #        arguments:
@@ -97,7 +112,7 @@ process: !PROCESSOR
 #         serial_trap_file: pyxel/models/cdm/cdm_euclid_serial.dat
 
     # -> signal
-    charge_measurement: !models
+    charge_measurement:
 #      readout_noise: !function
 #        name: pyxel.models.ccd_noise.add_output_node_noise
 #        arguments:

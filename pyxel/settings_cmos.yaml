@@ -6,9 +6,6 @@
 process: !PROCESSOR
 
   detector: !CMOS
-    photons: null #10
-    image: !from_file data/HorseHead_orig.fits
-
     geometry: !geometry
       row: 150                      # compulsory
       col: 200                      # compulsory
@@ -40,6 +37,20 @@ process: !PROCESSOR
       fwc: 20000   # e
 
   pipeline: !CMOS_PIPELINE
+
+    photon_generation: !models
+      load_image: !model
+        name: pyxel.models.photon_generation.load_image
+        enabled: true
+        arguments:
+          image_file: data/HorseHead_orig.fits
+
+      photon_level: !model
+        name: pyxel.models.photon_generation.add_photon_level
+        enabled: false
+        arguments:
+          level: 100
+
     # -> photons
     optics: !models
 #      shot_noise: !function
@@ -47,10 +58,12 @@ process: !PROCESSOR
 
     # -> charge
     charge_generation: !models
-      photoelectrons: pyxel.models.photoelectrons.simple_conversion
-      tars: !function
+      photoelectrons: !model
+        name: pyxel.models.photoelectrons.simple_conversion
+
+      tars: !model
         name: pyxel.models.tars.tars.run_tars
-        kwargs:
+        arguments:
           initial_energy: 100.0   # MeV
           particle_number: 10
           incident_angles:      # rad
@@ -66,29 +79,29 @@ process: !PROCESSOR
     charge_collection: !models
 #      fixed_pattern_noise: !function
 #        name: pyxel.models.ccd_noise.add_fix_pattern_noise
-#        kwargs:
+#        arguments:
 #          pix_non_uniformity: !from_file data/non_uniformity_array_normal_stdev0.03.data
-      diffusion: !function
+      diffusion: !model
         name: pyxel.models.diffusion.diffusion
-#        kwargs:
-      full_well: !function
+#        arguments:
+      full_well: !model
         name: pyxel.models.full_well.simple_pixel_full_well
-        kwargs:
+        arguments:
           fwc: 100       # e (full well capacity)
 
     # -> signal
     charge_measurement: !models
 #      readout_noise: !function
 #        name: pyxel.models.ccd_noise.add_output_node_noise
-#        kwargs:
+#        arguments:
 #          std_deviation: 1.0
 
    # -> signal
     signal_transfer: !models
 
-      nghxrg_read: !function
+      nghxrg_read: !model
         name: pyxel.models.nghxrg.nghxrg.white_read_noise
-        kwargs:
+        arguments:
           rd_noise: 400.           # White read noise per integration
           ref_pixel_noise_ratio: 80.
           window_mode: WINDOW
@@ -97,9 +110,9 @@ process: !PROCESSOR
           wind_x_size: 200
           wind_y_size: 200
 
-      nghxrg_pca_zero: !function
+      nghxrg_pca_zero: !model
         name: pyxel.models.nghxrg.nghxrg.pca_zero_noise
-        kwargs:
+        arguments:
           pca0_amp: 450.           # Amplitude of PCA zero "picture frame" noise
           window_mode: WINDOW
           wind_x0: 300
@@ -107,9 +120,9 @@ process: !PROCESSOR
           wind_x_size: 200
           wind_y_size: 200
 
-      nghxrg_c_pink: !function
+      nghxrg_c_pink: !model
         name: pyxel.models.nghxrg.nghxrg.corr_pink_noise
-        kwargs:
+        arguments:
           c_pink: 300.             # Correlated pink noise
           window_mode: WINDOW
           wind_x0: 550
@@ -117,9 +130,9 @@ process: !PROCESSOR
           wind_x_size: 200
           wind_y_size: 200
 
-      nghxrg_u_pink: !function
+      nghxrg_u_pink: !model
         name: pyxel.models.nghxrg.nghxrg.uncorr_pink_noise
-        kwargs:
+        arguments:
           u_pink: 200.             # Uncorrelated pink noise
           window_mode: WINDOW
           wind_x0: 50
@@ -127,9 +140,9 @@ process: !PROCESSOR
           wind_x_size: 200
           wind_y_size: 200
 
-      nghxrg_acn: !function
+      nghxrg_acn: !model
         name: pyxel.models.nghxrg.nghxrg.acn_noise
-        kwargs:
+        arguments:
           acn: 500.                 # Correlated ACN
           window_mode: WINDOW
           wind_x0: 300
@@ -137,9 +150,9 @@ process: !PROCESSOR
           wind_x_size: 200
           wind_y_size: 200
 
-      nghxrg_ktc_bias: !function
+      nghxrg_ktc_bias: !model
         name: pyxel.models.nghxrg.nghxrg.ktc_bias_noise
-        kwargs:
+        arguments:
           ktc_noise: 500.
           bias_offset: 300.
           bias_amp: 400.

@@ -1,6 +1,7 @@
-"""
-PyXEL Web Server TODO
-=====================
+"""PyXEL Web Server.
+
+TODO
+====
 
 
 1. Add 'stop' running pipeline
