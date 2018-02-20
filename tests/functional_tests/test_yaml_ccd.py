@@ -10,9 +10,6 @@ def test_loader_with_extra_tags():
     """Test `PyxelLoader`"""
     data = """
 !CCD
-  photons: 10
-  image: null
-
   geometry: !geometry
    row: 1000
    col: 1001
@@ -79,9 +76,7 @@ def test_dumper():
               environment=Environment(temperature=3.14),
               characteristics=CCDCharacteristics(qe=3, eta=4,
                                                  sv=5, amp=6,
-                                                 a1=7, a2=8),
-              photons=10,
-              image=None)
+                                                 a1=7, a2=8))
 
     data = dump(obj)
 
@@ -111,6 +106,4 @@ geometry: !geometry
   pixel_vert_size: 4.0
   row: 1000
   total_thickness: 3.0
-image: null
-photons: null
 """

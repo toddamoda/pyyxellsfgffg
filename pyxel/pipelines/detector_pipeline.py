@@ -10,6 +10,7 @@ class DetectionPipeline:
     """TBW."""
 
     def __init__(self,
+                 photon_generation: Models,
                  optics: Models,
                  charge_generation: Models,
                  charge_collection: Models,
@@ -26,6 +27,7 @@ class DetectionPipeline:
         :param doc:
         """
         self.doc = doc
+        self.photon_generation = photon_generation
         self.optics = optics
         self.charge_generation = charge_generation
         self.charge_collection = charge_collection

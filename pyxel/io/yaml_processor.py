@@ -7,6 +7,7 @@ from pathlib import Path
 
 import numpy as np
 import yaml
+from astropy.io import fits
 
 import pyxel.pipelines.ccd_pipeline
 import pyxel.pipelines.cmos_pipeline
@@ -26,7 +27,6 @@ import pyxel.detectors.cmos_characteristics
 import pyxel.detectors.ccd_geometry
 import pyxel.detectors.cmos_geometry
 import pyxel.detectors.environment
-from pyxel.util import fitsfile
 from pyxel.util import util
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.environment import Environment
@@ -224,12 +224,7 @@ def _constructor_cmos(loader: PyxelLoader, node: yaml.MappingNode):
     else:
         characteristics = None
 
-    photons = mapping.get('photons', None)
-    image = mapping.get('image', None)
-
-    obj = CMOS(photons=photons,
-               image=image,
-               geometry=geometry,
+    obj = CMOS(geometry=geometry,
                environment=environment,
                characteristics=characteristics)
 
@@ -239,7 +234,7 @@ def _constructor_cmos(loader: PyxelLoader, node: yaml.MappingNode):
 def _constructor_from_file(loader: PyxelLoader, node: yaml.ScalarNode):
     filename = Path(loader.construct_scalar(node))
     if filename.suffix.lower().startswith('.fit'):
-        result = fitsfile.FitsFile(str(filename)).data
+        result = fits.getdata(str(filename))
     else:
         result = np.fromfile(str(filename), dtype=float, sep=' ')
     return result

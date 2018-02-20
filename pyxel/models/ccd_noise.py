@@ -8,9 +8,6 @@ from astropy import units as u
 from pyxel.detectors.detector import Detector
 from pyxel.detectors.geometry import Geometry  # noqa: F401
 
-# from pyxel.physics.photon import Photon
-# from . import Model
-
 
 def add_shot_noise(detector: Detector) -> Detector:
     """Add shot noise to number of photons.

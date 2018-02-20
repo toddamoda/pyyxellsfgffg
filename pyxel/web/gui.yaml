@@ -4,7 +4,7 @@ gui:
     label: Detector
     items:
       -
-        id: detector.photon_mean
+        id: pipeline.photon_generation.photon_level.arguments.level
         label: Photons
         entry:
           tag: input
@@ -14,7 +14,7 @@ gui:
           max: 100000
 
       -
-        id: detector.image_file
+        id: pipeline.photon_generation.load_image.arguments.image_file
         label: Image
         entry:
           tag: input

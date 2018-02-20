@@ -28,10 +28,11 @@ class CCDDetectionPipeline(DetectionPipeline):
         # self._steps_charge_measurement = ['output_node_noise']
         # self._steps_readout_electronics = []
 
-        self._model_groups = ['optics', 'charge_generation', 'charge_collection',
+        self._model_groups = ['photon_generation', 'optics', 'charge_generation', 'charge_collection',
                               'charge_transfer', 'charge_measurement', 'readout_electronics']
 
         self._model_steps = {
+            'photon_generation': ['load_image', 'photon_level'],
             'optics': ['shot_noise'],
             'charge_generation': ['photoelectrons', 'tars'],
             'charge_collection': ['fixed_pattern_noise'],
@@ -49,7 +50,8 @@ class CCDDetectionPipeline(DetectionPipeline):
         # INITIALIZATION (open or generate image):
         # START -> create photons ->
         detector.photons = Photon(detector)
-        detector.photons.generate_photons()
+        # detector.photons.generate_photons()
+        detector = self.run_model_group('photon_generation', detector)
 
         # OPTICS:
         # -> transport/modify photons ->

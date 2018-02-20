@@ -25,11 +25,12 @@ def test_pipeline_tars(input_filename, exp_filename):
     pipeline = processor.pipeline  # type: t.Union[CCDDetectionPipeline, CMOSDetectionPipeline]
 
     # Step 2: Run the pipeline
-    result = pipeline.run_pipeline(processor.detector)  # type: CCD
+    detector = pipeline.run_pipeline(processor.detector)  # type: CCD
     print('Pipeline completed.')
 
     expected = fits.getdata(exp_filename)
-    image = result.image  # type: np.ndarray
+    image = detector.image  # type: np.ndarray
 
+    # fits.writeto('tests/data/result.fits', image, None, output_verify='ignore', overwrite=True)
     assert isinstance(image, np.ndarray)
     np.testing.assert_array_equal(image, expected)

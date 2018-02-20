@@ -75,26 +75,7 @@ class Photon:
                                            'velocity_hor',
                                            'velocity_z'])
 
-    def generate_photons(self):
-        """TBW."""
-        photon_number_list = []
-        cht = self.detector.characteristics
-        geo = self.detector.geometry
-
-        if self.detector.image_file:
-            image = FitsFile(self.detector.image_file).data
-            geo.row, geo.col = image.shape
-            photon_number_list = image / (cht.qe * cht.eta * cht.sv * cht.amp * cht.a1 * cht.a2)
-            photon_number_list = np.rint(photon_number_list).astype(int).flatten()
-
-        elif self.detector.photon_mean > 0:
-            # uniform illumination
-            photon_number_list = np.ones(geo.row * geo.col, dtype=int) * self.detector.photon_mean
-
-        photon_energy_list = [0.] * geo.row * geo.col
-        self._generate_photons(photon_number_list, photon_energy_list)
-
-    def _generate_photons(self, photon_number_list, photon_energy_list):
+    def generate_photons(self, photon_number_list, photon_energy_list):
         """Create photons randomly distributed inside pixels with Photon class from photon_number_list.
 
         :param photon_number_list:
