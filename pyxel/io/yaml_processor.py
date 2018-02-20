@@ -32,6 +32,7 @@ from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.environment import Environment
 from pyxel.detectors.ccd_geometry import CCDGeometry
 from pyxel.detectors.cmos_geometry import CMOSGeometry
+from pyxel.pipelines.models import Model
 
 
 class PyxelLoader(yaml.SafeLoader):
@@ -251,16 +252,36 @@ def _constructor_models(loader: PyxelLoader, node: yaml.ScalarNode):
     return pyxel.pipelines.models.Models(mapping)
 
 
-def _constructor_function(loader: PyxelLoader, node: yaml.ScalarNode):
+def _constructor_function(loader: PyxelLoader, node: yaml.MappingNode):
     mapping = loader.construct_mapping(node)             # type: dict
 
     function_name = mapping['name']                      # type: str
+    enable = mapping.get('enable', None)
     args = mapping.get('args', {})
     kwargs = mapping.get('arguments', {})
 
     func = util.evaluate_reference(function_name)
 
-    return functools.partial(func, *args, **kwargs)
+    result = functools.partial(func, *args, **kwargs)
+    setattr(result, 'enable', enable)
+    return result
+
+
+def _model_constructor(loader: PyxelLoader, node: yaml.MappingNode):
+    mapping = loader.construct_mapping(node)             # type: dict
+    model = Model(**mapping)
+    return model
+
+
+def _model_representer(dumper: PyxelDumper, obj: Model):
+    """TBW.
+
+    :param dumper:
+    :param obj:
+    :return:
+    """
+    return dumper.represent_yaml_object('!model', data=obj, cls=None, flow_style=False)
+
 
 
 PyxelLoader.add_implicit_resolver('!expr', re.compile(r'^.*$'), None)
@@ -286,10 +307,13 @@ PyxelLoader.add_constructor('!CMOS_PIPELINE', _constructor_cmos_pipeline)
 PyxelLoader.add_constructor('!CCD', _ccd_constructor)
 PyxelDumper.add_representer(CCD, _ccd_representer)
 
+PyxelLoader.add_constructor('!model', _model_constructor)
+PyxelDumper.add_representer(Model, _model_representer)
+
 PyxelLoader.add_constructor('!CMOS', _constructor_cmos)
 
 PyxelLoader.add_constructor('!from_file', _constructor_from_file)
-PyxelLoader.add_constructor('!function', _constructor_function)
+# PyxelLoader.add_constructor('!function', _constructor_function)
 PyxelLoader.add_constructor('!models', _constructor_models)
 
 yaml.add_path_resolver('!geometry', path=['geometry'], kind=dict, Loader=PyxelLoader)

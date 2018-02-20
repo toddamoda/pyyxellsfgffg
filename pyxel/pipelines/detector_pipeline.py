@@ -1,9 +1,10 @@
 """TBW."""
-
+import logging
 import typing as t  # noqa: F401
 
 from pyxel.detectors.detector import Detector
 from pyxel.pipelines.models import Models
+from pyxel.pipelines.models import Model
 
 
 class DetectionPipeline:
@@ -36,6 +37,7 @@ class DetectionPipeline:
 
         self._model_groups = []  # type: t.List[str]
         self._model_steps = {}   # type: t.Dict[str, t.List[str]]
+        self._log = logging.getLogger(__name__)
 
     def run_model_group(self, name, detector):
         """TBW.
@@ -46,11 +48,24 @@ class DetectionPipeline:
         """
         if name in self._model_groups:
             steps = self._model_steps[name]
-            model = getattr(self, name)
+            models_obj = getattr(self, name)  # type: Models
             for step in steps:
-                func = model.models.get(step)
-                if func:
-                    detector = func(detector)
+                model = models_obj.models.get(step)  # type: Model
+                if isinstance(model, Model):
+                    if model.enabled:
+                        self._log.debug('Running %r', model.name)
+                        model.function(detector)
+                    else:
+                        self._log.debug('Skipping %r', model.name)
+
+                # if callable(func):
+                #     enabled = getattr(func, 'enable', None)
+                #     if enabled is None or enabled is True:
+                #         self._log.debug('Running %r', func.func.__name__)
+                #         detector = func(detector)
+                #     else:
+                #         self._log.debug('Skipping %r', func.func.__name__)
+
         return detector
 
     def run_pipeline(self, detector: Detector) -> Detector:

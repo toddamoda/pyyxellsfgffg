@@ -38,13 +38,13 @@ process: !PROCESSOR
   pipeline: !CCD_PIPELINE
 
     photon_generation: !models
-      load_image: !function
+      load_image: !model
         name: pyxel.models.photon_generation.load_image
         enabled: false
         arguments:
           image_file: null
 
-      photon_level: !function
+      photon_level: !model
         name: pyxel.models.photon_generation.add_photon_level
         enabled: true
         arguments:
@@ -52,7 +52,8 @@ process: !PROCESSOR
 
     # -> photons
     optics: !models
-      shot_noise: !function
+      shot_noise: !model
+        enabled: true
         name: pyxel.models.ccd_noise.add_shot_noise
   #    ray_tracing: !class
   #      name: pyxel.models.ccd_noise.OpticsModelRayTracer
@@ -63,8 +64,10 @@ process: !PROCESSOR
 
     # -> charge
     charge_generation: !models
-      photoelectrons: pyxel.models.photoelectrons.simple_conversion
-      tars: !function
+      photoelectrons: !model
+        name: pyxel.models.photoelectrons.simple_conversion
+
+      tars: !model
         name: pyxel.models.tars.tars.run_tars
         arguments:
           initial_energy: 100.0   # MeV
@@ -89,7 +92,7 @@ process: !PROCESSOR
 #        name: pyxel.models.diffusion.diffusion
 ##        arguments:
 
-      full_well: !function
+      full_well: !model
         name: pyxel.models.full_well.simple_pixel_full_well
         arguments:
           fwc: 100       # e  # if defined use this, if not use the default parameter from characteristics
