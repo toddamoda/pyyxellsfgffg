@@ -1,5 +1,4 @@
 """TBW."""
-import functools
 import inspect
 import re
 import typing as t
@@ -27,7 +26,6 @@ import pyxel.detectors.cmos_characteristics
 import pyxel.detectors.ccd_geometry
 import pyxel.detectors.cmos_geometry
 import pyxel.detectors.environment
-from pyxel.util import util
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.environment import Environment
 from pyxel.detectors.ccd_geometry import CCDGeometry
@@ -280,8 +278,6 @@ def _model_representer(dumper: PyxelDumper, obj: Model):
     """
     return dumper.represent_yaml_object('!model', data=obj, cls=None, flow_style=False)
 
-
-# PyxelLoader.add_implicit_resolver('!ccd_characteristics', ['process', 'ccd_detector', 'characteristics'], yaml.MappingNode)
 
 PyxelLoader.add_implicit_resolver('!expr', re.compile(r'^.*$'), None)
 PyxelLoader.add_constructor('!expr', _expr_processor)

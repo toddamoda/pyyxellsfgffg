@@ -3,8 +3,8 @@ import logging
 import typing as t  # noqa: F401
 
 from pyxel.detectors.detector import Detector
+from pyxel.pipelines.models import Model  # noqa: F401
 from pyxel.pipelines.models import Models
-from pyxel.pipelines.models import Model
 
 
 class DetectionPipeline:
