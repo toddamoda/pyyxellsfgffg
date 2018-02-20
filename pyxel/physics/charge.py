@@ -62,8 +62,10 @@ def random_direction(v_abs=1.0):    # TODO check random angles and direction
 
 
 class Charge:
-    """Charged particle class defining and storing information of all electrons and holes with their properties
-    like charge, position, velocity, energy."""
+    """Charged particle class defining and storing information of all electrons and holes.
+
+    Properties stored are: charge, position, velocity, energy.
+    """
 
     def __init__(self,
                  detector=None):

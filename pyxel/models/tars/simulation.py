@@ -70,17 +70,18 @@ class Simulation:
         self.step_length = step_length
 
     def set_let_distribution(self):
-        """Read/generate a Linear Energy Transport distribution from Geant4 data
-        for each new particle based on its initial energy (from input spectrum)
-        and track length inside the detector.
+        """Read/generate a Linear Energy Transport distribution from Geant4 data.
+
+        Execute this for each new particle based on its initial energy (from
+        input spectrum) and track length inside the detector.
 
         :return:
 
         .. warning:: EXPERIMENTAL - NOT FINSHED YET
         """
-        TARS_DIR = path.dirname(path.abspath(__file__))
-        # particle_let_file = TARS_DIR + '../data/inputs/let_proton_12GeV_100um_geant4.ascii'
-        particle_let_file = TARS_DIR + '/data/inputs/let_proton_1GeV_100um_geant4_HighResHist.ascii'
+        tars_dir = path.dirname(path.abspath(__file__))
+        # particle_let_file = tars_dir + '../data/inputs/let_proton_12GeV_100um_geant4.ascii'
+        particle_let_file = tars_dir + '/data/inputs/let_proton_1GeV_100um_geant4_HighResHist.ascii'
 
         let_histo = read_data(particle_let_file)  # counts in function of keV
 
@@ -106,8 +107,10 @@ class Simulation:
         # plt.show()
 
     def event_generation(self):
-        """Generation of an event on the CCD due to an incident particle taken according to the simulation configuration
-        file.
+        """Generate an event on the CCD.
+
+        The event occurs due to an incident particle taken according to the
+        simulation configuration file.
 
         :return:
         """

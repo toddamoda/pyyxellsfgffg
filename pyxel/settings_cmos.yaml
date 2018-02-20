@@ -6,9 +6,6 @@
 process: !PROCESSOR
 
   detector: !CMOS
-    photons: null #10
-    image: !from_file data/HorseHead_orig.fits
-
     geometry: !geometry
       row: 150                      # compulsory
       col: 200                      # compulsory
@@ -40,6 +37,20 @@ process: !PROCESSOR
       fwc: 20000   # e
 
   pipeline: !CMOS_PIPELINE
+
+    photon_generation: !models
+      load_image: !function
+        name: pyxel.models.photon_generation.load_image
+        enabled: true
+        arguments:
+          image_file: data/HorseHead_orig.fits
+
+      photon_level: !function
+        name: pyxel.models.photon_generation.add_photon_level
+        enabled: false
+        arguments:
+          level: 100
+
     # -> photons
     optics: !models
 #      shot_noise: !function

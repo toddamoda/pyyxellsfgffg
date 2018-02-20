@@ -3,8 +3,11 @@
 #       Hans Smit <Hans.Smit@esa.int>
 #       Frederic Lemmel <Frederic.Lemmel@esa.int>
 #   --------------------------------------------------------------------------
-"""The MaskedBox class provides a set of convenience methods on an ndarray that enable a frame
-sensor's image array to be sliced and masked."""
+"""A high performance numpy masked array implementation.
+
+The MaskedBox class provides a set of convenience methods on an ndarray that
+enable a frame sensor's image array to be sliced and masked.
+"""
 
 import numpy as np
 
@@ -281,7 +284,10 @@ class MaskedBox(object):
         self._mask *= self.get_threshold_mask_n_sigma(n_sigma, reference, noise, in_range, axis)
 
     def sum(self, axis=None, dtype=None, out=None, keepdims=0):
-        """Convenience method to sum all pixels on the masked image array but leaving out the masked (NaN) pixels values.
+        """Sum all pixels for the given axis.
+
+        This convenience method sum's all pixels on the masked image array but leaves
+        out the masked (NaN) pixels values.
 
         :param int axis: 0 is the y axis, 1 is the x-axis, None is both axis
         :param type dtype:

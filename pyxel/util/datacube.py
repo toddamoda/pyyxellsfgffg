@@ -3,7 +3,6 @@
 #       Hans Smit <Hans.Smit@esa.int>
 #       Frederic Lemmel <Frederic.Lemmel@esa.int>
 #   --------------------------------------------------------------------------
-
 """Implementation of a Datacube."""
 
 import logging
@@ -39,7 +38,7 @@ class DataCubeItems(object):
         self._attribute = attribute
 
     def __len__(self):
-        """Number of elements in the Datacube.
+        """Return the number of elements in the Datacube.
 
         ..Example::
 
@@ -55,7 +54,7 @@ class DataCubeItems(object):
         return self._instance.size
 
     def __iter__(self):
-        """Returns an iterator.
+        """Return a image iterator.
 
         :return: the iterator for the specified attribute
         :rtype: collections.Iterator
@@ -175,11 +174,11 @@ class DataCubeItems(object):
 class MetaDataCube(object):
     """Generic implementation of a Datacube.
 
-     A Datacube is a one-(or higher) dimensional array of elements.
+    A Datacube is a one-(or higher) dimensional array of elements.
 
-     The Datacube is initialized with an array of parameters ('params') and a data type ('dtype')
-     The data type is used to instanciate the element(s)
-     """
+    The Datacube is initialized with an array of parameters ('params') and a data type ('dtype')
+    The data type is used to instanciate the element(s)
+    """
 
     def __init__(self, params, dtype, params_dtype=None, cache_capacity=1, readonly=False):
         """Create a new DataCube.
@@ -291,7 +290,7 @@ class MetaDataCube(object):
 
     @property
     def dtype(self):
-        """Data type of the items.
+        """Get the data type of the items.
 
         :return:
         :rtype: type
@@ -309,7 +308,7 @@ class MetaDataCube(object):
 
     @property
     def params(self):
-        """Returns a list of all parameters.
+        """Get the list of all parameters.
 
         :return: Copy of the parameters
         :rtype: list
@@ -321,7 +320,7 @@ class MetaDataCube(object):
         return self._params_array.tolist()
 
     def ndindex(self):
-        """Returns a N-dimensional iterator object to index arrays.
+        """Get a N-dimensional iterator object to index arrays.
 
         :return: the iterator
         :rtype: collections.Iterator

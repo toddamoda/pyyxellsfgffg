@@ -37,8 +37,10 @@ def convert_to_int(input_array: np.ndarray):
 
 
 class Pixel:
-    """Pixel class defining and storing information of charge packets of all pixels with their properties
-    like stored charge, position, lost charge."""
+    """Pixel class defining and storing information of charge packets.
+
+    Pixel properties stored are: charge, position, lost charge.
+    """
 
     def __init__(self,
                  detector):

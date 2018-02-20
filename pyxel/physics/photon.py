@@ -10,8 +10,6 @@ import pandas as pd
 # from astropy import units as u
 from astropy.units import cds
 
-from pyxel.util.fitsfile import FitsFile
-
 cds.enable()
 
 

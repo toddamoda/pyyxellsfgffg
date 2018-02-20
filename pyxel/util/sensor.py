@@ -327,7 +327,7 @@ class SensorFrame(object):
         self._channel_class = channel_config_type
 
     def load(self, fits_file=None):
-        """This forces the data and header to be loaded in one-go.
+        """Force the data and header to be loaded into memory.
 
         :param str fits_file: optionally load a different file
         """
@@ -417,7 +417,7 @@ class SensorFrame(object):
         return ch_image
 
     def box(self, channel, rect):
-        """Factory method to construct a new channel masked slice of the image.
+        """Construct a new channel masked slice of the image using this factory method.
 
         :return: 2d ndarray
         :rtype: MaskedBox

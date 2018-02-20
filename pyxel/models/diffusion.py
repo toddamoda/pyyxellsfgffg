@@ -105,8 +105,9 @@ class Diffusion:
 
     # DIFFUSION
     def hiraga_diffusion_model(self, cluster):
-        """Spread the particle into the material and compute the density and size of the electronic cloud generated
-        at each step.
+        """Spread the particle into the material.
+
+        Compute the density and size of the electronic cloud generated at each step.
         """
         pass
         # eps_rel = 11.8                       # TODO: implement this in CCDDetector class
@@ -141,7 +142,9 @@ class Diffusion:
 
     # ELECTRON COLLECTION
     def gaussian_pixel_separation(self, cluster, sig_ac, sig_al):
-        """Compute the charge collection function to determine the number of electron collected by each pixel based on the
+        """Compute the charge collection function.
+
+        Determine the number of electron collected by each pixel based on the
         generated electronic cloud shape.
 
         :param cluster:

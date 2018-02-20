@@ -36,7 +36,7 @@ def run_web_server(input_filename, port=8888):
 
 
 def main():
-    """Main entry point."""
+    """TBW."""
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter,
                                      description=__doc__)
 

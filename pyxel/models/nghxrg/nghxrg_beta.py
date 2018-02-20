@@ -103,6 +103,7 @@ def white_noise(nstep=None):
 
     Parameters:
         nstep - Length of vector returned
+
     """
     return np.random.standard_normal(nstep)
 
@@ -159,6 +160,7 @@ class HXRGNoise:
                                      setting =False corresponds to
                                      what HxRG detectors default to
                                      upon power up.
+
         :param det_size_x:
         :param det_size_y:
         :param cube_z:
@@ -174,6 +176,7 @@ class HXRGNoise:
         :param wind_x0:
         :param wind_y0:
         :param verbose:
+
         """
         # ======================================================================
         #
@@ -381,7 +384,7 @@ class HXRGNoise:
         self.ref_all = ref_all
 
     def message(self, message_text):
-        """Used for status reporting."""
+        """Print a message to the terminal."""
         if self.verbose is True:
             print('NG: ' + message_text + ' at DATETIME = ',
                   datetime.datetime.now().time())
@@ -393,6 +396,7 @@ class HXRGNoise:
 
         Parameters:
             mode - Selected from {'pink',  'acn'}
+
         """
         # Configure depending on mode setting
         if mode is 'pink':
