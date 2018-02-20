@@ -21,7 +21,7 @@ def run_web_server(input_filename, port=8888):
     """
     config_path = Path(__file__).parent.parent.joinpath(input_filename)
     cfg = pyxel.load_config(config_path)
-    processor = cfg['process']
+    processor = cfg['ccd_process']
 
     controller = API(processor)
 

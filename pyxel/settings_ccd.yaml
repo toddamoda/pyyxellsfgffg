@@ -3,7 +3,7 @@
 #  xx : pyxel.models.ccd_noise.CcdNoiseGenerator
 #  pipeline : pyxel.detectors.ccd.CcdTransferFunction
 
-process: !PROCESSOR
+ccd_process: !PROCESSOR
 
   detector: !CCD
 
@@ -98,7 +98,7 @@ process: !PROCESSOR
           fwc: 100       # e  # if defined use this, if not use the default parameter from characteristics
 
     # -> charge
-    charge_transfer: !models
+    charge_transfer:
 #      cdm: !function
 #        name: pyxel.models.cdm.CDM.cdm
 #        arguments:
@@ -112,7 +112,7 @@ process: !PROCESSOR
 #         serial_trap_file: pyxel/models/cdm/cdm_euclid_serial.dat
 
     # -> signal
-    charge_measurement: !models
+    charge_measurement:
 #      readout_noise: !function
 #        name: pyxel.models.ccd_noise.add_output_node_noise
 #        arguments:

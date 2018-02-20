@@ -49,23 +49,15 @@ class DetectionPipeline:
         if name in self._model_groups:
             steps = self._model_steps[name]
             models_obj = getattr(self, name)  # type: Models
-            for step in steps:
-                model = models_obj.models.get(step)  # type: Model
-                if isinstance(model, Model):
-                    if model.enabled:
-                        self._log.debug('Running %r', model.name)
-                        model.function(detector)
-                    else:
-                        self._log.debug('Skipping %r', model.name)
-
-                # if callable(func):
-                #     enabled = getattr(func, 'enable', None)
-                #     if enabled is None or enabled is True:
-                #         self._log.debug('Running %r', func.func.__name__)
-                #         detector = func(detector)
-                #     else:
-                #         self._log.debug('Skipping %r', func.func.__name__)
-
+            if models_obj:
+                for step in steps:
+                    if step in models_obj.models:
+                        model = models_obj.models[step]  # type: Model
+                        if model.enabled:
+                            self._log.debug('Running %r', model.name)
+                            model.function(detector)
+                        else:
+                            self._log.debug('Skipping %r', model.name)
         return detector
 
     def run_pipeline(self, detector: Detector) -> Detector:
