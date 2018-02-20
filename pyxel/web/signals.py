@@ -1,3 +1,5 @@
+"""TBW."""
+
 # import typing as t
 
 from esapy_dispatcher import DispatcherBlocking
@@ -18,14 +20,27 @@ SET_SEQUENCE = 'SET-SEQUENCE'
 
 
 class DispatcherBlockingAutoRemoveDeadEndPoints(DispatcherBlocking):
-    """ TODO: integrate this into esapy_dispatcher """
+    """TODO: integrate this into esapy_dispatcher."""
 
     def _find_endpoints(self, sender='', signal=''):
+        """TBW.
+
+        :param sender:
+        :param signal:
+        :return:
+        """
         endpoints = super()._find_endpoints(sender=sender, signal=signal)
         self._remove_dead_endpoints(endpoints, sender, signal)
         return super()._find_endpoints(sender=sender, signal=signal)
 
     def _remove_dead_endpoints(self, endpoints, sender='', signal=''):
+        """TBW.
+
+        :param endpoints:
+        :param sender:
+        :param signal:
+        :return:
+        """
         # automatically remove and dead end points
         if not endpoints:
             return
@@ -50,7 +65,7 @@ progress = dispatcher.emit(sender='api', signal=PROGRESS)
 
 
 class SequencerState:
-    """ The state of the sequencer. """
+    """The state of the sequencer."""
 
     error = -1
     idle = 0
@@ -61,6 +76,11 @@ class SequencerState:
 
     @staticmethod
     def to_string(state):
+        """TBW.
+
+        :param state:
+        :return:
+        """
         state_map = {
             SequencerState.error: 'error',
             SequencerState.idle: 'idle',

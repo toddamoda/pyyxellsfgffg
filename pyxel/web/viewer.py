@@ -6,15 +6,15 @@ import time
 
 
 class ViewerException(Exception):
-    """ Base class for all exceptions raised in the :module:`viewer.py` module."""
+    """Base class for all exceptions raised in the :module:`viewer.py` module."""
 
 
 class DS9Exception(ViewerException):
-    """ Base class for all exceptions raised in the :class:`DS9` class."""
+    """Base class for all exceptions raised in the :class:`DS9` class."""
 
 
 class DS9(object):
-    """ This class remotely controls a DS9 application remotely using the XPA interface.
+    """This class remotely controls a DS9 application remotely using the XPA interface.
 
     On Debian based machines you need to install the proper tools,
 
@@ -25,6 +25,10 @@ class DS9(object):
     """
 
     def __init__(self, ds9_exe='/usr/bin/ds9'):
+        """TBW.
+
+        :param ds9_exe:
+        """
         self._ds9_exe = os.path.abspath(ds9_exe)
         self._ds9_dir = os.path.dirname(self._ds9_exe)
 
@@ -33,8 +37,7 @@ class DS9(object):
         self._xpaset_exe = os.path.join(self._ds9_dir, 'xpaset')
 
     def is_ready(self):
-        """ Check if the ds9 application is listening.
-        """
+        """Check if the ds9 application is listening."""
         try:
             self.xpaget()
             return True
@@ -42,8 +45,7 @@ class DS9(object):
             return False
 
     def start(self):
-        """ Check if the ds9 application is listening, if not, then start it up.
-        """
+        """Check if the ds9 application is listening, if not, then start it up."""
         if not self.is_ready():
             # os.system('start %s %s %s' % (self._ds9_exe, '-xpa', 'localhost'))
             detached_process = 0x00000008
@@ -62,8 +64,7 @@ class DS9(object):
             raise DS9Exception('Failed to start DS9 in XPA communication mode')
 
     def xpaset(self, cmd, arg, stdin_input=None):
-        """ Executes a XPA set command.
-        """
+        """Execute a XPA set command."""
         if stdin_input is None:
             args = [self._xpaset_exe, '-p', 'ds9']
         else:
@@ -87,8 +88,7 @@ class DS9(object):
             raise DS9Exception(stdout_stderr[0])
 
     def xpaget(self, cmd=None, arg=None):
-        """ Executes a XPA get command.
-        """
+        """Execute a XPA get command."""
         args = [self._xpaget_exe, 'ds9']
 
         if cmd:
@@ -111,8 +111,7 @@ class DS9(object):
         return stdout
 
     def view_fits(self, file_path, new_frame=False):
-        """ View a fits file in the running ds9 application.
-        """
+        """View a fits file in the running ds9 application."""
         if new_frame:
             self.xpaset('frame', 'new')
 

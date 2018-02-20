@@ -1,8 +1,7 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2017 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-""" PyXel! Charge diffusion and collection model extracted from TARS
-"""
+"""PyXel! Charge diffusion and collection model extracted from TARS."""
 
 import copy
 from math import sqrt, log
@@ -19,7 +18,6 @@ cds.enable()
 
 def diffusion(detector: CCD) -> CCD:
     """TBD."""
-
     new_detector = copy.deepcopy(detector)
 
     # diff = Diffusion(new_detector)
@@ -48,8 +46,8 @@ class Diffusion:
 
     def __init__(self, detector):
         """TBW.
-        
-        :param detector: 
+
+        :param detector:
         """
         self.detector = detector
 
@@ -59,7 +57,6 @@ class Diffusion:
     # DIFFUSION
     def janesick_diffusion_model(self, cluster):
         """TBW."""
-
         # Initial cloud diameter:
         c_init = 0.0171 * (cluster.energy.value ** 1.75)
 
@@ -151,7 +148,6 @@ class Diffusion:
         :param float sig_ac: diameter of the resulting electronic cloud in the AC (across scan, vertical) dimension
         :param float sig_al: diameter of the resulting electronic cloud in the AL (along scan, horizontal) dimension
         """
-
         self.pcmap_last[:, :] = 0
         px = []
         py = []

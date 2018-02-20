@@ -3,9 +3,8 @@
 #       Hans Smit <Hans.Smit@esa.int>
 #       Frederic Lemmel <Frederic.Lemmel@esa.int>
 #   --------------------------------------------------------------------------
-""" The MaskedBox class provides a set of convenience methods on an ndarray that enable a frame
-sensor's image array to be sliced and masked.
-"""
+"""The MaskedBox class provides a set of convenience methods on an ndarray that enable a frame
+sensor's image array to be sliced and masked."""
 
 import numpy as np
 
@@ -75,13 +74,14 @@ from . import util
 
 
 class MaskedBox(object):
-    """ This class overrides statistical numpy operations
-    to handle image masks. When calculating the statistical operation
-    only the masked pixel locations are taken into account.
+    """This class overrides statistical numpy operations to handle image masks.
+
+    When calculating the statistical operation only the masked pixel locations are taken into account.
     """
 
     def __init__(self, data, slice_rect=None):
-        """
+        """TBW.
+
         :param ndarray data: channel frame image
         :param tuple slice_rect: (slice(y0, y1), slice(x0, x1))
         :raises TypeError: if the data argument is not a ndarray.
@@ -107,12 +107,12 @@ class MaskedBox(object):
         self._mask = np.ones(self._data.shape).astype(bool)
 
     def reset(self):
-        """ Reset the mask of this instance to no masking of pixels. """
+        """Reset the mask of this instance to no masking of pixels."""
         self._mask = np.ones(self._data.shape).astype(bool)
 
     @staticmethod
     def create_nan_mask(shape, mask_slices, bin_slices=1):
-        """
+        """TBW.
 
         :param tuple shape:
         :param list mask_slices:
@@ -135,7 +135,8 @@ class MaskedBox(object):
 
     @staticmethod
     def to_nan_mask(mask):
-        """
+        """TBW.
+
         :param ndarray mask:
         :return: new NaN float ndarray
         :rtype: ndarray
@@ -146,7 +147,7 @@ class MaskedBox(object):
 
     @property
     def shape(self):
-        """ Retrieve the sliced shape of the image array.
+        """Retrieve the sliced shape of the image array.
 
         :return: the 2d tuple, i.e. (height, width)
         :rtype: tuple
@@ -155,8 +156,9 @@ class MaskedBox(object):
 
     @property
     def masked(self):
-        """ Apply the mask transformation to the image data. The
-        locations that are to be masked out will contain a NaN value.
+        """Apply the mask transformation to the image data.
+
+        The locations that are to be masked out will contain a NaN value.
 
         :return: the masked image data. The masked locations that
             are 0 or False will be set to NaN in the returned image.
@@ -168,7 +170,7 @@ class MaskedBox(object):
 
     @property
     def mask(self):
-        """ Retrieve the mask for this object.
+        """Retrieve the mask for this object.
 
         :return: the boolean 2d masked array.
         :rtype: ndarray
@@ -177,21 +179,22 @@ class MaskedBox(object):
 
     @mask.setter
     def mask(self, new_mask):
-        """ Set a new mask for this object. The new_mask argument
-        will be converted to a boolean ndarray, meaning, all 0's will
-        be converted to False, and any other values to True.
+        """Set a new mask for this object.
+
+        The new_mask argument will be converted to a boolean ndarray, meaning,
+        all 0's will be converted to False, and any other values to True.
 
         :param ndarray new_mask: the 2d ndarray.
         """
         # test if the new_mask is already a NaN array, if so, convert
-        # the NaN to zeros
+        # the NaN to zeros1
         if np.isnan(new_mask).any():
             new_mask = np.nan_to_num(new_mask)
         self._mask = new_mask.astype(bool)
 
     @property
     def data(self):
-        """ Retrieve the image array.
+        """Retrieve the image array.
 
         :return: the float typed image array as a sliced rectangle
             of the sensor frame.
@@ -201,7 +204,7 @@ class MaskedBox(object):
 
     @data.setter
     def data(self, new_data):
-        """ Set a new data array. It must be the same size and same type.
+        """Set a new data array. It must be the same size and same type.
 
         :param ndarray new_data:
         """
@@ -217,7 +220,8 @@ class MaskedBox(object):
         self._data = new_data
 
     def get_threshold_mask(self, lo_val, hi_val, in_range=True):
-        """
+        """TBW.
+
         :param float hi_val:
         :param float lo_val:
         :param bool in_range:
@@ -233,7 +237,8 @@ class MaskedBox(object):
         return new_mask
 
     def apply_threshold_mask(self, lo_val, hi_val, in_range=True):
-        """
+        """TBW.
+
         :param float hi_val:
         :param float lo_val:
         :param bool in_range:
@@ -242,7 +247,8 @@ class MaskedBox(object):
 
     def get_threshold_mask_n_sigma(self, n_sigma=1, reference=None, noise=None, in_range=True,
                                    axis=None):
-        """
+        """TBW.
+
         :param int n_sigma:
         :param float reference:
         :param float noise:
@@ -264,7 +270,7 @@ class MaskedBox(object):
 
     def apply_threshold_mask_n_sigma(self, n_sigma=1, reference=None, noise=None, in_range=True,
                                      axis=None):
-        """ Create a new mask based on threshold parameters.
+        """Create a new mask based on threshold parameters.
 
         :param int n_sigma:
         :param float reference:
@@ -275,8 +281,7 @@ class MaskedBox(object):
         self._mask *= self.get_threshold_mask_n_sigma(n_sigma, reference, noise, in_range, axis)
 
     def sum(self, axis=None, dtype=None, out=None, keepdims=0):
-        """ Convenience method to sum all pixels on the masked image array but leaving
-        out the masked (NaN) pixels values.
+        """Convenience method to sum all pixels on the masked image array but leaving out the masked (NaN) pixels values.
 
         :param int axis: 0 is the y axis, 1 is the x-axis, None is both axis
         :param type dtype:
@@ -290,8 +295,7 @@ class MaskedBox(object):
         return np.nansum(mask_data, axis, dtype, out, keepdims)
 
     def mean(self, axis=None, dtype=None, out=None, keepdims=False):
-        """ Calculate the masked mean for this box'ed region on the
-        sensor.
+        """Calculate the masked mean for this box'ed region on the sensor.
 
         :return: the mean (average) value
         :rtype: float
@@ -303,8 +307,7 @@ class MaskedBox(object):
         return result
 
     def std(self, axis=None, dtype=None, out=None, ddof=0, keepdims=False):
-        """ Calculate the masked standard deviation for this box'ed region
-        on the sensor.
+        """Calculate the masked standard deviation for this box'ed region on the sensor.
 
         :param int axis: Axis or axes along which the standard deviation is computed.
             The default is to compute the standard deviation of the flattened array.
@@ -331,8 +334,7 @@ class MaskedBox(object):
         return result
 
     def median(self):
-        """ Calculate the masked median for this box'ed region on the
-        sensor.
+        """Calculate the masked median for this box'ed region on the sensor.
 
         :return: the median value
         :rtype: float
@@ -344,8 +346,9 @@ class MaskedBox(object):
         return result
 
     def flatten(self, replace_nan_with=None, order='C'):
-        """ Convert 2d to 1d array according to specify order and if remove_nan strip out the
-        masked locations. This can then be used to do analysis with. Example, mean and std.
+        """Convert 2d to 1d array according to specify order and if remove_nan strip out the masked locations.
+
+        This can then be used to do analysis with. Example, mean and std.
 
         :param float replace_nan_with: if set to None then the NaN's encountered are removed, else
             the NaN's are replaced with the float value specified.

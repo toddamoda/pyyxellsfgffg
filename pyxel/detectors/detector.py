@@ -110,19 +110,30 @@ class Detector:
 
     @property
     def photon_mean(self):
+        """TBW.
+
+        :return:
+        """
         return self._photon_mean
 
     @photon_mean.setter
     def photon_mean(self, new_photon_mean):
+        """TBW.
+
+        :param new_photon_mean:
+        :return:
+        """
         self._photon_mean = new_photon_mean
         self._image_file = None
 
     @property
     def image_file(self):
+        """TBW."""
         return self._image_file
 
     @image_file.setter
     def image_file(self, new_image_file):
+        """TBW."""
         self._image_file = new_image_file
         self._photon_mean = None
 

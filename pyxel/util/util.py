@@ -4,7 +4,7 @@
 #       Hans Smit <Hans.Smit@esa.int>
 #       Frederic Lemmel <Frederic.Lemmel@esa.int>
 #   --------------------------------------------------------------------------
-""" Utility routines for the analysis sub-package. """
+"""Utility routines for the analysis sub-package."""
 import importlib
 import inspect
 
@@ -13,8 +13,8 @@ import pandas as pd
 
 
 def convert_to_int(value):
-    """
-    Convert any type of numbers to integers
+    """Convert any type of numbers to integers.
+
     :param value:
     :type value: ndarray
     :return value:
@@ -26,17 +26,20 @@ def convert_to_int(value):
 
 
 def convert_date_to_string(date):
-    """ Convert a string into a `Timestamp` object
-    example: convert_date_to_string('2017-07-05T01_39_01.778000')
-    Timestamp('2017-07-05 01:39:01.778000')
+    """Convert a string into a `Timestamp` object.
+
+    .. example::
+
+        >>> convert_date_to_string('2017-07-05T01_39_01.778000')
+        Timestamp('2017-07-05 01:39:01.778000')
     """
     return pd.to_datetime(date.replace('_', ':'))
 
 
 def rect_to_slice(rect):
-    """ Convert a 4-tuple (x0, y0, x1, y1) region of interest to
-    a 2-tuple y-x slices. Expected rect format is either
-    a 4-d tuple/list of integers or a 2-d tuple/list of slices.
+    """Convert a 4-tuple (x0, y0, x1, y1) region of interest to a 2-tuple y-x slices.
+
+    Expected rect format is either a 4-d tuple/list of integers or a 2-d tuple/list of slices.
     """
     if not isinstance(rect, (list, tuple)):
         raise TypeError('rect: Expected tuple or list, got: %s' % repr(rect))
@@ -53,7 +56,7 @@ def rect_to_slice(rect):
 
 
 def get_binned_slice(y_x_slice, binned_rows):
-    """
+    """TBW.
 
     :param tuple y_x_slice:
     :param int binned_rows:
@@ -62,7 +65,6 @@ def get_binned_slice(y_x_slice, binned_rows):
     :raises ZeroDivisionError: if binned_rows is less than or equal to 0.
     :raises TypeError: if the y_x_slice is not a 2d tuple or list
     """
-
     if binned_rows <= 0:
         raise ValueError('binned_rows must be greater than 0. Got: %s' % repr(binned_rows))
 
@@ -92,11 +94,9 @@ def get_binned_slice(y_x_slice, binned_rows):
 
 
 def get_missing_arguments(func, func_kwargs):
-    """ Test whether or not the function keyword arguments are
-    all specified before calling the specified function.
+    """Test whether or not the function keyword arguments are all specified before calling the specified function.
 
-    WARNING: this uses `inspect` which may be a performance hit if called
-    excessively.
+    WARNING: this uses `inspect` which may be a performance hit if called excessively.
 
     :param callable func:
     :param dict func_kwargs: the dictionary to be passed to the func specified.
@@ -118,7 +118,7 @@ def get_missing_arguments(func, func_kwargs):
 
 
 def evaluate_reference(reference_str):
-    """ Evaluate a module's class, function, or constant.
+    """Evaluate a module's class, function, or constant.
 
     :param str reference_str: the python expression to
         evaluate or retrieve the module attribute reference to.

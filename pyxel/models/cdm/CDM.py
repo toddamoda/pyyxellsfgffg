@@ -1,4 +1,5 @@
-"""
+"""TBW.
+
 Charge Transfer Inefficiency
 ============================
 
@@ -71,7 +72,6 @@ def cdm(detector: CCD,
     fwc: Full Well Capacity in electrons (parallel)
     sfwc: Full Well Capacity in electrons (serial)
     """
-
     # new_detector = copy.deepcopy(detector)
     new_detector = detector  # type: CCD
     chr = new_detector.characteristics  # type: CCDCharacteristics
@@ -253,7 +253,9 @@ class CDM03Python:
     #     return out
 
     def apply_cti(self, data, iquadrant=0):
-        """Apply radian damage based on FORTRAN CDM03 model. The method assumes that
+        """Apply radian damage based on FORTRAN CDM03 model.
+
+        The method assumes that
         input data covers only a single quadrant defined by the iquadrant integer.
 
         :param data: imaging data to which the CDM03 model will be applied to.
@@ -288,8 +290,7 @@ class CDM03Python:
 
         :return: image that has been run through the CDM03 model
         :rtype: ndarray
-        """""
-
+        """
         # iflip = iquadrant % 2
         # jflip = iquadrant % 2
 
@@ -300,7 +301,7 @@ class CDM03Python:
     @numba.jit
     def _run_cdm_(self,
                   image=None):
-        """Electron trapping in imaging mode (non-TDI)
+        """Electron trapping in imaging mode (non-TDI).
 
         :param image:
         :return:
