@@ -12,17 +12,42 @@ import numpy as np
 import pandas as pd
 
 
-def convert_to_int(value):
-    """Convert any type of numbers to integers.
+def round_convert_to_int(input_array: np.ndarray):
+    """Round list of floats in numpy array and convert to integers.
 
-    :param value:
-    :type value: ndarray
-    :return value:
-    :rtype: int ndarray
+    Use on data before adding into DataFrame.
+
+    :param input_array: numpy array object OR numpy array (float, int)
+    :return:
     """
-    int_value = np.rint(value)
-    int_value = int_value.astype(int)
-    return int_value
+    array = input_array.astype(float)
+    array = np.rint(array)
+    array = array.astype(int)
+    return array
+
+
+def convert_to_int(input_array: np.ndarray):
+    """Convert numpy array to integer.
+
+    Use on data after getting it from DataFrame.
+
+    :param input_array: numpy array object OR numpy array (float, int)
+    :return:
+    """
+    return input_array.astype(int)
+
+
+# def convert_to_int(value):
+#     """Convert any type of numbers to integers.
+#
+#     :param value:
+#     :type value: ndarray
+#     :return value:
+#     :rtype: int ndarray
+#     """
+#     int_value = np.rint(value)
+#     int_value = int_value.astype(int)
+#     return int_value
 
 
 def convert_date_to_string(date):

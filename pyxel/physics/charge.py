@@ -10,6 +10,8 @@ import pandas as pd
 # from astropy import units as u
 from astropy.units import cds
 
+from pyxel.util.util import round_convert_to_int    # , convert_to_int
+
 cds.enable()
 
 
@@ -132,6 +134,9 @@ class Charge:
 
         # if all(init_ver_velocity) == 0 and all(init_hor_velocity) == 0 and all(init_z_velocity) == 0:
         #     random_direction(1.0)
+
+        # Rounding and converting to integer
+        charge = round_convert_to_int(particles_per_cluster)
 
         # dict
         new_charge = {'id': range(self.nextid, self.nextid + elements),
