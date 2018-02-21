@@ -1,17 +1,9 @@
-#processor:
-#  runner: pyxel_alpha.simulate_ccd
-#  xx : pyxel.models.ccd_noise.CcdNoiseGenerator
-#  pipeline : pyxel.detectors.ccd.CcdTransferFunction
-
-#[pipeline_options]
-#shot_noise: True
-#fix_pattern_noise: True
-#readout_noise: True
+# PyXel! settings
 
 ccd_process: !PROCESSOR
   detector: !CCD
 
-    geometry: !geometry
+    geometry: !ccd_geometry
       row: 100                      # compulsory
       col: 100                      # compulsory
       depletion_thickness: 10.0     # um
@@ -51,24 +43,10 @@ ccd_process: !PROCESSOR
     optics: !models
       shot_noise: !model
         name: pyxel.models.ccd_noise.add_shot_noise
-  #    ray_tracing: !class
-  #      name: pyxel.models.ccd_noise.OpticsModelRayTracer
-  #      args:
-  #        path: null
-  #    shot_noise: true
-  #    fixed_pattern_noise: false
-  #    ray_tracing: true
-  #    diffraction: false
-  #    other_model: false
-
-    # photons -> compute_charge -> charge
 
     # -> charge
     charge_generation: !models
-#      fixed_pattern_noise: !function
-#        name: pyxel.models.ccd_noise.add_fix_pattern_noise
-#        kwargs:
-#          pix_non_uniformity: !from_file data/non_uniformity_array_normal_stdev0.03.data
+
       photoelectrons: !model
         name: pyxel.models.photoelectrons.simple_conversion
 
@@ -99,5 +77,5 @@ ccd_process: !PROCESSOR
         arguments:
           std_deviation: 1.0
 
-    # -> signal
+    # -> image
     readout_electronics: !models

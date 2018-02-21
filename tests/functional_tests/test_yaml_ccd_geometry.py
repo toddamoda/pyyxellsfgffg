@@ -6,7 +6,7 @@ from pyxel.io.yaml_processor import load
 def test_loader():
     """Test `PyxelLoader`."""
     data = """
-!geometry
+!ccd_geometry
  row: 1000
  col: 1001
  depletion_thickness: 1.0
@@ -51,7 +51,7 @@ def test_dumper():
                       bias_voltage=8.0)
 
     data = dump(obj)
-    assert data == """!geometry
+    assert data == """!ccd_geometry
 bias_voltage: 8.0
 col: 1001
 depletion_thickness: 1.0
