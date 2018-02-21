@@ -9,12 +9,13 @@ in MCT, diffusion, cross-talk etc.) on a given image.
 """
 import logging
 import argparse
-
+import typing as t   # noqa: F401
 from pathlib import Path
 
 import pyxel
 from pyxel.util import FitsFile
 import pyxel.pipelines.processor
+from pyxel.io.yaml_processor import load_config
 
 
 def run_pipeline(input_filename, output_file):
@@ -24,22 +25,21 @@ def run_pipeline(input_filename, output_file):
     :param output_file:
     :return:
     """
-    config_path = Path(__file__).parent.joinpath(input_filename)
-    cfg = pyxel.load_config(config_path)
 
-    processor = cfg['process']
+    cfg = load_config(Path(input_filename))
 
-    # Step 2: Run the pipeline
-    # result = pyxel.detection_pipeline.run_ccd_pipeline(processor.detector, processor.pipeline)  # type: CCD
-    # result = pyxel.detection_pipeline.run_cmos_pipeline(processor.detector, processor.pipeline)  # type: CMOS
+    processor = cfg[next(iter(cfg))]  # type: pyxel.pipelines.processor.Processor
 
-    result = processor.pipeline.run_pipeline(processor.detector)
+    pipeline = processor.pipeline  # type: t.Union[CCDDetectionPipeline, CMOSDetectionPipeline]
+
+    # Run the pipeline
+    detector = pipeline.run_pipeline(processor.detector)  # type: t.Union[CCD, CMOS]
 
     print('Pipeline completed.')
 
     if output_file:
         out = FitsFile(output_file)
-        out.save(result.signal, header=None, overwrite=True)        # TODO should replace result.signal to result.image
+        out.save(detector.signal, header=None, overwrite=True)      # TODO should replace result.signal to result.image
 
 
 def main():

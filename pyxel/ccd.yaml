@@ -14,16 +14,15 @@ ccd_process:
       total_thickness: 10.0         # um
 
     environment:
-      temperature: 320    # Kelvin
+      temperature: 320  # detector temperature Kelvin
 
     characteristics:
-      qe: 0.5           # -
-      eta: 1            # e/photon
-      sv:  1.0e-6       # V/e
-      amp: 0.8          # V/V
-      a1: 100           # V/V
-      a2: 65536         # DN/V
-
+      qe: 0.5         # -
+      eta: 1          # e/photon
+      sv:  1.0e-6      # V/e
+      amp: 0.8       # V/V
+      a1: 100         # V/V
+      a2: 65536       # DN/V
 
   pipeline:
 

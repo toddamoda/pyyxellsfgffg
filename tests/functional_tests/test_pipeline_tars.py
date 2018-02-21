@@ -11,7 +11,6 @@ from astropy.io import fits
 from pyxel.io.yaml_processor import load_config
 
 
-
 @pytest.mark.parametrize("input_filename, exp_filename", [
     ('tests/data/pipeline_tars.yaml', 'tests/data/expected_ccd_pipeline01.fits'),
     ('tests/data/pipeline_tars_no_tags.yaml', 'tests/data/expected_ccd_pipeline01.fits'),

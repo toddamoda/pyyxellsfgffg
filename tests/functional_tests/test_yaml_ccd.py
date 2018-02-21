@@ -10,7 +10,7 @@ def test_loader_with_extra_tags():
     """Test `PyxelLoader`"""
     data = """
 !CCD
-  geometry: !geometry
+  geometry: !ccd_geometry
    row: 1000
    col: 1001
    depletion_thickness: 1.0
@@ -94,7 +94,7 @@ environment: !environment
   temperature: 3.14
   total_ionising_dose: null
   total_non_ionising_dose: null
-geometry: !geometry
+geometry: !ccd_geometry
   bias_voltage: 8.0
   col: 1001
   depletion_thickness: 1.0
