@@ -4,12 +4,12 @@ TODO
 ====
 
 
-1. Add 'stop' running pipeline
+DONE: 1. Add 'stop' running pipeline
 
 2. Add port entry field and check box to enable / disable remote
 imager communication
 
-3. Detector class require refactoring of 'photons' and 'image' so
+DONE: 3. Detector class require refactoring of 'photons' and 'image' so
 that it interfaces nicely with GUI.
 
 4. Refactor sequencer code to run as an embedded for-loop
@@ -27,16 +27,16 @@ conversion routine (default to literal_eval).
 
 9. Integrate DispatcherBlockingAutoRemoveDeadEndPoints into esapy_dispatcher
 
-10. Auto reconnect on button click if websocket had closed
+DONE: 10. Auto reconnect on button click if websocket had closed
 unexpectedly earlier
 
-11. Disable "run" button when a pipeline is running.
+DONE: 11. Disable "run" button when a pipeline is running.
 
 12. Add button to start esapy_image
 
 13. "random" entry field should be mapped to a numeric quantity.
 
-14. Enable a pipeline schema to be selected at runtime from a
+DONE: 14. Enable a pipeline schema to be selected at runtime from a
 dropdown list box.
 
 15. Question: Enable multiple pipelines to be interconnected?
@@ -55,5 +55,5 @@ dropdown list box.
 
 22. output file placeholders.
 
-23. integrate JS9.
+DONE: 23. integrate JS9.
 """

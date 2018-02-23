@@ -35,11 +35,11 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         :return:
         """
         msg_str = json.dumps(object_dict)
-        print('WEB_SOCKETS: %d' % len(WEB_SOCKETS))
         for wsock in WEB_SOCKETS:
             wsock.write_message(msg_str)
 
-    def emit_signal(self, message):
+    @staticmethod
+    def emit_signal(message):
         """TBW.
 
         :param message:
@@ -68,6 +68,15 @@ class IndexPageHandler(tornado.web.RequestHandler):
         self.render("index.html", controller=self.application.controller)
 
 
+class PipelinePageHandler(tornado.web.RequestHandler):
+    """The index.html HTML generation handler."""
+
+    def get(self, name):
+        """TBW."""
+        self.application.controller.load_pipeline(name)
+        self.render("index.html", controller=self.application.controller)
+
+
 class WebApplication(tornado.web.Application):
     """The Application that host several objects to communicate with."""
 
@@ -80,9 +89,12 @@ class WebApplication(tornado.web.Application):
 
         handlers = [
             (r'/', IndexPageHandler),
+            (r'/pipeline/(.*)', PipelinePageHandler),
             (r'/(favicon\.ico)', tornado.web.StaticFileHandler),
             (r'/static/(.*)', tornado.web.StaticFileHandler),
             (r'/websocket', WebSocketHandler),
+            (r'/js9/(.*)', tornado.web.StaticFileHandler, {'path': '/home/hsmit/PycharmProjects/pyxel_js9'}),
+            (r'/data/(.*)', tornado.web.StaticFileHandler, {'path': '/home/hsmit/data'}),
         ]
 
         settings = {
@@ -91,7 +103,6 @@ class WebApplication(tornado.web.Application):
             'debug': True,
             'autoreload': False,
         }
-
         tornado.web.Application.__init__(self, handlers, **settings)
 
 
@@ -105,7 +116,6 @@ class TornadoServer(object):
         :param host_port:
         """
         self._host_port = host_port
-        # self._obj = obj
         self._th = None
         self._server = None
         self._app = app
