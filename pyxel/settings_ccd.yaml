@@ -54,7 +54,7 @@ ccd_process: !PROCESSOR
     optics: !models
       shot_noise: !model
         enabled: true
-        name: pyxel.models.ccd_noise.add_shot_noise
+        name: pyxel.models.photon_generation.add_shot_noise
   #    ray_tracing: !class
   #      name: pyxel.models.ccd_noise.OpticsModelRayTracer
   #      args:

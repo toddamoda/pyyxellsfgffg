@@ -49,13 +49,14 @@ cmos_process:
         arguments:
           level: 0
 
-    # -> photons
-    optics:
       shot_noise:
-        name: pyxel.models.ccd_noise.add_shot_noise
+        name: pyxel.models.photon_generation.add_shot_noise
         enabled: true
 
-    # -> charge
+    # photons -> photons
+    optics:
+
+    # photons -> charge
     charge_generation:
 
       photoelectrons: 
@@ -77,10 +78,10 @@ cmos_process:
             - 0.0
           stepping_length: 1.0  # um
 
-    # -> charge
+    # charge -> charge
     charge_collection:
 
-    # -> signal
+    # charge -> signal
     charge_measurement: 
       readout_noise: 
         name: pyxel.models.ccd_noise.add_output_node_noise
@@ -88,7 +89,7 @@ cmos_process:
         arguments:
           std_deviation: 1.0
 
-    # -> signal
+    # signal -> signal
     signal_transfer:
 
       nghxrg_read:
@@ -160,5 +161,5 @@ cmos_process:
 #          wind_x_size: 200
 #          wind_y_size: 200
 
-    # -> image
+    # signal -> image
     readout_electronics: 

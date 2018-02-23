@@ -48,7 +48,7 @@ ccd_process:
           level: 100
 
       shot_noise:
-        name: pyxel.models.ccd_noise.add_shot_noise
+        name: pyxel.models.photon_generation.add_shot_noise
         enabled: true
 
     # photons -> photons

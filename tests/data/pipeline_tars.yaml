@@ -26,6 +26,7 @@ ccd_process: !PROCESSOR
 
   pipeline: !CCD_PIPELINE
 
+    # -> photons
     photon_generation: !models
       load_image: !model
         name: pyxel.models.photon_generation.load_image
@@ -39,12 +40,13 @@ ccd_process: !PROCESSOR
         arguments:
           level: 0
 
-    # -> photons
-    optics: !models
-      shot_noise: !model
-        name: pyxel.models.ccd_noise.add_shot_noise
+      shot_noise:
+        name: pyxel.models.photon_generation.add_shot_noise
 
-    # -> charge
+    # photons -> photons
+    optics: !models
+
+    # photons -> charge
     charge_generation: !models
 
       photoelectrons: !model
@@ -64,18 +66,18 @@ ccd_process: !PROCESSOR
             - 0.0
           stepping_length: 1.0  # um
 
-    # -> charge
+    # charge -> charge
     charge_collection: !models
 
-    # -> charge
+    # charge -> charge
     charge_transfer: !models
 
-    # -> signal
+    # charge -> signal
     charge_measurement: !models
       readout_noise: !model
         name: pyxel.models.ccd_noise.add_output_node_noise
         arguments:
           std_deviation: 1.0
 
-    # -> image
+    # signal -> image
     readout_electronics: !models
