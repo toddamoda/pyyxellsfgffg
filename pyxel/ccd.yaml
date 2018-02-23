@@ -1,4 +1,4 @@
-# PyXel! settings
+# PyXEL! settings
 
 ccd_process:
 
@@ -33,7 +33,6 @@ ccd_process:
       fwc_serial: 30000     # e
 
   pipeline:
-
     # -> photons
     photon_generation:
       load_image:
@@ -52,12 +51,11 @@ ccd_process:
         name: pyxel.models.ccd_noise.add_shot_noise
         enabled: true
 
-    # -> photons
+    # photons -> photons
     optics:
 
-    # -> charge
+    # photons -> charge
     charge_generation:
-
       photoelectrons: 
         name: pyxel.models.photoelectrons.simple_conversion
         enabled: true
@@ -77,7 +75,7 @@ ccd_process:
             - 0.0
           stepping_length: 1.0  # um
 
-    # -> charge
+    # charge -> charge
     charge_collection:
 
       full_well: !model
@@ -86,7 +84,7 @@ ccd_process:
 #        arguments:
 #          fwc: 100       # e  # if defined use this, if not use the default parameter from characteristics
 
-    # -> charge
+    # charge -> charge
     charge_transfer:
       cdm:
         name: pyxel.models.cdm.CDM.cdm
@@ -101,7 +99,7 @@ ccd_process:
           parallel_trap_file: pyxel/models/cdm/cdm_euclid_parallel.dat
           serial_trap_file: pyxel/models/cdm/cdm_euclid_serial.dat
 
-    # -> signal
+    # charge -> signal
     charge_measurement: 
       output_node_noise:
         name: pyxel.models.ccd_noise.add_output_node_noise
@@ -109,5 +107,5 @@ ccd_process:
         arguments:
           std_deviation: 1.0
 
-    # -> image
+    # signal -> image
     readout_electronics: 

@@ -3,26 +3,12 @@
 #   --------------------------------------------------------------------------
 """PyXel! CCD noise generator class."""
 import numpy as np
-# from astropy import units as u
 
 from pyxel.detectors.detector import Detector
 from pyxel.detectors.geometry import Geometry  # noqa: F401
 
 
-def add_shot_noise(detector: Detector) -> Detector:
-    """Add shot noise to number of photons.
-
-    :return:
-    """
-
-    new_detector = detector
-
-    lambda_list = new_detector.photons.get_photon_numbers()
-    lambda_list = [float(i) for i in lambda_list]
-    new_list = np.random.poisson(lam=lambda_list)  # * u.ph
-    new_detector.photons.change_all_number(new_list)
-
-    return new_detector
+# from astropy import units as u
 
 
 def add_fix_pattern_noise(detector: Detector,
