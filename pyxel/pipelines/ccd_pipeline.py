@@ -32,13 +32,16 @@ class CCDDetectionPipeline(DetectionPipeline):
                               'charge_transfer', 'charge_measurement', 'readout_electronics']
 
         self._model_steps = {
-            'photon_generation': ['load_image', 'photon_level', 'shot_noise'],
-            'optics': [],
-            'charge_generation': ['photoelectrons', 'tars'],
-            'charge_collection': ['fixed_pattern_noise', 'full_well'],
-            'charge_transfer': ['cdm'],
-            'charge_measurement': ['output_node_noise'],
-            'readout_electronics': []
+            'photon_generation':    ['load_image', 'photon_level',
+                                     'shot_noise'],
+            'optics':               [],
+            'charge_generation':    ['photoelectrons',
+                                     'tars'],
+            'charge_collection':    ['fixed_pattern_noise',
+                                     'full_well'],
+            'charge_transfer':      ['cdm'],
+            'charge_measurement':   ['output_node_noise'],
+            'readout_electronics':  []
         }
 
     def run_pipeline(self, detector: Detector) -> Detector:
