@@ -63,6 +63,8 @@ class CMOSDetectionPipeline(DetectionPipeline):
         # CHARGE READOUT
         # -> create signal -> modify signal ->
         detector.signal = detector.pixels.generate_2d_charge_array()
+        detector.signal = detector.signal.astype('float64')
+
         detector = self.run_model_group('charge_measurement', detector)
         detector = self.run_model_group('signal_transfer', detector)
 

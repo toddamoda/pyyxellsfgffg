@@ -3,7 +3,7 @@
 #   --------------------------------------------------------------------------
 """PyXel! CCD noise generator class."""
 import numpy as np
-from astropy import units as u
+# from astropy import units as u
 
 from pyxel.detectors.detector import Detector
 from pyxel.detectors.geometry import Geometry  # noqa: F401
@@ -73,6 +73,6 @@ def add_output_node_noise(detector: Detector, std_deviation: float) -> Detector:
     sigma_array = std_deviation * np.ones(new_detector.signal.shape)
 
     signal = np.random.normal(loc=signal_mean_array, scale=sigma_array)
-    new_detector.signal = signal     # * u.V
+    new_detector.signal = signal
 
     return new_detector

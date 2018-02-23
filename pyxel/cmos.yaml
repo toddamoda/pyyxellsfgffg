@@ -7,11 +7,20 @@ cmos_process:
     geometry:
       row: 100                      # compulsory
       col: 100                      # compulsory
+      total_thickness: 10.0         # um
       depletion_thickness: 10.0     # um
       field_free_thickness: 0.0     # um
       pixel_vert_size: 10.0         # um
       pixel_horz_size: 10.0         # um
-      total_thickness: 10.0         # um
+      material: 'silicon'
+      n_acceptor: 0.0               # cm-3
+      n_donor: 0.0                  # cm-3
+      bias_voltage: 0.0             # V
+      n_output: 4
+      n_row_overhead: 0
+      n_frame_overhead: 0
+      reverse_scan_direction: False
+      reference_pixel_border_width: 4
 
     environment:
       temperature: 320  # detector temperature Kelvin
@@ -44,15 +53,18 @@ cmos_process:
     optics:
       shot_noise:
         name: pyxel.models.ccd_noise.add_shot_noise
+        enabled: true
 
     # -> charge
     charge_generation:
 
       photoelectrons: 
         name: pyxel.models.photoelectrons.simple_conversion
+        enabled: true
 
       tars: 
         name: pyxel.models.tars.tars.run_tars
+        enabled: true
         arguments:
           initial_energy: 100.0   # MeV
           particle_number: 1
@@ -72,11 +84,81 @@ cmos_process:
     charge_measurement: 
       readout_noise: 
         name: pyxel.models.ccd_noise.add_output_node_noise
+        enabled: true
         arguments:
           std_deviation: 1.0
 
     # -> signal
     signal_transfer:
+
+      nghxrg_read:
+        name: pyxel.models.nghxrg.nghxrg.white_read_noise
+        enabled: true
+        arguments:
+          rd_noise: 40.           # White read noise per integration
+          ref_pixel_noise_ratio: 8.
+          window_mode: FULL #WINDOW
+#          wind_x0: 50
+#          wind_y0: 100
+#          wind_x_size: 200
+#          wind_y_size: 200
+
+      nghxrg_pca_zero:
+        name: pyxel.models.nghxrg.nghxrg.pca_zero_noise
+        enabled: true
+        arguments:
+          pca0_amp: 45.           # Amplitude of PCA zero "picture frame" noise
+          window_mode: FULL #WINDOW
+#          wind_x0: 300
+#          wind_y0: 100
+#          wind_x_size: 200
+#          wind_y_size: 200
+
+      nghxrg_c_pink:
+        name: pyxel.models.nghxrg.nghxrg.corr_pink_noise
+        enabled: true
+        arguments:
+          c_pink: 30.             # Correlated pink noise
+          window_mode: FULL #WINDOW
+#          wind_x0: 550
+#          wind_y0: 100
+#          wind_x_size: 200
+#          wind_y_size: 200
+
+      nghxrg_u_pink:
+        name: pyxel.models.nghxrg.nghxrg.uncorr_pink_noise
+        enabled: true
+        arguments:
+          u_pink: 20.             # Uncorrelated pink noise
+          window_mode: FULL #WINDOW
+#          wind_x0: 50
+#          wind_y0: 350
+#          wind_x_size: 200
+#          wind_y_size: 200
+
+      nghxrg_acn:
+        name: pyxel.models.nghxrg.nghxrg.acn_noise
+        enabled: false
+        arguments:
+          acn: 50.                 # Correlated ACN
+          window_mode: FULL #WINDOW
+#          wind_x0: 300
+#          wind_y0: 350
+#          wind_x_size: 200
+#          wind_y_size: 200
+
+      nghxrg_ktc_bias:
+        name: pyxel.models.nghxrg.nghxrg.ktc_bias_noise
+        enabled: true
+        arguments:
+          ktc_noise: 50.
+          bias_offset: 30.
+          bias_amp: 40.
+          window_mode: FULL #WINDOW
+#          wind_x0: 550
+#          wind_y0: 350
+#          wind_x_size: 200
+#          wind_y_size: 200
 
     # -> image
     readout_electronics: 

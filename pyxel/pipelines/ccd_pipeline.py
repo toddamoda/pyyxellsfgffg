@@ -32,10 +32,10 @@ class CCDDetectionPipeline(DetectionPipeline):
                               'charge_transfer', 'charge_measurement', 'readout_electronics']
 
         self._model_steps = {
-            'photon_generation': ['load_image', 'photon_level'],
-            'optics': ['shot_noise'],
+            'photon_generation': ['load_image', 'photon_level', 'shot_noise'],
+            'optics': [],
             'charge_generation': ['photoelectrons', 'tars'],
-            'charge_collection': ['fixed_pattern_noise'],
+            'charge_collection': ['fixed_pattern_noise', 'full_well'],
             'charge_transfer': ['cdm'],
             'charge_measurement': ['output_node_noise'],
             'readout_electronics': []
@@ -76,6 +76,8 @@ class CCDDetectionPipeline(DetectionPipeline):
         # CHARGE READOUT
         # -> create signal -> modify signal ->
         detector.signal = detector.pixels.generate_2d_charge_array()
+        detector.signal = detector.signal.astype('float64')
+
         detector = self.run_model_group('charge_measurement', detector)
 
         # READOUT ELECTRONICS

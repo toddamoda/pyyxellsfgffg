@@ -35,7 +35,7 @@ def simple_conversion(detector: Detector) -> Detector:
                                     init_hor_velocity=[0.] * size,
                                     init_z_velocity=[0.] * size)
 
-    # Removing all the photons because all of them either created some photoelectrons or got lost
+    # Removing all the photons because they have either created some photoelectrons or got lost
     new_detector.photons.remove_photons()
 
     return new_detector
