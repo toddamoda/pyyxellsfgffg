@@ -35,9 +35,9 @@ class CCDDetectionPipeline(DetectionPipeline):
             'photon_generation': ['load_image', 'photon_level'],
             'optics': ['shot_noise'],
             'charge_generation': ['photoelectrons', 'tars'],
-            'charge_collection': ['fixed_pattern_noise'],
+            'charge_collection': ['fixed_pattern_noise', 'diffusion', 'full_well'],
             'charge_transfer': ['cdm'],
-            'charge_measurement': ['output_node_noise'],
+            'charge_measurement': ['readout_noise'],
             'readout_electronics': []
         }
 

@@ -43,7 +43,7 @@ var connection = (function() {
             protocol = 'wss:';
         }
         var host = window.location.host;
-        var path = window.location.pathname;
+        var path = '/';  // window.location.pathname;
         var url = protocol + '//' + host + path + 'websocket';
         ws = new WebSocket(url);
 
@@ -66,6 +66,11 @@ var connection = (function() {
 
     // Private variables and functions
     var emit = function(sender, signal, params) {
+        if (ws == null) {
+            this.open()
+            setTimeout(function () { connection.emit(sender, signal, params);}, 1000);
+            return;
+        }
         var kwargs = {};
         var args = [];
         if (params) {

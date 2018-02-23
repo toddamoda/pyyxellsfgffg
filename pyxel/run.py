@@ -25,7 +25,6 @@ def run_pipeline(input_filename, output_file):
     :param output_file:
     :return:
     """
-
     cfg = load_config(Path(input_filename))
 
     processor = cfg[next(iter(cfg))]  # type: pyxel.pipelines.processor.Processor

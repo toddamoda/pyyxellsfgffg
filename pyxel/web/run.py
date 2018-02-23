@@ -12,16 +12,17 @@ from pyxel.web import webapp
 from pyxel.web.controller import API
 
 
-def run_web_server(input_filename, port=8888):
+def run_web_server(input_filename=None, port=8890):
     """TBW.
 
     :param input_filename:
     :param port:
-    :return:
     """
-    config_path = Path(__file__).parent.parent.joinpath(input_filename)
-    cfg = pyxel.load_config(config_path)
-    processor = cfg['ccd_process']
+    processor = None
+    if input_filename:
+        config_path = Path(__file__).parent.parent.joinpath(input_filename)
+        cfg = pyxel.load_config(config_path)
+        processor = cfg[cfg.keys()[0]]
 
     controller = API(processor)
 
