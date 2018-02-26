@@ -21,15 +21,13 @@ class CCDDetectionPipeline(DetectionPipeline):
         super().__init__(**kwargs)
         self.charge_transfer = charge_transfer
 
-        # self._steps_optics = ['shot_noise']
-        # self._steps_charge_generation = ['photoelectrons', 'tars']
-        # self._steps_charge_collection = ['fixed_pattern_noise']
-        # self._steps_charge_transfer = ['cdm']
-        # self._steps_charge_measurement = ['output_node_noise']
-        # self._steps_readout_electronics = []
-
-        self._model_groups = ['photon_generation', 'optics', 'charge_generation', 'charge_collection',
-                              'charge_transfer', 'charge_measurement', 'readout_electronics']
+        self._model_groups = ['photon_generation',
+                              'optics',
+                              'charge_generation',
+                              'charge_collection',
+                              'charge_transfer',
+                              'charge_measurement',
+                              'readout_electronics']
 
         self._model_steps = {
             'photon_generation':    ['load_image', 'photon_level',

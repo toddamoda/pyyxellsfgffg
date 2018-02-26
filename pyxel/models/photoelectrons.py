@@ -15,29 +15,25 @@ def simple_conversion(detector: Detector) -> Detector:
     :param detector:
     :return new_detector:
     """
-
     new_detector = detector
-
-    photon_number = detector.photons.get_photon_numbers()
+    ch = new_detector.characteristics
+    ph = new_detector.photons
+    photon_number = ph.get_photon_numbers()
     size = len(photon_number)
-
     # Calculate the average charge numbers per pixel
-    charge_number = photon_number * new_detector.characteristics.qe * new_detector.characteristics.eta
-
+    charge_number = photon_number * ch.qe * ch.eta
     # Adding new charge to Charge data frame
     new_detector.charges.add_charge(particle_type='e',
                                     particles_per_cluster=charge_number,
                                     init_energy=[0.] * size,
-                                    init_ver_position=new_detector.photons.get_positions_ver(),
-                                    init_hor_position=new_detector.photons.get_positions_hor(),
-                                    init_z_position=new_detector.photons.get_positions_z(),
+                                    init_ver_position=ph.get_positions_ver(),
+                                    init_hor_position=ph.get_positions_hor(),
+                                    init_z_position=ph.get_positions_z(),
                                     init_ver_velocity=[0.] * size,
                                     init_hor_velocity=[0.] * size,
                                     init_z_velocity=[0.] * size)
-
     # Removing all the photons because they have either created some photoelectrons or got lost
-    new_detector.photons.remove_photons()
-
+    ph.remove_photons()
     return new_detector
 
 

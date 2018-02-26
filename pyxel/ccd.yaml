@@ -1,5 +1,4 @@
 # PyXEL! settings
-
 ccd_process:
 
   detector:
@@ -28,7 +27,7 @@ ccd_process:
       sv: 1.0e-6            # V/e
       amp: 0.8              # V/V
       a1: 100               # V/V
-      a2: 65536             # DN/V
+      a2: 2**16             # DN/V
       fwc: 20000            # e
       fwc_serial: 30000     # e
 
@@ -78,7 +77,7 @@ ccd_process:
     # charge -> charge
     charge_collection:
 
-      full_well: !model
+      full_well:
         name: pyxel.models.full_well.simple_pixel_full_well
         enabled: true
 #        arguments:
