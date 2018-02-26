@@ -6,7 +6,7 @@
 process: !PROCESSOR
 
   detector: !CMOS
-    geometry: !geometry
+    geometry: !cmos_geometry
       row: 150                      # compulsory
       col: 200                      # compulsory
       total_thickness: 10.0         # um

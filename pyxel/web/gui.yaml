@@ -1,143 +1,271 @@
+components:
+
+  entry: &id_number_um
+    tag: input
+    type: number
+    step: 0.01
+    min: 0.00
+    max: 100.0
+
+  entry: &id_number_float
+    tag: input
+    type: number
+    step: 0.01
+    min: 0.00
+    max: 1.0
+
+  entry: &id_number_uint
+    tag: input
+    type: number
+    step: 1
+    min: 0
+    max: 65536
+
+  entry: &id_text
+    tag: input
+    type: text
+
 gui:
 
   -
-    label: Detector
+    label: Detector Attributes
     items:
       -
-        id: pipeline.photon_generation.photon_level.arguments.level
-        label: Photons
-        entry:
-          tag: input
-          type: number
-          step: 1
-          min: 1
-          max: 100000
+        label: Geometry
+        items:
+          -
+            id: detector.geometry.row
+            label: Rows
+            entry: *id_number_uint
+
+          -
+            id: detector.geometry.col
+            label: Columns
+            entry: *id_number_uint
+
+          -
+            id: detector.geometry.total_thickness
+            label: Total Thickness (um)
+            entry: *id_number_um
+
+          -
+            id: detector.geometry.depletion_thickness
+            label: Depletion Thickness (um)
+            entry: *id_number_um
+
+          -
+            id: detector.geometry.field_free_thickness
+            label: Field Free Thickness (um)
+            entry: *id_number_um
+
+          -
+            id: detector.geometry.pixel_vert_size
+            label: Pixel Vertical Size (um)
+            entry: *id_number_um
+
+          -
+            id: detector.geometry.pixel_horz_size
+            label: Pixel Horizontal Size (um)
+            entry: *id_number_um
+
+          -
+            id: detector.geometry.material
+            label: Material
+            entry:
+              tag: select
+              options:
+                - silicon
+                - germanium
+                - HgCdTe
+
+          -
+            id: detector.geometry.n_acceptor
+            label: N Acceptor (cm-3)
+            entry: *id_number_um
+
+          -
+            id: detector.geometry.n_donor
+            label: N Donor (cm-3)
+            entry: *id_number_um
+
+          -
+            id: detector.geometry.bias_voltage
+            label: Bias Voltage (V)
+            entry: *id_number_um
 
       -
-        id: pipeline.photon_generation.load_image.arguments.image_file
-        label: Image
-        entry:
-          tag: input
-          type: text
+        label: Environment
+        items:
+          -
+            id: detector.environment.temperature
+            label: Temperature (K)
+            entry: *id_number_uint
+
+          -
+            id: detector.environment.total_ionising_dose
+            label: Total Ionising Dose
+            entry: *id_text
+
+          -
+            id: detector.environment.total_non_ionising_dose
+            label: Total None-Ionising Dose
+            entry: *id_text
+
+      -
+        label: Characteristics
+        items:
+          -
+            id: detector.characteristics.qe
+            label: QE (quantum yield)
+            entry:
+              tag: input
+              type: number
+              step: 0.01
+              min: 0.1
+              max: 1.0
+              title: Quantum Efficiency
+          -
+            id: detector.characteristics.eta
+            label: ETA (&#919;) (e/photon)
+            entry: *id_number_uint
+          -
+            id: detector.characteristics.sv
+            label: Sv (V/-e)
+            entry: *id_number_uint
+          -
+            id: detector.characteristics.amp
+            label: Output amplifier gain
+            entry: *id_number_uint
+          -
+            id: detector.characteristics.a1
+            label: A1 (V/V)
+            entry: *id_number_uint
+          -
+            id: detector.characteristics.a2
+            label: A2 (DN/V)
+            entry: *id_number_uint
+          -
+            id: detector.characteristics.fwc
+            label: Full Well Capacity (e)
+            entry: *id_number_uint
+          -
+            id: detector.characteristics.fwc_serial
+            label: FWC Serial (e)
+            entry: *id_number_uint
 
   -
-    label: Detector Geometry
+    label: Models Settings
     items:
       -
-        id: detector.geometry.row
-        label: Rows
-        entry:
-          tag: input
-          type: number
-          step: 2
-          min: 10
-          max: 100000
+        label: Photon Generation
+        items:
+          -
+            id: pipeline.photon_generation.photon_level.arguments.level
+            label: Photons
+            entry: *id_number_uint
+          -
+            id: pipeline.photon_generation.load_image.arguments.image_file
+            label: Image
+            entry: *id_text
 
       -
-        id: detector.geometry.col
-        label: Columns
-        entry:
-          tag: input
-          type: number
-          step: 2
-          min: 10
-          max: 100000
+        label: Charge Generation (TARS)
+        items:
+          -
+            id: pipeline.charge_generation.tars.arguments.initial_energy
+            label: Initial Energy (MeV)
+            entry:
+              tag: input
+              type: number
+              step: 1.0
+              min: 0.0
+              max: 100.0
+          -
+            id: pipeline.charge_generation.tars.arguments.particle_number
+            label: Particle Count
+            entry: *id_number_uint
+          -
+            id: pipeline.charge_generation.tars.arguments.stepping_length
+            label: Particle Count (um)
+            entry:
+              tag: input
+              type: number
+              step: 1.0
+              min: 0.0
+              max: 1000.0
+          -
+            id: pipeline.charge_generation.tars.arguments.incident_angles
+            label: Incident Angles (deg)
+            entry_count: 2
+            entry:
+              tag: input
+              type: text
+              title: alpha, beta
+          -
+            id: pipeline.charge_generation.tars.arguments.starting_position
+            label: Starting Position (um)
+            entry_count: 3
+            entry:
+              tag: input
+              type: text
+              title: vertical, horizontal, position_z
 
       -
-        id: detector.geometry.material
-        label: Material
-        entry:
-          tag: select
-          options:
-            - silicon
-            - germanium
-            - HgCdTe
+        label: Charge Collection (Fixed Noise Pattern)
+        items:
+          -
+            id: pipeline.charge_collection.fixed_pattern_noise.arguments.pix_non_uniformity
+            label: Pix Non-Uniformity File
+            entry: *id_text
 
-  -
-    label: Characteristics
-    items:
       -
-        id: detector.characteristics.qe
-        label: QE (quantum yield)
-        entry:
-          tag: input
-          type: number
-          step: 0.01
-          min: 0.1
-          max: 1.0
-          title: Quantum Efficiency
+        label: Charge Collection (Full Well)
+        items:
+          -
+            id: pipeline.charge_collection.full_well.arguments.fwc
+            label: Full Well Capacity
+            entry: *id_number_uint
+
       -
-        id: detector.characteristics.eta
-        label: ETA (&#919;) (e/photon)
-        entry:
-          tag: input
-          type: number
-          step: 1
-          min: 0
-          max: 1000
+        label: Charge Transfer (CDM)
+        items:
+          -
+            id: pipeline.charge_transfer.cdm.arguments.beta_p
+            label: Beta-P
+            entry: *id_text
+          -
+            id: pipeline.charge_transfer.cdm.arguments.beta_s
+            label: Beta-S
+            entry: *id_text
+          -
+            id: pipeline.charge_transfer.cdm.arguments.vg
+            label: vg
+            entry: *id_text
+          -
+            id: pipeline.charge_transfer.cdm.arguments.svg
+            label: svg
+            entry: *id_text
+          -
+            id: pipeline.charge_transfer.cdm.arguments.t
+            label: t
+            entry: *id_text
+          -
+            id: pipeline.charge_transfer.cdm.arguments.st
+            label: st
+            entry: *id_text
+          -
+            id: pipeline.charge_transfer.cdm.arguments.parallel_trap_file
+            label: parallel_trap_file
+            entry: *id_text
+          -
+            id: pipeline.charge_transfer.cdm.arguments.serial_trap_file
+            label: serial_trap_file
+            entry: *id_text
+
       -
-        id: detector.characteristics.sv
-        label: Sv (V/-e)
-        entry:
-          tag: input
-          type: number
-          step: 1
-          min: 0
-          max: 1000
-          title: sensitivity of CCD amplifier
-      -
-        id: detector.characteristics.amp
-        label: Output amplifier gain
-        entry:
-          tag: input
-          type: number
-          step: 1
-          min: 0
-          max: 1000
-          title: Output amplifier gain
-  -
-    label: Charge Injection
-    items:
-      -
-        id: pipeline.charge_generation.tars.arguments.initial_energy
-        label: Initial Energy (MeV)
-        entry:
-          tag: input
-          type: number
-          step: 1.0
-          min: 0.0
-          max: 100.0
-      -
-        id: pipeline.charge_generation.tars.arguments.particle_number
-        label: Particle Count
-        entry:
-          tag: input
-          type: number
-          step: 1
-          min: 0
-          max: 100000
-      -
-        id: pipeline.charge_generation.tars.arguments.stepping_length
-        label: Particle Count (um)
-        entry:
-          tag: input
-          type: number
-          step: 1.0
-          min: 0.0
-          max: 1000.0
-      -
-        id: pipeline.charge_generation.tars.arguments.incident_angles
-        label: Incident Angles (deg)
-        entry_count: 2
-        entry:
-          tag: input
-          type: text
-          title: alpha, beta
-      -
-        id: pipeline.charge_generation.tars.arguments.starting_position
-        label: Starting Position (um)
-        entry_count: 3
-        entry:
-          tag: input
-          type: text
-          title: vertical, horizontal, position_z
+        label: Charge Measurement (CDM)
+        items:
+          -
+            id: pipeline.charge_measurement.readout_noise.arguments.std_deviation
+            label: Standard Deviation
+            entry: *id_text

@@ -7,6 +7,10 @@ from pyxel.pipelines.models import Model  # noqa: F401
 from pyxel.pipelines.models import Models
 
 
+class PipelineAborted(Exception):
+    """Exception to force the pipeline to stop processing."""
+
+
 class DetectionPipeline:
     """TBW."""
 
@@ -27,6 +31,7 @@ class DetectionPipeline:
         :param readout_electronics:
         :param doc:
         """
+        self._is_running = False
         self.doc = doc
         self.photon_generation = photon_generation
         self.optics = optics
@@ -39,6 +44,34 @@ class DetectionPipeline:
         self._model_steps = {}   # type: t.Dict[str, t.List[str]]
         self._log = logging.getLogger(__name__)
 
+    def run(self, detector: Detector) -> Detector:
+        """TBW."""
+        try:
+            self._is_running = True
+            return self.run_pipeline(detector)
+        except PipelineAborted:
+            raise  # send signal to caller to ensure no output is saved
+        finally:
+            self._is_running = False
+
+    def abort(self):
+        """TBW."""
+        self._is_running = False
+
+    def get_model(self, name):
+        """TBW.
+
+        :param name:
+        :return:
+        """
+        for group in self._model_groups:
+            steps = self._model_steps[group]
+            if name in steps:
+                models_obj = getattr(self, group)  # type: Models
+                if models_obj:
+                    if name in models_obj.models:
+                        return models_obj.models[name]
+
     def run_model_group(self, name, detector):
         """TBW.
 
@@ -46,6 +79,7 @@ class DetectionPipeline:
         :param detector:
         :return:
         """
+        self._is_running = True
         if name in self._model_groups:
             steps = self._model_steps[name]
             models_obj = getattr(self, name)  # type: Models
@@ -56,6 +90,9 @@ class DetectionPipeline:
                         if model.enabled:
                             self._log.debug('Running %r', model.name)
                             model.function(detector)
+                            if not self._is_running:
+                                self._log.debug('Aborted after %r', model.name)
+                                raise PipelineAborted()
                         else:
                             self._log.debug('Skipping %r', model.name)
         return detector

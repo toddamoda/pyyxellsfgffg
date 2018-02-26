@@ -29,14 +29,24 @@ $.fn.extend({
     },
 
     set_button_text: function(text) {
-        //console.log(this, $(this))
         var btn = $('button', this);
         btn.text(text);
         return $(this);
     },
 
+    get_context: function() {
+        var context = $(this);
+        if (context.prop('tagName') != 'TR') {
+            context = $(this).parents('tr')
+        }
+        if (!context) {
+            console.log('ERROR: incorrect context at element:', $(this).html())
+        }
+        return context;
+    },
+
     get_value: function() {
-        context = $(this);
+        var context = $(this).get_context();
         var value = null;
         if ($('select', context).length) {
             value = $('select', context).val();
@@ -52,7 +62,7 @@ $.fn.extend({
     },
 
     set_value: function(value) {
-        var context = $(this);
+        var context = $(this).get_context();
         if ($('select', context).length) {
             $('select', context).val(value);
         } else if ($('input', context).length == 1) {

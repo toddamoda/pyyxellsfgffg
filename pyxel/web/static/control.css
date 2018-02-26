@@ -23,7 +23,7 @@ body {
 }
 
 .pe-form {
-    width: 675px;
+    width: 100%;
     margin: 0 auto;
     padding: 0px;
 }
@@ -37,7 +37,6 @@ body {
 
 .pe-table td {
     border: 1px solid #8d8d8d;
-    text-align: center;
     padding: 4px;
 }
 .pe-table td:first-child {
@@ -64,9 +63,11 @@ body {
 
 .indicator {
     text-align: center;
-    overflow: hidden;
     cursor: pointer;
     min-width: 100px;
+    position: static;
+    overflow: hidden;
+    width: 150px;
 }
 
 .pe-progress .indicator {
@@ -111,4 +112,31 @@ select.custom::-ms-expand {
 .pe-sz3 {
     width: 30%;
     float: left;
+}
+
+.pe-section-group {
+    border-radius: 25px;
+    width: 700px;
+    margin: 20px;
+    padding: 10px;
+    padding-top: 5px;
+    background-color: gray;
+}
+.pe-section-group .pe-table:last-child {
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+.pe-section-group .pe-table:first-child {
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+}
+
+.pe-group-title {
+    color: white;
+    font-weight: bold;
+    font-size: 20px;
+    padding-left: 5px;
+}
+.full-width {
+    width: 100%;
 }

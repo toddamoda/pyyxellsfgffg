@@ -59,6 +59,7 @@ def add_output_node_noise(detector: Detector, std_deviation: float) -> Detector:
     sigma_array = std_deviation * np.ones(new_detector.signal.shape)
 
     signal = np.random.normal(loc=signal_mean_array, scale=sigma_array)
+
     new_detector.signal = signal
 
     return new_detector

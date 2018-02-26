@@ -31,6 +31,6 @@ def test_pipeline_tars(input_filename, exp_filename):
     expected = fits.getdata(exp_filename)
     image = detector.image  # type: np.ndarray
 
-    # fits.writeto('tests/data/result.fits', image, None, output_verify='ignore', overwrite=True)
+    # fits.writeto('tests/data/expected_ccd_pipeline01.fits', image, None, output_verify='ignore', overwrite=True)
     assert isinstance(image, np.ndarray)
     np.testing.assert_array_equal(image, expected)

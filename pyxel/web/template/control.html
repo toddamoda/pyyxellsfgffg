@@ -2,6 +2,13 @@
 
 <div class="container" id="pyxel">
     <br/>
+
+<ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#group-control">Pipeline Control</a></li>
+    <li><a data-toggle="tab" href="#group-0">Detector Attributes</a></li>
+    <li><a data-toggle="tab" href="#group-1">Model Settings</a></li>
+    <li><a data-toggle="tab" href="#group-viewer">JS9 Viewer</a></li>
+</ul>
     <div class="pe-form">
         <button class="btn btn-primary" id="pe-expand" >Expand</button>
         <button class="btn btn-primary" id="pe-collapse" >Collapse</button>
@@ -10,75 +17,145 @@
         <button class="btn btn-primary" id="setting-reset" >Reset</button>
         <button class="btn btn-primary" id="start-imager" >Start Imager</button>
     </div>
-    <table class="pe-table pe-form">
-        <caption class="pe-section">PyXEL Pipeline Runner</caption>
-        <tr id="connection_status">
-            <td><div>Status</div></td>
-            <td><div class="indicator">-</div></td>
-            <td><button id="connect">Connect</button></td>
-        </tr>
-        <tr id="output_file">
-            <td><div>Output file (fits)</div></td>
-            <td><input type="text" value="../tests/data/test.fits"></td>
-            <td><button id="run-pipeline">Run</button></td>
-        </tr>
-        <tr id="state" class="pe-progress">
-            <td><div>State</div></td>
-            <td><div class="indicator">-</div></td>
-            <td></td>
-        </tr>
-    </table>
 
-    <table class="pe-table pe-form">
-        <caption class="pe-section">Sequencer</caption>
-{% for i in range(1, 5) %}
-        <tr id="sequence_{{ i-1 }}" class="sequence pe-progress">
-            <td style="width:100px"><div>Sequence {{ i }}</div></td>
-            <td><div class="indicator">-</div></td>
-            <td>
-                <select>
-                    <option value=""></option>
-    {% for section in controller.items()['gui'] %}
-                    <optgroup label="{{ section['label'] }}">
-        {% for item in section['items'] %}
-                        <option value="{{ item['id'] }}">{{ item['label'] }}</option>
-        {% end %}
-                    </optgroup>
-    {% end %}
-                </select>
-            </td>
-            <td><input type="text" value=""></td>
-            <td><input class="enable-row" type="checkbox"/></td>
-        </tr>
-{% end %}
-    </table>
+<div class="tab-content">
+<div id="group-control" class="pe-tab">
+    <div class="pe-section-group">
+        <div class="pe-group-title">Pipeline Control</div>
+        <table class="pe-table pe-form">
+            <caption class="pe-section">PyXEL Pipeline Runner</caption>
+            <tr id="pipeline">
+                <td><div>Pipeline</div></td>
+                <td>
+                    <select>
+                        <option></option>
+                        {% for name in controller.get_pipeline_names() %}
+                        {% set selected = "selected=1" if controller.processor_name == name else "" %}
+                        <option {{selected}}>{{ name }}</option>
+                        {% end %}
+                    </select>
+                </td>
+                <td></td>
+            </tr>
+            <tr id="connection_status">
+                <td><div>Status</div></td>
+                <td><div class="indicator full-width">-</div></td>
+                <td><button id="connect">Connect</button></td>
+            </tr>
+            <tr id="output_file">
+                <td><div>Output file (fits)</div></td>
+                <td><input type="text" value="/home/hsmit/data/pyxel/test_???.fits"></td>
+                <td><button id="run-pipeline">Run</button></td>
+            </tr>
+            <tr id="state" class="pe-progress">
+                <td><div>State</div></td>
+                <td><div class="indicator full-width">-</div></td>
+                <td></td>
+            </tr>
+        </table>
 
-{% for section in controller.items()['gui'] %}
-    <table class="pe-table pe-form">
-        <caption class="pe-section">{{ section['label'] }}</caption>
-    {% for item in section['items'] %}
-        {% set entry_count = item.get('entry_count', 1) %}
-        <tr class="setting" id="{{ item['id'] }}">
-            <td><div>{{ item['label'] }}</div></td>
-            <td><div class="indicator">-</div></td>
-            <td colspan="1">
-        {% for _ in range(entry_count) %}
-            {% if item['entry']['tag'] == 'input' %}
-                <input {{ controller.atts(item["entry"]) }} class="pe-sz{{entry_count}}">
-            {% elif item['entry']['tag'] == 'select' %}
-                <select>
-                {% for option in item['entry']['options'] %}
-                    <option value="{{ option }}">{{ option }}</option>
-                {% end %}
-                </select>
+        <table class="pe-table pe-form">
+            <caption class="pe-section">Sequencer</caption>
+    {% for i in range(1, 5) %}
+            <tr id="sequence_{{ i-1 }}" class="sequence pe-progress">
+                <td style="width:100px"><div>Sequence {{ i }}</div></td>
+                <td><div class="indicator" style="width:40px;">-</div></td>
+                <td>
+                    <select>
+                        <option value=""></option>
+        {% for section in controller.get_gui_defs()[1]['items'] %}
+                        <optgroup label="{{ section['label'] }}">
+            {% for item in section['items'] %}
+                            <option value="{{ item['id'] }}">{{ item['label'] }}</option>
             {% end %}
+                        </optgroup>
         {% end %}
-            </td>
-            <td><button>Set</button></td>
-        </tr>
+                    </select>
+                </td>
+                <td><input type="text" value="" style="width:200px;"></td>
+                <td><input class="enable-row" type="checkbox"/></td>
+            </tr>
     {% end %}
-    </table>
-{% end %}
+        </table>
 
+        <table class="pe-table pe-form">
+            <caption class="pe-section">Models</caption>
+    {% for model_group in controller.get_model_groups() %}
+            <tr>
+                <td style="vertical-align:top;">{{ model_group.replace('_', ' ') }}</td>
+                <td>
+        {% for model_step in controller.processor.pipeline._model_steps[model_group] %}
+                    <label style="font-weight:normal;padding-left:10px;" for="{{ model_step }}">
+                        <input class="model-state" type="checkbox" id="{{ model_step }}"/>
+                        {{ model_step.replace('_', ' ') }}
+                    </label><br/>
+        {% end %}
+                </td>
+                <td></td>
+            </tr>
+    {% end %}
+        </table>
+
+    </div>
 </div>
 
+
+{% for index, group in enumerate(controller.get_gui_defs()) %}
+<div id="group-{{index}}" class="pe-tab">
+
+    <div class="pe-section-group">
+        <div class="pe-group-title">{{ group['label'] }}</div>
+    {% for section in group['items'] %}
+        <table class="pe-table pe-form">
+            <caption class="pe-section">{{ section['label'] }}</caption>
+        {% for item in section['items'] %}
+            {% set entry_count = item.get('entry_count', 1) %}
+            <tr class="setting" id="{{ item['id'] }}">
+                <td><div>{{ item['label'] }}</div></td>
+                <td><div class="indicator">-</div></td>
+                <td colspan="1">
+            {% for _ in range(entry_count) %}
+                {% if item['entry']['tag'] == 'none' %}
+                    <!-- no entry field -->
+                {% elif item['entry']['tag'] == 'input' %}
+                    <input {{ controller.get_gui_props(item["entry"]) }} class="pe-sz{{entry_count}}">
+                {% elif item['entry']['tag'] == 'select' %}
+                    <select>
+                    {% for option in item['entry']['options'] %}
+                        <option value="{{ option }}">{{ option }}</option>
+                    {% end %}
+                    </select>
+                {% end %}
+            {% end %}
+                </td>
+                <td>
+                    <button>Set</button>
+                {% if 'enabled' in item %}
+                    <input type="checkbox"/>
+                {% end %}
+
+                </td>
+            </tr>
+        {% end %}
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </table>
+    {% end %}
+    </div>
+</div>
+{% end %}
+
+    <div id="group-viewer" class="pe-tab">
+        <div class="pe-section-group">
+            <div class="pe-group-title">JS9 Viewer</div>
+                <iframe name="js9viewer" id="js9viewer" src="/js9/js9.html" width="670" height="800"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
