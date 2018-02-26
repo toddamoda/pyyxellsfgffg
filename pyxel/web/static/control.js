@@ -67,15 +67,17 @@ $(document).ready(function() {
     $('#connection_status button').on('click', function() {
         connection.toggle();
     });
-    $('#output_file button').on('click', function() {
+    $('#run button').on('click', function() {
+        var output_file = $('#output_file').get_value();
+        var run_mode = $('#run input[name=run-mode]:checked').val();
+//        var run_mode = $('#run').get_value();
         $('.sequence').each(function(index) {
             var is_enabled = $(this).is_enabled();
             var key = $('select', $(this)).val();
             var range = $('input[type="text"]', $(this)).val();
             connection.emit('api', 'SET-SEQUENCE', [index, key, range, is_enabled])
         });
-        var value = $(this).get_value();
-        connection.emit('api', 'RUN-PIPELINE', [value]);
+        connection.emit('api', 'RUN-PIPELINE', [run_mode, output_file]);
     });
 
     $('#setting-reset').on('click', function() {
@@ -130,10 +132,13 @@ $(document).ready(function() {
     connection.init($('#connection_status'), $('#pyxel'))
     connection.open();
 
+//    $('#tabs li:first-child').addClass('active').delay(5000)
+//    alert($('#pipeline select').get_value())
     if ($('#pipeline select').get_value() == '') {
         $('#group-0').css('display', 'none');
         $('#group-1').css('display', 'none');
         $('#group-2').css('display', 'none');
+//        $('#group-viewer').css('display', 'none');
     }
 
 });

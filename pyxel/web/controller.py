@@ -35,7 +35,7 @@ def announce_progress(idn: str, fields: dict):
     webapp.WebSocketHandler.announce(msg)
 
 
-def run_pipeline(processor, output_file=None):
+def run_pipeline(processor, output_file=None, address_viewer=None):
     """TBW.
 
     :param processor:
@@ -66,18 +66,17 @@ def run_pipeline(processor, output_file=None):
             logging.exception(exc)
             return
 
-        try:
-            address = ('localhost', 8891)
-            client = rpc.ProxySocketClient(address,
-                                           serializer=SimpleSerializer(),
-                                           protocol=rpc.http.Client(action='POST'))
-            proxy = rpc.ProxyObject(client)
-            signals.progress('state', {'value': 'loading', 'state': 3})
-            proxy.load_file(output_file)
-        except Exception as exc:
-            signals.progress('state', {'value': 'warning', 'state': -3})
-            logging.warning('No RPC server listening. Error :%s', exc)
-            # return
+        if address_viewer:
+            try:
+                client = rpc.ProxySocketClient(address_viewer,
+                                               serializer=SimpleSerializer(),
+                                               protocol=rpc.http.Client(action='POST'))
+                proxy = rpc.ProxyObject(client)
+                signals.progress('state', {'value': 'loading', 'state': 3})
+                proxy.load_file(output_file)
+            except Exception as exc:
+                signals.progress('state', {'value': 'warning', 'state': -3})
+                logging.warning('No RPC server listening. Error :%s', exc)
 
     signals.progress('state', {'value': 'completed', 'state': 0})
 
@@ -129,7 +128,7 @@ def apply_run_number(path):
 class API:
     """TBW."""
 
-    def __init__(self, processor: DetectionPipeline) -> None:
+    def __init__(self, processor: DetectionPipeline, address_viewer: str=None) -> None:
         """TBW.
 
         :param processor:
@@ -143,15 +142,11 @@ class API:
         self._is_running = False    # type: bool
         self._modified_time = None  # type: float
         self._items = None          # type: dict
+        self._address_viewer = address_viewer  # type: str
         self.processor = processor  # type: DetectionPipeline
         self.processor_name = None  # type: str
-        self.sequence = [
-            {'key': '', 'values': [], 'enabled': False},
-            {'key': '', 'values': [], 'enabled': False},
-            {'key': '', 'values': [], 'enabled': False},
-            {'key': '', 'values': [], 'enabled': False},
-            {'key': '', 'values': [], 'enabled': False},
-        ]
+        self.sequencer = Sequencer(self)
+
         signals.dispatcher.connect(sender='api', signal=signals.LOAD_PIPELINE, callback=self.load_pipeline)
         signals.dispatcher.connect(sender='api', signal=signals.RUN_PIPELINE, callback=self.start_pipeline)
         signals.dispatcher.connect(sender='api', signal=signals.SET_SETTING, callback=self.set_setting)
@@ -160,6 +155,14 @@ class API:
         signals.dispatcher.connect(sender='api', signal=signals.PROGRESS, callback=announce_progress)
         signals.dispatcher.connect(sender='api', signal=signals.SET_MODEL_STATE, callback=self.set_model_state)
         signals.dispatcher.connect(sender='api', signal=signals.GET_MODEL_STATE, callback=self.get_model_state)
+
+    @property
+    def address_viewer(self):
+        if isinstance(self._address_viewer, str):
+            if ':' in self._address_viewer:
+                host_port = self._address_viewer.rsplit(':', 1)
+                return host_port[0], int(host_port[1])
+        return None
 
     def load_pipeline(self, name):
         """Load a new YAML pipeline file into memory.
@@ -217,63 +220,22 @@ class API:
             self._items = cfg
         return self._items['gui']
 
-    def start_pipeline(self, output_file=None):
+    def start_pipeline(self, run_mode='single', output_file=None):
         """TBW."""
         if self._is_running:
             self._is_running = False
         else:
-            self._th = threading.Thread(target=self.run_pipeline_sequence, args=[output_file])
+            self._th = threading.Thread(target=self.run_pipeline_sequence, args=[run_mode, output_file])
             self._th.start()
 
-    def run_pipeline_sequence(self, output_file=None):
+    def run_pipeline_sequence(self, run_mode='single', output_file=None):
         """TBW."""
-        is_sequence = True in [sequence['enabled'] for sequence in self.sequence]
+        # is_sequence = True in [sequence['enabled'] for sequence in self.sequence]
         try:
-
             self._is_running = True
-            if is_sequence:
-                is_recursive = True
-                if is_recursive:
-                    seq = Sequencer(self, self.sequence, output_file)
-                    seq.run()
-                else:
-                    for seq_index, sequence in enumerate(self.sequence):
-                        if not self._is_running:
-                            signals.progress('state', {'value': 'aborted', 'state': 0})
-                            return
-                        if sequence['enabled']:
-                            for index, value in enumerate(sequence['values']):
-                                if not self._is_running:
-                                    signals.progress('state', {'value': 'aborted', 'state': 0})
-                                    return
-                                self.set_setting(sequence['key'], value)
-                                signals.progress('sequence_%d' % seq_index, {'value': value, 'state': 1})
-                                run_pipeline(self, output_file)
-                                signals.progress('sequence_%d' % seq_index, {'value': value, 'state': 0})
-            else:
-                run_pipeline(self.processor, output_file)
-
-            # is_sequence_enabled = False
-            # for seq_index, sequence in enumerate(self.sequence):
-            #     if not self._is_running:
-            #         signals.progress('state', {'value': 'aborted', 'state': 0})
-            #         return
-            #     if sequence['enabled']:
-            #         key = sequence['key']
-            #         values = sequence['values']
-            #         for index, value in enumerate(values):
-            #             if not self._is_running:
-            #                 signals.progress('state', {'value': 'aborted', 'state': 0})
-            #                 return
-            #             is_sequence_enabled = True
-            #             self.set_setting(key, value)
-            #             signals.progress('sequence_%d' % seq_index, {'value': value, 'state': 1})
-            #             run_pipeline(output_file)
-            #             signals.progress('sequence_%d' % seq_index, {'value': value, 'state': 0})
-            #
-            # if not is_sequence_enabled:
-            #     # run a single time with the current settings
-            #     run_pipeline(output_file)
+            self.sequencer.set_mode(run_mode)
+            self.sequencer.set_output_file(output_file)
+            self.sequencer.run()
         except Exception as exc:
             signals.progress('state', {'value': 'error: %s' % str(exc), 'state': -1})
         finally:
@@ -287,17 +249,7 @@ class API:
         :param values:
         :param enabled:
         """
-        if values:
-            if isinstance(values, str):
-                values = eval(values)
-
-            if not isinstance(values, (list, tuple)):
-                values = list(values)
-        else:
-            values = []
-        self.sequence[index]['key'] = key
-        self.sequence[index]['values'] = values
-        self.sequence[index]['enabled'] = enabled
+        self.sequencer.set_range(index, key, values, enabled)
 
     def get_model_state(self, model_name):
         """TBW.
@@ -342,8 +294,27 @@ class API:
             if isinstance(obj, functools.partial) and part == 'arguments':
                 obj = obj.keywords
             else:
-                obj = getattr(obj, part)
+                try:
+                    obj = getattr(obj, part)
+                except AttributeError:
+                    # logging.error('Cannot find attribute %r in key %r', part, key)
+                    obj = None
+                    break
         return obj, att
+
+    def has_setting(self, key):
+        """TBW.
+
+        :param key:
+        :return:
+        """
+        found = False
+        obj, att = self._get_setting_object(key)
+        if isinstance(obj, dict) and att in obj:
+            found = True
+        elif hasattr(obj, att):
+            found = True
+        return found
 
     def get_setting(self, key):
         """TBW.
@@ -392,7 +363,7 @@ class API:
 class Sequencer:
     """TBW."""
 
-    def __init__(self, controller: API, steps: t.List[dict], output_file: str) -> None:
+    def __init__(self, controller: API) -> None:
         """TBW.
 
         :param controller:
@@ -400,10 +371,9 @@ class Sequencer:
         :param output_file:
         """
         self._log = logging.getLogger(__name__)
-        # TODO: check that all step ids are unique
         self._controller = controller
-        self._output_file = output_file
-        self._steps = steps  # type: t.List[dict]  # key[str], values[list], enabled[bool]
+        self._output_file = None
+        # self._steps = steps  # type: t.List[dict]  # key[str], values[list], enabled[bool]
         self._current = None  # type: dict
 
         self._paused = False
@@ -413,6 +383,50 @@ class Sequencer:
         self._step = 0
         self._level = 0
         self._n_steps = 1
+        self._run_mode = 'recurse'
+
+        self._steps = [  # TODO: create a Step class
+            {'key': '', 'values': [], 'enabled': False},
+            {'key': '', 'values': [], 'enabled': False},
+            {'key': '', 'values': [], 'enabled': False},
+            {'key': '', 'values': [], 'enabled': False},
+            {'key': '', 'values': [], 'enabled': False},
+        ]
+
+    def set_mode(self, mode):
+        """Set the mode to run the sequencer in.
+
+        :param mode: accepted values: recurse, linear, single
+
+        """
+        self._run_mode = mode
+
+    def set_output_file(self, output_file):
+        """TBW.
+
+        :param output_file:
+        """
+        self._output_file = output_file
+
+    def set_range(self, index, key, values, enabled):
+        """TBW.
+
+        :param index:
+        :param key:
+        :param values:
+        :param enabled:
+        """
+        if values:
+            if isinstance(values, str):
+                values = eval(values)
+
+            if not isinstance(values, (list, tuple)):
+                values = list(values)
+        else:
+            values = []
+        self._steps[index]['key'] = key
+        self._steps[index]['values'] = values
+        self._steps[index]['enabled'] = enabled
 
     @property
     def enabled_steps(self):
@@ -423,36 +437,13 @@ class Sequencer:
                 result.append(step)
         return result
 
-    # def __getattr__(self, id):
-    #     """ TODO: this is need for YAML override"""
-    #     for step in self._steps:
-    #         if id == step.id:
-    #             return step
-    #     return super().__getattr__(id)
-
-    # def resume(self):
-    #     if self._running:
-    #         self.send(SequencerState.running)
-    #         self._paused = False
-    #     if self._current:
-    #         self._current.action.resume()
-    #
-    # def pause(self):
-    #     self.send(SequencerState.pause)
-    #     self._paused = True
-    #     if self._current:
-    #         self._current.action.pause()
-    #
-    # def is_paused(self) -> bool:
-    #     return self._paused
-
     def is_running(self) -> bool:
         """TBW."""
         return self._running
 
     def start(self):
         """TBW."""
-        self._th = threading.Thread(target=self._loop)
+        self._th = threading.Thread(target=self.run)
         self._th.start()
 
     def join(self):
@@ -465,34 +456,53 @@ class Sequencer:
         """TBW."""
         self._paused = False  # abort any paused state as well.
         self._running = False
-        if self._current:
-            self._current.action.abort()
 
-    # @property
-    # def result(self):
-    #     row = [('time', datetime.datetime.now().isoformat())]
-    #     for step in self.enabled_steps:
-    #         if isinstance(step.result, list):
-    #             row += step.result
-    #         else:
-    #             self._log.error('ERROR: result is not a list. id: %s', step.id)
-    #
-    #     return row
+    def _run_step(self, step, val):
+        # self._log.info('Step %d of %d', self._step, self._n_steps)
+        signals.progress('state', {'value': 'running', 'state': 1})
+        try:
+            key = step['key']
+            self._controller.set_setting(key, val)
+            signals.progress('sequence_%d' % self._level, {'value': val, 'state': 1})
+            # run_pipeline(self._controller.processor, self._output_file)
+            signals.progress('sequence_%d' % self._level, {'value': val, 'state': 0})
+        except Exception as exc:
+            self._log.exception(exc)
+            pass  # TODO: what to do?
 
-    # def send(self, state):
-    #     kwargs = {
-    #         'step': self._step,
-    #         'total_steps': self._n_steps,
-    #         'percentage': 100.0 * self._step / self._n_steps,
-    #         'state': SequencerState.to_string(state),
-    #         'state_value': state,
-    #     }
-    #     tags = {
-    #         # key/value items to overlay over Grafana plot
-    #     }
-    #     signals.send_to_influxdb(measurement='Sequencer', fields=kwargs, tags=tags)
+    def _load_initial_state(self):
+        for i, step in enumerate(self.enabled_steps):
+            if len(step['values']):
+                val_0 = step['values'][0]
+                key = step['key']
+                self._controller.set_setting(key, val_0)
+                signals.progress('sequence_%d' % i, {'value': val_0, 'state': 1})
 
-    def _loop(self, i=0):
+    def _single(self):
+        """TBW."""
+        try:
+            run_pipeline(self._controller.processor, self._output_file, self._controller.address_viewer)
+        except Exception as exc:
+            self._log.exception(exc)
+            pass  # TODO: what to do?
+
+    def _loop(self):
+        """Linear loop method."""
+
+        for i, step in enumerate(self.enabled_steps):  #step = self.enabled_steps[i]
+            if not self.is_running():
+                break
+            self._level = i
+            self._current = step
+            for val in step['values']:
+                if not self.is_running():
+                    break
+
+                self._step += 1
+                self._run_step(step, val)
+                self._single()
+
+    def _recurse(self, i=0):
         """Recursive loop method.
 
         .. warning:: this method is re-entrant
@@ -501,38 +511,21 @@ class Sequencer:
         self._level = i
         self._current = step
         for val in step['values']:
-            # wait if paused
-            # while self.is_paused():
-            #     self.send(SequencerState.pause)
-            #     time.sleep(1.0)
-
             # check if the loop is still running
             if not self.is_running():
                 break
 
             self._step += 1
-            # self._log.info('Step %d of %d', self._step, self._n_steps)
-            signals.progress('state', {'value': 'running', 'state': 1})
-            try:
-                key = step['key']
-                self._controller.set_setting(key, val)
-                signals.progress('sequence_%d' % self._level, {'value': val, 'state': 1})
-                run_pipeline(self._controller.processor, self._output_file)
-                signals.progress('sequence_%d' % self._level, {'value': val, 'state': 0})
-            except Exception as exc:
-                self._log.exception(exc)
-                pass  # TODO: what to do?
-
+            self._run_step(step, val)
             if i+1 < len(self.enabled_steps):
-                self._loop(i+1)
+                self._recurse(i+1)
                 # check if user-defined exit handler was called
                 if not self.is_running():
-                    # ensure that the current item aborted on is saved.
                     break
                 self._level = i
-                self._current = step  # reset back to this context's ritem
-            # else:
-            #     signals.dispatcher.emit(sender='sequencer', signal=signals.DATA_READY)(self.result)
+                self._current = step  # reset back to this context's step
+            else:
+                self._single()
 
     def _calculate_total_steps(self):
         """Calculate the number of steps in a recursive loop.
@@ -550,9 +543,13 @@ class Sequencer:
         case.
         """
         num_steps = 1
-        for item in reversed(self.enabled_steps):
-            num_steps = 1 + len(list(item)) * num_steps
-        num_steps -= 1
+        if self._run_mode == 'recurse':
+            for item in reversed(self.enabled_steps):
+                num_steps = 1 + len(list(item)) * num_steps
+            num_steps -= 1
+        elif self._run_mode == 'linear':
+            for item in reversed(self.enabled_steps):
+                num_steps += len(list(item))
         self._n_steps = num_steps
 
     def run(self):
@@ -560,7 +557,15 @@ class Sequencer:
         self._running = True
         try:
             self._calculate_total_steps()
-            self._loop(0)
+            if self._run_mode == 'recurse':
+                self._load_initial_state()
+                self._recurse(0)
+            elif self._run_mode == 'linear':
+                self._load_initial_state()
+                self._loop()
+            else:
+                self._single()
+
             if self._running:
                 signals.progress('state', {'value': 'completed', 'state': 0})
             else:

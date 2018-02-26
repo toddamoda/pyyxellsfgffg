@@ -37,37 +37,30 @@ gui:
             id: detector.geometry.row
             label: Rows
             entry: *id_number_uint
-
           -
             id: detector.geometry.col
             label: Columns
             entry: *id_number_uint
-
           -
             id: detector.geometry.total_thickness
             label: Total Thickness (um)
             entry: *id_number_um
-
           -
             id: detector.geometry.depletion_thickness
             label: Depletion Thickness (um)
             entry: *id_number_um
-
           -
             id: detector.geometry.field_free_thickness
             label: Field Free Thickness (um)
             entry: *id_number_um
-
           -
             id: detector.geometry.pixel_vert_size
             label: Pixel Vertical Size (um)
             entry: *id_number_um
-
           -
             id: detector.geometry.pixel_horz_size
             label: Pixel Horizontal Size (um)
             entry: *id_number_um
-
           -
             id: detector.geometry.material
             label: Material
@@ -77,21 +70,38 @@ gui:
                 - silicon
                 - germanium
                 - HgCdTe
-
           -
             id: detector.geometry.n_acceptor
             label: N Acceptor (cm-3)
             entry: *id_number_um
-
           -
             id: detector.geometry.n_donor
             label: N Donor (cm-3)
             entry: *id_number_um
-
           -
             id: detector.geometry.bias_voltage
             label: Bias Voltage (V)
             entry: *id_number_um
+          -
+            id: detector.geometry.n_output
+            label: N Outputs
+            entry: *id_number_uint
+          -
+            id: detector.geometry.n_row_overhead
+            label: N Row Overhead
+            entry: *id_number_uint
+          -
+            id: detector.geometry.n_frame_overhead
+            label: N Frame Overhead
+            entry: *id_number_uint
+          -
+            id: detector.geometry.reverse_scan_direction
+            label: Reverse Scan Direction
+            entry: *id_text
+          -
+            id: detector.geometry.reference_pixel_border_width
+            label: RefPix Border Width
+            entry: *id_number_uint
 
       -
         label: Environment
