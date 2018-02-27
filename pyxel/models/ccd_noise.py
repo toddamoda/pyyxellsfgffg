@@ -12,24 +12,19 @@ from pyxel.detectors.geometry import Geometry  # noqa: F401
 
 
 def add_fix_pattern_noise(detector: Detector,
-                          pix_non_uniformity=None,
-                          percentage=None) -> Detector:
+                          pix_non_uniformity=None) -> Detector:
     """Add fix pattern noise caused by pixel non-uniformity during charge collection.
 
     :param detector:
     :param pix_non_uniformity:
-    :param percentage:
     :return:
     """
 
     new_detector = detector
     geo = new_detector.geometry  # type: Geometry
 
-    if pix_non_uniformity is None and percentage is not None:
-        # generate_pixel_non_uniformity_data(percentage)   # TODO
-        pass
-    else:
-        pix_non_uniformity = pix_non_uniformity.reshape((geo.row, geo.col))
+    pnu = np.loadtxt(pix_non_uniformity)
+    pnu = pnu.reshape((geo.row, geo.col))
 
     pix_rows = new_detector.pixels.get_pixel_positions_ver()
     pix_cols = new_detector.pixels.get_pixel_positions_hor()
@@ -37,10 +32,9 @@ def add_fix_pattern_noise(detector: Detector,
     charge_with_noise = np.zeros((geo.row, geo.col), dtype=float)
     charge_with_noise[pix_rows, pix_cols] = new_detector.pixels.get_pixel_charges()
 
-    charge_with_noise *= pix_non_uniformity
+    charge_with_noise *= pnu
 
-    new_detector.pixels.change_all_charges(np.rint(charge_with_noise).astype(int).flatten())
-    # TODO add np.rint and np.int to Pixels class funcs
+    new_detector.pixels.update_from_2d_charge_array(charge_with_noise)
 
     return new_detector
 

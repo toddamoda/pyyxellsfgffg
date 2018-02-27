@@ -61,7 +61,7 @@ ccd_process:
 
       tars: 
         name: pyxel.models.tars.tars.run_tars
-        enabled: true
+        enabled: false
         arguments:
           initial_energy: 100.0   # MeV
           particle_number: 10
@@ -82,6 +82,12 @@ ccd_process:
         enabled: false
 #        arguments:
 #          fwc: 100       # e  # if defined use this, if not use the default parameter from characteristics
+
+      fixed_pattern_noise:
+        name: pyxel.models.ccd_noise.add_fix_pattern_noise
+        enabled: true
+        arguments:
+          pix_non_uniformity: data/non_uniformity_array_normal_random_dist.data
 
     # charge -> charge
     charge_transfer:
