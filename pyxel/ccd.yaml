@@ -48,7 +48,7 @@ ccd_process:
 
       shot_noise:
         name: pyxel.models.photon_generation.add_shot_noise
-        enabled: true
+        enabled: false
 
     # photons -> photons
     optics:
@@ -79,7 +79,7 @@ ccd_process:
 
       full_well:
         name: pyxel.models.full_well.simple_pixel_full_well
-        enabled: true
+        enabled: false
 #        arguments:
 #          fwc: 100       # e  # if defined use this, if not use the default parameter from characteristics
 
@@ -87,7 +87,7 @@ ccd_process:
     charge_transfer:
       cdm:
         name: pyxel.models.cdm.CDM.cdm
-        enabled: true
+        enabled: false
         arguments:
           beta_p: 0.6
           beta_s: 0.6
@@ -102,7 +102,7 @@ ccd_process:
     charge_measurement: 
       output_node_noise:
         name: pyxel.models.ccd_noise.add_output_node_noise
-        enabled: true
+        enabled: false
         arguments:
           std_deviation: 1.0
 
