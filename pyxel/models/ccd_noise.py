@@ -16,7 +16,7 @@ def add_fix_pattern_noise(detector: Detector,
     """Add fix pattern noise caused by pixel non-uniformity during charge collection.
 
     :param detector:
-    :param pix_non_uniformity:
+    :param pix_non_uniformity: a path to a file
     :return:
     """
     new_detector = detector

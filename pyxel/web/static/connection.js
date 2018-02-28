@@ -4,10 +4,12 @@ var connection = (function() {
     var ws = null;
     var connection_element = null;
     var main_element = null;
+    var on_open_callback = null;
 
-    var init = function(ctrl_element, container) {
+    var init = function(ctrl_element, container, on_open_handler) {
         connection_element = ctrl_element;
         main_element = container;
+        on_open_callback = on_open_handler;
     };
 
     var on_ws_message = function(evt) {
@@ -56,6 +58,9 @@ var connection = (function() {
 
         ws.onopen = function() {
             on_ws_state_change('Connected', 'Close')
+            if (on_open_callback != null) {
+                on_open_callback();
+            }
         };
 
         ws.onclose = function() {

@@ -38,6 +38,7 @@ def run_pipeline(processor, output_file=None, address_viewer=None):
     """
     try:
         signals.progress('state', {'value': 'running', 'state': 1})
+        processor.detector.update_header()
         result = processor.pipeline.run(processor.detector)
     except PipelineAborted:
         signals.progress('state', {'value': 'aborted', 'state': 0})
@@ -53,7 +54,7 @@ def run_pipeline(processor, output_file=None, address_viewer=None):
             output_file = apply_run_number(output_file)
             signals.progress('state', {'value': 'saving', 'state': 2})
             out = FitsFile(output_file)
-            out.save(result.signal.astype('uint16'), header=None, overwrite=True)
+            out.save(result.signal.astype('uint16'), header=processor.detector.header, overwrite=True)
             signals.progress('state', {'value': 'saved', 'state': 2, 'file': output_file})
         except Exception as exc:
             signals.progress('state', {'value': 'error', 'state': -2})

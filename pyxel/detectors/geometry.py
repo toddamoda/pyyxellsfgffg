@@ -46,10 +46,7 @@ class Geometry:
         self.material_ionization_energy = None
         self.band_gap = None
         self.e_effective_mass = None
-        self.horz_dimension = None
-        self.vert_dimension = None
 
-        self.calculate_geometry_parameters()
         self.set_material(material)
 
     def __getstate__(self):
@@ -79,6 +76,16 @@ class Geometry:
         return self.__getstate__() == obj.__getstate__()
 
     @property
+    def horz_dimension(self):
+        """TBW."""
+        return self.pixel_horz_size * self.col
+
+    @property
+    def vert_dimension(self):
+        """TBW."""
+        return self.pixel_vert_size * self.row
+
+    @property
     def material(self):
         """TBW."""
         return self._material
@@ -106,11 +113,6 @@ class Geometry:
 
         else:
             raise NotImplementedError('Given material has not implemented yet')
-
-    def calculate_geometry_parameters(self):
-        """Calculate and update missing geometry parameters from other provided by the user."""
-        self.horz_dimension = self.pixel_horz_size * self.col
-        self.vert_dimension = self.pixel_vert_size * self.row
 
     def calculate_field_free_thickness(self):
         """TBW."""

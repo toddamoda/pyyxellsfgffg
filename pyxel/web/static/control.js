@@ -128,8 +128,11 @@ $(document).ready(function() {
     $('.model-state').on('update', function(event) {
         connection.emit('api', 'GET-MODEL-STATE', [this.id]);
     });
-
-    connection.init($('#connection_status'), $('#pyxel'))
+    var on_open = function(){
+        $('#setting-get-all').trigger('click');
+        alert('hu');
+    }
+    connection.init($('#connection_status'), $('#pyxel'), function(){$('#setting-get-all').trigger('click');})
     connection.open();
 
 //    $('#tabs li:first-child').addClass('active').delay(5000)

@@ -185,7 +185,9 @@ class FitsFile(ImageData):
             # Create a new FITS file
             if isinstance(header, dict):
                 fits_header = pyfits.Header()
-                fits_header.update(**header)
+                # fits_header.update(**header)
+                key_values = zip(header.keys(), header.values())
+                fits_header.update(key_values)
             else:
                 fits_header = header
             pyfits.writeto(str(self._filename), data, fits_header, output_verify='ignore', overwrite=overwrite)
