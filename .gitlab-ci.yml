@@ -122,10 +122,11 @@ flake8:
   image: python:3.6
   stage: test
   script:
-    - pip install flake8
-
+    - pip install flake8 flake8-docstrings pep8-naming
     - flake8 pyxel
   allow_failure: false
+
+
 
 
 doc8:
