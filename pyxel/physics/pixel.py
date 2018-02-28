@@ -7,33 +7,9 @@ import pandas as pd
 # from astropy import units as u
 from astropy.units import cds
 
+from pyxel.util.util import round_convert_to_int, convert_to_int
 
 cds.enable()
-
-
-def round_convert_to_int(input_array: np.ndarray):
-    """Round list of floats in numpy array and convert to integers.
-
-    Use on data before adding into DataFrame.
-
-    :param input_array: numpy array object OR numpy array (float, int)
-    :return:
-    """
-    array = input_array.astype(float)
-    array = np.rint(array)
-    array = array.astype(int)
-    return array
-
-
-def convert_to_int(input_array: np.ndarray):
-    """Convert numpy array to integer.
-
-    Use on data after getting it from DataFrame.
-
-    :param input_array: numpy array object OR numpy array (float, int)
-    :return:
-    """
-    return input_array.astype(int)
 
 
 class Pixel:

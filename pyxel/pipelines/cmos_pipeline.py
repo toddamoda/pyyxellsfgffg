@@ -26,14 +26,18 @@ class CMOSDetectionPipeline(DetectionPipeline):
                               'charge_measurement', 'signal_transfer', 'readout_electronics']
 
         self._model_steps = {
-            'photon_generation': ['load_image', 'photon_level'],
-            'optics': ['shot_noise'],
-            'charge_generation': ['photoelectrons', 'tars'],
-            'charge_collection': ['fixed_pattern_noise'],
-            'charge_measurement': ['output_node_noise'],
-            'signal_transfer': ['nghxrg_read', 'nghxrg_ktc_bias', 'nghxrg_u_pink', 'nghxrg_c_pink',
-                                'nghxrg_acn', 'nghxrg_pca_zero'],
-            'readout_electronics': []
+            'photon_generation':    ['load_image', 'photon_level',
+                                     'shot_noise'],
+            'optics':               [],
+            'charge_generation':    ['photoelectrons',
+                                     'tars'],
+            'charge_collection':    ['full_well'],
+            'charge_measurement':   ['nghxrg_ktc_bias',
+                                     'nghxrg_read'],
+            'signal_transfer':      ['nghxrg_acn',
+                                     'nghxrg_u_pink',
+                                     'nghxrg_c_pink'],
+            'readout_electronics':  ['nghxrg_pca_zero']
         }
 
     def run_pipeline(self, detector: Detector) -> Detector:
@@ -63,6 +67,8 @@ class CMOSDetectionPipeline(DetectionPipeline):
         # CHARGE READOUT
         # -> create signal -> modify signal ->
         detector.signal = detector.pixels.generate_2d_charge_array()
+        detector.signal = detector.signal.astype('float64')
+
         detector = self.run_model_group('charge_measurement', detector)
         detector = self.run_model_group('signal_transfer', detector)
 

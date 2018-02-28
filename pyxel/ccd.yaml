@@ -1,82 +1,116 @@
-# PyXel! settings
-
+# PyXEL! settings
 ccd_process:
 
   detector:
 
     geometry:
-      row: 100                      # compulsory
-      col: 100                      # compulsory
+      row: 100                      # -
+      col: 100                      # -
+      total_thickness: 10.0         # um
       depletion_thickness: 10.0     # um
       field_free_thickness: 0.0     # um
       pixel_vert_size: 10.0         # um
       pixel_horz_size: 10.0         # um
-      total_thickness: 10.0         # um
+      n_acceptor: 0.0               # cm-3
+      n_donor: 0.0                  # cm-3
+      bias_voltage: 0.0             # V
+      material: 'silicon'
 
     environment:
-      temperature: 320  # detector temperature Kelvin
+      temperature: 300                    # K
+      total_ionising_dose: 0.             # MeV/g
+      total_non_ionising_dose: 8.0e11     # MeV/g
 
     characteristics:
-      qe: 0.5         # -
-      eta: 1          # e/photon
-      sv:  1.0e-6      # V/e
-      amp: 0.8       # V/V
-      a1: 100         # V/V
-      a2: 65536       # DN/V
+      qe: 0.5               # -
+      eta: 1                # e/photon
+      sv: 1.0e-6            # V/e
+      amp: 0.8              # V/V
+      a1: 100               # V/V
+      a2: 2**16             # DN/V
+      fwc: 20000            # e
+      fwc_serial: 30000     # e
 
   pipeline:
-
     # -> photons
     photon_generation:
       load_image:
         name: pyxel.models.photon_generation.load_image
-        enabled: true
+        enabled: false
         arguments:
           image_file: data/HorseHead_orig.fits
 
       photon_level:
         name: pyxel.models.photon_generation.add_photon_level
-        enabled: false
+        enabled: true
         arguments:
-          level: 0
+          level: 100
 
-    # -> photons
-    optics:
       shot_noise:
-        name: pyxel.models.ccd_noise.add_shot_noise
+        name: pyxel.models.photon_generation.add_shot_noise
+        enabled: false
 
-    # -> charge
+    # photons -> photons
+    optics:
+
+    # photons -> charge
     charge_generation:
-
       photoelectrons: 
         name: pyxel.models.photoelectrons.simple_conversion
+        enabled: true
 
       tars: 
         name: pyxel.models.tars.tars.run_tars
+        enabled: false
         arguments:
           initial_energy: 100.0   # MeV
-          particle_number: 1
+          particle_number: 10
           incident_angles:      # rad
-            - 0.31416  # pi / 10
-            - 0.7853   # pi / 4
+            - random #0.31416  # pi / 10
+            - random #0.7853   # pi / 4
           starting_position:    # um
-            - 500.0
-            - 500.0
+            - random #500.0
+            - random #500.0
             - 0.0
           stepping_length: 1.0  # um
 
-    # -> charge
+    # charge -> charge
     charge_collection:
 
-    # -> charge
-    charge_transfer:
+      full_well:
+        name: pyxel.models.full_well.simple_pixel_full_well
+        enabled: false
+#        arguments:
+#          fwc: 100       # e  # if defined use this, if not use the default parameter from characteristics
 
-    # -> signal
+      fixed_pattern_noise:
+        name: pyxel.models.ccd_noise.add_fix_pattern_noise
+        enabled: true
+        arguments:
+          pix_non_uniformity: data/non_uniformity_array_normal_random_dist.data
+
+    # charge -> charge
+    charge_transfer:
+      cdm:
+        name: pyxel.models.cdm.CDM.cdm
+        enabled: false
+        arguments:
+          beta_p: 0.6
+          beta_s: 0.6
+          vg: 6.e-11
+          svg: 1.0e-10
+          t: 20.48e-3
+          st: 5.0e-6
+          parallel_trap_file: pyxel/models/cdm/cdm_euclid_parallel.dat
+          serial_trap_file: pyxel/models/cdm/cdm_euclid_serial.dat
+
+    # charge -> signal
     charge_measurement: 
-      readout_noise: 
+      output_node_noise:
         name: pyxel.models.ccd_noise.add_output_node_noise
+        enabled: false
         arguments:
           std_deviation: 1.0
 
-    # -> image
+    # signal -> image
     readout_electronics: 
