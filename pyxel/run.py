@@ -13,9 +13,30 @@ import typing as t   # noqa: F401
 from pathlib import Path
 
 import pyxel
-from pyxel.util import FitsFile
+from pyxel import util
 import pyxel.pipelines.processor
 from pyxel.io.yaml_processor import load_config
+
+
+def run_parametric(input_filename, output_file):
+    """TBW.
+
+    :param input_filename:
+    :param output_file:
+    :return:
+    """
+    cfg = load_config(Path(input_filename))
+    parametric = cfg.pop('parametric')
+    processor = cfg[next(iter(cfg))]  # type: pyxel.pipelines.processor.Processor
+    parametric.debug(processor)
+    configs = parametric.collect(processor)
+    for config in configs:
+        detector = config.pipeline.run_pipeline(config.detector)
+
+        if output_file:
+            save_to = util.apply_run_number(output_file)
+            out = util.FitsFile(save_to)
+            out.save(detector.signal, header=None, overwrite=True)
 
 
 def run_pipeline(input_filename, output_file):
@@ -37,7 +58,7 @@ def run_pipeline(input_filename, output_file):
     print('Pipeline completed.')
 
     if output_file:
-        out = FitsFile(output_file)
+        out = util.FitsFile(output_file)
         out.save(detector.signal, header=None, overwrite=True)      # TODO should replace result.signal to result.image
 
 
@@ -66,7 +87,7 @@ def main():
     log_format = '%(asctime)s - %(name)s - %(funcName)s - %(thread)d - %(levelname)s - %(message)s'
     logging.basicConfig(level=log_level, format=log_format)
 
-    run_pipeline(opts.config, opts.output)
+    run_parametric(opts.config, opts.output)
 
 
 if __name__ == '__main__':

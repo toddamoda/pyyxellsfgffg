@@ -45,6 +45,22 @@ class DetectionPipeline:
         self._model_steps = {}   # type: t.Dict[str, t.List[str]]
         self._log = logging.getLogger(__name__)
 
+    def __getstate__(self):
+        """TBW."""
+        return {
+            'photon_generation': self.photon_generation,
+            'optics': self.optics,
+            'charge_generation': self.charge_generation,
+            'charge_collection': self.charge_collection,
+            'charge_measurement': self.charge_measurement,
+            'readout_electronics': self.readout_electronics,
+        }
+
+    @property
+    def model_groups(self):
+        """TBW."""
+        return self._model_groups
+
     def run(self, detector: Detector) -> Detector:
         """TBW."""
         try:

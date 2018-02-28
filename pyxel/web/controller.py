@@ -1,17 +1,15 @@
 """TBW."""
 import yaml
-import functools
 import os
 import threading
-# import logging
 from pathlib import Path
 
 
 import pyxel
+from pyxel import util
 from pyxel.web import signals
 from pyxel.web import webapp
 from pyxel.pipelines.detector_pipeline import DetectionPipeline
-from pyxel.web import util
 from pyxel.web.sequencer import Sequencer
 
 
@@ -42,7 +40,7 @@ class Controller:
         signals.dispatcher.connect(sender='api', signal=signals.SET_SETTING, callback=self.set_setting)
         signals.dispatcher.connect(sender='api', signal=signals.GET_SETTING, callback=self.get_setting)
         signals.dispatcher.connect(sender='api', signal=signals.SET_SEQUENCE, callback=self.set_sequence)
-        signals.dispatcher.connect(sender='api', signal=signals.PROGRESS, callback=util.announce_progress)
+        signals.dispatcher.connect(sender='api', signal=signals.PROGRESS, callback=webapp.announce_progress)
         signals.dispatcher.connect(sender='api', signal=signals.SET_MODEL_STATE, callback=self.set_model_state)
         signals.dispatcher.connect(sender='api', signal=signals.GET_MODEL_STATE, callback=self.get_model_state)
 
@@ -76,7 +74,7 @@ class Controller:
         :return:
         """
         if self.processor:
-            return self.processor.pipeline._model_groups
+            return self.processor.pipeline.model_groups
         return []
 
     def get_pipeline_names(self):
@@ -172,26 +170,26 @@ class Controller:
             model.enabled = enabled
         self.get_model_state(model_name)  # signal updated value to listeners
 
-    def _get_setting_object(self, key):
-        """TBW.
-
-        :param key:
-        :return:
-        """
-        obj_props = key.split('.')
-        att = obj_props[-1]
-        obj = self.processor
-        for part in obj_props[:-1]:
-            if isinstance(obj, functools.partial) and part == 'arguments':
-                obj = obj.keywords
-            else:
-                try:
-                    obj = getattr(obj, part)
-                except AttributeError:
-                    # logging.error('Cannot find attribute %r in key %r', part, key)
-                    obj = None
-                    break
-        return obj, att
+    # def _get_setting_object(self, key):
+    #     """TBW.
+    #
+    #     :param key:
+    #     :return:
+    #     """
+    #     obj_props = key.split('.')
+    #     att = obj_props[-1]
+    #     obj = self.processor
+    #     for part in obj_props[:-1]:
+    #         if isinstance(obj, functools.partial) and part == 'arguments':
+    #             obj = obj.keywords
+    #         else:
+    #             try:
+    #                 obj = getattr(obj, part)
+    #             except AttributeError:
+    #                 # logging.error('Cannot find attribute %r in key %r', part, key)
+    #                 obj = None
+    #                 break
+    #     return obj, att
 
     def has_setting(self, key):
         """TBW.
@@ -200,7 +198,7 @@ class Controller:
         :return:
         """
         found = False
-        obj, att = self._get_setting_object(key)
+        obj, att = util.get_obj_att(self.processor, key)
         if isinstance(obj, dict) and att in obj:
             found = True
         elif hasattr(obj, att):
@@ -213,7 +211,7 @@ class Controller:
         :param key:
         :return:
         """
-        obj, att = self._get_setting_object(key)
+        obj, att = util.get_obj_att(self.processor, key)
 
         if isinstance(obj, dict) and att in obj:
             value = obj[att]
@@ -242,7 +240,7 @@ class Controller:
             else:
                 value = util.eval_entry(value)
 
-        obj, att = self._get_setting_object(key)
+        obj, att = util.get_obj_att(self.processor, key)
 
         if isinstance(obj, dict) and att in obj:
             obj[att] = value

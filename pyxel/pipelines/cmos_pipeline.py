@@ -40,6 +40,14 @@ class CMOSDetectionPipeline(DetectionPipeline):
             'readout_electronics':  ['nghxrg_pca_zero']
         }
 
+    def __getstate__(self):
+        """TBW."""
+        kwargs = super().__getstate__()
+        kwargs_obj = {
+            'signal_transfer': self.signal_transfer
+        }
+        return {**kwargs, **kwargs_obj}
+
     def run_pipeline(self, detector: Detector) -> Detector:
         """TBW."""
         # INITIALIZATION (open or generate image):
