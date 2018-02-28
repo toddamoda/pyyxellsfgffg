@@ -9,7 +9,7 @@ import pyxel
 import pyxel.pipelines.processor
 
 from pyxel.web import webapp
-from pyxel.web.controller import API
+from pyxel.web.controller import Controller
 
 
 def run_web_server(input_filename=None, port=9999, address_viewer=None):
@@ -25,7 +25,7 @@ def run_web_server(input_filename=None, port=9999, address_viewer=None):
         cfg = pyxel.load_config(config_path)
         processor = cfg[cfg.keys()[0]]
 
-    controller = API(processor, address_viewer)
+    controller = Controller(processor, address_viewer)
 
     api = webapp.WebApplication(controller)
     thread = webapp.TornadoServer(api, ('0.0.0.0', port))
@@ -61,7 +61,7 @@ def main():
 
     # Set logger
     log_level = [logging.ERROR, logging.INFO, logging.DEBUG][min(opts.verbosity, 2)]
-    log_format = '%(asctime)s - %(name)s - %(funcName)s - %(thread)d - %(levelname)s - %(message)s'
+    log_format = '%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(thread)d - %(message)s'
     del logging.root.handlers[:]
     logging.basicConfig(level=log_level, format=log_format)
 
