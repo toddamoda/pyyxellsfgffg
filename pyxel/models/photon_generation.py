@@ -42,3 +42,18 @@ def add_photon_level(detector: Detector, level: int) -> Detector:
         detector.photons.generate_photons(photon_number_list, photon_energy_list)
 
     return detector
+
+
+def add_shot_noise(detector: Detector) -> Detector:
+    """Add shot noise to number of photons.
+
+    :return:
+    """
+    new_detector = detector
+
+    lambda_list = new_detector.photons.get_photon_numbers()
+    lambda_list = [float(i) for i in lambda_list]
+    new_list = np.random.poisson(lam=lambda_list)  # * u.ph
+    new_detector.photons.change_all_number(new_list)
+
+    return new_detector
