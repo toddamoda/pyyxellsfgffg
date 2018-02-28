@@ -34,7 +34,12 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         :param object_dict:
         :return:
         """
-        msg_str = json.dumps(object_dict)
+        try:
+            msg_str = json.dumps(object_dict)
+        except TypeError as exc:
+            logging.exception(exc)
+            logging.error('Could not convert dict to JSON string for:%r', object_dict)
+            return
         for wsock in WEB_SOCKETS:
             wsock.write_message(msg_str)
 

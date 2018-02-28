@@ -12,7 +12,7 @@ imager communication
 DONE: 3. Detector class require refactoring of 'photons' and 'image' so
 that it interfaces nicely with GUI.
 
-4. Refactor sequencer code to run as an embedded for-loop
+DONE: 4. Refactor sequencer code to run as an embedded for-loop
 
 5. Implement 'Reset' button. This should reset all entry fields to
 YAML file values

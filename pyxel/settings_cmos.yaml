@@ -38,13 +38,13 @@ cmos_process:
     photon_generation:
       load_image: 
         name: pyxel.models.photon_generation.load_image
-        enabled: true
+        enabled: false
         arguments:
-          image_file: C:\dev\work\pyxel\data\HorseHead_orig.fits
+          image_file: 'C:\dev\work\pyxel\data\HorseHead_orig.fits'
 
       photon_level: 
         name: pyxel.models.photon_generation.add_photon_level
-        enabled: false
+        enabled: true
         arguments:
           level: 100
 
