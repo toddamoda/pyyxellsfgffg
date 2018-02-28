@@ -1,13 +1,9 @@
-#processor:
-#  runner: pyxel_alpha.simulate_ccd
-#  xx : pyxel.models.ccd_noise.CcdNoiseGenerator
-#  pipeline : pyxel.detectors.ccd.CcdTransferFunction
 
-ccd_process: !PROCESSOR
+ccd_process:
 
-  detector: !CCD
+  detector:
 
-    geometry: !ccd_geometry
+    geometry:
       row: 100                      # compulsory
       col: 100                      # compulsory
       total_thickness: 10.0         # um
@@ -20,12 +16,12 @@ ccd_process: !PROCESSOR
       n_donor: 0.0                  # cm-3
       bias_voltage: 0.0             # V
 
-    environment: !environment
+    environment:
       temperature: 300                    # Kelvin, detector temperature
       total_ionising_dose: 8.0e11         # total ionising dose (IEL)
       total_non_ionising_dose: 8.0e11     # total non-ionising dose (NIEL)
 
-    characteristics: !ccd_characteristics
+    characteristics:
       qe: 0.5               # -
       eta: 1                # e/photon
       sv: 1.0e-6            # V/e
@@ -35,40 +31,37 @@ ccd_process: !PROCESSOR
       fwc: 20000            # e
       fwc_serial: 30000     # e
 
-  pipeline: !CCD_PIPELINE
+  pipeline:
 
-    photon_generation: !models
-      load_image: !model
+    photon_generation:
+      load_image:
         name: pyxel.models.photon_generation.load_image
         enabled: false
         arguments:
           image_file: null
 
-      photon_level: !model
+      photon_level:
         name: pyxel.models.photon_generation.add_photon_level
         enabled: true
         arguments:
           level: 100
 
-    # -> photons
-    optics: !models
-      shot_noise: !model
+      shot_noise:
+        name: pyxel.models.photon_generation.add_shot_noise
         enabled: true
-        name: pyxel.models.ccd_noise.add_shot_noise
-  #    ray_tracing: !class
-  #      name: pyxel.models.ccd_noise.OpticsModelRayTracer
-  #      args:
-  #        path: null
 
-    # photons -> compute_charge -> charge
+    # -> photons
+    optics:
 
     # -> charge
-    charge_generation: !models
-      photoelectrons: !model
+    charge_generation:
+      photoelectrons:
+        enabled: false
         name: pyxel.models.photoelectrons.simple_conversion
 
-      tars: !model
+      tars:
         name: pyxel.models.tars.tars.run_tars
+        enabled: true
         arguments:
           initial_energy: 100.0   # MeV
           particle_number: 10
@@ -82,26 +75,27 @@ ccd_process: !PROCESSOR
           stepping_length: 1.0  # um
 
     # -> charge
-    charge_collection: !models
-      fixed_pattern_noise: !model
+    charge_collection:
+      fixed_pattern_noise:
         enabled: false
         name: pyxel.models.ccd_noise.add_fix_pattern_noise
         arguments:
-          pix_non_uniformity: 'data/non_uniformity_array_normal_stdev0.03.data'
+          pix_non_uniformity: data/non_uniformity_array_normal_random_dist.data
 
-      diffusion: !model
+      diffusion:
         enabled: false
         name: pyxel.models.diffusion.diffusion
 #        arguments:
 
-      full_well: !model
+      full_well:
         name: pyxel.models.full_well.simple_pixel_full_well
+        enabled: false
         arguments:
           fwc: 100       # e  # if defined use this, if not use the default parameter from characteristics
 
     # -> charge
     charge_transfer:
-      cdm: !model
+      cdm:
         enabled: false
         name: pyxel.models.cdm.CDM.cdm
         arguments:
@@ -116,11 +110,11 @@ ccd_process: !PROCESSOR
 
     # -> signal
     charge_measurement:
-      readout_noise: !model
+      readout_noise:
         enabled: false
         name: pyxel.models.ccd_noise.add_output_node_noise
         arguments:
           std_deviation: 1.0
 
     # -> signal
-    readout_electronics: !models
+    readout_electronics:

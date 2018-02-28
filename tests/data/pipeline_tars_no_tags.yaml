@@ -41,12 +41,13 @@ ccd_process:
         arguments:
           level: 0
 
-    # -> photons
-    optics:
       shot_noise:
-        name: pyxel.models.ccd_noise.add_shot_noise
+        name: pyxel.models.photon_generation.add_shot_noise
 
-    # -> charge
+    # photons -> photons
+    optics:
+
+    # photons -> charge
     charge_generation:
 
       photoelectrons: 
@@ -66,18 +67,18 @@ ccd_process:
             - 0.0
           stepping_length: 1.0  # um
 
-    # -> charge
+    # charge -> charge
     charge_collection:
 
-    # -> charge
+    # charge -> charge
     charge_transfer:
 
-    # -> signal
+    # charge -> signal
     charge_measurement: 
       readout_noise: 
         name: pyxel.models.ccd_noise.add_output_node_noise
         arguments:
           std_deviation: 1.0
 
-    # -> image
+    # signal -> image
     readout_electronics: 

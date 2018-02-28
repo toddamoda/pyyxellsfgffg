@@ -13,33 +13,27 @@ def simple_conversion(detector: Detector) -> Detector:
     """Generate charges from incident photons via photoelectric effect, simple statistical model.
 
     :param detector:
-    :return:
+    :return new_detector:
     """
-    # new_detector = copy.deepcopy(detector)
     new_detector = detector
-
-    photon_number = detector.photons.get_photon_numbers()
+    ch = new_detector.characteristics
+    ph = new_detector.photons
+    photon_number = ph.get_photon_numbers()
     size = len(photon_number)
-
-    # Calc the average charge numbers per pixel
-    # qe and eta should be a single float number OR list
-    charge_number = photon_number * new_detector.characteristics.qe * new_detector.characteristics.eta
-
-    # converting to int, TODO: do proper rounding or floor -> numpy object problem
-    charge_number = charge_number.astype(int)
-
-    new_detector.charges.add_charge('e',
-                                    charge_number,
-                                    [0.] * size,
-                                    detector.photons.get_positions_ver(),
-                                    detector.photons.get_positions_hor(),
-                                    detector.photons.get_positions_z(),
-                                    [0.] * size,
-                                    [0.] * size,
-                                    [0.] * size)
-
-    # TODO remove photons!
-
+    # Calculate the average charge numbers per pixel
+    charge_number = photon_number * ch.qe * ch.eta
+    # Adding new charge to Charge data frame
+    new_detector.charges.add_charge(particle_type='e',
+                                    particles_per_cluster=charge_number,
+                                    init_energy=[0.] * size,
+                                    init_ver_position=ph.get_positions_ver(),
+                                    init_hor_position=ph.get_positions_hor(),
+                                    init_z_position=ph.get_positions_z(),
+                                    init_ver_velocity=[0.] * size,
+                                    init_hor_velocity=[0.] * size,
+                                    init_z_velocity=[0.] * size)
+    # Removing all the photons because they have either created some photoelectrons or got lost
+    ph.remove_photons()
     return new_detector
 
 
