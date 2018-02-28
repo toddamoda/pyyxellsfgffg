@@ -5,6 +5,7 @@ import typing as t  # noqa: F401
 from pyxel.detectors.detector import Detector
 from pyxel.pipelines.models import Model  # noqa: F401
 from pyxel.pipelines.models import Models
+from pyxel import util
 
 
 class PipelineAborted(Exception):
@@ -89,6 +90,10 @@ class DetectionPipeline:
                         model = models_obj.models[step]  # type: Model
                         if model.enabled:
                             self._log.debug('Running %r', model.name)
+                            for arg in model.arguments:
+                                util.update_fits_header(detector.header,
+                                                        key=[step, arg],
+                                                        value=model.arguments[arg])
                             model.function(detector)
                             if not self._is_running:
                                 self._log.debug('Aborted after %r', model.name)

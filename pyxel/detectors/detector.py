@@ -3,7 +3,8 @@
 #   --------------------------------------------------------------------------
 """CCD detector modeling class."""
 from math import sqrt
-
+from collections import OrderedDict
+import typing as t  # noqa: F401
 import numpy as np
 
 # from astropy import units as u
@@ -13,7 +14,7 @@ from pyxel.detectors.geometry import Geometry
 from pyxel.physics.charge import Charge  # noqa: F401
 from pyxel.physics.photon import Photon  # noqa: F401
 from pyxel.physics.pixel import Pixel  # noqa: F401
-
+from pyxel import util
 
 # from pyxel.detectors.optics import Optics
 
@@ -39,6 +40,17 @@ class Detector:
         self.geometry = geometry
         self.environment = environment
         self.characteristics = characteristics
+        self.header = OrderedDict()  # type: t.Dict[str, object]
+
+    def update_header(self):
+        """TBW."""
+        for name, obj in self.__getstate__().items():
+            for att, value in obj.__getstate__().items():
+                util.update_fits_header(self.header, key=[name, att], value=value)
+
+    def to_fits(self, output_file):
+        """Save signal to fits format."""
+        pass  # TODO
 
     def __getstate__(self):
         """TBW.
@@ -46,7 +58,7 @@ class Detector:
         :return:
         """
         return {
-            'geometry': self.geometry,
+            'geometry': self.geometry,  # TODO: add __getstate_()
             'environment': self.environment,
             'characteristics': self.characteristics
         }

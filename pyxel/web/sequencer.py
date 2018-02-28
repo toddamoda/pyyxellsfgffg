@@ -2,8 +2,38 @@
 import logging
 import threading
 
+import typing as t
+
 from pyxel.web import signals
 from pyxel.web import util
+
+
+class Step:
+    """TBW."""
+
+    def __init__(self, key, values, enabled=True):
+        """TBW.
+
+        :param key:
+        :param values:
+        :param enabled:
+        """
+        self.key = key  # unique identifier to the step. example: detector.geometry.row
+        self.values = values  # t.List[float|int]
+        self.enabled = enabled  # bool
+
+
+class ParametricConfig:
+    """TBW."""
+
+    def __init__(self, processor, steps: t.List[Step]) -> None:
+        """TBW.
+
+        :param processor:
+        :param steps:
+        """
+        self.steps = steps
+        self.processor = processor
 
 
 class Sequencer:
@@ -13,8 +43,6 @@ class Sequencer:
         """TBW.
 
         :param controller:
-        :param steps:
-        :param output_file:
         """
         self._log = logging.getLogger(__name__)
         self._controller = controller
