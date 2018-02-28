@@ -49,7 +49,6 @@ def add_shot_noise(detector: Detector) -> Detector:
 
     :return:
     """
-
     new_detector = detector
 
     lambda_list = new_detector.photons.get_photon_numbers()

@@ -76,7 +76,7 @@ def run_pipeline(processor, output_file=None, address_viewer=None):
 
 
 def eval_range(values):
-    """Evaluates a string representation of a list or numpy array.
+    """Evaluate a string representation of a list or numpy array.
 
     :param values:
     :return: list

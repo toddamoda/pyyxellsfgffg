@@ -19,7 +19,6 @@ def add_fix_pattern_noise(detector: Detector,
     :param pix_non_uniformity:
     :return:
     """
-
     new_detector = detector
     geo = new_detector.geometry  # type: Geometry
 

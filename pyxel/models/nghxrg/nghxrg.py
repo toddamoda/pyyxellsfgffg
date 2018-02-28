@@ -17,7 +17,7 @@ from pyxel.models.nghxrg.nghxrg_beta import HXRGNoise
 
 
 def get_geom(detector_obj):
-    """
+    """TBW.
 
     :param detector_obj:
     :return:
@@ -98,7 +98,7 @@ def ktc_bias_noise(detector: CMOS,
                    window_mode: str = 'FULL',
                    wind_x0: int = 0, wind_y0: int = 0,
                    wind_x_size: int = 0, wind_y_size: int = 0) -> CMOS:
-    """
+    """TBW.
 
     :param detector:
     :param ktc_noise:
