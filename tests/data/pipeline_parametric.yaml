@@ -1,8 +1,8 @@
 
 parametric:
-#  mode: single
+  mode: single
   #mode: embedded
-  mode: sequential
+#  mode: sequential
   steps:
     -
       enabled: true
