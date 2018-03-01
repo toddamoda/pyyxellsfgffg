@@ -38,7 +38,7 @@ ccd_process:
         name: pyxel.models.photon_generation.load_image
         enabled: false
         arguments:
-          image_file: data/HorseHead_orig.fits
+          image_file: 'data/HorseHead_orig.fits'
 
       photon_level:
         name: pyxel.models.photon_generation.add_photon_level
@@ -87,7 +87,7 @@ ccd_process:
         name: pyxel.models.ccd_noise.add_fix_pattern_noise
         enabled: true
         arguments:
-          pix_non_uniformity: data/non_uniformity_array_normal_random_dist.data
+          pix_non_uniformity: 'data/non_uniformity_array_normal_random_dist.data'
 
     # charge -> charge
     charge_transfer:
@@ -101,8 +101,8 @@ ccd_process:
           svg: 1.0e-10
           t: 20.48e-3
           st: 5.0e-6
-          parallel_trap_file: pyxel/models/cdm/cdm_euclid_parallel.dat
-          serial_trap_file: pyxel/models/cdm/cdm_euclid_serial.dat
+          parallel_trap_file: 'pyxel/models/cdm/cdm_euclid_parallel.dat'
+          serial_trap_file: 'pyxel/models/cdm/cdm_euclid_serial.dat'
 
     # charge -> signal
     charge_measurement: 

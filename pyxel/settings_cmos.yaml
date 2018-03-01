@@ -1,4 +1,18 @@
 
+parametric:
+#  mode: single
+#  mode: embedded
+  mode: sequential
+  steps:
+    -
+      enabled: true
+      key: pipeline.photon_generation.photon_level.arguments.level
+      values: [10]
+#    -
+#      enabled: true
+#      key: pipeline.charge_generation.tars.arguments.initial_energy
+#      values: [100, 200, 300]
+
 cmos_process:
 
   detector:
@@ -27,10 +41,10 @@ cmos_process:
       qe: 0.5         # -
       eta: 1          # e/photon
       sv: 1.0e-6      # V/e
-      amp: 0.8       # V/V
+      amp: 0.8        # V/V
       a1: 100         # V/V
-      a2: 65536       # DN/V
-      fwc: 20000   # e
+      a2: 2**16       # DN/V
+      fwc: 20000      # e
 
   pipeline:
 
@@ -40,7 +54,7 @@ cmos_process:
         name: pyxel.models.photon_generation.load_image
         enabled: false
         arguments:
-          image_file: 'C:\dev\work\pyxel\data\HorseHead_orig.fits'
+          image_file: 'data/HorseHead_orig.fits'
 
       photon_level: 
         name: pyxel.models.photon_generation.add_photon_level
