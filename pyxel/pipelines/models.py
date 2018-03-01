@@ -46,6 +46,12 @@ class Models:
         """
         self.models = models    # type: t.Dict[str, Model]
 
+    def __getstate__(self):
+        """TBW."""
+        return {
+            'models': self.models,
+        }
+
     def __getattr__(self, item):
         """TBW."""
         if item in self.models:

@@ -16,6 +16,21 @@ WEB_SOCKETS = []
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
+def announce_progress(idn: str, fields: dict):
+    """TBW.
+
+    :param idn:
+    :param fields:
+    :return:
+    """
+    msg = {
+        'type': 'progress',
+        'id': idn,
+        'fields': fields,
+    }
+    WebSocketHandler.announce(msg)
+
+
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
     """The ws: web-socket handler."""
 

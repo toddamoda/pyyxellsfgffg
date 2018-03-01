@@ -42,6 +42,14 @@ class CCDDetectionPipeline(DetectionPipeline):
             'readout_electronics':  []
         }
 
+    def __getstate__(self):
+        """TBW."""
+        kwargs = super().__getstate__()
+        kwargs_obj = {
+            'charge_transfer': self.charge_transfer
+        }
+        return {**kwargs, **kwargs_obj}
+
     def run_pipeline(self, detector: Detector) -> Detector:
         """TBW.
 

@@ -27,6 +27,8 @@ from pyxel.detectors.environment import Environment
 from pyxel.detectors.ccd_geometry import CCDGeometry
 from pyxel.detectors.cmos_geometry import CMOSGeometry
 from pyxel.pipelines.models import Model
+from pyxel.pipelines.parametric import ParametricConfig
+from pyxel.pipelines.parametric import StepValues
 
 
 class PyxelLoader(yaml.SafeLoader):
@@ -64,6 +66,20 @@ def _expr_processor(loader: PyxelLoader, node: yaml.ScalarNode):
         result = value
 
     return result
+
+
+def _constructor_parametric(loader: PyxelLoader, node: yaml.MappingNode):
+    mapping = loader.construct_mapping(node, deep=True)     # type: dict
+    obj = ParametricConfig(**mapping)
+
+    return obj
+
+
+def _constructor_steps(loader: PyxelLoader, node: yaml.SequenceNode):
+    sequence = loader.construct_sequence(node, deep=True)     # type: list
+    obj = [StepValues(**kwargs) for kwargs in sequence]
+
+    return obj
 
 
 def _constructor_processor(loader: PyxelLoader, node: yaml.MappingNode):
@@ -277,6 +293,12 @@ def _model_representer(dumper: PyxelDumper, obj: Model):
 
 PyxelLoader.add_implicit_resolver('!expr', re.compile(r'^.*$'), None)
 PyxelLoader.add_constructor('!expr', _expr_processor)
+
+PyxelLoader.add_path_resolver('!PARAMETRIC', ['parametric'])
+PyxelLoader.add_constructor('!PARAMETRIC', _constructor_parametric)
+
+PyxelLoader.add_path_resolver('!steps', ['parametric', 'steps'])
+PyxelLoader.add_constructor('!steps', _constructor_steps)
 
 PyxelLoader.add_path_resolver('!PROCESSOR', ['cmos_process'])
 PyxelLoader.add_path_resolver('!PROCESSOR', ['ccd_process'])

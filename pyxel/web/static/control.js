@@ -128,20 +128,13 @@ $(document).ready(function() {
     $('.model-state').on('update', function(event) {
         connection.emit('api', 'GET-MODEL-STATE', [this.id]);
     });
-    var on_open = function(){
-        $('#setting-get-all').trigger('click');
-        alert('hu');
-    }
-    connection.init($('#connection_status'), $('#pyxel'), function(){$('#setting-get-all').trigger('click');})
-    connection.open();
 
-//    $('#tabs li:first-child').addClass('active').delay(5000)
-//    alert($('#pipeline select').get_value())
     if ($('#pipeline select').get_value() == '') {
         $('#group-0').css('display', 'none');
         $('#group-1').css('display', 'none');
         $('#group-2').css('display', 'none');
-//        $('#group-viewer').css('display', 'none');
     }
 
+    connection.init($('#connection_status'), $('#pyxel'), function(){$('#setting-get-all').trigger('click');})
+    connection.open();
 });
