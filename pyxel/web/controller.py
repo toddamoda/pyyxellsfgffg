@@ -34,6 +34,7 @@ class Controller:
         self.processor = processor  # type: DetectionPipeline
         self.processor_name = None  # type: str
         self.sequencer = Sequencer(self)
+        self.parametric = None
 
         signals.dispatcher.connect(sender='api', signal=signals.LOAD_PIPELINE, callback=self.load_pipeline)
         signals.dispatcher.connect(sender='api', signal=signals.RUN_PIPELINE, callback=self.start_pipeline)
@@ -43,6 +44,7 @@ class Controller:
         signals.dispatcher.connect(sender='api', signal=signals.PROGRESS, callback=webapp.announce_progress)
         signals.dispatcher.connect(sender='api', signal=signals.SET_MODEL_STATE, callback=self.set_model_state)
         signals.dispatcher.connect(sender='api', signal=signals.GET_MODEL_STATE, callback=self.get_model_state)
+        signals.dispatcher.connect(sender='api', signal=signals.GET_STATE, callback=self.get_state)
 
     @property
     def address_viewer(self):
@@ -60,11 +62,12 @@ class Controller:
         """
         if name in self.pipeline_paths:
             config_path = self.pipeline_paths[name]
-            cfg = pyxel.load_config(config_path)
-            root_key = list(cfg.keys())[0]
-            self.processor = cfg[root_key]
+            nodes = util.load(config_path)
+            self.parametric = nodes[0]
+            self.processor = nodes[1]
             self.processor_name = name
         else:
+            self.parametric = None
             self.processor = None
             self.processor_name = None
 
@@ -170,26 +173,13 @@ class Controller:
             model.enabled = enabled
         self.get_model_state(model_name)  # signal updated value to listeners
 
-    # def _get_setting_object(self, key):
-    #     """TBW.
-    #
-    #     :param key:
-    #     :return:
-    #     """
-    #     obj_props = key.split('.')
-    #     att = obj_props[-1]
-    #     obj = self.processor
-    #     for part in obj_props[:-1]:
-    #         if isinstance(obj, functools.partial) and part == 'arguments':
-    #             obj = obj.keywords
-    #         else:
-    #             try:
-    #                 obj = getattr(obj, part)
-    #             except AttributeError:
-    #                 # logging.error('Cannot find attribute %r in key %r', part, key)
-    #                 obj = None
-    #                 break
-    #     return obj, att
+    def get_state(self):
+        """
+
+        :return:
+        """
+        result = {}
+        return result
 
     def has_setting(self, key):
         """TBW.

@@ -28,9 +28,7 @@ def run_parametric(input_filename, output_file, key=None, value=None):
     :return:
     """
     output = []
-    cfg = load_config(Path(input_filename))
-    parametric = cfg.pop('parametric')
-    processor = cfg[next(iter(cfg))]  # type: pyxel.pipelines.processor.Processor
+    parametric, processor = util.load(Path(input_filename))
     if key and value:
         # processor.set(key, value)
         pass
@@ -45,9 +43,14 @@ def run_parametric(input_filename, output_file, key=None, value=None):
             out.save(detector.signal, header=None, overwrite=True)
             output.append(output_file)
 
+    return output
+
 
 def run_optimization(input_filename, output_file):
-    """TBW."""
+    """TBW.
+
+    TODO: this function is not yet complete.
+    """
     key = None
     max_loops = 100
     convergent_criteria = 10.0
@@ -58,12 +61,10 @@ def run_optimization(input_filename, output_file):
         old_optimized_value = new_optimized_value
         files = run_parametric(input_filename, output_file, key, new_optimized_value)
         # TODO: send file names to optimization model
-        new_optimized_value = 10.0  # this should be the output from the model
+        opt_func = lambda fits_files: 10.0
+        new_optimized_value = opt_func(files)  # this should be the output from the model
         if abs(old_optimized_value - new_optimized_value) < convergent_criteria:
             break
-
-
-
 
 
 def run_pipeline(input_filename, output_file):

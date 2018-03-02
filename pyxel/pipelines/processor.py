@@ -29,14 +29,38 @@ class Processor:
             'pipeline': self.pipeline,
         }
 
-    def set(self, key, value):
+    def has(self, key):
+        """TBW.
+
+        :param key:
+        :return:
+        """
+        found = False
+        obj, att = util.get_obj_att(self, key)
+        if isinstance(obj, dict) and att in obj:
+            found = True
+        elif hasattr(obj, att):
+            found = True
+        return found
+
+    def get(self, key):
+        """TBW.
+
+        :param key:
+        :return:
+        """
+        return util.get_value(self, key)
+
+    def set(self, key, value, convert_value=True):
         """TBW.
 
         :param key:
         :param value:
+        :param convert_value:
         :return:
         """
-        if value:
+        if convert_value and value:
+            # convert the string based value to a number
             if isinstance(value, list):
                 for i, val in enumerate(value):
                     if val:

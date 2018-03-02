@@ -8,6 +8,23 @@ from ast import literal_eval
 from pyxel.util.fitsfile import FitsFile
 
 
+def load(yaml_filename):
+    """TBW.
+
+    :param yaml_filename:
+    :return:
+    """
+    from pyxel.io.yaml_processor import load_config
+    cfg = load_config(yaml_filename)
+    if 'parametric' in cfg:
+        parametric = cfg.pop('parametric')  # type: pyxel.pipelines.parametric.ParametricConfig
+    else:
+        parametric = None
+
+    processor = cfg[next(iter(cfg))]  # type: pyxel.pipelines.processor.Processor
+    return parametric, processor
+
+
 def update_fits_header(header, key, value):
     """TBW.
 
@@ -73,6 +90,8 @@ def eval_range(values):
     :return: list
     """
     if values:
+        # TODO: consider using this instead:
+        # result = eval(value, {}, np.__dict__)
         if isinstance(values, str):
             if 'numpy' in values:
                 locals_dict = {'numpy': importlib.import_module('numpy')}

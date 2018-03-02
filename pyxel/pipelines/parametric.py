@@ -4,6 +4,7 @@ import typing as t
 
 from pyxel import util
 
+
 class StepValues:
     """TBW."""
 
@@ -14,36 +15,19 @@ class StepValues:
         :param values:
         :param enabled:
         """
+        # TODO: should the values be evaluated?
         self.key = key  # unique identifier to the step. example: detector.geometry.row
         self.values = values  # t.List[float|int]
         self.enabled = enabled  # bool
+
+    def __len__(self):
+        """TBW."""
+        return len(self.values)
 
     def __iter__(self):
         """TBW."""
         for value in self.values:
             yield value
-
-    # def apply_value(self, processor, value):
-    #     """TBW.
-    #
-    #     :param processor:
-    #     :param value:
-    #     :return:
-    #     """
-    #     if value:
-    #         if isinstance(value, list):
-    #             for i, val in enumerate(value):
-    #                 if val:
-    #                     value[i] = util.eval_entry(val)
-    #         else:
-    #             value = util.eval_entry(value)
-    #
-    #     obj, att = util.get_obj_att(processor, self.key)
-    #
-    #     if isinstance(obj, dict) and att in obj:
-    #         obj[att] = value
-    #     else:
-    #         setattr(obj, att, value)
 
 
 class ParametricConfig:
@@ -69,20 +53,14 @@ class ParametricConfig:
         :param processor:
         :return:
         """
-        # configs = []
-        #
         for step in self.enabled_steps:
             key = step.key
             for value in step:
                 new_proc = util.copy_processor(processor)
                 new_proc.set(key, value)
                 yield new_proc
-                # # step.apply_value(proc, value)
-                # configs.append(proc)
-        #
-        # return configs
 
-    def _embedded(self, processor, level=0, configs=None):
+    def _embedded(self, processor):
         """TBW.
 
         :param processor:
