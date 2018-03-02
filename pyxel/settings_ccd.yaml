@@ -132,7 +132,8 @@ ccd_process:
 
     # -> signal
     charge_measurement:
-      readout_noise:
+
+      output_node_noise:
         enabled: false
         name: pyxel.models.ccd_noise.add_output_node_noise
         arguments:
