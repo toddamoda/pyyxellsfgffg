@@ -1,25 +1,25 @@
 
-parametric:
+#parametric:
 #  mode: single
-#  mode: embedded
-  mode: sequential
-  steps:
-    -
-      enabled: true
-      key: pipeline.photon_generation.photon_level.arguments.level
-      values: [10, 20, 30]
-    -
-      enabled: true
-      key: pipeline.charge_generation.tars.arguments.initial_energy
-      values: [100, 200, 300]
-    -
-      enabled: false
-      key:
-      values:
-    -
-      enabled: false
-      key:
-      values:
+##  mode: embedded
+##  mode: sequential
+#  steps:
+#    -
+#      enabled: true
+#      key: pipeline.photon_generation.photon_level.arguments.level
+#      values: [10, 20, 30]
+#    -
+#      enabled: true
+#      key: pipeline.charge_generation.tars.arguments.initial_energy
+#      values: [100, 200, 300]
+#    -
+#      enabled: false
+#      key:
+#      values:
+#    -
+#      enabled: false
+#      key:
+#      values:
 
 ccd_process:
 
@@ -85,16 +85,18 @@ ccd_process:
         name: pyxel.models.tars.tars.run_tars
         enabled: true
         arguments:
-          initial_energy: 100.0   # MeV
+          particle_type: proton
+          initial_energy: random   # MeV
           particle_number: 10
           incident_angles:      # rad
-            - random # 0.31416  # pi / 10
-            - random # 0.7853   # pi / 4
+#            - pi / 4
+#            - pi / 2
           starting_position:    # um
-            - random # 500.0
-            - random # 500.0
-            - 0.0
+#            - 500.0
+#            - 500.0
+#            - 0.0
           stepping_length: 1.0  # um
+          spectrum_file: 'pyxel/models/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
 
     # -> charge
     charge_collection:
@@ -104,16 +106,16 @@ ccd_process:
         arguments:
           pix_non_uniformity: data/non_uniformity_array_normal_random_dist.data
 
-      diffusion:
-        enabled: false
-        name: pyxel.models.diffusion.diffusion
-#        arguments:
+#      diffusion:
+#        enabled: false
+#        name: pyxel.models.diffusion.diffusion
+##        arguments:
 
       full_well:
         name: pyxel.models.full_well.simple_pixel_full_well
         enabled: false
-        arguments:
-          fwc: 100       # e  # if defined use this, if not use the default parameter from characteristics
+#        arguments:
+#          fwc: 100       # e  # if defined use this, if not use the default parameter from characteristics
 
     # -> charge
     charge_transfer:
