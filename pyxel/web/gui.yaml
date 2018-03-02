@@ -271,6 +271,67 @@ gui:
         label: Output Node Noise (Charge Measurement)
         items:
           -
-            id: pipeline.charge_measurement.readout_noise.arguments.std_deviation
-            label: Standard Deviation
-            entry: *id_text
+            id: pipeline.charge_measurement.output_node_noise.arguments.std_deviation
+            label: Standard deviation
+            entry: *id_number_float
+
+      -
+        label: HxRG kTC and Bias Noise (Charge Measurement)
+        items:
+          -
+            id: pipeline.charge_measurement.nghxrg_ktc_bias.arguments.ktc_noise
+            label: Standard deviation
+            entry: *id_number_float
+          -
+            id: pipeline.charge_measurement.nghxrg_ktc_bias.arguments.bias_offset
+            label: Bias offset
+            entry: *id_number_float
+          -
+            id: pipeline.charge_measurement.nghxrg_ktc_bias.arguments.bias_amp
+            label: Bias amplitude
+            entry: *id_number_float
+
+      -
+        label: HxRG White Read Noise (Charge Measurement)
+        items:
+          -
+            id: pipeline.charge_measurement.nghxrg_read.arguments.rd_noise
+            label: Standard deviation
+            entry: *id_number_float
+          -
+            id: pipeline.charge_measurement.nghxrg_read.arguments.ref_pixel_noise_ratio
+            label: Std. dev. ratio
+            entry: *id_number_float
+
+      -
+        label: HxRG Uncorrelated Pink Noise (Signal Transfer)
+        items:
+          -
+            id: pipeline.signal_transfer.nghxrg_u_pink.arguments.u_pink
+            label: Standard deviation
+            entry: *id_number_float
+
+      -
+        label: HxRG Correlated Pink Noise (Signal Transfer)
+        items:
+          -
+            id: pipeline.signal_transfer.nghxrg_c_pink.arguments.c_pink
+            label: Standard deviation
+            entry: *id_number_float
+
+      -
+        label: HxRG Alternating Column Noise (Signal Transfer)
+        items:
+          -
+            id: pipeline.signal_transfer.nghxrg_acn.arguments.acn
+            label: Standard deviation
+            entry: *id_number_float
+
+      -
+        label: HxRG Picture Frame Noise (Readout Electronics)
+        items:
+          -
+            id: pipeline.readout_electronics.nghxrg_pca_zero.arguments.pca0_amp
+            label: Standard deviation
+            entry: *id_number_float
+
