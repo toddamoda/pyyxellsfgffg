@@ -17,8 +17,6 @@ from pyxel.models.tars.util import read_data, interpolate_data
 
 # from astropy import units as u
 
-TARS_DIR = path.dirname(path.abspath(__file__))
-
 
 def run_tars(detector: Detector,
              particle_type: str = None,
@@ -94,9 +92,6 @@ class TARS:
         self.position_hor = None
         self.position_z = None
         self.step_length = None
-
-        # self.data_folder = TARS_DIR + r'\data'
-        # self.results_folder = self.data_folder + r'\results'
 
         self.sim_obj = Simulation(self.detector)
         self.charge_obj = self.detector.charges
