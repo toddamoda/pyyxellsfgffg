@@ -167,19 +167,22 @@ gui:
     label: Models Settings
     items:
       -
-        label: Photon Generation
+        label: Uniform illumination (Photon Generation)
         items:
           -
             id: pipeline.photon_generation.photon_level.arguments.level
             label: Photons
             entry: *id_number_uint
+      -
+        label: Load image (Photon Generation)
+        items:
           -
             id: pipeline.photon_generation.load_image.arguments.image_file
             label: Image
             entry: *id_text
 
       -
-        label: Charge Generation (TARS)
+        label: TARS (Charge Generation)
         items:
           -
             id: pipeline.charge_generation.tars.arguments.initial_energy
@@ -221,7 +224,7 @@ gui:
               title: vertical, horizontal, position_z
 
       -
-        label: Charge Collection (Fixed Noise Pattern)
+        label: Fixed Pattern Noise (Charge Collection)
         items:
           -
             id: pipeline.charge_collection.fixed_pattern_noise.arguments.pix_non_uniformity
@@ -229,15 +232,7 @@ gui:
             entry: *id_text
 
       -
-        label: Charge Collection (Full Well)
-        items:
-          -
-            id: pipeline.charge_collection.full_well.arguments.fwc
-            label: Full Well Capacity
-            entry: *id_number_uint
-
-      -
-        label: Charge Transfer (CDM)
+        label: CDM (Charge Transfer)
         items:
           -
             id: pipeline.charge_transfer.cdm.arguments.beta_p
@@ -273,7 +268,7 @@ gui:
             entry: *id_text
 
       -
-        label: Charge Measurement (CDM)
+        label: Output Node Noise (Charge Measurement)
         items:
           -
             id: pipeline.charge_measurement.readout_noise.arguments.std_deviation
