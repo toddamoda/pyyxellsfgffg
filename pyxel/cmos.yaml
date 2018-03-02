@@ -23,7 +23,7 @@ cmos_process:
       reference_pixel_border_width: 4
 
     environment:
-      temperature: 320  # detector temperature Kelvin
+      temperature: 320    # K
 
     characteristics:
       qe: 0.5         # -

@@ -82,8 +82,6 @@ ccd_process:
       full_well:
         name: pyxel.models.full_well.simple_pixel_full_well
         enabled: false
-#        arguments:
-#          fwc: 100       # e  # if defined use this, if not use the default parameter from characteristics
 
       fixed_pattern_noise:
         name: pyxel.models.ccd_noise.add_fix_pattern_noise

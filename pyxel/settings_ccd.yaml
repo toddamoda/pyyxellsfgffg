@@ -39,9 +39,9 @@ ccd_process:
       bias_voltage: 0.0             # V
 
     environment:
-      temperature: 300                    # Kelvin, detector temperature
-      total_ionising_dose: 8.0e11         # total ionising dose (IEL)
-      total_non_ionising_dose: 8.0e11     # total non-ionising dose (NIEL)
+      temperature: 300                    # K
+      total_ionising_dose: 0              #
+      total_non_ionising_dose: 8.0e11     #
 
     characteristics:
       qe: 0.5               # -
@@ -114,8 +114,6 @@ ccd_process:
       full_well:
         name: pyxel.models.full_well.simple_pixel_full_well
         enabled: false
-#        arguments:
-#          fwc: 100       # e  # if defined use this, if not use the default parameter from characteristics
 
     # -> charge
     charge_transfer:

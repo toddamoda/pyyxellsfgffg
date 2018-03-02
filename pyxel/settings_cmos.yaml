@@ -35,7 +35,7 @@ cmos_process:
       reference_pixel_border_width: 4
 
     environment:
-      temperature: 320  # detector temperature Kelvin
+      temperature: 320    # K
 
     characteristics:
       qe: 0.5         # -
@@ -103,8 +103,6 @@ cmos_process:
       full_well:
         name: pyxel.models.full_well.simple_pixel_full_well
         enabled: true
-#        arguments:
-#          fwc: 100       # e (full well capacity)
 
     # charge -> signal
     charge_measurement:
