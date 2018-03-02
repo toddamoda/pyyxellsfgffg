@@ -1,4 +1,5 @@
 """TBW."""
+import itertools
 import typing as t
 
 from pyxel import util
@@ -14,31 +15,19 @@ class StepValues:
         :param values:
         :param enabled:
         """
+        # TODO: should the values be evaluated?
         self.key = key  # unique identifier to the step. example: detector.geometry.row
         self.values = values  # t.List[float|int]
         self.enabled = enabled  # bool
 
-    def apply_value(self, processor, value):
-        """TBW.
+    def __len__(self):
+        """TBW."""
+        return len(self.values)
 
-        :param processor:
-        :param value:
-        :return:
-        """
-        if value:
-            if isinstance(value, list):
-                for i, val in enumerate(value):
-                    if val:
-                        value[i] = util.eval_entry(val)
-            else:
-                value = util.eval_entry(value)
-
-        obj, att = util.get_obj_att(processor, self.key)
-
-        if isinstance(obj, dict) and att in obj:
-            obj[att] = value
-        else:
-            setattr(obj, att, value)
+    def __iter__(self):
+        """TBW."""
+        for value in self.values:
+            yield value
 
 
 class ParametricConfig:
@@ -64,17 +53,30 @@ class ParametricConfig:
         :param processor:
         :return:
         """
-        configs = []
-
         for step in self.enabled_steps:
-            for value in step.values:
-                proc = util.copy_processor(processor)
-                step.apply_value(proc, value)
-                configs.append(proc)
+            key = step.key
+            for value in step:
+                new_proc = util.copy_processor(processor)
+                new_proc.set(key, value)
+                yield new_proc
 
-        return configs
+    def _embedded(self, processor):
+        """TBW.
 
-    def _embedded(self, processor, level=0, configs=None):
+        :param processor:
+        :param level:
+        :param sequence:
+        :return:
+        """
+        all_steps = self.enabled_steps
+        keys = [step.key for step in self.enabled_steps]
+        for params in itertools.product(*all_steps):
+            new_proc = util.copy_processor(processor)
+            for key, value in zip(keys, params):
+                new_proc.set(key=key, value=value)
+            yield new_proc
+
+    def _embedded_org(self, processor, level=0, configs=None):
         """TBW.
 
         :param processor:
@@ -86,8 +88,9 @@ class ParametricConfig:
             configs = []
 
         step = self.enabled_steps[level]
-        for value in step.values:
-            step.apply_value(processor, value)
+        key = step.key
+        for value in step:
+            processor.set(key, value)
             if level+1 < len(self.enabled_steps):
                 self._embedded(processor, level+1, configs)
             else:
@@ -113,6 +116,7 @@ class ParametricConfig:
 
     def debug(self, processor):
         """TBW."""
+        result = []
         configs = self.collect(processor)
         for i, config in enumerate(configs):
             values = []
@@ -121,3 +125,5 @@ class ParametricConfig:
                 value = util.get_value(config, step.key)
                 values.append((att, value))
             print('%d: %r' % (i, values))
+            result.append((i, values))
+        return result
