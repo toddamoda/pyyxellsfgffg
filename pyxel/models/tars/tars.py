@@ -5,11 +5,10 @@
 
 import logging
 import math
-from os import path
 
 import numpy as np
-from numpy import pi
 from tqdm import tqdm
+import typing as t   # noqa: F401
 
 from pyxel.detectors.detector import Detector
 from pyxel.models.tars.simulation import Simulation
@@ -20,7 +19,7 @@ from pyxel.models.tars.util import read_data, interpolate_data
 
 def run_tars(detector: Detector,
              particle_type: str = None,
-             initial_energy: float = None,
+             initial_energy: t.Union[str, float] = None,
              particle_number: int = None,
              incident_angles: tuple = None,
              starting_position: tuple = None,
