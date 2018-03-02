@@ -83,85 +83,91 @@ cmos_process:
     # charge -> charge
     charge_collection:
 
+      full_well:
+        name: pyxel.models.full_well.simple_pixel_full_well
+        enabled: true
+
     # charge -> signal
-    charge_measurement: 
-      readout_noise: 
-        name: pyxel.models.ccd_noise.add_output_node_noise
-        enabled: true
-        arguments:
-          std_deviation: 1.0
+    charge_measurement:
 
-    # signal -> signal
-    signal_transfer:
-
-      nghxrg_read:
-        name: pyxel.models.nghxrg.nghxrg.white_read_noise
-        enabled: true
-        arguments:
-          rd_noise: 40.           # White read noise per integration
-          ref_pixel_noise_ratio: 8.
-          window_mode: FULL #WINDOW
-#          wind_x0: 50
-#          wind_y0: 100
-#          wind_x_size: 200
-#          wind_y_size: 200
-
-      nghxrg_pca_zero:
-        name: pyxel.models.nghxrg.nghxrg.pca_zero_noise
-        enabled: true
-        arguments:
-          pca0_amp: 45.           # Amplitude of PCA zero "picture frame" noise
-          window_mode: FULL #WINDOW
-#          wind_x0: 300
-#          wind_y0: 100
-#          wind_x_size: 200
-#          wind_y_size: 200
-
-      nghxrg_c_pink:
-        name: pyxel.models.nghxrg.nghxrg.corr_pink_noise
-        enabled: true
-        arguments:
-          c_pink: 30.             # Correlated pink noise
-          window_mode: FULL #WINDOW
-#          wind_x0: 550
-#          wind_y0: 100
-#          wind_x_size: 200
-#          wind_y_size: 200
-
-      nghxrg_u_pink:
-        name: pyxel.models.nghxrg.nghxrg.uncorr_pink_noise
-        enabled: true
-        arguments:
-          u_pink: 20.             # Uncorrelated pink noise
-          window_mode: FULL #WINDOW
-#          wind_x0: 50
-#          wind_y0: 350
-#          wind_x_size: 200
-#          wind_y_size: 200
-
-      nghxrg_acn:
-        name: pyxel.models.nghxrg.nghxrg.acn_noise
-        enabled: false
-        arguments:
-          acn: 50.                 # Correlated ACN
-          window_mode: FULL #WINDOW
-#          wind_x0: 300
-#          wind_y0: 350
-#          wind_x_size: 200
-#          wind_y_size: 200
-
+      # kTC and Bias noises
       nghxrg_ktc_bias:
         name: pyxel.models.nghxrg.nghxrg.ktc_bias_noise
         enabled: true
         arguments:
-          ktc_noise: 50.
-          bias_offset: 30.
-          bias_amp: 40.
-          window_mode: FULL #WINDOW
+          ktc_noise: 500.
+          bias_offset: 300.
+          bias_amp: 400.
+#          window_mode: WINDOW
 #          wind_x0: 550
 #          wind_y0: 350
 #          wind_x_size: 200
 #          wind_y_size: 200
 
+      # White read noise per integration
+      nghxrg_read:
+        name: pyxel.models.nghxrg.nghxrg.white_read_noise
+        enabled: true
+        arguments:
+          rd_noise: 400.
+          ref_pixel_noise_ratio: 80.
+#          window_mode: WINDOW
+#          wind_x0: 50
+#          wind_y0: 100
+#          wind_x_size: 200
+#          wind_y_size: 200
+
+   # signal -> signal
+    signal_transfer:
+
+      # Correlated pink noise
+      nghxrg_c_pink:
+        name: pyxel.models.nghxrg.nghxrg.corr_pink_noise
+        enabled: true
+        arguments:
+          c_pink: 300.
+#          window_mode: WINDOW
+#          wind_x0: 550
+#          wind_y0: 100
+#          wind_x_size: 200
+#          wind_y_size: 200
+
+      # Uncorrelated pink noise
+      nghxrg_u_pink:
+        name: pyxel.models.nghxrg.nghxrg.uncorr_pink_noise
+        enabled: true
+        arguments:
+          u_pink: 200.
+#          window_mode: WINDOW
+#          wind_x0: 50
+#          wind_y0: 350
+#          wind_x_size: 200
+#          wind_y_size: 200
+
+      # Correlated Alternating Column Noise
+      nghxrg_acn:
+        name: pyxel.models.nghxrg.nghxrg.acn_noise
+        enabled: true
+        arguments:
+          acn: 500.
+#          window_mode: WINDOW
+#          wind_x0: 300
+#          wind_y0: 350
+#          wind_x_size: 200
+#          wind_y_size: 200
+
+
     # signal -> image
-    readout_electronics: 
+    readout_electronics:
+
+      # PCA zero "picture frame" noise
+      nghxrg_pca_zero:
+        name: pyxel.models.nghxrg.nghxrg.pca_zero_noise
+        enabled: true
+        arguments:
+          pca0_amp: 450.
+#          window_mode: WINDOW
+#          wind_x0: 300
+#          wind_y0: 100
+#          wind_x_size: 200
+#          wind_y_size: 200
