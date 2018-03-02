@@ -100,7 +100,7 @@ class PipelinePageHandler(tornado.web.RequestHandler):
 class WebApplication(tornado.web.Application):
     """The Application that host several objects to communicate with."""
 
-    def __init__(self, controller):
+    def __init__(self, controller, js9_dir=None, data_dir=None):
         """TBW.
 
         :param controller:
@@ -113,9 +113,16 @@ class WebApplication(tornado.web.Application):
             (r'/(favicon\.ico)', tornado.web.StaticFileHandler),
             (r'/static/(.*)', tornado.web.StaticFileHandler),
             (r'/websocket', WebSocketHandler),
-            (r'/js9/(.*)', tornado.web.StaticFileHandler, {'path': '/home/hsmit/PycharmProjects/pyxel_js9'}),
-            (r'/data/(.*)', tornado.web.StaticFileHandler, {'path': '/home/hsmit/data'}),
+            (r'/js9/(.*)', tornado.web.StaticFileHandler, {'path': js9_dir}),
+            (r'/data/(.*)', tornado.web.StaticFileHandler, {'path': data_dir}),
         ]
+        if js9_dir:
+            if not os.path.exists(js9_dir):
+                raise RuntimeError('js9 directory does not exist: %r' % js9_dir)
+
+        if data_dir:
+            if not os.path.exists(data_dir):
+                raise RuntimeError('data directory does not exist: %r' % data_dir)
 
         settings = {
             'template_path': os.path.join(MODULE_DIR, 'template'),

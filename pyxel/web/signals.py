@@ -20,6 +20,7 @@ PROGRESS = 'PROGRESS'
 SET_SEQUENCE = 'SET-SEQUENCE'
 SET_MODEL_STATE = 'SET-MODEL-STATE'
 GET_MODEL_STATE = 'GET-MODEL-STATE'
+GET_STATE = 'GET-STATE'
 
 
 class DispatcherBlockingAutoRemoveDeadEndPoints(DispatcherBlocking):

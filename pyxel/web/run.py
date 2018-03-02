@@ -3,7 +3,7 @@
 import logging
 import argparse
 
-from pathlib import Path
+# from pathlib import Path
 
 import pyxel
 import pyxel.pipelines.processor
@@ -12,22 +12,17 @@ from pyxel.web import webapp
 from pyxel.web.controller import Controller
 
 
-def run_web_server(input_filename=None, port=9999, address_viewer=None):
+def run_web_server(port=9999, address_viewer=None, js9_dir=None, data_dir=None):
     """TBW.
 
-    :param input_filename:
     :param port:
     :param address_viewer:
+    :param js9_dir:
+    :param data_dir:
     """
-    processor = None
-    if input_filename:
-        config_path = Path(__file__).parent.parent.joinpath(input_filename)
-        cfg = pyxel.load_config(config_path)
-        processor = cfg[cfg.keys()[0]]
+    controller = Controller(processor=None, address_viewer=address_viewer)
 
-    controller = Controller(processor, address_viewer)
-
-    api = webapp.WebApplication(controller)
+    api = webapp.WebApplication(controller, js9_dir, data_dir)
     thread = webapp.TornadoServer(api, ('0.0.0.0', port))
     try:
         thread.run()
@@ -48,8 +43,11 @@ def main():
     parser.add_argument('-a', '--address-viewer', default=None, type=str,
                         help='The remote viewer "<host>:<port>" address')
 
-    parser.add_argument('-c', '--config',
-                        help='Configuration file to load (YAML or INI)')
+    parser.add_argument('-d', '--data-dir',
+                        help='Data directory')
+
+    parser.add_argument('-j', '--js9-dir',
+                        help='JS9 directory')
 
     parser.add_argument('-v', '--verbosity', action='count', default=0,
                         help='Increase output verbosity')
@@ -65,7 +63,7 @@ def main():
     del logging.root.handlers[:]
     logging.basicConfig(level=log_level, format=log_format)
 
-    run_web_server(opts.config, opts.port, opts.address_viewer)
+    run_web_server(opts.port, opts.address_viewer, opts.js9_dir, opts.data_dir)
 
 
 if __name__ == '__main__':

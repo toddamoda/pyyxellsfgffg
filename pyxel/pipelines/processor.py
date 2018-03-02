@@ -1,6 +1,7 @@
 """TBW."""
 import typing as t
 
+from pyxel import util
 from pyxel.detectors.ccd import CCD
 from pyxel.detectors.cmos import CMOS
 from pyxel.pipelines.ccd_pipeline import CCDDetectionPipeline
@@ -27,3 +28,49 @@ class Processor:
             'detector': self.detector,
             'pipeline': self.pipeline,
         }
+
+    def has(self, key):
+        """TBW.
+
+        :param key:
+        :return:
+        """
+        found = False
+        obj, att = util.get_obj_att(self, key)
+        if isinstance(obj, dict) and att in obj:
+            found = True
+        elif hasattr(obj, att):
+            found = True
+        return found
+
+    def get(self, key):
+        """TBW.
+
+        :param key:
+        :return:
+        """
+        return util.get_value(self, key)
+
+    def set(self, key, value, convert_value=True):
+        """TBW.
+
+        :param key:
+        :param value:
+        :param convert_value:
+        :return:
+        """
+        if convert_value and value:
+            # convert the string based value to a number
+            if isinstance(value, list):
+                for i, val in enumerate(value):
+                    if val:
+                        value[i] = util.eval_entry(val)
+            else:
+                value = util.eval_entry(value)
+
+        obj, att = util.get_obj_att(self, key)
+
+        if isinstance(obj, dict) and att in obj:
+            obj[att] = value
+        else:
+            setattr(obj, att, value)

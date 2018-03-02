@@ -57,7 +57,7 @@ def _expr_processor(loader: PyxelLoader, node: yaml.ScalarNode):
     value = loader.construct_scalar(node)
 
     try:
-        result = eval(value, np.__dict__, {})
+        result = eval(value, {}, np.__dict__)
 
         if callable(result) or inspect.ismodule(result):
             result = value
