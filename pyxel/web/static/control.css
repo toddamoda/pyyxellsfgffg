@@ -1,6 +1,14 @@
 .form-control {
   padding:5px;
-  height:28px;
+  /*height:28px;*/
+}
+input[type='number'] {
+    -moz-appearance:textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
 }
 body {
     background-color: #333333;

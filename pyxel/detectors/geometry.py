@@ -49,6 +49,10 @@ class Geometry:
 
         self.set_material(material)
 
+    def copy(self):
+        """TBW."""
+        return Geometry(**self.__getstate__())
+
     def __getstate__(self):
         """TBW."""
         return {

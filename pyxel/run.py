@@ -46,25 +46,25 @@ def run_parametric(input_filename, output_file, key=None, value=None):
     return output
 
 
-def run_optimization(input_filename, output_file):
-    """TBW.
-
-    TODO: this function is not yet complete.
-    """
-    key = None
-    max_loops = 100
-    convergent_criteria = 10.0
-    new_optimized_value = 1.0
-    # old_optimized_value = new_optimized_value
-    while max_loops:
-        max_loops -= 1
-        old_optimized_value = new_optimized_value
-        files = run_parametric(input_filename, output_file, key, new_optimized_value)
-        # TODO: send file names to optimization model
-        opt_func = lambda fits_files: 10.0
-        new_optimized_value = opt_func(files)  # this should be the output from the model
-        if abs(old_optimized_value - new_optimized_value) < convergent_criteria:
-            break
+# def run_optimization(input_filename, output_file):
+#     """TBW.
+#
+#     TODO: this function is not yet complete.
+#     """
+#     key = None
+#     max_loops = 100
+#     convergent_criteria = 10.0
+#     new_optimized_value = 1.0
+#     # old_optimized_value = new_optimized_value
+#     while max_loops:
+#         max_loops -= 1
+#         old_optimized_value = new_optimized_value
+#         files = run_parametric(input_filename, output_file, key, new_optimized_value)
+#         # TODO: send file names to optimization model
+#         opt_func = lambda fits_files: 10.0
+#         new_optimized_value = opt_func(files)  # this should be the output from the model
+#         if abs(old_optimized_value - new_optimized_value) < convergent_criteria:
+#             break
 
 
 def run_pipeline(input_filename, output_file):

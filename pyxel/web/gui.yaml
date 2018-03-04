@@ -1,11 +1,20 @@
 components:
 
+  entry: &id_num_micron
+    tag: input
+    type: number
+    step: 0.000001
+    min: 0
+    max: 10.0
+    decimals: 6
+
   entry: &id_number_um
     tag: input
     type: number
     step: 0.01
     min: 0.00
     max: 100.0
+    decimals: 2
 
   entry: &id_number_float
     tag: input
@@ -13,6 +22,7 @@ components:
     step: 0.01
     min: 0.00
     max: 1.0
+    decimals: 2
 
   entry: &id_number_uint
     tag: input
@@ -44,7 +54,7 @@ gui:
           -
             id: detector.geometry.total_thickness
             label: Total Thickness (um)
-            entry: *id_number_um
+            entry: *id_num_micron
           -
             id: detector.geometry.depletion_thickness
             label: Depletion Thickness (um)
@@ -141,7 +151,7 @@ gui:
           -
             id: detector.characteristics.sv
             label: Sv (V/-e)
-            entry: *id_number_uint
+            entry: *id_number_um
           -
             id: detector.characteristics.amp
             label: Output amplifier gain

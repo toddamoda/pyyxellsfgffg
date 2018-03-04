@@ -45,15 +45,24 @@ class DetectionPipeline:
         self._model_steps = {}   # type: t.Dict[str, t.List[str]]
         self._log = logging.getLogger(__name__)
 
+    def get_state_json(self):
+        """TBW."""
+        return util.get_state_dict(self)
+
     def __getstate__(self):
         """TBW."""
+        def state(ref):
+            """TBW."""
+            if ref:
+                return ref  # .__getstate__()
+
         return {
-            'photon_generation': self.photon_generation,
-            'optics': self.optics,
-            'charge_generation': self.charge_generation,
-            'charge_collection': self.charge_collection,
-            'charge_measurement': self.charge_measurement,
-            'readout_electronics': self.readout_electronics,
+            'photon_generation': state(self.photon_generation),
+            'optics': state(self.optics),
+            'charge_generation': state(self.charge_generation),
+            'charge_collection': state(self.charge_collection),
+            'charge_measurement': state(self.charge_measurement),
+            'readout_electronics': state(self.readout_electronics),
         }
 
     @property

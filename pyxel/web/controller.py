@@ -4,8 +4,6 @@ import os
 import threading
 from pathlib import Path
 
-
-import pyxel
 from pyxel import util
 from pyxel.web import signals
 from pyxel.web import webapp
@@ -125,9 +123,37 @@ class Controller:
         # is_sequence = True in [sequence['enabled'] for sequence in self.sequence]
         try:
             self._is_running = True
-            self.sequencer.set_mode(run_mode)
-            self.sequencer.set_output_file(output_file)
-            self.sequencer.run()
+            if self.parametric:
+                signals.progress('state', {'value': 'running', 'state': 1})
+                self.parametric.mode = run_mode
+                configs = self.parametric.collect(self.processor)
+                for config in configs:
+                    result = {
+                        'processor': config.get_state_json(),
+                        'parametric': self.parametric.get_state_json(),
+                    }
+                    id_value_dict = util.get_state_ids(result)
+
+                    msg = {
+                        'type': 'state',
+                        'id': 'all',
+                        'fields': {'value': id_value_dict},
+                    }
+                    webapp.WebSocketHandler.announce(msg)
+
+                    detector = config.pipeline.run_pipeline(config.detector)
+
+                    if output_file:
+                        save_to = util.apply_run_number(output_file)
+                        out = util.FitsFile(save_to)
+                        out.save(detector.signal, header=None, overwrite=True)
+                        # output.append(output_file)
+                signals.progress('state', {'value': 'completed', 'state': 0})
+
+            else:
+                self.sequencer.set_mode(run_mode)
+                self.sequencer.set_output_file(output_file)
+                self.sequencer.run()
         except Exception as exc:
             signals.progress('state', {'value': 'error: %s' % str(exc), 'state': -1})
         finally:
@@ -141,6 +167,11 @@ class Controller:
         :param values:
         :param enabled:
         """
+        if self.parametric:
+            step = self.parametric.steps[index]
+            step.key = key
+            step.enabled = enabled
+            step.values = values
         self.sequencer.set_range(index, key, values, enabled)
 
     def get_model_state(self, model_name):
@@ -174,11 +205,21 @@ class Controller:
         self.get_model_state(model_name)  # signal updated value to listeners
 
     def get_state(self):
-        """
+        """TBW.
 
         :return:
         """
-        result = {}
+        result = {
+            'processor': self.processor.get_state_json(),
+            'parametric': self.parametric.get_state_json(),
+        }
+        id_value_dict = util.get_state_ids(result)
+        msg = {
+            'type': 'state',
+            'id': 'all',
+            'fields': {'value': id_value_dict},
+        }
+        webapp.WebSocketHandler.announce(msg)
         return result
 
     def has_setting(self, key):

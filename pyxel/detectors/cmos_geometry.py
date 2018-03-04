@@ -32,6 +32,10 @@ class CMOSGeometry(Geometry):
         self.reverse_scan_direction = reverse_scan_direction
         self.reference_pixel_border_width = reference_pixel_border_width
 
+    def copy(self):
+        """TBW."""
+        return CMOSGeometry(**self.__getstate__())
+
     def __getstate__(self):
         """TBW."""
         states = super().__getstate__()

@@ -3,8 +3,6 @@
 import logging
 import argparse
 
-from pathlib import Path
-
 import pyxel
 import pyxel.pipelines.processor
 

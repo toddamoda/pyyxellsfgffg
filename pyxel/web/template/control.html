@@ -13,6 +13,7 @@
     <div class="pe-form">
         <button class="btn btn-primary" id="pe-expand" >Expand</button>
         <button class="btn btn-primary" id="pe-collapse" >Collapse</button>
+        <button class="btn btn-primary" id="get-state" >Get State</button>
         <button class="btn btn-primary" id="setting-get-all" >Get All</button>
         <button class="btn btn-primary" id="setting-set-all" >Set All</button>
         <button class="btn btn-primary" id="setting-reset" >Reset</button>
@@ -63,21 +64,21 @@
                         <td></td>
                         <td colspan="2">
                             <div>
-                            <input id="run-mode-recurse" name="run-mode" type="radio" value="recurse"/>
-                            <label for="run-mode-recurse">recurse</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <input id="run-mode-linear" name="run-mode" type="radio" value="linear"/>
-                            <label for="run-mode-linear">linear</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <input id="run-mode-single" name="run-mode" type="radio" value="single" checked/>
-                            <label for="run-mode-single">single</label>
+                            <input id="run-mode-recurse" name="mode" type="radio" value="single"/>
+                            <label for="run-mode-recurse">single</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <input id="run-mode-linear" name="mode" type="radio" value="embedded"/>
+                            <label for="run-mode-linear">embedded</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <input id="run-mode-single" name="mode" type="radio" value="sequential"/>
+                            <label for="run-mode-single">sequential</label>
                             </div>
                         </td>
                         <td><button>Run</button></td>
                     </tr>
-                    {% for i in range(1, 5) %}
-                    <tr id="sequence_{{ i-1 }}" class="sequence pe-progress">
+                    {% for i in range(0, 5) %}
+                    <tr id="sequence_{{ i }}" class="sequence pe-progress">
                         <td style="width:100px"><div>Sequence {{ i }}</div></td>
-                        <td><div class="indicator" style="width:40px;">-</div></td>
-                        <td>
+                        <td id="steps.{{i}}.current"><div class="indicator" style="width:40px;">-</div></td>
+                        <td id="steps.{{i}}.key">
                             <select>
                                 <option value=""></option>
                                 {% for section in controller.get_gui_defs()[1]['items'] %}
@@ -89,11 +90,50 @@
                                 {% end %}
                             </select>
                         </td>
-                        <td><input type="text" value="" style="width:200px;"></td>
-                        <td><input class="enable-row" type="checkbox"/></td>
+                        <td id="steps.{{i}}.values"><input type="text" value="" style="width:200px;"></td>
+                        <td id="steps.{{i}}.enabled"><input class="enable-row" type="checkbox"/></td>
                     </tr>
                     {% end %}
                 </table>
+
+                <!--<table class="pe-table pe-form">-->
+                    <!--<caption class="pe-section">Sequencer</caption>-->
+                    <!--<tr id="run">-->
+                        <!--<td style="width:100px"><div>Run Mode</div></td>-->
+                        <!--<td></td>-->
+                        <!--<td colspan="2">-->
+                            <!--<div>-->
+                            <!--<input id="run-mode-recurse" name="run-mode" type="radio" value="recurse"/>-->
+                            <!--<label for="run-mode-recurse">recurse</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
+                            <!--<input id="run-mode-linear" name="run-mode" type="radio" value="linear"/>-->
+                            <!--<label for="run-mode-linear">linear</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
+                            <!--<input id="run-mode-single" name="run-mode" type="radio" value="single" checked/>-->
+                            <!--<label for="run-mode-single">single</label>-->
+                            <!--</div>-->
+                        <!--</td>-->
+                        <!--<td><button>Run</button></td>-->
+                    <!--</tr>-->
+                    <!--{% for i in range(1, 5) %}-->
+                    <!--<tr id="sequence_{{ i-1 }}" class="sequence pe-progress">-->
+                        <!--<td style="width:100px"><div>Sequence {{ i }}</div></td>-->
+                        <!--<td><div class="indicator" style="width:40px;">-</div></td>-->
+                        <!--<td>-->
+                            <!--<select>-->
+                                <!--<option value=""></option>-->
+                                <!--{% for section in controller.get_gui_defs()[1]['items'] %}-->
+                                <!--<optgroup label="{{ section['label'] }}">-->
+                                    <!--{% for item in section['items'] %}-->
+                                    <!--<option value="{{ item['id'] }}">{{ item['label'] }}</option>-->
+                                    <!--{% end %}-->
+                                <!--</optgroup>-->
+                                <!--{% end %}-->
+                            <!--</select>-->
+                        <!--</td>-->
+                        <!--<td><input type="text" value="" style="width:200px;"></td>-->
+                        <!--<td><input class="enable-row" type="checkbox"/></td>-->
+                    <!--</tr>-->
+                    <!--{% end %}-->
+                <!--</table>-->
 
                 <table class="pe-table pe-form">
                     <caption class="pe-section">Models</caption>

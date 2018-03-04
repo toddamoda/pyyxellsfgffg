@@ -52,13 +52,26 @@ class Detector:
         """Save signal to fits format."""
         pass  # TODO
 
+    def copy(self):
+        """TBW."""
+        kwargs = {
+            'geometry': self.geometry.copy(),
+            'environment': self.environment.copy(),
+            'characteristics': self.characteristics.copy(),
+        }
+        return Detector(**kwargs)
+
+    def get_state_json(self):
+        """TBW."""
+        return util.get_state_dict(self)
+
     def __getstate__(self):
         """TBW.
 
         :return:
         """
         return {
-            'geometry': self.geometry,  # TODO: add __getstate_()
+            'geometry': self.geometry,
             'environment': self.environment,
             'characteristics': self.characteristics
         }

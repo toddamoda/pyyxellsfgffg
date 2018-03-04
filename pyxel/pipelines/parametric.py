@@ -8,25 +8,43 @@ from pyxel import util
 class StepValues:
     """TBW."""
 
-    def __init__(self, key, values, enabled=True):
+    def __init__(self, key, values, enabled=True, current=None):
         """TBW.
 
         :param key:
         :param values:
         :param enabled:
+        :param current:
         """
         # TODO: should the values be evaluated?
         self.key = key  # unique identifier to the step. example: detector.geometry.row
         self.values = values  # t.List[float|int]
         self.enabled = enabled  # bool
+        self.current = current
+
+    def copy(self):
+        """TBW."""
+        kwargs = {key: type(value)(value) for key, value in self.__getstate__().items()}
+        return StepValues(**kwargs)
+
+    def __getstate__(self):
+        """TBW."""
+        return {
+            'key': self.key,
+            'values': self.values,
+            'enabled': self.enabled,
+            'current': self.current,
+        }
 
     def __len__(self):
         """TBW."""
-        return len(self.values)
+        values = util.eval_range(self.values)
+        return len(values)
 
     def __iter__(self):
         """TBW."""
-        for value in self.values:
+        values = util.eval_range(self.values)
+        for value in values:
             yield value
 
 
@@ -42,6 +60,21 @@ class ParametricConfig:
         self.steps = steps
         self.mode = mode
 
+    def copy(self):
+        """TBW."""
+        return ParametricConfig([step.copy() for step in self.steps], self.mode)
+
+    def get_state_json(self):
+        """TBW."""
+        return util.get_state_dict(self)
+
+    def __getstate__(self):
+        """TBW."""
+        return {
+            'steps': self.steps,
+            'mode': self.mode
+        }
+
     @property
     def enabled_steps(self):
         """TBW."""
@@ -56,6 +89,7 @@ class ParametricConfig:
         for step in self.enabled_steps:
             key = step.key
             for value in step:
+                step.current = value
                 new_proc = util.copy_processor(processor)
                 new_proc.set(key, value)
                 yield new_proc
@@ -73,6 +107,9 @@ class ParametricConfig:
         for params in itertools.product(*all_steps):
             new_proc = util.copy_processor(processor)
             for key, value in zip(keys, params):
+                for step in all_steps:
+                    if step.key == key:
+                        step.current = value
                 new_proc.set(key=key, value=value)
             yield new_proc
 

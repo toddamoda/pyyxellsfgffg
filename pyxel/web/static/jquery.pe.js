@@ -1,6 +1,9 @@
 $.fn.extend({
-    highlight: function(text) {
+    highlight: function(text, ignore_if_equal) {
         var ind = $('.indicator', $(this));
+        if (ignore_if_equal && ind.text() == text) {
+            return $(this);
+        }
         ind.text(text).prop('title', text).addClass('indicator-hilite');
         setTimeout(function() { ind.removeClass('indicator-hilite'); }, 500);
         return $(this);
@@ -61,12 +64,21 @@ $.fn.extend({
         return value;
     },
 
-    set_value: function(value) {
-        var context = $(this).get_context();
+    set_value: function(value, use_tr_context) {
+        var context = $(this);
+        if (use_tr_context) {
+            context = $(this).get_context();
+        }
+
         if ($('select', context).length) {
             $('select', context).val(value);
+
+//        } else if ($('input[type=checkbox]', context).length == 1) {
+//            $('input[type=checkbox]', context).prop('checked', value);
+
         } else if ($('input', context).length == 1) {
             $('input', context).val(value);
+
         } else if ($('input', context).length > 1) {
             $('input', context).each(function(index) {
                 $(this).val(value[index]);

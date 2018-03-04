@@ -22,6 +22,14 @@ class Processor:
         self.detector = detector
         self.pipeline = pipeline
 
+    def copy(self):
+        """TBW."""
+        return Processor(self.detector.copy(), self.pipeline.copy())
+
+    def get_state_json(self):
+        """TBW."""
+        return util.get_state_dict(self)
+
     def __getstate__(self):
         """TBW."""
         return {

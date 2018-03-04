@@ -159,12 +159,40 @@ def apply_run_number(path):
     return type(path)(path_str)
 
 
+def copy_state(obj):
+    """TBW.
+
+    :param obj:
+    :return:
+    """
+    kwargs = {}
+    for key, value in obj.__getstate__().items():
+        obj_att = getattr(obj, key)
+        if obj_att is None:
+            cpy_obj = None
+        elif hasattr(obj_att, 'copy'):
+            cpy_obj = obj_att.copy()
+        else:
+            cpy_obj = type(obj_att)(obj_att)
+        kwargs[key] = cpy_obj
+    # kwargs = {key: getattr(obj, key).copy() if value else None for key, value in obj.__getstate__().items()}
+    return kwargs
+
+
 def copy_processor(obj):
     """TBW.
 
     :param obj:
     :return:
     """
+    # if isinstance(obj, dict):
+    #     cpy_obj = {}
+    #     for key, value in obj.items():
+    #         cpy_obj[key] = value.copy()
+    #     return cpy_obj
+    # else:
+    #     return obj.copy()
+
     cls = type(obj)
     if hasattr(obj, '__getstate__'):
         cpy_kwargs = {}
@@ -187,6 +215,123 @@ def copy_processor(obj):
     return obj
 
 
+def get_state_dict(obj):
+    """TBW."""
+    def get_state_helper(val):
+        """TBW."""
+        if hasattr(val, 'get_state_json'):
+            return val.get_state_json()
+        elif hasattr(val, '__getstate__'):
+            return val.__getstate__()
+        else:
+            return val
+
+    result = {}
+    if isinstance(obj, dict):
+        for key, value in obj.items():
+            result[key] = get_state_dict(value)
+    else:
+        for key, value in obj.__getstate__().items():
+            if isinstance(value, list):
+                result[key] = [get_state_helper(val) for val in value]
+
+            elif isinstance(value, dict):
+                result[key] = {key2: get_state_helper(val) for key2, val in value.items()}
+
+            else:
+                result[key] = get_state_helper(value)
+    return result
+
+
+def get_state(obj):
+    """Convert the config object to a embedded dict object.
+
+    The returned value will be a dictionary tree that is JSON
+    compatible. Only dict, list, str, numbers will be contained
+    in the returned dictionary.
+
+    :param obj: a top level dict object or a object that defines
+        the __getstate__ method.
+
+    :return: the dictionary representation of the passed object.
+    """
+    result = {}
+    if isinstance(obj, dict):
+        for key, value in obj.items():
+            result[key] = value.__getstate__()
+
+    elif hasattr(obj, '__getstate__'):
+        result = obj.__getstate__()
+
+    return result
+
+
+def get_state_ids(obj, parent_key_list=None, result=None):
+    """TBW.
+
+    :param obj:
+    :param parent_key_list:
+    :param result:
+    :return:
+    """
+    if result is None:
+        from collections import OrderedDict
+        result = OrderedDict()
+
+    if parent_key_list is None:
+        parent_key_list = []
+
+    if isinstance(obj, dict):
+        for key, value in obj.items():
+            if isinstance(value, (str, int, float)):
+                key = '.'.join(parent_key_list) + '.' + key
+                result[key] = value
+            else:
+                list(parent_key_list) + [key]
+                get_state_ids(value, list(parent_key_list) + [key], result)
+
+    elif isinstance(obj, list):
+        is_primitive = all([isinstance(value, (str, int, float)) for value in obj])
+        if is_primitive:
+            key = '.'.join(parent_key_list)
+            result[key] = obj
+        else:
+            for i, value in enumerate(obj):
+                get_state_ids(value, list(parent_key_list) + [str(i)], result)
+    return result
+
+
+def evaluate_reference(reference_str):
+    """Evaluate a module's class, function, or constant.
+
+    :param str reference_str: the python expression to
+        evaluate or retrieve the module attribute reference to.
+        This is usually a reference to a class or a function.
+    :return: the module attribute or object.
+    :rtype: object
+    :raises ImportError: if reference_str cannot be evaulated to a callable.
+    """
+    if not reference_str:
+        raise ImportError('Empty string cannot be evaluated')
+
+    if '.' not in reference_str:
+        raise ImportError('Missing module path')
+
+    # reference to a module class, function, or constant
+    module_str, function_str = reference_str.rsplit('.', 1)
+    try:
+        module = importlib.import_module(module_str)
+    except ImportError as exc:
+        raise ImportError('Cannot import module: %s. exc: %s' % (module_str, str(exc)))
+
+    try:
+        reference = getattr(module, function_str)
+    except AttributeError:
+        raise ImportError('Module: %s, does not contain %s' % (module_str, function_str))
+
+    return reference
+
+
 __all__ = ['FitsFile', 'update_fits_header', 'get_obj_att',
            'eval_range', 'eval_entry', 'apply_run_number',
-           'copy_processor']
+           'copy_processor', 'get_state', 'copy_state', 'evaluate_reference']

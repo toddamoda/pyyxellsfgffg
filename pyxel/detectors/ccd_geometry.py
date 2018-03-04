@@ -15,6 +15,10 @@ class CCDGeometry(Geometry):
         super().__init__(**kwargs)
         # add specific CCD attributes here
 
+    def copy(self):
+        """TBW."""
+        return CCDGeometry(**self.__getstate__())
+
     def __getstate__(self):
         """TBW."""
         states = super().__getstate__()
