@@ -1,4 +1,5 @@
 """TBW."""
+from pyxel import util
 from pyxel.pipelines.detector_pipeline import DetectionPipeline
 from pyxel.detectors.detector import Detector
 from pyxel.physics.charge import Charge
@@ -41,6 +42,10 @@ class CCDDetectionPipeline(DetectionPipeline):
             'charge_measurement':   ['output_node_noise'],
             'readout_electronics':  []
         }
+
+    def copy(self):
+        """TBW."""
+        return CCDDetectionPipeline(**util.copy_state(self))
 
     def __getstate__(self):
         """TBW."""

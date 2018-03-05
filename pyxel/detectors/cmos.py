@@ -25,3 +25,13 @@ class CMOS(Detector):
         super().__init__(geometry=geometry,
                          environment=environment,
                          characteristics=characteristics)
+
+    def copy(self):
+        """TBW."""
+        cpy = super().copy()
+        kwargs = {
+            'geometry': cpy.geometry,
+            'environment': cpy.environment,
+            'characteristics': cpy.characteristics,
+        }
+        return CMOS(**kwargs)

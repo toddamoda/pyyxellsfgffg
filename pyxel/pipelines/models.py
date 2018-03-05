@@ -1,7 +1,7 @@
 """TBW."""
 import functools
 import typing as t  # noqa: F401
-from pyxel.util import util
+from pyxel import util
 
 
 class Model:
@@ -19,6 +19,15 @@ class Model:
         self.name = name
         self.enabled = enabled
         self.arguments = arguments
+
+    def copy(self):
+        """TBW."""
+        # kwargs = {key: type(value)(value) for key, value in self.__getstate__().items()}
+        return Model(**util.copy_state(self))
+
+    def get_state_json(self):
+        """TBW."""
+        return util.get_state_dict(self)
 
     def __getstate__(self):
         """TBW."""
@@ -46,10 +55,19 @@ class Models:
         """
         self.models = models    # type: t.Dict[str, Model]
 
+    def copy(self):
+        """TBW."""
+        models = {key: model.copy() for key, model in self.models.items()}
+        return Models(models=models)
+
+    def get_state_json(self):
+        """TBW."""
+        return util.get_state_dict(self)
+
     def __getstate__(self):
         """TBW."""
         return {
-            'models': self.models,
+            'models': self.models
         }
 
     def __getattr__(self, item):

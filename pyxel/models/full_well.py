@@ -7,17 +7,16 @@
 from pyxel.detectors.detector import Detector
 
 
-def simple_pixel_full_well(detector: Detector,
-                           fwc: int = None) -> Detector:
+def simple_pixel_full_well(detector: Detector) -> Detector:
     """Simply removing charges from pixels due to full well.
 
     :return:
     """
-    # new_detector = copy.deepcopy(detector)
     new_detector = detector
 
+    fwc = new_detector.characteristics.fwc
     if fwc is None:
-        fwc = new_detector.characteristics.fwc
+        raise ValueError('Full Well Capacity is not defined')
 
     charge_array = new_detector.pixels.generate_2d_charge_array()
 

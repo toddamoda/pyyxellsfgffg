@@ -5,14 +5,14 @@ components:
     type: number
     step: 0.01
     min: 0.00
-    max: 100.0
+    max: 1000.0
 
   entry: &id_number_float
     tag: input
     type: number
     step: 0.01
     min: 0.00
-    max: 1.0
+    max: 1000000.0
 
   entry: &id_number_uint
     tag: input
@@ -73,15 +73,15 @@ gui:
           -
             id: detector.geometry.n_acceptor
             label: N Acceptor (cm-3)
-            entry: *id_number_um
+            entry: *id_number_float
           -
             id: detector.geometry.n_donor
             label: N Donor (cm-3)
-            entry: *id_number_um
+            entry: *id_number_float
           -
             id: detector.geometry.bias_voltage
             label: Bias Voltage (V)
-            entry: *id_number_um
+            entry: *id_number_float
           -
             id: detector.geometry.n_output
             label: N Outputs
@@ -109,47 +109,51 @@ gui:
           -
             id: detector.environment.temperature
             label: Temperature (K)
-            entry: *id_number_uint
+            entry: *id_number_float
 
           -
             id: detector.environment.total_ionising_dose
-            label: Total Ionising Dose
-            entry: *id_text
+            label: Total Ionising Dose (MeV/g)
+            entry: *id_number_float
 
           -
             id: detector.environment.total_non_ionising_dose
-            label: Total None-Ionising Dose
-            entry: *id_text
+            label: Total Non-Ionising Dose (MeV/g)
+            entry: *id_number_float
 
       -
         label: Characteristics
         items:
           -
             id: detector.characteristics.qe
-            label: QE (quantum yield)
+            label: Quantum Efficiency
             entry:
               tag: input
               type: number
               step: 0.01
-              min: 0.1
+              min: 0.0
               max: 1.0
-              title: Quantum Efficiency
           -
             id: detector.characteristics.eta
-            label: ETA (&#919;) (e/photon)
-            entry: *id_number_uint
+            label: Quantum Yield (e/photon)  #(&#919;)
+            entry: *id_number_float
           -
             id: detector.characteristics.sv
-            label: Sv (V/-e)
-            entry: *id_number_uint
+            label: Sensitivity (V/e)
+            entry:
+              tag: input
+              type: number
+              step: 0.0000001
+              min: 0.0
+              max: 1.0
           -
             id: detector.characteristics.amp
-            label: Output amplifier gain
-            entry: *id_number_uint
+            label: Output Amplifier Gain
+            entry: *id_number_float
           -
             id: detector.characteristics.a1
             label: A1 (V/V)
-            entry: *id_number_uint
+            entry: *id_number_float
           -
             id: detector.characteristics.a2
             label: A2 (DN/V)
@@ -160,26 +164,29 @@ gui:
             entry: *id_number_uint
           -
             id: detector.characteristics.fwc_serial
-            label: FWC Serial (e)
+            label: FWC serial (e)
             entry: *id_number_uint
 
   -
     label: Models Settings
     items:
       -
-        label: Photon Generation
+        label: Uniform illumination (Photon Generation)
         items:
           -
             id: pipeline.photon_generation.photon_level.arguments.level
             label: Photons
             entry: *id_number_uint
+      -
+        label: Load image (Photon Generation)
+        items:
           -
             id: pipeline.photon_generation.load_image.arguments.image_file
             label: Image
             entry: *id_text
 
       -
-        label: Charge Generation (TARS)
+        label: TARS (Charge Generation)
         items:
           -
             id: pipeline.charge_generation.tars.arguments.initial_energy
@@ -221,7 +228,7 @@ gui:
               title: vertical, horizontal, position_z
 
       -
-        label: Charge Collection (Fixed Noise Pattern)
+        label: Fixed Pattern Noise (Charge Collection)
         items:
           -
             id: pipeline.charge_collection.fixed_pattern_noise.arguments.pix_non_uniformity
@@ -229,53 +236,106 @@ gui:
             entry: *id_text
 
       -
-        label: Charge Collection (Full Well)
-        items:
-          -
-            id: pipeline.charge_collection.full_well.arguments.fwc
-            label: Full Well Capacity
-            entry: *id_number_uint
-
-      -
-        label: Charge Transfer (CDM)
+        label: CDM (Charge Transfer)
         items:
           -
             id: pipeline.charge_transfer.cdm.arguments.beta_p
-            label: Beta-P
-            entry: *id_text
+            label: Beta-parallel
+            entry: *id_number_float
           -
             id: pipeline.charge_transfer.cdm.arguments.beta_s
-            label: Beta-S
-            entry: *id_text
+            label: Beta-serial
+            entry: *id_number_float
           -
             id: pipeline.charge_transfer.cdm.arguments.vg
-            label: vg
-            entry: *id_text
+            label: Vg
+            entry: *id_number_float
           -
             id: pipeline.charge_transfer.cdm.arguments.svg
-            label: svg
-            entry: *id_text
+            label: Vg-serial
+            entry: *id_number_float
           -
             id: pipeline.charge_transfer.cdm.arguments.t
             label: t
-            entry: *id_text
+            entry: *id_number_float
           -
             id: pipeline.charge_transfer.cdm.arguments.st
-            label: st
-            entry: *id_text
+            label: t-serial
+            entry: *id_number_float
           -
             id: pipeline.charge_transfer.cdm.arguments.parallel_trap_file
-            label: parallel_trap_file
+            label: Parallel trap datafile
             entry: *id_text
           -
             id: pipeline.charge_transfer.cdm.arguments.serial_trap_file
-            label: serial_trap_file
+            label: Serial trap datafile
             entry: *id_text
 
       -
-        label: Charge Measurement (CDM)
+        label: Output Node Noise (Charge Measurement)
         items:
           -
-            id: pipeline.charge_measurement.readout_noise.arguments.std_deviation
-            label: Standard Deviation
-            entry: *id_text
+            id: pipeline.charge_measurement.output_node_noise.arguments.std_deviation
+            label: Standard deviation
+            entry: *id_number_float
+
+      -
+        label: HxRG kTC and Bias Noise (Charge Measurement)
+        items:
+          -
+            id: pipeline.charge_measurement.nghxrg_ktc_bias.arguments.ktc_noise
+            label: Standard deviation
+            entry: *id_number_float
+          -
+            id: pipeline.charge_measurement.nghxrg_ktc_bias.arguments.bias_offset
+            label: Bias offset
+            entry: *id_number_float
+          -
+            id: pipeline.charge_measurement.nghxrg_ktc_bias.arguments.bias_amp
+            label: Bias amplitude
+            entry: *id_number_float
+
+      -
+        label: HxRG White Read Noise (Charge Measurement)
+        items:
+          -
+            id: pipeline.charge_measurement.nghxrg_read.arguments.rd_noise
+            label: Standard deviation
+            entry: *id_number_float
+          -
+            id: pipeline.charge_measurement.nghxrg_read.arguments.ref_pixel_noise_ratio
+            label: Std. dev. ratio
+            entry: *id_number_float
+
+      -
+        label: HxRG Uncorrelated Pink Noise (Signal Transfer)
+        items:
+          -
+            id: pipeline.signal_transfer.nghxrg_u_pink.arguments.u_pink
+            label: Standard deviation
+            entry: *id_number_float
+
+      -
+        label: HxRG Correlated Pink Noise (Signal Transfer)
+        items:
+          -
+            id: pipeline.signal_transfer.nghxrg_c_pink.arguments.c_pink
+            label: Standard deviation
+            entry: *id_number_float
+
+      -
+        label: HxRG Alternating Column Noise (Signal Transfer)
+        items:
+          -
+            id: pipeline.signal_transfer.nghxrg_acn.arguments.acn
+            label: Standard deviation
+            entry: *id_number_float
+
+      -
+        label: HxRG Picture Frame Noise (Readout Electronics)
+        items:
+          -
+            id: pipeline.readout_electronics.nghxrg_pca_zero.arguments.pca0_amp
+            label: Standard deviation
+            entry: *id_number_float
+

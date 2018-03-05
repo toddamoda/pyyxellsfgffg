@@ -14,6 +14,21 @@ $(document).ready(function() {
     $('.pe-table td select').addClass('custom')
     $('.pe-table td button').addClass('btn')
     $('.pe-table td button').addClass('btn-primary')
+    $('input[type=number]').each(function(){
+        var step = $(this).prop('step');
+        var default_decimals = 0;
+        if (step.indexOf('.') != -1) {
+            default_decimals = step.length - step.indexOf('.');
+        }
+        console.log('decimals:' + default_decimals)
+        $(this).TouchSpin({
+            min: $(this).prop('min'),
+            max: $(this).prop('max'),
+            step: $(this).prop('step'),
+            decimals: ($(this).attr('decimals') || default_decimals),
+            verticalbuttons: true
+        });
+    });
 
     // define the section event handlers
     $('#pe-expand').on('click', function() {
@@ -57,6 +72,10 @@ $(document).ready(function() {
         $('.setting .indicator').trigger('click');
         $('.model-state').trigger('update');
     });
+    $('#get-state').on('click', function() {
+        console.log('get-state')
+        connection.emit('api', 'GET-STATE', [])
+    });
 
     $('#pipeline select').on('change', function() {
         var url = '/pipeline/' + $(this).get_value();
@@ -69,7 +88,7 @@ $(document).ready(function() {
     });
     $('#run button').on('click', function() {
         var output_file = $('#output_file').get_value();
-        var run_mode = $('#run input[name=run-mode]:checked').val();
+        var run_mode = $('#run input[name=mode]:checked').val();
 //        var run_mode = $('#run').get_value();
         $('.sequence').each(function(index) {
             var is_enabled = $(this).is_enabled();
@@ -125,6 +144,23 @@ $(document).ready(function() {
     $('#pyxel').on('message:enabled', function(event, selector, fields) {
         $(selector).prop('checked', fields.value);
     });
+    $('#pyxel').on('message:state', function(event, selector, fields) {
+        for (var key in fields.value) {
+            var selector = key.split('.').slice(1).join('.');
+            selector = selector.replace('.models', '');
+            selector = '#' + selector.replace(/\./g, '\\.');
+            console.log('message:state', selector, fields.value[key])
+            if (key.match(/steps\.[0-9]\.enabled/g)) {
+                $(selector + ' .enable-row').prop('checked', fields.value[key]);
+                $(selector + ' .enable-row').trigger('change');
+            } else if (key == 'parametric.mode') {
+                $('input[name=mode]').filter('[value="'+fields.value[key]+'"]').attr('checked', true);
+            } else {
+                $(selector).highlight(fields.value[key], true);
+                $(selector).set_value(fields.value[key], false);
+            }
+        }
+    });
     $('.model-state').on('update', function(event) {
         connection.emit('api', 'GET-MODEL-STATE', [this.id]);
     });
@@ -135,6 +171,6 @@ $(document).ready(function() {
         $('#group-2').css('display', 'none');
     }
 
-    connection.init($('#connection_status'), $('#pyxel'), function(){$('#setting-get-all').trigger('click');})
+    connection.init($('#connection_status'), $('#pyxel'), null); //function(){$('#setting-get-all').trigger('click');})
     connection.open();
 });

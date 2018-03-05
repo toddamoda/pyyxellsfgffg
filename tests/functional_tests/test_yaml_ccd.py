@@ -107,3 +107,5 @@ geometry: !ccd_geometry
   row: 1000
   total_thickness: 3.0
 """
+
+# test_dumper()

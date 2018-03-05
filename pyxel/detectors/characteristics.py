@@ -31,6 +31,10 @@ class Characteristics:
         self.a2 = a2                            # * u.adu / u.V             # gain of the ADC
         self.fwc = fwc                          # * u.electrons             # full well capacity (parallel)
 
+    def copy(self):
+        """TBW."""
+        return Characteristics(**self.__getstate__())
+
     def __getstate__(self):
         """TBW."""
         return {'qe': self.qe,

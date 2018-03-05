@@ -17,6 +17,10 @@ class CCDCharacteristics(Characteristics):
         super().__init__(**kwargs)
         self.fwc_serial = fwc_serial   # * u.electrons
 
+    def copy(self):
+        """TBW."""
+        return CCDCharacteristics(**self.__getstate__())
+
     def __getstate__(self):
         """TBW.
 

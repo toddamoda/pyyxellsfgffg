@@ -46,6 +46,15 @@ def run_parametric(input_filename, output_file, key=None, value=None):
     return output
 
 
+def optimization_func(fits_files):      # TODO
+    """TBW.
+
+    :param fits_files:
+    :return:
+    """
+    return 10.0
+
+
 def run_optimization(input_filename, output_file):
     """TBW.
 
@@ -61,7 +70,9 @@ def run_optimization(input_filename, output_file):
         old_optimized_value = new_optimized_value
         files = run_parametric(input_filename, output_file, key, new_optimized_value)
         # TODO: send file names to optimization model
-        opt_func = lambda fits_files: 10.0
+
+        opt_func = optimization_func
+        # opt_func = lambda fits_files: 10.0
         new_optimized_value = opt_func(files)  # this should be the output from the model
         if abs(old_optimized_value - new_optimized_value) < convergent_criteria:
             break

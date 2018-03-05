@@ -1,5 +1,5 @@
 """TBW."""
-
+from pyxel import util
 from pyxel.pipelines.detector_pipeline import DetectionPipeline
 from pyxel.detectors.detector import Detector
 from pyxel.physics.charge import Charge
@@ -39,6 +39,16 @@ class CMOSDetectionPipeline(DetectionPipeline):
                                      'nghxrg_c_pink'],
             'readout_electronics':  ['nghxrg_pca_zero']
         }
+
+    def copy(self):
+        """TBW."""
+        # kwargs = {key: value.copy() if value else None for key, value in self.__getstate__().items()}
+        # kwargs = {
+        #     'signal_transfer': self.signal_transfer.copy(),
+        # }
+        # for key in super().__getstate__():
+        #     kwargs[key] = getattr(cpy, key).copy()
+        return CMOSDetectionPipeline(**util.copy_state(self))
 
     def __getstate__(self):
         """TBW."""
