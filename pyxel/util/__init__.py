@@ -334,4 +334,5 @@ def evaluate_reference(reference_str):
 
 __all__ = ['FitsFile', 'update_fits_header', 'get_obj_att',
            'eval_range', 'eval_entry', 'apply_run_number',
-           'copy_processor', 'get_state', 'copy_state', 'evaluate_reference']
+           'copy_processor', 'get_state', 'get_state_ids',
+           'copy_state', 'evaluate_reference']

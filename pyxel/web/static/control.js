@@ -120,6 +120,12 @@ $(document).ready(function() {
         $('.pe-table').trigger('message:get', [selector, fields]);
         var label_color = {'pause': 'orange', 'error': 'red', 'aborted': 'orange'};
         $(selector).progress(fields.state > 0, label_color[fields.value]);
+        if (fields.state >= 1) {
+            $('#run button').text('Stop')
+        }
+        if (fields.state <= 0) {
+            $('#run button').text('Run')
+        }
         if (fields.file) {
             window.frames['js9viewer'].load_fits(fields.file);
             if (viewer) {
@@ -153,6 +159,8 @@ $(document).ready(function() {
             if (key.match(/steps\.[0-9]\.enabled/g)) {
                 $(selector + ' .enable-row').prop('checked', fields.value[key]);
                 $(selector + ' .enable-row').trigger('change');
+            } else if (key.match(/pipeline\..*\.enabled/g)) {
+                $(selector).prop('checked', fields.value[key]);
             } else if (key == 'parametric.mode') {
                 $('input[name=mode]').filter('[value="'+fields.value[key]+'"]').attr('checked', true);
             } else {
@@ -171,6 +179,6 @@ $(document).ready(function() {
         $('#group-2').css('display', 'none');
     }
 
-    connection.init($('#connection_status'), $('#pyxel'), null); //function(){$('#setting-get-all').trigger('click');})
+    connection.init($('#connection_status'), $('#pyxel'), function(){$('#get-state').trigger('click');})
     connection.open();
 });

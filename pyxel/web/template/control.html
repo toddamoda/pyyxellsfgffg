@@ -96,45 +96,6 @@
                     {% end %}
                 </table>
 
-                <!--<table class="pe-table pe-form">-->
-                    <!--<caption class="pe-section">Sequencer</caption>-->
-                    <!--<tr id="run">-->
-                        <!--<td style="width:100px"><div>Run Mode</div></td>-->
-                        <!--<td></td>-->
-                        <!--<td colspan="2">-->
-                            <!--<div>-->
-                            <!--<input id="run-mode-recurse" name="run-mode" type="radio" value="recurse"/>-->
-                            <!--<label for="run-mode-recurse">recurse</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
-                            <!--<input id="run-mode-linear" name="run-mode" type="radio" value="linear"/>-->
-                            <!--<label for="run-mode-linear">linear</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
-                            <!--<input id="run-mode-single" name="run-mode" type="radio" value="single" checked/>-->
-                            <!--<label for="run-mode-single">single</label>-->
-                            <!--</div>-->
-                        <!--</td>-->
-                        <!--<td><button>Run</button></td>-->
-                    <!--</tr>-->
-                    <!--{% for i in range(1, 5) %}-->
-                    <!--<tr id="sequence_{{ i-1 }}" class="sequence pe-progress">-->
-                        <!--<td style="width:100px"><div>Sequence {{ i }}</div></td>-->
-                        <!--<td><div class="indicator" style="width:40px;">-</div></td>-->
-                        <!--<td>-->
-                            <!--<select>-->
-                                <!--<option value=""></option>-->
-                                <!--{% for section in controller.get_gui_defs()[1]['items'] %}-->
-                                <!--<optgroup label="{{ section['label'] }}">-->
-                                    <!--{% for item in section['items'] %}-->
-                                    <!--<option value="{{ item['id'] }}">{{ item['label'] }}</option>-->
-                                    <!--{% end %}-->
-                                <!--</optgroup>-->
-                                <!--{% end %}-->
-                            <!--</select>-->
-                        <!--</td>-->
-                        <!--<td><input type="text" value="" style="width:200px;"></td>-->
-                        <!--<td><input class="enable-row" type="checkbox"/></td>-->
-                    <!--</tr>-->
-                    <!--{% end %}-->
-                <!--</table>-->
-
                 <table class="pe-table pe-form">
                     <caption class="pe-section">Models</caption>
                     {% for model_group in controller.get_model_groups() %}
@@ -142,8 +103,9 @@
                         <td style="vertical-align:top;">{{ model_group.replace('_', ' ') }}</td>
                         <td>
                             {% for model_step in controller.processor.pipeline._model_steps[model_group] %}
-                            <label style="font-weight:normal;padding-left:10px;" for="{{ model_step }}">
-                                <input class="model-state" type="checkbox" id="{{ model_step }}"/>
+                            {% set id = 'pipeline.' + model_group + '.' + model_step + '.enabled' %}
+                            <label style="font-weight:normal;padding-left:10px;" for="{{ id }}">
+                                <input class="model-state" type="checkbox" id="{{ id }}"/>
                                 {{ model_step.replace('_', ' ') }}
                             </label><br/>
                             {% end %}
