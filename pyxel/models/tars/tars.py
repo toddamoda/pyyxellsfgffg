@@ -5,11 +5,10 @@
 
 import logging
 import math
-from os import path
 
 import numpy as np
-from numpy import pi
 from tqdm import tqdm
+import typing as t   # noqa: F401
 
 from pyxel.detectors.detector import Detector
 from pyxel.models.tars.simulation import Simulation
@@ -17,19 +16,15 @@ from pyxel.models.tars.util import read_data, interpolate_data
 
 # from astropy import units as u
 
-# import matplotlib.pyplot as plt
-# from mpl_toolkits.mplot3d import Axes3D
-
-TARS_DIR = path.dirname(path.abspath(__file__))
-
 
 def run_tars(detector: Detector,
-             particle_type: str = 'proton',
-             initial_energy: float = 100.0,
-             particle_number: int = 1,
-             incident_angles: tuple = (pi/10, pi/4),
-             starting_position: tuple = (500.0, 500.0, 0.0),
-             stepping_length: float = 1.0) -> Detector:
+             particle_type: str = None,
+             initial_energy: t.Union[str, float] = None,
+             particle_number: int = None,
+             incident_angles: tuple = None,
+             starting_position: tuple = None,
+             stepping_length: float = None,
+             spectrum_file: str = None) -> Detector:
     """TBW.
 
     :param detector:
@@ -39,22 +34,37 @@ def run_tars(detector: Detector,
     :param incident_angles:
     :param starting_position:
     :param stepping_length:
+    :param spectrum_file:
     :return:
     """
-    # new_ccd = copy.deepcopy(ccd)
     new_detector = detector
 
     cosmics = TARS(new_detector)
 
-    cosmics.set_particle_type(particle_type)        # MeV
-    cosmics.set_initial_energy(initial_energy)      # MeV
-    cosmics.set_particle_number(particle_number)
-    cosmics.set_incident_angles(*incident_angles)     # rad
-    # z=0. -> cosmic ray events, z='random' -> snowflakes (radioactive decay inside ccd)
-    cosmics.set_starting_position(*starting_position)      # um
-    cosmics.set_stepping_length(stepping_length)   # um !
+    if particle_type is None:
+        raise ValueError('TARS: Particle type is not defined')
+    if particle_number is None:
+        raise ValueError('TARS: Particle number is not defined')
+    if spectrum_file is None:
+        raise ValueError('TARS: Spectrum is not defined')
 
-    spectrum_file = TARS_DIR + '/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
+    if initial_energy is None:
+        initial_energy = 'random'       # TODO
+    if incident_angles is None:
+        incident_angles = ('random', 'random')
+    if starting_position is None:
+        starting_position = ('random', 'random', 0.)
+        # starting_position = ('random', 'random', 'random') -> snowflakes (radioactive decay inside detector)
+
+    if stepping_length is None:
+        stepping_length = 1.    # um
+
+    cosmics.set_particle_type(particle_type)                # MeV
+    cosmics.set_initial_energy(initial_energy)              # MeV
+    cosmics.set_particle_number(particle_number)            # -
+    cosmics.set_incident_angles(incident_angles)            # rad
+    cosmics.set_starting_position(starting_position)        # um
+    cosmics.set_stepping_length(stepping_length)            # um
     cosmics.set_particle_spectrum(spectrum_file)
 
     cosmics.run()
@@ -81,9 +91,6 @@ class TARS:
         self.position_hor = None
         self.position_z = None
         self.step_length = None
-
-        # self.data_folder = TARS_DIR + r'\data'
-        # self.results_folder = self.data_folder + r'\results'
 
         self.sim_obj = Simulation(self.detector)
         self.charge_obj = self.detector.charges
@@ -113,24 +120,23 @@ class TARS:
         """
         self.particle_number = number
 
-    def set_incident_angles(self, alpha, beta):
+    def set_incident_angles(self, angles):
         """TBW.
 
-        :param alpha:
-        :param beta:
+        :param angles:
         :return:
         """
+        alpha, beta = angles
         self.angle_alpha = alpha
         self.angle_beta = beta
 
-    def set_starting_position(self, position_vertical, position_horizontal, position_z):
+    def set_starting_position(self, start_position):
         """TBW.
 
-        :param position_vertical:
-        :param position_horizontal:
-        :param position_z:
+        :param start_position:
         :return:
         """
+        position_vertical, position_horizontal, position_z = start_position
         self.position_ver = position_vertical
         self.position_hor = position_horizontal
         self.position_z = position_z

@@ -1,17 +1,18 @@
 
 parametric:
-#  mode: single
+  mode: single
 #  mode: embedded
-  mode: sequential
+#  mode: sequential
   steps:
     -
       enabled: true
       key: pipeline.photon_generation.photon_level.arguments.level
-      values: [10]
-#    -
-#      enabled: true
-#      key: pipeline.charge_generation.tars.arguments.initial_energy
-#      values: [100, 200, 300]
+      values: [10, 20, 30]
+    -
+      enabled: true
+      key: pipeline.charge_generation.tars.arguments.initial_energy
+      values: [100, 200, 300]
+
 
 cmos_process:
 
@@ -35,7 +36,7 @@ cmos_process:
       reference_pixel_border_width: 4
 
     environment:
-      temperature: 320  # detector temperature Kelvin
+      temperature: 320    # K
 
     characteristics:
       qe: 0.5         # -
@@ -79,93 +80,30 @@ cmos_process:
         name: pyxel.models.tars.tars.run_tars
         enabled: true
         arguments:
-          initial_energy: 100.0   # MeV
+          particle_type: proton
+          initial_energy: random   # MeV
           particle_number: 10
           incident_angles:      # rad
-            - random # 0.31416  # pi / 10
-            - random # 0.7853   # pi / 4
           starting_position:    # um
-            - random # 500.0
-            - random # 500.0
-            - 0.0
           stepping_length: 1.0  # um
+          spectrum_file: 'pyxel/models/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
 
     # charge -> charge
     charge_collection:
 
-      diffusion:
-        name: pyxel.models.diffusion.diffusion
-        enabled: false
-#        arguments:
+#      diffusion:
+#        name: pyxel.models.diffusion.diffusion
+#        enabled: false
+##        arguments:
 
       full_well:
         name: pyxel.models.full_well.simple_pixel_full_well
         enabled: true
-#        arguments:
-#          fwc: 100       # e (full well capacity)
 
     # charge -> signal
     charge_measurement:
 
-   # signal -> signal
-    signal_transfer:
-
-      nghxrg_read:
-        name: pyxel.models.nghxrg.nghxrg.white_read_noise
-        enabled: true
-        arguments:
-          rd_noise: 400.           # White read noise per integration
-          ref_pixel_noise_ratio: 80.
-#          window_mode: WINDOW
-#          wind_x0: 50
-#          wind_y0: 100
-#          wind_x_size: 200
-#          wind_y_size: 200
-
-      nghxrg_pca_zero:
-        name: pyxel.models.nghxrg.nghxrg.pca_zero_noise
-        enabled: true
-        arguments:
-          pca0_amp: 450.           # Amplitude of PCA zero "picture frame" noise
-#          window_mode: WINDOW
-#          wind_x0: 300
-#          wind_y0: 100
-#          wind_x_size: 200
-#          wind_y_size: 200
-
-      nghxrg_c_pink:
-        name: pyxel.models.nghxrg.nghxrg.corr_pink_noise
-        enabled: true
-        arguments:
-          c_pink: 300.             # Correlated pink noise
-#          window_mode: WINDOW
-#          wind_x0: 550
-#          wind_y0: 100
-#          wind_x_size: 200
-#          wind_y_size: 200
-
-      nghxrg_u_pink:
-        name: pyxel.models.nghxrg.nghxrg.uncorr_pink_noise
-        enabled: true
-        arguments:
-          u_pink: 200.             # Uncorrelated pink noise
-#          window_mode: WINDOW
-#          wind_x0: 50
-#          wind_y0: 350
-#          wind_x_size: 200
-#          wind_y_size: 200
-
-      nghxrg_acn:
-        name: pyxel.models.nghxrg.nghxrg.acn_noise
-        enabled: true
-        arguments:
-          acn: 500.                 # Correlated ACN
-#          window_mode: WINDOW
-#          wind_x0: 300
-#          wind_y0: 350
-#          wind_x_size: 200
-#          wind_y_size: 200
-
+      # kTC and Bias noises
       nghxrg_ktc_bias:
         name: pyxel.models.nghxrg.nghxrg.ktc_bias_noise
         enabled: true
@@ -179,5 +117,70 @@ cmos_process:
 #          wind_x_size: 200
 #          wind_y_size: 200
 
+      # White read noise per integration
+      nghxrg_read:
+        name: pyxel.models.nghxrg.nghxrg.white_read_noise
+        enabled: true
+        arguments:
+          rd_noise: 400.
+          ref_pixel_noise_ratio: 80.
+#          window_mode: WINDOW
+#          wind_x0: 50
+#          wind_y0: 100
+#          wind_x_size: 200
+#          wind_y_size: 200
+
+   # signal -> signal
+    signal_transfer:
+
+      # Correlated pink noise
+      nghxrg_c_pink:
+        name: pyxel.models.nghxrg.nghxrg.corr_pink_noise
+        enabled: true
+        arguments:
+          c_pink: 300.
+#          window_mode: WINDOW
+#          wind_x0: 550
+#          wind_y0: 100
+#          wind_x_size: 200
+#          wind_y_size: 200
+
+      # Uncorrelated pink noise
+      nghxrg_u_pink:
+        name: pyxel.models.nghxrg.nghxrg.uncorr_pink_noise
+        enabled: true
+        arguments:
+          u_pink: 200.
+#          window_mode: WINDOW
+#          wind_x0: 50
+#          wind_y0: 350
+#          wind_x_size: 200
+#          wind_y_size: 200
+
+      # Correlated Alternating Column Noise
+      nghxrg_acn:
+        name: pyxel.models.nghxrg.nghxrg.acn_noise
+        enabled: true
+        arguments:
+          acn: 500.
+#          window_mode: WINDOW
+#          wind_x0: 300
+#          wind_y0: 350
+#          wind_x_size: 200
+#          wind_y_size: 200
+
+
     # signal -> image
     readout_electronics:
+
+      # PCA zero "picture frame" noise
+      nghxrg_pca_zero:
+        name: pyxel.models.nghxrg.nghxrg.pca_zero_noise
+        enabled: true
+        arguments:
+          pca0_amp: 450.
+#          window_mode: WINDOW
+#          wind_x0: 300
+#          wind_y0: 100
+#          wind_x_size: 200
+#          wind_y_size: 200

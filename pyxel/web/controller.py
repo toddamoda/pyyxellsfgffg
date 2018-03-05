@@ -7,14 +7,14 @@ from pathlib import Path
 from pyxel import util
 from pyxel.web import signals
 from pyxel.web import webapp
-from pyxel.pipelines.detector_pipeline import DetectionPipeline
+from pyxel.pipelines.processor import Processor
 from pyxel.web.sequencer import Sequencer
 
 
 class Controller:
     """TBW."""
 
-    def __init__(self, processor: DetectionPipeline, address_viewer: str=None) -> None:
+    def __init__(self, processor: Processor, address_viewer: str=None) -> None:
         """TBW.
 
         :param processor:
@@ -29,7 +29,7 @@ class Controller:
         self._modified_time = None  # type: float
         self._items = None          # type: dict
         self._address_viewer = address_viewer  # type: str
-        self.processor = processor  # type: DetectionPipeline
+        self.processor = processor  # type: Processor
         self.processor_name = None  # type: str
         self.sequencer = Sequencer(self)
         self.parametric = None
