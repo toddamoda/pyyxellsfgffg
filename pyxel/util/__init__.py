@@ -58,7 +58,10 @@ def get_obj_att(obj, key):
     att = obj_props[-1]
     for part in obj_props[:-1]:
         try:
-            obj = getattr(obj, part)
+            if isinstance(obj, dict):
+                obj = obj[part]
+            else:
+                obj = getattr(obj, part)
         except AttributeError:
             # logging.error('Cannot find attribute %r in key %r', part, key)
             obj = None
@@ -230,7 +233,13 @@ def get_state_dict(obj):
     if isinstance(obj, dict):
         for key, value in obj.items():
             result[key] = get_state_dict(value)
+    elif isinstance(obj, list):
+        result = []
+        for value in obj:
+            result.append(get_state_dict(value))
     else:
+        if not hasattr(obj, '__getstate__'):
+            return result
         for key, value in obj.__getstate__().items():
             if isinstance(value, list):
                 result[key] = [get_state_helper(val) for val in value]
