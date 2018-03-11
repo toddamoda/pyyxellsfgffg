@@ -98,15 +98,15 @@
 
                 <table class="pe-table pe-form">
                     <caption class="pe-section">Models</caption>
-                    {% for model_group in controller.get_model_groups() %}
+                    {% for i, (name, group) in enumerate(controller.processor.pipeline.model_groups.items()) %}
                     <tr>
-                        <td style="vertical-align:top;">{{ model_group.replace('_', ' ') }}</td>
+                        <td style="vertical-align:top;">{{ name.replace('_', ' ') }}</td>
                         <td>
-                            {% for model_step in controller.processor.pipeline._model_steps[model_group] %}
-                            {% set id = 'pipeline.' + model_group + '.' + model_step + '.enabled' %}
+                            {% for model in group.models %}
+                            {% set id = 'pipeline.' + name + '.' + model.name + '.enabled' %}
                             <label style="font-weight:normal;padding-left:10px;" for="{{ id }}">
                                 <input class="model-state" type="checkbox" id="{{ id }}"/>
-                                {{ model_step.replace('_', ' ') }}
+                                {{ model.name.replace('_', ' ') }}
                             </label><br/>
                             {% end %}
                         </td>

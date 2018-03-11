@@ -15,7 +15,8 @@ from pathlib import Path
 import pyxel
 from pyxel import util
 import pyxel.pipelines.processor
-from pyxel.io.yaml_processor import load_config
+# from pyxel.io.yaml_processor import load_config
+from pyxel.io.yaml_processor_new import load_config
 
 
 def run_parametric(input_filename, output_file, key=None, value=None):
@@ -28,7 +29,10 @@ def run_parametric(input_filename, output_file, key=None, value=None):
     :return:
     """
     output = []
-    parametric, processor = util.load(Path(input_filename))
+    # parametric, processor = util.load(Path(input_filename))
+    cfg = load_config(Path(input_filename))
+    parametric = cfg['parametric']
+    processor = cfg['processor']
     if key and value:
         # processor.set(key, value)
         pass

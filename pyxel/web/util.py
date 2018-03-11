@@ -8,7 +8,7 @@ from esapy_rpc.rpc import SimpleSerializer
 from pyxel import util
 from pyxel.util import FitsFile
 from pyxel.web import signals
-from pyxel.pipelines.detector_pipeline import PipelineAborted
+# from pyxel.pipelines.detector_pipeline import PipelineAborted
 
 
 def run_pipeline(processor, output_file=None, address_viewer=None):
@@ -23,7 +23,7 @@ def run_pipeline(processor, output_file=None, address_viewer=None):
         signals.progress('state', {'value': 'running', 'state': 1})
         processor.detector.update_header()
         result = processor.pipeline.run(processor.detector)
-    except PipelineAborted:
+    except util.PipelineAborted:
         signals.progress('state', {'value': 'aborted', 'state': 0})
         return
     except Exception as exc:

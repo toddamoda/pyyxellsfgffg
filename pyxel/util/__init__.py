@@ -8,6 +8,10 @@ from ast import literal_eval
 from pyxel.util.fitsfile import FitsFile
 
 
+class PipelineAborted(Exception):
+    """Exception to force the pipeline to stop processing."""
+
+
 def load(yaml_filename):
     """TBW.
 
@@ -331,10 +335,13 @@ def evaluate_reference(reference_str):
     try:
         module = importlib.import_module(module_str)
     except ImportError as exc:
-        raise ImportError('Cannot import module: %s. exc: %s' % (module_str, str(exc)))
+        raise ImportError('Cannot import module: %r. exc: %s' % (module_str, str(exc)))
 
     try:
         reference = getattr(module, function_str)
+        # if isinstance(reference, type):
+        #     # this is a class type, instantiate it using default arguments.
+        #     reference = reference()
     except AttributeError:
         raise ImportError('Module: %s, does not contain %s' % (module_str, function_str))
 

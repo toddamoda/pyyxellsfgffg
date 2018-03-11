@@ -1,27 +1,24 @@
 """TBW."""
 import logging
 import typing as t  # noqa: F401
+from collections import OrderedDict
 
 from pyxel.detectors.detector import Detector
-from pyxel.pipelines.models import Model  # noqa: F401
+# from pyxel.pipelines.models import Model  # noqa: F401
 from pyxel.pipelines.models import Models
 from pyxel import util
-
-
-class PipelineAborted(Exception):
-    """Exception to force the pipeline to stop processing."""
 
 
 class DetectionPipeline:
     """TBW."""
 
     def __init__(self,
-                 photon_generation: Models,
-                 optics: Models,
-                 charge_generation: Models,
-                 charge_collection: Models,
-                 charge_measurement: Models,
-                 readout_electronics: Models,
+                 photon_generation: Models = None,
+                 optics: Models = None,
+                 charge_generation: Models = None,
+                 charge_collection: Models = None,
+                 charge_measurement: Models = None,
+                 readout_electronics: Models = None,
                  doc=None) -> None:
         """TBW.
 
@@ -57,16 +54,44 @@ class DetectionPipeline:
                 return ref  # .__getstate__()
 
         return {
-            'photon_generation': state(self.photon_generation),
-            'optics': state(self.optics),
-            'charge_generation': state(self.charge_generation),
-            'charge_collection': state(self.charge_collection),
-            'charge_measurement': state(self.charge_measurement),
-            'readout_electronics': state(self.readout_electronics),
+            'photon_generation': self.photon_generation,
+            'optics': self.optics,
+            'charge_generation': self.charge_generation,
+            'charge_collection': self.charge_collection,
+            'charge_measurement': self.charge_measurement,
+            'readout_electronics': self.readout_electronics,
         }
+
+    def set_model_enabled(self, expression: str, is_enabled: bool):
+        """TBW.
+
+        :param expression:
+        :param is_enabled:
+        :return:
+        """
+        groups = self.model_groups
+        for group_name, group in groups.items():
+            for model in group.models:
+                model_name = model.name
+                can_set = 0
+                can_set |= expression == '*'
+                can_set |= group_name in expression
+                can_set |= model_name in expression
+                if can_set:
+                    model.enabled = is_enabled
 
     @property
     def model_groups(self):
+        """TBW."""
+        result = OrderedDict()
+        for group in self._model_groups:
+            model_group = getattr(self, group)
+            if model_group:
+                result[group] = model_group
+        return result
+
+    @property
+    def model_group_names(self):
         """TBW."""
         return self._model_groups
 
@@ -75,7 +100,7 @@ class DetectionPipeline:
         try:
             self._is_running = True
             return self.run_pipeline(detector)
-        except PipelineAborted:
+        except util.PipelineAborted:
             raise  # send signal to caller to ensure no output is saved
         finally:
             self._is_running = False
@@ -83,6 +108,11 @@ class DetectionPipeline:
     def abort(self):
         """TBW."""
         self._is_running = False
+
+    @property
+    def is_running(self):
+        """Return the running state of this pipeline."""
+        return self._is_running
 
     def get_model(self, name):
         """TBW.
@@ -107,24 +137,9 @@ class DetectionPipeline:
         """
         self._is_running = True
         if name in self._model_groups:
-            steps = self._model_steps[name]
-            models_obj = getattr(self, name)  # type: Models
+            models_obj = getattr(self, name)
             if models_obj:
-                for step in steps:
-                    if step in models_obj.models:
-                        model = models_obj.models[step]  # type: Model
-                        if model.enabled:
-                            self._log.debug('Running %r', model.name)
-                            for arg in model.arguments:
-                                util.update_fits_header(detector.header,
-                                                        key=[step, arg],
-                                                        value=model.arguments[arg])
-                            model.function(detector)
-                            if not self._is_running:
-                                self._log.debug('Aborted after %r', model.name)
-                                raise PipelineAborted()
-                        else:
-                            self._log.debug('Skipping %r', model.name)
+                models_obj.run(detector, self)
         return detector
 
     def run_pipeline(self, detector: Detector) -> Detector:

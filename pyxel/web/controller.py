@@ -7,6 +7,7 @@ from pathlib import Path
 from pyxel import util
 from pyxel.web import signals
 from pyxel.web import webapp
+from pyxel.io.yaml_processor_new import load_config
 from pyxel.pipelines.processor import Processor
 # from pyxel.web.sequencer import Sequencer
 
@@ -24,7 +25,7 @@ class Controller:
         """
         config_dir = Path(__file__).parent.parent
         self.pipeline_paths = {
-            'ccd': config_dir.joinpath('settings_ccd.yaml'),
+            'ccd': config_dir.joinpath('io', 'templates', 'ccd.yaml'),
             'cmos': config_dir.joinpath('settings_cmos.yaml'),
         }
         self._th = None             # type: threading.Thread
@@ -63,9 +64,9 @@ class Controller:
         """
         if name in self.pipeline_paths:
             config_path = self.pipeline_paths[name]
-            nodes = util.load(config_path)
-            self.parametric = nodes[0]
-            self.processor = nodes[1]
+            cfg = load_config(config_path)
+            self.parametric = cfg['parametric']
+            self.processor = cfg['processor']
             self.processor_name = name
         else:
             self.parametric = None
