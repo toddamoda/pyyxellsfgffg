@@ -22,7 +22,7 @@ class MyOtherClassModel(metaclass=MetaModel,
         return detector
 
 
-def my_function_model(detector: Detector, level: int, noise: float=2.0):
+def my_function_model(detector: Detector, level, noise: float=2.0):
     # set a new attribute so it can be checked later
     setattr(detector, 'level', level)
     setattr(detector, 'noise', noise)

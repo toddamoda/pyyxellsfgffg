@@ -6,6 +6,7 @@ from pyxel import util
 # from pyxel.pipelines.model_group import ModelFunction
 # from pyxel import Processor
 # from pyxel import ModelFunction
+from pyxel.detectors.detector import Detector
 from pyxel.pipelines.processor import Processor
 from pyxel.pipelines.model_group import ModelFunction
 
@@ -85,6 +86,10 @@ def create_model_def(func, group='', name=None):
     for arg in spec.args:
         if arg == 'self':
             continue
+        if arg in spec.annotations and isinstance(spec.annotations[arg], Detector):
+            continue
+        # NOTE: the if statement above is better (if an annotation is provided)
+        # else the argument name 'detector' is to become a keyword.
         if arg == 'detector':
             continue
         if arg in values:

@@ -14,9 +14,9 @@ from pyxel.pipelines.detector_pipeline import DetectionPipeline
 from pyxel.pipelines.processor import Processor
 
 
-__all__ = ['load_config', 'ccd_pipeline', 'cmos_pipeline', 'models',
-           'processor', 'registry', 'MetaModel', 'DetectionPipeline',
-           'ModelFunction', 'ModelGroup']
+__all__ = ['load_config', 'ccd_pipeline', 'cmos_pipeline', 'models', 'processor',
+           'registry', 'MetaModel', 'ModelFunction', 'ModelGroup',
+           'DetectionPipeline', 'Processor']
 
 __appname__ = 'Pyxel'
 __author__ = 'David Lucsanyi'
