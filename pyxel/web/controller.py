@@ -10,6 +10,8 @@ from pyxel.web import webapp
 from pyxel.io.yaml_processor_new import load_config
 from pyxel.pipelines.processor import Processor
 from pyxel.pipelines.model_registry import registry
+from pyxel.pipelines.model_group import ModelGroup
+
 
 # from pyxel.web.sequencer import Sequencer
 
@@ -76,10 +78,26 @@ class Controller:
             self.parametric = cfg['parametric']
             self.processor = cfg['processor']
             self.processor_name = name
+            registry.import_models(self.processor)
         else:
             self.parametric = None
             self.processor = None
             self.processor_name = None
+
+    def update_settings(self, path):
+        """TBW."""
+        cfg = load_config(Path(path))
+        processor = cfg['processor']
+        obj_dict = util.get_state_dict(processor)
+        state = util.get_state_ids(obj_dict)
+        for key, value in state.items():
+            try:
+                self.processor.set(key, value)
+            except AttributeError as exc:
+                print('ERROR: could not set key: %s' % key)
+        pass
+        # self.parametric = cfg['parametric']
+        # self.processor = cfg['processor']
 
     def load_yaml_file(self, path):
         """TBW."""
@@ -93,7 +111,13 @@ class Controller:
             'processor': self.processor,
             'parametric': self.parametric,
         }
-        cfg_dict = util.get_state_dict(cfg)
+        ModelGroup.yaml_generation = True
+        try:
+            cfg_dict = util.get_state_dict(cfg)
+            cfg_dict['processor']['detector']
+        finally:
+            ModelGroup.yaml_generation = False
+
         output = yaml.dump(cfg_dict, default_flow_style=False)
         print(output)
         with open(path, 'w') as fd:
@@ -106,7 +130,7 @@ class Controller:
         """
         if self.processor:
             return self.processor.pipeline.model_groups
-        return []
+        return {}
 
     def get_pipeline_names(self):
         """TBW."""
@@ -139,6 +163,8 @@ class Controller:
             reg_map = yaml.load(fd.read())
             registry.register_map(reg_map, self.processor_name)
             registry.import_models(self.processor)
+
+        self._modified_time = None
 
     def load_gui_model_defs(self, cfg):
         """TBW."""
@@ -178,7 +204,7 @@ class Controller:
         """
         gui_file = str(CWD_PATH.joinpath('gui.yaml'))
         mtime = os.path.getmtime(gui_file)
-        if True or self._modified_time != mtime:
+        if self._modified_time != mtime:
             self._modified_time = mtime
             with open(gui_file, 'r') as fd:
                 cfg = yaml.load(fd)

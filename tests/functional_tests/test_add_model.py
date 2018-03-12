@@ -186,13 +186,13 @@ def test_pipeline_import():
 
     print(dump(cfg))
 
-
-if __name__ == '__main__':
-    test_add_model()
-    test_model_registry()
-    test_pipeline_import()
-    test_model_registry_decorator()
-    test_model_registry_map()
+#
+# if __name__ == '__main__':
+#     test_add_model()
+#     test_model_registry()
+#     test_pipeline_import()
+#     test_model_registry_decorator()
+#     test_model_registry_map()
 
 #
 #

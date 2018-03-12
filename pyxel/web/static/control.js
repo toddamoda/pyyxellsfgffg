@@ -92,6 +92,12 @@ $(document).ready(function() {
     $('#load button').on('click', function() {
         connection.emit('api', 'EXECUTE-CALL', ['load_yaml_file', $(this).get_value()]);
     });
+    $('#registry button').on('click', function() {
+        connection.emit('api', 'EXECUTE-CALL', ['load_registry', $(this).get_value()]);
+    });
+    $('#update-from-file button').on('click', function() {
+        connection.emit('api', 'EXECUTE-CALL', ['update_settings', $(this).get_value()]);
+    });
     $('#run button').on('click', function() {
         var output_file = $('#output_file').get_value();
         var run_mode = $('#run input[name=mode]:checked').val();

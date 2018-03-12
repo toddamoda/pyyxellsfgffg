@@ -59,6 +59,8 @@ class ModelFunction:
 class ModelGroup:
     """TBW."""
 
+    yaml_generation = False
+
     def __init__(self, models: t.List[ModelFunction]) -> None:
         """TBW.
 
@@ -74,8 +76,10 @@ class ModelGroup:
 
     def get_state_json(self):
         """TBW."""
-        # return util.get_state_dict(self)
-        return {model.name: util.get_state_dict(model) for model in self.models}
+        if ModelGroup.yaml_generation:
+            return util.get_state_dict(self.models)
+        else:
+            return {model.name: util.get_state_dict(model) for model in self.models}
 
     def run(self, detector, pipeline):
         """Execute each enabled model in this group."""

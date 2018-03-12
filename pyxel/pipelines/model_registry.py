@@ -256,7 +256,8 @@ class MetaModel(type):
     def __init__(self, class_name, bases, namespace, **kwargs):
         """TBW."""
         super().__init__(class_name, bases, namespace)
+        # global registry
         name = kwargs.get('name', class_name)
         group = kwargs.get('group', '')
         func = namespace['__module__'] + '.' + class_name
-        Registry()[name] = LateBind(create_model_def, func, group, name)
+        registry[name] = LateBind(create_model_def, func, group, name)

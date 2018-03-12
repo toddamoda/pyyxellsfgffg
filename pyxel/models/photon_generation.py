@@ -16,14 +16,15 @@ def load_image(detector: Detector, image_file: str) -> Detector:
     :param image_file:
     :return:
     """
-    geo = detector.geometry
-    cht = detector.characteristics
-    image = fits.getdata(image_file)
-    geo.row, geo.col = image.shape
-    photon_number_list = image / (cht.qe * cht.eta * cht.sv * cht.amp * cht.a1 * cht.a2)
-    photon_number_list = np.rint(photon_number_list).astype(int).flatten()
-    photon_energy_list = [0.] * geo.row * geo.col
-    detector.photons.generate_photons(photon_number_list, photon_energy_list)
+    if image_file:
+        geo = detector.geometry
+        cht = detector.characteristics
+        image = fits.getdata(image_file)
+        geo.row, geo.col = image.shape
+        photon_number_list = image / (cht.qe * cht.eta * cht.sv * cht.amp * cht.a1 * cht.a2)
+        photon_number_list = np.rint(photon_number_list).astype(int).flatten()
+        photon_energy_list = [0.] * geo.row * geo.col
+        detector.photons.generate_photons(photon_number_list, photon_energy_list)
 
     return detector
 
