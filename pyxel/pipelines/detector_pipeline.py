@@ -62,6 +62,12 @@ class DetectionPipeline:
             'readout_electronics': self.readout_electronics,
         }
 
+    def clear(self):
+        """Remove all the models from this pipeline."""
+        for model_group in self.model_groups.values():
+            if model_group.models:
+                model_group.models.clear()
+
     def set_model_enabled(self, expression: str, is_enabled: bool):
         """TBW.
 

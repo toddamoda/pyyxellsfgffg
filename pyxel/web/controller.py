@@ -9,6 +9,8 @@ from pyxel.web import signals
 from pyxel.web import webapp
 from pyxel.io.yaml_processor_new import load_config
 from pyxel.pipelines.processor import Processor
+from pyxel.pipelines.model_registry import registry
+
 # from pyxel.web.sequencer import Sequencer
 
 
@@ -47,6 +49,12 @@ class Controller:
         signals.dispatcher.connect(sender='api', signal=signals.SET_MODEL_STATE, callback=self.set_model_state)
         signals.dispatcher.connect(sender='api', signal=signals.GET_MODEL_STATE, callback=self.get_model_state)
         signals.dispatcher.connect(sender='api', signal=signals.GET_STATE, callback=self.get_state)
+        signals.dispatcher.connect(sender='api', signal=signals.EXECUTE_CALL, callback=self.execute_call)
+
+    def execute_call(self, method, *args, **kwargs):
+        """TBW."""
+        if hasattr(self, method):
+            getattr(self, method)(*args, **kwargs)
 
     @property
     def address_viewer(self):
@@ -72,6 +80,24 @@ class Controller:
             self.parametric = None
             self.processor = None
             self.processor_name = None
+
+    def load_yaml_file(self, path):
+        """TBW."""
+        cfg = load_config(Path(path))
+        self.parametric = cfg['parametric']
+        self.processor = cfg['processor']
+
+    def generate_yaml_file(self, path):
+        """TBW."""
+        cfg = {
+            'processor': self.processor,
+            'parametric': self.parametric,
+        }
+        cfg_dict = util.get_state_dict(cfg)
+        output = yaml.dump(cfg_dict, default_flow_style=False)
+        print(output)
+        with open(path, 'w') as fd:
+            fd.write(output)
 
     def get_model_groups(self):
         """TBW.
@@ -99,6 +125,50 @@ class Controller:
             result.append('%s="%s"' % (key, entry[key]))
         return ' '.join(result)
 
+    def load_registry(self, path='pyxel/model_registry.yaml'):
+        """TBW."""
+        pipeline = self.processor.pipeline
+        pipeline.clear()
+        registry.clear()
+
+        # from pyxel.model_registry import registry_map
+        # yaml_content = yaml.dump(registry_map, default_flow_style=False)
+        # with open('pyxel/model_registry.yaml', 'w') as fd:
+        #     fd.write(yaml_content)
+        with open(path, 'r') as fd:  # TODO: hardcoded
+            reg_map = yaml.load(fd.read())
+            registry.register_map(reg_map, self.processor_name)
+            registry.import_models(self.processor)
+
+    def load_gui_model_defs(self, cfg):
+        """TBW."""
+        model_settings = cfg['gui'][1]['items']
+        model_settings.clear()
+        if self.processor_name:
+            pipeline = self.processor.pipeline
+
+            for group in pipeline.model_group_names:
+                items = [registry[key] for key in registry if registry[key]['group'] == group]
+                for item in items:
+                    gui_def = {
+                        'label': item['name'],
+                        'arguments': []
+                    }
+                    for arg in item['arguments']:
+                        gui_def['arguments'].append({
+                            'id': 'pipeline.' + group + '.' + item['name'] + '.arguments.' + arg,
+                            'label': arg,
+                            'entry': {
+                                'tag': 'input',
+                                'type': 'text'
+                            }
+                        })
+                    model_settings.append(gui_def)
+
+            x = yaml.dump(cfg, default_flow_style=False)
+            print(x)
+            return
+
     def get_gui_defs(self):
         """Retrieve the dictionary object model that is defined in the gui.yaml configuration file.
 
@@ -108,10 +178,11 @@ class Controller:
         """
         gui_file = str(CWD_PATH.joinpath('gui.yaml'))
         mtime = os.path.getmtime(gui_file)
-        if self._modified_time != mtime:
+        if True or self._modified_time != mtime:
             self._modified_time = mtime
             with open(gui_file, 'r') as fd:
                 cfg = yaml.load(fd)
+                self.load_gui_model_defs(cfg)
             self._items = cfg
         return self._items['gui']
 

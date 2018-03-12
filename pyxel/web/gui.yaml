@@ -39,7 +39,7 @@ gui:
     items:
       -
         label: Geometry
-        items:
+        arguments:
           -
             id: detector.geometry.row
             label: Rows
@@ -112,7 +112,7 @@ gui:
 
       -
         label: Environment
-        items:
+        arguments:
           -
             id: detector.environment.temperature
             label: Temperature (K)
@@ -130,7 +130,7 @@ gui:
 
       -
         label: Characteristics
-        items:
+        arguments:
           -
             id: detector.characteristics.qe
             label: Quantum Efficiency
@@ -174,14 +174,14 @@ gui:
     items:
       -
         label: Uniform illumination (Photon Generation)
-        items:
+        arguments:
           -
             id: pipeline.photon_generation.photon_level.arguments.level
             label: Photons
             entry: *id_number_uint
       -
         label: Load image (Photon Generation)
-        items:
+        arguments:
           -
             id: pipeline.photon_generation.load_image.arguments.image_file
             label: Image
@@ -189,7 +189,7 @@ gui:
 
       -
         label: TARS (Charge Generation)
-        items:
+        arguments:
           -
             id: pipeline.charge_generation.tars.arguments.initial_energy
             label: Initial Energy (MeV)
@@ -231,7 +231,7 @@ gui:
 
       -
         label: Fixed Pattern Noise (Charge Collection)
-        items:
+        arguments:
           -
             id: pipeline.charge_collection.fixed_pattern_noise.arguments.pix_non_uniformity
             label: Pix Non-Uniformity File
@@ -239,7 +239,7 @@ gui:
 
       -
         label: CDM (Charge Transfer)
-        items:
+        arguments:
           -
             id: pipeline.charge_transfer.cdm.arguments.beta_p
             label: Beta-parallel
@@ -275,7 +275,7 @@ gui:
 
       -
         label: Output Node Noise (Charge Measurement)
-        items:
+        arguments:
           -
             id: pipeline.charge_measurement.output_node_noise.arguments.std_deviation
             label: Standard deviation
@@ -283,7 +283,7 @@ gui:
 
       -
         label: HxRG kTC and Bias Noise (Charge Measurement)
-        items:
+        arguments:
           -
             id: pipeline.charge_measurement.nghxrg_ktc_bias.arguments.ktc_noise
             label: Standard deviation
@@ -299,7 +299,7 @@ gui:
 
       -
         label: HxRG White Read Noise (Charge Measurement)
-        items:
+        arguments:
           -
             id: pipeline.charge_measurement.nghxrg_read.arguments.rd_noise
             label: Standard deviation
@@ -311,7 +311,7 @@ gui:
 
       -
         label: HxRG Uncorrelated Pink Noise (Signal Transfer)
-        items:
+        arguments:
           -
             id: pipeline.signal_transfer.nghxrg_u_pink.arguments.u_pink
             label: Standard deviation
@@ -319,7 +319,7 @@ gui:
 
       -
         label: HxRG Correlated Pink Noise (Signal Transfer)
-        items:
+        arguments:
           -
             id: pipeline.signal_transfer.nghxrg_c_pink.arguments.c_pink
             label: Standard deviation
@@ -327,7 +327,7 @@ gui:
 
       -
         label: HxRG Alternating Column Noise (Signal Transfer)
-        items:
+        arguments:
           -
             id: pipeline.signal_transfer.nghxrg_acn.arguments.acn
             label: Standard deviation
@@ -335,9 +335,8 @@ gui:
 
       -
         label: HxRG Picture Frame Noise (Readout Electronics)
-        items:
+        arguments:
           -
             id: pipeline.readout_electronics.nghxrg_pca_zero.arguments.pca0_amp
             label: Standard deviation
             entry: *id_number_float
-

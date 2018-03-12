@@ -86,6 +86,12 @@ $(document).ready(function() {
     $('#connection_status button').on('click', function() {
         connection.toggle();
     });
+    $('#generate button').on('click', function() {
+        connection.emit('api', 'EXECUTE-CALL', ['generate_yaml_file', $(this).get_value()]);
+    });
+    $('#load button').on('click', function() {
+        connection.emit('api', 'EXECUTE-CALL', ['load_yaml_file', $(this).get_value()]);
+    });
     $('#run button').on('click', function() {
         var output_file = $('#output_file').get_value();
         var run_mode = $('#run input[name=mode]:checked').val();

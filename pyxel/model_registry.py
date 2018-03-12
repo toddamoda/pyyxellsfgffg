@@ -1,51 +1,11 @@
-from pyxel import MetaModel
-from pyxel import registry
-from pyxel.detectors.detector import Detector
-from pyxel.util import evaluate_reference
+"""Models defined in the pyxel library.
 
-
-class MyClassModel(metaclass=MetaModel,
-                   name='my_class_model',
-                   group='charge_generation'):
-
-    def __call__(self, detector: Detector, level: int, noise: float=2.0):
-        setattr(detector, 'level', level)
-        setattr(detector, 'noise', noise)
-        return detector
-
-
-class MyOtherClassModel(metaclass=MetaModel,
-                        name='my_other_class_model',
-                        group='charge_generation'):
-
-    def __call__(self, detector: Detector, std: float=2.0):
-        setattr(detector, 'std', std)
-        return detector
-
-
-def my_function_model(detector: Detector, level, noise: float=2.0):
-    # set a new attribute so it can be checked later
-    setattr(detector, 'level', level)
-    setattr(detector, 'noise', noise)
-    return detector
-
-
-registry.register(my_function_model, group='charge_generation')
-
-
-@registry.decorator(group='charge_generation', name='my_dec_model_class')
-class MyDecoratedModel:
-
-    def __call__(self, detector: Detector, class_std=1.0):
-        setattr(detector, 'class_std', class_std)
-        return detector
-
-
-@registry.decorator(group='charge_generation', name='my_dec_model_func')
-def my_decorated_function(detector: Detector, func_std=2.0):
-    setattr(detector, 'func_std', func_std)
-    return detector
-
+A user may copy this and add their own models or remove
+existing ones. If auto-registration of a model is not
+used, then the registry map below may be used to explicitly
+define which model is available and which order they are to
+be executed.
+"""
 
 registry_map = {
     'photon_generation': [
@@ -124,4 +84,3 @@ registry_map = {
         }
     ]
 }
-

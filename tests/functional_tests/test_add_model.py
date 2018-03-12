@@ -43,7 +43,7 @@ my_model_def_dict = {
 
 def my_model(detector, level):
     # set a new attribute so it can be checked later
-    setattr(detector, 'level', level)
+    setattr(detector, 'level', level)  # NOTE: this is purely for testing
     return detector
 
 
@@ -118,12 +118,45 @@ def test_model_registry():
 
     assert 'my_other_class_model' in registry
     assert 'my_class_model' in registry
-    assert len(registry) == 3
+    assert len(registry) == 5
 
     model_def = registry['my_class_model']
     assert isinstance(model_def, dict)
     for name, model_def in registry.items():
         assert isinstance(model_def, dict)
+
+
+def test_model_registry_decorator():
+    # my_models.my_decorated_function(None)
+    ref = util.evaluate_reference('functional_tests.my_models.my_decorated_function')
+    cfg = load_config(Path(CWD, 'data', 'test_yaml_new.yaml'))
+    processor = cfg['processor']
+
+    # remove all models from the pipeline
+    for model_group in processor.pipeline.model_groups.values():
+        model_group.models.clear()
+
+    # import all model definitions into the processor
+    for name in registry:
+        model_def = registry[name]
+        import_model(processor, model_def)
+
+    # 'my_class_model'
+    # 'my_other_class_model'
+    # 'my_function_model'
+    # 'my_dec_model_class'
+    # 'my_dec_model_func'
+    processor.pipeline.set_model_enabled('*', False)
+    processor.pipeline.set_model_enabled('my_dec_model_class', True)
+    processor.pipeline.set_model_enabled('my_dec_model_func', True)
+    detector = processor.pipeline.run(processor.detector)
+    assert detector.class_std == 1.0
+    assert detector.func_std == 2.0
+
+
+def test_model_registry_map():
+    group_models = my_models.registry_map
+    registry.register_map(group_models)
 
 
 def test_pipeline_import():
@@ -158,3 +191,31 @@ if __name__ == '__main__':
     test_add_model()
     test_model_registry()
     test_pipeline_import()
+    test_model_registry_decorator()
+    test_model_registry_map()
+
+#
+#
+# import old_non_pyxel_models
+#
+# # __FOO__ = []
+#
+#
+# def decorator_new(self, group, name=None, enabled=True):
+#     """Auto register callable class or function using a decorator."""
+#
+#     def _wrapper(func):
+#         self.register(func, group=group, name=name, enabled=enabled)
+#
+#
+#         return func
+#
+#     return _wrapper
+#
+#
+# @decorator_new(group='new_group', name='a_name')
+# def pyxel_model_call(detector):
+#     result = old_non_pyxel_models.some_model(detector.rows, detector.cols, ...)
+#     detector.add_signal(result)
+#     return detector
+

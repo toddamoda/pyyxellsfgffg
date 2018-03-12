@@ -11,7 +11,7 @@ from pyxel.pipelines.processor import Processor
 from pyxel.pipelines.model_group import ModelFunction
 
 
-MODEL_YAML = """
+EXAMPLE_MODEL_YAML = """
     group: charge_generation
     name: my_model_name
     enabled: false
@@ -20,7 +20,7 @@ MODEL_YAML = """
           std_deviation: 1.0
 """
 
-MODEL_DICT = {
+EXAMPLE_MODEL_DICT = {
     'name': 'my_model_name',
     'group': 'charge_generation',
     'enabled': False,
@@ -47,12 +47,13 @@ def import_model(processor, model_def):
     if isinstance(model_def, dict):
         model_def = dict(model_def)  # make copy
         group = model_def.pop('group')
-        model_group = processor.pipeline.model_groups[group]
-        model = ModelFunction(**model_def)
-        model_group.models.append(model)
+        if group in processor.pipeline.model_groups:
+            model_group = processor.pipeline.model_groups[group]
+            model = ModelFunction(**model_def)
+            model_group.models.append(model)
 
 
-def create_model_def(func, group='', name=None):
+def create_model_def(func, group='', name=None, enabled=True):
     """Create a model definition by inspecting the callable.
 
     The dict returned may be passed to the import_model function.
@@ -81,6 +82,8 @@ def create_model_def(func, group='', name=None):
     if spec.defaults is not None:
         start = len(spec.args) - len(spec.defaults)
         values = dict(zip(spec.args[start:], spec.defaults))
+    else:
+        values = {}
 
     arguments = {}
     for arg in spec.args:
@@ -104,7 +107,7 @@ def create_model_def(func, group='', name=None):
     model_def = {
         'name': name,
         'group': group,
-        'enabled': True,
+        'enabled': enabled,
         'func': module_path + '.' + default_name,
         'arguments': arguments
     }
@@ -173,6 +176,10 @@ class Registry:
             value = value()
         return value
 
+    def clear(self):
+        """TBW."""
+        self._model_defs.clear()
+
     def items(self):
         """TBW."""
         keys = list(self._model_defs.keys())
@@ -193,19 +200,41 @@ class Registry:
             if not name or name == item['name'] or name == item['group']:
                 import_model(processor, item)
 
-    def register(self, func, model_name=None, model_group=None):
+    def register_map(self, def_dict, processor_type=None):
+        """Add multiple models based on a dictionary of groups."""
+        for group, model_list in def_dict.items():
+            for model_def in model_list:
+                func = model_def['func']
+                mtype = model_def.get('type')
+                name = model_def.get('name')
+                enabled = model_def.get('enabled', True)
+                if processor_type and mtype:
+                    if processor_type not in mtype:
+                        continue  # skip the registration for this model
+                self.register(func, name=name, group=group, enabled=enabled)
+
+    def register(self, func, name=None, group=None, enabled=True):
         """TBW.
 
         :param func:
-        :param model_name:
-        :param model_group
+        :param name:
+        :param group:
+        :param enabled:
         """
         if inspect.isclass(func):
             func = func()
 
-        model_def = create_model_def(func, model_group, model_name)
+        model_def = create_model_def(func, group, name, enabled)
 
         self[model_def['name']] = model_def
+
+    def decorator(self, group, name=None, enabled=True):
+        """Auto register callable class or function using a decorator."""
+        def _wrapper(func):
+            self.register(func, group=group, name=name, enabled=enabled)
+            return func
+
+        return _wrapper
 
 
 registry = Registry()
@@ -216,18 +245,18 @@ class MetaModel(type):
 
     # reference: stackoverflow question 13762231
     @classmethod
-    def __prepare__(cls, name, bases, **kwargs):
+    def __prepare__(cls, class_name, bases, **kwargs):
         """TBW."""
-        return super().__prepare__(name, bases, **kwargs)
+        return super().__prepare__(class_name, bases, **kwargs)
 
-    def __new__(cls, name, bases, namespace, **kwargs):
+    def __new__(cls, class_name, bases, namespace, **kwargs):
         """TBW."""
-        return super().__new__(cls, name, bases, namespace)
+        return super().__new__(cls, class_name, bases, namespace)
 
-    def __init__(self, name, bases, namespace, **kwargs):
+    def __init__(self, class_name, bases, namespace, **kwargs):
         """TBW."""
-        super().__init__(name, bases, namespace)
-        model_name = kwargs.get('model_name', name)
-        model_group = kwargs.get('model_group', '')
-        func = namespace['__module__'] + '.' + name
-        Registry()[model_name] = LateBind(create_model_def, func, model_group, model_name)
+        super().__init__(class_name, bases, namespace)
+        name = kwargs.get('name', class_name)
+        group = kwargs.get('group', '')
+        func = namespace['__module__'] + '.' + class_name
+        Registry()[name] = LateBind(create_model_def, func, group, name)

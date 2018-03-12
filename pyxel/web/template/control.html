@@ -55,6 +55,16 @@
                         <td><div class="indicator full-width">-</div></td>
                         <td></td>
                     </tr>
+                    <tr id="generate">
+                        <td><div>Output file (yaml)</div></td>
+                        <td><input type="text" value="test.yaml"></td>
+                        <td><button>Generate</button></td>
+                    </tr>
+                    <tr id="load">
+                        <td><div>Load file (yaml)</div></td>
+                        <td><input type="text" value="test.yaml"></td>
+                        <td><button>Load</button></td>
+                    </tr>
                 </table>
 
                 <table class="pe-table pe-form">
@@ -83,7 +93,7 @@
                                 <option value=""></option>
                                 {% for section in controller.get_gui_defs()[1]['items'] %}
                                 <optgroup label="{{ section['label'] }}">
-                                    {% for item in section['items'] %}
+                                    {% for item in section['arguments'] %}
                                     <option value="{{ item['id'] }}">{{ item['label'] }}</option>
                                     {% end %}
                                 </optgroup>
@@ -123,9 +133,12 @@
             <div class="pe-section-group">
                 <div class="pe-group-title">{{ group['label'] }}</div>
                 {% for section in group['items'] %}
+                    {% if len(section['arguments']) == 0 %}
+                    {% continue %}
+                    {% end %}
                 <table class="pe-table pe-form">
                     <caption class="pe-section">{{ section['label'] }}</caption>
-                    {% for item in section['items'] %}
+                    {% for item in section['arguments'] %}
                     {% if not controller.has_setting(item['id'])%}
                     {% continue %}
                     {% end %}
