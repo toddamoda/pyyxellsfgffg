@@ -94,13 +94,14 @@ $(document).ready(function() {
     });
     $('#registry button').on('click', function() {
         connection.emit('api', 'EXECUTE-CALL', ['load_registry', $(this).get_value()]);
+        $('#pipeline select').trigger('change');
     });
     $('#update-from-file button').on('click', function() {
         connection.emit('api', 'EXECUTE-CALL', ['update_settings', $(this).get_value()]);
     });
-    $('#run button').on('click', function() {
-        var output_file = $('#output_file').get_value();
-        var run_mode = $('#run input[name=mode]:checked').val();
+    $('#sequence-mode button').on('click', function() {
+        var run_mode = $('#sequence-mode input[name=mode]:checked').val();
+        connection.emit('api', 'EXECUTE-CALL', ['set_sequence_mode', run_mode])
 //        var run_mode = $('#run').get_value();
         $('.sequence').each(function(index) {
             var is_enabled = $(this).is_enabled();
@@ -108,7 +109,11 @@ $(document).ready(function() {
             var range = $('input[type="text"]', $(this)).val();
             connection.emit('api', 'SET-SEQUENCE', [index, key, range, is_enabled])
         });
-        connection.emit('api', 'RUN-PIPELINE', [run_mode, output_file]);
+    });
+
+    $('#state button').on('click', function() {
+        var output_file = $('#output_file').get_value();
+        connection.emit('api', 'RUN-PIPELINE', [output_file]);
     });
 
     $('#setting-reset').on('click', function() {
@@ -174,7 +179,7 @@ $(document).ready(function() {
             } else if (key.match(/pipeline\..*\.enabled/g)) {
                 $(selector).prop('checked', fields.value[key]);
             } else if (key == 'parametric.mode') {
-                $('input[name=mode]').filter('[value="'+fields.value[key]+'"]').attr('checked', true);
+                $('input[name=mode]').filter('[value="'+fields.value[key]+'"]').prop('checked', true);
             } else {
                 $(selector).highlight(fields.value[key], true);
                 $(selector).set_value(fields.value[key], false);

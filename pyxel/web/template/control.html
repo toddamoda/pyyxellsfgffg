@@ -78,13 +78,13 @@
                     <tr id="state" class="pe-progress">
                         <td><div>State</div></td>
                         <td><div class="indicator full-width">-</div></td>
-                        <td></td>
+                        <td><button>Run</button></td>
                     </tr>
                 </table>
 
                 <table class="pe-table pe-form">
                     <caption class="pe-section">Sequencer</caption>
-                    <tr id="run">
+                    <tr id="sequence-mode">
                         <td style="width:100px"><div>Run Mode</div></td>
                         <td></td>
                         <td colspan="2">
@@ -97,7 +97,7 @@
                             <label for="run-mode-single">sequential</label>
                             </div>
                         </td>
-                        <td><button>Run</button></td>
+                        <td><button>Set</button></td>
                     </tr>
                     {% for i in range(0, 5) %}
                     <tr id="sequence_{{ i }}" class="sequence pe-progress">

@@ -16,6 +16,7 @@ charge_measurement:
 - func: pyxel.models.nghxrg.nghxrg.ktc_bias_noise
   type: cmos
 - func: pyxel.models.nghxrg.nghxrg.white_read_noise
+  type: cmos
 charge_transfer:
 - func: pyxel.models.cdm.CDM.cdm
   type: ccd

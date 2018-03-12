@@ -143,9 +143,15 @@ def dump(cfg_obj) -> str:
     :param cfg_obj: Object to serialize to YAML.
     :return: the YAML output as a `str`.
     """
-    cfg_map = util.get_state_dict(cfg_obj)
+    ModelGroup.yaml_generation = True
+    try:
+        cfg_map = util.get_state_dict(cfg_obj)
+    finally:
+        ModelGroup.yaml_generation = False
+
 
     keys = [
+        'processor',
         'processor.detector',
         'processor.detector.geometry',
         'processor.detector.environment',

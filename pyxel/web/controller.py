@@ -8,9 +8,10 @@ from pyxel import util
 from pyxel.web import signals
 from pyxel.web import webapp
 from pyxel.io.yaml_processor_new import load_config
+from pyxel.io.yaml_processor_new import dump
 from pyxel.pipelines.processor import Processor
 from pyxel.pipelines.model_registry import registry
-from pyxel.pipelines.model_group import ModelGroup
+# from pyxel.pipelines.model_group import ModelGroup
 
 
 # from pyxel.web.sequencer import Sequencer
@@ -95,15 +96,14 @@ class Controller:
                 self.processor.set(key, value)
             except AttributeError as exc:
                 print('ERROR: could not set key: %s' % key)
-        pass
-        # self.parametric = cfg['parametric']
-        # self.processor = cfg['processor']
+        self.get_state()
 
     def load_yaml_file(self, path):
         """TBW."""
         cfg = load_config(Path(path))
         self.parametric = cfg['parametric']
         self.processor = cfg['processor']
+        self.get_state()
 
     def generate_yaml_file(self, path):
         """TBW."""
@@ -111,14 +111,8 @@ class Controller:
             'processor': self.processor,
             'parametric': self.parametric,
         }
-        ModelGroup.yaml_generation = True
-        try:
-            cfg_dict = util.get_state_dict(cfg)
-            cfg_dict['processor']['detector']
-        finally:
-            ModelGroup.yaml_generation = False
 
-        output = yaml.dump(cfg_dict, default_flow_style=False)
+        output = dump(cfg)
         print(output)
         with open(path, 'w') as fd:
             fd.write(output)
@@ -212,22 +206,21 @@ class Controller:
             self._items = cfg
         return self._items['gui']
 
-    def start_pipeline(self, run_mode='single', output_file=None):
+    def start_pipeline(self, output_file=None):
         """TBW."""
         if self._is_running:
             self._is_running = False
         else:
-            self._th = threading.Thread(target=self.run_pipeline_sequence, args=[run_mode, output_file])
+            self._th = threading.Thread(target=self.run_pipeline_sequence, args=[output_file])
             self._th.start()
 
-    def run_pipeline_sequence(self, run_mode='single', output_file=None):
+    def run_pipeline_sequence(self, output_file=None):
         """TBW."""
         # is_sequence = True in [sequence['enabled'] for sequence in self.sequence]
         try:
             self._is_running = True
             if self.parametric:
                 signals.progress('state', {'value': 'running', 'state': 1})
-                self.parametric.mode = run_mode
                 configs = self.parametric.collect(self.processor)
                 configs_len = len(list(configs))
                 configs = self.parametric.collect(self.processor)
@@ -264,6 +257,10 @@ class Controller:
             signals.progress('state', {'value': 'error: %s' % str(exc), 'state': -1})
         finally:
             self._is_running = False
+
+    def set_sequence_mode(self, run_mode):
+        """TBW."""
+        self.parametric.mode = run_mode
 
     def set_sequence(self, index, key, values, enabled):
         """TBW.
