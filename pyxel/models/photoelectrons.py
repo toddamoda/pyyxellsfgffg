@@ -7,8 +7,10 @@
 # import numpy as np
 
 from pyxel.detectors.detector import Detector
+from pyxel.pipelines.model_registry import registry
 
 
+@registry.decorator('charge_generation', name='photoelectrons')
 def simple_conversion(detector: Detector) -> Detector:
     """Generate charges from incident photons via photoelectric effect, simple statistical model.
 

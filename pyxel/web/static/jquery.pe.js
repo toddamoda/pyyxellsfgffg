@@ -40,10 +40,10 @@ $.fn.extend({
     get_context: function() {
         var context = $(this);
         if (context.prop('tagName') != 'TR') {
-            context = $(this).parents('tr')
+            context = $(this).parents('tr').first();
         }
         if (!context) {
-            console.log('ERROR: incorrect context at element:', $(this).html())
+            console.log('ERROR: incorrect context at element:', $(this).html());
         }
         return context;
     },

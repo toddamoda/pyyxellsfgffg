@@ -180,6 +180,10 @@ def test_pipeline_import():
         model_group.models.clear()
 
     registry.import_models(processor)
+    processor.pipeline.set_model_enabled('*', False)
+    processor.pipeline.set_model_enabled('my_class_model', True)
+    processor.pipeline.set_model_enabled('my_function_model', True)
+    processor.pipeline.set_model_enabled('my_other_class_model', True)
     processor.set('pipeline.charge_generation.my_class_model.arguments.level', 1.0)
     processor.set('pipeline.charge_generation.my_function_model.arguments.level', 2.0)
     processor.set('pipeline.charge_generation.my_other_class_model.arguments.std', 3.0)

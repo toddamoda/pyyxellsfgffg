@@ -38,9 +38,15 @@ class DetectionPipeline:
         self.charge_measurement = charge_measurement
         self.readout_electronics = readout_electronics
 
+        self._name = ''
         self._model_groups = []  # type: t.List[str]
         self._model_steps = {}   # type: t.Dict[str, t.List[str]]
         self._log = logging.getLogger(__name__)
+
+    @property
+    def name(self):
+        """TBW."""
+        return self._name
 
     def get_state_json(self):
         """TBW."""

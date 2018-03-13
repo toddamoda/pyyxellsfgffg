@@ -1,209 +1,131 @@
 {% autoescape None %}
 
-<div class="container" id="pyxel">
-    <br/>
+<div class="pe-section-group">
+    <div class="pe-group-title">Pipeline Control</div>
 
-    <ul class="nav nav-tabs">
-        <li class="active"><a data-toggle="tab" href="#group-control">Pipeline Control</a></li>
-        <li><a data-toggle="tab" href="#group-0">Detector Attributes</a></li>
-        <li><a data-toggle="tab" href="#group-1">Model Settings</a></li>
-        <li><a data-toggle="tab" href="#group-viewer">JS9 Viewer</a></li>
-    </ul>
-
-    <div class="pe-form">
-        <button class="btn btn-primary" id="pe-expand" >Expand</button>
-        <button class="btn btn-primary" id="pe-collapse" >Collapse</button>
-        <button class="btn btn-primary" id="get-state" >Get State</button>
-        <button class="btn btn-primary" id="setting-get-all" >Get All</button>
-        <button class="btn btn-primary" id="setting-set-all" >Set All</button>
-        <button class="btn btn-primary" id="setting-reset" >Reset</button>
-        <button class="btn btn-primary" id="start-imager" >Start Imager</button>
-    </div>
-
-    <div class="tab-content">
-        <div id="group-control" class="pe-tab">
-            <div class="pe-section-group">
-                <div class="pe-group-title">Pipeline Control</div>
-
-                <table class="pe-table pe-form">
-                    <caption class="pe-section">PyXEL Loader</caption>
-                    <tr id="connection_status">
-                        <td><div>Status</div></td>
-                        <td><div class="indicator full-width">-</div></td>
-                        <td><button id="connect">Connect</button></td>
-                    </tr>
-                    <tr id="pipeline">
-                        <td><div>Pipeline</div></td>
-                        <td>
-                            <select>
-                                <option></option>
-                                {% for name in controller.get_pipeline_names() %}
-                                {% set selected = "selected=1" if controller.processor_name == name else "" %}
-                                <option {{selected}}>{{ name }}</option>
-                                {% end %}
-                            </select>
-                        </td>
-                        <td></td>
-                    <tr id="registry">
-                        <td><div>Registry file (yaml)</div></td>
-                        <td><input type="text" value="pyxel/model_registry.yaml"></td>
-                        <td><button>Load</button></td>
-                    </tr>
-                    <tr id="update-from-file">
-                        <td><div>Update from file (yaml)</div></td>
-                        <td><input type="text" value="tests/data/test_yaml_new.yaml"></td>
-                        <td><button>Load</button></td>
-                    </tr>
-                    <tr id="generate">
-                        <td><div>Output file (yaml)</div></td>
-                        <td><input type="text" value="test.yaml"></td>
-                        <td><button>Generate</button></td>
-                    </tr>
-                    <tr id="load">
-                        <td><div>Load file (yaml)</div></td>
-                        <td><input type="text" value="test.yaml"></td>
-                        <td><button>Load</button></td>
-                    </tr>
-                </table>
-
-                <table class="pe-table pe-form">
-                    <caption class="pe-section">PyXEL Pipeline Runner</caption>
-
-                    <tr id="output_file">
-                        <td><div>Output file (fits)</div></td>
-                        <td><input type="text" value="/home/hsmit/data/pyxel/test_???.fits"></td>
-                        <td></td>
-                        <!--<td><button id="run-pipeline">Run</button></td>-->
-                    </tr>
-                    <tr id="state" class="pe-progress">
-                        <td><div>State</div></td>
-                        <td><div class="indicator full-width">-</div></td>
-                        <td><button>Run</button></td>
-                    </tr>
-                </table>
-
-                <table class="pe-table pe-form">
-                    <caption class="pe-section">Sequencer</caption>
-                    <tr id="sequence-mode">
-                        <td style="width:100px"><div>Run Mode</div></td>
-                        <td></td>
-                        <td colspan="2">
-                            <div>
-                            <input id="run-mode-recurse" name="mode" type="radio" value="single"/>
-                            <label for="run-mode-recurse">single</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <input id="run-mode-linear" name="mode" type="radio" value="embedded"/>
-                            <label for="run-mode-linear">embedded</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <input id="run-mode-single" name="mode" type="radio" value="sequential"/>
-                            <label for="run-mode-single">sequential</label>
-                            </div>
-                        </td>
-                        <td><button>Set</button></td>
-                    </tr>
-                    {% for i in range(0, 5) %}
-                    <tr id="sequence_{{ i }}" class="sequence pe-progress">
-                        <td style="width:100px"><div>Sequence {{ i }}</div></td>
-                        <td id="steps.{{i}}.current"><div class="indicator" style="width:40px;">-</div></td>
-                        <td id="steps.{{i}}.key">
-                            <select>
-                                <option value=""></option>
-                                {% for section in controller.get_gui_defs()[1]['items'] %}
-                                <optgroup label="{{ section['label'] }}">
-                                    {% for item in section['arguments'] %}
-                                    <option value="{{ item['id'] }}">{{ item['label'] }}</option>
-                                    {% end %}
-                                </optgroup>
-                                {% end %}
-                            </select>
-                        </td>
-                        <td id="steps.{{i}}.values"><input type="text" value="" style="width:200px;"></td>
-                        <td id="steps.{{i}}.enabled"><input class="enable-row" type="checkbox"/></td>
-                    </tr>
+    <table class="pe-table pe-form">
+        <caption class="pe-section">PyXEL Loader</caption>
+        <tr id="connection_status">
+            <td><div>Status</div></td>
+            <td><div class="indicator full-width">-</div></td>
+            <td><button id="connect">Connect</button></td>
+        </tr>
+        <tr id="pipeline">
+            <td><div>Pipeline</div></td>
+            <td>
+                <select>
+                    <option></option>
+                    {% set detector = controller.processor.pipeline.name if controller.processor else "" %}
+                    {% for name in controller.get_pipeline_names() %}
+                    {% set selected = "selected=1" if detector == name else "" %}
+                    <option {{selected}}>{{ name }}</option>
                     {% end %}
-                </table>
+                </select>
+            </td>
+            <td></td>
+        <!--
+        <tr id="registry">
+            <td><div>Registry file (yaml)</div></td>
+            <td><input type="text" value="pyxel/model_registry.yaml"></td>
+            <td><button>Load</button></td>
+        </tr>
+        -->
+        <tr id="load-module">
+            <td><div>Load modules</div></td>
+            <td><input type="text" value="pyxel.models_importer"></td>
+            <td><button>Load</button></td>
+        </tr>
+        <tr id="update-from-file">
+            <td><div>Update from file (yaml)</div></td>
+            <td><input type="text" value="tests/data/test_yaml_new.yaml"></td>
+            <td><button>Load</button></td>
+        </tr>
+        <tr id="generate">
+            <td><div>Output file (yaml)</div></td>
+            <td><input type="text" value="test.yaml"></td>
+            <td><button>Generate</button></td>
+        </tr>
+        <tr id="load">
+            <td><div>Load file (yaml)</div></td>
+            <td><input type="text" value="test.yaml"></td>
+            <td><button>Load</button></td>
+        </tr>
+    </table>
 
-                <table class="pe-table pe-form">
-                    <caption class="pe-section">Models</caption>
-                    {% for i, (name, group) in enumerate(controller.get_model_groups().items()) %}
-                    <tr>
-                        <td style="vertical-align:top;">{{ name.replace('_', ' ') }}</td>
-                        <td>
-                            {% for model in group.models %}
-                            {% set id = 'pipeline.' + name + '.' + model.name + '.enabled' %}
-                            <label style="font-weight:normal;padding-left:10px;" for="{{ id }}">
-                                <input class="model-state" type="checkbox" id="{{ id }}"/>
-                                {{ model.name.replace('_', ' ') }}
-                            </label><br/>
-                            {% end %}
-                        </td>
-                        <td></td>
-                    </tr>
-                    {% end %}
-                </table>
+    <table class="pe-table pe-form">
+        <caption class="pe-section">PyXEL Pipeline Runner</caption>
 
-            </div>
-        </div>
+        <tr id="output_file">
+            <td><div>Output file (fits)</div></td>
+            <td><input type="text" value="/home/hsmit/data/pyxel/test_???.fits"></td>
+            <td></td>
+            <!--<td><button id="run-pipeline">Run</button></td>-->
+        </tr>
+        <tr id="state" class="pe-progress">
+            <td><div>State</div></td>
+            <td><div class="indicator full-width">-</div></td>
+            <td><button>Run</button></td>
+        </tr>
+    </table>
 
-        {% for index, group in enumerate(controller.get_gui_defs()) %}
-        <div id="group-{{index}}" class="pe-tab">
-            <div class="pe-section-group">
-                <div class="pe-group-title">{{ group['label'] }}</div>
-                {% for section in group['items'] %}
-                    {% if len(section['arguments']) == 0 %}
-                    {% continue %}
+    <table class="pe-table pe-form">
+        <caption class="pe-section">Parametric Configuration</caption>
+        <tr id="sequence-mode">
+            <td style="width:100px"><div>Run Mode</div></td>
+            <td></td>
+            <td colspan="2">
+                <div>
+                <input id="run-mode-recurse" name="mode" type="radio" value="single"/>
+                <label for="run-mode-recurse">single</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <input id="run-mode-linear" name="mode" type="radio" value="embedded"/>
+                <label for="run-mode-linear">embedded</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <input id="run-mode-single" name="mode" type="radio" value="sequential"/>
+                <label for="run-mode-single">sequential</label>
+                </div>
+            </td>
+            <td><button>Set</button></td>
+        </tr>
+        {% for i in range(0, 5) %}
+        <tr id="sequence_{{ i }}" class="sequence pe-progress">
+            <td style="width:100px"><div>Sequence {{ i }}</div></td>
+            <td id="steps.{{i}}.current"><div class="indicator" style="width:40px;">-</div></td>
+            <td id="steps.{{i}}.key">
+                <select>
+                    <option value=""></option>
+                    {% for section in controller.get_gui_defs()[1]['items'] %}
+                    {% if len(section['arguments']) %}
+                    <optgroup label="{{ section['label'] }}">
+                        {% for item in section['arguments'] %}
+                        <option value="{{ item['id'] }}">{{ item['label'] }}</option>
+                        {% end %}
+                    </optgroup>
                     {% end %}
-                <table class="pe-table pe-form">
-                    <caption class="pe-section">{{ section['label'] }}</caption>
-                    {% for item in section['arguments'] %}
-                    {% if not controller.has_setting(item['id'])%}
-                    {% continue %}
                     {% end %}
-                    {% set entry_count = item.get('entry_count', 1) %}
-                    <tr class="setting" id="{{ item['id'] }}">
-                        <td><div>{{ item['label'] }}</div></td>
-                        <td><div class="indicator">-</div></td>
-                        <td colspan="1">
-                            {% for _ in range(entry_count) %}
-                            {% if item['entry']['tag'] == 'none' %}
-                            <!-- no entry field -->
-                            {% elif item['entry']['tag'] == 'input' %}
-                            <input {{ controller.get_gui_props(item["entry"]) }} class="pe-sz{{entry_count}}">
-                            {% elif item['entry']['tag'] == 'select' %}
-                            <select>
-                                {% for option in item['entry']['options'] %}
-                                <option value="{{ option }}">{{ option }}</option>
-                                {% end %}
-                            </select>
-                            {% end %}
-                            {% end %}
-                        </td>
-                        <td>
-                            <button>Set</button>
-                            {% if 'enabled' in item %}
-                            <input type="checkbox"/>
-                            {% end %}
-
-                        </td>
-                    </tr>
-                    {% end %}
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                </table>
-                {% end %}
-            </div>
-        </div>
+                </select>
+            </td>
+            <td id="steps.{{i}}.values"><input type="text" value="" style="width:200px;"></td>
+            <td id="steps.{{i}}.enabled"><input class="enable-row" type="checkbox"/></td>
+        </tr>
         {% end %}
+    </table>
 
-        <div id="group-viewer" class="pe-tab">
-            <div class="pe-section-group">
-                <div class="pe-group-title">JS9 Viewer</div>
-                <iframe name="js9viewer" id="js9viewer" src="/js9/js9.html" width="670" height="800"/>
-            </div>
-        </div>
-
-    </div>
+    <table class="pe-table pe-form">
+        <caption class="pe-section">Models</caption>
+        {% for i, (name, group) in enumerate(controller.get_model_groups().items()) %}
+        <tr>
+            <td style="vertical-align:top;">{{ name.replace('_', ' ') }}</td>
+            <td>
+                {% for model in group.models %}
+                {% set id = 'pipeline.' + name + '.' + model.name + '.enabled' %}
+                <label style="font-weight:normal;padding-left:10px;" for="{{ id }}">
+                    <input class="model-state" type="checkbox" id="{{ id }}"/>
+                    {{ model.name.replace('_', ' ') }}
+                </label><br/>
+                {% end %}
+            </td>
+            <td></td>
+        </tr>
+        {% end %}
+    </table>
 
 </div>

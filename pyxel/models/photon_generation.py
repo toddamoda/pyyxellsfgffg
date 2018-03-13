@@ -7,8 +7,10 @@ from astropy.io import fits
 # from astropy import units as u
 
 from pyxel.detectors.detector import Detector
+from pyxel.pipelines.model_registry import registry
 
 
+@registry.decorator('photon_generation')
 def load_image(detector: Detector, image_file: str) -> Detector:
     """TBW.
 
@@ -29,6 +31,16 @@ def load_image(detector: Detector, image_file: str) -> Detector:
     return detector
 
 
+@registry.decorator('photon_generation', name='photon_level',
+                    gui={
+                        'label': 'Uniform illumination',
+                        'arguments': {
+                            'level': {
+                                'label': 'Photons',
+                                'entry': registry.entry.num_uint}
+
+                        }
+                    })
 def add_photon_level(detector: Detector, level: int) -> Detector:
     """TBW.
 
@@ -45,6 +57,7 @@ def add_photon_level(detector: Detector, level: int) -> Detector:
     return detector
 
 
+@registry.decorator('photon_generation', name='shot_noise')
 def add_shot_noise(detector: Detector) -> Detector:
     """Add shot noise to number of photons.
 

@@ -1,8 +1,11 @@
 """TBW."""
-import yaml
+import logging
 import os
 import threading
+import importlib
 from pathlib import Path
+
+import yaml
 
 from pyxel import util
 from pyxel.web import signals
@@ -11,10 +14,6 @@ from pyxel.io.yaml_processor_new import load_config
 from pyxel.io.yaml_processor_new import dump
 from pyxel.pipelines.processor import Processor
 from pyxel.pipelines.model_registry import registry
-# from pyxel.pipelines.model_group import ModelGroup
-
-
-# from pyxel.web.sequencer import Sequencer
 
 
 CWD_PATH = Path(__file__).parent
@@ -31,16 +30,15 @@ class Controller:
         config_dir = Path(__file__).parent.parent
         self.pipeline_paths = {
             'ccd': config_dir.joinpath('io', 'templates', 'ccd.yaml'),
-            'cmos': config_dir.joinpath('settings_cmos.yaml'),
+            'cmos': config_dir.joinpath('io', 'templates', 'cmos.yaml'),
         }
+        self._log = logging.getLogger(__name__)
         self._th = None             # type: threading.Thread
         self._is_running = False    # type: bool
         self._modified_time = None  # type: float
         self._items = None          # type: dict
         self._address_viewer = address_viewer  # type: str
         self.processor = processor  # type: Processor
-        self.processor_name = None  # type: str
-        # self.sequencer = Sequencer(self)
         self.parametric = None
 
         signals.dispatcher.connect(sender='api', signal=signals.LOAD_PIPELINE, callback=self.load_pipeline)
@@ -78,12 +76,10 @@ class Controller:
             cfg = load_config(config_path)
             self.parametric = cfg['parametric']
             self.processor = cfg['processor']
-            self.processor_name = name
             registry.import_models(self.processor)
         else:
             self.parametric = None
             self.processor = None
-            self.processor_name = None
 
     def update_settings(self, path):
         """TBW."""
@@ -143,19 +139,21 @@ class Controller:
             result.append('%s="%s"' % (key, entry[key]))
         return ' '.join(result)
 
+    def load_modules(self, *modules):
+        """Load a list of modules."""
+        for module in modules:
+            importlib.import_module(module)
+        self._modified_time = None
+        registry.save('registry.yaml')  # for debugging
+
     def load_registry(self, path='pyxel/model_registry.yaml'):
-        """TBW."""
+        """Deprecated."""
         pipeline = self.processor.pipeline
         pipeline.clear()
         registry.clear()
-
-        # from pyxel.model_registry import registry_map
-        # yaml_content = yaml.dump(registry_map, default_flow_style=False)
-        # with open('pyxel/model_registry.yaml', 'w') as fd:
-        #     fd.write(yaml_content)
         with open(path, 'r') as fd:  # TODO: hardcoded
             reg_map = yaml.load(fd.read())
-            registry.register_map(reg_map, self.processor_name)
+            registry.register_map(reg_map, pipeline.name)
             registry.import_models(self.processor)
 
         self._modified_time = None
@@ -164,25 +162,35 @@ class Controller:
         """TBW."""
         model_settings = cfg['gui'][1]['items']
         model_settings.clear()
-        if self.processor_name:
+        if self.processor:
             pipeline = self.processor.pipeline
 
             for group in pipeline.model_group_names:
-                items = [registry[key] for key in registry if registry[key]['group'] == group]
+                items = registry.get_group(pipeline.name, group)
+                # items = [registry[key] for key in registry if registry[key]['group'] == group]
                 for item in items:
+                    gui_def_override = item.get('gui', {})
+                    entry_def_override = gui_def_override.get('arguments', {})
+                    group_label = group.replace('_', ' ').title()
+                    model_label = gui_def_override.get('label', item['name']).replace('_', ' ').title()
+                    label = '{}: {}'.format(group_label, model_label)
                     gui_def = {
-                        'label': item['name'],
+                        'label': label,
                         'arguments': []
                     }
                     for arg in item['arguments']:
-                        gui_def['arguments'].append({
+                        entry_def = {
                             'id': 'pipeline.' + group + '.' + item['name'] + '.arguments.' + arg,
                             'label': arg,
                             'entry': {
                                 'tag': 'input',
                                 'type': 'text'
                             }
-                        })
+                        }
+                        entry_def.update(entry_def_override.get(arg, {}))
+
+                        gui_def['arguments'].append(entry_def)
+
                     model_settings.append(gui_def)
 
             x = yaml.dump(cfg, default_flow_style=False)
@@ -249,11 +257,9 @@ class Controller:
                         # output.append(output_file)
                 signals.progress('state', {'value': 'completed', 'state': 0})
 
-            # else:
-            #     self.sequencer.set_mode(run_mode)
-            #     self.sequencer.set_output_file(output_file)
-            #     self.sequencer.run()
         except Exception as exc:
+            self._log.exception(exc)
+            signals.progress('state', {'value': 'error: %s' % str(exc), 'state': -1})
             signals.progress('state', {'value': 'error: %s' % str(exc), 'state': -1})
         finally:
             self._is_running = False
@@ -275,7 +281,6 @@ class Controller:
             step.key = key
             step.enabled = enabled
             step.values = values
-        # self.sequencer.set_range(index, key, values, enabled)
 
     def get_model_state(self, model_name):
         """TBW.

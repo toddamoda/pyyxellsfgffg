@@ -44,6 +44,11 @@ processor:
       n_acceptor: 0.0               # cm-3
       n_donor: 0.0                  # cm-3
       bias_voltage: 0.0             # V
+      n_output: 4
+      n_row_overhead: 0
+      n_frame_overhead: 0
+      reverse_scan_direction: False
+      reference_pixel_border_width: 4
 
     environment:
       class: pyxel.detectors.environment.Environment
@@ -53,34 +58,32 @@ processor:
 
     characteristics:
       class: pyxel.detectors.cmos_characteristics.CMOSCharacteristics
-      qe: 0.5               # -
-      eta: 1                # e/photon
-      sv: 1.0e-6            # V/e
-      amp: 0.8             # V/V
-      a1: 100               # V/V
-      a2: 65536             # DN/V
-      fwc: 20000            # e
-      fwc_serial: 30000     # e
+      qe: 0.5         # -
+      eta: 1          # e/photon
+      sv:  1.0e-6     # V/e
+      amp: 0.8        # V/V
+      a1: 100         # V/V
+      a2: 2**16       # DN/V
 
   pipeline:
     class: pyxel.pipelines.cmos_pipeline.CMOSDetectionPipeline
 
-    photon_generation:
+    photon_generation: []
 
     # -> photons
-    optics:
+    optics: []
 
     # -> charge
-    charge_generation:
+    charge_generation: []
 
     # -> charge
-    charge_collection:
+    charge_collection: []
 
     # -> signal
-    charge_measurement:
+    charge_measurement: []
 
     # -> signal
-    signal_transfer:
+    signal_transfer: []
 
     # -> signal
-    readout_electronics:
+    readout_electronics: []

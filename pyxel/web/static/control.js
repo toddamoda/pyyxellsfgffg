@@ -50,7 +50,7 @@ $(document).ready(function() {
 
     // define the row enablement checkboxs
     $('.pe-table .enable-row').on('change', function() {
-        $(this).parents('tr').set_enabled($(this).is(":checked"));
+        $(this).get_context().set_enabled($(this).is(":checked"));
     });
     $('.pe-table .enable-row').trigger('change');
 
@@ -77,20 +77,23 @@ $(document).ready(function() {
         connection.emit('api', 'GET-STATE', [])
     });
 
-    $('#pipeline select').on('change', function() {
-        var url = '/pipeline/' + $(this).get_value();
-        window.location = url;
-    });
-
     // define the application action handlers
     $('#connection_status button').on('click', function() {
         connection.toggle();
+    });
+    $('#pipeline select').on('change', function() {
+        var url = '/pipeline/' + $(this).get_value();
+        window.location = url;
     });
     $('#generate button').on('click', function() {
         connection.emit('api', 'EXECUTE-CALL', ['generate_yaml_file', $(this).get_value()]);
     });
     $('#load button').on('click', function() {
         connection.emit('api', 'EXECUTE-CALL', ['load_yaml_file', $(this).get_value()]);
+    });
+    $('#load-module button').on('click', function() {
+        connection.emit('api', 'EXECUTE-CALL', ['load_modules', $(this).get_value()]);
+        $('#pipeline select').trigger('change');
     });
     $('#registry button').on('click', function() {
         connection.emit('api', 'EXECUTE-CALL', ['load_registry', $(this).get_value()]);
@@ -102,7 +105,6 @@ $(document).ready(function() {
     $('#sequence-mode button').on('click', function() {
         var run_mode = $('#sequence-mode input[name=mode]:checked').val();
         connection.emit('api', 'EXECUTE-CALL', ['set_sequence_mode', run_mode])
-//        var run_mode = $('#run').get_value();
         $('.sequence').each(function(index) {
             var is_enabled = $(this).is_enabled();
             var key = $('select', $(this)).val();

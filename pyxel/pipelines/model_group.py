@@ -10,7 +10,11 @@ from pyxel import util
 class ModelFunction:
     """TBW."""
 
-    def __init__(self, name: str, func, arguments: dict = None, enabled: bool = True) -> None:
+    def __init__(self,
+                 name: str,
+                 func,  # callable or str
+                 arguments: dict = None,
+                 enabled: bool = True) -> None:
         """TBW.
 
         :param name:

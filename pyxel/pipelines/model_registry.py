@@ -1,6 +1,9 @@
 """TBW."""
 import inspect
+import logging
 from collections import OrderedDict
+
+import yaml
 
 from pyxel import util
 # from pyxel.pipelines.model_group import ModelFunction
@@ -45,21 +48,26 @@ def import_model(processor, model_def):
         return
 
     if isinstance(model_def, dict):
-        model_def = dict(model_def)  # make copy
-        group = model_def.pop('group')
+        # model_def = dict(model_def)  # make copy
+        group = model_def['group']
         if group in processor.pipeline.model_groups:
             model_group = processor.pipeline.model_groups[group]
-            model = ModelFunction(**model_def)
+            model = ModelFunction(name=model_def['name'],
+                                  func=model_def['func'],
+                                  arguments=model_def.get('arguments'),
+                                  enabled=model_def.get('enabled', True))
             model_group.models.append(model)
 
 
-def create_model_def(func, group='', name=None, enabled=True):
+def create_model_def(func, group='', name=None, enabled=True, detector=None, gui=None):
     """Create a model definition by inspecting the callable.
 
     The dict returned may be passed to the import_model function.
 
     :param func:
     :param group:
+    :param enabled:
+    :param detector:
     :return:
     """
     if isinstance(func, str):
@@ -112,6 +120,12 @@ def create_model_def(func, group='', name=None, enabled=True):
         'arguments': arguments
     }
 
+    if detector:
+        model_def['type'] = detector
+
+    if gui:
+        model_def['gui'] = gui
+
     return model_def
 
 
@@ -132,10 +146,24 @@ class LateBind:
         return self.func(*self.args)
 
 
+class EntryTypes:
+    """Collection of generic GUI entry types."""
+
+    num_uint = {
+        'tag': 'input',
+        'type': 'number',
+        'step': 1,
+        'min': 0,
+        'max': 65536
+    }
+
+
 class Registry:
     """TBW."""
 
     __instance = None
+
+    entry = EntryTypes()
 
     def __new__(cls, singleton=True):
         """Create singleton."""
@@ -148,6 +176,7 @@ class Registry:
 
     def __init__(self, singleton=True):
         """TBW."""
+        self._log = logging.getLogger(__name__)
         if singleton:
             if not hasattr(self, '_model_defs'):
                 self._model_defs = OrderedDict()
@@ -186,6 +215,27 @@ class Registry:
         """TBW."""
         self._model_defs.clear()
 
+    def get_group(self, detector, group=None):
+        """TBW.
+
+        :param detector:
+        :param group:
+        :return:
+        """
+        result = []
+        for item in self.values():
+            item_detector = item.get('type', '')
+            if item_detector and detector not in item_detector:
+                continue
+            if group and item['group'] != group:
+                continue
+            result.append(item)
+        return result
+
+    def values(self):
+        """TBW."""
+        return [value for key, value in self.items()]
+
     def items(self):
         """TBW."""
         keys = list(self._model_defs.keys())
@@ -201,10 +251,24 @@ class Registry:
         :param processor:
         :param name: group or model name
         """
-        for key in self:
-            item = self[key]
+        items = self.get_group(processor.pipeline.name)
+        for item in items:
             if not name or name == item['name'] or name == item['group']:
-                import_model(processor, item)
+                try:
+                    import_model(processor, item)
+                except Exception as exc:
+                    self._log.error('Cannot import: %r', item)
+                    self._log.exception(exc)
+
+    def save(self, file_path):
+        """TBW.
+
+        :param file_path:
+        """
+        cfg = list(self.values())
+        content = yaml.dump(cfg, default_flow_style=False)
+        with open(file_path, 'w') as fd:
+            fd.write(content)
 
     def register_map(self, def_dict, processor_type=None):
         """Add multiple models based on a dictionary of groups."""
@@ -219,25 +283,26 @@ class Registry:
                         continue  # skip the registration for this model
                 self.register(func, name=name, group=group, enabled=enabled)
 
-    def register(self, func, name=None, group=None, enabled=True):
+    def register(self, func, name=None, group=None, enabled=True, detector=None, gui=None):
         """TBW.
 
         :param func:
         :param name:
         :param group:
         :param enabled:
+        :param detector:
         """
         if inspect.isclass(func):
             func = func()
 
-        model_def = create_model_def(func, group, name, enabled)
+        model_def = create_model_def(func, group, name, enabled, detector, gui)
 
         self[model_def['name']] = model_def
 
-    def decorator(self, group, name=None, enabled=True):
+    def decorator(self, group, name=None, enabled=True, detector=None, gui=None):
         """Auto register callable class or function using a decorator."""
         def _wrapper(func):
-            self.register(func, group=group, name=name, enabled=enabled)
+            self.register(func, group=group, name=name, enabled=enabled, detector=detector, gui=gui)
             return func
 
         return _wrapper
