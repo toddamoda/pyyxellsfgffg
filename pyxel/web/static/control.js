@@ -56,15 +56,15 @@ $(document).ready(function() {
 
     // define the getter/setters
     $('.setting button').on('click', function() {
-        var id = $(this).parents('tr').attr('id');
-        var value = $(this).parents('tr').get_value();
+        var id = $(this).get_context().attr('id');
+        var value = $(this).get_context().get_value();
         connection.emit('api', 'SET-SETTING', [id, value])
     });
     $('#setting-set-all').on('click', function() {
         $('.setting button').trigger('click');
     });
     $('.setting .indicator').on('click', function() {
-        var id = $(this).parents('tr').attr('id');
+        var id = $(this).get_context().attr('id');
         connection.emit('api', 'GET-SETTING', [id]);
     });
     $('#setting-get-all').on('click', function() {
@@ -86,10 +86,10 @@ $(document).ready(function() {
         window.location = url;
     });
     $('#generate button').on('click', function() {
-        connection.emit('api', 'EXECUTE-CALL', ['generate_yaml_file', $(this).get_value()]);
+        connection.emit('api', 'EXECUTE-CALL', ['save_config', $(this).get_value()]);
     });
     $('#load button').on('click', function() {
-        connection.emit('api', 'EXECUTE-CALL', ['load_yaml_file', $(this).get_value()]);
+        connection.emit('api', 'EXECUTE-CALL', ['load_config', $(this).get_value()]);
     });
     $('#load-module button').on('click', function() {
         connection.emit('api', 'EXECUTE-CALL', ['load_modules', $(this).get_value()]);
@@ -100,7 +100,7 @@ $(document).ready(function() {
         $('#pipeline select').trigger('change');
     });
     $('#update-from-file button').on('click', function() {
-        connection.emit('api', 'EXECUTE-CALL', ['update_settings', $(this).get_value()]);
+        connection.emit('api', 'EXECUTE-CALL', ['load_defaults', $(this).get_value()]);
     });
     $('#sequence-mode button').on('click', function() {
         var run_mode = $('#sequence-mode input[name=mode]:checked').val();

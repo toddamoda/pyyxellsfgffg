@@ -21,7 +21,7 @@
                 {% if item['entry']['tag'] == 'none' %}
                 <!-- no entry field -->
                 {% elif item['entry']['tag'] == 'input' %}
-                <input {{ controller.get_gui_props(item["entry"]) }} class="pe-sz{{entry_count}}">
+                <input {{ controller.properties(item["entry"]) }} class="pe-sz{{entry_count}}">
                 {% elif item['entry']['tag'] == 'select' %}
                 <select>
                     {% for option in item['entry']['options'] %}

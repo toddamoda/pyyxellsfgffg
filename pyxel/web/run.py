@@ -10,7 +10,7 @@ from pyxel.web import webapp
 from pyxel.web.controller import Controller
 
 
-def run_web_server(port=9999, address_viewer=None, js9_dir=None, data_dir=None):
+def run_web_server(port=9999, js9_dir=None, data_dir=None):
     """TBW.
 
     :param port:
@@ -18,7 +18,7 @@ def run_web_server(port=9999, address_viewer=None, js9_dir=None, data_dir=None):
     :param js9_dir:
     :param data_dir:
     """
-    controller = Controller(processor=None, address_viewer=address_viewer)
+    controller = Controller()
 
     api = webapp.WebApplication(controller, js9_dir, data_dir)
     thread = webapp.TornadoServer(api, ('0.0.0.0', port))
@@ -37,9 +37,6 @@ def main():
 
     parser.add_argument('-p', '--port', default=9999, type=int,
                         help='The port to run the web server on')
-
-    parser.add_argument('-a', '--address-viewer', default=None, type=str,
-                        help='The remote viewer "<host>:<port>" address')
 
     parser.add_argument('-d', '--data-dir',
                         help='Data directory')
@@ -61,7 +58,7 @@ def main():
     del logging.root.handlers[:]
     logging.basicConfig(level=log_level, format=log_format)
 
-    run_web_server(opts.port, opts.address_viewer, opts.js9_dir, opts.data_dir)
+    run_web_server(opts.port, opts.js9_dir, opts.data_dir)
 
 
 if __name__ == '__main__':
