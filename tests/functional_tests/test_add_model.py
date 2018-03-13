@@ -1,11 +1,13 @@
 from pathlib import Path
 import inspect
+import itertools
 
 import yaml
 import sys
 from pyxel import util
 from pyxel.io.yaml_processor_new import load_config
 from pyxel.io.yaml_processor_new import dump
+from pyxel.pipelines.model_registry import Registry
 from pyxel.pipelines.model_registry import import_model
 from pyxel.pipelines.model_registry import create_model_def
 from pyxel.pipelines.model_group import ModelFunction
@@ -114,6 +116,13 @@ def test_add_model():
     dump(cfg)
 
 
+def test_model_registry_singleton():
+    reg1 = Registry()
+    assert reg1 == registry
+    reg2 = Registry(singleton=False)
+    assert reg2 != registry
+
+
 def test_model_registry():
 
     assert 'my_other_class_model' in registry
@@ -156,7 +165,10 @@ def test_model_registry_decorator():
 
 def test_model_registry_map():
     group_models = my_models.registry_map
-    registry.register_map(group_models)
+    registry_new = Registry(singleton=False)
+    registry_new.register_map(group_models)
+    expected_len = len(list(itertools.chain.from_iterable(group_models.values())))
+    assert expected_len == len(registry_new)
 
 
 def test_pipeline_import():
@@ -186,13 +198,14 @@ def test_pipeline_import():
 
     print(dump(cfg))
 
-#
-# if __name__ == '__main__':
-#     test_add_model()
-#     test_model_registry()
-#     test_pipeline_import()
-#     test_model_registry_decorator()
-#     test_model_registry_map()
+
+if __name__ == '__main__':
+    test_model_registry_singleton()
+    test_add_model()
+    test_model_registry()
+    test_model_registry_decorator()
+    test_model_registry_map()
+    test_pipeline_import()
 
 #
 #

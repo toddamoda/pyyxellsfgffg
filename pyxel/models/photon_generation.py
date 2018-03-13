@@ -36,7 +36,7 @@ def add_photon_level(detector: Detector, level: int) -> Detector:
     :param level:
     :return:
     """
-    if level > 0:
+    if level and level > 0:
         geo = detector.geometry
         photon_number_list = np.ones(geo.row * geo.col, dtype=int) * level
         photon_energy_list = [0.] * geo.row * geo.col

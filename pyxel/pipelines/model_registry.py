@@ -137,15 +137,21 @@ class Registry:
 
     __instance = None
 
-    def __new__(cls):
+    def __new__(cls, singleton=True):
         """Create singleton."""
-        if cls.__instance is None:
-            cls.__instance = object.__new__(cls)
-        return cls.__instance
+        if singleton:
+            if cls.__instance is None:
+                cls.__instance = object.__new__(cls)
+            return cls.__instance
+        else:
+            return object.__new__(cls)
 
-    def __init__(self):
+    def __init__(self, singleton=True):
         """TBW."""
-        if not hasattr(self, '_model_defs'):
+        if singleton:
+            if not hasattr(self, '_model_defs'):
+                self._model_defs = OrderedDict()
+        else:
             self._model_defs = OrderedDict()
 
     def __iter__(self):

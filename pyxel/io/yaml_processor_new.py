@@ -149,7 +149,6 @@ def dump(cfg_obj) -> str:
     finally:
         ModelGroup.yaml_generation = False
 
-
     keys = [
         'processor',
         'processor.detector',
