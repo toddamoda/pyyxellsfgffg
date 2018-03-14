@@ -344,36 +344,71 @@ def argument(name, **kwargs):
 class ValidationError(Exception):
     """Exception thrown by the argument validate function."""
 
+    def __init__(self, func, arg, value):
+        """TBW."""
+        self.func = func
+        self.arg = arg
+        self.value = value
+
+    def __repr__(self):
+        """TBW."""
+        return 'ValidationError(%(name)r, %(func)r, %(arg)r, %(value)r)' % vars(self)
+
+    def __str__(self):
+        """TBW."""
+        msg = 'Validation failed for function: %(func)r, arg: %(arg)r, value: %(value)r'
+        msg = msg % vars(self)
+        return msg
+
 
 def validate(func):
     """TBW."""
     def _validate(*args, **kwargs):
         """TBW."""
         func_id = func.__module__ + '.' + func.__name__
-        spec = inspect.getfullargspec(func)
         params = parameters[func_id]
+        validate_enabled = params.get('validate', True)
+        convert_enabled = params.get('convert', True)
 
-        if spec.defaults is not None:
-            start = len(spec.args) - len(spec.defaults)
-            default_values = dict(zip(spec.args[start:], spec.defaults))
-        else:
-            default_values = {}
+        if validate_enabled:
+            spec = inspect.getfullargspec(func)
+            if spec.defaults is not None:
+                start = len(spec.args) - len(spec.defaults)
+                default_values = dict(zip(spec.args[start:], spec.defaults))
+            else:
+                default_values = {}
 
-        for i, name in enumerate(spec.args):
-            if name in params:
-                value = None
-                if name in default_values:
-                    value = default_values[name]
+            if convert_enabled:
+                args = list(args)
+                for i, name in enumerate(spec.args):
+                    if name in spec.annotations:
+                        arg_type = spec.annotations[name]
+                        if name in kwargs:
+                            value = kwargs[name]
+                            if not isinstance(value, arg_type):
+                                kwargs[name] = arg_type(value)
 
-                if name in kwargs:
-                    value = kwargs[name]
-                elif i < len(args):
-                    value = args[i]
-                param = params[name]
-                if 'validate' in param:
-                    if not param['validate'](value):
-                        msg = 'Validation failed for: model: %s, argument: %s, value: %r' % (func_id, name, value)
-                        raise ValidationError(msg)
+                        elif i < len(args):
+                            value = args[i]
+                            if not isinstance(value, arg_type):
+                                args[i] = arg_type(value)
+
+            for i, name in enumerate(spec.args):
+                if name in params:
+                    value = None
+                    if name in default_values:
+                        value = default_values[name]
+
+                    if name in kwargs:
+                        value = kwargs[name]
+                    elif i < len(args):
+                        value = args[i]
+
+                    param = params[name]
+                    if 'validate' in param:
+                        # TODO: what to do if the validation throws an error?
+                        if not param['validate'](value):
+                            raise ValidationError(func_id, name, value)
 
         return func(*args, **kwargs)
 
