@@ -348,6 +348,52 @@ def evaluate_reference(reference_str):
     return reference
 
 
+def check_choices(choices: list):
+    """TBW.
+
+    :param choices:
+    :return:
+    """
+    def _wrapper(value):
+        return value in choices
+
+    # _wrapper.__args__ = {'choices': choices}
+
+    return _wrapper
+
+
+def check_range(min_val, max_val, step=None):
+    """TBW.
+
+    :param min_val:
+    :param max_val:
+    :param step:
+    """
+    def _wrapper(value):
+        """TBW."""
+        # Do something
+        if min_val <= value <= max_val:
+            result = True
+            if step:
+                multiplier = 1
+                if isinstance(step, float):
+                    # In Python3: 1.2 % 0.1 => 0.0999999999999999
+                    # but it should be 0.0
+                    # To fix this, we multiply by a factor that essentially
+                    # converts the float into an int
+
+                    # get digits after decimal.
+                    # NOTE: the decimal.Decimal class cannot do this properly in Python 3.
+                    exp = len(format(1.0, '.8f').strip('0').split('.')[1])
+                    multiplier = 10 ** exp
+                result = ((value * multiplier) % (step * multiplier)) == 0
+        return result
+
+    # _wrapper.__args__ = {'min_val': min, 'max_val': max, 'step': step}
+
+    return _wrapper
+
+
 __all__ = ['FitsFile', 'update_fits_header', 'get_obj_att',
            'eval_range', 'eval_entry', 'apply_run_number',
            'copy_processor', 'get_state', 'get_state_ids',

@@ -208,13 +208,14 @@ class Controller:
 
         :return:
         """
-        result = {
-            'processor': self.processor.get_state_json(),
-            'parametric': self.parametric.get_state_json(),
-        }
-        id_value_dict = util.get_state_ids(result)
-        self.announce('state', 'all', id_value_dict)
-        return result
+        if self.processor:
+            result = {
+                'processor': self.processor.get_state_json(),
+                'parametric': self.parametric.get_state_json(),
+            }
+            id_value_dict = util.get_state_ids(result)
+            self.announce('state', 'all', id_value_dict)
+            return result
 
     def has_setting(self, key):
         """TBW.
@@ -222,7 +223,8 @@ class Controller:
         :param key:
         :return:
         """
-        return self.processor.has(key)
+        if self.processor:
+            return self.processor.has(key)
 
     def get_setting(self, key):
         """TBW.
@@ -230,9 +232,10 @@ class Controller:
         :param key:
         :return:
         """
-        value = self.processor.get(key)
-        self.announce('get', key, value)
-        return value
+        if self.processor:
+            value = self.processor.get(key)
+            self.announce('get', key, value)
+            return value
 
     def set_setting(self, key, value):
         """TBW.
@@ -240,8 +243,9 @@ class Controller:
         :param key:
         :param value:
         """
-        self.processor.set(key, value)
-        self.get_setting(key)   # signal updated value to listeners
+        if self.processor:
+            self.processor.set(key, value)
+            self.get_setting(key)   # signal updated value to listeners
 
     def load_gui_model_defs(self, cfg):
         """TBW."""

@@ -42,6 +42,7 @@ def run_parametric(input_filename, output_file, key=None, value=None):
         pass
     parametric.debug(processor)
     configs = parametric.collect(processor)
+
     for config in configs:
         detector = config.pipeline.run_pipeline(config.detector)
 

@@ -2,6 +2,7 @@
 import inspect
 import logging
 from collections import OrderedDict
+import typing as t  # noqa: F401
 
 import yaml
 
@@ -66,8 +67,10 @@ def create_model_def(func, group='', name=None, enabled=True, detector=None, gui
 
     :param func:
     :param group:
+    :param name:
     :param enabled:
     :param detector:
+    :param gui:
     :return:
     """
     if isinstance(func, str):
@@ -309,6 +312,72 @@ class Registry:
 
 
 registry = Registry()
+
+parameters = {}  # type: t.Dict[str, t.Dict[str, t.Any]]
+
+
+def register(name=None, group=None, enabled=True, detector=None, gui=None):
+    """TBW."""
+    """Auto register callable class or function using a decorator."""
+
+    def _wrapper(func):
+        registry.register(func, group=group, name=name, enabled=enabled, detector=detector, gui=gui)
+        return func
+
+    return _wrapper
+
+
+def argument(name, **kwargs):
+    """TBW."""
+    def _register(func):
+        """TBW."""
+        func_id = func.__module__ + '.' + func.__name__
+        if func_id not in parameters:
+            parameters[func_id] = {}
+        param = dict(kwargs)
+        parameters[func_id][name] = param
+        return func
+
+    return _register
+
+
+class ValidationError(Exception):
+    """Exception thrown by the argument validate function."""
+
+
+def validate(func):
+    """TBW."""
+    def _validate(*args, **kwargs):
+        """TBW."""
+        func_id = func.__module__ + '.' + func.__name__
+        spec = inspect.getfullargspec(func)
+        params = parameters[func_id]
+
+        if spec.defaults is not None:
+            start = len(spec.args) - len(spec.defaults)
+            default_values = dict(zip(spec.args[start:], spec.defaults))
+        else:
+            default_values = {}
+
+        for i, name in enumerate(spec.args):
+            if name in params:
+                value = None
+                if name in default_values:
+                    value = default_values[name]
+
+                if name in kwargs:
+                    value = kwargs[name]
+                elif i < len(args):
+                    value = args[i]
+                param = params[name]
+                if 'validate' in param:
+                    if not param['validate'](value):
+                        msg = 'Validation failed for: model: %s, argument: %s, value: %r' % (func_id, name, value)
+                        raise ValidationError(msg)
+
+        return func(*args, **kwargs)
+
+    return _validate
 
 
 class MetaModel(type):
