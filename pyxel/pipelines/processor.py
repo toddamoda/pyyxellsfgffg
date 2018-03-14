@@ -37,6 +37,15 @@ class Processor:
             'pipeline': self.pipeline,
         }
 
+    def validate(self):
+        """TBW."""
+        from pyxel.pipelines.model_registry import validate_call
+        errors = []
+        for key, model_group in self.pipeline.model_groups.items():
+            for model in model_group.models:
+                errors += validate_call(model.func, False, kwargs=model.arguments)
+        return errors
+
     def has(self, key):
         """TBW.
 

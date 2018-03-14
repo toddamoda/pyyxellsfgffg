@@ -2,10 +2,11 @@
 
 
 from pyxel.io.yaml_processor import load_config
-from pyxel.pipelines import ccd_pipeline
-from pyxel.pipelines import cmos_pipeline
+# from pyxel.pipelines import ccd_pipeline
+# from pyxel.pipelines import cmos_pipeline
 from pyxel.pipelines import models
 from pyxel.pipelines import processor
+from pyxel.pipelines.model_registry import validate_call
 from pyxel.pipelines.model_registry import validate
 from pyxel.pipelines.model_registry import argument
 from pyxel.pipelines.model_registry import register
@@ -19,9 +20,11 @@ from pyxel.pipelines.detector_pipeline import DetectionPipeline
 from pyxel.pipelines.processor import Processor
 
 
-__all__ = ['load_config', 'ccd_pipeline', 'cmos_pipeline', 'models', 'processor',
-           'validate', 'argument', 'register', 'registry', 'parameters', 'ValidationError',
-           'MetaModel', 'ModelFunction', 'ModelGroup',
+__all__ = ['load_config', 'models', 'processor',
+           # 'ccd_pipeline', 'cmos_pipeline',
+           'validate_call', 'validate', 'ValidationError',
+           'argument', 'register', 'parameters',
+           'registry', 'MetaModel', 'ModelFunction', 'ModelGroup',
            'DetectionPipeline', 'Processor']
 
 __appname__ = 'Pyxel'

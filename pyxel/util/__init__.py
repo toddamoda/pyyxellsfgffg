@@ -348,6 +348,11 @@ def evaluate_reference(reference_str):
     return reference
 
 
+def get_validate_info(func):
+    """Retrieve the extra information dict from a validator."""
+    return getattr(func, 'validate_info', {'error_message': 'Bad value: {}. '})
+
+
 def check_choices(choices: list):
     """TBW.
 
@@ -357,8 +362,12 @@ def check_choices(choices: list):
     def _wrapper(value):
         return value in choices
 
-    # _wrapper.__args__ = {'choices': choices}
-
+    # NOTE: _wrapper.__closure__[0].cell_contents => ['silicon', 'hxrg', 'other']
+    info = {
+        'error_message': 'Expected: %r, got: {}. ' % choices,
+        'choices': choices,
+    }
+    setattr(_wrapper, 'validate_info', info)
     return _wrapper
 
 
@@ -389,7 +398,11 @@ def check_range(min_val, max_val, step=None):
                 result = ((value * multiplier) % (step * multiplier)) == 0
         return result
 
-    # _wrapper.__args__ = {'min_val': min, 'max_val': max, 'step': step}
+    info = {
+        'error_message': 'Expected value in range: %r to %r in %r steps, got: {}. ' % (min_val, max_val, step),
+        'min_val': min_val, 'max_val': max_val, 'step': step
+    }
+    setattr(_wrapper, 'validate_info', info)
 
     return _wrapper
 
