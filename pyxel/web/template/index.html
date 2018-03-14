@@ -62,8 +62,64 @@ $(document).ready(function() {
 </script>
 </head>
 <body>
+<div class="x-container" id="pyxel">
+{% set use_tabs = False %}
 
-{% include "control.html" %}
+    <div class="pe-form">
+        <button class="btn btn-primary" id="pe-expand" >Expand</button>
+        <button class="btn btn-primary" id="pe-collapse" >Collapse</button>
+        <button class="btn btn-primary" id="get-state" >Get State</button>
+        <button class="btn btn-primary" id="setting-get-all" >Get All</button>
+        <button class="btn btn-primary" id="setting-set-all" >Set All</button>
+        <button class="btn btn-primary" id="setting-reset" >Reset</button>
+        <button class="btn btn-primary" id="start-imager" >Start Imager</button>
+    </div>
+
+{% if use_tabs %}
+    <br/>
+    <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#group-control">Pipeline Control</a></li>
+        <li><a data-toggle="tab" href="#group-0">Detector Attributes</a></li>
+        <li><a data-toggle="tab" href="#group-1">Model Settings</a></li>
+        <li><a data-toggle="tab" href="#group-viewer">JS9 Viewer</a></li>
+    </ul>
+
+    <div class="tab-content">
+
+        <div id="group-control" class="pe-tab">
+            {% include "control.html" %}
+        </div>
+
+        {% for index, group in enumerate(controller.get_gui_defs()) %}
+        <div id="group-{{index}}" class="pe-tab">
+            {% include "gui_def.html" %}
+        </div>
+        {% end %}
+
+        <div id="group-viewer" class="pe-tab">
+            {% include "viewer.html" %}
+        </div>
+
+    </div>
+{% else %}
+    <table>
+        <tr>
+            <td style="vertical-align:top;">
+            {% include "control.html" %}
+            </td>
+        {% for index, group in enumerate(controller.get_gui_defs()) %}
+            <td style="vertical-align:top;">
+            {% include "gui_def.html" %}
+            </td>
+        {% end %}
+            <td style="vertical-align:top;">
+            {% include "viewer.html" %}
+            </td>
+        </tr>
+    </table>
+{% end %}
+
+</div>
 
 <!--
 <ul class="nav nav-tabs">

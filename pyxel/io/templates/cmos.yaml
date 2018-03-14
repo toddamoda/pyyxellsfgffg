@@ -1,0 +1,89 @@
+
+parametric:
+  mode: single
+#  mode: embedded
+#  mode: sequential
+  steps:
+    -
+      enabled: false
+      key:
+      values:
+    -
+      enabled: false
+      key:
+      values:
+    -
+      enabled: false
+      key:
+      values:
+    -
+      enabled: false
+      key:
+      values:
+    -
+      enabled: false
+      key:
+      values:
+
+processor:
+  class: pyxel.pipelines.processor.Processor
+
+  detector:
+    class: pyxel.detectors.cmos.CMOS
+
+    geometry:
+      class: pyxel.detectors.cmos_geometry.CMOSGeometry
+      row: 100                      # compulsory
+      col: 100                      # compulsory
+      total_thickness: 10.0         # um
+      depletion_thickness: 10.0     # um
+      field_free_thickness: 0.0     # um
+      pixel_vert_size: 10.0         # um
+      pixel_horz_size: 10.0         # um
+      material: 'silicon'
+      n_acceptor: 0.0               # cm-3
+      n_donor: 0.0                  # cm-3
+      bias_voltage: 0.0             # V
+      n_output: 4
+      n_row_overhead: 0
+      n_frame_overhead: 0
+      reverse_scan_direction: False
+      reference_pixel_border_width: 4
+
+    environment:
+      class: pyxel.detectors.environment.Environment
+      temperature: 300                    # K
+      total_ionising_dose: 0              #
+      total_non_ionising_dose: 8.0e11     #
+
+    characteristics:
+      class: pyxel.detectors.cmos_characteristics.CMOSCharacteristics
+      qe: 0.5         # -
+      eta: 1          # e/photon
+      sv:  1.0e-6     # V/e
+      amp: 0.8        # V/V
+      a1: 100         # V/V
+      a2: 2**16       # DN/V
+
+  pipeline:
+    class: pyxel.pipelines.cmos_pipeline.CMOSDetectionPipeline
+
+    photon_generation: []
+
+    # -> photons
+    optics: []
+
+    # -> charge
+    charge_generation: []
+
+    # -> charge
+    charge_collection: []
+
+    # -> signal
+    charge_measurement: []
+
+    # -> signal
+    signal_transfer: []
+
+    # -> signal
+    readout_electronics: []

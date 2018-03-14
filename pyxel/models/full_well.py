@@ -5,8 +5,10 @@
 # import copy
 
 from pyxel.detectors.detector import Detector
+from pyxel.pipelines.model_registry import registry
 
 
+@registry.decorator('charge_collection', name='full_well')
 def simple_pixel_full_well(detector: Detector) -> Detector:
     """Simply removing charges from pixels due to full well.
 

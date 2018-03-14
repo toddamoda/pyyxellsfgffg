@@ -8,6 +8,10 @@ from ast import literal_eval
 from pyxel.util.fitsfile import FitsFile
 
 
+class PipelineAborted(Exception):
+    """Exception to force the pipeline to stop processing."""
+
+
 def load(yaml_filename):
     """TBW.
 
@@ -58,7 +62,10 @@ def get_obj_att(obj, key):
     att = obj_props[-1]
     for part in obj_props[:-1]:
         try:
-            obj = getattr(obj, part)
+            if isinstance(obj, dict):
+                obj = obj[part]
+            else:
+                obj = getattr(obj, part)
         except AttributeError:
             # logging.error('Cannot find attribute %r in key %r', part, key)
             obj = None
@@ -230,7 +237,13 @@ def get_state_dict(obj):
     if isinstance(obj, dict):
         for key, value in obj.items():
             result[key] = get_state_dict(value)
+    elif isinstance(obj, list):
+        result = []
+        for value in obj:
+            result.append(get_state_dict(value))
     else:
+        if not hasattr(obj, '__getstate__'):
+            return result
         for key, value in obj.__getstate__().items():
             if isinstance(value, list):
                 result[key] = [get_state_helper(val) for val in value]
@@ -322,14 +335,63 @@ def evaluate_reference(reference_str):
     try:
         module = importlib.import_module(module_str)
     except ImportError as exc:
-        raise ImportError('Cannot import module: %s. exc: %s' % (module_str, str(exc)))
+        raise ImportError('Cannot import module: %r. exc: %s' % (module_str, str(exc)))
 
     try:
         reference = getattr(module, function_str)
+        # if isinstance(reference, type):
+        #     # this is a class type, instantiate it using default arguments.
+        #     reference = reference()
     except AttributeError:
         raise ImportError('Module: %s, does not contain %s' % (module_str, function_str))
 
     return reference
+
+
+def check_choices(choices: list):
+    """TBW.
+
+    :param choices:
+    :return:
+    """
+    def _wrapper(value):
+        return value in choices
+
+    # _wrapper.__args__ = {'choices': choices}
+
+    return _wrapper
+
+
+def check_range(min_val, max_val, step=None):
+    """TBW.
+
+    :param min_val:
+    :param max_val:
+    :param step:
+    """
+    def _wrapper(value):
+        """TBW."""
+        # Do something
+        if min_val <= value <= max_val:
+            result = True
+            if step:
+                multiplier = 1
+                if isinstance(step, float):
+                    # In Python3: 1.2 % 0.1 => 0.0999999999999999
+                    # but it should be 0.0
+                    # To fix this, we multiply by a factor that essentially
+                    # converts the float into an int
+
+                    # get digits after decimal.
+                    # NOTE: the decimal.Decimal class cannot do this properly in Python 3.
+                    exp = len(format(1.0, '.8f').strip('0').split('.')[1])
+                    multiplier = 10 ** exp
+                result = ((value * multiplier) % (step * multiplier)) == 0
+        return result
+
+    # _wrapper.__args__ = {'min_val': min, 'max_val': max, 'step': step}
+
+    return _wrapper
 
 
 __all__ = ['FitsFile', 'update_fits_header', 'get_obj_att',

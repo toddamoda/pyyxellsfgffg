@@ -1,0 +1,51 @@
+{% autoescape None %}
+
+<div class="pe-section-group">
+    <div class="pe-group-title">{{ group['label'] }}</div>
+    {% for section in group['items'] %}
+        {% if len(section['arguments']) == 0 %}
+        {% continue %}
+        {% end %}
+    <table class="pe-table pe-form">
+        <caption class="pe-section">{{ section['label'] }}</caption>
+        {% for item in section['arguments'] %}
+        {% if not controller.has_setting(item['id'])%}
+        {% continue %}
+        {% end %}
+        {% set entry_count = item.get('entry_count', 1) %}
+        <tr class="setting" id="{{ item['id'] }}">
+            <td><div>{{ item['label'] }}</div></td>
+            <td><div class="indicator">-</div></td>
+            <td colspan="1">
+                {% for _ in range(entry_count) %}
+                {% if item['entry']['tag'] == 'none' %}
+                <!-- no entry field -->
+                {% elif item['entry']['tag'] == 'input' %}
+                <input {{ controller.properties(item["entry"]) }} class="pe-sz{{entry_count}}">
+                {% elif item['entry']['tag'] == 'select' %}
+                <select>
+                    {% for option in item['entry']['options'] %}
+                    <option value="{{ option }}">{{ option }}</option>
+                    {% end %}
+                </select>
+                {% end %}
+                {% end %}
+            </td>
+            <td>
+                <button>Set</button>
+                {% if 'enabled' in item %}
+                <input type="checkbox"/>
+                {% end %}
+
+            </td>
+        </tr>
+        {% end %}
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </table>
+    {% end %}
+</div>

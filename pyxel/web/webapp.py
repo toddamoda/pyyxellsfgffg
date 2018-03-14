@@ -93,7 +93,7 @@ class PipelinePageHandler(tornado.web.RequestHandler):
 
     def get(self, name):
         """TBW."""
-        self.application.controller.load_pipeline(name)
+        self.application.controller.load_template(name)
         self.render("index.html", controller=self.application.controller)
 
 

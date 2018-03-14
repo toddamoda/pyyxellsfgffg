@@ -50,21 +50,21 @@ $(document).ready(function() {
 
     // define the row enablement checkboxs
     $('.pe-table .enable-row').on('change', function() {
-        $(this).parents('tr').set_enabled($(this).is(":checked"));
+        $(this).get_context().set_enabled($(this).is(":checked"));
     });
     $('.pe-table .enable-row').trigger('change');
 
     // define the getter/setters
     $('.setting button').on('click', function() {
-        var id = $(this).parents('tr').attr('id');
-        var value = $(this).parents('tr').get_value();
+        var id = $(this).get_context().attr('id');
+        var value = $(this).get_context().get_value();
         connection.emit('api', 'SET-SETTING', [id, value])
     });
     $('#setting-set-all').on('click', function() {
         $('.setting button').trigger('click');
     });
     $('.setting .indicator').on('click', function() {
-        var id = $(this).parents('tr').attr('id');
+        var id = $(this).get_context().attr('id');
         connection.emit('api', 'GET-SETTING', [id]);
     });
     $('#setting-get-all').on('click', function() {
@@ -77,26 +77,45 @@ $(document).ready(function() {
         connection.emit('api', 'GET-STATE', [])
     });
 
-    $('#pipeline select').on('change', function() {
-        var url = '/pipeline/' + $(this).get_value();
-        window.location = url;
-    });
-
     // define the application action handlers
     $('#connection_status button').on('click', function() {
         connection.toggle();
     });
-    $('#run button').on('click', function() {
-        var output_file = $('#output_file').get_value();
-        var run_mode = $('#run input[name=mode]:checked').val();
-//        var run_mode = $('#run').get_value();
+    $('#pipeline select').on('change', function() {
+        var url = '/pipeline/' + $(this).get_value();
+        window.location = url;
+    });
+    $('#generate button').on('click', function() {
+        connection.emit('api', 'EXECUTE-CALL', ['save_config', $(this).get_value()]);
+    });
+    $('#load button').on('click', function() {
+        connection.emit('api', 'EXECUTE-CALL', ['load_config', $(this).get_value()]);
+    });
+    $('#load-module button').on('click', function() {
+        connection.emit('api', 'EXECUTE-CALL', ['load_modules', $(this).get_value()]);
+        $('#pipeline select').trigger('change');
+    });
+    $('#registry button').on('click', function() {
+        connection.emit('api', 'EXECUTE-CALL', ['load_registry', $(this).get_value()]);
+        $('#pipeline select').trigger('change');
+    });
+    $('#update-from-file button').on('click', function() {
+        connection.emit('api', 'EXECUTE-CALL', ['load_defaults', $(this).get_value()]);
+    });
+    $('#sequence-mode button').on('click', function() {
+        var run_mode = $('#sequence-mode input[name=mode]:checked').val();
+        connection.emit('api', 'EXECUTE-CALL', ['set_sequence_mode', run_mode])
         $('.sequence').each(function(index) {
             var is_enabled = $(this).is_enabled();
             var key = $('select', $(this)).val();
             var range = $('input[type="text"]', $(this)).val();
             connection.emit('api', 'SET-SEQUENCE', [index, key, range, is_enabled])
         });
-        connection.emit('api', 'RUN-PIPELINE', [run_mode, output_file]);
+    });
+
+    $('#state button').on('click', function() {
+        var output_file = $('#output_file').get_value();
+        connection.emit('api', 'RUN-PIPELINE', [output_file]);
     });
 
     $('#setting-reset').on('click', function() {
@@ -162,7 +181,7 @@ $(document).ready(function() {
             } else if (key.match(/pipeline\..*\.enabled/g)) {
                 $(selector).prop('checked', fields.value[key]);
             } else if (key == 'parametric.mode') {
-                $('input[name=mode]').filter('[value="'+fields.value[key]+'"]').attr('checked', true);
+                $('input[name=mode]').filter('[value="'+fields.value[key]+'"]').prop('checked', true);
             } else {
                 $(selector).highlight(fields.value[key], true);
                 $(selector).set_value(fields.value[key], false);

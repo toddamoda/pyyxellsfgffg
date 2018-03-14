@@ -1,4 +1,5 @@
 """TBW."""
+import logging
 import functools
 import typing as t  # noqa: F401
 from pyxel import util
@@ -54,6 +55,7 @@ class Models:
         :param models:
         """
         self.models = models    # type: t.Dict[str, Model]
+        self._log = logging.getLogger(__name__)
 
     def copy(self):
         """TBW."""
@@ -63,6 +65,27 @@ class Models:
     def get_state_json(self):
         """TBW."""
         return util.get_state_dict(self)
+
+    def run(self, detector, pipeline):
+        """Execute each enabled model in this group."""
+        groups = pipeline.model_groups
+        model_keys = dict(zip(groups.values(), groups.keys()))  # switch key/values
+        key = model_keys[self]  # retrieve group name
+        for step in getattr(pipeline, '_model_steps')[key]:  # deprecated attribute
+            if step in self.models:
+                model = self.models[step]  # type: Model
+                if model.enabled:
+                    self._log.debug('Running %r', model.name)
+                    for arg in model.arguments:
+                        util.update_fits_header(detector.header,
+                                                key=[step, arg],
+                                                value=model.arguments[arg])
+                    model.function(detector)
+                    if not pipeline.is_running:
+                        self._log.debug('Aborted after %r', model.name)
+                        raise util.PipelineAborted()
+                else:
+                    self._log.debug('Skipping %r', model.name)
 
     def __getstate__(self):
         """TBW."""

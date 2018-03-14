@@ -21,6 +21,7 @@ astropy
 pandas
 matplotlib
 scipy
+numba
 
 ########################
 # TARS                 #

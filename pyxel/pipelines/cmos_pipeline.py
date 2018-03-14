@@ -22,6 +22,7 @@ class CMOSDetectionPipeline(DetectionPipeline):
         super().__init__(**kwargs)
         self.signal_transfer = signal_transfer
 
+        self._name = 'cmos'
         self._model_groups = ['photon_generation', 'optics', 'charge_generation', 'charge_collection',
                               'charge_measurement', 'signal_transfer', 'readout_electronics']
 

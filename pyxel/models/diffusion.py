@@ -12,10 +12,12 @@ from astropy.units import cds
 from scipy.special import erf
 
 from pyxel.detectors.ccd import CCD
+# from pyxel.pipelines.model_registry import registry
 
 cds.enable()
 
 
+# @registry.decorator('charge_collection')
 def diffusion(detector: CCD) -> CCD:
     """TBD."""
     new_detector = copy.deepcopy(detector)

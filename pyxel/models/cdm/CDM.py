@@ -27,8 +27,10 @@ from typing import cast
 
 from pyxel.detectors.ccd import CCD
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics  # noqa: F401
+from pyxel.pipelines.model_registry import registry
 
 
+@registry.decorator('charge_transfer', name='cdm', detector='ccd')
 def cdm(detector: CCD,
         beta_p: float = None, beta_s: float = None,
         vg: float = None, svg: float = None,
