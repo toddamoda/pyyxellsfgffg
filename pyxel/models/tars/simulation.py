@@ -3,13 +3,11 @@
 #   --------------------------------------------------------------------------
 """PyXel! Simulation code for TARS model to generate charges by ionization."""
 
-from os import path
 import typing as t  # noqa: F401
 import numpy as np
 from pyxel.models.tars.particle import Particle
-from pyxel.models.tars.util import sampling_distribution, read_data
+from pyxel.models.tars.util import sampling_distribution, get_yvalue_with_interpolation
 from pyxel.detectors.detector import Detector
-# import matplotlib.pyplot as plt
 
 
 class Simulation:
@@ -24,7 +22,11 @@ class Simulation:
 
         self.flux_dist = None
         self.spectrum_cdf = None
+
+        self.energy_loss_data = None
+        self.let_dist = None
         self.let_cdf = np.zeros((1, 2))
+        self.stopping_power = None
 
         self.particle_type = None
         self.initial_energy = None
@@ -70,42 +72,19 @@ class Simulation:
         self.angle_beta = beta
         self.step_length = step_length
 
-    def set_let_distribution(self):
-        """Read/generate a Linear Energy Transport distribution from Geant4 data.
-
+    # TODO
+    def select_let(self, init_energy, det_thickness):
+        """Select LET data which is relevant here before sampling it.
         Execute this for each new particle based on its initial energy (from
         input spectrum) and track length inside the detector.
 
+        :param init_energy:
+        :param det_thickness:
         :return:
 
-        .. warning:: EXPERIMENTAL - NOT FINSHED YET
+        :warning NOT IMPLEMENTED:
         """
-        tars_dir = path.dirname(path.abspath(__file__))
-        # particle_let_file = tars_dir + '../data/inputs/let_proton_12GeV_100um_geant4.ascii'
-        particle_let_file = tars_dir + '/data/inputs/let_proton_1GeV_100um_geant4_HighResHist.ascii'
-
-        let_histo = read_data(particle_let_file)  # counts in function of keV
-
-        # TODO: THE DATA NEED TO BE EXTRACTED FROM G4: DEPOSITED ENERGY PER UNIT LENGTH (keV/um)
-        # THIS 2 LINE IS TEMPORARY, DO NOT USE THIS!
-        data_det_thickness = 100.0    # um
-        let_histo[:, 1] /= data_det_thickness   # keV/um
-
-        self.let_cdf = np.stack((let_histo[:, 1], let_histo[:, 2]), axis=1)
-        cum_sum = np.cumsum(self.let_cdf[:, 1])
-        # cum_sum = np.cumsum(let_dist_interpol)
-        cum_sum /= np.max(cum_sum)
-        self.let_cdf = np.stack((self.let_cdf[:, 0], cum_sum), axis=1)
-        # self.sim_obj.let_cdf = np.stack((lin_energy_range, cum_sum), axis=1)
-
-        # plt.figure()
-        # plt.plot(let_histo[:, 1], let_histo[:, 2], '.')
-        # plt.draw()
-        #
-        # plt.figure()
-        # plt.plot(self.sim_obj.let_cdf[:, 0], self.sim_obj.let_cdf[:, 1], '.')
-        # plt.draw()
-        # plt.show()
+        pass
 
     def event_generation(self):
         """Generate an event on the CCD.
@@ -123,7 +102,8 @@ class Simulation:
                      self.position_ver, self.position_hor, self.position_z,
                      self.angle_alpha, self.angle_beta)
 
-        self.set_let_distribution()
+        if self.energy_loss_data == 'let':
+            self.select_let(p.energy, self.detector.geometry.total_thickness)  # TODO
 
         # p.position is inside CCD, ionization can not happen in this first step
         p.position[0] += p.dir_ver * self.step_length * 0.1
@@ -164,16 +144,25 @@ class Simulation:
         :param particle:
         :return:
         """
-        mat_ioniz_energy = self.detector.geometry.material_ionization_energy
+        geo = self.detector.geometry
+        ioniz_energy = geo.material_ionization_energy
+        let_value = None
+
         # particle.energy is in MeV !
         # particle.deposited_energy is in keV !
-        particle.deposited_energy = sampling_distribution(self.let_cdf) * self.step_length  # keV
+        if self.energy_loss_data == 'let':
+            let_value = sampling_distribution(self.let_cdf)  # keV/um
+        elif self.energy_loss_data == 'stopping':
+            stopping_power = get_yvalue_with_interpolation(self.stopping_power, particle.energy)  # MeV*cm2/g
+            let_value = 0.1 * stopping_power * geo.material_density  # keV/um
+
+        particle.deposited_energy = let_value * self.step_length  # keV
 
         if particle.deposited_energy >= particle.energy * 1e3:
             particle.deposited_energy = particle.energy * 1e3
 
         e_kin_energy = 0.1  # eV
-        particle.electrons = int(particle.deposited_energy * 1e3 / (mat_ioniz_energy + e_kin_energy))  # eV/eV = 1
+        particle.electrons = int(particle.deposited_energy * 1e3 / (ioniz_energy + e_kin_energy))  # eV/eV = 1
 
         self.e_num_lst += [particle.electrons]
         self.e_energy_lst += [e_kin_energy]
@@ -182,7 +171,7 @@ class Simulation:
         self.e_pos2_lst += [particle.position[2]]
 
         # keV
-        particle.deposited_energy = particle.electrons * (e_kin_energy + mat_ioniz_energy) * 1e-3
+        particle.deposited_energy = particle.electrons * (e_kin_energy + ioniz_energy) * 1e-3
         particle.energy -= particle.deposited_energy * 1e-3     # MeV
 
         self.edep_per_step.append(particle.deposited_energy)    # keV

@@ -40,18 +40,18 @@ def get_xvalue_with_interpolation(function_array, y_value):
     return intpol_x_value
 
 
-# def get_yvalue_with_interpolation(function_array, x_value):
-#
-#     x_index_bot = bisect.bisect(function_array[:, 0], x_value) - 1
-#     x_index_top = x_index_bot + 1
-#     x_value_bot = function_array[x_index_bot, 0]
-#     x_value_top = function_array[x_index_top, 0]
-#     y_value_bot = function_array[x_index_bot, 1]
-#     y_value_top = function_array[x_index_top, 1]
-#
-#     intpol_y_value = y_value_bot + (x_value - x_value_bot) * (y_value_top - y_value_bot) / (x_value_top - x_value_bot)
-#
-#     return intpol_y_value
+def get_yvalue_with_interpolation(function_array, x_value):
+
+    x_index_bot = bisect.bisect(function_array[:, 0], x_value) - 1
+    x_index_top = x_index_bot + 1
+    x_value_bot = function_array[x_index_bot, 0]
+    x_value_top = function_array[x_index_top, 0]
+    y_value_bot = function_array[x_index_bot, 1]
+    y_value_top = function_array[x_index_top, 1]
+
+    intpol_y_value = y_value_bot + (x_value - x_value_bot) * (y_value_top - y_value_bot) / (x_value_top - x_value_bot)
+
+    return intpol_y_value
 
 
 def read_data(file_name):

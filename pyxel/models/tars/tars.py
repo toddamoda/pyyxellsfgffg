@@ -28,8 +28,11 @@ def run_tars(detector: Detector,
              incident_angles: tuple = None,
              starting_position: tuple = None,
              stepping_length: float = None,
+             let_file: str = None,
+             stopping_file: str = None,
              spectrum_file: str = None) -> Detector:
-    """TBW.
+    """
+    TBW.
 
     :param detector:
     :param particle_type:
@@ -38,6 +41,8 @@ def run_tars(detector: Detector,
     :param incident_angles:
     :param starting_position:
     :param stepping_length:
+    :param let_file:
+    :param stopping_file:
     :param spectrum_file:
     :return:
     """
@@ -71,13 +76,24 @@ def run_tars(detector: Detector,
     cosmics.set_stepping_length(stepping_length)            # um
     cosmics.set_particle_spectrum(spectrum_file)
 
+    if let_file is not None and stopping_file is None:
+        cosmics.set_let_distribution(let_file)
+    elif stopping_file is not None and let_file is None:
+        cosmics.set_stopping_power(stopping_file)
+    else:
+        raise AttributeError("Either LET or Stopping power data needs to be defined")
+
     cosmics.run()
 
-    plot_obj = PlottingTARS(cosmics)
+    # plot_obj = PlottingTARS(cosmics)
+    #
+    # plot_obj.plot_flux_spectrum()
     # plot_obj.plot_spectrum_cdf()
-    # plot_obj.plot_spectrum()
-    plot_obj.plot_charges_3d()
-    plot_obj.show_plots()
+    # plot_obj.plot_charges_3d()
+    # plot_obj.plot_let_dist()
+    # plot_obj.plot_let_cdf()
+    #
+    # plot_obj.show_plots()
 
     return new_detector
 
@@ -160,6 +176,52 @@ class TARS:
         """
         self.step_length = stepping  # um
 
+    def set_particle_spectrum(self, file_name):
+        """Set up the particle specs according to a spectrum.
+
+        :param string file_name: path of the file containing the spectrum
+        """
+        spectrum = read_data(file_name)  # nuc/m2*s*sr*MeV
+        geo = self.sim_obj.detector.geometry
+        detector_area = geo.vert_dimension * geo.horz_dimension * 1.0e-8  # cm2
+
+        spectrum[:, 1] *= 4 * math.pi * 1.0e-4 * detector_area  # nuc/s*MeV
+
+        spectrum_function = interpolate_data(spectrum)
+
+        lin_energy_range = np.arange(np.min(spectrum[:, 0]), np.max(spectrum[:, 0]), 0.01)
+        self.sim_obj.flux_dist = spectrum_function(lin_energy_range)
+
+        cum_sum = np.cumsum(self.sim_obj.flux_dist)
+        cum_sum /= np.max(cum_sum)
+        self.sim_obj.spectrum_cdf = np.stack((lin_energy_range, cum_sum), axis=1)
+
+    def set_stopping_power(self, stopping_file):
+        self.sim_obj.energy_loss_data = 'stopping'
+        self.sim_obj.stopping_power = read_data(stopping_file)
+
+    def set_let_distribution(self, particle_let_file):
+        """TBW.
+
+        :param particle_let_file:
+        :return:
+        .. warning:: EXPERIMENTAL - NOT FINSHED YET
+        """
+        self.sim_obj.energy_loss_data = 'let'
+        # TODO: THE DATA NEED TO BE EXTRACTED FROM G4: DEPOSITED ENERGY PER UNIT LENGTH (keV/um)
+        self.sim_obj.let_dist = read_data(particle_let_file)  # counts in function of keV
+
+        # THESE 2 LINES ARE TEMPORARY, DO NOT USE THIS!
+        det_thickness = 100.0       # um
+        self.sim_obj.let_dist[:, 1] /= det_thickness   # keV/um
+
+        self.sim_obj.let_cdf = np.stack((self.sim_obj.let_dist[:, 1], self.sim_obj.let_dist[:, 2]), axis=1)
+        cum_sum = np.cumsum(self.sim_obj.let_cdf[:, 1])
+        # cum_sum = np.cumsum(let_dist_interpol)
+        cum_sum /= np.max(cum_sum)
+        self.sim_obj.let_cdf = np.stack((self.sim_obj.let_cdf[:, 0], cum_sum), axis=1)
+        # self.sim_obj.let_cdf = np.stack((lin_energy_range, cum_sum), axis=1)
+
     def run(self):
         """TBW.
 
@@ -190,27 +252,3 @@ class TARS:
                                    self.sim_obj.e_vel0_lst,
                                    self.sim_obj.e_vel1_lst,
                                    self.sim_obj.e_vel2_lst)
-
-    # def set_stopping_power(self, stopping_file):
-    #     self.sim_obj.stopping_power_function = read_data(stopping_file)
-    #     self.sim_obj.energy_max_limit = self.sim_obj.stopping_power_function[-1, 0]
-
-    def set_particle_spectrum(self, file_name):
-        """Set up the particle specs according to a spectrum.
-
-        :param string file_name: path of the file containing the spectrum
-        """
-        spectrum = read_data(file_name)  # nuc/m2*s*sr*MeV
-        geo = self.sim_obj.detector.geometry
-        detector_area = geo.vert_dimension * geo.horz_dimension * 1.0e-8  # cm2
-
-        spectrum[:, 1] *= 4 * math.pi * 1.0e-4 * detector_area  # nuc/s*MeV
-
-        spectrum_function = interpolate_data(spectrum)
-
-        lin_energy_range = np.arange(np.min(spectrum[:, 0]), np.max(spectrum[:, 0]), 0.01)
-        self.sim_obj.flux_dist = spectrum_function(lin_energy_range)
-
-        cum_sum = np.cumsum(self.sim_obj.flux_dist)
-        cum_sum /= np.max(cum_sum)
-        self.sim_obj.spectrum_cdf = np.stack((lin_energy_range, cum_sum), axis=1)

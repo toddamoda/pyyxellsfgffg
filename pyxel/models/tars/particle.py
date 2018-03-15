@@ -43,8 +43,6 @@ class Particle:
         self.detector = detector
         geo = self.detector.geometry
 
-        # self.charge_clusters = np.zeros((1, 4))
-
         starting_position_vertical = None
         starting_position_horizontal = None
         starting_position_z = None
@@ -111,27 +109,3 @@ class Particle:
 
         else:
             raise ValueError('Given particle type can not be simulated')
-
-    # def plot_trajectory_xy(self):
-    #     plt.figure()
-    #     # self.trajectory[:, 0] - VERTICAL COORDINATE
-    #     # self.trajectory[:, 1] - HORIZONTAL COORDINATE
-    #     plt.plot(self.trajectory[:, 1], self.trajectory[:, 0], '.')
-    #     plt.xlabel('horizontal ($\mu$m)')
-    #     plt.ylabel('vertical ($\mu$m)')
-    #     plt.title('p trajectory in CCD')
-    #     plt.axis([0, self.ccd.horz_dimension, 0, self.ccd.vert_dimension])
-    #     plt.grid(True)
-    #     plt.draw()
-    #
-    # def plot_trajectory_xz(self):
-    #     plt.figure()
-    #     # self.trajectory[:, 2] - Z COORDINATE
-    #     # self.trajectory[:, 1] - HORIZONTAL COORDINATE
-    #     plt.plot(self.trajectory[:, 1], self.trajectory[:, 2], '.')
-    #     plt.xlabel('horizontal ($\mu$m)')
-    #     plt.ylabel('z ($\mu$m)')
-    #     plt.title('p trajectory in CCD')
-    #     plt.axis([0, self.ccd.horz_dimension, -1*self.ccd.total_thickness, 0])
-    #     plt.grid(True)
-    #     plt.draw()
