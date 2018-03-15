@@ -132,7 +132,7 @@ processor:
     charge_transfer:
       -
         name: cdm
-        enabled: false
+        enabled: true
         func: pyxel.models.cdm.CDM.cdm
         arguments:
          beta_p: 0.6
