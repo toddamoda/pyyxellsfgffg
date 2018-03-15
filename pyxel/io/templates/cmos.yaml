@@ -68,6 +68,7 @@ processor:
   pipeline:
     class: pyxel.pipelines.cmos_pipeline.CMOSDetectionPipeline
 
+    # -> photons
     photon_generation: []
 
     # -> photons
@@ -85,5 +86,5 @@ processor:
     # -> signal
     signal_transfer: []
 
-    # -> signal
+    # -> image
     readout_electronics: []
