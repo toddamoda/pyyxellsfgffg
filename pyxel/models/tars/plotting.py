@@ -151,7 +151,7 @@ class PlottingTARS:
         plt.plot(self.tars.sim_obj.let_dist[:, 1], self.tars.sim_obj.let_dist[:, 2], '.')
         plt.draw()
 
-    def plot_trajectory_xy(self):
+    def plot_trajectory_xy(self):       # TODO: select which particle you want to plot
         """TBW.
 
         :return:
@@ -168,7 +168,7 @@ class PlottingTARS:
         plt.grid(True)
         plt.draw()
 
-    def plot_trajectory_xz(self):
+    def plot_trajectory_xz(self):       # TODO: select which particle you want to plot
         """TBW.
 
         :return:

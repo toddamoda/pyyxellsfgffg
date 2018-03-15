@@ -75,13 +75,13 @@ class Simulation:
     # TODO
     def select_let(self, init_energy, det_thickness):
         """Select LET data which is relevant here before sampling it.
+
         Execute this for each new particle based on its initial energy (from
         input spectrum) and track length inside the detector.
 
         :param init_energy:
         :param det_thickness:
         :return:
-
         :warning NOT IMPLEMENTED:
         """
         pass

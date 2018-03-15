@@ -41,7 +41,12 @@ def get_xvalue_with_interpolation(function_array, y_value):
 
 
 def get_yvalue_with_interpolation(function_array, x_value):
+    """TBW.
 
+    :param function_array:
+    :param x_value:
+    :return:
+    """
     x_index_bot = bisect.bisect(function_array[:, 0], x_value) - 1
     x_index_top = x_index_bot + 1
     x_value_bot = function_array[x_index_bot, 0]

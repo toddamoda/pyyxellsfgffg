@@ -114,6 +114,8 @@ processor:
           starting_position:    # um
           stepping_length: 1.0  # um
           spectrum_file: 'pyxel/models/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
+          let_file: 'pyxel/models/tars/data/inputs/let_proton_1GeV_100um_geant4_HighResHist.ascii'
+#          stopping_file: 'pyxel/models/tars/data/inputs/stopping_power_protons.txt'
 
     # charge -> charge
     charge_collection:

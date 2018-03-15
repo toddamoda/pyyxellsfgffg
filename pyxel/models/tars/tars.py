@@ -15,7 +15,7 @@ from pyxel.models.tars.simulation import Simulation
 from pyxel.models.tars.util import read_data, interpolate_data
 from pyxel.pipelines.model_registry import registry
 
-from pyxel.models.tars.plotting import PlottingTARS
+# from pyxel.models.tars.plotting import PlottingTARS
 
 # from astropy import units as u
 
@@ -197,6 +197,11 @@ class TARS:
         self.sim_obj.spectrum_cdf = np.stack((lin_energy_range, cum_sum), axis=1)
 
     def set_stopping_power(self, stopping_file):
+        """TBW.
+
+        :param stopping_file:
+        :return:
+        """
         self.sim_obj.energy_loss_data = 'stopping'
         self.sim_obj.stopping_power = read_data(stopping_file)
 
