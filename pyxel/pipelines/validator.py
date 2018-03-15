@@ -175,7 +175,6 @@ def validate_call(func_id, raise_exception: bool=True, args: list=None, kwargs: 
 
                 param = params[name]
                 if 'validate' in param:
-                    # TODO: what to do if the validation throws an error?
                     validator_func = param['validate']
                     extra_info = get_validate_info(validator_func)
                     msg = extra_info['error_message'].format(value)

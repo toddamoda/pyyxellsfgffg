@@ -165,56 +165,6 @@ def test_processor_validate():
     errors = processor.validate()
     assert len(errors) == 1
     assert model.arguments['level'] == 'fred'
-#
-#
-# import attr
-#
-# def test_validator(*args, **kwargs):
-#     return True
-#
-# @attr.s
-# class TestAttr:
-#
-#     rows = attr.ib(validator=test_validator)
-#     cols = attr.ib()
-#
-#     def __setattr__(self, key, value):
-#         if key in self.__dict__:
-#             # handle the attribute assignment case
-#             att = getattr(attr.fields(TestAttr), key)
-#             if att:
-#                 pass
-#         # if key in self.__dict__:
-#         super(TestAttr, self).__setattr__(key, value)
-#
-# x = TestAttr(rows=10, cols=12)
-# x.rows = '1'
-#
-# atts = {}
-#
-#
-# def attribute(func):
-#
-#     def _wrapper(self, **kwargs):
-#         return func(self, **kwargs)
-#
-#     return _wrapper
-#
-#
-# class Test:
-#
-#     # @attribute('rows')
-#     # @attribute('cols')
-#     def __init__(self, rows=None, cols=None):
-#         self.rows = rows
-#         self.cols = cols
-#
-#     def __setattr__(self, key, value):
-#         super(Test, self).__setattr__(key, value)
-#
-#
-# x = Test(rows=10, cols=10)
-# x.rows = 10
 
 
 if __name__ == '__main__':
