@@ -6,6 +6,7 @@ from pyxel.detectors.ccd import CCD
 from pyxel.detectors.cmos import CMOS
 from pyxel.pipelines.ccd_pipeline import CCDDetectionPipeline
 from pyxel.pipelines.cmos_pipeline import CMOSDetectionPipeline
+from pyxel.pipelines import validator
 
 
 class Processor:
@@ -39,11 +40,11 @@ class Processor:
 
     def validate(self):
         """TBW."""
-        from pyxel.pipelines.model_registry import validate_call
         errors = []
         for key, model_group in self.pipeline.model_groups.items():
             for model in model_group.models:
-                errors += validate_call(model.func, False, kwargs=model.arguments)
+                if model.enabled:
+                    errors += validator.validate_call(model.func, False, kwargs=model.arguments)
         return errors
 
     def has(self, key):

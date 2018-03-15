@@ -13,6 +13,8 @@ from pyxel.io.yaml_processor_new import load_config
 from pyxel.io.yaml_processor_new import dump
 from pyxel.pipelines.processor import Processor
 from pyxel.pipelines.model_registry import registry
+from pyxel.pipelines import validator
+from pyxel.pipelines.model_group import ModelFunction
 
 
 CWD_PATH = Path(__file__).parent
@@ -244,11 +246,39 @@ class Controller:
         :param value:
         """
         if self.processor:
+            model = util.get_obj_by_type(self.processor, key, ModelFunction)
+            if model:
+                try:
+                    att = key.split('.')[-1]
+                    validator.validate_arg(model.func, att, value)
+                except validator.ValidationError as exc:
+                    self.announce('error', key, exc.msg)
+                    return
+
             self.processor.set(key, value)
             self.get_setting(key)   # signal updated value to listeners
 
     def load_gui_model_defs(self, cfg):
         """TBW."""
+
+        entry_text = {
+            'tag': 'input',
+            'type': 'text'
+        }
+
+        entry_numeric = {
+            'tag': 'input',
+            'type': 'number',
+            'step': 1,
+            'min': 0,
+            'max': 65536
+        }
+
+        entry_combo = {
+            'tag': 'select',
+            'options': [],
+        }
+
         model_settings = cfg['gui'][1]['items']
         model_settings.clear()
         if self.processor:
@@ -262,19 +292,36 @@ class Controller:
                     entry_def_override = gui_def_override.get('arguments', {})
                     group_label = group.replace('_', ' ').title()
                     model_label = gui_def_override.get('label', item['name']).replace('_', ' ').title()
-                    label = '{}: {}'.format(group_label, model_label)
                     gui_def = {
-                        'label': label,
+                        'label': '{}: {}'.format(group_label, model_label),
                         'arguments': []
                     }
                     for arg in item['arguments']:
+                        label = arg
+                        entry = dict(entry_text)
+                        func_id = item.get('func')
+                        if func_id in validator.parameters:
+                            if arg in validator.parameters[func_id]:
+                                param_def = validator.parameters[func_id][arg]
+                                label = param_def.get('label', label)
+                                if 'units' in param_def:
+                                    label += ' (' + param_def['units'] + ')'
+                                validate_func = param_def.get('validate')
+                                info = validator.get_validate_info(validate_func)
+                                if validate_func:
+                                    if validate_func.__qualname__.startswith(validator.check_range.__qualname__):
+                                        entry = dict(entry_numeric)
+                                        entry['min'] = info['min_val']
+                                        entry['max'] = info['max_val']
+                                        entry['step'] = info['step']
+                                    if validate_func.__qualname__.startswith(validator.check_choices.__qualname__):
+                                        entry = dict(entry_numeric)
+                                        entry['options'] = list(info['choice'])
+
                         entry_def = {
                             'id': 'pipeline.' + group + '.' + item['name'] + '.arguments.' + arg,
-                            'label': arg,
-                            'entry': {
-                                'tag': 'input',
-                                'type': 'text'
-                            }
+                            'label': label,
+                            'entry': entry
                         }
                         entry_def.update(entry_def_override.get(arg, {}))
 

@@ -12,18 +12,18 @@ sys.path.append(str(CWD))
 
 
 @pyxel.validate
-@pyxel.argument('even_value', label='Argument 1', validate=util.check_range(0, 10, 2))
+@pyxel.argument('even_value', label='Argument 1', validate=pyxel.check_range(0, 10, 2))
 @pyxel.argument('file_value', label='Argument 2', validate=Path.is_file)
-@pyxel.argument('choice_value', label='Argument 3', validate=util.check_choices(['silicon', 'hxrg', 'other']))
+@pyxel.argument('choice_value', label='Argument 3', validate=pyxel.check_choices(['silicon', 'hxrg', 'other']))
 # @register('photon_generation')
 def my_model_with_validate(detector, even_value: int, file_value: Path, choice_value: str='silicon'):
     # print(even_value, choice_value, file_value)
     return detector
 
 
-@pyxel.argument('even_value', label='Argument 1', validate=util.check_range(0, 10, 2))
+@pyxel.argument('even_value', label='Argument 1', validate=pyxel.check_range(0, 10, 2))
 @pyxel.argument('file_value', label='Argument 2', validate=Path.is_file)
-@pyxel.argument('choice_value', label='Argument 3', validate=util.check_choices(['silicon', 'hxrg', 'other']))
+@pyxel.argument('choice_value', label='Argument 3', validate=pyxel.check_choices(['silicon', 'hxrg', 'other']))
 # @register('photon_generation')
 def my_model_no_validate(detector, even_value: int, file_value: Path, choice_value: str='silicon'):
     # print(even_value, choice_value, file_value)
@@ -125,9 +125,96 @@ def test_processor_validate():
     cfg = load_config(yaml_file)
 
     processor = cfg['processor']
-    processor.validate()
+    processor.pipeline.set_model_enabled('*', False)
+    model = processor.pipeline.photon_generation.photon_level
 
-    print(cfg)
+    #
+    # Test an invalid range argument, but a disabled model
+    #
+    model.arguments['level'] = -1.5
+    errors = processor.validate()
+    assert len(errors) == 0
+
+    #
+    # Test an invalid range argument with a model that is enabled
+    #
+    model.enabled = True
+    model.arguments['level'] = -10
+    errors = processor.validate()
+    assert len(errors) == 1
+
+    #
+    # Test valid argument
+    #
+    model.arguments['level'] = 100
+    errors = processor.validate()
+    assert len(errors) == 0
+
+    #
+    # Test valid argument that will be converted to an int
+    #
+    model.arguments['level'] = 1.5
+    errors = processor.validate()
+    assert len(errors) == 0
+    assert model.arguments['level'] == 1
+
+    #
+    # Test invalid argument that cannot be converted to an int
+    #
+    model.arguments['level'] = 'fred'
+    errors = processor.validate()
+    assert len(errors) == 1
+    assert model.arguments['level'] == 'fred'
+#
+#
+# import attr
+#
+# def test_validator(*args, **kwargs):
+#     return True
+#
+# @attr.s
+# class TestAttr:
+#
+#     rows = attr.ib(validator=test_validator)
+#     cols = attr.ib()
+#
+#     def __setattr__(self, key, value):
+#         if key in self.__dict__:
+#             # handle the attribute assignment case
+#             att = getattr(attr.fields(TestAttr), key)
+#             if att:
+#                 pass
+#         # if key in self.__dict__:
+#         super(TestAttr, self).__setattr__(key, value)
+#
+# x = TestAttr(rows=10, cols=12)
+# x.rows = '1'
+#
+# atts = {}
+#
+#
+# def attribute(func):
+#
+#     def _wrapper(self, **kwargs):
+#         return func(self, **kwargs)
+#
+#     return _wrapper
+#
+#
+# class Test:
+#
+#     # @attribute('rows')
+#     # @attribute('cols')
+#     def __init__(self, rows=None, cols=None):
+#         self.rows = rows
+#         self.cols = cols
+#
+#     def __setattr__(self, key, value):
+#         super(Test, self).__setattr__(key, value)
+#
+#
+# x = Test(rows=10, cols=10)
+# x.rows = 10
 
 
 if __name__ == '__main__':

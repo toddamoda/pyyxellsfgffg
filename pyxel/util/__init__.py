@@ -51,11 +51,25 @@ def update_fits_header(header, key, value):
     header[key] = value
 
 
-def get_obj_att(obj, key):
+def get_obj_by_type(obj, key, obj_type=None):
     """TBW.
 
     :param obj:
     :param key:
+    :param obj_type:
+    :return:
+    """
+    obj, att = get_obj_att(obj, key, obj_type)
+    if isinstance(obj, obj_type):
+        return obj
+
+
+def get_obj_att(obj, key, obj_type=None):
+    """TBW.
+
+    :param obj:
+    :param key:
+    :param obj_type:
     :return:
     """
     obj_props = key.split('.')
@@ -66,6 +80,10 @@ def get_obj_att(obj, key):
                 obj = obj[part]
             else:
                 obj = getattr(obj, part)
+
+            if obj_type and isinstance(obj, obj_type):
+                return obj, att
+
         except AttributeError:
             # logging.error('Cannot find attribute %r in key %r', part, key)
             obj = None
@@ -346,65 +364,6 @@ def evaluate_reference(reference_str):
         raise ImportError('Module: %s, does not contain %s' % (module_str, function_str))
 
     return reference
-
-
-def get_validate_info(func):
-    """Retrieve the extra information dict from a validator."""
-    return getattr(func, 'validate_info', {'error_message': 'Bad value: {}. '})
-
-
-def check_choices(choices: list):
-    """TBW.
-
-    :param choices:
-    :return:
-    """
-    def _wrapper(value):
-        return value in choices
-
-    # NOTE: _wrapper.__closure__[0].cell_contents => ['silicon', 'hxrg', 'other']
-    info = {
-        'error_message': 'Expected: %r, got: {}. ' % choices,
-        'choices': choices,
-    }
-    setattr(_wrapper, 'validate_info', info)
-    return _wrapper
-
-
-def check_range(min_val, max_val, step=None):
-    """TBW.
-
-    :param min_val:
-    :param max_val:
-    :param step:
-    """
-    def _wrapper(value):
-        """TBW."""
-        # Do something
-        if min_val <= value <= max_val:
-            result = True
-            if step:
-                multiplier = 1
-                if isinstance(step, float):
-                    # In Python3: 1.2 % 0.1 => 0.0999999999999999
-                    # but it should be 0.0
-                    # To fix this, we multiply by a factor that essentially
-                    # converts the float into an int
-
-                    # get digits after decimal.
-                    # NOTE: the decimal.Decimal class cannot do this properly in Python 3.
-                    exp = len(format(1.0, '.8f').strip('0').split('.')[1])
-                    multiplier = 10 ** exp
-                result = ((value * multiplier) % (step * multiplier)) == 0
-        return result
-
-    info = {
-        'error_message': 'Expected value in range: %r to %r in %r steps, got: {}. ' % (min_val, max_val, step),
-        'min_val': min_val, 'max_val': max_val, 'step': step
-    }
-    setattr(_wrapper, 'validate_info', info)
-
-    return _wrapper
 
 
 __all__ = ['FitsFile', 'update_fits_header', 'get_obj_att',

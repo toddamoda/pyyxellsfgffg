@@ -54,10 +54,10 @@ body {
 }
 .pe-table td:first-child {
     text-align: right;
-    width: 200px;
+    width: 200px;  /* WIDTH: label */
 }
 .pe-table td:last-child {
-    width: 100px;
+    width: 100px;  /* WIDTH: button */
 }
 .pe-table td button {
     width: 100%;
@@ -127,7 +127,7 @@ select.custom::-ms-expand {
 
 .pe-section-group {
     border-radius: 25px;
-    width: 700px;
+    width: 650px;  /* WIDTH: section */
     margin: 20px;
     padding: 10px;
     padding-top: 5px;
