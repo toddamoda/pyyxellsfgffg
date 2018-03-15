@@ -37,8 +37,6 @@ def cdm(detector: CCD,
         serial_trap_file: str = None) -> CCD:
     """CDM model wrapper.
 
-    Currently using Total Non-ionising (NIEL) Dose for the model as an input parameter !
-
     :param detector: PyXel CCD detector object
     :param beta_p: electron cloud expansion coefficient (parallel)
     :param beta_s: electron cloud expansion coefficient (serial)
@@ -46,9 +44,9 @@ def cdm(detector: CCD,
     :param svg: assumed maximum geometrical volume electrons can occupy within a pixel (serial)
     :param t: constant TDI period (parallel)
     :param st: constant TDI period (serial)
-    :param parallel_trap_file: ascii file with trap densities (nt),
+    :param parallel_trap_file: ascii file with absolute trap densities (nt),
         trap capture cross-sections (σ), trap release time constants (τr)
-    :param serial_trap_file: ascii file with trap densities (nt),
+    :param serial_trap_file: ascii file with absolute trap densities (nt),
         trap capture cross-sections (σ), trap release time constants (τr)
 
     :return:
@@ -73,7 +71,7 @@ def cdm(detector: CCD,
     fwc: Full Well Capacity in electrons (parallel)
     sfwc: Full Well Capacity in electrons (serial)
     """
-    # new_detector = copy.deepcopy(detector)
+
     new_detector = detector  # type: CCD
     chr = cast(CCDCharacteristics, new_detector.characteristics)  # type: CCDCharacteristics
 
@@ -104,8 +102,6 @@ def cdm(detector: CCD,
 
     image_with_cti = cdm_obj.apply_cti(charge_data)
 
-    # write_fits_file(image_with_cti, 'image_with_cti.fits', unsigned16bit=False)
-
     new_detector.pixels.update_from_2d_charge_array(image_with_cti)
 
     return new_detector
@@ -116,11 +112,11 @@ class CDM03Python:
 
     def __init__(self,
                  # rdose: float = 8.0e11,
-                 vth: float = 1.168e7,
-                 beta_p: float = 0.6, beta_s: float = 0.6,
-                 vg: float = 6.e-11, svg: float = 1.0e-10,
-                 t: float = 20.48e-3, st: float = 5.0e-6,
-                 fwc: int = 200000, sfwc: int = 730000,
+                 vth: float = None,
+                 beta_p: float = None, beta_s: float = None,
+                 vg: float = None, svg: float = None,
+                 t: float = None, st: float = None,
+                 fwc: int = None, sfwc: int = None,
                  parallel_trap_file: str = None,
                  serial_trap_file: str = None) -> None:
         """Class constructor.
