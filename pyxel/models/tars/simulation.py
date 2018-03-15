@@ -22,6 +22,7 @@ class Simulation:
         """
         self.detector = detector
 
+        self.flux_dist = None
         self.spectrum_cdf = None
         self.let_cdf = np.zeros((1, 2))
 

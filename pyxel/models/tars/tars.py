@@ -15,6 +15,8 @@ from pyxel.models.tars.simulation import Simulation
 from pyxel.models.tars.util import read_data, interpolate_data
 from pyxel.pipelines.model_registry import registry
 
+from pyxel.models.tars.plotting import PlottingTARS
+
 # from astropy import units as u
 
 
@@ -71,6 +73,12 @@ def run_tars(detector: Detector,
 
     cosmics.run()
 
+    plot_obj = PlottingTARS(cosmics)
+    # plot_obj.plot_spectrum_cdf()
+    # plot_obj.plot_spectrum()
+    plot_obj.plot_charges_3d()
+    plot_obj.show_plots()
+
     return new_detector
 
 
@@ -82,7 +90,7 @@ class TARS:
 
         :param detector:
         """
-        self.detector = detector
+        # self.detector = detector
 
         self.part_type = None
         self.init_energy = None
@@ -94,8 +102,9 @@ class TARS:
         self.position_z = None
         self.step_length = None
 
-        self.sim_obj = Simulation(self.detector)
-        self.charge_obj = self.detector.charges
+        # self.sim_obj = Simulation(self.detector)
+        self.sim_obj = Simulation(detector)
+        self.charge_obj = detector.charges
         self.log = logging.getLogger(__name__)
 
     def set_particle_type(self, particle_type):
@@ -182,36 +191,6 @@ class TARS:
                                    self.sim_obj.e_vel1_lst,
                                    self.sim_obj.e_vel2_lst)
 
-        # np.save('orig2_edep_per_step_10k', self.sim_obj.edep_per_step)
-        # np.save('orig2_edep_per_particle_10k', self.sim_obj.total_edep_per_particle)
-
-        # self.plot_edep_per_step()
-        # self.plot_edep_per_particle()
-        # self.plot_charges_3d()
-        # plt.show()
-
-    # def plot_edep_per_step(self):
-    #     plt.figure()
-    #     n, bins, patches = plt.hist(self.sim_obj.edep_per_step, 300, facecolor='b')
-    #     plt.xlabel('E_dep (keV)')
-    #     plt.ylabel('Counts')
-    #     plt.title('Histogram of E deposited per step')
-    #     # plt.axis([0, 0.003, 0, 1.05*max(n)])
-    #     plt.grid(True)
-    #     plt.draw()
-    #     return n, bins, patches
-    #
-    # def plot_edep_per_particle(self):
-    #     plt.figure()
-    #     n, bins, patches = plt.hist(self.sim_obj.total_edep_per_particle, 200, facecolor='g')
-    #     plt.xlabel('E_dep (keV)')
-    #     plt.ylabel('Counts')
-    #     plt.title('Histogram of total E deposited per particle')
-    #     # plt.axis([0, 0.4, 0, 1.05*max(n)])
-    #     plt.grid(True)
-    #     plt.draw()
-    #     return n, bins, patches
-
     # def set_stopping_power(self, stopping_file):
     #     self.sim_obj.stopping_power_function = read_data(stopping_file)
     #     self.sim_obj.energy_max_limit = self.sim_obj.stopping_power_function[-1, 0]
@@ -222,68 +201,16 @@ class TARS:
         :param string file_name: path of the file containing the spectrum
         """
         spectrum = read_data(file_name)  # nuc/m2*s*sr*MeV
-
-        detector_area = self.detector.geometry.vert_dimension * self.detector.geometry.horz_dimension * 1.0e-8  # cm2
+        geo = self.sim_obj.detector.geometry
+        detector_area = geo.vert_dimension * geo.horz_dimension * 1.0e-8  # cm2
 
         spectrum[:, 1] *= 4 * math.pi * 1.0e-4 * detector_area  # nuc/s*MeV
 
         spectrum_function = interpolate_data(spectrum)
 
         lin_energy_range = np.arange(np.min(spectrum[:, 0]), np.max(spectrum[:, 0]), 0.01)
-        flux_dist = spectrum_function(lin_energy_range)
+        self.sim_obj.flux_dist = spectrum_function(lin_energy_range)
 
-        cum_sum = np.cumsum(flux_dist)
+        cum_sum = np.cumsum(self.sim_obj.flux_dist)
         cum_sum /= np.max(cum_sum)
         self.sim_obj.spectrum_cdf = np.stack((lin_energy_range, cum_sum), axis=1)
-
-        # plt.figure()
-        # plt.loglog(lin_energy_range, flux_dist)
-        # plt.draw()
-
-        # plt.figure()
-        # plt.semilogx(lin_energy_range, cum_sum)
-        # plt.draw()
-
-        # plt.show()
-
-    # def plot_charges_3d(self):
-    #
-    #     # set up a figure twice as wide as it is tall
-    #     fig = plt.figure(figsize=plt.figaspect(0.5))
-    #     ax = fig.add_subplot(1, 2, 1, projection='3d')
-    #
-    #     # generator expression
-    #     # sum(c.A for c in c_list)
-    #     # asc = self.sim_obj.all_charge_clusters[0].position
-    #
-    #     ############################### need to be fixed
-    #     # init_pos0 = [cluster.initial_position[0] for cluster in self.sim_obj.all_charge_clusters]
-    #     # init_pos1 = [cluster.initial_position[1] for cluster in self.sim_obj.all_charge_clusters]
-    #     # init_pos2 = [cluster.initial_position[2] for cluster in self.sim_obj.all_charge_clusters]
-    #     # cluster_size = [cluster.number.value for cluster in self.sim_obj.all_charge_clusters]
-    #     #
-    #     # ax.scatter(init_pos0, init_pos1, init_pos2, c='b', marker='.', s=cluster_size)
-    #     #
-    #     # ax2 = fig.add_subplot(1, 2, 2, projection='3d')
-    #     #
-    #     # pos0 = [cluster.position[0] for cluster in self.sim_obj.all_charge_clusters]
-    #     # pos1 = [cluster.position[1] for cluster in self.sim_obj.all_charge_clusters]
-    #     # pos2 = [cluster.position[2] for cluster in self.sim_obj.all_charge_clusters]
-    #     #
-    #     # ax2.scatter(pos0, pos1, 0, c=r', marker='.', s=cluster_size)
-    #     #
-    #     # ax.set_xlim(0, self.ccd.vert_dimension)
-    #     # ax.set_ylim(0, self.ccd.horz_dimension)
-    #     # ax.set_zlim(-1*self.ccd.total_thickness, 0)
-    #     # ax.set_xlabel('vertical ($\mu$m)')
-    #     # ax.set_ylabel('horizontal ($\mu$m)')
-    #     # ax.set_zlabel('z ($\mu$m)')
-    #     #
-    #     # ax2.set_xlim(0, self.ccd.vert_dimension)
-    #     # ax2.set_ylim(0, self.ccd.horz_dimension)
-    #     # ax2.set_zlim(-1*self.ccd.total_thickness, 0)
-    #     # ax2.set_xlabel('vertical ($\mu$m)')
-    #     # ax2.set_ylabel('horizontal ($\mu$m)')
-    #     # ax2.set_zlabel('z ($\mu$m)')
-    #     ##################################
-    #     # plt.show()
