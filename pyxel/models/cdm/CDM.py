@@ -35,7 +35,8 @@ def cdm(detector: CCD,
         t: float = None, st: float = None,
         parallel_trap_file: str = None,
         serial_trap_file: str = None) -> CCD:
-    """CDM model wrapper.
+    """
+    CDM model wrapper.
 
     :param detector: PyXel CCD detector object
     :param beta_p: electron cloud expansion coefficient (parallel)
@@ -71,7 +72,6 @@ def cdm(detector: CCD,
     fwc: Full Well Capacity in electrons (parallel)
     sfwc: Full Well Capacity in electrons (serial)
     """
-
     new_detector = detector  # type: CCD
     chr = cast(CCDCharacteristics, new_detector.characteristics)  # type: CCDCharacteristics
 

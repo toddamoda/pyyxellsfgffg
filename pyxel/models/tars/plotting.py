@@ -9,29 +9,47 @@
 import numpy as np
 from matplotlib import pyplot as plt
 import typing as t   # noqa: F401
-
-# from pyxel.models.tars.tars import TARS
-
-from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d import Axes3D     # noqa: F401
 
 
 class PlottingTARS:
-
     """
-    Plotting class for TARS
+    Plotting class for TARS.
+
     :return:
     """
+
     def __init__(self, tars) -> None:
+        """
+        TBW.
+
+        :param tars:
+        """
         self.tars = tars
 
     def show_plots(self):
+        """
+        TBW.
+
+        :return:
+        """
         plt.show()
 
     def save_edep(self):
+        """
+        TBW.
+
+        :return:
+        """
         np.save('orig2_edep_per_step_10k', self.tars.sim_obj.edep_per_step)
         np.save('orig2_edep_per_particle_10k', self.tars.sim_obj.total_edep_per_particle)
 
     def plot_edep_per_step(self):
+        """
+        TBW.
+
+        :return:
+        """
         plt.figure()
         n, bins, patches = plt.hist(self.tars.sim_obj.edep_per_step, 300, facecolor='b')
         plt.xlabel('E_dep (keV)')
@@ -43,6 +61,11 @@ class PlottingTARS:
         return n, bins, patches
 
     def plot_edep_per_particle(self):
+        """
+        TBW.
+
+        :return:
+        """
         plt.figure()
         n, bins, patches = plt.hist(self.tars.sim_obj.total_edep_per_particle, 200, facecolor='g')
         plt.xlabel('E_dep (keV)')
@@ -54,6 +77,11 @@ class PlottingTARS:
         return n, bins, patches
 
     def plot_spectrum_cdf(self):
+        """
+        TBW.
+
+        :return:
+        """
         lin_energy_range = self.tars.sim_obj.spectrum_cdf[:, 0]
         cum_sum = self.tars.sim_obj.spectrum_cdf[:, 1]
         plt.figure()
@@ -61,6 +89,11 @@ class PlottingTARS:
         plt.draw()
 
     def plot_spectrum(self):
+        """
+        TBW.
+
+        :return:
+        """
         lin_energy_range = self.tars.sim_obj.spectrum_cdf[:, 0]
         flux_dist = self.tars.sim_obj.flux_dist
         plt.figure()
@@ -68,6 +101,11 @@ class PlottingTARS:
         plt.draw()
 
     def plot_charges_3d(self):
+        """
+        TBW.
+
+        :return:
+        """
         geo = self.tars.sim_obj.detector.geometry
 
         # set up a figure twice as wide as it is tall
@@ -93,4 +131,3 @@ class PlottingTARS:
         ax2.set_xlabel('vertical ($\mu$m)')
         ax2.set_ylabel('horizontal ($\mu$m)')
         ax2.set_zlabel('z ($\mu$m)')
-
