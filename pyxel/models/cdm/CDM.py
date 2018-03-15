@@ -20,8 +20,6 @@ import os
 
 import astropy.io.fits as fits
 import numba  # todo: remove or add to requirements, but only if it works
-# import copy
-# from os import path
 import numpy as np
 from typing import cast
 
@@ -91,7 +89,8 @@ def cdm(detector: CCD,
     # # add vertical charge injection lines
     # image[:, x_start1:x_stop1] = charge_injection
 
-    cdm_obj = CDM03Python(rdose=new_detector.environment.total_non_ionising_dose,
+    cdm_obj = CDM03Python(
+                          # rdose=new_detector.environment.total_non_ionising_dose,
                           fwc=chr.fwc,
                           sfwc=chr.fwc_serial,
                           vth=new_detector.e_thermal_velocity,
@@ -116,7 +115,7 @@ class CDM03Python:
     """Class to run CDM03 CTI model, class Fortran routine to perform the actual CDM03 calculations."""
 
     def __init__(self,
-                 rdose: float = 8.0e11,
+                 # rdose: float = 8.0e11,
                  vth: float = 1.168e7,
                  beta_p: float = 0.6, beta_s: float = 0.6,
                  vg: float = 6.e-11, svg: float = 1.0e-10,
@@ -126,7 +125,6 @@ class CDM03Python:
                  serial_trap_file: str = None) -> None:
         """Class constructor.
 
-        :param rdose:
         :param vth:
         :param beta_p:
         :param beta_s:
@@ -139,7 +137,7 @@ class CDM03Python:
         :param parallel_trap_file:
         :param serial_trap_file:
         """
-        # read in trap information
+        # read in the absolute trap density [per cm**3]
         if parallel_trap_file is not None:
             trapdata = np.loadtxt(parallel_trap_file)
             if trapdata.ndim > 1:
@@ -149,6 +147,7 @@ class CDM03Python:
             else:
                 raise ValueError('Trap data can not be read')
 
+        # read in the absolute trap density [per cm**3]
         if serial_trap_file is not None:
             trapdata = np.loadtxt(serial_trap_file)
             if trapdata.ndim > 1:
@@ -158,7 +157,7 @@ class CDM03Python:
             else:
                 raise ValueError('Trap data can not be read')
 
-        self.rdose = rdose
+        # self.rdose = rdose
         # self.dob = dob
         self.vth = vth
 
@@ -328,7 +327,7 @@ class CDM03Python:
             print('adding parallel')
 
             no = np.zeros_like(image, dtype=np.float64)
-            self.nt_p *= self.rdose             # absolute trap density [per cm**3]
+            # self.nt_p *= self.rdose             # absolute trap density [per cm**3]
             zdim_p = len(self.nt_p)
 
             alpha_p = self.t * self.sigma_p * self.vth * self.fwc ** self.beta_p / (2. * self.vg)
@@ -357,7 +356,7 @@ class CDM03Python:
             print('adding serial')
 
             sno = np.zeros_like(image, dtype=np.float64)
-            self.nt_s *= self.rdose             # absolute trap density [per cm**3]
+            # self.nt_s *= self.rdose             # absolute trap density [per cm**3]
             zdim_s = len(self.nt_s)
 
             alpha_s = self.st * self.sigma_s * self.vth * self.sfwc ** self.beta_s / (2. * self.svg)
