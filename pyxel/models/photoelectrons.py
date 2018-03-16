@@ -71,8 +71,8 @@ def random_pos(detector: Detector) -> Detector:
     :param detector:
     :return:
     """
-    # pos1 = detector.vert_dimension * random.random()
-    # pos2 = detector.horz_dimension * random.random()
+    # pos1 = detector.vert_dimension * np.random.random()
+    # pos2 = detector.horz_dimension * np.random.random()
 
     # size = 0
     # pos3 = -1 * detector.total_thickness * np.random.rand(size)

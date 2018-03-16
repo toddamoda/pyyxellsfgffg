@@ -17,9 +17,7 @@
 """TBW."""
 
 import math
-import random
 import numpy as np
-# import matplotlib.pyplot as plt
 from pyxel.models.tars.util import sampling_distribution
 from pyxel.detectors.detector import Detector
 
@@ -48,16 +46,16 @@ class Particle:
         starting_position_z = None
 
         if starting_pos_ver == 'random':
-            starting_position_vertical = geo.vert_dimension * random.random()
+            starting_position_vertical = geo.vert_dimension * np.random.random()
         elif isinstance(starting_pos_ver, int) or isinstance(starting_pos_ver, float):
             starting_position_vertical = starting_pos_ver
         if starting_pos_hor == 'random':
-            starting_position_horizontal = geo.horz_dimension * random.random()
+            starting_position_horizontal = geo.horz_dimension * np.random.random()
         elif isinstance(starting_pos_hor, int) or isinstance(starting_pos_hor, float):
             starting_position_horizontal = starting_pos_hor
 
         if starting_pos_z == 'random':
-            starting_position_z = geo.total_thickness * random.random()
+            starting_position_z = geo.total_thickness * np.random.random()
         elif isinstance(starting_pos_z, int) or isinstance(starting_pos_z, float):
             starting_position_z = starting_pos_z
 
@@ -68,14 +66,14 @@ class Particle:
         self.trajectory = np.copy(self.starting_position)
 
         if input_alpha == 'random' and starting_pos_z == 0.:
-            alpha = math.pi * random.random()
+            alpha = math.pi * np.random.random()
         elif input_alpha == 'random' and starting_pos_z != 0.:
-            alpha = 2 * math.pi * random.random()
+            alpha = 2 * math.pi * np.random.random()
         else:
             alpha = input_alpha  # between 0 and pi
 
         if input_beta == 'random':
-            beta = 2. * math.pi * random.random()
+            beta = 2. * math.pi * np.random.random()
         else:
             beta = input_beta
         self.angle = np.array([alpha, beta])
