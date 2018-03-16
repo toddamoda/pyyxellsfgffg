@@ -35,7 +35,7 @@ class Simulation:
         self.position_z = None
         self.angle_alpha = None
         self.angle_beta = None
-        self.step_length = None
+        self.step_length = 1.0          # fix, all the other data/parameters should be adjusted to this
         self.energy_cut = 1.0e-5        # MeV
 
         self.e_num_lst = []     # type: t.List[int]
@@ -50,7 +50,7 @@ class Simulation:
         self.edep_per_step = []             # type: t.List[float]
         self.total_edep_per_particle = []   # type: t.List[float]
 
-    def parameters(self, part_type, init_energy, pos_ver, pos_hor, pos_z, alpha, beta, step_length):
+    def parameters(self, part_type, init_energy, pos_ver, pos_hor, pos_z, alpha, beta):
         """TBW.
 
         :param part_type:
@@ -60,7 +60,6 @@ class Simulation:
         :param pos_z:
         :param alpha:
         :param beta:
-        :param step_length:
         :return:
         """
         self.particle_type = part_type
@@ -70,7 +69,6 @@ class Simulation:
         self.position_z = pos_z
         self.angle_alpha = alpha
         self.angle_beta = beta
-        self.step_length = step_length
 
     # TODO
     def select_let(self, init_energy, det_thickness):
@@ -138,6 +136,7 @@ class Simulation:
         if track_left:
             self.total_edep_per_particle.append(p.total_edep)  # keV
 
+    # TODO: make two different function using let or stopping power
     def _ionization_(self, particle):
         """TBW.
 

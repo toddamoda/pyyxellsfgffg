@@ -46,7 +46,6 @@ ccd_process.pipeline.photon_generation.models.load_image.name='pyxel.models.phot
 ccd_process.pipeline.charge_generation.models.tars.enabled=True
 ccd_process.pipeline.charge_generation.models.tars.arguments.let_file='pyxel/models/tars/data/inputs/let_proton_1GeV_100um_geant4_HighResHist.ascii'
 ccd_process.pipeline.charge_generation.models.tars.arguments.spectrum_file='pyxel/models/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
-ccd_process.pipeline.charge_generation.models.tars.arguments.stepping_length=1.0
 ccd_process.pipeline.charge_generation.models.tars.arguments.initial_energy=100.0
 ccd_process.pipeline.charge_generation.models.tars.arguments.starting_position=['random', 'random', 0.0]
 ccd_process.pipeline.charge_generation.models.tars.arguments.incident_angles=['random', 'random']

@@ -27,7 +27,7 @@ def run_tars(detector: Detector,
              particle_number: int = None,
              incident_angles: tuple = None,
              starting_position: tuple = None,
-             stepping_length: float = None,
+             # stepping_length: float = None,
              let_file: str = None,
              stopping_file: str = None,
              spectrum_file: str = None) -> Detector:
@@ -40,7 +40,6 @@ def run_tars(detector: Detector,
     :param particle_number:
     :param incident_angles:
     :param starting_position:
-    :param stepping_length:
     :param let_file:
     :param stopping_file:
     :param spectrum_file:
@@ -65,15 +64,15 @@ def run_tars(detector: Detector,
         starting_position = ('random', 'random', 0.)
         # starting_position = ('random', 'random', 'random') -> snowflakes (radioactive decay inside detector)
 
-    if stepping_length is None:
-        stepping_length = 1.    # um
+    # if stepping_length is None:
+    #     stepping_length = 1.    # um
 
     cosmics.set_particle_type(particle_type)                # MeV
     cosmics.set_initial_energy(initial_energy)              # MeV
     cosmics.set_particle_number(particle_number)            # -
     cosmics.set_incident_angles(incident_angles)            # rad
     cosmics.set_starting_position(starting_position)        # um
-    cosmics.set_stepping_length(stepping_length)            # um
+    # cosmics.set_stepping_length(stepping_length)            # um
     cosmics.set_particle_spectrum(spectrum_file)
 
     if let_file is not None and stopping_file is None:
@@ -106,7 +105,6 @@ class TARS:
 
         :param detector:
         """
-        # self.detector = detector
 
         self.part_type = None
         self.init_energy = None
@@ -116,9 +114,8 @@ class TARS:
         self.position_ver = None
         self.position_hor = None
         self.position_z = None
-        self.step_length = None
+        # self.step_length = None
 
-        # self.sim_obj = Simulation(self.detector)
         self.sim_obj = Simulation(detector)
         self.charge_obj = detector.charges
         self.log = logging.getLogger(__name__)
@@ -168,13 +165,13 @@ class TARS:
         self.position_hor = position_horizontal
         self.position_z = position_z
 
-    def set_stepping_length(self, stepping):
-        """TBW.
-
-        :param stepping:
-        :return:
-        """
-        self.step_length = stepping  # um
+    # def set_stepping_length(self, stepping):
+    #     """TBW.
+    #
+    #     :param stepping:
+    #     :return:
+    #     """
+    #     self.step_length = stepping  # um
 
     def set_particle_spectrum(self, file_name):
         """Set up the particle specs according to a spectrum.
@@ -237,8 +234,8 @@ class TARS:
         self.sim_obj.parameters(self.part_type,
                                 self.init_energy,
                                 self.position_ver, self.position_hor, self.position_z,
-                                self.angle_alpha, self.angle_beta,
-                                self.step_length)
+                                self.angle_alpha, self.angle_beta)
+                                # self.step_length)
 
         for _ in tqdm(range(0, self.particle_number)):
             self.sim_obj.event_generation()
