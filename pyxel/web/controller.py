@@ -80,8 +80,13 @@ class Controller:
         for key, value in state.items():
             try:
                 self.processor.set(key, value)
+            except validator.ValidationError as exc:
+                self.announce('error', key, value)
+                self._log.error('Could not set key: %s', key)
+                self._log.error(exc)
             except AttributeError as exc:
                 self._log.error('Could not set key: %s', key)
+                self._log.error(exc)
         self.get_state()
 
     def load_config(self, path):
@@ -255,7 +260,12 @@ class Controller:
                     self.announce('error', key, exc.msg)
                     return
 
-            self.processor.set(key, value)
+            try:
+                self.processor.set(key, value)
+            except validator.ValidationError as exc:
+                self.announce('error', key, exc.msg)
+                return
+
             self.get_setting(key)   # signal updated value to listeners
 
     def load_gui_model_defs(self, cfg):
@@ -306,16 +316,19 @@ class Controller:
                                 label = param_def.get('label', label)
                                 if 'units' in param_def:
                                     label += ' (' + param_def['units'] + ')'
+
                                 validate_func = param_def.get('validate')
-                                info = validator.get_validate_info(validate_func)
                                 if validate_func:
+                                    info = validator.get_validate_info(validate_func)
+
                                     if validate_func.__qualname__.startswith(validator.check_range.__qualname__):
                                         entry = dict(entry_numeric)
                                         entry['min'] = info['min_val']
                                         entry['max'] = info['max_val']
                                         entry['step'] = info['step']
+
                                     if validate_func.__qualname__.startswith(validator.check_choices.__qualname__):
-                                        entry = dict(entry_numeric)
+                                        entry = dict(entry_combo)
                                         entry['options'] = list(info['choice'])
 
                         entry_def = {

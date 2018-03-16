@@ -4,6 +4,8 @@ import inspect
 
 import typing as t  # noqa: F401
 
+import attr
+
 from pyxel import util
 
 
@@ -83,7 +85,6 @@ def validate_arg(func_id, name, value):
     if name in params:
         param = params[name]
         if 'validate' in param:
-            # TODO: what to do if the validation throws an error?
             validator_func = param['validate']
             extra_info = get_validate_info(validator_func)
             msg = extra_info['error_message'].format(value)
@@ -132,6 +133,7 @@ def validate_call(func_id, raise_exception: bool=True, args: list=None, kwargs: 
     if not validate_enabled:
         return errors
 
+    # TODO: refactor - too long and complicated
     spec = inspect.getfullargspec(func)
     if spec.defaults is not None:
         start = len(spec.args) - len(spec.defaults)
@@ -238,6 +240,7 @@ def check_range(min_val, max_val, step=None):
     def _wrapper(value):
         """TBW."""
         # Do something
+        result = False
         if min_val <= value <= max_val:
             result = True
             if step:
@@ -250,7 +253,7 @@ def check_range(min_val, max_val, step=None):
 
                     # get digits after decimal.
                     # NOTE: the decimal.Decimal class cannot do this properly in Python 3.
-                    exp = len(format(1.0, '.8f').strip('0').split('.')[1])
+                    exp = len(format(step, '.8f').strip('0').split('.')[1])
                     multiplier = 10 ** exp
                 result = ((value * multiplier) % (step * multiplier)) == 0
         return result
@@ -262,3 +265,84 @@ def check_range(min_val, max_val, step=None):
     setattr(_wrapper, 'validate_info', info)
 
     return _wrapper
+
+
+attr_class = attr.s
+
+
+def attr_def(doc: str=None, readonly: bool=False, label: str=None, units: str=None, check: t.Callable=None,
+             *args, **kwargs):
+    """Class attribute definition.
+
+    :param doc:
+    :param readonly:
+    :param label:
+    :param units:
+    :param check:
+    :param args: arguments sent to attr.ib
+    :param kwargs: keyword arguments sent to attr.ib
+    :return:
+    """
+    metadata = kwargs.get('metadata', {})
+    metadata['validate'] = check
+    metadata['doc'] = doc
+    metadata['readonly'] = readonly
+    metadata['label'] = label
+    metadata['units'] = units
+
+    kwargs['metadata'] = metadata
+
+    att = attr.ib(*args, **kwargs)
+
+    return att
+
+
+@attr_class
+class AttrClass:
+    """Class that validates all assignments to attributes."""
+
+    def __setattr__(self, key: str, value: t.Any):
+        """Validate value.
+
+        :param key:
+        :param value:
+        """
+        if key in self.__dict__:
+            # handle the attribute assignment case
+            att = getattr(attr.fields(type(self)), key)
+            if att:
+                msg = ''
+                att_id = self.__module__ + '.' + self.__class__.__name__ + '.' + key
+                is_valid = True
+                convert_enabled = True  # TODO: may be make this a meta parameter?
+                if convert_enabled:
+                    if att.type and not isinstance(value, att.type):
+                        try:
+                            value = att.type(value)
+                        except ValueError as other_exc:
+                            msg = 'Exception: ' + str(other_exc)
+                            exc = ValidationError(att_id, key, value, msg)
+                            raise exc
+
+                # check if the attr.ib validator is set, if so, use it
+                if att.validator:
+                    is_valid = att.validator(self, att, value)
+
+                # check if our own value validator is set, if so, use it.
+                validator_func = att.metadata.get('validate')
+                if validator_func:
+                    extra_info = get_validate_info(validator_func)
+                    msg = extra_info['error_message'].format(value)
+
+                    try:
+                        is_valid = validator_func(value)
+                    except Exception as other_exc:
+                        msg += 'Exception: ' + str(other_exc)
+                        is_valid = False
+
+                if not is_valid:
+                    exc = ValidationError(att_id, key, value, msg)
+                    raise exc
+
+                    # print('Invalid setting. Attribute: %r, Value: %r' % (key, value))
+        super(AttrClass, self).__setattr__(key, value)

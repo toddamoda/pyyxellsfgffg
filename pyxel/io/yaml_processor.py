@@ -144,7 +144,8 @@ def _environment_constructor(loader: PyxelLoader, node: yaml.MappingNode):
     """
     mapping = loader.construct_mapping(node, deep=True)  # type: dict
 
-    obj = Environment(**mapping)
+    # error: Too many arguments for "Environment"
+    obj = Environment(**mapping)  # type: ignore
     return obj
 
 

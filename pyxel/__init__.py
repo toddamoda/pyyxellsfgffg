@@ -13,6 +13,10 @@ from pyxel.pipelines.validator import validate
 from pyxel.pipelines.validator import argument
 from pyxel.pipelines.validator import parameters
 from pyxel.pipelines.validator import ValidationError
+from pyxel.pipelines.validator import AttrClass
+from pyxel.pipelines.validator import attr_class
+from pyxel.pipelines.validator import attr_def
+
 from pyxel.pipelines.model_registry import register
 from pyxel.pipelines.model_registry import registry
 from pyxel.pipelines.model_registry import MetaModel
@@ -27,6 +31,7 @@ __all__ = ['load_config', 'models', 'processor',
            # 'ccd_pipeline', 'cmos_pipeline',
            'check_range', 'check_choices',
            'validate_call', 'validate', 'ValidationError',
+           'AttrClass', 'attr_class', 'attr_def',
            'argument', 'register', 'parameters',
            'registry', 'MetaModel', 'ModelFunction', 'ModelGroup',
            'DetectionPipeline', 'Processor', 'Detector']
