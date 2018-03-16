@@ -192,7 +192,7 @@ def classinit(cls, *args, **kwargs):
     def _wrapper(*arg2, **kwargs2):
         ret = cls(**kwargs2)
 
-        setattr(cls, '__setattr__', setattr_obj)
+        # setattr(cls, '__setattr__', setattr_obj)
         # ret.__setattr__ = setattr_obj
         return ret
 
@@ -213,39 +213,44 @@ def attribute(doc=None, readonly=False, label=None, validate=None, *args, **kwar
     return att
 
 
-# @classinit
-# class Test2:
-#     # __setattr__ = setattr_obj
-#     cols = attribute(type=int)
-#     rows = attribute(validate=pyxel.check_range(2, 100, 2), default=None, init=True)
-
-
-@attr.s
-class BaseClass:
-
+@classinit
+class Test2:
     # __setattr__ = setattr_obj
-    height = attribute(type=int)
-    width = attribute(type=int)
+    cols = attribute(type=int)
+    rows = attribute(validate=pyxel.check_range(2, 100, 2), default=None, init=True)
 
-    def __setattr__(self, key, value):
-        if key in self.__dict__:
-            # handle the attribute assignment case
-            att = getattr(attr.fields(type(self)), key)
-            if att:
-                is_valid = True
-                if att.type and not isinstance(value, att.type):
-                    value = att.type(value)
 
-                if att.validator:
-                    is_valid = att.validator(self, att, value)
+y = Test2(rows=10, cols=10)
+# Test2.__setattr__ = setattr_obj
+y.rows = 20
+y.cols = '2'
 
-                validate_func = att.metadata.get('validate')
-                if validate_func:
-                    is_valid = validate_func(value)
-
-                if not is_valid:
-                    print('Invalid setting. Attribute: %r, Value: %r' % (key, value))
-        super(BaseClass, self).__setattr__(key, value)
+# @attr.s
+# class BaseClass:
+#
+#     # __setattr__ = setattr_obj
+#     height = attribute(type=int)
+#     width = attribute(type=int)
+#
+#     def __setattr__(self, key, value):
+#         if key in self.__dict__:
+#             # handle the attribute assignment case
+#             att = getattr(attr.fields(type(self)), key)
+#             if att:
+#                 is_valid = True
+#                 if att.type and not isinstance(value, att.type):
+#                     value = att.type(value)
+#
+#                 if att.validator:
+#                     is_valid = att.validator(self, att, value)
+#
+#                 validate_func = att.metadata.get('validate')
+#                 if validate_func:
+#                     is_valid = validate_func(value)
+#
+#                 if not is_valid:
+#                     print('Invalid setting. Attribute: %r, Value: %r' % (key, value))
+#         super(BaseClass, self).__setattr__(key, value)
 
 # @attr.s
 # class Test2(BaseClass):
@@ -259,3 +264,7 @@ class BaseClass:
 # y.rows = 20
 # y.cols = '2'
 # print(y)
+
+
+
+
