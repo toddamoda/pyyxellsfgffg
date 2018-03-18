@@ -2,7 +2,7 @@
 import itertools
 import typing as t
 
-from pyxel import util
+from pyxel.util import objmod as om
 
 
 class StepValues:
@@ -38,12 +38,12 @@ class StepValues:
 
     def __len__(self):
         """TBW."""
-        values = util.eval_range(self.values)
+        values = om.eval_range(self.values)
         return len(values)
 
     def __iter__(self):
         """TBW."""
-        values = util.eval_range(self.values)
+        values = om.eval_range(self.values)
         for value in values:
             yield value
 
@@ -66,7 +66,7 @@ class ParametricConfig:
 
     def get_state_json(self):
         """TBW."""
-        return util.get_state_dict(self)
+        return om.get_state_dict(self)
 
     def __getstate__(self):
         """TBW."""
@@ -90,7 +90,7 @@ class ParametricConfig:
             key = step.key
             for value in step:
                 step.current = value
-                new_proc = util.copy_processor(processor)
+                new_proc = om.copy_processor(processor)
                 new_proc.set(key, value)
                 yield new_proc
 
@@ -105,7 +105,7 @@ class ParametricConfig:
         all_steps = self.enabled_steps
         keys = [step.key for step in self.enabled_steps]
         for params in itertools.product(*all_steps):
-            new_proc = util.copy_processor(processor)
+            new_proc = om.copy_processor(processor)
             for key, value in zip(keys, params):
                 for step in all_steps:
                     if step.key == key:
@@ -131,20 +131,20 @@ class ParametricConfig:
             if level+1 < len(self.enabled_steps):
                 self._embedded(processor, level+1, configs)
             else:
-                configs.append(util.copy_processor(processor))
+                configs.append(om.copy_processor(processor))
 
         return configs
 
     def collect(self, processor):
         """TBW."""
         if self.mode == 'embedded':
-            configs = self._embedded(util.copy_processor(processor))
+            configs = self._embedded(om.copy_processor(processor))
 
         elif self.mode == 'sequential':
-            configs = self._sequential(util.copy_processor(processor))
+            configs = self._sequential(om.copy_processor(processor))
 
         elif self.mode == 'single':
-            configs = [util.copy_processor(processor)]
+            configs = [om.copy_processor(processor)]
 
         else:
             configs = []
@@ -158,8 +158,8 @@ class ParametricConfig:
         for i, config in enumerate(configs):
             values = []
             for step in self.enabled_steps:
-                _, att = util.get_obj_att(config, step.key)
-                value = util.get_value(config, step.key)
+                _, att = om.get_obj_att(config, step.key)
+                value = om.get_value(config, step.key)
                 values.append((att, value))
             print('%d: %r' % (i, values))
             result.append((i, values))

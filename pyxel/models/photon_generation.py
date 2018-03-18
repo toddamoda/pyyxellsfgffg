@@ -8,8 +8,10 @@ from astropy.io import fits
 
 import pyxel
 
+from pyxel.util import objmod as om
 
-@pyxel.argument('image_file', label='Fits File', validate=os.path.exists)
+
+@om.argument('image_file', label='Fits File', validate=os.path.exists)
 @pyxel.register('photon_generation')
 def load_image(detector: pyxel.Detector, image_file: str) -> pyxel.Detector:
     """TBW.
@@ -31,7 +33,7 @@ def load_image(detector: pyxel.Detector, image_file: str) -> pyxel.Detector:
     return detector
 
 
-@pyxel.argument('level', label='Photons', units='ADU', validate=pyxel.check_range(0, 65535, 1))
+@om.argument('level', label='Photons', units='ADU', validate=om.check_range(0, 65535, 1))
 @pyxel.register('photon_generation', name='photon_level')
 def add_photon_level(detector: pyxel.Detector, level: int) -> pyxel.Detector:
     """TBW.

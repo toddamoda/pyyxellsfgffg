@@ -19,7 +19,7 @@ from pyxel import registry
 from pyxel import util
 import pyxel.pipelines.processor
 # from pyxel.io.yaml_processor import load_config
-from pyxel.io.yaml_processor_new import load_config
+from pyxel.io.yaml_processor_new import load
 from pyxel.io.yaml_processor_new import dump
 
 
@@ -34,7 +34,7 @@ def run_parametric(input_filename, output_file, key=None, value=None):
     """
     output = []
     # parametric, processor = util.load(Path(input_filename))
-    cfg = load_config(Path(input_filename))
+    cfg = load(Path(input_filename))
     parametric = cfg['parametric']
     processor = cfg['processor']
     if key and value:
@@ -94,7 +94,7 @@ def run_pipeline(input_filename, output_file):
     :param output_file:
     :return:
     """
-    cfg = load_config(Path(input_filename))
+    cfg = load(Path(input_filename))
 
     processor = cfg[next(iter(cfg))]  # type: pyxel.pipelines.processor.Processor
 
@@ -121,7 +121,7 @@ def run_export(registry_file, output_file, processor_type):
     with open(registry_file, 'r') as fd:
         # load template file
         config_file = Path('pyxel', 'io', 'templates', processor_type + '.yaml')
-        cfg = load_config(config_file)
+        cfg = load(config_file)
 
         # load registry
         content = fd.read()

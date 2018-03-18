@@ -7,13 +7,13 @@ from pathlib import Path
 import yaml
 
 from pyxel import util
+from pyxel.util import objmod as om
 from pyxel.web import signals
 from pyxel.web import webapp
-from pyxel.io.yaml_processor_new import load_config
+from pyxel.io.yaml_processor_new import load
 from pyxel.io.yaml_processor_new import dump
 from pyxel.pipelines.processor import Processor
 from pyxel.pipelines.model_registry import registry
-from pyxel.pipelines import validator
 from pyxel.pipelines.model_group import ModelFunction
 
 
@@ -64,7 +64,7 @@ class Controller:
         """
         if name in self.pipeline_paths:
             config_path = self.pipeline_paths[name]
-            cfg = load_config(config_path)
+            cfg = load(config_path)
             self.parametric = cfg['parametric']
             self.processor = cfg['processor']
             registry.import_models(self.processor)
@@ -74,13 +74,13 @@ class Controller:
 
     def load_defaults(self, path):
         """TBW."""
-        cfg = load_config(Path(path))
-        obj_dict = util.get_state_dict(cfg['processor'])
-        state = util.get_state_ids(obj_dict)
+        cfg = load(Path(path))
+        obj_dict = om.get_state_dict(cfg['processor'])
+        state = om.get_state_ids(obj_dict)
         for key, value in state.items():
             try:
                 self.processor.set(key, value)
-            except validator.ValidationError as exc:
+            except om.ValidationError as exc:
                 self.announce('error', key, value)
                 self._log.error('Could not set key: %s', key)
                 self._log.error(exc)
@@ -91,7 +91,7 @@ class Controller:
 
     def load_config(self, path):
         """TBW."""
-        cfg = load_config(Path(path))
+        cfg = load(Path(path))
         self.parametric = cfg['parametric']
         self.processor = cfg['processor']
         self.get_state()
@@ -220,7 +220,14 @@ class Controller:
                 'processor': self.processor.get_state_json(),
                 'parametric': self.parametric.get_state_json(),
             }
-            id_value_dict = util.get_state_ids(result)
+            rewire = result['processor']['pipeline']
+            for model_group_key in rewire:
+                model_dict = {}
+                for model in rewire[model_group_key]:
+                    model_dict[model['name']] = model
+                rewire[model_group_key] = model_dict
+
+            id_value_dict = om.get_state_ids(result)
             self.announce('state', 'all', id_value_dict)
             return result
 
@@ -251,18 +258,18 @@ class Controller:
         :param value:
         """
         if self.processor:
-            model = util.get_obj_by_type(self.processor, key, ModelFunction)
+            model = om.get_obj_by_type(self.processor, key, ModelFunction)
             if model:
                 try:
                     att = key.split('.')[-1]
-                    validator.validate_arg(model.func, att, value)
-                except validator.ValidationError as exc:
+                    om.validate_arg(model.func, att, value)
+                except om.ValidationError as exc:
                     self.announce('error', key, exc.msg)
                     return
 
             try:
                 self.processor.set(key, value)
-            except validator.ValidationError as exc:
+            except om.ValidationError as exc:
                 self.announce('error', key, exc.msg)
                 return
 
@@ -270,7 +277,6 @@ class Controller:
 
     def load_gui_model_defs(self, cfg):
         """TBW."""
-
         entry_text = {
             'tag': 'input',
             'type': 'text'
@@ -310,24 +316,24 @@ class Controller:
                         label = arg
                         entry = dict(entry_text)
                         func_id = item.get('func')
-                        if func_id in validator.parameters:
-                            if arg in validator.parameters[func_id]:
-                                param_def = validator.parameters[func_id][arg]
+                        if func_id in om.parameters:
+                            if arg in om.parameters[func_id]:
+                                param_def = om.parameters[func_id][arg]
                                 label = param_def.get('label', label)
                                 if 'units' in param_def:
                                     label += ' (' + param_def['units'] + ')'
 
                                 validate_func = param_def.get('validate')
                                 if validate_func:
-                                    info = validator.get_validate_info(validate_func)
+                                    info = om.get_validate_info(validate_func)
 
-                                    if validate_func.__qualname__.startswith(validator.check_range.__qualname__):
+                                    if validate_func.__qualname__.startswith(om.check_range.__qualname__):
                                         entry = dict(entry_numeric)
                                         entry['min'] = info['min_val']
                                         entry['max'] = info['max_val']
                                         entry['step'] = info['step']
 
-                                    if validate_func.__qualname__.startswith(validator.check_choices.__qualname__):
+                                    if validate_func.__qualname__.startswith(om.check_choices.__qualname__):
                                         entry = dict(entry_combo)
                                         entry['options'] = list(info['choice'])
 
@@ -361,7 +367,7 @@ class Controller:
                         'processor': config.get_state_json(),
                         'parametric': self.parametric.get_state_json(),
                     }
-                    id_value_dict = util.get_state_ids(result)
+                    id_value_dict = om.get_state_ids(result)
                     self.announce('state', 'all', id_value_dict)
 
                     signals.progress('state', {'value': 'running (%d of %d)' % (i+1, configs_len), 'state': 1})

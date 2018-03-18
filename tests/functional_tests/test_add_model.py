@@ -5,7 +5,7 @@ import itertools
 import yaml
 import sys
 from pyxel import util
-from pyxel.io.yaml_processor_new import load_config
+from pyxel.io.yaml_processor_new import load
 from pyxel.io.yaml_processor_new import dump
 from pyxel.pipelines.model_registry import Registry
 from pyxel.pipelines.model_registry import import_model
@@ -14,6 +14,7 @@ from pyxel.pipelines.model_group import ModelFunction
 # from pyxel.pipelines.model_group import ModelRegistry
 from pyxel.detectors.detector import Detector
 from pyxel import registry
+from pyxel.util import objmod as om
 
 
 CWD = Path(__file__).parent.parent
@@ -57,7 +58,7 @@ def my_other_model(detector: Detector, level: int, noise: float=2.0):
 
 
 def test_add_model():
-    cfg = load_config(Path(CWD, 'data', 'test_yaml_new.yaml'))
+    cfg = load(Path(CWD, 'data', 'test_yaml_new.yaml'))
     processor = cfg['processor']
     pipeline = processor.pipeline
     detector = processor.detector
@@ -137,8 +138,8 @@ def test_model_registry():
 
 def test_model_registry_decorator():
     # my_models.my_decorated_function(None)
-    ref = util.evaluate_reference('functional_tests.my_models.my_decorated_function')
-    cfg = load_config(Path(CWD, 'data', 'test_yaml_new.yaml'))
+    ref = om.evaluate_reference('functional_tests.my_models.my_decorated_function')
+    cfg = load(Path(CWD, 'data', 'test_yaml_new.yaml'))
     processor = cfg['processor']
 
     # remove all models from the pipeline
@@ -172,7 +173,7 @@ def test_model_registry_map():
 
 
 def test_pipeline_import():
-    cfg = load_config(Path(CWD, 'data', 'test_yaml_new.yaml'))
+    cfg = load(Path(CWD, 'data', 'test_yaml_new.yaml'))
     processor = cfg['processor']
 
     # remove all models from the pipeline

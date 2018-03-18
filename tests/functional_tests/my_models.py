@@ -1,7 +1,7 @@
 from pyxel import MetaModel
 from pyxel import registry
 from pyxel.detectors.detector import Detector
-from pyxel.util import evaluate_reference
+# from pyxel.util import objmod as om
 
 
 class MyClassModel(metaclass=MetaModel,

@@ -3,27 +3,28 @@ from pathlib import Path
 
 import pyxel
 
-from pyxel import util
-from pyxel.io.yaml_processor_new import load_config
+from pyxel.util import objmod as om
+
+from pyxel.io.yaml_processor_new import load
 
 
 CWD = Path(__file__).parent.parent
 sys.path.append(str(CWD))
 
 
-@pyxel.validate
-@pyxel.argument('even_value', label='Argument 1', validate=pyxel.check_range(0, 10, 2))
-@pyxel.argument('file_value', label='Argument 2', validate=Path.is_file)
-@pyxel.argument('choice_value', label='Argument 3', validate=pyxel.check_choices(['silicon', 'hxrg', 'other']))
+@om.validate
+@om.argument('even_value', label='Argument 1', validate=om.check_range(0, 10, 2))
+@om.argument('file_value', label='Argument 2', validate=Path.is_file)
+@om.argument('choice_value', label='Argument 3', validate=om.check_choices(['silicon', 'hxrg', 'other']))
 # @register('photon_generation')
 def my_model_with_validate(detector, even_value: int, file_value: Path, choice_value: str='silicon'):
     # print(even_value, choice_value, file_value)
     return detector
 
 
-@pyxel.argument('even_value', label='Argument 1', validate=pyxel.check_range(0, 10, 2))
-@pyxel.argument('file_value', label='Argument 2', validate=Path.is_file)
-@pyxel.argument('choice_value', label='Argument 3', validate=pyxel.check_choices(['silicon', 'hxrg', 'other']))
+@om.argument('even_value', label='Argument 1', validate=om.check_range(0, 10, 2))
+@om.argument('file_value', label='Argument 2', validate=Path.is_file)
+@om.argument('choice_value', label='Argument 3', validate=om.check_choices(['silicon', 'hxrg', 'other']))
 # @register('photon_generation')
 def my_model_no_validate(detector, even_value: int, file_value: Path, choice_value: str='silicon'):
     # print(even_value, choice_value, file_value)
@@ -32,7 +33,7 @@ def my_model_no_validate(detector, even_value: int, file_value: Path, choice_val
 
 def test_argument_validation():
 
-    if '__main__.my_model_with_validate' in pyxel.parameters:
+    if '__main__.my_model_with_validate' in om.parameters:
         model_with_validate_id = '__main__.my_model_with_validate'
     else:
         # when run with pytest
@@ -43,7 +44,7 @@ def test_argument_validation():
     #
     try:
         my_model_with_validate("my detector object", 5, Path(__file__), 'silicon')
-    except pyxel.ValidationError as exc:
+    except om.ValidationError as exc:
         assert exc.arg == 'even_value'
 
     #
@@ -60,30 +61,30 @@ def test_argument_validation():
     #
     # test validation can be switched off and on
     #
-    pyxel.parameters[model_with_validate_id]['validate'] = False
+    om.parameters[model_with_validate_id]['validate'] = False
     my_model_with_validate("my detector object", 6, Path(__file__), 'bad-choice')
-    pyxel.parameters[model_with_validate_id]['validate'] = True
+    om.parameters[model_with_validate_id]['validate'] = True
     try:
         my_model_with_validate("my detector object", 6, Path(__file__), 'bad-choice')
-    except pyxel.ValidationError as exc:
+    except om.ValidationError as exc:
         assert exc.arg == 'choice_value'
 
     #
     # test that annotation argument conversion takes place on the __file__ argument
     #
     my_model_with_validate("my detector object", 6, __file__, 'silicon')  # default convert is True
-    pyxel.parameters[model_with_validate_id]['convert'] = False
+    om.parameters[model_with_validate_id]['convert'] = False
     try:
         my_model_with_validate("my detector object", 6, __file__, 'silicon')
     except Exception as exc:
         print(exc)
-        pyxel.parameters[model_with_validate_id]['convert'] = True
+        om.parameters[model_with_validate_id]['convert'] = True
     my_model_with_validate("my detector object", 6, __file__, 'silicon')
 
 
 def test_model_validation():
 
-    if '__main__.my_model_with_validate' in pyxel.parameters:
+    if '__main__.my_model_with_validate' in om.parameters:
         model_with_validate_id = '__main__.my_model_with_validate'
     else:
         # when run with pytest
@@ -100,7 +101,7 @@ def test_model_validation():
     #
     # Test the aok situation
     #
-    pyxel.validate_call(model_with_validate_id, kwargs=model.arguments)
+    om.validate_call(model_with_validate_id, kwargs=model.arguments)
 
     #
     # Introduce an error and catch an exception
@@ -108,21 +109,21 @@ def test_model_validation():
     model.arguments['even_value'] = 5
     model.arguments['choice_value'] = 'xxx'
     try:
-        pyxel.validate_call(model_with_validate_id, kwargs=model.arguments)
-    except pyxel.ValidationError as exc:
+        om.validate_call(model_with_validate_id, kwargs=model.arguments)
+    except om.ValidationError as exc:
         assert exc.arg == 'even_value'
 
     #
     # Disable raising an exception and collect all the ValidationError(s)
     #
     errors = []
-    errors += pyxel.validate_call(model_with_validate_id, False, kwargs=model.arguments)
+    errors += om.validate_call(model_with_validate_id, False, kwargs=model.arguments)
     assert len(errors) == 2
 
 
 def test_processor_validate():
     yaml_file = CWD.joinpath('data', 'test_yaml_new.yaml')
-    cfg = load_config(yaml_file)
+    cfg = load(yaml_file)
 
     processor = cfg['processor']
     processor.pipeline.set_model_enabled('*', False)

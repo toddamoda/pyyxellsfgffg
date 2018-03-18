@@ -1,19 +1,20 @@
 """TBW."""
-from pyxel.pipelines.validator import AttrClass
-from pyxel.pipelines.validator import attr_class
-from pyxel.pipelines.validator import attr_def
-from pyxel.pipelines.validator import check_range
+# from pyxel.pipelines.validator import AttrClass
+# from pyxel.pipelines.validator import attr_class
+# from pyxel.pipelines.validator import attr_def
+# from pyxel.pipelines.validator import check_range
+from pyxel.util import objmod as om
 
 
-@attr_class
-class Environment(AttrClass):
+@om.attr_class
+class Environment:
     """TBW."""
 
-    temperature = attr_def(type=float, default=None, units='K', check=check_range(5.00, 400.0, 0.01))
+    temperature = om.attr_def(type=float, default=None, units='K', check=om.check_range(5.00, 400.0, 0.01))
 
-    total_ionising_dose = attr_def(type=float, default=None, units='MeV/g')
+    total_ionising_dose = om.attr_def(type=float, default=None, units='MeV/g')
 
-    total_non_ionising_dose = attr_def(type=float, default=None, units='MeV/g')
+    total_non_ionising_dose = om.attr_def(type=float, default=None, units='MeV/g')
 
     def copy(self):
         """TBW."""

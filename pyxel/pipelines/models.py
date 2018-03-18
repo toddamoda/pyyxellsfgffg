@@ -3,6 +3,7 @@ import logging
 import functools
 import typing as t  # noqa: F401
 from pyxel import util
+from pyxel.util import objmod as om
 
 
 class Model:
@@ -24,11 +25,11 @@ class Model:
     def copy(self):
         """TBW."""
         # kwargs = {key: type(value)(value) for key, value in self.__getstate__().items()}
-        return Model(**util.copy_state(self))
+        return Model(**om.copy_state(self))
 
     def get_state_json(self):
         """TBW."""
-        return util.get_state_dict(self)
+        return om.get_state_dict(self)
 
     def __getstate__(self):
         """TBW."""
@@ -41,7 +42,7 @@ class Model:
     @property
     def function(self):
         """TBW."""
-        func_ref = util.evaluate_reference(self.name)
+        func_ref = om.evaluate_reference(self.name)
         func = functools.partial(func_ref, **self.arguments)
         return func
 
@@ -64,7 +65,7 @@ class Models:
 
     def get_state_json(self):
         """TBW."""
-        return util.get_state_dict(self)
+        return om.get_state_dict(self)
 
     def run(self, detector, pipeline):
         """Execute each enabled model in this group."""
