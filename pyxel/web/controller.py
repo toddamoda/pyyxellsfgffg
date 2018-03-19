@@ -71,7 +71,7 @@ class Controller:
             self.processor = None
 
     def _rewire_pipeline_dict(self, pipeline: dict):
-        """Converts pipeline models to a dict like structure.
+        """Convert pipeline models to a dict like structure.
 
         The pipeline JSON structure is like so::
 

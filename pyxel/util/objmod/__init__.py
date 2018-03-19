@@ -33,11 +33,12 @@ from pyxel.util.objmod.io import load
 from pyxel.util.objmod.io import dump
 
 
-__all__ = ['evaluate_reference', 'eval_entry', 'eval_range',
+__all__ = ['validate', 'argument', 'validate_call', 'validate_arg', 'parameters', 'get_validate_info',
            'call', 'get_call_ref',
+           'evaluate_reference', 'eval_entry', 'eval_range',
            'get_obj_att', 'get_obj_by_type', 'get_value', 'get_state_dict', 'get_state_ids',
            'copy_processor', 'copy_state',
-           'check_choices', 'check_range', 'ValidationError',
-           'argument', 'validate', 'validate_call', 'validate_arg', 'parameters', 'get_validate_info',
            'attr_class', 'attr_def',
+           'check_choices', 'check_range', 'ValidationError',
+           'load', 'dump',
            ]
