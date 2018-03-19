@@ -8,21 +8,21 @@ class PipelineAborted(Exception):
     """Exception to force the pipeline to stop processing."""
 
 
-def load(yaml_filename):
-    """TBW.
-
-    :param yaml_filename:
-    :return:
-    """
-    from pyxel.io.yaml_processor import load
-    cfg = load(yaml_filename)
-    if 'parametric' in cfg:
-        parametric = cfg.pop('parametric')  # type: pyxel.pipelines.parametric.ParametricConfig
-    else:
-        parametric = None
-
-    processor = cfg[next(iter(cfg))]  # type: pyxel.pipelines.processor.Processor
-    return parametric, processor
+# def load(yaml_filename):
+#     """TBW.
+#
+#     :param yaml_filename:
+#     :return:
+#     """
+#     from pyxel.io.yaml_processor import load
+#     cfg = load(yaml_filename)
+#     if 'parametric' in cfg:
+#         parametric = cfg.pop('parametric')  # type: pyxel.pipelines.parametric.ParametricConfig
+#     else:
+#         parametric = None
+#
+#     processor = cfg[next(iter(cfg))]  # type: pyxel.pipelines.processor.Processor
+#     return parametric, processor
 
 
 def update_fits_header(header, key, value):

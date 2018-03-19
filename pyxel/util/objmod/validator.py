@@ -17,7 +17,7 @@ class ValidationError(Exception):
 
     def __str__(self):
         """TBW."""
-        msg = 'Validation failed for function: %(func)r, arg: %(arg)r, value: %(value)r, msg: %(msg)r'
+        msg = 'Validation failed: %(func)r, arg: %(arg)r, value: %(value)r, msg: %(msg)r'
         msg = msg % vars(self)
         return msg
 
@@ -45,12 +45,13 @@ def check_choices(choices: list):
     return _wrapper
 
 
-def check_range(min_val, max_val, step=None):
+def check_range(min_val, max_val, step=None, enforce_step=True):
     """TBW.
 
     :param min_val:
     :param max_val:
     :param step:
+    :param enforce_step:
     """
     def _wrapper(value):
         """TBW."""
@@ -58,7 +59,7 @@ def check_range(min_val, max_val, step=None):
         result = False
         if min_val <= value <= max_val:
             result = True
-            if step:
+            if step and enforce_step:
                 multiplier = 1
                 if isinstance(step, float):
                     # In Python3: 1.2 % 0.1 => 0.0999999999999999
@@ -75,7 +76,7 @@ def check_range(min_val, max_val, step=None):
 
     info = {
         'error_message': 'Expected value in range: %r to %r in %r steps, got: {}. ' % (min_val, max_val, step),
-        'min_val': min_val, 'max_val': max_val, 'step': step
+        'min_val': min_val, 'max_val': max_val, 'step': step, 'enforce_step': enforce_step
     }
     setattr(_wrapper, 'validate_info', info)
 

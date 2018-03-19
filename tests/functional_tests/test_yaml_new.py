@@ -1,8 +1,5 @@
 from pathlib import Path
-import yaml
-
-from pyxel import util
-from pyxel.io import yaml_processor_new as io
+from pyxel.util import objmod as om
 
 
 CWD = Path(__file__).parent.parent
@@ -10,7 +7,7 @@ CWD = Path(__file__).parent.parent
 
 def test_yaml_load():
     yaml_file = CWD.joinpath('data', 'test_yaml_new.yaml')
-    cfg = io.load(yaml_file)
+    cfg = om.load(yaml_file)
 
     assert cfg['parametric'].__class__.__name__ == 'ParametricConfig'
     assert cfg['parametric'].steps[0].__class__.__name__ == 'StepValues'
@@ -26,8 +23,8 @@ def test_yaml_load():
 def test_yaml_dump():
 
     yaml_file = CWD.joinpath('data', 'test_yaml_new.yaml')
-    cfg = io.load(yaml_file)
-    result = io.dump(cfg)
+    cfg = om.load(yaml_file)
+    result = om.dump(cfg)
     yaml_expected = CWD.joinpath('data', 'test_yaml_new_dump_expected.yaml').open('r').read()
     assert result == yaml_expected
 

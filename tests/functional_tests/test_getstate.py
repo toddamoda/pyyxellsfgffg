@@ -3,9 +3,7 @@ from ast import literal_eval
 from pathlib import Path
 
 from pyxel.util import objmod as om
-
 from pyxel.io.yaml_processor import load
-from pyxel import util
 
 expected_str = """
 parametric.mode='single'
@@ -113,4 +111,4 @@ def test_get_state_ids():
 
 
 # test_getstate()
-test_get_state_ids()
+# test_get_state_ids()

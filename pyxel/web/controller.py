@@ -10,8 +10,6 @@ from pyxel import util
 from pyxel.util import objmod as om
 from pyxel.web import signals
 from pyxel.web import webapp
-from pyxel.io.yaml_processor_new import load
-from pyxel.io.yaml_processor_new import dump
 from pyxel.pipelines.processor import Processor
 from pyxel.pipelines.model_registry import registry
 from pyxel.pipelines.model_group import ModelFunction
@@ -64,7 +62,7 @@ class Controller:
         """
         if name in self.pipeline_paths:
             config_path = self.pipeline_paths[name]
-            cfg = load(config_path)
+            cfg = om.load(config_path)
             self.parametric = cfg['parametric']
             self.processor = cfg['processor']
             registry.import_models(self.processor)
@@ -72,10 +70,49 @@ class Controller:
             self.parametric = None
             self.processor = None
 
+    def _rewire_pipeline_dict(self, pipeline: dict):
+        """Converts pipeline models to a dict like structure.
+
+        The pipeline JSON structure is like so::
+
+            {'charge_generation': [
+                {'func': 'pyxel.models.photoelectrons.simple_conversion', 'name': 'photoelectrons', ... },
+                ...
+            ]},
+            {'photon_generation': [
+                {'func': 'pyxel.models.photon_generation.load_image', 'name': 'load_image', ... },
+                ...
+            ]}
+
+        The pipeline is rewired like so::
+
+            {'charge_generation': {
+                'photoelectrons': {'func': 'pyxel.models.photoelectrons.simple_conversion', ... },
+                ...
+            ]},
+            {'photon_generation': [
+                'load_image': {'func': 'pyxel.models.photon_generation.load_image', 'name': 'load_image', ... },
+                ...
+            ]}
+
+        This simplifies the javascript side of the application.
+
+        :param pipeline:
+        """
+        for model_group_key in pipeline:
+            model_dict = {}
+            if isinstance(pipeline[model_group_key], list):
+                for model in pipeline[model_group_key]:
+                    model_dict[model['name']] = model
+            pipeline[model_group_key] = model_dict
+
     def load_defaults(self, path):
         """TBW."""
-        cfg = load(Path(path))
+        cfg = om.load(Path(path))
         obj_dict = om.get_state_dict(cfg['processor'])
+
+        self._rewire_pipeline_dict(obj_dict['pipeline'])
+
         state = om.get_state_ids(obj_dict)
         for key, value in state.items():
             try:
@@ -91,7 +128,7 @@ class Controller:
 
     def load_config(self, path):
         """TBW."""
-        cfg = load(Path(path))
+        cfg = om.load(Path(path))
         self.parametric = cfg['parametric']
         self.processor = cfg['processor']
         self.get_state()
@@ -102,7 +139,7 @@ class Controller:
             'processor': self.processor,
             'parametric': self.parametric,
         }
-        output = dump(cfg)
+        output = om.dump(cfg)
         print(output)
         with open(path, 'w') as fd:
             fd.write(output)
@@ -220,12 +257,7 @@ class Controller:
                 'processor': self.processor.get_state_json(),
                 'parametric': self.parametric.get_state_json(),
             }
-            rewire = result['processor']['pipeline']
-            for model_group_key in rewire:
-                model_dict = {}
-                for model in rewire[model_group_key]:
-                    model_dict[model['name']] = model
-                rewire[model_group_key] = model_dict
+            self._rewire_pipeline_dict(result['processor']['pipeline'])
 
             id_value_dict = om.get_state_ids(result)
             self.announce('state', 'all', id_value_dict)

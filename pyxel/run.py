@@ -17,10 +17,8 @@ import yaml
 import pyxel
 from pyxel import registry
 from pyxel import util
+from pyxel.util import objmod as om
 import pyxel.pipelines.processor
-# from pyxel.io.yaml_processor import load_config
-from pyxel.io.yaml_processor_new import load
-from pyxel.io.yaml_processor_new import dump
 
 
 def run_parametric(input_filename, output_file, key=None, value=None):
@@ -34,7 +32,7 @@ def run_parametric(input_filename, output_file, key=None, value=None):
     """
     output = []
     # parametric, processor = util.load(Path(input_filename))
-    cfg = load(Path(input_filename))
+    cfg = om.load(Path(input_filename))
     parametric = cfg['parametric']
     processor = cfg['processor']
     if key and value:
@@ -94,7 +92,7 @@ def run_pipeline(input_filename, output_file):
     :param output_file:
     :return:
     """
-    cfg = load(Path(input_filename))
+    cfg = om.load(Path(input_filename))
 
     processor = cfg[next(iter(cfg))]  # type: pyxel.pipelines.processor.Processor
 
@@ -121,7 +119,7 @@ def run_export(registry_file, output_file, processor_type):
     with open(registry_file, 'r') as fd:
         # load template file
         config_file = Path('pyxel', 'io', 'templates', processor_type + '.yaml')
-        cfg = load(config_file)
+        cfg = om.load(config_file)
 
         # load registry
         content = fd.read()
@@ -132,7 +130,7 @@ def run_export(registry_file, output_file, processor_type):
         processor = cfg['processor']
         registry.import_models(processor)
 
-        content = dump(cfg)
+        content = om.dump(cfg)
         if output_file:
             with open(output_file, 'w') as fd2:
                 fd2.write(content)

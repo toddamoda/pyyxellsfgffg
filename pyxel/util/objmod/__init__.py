@@ -29,6 +29,9 @@ from pyxel.util.objmod.validator import check_choices
 from pyxel.util.objmod.validator import check_range
 from pyxel.util.objmod.validator import ValidationError
 
+from pyxel.util.objmod.io import load
+from pyxel.util.objmod.io import dump
+
 
 __all__ = ['evaluate_reference', 'eval_entry', 'eval_range',
            'call', 'get_call_ref',

@@ -14,7 +14,7 @@ from pyxel.util.objmod.state import get_value
 from pyxel.util.objmod.state import get_state_dict
 
 
-class PyxelLoader(yaml.SafeLoader):
+class ObjectModelLoader(yaml.SafeLoader):
     """Custom `SafeLoader` that constructs Pyxel objects.
 
     This class is not directly instantiated by user code, but instead is
@@ -59,7 +59,7 @@ class PyxelLoader(yaml.SafeLoader):
         cls.add_constructor('!Object', _constructor_object)
 
 
-class PyxelDumper(yaml.SafeDumper):
+class ObjectModelDumper(yaml.SafeDumper):
     """Custom `SafeDumper` that represents Pyxel objects.
 
     This class is not directly instantiated by user code, but instead is
@@ -70,7 +70,7 @@ class PyxelDumper(yaml.SafeDumper):
     """
 
 
-def _constructor_object(loader: PyxelLoader, node: yaml.MappingNode):
+def _constructor_object(loader: ObjectModelLoader, node: yaml.MappingNode):
     """TBW.
 
     :param loader:
@@ -94,7 +94,7 @@ def _constructor_object(loader: PyxelLoader, node: yaml.MappingNode):
     return result
 
 
-def _constructor_class(loader: PyxelLoader, node: yaml.ScalarNode):
+def _constructor_class(loader: ObjectModelLoader, node: yaml.ScalarNode):
     """TBW.
 
     :param loader:
@@ -136,7 +136,7 @@ class ClassConstructor:
 
         elif isinstance(node, yaml.SequenceNode):
             coll = loader.construct_sequence(node, deep=True)
-            if self.seq_kwargs:
+            if self.is_list:
                 obj = [self.klass(**kwargs) for kwargs in coll]
             else:
                 obj = self.klass(coll)
@@ -171,7 +171,7 @@ def load_yaml(stream: t.Union[str, t.IO]):
     :param stream: document to process.
     :return: a python object
     """
-    result = yaml.load(stream, Loader=PyxelLoader)
+    result = yaml.load(stream, Loader=ObjectModelLoader)
     return result
 
 
@@ -185,7 +185,7 @@ def dump(cfg_obj) -> str:
 
     class_name = ''
     keys = []
-    for paths in PyxelLoader.class_paths:
+    for paths in ObjectModelLoader.class_paths:
         class_name = paths[-1]
         key = '.'.join([str(path) for path in paths[:-1]])
         if '.None' in key:
@@ -213,15 +213,15 @@ def define_pyxel_loader():
     from pyxel.pipelines.model_group import ModelFunction
     from pyxel.pipelines.model_group import ModelGroup
 
-    PyxelLoader.add_class_ref(['processor', 'class'])
-    PyxelLoader.add_class_ref(['processor', 'detector', 'class'])
-    PyxelLoader.add_class_ref(['processor', 'detector', None, 'class'])
-    PyxelLoader.add_class_ref(['processor', 'pipeline', 'class'])
+    ObjectModelLoader.add_class_ref(['processor', 'class'])
+    ObjectModelLoader.add_class_ref(['processor', 'detector', 'class'])
+    ObjectModelLoader.add_class_ref(['processor', 'detector', None, 'class'])
+    ObjectModelLoader.add_class_ref(['processor', 'pipeline', 'class'])
 
-    PyxelLoader.add_class(ParametricConfig, ['parametric'])
-    PyxelLoader.add_class(StepValues, ['parametric', 'steps'], is_list=True)
-    PyxelLoader.add_class(ModelGroup, ['processor', 'pipeline', None])
-    PyxelLoader.add_class(ModelFunction, ['processor', 'pipeline', None, None])
+    ObjectModelLoader.add_class(ParametricConfig, ['parametric'])
+    ObjectModelLoader.add_class(StepValues, ['parametric', 'steps'], is_list=True)
+    ObjectModelLoader.add_class(ModelGroup, ['processor', 'pipeline', None])
+    ObjectModelLoader.add_class(ModelFunction, ['processor', 'pipeline', None, None])
 
 
 define_pyxel_loader()

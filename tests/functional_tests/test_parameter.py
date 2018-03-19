@@ -5,8 +5,6 @@ import pyxel
 
 from pyxel.util import objmod as om
 
-from pyxel.io.yaml_processor_new import load
-
 
 CWD = Path(__file__).parent.parent
 sys.path.append(str(CWD))
@@ -123,7 +121,7 @@ def test_model_validation():
 
 def test_processor_validate():
     yaml_file = CWD.joinpath('data', 'test_yaml_new.yaml')
-    cfg = load(yaml_file)
+    cfg = om.load(yaml_file)
 
     processor = cfg['processor']
     processor.pipeline.set_model_enabled('*', False)
