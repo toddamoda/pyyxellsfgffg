@@ -8,7 +8,7 @@ from astropy.io import fits
 # from pyxel.pipelines.ccd_pipeline import CCDDetectionPipeline
 # from pyxel.pipelines.cmos_pipeline import CMOSDetectionPipeline
 # from pyxel.detectors.ccd import CCD
-from pyxel.io.yaml_processor import load_config
+from pyxel.io.yaml_processor import load
 
 
 @pytest.mark.parametrize("input_filename, exp_filename", [
@@ -19,7 +19,7 @@ def test_pipeline_tars(input_filename, exp_filename):
     np.random.seed(19690906)
 
     # Step 1: Get the pipeline configuration
-    cfg = load_config(Path(input_filename))
+    cfg = load(Path(input_filename))
     processor = cfg['ccd_process']      # type: pyxel.pipelines.processor.Processor
 
     pipeline = processor.pipeline  # type: t.Union[CCDDetectionPipeline, CMOSDetectionPipeline]

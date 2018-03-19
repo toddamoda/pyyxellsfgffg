@@ -2,16 +2,18 @@
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
 """PyXel! photon generator functions."""
+import os
 import numpy as np
 from astropy.io import fits
-# from astropy import units as u
 
-from pyxel.detectors.detector import Detector
-from pyxel.pipelines.model_registry import registry
+import pyxel
+
+from pyxel.util import objmod as om
 
 
-@registry.decorator('photon_generation')
-def load_image(detector: Detector, image_file: str) -> Detector:
+@om.argument('image_file', label='Fits File', validate=os.path.exists)
+@pyxel.register('photon_generation')
+def load_image(detector: pyxel.Detector, image_file: str) -> pyxel.Detector:
     """TBW.
 
     :param detector:
@@ -31,17 +33,9 @@ def load_image(detector: Detector, image_file: str) -> Detector:
     return detector
 
 
-@registry.decorator('photon_generation', name='photon_level',
-                    gui={
-                        'label': 'Uniform illumination',
-                        'arguments': {
-                            'level': {
-                                'label': 'Photons',
-                                'entry': registry.entry.num_uint}
-
-                        }
-                    })
-def add_photon_level(detector: Detector, level: int) -> Detector:
+@om.argument('level', label='Photons', units='ADU', validate=om.check_range(0, 65535, 1))
+@pyxel.register('photon_generation', name='photon_level')
+def add_photon_level(detector: pyxel.Detector, level: int) -> pyxel.Detector:
     """TBW.
 
     :param detector:
@@ -57,8 +51,8 @@ def add_photon_level(detector: Detector, level: int) -> Detector:
     return detector
 
 
-@registry.decorator('photon_generation', name='shot_noise')
-def add_shot_noise(detector: Detector) -> Detector:
+@pyxel.register('photon_generation', name='shot_noise')
+def add_shot_noise(detector: pyxel.Detector) -> pyxel.Detector:
     """Add shot noise to number of photons.
 
     :return:

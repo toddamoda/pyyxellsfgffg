@@ -7,12 +7,12 @@ from pathlib import Path
 import yaml
 
 from pyxel import util
+from pyxel.util import objmod as om
 from pyxel.web import signals
 from pyxel.web import webapp
-from pyxel.io.yaml_processor_new import load_config
-from pyxel.io.yaml_processor_new import dump
 from pyxel.pipelines.processor import Processor
 from pyxel.pipelines.model_registry import registry
+from pyxel.pipelines.model_group import ModelFunction
 
 
 CWD_PATH = Path(__file__).parent
@@ -62,7 +62,7 @@ class Controller:
         """
         if name in self.pipeline_paths:
             config_path = self.pipeline_paths[name]
-            cfg = load_config(config_path)
+            cfg = om.load(config_path)
             self.parametric = cfg['parametric']
             self.processor = cfg['processor']
             registry.import_models(self.processor)
@@ -70,21 +70,65 @@ class Controller:
             self.parametric = None
             self.processor = None
 
+    def _rewire_pipeline_dict(self, pipeline: dict):
+        """Converts pipeline models to a dict like structure.
+
+        The pipeline JSON structure is like so::
+
+            {'charge_generation': [
+                {'func': 'pyxel.models.photoelectrons.simple_conversion', 'name': 'photoelectrons', ... },
+                ...
+            ]},
+            {'photon_generation': [
+                {'func': 'pyxel.models.photon_generation.load_image', 'name': 'load_image', ... },
+                ...
+            ]}
+
+        The pipeline is rewired like so::
+
+            {'charge_generation': {
+                'photoelectrons': {'func': 'pyxel.models.photoelectrons.simple_conversion', ... },
+                ...
+            ]},
+            {'photon_generation': [
+                'load_image': {'func': 'pyxel.models.photon_generation.load_image', 'name': 'load_image', ... },
+                ...
+            ]}
+
+        This simplifies the javascript side of the application.
+
+        :param pipeline:
+        """
+        for model_group_key in pipeline:
+            model_dict = {}
+            if isinstance(pipeline[model_group_key], list):
+                for model in pipeline[model_group_key]:
+                    model_dict[model['name']] = model
+            pipeline[model_group_key] = model_dict
+
     def load_defaults(self, path):
         """TBW."""
-        cfg = load_config(Path(path))
-        obj_dict = util.get_state_dict(cfg['processor'])
-        state = util.get_state_ids(obj_dict)
+        cfg = om.load(Path(path))
+        obj_dict = om.get_state_dict(cfg['processor'])
+
+        self._rewire_pipeline_dict(obj_dict['pipeline'])
+
+        state = om.get_state_ids(obj_dict)
         for key, value in state.items():
             try:
                 self.processor.set(key, value)
+            except om.ValidationError as exc:
+                self.announce('error', key, value)
+                self._log.error('Could not set key: %s', key)
+                self._log.error(exc)
             except AttributeError as exc:
                 self._log.error('Could not set key: %s', key)
+                self._log.error(exc)
         self.get_state()
 
     def load_config(self, path):
         """TBW."""
-        cfg = load_config(Path(path))
+        cfg = om.load(Path(path))
         self.parametric = cfg['parametric']
         self.processor = cfg['processor']
         self.get_state()
@@ -95,7 +139,7 @@ class Controller:
             'processor': self.processor,
             'parametric': self.parametric,
         }
-        output = dump(cfg)
+        output = om.dump(cfg)
         print(output)
         with open(path, 'w') as fd:
             fd.write(output)
@@ -213,7 +257,9 @@ class Controller:
                 'processor': self.processor.get_state_json(),
                 'parametric': self.parametric.get_state_json(),
             }
-            id_value_dict = util.get_state_ids(result)
+            self._rewire_pipeline_dict(result['processor']['pipeline'])
+
+            id_value_dict = om.get_state_ids(result)
             self.announce('state', 'all', id_value_dict)
             return result
 
@@ -244,11 +290,43 @@ class Controller:
         :param value:
         """
         if self.processor:
-            self.processor.set(key, value)
+            model = om.get_obj_by_type(self.processor, key, ModelFunction)
+            if model:
+                try:
+                    att = key.split('.')[-1]
+                    om.validate_arg(model.func, att, value)
+                except om.ValidationError as exc:
+                    self.announce('error', key, exc.msg)
+                    return
+
+            try:
+                self.processor.set(key, value)
+            except om.ValidationError as exc:
+                self.announce('error', key, exc.msg)
+                return
+
             self.get_setting(key)   # signal updated value to listeners
 
     def load_gui_model_defs(self, cfg):
         """TBW."""
+        entry_text = {
+            'tag': 'input',
+            'type': 'text'
+        }
+
+        entry_numeric = {
+            'tag': 'input',
+            'type': 'number',
+            'step': 1,
+            'min': 0,
+            'max': 65536
+        }
+
+        entry_combo = {
+            'tag': 'select',
+            'options': [],
+        }
+
         model_settings = cfg['gui'][1]['items']
         model_settings.clear()
         if self.processor:
@@ -262,19 +340,39 @@ class Controller:
                     entry_def_override = gui_def_override.get('arguments', {})
                     group_label = group.replace('_', ' ').title()
                     model_label = gui_def_override.get('label', item['name']).replace('_', ' ').title()
-                    label = '{}: {}'.format(group_label, model_label)
                     gui_def = {
-                        'label': label,
+                        'label': '{}: {}'.format(group_label, model_label),
                         'arguments': []
                     }
                     for arg in item['arguments']:
+                        label = arg
+                        entry = dict(entry_text)
+                        func_id = item.get('func')
+                        if func_id in om.parameters:
+                            if arg in om.parameters[func_id]:
+                                param_def = om.parameters[func_id][arg]
+                                label = param_def.get('label', label)
+                                if 'units' in param_def:
+                                    label += ' (' + param_def['units'] + ')'
+
+                                validate_func = param_def.get('validate')
+                                if validate_func:
+                                    info = om.get_validate_info(validate_func)
+
+                                    if validate_func.__qualname__.startswith(om.check_range.__qualname__):
+                                        entry = dict(entry_numeric)
+                                        entry['min'] = info['min_val']
+                                        entry['max'] = info['max_val']
+                                        entry['step'] = info['step']
+
+                                    if validate_func.__qualname__.startswith(om.check_choices.__qualname__):
+                                        entry = dict(entry_combo)
+                                        entry['options'] = list(info['choice'])
+
                         entry_def = {
                             'id': 'pipeline.' + group + '.' + item['name'] + '.arguments.' + arg,
-                            'label': arg,
-                            'entry': {
-                                'tag': 'input',
-                                'type': 'text'
-                            }
+                            'label': label,
+                            'entry': entry
                         }
                         entry_def.update(entry_def_override.get(arg, {}))
 
@@ -301,7 +399,7 @@ class Controller:
                         'processor': config.get_state_json(),
                         'parametric': self.parametric.get_state_json(),
                     }
-                    id_value_dict = util.get_state_ids(result)
+                    id_value_dict = om.get_state_ids(result)
                     self.announce('state', 'all', id_value_dict)
 
                     signals.progress('state', {'value': 'running (%d of %d)' % (i+1, configs_len), 'state': 1})

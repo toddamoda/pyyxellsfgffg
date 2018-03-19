@@ -6,31 +6,34 @@ import typing as t  # noqa: F401
 
 import yaml
 
-from pyxel import util
+# from pyxel import util
 # from pyxel.pipelines.model_group import ModelFunction
 # from pyxel import Processor
 # from pyxel import ModelFunction
 from pyxel.detectors.detector import Detector
 from pyxel.pipelines.processor import Processor
 from pyxel.pipelines.model_group import ModelFunction
+from pyxel.util import objmod as om
 
 
-EXAMPLE_MODEL_YAML = """
-    group: charge_generation
-    name: my_model_name
-    enabled: false
-    func: pyxel.models.ccd_noise.add_output_node_noise
-    arguments:
-          std_deviation: 1.0
-"""
-
-EXAMPLE_MODEL_DICT = {
-    'name': 'my_model_name',
-    'group': 'charge_generation',
-    'enabled': False,
-    'func': 'pyxel.models.ccd_noise.add_output_node_noise',
-    'arguments': {'std_deviation': 1.0}
-}
+# Model Definition Schema:
+#
+# EXAMPLE_MODEL_YAML = """
+#     group: charge_generation
+#     name: my_model_name
+#     enabled: false
+#     func: pyxel.models.ccd_noise.add_output_node_noise
+#     arguments:
+#           std_deviation: 1.0
+# """
+#
+# EXAMPLE_MODEL_DICT = {
+#     'name': 'my_model_name',
+#     'group': 'charge_generation',
+#     'enabled': False,
+#     'func': 'pyxel.models.ccd_noise.add_output_node_noise',
+#     'arguments': {'std_deviation': 1.0}
+# }
 
 
 def import_model(processor, model_def):
@@ -74,7 +77,7 @@ def create_model_def(func, group='', name=None, enabled=True, detector=None, gui
     :return:
     """
     if isinstance(func, str):
-        func = util.evaluate_reference(func)
+        func = om.evaluate_reference(func)
         if inspect.isclass(func):
             func = func()
 
@@ -313,10 +316,8 @@ class Registry:
 
 registry = Registry()
 
-parameters = {}  # type: t.Dict[str, t.Dict[str, t.Any]]
 
-
-def register(name=None, group=None, enabled=True, detector=None, gui=None):
+def register(group=None, name=None, enabled=True, detector=None, gui=None):
     """TBW."""
     """Auto register callable class or function using a decorator."""
 
@@ -325,59 +326,6 @@ def register(name=None, group=None, enabled=True, detector=None, gui=None):
         return func
 
     return _wrapper
-
-
-def argument(name, **kwargs):
-    """TBW."""
-    def _register(func):
-        """TBW."""
-        func_id = func.__module__ + '.' + func.__name__
-        if func_id not in parameters:
-            parameters[func_id] = {}
-        param = dict(kwargs)
-        parameters[func_id][name] = param
-        return func
-
-    return _register
-
-
-class ValidationError(Exception):
-    """Exception thrown by the argument validate function."""
-
-
-def validate(func):
-    """TBW."""
-    def _validate(*args, **kwargs):
-        """TBW."""
-        func_id = func.__module__ + '.' + func.__name__
-        spec = inspect.getfullargspec(func)
-        params = parameters[func_id]
-
-        if spec.defaults is not None:
-            start = len(spec.args) - len(spec.defaults)
-            default_values = dict(zip(spec.args[start:], spec.defaults))
-        else:
-            default_values = {}
-
-        for i, name in enumerate(spec.args):
-            if name in params:
-                value = None
-                if name in default_values:
-                    value = default_values[name]
-
-                if name in kwargs:
-                    value = kwargs[name]
-                elif i < len(args):
-                    value = args[i]
-                param = params[name]
-                if 'validate' in param:
-                    if not param['validate'](value):
-                        msg = 'Validation failed for: model: %s, argument: %s, value: %r' % (func_id, name, value)
-                        raise ValidationError(msg)
-
-        return func(*args, **kwargs)
-
-    return _validate
 
 
 class MetaModel(type):

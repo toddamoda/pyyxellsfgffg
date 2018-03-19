@@ -4,6 +4,7 @@ $.fn.extend({
         if (ignore_if_equal && ind.text() == text) {
             return $(this);
         }
+        ind.css('background-color', '')
         ind.text(text).prop('title', text).addClass('indicator-hilite');
         setTimeout(function() { ind.removeClass('indicator-hilite'); }, 500);
         return $(this);

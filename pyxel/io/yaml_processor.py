@@ -144,7 +144,8 @@ def _environment_constructor(loader: PyxelLoader, node: yaml.MappingNode):
     """
     mapping = loader.construct_mapping(node, deep=True)  # type: dict
 
-    obj = Environment(**mapping)
+    # error: Too many arguments for "Environment"
+    obj = Environment(**mapping)  # type: ignore
     return obj
 
 
@@ -357,12 +358,15 @@ yaml.add_path_resolver('!cmos_geometry', path=['geometry'], kind=dict, Loader=Py
 yaml.add_path_resolver('!cmos_characteristics', path=['characteristics'], kind=dict, Loader=PyxelLoader)
 
 
-def load(stream: t.Union[str, t.IO]):
+def load(stream: t.Union[str, t.IO, Path]):
     """Parse a YAML document.
 
     :param stream: document to process.
     :return: a python object
     """
+    if isinstance(stream, Path):
+        with stream.open('r') as file_obj:
+            return yaml.load(file_obj, Loader=PyxelLoader)
     return yaml.load(stream, Loader=PyxelLoader)
 
 

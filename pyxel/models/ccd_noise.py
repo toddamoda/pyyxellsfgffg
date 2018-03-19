@@ -12,7 +12,7 @@ from pyxel.pipelines.model_registry import registry
 # from astropy import units as u
 
 
-@registry.decorator('charge_collection', name='fix_pattern_noise', detector='ccd')
+@registry.decorator('charge_collection', name='fixed_pattern_noise', detector='ccd')
 def add_fix_pattern_noise(detector: Detector,
                           pix_non_uniformity=None) -> Detector:
     """Add fix pattern noise caused by pixel non-uniformity during charge collection.

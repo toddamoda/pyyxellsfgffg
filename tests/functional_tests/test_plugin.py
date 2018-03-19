@@ -4,7 +4,7 @@
 # import yaml
 #
 # from pyxel import plugins
-# from pyxel.io.yaml_processor import load_config
+# from pyxel.io.yaml_processor import load
 # from pyxel.pipelines.detector_pipeline import Detector
 #
 # CWD = Path(__file__).parent.parent
@@ -37,7 +37,7 @@
 #
 # def test_plugin():
 #
-#     cfg = load_config(Path('tests/data/pipeline_template.yaml'))
+#     cfg = load(Path('tests/data/pipeline_template.yaml'))
 #     processor = cfg['ccd_process']      # type: pyxel.pipelines.processor.Processor
 #
 #     pipeline = processor.pipeline  # type: t.Union[CCDDetectionPipeline, CMOSDetectionPipeline]
