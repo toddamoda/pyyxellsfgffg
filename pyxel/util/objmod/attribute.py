@@ -14,8 +14,16 @@ def _get_getter(key, inst):
     :param inst:
     :return:
     """
+    att = getattr(attr.fields(type(inst)), key)
+
+    on_get_func = att.metadata.get('on_get')
+    if on_get_func:
+        value = on_get_func(inst, att)
+
     # print('getter:', key, inst._cols)
-    return getattr(inst, key)
+    value = getattr(inst, key)
+
+    return value
 
 
 def _set_setter(key, inst, value):
@@ -32,6 +40,11 @@ def _set_setter(key, inst, value):
     value = cast_value(inst, att, value)
     if att.validator:
         att.validator(inst, att, value)
+
+    on_set_func = att.metadata.get('on_set')
+    if on_set_func:
+        on_set_func(inst, att, value)
+
     setattr(inst, key, value)
 
 
