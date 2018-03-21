@@ -1,5 +1,6 @@
 """PyXEL is an detector simulation framework."""
 
+import esapy_config as om
 
 from pyxel.pipelines import models
 from pyxel.pipelines import processor
@@ -30,3 +31,24 @@ __pkgname__ = 'pyxel'
 from ._version import get_versions
 __version__ = get_versions()['version']
 del get_versions
+
+
+def define_pyxel_loader():
+    """TBW."""
+    from pyxel.pipelines.parametric import StepValues
+    from pyxel.pipelines.parametric import ParametricConfig
+    from pyxel.pipelines.model_group import ModelFunction
+    from pyxel.pipelines.model_group import ModelGroup
+
+    om.ObjectModelLoader.add_class_ref(['processor', 'class'])
+    om.ObjectModelLoader.add_class_ref(['processor', 'detector', 'class'])
+    om.ObjectModelLoader.add_class_ref(['processor', 'detector', None, 'class'])
+    om.ObjectModelLoader.add_class_ref(['processor', 'pipeline', 'class'])
+
+    om.ObjectModelLoader.add_class(ParametricConfig, ['parametric'])
+    om.ObjectModelLoader.add_class(StepValues, ['parametric', 'steps'], is_list=True)
+    om.ObjectModelLoader.add_class(ModelGroup, ['processor', 'pipeline', None])
+    om.ObjectModelLoader.add_class(ModelFunction, ['processor', 'pipeline', None, None])
+
+
+define_pyxel_loader()

@@ -8,7 +8,8 @@ from astropy.io import fits
 
 import pyxel
 
-from pyxel.util import objmod as om
+import esapy_config as om
+# from pyxel.util import objmod as om
 
 
 @om.argument('image_file', label='Fits File', validate=os.path.exists)

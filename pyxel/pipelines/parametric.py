@@ -2,7 +2,8 @@
 import itertools
 import typing as t
 
-from pyxel.util import objmod as om
+import esapy_config as om
+# from pyxel.util import objmod as om
 
 
 class StepValues:

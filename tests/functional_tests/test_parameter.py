@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pyxel
 
-from pyxel.util import objmod as om
-
+# from pyxel.util import objmod as om
+import esapy_config as om
 
 CWD = Path(__file__).parent.parent
 sys.path.append(str(CWD))

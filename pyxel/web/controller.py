@@ -6,8 +6,9 @@ from pathlib import Path
 
 import yaml
 
+import esapy_config as om
 from pyxel import util
-from pyxel.util import objmod as om
+# from pyxel.util import objmod as om
 from pyxel.web import signals
 from pyxel.web import webapp
 from pyxel.pipelines.processor import Processor

@@ -3,7 +3,8 @@
 # from pyxel.pipelines.validator import attr_class
 # from pyxel.pipelines.validator import attr_def
 # from pyxel.pipelines.validator import check_range
-from pyxel.util import objmod as om
+# from pyxel.util import objmod as om
+import esapy_config as om
 
 
 @om.attr_class

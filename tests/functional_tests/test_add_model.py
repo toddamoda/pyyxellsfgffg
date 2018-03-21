@@ -5,7 +5,7 @@ import itertools
 import yaml
 import sys
 from pyxel import util
-from pyxel.util import objmod as om
+# from pyxel.util import objmod as om
 # from pyxel.io.yaml_processor_new import load
 # from pyxel.io.yaml_processor_new import dump
 from pyxel.pipelines.model_registry import Registry
@@ -15,8 +15,8 @@ from pyxel.pipelines.model_group import ModelFunction
 # from pyxel.pipelines.model_group import ModelRegistry
 from pyxel.detectors.detector import Detector
 from pyxel import registry
-from pyxel.util import objmod as om
-
+# from pyxel.util import objmod as om
+import esapy_config as om
 
 CWD = Path(__file__).parent.parent
 sys.path.append(str(CWD))

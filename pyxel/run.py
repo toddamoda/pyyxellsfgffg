@@ -14,10 +14,12 @@ from pathlib import Path
 
 import yaml
 
+import esapy_config as om
+
 import pyxel
 from pyxel import registry
 from pyxel import util
-from pyxel.util import objmod as om
+# from pyxel.util import objmod as om
 import pyxel.pipelines.processor
 
 

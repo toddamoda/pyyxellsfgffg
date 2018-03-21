@@ -3,8 +3,9 @@ import logging
 import functools
 import typing as t  # noqa: F401
 
+import esapy_config as om
 from pyxel import util
-from pyxel.util import objmod as om
+# from pyxel.util import objmod as om
 # from pyxel.detectors.detector import Detector
 
 

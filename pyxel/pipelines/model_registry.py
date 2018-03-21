@@ -6,6 +6,7 @@ import typing as t  # noqa: F401
 
 import yaml
 
+import esapy_config as om
 # from pyxel import util
 # from pyxel.pipelines.model_group import ModelFunction
 # from pyxel import Processor
@@ -13,7 +14,7 @@ import yaml
 from pyxel.detectors.detector import Detector
 from pyxel.pipelines.processor import Processor
 from pyxel.pipelines.model_group import ModelFunction
-from pyxel.util import objmod as om
+# from pyxel.util import objmod as om
 
 
 # Model Definition Schema:
