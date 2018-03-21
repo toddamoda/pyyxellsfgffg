@@ -107,3 +107,45 @@ class Particle:
 
         else:
             raise ValueError('Given particle type can not be simulated')
+
+    def track_length(self):
+        """
+
+        :return:
+        """
+        geo = self.detector.geometry
+
+        vectors = [np.array([0., 0., 1.]),
+                   np.array([0., 1., 0.]),
+                   np.array([-1., 0., 0.]),
+                   np.array([0., -1., 0.]),
+                   np.array([1., 0., 0.])]
+        points = [np.array([0., 0., -1 * geo.total_thickness]),
+                  np.array([0., 0., 0.]),
+                  np.array([geo.vert_dimension, 0., 0.]),
+                  np.array([geo.vert_dimension, geo.horz_dimension, 0.]),
+                  np.array([0., geo.horz_dimension, 0.])]
+        i = 0
+        for n in vectors:
+            p0 = points[i]
+            i += 1
+            intersect_point = self.find_intersection(n, p0)
+            if intersect_point is not None:
+                return np.linalg.norm(intersect_point - self.starting_position)
+
+    def find_intersection(self, n, p0):
+        """
+
+        :return:
+        """
+        l0 = self.starting_position
+        l = np.array([self.dir_ver,
+                      self.dir_hor,
+                      self.dir_z])
+
+        if np.dot(l, n) == 0:   # No intersection of track and detector plane
+            return None
+        else:
+            d = np.dot((p0 - l0), n) / np.dot(l, n)
+            p = d * l + l0
+            return p

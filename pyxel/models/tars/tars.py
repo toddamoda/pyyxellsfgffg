@@ -15,7 +15,7 @@ from pyxel.models.tars.simulation import Simulation
 from pyxel.models.tars.util import read_data, load_step_data, interpolate_data
 from pyxel.pipelines.model_registry import registry
 
-# from pyxel.models.tars.plotting import PlottingTARS
+from pyxel.models.tars.plotting import PlottingTARS
 
 # from astropy import units as u
 
@@ -89,15 +89,17 @@ def run_tars(detector: Detector,
 
     cosmics.run()
 
-    # plot_obj = PlottingTARS(cosmics)
-    #
+    plot_obj = PlottingTARS(cosmics)
+
     # plot_obj.plot_flux_spectrum()
     # plot_obj.plot_spectrum_cdf()
-    # plot_obj.plot_charges_3d()
-    # plot_obj.plot_let_dist()
-    # plot_obj.plot_let_cdf()
-    #
-    # plot_obj.show_plots()
+
+    # # plot_obj.plot_let_dist()
+    plot_obj.plot_step_dist()
+    plot_obj.plot_let_cdf()     # todo
+    plot_obj.plot_charges_3d()
+
+    plot_obj.show_plots()
 
     return new_detector
 
@@ -119,7 +121,6 @@ class TARS:
         self.position_ver = None
         self.position_hor = None
         self.position_z = None
-        # self.step_length = None
 
         self.sim_obj = Simulation(detector)
         self.charge_obj = detector.charges
@@ -169,14 +170,6 @@ class TARS:
         self.position_ver = position_vertical
         self.position_hor = position_horizontal
         self.position_z = position_z
-
-    # def set_stepping_length(self, stepping):
-    #     """TBW.
-    #
-    #     :param stepping:
-    #     :return:
-    #     """
-    #     self.step_length = stepping  # um
 
     def set_particle_spectrum(self, file_name):
         """Set up the particle specs according to a spectrum.
@@ -259,7 +252,6 @@ class TARS:
                                 self.init_energy,
                                 self.position_ver, self.position_hor, self.position_z,
                                 self.angle_alpha, self.angle_beta)
-                                # self.step_length)
 
         for _ in tqdm(range(0, self.particle_number)):
             self.sim_obj.event_generation()

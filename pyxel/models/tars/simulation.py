@@ -98,49 +98,101 @@ class Simulation:
         :return:
         """
         track_left = False
+        geo = self.detector.geometry
+        ioniz_energy = geo.material_ionization_energy
 
-        p = Particle(self.detector,
-                     self.particle_type,
-                     self.initial_energy, self.spectrum_cdf,
-                     self.position_ver, self.position_hor, self.position_z,
-                     self.angle_alpha, self.angle_beta)
+        particle = Particle(self.detector,
+                            self.particle_type,
+                            self.initial_energy, self.spectrum_cdf,
+                            self.position_ver, self.position_hor, self.position_z,
+                            self.angle_alpha, self.angle_beta)
+
+        # TODO calculate total track length here with a new func
+        track_len = particle.track_length()
 
         if self.energy_loss_data == 'let':
-            self.select_let(p.energy, self.detector.geometry.total_thickness)  # TODO
+            self.select_let(particle.energy, self.detector.geometry.total_thickness)  # TODO
 
-        # p.position is inside CCD, ionization can not happen in this first step
-        p.position[0] += p.dir_ver * self.step_length * 0.1
-        p.position[1] += p.dir_hor * self.step_length * 0.1
-        p.position[2] += p.dir_z * self.step_length * 0.1
+        # TODO implement select_stepsize_data func
+        # if self.energy_loss_data == 'stepsize':
+        #     self.select_stepsize_data(particle.energy, self.detector.geometry.total_thickness)
+
+        # initial step, ionization can not happen in this first step
+        particle.position[0] += particle.dir_ver * 0.01     # um
+        particle.position[1] += particle.dir_hor * 0.01     # um
+        particle.position[2] += particle.dir_z * 0.01       # um
 
         while True:
-            # check if p is still inside CCD and have enough energy:
-            if p.position[0] < 0.0 or p.position[0] > self.detector.geometry.vert_dimension:
+            # # check if p is still inside detector and have enough energy:
+            # if particle.position[0] < 0.0 or particle.position[0] > self.detector.geometry.vert_dimension:
+            #     break
+            # if particle.position[1] < 0.0 or particle.position[1] > self.detector.geometry.horz_dimension:
+            #     break
+            # if particle.position[2] < -1 * self.detector.geometry.total_thickness or particle.position[2] > 0.0:
+            #     break
+            if particle.energy <= self.energy_cut:
                 break
-            if p.position[1] < 0.0 or p.position[1] > self.detector.geometry.horz_dimension:
+            #
+            # track_left = True
+
+            # IONIZATION
+            # self._ionization_by_step_(p)
+            #################################
+            # geo = self.detector.geometry
+            # ioniz_energy = geo.material_ionization_energy
+
+            # particle.energy is in MeV !
+            # particle.deposited_energy is in keV !
+            if self.energy_loss_data == 'stepsize':
+                current_step_size = sampling_distribution(self.let_cdf)  # um      # TODO change let_cdf to step_cdf
+
+            particle.deposited_energy = 1.0  # keV       # TODO update this
+
+            # UPDATE POSITION OF IONIZING PARTICLES
+            particle.position[0] += particle.dir_ver * current_step_size  # um
+            particle.position[1] += particle.dir_hor * current_step_size  # um
+            particle.position[2] += particle.dir_z * current_step_size  # um
+
+            # TODO if it is still inside the detector vol then ionization happen otherwise return 
+            # check if p is still inside detector and have enough energy:
+            if particle.position[0] < 0.0 or particle.position[0] > geo.vert_dimension:
                 break
-            if p.position[2] < -1 * self.detector.geometry.total_thickness or p.position[2] > 0.0:
+            if particle.position[1] < 0.0 or particle.position[1] > geo.horz_dimension:
                 break
-            if p.energy <= self.energy_cut:
+            if particle.position[2] < -1 * geo.total_thickness or particle.position[2] > 0.0:
+                break
+            if particle.deposited_energy >= particle.energy * 1e3:
+                # particle.deposited_energy = particle.energy * 1e3
                 break
 
             track_left = True
 
-            # IONIZATION
-            self._ionization_by_step_(p)
+            # keV
+            # particle.deposited_energy = particle.electrons * (e_kin_energy + ioniz_energy) * 1e-3
+            particle.energy -= particle.deposited_energy * 1e-3  # MeV
 
-            # self._ionization_(p)
-            # # UPDATE POSITION OF IONIZING PARTICLES
-            # p.position[0] += p.dir_ver * self.step_length
-            # p.position[1] += p.dir_hor * self.step_length
-            # p.position[2] += p.dir_z * self.step_length
+            e_kin_energy = 1000.0  # eV     # TODO sample kinetic energy from data
+
+            # particle.electrons = int(particle.deposited_energy * 1e3 / (ioniz_energy + e_kin_energy))  # eV/eV = 1
+            particle.electrons = 1
+            # TODO implement clusters here
+
+            self.e_num_lst += [particle.electrons]
+            self.e_energy_lst += [e_kin_energy]
+            self.e_pos0_lst += [particle.position[0]]
+            self.e_pos1_lst += [particle.position[1]]
+            self.e_pos2_lst += [particle.position[2]]
+
+            self.edep_per_step.append(particle.deposited_energy)  # keV
+            particle.total_edep += particle.deposited_energy  # keV
+            #################################
 
             # save particle trajectory
-            p.trajectory = np.vstack((p.trajectory, p.position))
+            particle.trajectory = np.vstack((particle.trajectory, particle.position))
         # END of loop
 
         if track_left:
-            self.total_edep_per_particle.append(p.total_edep)  # keV
+            self.total_edep_per_particle.append(particle.total_edep)  # keV
 
     # TODO: make two different function using let or stopping power
     def _ionization_by_step_(self, particle):
@@ -164,6 +216,11 @@ class Simulation:
         particle.position[1] += particle.dir_hor * current_step_size  # um
         particle.position[2] += particle.dir_z * current_step_size    # um
 
+        # TODO if it is still inside the detector vol then ionization happen otherwise return 
+        # if 
+        
+        
+        
         particle.deposited_energy = 1.0     # keV       # TODO update this
 
         if particle.deposited_energy >= particle.energy * 1e3:

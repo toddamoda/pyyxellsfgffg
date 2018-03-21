@@ -142,6 +142,16 @@ class PlottingTARS:
         plt.plot(self.tars.sim_obj.let_cdf[:, 0], self.tars.sim_obj.let_cdf[:, 1], '.')
         plt.draw()
 
+    def plot_step_dist(self):
+        """TBW.
+
+        :return:
+        """
+        plt.figure()
+        plt.plot(self.tars.sim_obj.step_size_dist['step_size'],
+                 self.tars.sim_obj.step_size_dist['counts'], '.')
+        plt.draw()
+
     def plot_let_dist(self):
         """TBW.
 
