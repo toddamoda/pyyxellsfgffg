@@ -11,12 +11,27 @@ import esapy_config as om
 class Environment:
     """TBW."""
 
-    temperature = om.attr_def(type=float, default=None, units='K', cast=True,
-                              validate=om.check_range(0.00, 400.0, 0.01, False))
+    temperature = om.attr_def(
+        type=float,
+        default=None,
+        units='K',
+        cast=True,
+        validate=om.check_range(0.00, 400.0, 0.01, False)
+    )
 
-    total_ionising_dose = om.attr_def(type=float, default=None, units='MeV/g', cast=True)
+    total_ionising_dose = om.attr_def(
+        type=float,
+        default=None,
+        units='MeV/g',
+        cast=True
+    )
 
-    total_non_ionising_dose = om.attr_def(type=float, default=None, units='MeV/g', cast=True)
+    total_non_ionising_dose = om.attr_def(
+        type=float,
+        default=None,
+        units='MeV/g',
+        cast=True
+    )
 
     def copy(self):
         """TBW."""

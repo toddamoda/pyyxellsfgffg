@@ -92,10 +92,10 @@
             <td id="steps.{{i}}.key">
                 <select>
                     <option value=""></option>
-                    {% for section in controller.get_gui_defs()[1]['items'] %}
-                    {% if len(section['arguments']) %}
+                    {% for section in controller.get_gui_defs()[1]['section'] %}
+                    {% if len(section['items']) %}
                     <optgroup label="{{ section['label'] }}">
-                        {% for item in section['arguments'] %}
+                        {% for item in section['items'] %}
                         <option value="{{ item['id'] }}">{{ item['label'] }}</option>
                         {% end %}
                     </optgroup>

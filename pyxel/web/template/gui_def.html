@@ -2,13 +2,13 @@
 
 <div class="pe-section-group">
     <div class="pe-group-title">{{ group['label'] }}</div>
-    {% for section in group['items'] %}
-        {% if len(section['arguments']) == 0 %}
+    {% for section in group['section'] %}
+        {% if len(section['items']) == 0 %}
         {% continue %}
         {% end %}
     <table class="pe-table pe-form">
         <caption class="pe-section">{{ section['label'] }}</caption>
-        {% for item in section['arguments'] %}
+        {% for item in section['items'] %}
         {% if not controller.has_setting(item['id'])%}
         {% continue %}
         {% end %}

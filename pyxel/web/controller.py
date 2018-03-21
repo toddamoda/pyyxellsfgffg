@@ -328,7 +328,7 @@ class Controller:
             'options': [],
         }
 
-        model_settings = cfg['gui'][1]['items']
+        model_settings = cfg['gui'][1]['section']
         model_settings.clear()
         if self.processor:
             pipeline = self.processor.pipeline
@@ -338,12 +338,12 @@ class Controller:
                 # items = [registry[key] for key in registry if registry[key]['group'] == group]
                 for item in items:
                     gui_def_override = item.get('gui', {})
-                    entry_def_override = gui_def_override.get('arguments', {})
+                    entry_def_override = gui_def_override.get('items', {})
                     group_label = group.replace('_', ' ').title()
                     model_label = gui_def_override.get('label', item['name']).replace('_', ' ').title()
                     gui_def = {
                         'label': '{}: {}'.format(group_label, model_label),
-                        'arguments': []
+                        'items': []
                     }
                     for arg in item['arguments']:
                         label = arg
@@ -377,7 +377,7 @@ class Controller:
                         }
                         entry_def.update(entry_def_override.get(arg, {}))
 
-                        gui_def['arguments'].append(entry_def)
+                        gui_def['items'].append(entry_def)
 
                     model_settings.append(gui_def)
 
