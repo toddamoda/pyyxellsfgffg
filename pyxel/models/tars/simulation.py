@@ -24,8 +24,13 @@ class Simulation:
         self.spectrum_cdf = None
 
         self.energy_loss_data = None
+
+        self.step_size_dist = None
+        self.step_cdf = np.zeros((1, 2))
+
         self.let_dist = None
         self.let_cdf = np.zeros((1, 2))
+
         self.stopping_power = None
 
         self.particle_type = None
@@ -122,12 +127,13 @@ class Simulation:
             track_left = True
 
             # IONIZATION
-            self._ionization_(p)
+            self._ionization_by_step_(p)
 
-            # UPDATE POSITION OF IONIZING PARTICLES
-            p.position[0] += p.dir_ver * self.step_length
-            p.position[1] += p.dir_hor * self.step_length
-            p.position[2] += p.dir_z * self.step_length
+            # self._ionization_(p)
+            # # UPDATE POSITION OF IONIZING PARTICLES
+            # p.position[0] += p.dir_ver * self.step_length
+            # p.position[1] += p.dir_hor * self.step_length
+            # p.position[2] += p.dir_z * self.step_length
 
             # save particle trajectory
             p.trajectory = np.vstack((p.trajectory, p.position))
@@ -135,6 +141,52 @@ class Simulation:
 
         if track_left:
             self.total_edep_per_particle.append(p.total_edep)  # keV
+
+    # TODO: make two different function using let or stopping power
+    def _ionization_by_step_(self, particle):
+        """TBW.
+
+        :param particle:
+        :return:
+        """
+        geo = self.detector.geometry
+        ioniz_energy = geo.material_ionization_energy
+
+        # particle.energy is in MeV !
+        # particle.deposited_energy is in keV !
+        if self.energy_loss_data == 'stepsize':
+            current_step_size = sampling_distribution(self.let_cdf)  # um      # TODO change let_cdf to step_cdf
+        else:
+            return
+
+        # UPDATE POSITION OF IONIZING PARTICLES
+        particle.position[0] += particle.dir_ver * current_step_size  # um
+        particle.position[1] += particle.dir_hor * current_step_size  # um
+        particle.position[2] += particle.dir_z * current_step_size    # um
+
+        particle.deposited_energy = 1.0     # keV       # TODO update this
+
+        if particle.deposited_energy >= particle.energy * 1e3:
+            particle.deposited_energy = particle.energy * 1e3
+
+        e_kin_energy = 1000.0  # eV     # TODO sample kinetic energy from data
+
+        # particle.electrons = int(particle.deposited_energy * 1e3 / (ioniz_energy + e_kin_energy))  # eV/eV = 1
+        particle.electrons = 1
+        # TODO implement clusters here
+
+        self.e_num_lst += [particle.electrons]
+        self.e_energy_lst += [e_kin_energy]
+        self.e_pos0_lst += [particle.position[0]]
+        self.e_pos1_lst += [particle.position[1]]
+        self.e_pos2_lst += [particle.position[2]]
+
+        # keV
+        particle.deposited_energy = particle.electrons * (e_kin_energy + ioniz_energy) * 1e-3
+        particle.energy -= particle.deposited_energy * 1e-3     # MeV
+
+        self.edep_per_step.append(particle.deposited_energy)    # keV
+        particle.total_edep += particle.deposited_energy        # keV
 
     # TODO: make two different function using let or stopping power
     def _ionization_(self, particle):

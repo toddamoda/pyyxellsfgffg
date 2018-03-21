@@ -12,7 +12,7 @@ import typing as t   # noqa: F401
 
 from pyxel.detectors.detector import Detector
 from pyxel.models.tars.simulation import Simulation
-from pyxel.models.tars.util import read_data, interpolate_data
+from pyxel.models.tars.util import read_data, load_step_data, interpolate_data
 from pyxel.pipelines.model_registry import registry
 
 # from pyxel.models.tars.plotting import PlottingTARS
@@ -28,7 +28,8 @@ def run_tars(detector: Detector,
              incident_angles: tuple = None,
              starting_position: tuple = None,
              # stepping_length: float = None,
-             let_file: str = None,
+             step_size_file: str = None,
+             # let_file: str = None,
              stopping_file: str = None,
              spectrum_file: str = None) -> Detector:
     """
@@ -40,7 +41,8 @@ def run_tars(detector: Detector,
     :param particle_number:
     :param incident_angles:
     :param starting_position:
-    :param let_file:
+    # :param let_file:
+    :param step_size_file:
     :param stopping_file:
     :param spectrum_file:
     :return:
@@ -75,9 +77,12 @@ def run_tars(detector: Detector,
     # cosmics.set_stepping_length(stepping_length)            # um
     cosmics.set_particle_spectrum(spectrum_file)
 
-    if let_file is not None and stopping_file is None:
-        cosmics.set_let_distribution(let_file)
-    elif stopping_file is not None and let_file is None:
+    if step_size_file is not None and stopping_file is None:
+        cosmics.set_stepsize_distribution(step_size_file)
+    elif step_size_file is not None and stopping_file is None:
+        # cosmics.set_let_distribution(let_file)
+        raise NotImplementedError
+    elif stopping_file is not None and step_size_file is None:
         cosmics.set_stopping_power(stopping_file)
     else:
         raise AttributeError("Either LET or Stopping power data needs to be defined")
@@ -223,6 +228,25 @@ class TARS:
         cum_sum /= np.max(cum_sum)
         self.sim_obj.let_cdf = np.stack((self.sim_obj.let_cdf[:, 0], cum_sum), axis=1)
         # self.sim_obj.let_cdf = np.stack((lin_energy_range, cum_sum), axis=1)
+
+    def set_stepsize_distribution(self, step_size_file):
+        """TBW.
+
+        :param step_size_file:
+        :return:
+        .. warning:: EXPERIMENTAL - NOT FINSHED YET
+        """
+        self.sim_obj.energy_loss_data = 'stepsize'
+
+        # TODO: get rid of row number argument (10000)
+        self.sim_obj.step_size_dist = load_step_data(step_size_file, 10000)  # step size distribution in um
+
+        cum_sum = np.cumsum(self.sim_obj.step_size_dist['counts'])
+
+        cum_sum /= np.max(cum_sum)
+        self.sim_obj.step_cdf = np.stack((self.sim_obj.step_size_dist['step_size'], cum_sum), axis=1)
+
+        self.sim_obj.let_cdf = self.sim_obj.step_cdf    # TODO delete this line
 
     def run(self):
         """TBW.

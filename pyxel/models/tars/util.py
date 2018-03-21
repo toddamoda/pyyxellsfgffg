@@ -5,6 +5,7 @@
 
 import bisect
 import numpy as np
+import pandas as pd
 from scipy import interpolate
 
 
@@ -57,6 +58,36 @@ def get_yvalue_with_interpolation(function_array, x_value):
     intpol_y_value = y_value_bot + (x_value - x_value_bot) * (y_value_top - y_value_bot) / (x_value_top - x_value_bot)
 
     return intpol_y_value
+
+
+def load_step_data(file_name, step_rows):
+    """TBW.
+
+    :param file_name:
+    :param step_rows:
+    :return:
+    """
+    # 'proton_' + energy + '_' + thickness + '_1M.ascii'
+
+    # TODO store count in pandas dataframe as int !!!
+
+    step_size_data = pd.read_csv(file_name, delimiter="\t",
+                                 names=["step_size", "counts"], usecols=[1, 2], skiprows=4, nrows=step_rows)
+    return step_size_data
+
+
+def load_energy_data(file_name, step_rows):
+    """TBW.
+
+    :param file_name:
+    :param step_rows:
+    :return:
+    """
+    # 'proton_' + energy + '_' + thickness + '_1M.ascii'
+    spectrum_data = pd.read_csv(file_name, delimiter="\t",
+                                names=["energy", "counts"], usecols=[1, 2], skiprows=step_rows + 8)
+
+    return spectrum_data
 
 
 def read_data(file_name):
