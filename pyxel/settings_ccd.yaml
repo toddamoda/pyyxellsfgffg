@@ -39,7 +39,7 @@ processor:
       class: pyxel.detectors.ccd_geometry.CCDGeometry
       row: 100                      # compulsory
       col: 100                      # compulsory
-      total_thickness: 100.0         # um
+      total_thickness: 10.0         # um
       depletion_thickness: 10.0     # um
       field_free_thickness: 0.0     # um
       pixel_vert_size: 10.0         # um
@@ -104,16 +104,16 @@ processor:
         arguments:
           particle_type: proton
           initial_energy: 100   # MeV
-          particle_number: 1
+          particle_number: 10
           incident_angles:      # rad
-            - 0.785 # pi / 4
-            - 1.570 # pi / 2
+#            - 0.31415 # pi / 4
+#            - 3.1415  # 0 # 1.570 # 3.1415 # 2.094 # pi / 2
           starting_position:    # um
-            - 500.0
-            - 500.0
-            - 0.0
+#            - 10. #500.0  #vertical
+#            - 20. #500.0  #horizontal
+#            - 0.0         # z
           spectrum_file: 'pyxel/models/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
-          step_size_file: 'pyxel/models/tars/data/inputs/stepsize_proton_100MeV_100um_1M.ascii'
+          step_size_file: 'pyxel/models/tars/data/inputs/stepsize_proton_100MeV_10um_1M.ascii'
 
 #          step_size_file: 'pyxel/models/tars/data/inputs/stepsize_proton_1GeV_100um_1M.ascii'
 #          stepping_length: 1.0  # um

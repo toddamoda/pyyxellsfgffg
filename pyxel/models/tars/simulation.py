@@ -33,6 +33,8 @@ class Simulation:
 
         self.stopping_power = None
 
+        self.particle = None
+
         self.particle_type = None
         self.initial_energy = None
         self.position_ver = None
@@ -99,61 +101,43 @@ class Simulation:
         """
         track_left = False
         geo = self.detector.geometry
-        ioniz_energy = geo.material_ionization_energy
+        ioniz_energy = geo.material_ionization_energy   # eV
 
-        particle = Particle(self.detector,
-                            self.particle_type,
-                            self.initial_energy, self.spectrum_cdf,
-                            self.position_ver, self.position_hor, self.position_z,
-                            self.angle_alpha, self.angle_beta)
+        self.particle = Particle(self.detector,
+                                 self.particle_type,
+                                 self.initial_energy, self.spectrum_cdf,
+                                 self.position_ver, self.position_hor, self.position_z,
+                                 self.angle_alpha, self.angle_beta)
+        particle = self.particle
 
-        # TODO calculate total track length here with a new func
         track_len = particle.track_length()
 
         if self.energy_loss_data == 'let':
             self.select_let(particle.energy, self.detector.geometry.total_thickness)  # TODO
 
-        # TODO implement select_stepsize_data func
+        # TODO implement select_stepsize_data func using track_len parameter
         # if self.energy_loss_data == 'stepsize':
-        #     self.select_stepsize_data(particle.energy, self.detector.geometry.total_thickness)
-
-        # initial step, ionization can not happen in this first step
-        particle.position[0] += particle.dir_ver * 0.01     # um
-        particle.position[1] += particle.dir_hor * 0.01     # um
-        particle.position[2] += particle.dir_z * 0.01       # um
+        #     self.select_stepsize_data(particle.energy, track_len)
 
         while True:
-            # # check if p is still inside detector and have enough energy:
-            # if particle.position[0] < 0.0 or particle.position[0] > self.detector.geometry.vert_dimension:
-            #     break
-            # if particle.position[1] < 0.0 or particle.position[1] > self.detector.geometry.horz_dimension:
-            #     break
-            # if particle.position[2] < -1 * self.detector.geometry.total_thickness or particle.position[2] > 0.0:
-            #     break
             if particle.energy <= self.energy_cut:
                 break
-            #
-            # track_left = True
-
-            # IONIZATION
-            # self._ionization_by_step_(p)
-            #################################
-            # geo = self.detector.geometry
-            # ioniz_energy = geo.material_ionization_energy
 
             # particle.energy is in MeV !
             # particle.deposited_energy is in keV !
+
             if self.energy_loss_data == 'stepsize':
                 current_step_size = sampling_distribution(self.let_cdf)  # um      # TODO change let_cdf to step_cdf
+                # e_kin_energy = sampling_distribution(self.kin_energy_cdf)  # keV
+                e_kin_energy = 1.0  # keV    # TODO sample kinetic energy from data
 
-            particle.deposited_energy = 1.0  # keV       # TODO update this
+            particle.deposited_energy = e_kin_energy + ioniz_energy * 1e-3  # keV       # TODO update this
 
             # UPDATE POSITION OF IONIZING PARTICLES
-            particle.position[0] += particle.dir_ver * current_step_size  # um
-            particle.position[1] += particle.dir_hor * current_step_size  # um
-            particle.position[2] += particle.dir_z * current_step_size  # um
+            particle.position[0] += particle.dir_ver * current_step_size    # um
+            particle.position[1] += particle.dir_hor * current_step_size    # um
+            particle.position[2] += particle.dir_z * current_step_size      # um
 
-            # TODO if it is still inside the detector vol then ionization happen otherwise return 
             # check if p is still inside detector and have enough energy:
             if particle.position[0] < 0.0 or particle.position[0] > geo.vert_dimension:
                 break
@@ -162,30 +146,22 @@ class Simulation:
             if particle.position[2] < -1 * geo.total_thickness or particle.position[2] > 0.0:
                 break
             if particle.deposited_energy >= particle.energy * 1e3:
-                # particle.deposited_energy = particle.energy * 1e3
                 break
 
             track_left = True
 
-            # keV
-            # particle.deposited_energy = particle.electrons * (e_kin_energy + ioniz_energy) * 1e-3
-            particle.energy -= particle.deposited_energy * 1e-3  # MeV
+            particle.energy -= particle.deposited_energy * 1e-3     # MeV
 
-            e_kin_energy = 1000.0  # eV     # TODO sample kinetic energy from data
+            electron_number = int(e_kin_energy * 1e3 / ioniz_energy) + 1     # the +1 is the original secondary electron
 
-            # particle.electrons = int(particle.deposited_energy * 1e3 / (ioniz_energy + e_kin_energy))  # eV/eV = 1
-            particle.electrons = 1
-            # TODO implement clusters here
+            self.e_num_lst += [electron_number]
+            self.e_energy_lst += [e_kin_energy * 1e3]   # eV
+            self.e_pos0_lst += [particle.position[0]]   # um
+            self.e_pos1_lst += [particle.position[1]]   # um
+            self.e_pos2_lst += [particle.position[2]]   # um
 
-            self.e_num_lst += [particle.electrons]
-            self.e_energy_lst += [e_kin_energy]
-            self.e_pos0_lst += [particle.position[0]]
-            self.e_pos1_lst += [particle.position[1]]
-            self.e_pos2_lst += [particle.position[2]]
-
-            self.edep_per_step.append(particle.deposited_energy)  # keV
-            particle.total_edep += particle.deposited_energy  # keV
-            #################################
+            self.edep_per_step.append(particle.deposited_energy)    # keV
+            particle.total_edep += particle.deposited_energy        # keV
 
             # save particle trajectory
             particle.trajectory = np.vstack((particle.trajectory, particle.position))
@@ -194,93 +170,42 @@ class Simulation:
         if track_left:
             self.total_edep_per_particle.append(particle.total_edep)  # keV
 
-    # TODO: make two different function using let or stopping power
-    def _ionization_by_step_(self, particle):
-        """TBW.
-
-        :param particle:
-        :return:
-        """
-        geo = self.detector.geometry
-        ioniz_energy = geo.material_ionization_energy
-
-        # particle.energy is in MeV !
-        # particle.deposited_energy is in keV !
-        if self.energy_loss_data == 'stepsize':
-            current_step_size = sampling_distribution(self.let_cdf)  # um      # TODO change let_cdf to step_cdf
-        else:
-            return
-
-        # UPDATE POSITION OF IONIZING PARTICLES
-        particle.position[0] += particle.dir_ver * current_step_size  # um
-        particle.position[1] += particle.dir_hor * current_step_size  # um
-        particle.position[2] += particle.dir_z * current_step_size    # um
-
-        # TODO if it is still inside the detector vol then ionization happen otherwise return 
-        # if 
-        
-        
-        
-        particle.deposited_energy = 1.0     # keV       # TODO update this
-
-        if particle.deposited_energy >= particle.energy * 1e3:
-            particle.deposited_energy = particle.energy * 1e3
-
-        e_kin_energy = 1000.0  # eV     # TODO sample kinetic energy from data
-
-        # particle.electrons = int(particle.deposited_energy * 1e3 / (ioniz_energy + e_kin_energy))  # eV/eV = 1
-        particle.electrons = 1
-        # TODO implement clusters here
-
-        self.e_num_lst += [particle.electrons]
-        self.e_energy_lst += [e_kin_energy]
-        self.e_pos0_lst += [particle.position[0]]
-        self.e_pos1_lst += [particle.position[1]]
-        self.e_pos2_lst += [particle.position[2]]
-
-        # keV
-        particle.deposited_energy = particle.electrons * (e_kin_energy + ioniz_energy) * 1e-3
-        particle.energy -= particle.deposited_energy * 1e-3     # MeV
-
-        self.edep_per_step.append(particle.deposited_energy)    # keV
-        particle.total_edep += particle.deposited_energy        # keV
-
-    # TODO: make two different function using let or stopping power
-    def _ionization_(self, particle):
-        """TBW.
-
-        :param particle:
-        :return:
-        """
-        geo = self.detector.geometry
-        ioniz_energy = geo.material_ionization_energy
-        let_value = None
-
-        # particle.energy is in MeV !
-        # particle.deposited_energy is in keV !
-        if self.energy_loss_data == 'let':
-            let_value = sampling_distribution(self.let_cdf)  # keV/um
-        elif self.energy_loss_data == 'stopping':
-            stopping_power = get_yvalue_with_interpolation(self.stopping_power, particle.energy)  # MeV*cm2/g
-            let_value = 0.1 * stopping_power * geo.material_density  # keV/um
-
-        particle.deposited_energy = let_value * self.step_length  # keV
-
-        if particle.deposited_energy >= particle.energy * 1e3:
-            particle.deposited_energy = particle.energy * 1e3
-
-        e_kin_energy = 0.1  # eV
-        particle.electrons = int(particle.deposited_energy * 1e3 / (ioniz_energy + e_kin_energy))  # eV/eV = 1
-
-        self.e_num_lst += [particle.electrons]
-        self.e_energy_lst += [e_kin_energy]
-        self.e_pos0_lst += [particle.position[0]]
-        self.e_pos1_lst += [particle.position[1]]
-        self.e_pos2_lst += [particle.position[2]]
-
-        # keV
-        particle.deposited_energy = particle.electrons * (e_kin_energy + ioniz_energy) * 1e-3
-        particle.energy -= particle.deposited_energy * 1e-3     # MeV
-
-        self.edep_per_step.append(particle.deposited_energy)    # keV
-        particle.total_edep += particle.deposited_energy        # keV
+    # # TODO: make two different function using let or stopping power
+    # def _ionization_(self, particle):
+    #     """TBW.
+    #
+    #     :param particle:
+    #     :return:
+    #     """
+    #     geo = self.detector.geometry
+    #     ioniz_energy = geo.material_ionization_energy
+    #     let_value = None
+    #
+    #     # particle.energy is in MeV !
+    #     # particle.deposited_energy is in keV !
+    #     if self.energy_loss_data == 'let':
+    #         let_value = sampling_distribution(self.let_cdf)  # keV/um
+    #     elif self.energy_loss_data == 'stopping':
+    #         stopping_power = get_yvalue_with_interpolation(self.stopping_power, particle.energy)  # MeV*cm2/g
+    #         let_value = 0.1 * stopping_power * geo.material_density  # keV/um
+    #
+    #     particle.deposited_energy = let_value * self.step_length  # keV
+    #
+    #     if particle.deposited_energy >= particle.energy * 1e3:
+    #         particle.deposited_energy = particle.energy * 1e3
+    #
+    #     e_kin_energy = 0.1  # eV
+    #     electron_number = int(particle.deposited_energy * 1e3 / (ioniz_energy + e_kin_energy))  # eV/eV = 1
+    #
+    #     self.e_num_lst += [electron_number]
+    #     self.e_energy_lst += [e_kin_energy]
+    #     self.e_pos0_lst += [particle.position[0]]
+    #     self.e_pos1_lst += [particle.position[1]]
+    #     self.e_pos2_lst += [particle.position[2]]
+    #
+    #     # keV
+    #     particle.deposited_energy = electron_number * (e_kin_energy + ioniz_energy) * 1e-3
+    #     particle.energy -= particle.deposited_energy * 1e-3     # MeV
+    #
+    #     self.edep_per_step.append(particle.deposited_energy)    # keV
+    #     particle.total_edep += particle.deposited_energy        # keV

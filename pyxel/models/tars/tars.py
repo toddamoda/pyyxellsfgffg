@@ -66,26 +66,21 @@ def run_tars(detector: Detector,
         starting_position = ('random', 'random', 0.)
         # starting_position = ('random', 'random', 'random') -> snowflakes (radioactive decay inside detector)
 
-    # if stepping_length is None:
-    #     stepping_length = 1.    # um
-
     cosmics.set_particle_type(particle_type)                # MeV
     cosmics.set_initial_energy(initial_energy)              # MeV
     cosmics.set_particle_number(particle_number)            # -
     cosmics.set_incident_angles(incident_angles)            # rad
     cosmics.set_starting_position(starting_position)        # um
-    # cosmics.set_stepping_length(stepping_length)            # um
     cosmics.set_particle_spectrum(spectrum_file)
 
     if step_size_file is not None and stopping_file is None:
         cosmics.set_stepsize_distribution(step_size_file)
-    elif step_size_file is not None and stopping_file is None:
-        # cosmics.set_let_distribution(let_file)
-        raise NotImplementedError
     elif stopping_file is not None and step_size_file is None:
-        cosmics.set_stopping_power(stopping_file)
+        # cosmics.set_stopping_power(stopping_file)
+        raise NotImplementedError
     else:
-        raise AttributeError("Either LET or Stopping power data needs to be defined")
+        raise AttributeError("Either Step size, LET or Stopping power data needs to be defined")
+    # cosmics.set_let_distribution(let_file)
 
     cosmics.run()
 
@@ -97,7 +92,11 @@ def run_tars(detector: Detector,
     # # plot_obj.plot_let_dist()
     plot_obj.plot_step_dist()
     plot_obj.plot_let_cdf()     # todo
+
     plot_obj.plot_charges_3d()
+
+    plot_obj.plot_edep_per_step()
+    plot_obj.plot_edep_per_particle()
 
     plot_obj.show_plots()
 
@@ -112,7 +111,6 @@ class TARS:
 
         :param detector:
         """
-
         self.part_type = None
         self.init_energy = None
         self.particle_number = None

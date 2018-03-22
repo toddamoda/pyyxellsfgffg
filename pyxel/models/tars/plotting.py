@@ -111,13 +111,17 @@ class PlottingTARS:
         # set up a figure twice as wide as it is tall
         fig = plt.figure(figsize=plt.figaspect(0.5))
 
+        size = self.tars.sim_obj.e_num_lst
         ax = fig.add_subplot(1, 2, 1, projection='3d')
         ax.scatter(self.tars.sim_obj.e_pos0_lst, self.tars.sim_obj.e_pos1_lst, self.tars.sim_obj.e_pos2_lst,
-                   c='b', marker='.', s=self.tars.sim_obj.e_num_lst)
+                   c='b', marker='.', s=size)
+        ax.plot(self.tars.sim_obj.particle.trajectory[:, 0],
+                self.tars.sim_obj.particle.trajectory[:, 1],
+                self.tars.sim_obj.particle.trajectory[:, 2], 'c-')
 
         ax2 = fig.add_subplot(1, 2, 2, projection='3d')
         ax2.scatter(self.tars.sim_obj.e_pos0_lst, self.tars.sim_obj.e_pos1_lst, 0,
-                    c='r', marker='.', s=self.tars.sim_obj.e_num_lst)
+                    c='r', marker='.', s=size)
 
         ax.set_xlim(0, geo.vert_dimension)
         ax.set_ylim(0, geo.horz_dimension)
@@ -161,7 +165,7 @@ class PlottingTARS:
         plt.plot(self.tars.sim_obj.let_dist[:, 1], self.tars.sim_obj.let_dist[:, 2], '.')
         plt.draw()
 
-    def plot_trajectory_xy(self):       # TODO: select which particle you want to plot
+    def plot_trajectory_xy(self):
         """TBW.
 
         :return:
@@ -170,7 +174,7 @@ class PlottingTARS:
         geo = self.tars.sim_obj.detector.geometry
         # self.trajectory[:, 0] - VERTICAL COORDINATE
         # self.trajectory[:, 1] - HORIZONTAL COORDINATE
-        plt.plot(self.tars.sim_obj.p.trajectory[:, 1], self.tars.sim_obj.p.trajectory[:, 0], '.')
+        plt.plot(self.tars.sim_obj.particle.trajectory[:, 1], self.tars.sim_obj.particle.trajectory[:, 0], '.')
         plt.xlabel('horizontal ($\mu$m)')
         plt.ylabel('vertical ($\mu$m)')
         plt.title('p trajectory in CCD')
@@ -178,7 +182,7 @@ class PlottingTARS:
         plt.grid(True)
         plt.draw()
 
-    def plot_trajectory_xz(self):       # TODO: select which particle you want to plot
+    def plot_trajectory_xz(self):
         """TBW.
 
         :return:
@@ -187,7 +191,7 @@ class PlottingTARS:
         geo = self.tars.sim_obj.detector.geometry
         # self.trajectory[:, 2] - Z COORDINATE
         # self.trajectory[:, 1] - HORIZONTAL COORDINATE
-        plt.plot(self.tars.sim_obj.p.trajectory[:, 1], self.tars.sim_obj.p.trajectory[:, 2], '.')
+        plt.plot(self.tars.sim_obj.particle.trajectory[:, 1], self.tars.sim_obj.particle.trajectory[:, 2], '.')
         plt.xlabel('horizontal ($\mu$m)')
         plt.ylabel('z ($\mu$m)')
         plt.title('p trajectory in CCD')

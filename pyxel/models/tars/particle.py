@@ -71,7 +71,6 @@ class Particle:
             alpha = 2 * math.pi * np.random.random()
         else:
             alpha = input_alpha  # between 0 and pi
-
         if input_beta == 'random':
             beta = 2. * math.pi * np.random.random()
         else:
@@ -90,7 +89,6 @@ class Particle:
             raise ValueError('Given particle energy could not be read')
 
         self.deposited_energy = 0
-        self.electrons = 0
         self.total_edep = 0
 
         self.particle_type = particle_type
@@ -109,43 +107,52 @@ class Particle:
             raise ValueError('Given particle type can not be simulated')
 
     def track_length(self):
-        """
+        """TBW.
 
         :return:
         """
         geo = self.detector.geometry
 
-        vectors = [np.array([0., 0., 1.]),
-                   np.array([0., 1., 0.]),
-                   np.array([-1., 0., 0.]),
-                   np.array([0., -1., 0.]),
-                   np.array([1., 0., 0.])]
-        points = [np.array([0., 0., -1 * geo.total_thickness]),
+        norm_vectors = [np.array([0., 0., -1.]),    # top plane (usually particle enters vol. via this)
+                        np.array([0., 0., 1.]),     # bottom plane (usually particle leaves vol. via this)
+                        np.array([0., 1., 0.]),
+                        np.array([-1., 0., 0.]),
+                        np.array([0., -1., 0.]),
+                        np.array([1., 0., 0.])]
+
+        points = [np.array([0., 0., 0.]),                        # top plane (usually particle enters vol. via this)
+                  np.array([0., 0., -1 * geo.total_thickness]),  # bottom plane (usually particle leaves vol. via this)
                   np.array([0., 0., 0.]),
                   np.array([geo.vert_dimension, 0., 0.]),
                   np.array([geo.vert_dimension, geo.horz_dimension, 0.]),
                   np.array([0., geo.horz_dimension, 0.])]
-        i = 0
-        for n in vectors:
-            p0 = points[i]
-            i += 1
-            intersect_point = self.find_intersection(n, p0)
-            if intersect_point is not None:
-                return np.linalg.norm(intersect_point - self.starting_position)
+
+        track_length = np.inf
+        intersect_points = np.zeros((6, 3))
+        for i in range(6):
+            intersect_points[i, :] = self.find_intersection(norm_vectors[i], points[i])
+            track_length_new = np.linalg.norm(intersect_points[i, :] - self.starting_position)
+            if track_length_new < track_length and track_length_new != 0.:
+                track_length = track_length_new
+
+        return track_length
 
     def find_intersection(self, n, p0):
-        """
+        """TBW.
 
+        https://en.wikipedia.org/wiki/Line%E2%80%93plane_intersection
+        :param n: normal vector of the plane
+        :param p0: point of the plane
         :return:
         """
-        l0 = self.starting_position
-        l = np.array([self.dir_ver,
-                      self.dir_hor,
-                      self.dir_z])
+        ls = self.starting_position
+        lv = np.array([self.dir_ver,
+                       self.dir_hor,
+                       self.dir_z])
 
-        if np.dot(l, n) == 0:   # No intersection of track and detector plane
+        if np.dot(lv, n) == 0:   # No intersection of track and detector plane
             return None
         else:
-            d = np.dot((p0 - l0), n) / np.dot(l, n)
-            p = d * l + l0
+            d = np.dot((p0 - ls), n) / np.dot(lv, n)
+            p = d * lv + ls
             return p
