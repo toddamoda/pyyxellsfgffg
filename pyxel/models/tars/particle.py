@@ -91,15 +91,15 @@ class Particle:
         self.deposited_energy = 0
         self.total_edep = 0
 
-        self.particle_type = particle_type
+        self.type = particle_type
         ionizing_particles = ['proton', 'ion', 'alpha', 'beta', 'electron']
-        non_ionizing_particles = ['gamma', 'x-ray', 'photon']
+        non_ionizing_particles = ['gamma', 'x-ray']     # 'photon'
 
-        if self.particle_type in ionizing_particles:
+        if self.type in ionizing_particles:
             # call direct ionization func when needed - already implemented in simulation
             pass
 
-        elif self.particle_type in non_ionizing_particles:
+        elif self.type in non_ionizing_particles:
             # call NON-direct ionization func when needed - need to be implemented
             raise NotImplementedError('Given particle type simulation is not yet implemented')
 

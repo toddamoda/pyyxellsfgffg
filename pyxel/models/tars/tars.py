@@ -208,7 +208,6 @@ class TARS:
     #     .. warning:: EXPERIMENTAL - NOT FINSHED YET
     #     """
     #     self.sim_obj.energy_loss_data = 'let'
-    #     # TODO: THE DATA NEED TO BE EXTRACTED FROM G4: DEPOSITED ENERGY PER UNIT LENGTH (keV/um)
     #     self.sim_obj.let_dist = read_data(particle_let_file)  # counts in function of keV
     #
     #     # THESE 2 LINES ARE TEMPORARY, DO NOT USE THIS!

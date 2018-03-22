@@ -5,8 +5,10 @@
 
 import typing as t  # noqa: F401
 import numpy as np
+import pandas as pd
+
 from pyxel.models.tars.particle import Particle
-from pyxel.models.tars.util import sampling_distribution, get_yvalue_with_interpolation
+from pyxel.models.tars.util import sampling_distribution
 from pyxel.detectors.detector import Detector
 
 
@@ -92,7 +94,47 @@ class Simulation:
     #     """
     #     pass
 
-    # # TODO: make two different function using step size or stopping power
+    # TODO implement select_stepsize_data func using track_len parameter
+    def select_stepsize_data(self, p_type, p_energy, p_track):
+        """TBW.
+
+        :param p_type: str
+        :param p_energy: float (MeV)
+        :param p_track: float (um)
+        :return:
+        """
+        data_library = pd.DataFrame(columns=['type', 'energy', 'thickness'])
+
+        type_list = ['proton']      # , 'ion', 'alpha', 'beta', 'electron', 'gamma', 'x-ray']
+        energy_list = [100., 1000.]            # MeV
+        thick_list = [10., 50., 100., 200.]    # um
+
+        # TODO: Is there a more simple (pythonic) way to combine the three list and create a df??
+        for pt in type_list:
+            for en in energy_list:
+                for th in thick_list:
+                    data_dict = {
+                        'type': pt,
+                        'energy': en,
+                        'thickness': th,
+                        }
+                    new_df = pd.DataFrame(data_dict, index=[0])
+                    data_library = pd.concat([data_library, new_df], ignore_index=True)
+
+        # p_energy = str(int(p_energy))
+        # p_track = str(int(p_track))
+
+        # if p_type in type_data_list:
+        #     pass
+        # if p_track in energy_data_list:
+        #     pass
+        # if p_track in thickness_data_list:
+        #     pass
+        # else:
+        #     AttributeError()
+
+        # return 'stepsize_' + p_type + '_' + p_energy + '_' + thickness + '_1M.ascii'
+
     def event_generation(self):
         """Generate an event.
 
@@ -109,14 +151,14 @@ class Simulation:
                                  self.angle_alpha, self.angle_beta)
         particle = self.particle
 
-        track_len = particle.track_length()
-
         # if self.energy_loss_data == 'let':
         #     self.select_let(particle.energy, self.detector.geometry.total_thickness)
 
-        # TODO implement select_stepsize_data func using track_len parameter
-        # if self.energy_loss_data == 'stepsize':
-        #     self.select_stepsize_data(particle.energy, track_len)
+        if self.energy_loss_data == 'stepsize':
+            track_length = particle.track_length()
+            self.select_stepsize_data(particle.type, particle.energy, track_length)
+        if self.energy_loss_data == 'stopping':
+            raise NotImplementedError  # TODO: implement this
 
         while True:
             if particle.energy <= self.energy_cut:
@@ -128,8 +170,10 @@ class Simulation:
             if self.energy_loss_data == 'stepsize':
                 current_step_size = sampling_distribution(self.step_cdf)        # um
                 e_kin_energy = sampling_distribution(self.kin_energy_cdf)     # keV
+            if self.energy_loss_data == 'stopping':
+                raise NotImplementedError   # TODO: implement this
 
-            particle.deposited_energy = e_kin_energy + ioniz_energy * 1e-3  # keV       # TODO update this
+            particle.deposited_energy = e_kin_energy + ioniz_energy * 1e-3  # keV
 
             # UPDATE POSITION OF IONIZING PARTICLES
             particle.position[0] += particle.dir_ver * current_step_size    # um

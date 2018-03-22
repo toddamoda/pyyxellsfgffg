@@ -69,7 +69,6 @@ def load_step_data(file_name, hist_type, skip_rows, read_rows):
     :param read_rows:
     :return:
     """
-    # 'proton_' + energy + '_' + thickness + '_1M.ascii'
     # TODO store count in pandas dataframe as int !!!
 
     step_size_data = pd.read_csv(file_name, delimiter="\t",
