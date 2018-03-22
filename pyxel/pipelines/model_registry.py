@@ -1,17 +1,17 @@
 """TBW."""
-import inspect
-import logging
-from collections import OrderedDict
-import typing as t  # noqa: F401
-
-import yaml
+# import inspect
+# import logging
+# from collections import OrderedDict
+# import typing as t  # noqa: F401
+#
+# import yaml
 
 import esapy_config as om
 # from pyxel import util
 # from pyxel.pipelines.model_group import ModelFunction
 # from pyxel import Processor
 # from pyxel import ModelFunction
-from pyxel.detectors.detector import Detector
+# from pyxel.detectors.detector import Detector
 from pyxel.pipelines.processor import Processor
 from pyxel.pipelines.model_group import ModelFunction
 # from pyxel.util import objmod as om
@@ -37,25 +37,26 @@ from pyxel.pipelines.model_group import ModelFunction
 # }
 
 
-class registry:
+class registry:  # noqa: N801
+    """TBW."""
 
     @staticmethod
     def get_group(detector, group=None):
-            """TBW.
+        """TBW.
 
-            :param detector:
-            :param group:
-            :return:
-            """
-            result = []
-            for item in om.functions.values():
-                item_detector = item.metadata.get('type', '')
-                if item_detector and detector not in item_detector:
-                    continue
-                if group and item.metadata['group'] != group:
-                    continue
-                result.append(item)
-            return result
+        :param detector:
+        :param group:
+        :return:
+        """
+        result = []
+        for item in om.functions.values():
+            item_detector = item.metadata.get('type', '')
+            if item_detector and detector not in item_detector:
+                continue
+            if group and item.metadata['group'] != group:
+                continue
+            result.append(item)
+        return result
 
     @staticmethod
     def import_models(processor: Processor, name: str=None):
@@ -70,11 +71,12 @@ class registry:
                 try:
                     import_model(processor, item)
                 except Exception as exc:
-                    logging.error('Cannot import: %r', item)
-                    logging.exception(exc)
+                    print('Cannot import: %r', item)
+                    print(exc)
 
     @staticmethod
     def decorator(*args, **kwargs):
+        """TBW."""
         import pyxel
         return pyxel.register(*args, **kwargs)
 
@@ -85,14 +87,14 @@ def import_model(processor, model_def):
     :param processor:
     :param model_def:
     """
-    import yaml
-    if isinstance(model_def, str):
-        model_def = yaml.load(model_def)
-
-    if isinstance(model_def, list):
-        for model_def_i in model_def:
-            import_model(processor, model_def_i)
-        return
+    # import yaml
+    # if isinstance(model_def, str):
+    #     model_def = yaml.load(model_def)
+    #
+    # if isinstance(model_def, list):
+    #     for model_def_i in model_def:
+    #         import_model(processor, model_def_i)
+    #     return
 
     if isinstance(model_def, om.FunctionDef):
         # model_def = dict(model_def)  # make copy

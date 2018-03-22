@@ -310,23 +310,28 @@ class Controller:
 
     def load_gui_model_defs(self, cfg):
         """TBW."""
-        entry_text = {
-            'tag': 'input',
-            'type': 'text'
-        }
+        # entry_text = {
+        #     'tag': 'input',
+        #     'type': 'text'
+        # }
+        #
+        # entry_numeric = {
+        #     'tag': 'input',
+        #     'type': 'number',
+        #     'step': 1,
+        #     'min': 0,
+        #     'max': 65536
+        # }
+        #
+        # entry_combo = {
+        #     'tag': 'select',
+        #     'options': [],
+        # }
 
-        entry_numeric = {
-            'tag': 'input',
-            'type': 'number',
-            'step': 1,
-            'min': 0,
-            'max': 65536
-        }
-
-        entry_combo = {
-            'tag': 'select',
-            'options': [],
-        }
+        # if self.processor:
+        #     xx = om.serializer.pyxel_gui.Serializer.from_obj('detector', self.processor.detector)
+        #     yy = om.serializer.pyxel_gui.Serializer.create_section_from_attr_class(self.processor.detector.environment.__class__, 'detector.environment')
+        #     pass
 
         model_settings = cfg['gui'][1]['section']
         model_settings.clear()

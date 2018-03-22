@@ -59,10 +59,12 @@ def test_argument_validation():
     #
     # test validation can be switched off and on
     #
-    om.parameters[model_with_validate_id]['validate'] = False
+    om.ArgumentDef.validate_enable(model_with_validate_id, False)
+    # om.parameters[model_with_validate_id]['validate'] = False
     my_model_with_validate("my detector object", 6, Path(__file__), 'bad-choice')
-    om.parameters[model_with_validate_id]['validate'] = True
     try:
+        # om.parameters[model_with_validate_id]['validate'] = True
+        om.ArgumentDef.validate_enable(model_with_validate_id, True)
         my_model_with_validate("my detector object", 6, Path(__file__), 'bad-choice')
     except om.ValidationError as exc:
         assert exc.arg == 'choice_value'
@@ -71,12 +73,14 @@ def test_argument_validation():
     # test that annotation argument conversion takes place on the __file__ argument
     #
     my_model_with_validate("my detector object", 6, __file__, 'silicon')  # default convert is True
-    om.parameters[model_with_validate_id]['convert'] = False
+    om.ArgumentDef.cast_enable(model_with_validate_id, False)
+    # om.parameters[model_with_validate_id]['convert'] = False
     try:
         my_model_with_validate("my detector object", 6, __file__, 'silicon')
     except Exception as exc:
         print(exc)
-        om.parameters[model_with_validate_id]['convert'] = True
+        om.ArgumentDef.cast_enable(model_with_validate_id, True)
+        # om.parameters[model_with_validate_id]['convert'] = True
     my_model_with_validate("my detector object", 6, __file__, 'silicon')
 
 

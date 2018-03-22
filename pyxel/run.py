@@ -12,12 +12,12 @@ import argparse
 import typing as t   # noqa: F401
 from pathlib import Path
 
-import yaml
+# import yaml
 
 import esapy_config as om
 
 import pyxel
-from pyxel import registry
+# from pyxel import registry
 from pyxel import util
 # from pyxel.util import objmod as om
 import pyxel.pipelines.processor

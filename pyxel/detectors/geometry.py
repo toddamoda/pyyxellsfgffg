@@ -131,6 +131,8 @@ class Geometry:
 
 @om.attr_class
 class Geometry2:
+    """TBW."""
+
     row = om.attr_def(
         type=int,
         default=0,
@@ -305,4 +307,3 @@ class Geometry2:
     def calculate_depletion_thickness(self):
         """TBW."""
         pass
-

@@ -14,22 +14,13 @@ from pyxel.pipelines.processor import Processor
 from pyxel.detectors.detector import Detector
 
 
-def register(group, maybe_func=None, **kwargs):
-    enabled = kwargs.pop('enabled', True)
-    ignore_args = kwargs.pop('ignore_args', ['detector'])
-    name = kwargs.pop('name', None)
-    metadata = kwargs
-    metadata['group'] = group
-    return om.register(maybe_func, ignore_args, name, enabled, metadata)
-
-
 __all__ = ['models', 'processor',
            # 'ccd_pipeline', 'cmos_pipeline',
            # 'check_range', 'check_choices',
            # 'validate_call', 'validate', 'ValidationError',
            # 'AttrClass', 'attr_class', 'attr_def',
            # 'argument', 'parameters',
-           'register',
+           # 'register',
            # 'registry', 'register', 'MetaModel',
            'ModelFunction', 'ModelGroup',
            'DetectionPipeline', 'Processor', 'Detector']
@@ -42,6 +33,22 @@ __pkgname__ = 'pyxel'
 from ._version import get_versions
 __version__ = get_versions()['version']
 del get_versions
+
+
+def register(group, maybe_func=None, **kwargs):
+    """TBW.
+
+    :param group:
+    :param maybe_func:
+    :param kwargs:
+    :return:
+    """
+    enabled = kwargs.pop('enabled', True)
+    ignore_args = kwargs.pop('ignore_args', ['detector'])
+    name = kwargs.pop('name', None)
+    metadata = kwargs
+    metadata['group'] = group
+    return om.register(maybe_func, ignore_args, name, enabled, metadata)
 
 
 def define_pyxel_loader():
