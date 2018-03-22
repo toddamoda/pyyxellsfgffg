@@ -4,14 +4,23 @@ import esapy_config as om
 
 from pyxel.pipelines import models
 from pyxel.pipelines import processor
-from pyxel.pipelines.model_registry import register
-from pyxel.pipelines.model_registry import registry
-from pyxel.pipelines.model_registry import MetaModel
+# from pyxel.pipelines.model_registry import register
+# from pyxel.pipelines.model_registry import registry
+# from pyxel.pipelines.model_registry import MetaModel
 from pyxel.pipelines.model_group import ModelFunction
 from pyxel.pipelines.model_group import ModelGroup
 from pyxel.pipelines.detector_pipeline import DetectionPipeline
 from pyxel.pipelines.processor import Processor
 from pyxel.detectors.detector import Detector
+
+
+def register(group, maybe_func=None, **kwargs):
+    enabled = kwargs.pop('enabled', True)
+    ignore_args = kwargs.pop('ignore_args', ['detector'])
+    name = kwargs.pop('name', None)
+    metadata = kwargs
+    metadata['group'] = group
+    return om.register(maybe_func, ignore_args, name, enabled, metadata)
 
 
 __all__ = ['models', 'processor',
@@ -20,7 +29,9 @@ __all__ = ['models', 'processor',
            # 'validate_call', 'validate', 'ValidationError',
            # 'AttrClass', 'attr_class', 'attr_def',
            # 'argument', 'parameters',
-           'registry', 'register', 'MetaModel', 'ModelFunction', 'ModelGroup',
+           'register',
+           # 'registry', 'register', 'MetaModel',
+           'ModelFunction', 'ModelGroup',
            'DetectionPipeline', 'Processor', 'Detector']
 
 __appname__ = 'Pyxel'

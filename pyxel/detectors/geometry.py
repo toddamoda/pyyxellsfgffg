@@ -181,7 +181,7 @@ class Geometry2:
     material = om.attr_def(
         type=str,
         default=None,
-        validate=om.check_coices(['', 'silicon', 'hxrg'])
+        validate=om.check_choices(['', 'silicon', 'hxrg'])
     )
     n_acceptor = om.attr_def(
         type=float,

@@ -337,49 +337,52 @@ class Controller:
                 items = registry.get_group(pipeline.name, group)
                 # items = [registry[key] for key in registry if registry[key]['group'] == group]
                 for item in items:
-                    gui_def_override = item.get('gui', {})
-                    entry_def_override = gui_def_override.get('items', {})
-                    group_label = group.replace('_', ' ').title()
-                    model_label = gui_def_override.get('label', item['name']).replace('_', ' ').title()
-                    gui_def = {
-                        'label': '{}: {}'.format(group_label, model_label),
-                        'items': []
-                    }
-                    for arg in item['arguments']:
-                        label = arg
-                        entry = dict(entry_text)
-                        func_id = item.get('func')
-                        if func_id in om.parameters:
-                            if arg in om.parameters[func_id]:
-                                param_def = om.parameters[func_id][arg]
-                                label = param_def.get('label', label)
-                                if 'units' in param_def:
-                                    label += ' (' + param_def['units'] + ')'
-
-                                validate_func = param_def.get('validate')
-                                if validate_func:
-                                    info = om.get_validate_info(validate_func)
-
-                                    if validate_func.__qualname__.startswith(om.check_range.__qualname__):
-                                        entry = dict(entry_numeric)
-                                        entry['min'] = info['min_val']
-                                        entry['max'] = info['max_val']
-                                        entry['step'] = info['step']
-
-                                    if validate_func.__qualname__.startswith(om.check_choices.__qualname__):
-                                        entry = dict(entry_combo)
-                                        entry['options'] = list(info['choice'])
-
-                        entry_def = {
-                            'id': 'pipeline.' + group + '.' + item['name'] + '.arguments.' + arg,
-                            'label': label,
-                            'entry': entry
-                        }
-                        entry_def.update(entry_def_override.get(arg, {}))
-
-                        gui_def['items'].append(entry_def)
-
+                    prefix = 'pipeline.' + group + '.' + item.name + '.arguments'
+                    gui_def = om.serializer.pyxel_gui.Serializer.create_section_from_func_def(item, prefix)
                     model_settings.append(gui_def)
+                    # gui_def_override = {}  # TODO: item.get('gui', {})
+                    # entry_def_override = gui_def_override.get('items', {})
+                    # group_label = group.replace('_', ' ').title()
+                    # model_label = gui_def_override.get('label', item['name']).replace('_', ' ').title()
+                    # gui_def = {
+                    #     'label': '{}: {}'.format(group_label, model_label),
+                    #     'items': []
+                    # }
+                    # for arg in item['arguments']:
+                    #     label = arg
+                    #     entry = dict(entry_text)
+                    #     func_id = item.get('func')
+                    #     if func_id in om.parameters:
+                    #         if arg in om.parameters[func_id]:
+                    #             param_def = om.parameters[func_id][arg]
+                    #             label = param_def.get('label', label)
+                    #             if 'units' in param_def:
+                    #                 label += ' (' + param_def['units'] + ')'
+                    #
+                    #             validate_func = param_def.get('validate')
+                    #             if validate_func:
+                    #                 info = om.get_validate_info(validate_func)
+                    #
+                    #                 if validate_func.__qualname__.startswith(om.check_range.__qualname__):
+                    #                     entry = dict(entry_numeric)
+                    #                     entry['min'] = info['min_val']
+                    #                     entry['max'] = info['max_val']
+                    #                     entry['step'] = info['step']
+                    #
+                    #                 if validate_func.__qualname__.startswith(om.check_choices.__qualname__):
+                    #                     entry = dict(entry_combo)
+                    #                     entry['options'] = list(info['choice'])
+                    #
+                    #     entry_def = {
+                    #         'id': 'pipeline.' + group + '.' + item['name'] + '.arguments.' + arg,
+                    #         'label': label,
+                    #         'entry': entry
+                    #     }
+                    #     entry_def.update(entry_def_override.get(arg, {}))
+                    #
+                    #     gui_def['items'].append(entry_def)
+                    #
+                    # model_settings.append(gui_def)
 
             x = yaml.dump(cfg, default_flow_style=False)
             print(x)
