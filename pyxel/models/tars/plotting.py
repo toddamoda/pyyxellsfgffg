@@ -115,9 +115,9 @@ class PlottingTARS:
         ax = fig.add_subplot(1, 2, 1, projection='3d')
         ax.scatter(self.tars.sim_obj.e_pos0_lst, self.tars.sim_obj.e_pos1_lst, self.tars.sim_obj.e_pos2_lst,
                    c='b', marker='.', s=size)
-        ax.plot(self.tars.sim_obj.particle.trajectory[:, 0],
-                self.tars.sim_obj.particle.trajectory[:, 1],
-                self.tars.sim_obj.particle.trajectory[:, 2], 'c-')
+        # ax.plot(self.tars.sim_obj.particle.trajectory[:, 0],
+        #         self.tars.sim_obj.particle.trajectory[:, 1],
+        #         self.tars.sim_obj.particle.trajectory[:, 2], 'c-')
 
         ax2 = fig.add_subplot(1, 2, 2, projection='3d')
         ax2.scatter(self.tars.sim_obj.e_pos0_lst, self.tars.sim_obj.e_pos1_lst, 0,
@@ -144,6 +144,15 @@ class PlottingTARS:
         """
         plt.figure()
         plt.plot(self.tars.sim_obj.let_cdf[:, 0], self.tars.sim_obj.let_cdf[:, 1], '.')
+        plt.draw()
+
+    def plot_step_cdf(self):
+        """TBW.
+
+        :return:
+        """
+        plt.figure()
+        plt.plot(self.tars.sim_obj.step_cdf[:, 0], self.tars.sim_obj.step_cdf[:, 1], '.')
         plt.draw()
 
     def plot_step_dist(self):

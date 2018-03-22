@@ -27,9 +27,11 @@ class Simulation:
 
         self.step_size_dist = None
         self.step_cdf = np.zeros((1, 2))
+        self.kin_energy_dist = None
+        self.kin_energy_cdf = np.zeros((1, 2))
 
-        self.let_dist = None
-        self.let_cdf = np.zeros((1, 2))
+        # self.let_dist = None
+        # self.let_cdf = np.zeros((1, 2))
 
         self.stopping_power = None
 
@@ -77,25 +79,22 @@ class Simulation:
         self.angle_alpha = alpha
         self.angle_beta = beta
 
-    # TODO
-    def select_let(self, init_energy, det_thickness):
-        """Select LET data which is relevant here before sampling it.
+    # def select_let(self, init_energy, det_thickness):
+    #     """Select LET data which is relevant here before sampling it.
+    #
+    #     Execute this for each new particle based on its initial energy (from
+    #     input spectrum) and track length inside the detector.
+    #
+    #     :param init_energy:
+    #     :param det_thickness:
+    #     :return:
+    #     :warning NOT IMPLEMENTED:
+    #     """
+    #     pass
 
-        Execute this for each new particle based on its initial energy (from
-        input spectrum) and track length inside the detector.
-
-        :param init_energy:
-        :param det_thickness:
-        :return:
-        :warning NOT IMPLEMENTED:
-        """
-        pass
-
+    # # TODO: make two different function using step size or stopping power
     def event_generation(self):
-        """Generate an event on the CCD.
-
-        The event occurs due to an incident particle taken according to the
-        simulation configuration file.
+        """Generate an event.
 
         :return:
         """
@@ -112,8 +111,8 @@ class Simulation:
 
         track_len = particle.track_length()
 
-        if self.energy_loss_data == 'let':
-            self.select_let(particle.energy, self.detector.geometry.total_thickness)  # TODO
+        # if self.energy_loss_data == 'let':
+        #     self.select_let(particle.energy, self.detector.geometry.total_thickness)
 
         # TODO implement select_stepsize_data func using track_len parameter
         # if self.energy_loss_data == 'stepsize':
@@ -127,9 +126,8 @@ class Simulation:
             # particle.deposited_energy is in keV !
 
             if self.energy_loss_data == 'stepsize':
-                current_step_size = sampling_distribution(self.let_cdf)  # um      # TODO change let_cdf to step_cdf
-                # e_kin_energy = sampling_distribution(self.kin_energy_cdf)  # keV
-                e_kin_energy = 1.0  # keV    # TODO sample kinetic energy from data
+                current_step_size = sampling_distribution(self.step_cdf)        # um
+                e_kin_energy = sampling_distribution(self.kin_energy_cdf)     # keV
 
             particle.deposited_energy = e_kin_energy + ioniz_energy * 1e-3  # keV       # TODO update this
 
@@ -170,7 +168,6 @@ class Simulation:
         if track_left:
             self.total_edep_per_particle.append(particle.total_edep)  # keV
 
-    # # TODO: make two different function using let or stopping power
     # def _ionization_(self, particle):
     #     """TBW.
     #

@@ -60,19 +60,20 @@ def get_yvalue_with_interpolation(function_array, x_value):
     return intpol_y_value
 
 
-def load_step_data(file_name, step_rows):
+def load_step_data(file_name, hist_type, skip_rows, read_rows):
     """TBW.
 
     :param file_name:
-    :param step_rows:
+    :param hist_type:
+    :param skip_rows:
+    :param read_rows:
     :return:
     """
     # 'proton_' + energy + '_' + thickness + '_1M.ascii'
-
     # TODO store count in pandas dataframe as int !!!
 
     step_size_data = pd.read_csv(file_name, delimiter="\t",
-                                 names=["step_size", "counts"], usecols=[1, 2], skiprows=4, nrows=step_rows)
+                                 names=[hist_type, "counts"], usecols=[1, 2], skiprows=skip_rows, nrows=read_rows)
     return step_size_data
 
 

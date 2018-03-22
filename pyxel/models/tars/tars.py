@@ -90,8 +90,10 @@ def run_tars(detector: Detector,
     # plot_obj.plot_spectrum_cdf()
 
     # # plot_obj.plot_let_dist()
+    # plot_obj.plot_let_cdf()
+
     plot_obj.plot_step_dist()
-    plot_obj.plot_let_cdf()     # todo
+    plot_obj.plot_step_cdf()
 
     plot_obj.plot_charges_3d()
 
@@ -198,27 +200,27 @@ class TARS:
         self.sim_obj.energy_loss_data = 'stopping'
         self.sim_obj.stopping_power = read_data(stopping_file)
 
-    def set_let_distribution(self, particle_let_file):
-        """TBW.
-
-        :param particle_let_file:
-        :return:
-        .. warning:: EXPERIMENTAL - NOT FINSHED YET
-        """
-        self.sim_obj.energy_loss_data = 'let'
-        # TODO: THE DATA NEED TO BE EXTRACTED FROM G4: DEPOSITED ENERGY PER UNIT LENGTH (keV/um)
-        self.sim_obj.let_dist = read_data(particle_let_file)  # counts in function of keV
-
-        # THESE 2 LINES ARE TEMPORARY, DO NOT USE THIS!
-        det_thickness = 100.0       # um
-        self.sim_obj.let_dist[:, 1] /= det_thickness   # keV/um
-
-        self.sim_obj.let_cdf = np.stack((self.sim_obj.let_dist[:, 1], self.sim_obj.let_dist[:, 2]), axis=1)
-        cum_sum = np.cumsum(self.sim_obj.let_cdf[:, 1])
-        # cum_sum = np.cumsum(let_dist_interpol)
-        cum_sum /= np.max(cum_sum)
-        self.sim_obj.let_cdf = np.stack((self.sim_obj.let_cdf[:, 0], cum_sum), axis=1)
-        # self.sim_obj.let_cdf = np.stack((lin_energy_range, cum_sum), axis=1)
+    # def set_let_distribution(self, particle_let_file):
+    #     """TBW.
+    #
+    #     :param particle_let_file:
+    #     :return:
+    #     .. warning:: EXPERIMENTAL - NOT FINSHED YET
+    #     """
+    #     self.sim_obj.energy_loss_data = 'let'
+    #     # TODO: THE DATA NEED TO BE EXTRACTED FROM G4: DEPOSITED ENERGY PER UNIT LENGTH (keV/um)
+    #     self.sim_obj.let_dist = read_data(particle_let_file)  # counts in function of keV
+    #
+    #     # THESE 2 LINES ARE TEMPORARY, DO NOT USE THIS!
+    #     det_thickness = 100.0       # um
+    #     self.sim_obj.let_dist[:, 1] /= det_thickness   # keV/um
+    #
+    #     self.sim_obj.let_cdf = np.stack((self.sim_obj.let_dist[:, 1], self.sim_obj.let_dist[:, 2]), axis=1)
+    #     cum_sum = np.cumsum(self.sim_obj.let_cdf[:, 1])
+    #     # cum_sum = np.cumsum(let_dist_interpol)
+    #     cum_sum /= np.max(cum_sum)
+    #     self.sim_obj.let_cdf = np.stack((self.sim_obj.let_cdf[:, 0], cum_sum), axis=1)
+    #     # self.sim_obj.let_cdf = np.stack((lin_energy_range, cum_sum), axis=1)
 
     def set_stepsize_distribution(self, step_size_file):
         """TBW.
@@ -229,15 +231,24 @@ class TARS:
         """
         self.sim_obj.energy_loss_data = 'stepsize'
 
-        # TODO: get rid of row number argument (10000)
-        self.sim_obj.step_size_dist = load_step_data(step_size_file, 10000)  # step size distribution in um
+        # TODO: get rid of skip_rows and read_rows argument
+
+        # step size distribution in um
+        self.sim_obj.step_size_dist = load_step_data(step_size_file, hist_type='step_size',
+                                                     skip_rows=4, read_rows=10000)
 
         cum_sum = np.cumsum(self.sim_obj.step_size_dist['counts'])
-
         cum_sum /= np.max(cum_sum)
         self.sim_obj.step_cdf = np.stack((self.sim_obj.step_size_dist['step_size'], cum_sum), axis=1)
 
-        self.sim_obj.let_cdf = self.sim_obj.step_cdf    # TODO delete this line
+        # secondary electron spectrum in keV
+        self.sim_obj.kin_energy_dist = load_step_data(step_size_file, hist_type='energy',
+                                                      skip_rows=10008, read_rows=200)
+
+        cum_sum = np.cumsum(self.sim_obj.kin_energy_dist['counts'])
+        cum_sum /= np.max(cum_sum)
+        self.sim_obj.kin_energy_cdf = np.stack((self.sim_obj.kin_energy_dist['energy'], cum_sum), axis=1)
+        pass
 
     def run(self):
         """TBW.
