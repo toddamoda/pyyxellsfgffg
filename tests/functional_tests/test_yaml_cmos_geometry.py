@@ -14,7 +14,7 @@ def test_loader():
  total_thickness: 3.0
  pixel_vert_size: 4.0
  pixel_horz_size: 5.0
- material: foo
+ material: hxrg
  n_acceptor: 6.0
  n_donor: 7.0
  bias_voltage: 8.0

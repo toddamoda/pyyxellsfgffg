@@ -50,7 +50,7 @@ class registry:  # noqa: N801
         """
         result = []
         for item in om.functions.values():
-            item_detector = item.metadata.get('type', '')
+            item_detector = item.metadata.get('detector', '')
             if item_detector and detector not in item_detector:
                 continue
             if group and item.metadata['group'] != group:
