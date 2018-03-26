@@ -1,19 +1,21 @@
 """TBW."""
+import esapy_config as om
 
 from pyxel.detectors.geometry import Geometry
 
 
+@om.attr_class
 class CCDGeometry(Geometry):
     """TBW."""
 
-    def __init__(self,
-                 **kwargs) -> None:
-        """TBW.
-
-        :param kwargs:
-        """
-        super().__init__(**kwargs)
-        # add specific CCD attributes here
+    # def __init__(self,
+    #              **kwargs) -> None:
+    #     """TBW.
+    #
+    #     :param kwargs:
+    #     """
+    #     super().__init__(**kwargs)
+    #     # add specific CCD attributes here
 
     def copy(self):
         """TBW."""

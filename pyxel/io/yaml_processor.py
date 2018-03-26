@@ -98,7 +98,7 @@ def _ccd_geometry_constructor(loader: PyxelLoader, node: yaml.MappingNode) -> CC
     """
     mapping = loader.construct_mapping(node, deep=True)  # type: dict
 
-    obj = CCDGeometry(**mapping)
+    obj = CCDGeometry(**mapping)  # type: ignore
     return obj
 
 
@@ -121,7 +121,7 @@ def _cmos_geometry_constructor(loader: PyxelLoader, node: yaml.MappingNode):
     """
     mapping = loader.construct_mapping(node, deep=True)  # type: dict
 
-    obj = CMOSGeometry(**mapping)
+    obj = CMOSGeometry(**mapping)  # type: ignore
     return obj
 
 

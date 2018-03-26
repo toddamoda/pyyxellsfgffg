@@ -12,12 +12,14 @@ import argparse
 import typing as t   # noqa: F401
 from pathlib import Path
 
-import yaml
+# import yaml
+
+import esapy_config as om
 
 import pyxel
-from pyxel import registry
+# from pyxel import registry
 from pyxel import util
-from pyxel.util import objmod as om
+# from pyxel.util import objmod as om
 import pyxel.pipelines.processor
 
 
@@ -108,34 +110,34 @@ def run_pipeline(input_filename, output_file):
         out.save(detector.signal, header=None, overwrite=True)      # TODO should replace result.signal to result.image
 
 
-def run_export(registry_file, output_file, processor_type):
-    """TBW.
-
-    :param registry_file:
-    :param output_file:
-    :param processor_type:
-    """
-    # yaml_content = yaml.dump(registry_map, default_flow_style=False)
-    with open(registry_file, 'r') as fd:
-        # load template file
-        config_file = Path('pyxel', 'io', 'templates', processor_type + '.yaml')
-        cfg = om.load(config_file)
-
-        # load registry
-        content = fd.read()
-        reg_map = yaml.load(content)
-        registry.register_map(reg_map, processor_type)
-
-        # inject models into pipeline model groups
-        processor = cfg['processor']
-        registry.import_models(processor)
-
-        content = om.dump(cfg)
-        if output_file:
-            with open(output_file, 'w') as fd2:
-                fd2.write(content)
-        else:
-            print(content)
+# def run_export(registry_file, output_file, processor_type):
+#     """TBW.
+#
+#     :param registry_file:
+#     :param output_file:
+#     :param processor_type:
+#     """
+#     # yaml_content = yaml.dump(registry_map, default_flow_style=False)
+#     with open(registry_file, 'r') as fd:
+#         # load template file
+#         config_file = Path('pyxel', 'io', 'templates', processor_type + '.yaml')
+#         cfg = om.load(config_file)
+#
+#         # load registry
+#         content = fd.read()
+#         reg_map = yaml.load(content)
+#         registry.register_map(reg_map, processor_type)
+#
+#         # inject models into pipeline model groups
+#         processor = cfg['processor']
+#         registry.import_models(processor)
+#
+#         content = om.dump(cfg)
+#         if output_file:
+#             with open(output_file, 'w') as fd2:
+#                 fd2.write(content)
+#         else:
+#             print(content)
 
 
 def main():
@@ -175,7 +177,7 @@ def main():
             print('Missing argument -t/--type')
             parser.print_help()
             return
-        run_export(opts.config, opts.output, opts.type)
+        # run_export(opts.config, opts.output, opts.type)
 
 
 if __name__ == '__main__':

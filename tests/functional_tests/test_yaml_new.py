@@ -1,5 +1,7 @@
 from pathlib import Path
-from pyxel.util import objmod as om
+
+import esapy_config as om
+# from pyxel.util import objmod as om
 
 
 CWD = Path(__file__).parent.parent
