@@ -4,10 +4,11 @@ import threading
 import importlib
 from pathlib import Path
 
-import yaml
+# import yaml
 
+import esapy_config as om
 from pyxel import util
-from pyxel.util import objmod as om
+# from pyxel.util import objmod as om
 from pyxel.web import signals
 from pyxel.web import webapp
 from pyxel.pipelines.processor import Processor
@@ -70,7 +71,8 @@ class Controller:
             self.parametric = None
             self.processor = None
 
-    def _rewire_pipeline_dict(self, pipeline: dict):
+    @staticmethod
+    def _rewire_pipeline_dict(pipeline: dict):
         """Convert pipeline models to a dict like structure.
 
         The pipeline JSON structure is like so::
@@ -175,22 +177,97 @@ class Controller:
         self._modified_time = None  # force GUI definition to reload
         registry.save('registry.yaml')  # for debugging
 
+    def load_gui(self):
+        """TBW.
+
+        :return:
+        """
+        sections_detector = []
+        sections_model = []
+        cfg = {
+            'gui': [
+                {
+                    'label': 'Detector Attributes',
+                    'section': sections_detector,
+                },
+                {
+                    'label': 'Models Settings',
+                    'section': sections_model,
+                }
+            ]
+        }
+        serializer = om.serializer.pyxel_gui.Serializer
+        if self.processor:
+            for key, value in self.processor.detector.__getstate__().items():
+                sections = serializer.create_section_from_object(value, 'detector.' + key)
+                sections_detector.extend(sections)
+
+            pipeline = self.processor.pipeline
+            for group in pipeline.model_group_names:
+                items = registry.get_group(pipeline.name, group)
+                # items = [registry[key] for key in registry if registry[key]['group'] == group]
+                for item in items:
+                    prefix = 'pipeline.' + group + '.' + item.name + '.arguments'
+                    gui_def = serializer.create_section_from_func_def(item, prefix)
+                    sections_model.append(gui_def)
+
+        return cfg
+
     def get_gui_defs(self):
-        """Retrieve the dictionary object model that is defined in the gui.yaml configuration file.
+        """Dynamically create the object model GUI schema.
 
         This method is referenced in control.html template file.
 
         :return:
         """
-        gui_file = CWD_PATH.joinpath('gui.yaml')  # TODO: hardcoded
-        mtime = gui_file.stat().st_mtime  # os.path.getmtime(gui_file)
-        if self._modified_time != mtime:
-            self._modified_time = mtime
-            with gui_file.open() as fd:
-                cfg = yaml.load(fd)
-                self.load_gui_model_defs(cfg)
-            self._items = cfg
-        return self._items['gui']
+        sections_detector = []
+        sections_model = []
+        cfg = {
+            'gui': [
+                {
+                    'label': 'Detector Attributes',
+                    'section': sections_detector,
+                },
+                {
+                    'label': 'Models Settings',
+                    'section': sections_model,
+                }
+            ]
+        }
+        serializer = om.serializer.pyxel_gui.Serializer
+        if self.processor:
+            for key, value in self.processor.detector.__getstate__().items():
+                sections = serializer.create_section_from_object(value, 'detector.' + key)
+                sections_detector.extend(sections)
+
+            pipeline = self.processor.pipeline
+            for group in pipeline.model_group_names:
+                items = registry.get_group(pipeline.name, group)
+                # items = [registry[key] for key in registry if registry[key]['group'] == group]
+                for item in items:
+                    prefix = 'pipeline.' + group + '.' + item.name + '.arguments'
+                    gui_def = serializer.create_section_from_func_def(item, prefix)
+                    sections_model.append(gui_def)
+
+        return cfg['gui']
+
+    # def get_gui_defs(self):
+    #     """Retrieve the dictionary object model that is defined in the gui.yaml configuration file.
+    #
+    #     This method is referenced in control.html template file.
+    #
+    #     :return:
+    #     """
+    #     self._items = self.load_gui()
+    #     gui_file = CWD_PATH.joinpath('gui.yaml')  # TODO: hardcoded
+    #     mtime = gui_file.stat().st_mtime  # os.path.getmtime(gui_file)
+    #     if self._modified_time != mtime:
+    #         self._modified_time = mtime
+    #         with gui_file.open() as fd:
+    #             cfg = yaml.load(fd)
+    #             self.load_gui_model_defs(cfg)
+    #         self._items = cfg
+    #     return self._items['gui']
 
     def toggle_pipeline(self, output_file=None):
         """TBW."""
@@ -307,82 +384,82 @@ class Controller:
 
             self.get_setting(key)   # signal updated value to listeners
 
-    def load_gui_model_defs(self, cfg):
-        """TBW."""
-        entry_text = {
-            'tag': 'input',
-            'type': 'text'
-        }
-
-        entry_numeric = {
-            'tag': 'input',
-            'type': 'number',
-            'step': 1,
-            'min': 0,
-            'max': 65536
-        }
-
-        entry_combo = {
-            'tag': 'select',
-            'options': [],
-        }
-
-        model_settings = cfg['gui'][1]['items']
-        model_settings.clear()
-        if self.processor:
-            pipeline = self.processor.pipeline
-
-            for group in pipeline.model_group_names:
-                items = registry.get_group(pipeline.name, group)
-                # items = [registry[key] for key in registry if registry[key]['group'] == group]
-                for item in items:
-                    gui_def_override = item.get('gui', {})
-                    entry_def_override = gui_def_override.get('arguments', {})
-                    group_label = group.replace('_', ' ').title()
-                    model_label = gui_def_override.get('label', item['name']).replace('_', ' ').title()
-                    gui_def = {
-                        'label': '{}: {}'.format(group_label, model_label),
-                        'arguments': []
-                    }
-                    for arg in item['arguments']:
-                        label = arg
-                        entry = dict(entry_text)
-                        func_id = item.get('func')
-                        if func_id in om.parameters:
-                            if arg in om.parameters[func_id]:
-                                param_def = om.parameters[func_id][arg]
-                                label = param_def.get('label', label)
-                                if 'units' in param_def:
-                                    label += ' (' + param_def['units'] + ')'
-
-                                validate_func = param_def.get('validate')
-                                if validate_func:
-                                    info = om.get_validate_info(validate_func)
-
-                                    if validate_func.__qualname__.startswith(om.check_range.__qualname__):
-                                        entry = dict(entry_numeric)
-                                        entry['min'] = info['min_val']
-                                        entry['max'] = info['max_val']
-                                        entry['step'] = info['step']
-
-                                    if validate_func.__qualname__.startswith(om.check_choices.__qualname__):
-                                        entry = dict(entry_combo)
-                                        entry['options'] = list(info['choice'])
-
-                        entry_def = {
-                            'id': 'pipeline.' + group + '.' + item['name'] + '.arguments.' + arg,
-                            'label': label,
-                            'entry': entry
-                        }
-                        entry_def.update(entry_def_override.get(arg, {}))
-
-                        gui_def['arguments'].append(entry_def)
-
-                    model_settings.append(gui_def)
-
-            x = yaml.dump(cfg, default_flow_style=False)
-            print(x)
-            return
+    # def load_gui_model_defs(self, cfg):
+    #     """TBW."""
+    #     entry_text = {
+    #         'tag': 'input',
+    #         'type': 'text'
+    #     }
+    #
+    #     entry_numeric = {
+    #         'tag': 'input',
+    #         'type': 'number',
+    #         'step': 1,
+    #         'min': 0,
+    #         'max': 65536
+    #     }
+    #
+    #     entry_combo = {
+    #         'tag': 'select',
+    #         'options': [],
+    #     }
+    #
+    #     model_settings = cfg['gui'][1]['section']
+    #     model_settings.clear()
+    #     if self.processor:
+    #         pipeline = self.processor.pipeline
+    #
+    #         for group in pipeline.model_group_names:
+    #             items = registry.get_group(pipeline.name, group)
+    #             # items = [registry[key] for key in registry if registry[key]['group'] == group]
+    #             for item in items:
+    #                 gui_def_override = item.get('gui', {})
+    #                 entry_def_override = gui_def_override.get('items', {})
+    #                 group_label = group.replace('_', ' ').title()
+    #                 model_label = gui_def_override.get('label', item['name']).replace('_', ' ').title()
+    #                 gui_def = {
+    #                     'label': '{}: {}'.format(group_label, model_label),
+    #                     'items': []
+    #                 }
+    #                 for arg in item['arguments']:
+    #                     label = arg
+    #                     entry = dict(entry_text)
+    #                     func_id = item.get('func')
+    #                     if func_id in om.parameters:
+    #                         if arg in om.parameters[func_id]:
+    #                             param_def = om.parameters[func_id][arg]
+    #                             label = param_def.get('label', label)
+    #                             if 'units' in param_def:
+    #                                 label += ' (' + param_def['units'] + ')'
+    #
+    #                             validate_func = param_def.get('validate')
+    #                             if validate_func:
+    #                                 info = om.get_validate_info(validate_func)
+    #
+    #                                 if validate_func.__qualname__.startswith(om.check_range.__qualname__):
+    #                                     entry = dict(entry_numeric)
+    #                                     entry['min'] = info['min_val']
+    #                                     entry['max'] = info['max_val']
+    #                                     entry['step'] = info['step']
+    #
+    #                                 if validate_func.__qualname__.startswith(om.check_choices.__qualname__):
+    #                                     entry = dict(entry_combo)
+    #                                     entry['options'] = list(info['choice'])
+    #
+    #                     entry_def = {
+    #                         'id': 'pipeline.' + group + '.' + item['name'] + '.arguments.' + arg,
+    #                         'label': label,
+    #                         'entry': entry
+    #                     }
+    #                     entry_def.update(entry_def_override.get(arg, {}))
+    #
+    #                     gui_def['items'].append(entry_def)
+    #
+    #                 model_settings.append(gui_def)
+    #
+    #         x = yaml.dump(cfg, default_flow_style=False)
+    #         print(x)
+    #         return
 
     def run_pipeline_sequence(self, output_file=None):
         """TBW."""

@@ -1,7 +1,10 @@
 import attr
 
-from pyxel.util import objmod as om
-from pyxel.util.objmod.attribute import att_validator
+import esapy_config as om
+from esapy_config.attribute import att_validator
+
+# from pyxel.util import objmod as om
+# from pyxel.util.objmod.attribute import att_validator
 
 
 @om.attr_class

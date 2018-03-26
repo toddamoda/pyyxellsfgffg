@@ -2,7 +2,8 @@ import json
 from ast import literal_eval
 from pathlib import Path
 
-from pyxel.util import objmod as om
+import esapy_config as om
+# from pyxel.util import objmod as om
 from pyxel.io.yaml_processor import load
 
 expected_str = """
