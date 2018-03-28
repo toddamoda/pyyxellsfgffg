@@ -103,7 +103,7 @@ processor:
         enabled: true
         arguments:
           particle_type: proton
-          initial_energy: 100   # MeV
+          initial_energy: random   # MeV
           particle_number: 10
           incident_angles:      # rad
 #            - 0.31415 # pi / 4
@@ -113,12 +113,7 @@ processor:
 #            - 20. #500.0  #horizontal
 #            - 0.0         # z
           spectrum_file: 'pyxel/models/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
-          step_size_file: 'pyxel/models/tars/data/inputs/stepsize_proton_100MeV_10um_1M.ascii'
-
-#          step_size_file: 'pyxel/models/tars/data/inputs/stepsize_proton_1GeV_100um_1M.ascii'
-#          stepping_length: 1.0  # um
-#          let_file: 'pyxel/models/tars/data/inputs/let_proton_1GeV_100um_geant4_HighResHist.ascii'
-#          stopping_file: 'pyxel/models/tars/data/inputs/stopping_power_protons.txt'
+#          step_size_file: 'pyxel/models/tars/data/inputs/stepsize_proton_100MeV_10um_1M.ascii'
 
     # charge -> charge
     charge_collection:

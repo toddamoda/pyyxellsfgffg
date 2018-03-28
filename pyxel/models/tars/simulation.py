@@ -111,7 +111,10 @@ class Simulation:
         sorted_list = sorted(self.data_library[column].unique())
         index_smaller = bisect(sorted_list, value) - 1
         index_larger = bisect(sorted_list, value)
-        if (sorted_list[index_larger] - value) < (value - sorted_list[index_smaller]):
+
+        if index_larger >= len(sorted_list):
+            return sorted_list[-1]
+        elif (sorted_list[index_larger]-value) < (value-sorted_list[index_smaller]):
             return sorted_list[index_larger]
         else:
             return sorted_list[index_smaller]
@@ -172,9 +175,8 @@ class Simulation:
         particle = self.particle
 
         if self.energy_loss_data == 'stepsize':
-            datafilename = self.select_stepsize_data(particle.type, particle.energy, particle.track_length())
-            print(particle.type, particle.energy, particle.track_length())
-            self.set_stepsize_distribution(datafilename)
+            data_filename = self.select_stepsize_data(particle.type, particle.energy, particle.track_length())
+            self.set_stepsize_distribution(data_filename)
 
         if self.energy_loss_data == 'stopping':
             raise NotImplementedError  # TODO: implement this

@@ -29,7 +29,7 @@ def run_tars(detector: Detector,
              particle_number: int = None,
              incident_angles: tuple = None,
              starting_position: tuple = None,
-             step_size_file: str = None,
+             # step_size_file: str = None,
              stopping_file: str = None,
              spectrum_file: str = None) -> Detector:
     """TBW.
@@ -40,7 +40,7 @@ def run_tars(detector: Detector,
     :param particle_number:
     :param incident_angles:
     :param starting_position:
-    :param step_size_file:
+    # :param step_size_file:
     :param stopping_file:
     :param spectrum_file:
     :return:
@@ -70,15 +70,12 @@ def run_tars(detector: Detector,
     cosmics.set_incident_angles(incident_angles)            # rad
     cosmics.set_starting_position(starting_position)        # um
     cosmics.set_particle_spectrum(spectrum_file)
-    cosmics.set_stepsize()
 
-    # if step_size_file is not None and stopping_file is None:
-    #     cosmics.set_stepsize()
-    # elif stopping_file is not None and step_size_file is None:
-    #     # cosmics.set_stopping_power(stopping_file)
-    #     raise NotImplementedError
-    # else:
-    #     raise AttributeError("Either Step size or Stopping power data needs to be defined")
+    if stopping_file is not None:
+        raise NotImplementedError
+        # cosmics.set_stopping_power(stopping_file)
+    else:
+        cosmics.set_stepsize()
 
     cosmics.run()
 
