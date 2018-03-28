@@ -15,7 +15,8 @@ from pyxel.physics.charge import Charge  # noqa: F401
 from pyxel.physics.photon import Photon  # noqa: F401
 from pyxel.physics.pixel import Pixel  # noqa: F401
 from pyxel import util
-
+# from pyxel.util import objmod as om
+import esapy_config as om
 # from pyxel.detectors.optics import Optics
 
 
@@ -63,7 +64,7 @@ class Detector:
 
     def get_state_json(self):
         """TBW."""
-        return util.get_state_dict(self)
+        return om.get_state_dict(self)
 
     def __getstate__(self):
         """TBW.

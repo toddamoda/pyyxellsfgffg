@@ -3,10 +3,13 @@ import logging
 import typing as t  # noqa: F401
 from collections import OrderedDict
 
+import esapy_config as om
+
 from pyxel.detectors.detector import Detector
 # from pyxel.pipelines.models import Model  # noqa: F401
 from pyxel.pipelines.models import Models
 from pyxel import util
+# from pyxel.util import objmod as om
 
 
 class DetectionPipeline:
@@ -50,7 +53,7 @@ class DetectionPipeline:
 
     def get_state_json(self):
         """TBW."""
-        return util.get_state_dict(self)
+        return om.get_state_dict(self)
 
     def __getstate__(self):
         """TBW."""

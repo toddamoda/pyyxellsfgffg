@@ -188,6 +188,12 @@ $(document).ready(function() {
             }
         }
     });
+    $('#pyxel').on('message:error', function(event, selector, fields) {
+        $(selector + ' .indicator').css('background-color', 'pink')
+        $(selector + ' .indicator').text('error')
+        $(selector + ' .indicator').prop('title', fields.value)
+    });
+
     $('.model-state').on('update', function(event) {
         connection.emit('api', 'GET-MODEL-STATE', [this.id]);
     });

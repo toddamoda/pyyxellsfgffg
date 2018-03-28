@@ -47,7 +47,7 @@ processor:
 
     environment:
       class: pyxel.detectors.environment.Environment
-      temperature: 300                    # K
+      temperature: 0                    # K
       total_ionising_dose: 0              #
       total_non_ionising_dose: 8.0e11     #
 

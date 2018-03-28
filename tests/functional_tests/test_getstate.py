@@ -2,8 +2,9 @@ import json
 from ast import literal_eval
 from pathlib import Path
 
-from pyxel.io.yaml_processor import load_config
-from pyxel import util
+import esapy_config as om
+# from pyxel.util import objmod as om
+from pyxel.io.yaml_processor import load
 
 expected_str = """
 parametric.mode='single'
@@ -80,12 +81,12 @@ ccd_process.detector.geometry.depletion_thickness=10.0
 
 def test_getstate():
     input_filename = 'tests/data/pipeline_parametric.yaml'
-    cfg = load_config(Path(input_filename))
+    cfg = load(Path(input_filename))
 
     param_obj = cfg['parametric'].get_state_json()
     proc_obj = cfg['ccd_process'].get_state_json()
 
-    cfg_obj = util.get_state_dict(cfg)
+    cfg_obj = om.get_state_dict(cfg)
     buf = json.dumps(cfg_obj)
     assert isinstance(buf, str)
     buf = json.dumps(param_obj)
@@ -96,9 +97,9 @@ def test_getstate():
 
 def test_get_state_ids():
     input_filename = 'tests/data/pipeline_parametric.yaml'
-    cfg = load_config(Path(input_filename))
-    cfg_obj = util.get_state_dict(cfg)
-    result = util.get_state_ids(cfg_obj)
+    cfg = load(Path(input_filename))
+    cfg_obj = om.get_state_dict(cfg)
+    result = om.get_state_ids(cfg_obj)
     assert isinstance(result, dict)
     expected = {}
     for line in expected_str.strip().split('\n'):
@@ -112,5 +113,4 @@ def test_get_state_ids():
 
 
 # test_getstate()
-test_get_state_ids()
-
+# test_get_state_ids()

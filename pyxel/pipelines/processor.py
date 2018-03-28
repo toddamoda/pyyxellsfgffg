@@ -1,11 +1,14 @@
 """TBW."""
 import typing as t
 
-from pyxel import util
+import esapy_config as om
+# from pyxel import util
 from pyxel.detectors.ccd import CCD
 from pyxel.detectors.cmos import CMOS
 from pyxel.pipelines.ccd_pipeline import CCDDetectionPipeline
 from pyxel.pipelines.cmos_pipeline import CMOSDetectionPipeline
+# from pyxel.pipelines import validator
+# from pyxel.util import objmod as om
 
 
 class Processor:
@@ -28,7 +31,7 @@ class Processor:
 
     def get_state_json(self):
         """TBW."""
-        return util.get_state_dict(self)
+        return om.get_state_dict(self)
 
     def __getstate__(self):
         """TBW."""
@@ -37,6 +40,15 @@ class Processor:
             'pipeline': self.pipeline,
         }
 
+    def validate(self):
+        """TBW."""
+        errors = []
+        for key, model_group in self.pipeline.model_groups.items():
+            for model in model_group.models:
+                if model.enabled:
+                    errors += om.validate_call(model.func, False, kwargs=model.arguments)
+        return errors
+
     def has(self, key):
         """TBW.
 
@@ -44,7 +56,7 @@ class Processor:
         :return:
         """
         found = False
-        obj, att = util.get_obj_att(self, key)
+        obj, att = om.get_obj_att(self, key)
         if isinstance(obj, dict) and att in obj:
             found = True
         elif hasattr(obj, att):
@@ -57,7 +69,7 @@ class Processor:
         :param key:
         :return:
         """
-        return util.get_value(self, key)
+        return om.get_value(self, key)
 
     def set(self, key, value, convert_value=True):
         """TBW.
@@ -72,11 +84,11 @@ class Processor:
             if isinstance(value, list):
                 for i, val in enumerate(value):
                     if val:
-                        value[i] = util.eval_entry(val)
+                        value[i] = om.eval_entry(val)
             else:
-                value = util.eval_entry(value)
+                value = om.eval_entry(value)
 
-        obj, att = util.get_obj_att(self, key)
+        obj, att = om.get_obj_att(self, key)
 
         if isinstance(obj, dict) and att in obj:
             obj[att] = value

@@ -5,16 +5,24 @@ import itertools
 import yaml
 import sys
 from pyxel import util
-from pyxel.io.yaml_processor_new import load_config
-from pyxel.io.yaml_processor_new import dump
-from pyxel.pipelines.model_registry import Registry
-from pyxel.pipelines.model_registry import import_model
-from pyxel.pipelines.model_registry import create_model_def
+# from pyxel.util import objmod as om
+# from pyxel.io.yaml_processor_new import load
+# from pyxel.io.yaml_processor_new import dump
+
+# from pyxel.pipelines.model_registry import Registry
+# from pyxel.pipelines.model_registry import import_model
+# from pyxel.pipelines.model_registry import create_model_def
+
 from pyxel.pipelines.model_group import ModelFunction
 # from pyxel.pipelines.model_group import ModelRegistry
 from pyxel.detectors.detector import Detector
-from pyxel import registry
 
+from pyxel.pipelines.model_registry import registry
+from pyxel.pipelines.model_registry import import_model
+from pyxel import register
+# from pyxel import registry
+# from pyxel.util import objmod as om
+import esapy_config as om
 
 CWD = Path(__file__).parent.parent
 sys.path.append(str(CWD))
@@ -22,25 +30,25 @@ sys.path.append(str(CWD))
 
 from functional_tests import my_models
 
-
-my_model_def_yaml = """
-    group: charge_generation
-    name: my_model
-    enabled: True
-    func: functional_tests.test_add_model.my_model
-    arguments:
-          level: 5.0
-"""
-
-my_model_def_dict = {
-    'group': 'charge_generation',
-    'name': 'my_model',
-    'enabled': True,
-    'func': 'functional_tests.test_add_model.my_model',
-    'arguments': {
-        'level': 7.5
-    }
-}
+#
+# my_model_def_yaml = """
+#     group: charge_generation
+#     name: my_model
+#     enabled: True
+#     func: functional_tests.test_add_model.my_model
+#     arguments:
+#           level: 5.0
+# """
+#
+# my_model_def_dict = {
+#     'group': 'charge_generation',
+#     'name': 'my_model',
+#     'enabled': True,
+#     'func': 'functional_tests.test_add_model.my_model',
+#     'arguments': {
+#         'level': 7.5
+#     }
+# }
 
 
 def my_model(detector, level):
@@ -57,7 +65,7 @@ def my_other_model(detector: Detector, level: int, noise: float=2.0):
 
 
 def test_add_model():
-    cfg = load_config(Path(CWD, 'data', 'test_yaml_new.yaml'))
+    cfg = om.load(Path(CWD, 'data', 'test_yaml_new.yaml'))
     processor = cfg['processor']
     pipeline = processor.pipeline
     detector = processor.detector
@@ -82,63 +90,69 @@ def test_add_model():
     detector = pipeline.run(detector)
     assert detector.level == 2.5
 
-    # add a new model using the import functionality
-    pipeline.model_groups['charge_generation'].models.clear()
-    import_model(processor, my_model_def_yaml)
-    detector = pipeline.run(detector)
-    assert detector.level == 5.0
-
-    # add a new model using the import functionality
-    pipeline.model_groups['charge_generation'].models.clear()
-    import_model(processor, my_model_def_dict)
-    detector = pipeline.run(detector)
-    assert detector.level == 7.5
+    # # add a new model using the import functionality
+    # pipeline.model_groups['charge_generation'].models.clear()
+    # import_model(processor, my_model_def_yaml)
+    # detector = pipeline.run(detector)
+    # assert detector.level == 5.0
+    #
+    # # add a new model using the import functionality
+    # pipeline.model_groups['charge_generation'].models.clear()
+    # import_model(processor, my_model_def_dict)
+    # detector = pipeline.run(detector)
+    # assert detector.level == 7.5
 
     # remove all models from the pipeline
     for model_group in pipeline.model_groups.values():
         model_group.models.clear()
 
     # create a model through inspection
-    model_def = create_model_def(my_other_model, 'charge_generation')
-    model_def['arguments']['level'] = 10.0
+    model_def = om.FunctionDef.create(my_other_model,
+                                      ignore_args=[Detector],
+                                      metadata={'group': 'charge_generation'})
+    # model_def = create_model_def(my_other_model, 'charge_generation')
+    model_def.arguments['level'] = 10.0
     import_model(processor, model_def)
     detector = pipeline.run(detector)
     assert detector.level == 10.0
     assert detector.noise == 2.0
 
     # create a model definition using a callable class
-    model_def = create_model_def(my_models.MyClassModel(), 'charge_generation')
-    model_def['arguments']['level'] = 12.0
+    model_def = om.FunctionDef.create(my_models.MyClassModel().__call__,
+                                      ignore_args=[Detector],
+                                      metadata={'group': 'charge_generation'})
+    # model_def = create_model_def(my_models.MyClassModel(), 'charge_generation')
+    model_def.arguments['level'] = 12.0
     import_model(processor, model_def)
     detector = pipeline.run(detector)
     assert detector.level == 12.0
     assert detector.noise == 2.0
-    dump(cfg)
+    om.dump(cfg)
 
 
-def test_model_registry_singleton():
-    reg1 = Registry()
-    assert reg1 == registry
-    reg2 = Registry(singleton=False)
-    assert reg2 != registry
+# def test_model_registry_singleton():
+#     reg1 = Registry()
+#     assert reg1 == registry
+#     reg2 = Registry(singleton=False)
+#     assert reg2 != registry
 
 
-def test_model_registry():
-
-    assert 'my_other_class_model' in registry
-    assert 'my_class_model' in registry
-    assert len(registry) == 5
-
-    model_def = registry['my_class_model']
-    assert isinstance(model_def, dict)
-    for name, model_def in registry.items():
-        assert isinstance(model_def, dict)
+# def test_model_registry():
+#
+#     assert 'my_other_class_model' in registry
+#     assert 'my_class_model' in registry
+#     assert len(registry) == 5
+#
+#     model_def = registry['my_class_model']
+#     assert isinstance(model_def, dict)
+#     for name, model_def in registry.items():
+#         assert isinstance(model_def, dict)
 
 
 def test_model_registry_decorator():
     # my_models.my_decorated_function(None)
-    ref = util.evaluate_reference('functional_tests.my_models.my_decorated_function')
-    cfg = load_config(Path(CWD, 'data', 'test_yaml_new.yaml'))
+    ref = om.evaluate_reference('functional_tests.my_models.my_decorated_function')
+    cfg = om.load(Path(CWD, 'data', 'test_yaml_new.yaml'))
     processor = cfg['processor']
 
     # remove all models from the pipeline
@@ -146,8 +160,8 @@ def test_model_registry_decorator():
         model_group.models.clear()
 
     # import all model definitions into the processor
-    for name in registry:
-        model_def = registry[name]
+    for name in om.functions:
+        model_def = om.functions[name]
         import_model(processor, model_def)
 
     # 'my_class_model'
@@ -163,16 +177,16 @@ def test_model_registry_decorator():
     assert detector.func_std == 2.0
 
 
-def test_model_registry_map():
-    group_models = my_models.registry_map
-    registry_new = Registry(singleton=False)
-    registry_new.register_map(group_models)
-    expected_len = len(list(itertools.chain.from_iterable(group_models.values())))
-    assert expected_len == len(registry_new)
+# def test_model_registry_map():
+#     group_models = my_models.registry_map
+#     registry_new = Registry(singleton=False)
+#     registry_new.register_map(group_models)
+#     expected_len = len(list(itertools.chain.from_iterable(group_models.values())))
+#     assert expected_len == len(registry_new)
 
 
 def test_pipeline_import():
-    cfg = load_config(Path(CWD, 'data', 'test_yaml_new.yaml'))
+    cfg = om.load(Path(CWD, 'data', 'test_yaml_new.yaml'))
     processor = cfg['processor']
 
     # remove all models from the pipeline
@@ -200,15 +214,15 @@ def test_pipeline_import():
     processor.pipeline.run(processor.detector)
     assert processor.detector.level == 1.0
 
-    print(dump(cfg))
+    print(om.dump(cfg))
 
 
 if __name__ == '__main__':
-    test_model_registry_singleton()
+    # test_model_registry_singleton()
+    # test_model_registry_map()
     test_add_model()
-    test_model_registry()
+    # test_model_registry()
     test_model_registry_decorator()
-    test_model_registry_map()
     test_pipeline_import()
 
 #

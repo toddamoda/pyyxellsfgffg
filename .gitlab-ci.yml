@@ -22,6 +22,7 @@ doc:
   stage: build
   script:
     - pip install sphinx sphinx_rtd_theme
+    - pip install -r requirements.txt
 
     - export PYTHONPATH=$PWD
     - sphinx-build docs/source docs/html
@@ -186,6 +187,7 @@ pages:
 #  stage: deploy
 #  environment: deploy
 #  script:   # Configure the PyPI credentials, then push the package, and cleanup the creds.
+#    - pip install -r requirements.txt
 #    - echo "[server-login]" >> ~/.pypirc
 #    - echo "repository=http://lab-linux-server.estec.esa.int/pypi/" >> ~/.pypirc
 #    - echo "username=" ${PYPI_USER} >> ~/.pypirc
