@@ -1,3 +1,7 @@
+################
+# Pyxel configuration file for CCD detectors
+# Used and modified by David
+################
 
 parametric:
   mode: single
@@ -25,11 +29,14 @@ parametric:
       key:
       values:
 
-ccd_process:
+processor:
+  class: pyxel.pipelines.processor.Processor
 
   detector:
+    class: pyxel.detectors.ccd.CCD
 
     geometry:
+      class: pyxel.detectors.ccd_geometry.CCDGeometry
       row: 100                      # compulsory
       col: 100                      # compulsory
       total_thickness: 10.0         # um
@@ -43,11 +50,13 @@ ccd_process:
       bias_voltage: 0.0             # V
 
     environment:
-      temperature: 300                    # K
-      total_ionising_dose: 0              #
-      total_non_ionising_dose: 8.0e11     #
+      class: pyxel.detectors.environment.Environment
+      temperature: 300                     # K
+#      total_ionising_dose: 0              #
+#      total_non_ionising_dose: 0          #
 
     characteristics:
+      class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
       qe: 0.5               # -
       eta: 1                # e/photon
       sv: 1.0e-6            # V/e
@@ -58,72 +67,78 @@ ccd_process:
       fwc_serial: 30000     # e
 
   pipeline:
+    class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
 
+    # -> photons
     photon_generation:
-      load_image:
-        name: pyxel.models.photon_generation.load_image
+      -
+        name: load_image
+        func: pyxel.models.photon_generation.load_image
         enabled: false
         arguments:
           image_file: null
-
-      photon_level:
-        name: pyxel.models.photon_generation.add_photon_level
+      -
+        name: photon_level
+        func: pyxel.models.photon_generation.add_photon_level
         enabled: true
         arguments:
           level: 100
-
-      shot_noise:
-        name: pyxel.models.photon_generation.add_shot_noise
+      -
+        name: shot_noise
+        func: pyxel.models.photon_generation.add_shot_noise
         enabled: true
 
-    # -> photons
+    # photons -> photons
     optics:
 
-    # -> charge
+    # photons -> charge
     charge_generation:
-      photoelectrons:
-        enabled: false
-        name: pyxel.models.photoelectrons.simple_conversion
-
-      tars:
-        name: pyxel.models.tars.tars.run_tars
+      -
+        name: photoelectrons
+        enabled: true
+        func: pyxel.models.photoelectrons.simple_conversion
+      -
+        name: tars
+        func: pyxel.models.tars.tars.run_tars
         enabled: true
         arguments:
           particle_type: proton
-          initial_energy: random   # MeV
+          initial_energy: 100   # MeV
           particle_number: 10
           incident_angles:      # rad
-#            - pi / 4
-#            - pi / 2
+#            - 0.31415 # pi / 4
+#            - 3.1415  # 0 # 1.570 # 3.1415 # 2.094 # pi / 2
           starting_position:    # um
-#            - 500.0
-#            - 500.0
-#            - 0.0
-          stepping_length: 1.0  # um
+#            - 10. #500.0  #vertical
+#            - 20. #500.0  #horizontal
+#            - 0.0         # z
           spectrum_file: 'pyxel/models/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
+          step_size_file: 'pyxel/models/tars/data/inputs/stepsize_proton_100MeV_10um_1M.ascii'
 
-    # -> charge
+#          step_size_file: 'pyxel/models/tars/data/inputs/stepsize_proton_1GeV_100um_1M.ascii'
+#          stepping_length: 1.0  # um
+#          let_file: 'pyxel/models/tars/data/inputs/let_proton_1GeV_100um_geant4_HighResHist.ascii'
+#          stopping_file: 'pyxel/models/tars/data/inputs/stopping_power_protons.txt'
+
+    # charge -> charge
     charge_collection:
-      fixed_pattern_noise:
-        enabled: false
-        name: pyxel.models.ccd_noise.add_fix_pattern_noise
+      -
+        name: fixed_pattern_noise
+        enabled: true
+        func: pyxel.models.ccd_noise.add_fix_pattern_noise
         arguments:
           pix_non_uniformity: data/non_uniformity_array_normal_random_dist.data
+      -
+        name: full_well
+        func: pyxel.models.full_well.simple_pixel_full_well
+        enabled: true
 
-#      diffusion:
-#        enabled: false
-#        name: pyxel.models.diffusion.diffusion
-##        arguments:
-
-      full_well:
-        name: pyxel.models.full_well.simple_pixel_full_well
-        enabled: false
-
-    # -> charge
+    # charge -> charge
     charge_transfer:
-      cdm:
+      -
+        name: cdm
         enabled: false
-        name: pyxel.models.cdm.CDM.cdm
+        func: pyxel.models.cdm.CDM.cdm
         arguments:
          beta_p: 0.6
          beta_s: 0.6
@@ -134,14 +149,14 @@ ccd_process:
          parallel_trap_file: pyxel/models/cdm/cdm_euclid_parallel.dat
          serial_trap_file: pyxel/models/cdm/cdm_euclid_serial.dat
 
-    # -> signal
+    # charge -> signal
     charge_measurement:
-
-      output_node_noise:
-        enabled: false
-        name: pyxel.models.ccd_noise.add_output_node_noise
+      -
+        name: output_node_noise
+        enabled: true
+        func: pyxel.models.ccd_noise.add_output_node_noise
         arguments:
           std_deviation: 1.0
 
-    # -> signal
+    # signal -> image
     readout_electronics:

@@ -3,7 +3,6 @@
 #   --------------------------------------------------------------------------
 """PyXel! Charge class to generate electrons or holes inside detector."""
 import math
-import random
 
 import numpy as np
 import pandas as pd
@@ -55,8 +54,8 @@ def random_direction(v_abs=1.0):    # TODO check random angles and direction
     :param v_abs:
     :return:
     """
-    alpha = 2 * math.pi * random.random()
-    beta = 2. * math.pi * random.random()
+    alpha = 2 * math.pi * np.random.random()
+    beta = 2. * math.pi * np.random.random()
     v_z = v_abs * math.sin(alpha)
     v_ver = v_abs * math.cos(alpha) * math.cos(beta)
     v_hor = v_abs * math.cos(alpha) * math.sin(beta)
