@@ -17,9 +17,7 @@
 """TBW."""
 
 import math
-import random
 import numpy as np
-# import matplotlib.pyplot as plt
 from pyxel.models.tars.util import sampling_distribution
 from pyxel.detectors.detector import Detector
 
@@ -43,23 +41,21 @@ class Particle:
         self.detector = detector
         geo = self.detector.geometry
 
-        # self.charge_clusters = np.zeros((1, 4))
-
         starting_position_vertical = None
         starting_position_horizontal = None
         starting_position_z = None
 
         if starting_pos_ver == 'random':
-            starting_position_vertical = geo.vert_dimension * random.random()
+            starting_position_vertical = geo.vert_dimension * np.random.random()
         elif isinstance(starting_pos_ver, int) or isinstance(starting_pos_ver, float):
             starting_position_vertical = starting_pos_ver
         if starting_pos_hor == 'random':
-            starting_position_horizontal = geo.horz_dimension * random.random()
+            starting_position_horizontal = geo.horz_dimension * np.random.random()
         elif isinstance(starting_pos_hor, int) or isinstance(starting_pos_hor, float):
             starting_position_horizontal = starting_pos_hor
 
         if starting_pos_z == 'random':
-            starting_position_z = geo.total_thickness * random.random()
+            starting_position_z = geo.total_thickness * np.random.random()
         elif isinstance(starting_pos_z, int) or isinstance(starting_pos_z, float):
             starting_position_z = starting_pos_z
 
@@ -70,14 +66,13 @@ class Particle:
         self.trajectory = np.copy(self.starting_position)
 
         if input_alpha == 'random' and starting_pos_z == 0.:
-            alpha = math.pi * random.random()
+            alpha = math.pi * np.random.random()
         elif input_alpha == 'random' and starting_pos_z != 0.:
-            alpha = 2 * math.pi * random.random()
+            alpha = 2 * math.pi * np.random.random()
         else:
             alpha = input_alpha  # between 0 and pi
-
         if input_beta == 'random':
-            beta = 2. * math.pi * random.random()
+            beta = 2. * math.pi * np.random.random()
         else:
             beta = input_beta
         self.angle = np.array([alpha, beta])
@@ -94,44 +89,70 @@ class Particle:
             raise ValueError('Given particle energy could not be read')
 
         self.deposited_energy = 0
-        self.electrons = 0
         self.total_edep = 0
 
-        self.particle_type = particle_type
+        self.type = particle_type
         ionizing_particles = ['proton', 'ion', 'alpha', 'beta', 'electron']
-        non_ionizing_particles = ['gamma', 'x-ray', 'photon']
+        non_ionizing_particles = ['gamma', 'x-ray']     # 'photon'
 
-        if self.particle_type in ionizing_particles:
+        if self.type in ionizing_particles:
             # call direct ionization func when needed - already implemented in simulation
             pass
 
-        elif self.particle_type in non_ionizing_particles:
+        elif self.type in non_ionizing_particles:
             # call NON-direct ionization func when needed - need to be implemented
             raise NotImplementedError('Given particle type simulation is not yet implemented')
 
         else:
             raise ValueError('Given particle type can not be simulated')
 
-    # def plot_trajectory_xy(self):
-    #     plt.figure()
-    #     # self.trajectory[:, 0] - VERTICAL COORDINATE
-    #     # self.trajectory[:, 1] - HORIZONTAL COORDINATE
-    #     plt.plot(self.trajectory[:, 1], self.trajectory[:, 0], '.')
-    #     plt.xlabel('horizontal ($\mu$m)')
-    #     plt.ylabel('vertical ($\mu$m)')
-    #     plt.title('p trajectory in CCD')
-    #     plt.axis([0, self.ccd.horz_dimension, 0, self.ccd.vert_dimension])
-    #     plt.grid(True)
-    #     plt.draw()
-    #
-    # def plot_trajectory_xz(self):
-    #     plt.figure()
-    #     # self.trajectory[:, 2] - Z COORDINATE
-    #     # self.trajectory[:, 1] - HORIZONTAL COORDINATE
-    #     plt.plot(self.trajectory[:, 1], self.trajectory[:, 2], '.')
-    #     plt.xlabel('horizontal ($\mu$m)')
-    #     plt.ylabel('z ($\mu$m)')
-    #     plt.title('p trajectory in CCD')
-    #     plt.axis([0, self.ccd.horz_dimension, -1*self.ccd.total_thickness, 0])
-    #     plt.grid(True)
-    #     plt.draw()
+    def track_length(self):
+        """TBW.
+
+        :return:
+        """
+        geo = self.detector.geometry
+
+        norm_vectors = [np.array([0., 0., -1.]),    # top plane (usually particle enters vol. via this)
+                        np.array([0., 0., 1.]),     # bottom plane (usually particle leaves vol. via this)
+                        np.array([0., 1., 0.]),
+                        np.array([-1., 0., 0.]),
+                        np.array([0., -1., 0.]),
+                        np.array([1., 0., 0.])]
+
+        points = [np.array([0., 0., 0.]),                        # top plane (usually particle enters vol. via this)
+                  np.array([0., 0., -1 * geo.total_thickness]),  # bottom plane (usually particle leaves vol. via this)
+                  np.array([0., 0., 0.]),
+                  np.array([geo.vert_dimension, 0., 0.]),
+                  np.array([geo.vert_dimension, geo.horz_dimension, 0.]),
+                  np.array([0., geo.horz_dimension, 0.])]
+
+        track_length = np.inf
+        intersect_points = np.zeros((6, 3))
+        for i in range(6):
+            intersect_points[i, :] = self.find_intersection(norm_vectors[i], points[i])
+            track_length_new = np.linalg.norm(intersect_points[i, :] - self.starting_position)
+            if track_length_new < track_length and track_length_new != 0.:
+                track_length = track_length_new
+
+        return track_length
+
+    def find_intersection(self, n, p0):
+        """TBW.
+
+        https://en.wikipedia.org/wiki/Line%E2%80%93plane_intersection
+        :param n: normal vector of the plane
+        :param p0: point of the plane
+        :return:
+        """
+        ls = self.starting_position
+        lv = np.array([self.dir_ver,
+                       self.dir_hor,
+                       self.dir_z])
+
+        if np.dot(lv, n) == 0:   # No intersection of track and detector plane
+            return None
+        else:
+            d = np.dot((p0 - ls), n) / np.dot(lv, n)
+            p = d * lv + ls
+            return p

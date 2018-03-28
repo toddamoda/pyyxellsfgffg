@@ -12,7 +12,7 @@ class Characteristics:
                  a1: float = None,
                  a2: float = None,
                  fwc: int = None,
-                 ) -> None:
+                 **invalid_kwargs) -> None:  # TODO: should we allow bad arguments to be passed??
         """TBW.
 
         :param qe:
