@@ -1,13 +1,14 @@
 Changelog
 =========
 
+0.3 / 2018-03-28
+----------------
 
-0.2rc1 / 2018-MM-DD
--------------------
+Changes
+-------
 
-New features
-
-    * Add Sphinx documentation
+* infrastructure code has been placed in 2 new projects: esapy_config and esapy_web
+* web interface is dynamically generated based on attrs definitions.
 
 
 0.1 / 2018-01-10

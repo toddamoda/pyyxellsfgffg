@@ -4,9 +4,6 @@ import esapy_config as om
 
 from pyxel.pipelines import models
 from pyxel.pipelines import processor
-# from pyxel.pipelines.model_registry import register
-# from pyxel.pipelines.model_registry import registry
-# from pyxel.pipelines.model_registry import MetaModel
 from pyxel.pipelines.model_group import ModelFunction
 from pyxel.pipelines.model_group import ModelGroup
 from pyxel.pipelines.detector_pipeline import DetectionPipeline
