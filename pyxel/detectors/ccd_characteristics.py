@@ -1,21 +1,21 @@
 """TBW."""
+import esapy_config as om
 
 from pyxel.detectors.characteristics import Characteristics
 
 
+@om.attr_class
 class CCDCharacteristics(Characteristics):
     """TBW."""
 
-    def __init__(self,
-                 fwc_serial: int = None,
-                 **kwargs) -> None:
-        """TBW.
-
-        :param fwc_serial:
-        :param kwargs:
-        """
-        super().__init__(**kwargs)
-        self.fwc_serial = fwc_serial   # * u.electrons
+    fwc_serial = om.attr_def(
+        type=int,
+        default=0.0,
+        cast=True,
+        validate=om.check_range(0, 1000000, 1, False),
+        doc='full well capacity (serial)',
+        units='electrons',
+    )
 
     def copy(self):
         """TBW."""

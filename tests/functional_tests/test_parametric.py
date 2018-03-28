@@ -11,7 +11,9 @@ from astropy.io import fits
 # from pyxel.pipelines.ccd_pipeline import CCDDetectionPipeline
 # from pyxel.pipelines.cmos_pipeline import CMOSDetectionPipeline
 # from pyxel.detectors.ccd import CCD
-from pyxel.io.yaml_processor import load_config
+# from pyxel.io.yaml_processor import load_config
+import pyxel
+from esapy_config import io
 
 expected_single = [
     (0, [('level', 100), ('initial_energy', 100.0)])
@@ -46,15 +48,15 @@ expected_embedded = [
 ])
 def test_pipeline_parametric(mode, expected):
     input_filename = 'tests/data/pipeline_parametric.yaml'
-    cfg = load_config(Path(input_filename))
+    cfg = io.load(Path(input_filename))
     parametric = cfg.pop('parametric')
     parametric.mode = mode
-    processor = cfg[next(iter(cfg))]  # type: pyxel.pipelines.processor.Processor
+    processor = cfg['processor']  # type: pyxel.pipelines.processor.Processor
     result = parametric.debug(processor)
 
     assert result == expected
 
 
-# test_pipeline_parametric('single', expected_single)
-# test_pipeline_parametric('sequential', expected_sequential)
-# test_pipeline_parametric('embedded', expected_embedded)
+test_pipeline_parametric('single', expected_single)
+test_pipeline_parametric('sequential', expected_sequential)
+test_pipeline_parametric('embedded', expected_embedded)

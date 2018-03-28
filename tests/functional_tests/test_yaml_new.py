@@ -1,6 +1,8 @@
 from pathlib import Path
 
 import esapy_config as om
+
+import pyxel
 # from pyxel.util import objmod as om
 
 

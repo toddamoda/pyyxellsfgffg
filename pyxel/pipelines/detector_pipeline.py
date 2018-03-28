@@ -7,7 +7,7 @@ import esapy_config as om
 
 from pyxel.detectors.detector import Detector
 # from pyxel.pipelines.models import Model  # noqa: F401
-from pyxel.pipelines.models import Models
+from pyxel.pipelines.model_group import ModelGroup
 from pyxel import util
 # from pyxel.util import objmod as om
 
@@ -16,12 +16,12 @@ class DetectionPipeline:
     """TBW."""
 
     def __init__(self,
-                 photon_generation: Models = None,
-                 optics: Models = None,
-                 charge_generation: Models = None,
-                 charge_collection: Models = None,
-                 charge_measurement: Models = None,
-                 readout_electronics: Models = None,
+                 photon_generation: ModelGroup = None,
+                 optics: ModelGroup = None,
+                 charge_generation: ModelGroup = None,
+                 charge_collection: ModelGroup = None,
+                 charge_measurement: ModelGroup = None,
+                 readout_electronics: ModelGroup = None,
                  doc=None) -> None:
         """TBW.
 

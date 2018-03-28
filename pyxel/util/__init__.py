@@ -1,12 +1,38 @@
 """Utility functions."""
 import glob
 
+import numpy as np
+
 from pyxel.util.fitsfile import FitsFile
 
 
 class PipelineAborted(Exception):
     """Exception to force the pipeline to stop processing."""
 
+
+def round_convert_to_int(input_array: np.ndarray):
+    """Round list of floats in numpy array and convert to integers.
+
+    Use on data before adding into DataFrame.
+
+    :param input_array: numpy array object OR numpy array (float, int)
+    :return:
+    """
+    array = input_array.astype(float)
+    array = np.rint(array)
+    array = array.astype(int)
+    return array
+
+
+def convert_to_int(input_array: np.ndarray):
+    """Convert numpy array to integer.
+
+    Use on data after getting it from DataFrame.
+
+    :param input_array: numpy array object OR numpy array (float, int)
+    :return:
+    """
+    return input_array.astype(int)
 
 # def load(yaml_filename):
 #     """TBW.

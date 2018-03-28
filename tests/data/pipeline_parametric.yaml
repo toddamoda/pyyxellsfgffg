@@ -21,11 +21,14 @@ parametric:
       key:
       values:
 
-ccd_process:
+processor:
+  class: pyxel.pipelines.processor.Processor
 
   detector:
+    class: pyxel.detectors.ccd.CCD
 
     geometry:
+      class: pyxel.detectors.ccd_geometry.CCDGeometry
       row: 100                      # compulsory
       col: 100                      # compulsory
       total_thickness: 10.0         # um
@@ -39,11 +42,13 @@ ccd_process:
       bias_voltage: 0.0             # V
 
     environment:
+      class: pyxel.detectors.environment.Environment
       temperature: 300                    # Kelvin, detector temperature
       total_ionising_dose: 8.0e11         # total ionising dose (IEL)
       total_non_ionising_dose: 8.0e11     # total non-ionising dose (NIEL)
 
     characteristics:
+      class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
       qe: 0.5               # -
       eta: 1                # e/photon
       sv: 1.0e-6            # V/e
@@ -54,22 +59,24 @@ ccd_process:
       fwc_serial: 30000     # e
 
   pipeline:
+    class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
 
     photon_generation:
-      load_image:
-        name: pyxel.models.photon_generation.load_image
+      -
+        name: load_image
+        func: pyxel.models.photon_generation.load_image
         enabled: false
         arguments:
           image_file: null
-
-      photon_level:
-        name: pyxel.models.photon_generation.add_photon_level
+      -
+        name: photon_level
+        func: pyxel.models.photon_generation.add_photon_level
         enabled: true
         arguments:
           level: 100
-
-      shot_noise:
-        name: pyxel.models.photon_generation.add_shot_noise
+      -
+        name: shot_noise
+        func: pyxel.models.photon_generation.add_shot_noise
         enabled: true
 
     # -> photons
@@ -77,51 +84,53 @@ ccd_process:
 
     # -> charge
     charge_generation:
-      photoelectrons:
+      -
+        name: photoelectrons
         enabled: false
-        name: pyxel.models.photoelectrons.simple_conversion
-
-      tars:
-        name: pyxel.models.tars.tars.run_tars
+        func: pyxel.models.photoelectrons.simple_conversion
+      -
+        name: tars
+        func: pyxel.models.tars.tars.run_tars
         enabled: true
         arguments:
+          particle_type: proton
           initial_energy: 100.0   # MeV
           particle_number: 10
           incident_angles:      # rad
-            - random # 0.31416  # pi / 10
-            - random # 0.7853   # pi / 4
+#            - pi / 4
+#            - pi / 2
           starting_position:    # um
-            - random # 500.0
-            - random # 500.0
-            - 0.0
+#            - 500.0
+#            - 500.0
+#            - 0.0
 #          stepping_length: 1.0  # um
           spectrum_file: 'pyxel/models/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
           let_file: 'pyxel/models/tars/data/inputs/let_proton_1GeV_100um_geant4_HighResHist.ascii'
 
     # -> charge
     charge_collection:
-      fixed_pattern_noise:
+      -
+        name: fixed_pattern_noise
         enabled: false
-        name: pyxel.models.ccd_noise.add_fix_pattern_noise
+        func: pyxel.models.ccd_noise.add_fix_pattern_noise
         arguments:
           pix_non_uniformity: data/non_uniformity_array_normal_random_dist.data
 
-      diffusion:
+  #      diffusion:
+  #        enabled: false
+  #        name: pyxel.models.diffusion.diffusion
+  ##        arguments:
+      -
+        name: full_well
+        func: pyxel.models.full_well.simple_pixel_full_well
         enabled: false
-        name: pyxel.models.diffusion.diffusion
-#        arguments:
-
-      full_well:
-        name: pyxel.models.full_well.simple_pixel_full_well
-        enabled: false
-        arguments:
-          fwc: 100       # e  # if defined use this, if not use the default parameter from characteristics
 
     # -> charge
     charge_transfer:
-      cdm:
+      -
+        name: cdm
         enabled: false
-        name: pyxel.models.cdm.CDM.cdm
+        func: pyxel.models.cdm.CDM.cdm
         arguments:
          beta_p: 0.6
          beta_s: 0.6
@@ -134,11 +143,103 @@ ccd_process:
 
     # -> signal
     charge_measurement:
-      readout_noise:
+      -
+        name: output_node_noise
         enabled: false
-        name: pyxel.models.ccd_noise.add_output_node_noise
+        func: pyxel.models.ccd_noise.add_output_node_noise
         arguments:
           std_deviation: 1.0
 
     # -> signal
     readout_electronics:
+
+#  pipeline:
+#    class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
+#
+#    photon_generation:
+#      load_image:
+#        name: pyxel.models.photon_generation.load_image
+#        enabled: false
+#        arguments:
+#          image_file: null
+#
+#      photon_level:
+#        name: pyxel.models.photon_generation.add_photon_level
+#        enabled: true
+#        arguments:
+#          level: 100
+#
+#      shot_noise:
+#        name: pyxel.models.photon_generation.add_shot_noise
+#        enabled: true
+#
+#    # -> photons
+#    optics:
+#
+#    # -> charge
+#    charge_generation:
+#      photoelectrons:
+#        enabled: false
+#        name: pyxel.models.photoelectrons.simple_conversion
+#
+#      tars:
+#        name: pyxel.models.tars.tars.run_tars
+#        enabled: true
+#        arguments:
+#          initial_energy: 100.0   # MeV
+#          particle_number: 10
+#          incident_angles:      # rad
+#            - random # 0.31416  # pi / 10
+#            - random # 0.7853   # pi / 4
+#          starting_position:    # um
+#            - random # 500.0
+#            - random # 500.0
+#            - 0.0
+##          stepping_length: 1.0  # um
+#          spectrum_file: 'pyxel/models/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
+#          let_file: 'pyxel/models/tars/data/inputs/let_proton_1GeV_100um_geant4_HighResHist.ascii'
+#
+#    # -> charge
+#    charge_collection:
+#      fixed_pattern_noise:
+#        enabled: false
+#        name: pyxel.models.ccd_noise.add_fix_pattern_noise
+#        arguments:
+#          pix_non_uniformity: data/non_uniformity_array_normal_random_dist.data
+#
+#      diffusion:
+#        enabled: false
+#        name: pyxel.models.diffusion.diffusion
+##        arguments:
+#
+#      full_well:
+#        name: pyxel.models.full_well.simple_pixel_full_well
+#        enabled: false
+#        arguments:
+#          fwc: 100       # e  # if defined use this, if not use the default parameter from characteristics
+#
+#    # -> charge
+#    charge_transfer:
+#      cdm:
+#        enabled: false
+#        name: pyxel.models.cdm.CDM.cdm
+#        arguments:
+#         beta_p: 0.6
+#         beta_s: 0.6
+#         vg: 6.e-11
+#         svg: 1.0e-10
+#         t: 20.48e-3
+#         st: 5.0e-6
+#         parallel_trap_file: pyxel/models/cdm/cdm_euclid_parallel.dat
+#         serial_trap_file: pyxel/models/cdm/cdm_euclid_serial.dat
+#
+#    # -> signal
+#    charge_measurement:
+#      readout_noise:
+#        enabled: false
+#        name: pyxel.models.ccd_noise.add_output_node_noise
+#        arguments:
+#          std_deviation: 1.0
+#
+#    # -> signal
+#    readout_electronics:

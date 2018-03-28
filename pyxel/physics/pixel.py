@@ -7,7 +7,7 @@ import pandas as pd
 # from astropy import units as u
 from astropy.units import cds
 
-from pyxel.util.util import round_convert_to_int, convert_to_int
+from pyxel import util
 
 cds.enable()
 
@@ -68,9 +68,9 @@ class Pixel:
             raise ValueError('List arguments have different lengths')
 
         # Rounding and converting to integer
-        charge = round_convert_to_int(charge)
-        pixel_index_ver = round_convert_to_int(pixel_index_ver)
-        pixel_index_hor = round_convert_to_int(pixel_index_hor)
+        charge = util.round_convert_to_int(charge)
+        pixel_index_ver = util.round_convert_to_int(pixel_index_ver)
+        pixel_index_hor = util.round_convert_to_int(pixel_index_hor)
 
         # dict
         new_pixel = {'id': range(self.nextid, self.nextid + elements),
@@ -96,7 +96,7 @@ class Pixel:
         charge_2d_array = np.zeros((self.detector.geometry.row, self.detector.geometry.col), dtype=float)
         charge_2d_array[pixel_index_ver, pixel_index_hor] = charge_per_pixel
 
-        return convert_to_int(charge_2d_array)
+        return util.convert_to_int(charge_2d_array)
 
     def update_from_2d_charge_array(self, array):
         """Recreate pixel DataFrame from a 2d numpy array.
@@ -127,7 +127,7 @@ class Pixel:
         else:
             array = self.frame.query('id in %s' % id_list).charge.values
 
-        return convert_to_int(array)
+        return util.convert_to_int(array)
 
     def get_pixel_positions_ver(self, id_list='all'):
         """Get vertical positions of pixels.
@@ -139,7 +139,7 @@ class Pixel:
             array = self.frame.pixel_index_ver.values
         else:
             array = self.frame.query('id in %s' % id_list).pixel_index_ver.values
-        return convert_to_int(array)
+        return util.convert_to_int(array)
 
     def get_pixel_positions_hor(self, id_list='all'):
         """Get horizontal positions of pixels.
@@ -151,7 +151,7 @@ class Pixel:
             array = self.frame.pixel_index_hor.values
         else:
             array = self.frame.query('id in %s' % id_list).pixel_index_hor.values
-        return convert_to_int(array)
+        return util.convert_to_int(array)
 
     # def change_all_charges(self, new_charge_list):
     #     """
