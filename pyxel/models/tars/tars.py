@@ -6,6 +6,7 @@
 import logging
 import math
 
+from pathlib import Path
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
@@ -82,23 +83,23 @@ def run_tars(detector: Detector,
 
     cosmics.run()
 
-    plot_obj = PlottingTARS(cosmics)
-
-    # plot_obj.plot_flux_spectrum()
-    # plot_obj.plot_spectrum_cdf()
-
-    # # plot_obj.plot_let_dist()
-    # plot_obj.plot_let_cdf()
-
-    plot_obj.plot_step_dist()
-    plot_obj.plot_step_cdf()
-
-    plot_obj.plot_charges_3d()
-
-    plot_obj.plot_edep_per_step()
-    plot_obj.plot_edep_per_particle()
-
-    plot_obj.show_plots()
+    # plot_obj = PlottingTARS(cosmics)
+    #
+    # # plot_obj.plot_flux_spectrum()
+    # # plot_obj.plot_spectrum_cdf()
+    #
+    # # # plot_obj.plot_let_dist()
+    # # plot_obj.plot_let_cdf()
+    #
+    # plot_obj.plot_step_dist()
+    # plot_obj.plot_step_cdf()
+    #
+    # plot_obj.plot_charges_3d()
+    #
+    # plot_obj.plot_edep_per_step()
+    # plot_obj.plot_edep_per_particle()
+    #
+    # plot_obj.show_plots()
 
     return new_detector
 
@@ -216,15 +217,16 @@ class TARS:
         type_list = ['proton']          # , 'ion', 'alpha', 'beta', 'electron', 'gamma', 'x-ray']
         energy_list = [100., 1000.]            # MeV
         thick_list = [10., 50., 100., 200.]    # um
-        path = r'pyxel\models\tars\data\inputs\stepsize_'
-        filename_list = ['proton_100MeV_10um_1M.ascii',
-                         'proton_100MeV_50um_1M.ascii',
-                         'proton_100MeV_100um_1M.ascii',
-                         'proton_100MeV_200um_1M.ascii',
-                         'proton_1GeV_10um_1M.ascii',
-                         'proton_1GeV_50um_1M.ascii',
-                         'proton_1GeV_100um_1M.ascii',
-                         'proton_1GeV_200um_1M.ascii']
+
+        path = Path(__file__).parent.joinpath('data', 'inputs')
+        filename_list = ['stepsize_proton_100MeV_10um_1M.ascii',
+                         'stepsize_proton_100MeV_50um_1M.ascii',
+                         'stepsize_proton_100MeV_100um_1M.ascii',
+                         'stepsize_proton_100MeV_200um_1M.ascii',
+                         'stepsize_proton_1GeV_10um_1M.ascii',
+                         'stepsize_proton_1GeV_50um_1M.ascii',
+                         'stepsize_proton_1GeV_100um_1M.ascii',
+                         'stepsize_proton_1GeV_200um_1M.ascii']
 
         i = 0
         for pt in type_list:
@@ -234,7 +236,7 @@ class TARS:
                         'type': pt,
                         'energy': en,
                         'thickness': th,
-                        'path': path + filename_list[i],
+                        'path': str(Path(path, filename_list[i])),
                         }
                     new_df = pd.DataFrame(data_dict, index=[0])
                     self.sim_obj.data_library = pd.concat([self.sim_obj.data_library, new_df], ignore_index=True)
