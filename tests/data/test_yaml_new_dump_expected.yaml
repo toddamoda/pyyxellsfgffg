@@ -78,11 +78,11 @@ processor:
     - arguments:
         incident_angles: null
         initial_energy: random
+        let_file: pyxel/models/tars/data/inputs/let_proton_1GeV_100um_geant4_HighResHist.ascii
         particle_number: 10
         particle_type: proton
         spectrum_file: pyxel/models/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt
         starting_position: null
-        stepping_length: 1.0
       enabled: true
       func: pyxel.models.tars.tars.run_tars
       name: tars

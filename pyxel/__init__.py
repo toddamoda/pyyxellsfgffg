@@ -2,7 +2,6 @@
 
 import esapy_config as om
 
-from pyxel.pipelines import models
 from pyxel.pipelines import processor
 from pyxel.pipelines.model_group import ModelFunction
 from pyxel.pipelines.model_group import ModelGroup

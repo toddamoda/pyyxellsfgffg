@@ -5,14 +5,14 @@ from pyxel.detectors.detector import Detector
 from pyxel.physics.charge import Charge
 from pyxel.physics.photon import Photon
 from pyxel.physics.pixel import Pixel
-from pyxel.pipelines.models import Models
+from pyxel.pipelines.model_group import ModelGroup
 
 
 class CCDDetectionPipeline(DetectionPipeline):
     """TBW."""
 
     def __init__(self,
-                 charge_transfer: Models,
+                 charge_transfer: ModelGroup,
                  **kwargs) -> None:
         """TBW.
 

@@ -2,8 +2,29 @@
 
 import numpy as np
 import pytest
+import re
+import inspect
 
-from pyxel.io.yaml_processor import load
+# from pyxel.io.yaml_processor import load
+import yaml
+
+def _expr_processor(loader: yaml.Loader, node: yaml.ScalarNode):
+    value = loader.construct_scalar(node)
+
+    try:
+        result = eval(value, {}, np.__dict__)
+
+        if callable(result) or inspect.ismodule(result):
+            result = value
+
+    except NameError:
+        result = value
+
+    return result
+
+
+yaml.Loader.add_implicit_resolver('!expr', re.compile(r'^.*$'), None)
+yaml.Loader.add_constructor('!expr', _expr_processor)
 
 
 @pytest.mark.parametrize('data, expected', [
@@ -36,7 +57,7 @@ from pyxel.io.yaml_processor import load
 ])
 def test_expr_with_tag(data, expected):
     """Test tag '!expr'."""
-    obj = load(data)
+    obj = yaml.load(data)
 
     if isinstance(expected, np.ndarray):
         # Test `numpy.ndarray`
