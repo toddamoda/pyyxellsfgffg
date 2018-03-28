@@ -225,7 +225,6 @@ class TARS:
                          'proton_1GeV_100um_1M.ascii',
                          'proton_1GeV_200um_1M.ascii']
 
-        # TODO: Is there a more simple (pythonic) way to combine the three list and create a df??
         i = 0
         for pt in type_list:
             for en in energy_list:

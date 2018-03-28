@@ -116,7 +116,6 @@ class Simulation:
         else:
             return sorted_list[index_smaller]
 
-    # TODO implement select_stepsize_data func using track_len parameter
     def select_stepsize_data(self, p_type, p_energy, p_track_length):
         """TBW.
 
@@ -172,13 +171,9 @@ class Simulation:
                                  self.angle_alpha, self.angle_beta)
         particle = self.particle
 
-        # if self.energy_loss_data == 'let':
-        #     self.select_let(particle.energy, self.detector.geometry.total_thickness)
-
         if self.energy_loss_data == 'stepsize':
-            track_length = particle.track_length()
-            datafilename = self.select_stepsize_data(particle.type, particle.energy, track_length)
-            print(particle.type, particle.energy, track_length)
+            datafilename = self.select_stepsize_data(particle.type, particle.energy, particle.track_length())
+            print(particle.type, particle.energy, particle.track_length())
             self.set_stepsize_distribution(datafilename)
 
         if self.energy_loss_data == 'stopping':
