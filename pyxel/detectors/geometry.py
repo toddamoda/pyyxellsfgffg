@@ -25,6 +25,7 @@ class Geometry:
             raise NotImplementedError('Given material has not implemented yet')
 
     def __attrs_post_init__(self):
+        """TBW."""
         if self.material:
             self.set_material(self.material)
 

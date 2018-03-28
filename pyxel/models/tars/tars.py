@@ -17,7 +17,7 @@ from pyxel.models.tars.simulation import Simulation
 from pyxel.models.tars.util import read_data, interpolate_data
 from pyxel.pipelines.model_registry import registry
 
-from pyxel.models.tars.plotting import PlottingTARS
+# from pyxel.models.tars.plotting import PlottingTARS
 
 # from astropy import units as u
 
@@ -32,8 +32,7 @@ def run_tars(detector: Detector,
              step_size_file: str = None,
              stopping_file: str = None,
              spectrum_file: str = None) -> Detector:
-    """
-    TBW.
+    """TBW.
 
     :param detector:
     :param particle_type:
