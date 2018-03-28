@@ -7,12 +7,13 @@ import logging
 import math
 
 import numpy as np
+import pandas as pd
 from tqdm import tqdm
 import typing as t   # noqa: F401
 
 from pyxel.detectors.detector import Detector
 from pyxel.models.tars.simulation import Simulation
-from pyxel.models.tars.util import read_data, load_step_data, interpolate_data
+from pyxel.models.tars.util import read_data, interpolate_data
 from pyxel.pipelines.model_registry import registry
 
 from pyxel.models.tars.plotting import PlottingTARS
@@ -74,13 +75,12 @@ def run_tars(detector: Detector,
     cosmics.set_particle_spectrum(spectrum_file)
 
     if step_size_file is not None and stopping_file is None:
-        cosmics.set_stepsize_distribution(step_size_file)
+        cosmics.set_stepsize()
     elif stopping_file is not None and step_size_file is None:
         # cosmics.set_stopping_power(stopping_file)
         raise NotImplementedError
     else:
-        raise AttributeError("Either Step size, LET or Stopping power data needs to be defined")
-    # cosmics.set_let_distribution(let_file)
+        raise AttributeError("Either Step size or Stopping power data needs to be defined")
 
     cosmics.run()
 
@@ -221,33 +221,48 @@ class TARS:
     #     self.sim_obj.let_cdf = np.stack((self.sim_obj.let_cdf[:, 0], cum_sum), axis=1)
     #     # self.sim_obj.let_cdf = np.stack((lin_energy_range, cum_sum), axis=1)
 
-    def set_stepsize_distribution(self, step_size_file):
+    def set_stepsize(self):
         """TBW.
 
-        :param step_size_file:
         :return:
-        .. warning:: EXPERIMENTAL - NOT FINSHED YET
         """
         self.sim_obj.energy_loss_data = 'stepsize'
+        self.create_data_library()
 
-        # TODO: get rid of skip_rows and read_rows argument
+    def create_data_library(self):
+        """TBW.
 
-        # step size distribution in um
-        self.sim_obj.step_size_dist = load_step_data(step_size_file, hist_type='step_size',
-                                                     skip_rows=4, read_rows=10000)
+        :return:
+        """
+        self.sim_obj.data_library = pd.DataFrame(columns=['type', 'energy', 'thickness', 'path'])
 
-        cum_sum = np.cumsum(self.sim_obj.step_size_dist['counts'])
-        cum_sum /= np.max(cum_sum)
-        self.sim_obj.step_cdf = np.stack((self.sim_obj.step_size_dist['step_size'], cum_sum), axis=1)
+        type_list = ['proton']          # , 'ion', 'alpha', 'beta', 'electron', 'gamma', 'x-ray']
+        energy_list = [100., 1000.]            # MeV
+        thick_list = [10., 50., 100., 200.]    # um
+        path = r'pyxel\models\tars\data\inputs\stepsize_'
+        filename_list = ['proton_100MeV_10um_1M.ascii',
+                         'proton_100MeV_50um_1M.ascii',
+                         'proton_100MeV_100um_1M.ascii',
+                         'proton_100MeV_200um_1M.ascii',
+                         'proton_1GeV_10um_1M.ascii',
+                         'proton_1GeV_50um_1M.ascii',
+                         'proton_1GeV_100um_1M.ascii',
+                         'proton_1GeV_200um_1M.ascii']
 
-        # secondary electron spectrum in keV
-        self.sim_obj.kin_energy_dist = load_step_data(step_size_file, hist_type='energy',
-                                                      skip_rows=10008, read_rows=200)
-
-        cum_sum = np.cumsum(self.sim_obj.kin_energy_dist['counts'])
-        cum_sum /= np.max(cum_sum)
-        self.sim_obj.kin_energy_cdf = np.stack((self.sim_obj.kin_energy_dist['energy'], cum_sum), axis=1)
-        pass
+        # TODO: Is there a more simple (pythonic) way to combine the three list and create a df??
+        i = 0
+        for pt in type_list:
+            for en in energy_list:
+                for th in thick_list:
+                    data_dict = {
+                        'type': pt,
+                        'energy': en,
+                        'thickness': th,
+                        'path': path + filename_list[i],
+                        }
+                    new_df = pd.DataFrame(data_dict, index=[0])
+                    self.sim_obj.data_library = pd.concat([self.sim_obj.data_library, new_df], ignore_index=True)
+                    i += 1
 
     def run(self):
         """TBW.

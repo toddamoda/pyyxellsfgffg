@@ -6,10 +6,12 @@
 import typing as t  # noqa: F401
 import numpy as np
 import pandas as pd
+from bisect import bisect
 
 from pyxel.models.tars.particle import Particle
 from pyxel.models.tars.util import sampling_distribution
 from pyxel.detectors.detector import Detector
+from pyxel.models.tars.util import load_step_data
 
 
 class Simulation:
@@ -31,6 +33,8 @@ class Simulation:
         self.step_cdf = np.zeros((1, 2))
         self.kin_energy_dist = None
         self.kin_energy_cdf = np.zeros((1, 2))
+
+        self.data_library = None
 
         # self.let_dist = None
         # self.let_cdf = np.zeros((1, 2))
@@ -94,46 +98,50 @@ class Simulation:
     #     """
     #     pass
 
+    def find_smaller_neighbor(self, value):
+        """TBW.
+
+        :return:
+        """
+        thickness_values = sorted(self.data_library.thickness.unique())
+        return thickness_values[bisect(thickness_values, value) - 1]
+
     # TODO implement select_stepsize_data func using track_len parameter
-    def select_stepsize_data(self, p_type, p_energy, p_track):
+    def select_stepsize_data(self, p_type, p_energy, p_track_length):
         """TBW.
 
         :param p_type: str
         :param p_energy: float (MeV)
-        :param p_track: float (um)
+        :param p_track_length: float (um)
         :return:
         """
-        data_library = pd.DataFrame(columns=['type', 'energy', 'thickness'])
+        df = self.data_library
+        distance = self.find_smaller_neighbor(p_track_length)
+        return df[(df.type == p_type) & (df.energy == p_energy) & (df.thickness == distance)].path.values[0]
 
-        type_list = ['proton']      # , 'ion', 'alpha', 'beta', 'electron', 'gamma', 'x-ray']
-        energy_list = [100., 1000.]            # MeV
-        thick_list = [10., 50., 100., 200.]    # um
+    def set_stepsize_distribution(self, step_size_file):
+        """TBW.
 
-        # TODO: Is there a more simple (pythonic) way to combine the three list and create a df??
-        for pt in type_list:
-            for en in energy_list:
-                for th in thick_list:
-                    data_dict = {
-                        'type': pt,
-                        'energy': en,
-                        'thickness': th,
-                        }
-                    new_df = pd.DataFrame(data_dict, index=[0])
-                    data_library = pd.concat([data_library, new_df], ignore_index=True)
+        :param step_size_file:
+        :return:
+        .. warning:: EXPERIMENTAL - NOT FINSHED YET
+        """
+        # TODO: get rid of skip_rows and read_rows argument
+        # step size distribution in um
+        self.step_size_dist = load_step_data(step_size_file, hist_type='step_size', skip_rows=4,
+                                             read_rows=10000)
 
-        # p_energy = str(int(p_energy))
-        # p_track = str(int(p_track))
+        cum_sum = np.cumsum(self.step_size_dist['counts'])
+        cum_sum /= np.max(cum_sum)
+        self.step_cdf = np.stack((self.step_size_dist['step_size'], cum_sum), axis=1)
 
-        # if p_type in type_data_list:
-        #     pass
-        # if p_track in energy_data_list:
-        #     pass
-        # if p_track in thickness_data_list:
-        #     pass
-        # else:
-        #     AttributeError()
+        # secondary electron spectrum in keV
+        self.kin_energy_dist = load_step_data(step_size_file, hist_type='energy', skip_rows=10008,
+                                              read_rows=200)
 
-        # return 'stepsize_' + p_type + '_' + p_energy + '_' + thickness + '_1M.ascii'
+        cum_sum = np.cumsum(self.kin_energy_dist['counts'])
+        cum_sum /= np.max(cum_sum)
+        self.kin_energy_cdf = np.stack((self.kin_energy_dist['energy'], cum_sum), axis=1)
 
     def event_generation(self):
         """Generate an event.
@@ -156,7 +164,9 @@ class Simulation:
 
         if self.energy_loss_data == 'stepsize':
             track_length = particle.track_length()
-            self.select_stepsize_data(particle.type, particle.energy, track_length)
+            datafilename = self.select_stepsize_data(particle.type, particle.energy, track_length)
+            self.set_stepsize_distribution(datafilename)
+
         if self.energy_loss_data == 'stopping':
             raise NotImplementedError  # TODO: implement this
 
