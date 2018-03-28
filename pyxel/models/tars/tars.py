@@ -28,9 +28,7 @@ def run_tars(detector: Detector,
              particle_number: int = None,
              incident_angles: tuple = None,
              starting_position: tuple = None,
-             # stepping_length: float = None,
              step_size_file: str = None,
-             # let_file: str = None,
              stopping_file: str = None,
              spectrum_file: str = None) -> Detector:
     """
@@ -42,7 +40,6 @@ def run_tars(detector: Detector,
     :param particle_number:
     :param incident_angles:
     :param starting_position:
-    # :param let_file:
     :param step_size_file:
     :param stopping_file:
     :param spectrum_file:
@@ -199,27 +196,6 @@ class TARS:
         """
         self.sim_obj.energy_loss_data = 'stopping'
         self.sim_obj.stopping_power = read_data(stopping_file)
-
-    # def set_let_distribution(self, particle_let_file):
-    #     """TBW.
-    #
-    #     :param particle_let_file:
-    #     :return:
-    #     .. warning:: EXPERIMENTAL - NOT FINSHED YET
-    #     """
-    #     self.sim_obj.energy_loss_data = 'let'
-    #     self.sim_obj.let_dist = read_data(particle_let_file)  # counts in function of keV
-    #
-    #     # THESE 2 LINES ARE TEMPORARY, DO NOT USE THIS!
-    #     det_thickness = 100.0       # um
-    #     self.sim_obj.let_dist[:, 1] /= det_thickness   # keV/um
-    #
-    #     self.sim_obj.let_cdf = np.stack((self.sim_obj.let_dist[:, 1], self.sim_obj.let_dist[:, 2]), axis=1)
-    #     cum_sum = np.cumsum(self.sim_obj.let_cdf[:, 1])
-    #     # cum_sum = np.cumsum(let_dist_interpol)
-    #     cum_sum /= np.max(cum_sum)
-    #     self.sim_obj.let_cdf = np.stack((self.sim_obj.let_cdf[:, 0], cum_sum), axis=1)
-    #     # self.sim_obj.let_cdf = np.stack((lin_energy_range, cum_sum), axis=1)
 
     def set_stepsize(self):
         """TBW.

@@ -103,7 +103,7 @@ processor:
         enabled: true
         arguments:
           particle_type: proton
-          initial_energy: 100   # MeV
+          initial_energy:    # MeV
           particle_number: 10
           incident_angles:      # rad
 #            - 0.31415 # pi / 4

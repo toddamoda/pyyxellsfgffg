@@ -5,7 +5,6 @@
 
 import typing as t  # noqa: F401
 import numpy as np
-import pandas as pd
 from bisect import bisect
 
 from pyxel.models.tars.particle import Particle
@@ -35,9 +34,6 @@ class Simulation:
         self.kin_energy_cdf = np.zeros((1, 2))
 
         self.data_library = None
-
-        # self.let_dist = None
-        # self.let_cdf = np.zeros((1, 2))
 
         self.stopping_power = None
 
@@ -85,26 +81,40 @@ class Simulation:
         self.angle_alpha = alpha
         self.angle_beta = beta
 
-    # def select_let(self, init_energy, det_thickness):
-    #     """Select LET data which is relevant here before sampling it.
-    #
-    #     Execute this for each new particle based on its initial energy (from
-    #     input spectrum) and track length inside the detector.
-    #
-    #     :param init_energy:
-    #     :param det_thickness:
-    #     :return:
-    #     :warning NOT IMPLEMENTED:
-    #     """
-    #     pass
-
-    def find_smaller_neighbor(self, value):
+    def find_smaller_neighbor(self, column, value):
         """TBW.
 
         :return:
         """
-        thickness_values = sorted(self.data_library.thickness.unique())
-        return thickness_values[bisect(thickness_values, value) - 1]
+        sorted_list = sorted(self.data_library[column].unique())
+        index = bisect(sorted_list, value) - 1
+        if index < 0:
+            index = 0
+        return sorted_list[index]
+
+    def find_larger_neighbor(self, column, value):
+        """TBW.
+
+        :return:
+        """
+        sorted_list = sorted(self.data_library[column].unique())
+        index = bisect(sorted_list, value)
+        if index > len(sorted_list) - 1:
+            index = len(sorted_list) - 1
+        return sorted_list[index]
+
+    def find_closest_neighbor(self, column, value):
+        """TBW.
+
+        :return:
+        """
+        sorted_list = sorted(self.data_library[column].unique())
+        index_smaller = bisect(sorted_list, value) - 1
+        index_larger = bisect(sorted_list, value)
+        if (sorted_list[index_larger] - value) < (value - sorted_list[index_smaller]):
+            return sorted_list[index_larger]
+        else:
+            return sorted_list[index_smaller]
 
     # TODO implement select_stepsize_data func using track_len parameter
     def select_stepsize_data(self, p_type, p_energy, p_track_length):
@@ -116,8 +126,11 @@ class Simulation:
         :return:
         """
         df = self.data_library
-        distance = self.find_smaller_neighbor(p_track_length)
-        return df[(df.type == p_type) & (df.energy == p_energy) & (df.thickness == distance)].path.values[0]
+
+        distance = self.find_larger_neighbor('thickness', p_track_length)
+        energy = self.find_closest_neighbor('energy', p_energy)
+
+        return df[(df.type == p_type) & (df.energy == energy) & (df.thickness == distance)].path.values[0]
 
     def set_stepsize_distribution(self, step_size_file):
         """TBW.
@@ -165,6 +178,7 @@ class Simulation:
         if self.energy_loss_data == 'stepsize':
             track_length = particle.track_length()
             datafilename = self.select_stepsize_data(particle.type, particle.energy, track_length)
+            print(particle.type, particle.energy, track_length)
             self.set_stepsize_distribution(datafilename)
 
         if self.energy_loss_data == 'stopping':
