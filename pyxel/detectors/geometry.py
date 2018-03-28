@@ -24,10 +24,10 @@ class Geometry:
         else:
             raise NotImplementedError('Given material has not implemented yet')
 
-    def __attrs_post_init__(self):
-        """TBW."""
-        if self.material:
-            self.set_material(self.material)
+    # def __attrs_post_init__(self):
+    #     """TBW."""
+    #     if self.material:
+    #         self.set_material(self.material)
 
     row = om.attr_def(
         type=int,
@@ -99,7 +99,7 @@ class Geometry:
     )
     material = om.attr_def(
         type=str,
-        default=None,
+        default='silicon',
         validate=om.check_choices(['', 'silicon', 'hxrg']),
         on_set=set_material
     )
