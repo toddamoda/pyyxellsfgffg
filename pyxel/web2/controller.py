@@ -4,17 +4,11 @@ import threading
 import importlib
 from pathlib import Path
 
-# import yaml
-
 import esapy_config as om
 from esapy_web.webapp2 import webapp
-# from esapy_web.webapp2 import controller
 from esapy_web.webapp2 import signals
 
 from pyxel import util
-# from pyxel.util import objmod as om
-# from pyxel.web import signals
-# from pyxel.web import webapp
 from pyxel.pipelines.processor import Processor
 from pyxel.pipelines.model_registry import registry
 from pyxel.pipelines.model_group import ModelFunction
@@ -27,6 +21,7 @@ RUN_APPLICATION = 'RUN-APPLICATION'
 LOAD_PIPELINE = 'LOAD-PIPELINE'
 RUN_PIPELINE = 'RUN-PIPELINE'
 SET_SEQUENCE = 'SET-SEQUENCE'
+OUTPUT_DATA_DIR = 'OUTPUT-DIR'
 
 
 class Controller:
@@ -185,7 +180,6 @@ class Controller:
         for module in modules:
             importlib.import_module(module)
         self._modified_time = None  # force GUI definition to reload
-        registry.save('registry.yaml')  # for debugging
 
     @property
     def gui(self):
@@ -218,7 +212,6 @@ class Controller:
             pipeline = self.processor.pipeline
             for group in pipeline.model_group_names:
                 items = registry.get_group(pipeline.name, group)
-                # items = [registry[key] for key in registry if registry[key]['group'] == group]
                 for item in items:
                     prefix = 'pipeline.' + group + '.' + item.name + '.arguments'
                     gui_def = serializer.create_section_from_func_def(item, prefix)
@@ -366,6 +359,7 @@ class Controller:
                         save_to = util.apply_run_number(output_file)
                         out = util.FitsFile(save_to)
                         out.save(detector.signal, header=None, overwrite=True)
+                        signals.dispatcher.emit(sender='api', signal=OUTPUT_DATA_DIR)(save_to)
                         signals.progress('state', {'value': 'saved', 'state': 2, 'file': save_to})
                         # output.append(output_file)
                 signals.progress('state', {'value': 'completed', 'state': 0})

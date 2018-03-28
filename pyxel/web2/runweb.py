@@ -3,6 +3,8 @@
 import logging
 import argparse
 from pathlib import Path
+import typing as t  # noqa: F401
+
 import tornado.web
 
 from esapy_web.webapp2 import webapp
@@ -11,7 +13,7 @@ from esapy_web.webapp2 import signals
 import pyxel
 import pyxel.pipelines.processor
 
-from pyxel.web2.controller import Controller
+from pyxel.web2 import controller
 
 
 class PipelinePageHandler(webapp.IndexPageHandler):
@@ -30,19 +32,27 @@ def run_web_server(port=9999, js9_dir=None, data_dir=None):
     :param js9_dir:
     :param data_dir:
     """
-    controller = Controller()
+    ctrl = controller.Controller()
 
     handlers = [
-        ('/pyxel/(.*)', webapp.MultiStaticPage),
-        (r'/pipeline/(.*)', PipelinePageHandler),
-    ]
-    web_dir = str(Path(__file__).parent.joinpath('static'))
+        ('/pipeline/(.*)', PipelinePageHandler, {}, None),
+        ('/pyxel/(.*)', webapp.MultiStaticPage, {}, None),
+        ('/js9/(.*)', tornado.web.StaticFileHandler, {'path': js9_dir}, None),
+        ('/data/(.*)', tornado.web.StaticFileHandler, {'path': data_dir}, 'data'),
+        # Rule(matcher, target, target_kwargs, name)
+    ]   # type: t.List[t.Tuple[str, t.Any, t.Dict[str, t.Any], str]]
+
     settings = {
-        'web_dir': web_dir,
+        'web_dir': str(Path(__file__).parent.joinpath('static')),
         'index_template': 'main.html',
     }
-    api = webapp.WebApplication(controller, signals.dispatcher, handlers, settings)
+    api = webapp.WebApplication(ctrl, signals.dispatcher, handlers, settings)
 
+    def set_data_path(path, *args):
+        web_uri = path.split('data')[0] + 'data'
+        api.wildcard_router.named_rules['data'].target_kwargs['path'] = web_uri
+
+    signals.dispatcher.connect(sender='api', signal=controller.OUTPUT_DATA_DIR, callback=set_data_path)
     thread = webapp.TornadoServer(api, ('0.0.0.0', port))
     try:
         thread.run()
@@ -60,10 +70,10 @@ def main():
     parser.add_argument('-p', '--port', default=9999, type=int,
                         help='The port to run the web server on')
 
-    parser.add_argument('-d', '--data-dir',
+    parser.add_argument('-d', '--data-dir', default='../data',
                         help='Data directory')
 
-    parser.add_argument('-j', '--js9-dir',
+    parser.add_argument('-j', '--js9-dir', default='../pyxel_js9',
                         help='JS9 directory')
 
     parser.add_argument('-v', '--verbosity', action='count', default=0,

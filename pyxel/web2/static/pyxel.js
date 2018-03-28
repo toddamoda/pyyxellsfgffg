@@ -1,5 +1,4 @@
 $(document).ready(function() {
-
     console.log('loaded pyxel.js');
 
     $('#get-state').on('click', function() {
@@ -65,28 +64,57 @@ $(document).ready(function() {
         connection.emit('api', 'SET-MODEL-STATE', [this.id, this.checked]);
     });
 
+
+    $('.model-state').on('update', function(event) {
+        connection.emit('api', 'GET-MODEL-STATE', [this.id]);
+    });
+
+
+    $('body').on('message:progress', function(event, selector, fields) {
+        $('.pe-table').trigger('message:get', [selector, fields]);
+        var label_color = {'pause': 'orange', 'error': 'red', 'aborted': 'orange'};
+        $(selector).progress(fields.state > 0, label_color[fields.value]);
+        $('#run button').text(fields.state > 0 ? 'Stop' : 'Run')
+
+        if (fields.file) {
+            window.frames['js9viewer'].load_fits(fields.file);
+            if (viewer) {
+                try {
+                    viewer.load_fits(fields.file)
+                } catch(e) {
+                    viewer = null;
+                }
+            }
+        }
+        $('#output_file button').text(fields.state ? 'Stop': 'Run')
+    });
+
     $('body').on('message:state', function(event, selector, fields) {
         for (var key in fields.value) {
             var selector = key.split('.').slice(1).join('.');
             selector = selector.replace('.models', '');
             selector = '#' + selector.replace(/\./g, '\\.');
             console.log('message:state', selector, fields.value[key])
+
             if (key.match(/steps\.[0-9]\.enabled/g)) {
+                // parameteric sequencer row enablement
                 $(selector + ' .enable-row').prop('checked', fields.value[key]);
                 $(selector + ' .enable-row').trigger('change');
+
             } else if (key.match(/pipeline\..*\.enabled/g)) {
+                // models to be used checkbox settings
                 $(selector).prop('checked', fields.value[key]);
+
             } else if (key == 'parametric.mode') {
+                // set the parameteric sequencer mode radio button
                 $('input[name=mode]').filter('[value="'+fields.value[key]+'"]').prop('checked', true);
+
             } else {
+                // all other control fields
                 $(selector).highlight(fields.value[key], true);
                 $(selector).set_value(fields.value[key], false);
             }
         }
-    });
-
-    $('.model-state').on('update', function(event) {
-        connection.emit('api', 'GET-MODEL-STATE', [this.id]);
     });
 
 });
