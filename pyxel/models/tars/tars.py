@@ -84,9 +84,6 @@ def run_tars(detector: Detector,
     # # plot_obj.plot_flux_spectrum()
     # # plot_obj.plot_spectrum_cdf()
     #
-    # # # plot_obj.plot_let_dist()
-    # # plot_obj.plot_let_cdf()
-    #
     # plot_obj.plot_step_dist()
     # plot_obj.plot_step_cdf()
 

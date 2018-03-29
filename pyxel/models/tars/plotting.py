@@ -223,7 +223,7 @@ class PlottingTARS:
 
         # step_rows = 10000
 
-        fig1 = plt.figure()
+        plt.figure()
         plt.title('Step size')
         for p_type in p_types:
             for energy in energies:
@@ -245,6 +245,7 @@ class PlottingTARS:
         plt.xlabel('Step size')
         plt.ylabel('Counts')
         plt.legend(loc='upper right')
+        plt.draw()
 
     def plot_secondary_spectra(self, normalize: bool=None):
         """TBW.
@@ -259,7 +260,7 @@ class PlottingTARS:
 
         # step_rows = 10000
 
-        fig2 = plt.figure()
+        plt.figure()
         plt.title('Electron spectrum')
         for p_type in p_types:
             for energy in energies:
@@ -280,3 +281,4 @@ class PlottingTARS:
         plt.xlabel('Energy')
         plt.ylabel('Counts')
         plt.legend(loc='upper right')
+        plt.draw()

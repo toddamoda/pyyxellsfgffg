@@ -141,18 +141,15 @@ class Simulation:
         :return:
         .. warning:: EXPERIMENTAL - NOT FINSHED YET
         """
-        # TODO: get rid of skip_rows and read_rows argument
         # step size distribution in um
-        self.step_size_dist = load_step_data(step_size_file, hist_type='step_size', skip_rows=4,
-                                             read_rows=10000)
+        self.step_size_dist = load_step_data(step_size_file, hist_type='step_size', skip_rows=4, read_rows=10000)
 
         cum_sum = np.cumsum(self.step_size_dist['counts'])
         cum_sum /= np.max(cum_sum)
         self.step_cdf = np.stack((self.step_size_dist['step_size'], cum_sum), axis=1)
 
         # secondary electron spectrum in keV
-        self.kin_energy_dist = load_step_data(step_size_file, hist_type='energy', skip_rows=10008,
-                                              read_rows=200)
+        self.kin_energy_dist = load_step_data(step_size_file, hist_type='energy', skip_rows=10008, read_rows=200)
 
         cum_sum = np.cumsum(self.kin_energy_dist['counts'])
         cum_sum /= np.max(cum_sum)
@@ -177,6 +174,7 @@ class Simulation:
         if self.energy_loss_data == 'stepsize':
             data_filename = self.select_stepsize_data(particle.type, particle.energy, particle.track_length())
             self.set_stepsize_distribution(data_filename)
+            # TODO make a stack of stepsize cdfs and do not load them more than once!!!
 
         if self.energy_loss_data == 'stopping':
             raise NotImplementedError  # TODO: implement this
