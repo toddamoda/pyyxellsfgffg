@@ -109,11 +109,10 @@ processor:
 #            - 0.31415 # pi / 4
 #            - 3.1415  # 0 # 1.570 # 3.1415 # 2.094 # pi / 2
           starting_position:    # um
-#            - 10. #500.0  #vertical
-#            - 20. #500.0  #horizontal
+#            - 10. #500.0  # vertical
+#            - 20. #500.0  # horizontal
 #            - 0.0         # z
           spectrum_file: 'pyxel/models/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
-#          step_size_file: 'pyxel/models/tars/data/inputs/stepsize_proton_100MeV_10um_1M.ascii'
 
     # charge -> charge
     charge_collection:

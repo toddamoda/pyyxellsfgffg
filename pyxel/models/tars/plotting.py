@@ -8,7 +8,9 @@
 
 import numpy as np
 from matplotlib import pyplot as plt
-import typing as t   # noqa: F401
+import pandas as pd
+from pathlib import Path
+# import typing as t   # noqa: F401
 from mpl_toolkits.mplot3d import Axes3D     # noqa: F401
 
 
@@ -207,3 +209,74 @@ class PlottingTARS:
         plt.axis([0, geo.horz_dimension, -1*geo.total_thickness, 0])
         plt.grid(True)
         plt.draw()
+
+    def plot_step_size_histograms(self, normalize: bool=None):
+        """TBW.
+
+        :return:
+        """
+        energies = ['100MeV', '1GeV']
+        thicknesses = ['10um', '50um', '100um', '200um']
+        p_types = ['proton']
+
+        path = Path(__file__).parent.joinpath('data', 'inputs')
+
+        # step_rows = 10000
+
+        fig1 = plt.figure()
+        plt.title('Step size')
+        for p_type in p_types:
+            for energy in energies:
+                for thickness in thicknesses:
+                    filename = 'stepsize_' + p_type + '_' + energy + '_' + thickness + '_1M.ascii'
+                    step_size = pd.read_csv(str(Path(path, filename)),
+                                            delimiter="\t", names=["step_size", "counts"], usecols=[1, 2],
+                                            skiprows=4, nrows=10000)
+
+                    if normalize:
+                        plotted_counts = step_size['counts'] / sum(step_size['counts'])
+                    else:
+                        plotted_counts = step_size['counts']
+
+                    plt.plot(step_size['step_size'], plotted_counts, '.-',
+                             label=p_type + ', ' + energy + ', ' + thickness)
+
+        plt.axis([0, 200, 0, 0.025])
+        plt.xlabel('Step size')
+        plt.ylabel('Counts')
+        plt.legend(loc='upper right')
+
+    def plot_secondary_spectra(self, normalize: bool=None):
+        """TBW.
+
+        :return:
+        """
+        energies = ['100MeV', '1GeV']
+        thicknesses = ['10um', '50um', '100um', '200um']
+        p_types = ['proton']
+
+        path = Path(__file__).parent.joinpath('data', 'inputs')
+
+        # step_rows = 10000
+
+        fig2 = plt.figure()
+        plt.title('Electron spectrum')
+        for p_type in p_types:
+            for energy in energies:
+                for thickness in thicknesses:
+                    filename = 'stepsize_' + p_type + '_' + energy + '_' + thickness + '_1M.ascii'
+                    spectrum = pd.read_csv(str(Path(path, filename)),
+                                           delimiter="\t", names=["energy", "counts"], usecols=[1, 2],
+                                           skiprows=10008, nrows=200)
+
+                    if normalize:
+                        plotted_counts = spectrum['counts'] / sum(spectrum['counts'])
+                    else:
+                        plotted_counts = spectrum['counts']
+
+                    plt.plot(spectrum['energy'], plotted_counts, '.-', label=p_type + ', ' + energy + ', ' + thickness)
+
+        # plt.axis([0, 6.0, 0, 0.12])
+        plt.xlabel('Energy')
+        plt.ylabel('Counts')
+        plt.legend(loc='upper right')
