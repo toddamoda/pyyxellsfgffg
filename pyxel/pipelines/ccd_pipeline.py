@@ -97,6 +97,8 @@ class CCDDetectionPipeline(DetectionPipeline):
 
         # READOUT ELECTRONICS
         # -> create image -> modify image -> END
-        detector = self.run_model_group('readout_electronics', detector)
+        detector = self.run_model_group('readout_electronics', detector)  # todo: rounding signal in models
+        # at this point the image pixel values should be rounded to integers (quantization)
+        detector.image = detector.signal.astype('uint16')  # todo: replace this into detector class
 
         return detector

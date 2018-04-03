@@ -33,10 +33,11 @@ class Detector:
         :param environment:
         :param characteristics:
         """
-        self._photons = None  # type: Photon
-        self._charges = None  # type: Charge
-        self._pixels = None  # type: Pixel
-        self._signal = None     # signal read out directly from CCD
+        self._photons = None   # type: Photon
+        self._charges = None   # type: Charge
+        self._pixels = None    # type: Pixel
+        self._signal = None    # ndarray, signal read out directly from detector
+        self._image = None     # ndarray, image read out via readout electronics
 
         self.geometry = geometry
         self.environment = environment
@@ -174,4 +175,14 @@ class Detector:
 
         :return:
         """
-        return self._signal
+        # return self._signal
+        return self._image
+
+    @image.setter
+    def image(self, new_image: np.ndarray):
+        """TBW.
+
+        :return:
+        """
+        self._image = new_image
+

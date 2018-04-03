@@ -49,9 +49,11 @@ def run_parametric(input_filename, output_file, key=None, value=None):
         if output_file:
             save_to = util.apply_run_number(output_file)
             out = util.FitsFile(save_to)
-            out.save(detector.signal, header=None, overwrite=True)
+            # out.save(detector.signal, header=None, overwrite=True)
+            out.save(detector.image, header=None, overwrite=True)
             output.append(output_file)
 
+    print('Pipeline completed.')
     return output
 
 
@@ -87,27 +89,27 @@ def run_optimization(input_filename, output_file):
             break
 
 
-def run_pipeline(input_filename, output_file):
-    """TBW.
-
-    :param input_filename:
-    :param output_file:
-    :return:
-    """
-    cfg = om.load(Path(input_filename))
-
-    processor = cfg[next(iter(cfg))]  # type: pyxel.pipelines.processor.Processor
-
-    pipeline = processor.pipeline  # type: t.Union[CCDDetectionPipeline, CMOSDetectionPipeline]
-
-    # Run the pipeline
-    detector = pipeline.run_pipeline(processor.detector)  # type: t.Union[CCD, CMOS]
-
-    print('Pipeline completed.')
-
-    if output_file:
-        out = util.FitsFile(output_file)
-        out.save(detector.signal, header=None, overwrite=True)      # TODO should replace result.signal to result.image
+# def run_pipeline(input_filename, output_file):
+#     """TBW.
+#
+#     :param input_filename:
+#     :param output_file:
+#     :return:
+#     """
+#     cfg = om.load(Path(input_filename))
+#
+#     processor = cfg[next(iter(cfg))]  # type: pyxel.pipelines.processor.Processor
+#
+#     pipeline = processor.pipeline  # type: t.Union[CCDDetectionPipeline, CMOSDetectionPipeline]
+#
+#     # Run the pipeline
+#     detector = pipeline.run_pipeline(processor.detector)  # type: t.Union[CCD, CMOS]
+#
+#     print('Pipeline completed.')
+#
+#     if output_file:
+#         out = util.FitsFile(output_file)
+#         out.save(detector.signal, header=None, overwrite=True)    # TODO should replace result.signal to result.image
 
 
 # def run_export(registry_file, output_file, processor_type):

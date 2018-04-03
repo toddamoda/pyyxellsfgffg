@@ -60,7 +60,7 @@ processor:
       qe: 0.5               # -
       eta: 1                # e/photon
       sv: 1.0e-6            # V/e
-      amp: 0.8             # V/V
+      amp: 0.8              # V/V
       a1: 100               # V/V
       a2: 65536             # DN/V
       fwc: 20000            # e
@@ -104,7 +104,7 @@ processor:
         arguments:
           particle_type: proton
           initial_energy: random   # MeV
-          particle_number: 10
+          particle_number: 100
           incident_angles:      # rad
 #            - 0.31415 # pi / 4
 #            - 3.1415  # 0 # 1.570 # 3.1415 # 2.094 # pi / 2
