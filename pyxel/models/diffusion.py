@@ -65,7 +65,7 @@ class Diffusion:
         # 10 keV deposited by an X-ray photon resultsParticle a 1 um diameter charge (e-h) cloud
         # CCD Advances For X - Ray Scientific Measurements In 1985,
         # James Janesick et al.
-        # deltaE != cluster.number / u.electron * self.detector.material_ionization_energy / (1000 * u.eV)
+        # deltaE != cluster.number / u.electron * self.detector.ionization_energy / (1000 * u.eV)
         # deltaE == kin. energy of an electron
         # By analogy with high - energy electron beam interaction with silicon, one can approximate the
         # energy / depth relationship as R = k * E**n , where k and n are numerical constants

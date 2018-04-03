@@ -162,7 +162,8 @@ class Simulation:
         """
         track_left = False
         geo = self.detector.geometry
-        ioniz_energy = geo.material_ionization_energy   # eV
+        mat = self.detector.material
+        ioniz_energy = mat.ionization_energy   # eV
 
         self.particle = Particle(self.detector,
                                  self.particle_type,
@@ -238,7 +239,7 @@ class Simulation:
     #     :return:
     #     """
     #     geo = self.detector.geometry
-    #     ioniz_energy = geo.material_ionization_energy
+    #     ioniz_energy = geo.ionization_energy
     #     let_value = None
     #
     #     # particle.energy is in MeV !

@@ -46,6 +46,7 @@ processor:
       pixel_horz_size: 10.0         # um
 
     material:
+      class: pyxel.detectors.material.Material
       material: 'silicon'
 #      compound: 'silicon'
 #        element: 'silicon'

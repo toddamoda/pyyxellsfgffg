@@ -99,8 +99,6 @@ class ParametricConfig:
         """TBW.
 
         :param processor:
-        :param level:
-        :param sequence:
         :return:
         """
         all_steps = self.enabled_steps

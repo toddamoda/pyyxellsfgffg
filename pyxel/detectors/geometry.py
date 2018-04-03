@@ -13,7 +13,7 @@ class Geometry:
     #     """
     #     if material == 'silicon' or 'Si' or 'si':
     #         self.material_density = 2.328  # TODO add unit (g/cm3)
-    #         self.material_ionization_energy = 3.6  # TODO add unit (eV)
+    #         self.ionization_energy = 3.6  # TODO add unit (eV)
     #         self.band_gap = 1.12  # TODO add unit (eV)
     #         self.e_effective_mass = 0.5 * M_ELECTRON  # TODO add unit (kg)
     #
@@ -105,7 +105,7 @@ class Geometry:
     #     default=0.0,
     #     units='g/cm3',
     # )
-    # material_ionization_energy = om.attr_def(
+    # ionization_energy = om.attr_def(
     #     init=False,
     #     type=float,
     #     default=0.0,

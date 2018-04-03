@@ -17,7 +17,7 @@ class Material:
         """
         if material == 'silicon' or 'Si' or 'si':
             self.material_density = 2.328  # TODO add unit (g/cm3)
-            self.material_ionization_energy = 3.6  # TODO add unit (eV)
+            self.ionization_energy = 3.6  # TODO add unit (eV)
             self.band_gap = 1.12  # TODO add unit (eV)
             self.e_effective_mass = 0.5 * M_ELECTRON  # TODO add unit (kg)
 
@@ -43,13 +43,13 @@ class Material:
         units='cm-3',
         validate=om.check_range(0.0, 1000.0, 0.1, False)
     )
-    bias_voltage = om.attr_def(
-        type=float,
-        default=0.0,
-        cast=True,
-        units='V',
-        validate=om.check_range(0.0, 40.0, 0.001, False)
-    )
+    # bias_voltage = om.attr_def(
+    #     type=float,
+    #     default=0.0,
+    #     cast=True,
+    #     units='V',
+    #     validate=om.check_range(0.0, 40.0, 0.001, False)
+    # )
     material = om.attr_def(
         type=str,
         default=None,
@@ -62,7 +62,7 @@ class Material:
         default=0.0,
         units='g/cm3',
     )
-    material_ionization_energy = om.attr_def(
+    ionization_energy = om.attr_def(
         init=False,
         type=float,
         default=0.0,
@@ -90,7 +90,6 @@ class Material:
         return {
             'n_acceptor': self.n_acceptor,
             'n_donor': self.n_donor,
-            'bias_voltage': self.bias_voltage,
             'material': self.material
         }
 
