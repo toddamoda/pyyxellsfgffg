@@ -44,10 +44,14 @@ processor:
       field_free_thickness: 0.0     # um
       pixel_vert_size: 10.0         # um
       pixel_horz_size: 10.0         # um
+
+    material:
       material: 'silicon'
+#      compound: 'silicon'
+#        element: 'silicon'
+#        ratio: 1.
       n_acceptor: 0.0               # cm-3
       n_donor: 0.0                  # cm-3
-      bias_voltage: 0.0             # V
 
     environment:
       class: pyxel.detectors.environment.Environment
@@ -65,6 +69,7 @@ processor:
       a2: 65536             # DN/V
       fwc: 20000            # e
       fwc_serial: 30000     # e
+#      bias_voltage: 0.0             # V
 
   pipeline:
     class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline

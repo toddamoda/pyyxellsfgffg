@@ -185,4 +185,3 @@ class Detector:
         :return:
         """
         self._image = new_image
-
