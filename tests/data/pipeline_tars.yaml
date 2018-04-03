@@ -12,6 +12,8 @@ ccd_process: !PROCESSOR
       pixel_horz_size: 10.0         # um
       total_thickness: 10.0         # um
 
+    material: !material
+
     environment: !environment
       temperature: 320  # detector temperature Kelvin
 

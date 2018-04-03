@@ -43,13 +43,6 @@ class Material:
         units='cm-3',
         validate=om.check_range(0.0, 1000.0, 0.1, False)
     )
-    # bias_voltage = om.attr_def(
-    #     type=float,
-    #     default=0.0,
-    #     cast=True,
-    #     units='V',
-    #     validate=om.check_range(0.0, 40.0, 0.001, False)
-    # )
     material = om.attr_def(
         type=str,
         default=None,

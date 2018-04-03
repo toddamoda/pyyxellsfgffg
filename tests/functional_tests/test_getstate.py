@@ -8,7 +8,7 @@ import esapy_config as om
 # from pyxel.io.yaml_processor import load
 from esapy_config import io
 
-
+# processor.detector.geometry.bias_voltage=0.0
 expected_str = """
 processor.detector.characteristics.a2=65536
 processor.detector.characteristics.sv=1e-06
@@ -21,14 +21,13 @@ processor.detector.characteristics.fwc_serial=30000
 processor.detector.environment.temperature=300
 processor.detector.environment.total_ionising_dose='8.0e11'
 processor.detector.environment.total_non_ionising_dose='8.0e11'
-processor.detector.geometry.n_donor=0.0
+processor.detector.material.n_donor=0.0
+processor.detector.material.material='silicon'
+processor.detector.material.n_acceptor=0.0
 processor.detector.geometry.row=100
 processor.detector.geometry.total_thickness=10.0
-processor.detector.geometry.material='silicon'
 processor.detector.geometry.pixel_horz_size=10.0
-processor.detector.geometry.n_acceptor=0.0
 processor.detector.geometry.pixel_vert_size=10.0
-processor.detector.geometry.bias_voltage=0.0
 processor.detector.geometry.col=100
 processor.detector.geometry.depletion_thickness=10.0
 processor.detector.geometry.field_free_thickness=0.0

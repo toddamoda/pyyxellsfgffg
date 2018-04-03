@@ -2,6 +2,7 @@ import pytest
 from pyxel.detectors.ccd import CCD
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.ccd_geometry import CCDGeometry
+from pyxel.detectors.material import Material
 from pyxel.detectors.environment import Environment
 # from pyxel.io.yaml_processor import dump
 # from pyxel.io.yaml_processor import load
@@ -11,6 +12,7 @@ from esapy_config import io
 @pytest.mark.skip(reason=None)
 def test_loader_with_extra_tags():
     """Test `PyxelLoader`"""
+    # bias_voltage: 8.0
     data = """
 !CCD
   geometry: !ccd_geometry
@@ -24,7 +26,6 @@ def test_loader_with_extra_tags():
    # material: foo
    n_acceptor: 6.0
    n_donor: 7.0
-   bias_voltage: 8.0
 
   environment: !environment
     temperature: 3.14
@@ -53,9 +54,11 @@ def test_loader_with_extra_tags():
     assert obj.geometry.pixel_vert_size == 4.0
     assert obj.geometry.pixel_horz_size == 5.0
     # assert obj.geometry.material == 'foo'
-    assert obj.geometry.n_acceptor == 6.0
-    assert obj.geometry.n_donor == 7.0
-    assert obj.geometry.bias_voltage == 8.0
+    # assert obj.geometry.bias_voltage == 8.0
+
+    assert isinstance(obj.material, Material)
+    assert obj.material.n_acceptor == 6.0
+    assert obj.material.n_donor == 7.0
 
     assert isinstance(obj.environment, Environment)
     assert obj.environment.temperature == 3.14
@@ -75,8 +78,9 @@ def test_dumper():
     obj = CCD(geometry=CCDGeometry(row=1000, col=1001,
                                    depletion_thickness=1.0, field_free_thickness=2.0,
                                    total_thickness=3.0, pixel_vert_size=4.0,
-                                   pixel_horz_size=5.0, n_acceptor=6.0,
-                                   n_donor=7.0, bias_voltage=8.0),
+                                   pixel_horz_size=5.0),    # bias_voltage=8.0),
+              material=Material(n_acceptor=6.0,
+                                n_donor=7.0),
               environment=Environment(temperature=3.14),
               characteristics=CCDCharacteristics(qe=3, eta=4,
                                                  sv=5, amp=6,
@@ -84,6 +88,7 @@ def test_dumper():
 
     data = io.dump(obj)
 
+    # bias_voltage: 8.0
     assert data == """!CCD
 characteristics: !ccd_characteristics
   a1: 7
@@ -99,7 +104,6 @@ environment: !environment
   total_ionising_dose: null
   total_non_ionising_dose: null
 geometry: !ccd_geometry
-  bias_voltage: 8.0
   col: 1001
   depletion_thickness: 1.0
   field_free_thickness: 2.0
