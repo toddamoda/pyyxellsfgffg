@@ -3,18 +3,20 @@ import esapy_config as om
 
 
 # Universal global constants
-M_ELECTRON = 9.10938356e-31    # kg
+M_ELECTRON = 9.10938356e-31    # kg     # TODO put these global constants to a data file
 
 
 @om.attr_class
 class Material:
     """TBW."""
 
+    # TODO create func for compound materials
     def set_material(self, material):
         """Set material properties.
 
         :param material:
         """
+        # TODO put these constants to a data file
         if material == 'silicon' or 'Si' or 'si':
             self.material_density = 2.328  # TODO add unit (g/cm3)
             self.ionization_energy = 3.6  # TODO add unit (eV)
