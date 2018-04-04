@@ -17,7 +17,7 @@ from pyxel.models.tars.simulation import Simulation
 from pyxel.models.tars.util import read_data, interpolate_data
 from pyxel.pipelines.model_registry import registry
 
-# from pyxel.models.tars.plotting import PlottingTARS
+from pyxel.models.tars.plotting import PlottingTARS
 
 # from astropy import units as u
 
@@ -79,7 +79,7 @@ def run_tars(detector: Detector,
 
     cosmics.run()
 
-    # plot_obj = PlottingTARS(cosmics)
+    plot_obj = PlottingTARS(cosmics, save_plots=True)
     # #
     # # # plot_obj.plot_flux_spectrum()
     # # # plot_obj.plot_spectrum_cdf()
@@ -87,8 +87,8 @@ def run_tars(detector: Detector,
     # # plot_obj.plot_step_dist()
     # # plot_obj.plot_step_cdf()
     #
-    # plot_obj.plot_step_size_histograms(normalize=True)
-    # plot_obj.plot_secondary_spectra(normalize=True)
+    plot_obj.plot_step_size_histograms(normalize=True)
+    plot_obj.plot_secondary_spectra(normalize=True)
     #
     # # plot_obj.plot_charges_3d()
     # #

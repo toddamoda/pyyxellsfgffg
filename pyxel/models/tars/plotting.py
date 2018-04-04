@@ -21,21 +21,42 @@ class PlottingTARS:
     :return:
     """
 
-    def __init__(self, tars) -> None:
-        """
-        TBW.
+    def __init__(self, tars,
+                 show_plots: bool=False,
+                 save_plots: bool=False,
+                 file_format: str='png') -> None:
+        """TBW.
 
         :param tars:
+        :param show_plots:
+        :param save_plots:
         """
         self.tars = tars
 
-    def show_plots(self):
-        """
-        TBW.
+        self.show_plots = show_plots
+        self.save_plots = save_plots
+        self.file_format = file_format
 
+    def save_and_draw(self, fig_name: str):
+        """TBW.
+
+        :param fig_name:
+        :param file_format:
         :return:
         """
-        plt.show()
+        file_name = fig_name + '.' + self.file_format
+        if self.save_plots:
+            plt.savefig(file_name)
+        if self.show_plots:
+            plt.show()
+
+    # def show_plots(self):
+        # """
+        # TBW.
+        #
+        # :return:
+        # """
+        # plt.show()
 
     def save_edep(self):
         """
@@ -59,7 +80,7 @@ class PlottingTARS:
         plt.title('Histogram of E deposited per step')
         # plt.axis([0, 0.003, 0, 1.05*max(n)])
         plt.grid(True)
-        plt.draw()
+        self.save_and_draw('edep_per_step')
         return n, bins, patches
 
     def plot_edep_per_particle(self):
@@ -75,7 +96,7 @@ class PlottingTARS:
         plt.title('Histogram of total E deposited per particle')
         # plt.axis([0, 0.4, 0, 1.05*max(n)])
         plt.grid(True)
-        plt.draw()
+        self.save_and_draw('edep_per_particle')
         return n, bins, patches
 
     def plot_spectrum_cdf(self):
@@ -88,7 +109,7 @@ class PlottingTARS:
         cum_sum = self.tars.sim_obj.spectrum_cdf[:, 1]
         plt.figure()
         plt.semilogx(lin_energy_range, cum_sum)
-        plt.draw()
+        self.save_and_draw('spectrum_cdf')
 
     def plot_flux_spectrum(self):
         """
@@ -100,7 +121,7 @@ class PlottingTARS:
         flux_dist = self.tars.sim_obj.flux_dist
         plt.figure()
         plt.loglog(lin_energy_range, flux_dist)
-        plt.draw()
+        self.save_and_draw('flux_spectrum')
 
     def plot_charges_3d(self):
         """
@@ -146,7 +167,7 @@ class PlottingTARS:
         """
         plt.figure()
         plt.plot(self.tars.sim_obj.let_cdf[:, 0], self.tars.sim_obj.let_cdf[:, 1], '.')
-        plt.draw()
+        self.save_and_draw('let_cdf')
 
     def plot_step_cdf(self):
         """TBW.
@@ -155,7 +176,7 @@ class PlottingTARS:
         """
         plt.figure()
         plt.plot(self.tars.sim_obj.step_cdf[:, 0], self.tars.sim_obj.step_cdf[:, 1], '.')
-        plt.draw()
+        self.save_and_draw('step_cdf')
 
     def plot_step_dist(self):
         """TBW.
@@ -165,7 +186,7 @@ class PlottingTARS:
         plt.figure()
         plt.plot(self.tars.sim_obj.step_size_dist['step_size'],
                  self.tars.sim_obj.step_size_dist['counts'], '.')
-        plt.draw()
+        self.save_and_draw('step_dist')
 
     def plot_let_dist(self):
         """TBW.
@@ -174,7 +195,7 @@ class PlottingTARS:
         """
         plt.figure()
         plt.plot(self.tars.sim_obj.let_dist[:, 1], self.tars.sim_obj.let_dist[:, 2], '.')
-        plt.draw()
+        self.save_and_draw('let_dist')
 
     def plot_trajectory_xy(self):
         """TBW.
@@ -191,7 +212,7 @@ class PlottingTARS:
         plt.title('p trajectory in CCD')
         plt.axis([0, geo.horz_dimension, 0, geo.vert_dimension])
         plt.grid(True)
-        plt.draw()
+        self.save_and_draw('trajectory_xy')
 
     def plot_trajectory_xz(self):
         """TBW.
@@ -208,7 +229,7 @@ class PlottingTARS:
         plt.title('p trajectory in CCD')
         plt.axis([0, geo.horz_dimension, -1*geo.total_thickness, 0])
         plt.grid(True)
-        plt.draw()
+        self.save_and_draw('trajectory_xz')
 
     def plot_step_size_histograms(self, normalize: bool=None):
         """TBW.
@@ -245,7 +266,7 @@ class PlottingTARS:
         plt.xlabel('Step size')
         plt.ylabel('Counts')
         plt.legend(loc='upper right')
-        plt.draw()
+        self.save_and_draw('step_size_histograms')
 
     def plot_secondary_spectra(self, normalize: bool=None):
         """TBW.
@@ -281,4 +302,4 @@ class PlottingTARS:
         plt.xlabel('Energy')
         plt.ylabel('Counts')
         plt.legend(loc='upper right')
-        plt.draw()
+        self.save_and_draw('secondary_spectra')

@@ -2,6 +2,10 @@
 *.data
 *.fits
 
+# Pyxel plots
+*.png
+*.jpg
+
 # Geant4 i/o files
 *.mac
 *.ascii
