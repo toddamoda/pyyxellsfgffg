@@ -6,6 +6,25 @@ import esapy_config as om
 class Geometry:
     """TBW."""
 
+    def set_material(self, material):
+        """Set material properties.
+
+        :param material:
+        """
+        if material == 'silicon' or 'Si' or 'si':
+            self.material_density = 2.328  # TODO add unit (g/cm3)
+            self.material_ionization_energy = 3.6  # TODO add unit (eV)
+            self.band_gap = 1.12  # TODO add unit (eV)
+            self.e_effective_mass = 0.5 * M_ELECTRON  # TODO add unit (kg)
+
+        else:
+            raise NotImplementedError('Given material has not implemented yet')
+
+    # def __attrs_post_init__(self):
+    #     """TBW."""
+    #     if self.material:
+    #         self.set_material(self.material)
+
     row = om.attr_def(
         type=int,
         default=0,
@@ -53,14 +72,57 @@ class Geometry:
         units='um',
         validate=om.check_range(0.0, 1000.0, 0.1, False)
     )
-
-    # bias_voltage = om.attr_def(
-    #     type=float,
-    #     default=0.0,
-    #     cast=True,
-    #     units='V',
-    #     validate=om.check_range(0.0, 40.0, 0.001, False)
-    # )
+    n_acceptor = om.attr_def(
+        type=float,
+        default=0.0,
+        cast=True,
+        units='cm-3',
+        validate=om.check_range(0.0, 1000.0, 0.1, False)
+    )
+    n_donor = om.attr_def(
+        type=float,
+        default=0.0,
+        cast=True,
+        units='cm-3',
+        validate=om.check_range(0.0, 1000.0, 0.1, False)
+    )
+    bias_voltage = om.attr_def(
+        type=float,
+        default=0.0,
+        cast=True,
+        units='V',
+        validate=om.check_range(0.0, 40.0, 0.001, False)
+    )
+    material = om.attr_def(
+        type=str,
+        default='silicon',
+        validate=om.check_choices(['', 'silicon', 'hxrg']),
+        on_set=set_material
+    )
+    material_density = om.attr_def(
+        init=False,
+        type=float,
+        default=0.0,
+        units='g/cm3',
+    )
+    material_ionization_energy = om.attr_def(
+        init=False,
+        type=float,
+        default=0.0,
+        units='eV',
+    )
+    band_gap = om.attr_def(
+        init=False,
+        type=float,
+        default=0.0,
+        units='eV',
+    )
+    e_effective_mass = om.attr_def(
+        init=False,
+        type=float,
+        default=0.0,
+        units='kg',
+    )
 
     def copy(self):
         """TBW."""
