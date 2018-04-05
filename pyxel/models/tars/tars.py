@@ -79,7 +79,7 @@ def run_tars(detector: Detector,
 
     cosmics.run()
 
-    plot_obj = PlottingTARS(cosmics, save_plots=True)
+    plot_obj = PlottingTARS(cosmics, save_plots=True, show_plots=True)
     # #
     # # # plot_obj.plot_flux_spectrum()
     # # # plot_obj.plot_spectrum_cdf()
@@ -87,15 +87,16 @@ def run_tars(detector: Detector,
     # # plot_obj.plot_step_dist()
     # # plot_obj.plot_step_cdf()
     #
-    plot_obj.plot_step_size_histograms(normalize=True)
-    plot_obj.plot_secondary_spectra(normalize=True)
+    # plot_obj.plot_step_size_histograms(normalize=True)
+    # plot_obj.plot_secondary_spectra(normalize=True)
     #
     # # plot_obj.plot_charges_3d()
     # #
     # # plot_obj.plot_edep_per_step()
     # # plot_obj.plot_edep_per_particle()
-    # #
-    # plot_obj.show_plots()
+
+    # plot_obj.plot_electron_number_histos(normalize=True)
+    plot_obj.plot_electron_number_histos()
 
     return new_detector
 

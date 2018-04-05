@@ -30,6 +30,7 @@ class PlottingTARS:
         :param tars:
         :param show_plots:
         :param save_plots:
+        :param file_format:
         """
         self.tars = tars
 
@@ -41,7 +42,6 @@ class PlottingTARS:
         """TBW.
 
         :param fig_name:
-        :param file_format:
         :return:
         """
         file_name = fig_name + '.' + self.file_format
@@ -49,14 +49,6 @@ class PlottingTARS:
             plt.savefig(file_name)
         if self.show_plots:
             plt.show()
-
-    # def show_plots(self):
-        # """
-        # TBW.
-        #
-        # :return:
-        # """
-        # plt.show()
 
     def save_edep(self):
         """
@@ -303,3 +295,35 @@ class PlottingTARS:
         plt.ylabel('Counts')
         plt.legend(loc='upper right')
         self.save_and_draw('secondary_spectra')
+
+    def plot_electron_number_histos(self, normalize: bool=None):
+        """TBW.
+
+        :return:
+        """
+
+        path = Path(__file__).parent.joinpath('data', 'validation')
+        hist_names = ['Gaia_bam_ccd_events(13259).npy',
+                      # 'Gaia_CCD_study-20180404T115340Z-001/Gaia_CCD_study/Data/complete_G4_H_He_GCR_sim_deposition.npy',
+                      'Gaia_CCD_study-20180404T115340Z-001/Gaia_CCD_study/Data/CRs_from_BAM_Gaia_CCDs.npy',
+                      'Gaia_CCD_study-20180404T115340Z-001/Gaia_CCD_study/Data/CRs_from_SM_Gaia_CCDs.npy',
+                      ]
+
+        plt.figure()
+        plt.title('Number of electrons per event')
+        for filename in hist_names:
+
+            histogram = np.load(str(Path(path, filename)))
+
+            if normalize:
+                plt.hist(histogram, bins=2000, density=True)
+            else:
+                plt.hist(histogram, bins=2000)
+
+        # plt.axis([0, 15e3, 0, 0.0001])
+        plt.axis([0, 15e3, 0, 1E3])
+
+        plt.xlabel('')
+        plt.ylabel('Counts')
+        plt.legend(loc='upper right')
+        self.save_and_draw('gaia')
