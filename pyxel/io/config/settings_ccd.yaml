@@ -39,7 +39,7 @@ processor:
       class: pyxel.detectors.ccd_geometry.CCDGeometry
       row: 100                      # compulsory
       col: 100                      # compulsory
-      total_thickness: 10.0         # um
+      total_thickness: 40.0         # um
       depletion_thickness: 10.0     # um
       field_free_thickness: 0.0     # um
       pixel_vert_size: 10.0         # um
@@ -110,7 +110,7 @@ processor:
         arguments:
           particle_type: proton
           initial_energy: random   # MeV
-          particle_number: 1
+          particle_number: 1000
           incident_angles:      # rad
 #            - 0.31415 # pi / 4
 #            - 3.1415  # 0 # 1.570 # 3.1415 # 2.094 # pi / 2

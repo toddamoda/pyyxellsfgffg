@@ -80,7 +80,7 @@ def run_tars(detector: Detector,
     cosmics.run()
 
     plot_obj = PlottingTARS(cosmics, save_plots=True, draw_plots=True)
-    # #
+
     # # # plot_obj.plot_flux_spectrum()
     # # # plot_obj.plot_spectrum_cdf()
     # #
@@ -103,6 +103,9 @@ def run_tars(detector: Detector,
 
     plot_obj.plot_gaia_vs_geant4_hist(normalize=True)
     # plot_obj.plot_gaia_vs_geant4_hist()
+
+    plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst, normalize=True)
+    # plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst)
 
     plot_obj.show()
 

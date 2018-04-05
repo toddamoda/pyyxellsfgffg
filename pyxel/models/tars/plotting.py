@@ -436,3 +436,32 @@ class PlottingTARS:
         plt.ylabel('Counts')
         plt.legend(loc='upper right')
         self.save_and_draw('gaia_BAM_vs_SM_electron_hist')
+
+    def plot_electron_hist(self, data, normalize: bool=None):
+        """TBW.
+
+        :return:
+        """
+        labels = ['TARS data (David), 40um, 1k']
+        i = 0
+
+        hist_bins = 300
+        hist_range = (1, 15E3)
+
+        plt.figure()
+        plt.title('Number of electrons per event')
+
+        col = (1, 0, 0, 1)
+
+        if normalize:
+            plt.hist(data, bins=hist_bins, range=hist_range, label=labels[i], fc=col, density=True)
+        else:
+            plt.hist(data, bins=hist_bins, range=hist_range, label=labels[i], fc=col)
+
+        # plt.axis([0, 15e3, 0, 0.0001])
+        # plt.axis([0, 15e3, 0, 3E3])
+
+        plt.xlabel('')
+        plt.ylabel('Counts')
+        plt.legend(loc='upper right')
+        self.save_and_draw('electron_hist')
