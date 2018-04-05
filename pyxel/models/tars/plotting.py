@@ -22,19 +22,19 @@ class PlottingTARS:
     """
 
     def __init__(self, tars,
-                 show_plots: bool=False,
+                 draw_plots: bool=False,
                  save_plots: bool=False,
                  file_format: str='png') -> None:
         """TBW.
 
         :param tars:
-        :param show_plots:
+        :param draw_plots:
         :param save_plots:
         :param file_format:
         """
         self.tars = tars
 
-        self.show_plots = show_plots
+        self.draw_plots = draw_plots
         self.save_plots = save_plots
         self.file_format = file_format
 
@@ -47,8 +47,15 @@ class PlottingTARS:
         file_name = fig_name + '.' + self.file_format
         if self.save_plots:
             plt.savefig(file_name)
-        if self.show_plots:
-            plt.show()
+        if self.draw_plots:
+            plt.draw()
+
+    def show(self):
+        """TBW.
+
+        :return:
+        """
+        plt.show()
 
     def save_edep(self):
         """
@@ -296,18 +303,24 @@ class PlottingTARS:
         plt.legend(loc='upper right')
         self.save_and_draw('secondary_spectra')
 
-    def plot_electron_number_histos(self, normalize: bool=None):
+    def plot_gaia_vs_geant4_hist(self, normalize: bool=None):
         """TBW.
 
         :return:
         """
 
-        path = Path(__file__).parent.joinpath('data', 'validation')
-        hist_names = ['Gaia_bam_ccd_events(13259).npy',
-                      # 'Gaia_CCD_study-20180404T115340Z-001/Gaia_CCD_study/Data/complete_G4_H_He_GCR_sim_deposition.npy',
-                      'Gaia_CCD_study-20180404T115340Z-001/Gaia_CCD_study/Data/CRs_from_BAM_Gaia_CCDs.npy',
-                      'Gaia_CCD_study-20180404T115340Z-001/Gaia_CCD_study/Data/CRs_from_SM_Gaia_CCDs.npy',
+        # Geant4 (GRAS) simulation results (by Giovanni?) + GAIA BAM data - Perfect overlap in case of normalization!
+        path = Path(__file__).parent.joinpath('data', 'validation', 'Gaia_CCD_study-20180404T115340Z-001',
+                                              'GAIA_CCD_study', 'Data')
+        hist_names = [
+                      'complete_G4_H_He_GCR_sim_deposition.npy',  # G4, contains a lot of events with ZERO number of e-!
+                      'CRs_from_BAM_Gaia_CCDs.npy',               # GAIA BAM data
                       ]
+        labels = ['Geant4 data', 'GAIA BAM data']
+        i = 0
+
+        hist_bins = 300
+        hist_range = (1, 15E3)
 
         plt.figure()
         plt.title('Number of electrons per event')
@@ -315,15 +328,111 @@ class PlottingTARS:
 
             histogram = np.load(str(Path(path, filename)))
 
+            if i == 0:
+                col = (0, 0, 1, 0.5)
+            if i == 1:
+                col = (0, 1, 0, 0.5)
+
             if normalize:
-                plt.hist(histogram, bins=2000, density=True)
+                plt.hist(histogram, bins=hist_bins, range=hist_range, label=labels[i], fc=col, density=True)
             else:
-                plt.hist(histogram, bins=2000)
+                plt.hist(histogram, bins=hist_bins, range=hist_range, label=labels[i], fc=col)
+
+            i += 1
 
         # plt.axis([0, 15e3, 0, 0.0001])
-        plt.axis([0, 15e3, 0, 1E3])
+        # plt.axis([0, 15e3, 0, 3E3])
 
         plt.xlabel('')
         plt.ylabel('Counts')
         plt.legend(loc='upper right')
-        self.save_and_draw('gaia')
+        self.save_and_draw('gaia_vs_geant4_electron_hist')
+
+    def plot_old_tars_hist(self, normalize: bool=None):
+        """TBW.
+
+        :return:
+        """
+
+        # earlier TARS results of Lionel
+        folder_path = Path(__file__).parent.joinpath('data', 'validation', 'Results-20180404T121902Z-001', 'Results')
+        hist_names = [
+                       # '10000 events from random protons CREME96 (16um - SM)(22-08-2016_16h36)',  # 16 um SM
+                       '10000 events from random protons CREME96 (16um - SM)(22-08-2016_16h41)',    # 16 um SM
+                       '10000 events from random protons CREME96 (step=0.5)(16-08-2016_15h56)',     # 40 um BAM
+                       ]
+        labels = ['TARS data (Lionel), SM (16um)', 'TARS data (Lionel), BAM (40um)']
+        i = 0
+
+        hist_bins = 300
+        hist_range = (1, 15E3)
+
+        plt.figure()
+        plt.title('Number of electrons per event')
+        for filename in hist_names:
+
+            histogram = np.load(str(Path(folder_path.joinpath(filename), 'Raw data/Electrons_generated.npy')))
+
+            if i == 0:
+                col = (1, 0, 0, 0.5)
+            if i == 1:
+                col = (0, 1, 0, 0.5)
+
+            if normalize:
+                plt.hist(histogram, bins=hist_bins, range=hist_range, label=labels[i], fc=col, density=True)
+            else:
+                plt.hist(histogram, bins=hist_bins, range=hist_range, label=labels[i], fc=col)
+
+            i += 1
+
+        # plt.axis([0, 15e3, 0, 0.0001])
+        # plt.axis([0, 15e3, 0, 3E3])
+
+        plt.xlabel('')
+        plt.ylabel('Counts')
+        plt.legend(loc='upper right')
+        self.save_and_draw('old_tars_electron_hist')
+
+    def plot_gaia_bam_vs_sm_electron_hist(self, normalize: bool=None):
+        """TBW.
+
+        :return:
+        """
+
+        path = Path(__file__).parent.joinpath('data', 'validation')
+        hist_names = [
+                      # 'Gaia_bam_ccd_events(13259).npy', NEM JOOOOO
+                      'Gaia_CCD_study-20180404T115340Z-001/Gaia_CCD_study/Data/CRs_from_BAM_Gaia_CCDs.npy',
+                      'Gaia_CCD_study-20180404T115340Z-001/Gaia_CCD_study/Data/CRs_from_SM_Gaia_CCDs.npy'
+        ]
+        labels = ['GAIA SM (16um) data', 'GAIA BAM (40um) data']
+        i = 0
+
+        hist_bins = 300
+        hist_range = (1, 15E3)
+
+        plt.figure()
+        plt.title('Number of electrons per event')
+        for filename in hist_names:
+
+            histogram = np.load(str(Path(path, filename)))
+
+            if i == 0:
+                col = (1, 0, 0, 0.5)
+            if i == 1:
+                col = (0, 0, 1, 0.5)
+
+            if normalize:
+                plt.hist(histogram, bins=hist_bins, range=hist_range, label=labels[i], fc=col, density=True)
+            else:
+                plt.hist(histogram, bins=hist_bins, range=hist_range, label=labels[i], fc=col)
+
+            i += 1
+
+        # plt.axis([0, 15e3, 0, 0.0001])
+        # plt.axis([0, 15e3, 0, 3E3])
+
+        plt.xlabel('')
+        plt.ylabel('Counts')
+        plt.legend(loc='upper right')
+        self.save_and_draw('gaia_BAM_vs_SM_electron_hist')

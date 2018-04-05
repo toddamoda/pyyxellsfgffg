@@ -79,7 +79,7 @@ def run_tars(detector: Detector,
 
     cosmics.run()
 
-    plot_obj = PlottingTARS(cosmics, save_plots=True, show_plots=True)
+    plot_obj = PlottingTARS(cosmics, save_plots=True, draw_plots=True)
     # #
     # # # plot_obj.plot_flux_spectrum()
     # # # plot_obj.plot_spectrum_cdf()
@@ -95,8 +95,16 @@ def run_tars(detector: Detector,
     # # plot_obj.plot_edep_per_step()
     # # plot_obj.plot_edep_per_particle()
 
-    # plot_obj.plot_electron_number_histos(normalize=True)
-    plot_obj.plot_electron_number_histos()
+    plot_obj.plot_gaia_bam_vs_sm_electron_hist(normalize=True)
+    # plot_obj.plot_gaia_BAM_vs_SM_electron_hist()
+
+    plot_obj.plot_old_tars_hist(normalize=True)
+    # plot_obj.plot_old_tars_hist()
+
+    plot_obj.plot_gaia_vs_geant4_hist(normalize=True)
+    # plot_obj.plot_gaia_vs_geant4_hist()
+
+    plot_obj.show()
 
     return new_detector
 
