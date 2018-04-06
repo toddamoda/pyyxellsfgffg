@@ -308,7 +308,6 @@ class PlottingTARS:
 
         :return:
         """
-
         # Geant4 (GRAS) simulation results (by Giovanni?) + GAIA BAM data - Perfect overlap in case of normalization!
         path = Path(__file__).parent.joinpath('data', 'validation', 'Gaia_CCD_study-20180404T115340Z-001',
                                               'GAIA_CCD_study', 'Data')
@@ -353,7 +352,6 @@ class PlottingTARS:
 
         :return:
         """
-
         # earlier TARS results of Lionel
         folder_path = Path(__file__).parent.joinpath('data', 'validation', 'Results-20180404T121902Z-001', 'Results')
         hist_names = [
@@ -398,7 +396,6 @@ class PlottingTARS:
 
         :return:
         """
-
         path = Path(__file__).parent.joinpath('data', 'validation')
         hist_names = [
                       # 'Gaia_bam_ccd_events(13259).npy', NEM JOOOOO
