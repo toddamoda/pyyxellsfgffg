@@ -187,6 +187,25 @@ class PlottingTARS:
                  self.tars.sim_obj.step_size_dist['counts'], '.')
         self.save_and_draw('step_dist')
 
+    def plot_tertiary_number_cdf(self):
+        """TBW.
+
+        :return:
+        """
+        plt.figure()
+        plt.plot(self.tars.sim_obj.elec_number_cdf[:, 0], self.tars.sim_obj.elec_number_cdf[:, 1], '.')
+        self.save_and_draw('elec_number_cdf')
+
+    def plot_tertiary_number_dist(self):
+        """TBW.
+
+        :return:
+        """
+        plt.figure()
+        plt.plot(self.tars.sim_obj.elec_number_dist['electron'],
+                 self.tars.sim_obj.elec_number_dist['counts'], '.')
+        self.save_and_draw('elec_number_dist')
+
     def plot_let_dist(self):
         """TBW.
 
@@ -434,26 +453,32 @@ class PlottingTARS:
         plt.legend(loc='upper right')
         self.save_and_draw('gaia_BAM_vs_SM_electron_hist')
 
-    def plot_electron_hist(self, data, normalize: bool=None):
+    def plot_electron_hist(self, data1, data2=None, normalize: bool=None):
         """TBW.
 
         :return:
         """
-        labels = ['TARS data (David), 40um, 1k']
+        labels = [
+            'TARS data (David), 40um, 100MeV',
+            'Geant4 data (David), 40um, 100MeV']
         i = 0
 
-        hist_bins = 300
-        hist_range = (1, 15E3)
+        hist_bins = 1000
+        hist_range = (0, 15E3)
 
         plt.figure()
         plt.title('Number of electrons per event')
 
-        col = (1, 0, 0, 1)
-
         if normalize:
-            plt.hist(data, bins=hist_bins, range=hist_range, label=labels[i], fc=col, density=True)
+            plt.hist(data1, bins=hist_bins, range=hist_range, label=labels[i], fc=(1, 0, 1, 0.5), density=True)
+            if data2:
+                i += 1
+                plt.hist(data2, bins=hist_bins, range=hist_range, label=labels[i], fc=(1, 1, 0, 0.5), density=True)
         else:
-            plt.hist(data, bins=hist_bins, range=hist_range, label=labels[i], fc=col)
+            plt.hist(data1, bins=hist_bins, range=hist_range, label=labels[i], fc=(1, 0, 1, 0.5))
+            if data2:
+                i += 1
+                plt.hist(data2, bins=hist_bins, range=hist_range, label=labels[i], fc=(1, 1, 0, 0.5))
 
         # plt.axis([0, 15e3, 0, 0.0001])
         # plt.axis([0, 15e3, 0, 3E3])

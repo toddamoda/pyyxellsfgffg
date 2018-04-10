@@ -10,7 +10,7 @@ from bisect import bisect
 from pyxel.models.tars.particle import Particle
 from pyxel.models.tars.util import sampling_distribution
 from pyxel.detectors.detector import Detector
-from pyxel.models.tars.util import load_step_data
+from pyxel.models.tars.util import load_histogram_data
 
 
 class Simulation:
@@ -28,6 +28,8 @@ class Simulation:
 
         self.energy_loss_data = None
 
+        self.elec_number_dist = None
+        self.elec_number_cdf = np.zeros((1, 2))
         self.step_size_dist = None
         self.step_cdf = np.zeros((1, 2))
         self.kin_energy_dist = None
@@ -58,6 +60,7 @@ class Simulation:
         self.e_vel1_lst = []    # type: t.List[float]
         self.e_vel2_lst = []    # type: t.List[float]
 
+        self.e_num_lst_per_event = []       # type: t.List[int]
         self.edep_per_step = []             # type: t.List[float]
         self.total_edep_per_particle = []   # type: t.List[float]
 
@@ -141,19 +144,28 @@ class Simulation:
         :return:
         .. warning:: EXPERIMENTAL - NOT FINSHED YET
         """
-        # step size distribution in um
-        self.step_size_dist = load_step_data(step_size_file, hist_type='step_size', skip_rows=4, read_rows=10000)
+        # # step size distribution in um
+        self.step_size_dist = load_histogram_data(step_size_file, hist_type='step_size',
+                                                  skip_rows=4, read_rows=10000)
 
         cum_sum = np.cumsum(self.step_size_dist['counts'])
         cum_sum /= np.max(cum_sum)
         self.step_cdf = np.stack((self.step_size_dist['step_size'], cum_sum), axis=1)
 
-        # secondary electron spectrum in keV
-        self.kin_energy_dist = load_step_data(step_size_file, hist_type='energy', skip_rows=10008, read_rows=200)
+        # # tertiary electron numbers created by secondary electrons
+        self.elec_number_dist = load_histogram_data(step_size_file, hist_type='electron',
+                                                    skip_rows=10008, read_rows=10000)
 
-        cum_sum = np.cumsum(self.kin_energy_dist['counts'])
-        cum_sum /= np.max(cum_sum)
-        self.kin_energy_cdf = np.stack((self.kin_energy_dist['energy'], cum_sum), axis=1)
+        cum_sum_2 = np.cumsum(self.elec_number_dist['counts'])
+        cum_sum_2 /= np.max(cum_sum_2)
+        self.elec_number_cdf = np.stack((self.elec_number_dist['electron']-0.5, cum_sum_2), axis=1)
+
+        # # secondary electron spectrum in keV
+        # self.kin_energy_dist = load_histogram_data(step_size_file, hist_type='energy', skip_rows=10008, read_rows=200)
+        #
+        # cum_sum = np.cumsum(self.kin_energy_dist['counts'])
+        # cum_sum /= np.max(cum_sum)
+        # self.kin_energy_cdf = np.stack((self.kin_energy_dist['energy'], cum_sum), axis=1)
 
     def event_generation(self):
         """Generate an event.
@@ -161,6 +173,7 @@ class Simulation:
         :return:
         """
         track_left = False
+        electron_number_per_event = 0
         geo = self.detector.geometry
         mat = self.detector.material
         ioniz_energy = mat.ionization_energy   # eV
@@ -189,10 +202,12 @@ class Simulation:
 
             if self.energy_loss_data == 'stepsize':
                 current_step_size = sampling_distribution(self.step_cdf)        # um
-                e_kin_energy = sampling_distribution(self.kin_energy_cdf)     # keV
+                # e_kin_energy = sampling_distribution(self.kin_energy_cdf)     # keV   TODO
+
             if self.energy_loss_data == 'stopping':
                 raise NotImplementedError   # TODO: implement this
 
+            e_kin_energy = 1.   # TODO
             particle.deposited_energy = e_kin_energy + ioniz_energy * 1e-3  # keV
 
             # UPDATE POSITION OF IONIZING PARTICLES
@@ -214,9 +229,13 @@ class Simulation:
 
             particle.energy -= particle.deposited_energy * 1e-3     # MeV
 
-            electron_number = int(e_kin_energy * 1e3 / ioniz_energy) + 1     # the +1 is the original secondary electron
+            # the +1 is the original secondary electron
+            electron_number = int(sampling_distribution(self.elec_number_cdf)) + 1
+            # electron_number = int(e_kin_energy * 1e3 / ioniz_energy) + 1
 
+            electron_number_per_event += electron_number
             self.e_num_lst += [electron_number]
+
             self.e_energy_lst += [e_kin_energy * 1e3]   # eV
             self.e_pos0_lst += [particle.position[0]]   # um
             self.e_pos1_lst += [particle.position[1]]   # um
@@ -231,6 +250,7 @@ class Simulation:
 
         if track_left:
             self.total_edep_per_particle.append(particle.total_edep)  # keV
+            self.e_num_lst_per_event += [electron_number_per_event]
 
     # def _ionization_(self, particle):
     #     """TBW.

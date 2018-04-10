@@ -29,14 +29,19 @@ def get_xvalue_with_interpolation(function_array, y_value):
     :param y_value:
     :return:
     """
-    y_index_bot = bisect.bisect(function_array[:, 1], y_value) - 1
-    y_index_top = y_index_bot + 1
-    y_value_bot = function_array[y_index_bot, 1]
-    y_value_top = function_array[y_index_top, 1]
-    x_value_bot = function_array[y_index_bot, 0]
-    x_value_top = function_array[y_index_top, 0]
+    if y_value <= function_array[0, 1]:
+        intpol_x_value = function_array[0, 0]
+    elif y_value >= function_array[-1, 1]:
+        intpol_x_value = function_array[-1, 0]
+    else:
+        y_index_bot = bisect.bisect(function_array[:, 1], y_value) - 1
+        y_index_top = y_index_bot + 1
+        y_value_bot = function_array[y_index_bot, 1]
+        y_value_top = function_array[y_index_top, 1]
+        x_value_bot = function_array[y_index_bot, 0]
+        x_value_top = function_array[y_index_top, 0]
 
-    intpol_x_value = x_value_bot + (y_value - y_value_bot) * (x_value_top - x_value_bot) / (y_value_top - y_value_bot)
+        intpol_x_value = x_value_bot + (y_value - y_value_bot) * (x_value_top - x_value_bot) / (y_value_top - y_value_bot)
 
     return intpol_x_value
 
@@ -60,7 +65,7 @@ def get_yvalue_with_interpolation(function_array, x_value):
     return intpol_y_value
 
 
-def load_step_data(file_name, hist_type, skip_rows, read_rows):
+def load_histogram_data(file_name, hist_type, skip_rows, read_rows):
     """TBW.
 
     :param file_name:
@@ -76,18 +81,18 @@ def load_step_data(file_name, hist_type, skip_rows, read_rows):
     return step_size_data
 
 
-def load_energy_data(file_name, step_rows):
-    """TBW.
-
-    :param file_name:
-    :param step_rows:
-    :return:
-    """
-    # 'proton_' + energy + '_' + thickness + '_1M.ascii'
-    spectrum_data = pd.read_csv(file_name, delimiter="\t",
-                                names=["energy", "counts"], usecols=[1, 2], skiprows=step_rows + 8)
-
-    return spectrum_data
+# def load_energy_data(file_name, step_rows):
+#     """TBW.
+#
+#     :param file_name:
+#     :param step_rows:
+#     :return:
+#     """
+#     # 'proton_' + energy + '_' + thickness + '_1M.ascii'
+#     spectrum_data = pd.read_csv(file_name, delimiter="\t",
+#                                 names=["energy", "counts"], usecols=[1, 2], skiprows=step_rows + 8)
+#
+#     return spectrum_data
 
 
 def read_data(file_name):

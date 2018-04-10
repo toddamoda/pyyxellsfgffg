@@ -14,7 +14,7 @@ import typing as t   # noqa: F401
 
 from pyxel.detectors.detector import Detector
 from pyxel.models.tars.simulation import Simulation
-from pyxel.models.tars.util import read_data, interpolate_data
+from pyxel.models.tars.util import read_data, interpolate_data, load_histogram_data
 from pyxel.pipelines.model_registry import registry
 
 from pyxel.models.tars.plotting import PlottingTARS
@@ -86,12 +86,15 @@ def run_tars(detector: Detector,
     # #
     # # plot_obj.plot_step_dist()
     # # plot_obj.plot_step_cdf()
-    #
+
+    # plot_obj.plot_tertiary_number_cdf()
+    # plot_obj.plot_tertiary_number_dist()
+
     # plot_obj.plot_step_size_histograms(normalize=True)
     # plot_obj.plot_secondary_spectra(normalize=True)
     #
-    # # plot_obj.plot_charges_3d()
-    # #
+    plot_obj.plot_charges_3d()
+    #
     # # plot_obj.plot_edep_per_step()
     # # plot_obj.plot_edep_per_particle()
 
@@ -104,8 +107,12 @@ def run_tars(detector: Detector,
     plot_obj.plot_gaia_vs_geant4_hist(normalize=True)
     # plot_obj.plot_gaia_vs_geant4_hist()
 
-    plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst, normalize=True)
-    # plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst)
+    # file_path = Path(__file__).parent.joinpath('data', 'input', 'all_elec_num_proton_100MeV_40um_Si_10k.ascii')
+    # g4_all_e_num_hist = load_histogram_data(file_path, hist_type='electron', skip_rows=4, read_rows=1000)
+    # plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event, g4_all_e_num_hist, normalize=True)
+
+    plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event, normalize=True)
+    # plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event)
 
     plot_obj.show()
 
@@ -222,19 +229,28 @@ class TARS:
         """
         self.sim_obj.data_library = pd.DataFrame(columns=['type', 'energy', 'thickness', 'path'])
 
+        # mat_list = ['Si']
+
         type_list = ['proton']          # , 'ion', 'alpha', 'beta', 'electron', 'gamma', 'x-ray']
-        energy_list = [100., 1000.]            # MeV
-        thick_list = [10., 50., 100., 200.]    # um
+        # energy_list = [100., 1000.]            # MeV
+        energy_list = [100.]            # MeV
+        # thick_list = [10., 50., 100., 200.]    # um
+        thick_list = [40.]    # um
 
         path = Path(__file__).parent.joinpath('data', 'inputs')
-        filename_list = ['stepsize_proton_100MeV_10um_1M.ascii',
-                         'stepsize_proton_100MeV_50um_1M.ascii',
-                         'stepsize_proton_100MeV_100um_1M.ascii',
-                         'stepsize_proton_100MeV_200um_1M.ascii',
-                         'stepsize_proton_1GeV_10um_1M.ascii',
-                         'stepsize_proton_1GeV_50um_1M.ascii',
-                         'stepsize_proton_1GeV_100um_1M.ascii',
-                         'stepsize_proton_1GeV_200um_1M.ascii']
+        filename_list = [
+                         'stepsize_proton_100MeV_40um_Si_10k.ascii'
+                         # 'stepsize_proton_100MeV_50um_10k.ascii'
+
+                         # 'stepsize_proton_100MeV_10um_1M.ascii',
+                         # 'stepsize_proton_100MeV_50um_1M.ascii',
+                         # 'stepsize_proton_100MeV_100um_1M.ascii',
+                         # 'stepsize_proton_100MeV_200um_1M.ascii',
+                         # 'stepsize_proton_1GeV_10um_1M.ascii',
+                         # 'stepsize_proton_1GeV_50um_1M.ascii',
+                         # 'stepsize_proton_1GeV_100um_1M.ascii',
+                         # 'stepsize_proton_1GeV_200um_1M.ascii'
+                        ]
 
         i = 0
         for pt in type_list:
