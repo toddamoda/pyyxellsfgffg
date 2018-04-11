@@ -222,11 +222,11 @@ class Simulation:
             particle.position[2] += particle.dir_z * current_step_size      # um
 
             # check if p is still inside detector and have enough energy:
-            if particle.position[0] < 0.0 or particle.position[0] > geo.vert_dimension:
+            if particle.position[0] <= 0.0 or particle.position[0] >= geo.vert_dimension:
                 break
-            if particle.position[1] < 0.0 or particle.position[1] > geo.horz_dimension:
+            if particle.position[1] <= 0.0 or particle.position[1] >= geo.horz_dimension:
                 break
-            if particle.position[2] < -1 * geo.total_thickness or particle.position[2] > 0.0:
+            if particle.position[2] <= -1 * geo.total_thickness or particle.position[2] >= 0.0:
                 break
             if particle.deposited_energy >= particle.energy * 1e3:
                 break
