@@ -41,7 +41,8 @@ def get_xvalue_with_interpolation(function_array, y_value):
         x_value_bot = function_array[y_index_bot, 0]
         x_value_top = function_array[y_index_top, 0]
 
-        intpol_x_value = x_value_bot + (y_value - y_value_bot) * (x_value_top - x_value_bot) / (y_value_top - y_value_bot)
+        intpol_x_value = x_value_bot + (y_value - y_value_bot) * \
+                                       (x_value_top - x_value_bot) / (y_value_top - y_value_bot)
 
     return intpol_x_value
 

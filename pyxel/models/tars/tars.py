@@ -14,7 +14,7 @@ import typing as t   # noqa: F401
 
 from pyxel.detectors.detector import Detector
 from pyxel.models.tars.simulation import Simulation
-from pyxel.models.tars.util import read_data, interpolate_data, load_histogram_data
+from pyxel.models.tars.util import read_data, interpolate_data  # , load_histogram_data
 from pyxel.pipelines.model_registry import registry
 
 from pyxel.models.tars.plotting import PlottingTARS
