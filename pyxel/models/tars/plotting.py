@@ -8,7 +8,7 @@
 
 import numpy as np
 from matplotlib import pyplot as plt
-import pandas as pd
+# import pandas as pd
 from pathlib import Path
 # import typing as t   # noqa: F401
 from mpl_toolkits.mplot3d import Axes3D     # noqa: F401
@@ -98,29 +98,31 @@ class PlottingTARS:
         self.save_and_draw('edep_per_particle')
         return n, bins, patches
 
-    def plot_spectrum_cdf(self):
-        """
-        TBW.
-
-        :return:
-        """
-        lin_energy_range = self.tars.sim_obj.spectrum_cdf[:, 0]
-        cum_sum = self.tars.sim_obj.spectrum_cdf[:, 1]
-        plt.figure()
-        plt.semilogx(lin_energy_range, cum_sum)
-        self.save_and_draw('spectrum_cdf')
-
-    def plot_flux_spectrum(self):
-        """
-        TBW.
-
-        :return:
-        """
-        lin_energy_range = self.tars.sim_obj.spectrum_cdf[:, 0]
-        flux_dist = self.tars.sim_obj.flux_dist
-        plt.figure()
-        plt.loglog(lin_energy_range, flux_dist)
-        self.save_and_draw('flux_spectrum')
+    # def plot_spectrum_cdf(self):
+    #     """
+    #     TBW.
+    #
+    #     :return:
+    #     """
+    #     lin_energy_range = self.tars.sim_obj.spectrum_cdf[:, 0]
+    #     cum_sum = self.tars.sim_obj.spectrum_cdf[:, 1]
+    #     plt.figure()
+    #     plt.title('Spectrum CDF')
+    #     # plt.semilogx(lin_energy_range, cum_sum)
+    #     self.save_and_draw('spectrum_cdf')
+    #
+    # def plot_flux_spectrum(self):
+    #     """
+    #     TBW.
+    #
+    #     :return:
+    #     """
+    #     lin_energy_range = self.tars.sim_obj.spectrum_cdf[:, 0]
+    #     flux_dist = self.tars.sim_obj.flux_dist
+    #     plt.figure()
+    #     plt.title('Flux spectrum')
+    #     # plt.loglog(lin_energy_range, flux_dist)
+    #     self.save_and_draw('flux_spectrum')
 
     def plot_charges_3d(self):
         """
@@ -132,6 +134,7 @@ class PlottingTARS:
 
         # set up a figure twice as wide as it is tall
         fig = plt.figure(figsize=plt.figaspect(0.5))
+        plt.title('Charge deposition in 3d')
 
         size = self.tars.sim_obj.e_num_lst
         ax = fig.add_subplot(1, 2, 1, projection='3d')
@@ -165,6 +168,7 @@ class PlottingTARS:
         :return:
         """
         plt.figure()
+        plt.title('LET CDF')
         plt.plot(self.tars.sim_obj.let_cdf[:, 0], self.tars.sim_obj.let_cdf[:, 1], '.')
         self.save_and_draw('let_cdf')
 
@@ -174,6 +178,7 @@ class PlottingTARS:
         :return:
         """
         plt.figure()
+        plt.title('Step size CDF')
         plt.plot(self.tars.sim_obj.step_cdf[:, 0], self.tars.sim_obj.step_cdf[:, 1], '.')
         self.save_and_draw('step_cdf')
 
@@ -183,6 +188,7 @@ class PlottingTARS:
         :return:
         """
         plt.figure()
+        plt.title('Step size distribution')
         plt.plot(self.tars.sim_obj.step_size_dist['step_size'],
                  self.tars.sim_obj.step_size_dist['counts'], '.')
         self.save_and_draw('step_dist')
@@ -193,6 +199,7 @@ class PlottingTARS:
         :return:
         """
         plt.figure()
+        plt.title('Tertiary electron number CDF')
         plt.plot(self.tars.sim_obj.elec_number_cdf[:, 0], self.tars.sim_obj.elec_number_cdf[:, 1], '.')
         self.save_and_draw('elec_number_cdf')
 
@@ -202,6 +209,7 @@ class PlottingTARS:
         :return:
         """
         plt.figure()
+        plt.title('Tertiary electron number distribution')
         plt.plot(self.tars.sim_obj.elec_number_dist['electron'],
                  self.tars.sim_obj.elec_number_dist['counts'], '.')
         self.save_and_draw('elec_number_dist')
@@ -212,6 +220,7 @@ class PlottingTARS:
         :return:
         """
         plt.figure()
+        plt.title('LET dist')
         plt.plot(self.tars.sim_obj.let_dist[:, 1], self.tars.sim_obj.let_dist[:, 2], '.')
         self.save_and_draw('let_dist')
 
@@ -249,78 +258,105 @@ class PlottingTARS:
         plt.grid(True)
         self.save_and_draw('trajectory_xz')
 
-    def plot_step_size_histograms(self, normalize: bool=None):
+    def plot_track_histogram(self, histogram_data, normalize: bool = None):
         """TBW.
 
         :return:
         """
-        energies = ['100MeV', '1GeV']
-        thicknesses = ['10um', '50um', '100um', '200um']
-        p_types = ['proton']
-
-        path = Path(__file__).parent.joinpath('data', 'inputs')
-
-        # step_rows = 10000
+        hist_bins = 500
+        hist_range = (0, 200)
 
         plt.figure()
-        plt.title('Step size')
-        for p_type in p_types:
-            for energy in energies:
-                for thickness in thicknesses:
-                    filename = 'stepsize_' + p_type + '_' + energy + '_' + thickness + '_1M.ascii'
-                    step_size = pd.read_csv(str(Path(path, filename)),
-                                            delimiter="\t", names=["step_size", "counts"], usecols=[1, 2],
-                                            skiprows=4, nrows=10000)
+        plt.title('Proton track length distribution')
 
-                    if normalize:
-                        plotted_counts = step_size['counts'] / sum(step_size['counts'])
-                    else:
-                        plotted_counts = step_size['counts']
+        col = (1, 0, 1, 1)
 
-                    plt.plot(step_size['step_size'], plotted_counts, '.-',
-                             label=p_type + ', ' + energy + ', ' + thickness)
+        if normalize:
+            plt.hist(histogram_data, bins=hist_bins, range=hist_range, fc=col, density=True)
+        else:
+            plt.hist(histogram_data, bins=hist_bins, range=hist_range, fc=col)
 
-        plt.axis([0, 200, 0, 0.025])
-        plt.xlabel('Step size')
+        # plt.axis([0, 15e3, 0, 0.0001])
+        # plt.axis([0, 15e3, 0, 3E3])
+
+        plt.xlabel('Track length')
         plt.ylabel('Counts')
         plt.legend(loc='upper right')
-        self.save_and_draw('step_size_histograms')
+        self.save_and_draw('track_length')
 
-    def plot_secondary_spectra(self, normalize: bool=None):
-        """TBW.
-
-        :return:
-        """
-        energies = ['100MeV', '1GeV']
-        thicknesses = ['10um', '50um', '100um', '200um']
-        p_types = ['proton']
-
-        path = Path(__file__).parent.joinpath('data', 'inputs')
-
-        # step_rows = 10000
-
-        plt.figure()
-        plt.title('Electron spectrum')
-        for p_type in p_types:
-            for energy in energies:
-                for thickness in thicknesses:
-                    filename = 'stepsize_' + p_type + '_' + energy + '_' + thickness + '_1M.ascii'
-                    spectrum = pd.read_csv(str(Path(path, filename)),
-                                           delimiter="\t", names=["energy", "counts"], usecols=[1, 2],
-                                           skiprows=10008, nrows=200)
-
-                    if normalize:
-                        plotted_counts = spectrum['counts'] / sum(spectrum['counts'])
-                    else:
-                        plotted_counts = spectrum['counts']
-
-                    plt.plot(spectrum['energy'], plotted_counts, '.-', label=p_type + ', ' + energy + ', ' + thickness)
-
-        # plt.axis([0, 6.0, 0, 0.12])
-        plt.xlabel('Energy')
-        plt.ylabel('Counts')
-        plt.legend(loc='upper right')
-        self.save_and_draw('secondary_spectra')
+    # def plot_step_size_histograms(self, normalize: bool=None):
+    #     """TBW.
+    #
+    #     :return:
+    #     """
+    #     energies = ['100MeV', '1GeV']
+    #     thicknesses = ['10um', '50um', '100um', '200um']
+    #     p_types = ['proton']
+    #
+    #     path = Path(__file__).parent.joinpath('data', 'inputs')
+    #
+    #     # step_rows = 10000
+    #
+    #     plt.figure()
+    #     plt.title('Step size')
+    #     for p_type in p_types:
+    #         for energy in energies:
+    #             for thickness in thicknesses:
+    #                 filename = 'stepsize_' + p_type + '_' + energy + '_' + thickness + '_1M.ascii'
+    #                 step_size = pd.read_csv(str(Path(path, filename)),
+    #                                         delimiter="\t", names=["step_size", "counts"], usecols=[1, 2],
+    #                                         skiprows=4, nrows=10000)
+    #
+    #                 if normalize:
+    #                     plotted_counts = step_size['counts'] / sum(step_size['counts'])
+    #                 else:
+    #                     plotted_counts = step_size['counts']
+    #
+    #                 plt.plot(step_size['step_size'], plotted_counts, '.-',
+    #                          label=p_type + ', ' + energy + ', ' + thickness)
+    #
+    #     plt.axis([0, 200, 0, 0.025])
+    #     plt.xlabel('Step size')
+    #     plt.ylabel('Counts')
+    #     plt.legend(loc='upper right')
+    #     self.save_and_draw('step_size_histograms')
+    #
+    # def plot_secondary_spectra(self, normalize: bool=None):
+    #     """TBW.
+    #
+    #     :return:
+    #     """
+    #     energies = ['100MeV', '1GeV']
+    #     thicknesses = ['10um', '50um', '100um', '200um']
+    #     p_types = ['proton']
+    #
+    #     path = Path(__file__).parent.joinpath('data', 'inputs')
+    #
+    #     # step_rows = 10000
+    #
+    #     plt.figure()
+    #     plt.title('Electron spectrum')
+    #     for p_type in p_types:
+    #         for energy in energies:
+    #             for thickness in thicknesses:
+    #                 filename = 'stepsize_' + p_type + '_' + energy + '_' + thickness + '_1M.ascii'
+    #                 spectrum = pd.read_csv(str(Path(path, filename)),
+    #                                        delimiter="\t", names=["energy", "counts"], usecols=[1, 2],
+    #                                        skiprows=10008, nrows=200)
+    #
+    #                 if normalize:
+    #                     plotted_counts = spectrum['counts'] / sum(spectrum['counts'])
+    #                 else:
+    #                     plotted_counts = spectrum['counts']
+    #
+    #                 plt.plot(spectrum['energy'], plotted_counts, '.-',
+    #                          label=p_type + ', ' + energy + ', ' + thickness)
+    #
+    #     # plt.axis([0, 6.0, 0, 0.12])
+    #     plt.xlabel('Energy')
+    #     plt.ylabel('Counts')
+    #     plt.legend(loc='upper right')
+    #     self.save_and_draw('secondary_spectra')
 
     def plot_gaia_vs_geant4_hist(self, normalize: bool=None):
         """TBW.
@@ -337,7 +373,7 @@ class PlottingTARS:
         labels = ['Geant4 data', 'GAIA BAM data']
         i = 0
 
-        hist_bins = 300
+        hist_bins = 500
         hist_range = (1, 15E3)
 
         plt.figure()
@@ -381,7 +417,7 @@ class PlottingTARS:
         labels = ['TARS data (Lionel), SM (16um)', 'TARS data (Lionel), BAM (40um)']
         i = 0
 
-        hist_bins = 300
+        hist_bins = 500
         hist_range = (1, 15E3)
 
         plt.figure()
@@ -424,7 +460,7 @@ class PlottingTARS:
         labels = ['GAIA SM (16um) data', 'GAIA BAM (40um) data']
         i = 0
 
-        hist_bins = 300
+        hist_bins = 500
         hist_range = (1, 15E3)
 
         plt.figure()
@@ -453,32 +489,42 @@ class PlottingTARS:
         plt.legend(loc='upper right')
         self.save_and_draw('gaia_BAM_vs_SM_electron_hist')
 
-    def plot_electron_hist(self, data1, data2=None, normalize: bool=None):
+    def plot_electron_hist(self, data1, data2=None, data3=None, normalize: bool=None):
         """TBW.
 
         :return:
         """
         labels = [
             'TARS data (David), 40um, 100MeV',
-            'Geant4 data (David), 40um, 100MeV']
+            # 'Geant4 data (David), 40um, 100MeV',
+            # 'secondary e-',
+            # 'tertiary e-'
+        ]
         i = 0
 
-        hist_bins = 1000
+        hist_bins = 500
         hist_range = (0, 15E3)
 
         plt.figure()
         plt.title('Number of electrons per event')
 
         if normalize:
-            plt.hist(data1, bins=hist_bins, range=hist_range, label=labels[i], fc=(1, 0, 1, 0.5), density=True)
+            plt.hist(data1, bins=hist_bins, range=hist_range, label=labels[i], fc=(1, 0, 0, 0.5), density=True)
             if data2:
                 i += 1
                 plt.hist(data2, bins=hist_bins, range=hist_range, label=labels[i], fc=(1, 1, 0, 0.5), density=True)
+                if data3:
+                    i += 1
+                    plt.hist(data3, bins=hist_bins, range=hist_range, label=labels[i], fc=(0, 1, 1, 0.5), density=True)
+
         else:
-            plt.hist(data1, bins=hist_bins, range=hist_range, label=labels[i], fc=(1, 0, 1, 0.5))
+            plt.hist(data1, bins=hist_bins, range=hist_range, label=labels[i], fc=(1, 0, 0, 0.5))
             if data2:
                 i += 1
                 plt.hist(data2, bins=hist_bins, range=hist_range, label=labels[i], fc=(1, 1, 0, 0.5))
+                if data3:
+                    i += 1
+                    plt.hist(data3, bins=hist_bins, range=hist_range, label=labels[i], fc=(0, 1, 1, 0.5))
 
         # plt.axis([0, 15e3, 0, 0.0001])
         # plt.axis([0, 15e3, 0, 3E3])

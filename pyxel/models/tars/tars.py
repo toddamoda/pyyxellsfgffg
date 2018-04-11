@@ -93,7 +93,7 @@ def run_tars(detector: Detector,
     # plot_obj.plot_step_size_histograms(normalize=True)
     # plot_obj.plot_secondary_spectra(normalize=True)
     #
-    plot_obj.plot_charges_3d()
+    # plot_obj.plot_charges_3d()
     #
     # # plot_obj.plot_edep_per_step()
     # # plot_obj.plot_edep_per_particle()
@@ -107,12 +107,16 @@ def run_tars(detector: Detector,
     plot_obj.plot_gaia_vs_geant4_hist(normalize=True)
     # plot_obj.plot_gaia_vs_geant4_hist()
 
-    # file_path = Path(__file__).parent.joinpath('data', 'input', 'all_elec_num_proton_100MeV_40um_Si_10k.ascii')
+    # file_path = Path(__file__).parent.joinpath('data', 'input', 'all_elec_num_proton.ascii')
     # g4_all_e_num_hist = load_histogram_data(file_path, hist_type='electron', skip_rows=4, read_rows=1000)
     # plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event, g4_all_e_num_hist, normalize=True)
 
+    # plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event,
+    #                             cosmics.sim_obj.sec_lst_per_event,
+    #                             cosmics.sim_obj.ter_lst_per_event, normalize=True)
     plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event, normalize=True)
-    # plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event)
+
+    plot_obj.plot_track_histogram(cosmics.sim_obj.track_length_list)
 
     plot_obj.show()
 
@@ -231,25 +235,17 @@ class TARS:
 
         # mat_list = ['Si']
 
-        type_list = ['proton']          # , 'ion', 'alpha', 'beta', 'electron', 'gamma', 'x-ray']
-        # energy_list = [100., 1000.]            # MeV
-        energy_list = [100.]            # MeV
-        # thick_list = [10., 50., 100., 200.]    # um
-        thick_list = [40.]    # um
+        type_list = ['proton']                  # , 'ion', 'alpha', 'beta', 'electron', 'gamma', 'x-ray']
+        energy_list = [100.]                    # MeV
+        thick_list = [40., 50., 60., 70., 100.]       # um
 
         path = Path(__file__).parent.joinpath('data', 'inputs')
         filename_list = [
-                         'stepsize_proton_100MeV_40um_Si_10k.ascii'
-                         # 'stepsize_proton_100MeV_50um_10k.ascii'
-
-                         # 'stepsize_proton_100MeV_10um_1M.ascii',
-                         # 'stepsize_proton_100MeV_50um_1M.ascii',
-                         # 'stepsize_proton_100MeV_100um_1M.ascii',
-                         # 'stepsize_proton_100MeV_200um_1M.ascii',
-                         # 'stepsize_proton_1GeV_10um_1M.ascii',
-                         # 'stepsize_proton_1GeV_50um_1M.ascii',
-                         # 'stepsize_proton_1GeV_100um_1M.ascii',
-                         # 'stepsize_proton_1GeV_200um_1M.ascii'
+                         'stepsize_proton_100MeV_40um_Si_10k.ascii',
+                         'stepsize_proton_100MeV_50um_Si_10k.ascii',
+                         'stepsize_proton_100MeV_60um_Si_10k.ascii',
+                         'stepsize_proton_100MeV_70um_Si_10k.ascii',
+                         'stepsize_proton_100MeV_100um_Si_10k.ascii'
                         ]
 
         i = 0

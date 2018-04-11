@@ -13,10 +13,6 @@ parametric:
       key: pipeline.photon_generation.photon_level.arguments.level
       values: [10, 20, 30]
     -
-      enabled: true
-      key: pipeline.charge_generation.tars.arguments.initial_energy
-      values: [100, 200, 300]
-    -
       enabled: false
       key:
       values:
@@ -109,8 +105,8 @@ processor:
         enabled: true
         arguments:
           particle_type: proton
-          initial_energy: 100  # random   # MeV
-          particle_number: 10
+          initial_energy: 100   # random   # MeV
+          particle_number: 100
           incident_angles:      # rad
 #            - 0.31415 # pi / 4
 #            - 3.1415  # 0 # 1.570 # 3.1415 # 2.094 # pi / 2

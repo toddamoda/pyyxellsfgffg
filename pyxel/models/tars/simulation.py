@@ -60,7 +60,10 @@ class Simulation:
         self.e_vel1_lst = []    # type: t.List[float]
         self.e_vel2_lst = []    # type: t.List[float]
 
+        self.track_length_list = []         # type: t.List[float]
         self.e_num_lst_per_event = []       # type: t.List[int]
+        self.sec_lst_per_event = []         # type: t.List[int]
+        self.ter_lst_per_event = []         # type: t.List[int]
         self.edep_per_step = []             # type: t.List[float]
         self.total_edep_per_particle = []   # type: t.List[float]
 
@@ -174,6 +177,8 @@ class Simulation:
         """
         track_left = False
         electron_number_per_event = 0
+        secondary_per_event = 0
+        tertiary_per_event = 0
         geo = self.detector.geometry
         mat = self.detector.material
         ioniz_energy = mat.ionization_energy   # eV
@@ -184,6 +189,7 @@ class Simulation:
                                  self.position_ver, self.position_hor, self.position_z,
                                  self.angle_alpha, self.angle_beta)
         particle = self.particle
+        self.track_length_list += [particle.track_length()]
 
         if self.energy_loss_data == 'stepsize':
             data_filename = self.select_stepsize_data(particle.type, particle.energy, particle.track_length())
@@ -233,6 +239,8 @@ class Simulation:
             electron_number = int(sampling_distribution(self.elec_number_cdf)) + 1
             # electron_number = int(e_kin_energy * 1e3 / ioniz_energy) + 1
 
+            secondary_per_event += 1
+            tertiary_per_event += electron_number - 1
             electron_number_per_event += electron_number
             self.e_num_lst += [electron_number]
 
@@ -251,6 +259,8 @@ class Simulation:
         if track_left:
             self.total_edep_per_particle.append(particle.total_edep)  # keV
             self.e_num_lst_per_event += [electron_number_per_event]
+            self.sec_lst_per_event += [secondary_per_event]
+            self.ter_lst_per_event += [tertiary_per_event]
 
     # def _ionization_(self, particle):
     #     """TBW.
