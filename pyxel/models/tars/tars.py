@@ -109,7 +109,7 @@ def run_tars(detector: Detector,
     plot_obj.plot_gaia_vs_geant4_hist(normalize=True)
     # plot_obj.plot_gaia_vs_geant4_hist()
 
-    # file_path = Path(__file__).parent.joinpath('data', 'input', 'all_elec_num_proton.ascii')
+    # file_path = Path(__file__).parent.joinpath('data', 'inputs', 'all_elec_num_proton.ascii')
     # g4_all_e_num_hist = load_histogram_data(file_path, hist_type='electron', skip_rows=4, read_rows=1000)
     # plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event, g4_all_e_num_hist, normalize=True)
 

@@ -7,6 +7,7 @@ import typing as t  # noqa: F401
 import numpy as np
 from bisect import bisect
 import subprocess
+from pathlib import Path
 
 from pyxel.models.tars.particle import Particle
 from pyxel.models.tars.util import sampling_distribution, load_histogram_data, read_data
@@ -288,14 +289,19 @@ class Simulation:
         self.track_length_list += [particle.track_length()]
 
         # Executing external command 'date'
-        subprocess.call('date')
-        subprocess.call(['date', '-u', '+%A'])
+        # subprocess.call('date')
+        # subprocess.call(['date', '-u', '+%A'])
 
         # subprocess.call(['./TestEm18', 'Silicon', 'proton', '100', '10'])
 
-        g4data = read_data('tars_geant4.data')      # mm (!)
+        # mat = self.detector.material
+        # subprocess.call(['./TestEm18', mat.xxx, particle.type,
+        # particle.energy, particle.track_length()'])
+
+        g4_data_path = Path(__file__).parent.joinpath('data', 'inputs', 'tars_geant4.data')   # todo
+        g4data = read_data(g4_data_path)            # mm (!)
         step_size_vector = g4data[:, 0] * 1E3       # um
-        electron_number_vector = g4data[:, 1]
+        electron_number_vector = g4data[:, 1].astype(int)
 
         track_left = np.any(electron_number_vector)
 
