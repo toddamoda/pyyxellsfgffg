@@ -6,11 +6,11 @@
 import typing as t  # noqa: F401
 import numpy as np
 from bisect import bisect
+import subprocess
 
 from pyxel.models.tars.particle import Particle
-from pyxel.models.tars.util import sampling_distribution
+from pyxel.models.tars.util import sampling_distribution, load_histogram_data, read_data
 from pyxel.detectors.detector import Detector
-from pyxel.models.tars.util import load_histogram_data
 
 
 class Simulation:
@@ -195,8 +195,9 @@ class Simulation:
             data_filename = self.select_stepsize_data(particle.type, particle.energy, particle.track_length())
             self.set_stepsize_distribution(data_filename)
             # TODO make a stack of stepsize cdfs and do not load them more than once!!!
-
-        if self.energy_loss_data == 'stopping':
+        # elif self.energy_loss_data == 'geant4':
+        #     pass
+        elif self.energy_loss_data == 'stopping':
             raise NotImplementedError  # TODO: implement this
 
         while True:
@@ -209,8 +210,9 @@ class Simulation:
             if self.energy_loss_data == 'stepsize':
                 current_step_size = sampling_distribution(self.step_cdf)        # um
                 # e_kin_energy = sampling_distribution(self.kin_energy_cdf)     # keV   TODO
-
-            if self.energy_loss_data == 'stopping':
+            # elif self.energy_loss_data == 'geant4':
+            #     pass
+            elif self.energy_loss_data == 'stopping':
                 raise NotImplementedError   # TODO: implement this
 
             e_kin_energy = 1.   # TODO
@@ -235,9 +237,15 @@ class Simulation:
 
             particle.energy -= particle.deposited_energy * 1e-3     # MeV
 
-            # the +1 is the original secondary electron
-            electron_number = int(sampling_distribution(self.elec_number_cdf)) + 1
-            # electron_number = int(e_kin_energy * 1e3 / ioniz_energy) + 1
+            if self.energy_loss_data == 'stepsize':
+                # the +1 is the original secondary electron
+                electron_number = int(sampling_distribution(self.elec_number_cdf)) + 1
+                # electron_number = int(e_kin_energy * 1e3 / ioniz_energy) + 1
+            # elif self.energy_loss_data == 'geant4':
+            #     electron_number = electron_number_vector[g4_j]
+            #     g4_j += 1
+            elif self.energy_loss_data == 'stopping':
+                raise NotImplementedError
 
             secondary_per_event += 1
             tertiary_per_event += electron_number - 1
@@ -254,6 +262,68 @@ class Simulation:
 
             # save particle trajectory
             particle.trajectory = np.vstack((particle.trajectory, particle.position))
+        # END of loop
+
+        if track_left:
+            self.total_edep_per_particle.append(particle.total_edep)  # keV
+            self.e_num_lst_per_event += [electron_number_per_event]
+            self.sec_lst_per_event += [secondary_per_event]
+            self.ter_lst_per_event += [tertiary_per_event]
+
+    def event_generation_geant4(self):
+        """Generate an event running a geant4 app directly.
+
+        :return:
+        """
+        electron_number_per_event = 0
+        secondary_per_event = 0
+        tertiary_per_event = 0
+
+        self.particle = Particle(self.detector,
+                                 self.particle_type,
+                                 self.initial_energy, self.spectrum_cdf,
+                                 self.position_ver, self.position_hor, self.position_z,
+                                 self.angle_alpha, self.angle_beta)
+        particle = self.particle
+        self.track_length_list += [particle.track_length()]
+
+        # Executing external command 'date'
+        subprocess.call('date')
+        subprocess.call(['date', '-u', '+%A'])
+
+        # subprocess.call(['./TestEm18', 'Silicon', 'proton', '100', '10'])
+
+        g4data = read_data('tars_geant4.data')      # mm (!)
+        step_size_vector = g4data[:, 0] * 1E3       # um
+        electron_number_vector = g4data[:, 1]
+
+        track_left = np.any(electron_number_vector)
+
+        for j in range(len(step_size_vector)):
+
+            # UPDATE POSITION OF IONIZING PARTICLES
+            particle.position[0] += particle.dir_ver * step_size_vector[j]    # um
+            particle.position[1] += particle.dir_hor * step_size_vector[j]    # um
+            particle.position[2] += particle.dir_z * step_size_vector[j]      # um
+
+            secondary_per_event += 1
+            tertiary_per_event += electron_number_vector[j] - 1
+            electron_number_per_event += electron_number_vector[j]
+
+            self.e_num_lst += [electron_number_vector[j]]
+            self.e_pos0_lst += [particle.position[0]]   # um
+            self.e_pos1_lst += [particle.position[1]]   # um
+            self.e_pos2_lst += [particle.position[2]]   # um
+
+            e_kin_energy = 1.
+            self.e_energy_lst += [e_kin_energy * 1e3]   # eV
+
+            self.edep_per_step.append(particle.deposited_energy)    # keV
+            particle.total_edep += particle.deposited_energy        # keV
+
+            # save particle trajectory
+            particle.trajectory = np.vstack((particle.trajectory, particle.position))
+
         # END of loop
 
         if track_left:

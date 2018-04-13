@@ -75,7 +75,9 @@ def run_tars(detector: Detector,
         raise NotImplementedError
         # cosmics.set_stopping_power(stopping_file)
     else:
-        cosmics.set_stepsize()
+        # TODO
+        # cosmics.set_stepsize()
+        cosmics.set_geant4()
 
     cosmics.run()
 
@@ -226,6 +228,13 @@ class TARS:
         self.sim_obj.energy_loss_data = 'stepsize'
         self.create_data_library()
 
+    def set_geant4(self):
+        """TBW.
+
+        :return:
+        """
+        self.sim_obj.energy_loss_data = 'geant4'
+
     def create_data_library(self):
         """TBW.
 
@@ -275,7 +284,10 @@ class TARS:
                                 self.angle_alpha, self.angle_beta)
 
         for _ in tqdm(range(0, self.particle_number)):
-            self.sim_obj.event_generation()
+            if self.sim_obj.energy_loss_data == 'stepsize':     # TODO
+                self.sim_obj.event_generation()
+            elif self.sim_obj.energy_loss_data == 'geant4':
+                self.sim_obj.event_generation_geant4()
 
         size = len(self.sim_obj.e_num_lst)
         self.sim_obj.e_vel0_lst = [0.] * size
