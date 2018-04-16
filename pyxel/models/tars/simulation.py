@@ -290,9 +290,10 @@ class Simulation:
         self.track_length_list += [particle.track_length()]
         self.p_energy_lst_per_event += [particle.energy]
 
-        subprocess.call(['./pyxel/models/tars/data/geant4/TestEm18',
-                         'Silicon', particle.type,
-                         str(particle.energy), str(particle.track_length())])
+        result = subprocess.call(['./pyxel/models/tars/data/geant4/TestEm18',
+                                  'Silicon', particle.type,
+                                  str(particle.energy), str(particle.track_length())],
+                                 stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
 
         # mat = self.detector.material
         # subprocess.call(['./TestEm18', mat.xxx, particle.type,

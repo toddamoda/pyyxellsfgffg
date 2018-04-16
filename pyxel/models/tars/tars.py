@@ -108,8 +108,8 @@ def run_tars(detector: Detector,
 
     plot_obj.plot_track_histogram(cosmics.sim_obj.track_length_list)
 
-    plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event, normalize=True)
-    # plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event)
+    # plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event, normalize=True)
+    plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event)
 
     # todo: not implemented yet:
     # file_path = Path(__file__).parent.joinpath('data', 'inputs', 'all_elec_num_proton.ascii')
@@ -120,7 +120,7 @@ def run_tars(detector: Detector,
     #                             cosmics.sim_obj.sec_lst_per_event,
     #                             cosmics.sim_obj.ter_lst_per_event, normalize=True)
 
-    # plot_obj.show()
+    plot_obj.show()
 
     return new_detector
 

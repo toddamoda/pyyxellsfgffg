@@ -524,7 +524,7 @@ class PlottingTARS:
         :return:
         """
         labels = [
-            'TARS data (David), 40um',
+            'TARS data (David), 40um'
             # 'Geant4 data (David), 40um, 100MeV',
             # 'secondary e-',
             # 'tertiary e-'
