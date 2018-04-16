@@ -81,6 +81,13 @@ def run_tars(detector: Detector,
 
     cosmics.run()
 
+    np.save('tars-e_num_lst_per_event.npy', cosmics.sim_obj.e_num_lst_per_event)
+    np.save('tars-sec_lst_per_event.npy', cosmics.sim_obj.sec_lst_per_event)
+    np.save('tars-ter_lst_per_event.npy', cosmics.sim_obj.ter_lst_per_event)
+    np.save('tars-track_length_list.npy', cosmics.sim_obj.track_length_list)
+    np.save('tars-p_energy_lst_per_event.npy', cosmics.sim_obj.p_energy_lst_per_event)
+    np.save('tars-e_num_lst.npy', cosmics.sim_obj.e_num_lst)
+
     plot_obj = PlottingTARS(cosmics, save_plots=True, draw_plots=True)
 
     # # # plot_obj.plot_flux_spectrum()
@@ -108,8 +115,7 @@ def run_tars(detector: Detector,
 
     # plot_obj.plot_track_histogram(cosmics.sim_obj.track_length_list)
 
-    # plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event, normalize=True)
-    plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event)
+    plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event, normalize=True)
 
     # todo: not implemented yet:
     # file_path = Path(__file__).parent.joinpath('data', 'inputs', 'all_elec_num_proton.ascii')
@@ -283,8 +289,7 @@ class TARS:
                                 self.position_ver, self.position_hor, self.position_z,
                                 self.angle_alpha, self.angle_beta)
 
-        # for _ in tqdm(range(0, self.particle_number)):
-        for _ in range(0, self.particle_number):
+        for _ in tqdm(range(0, self.particle_number)):   # for _ in range(0, self.particle_number):
             if self.sim_obj.energy_loss_data == 'stepsize':     # TODO
                 self.sim_obj.event_generation()
             elif self.sim_obj.energy_loss_data == 'geant4':

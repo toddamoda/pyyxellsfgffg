@@ -1,6 +1,7 @@
 # Pyxel output data files
 *.data
 *.fits
+*.npy
 
 # Pyxel plots
 *.png
