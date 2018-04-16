@@ -288,16 +288,18 @@ class Simulation:
         particle = self.particle
         self.track_length_list += [particle.track_length()]
 
-        subprocess.call(['./pyxel/models/tars/data/geant4/TestEm18', 'Silicon', 'proton', '100', '10'])
+        # subprocess.call(['./pyxel/models/tars/data/geant4/TestEm18', 'Silicon', 'proton', '100', '10'])
 
-        # subprocess.call(['./pyxel/models/tars/data/geant4/TestEm18', 'Silicon', 'proton',
-        # particle.energy, particle.track_length()])
+        subprocess.call(['./pyxel/models/tars/data/geant4/TestEm18',
+                         'Silicon', particle.type,
+                         particle.energy, particle.track_length(),
+                         '>', 'g4cout.data'])
 
         # mat = self.detector.material
         # subprocess.call(['./TestEm18', mat.xxx, particle.type,
         # particle.energy, particle.track_length()'])
 
-        g4_data_path = Path(__file__).parent.joinpath('data', 'geant4', 'tars_geant4.data')   # todo
+        g4_data_path = Path(__file__).parent.joinpath('data', 'geant4', 'tars_geant4.data')
         g4data = read_data(g4_data_path)            # mm (!)
         step_size_vector = g4data[:, 0] * 1E3       # um
         electron_number_vector = g4data[:, 1].astype(int)
