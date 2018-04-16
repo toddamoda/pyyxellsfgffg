@@ -117,7 +117,7 @@ def run_tars(detector: Detector,
     #                             cosmics.sim_obj.sec_lst_per_event,
     #                             cosmics.sim_obj.ter_lst_per_event, normalize=True)
 
-    plot_obj.show()
+    # plot_obj.show()
 
     return new_detector
 
