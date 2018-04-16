@@ -67,6 +67,7 @@ class Simulation:
         self.ter_lst_per_event = []         # type: t.List[int]
         self.edep_per_step = []             # type: t.List[float]
         self.total_edep_per_particle = []   # type: t.List[float]
+        self.p_energy_lst_per_event = []   # type: t.List[float]
 
     def parameters(self, part_type, init_energy, pos_ver, pos_hor, pos_z, alpha, beta):
         """TBW.
@@ -287,12 +288,11 @@ class Simulation:
                                  self.angle_alpha, self.angle_beta)
         particle = self.particle
         self.track_length_list += [particle.track_length()]
+        self.p_energy_lst_per_event += [particle.energy]
 
-        # subprocess.call(['./pyxel/models/tars/data/geant4/TestEm18', 'Silicon', 'proton', '100', '10'])
-
-        subprocess.call(['./pyxel/models/tars/data/geant4/TestEm18',
-                         'Silicon', particle.type,
-                         str(particle.energy), str(particle.track_length())])
+        # subprocess.call(['./pyxel/models/tars/data/geant4/TestEm18',
+        #                  'Silicon', particle.type,
+        #                  str(particle.energy), str(particle.track_length())])
 
         # mat = self.detector.material
         # subprocess.call(['./TestEm18', mat.xxx, particle.type,
@@ -300,8 +300,12 @@ class Simulation:
 
         g4_data_path = Path(__file__).parent.joinpath('data', 'geant4', 'tars_geant4.data')
         g4data = read_data(g4_data_path)            # mm (!)
-        step_size_vector = g4data[:, 0] * 1E3       # um
-        electron_number_vector = g4data[:, 1].astype(int)
+        if g4data.shape == (2,):
+            step_size_vector = [g4data[0] * 1E3]       # um
+            electron_number_vector = [g4data[1].astype(int)]
+        else:
+            step_size_vector = g4data[:, 0] * 1E3       # um
+            electron_number_vector = g4data[:, 1].astype(int)
 
         track_left = np.any(electron_number_vector)
 
@@ -324,8 +328,8 @@ class Simulation:
             e_kin_energy = 1.
             self.e_energy_lst += [e_kin_energy * 1e3]   # eV
 
-            self.edep_per_step.append(particle.deposited_energy)    # keV
-            particle.total_edep += particle.deposited_energy        # keV
+            # self.edep_per_step.append(particle.deposited_energy)    # keV
+            # particle.total_edep += particle.deposited_energy        # keV
 
             # save particle trajectory
             particle.trajectory = np.vstack((particle.trajectory, particle.position))
@@ -333,7 +337,7 @@ class Simulation:
         # END of loop
 
         if track_left:
-            self.total_edep_per_particle.append(particle.total_edep)  # keV
+            # self.total_edep_per_particle.append(particle.total_edep)  # keV
             self.e_num_lst_per_event += [electron_number_per_event]
             self.sec_lst_per_event += [secondary_per_event]
             self.ter_lst_per_event += [tertiary_per_event]

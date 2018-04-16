@@ -111,18 +111,48 @@ class PlottingTARS:
     #     # plt.semilogx(lin_energy_range, cum_sum)
     #     self.save_and_draw('spectrum_cdf')
     #
-    # def plot_flux_spectrum(self):
+    def plot_flux_spectrum(self):
+        """
+        TBW.
+
+        :return:
+        """
+        lin_energy_range = self.tars.sim_obj.spectrum_cdf[:, 0]
+        flux_dist = self.tars.sim_obj.flux_dist
+        plt.figure()
+        plt.title('Proton flux spectrum (CREME data)')
+        plt.xlabel('Energy (MeV)')
+        plt.ylabel('Flux (1/(s*MeV))')
+        plt.loglog(lin_energy_range, flux_dist)
+        self.save_and_draw('flux_spectrum')
+
+    # def plot_spectrum_hist(self, normalize: bool = None):
     #     """
     #     TBW.
     #
     #     :return:
     #     """
-    #     lin_energy_range = self.tars.sim_obj.spectrum_cdf[:, 0]
-    #     flux_dist = self.tars.sim_obj.flux_dist
     #     plt.figure()
-    #     plt.title('Flux spectrum')
+    #     plt.title('Proton flux spectrum sampled by TARS')
+    #     plt.xlabel('Energy (MeV)')
+    #     plt.ylabel('Counts')
+    #     # plt.ylabel('Flux (1/(s*MeV))')
     #     # plt.loglog(lin_energy_range, flux_dist)
-    #     self.save_and_draw('flux_spectrum')
+    #
+    #     hist_bins = 500
+    #     hist_range = (1e-1, 1e5)
+    #
+    #     col = (1, 1, 1, 1)
+    #
+    #     if normalize:
+    #         plt.hist(self.tars.sim_obj.p_energy_lst_per_event, log=True, bins=hist_bins,
+    #                  range=hist_range, fc=col, density=True)
+    #     else:
+    #         plt.hist(self.tars.sim_obj.p_energy_lst_per_event, log=True, bins=hist_bins,
+    #                  range=hist_range, fc=col)
+    #
+    #     # plt.legend(loc='upper right')
+    #     self.save_and_draw('tars_spectrum')
 
     def plot_charges_3d(self):
         """
@@ -494,7 +524,7 @@ class PlottingTARS:
         :return:
         """
         labels = [
-            'TARS data (David), 40um, 100MeV',
+            'TARS data (David), 40um',
             # 'Geant4 data (David), 40um, 100MeV',
             # 'secondary e-',
             # 'tertiary e-'

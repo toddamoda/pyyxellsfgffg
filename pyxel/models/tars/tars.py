@@ -100,6 +100,8 @@ def run_tars(detector: Detector,
 
     # plot_obj.plot_charges_3d()
 
+    plot_obj.plot_flux_spectrum()
+
     plot_obj.plot_gaia_bam_vs_sm_electron_hist(normalize=True)
     plot_obj.plot_old_tars_hist(normalize=True)
     plot_obj.plot_gaia_vs_geant4_hist(normalize=True)
@@ -115,7 +117,7 @@ def run_tars(detector: Detector,
     #                             cosmics.sim_obj.sec_lst_per_event,
     #                             cosmics.sim_obj.ter_lst_per_event, normalize=True)
 
-    # plot_obj.show()
+    plot_obj.show()
 
     return new_detector
 
