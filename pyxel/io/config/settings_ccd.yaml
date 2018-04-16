@@ -9,7 +9,7 @@ parametric:
 #  mode: sequential
   steps:
     -
-      enabled: true
+      enabled: false
       key: pipeline.photon_generation.photon_level.arguments.level
       values: [10, 20, 30]
     -
@@ -84,11 +84,11 @@ processor:
         func: pyxel.models.photon_generation.add_photon_level
         enabled: true
         arguments:
-          level: 100
+          level: 0
       -
         name: shot_noise
         func: pyxel.models.photon_generation.add_shot_noise
-        enabled: true
+        enabled: false
 
     # photons -> photons
     optics:
@@ -97,7 +97,7 @@ processor:
     charge_generation:
       -
         name: photoelectrons
-        enabled: true
+        enabled: false
         func: pyxel.models.photoelectrons.simple_conversion
       -
         name: tars
@@ -120,14 +120,14 @@ processor:
     charge_collection:
       -
         name: fixed_pattern_noise
-        enabled: true
+        enabled: false
         func: pyxel.models.ccd_noise.add_fix_pattern_noise
         arguments:
           pix_non_uniformity: data/non_uniformity_array_normal_random_dist.data
       -
         name: full_well
         func: pyxel.models.full_well.simple_pixel_full_well
-        enabled: true
+        enabled: false
 
     # charge -> charge
     charge_transfer:
@@ -149,7 +149,7 @@ processor:
     charge_measurement:
       -
         name: output_node_noise
-        enabled: true
+        enabled: false
         func: pyxel.models.ccd_noise.add_output_node_noise
         arguments:
           std_deviation: 1.0

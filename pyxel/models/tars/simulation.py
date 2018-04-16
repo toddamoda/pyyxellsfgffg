@@ -288,10 +288,6 @@ class Simulation:
         particle = self.particle
         self.track_length_list += [particle.track_length()]
 
-        # Executing external command 'date'
-        # subprocess.call('date')
-        # subprocess.call(['date', '-u', '+%A'])
-
         subprocess.call(['./pyxel/models/tars/data/geant4/TestEm18', 'Silicon', 'proton', '100', '10'])
 
         # subprocess.call(['./pyxel/models/tars/data/geant4/TestEm18', 'Silicon', 'proton',
