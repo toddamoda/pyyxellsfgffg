@@ -364,7 +364,7 @@ class PlottingTARS:
         """
         # Geant4 (GRAS) simulation results (by Giovanni?) + GAIA BAM data - Perfect overlap in case of normalization!
         path = Path(__file__).parent.joinpath('data', 'validation', 'Gaia_CCD_study-20180404T115340Z-001',
-                                              'GAIA_CCD_study', 'Data')
+                                              'Gaia_CCD_study', 'Data')
         hist_names = [
                       'complete_G4_H_He_GCR_sim_deposition.npy',  # G4, contains a lot of events with ZERO number of e-!
                       'CRs_from_BAM_Gaia_CCDs.npy',               # GAIA BAM data
