@@ -292,7 +292,7 @@ class Simulation:
 
         subprocess.call(['./pyxel/models/tars/data/geant4/TestEm18',
                          'Silicon', particle.type,
-                         particle.energy, particle.track_length(),
+                         str(particle.energy), str(particle.track_length()),
                          '>', 'g4cout.data'])
 
         # mat = self.detector.material
