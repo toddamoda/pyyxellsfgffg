@@ -95,20 +95,18 @@ def run_tars(detector: Detector,
     # plot_obj.plot_step_size_histograms(normalize=True)
     # plot_obj.plot_secondary_spectra(normalize=True)
     #
-    # plot_obj.plot_charges_3d()
-    #
     # # plot_obj.plot_edep_per_step()
     # # plot_obj.plot_edep_per_particle()
 
+    # plot_obj.plot_charges_3d()
+
     plot_obj.plot_gaia_bam_vs_sm_electron_hist(normalize=True)
-    # plot_obj.plot_gaia_BAM_vs_SM_electron_hist()
-
     plot_obj.plot_old_tars_hist(normalize=True)
-    # plot_obj.plot_old_tars_hist()
-
     plot_obj.plot_gaia_vs_geant4_hist(normalize=True)
-    # plot_obj.plot_gaia_vs_geant4_hist()
+    plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event, normalize=True)
+    plot_obj.plot_track_histogram(cosmics.sim_obj.track_length_list)
 
+    # todo: not implemented yet:
     # file_path = Path(__file__).parent.joinpath('data', 'inputs', 'all_elec_num_proton.ascii')
     # g4_all_e_num_hist = load_histogram_data(file_path, hist_type='electron', skip_rows=4, read_rows=1000)
     # plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event, g4_all_e_num_hist, normalize=True)
@@ -116,11 +114,8 @@ def run_tars(detector: Detector,
     # plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event,
     #                             cosmics.sim_obj.sec_lst_per_event,
     #                             cosmics.sim_obj.ter_lst_per_event, normalize=True)
-    plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event, normalize=True)
 
-    plot_obj.plot_track_histogram(cosmics.sim_obj.track_length_list)
-
-    plot_obj.show()
+    # plot_obj.show()
 
     return new_detector
 

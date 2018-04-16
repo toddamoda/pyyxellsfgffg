@@ -134,7 +134,6 @@ class PlottingTARS:
 
         # set up a figure twice as wide as it is tall
         fig = plt.figure(figsize=plt.figaspect(0.5))
-        plt.title('Charge deposition in 3d')
 
         size = self.tars.sim_obj.e_num_lst
         ax = fig.add_subplot(1, 2, 1, projection='3d')
