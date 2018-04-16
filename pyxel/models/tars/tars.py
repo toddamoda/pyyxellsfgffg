@@ -100,13 +100,13 @@ def run_tars(detector: Detector,
 
     # plot_obj.plot_charges_3d()
 
-    plot_obj.plot_flux_spectrum()
+    # plot_obj.plot_flux_spectrum()
 
-    plot_obj.plot_gaia_bam_vs_sm_electron_hist(normalize=True)
-    plot_obj.plot_old_tars_hist(normalize=True)
-    plot_obj.plot_gaia_vs_geant4_hist(normalize=True)
+    # plot_obj.plot_gaia_bam_vs_sm_electron_hist(normalize=True)
+    # plot_obj.plot_old_tars_hist(normalize=True)
+    # plot_obj.plot_gaia_vs_geant4_hist(normalize=True)
 
-    plot_obj.plot_track_histogram(cosmics.sim_obj.track_length_list)
+    # plot_obj.plot_track_histogram(cosmics.sim_obj.track_length_list)
 
     # plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event, normalize=True)
     plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event)
@@ -283,7 +283,8 @@ class TARS:
                                 self.position_ver, self.position_hor, self.position_z,
                                 self.angle_alpha, self.angle_beta)
 
-        for _ in tqdm(range(0, self.particle_number)):
+        # for _ in tqdm(range(0, self.particle_number)):
+        for _ in range(0, self.particle_number):
             if self.sim_obj.energy_loss_data == 'stepsize':     # TODO
                 self.sim_obj.event_generation()
             elif self.sim_obj.energy_loss_data == 'geant4':

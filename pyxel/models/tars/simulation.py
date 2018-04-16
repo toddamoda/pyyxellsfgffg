@@ -343,6 +343,9 @@ class Simulation:
             self.sec_lst_per_event += [secondary_per_event]
             self.ter_lst_per_event += [tertiary_per_event]
 
+            print('p energy: ', particle.energy, '\telectrons/event: ', electron_number_per_event,
+                  'steps: ', len(step_size_vector))
+
     # def _ionization_(self, particle):
     #     """TBW.
     #
