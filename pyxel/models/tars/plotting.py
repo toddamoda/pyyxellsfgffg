@@ -298,6 +298,10 @@ class PlottingTARS:
         plt.figure()
         plt.title('Proton track length distribution')
 
+        if isinstance(histogram_data, str):
+            if histogram_data.endswith('.npy'):
+                histogram_data = np.load(histogram_data)
+
         col = (1, 0, 1, 1)
 
         if normalize:
@@ -441,9 +445,10 @@ class PlottingTARS:
         hist_names = [
                        # '10000 events from random protons CREME96 (16um - SM)(22-08-2016_16h36)',  # 16 um SM
                        '10000 events from random protons CREME96 (16um - SM)(22-08-2016_16h41)',    # 16 um SM
-                       '10000 events from random protons CREME96 (step=0.5)(16-08-2016_15h56)',     # 40 um BAM
+                       '10000 events from random protons CREME96 (step=0.5)(16-08-2016_15h56)'     # 40 um BAM
                        ]
-        labels = ['TARS data (Lionel), SM (16um)', 'TARS data (Lionel), BAM (40um)']
+        labels = ['TARS data (Lionel), SM (16um)',
+                  'TARS data (Lionel), BAM (40um)']
         i = 0
 
         hist_bins = 500
@@ -483,10 +488,11 @@ class PlottingTARS:
         path = Path(__file__).parent.joinpath('data', 'validation')
         hist_names = [
                       # 'Gaia_bam_ccd_events(13259).npy', NEM JOOOOO
-                      'Gaia_CCD_study-20180404T115340Z-001/Gaia_CCD_study/Data/CRs_from_BAM_Gaia_CCDs.npy',
-                      'Gaia_CCD_study-20180404T115340Z-001/Gaia_CCD_study/Data/CRs_from_SM_Gaia_CCDs.npy'
+                      'Gaia_CCD_study-20180404T115340Z-001/Gaia_CCD_study/Data/CRs_from_SM_Gaia_CCDs.npy',
+                      'Gaia_CCD_study-20180404T115340Z-001/Gaia_CCD_study/Data/CRs_from_BAM_Gaia_CCDs.npy'
         ]
-        labels = ['GAIA SM (16um) data', 'GAIA BAM (40um) data']
+        labels = ['GAIA SM (16um) data',
+                  'GAIA BAM (40um) data']
         i = 0
 
         hist_bins = 500
@@ -531,11 +537,16 @@ class PlottingTARS:
         ]
         i = 0
 
-        hist_bins = 500
-        hist_range = (0, 15E3)
+        hist_bins = 5000
+        # hist_range = (2, 5.002E3)
+        hist_range = (0, 5E3)
 
         plt.figure()
         plt.title('Number of electrons per event')
+
+        if isinstance(data1, str):
+            if data1.endswith('.npy'):
+                data1 = np.load(data1)
 
         if normalize:
             plt.hist(data1, bins=hist_bins, range=hist_range, label=labels[i], fc=(1, 0, 0, 0.5), density=True)

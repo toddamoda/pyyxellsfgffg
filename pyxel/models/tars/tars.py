@@ -29,6 +29,7 @@ def run_tars(detector: Detector,
              particle_number: int = None,
              incident_angles: tuple = None,
              starting_position: tuple = None,
+             mode: str = None,
              # step_size_file: str = None,
              stopping_file: str = None,
              spectrum_file: str = None) -> Detector:
@@ -40,6 +41,7 @@ def run_tars(detector: Detector,
     :param particle_number:
     :param incident_angles:
     :param starting_position:
+    :param mode:
     # :param step_size_file:
     :param stopping_file:
     :param spectrum_file:
@@ -71,15 +73,72 @@ def run_tars(detector: Detector,
     cosmics.set_starting_position(starting_position)        # um
     cosmics.set_particle_spectrum(spectrum_file)
 
-    if stopping_file is not None:
+    if mode == 'stopping':
         raise NotImplementedError
         # cosmics.set_stopping_power(stopping_file)
-    else:
-        # TODO
-        # cosmics.set_stepsize()
+        # cosmics.run()
+    elif mode == 'stepsize':
+        cosmics.set_stepsize()
+        cosmics.run()
+    elif mode == 'geant4':
         cosmics.set_geant4()
+        cosmics.run()
+    elif mode == 'plotting':
 
-    cosmics.run()
+        plot_obj = PlottingTARS(cosmics, save_plots=True, draw_plots=True)
+
+        # # # plot_obj.plot_flux_spectrum()
+        # # # plot_obj.plot_spectrum_cdf()
+        # #
+        # # plot_obj.plot_step_dist()
+        # # plot_obj.plot_step_cdf()
+
+        # plot_obj.plot_tertiary_number_cdf()
+        # plot_obj.plot_tertiary_number_dist()
+
+        # plot_obj.plot_step_size_histograms(normalize=True)
+        # plot_obj.plot_secondary_spectra(normalize=True)
+        #
+        # # plot_obj.plot_edep_per_step()
+        # # plot_obj.plot_edep_per_particle()
+
+        # plot_obj.plot_charges_3d()
+
+        # plot_obj.plot_flux_spectrum()
+
+        # plot_obj.plot_gaia_bam_vs_sm_electron_hist(normalize=True)
+        # plot_obj.plot_old_tars_hist(normalize=True)
+        # plot_obj.plot_gaia_vs_geant4_hist(normalize=True)
+
+        # plot_obj.plot_track_histogram(cosmics.sim_obj.track_length_list)
+        # plot_obj.plot_track_histogram(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180417\tars-track_length_list.npy',
+        #                               normalize=True)
+
+        # plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event, normalize=True)
+
+        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180417\tars-e_num_lst_per_event.npy',
+        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180417\tars-e_num_lst.npy',
+        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180417\tars-p_energy_lst_per_event.npy',
+        #                             normalize=True)
+
+
+        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180417\tars-sec_lst_per_event.npy',
+        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180417\tars-ter_lst_per_event.npy',
+        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180417\tars-track_length_list.npy',
+
+        # todo: not implemented yet:
+        # file_path = Path(__file__).parent.joinpath('data', 'inputs', 'all_elec_num_proton.ascii')
+        # g4_all_e_num_hist = load_histogram_data(file_path, hist_type='electron', skip_rows=4, read_rows=1000)
+        # plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event, g4_all_e_num_hist, normalize=True)
+
+        # plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event,
+        #                             cosmics.sim_obj.sec_lst_per_event,
+        #                             cosmics.sim_obj.ter_lst_per_event, normalize=True)
+
+        plot_obj.show()
+
+    else:
+        raise ValueError
 
     np.save('tars-e_num_lst_per_event.npy', cosmics.sim_obj.e_num_lst_per_event)
     np.save('tars-sec_lst_per_event.npy', cosmics.sim_obj.sec_lst_per_event)
@@ -87,46 +146,6 @@ def run_tars(detector: Detector,
     np.save('tars-track_length_list.npy', cosmics.sim_obj.track_length_list)
     np.save('tars-p_energy_lst_per_event.npy', cosmics.sim_obj.p_energy_lst_per_event)
     np.save('tars-e_num_lst.npy', cosmics.sim_obj.e_num_lst)
-
-    plot_obj = PlottingTARS(cosmics, save_plots=True, draw_plots=True)
-
-    # # # plot_obj.plot_flux_spectrum()
-    # # # plot_obj.plot_spectrum_cdf()
-    # #
-    # # plot_obj.plot_step_dist()
-    # # plot_obj.plot_step_cdf()
-
-    # plot_obj.plot_tertiary_number_cdf()
-    # plot_obj.plot_tertiary_number_dist()
-
-    # plot_obj.plot_step_size_histograms(normalize=True)
-    # plot_obj.plot_secondary_spectra(normalize=True)
-    #
-    # # plot_obj.plot_edep_per_step()
-    # # plot_obj.plot_edep_per_particle()
-
-    # plot_obj.plot_charges_3d()
-
-    # plot_obj.plot_flux_spectrum()
-
-    # plot_obj.plot_gaia_bam_vs_sm_electron_hist(normalize=True)
-    # plot_obj.plot_old_tars_hist(normalize=True)
-    # plot_obj.plot_gaia_vs_geant4_hist(normalize=True)
-
-    # plot_obj.plot_track_histogram(cosmics.sim_obj.track_length_list)
-
-    plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event, normalize=True)
-
-    # todo: not implemented yet:
-    # file_path = Path(__file__).parent.joinpath('data', 'inputs', 'all_elec_num_proton.ascii')
-    # g4_all_e_num_hist = load_histogram_data(file_path, hist_type='electron', skip_rows=4, read_rows=1000)
-    # plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event, g4_all_e_num_hist, normalize=True)
-
-    # plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event,
-    #                             cosmics.sim_obj.sec_lst_per_event,
-    #                             cosmics.sim_obj.ter_lst_per_event, normalize=True)
-
-    plot_obj.show()
 
     return new_detector
 
@@ -289,7 +308,8 @@ class TARS:
                                 self.position_ver, self.position_hor, self.position_z,
                                 self.angle_alpha, self.angle_beta)
 
-        for _ in tqdm(range(0, self.particle_number)):   # for _ in range(0, self.particle_number):
+        # for _ in tqdm(range(0, self.particle_number)):
+        for _ in range(0, self.particle_number):
             if self.sim_obj.energy_loss_data == 'stepsize':     # TODO
                 self.sim_obj.event_generation()
             elif self.sim_obj.energy_loss_data == 'geant4':

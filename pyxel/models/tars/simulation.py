@@ -308,42 +308,41 @@ class Simulation:
             step_size_vector = g4data[:, 0] * 1E3       # um
             electron_number_vector = g4data[:, 1].astype(int)
 
-        track_left = np.any(electron_number_vector)
+        if np.any(electron_number_vector):
+            for j in range(len(step_size_vector)):
 
-        for j in range(len(step_size_vector)):
+                # UPDATE POSITION OF IONIZING PARTICLES
+                particle.position[0] += particle.dir_ver * step_size_vector[j]    # um
+                particle.position[1] += particle.dir_hor * step_size_vector[j]    # um
+                particle.position[2] += particle.dir_z * step_size_vector[j]      # um
 
-            # UPDATE POSITION OF IONIZING PARTICLES
-            particle.position[0] += particle.dir_ver * step_size_vector[j]    # um
-            particle.position[1] += particle.dir_hor * step_size_vector[j]    # um
-            particle.position[2] += particle.dir_z * step_size_vector[j]      # um
+                secondary_per_event += 1
+                tertiary_per_event += electron_number_vector[j] - 1
+                electron_number_per_event += electron_number_vector[j]
 
-            secondary_per_event += 1
-            tertiary_per_event += electron_number_vector[j] - 1
-            electron_number_per_event += electron_number_vector[j]
+                self.e_num_lst += [electron_number_vector[j]]
+                self.e_pos0_lst += [particle.position[0]]   # um
+                self.e_pos1_lst += [particle.position[1]]   # um
+                self.e_pos2_lst += [particle.position[2]]   # um
 
-            self.e_num_lst += [electron_number_vector[j]]
-            self.e_pos0_lst += [particle.position[0]]   # um
-            self.e_pos1_lst += [particle.position[1]]   # um
-            self.e_pos2_lst += [particle.position[2]]   # um
+                e_kin_energy = 1.
+                self.e_energy_lst += [e_kin_energy]   # eV
 
-            e_kin_energy = 1.
-            self.e_energy_lst += [e_kin_energy * 1e3]   # eV
+                # self.edep_per_step.append(particle.deposited_energy)    # keV
+                # particle.total_edep += particle.deposited_energy        # keV
 
-            # self.edep_per_step.append(particle.deposited_energy)    # keV
-            # particle.total_edep += particle.deposited_energy        # keV
+                # save particle trajectory
+                particle.trajectory = np.vstack((particle.trajectory, particle.position))
 
-            # save particle trajectory
-            particle.trajectory = np.vstack((particle.trajectory, particle.position))
+            # END of loop
 
-        # END of loop
-
-        if track_left:
             # self.total_edep_per_particle.append(particle.total_edep)  # keV
             self.e_num_lst_per_event += [electron_number_per_event]
             self.sec_lst_per_event += [secondary_per_event]
             self.ter_lst_per_event += [tertiary_per_event]
-            # print('p energy: ', particle.energy, '\telectrons/event: ', electron_number_per_event,
-            #       '\tsteps: ', len(step_size_vector))
+
+        print('p energy: ', particle.energy, '\telectrons/event: ', electron_number_per_event,
+              '\tsteps: ', len(step_size_vector))
 
     # def _ionization_(self, particle):
     #     """TBW.
