@@ -52,22 +52,23 @@ class Simulation:
         self.step_length = 1.0          # fix, all the other data/parameters should be adjusted to this
         self.energy_cut = 1.0e-5        # MeV
 
-        self.e_num_lst = []     # type: t.List[int]
-        self.e_energy_lst = []  # type: t.List[float]
-        self.e_pos0_lst = []    # type: t.List[float]
-        self.e_pos1_lst = []    # type: t.List[float]
-        self.e_pos2_lst = []    # type: t.List[float]
-        self.e_vel0_lst = []    # type: t.List[float]
-        self.e_vel1_lst = []    # type: t.List[float]
-        self.e_vel2_lst = []    # type: t.List[float]
+        self.e_num_lst_per_step = []    # type: t.List[int]
+        self.e_energy_lst = []          # type: t.List[float]
+        self.e_pos0_lst = []            # type: t.List[float]
+        self.e_pos1_lst = []            # type: t.List[float]
+        self.e_pos2_lst = []            # type: t.List[float]
+        self.e_vel0_lst = []            # type: t.List[float]
+        self.e_vel1_lst = []            # type: t.List[float]
+        self.e_vel2_lst = []            # type: t.List[float]
 
-        self.track_length_list = []         # type: t.List[float]
+        self.track_length_lst_per_event = []         # type: t.List[float]
         self.e_num_lst_per_event = []       # type: t.List[int]
         self.sec_lst_per_event = []         # type: t.List[int]
         self.ter_lst_per_event = []         # type: t.List[int]
         self.edep_per_step = []             # type: t.List[float]
         self.total_edep_per_particle = []   # type: t.List[float]
-        self.p_energy_lst_per_event = []   # type: t.List[float]
+        self.p_energy_lst_per_event = []    # type: t.List[float]
+        self.alpha_lst_per_event = []       # type: t.List[float]
 
     def parameters(self, part_type, init_energy, pos_ver, pos_hor, pos_z, alpha, beta):
         """TBW.
@@ -191,7 +192,7 @@ class Simulation:
                                  self.position_ver, self.position_hor, self.position_z,
                                  self.angle_alpha, self.angle_beta)
         particle = self.particle
-        self.track_length_list += [particle.track_length()]
+        self.track_length_lst_per_event += [particle.track_length()]
 
         if self.energy_loss_data == 'stepsize':
             data_filename = self.select_stepsize_data(particle.type, particle.energy, particle.track_length())
@@ -252,7 +253,7 @@ class Simulation:
             secondary_per_event += 1
             tertiary_per_event += electron_number - 1
             electron_number_per_event += electron_number
-            self.e_num_lst += [electron_number]
+            self.e_num_lst_per_step += [electron_number]
 
             self.e_energy_lst += [e_kin_energy * 1e3]   # eV
             self.e_pos0_lst += [particle.position[0]]   # um
@@ -287,13 +288,14 @@ class Simulation:
                                  self.position_ver, self.position_hor, self.position_z,
                                  self.angle_alpha, self.angle_beta)
         particle = self.particle
-        self.track_length_list += [particle.track_length()]
+        self.track_length_lst_per_event += [particle.track_length()]
         self.p_energy_lst_per_event += [particle.energy]
+        self.alpha_lst_per_event += [particle.angle]   # alpha
 
-        result = subprocess.call(['./pyxel/models/tars/data/geant4/TestEm18',
-                                  'Silicon', particle.type,
-                                  str(particle.energy), str(particle.track_length())],
-                                 stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        # result = subprocess.call(['./pyxel/models/tars/data/geant4/TestEm18',
+        #                           'Silicon', particle.type,
+        #                           str(particle.energy), str(particle.track_length())],
+        #                          stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
 
         # mat = self.detector.material
         # subprocess.call(['./TestEm18', mat.xxx, particle.type,
@@ -320,7 +322,7 @@ class Simulation:
                 tertiary_per_event += electron_number_vector[j] - 1
                 electron_number_per_event += electron_number_vector[j]
 
-                self.e_num_lst += [electron_number_vector[j]]
+                self.e_num_lst_per_step += [electron_number_vector[j]]
                 self.e_pos0_lst += [particle.position[0]]   # um
                 self.e_pos1_lst += [particle.position[1]]   # um
                 self.e_pos2_lst += [particle.position[2]]   # um

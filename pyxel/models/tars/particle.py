@@ -45,41 +45,58 @@ class Particle:
         starting_position_horizontal = None
         starting_position_z = None
 
-        if starting_pos_ver == 'random':
-            starting_position_vertical = geo.vert_dimension * np.random.random()
-        elif isinstance(starting_pos_ver, int) or isinstance(starting_pos_ver, float):
-            starting_position_vertical = starting_pos_ver
-        if starting_pos_hor == 'random':
-            starting_position_horizontal = geo.horz_dimension * np.random.random()
-        elif isinstance(starting_pos_hor, int) or isinstance(starting_pos_hor, float):
-            starting_position_horizontal = starting_pos_hor
+        # if starting_pos_ver == 'random':
+        #     starting_position_vertical = geo.vert_dimension * np.random.random()
+        # elif isinstance(starting_pos_ver, int) or isinstance(starting_pos_ver, float):
+        #     starting_position_vertical = starting_pos_ver
+        # if starting_pos_hor == 'random':
+        #     starting_position_horizontal = geo.horz_dimension * np.random.random()
+        # elif isinstance(starting_pos_hor, int) or isinstance(starting_pos_hor, float):
+        #     starting_position_horizontal = starting_pos_hor
+        #
+        # if starting_pos_z == 'random':
+        #     starting_position_z = geo.total_thickness * np.random.random()
+        # elif isinstance(starting_pos_z, int) or isinstance(starting_pos_z, float):
+        #     starting_position_z = starting_pos_z
+        #
+        # self.starting_position = np.array([starting_position_vertical,
+        #                                    starting_position_horizontal,
+        #                                    starting_position_z])
+        # self.position = np.copy(self.starting_position)
+        # self.trajectory = np.copy(self.starting_position)
 
-        if starting_pos_z == 'random':
-            starting_position_z = geo.total_thickness * np.random.random()
-        elif isinstance(starting_pos_z, int) or isinstance(starting_pos_z, float):
-            starting_position_z = starting_pos_z
+        # if input_alpha == 'random' and starting_pos_z == 0.:
+        #     alpha = 2 * math.pi * np.random.random()
+        # elif input_alpha == 'random' and starting_pos_z != 0.:
+        #     alpha = 2 * math.pi * np.random.random()
+        # else:
+        #     alpha = input_alpha  # between 0 and 2*pi
+        #
+        # if input_beta == 'random':
+        #     beta = 2. * math.pi * np.random.random()
+        # else:
+        #     beta = input_beta
+        # self.angle = np.array([alpha, beta])
+        #
+        # self.dir_z = -1 * math.sin(alpha)
+        # self.dir_ver = math.cos(alpha) * math.cos(beta)
+        # self.dir_hor = math.cos(alpha) * math.sin(beta)
 
-        self.starting_position = np.array([starting_position_vertical,
-                                           starting_position_horizontal,
-                                           starting_position_z])
+        self.dir_ver, self.dir_hor, self.dir_z = isotropic_direction()
+
+        self.random_det_pt_vert = geo.vert_dimension * np.random.random()
+        self.random_det_pt_horz = geo.horz_dimension * np.random.random()
+        self.random_det_pt_z = -1 * geo.total_thickness * np.random.random()
+
+        # if particle == 'cosmics':     # coming from OUTSIDE the det. volume
+        self.starting_position = self.get_surface_point()
+        # else:     # radioactive decay INSIDE the det. volume
+        # self.starting_position = np.array([random_det_pt_vert, random_det_pt_horz, random_det_pt_z])
+
+        self.angle = self.get_alpha_angle()  # / np.pi * 180
+
         self.position = np.copy(self.starting_position)
         self.trajectory = np.copy(self.starting_position)
-
-        if input_alpha == 'random' and starting_pos_z == 0.:
-            alpha = math.pi * np.random.random()
-        elif input_alpha == 'random' and starting_pos_z != 0.:
-            alpha = 2 * math.pi * np.random.random()
-        else:
-            alpha = input_alpha  # between 0 and pi
-        if input_beta == 'random':
-            beta = 2. * math.pi * np.random.random()
-        else:
-            beta = input_beta
-        self.angle = np.array([alpha, beta])
-
-        self.dir_z = -1 * math.sin(alpha)
-        self.dir_ver = math.cos(alpha) * math.cos(beta)
-        self.dir_hor = math.cos(alpha) * math.sin(beta)
 
         if input_energy == 'random':
             self.energy = sampling_distribution(spectrum_cdf)
@@ -106,6 +123,56 @@ class Particle:
         else:
             raise ValueError('Given particle type can not be simulated')
 
+    def get_surface_point(self):
+        """TBW.
+
+        :return:
+        """
+        geo = self.detector.geometry
+
+        norm_vectors = [np.array([0., 0., -1.]),  # top plane (usually particle enters vol. via this)
+                        np.array([0., 0., 1.]),   # bottom plane (usually particle leaves vol. via this)
+                        np.array([0., 1., 0.]),
+                        np.array([-1., 0., 0.]),
+                        np.array([0., -1., 0.]),
+                        np.array([1., 0., 0.])]
+
+        points = [np.array([0., 0., 0.]),  # top plane (usually particle enters vol. via this)
+                  np.array([0., 0., -1 * geo.total_thickness]),  # bottom plane (usually particle leaves vol. via this)
+                  np.array([0., 0., 0.]),
+                  np.array([geo.vert_dimension, 0., 0.]),
+                  np.array([geo.vert_dimension, geo.horz_dimension, 0.]),
+                  np.array([0., geo.horz_dimension, 0.])]
+
+        intersect_points = np.zeros((6, 3))
+        track_direction = np.array([self.dir_ver, self.dir_hor, self.dir_z])
+        random_det_point = np.array([self.random_det_pt_vert, self.random_det_pt_horz, self.random_det_pt_z])
+
+        surface_starting_point = None
+        for i in range(6):
+            intersect_points[i, :] = find_intersection(n=norm_vectors[i], p0=points[i],
+                                                       ls=random_det_point, lv=track_direction)
+
+            eps = 1E-6
+            if 0.0 - eps <= intersect_points[i, 0] <= geo.vert_dimension + eps:
+                if 0.0 - eps <= intersect_points[i, 1] <= geo.horz_dimension + eps:
+                    if -1 * geo.total_thickness - eps <= intersect_points[i, 2] <= 0.0 + eps:
+                        if np.dot(track_direction, intersect_points[i, :] - random_det_point) < 0:
+                            surface_starting_point = intersect_points[i, :]
+                            break
+        if surface_starting_point is None:
+            raise NotImplementedError
+
+        return surface_starting_point
+
+    def get_alpha_angle(self):
+        """TBW.
+
+        :return:
+        """
+        return np.arccos(np.dot(np.array([0., 0., -1.]),        # TODO VALAMI ITT NEM JO A SZOGGEL !!!!!!!!!!!!! ha kette valasztjuk a szoget alpha es betara h lefedje a 360 fokot akkor lehet h jo lesz a szogeloszlas
+                         np.array([self.dir_ver, self.dir_hor, self.dir_z])))
+
     def track_length(self):
         """TBW.
 
@@ -129,30 +196,59 @@ class Particle:
 
         track_length = np.inf
         intersect_points = np.zeros((6, 3))
+        dir_array = np.array([self.dir_ver,
+                              self.dir_hor,
+                              self.dir_z])
         for i in range(6):
-            intersect_points[i, :] = self.find_intersection(norm_vectors[i], points[i])
+            intersect_points[i, :] = find_intersection(n=norm_vectors[i], p0=points[i],
+                                                       ls=self.starting_position, lv=dir_array)
             track_length_new = np.linalg.norm(intersect_points[i, :] - self.starting_position)
             if track_length_new < track_length and track_length_new != 0.:
                 track_length = track_length_new
 
         return track_length
 
-    def find_intersection(self, n, p0):
-        """TBW.
 
-        https://en.wikipedia.org/wiki/Line%E2%80%93plane_intersection
-        :param n: normal vector of the plane
-        :param p0: point of the plane
-        :return:
-        """
-        ls = self.starting_position
-        lv = np.array([self.dir_ver,
-                       self.dir_hor,
-                       self.dir_z])
+def find_intersection(n, p0, ls, lv):
+    """TBW.
+    https://en.wikipedia.org/wiki/Line%E2%80%93plane_intersection
+    :param n: normal vector of the plane
+    :param p0: point of the plane
+    :param ls: starting point of particle track
+    :param lv: direction of particle track
+    :return:
+    """
+    if np.dot(lv, n) == 0:   # No intersection of track and detector plane
+        return None
+    else:
+        d = np.dot((p0 - ls), n) / np.dot(lv, n)
+        p = d * lv + ls
+        return p
 
-        if np.dot(lv, n) == 0:   # No intersection of track and detector plane
-            return None
-        else:
-            d = np.dot((p0 - ls), n) / np.dot(lv, n)
-            p = d * lv + ls
-            return p
+
+def isotropic_direction():
+    """TBW.
+
+    :param n:
+    :return:
+    """
+    u = 2 * np.random.random() - 1
+    r = np.sqrt(1 - u ** 2)
+    kszi = np.random.random()
+    v = r * np.cos(2 * np.pi * kszi)
+    w = r * np.sin(2 * np.pi * kszi)
+    return u, v, w
+
+
+def non_isotropic_direction(n):
+    """TBW.
+
+    :param n:
+    :return:
+    """
+    alpha = 2 * np.pi * np.random.random(n)
+    beta = 2 * np.pi * np.random.random(n)
+    x = np.cos(alpha) * np.sin(beta)
+    y = np.cos(alpha) * np.cos(beta)
+    z = np.sin(alpha)
+    return x, y, z

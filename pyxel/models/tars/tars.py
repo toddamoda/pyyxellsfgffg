@@ -63,8 +63,8 @@ def run_tars(detector: Detector,
     if incident_angles is None:
         incident_angles = ('random', 'random')
     if starting_position is None:
-        starting_position = ('random', 'random', 0.)
-        # starting_position = ('random', 'random', 'random') -> snowflakes (radioactive decay inside detector)
+        # starting_position = ('random', 'random', 0.)
+        starting_position = ('random', 'random', 'random')  # -> snowflakes (radioactive decay inside detector)
 
     cosmics.set_particle_type(particle_type)                # MeV
     cosmics.set_initial_energy(initial_energy)              # MeV
@@ -117,14 +117,13 @@ def run_tars(detector: Detector,
         # plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event, normalize=True)
 
         # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180417\tars-e_num_lst_per_event.npy',
-        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180417\tars-e_num_lst.npy',
+        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180417\tars-e_num_lst_per_step.npy',
         # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180417\tars-p_energy_lst_per_event.npy',
-        #                             normalize=True)
-
-
         # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180417\tars-sec_lst_per_event.npy',
         # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180417\tars-ter_lst_per_event.npy',
-        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180417\tars-track_length_list.npy',
+        #                             normalize=True)
+
+        plot_obj.polar_angle_dist(r'C:\dev\work\pyxel\tars-alpha_lst_per_event.npy')
 
         # todo: not implemented yet:
         # file_path = Path(__file__).parent.joinpath('data', 'inputs', 'all_elec_num_proton.ascii')
@@ -136,17 +135,20 @@ def run_tars(detector: Detector,
         #                             cosmics.sim_obj.ter_lst_per_event, normalize=True)
 
         plot_obj.show()
-
     else:
         raise ValueError
 
     np.save('tars-e_num_lst_per_event.npy', cosmics.sim_obj.e_num_lst_per_event)
     np.save('tars-sec_lst_per_event.npy', cosmics.sim_obj.sec_lst_per_event)
     np.save('tars-ter_lst_per_event.npy', cosmics.sim_obj.ter_lst_per_event)
-    np.save('tars-track_length_list.npy', cosmics.sim_obj.track_length_list)
+    np.save('tars-track_length_lst_per_event.npy', cosmics.sim_obj.track_length_lst_per_event)
     np.save('tars-p_energy_lst_per_event.npy', cosmics.sim_obj.p_energy_lst_per_event)
-    np.save('tars-e_num_lst.npy', cosmics.sim_obj.e_num_lst)
+    np.save('tars-alpha_lst_per_event.npy', cosmics.sim_obj.alpha_lst_per_event)
+    np.save('tars-e_num_lst_per_step.npy', cosmics.sim_obj.e_num_lst_per_step)
 
+    # plot_obj = PlottingTARS(cosmics, save_plots=True, draw_plots=True)
+    # plot_obj.polar_angle_dist('tars-alpha_lst_per_event.npy')
+    # plot_obj.show()
     return new_detector
 
 
@@ -315,13 +317,13 @@ class TARS:
             elif self.sim_obj.energy_loss_data == 'geant4':
                 self.sim_obj.event_generation_geant4()
 
-        size = len(self.sim_obj.e_num_lst)
+        size = len(self.sim_obj.e_num_lst_per_step)
         self.sim_obj.e_vel0_lst = [0.] * size
         self.sim_obj.e_vel1_lst = [0.] * size
         self.sim_obj.e_vel2_lst = [0.] * size
 
         self.charge_obj.add_charge('e',
-                                   self.sim_obj.e_num_lst,
+                                   self.sim_obj.e_num_lst_per_step,
                                    self.sim_obj.e_energy_lst,
                                    self.sim_obj.e_pos0_lst,
                                    self.sim_obj.e_pos1_lst,

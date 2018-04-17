@@ -537,9 +537,8 @@ class PlottingTARS:
         ]
         i = 0
 
-        hist_bins = 5000
-        # hist_range = (2, 5.002E3)
-        hist_range = (0, 5E3)
+        hist_bins = 500
+        hist_range = (0, 15E3)
 
         plt.figure()
         plt.title('Number of electrons per event')
@@ -547,6 +546,8 @@ class PlottingTARS:
         if isinstance(data1, str):
             if data1.endswith('.npy'):
                 data1 = np.load(data1)
+
+        # data1 = data1[data1 > 500]
 
         if normalize:
             plt.hist(data1, bins=hist_bins, range=hist_range, label=labels[i], fc=(1, 0, 0, 0.5), density=True)
@@ -573,3 +574,21 @@ class PlottingTARS:
         plt.ylabel('Counts')
         plt.legend(loc='upper right')
         self.save_and_draw('electron_hist')
+
+    def polar_angle_dist(self, theta):
+        """TBW.
+
+        :return:
+        """
+        if isinstance(theta, str):
+            if theta.endswith('.npy'):
+                theta = np.load(theta)
+        fig = plt.figure()
+        fig.add_subplot(111, polar=True)
+        # theta = 2 * np.pi * np.random.rand(10000)
+        plt.hist(theta, bins=360, histtype='step')
+        # plt.polar(theta)
+        plt.xlabel('')
+        plt.ylabel('')
+        plt.title('Incident angle distribution')
+        self.save_and_draw('polar_angle')
