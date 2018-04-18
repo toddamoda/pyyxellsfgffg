@@ -249,7 +249,7 @@ class Particle:
     #     return track_length
 
     def intersection_correction(self, array: np.ndarray):
-        """
+        """TBW.
 
         :param array:
         :return:

@@ -117,18 +117,18 @@ def run_tars(detector: Detector,
         # plot_obj.plot_gaia_vs_geant4_hist(normalize=True)
 
         # plot_obj.plot_track_histogram(tars.sim_obj.track_length_list)
-        plot_obj.plot_track_histogram(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180418\tars-track_length_lst_per_event.npy',
-                                      normalize=True)
+        # plot_obj.plot_track_histogram(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180418\tars-track_length_lst_per_event.npy',
+        #                               normalize=True)
 
         # plot_obj.plot_electron_hist(tars.sim_obj.e_num_lst_per_event, normalize=True)
 
-        plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180418\tars-e_num_lst_per_event.npy',
+        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180418\tars-e_num_lst_per_event.npy',
         # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180418\tars-e_num_lst_per_step.npy',
         # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180418\tars-p_energy_lst_per_event.npy',
         # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180418\tars-sec_lst_per_event.npy',
         # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180418\tars-ter_lst_per_event.npy',
         #                             )
-                                    normalize=True)
+        #                             normalize=True)
 
         # plot_obj.polar_angle_dist(r'C:\dev\work\pyxel\tars-alpha_lst_per_event.npy')
         # plot_obj.polar_angle_dist(r'C:\dev\work\pyxel\tars-beta_lst_per_event.npy')
