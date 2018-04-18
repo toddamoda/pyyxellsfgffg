@@ -23,6 +23,7 @@ class Simulation:
         :param Detector detector: Detector object(from CCD/CMSO library) containing all the simulated detector specs
         """
         self.detector = detector
+        self.simulation_mode = None
 
         self.flux_dist = None
         self.spectrum_cdf = None
@@ -69,10 +70,12 @@ class Simulation:
         self.total_edep_per_particle = []   # type: t.List[float]
         self.p_energy_lst_per_event = []    # type: t.List[float]
         self.alpha_lst_per_event = []       # type: t.List[float]
+        self.beta_lst_per_event = []        # type: t.List[float]
 
-    def parameters(self, part_type, init_energy, pos_ver, pos_hor, pos_z, alpha, beta):
+    def parameters(self, sim_mode, part_type, init_energy, pos_ver, pos_hor, pos_z, alpha, beta):
         """TBW.
 
+        :param sim_mode:
         :param part_type:
         :param init_energy:
         :param pos_ver:
@@ -82,6 +85,7 @@ class Simulation:
         :param beta:
         :return:
         """
+        self.simulation_mode = sim_mode
         self.particle_type = part_type
         self.initial_energy = init_energy
         self.position_ver = pos_ver
@@ -187,10 +191,12 @@ class Simulation:
         ioniz_energy = mat.ionization_energy   # eV
 
         self.particle = Particle(self.detector,
+                                 self.simulation_mode,
                                  self.particle_type,
                                  self.initial_energy, self.spectrum_cdf,
-                                 self.position_ver, self.position_hor, self.position_z,
-                                 self.angle_alpha, self.angle_beta)
+                                 self.position_ver, self.position_hor, self.position_z
+                                 # self.angle_alpha, self.angle_beta)
+                                 )
         particle = self.particle
         self.track_length_lst_per_event += [particle.track_length()]
 
@@ -283,19 +289,22 @@ class Simulation:
         tertiary_per_event = 0
 
         self.particle = Particle(self.detector,
+                                 self.simulation_mode,
                                  self.particle_type,
                                  self.initial_energy, self.spectrum_cdf,
-                                 self.position_ver, self.position_hor, self.position_z,
-                                 self.angle_alpha, self.angle_beta)
+                                 self.position_ver, self.position_hor, self.position_z
+                                 # self.angle_alpha, self.angle_beta
+                                 )
         particle = self.particle
         self.track_length_lst_per_event += [particle.track_length()]
         self.p_energy_lst_per_event += [particle.energy]
-        self.alpha_lst_per_event += [particle.angle]   # alpha
+        self.alpha_lst_per_event += [particle.alpha]
+        self.beta_lst_per_event += [particle.beta]
 
-        # result = subprocess.call(['./pyxel/models/tars/data/geant4/TestEm18',
-        #                           'Silicon', particle.type,
-        #                           str(particle.energy), str(particle.track_length())],
-        #                          stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        result = subprocess.call(['./pyxel/models/tars/data/geant4/TestEm18',
+                                  'Silicon', particle.type,
+                                  str(particle.energy), str(particle.track_length())],
+                                 stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
 
         # mat = self.detector.material
         # subprocess.call(['./TestEm18', mat.xxx, particle.type,
@@ -344,7 +353,7 @@ class Simulation:
             self.ter_lst_per_event += [tertiary_per_event]
 
         print('p energy: ', particle.energy, '\telectrons/event: ', electron_number_per_event,
-              '\tsteps: ', len(step_size_vector))
+              '\tsteps: ', len(step_size_vector), '\tresult: ', result)
 
     # def _ionization_(self, particle):
     #     """TBW.

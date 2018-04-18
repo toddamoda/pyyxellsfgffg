@@ -9,7 +9,7 @@ import math
 from pathlib import Path
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
+# from tqdm import tqdm
 import typing as t   # noqa: F401
 
 from pyxel.detectors.detector import Detector
@@ -24,14 +24,15 @@ from pyxel.models.tars.plotting import PlottingTARS
 
 @registry.decorator('charge_generation', name='tars')
 def run_tars(detector: Detector,
+             simulation_mode: str = None,
+             running_mode: str = None,
              particle_type: str = None,
              initial_energy: t.Union[str, float] = None,
              particle_number: int = None,
              incident_angles: tuple = None,
              starting_position: tuple = None,
-             mode: str = None,
              # step_size_file: str = None,
-             stopping_file: str = None,
+             # stopping_file: str = None,
              spectrum_file: str = None) -> Detector:
     """TBW.
 
@@ -41,16 +42,21 @@ def run_tars(detector: Detector,
     :param particle_number:
     :param incident_angles:
     :param starting_position:
-    :param mode:
+    :param simulation_mode:
+    :param running_mode:
     # :param step_size_file:
-    :param stopping_file:
+    # :param stopping_file:
     :param spectrum_file:
     :return:
     """
     new_detector = detector
 
-    cosmics = TARS(new_detector)
+    tars = TARS(new_detector)
 
+    if simulation_mode is None:
+        raise ValueError('TARS: Simulation mode is not defined')
+    if running_mode is None:
+        raise ValueError('TARS: Running mode is not defined')
     if particle_type is None:
         raise ValueError('TARS: Particle type is not defined')
     if particle_number is None:
@@ -63,29 +69,29 @@ def run_tars(detector: Detector,
     if incident_angles is None:
         incident_angles = ('random', 'random')
     if starting_position is None:
-        # starting_position = ('random', 'random', 0.)
-        starting_position = ('random', 'random', 'random')  # -> snowflakes (radioactive decay inside detector)
+        starting_position = ('random', 'random', 'random')
 
-    cosmics.set_particle_type(particle_type)                # MeV
-    cosmics.set_initial_energy(initial_energy)              # MeV
-    cosmics.set_particle_number(particle_number)            # -
-    cosmics.set_incident_angles(incident_angles)            # rad
-    cosmics.set_starting_position(starting_position)        # um
-    cosmics.set_particle_spectrum(spectrum_file)
+    tars.set_simulation_mode(simulation_mode)
+    tars.set_particle_type(particle_type)                # MeV
+    tars.set_initial_energy(initial_energy)              # MeV
+    tars.set_particle_number(particle_number)            # -
+    tars.set_incident_angles(incident_angles)            # rad
+    tars.set_starting_position(starting_position)        # um
+    tars.set_particle_spectrum(spectrum_file)
 
-    if mode == 'stopping':
+    if running_mode == 'stopping':
         raise NotImplementedError
-        # cosmics.set_stopping_power(stopping_file)
-        # cosmics.run()
-    elif mode == 'stepsize':
-        cosmics.set_stepsize()
-        cosmics.run()
-    elif mode == 'geant4':
-        cosmics.set_geant4()
-        cosmics.run()
-    elif mode == 'plotting':
+        # tars.set_stopping_power(stopping_file)
+        # tars.run()
+    elif running_mode == 'stepsize':
+        tars.set_stepsize()
+        tars.run()
+    elif running_mode == 'geant4':
+        tars.set_geant4()
+        tars.run()
+    elif running_mode == 'plotting':
 
-        plot_obj = PlottingTARS(cosmics, save_plots=True, draw_plots=True)
+        plot_obj = PlottingTARS(tars, save_plots=True, draw_plots=True)
 
         # # # plot_obj.plot_flux_spectrum()
         # # # plot_obj.plot_spectrum_cdf()
@@ -110,11 +116,11 @@ def run_tars(detector: Detector,
         # plot_obj.plot_old_tars_hist(normalize=True)
         # plot_obj.plot_gaia_vs_geant4_hist(normalize=True)
 
-        # plot_obj.plot_track_histogram(cosmics.sim_obj.track_length_list)
+        # plot_obj.plot_track_histogram(tars.sim_obj.track_length_list)
         # plot_obj.plot_track_histogram(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180417\tars-track_length_list.npy',
         #                               normalize=True)
 
-        # plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event, normalize=True)
+        # plot_obj.plot_electron_hist(tars.sim_obj.e_num_lst_per_event, normalize=True)
 
         # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180417\tars-e_num_lst_per_event.npy',
         # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180417\tars-e_num_lst_per_step.npy',
@@ -123,32 +129,51 @@ def run_tars(detector: Detector,
         # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180417\tars-ter_lst_per_event.npy',
         #                             normalize=True)
 
-        plot_obj.polar_angle_dist(r'C:\dev\work\pyxel\tars-alpha_lst_per_event.npy')
+        # plot_obj.polar_angle_dist(r'C:\dev\work\pyxel\tars-alpha_lst_per_event.npy')
+        # plot_obj.polar_angle_dist(r'C:\dev\work\pyxel\tars-beta_lst_per_event.npy')
+        # plot_obj.polar_angle_dist(
+        #     r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\Results-20180404T121902Z-001\
+        # Results\All primary protons from Geant4 Gaia H He GCR(16-08-2016_11h18)\Raw data\alpha.npy')
+        # plot_obj.polar_angle_dist(
+        #     r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\Results-20180404T121902Z-001\
+        # Results\All primary protons from Geant4 Gaia H He GCR(16-08-2016_11h18)\Raw data\beta.npy')
+
+        # plot_obj.polar_angle_dist(
+        #     r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\Results-20180404T121902Z-001\
+        # Results\All primary protons from Geant4 Gaia H He GCR(16-08-2016_11h18)(17-08-2016_13h51)\Raw data\alpha.npy')
+        # plot_obj.polar_angle_dist(
+        #     r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\Results-20180404T121902Z-001\
+        # Results\All primary protons from Geant4 Gaia H He GCR(16-08-2016_11h18)(17-08-2016_13h51)\Raw data\beta.npy')
+
+        # plot_obj.polar_angle_dist(
+        #     r'C:\dev\work\pyxel\pyxel/models/tars/data/validation/Results-20180404T121902Z-001/
+        # Results/10000 events from random protons CREME96 (step=0.5)(16-08-2016_15h56)\Raw data\alpha.npy')
+        # plot_obj.polar_angle_dist(
+        #     r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\Results-20180404T121902Z-001\
+        # Results\10000 events from random protons CREME96 (step=0.5)(16-08-2016_15h56)\Raw data\beta.npy')
 
         # todo: not implemented yet:
         # file_path = Path(__file__).parent.joinpath('data', 'inputs', 'all_elec_num_proton.ascii')
         # g4_all_e_num_hist = load_histogram_data(file_path, hist_type='electron', skip_rows=4, read_rows=1000)
-        # plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event, g4_all_e_num_hist, normalize=True)
+        # plot_obj.plot_electron_hist(tars.sim_obj.e_num_lst_per_event, g4_all_e_num_hist, normalize=True)
 
-        # plot_obj.plot_electron_hist(cosmics.sim_obj.e_num_lst_per_event,
-        #                             cosmics.sim_obj.sec_lst_per_event,
-        #                             cosmics.sim_obj.ter_lst_per_event, normalize=True)
+        # plot_obj.plot_electron_hist(tars.sim_obj.e_num_lst_per_event,
+        #                             tars.sim_obj.sec_lst_per_event,
+        #                             tars.sim_obj.ter_lst_per_event, normalize=True)
 
         plot_obj.show()
     else:
         raise ValueError
 
-    np.save('tars-e_num_lst_per_event.npy', cosmics.sim_obj.e_num_lst_per_event)
-    np.save('tars-sec_lst_per_event.npy', cosmics.sim_obj.sec_lst_per_event)
-    np.save('tars-ter_lst_per_event.npy', cosmics.sim_obj.ter_lst_per_event)
-    np.save('tars-track_length_lst_per_event.npy', cosmics.sim_obj.track_length_lst_per_event)
-    np.save('tars-p_energy_lst_per_event.npy', cosmics.sim_obj.p_energy_lst_per_event)
-    np.save('tars-alpha_lst_per_event.npy', cosmics.sim_obj.alpha_lst_per_event)
-    np.save('tars-e_num_lst_per_step.npy', cosmics.sim_obj.e_num_lst_per_step)
+    np.save('tars-e_num_lst_per_event.npy', tars.sim_obj.e_num_lst_per_event)
+    np.save('tars-sec_lst_per_event.npy', tars.sim_obj.sec_lst_per_event)
+    np.save('tars-ter_lst_per_event.npy', tars.sim_obj.ter_lst_per_event)
+    np.save('tars-track_length_lst_per_event.npy', tars.sim_obj.track_length_lst_per_event)
+    np.save('tars-p_energy_lst_per_event.npy', tars.sim_obj.p_energy_lst_per_event)
+    np.save('tars-alpha_lst_per_event.npy', tars.sim_obj.alpha_lst_per_event)
+    np.save('tars-beta_lst_per_event.npy', tars.sim_obj.beta_lst_per_event)
+    np.save('tars-e_num_lst_per_step.npy', tars.sim_obj.e_num_lst_per_step)
 
-    # plot_obj = PlottingTARS(cosmics, save_plots=True, draw_plots=True)
-    # plot_obj.polar_angle_dist('tars-alpha_lst_per_event.npy')
-    # plot_obj.show()
     return new_detector
 
 
@@ -160,6 +185,7 @@ class TARS:
 
         :param detector:
         """
+        self.simulation_mode = None
         self.part_type = None
         self.init_energy = None
         self.particle_number = None
@@ -172,6 +198,14 @@ class TARS:
         self.sim_obj = Simulation(detector)
         self.charge_obj = detector.charges
         self.log = logging.getLogger(__name__)
+
+    def set_simulation_mode(self, sim_mode):
+        """TBW.
+
+        :param sim_mode:
+        :return:
+        """
+        self.simulation_mode = sim_mode
 
     def set_particle_type(self, particle_type):
         """TBW.
@@ -305,7 +339,8 @@ class TARS:
         """
         print("TARS - simulation processing...\n")
 
-        self.sim_obj.parameters(self.part_type,
+        self.sim_obj.parameters(self.simulation_mode,
+                                self.part_type,
                                 self.init_energy,
                                 self.position_ver, self.position_hor, self.position_z,
                                 self.angle_alpha, self.angle_beta)

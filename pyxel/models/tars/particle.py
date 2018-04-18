@@ -16,7 +16,6 @@
 
 """TBW."""
 
-import math
 import numpy as np
 from pyxel.models.tars.util import sampling_distribution
 from pyxel.detectors.detector import Detector
@@ -27,23 +26,29 @@ class Particle:
 
     def __init__(self,
                  detector: Detector,
-                 particle_type='proton',
-                 input_energy='random', spectrum_cdf=None,
-                 starting_pos_ver='random', starting_pos_hor='random', starting_pos_z='random',
-                 input_alpha='random', input_beta='random') -> None:
+                 simulation_mode=None,
+                 particle_type=None,
+                 input_energy=None, spectrum_cdf=None,
+                 starting_pos_ver=None, starting_pos_hor=None, starting_pos_z=None,
+                 # input_alpha='random', input_beta='random'
+                 ) -> None:
         """Creation of a particle according to some parameters.
 
-        :param detector: Detector in which the particle is going to interact
-        :param float or 'random' input_energy: initial energy of the incident particle
-        :param float or 'random' input_alpha: alpha incident angle of the particle in the ccd
-        :param float or 'random' input_beta: beta incident angle of the particle in the ccd
+        :param detector:
+        :param simulation_mode:
+        :param particle_type:
+        :param input_energy:
+        :param spectrum_cdf:
+        :param starting_pos_ver:
+        :param starting_pos_hor:
+        :param starting_pos_z:
         """
         self.detector = detector
         geo = self.detector.geometry
 
-        starting_position_vertical = None
-        starting_position_horizontal = None
-        starting_position_z = None
+        # starting_position_vertical = None
+        # starting_position_horizontal = None
+        # starting_position_z = None
 
         # if starting_pos_ver == 'random':
         #     starting_position_vertical = geo.vert_dimension * np.random.random()
@@ -82,18 +87,34 @@ class Particle:
         # self.dir_ver = math.cos(alpha) * math.cos(beta)
         # self.dir_hor = math.cos(alpha) * math.sin(beta)
 
+        # if input_alpha != 'random':
+        #     self.alpha = input_alpha
+        # if input_beta != 'random':
+        #     self.beta = input_beta
+        # # update direction:
+        # self.dir_ver, self.dir_hor, self.dir_z = get_direction_from_angles()
+
         self.dir_ver, self.dir_hor, self.dir_z = isotropic_direction()
 
         self.random_det_pt_vert = geo.vert_dimension * np.random.random()
         self.random_det_pt_horz = geo.horz_dimension * np.random.random()
         self.random_det_pt_z = -1 * geo.total_thickness * np.random.random()
 
-        # if particle == 'cosmics':     # coming from OUTSIDE the det. volume
-        self.starting_position = self.get_surface_point()
-        # else:     # radioactive decay INSIDE the det. volume
-        # self.starting_position = np.array([random_det_pt_vert, random_det_pt_horz, random_det_pt_z])
+        self.alpha, self.beta = self.get_angles()  # rad
 
-        self.angle = self.get_alpha_angle()  # / np.pi * 180
+        mode_1 = ['cosmic_ray', 'cosmics']
+        mode_2 = ['radioactive_decay', 'snowflakes']
+        if simulation_mode in mode_1:          # cosmic rays coming from OUTSIDE the detector volume
+            self.starting_position = self.get_surface_point()
+        elif simulation_mode in mode_2:     # radioactive decay INSIDE the detector volume
+            self.starting_position = np.array([self.random_det_pt_vert, self.random_det_pt_horz, self.random_det_pt_z])
+
+        if starting_pos_ver != 'random':
+            self.starting_position[0] = starting_pos_ver
+        if starting_pos_hor != 'random':
+            self.starting_position[1] = starting_pos_hor
+        if starting_pos_z != 'random':
+            self.starting_position[2] = starting_pos_z
 
         self.position = np.copy(self.starting_position)
         self.trajectory = np.copy(self.starting_position)
@@ -165,13 +186,21 @@ class Particle:
 
         return surface_starting_point
 
-    def get_alpha_angle(self):
+    def get_angles(self):
         """TBW.
 
         :return:
         """
-        return np.arccos(np.dot(np.array([0., 0., -1.]),        # TODO VALAMI ITT NEM JO A SZOGGEL !!!!!!!!!!!!! ha kette valasztjuk a szoget alpha es betara h lefedje a 360 fokot akkor lehet h jo lesz a szogeloszlas
-                         np.array([self.dir_ver, self.dir_hor, self.dir_z])))
+        beta = np.arccos(np.dot(np.array([1., 0.]), np.array([self.dir_ver, self.dir_hor])))
+
+        alpha = np.arccos(np.dot(np.array([0., 0., 1.]),
+                                 np.array([self.dir_ver, self.dir_hor, self.dir_z])))
+
+        if self.dir_hor < 0.:
+            beta += np.pi
+            alpha += np.pi
+
+        return alpha, beta
 
     def track_length(self):
         """TBW.
@@ -211,6 +240,7 @@ class Particle:
 
 def find_intersection(n, p0, ls, lv):
     """TBW.
+
     https://en.wikipedia.org/wiki/Line%E2%80%93plane_intersection
     :param n: normal vector of the plane
     :param p0: point of the plane

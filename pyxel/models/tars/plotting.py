@@ -537,8 +537,10 @@ class PlottingTARS:
         ]
         i = 0
 
-        hist_bins = 500
-        hist_range = (0, 15E3)
+        # hist_bins = 500
+        hist_bins = 360
+        # hist_range = (0, 15E3)
+        hist_range = (0, 2*np.pi)
 
         plt.figure()
         plt.title('Number of electrons per event')
