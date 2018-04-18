@@ -117,16 +117,17 @@ def run_tars(detector: Detector,
         # plot_obj.plot_gaia_vs_geant4_hist(normalize=True)
 
         # plot_obj.plot_track_histogram(tars.sim_obj.track_length_list)
-        # plot_obj.plot_track_histogram(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180417\tars-track_length_list.npy',
+        # plot_obj.plot_track_histogram(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180418\tars-track_length_lst_per_event.npy',
         #                               normalize=True)
 
         # plot_obj.plot_electron_hist(tars.sim_obj.e_num_lst_per_event, normalize=True)
 
-        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180417\tars-e_num_lst_per_event.npy',
-        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180417\tars-e_num_lst_per_step.npy',
-        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180417\tars-p_energy_lst_per_event.npy',
-        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180417\tars-sec_lst_per_event.npy',
-        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180417\tars-ter_lst_per_event.npy',
+        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180418\tars-e_num_lst_per_event.npy',
+        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180418\tars-e_num_lst_per_step.npy',
+        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180418\tars-p_energy_lst_per_event.npy',
+        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180418\tars-sec_lst_per_event.npy',
+        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180418\tars-ter_lst_per_event.npy',
+        #                             )
         #                             normalize=True)
 
         # plot_obj.polar_angle_dist(r'C:\dev\work\pyxel\tars-alpha_lst_per_event.npy')
@@ -173,6 +174,10 @@ def run_tars(detector: Detector,
     np.save('tars-alpha_lst_per_event.npy', tars.sim_obj.alpha_lst_per_event)
     np.save('tars-beta_lst_per_event.npy', tars.sim_obj.beta_lst_per_event)
     np.save('tars-e_num_lst_per_step.npy', tars.sim_obj.e_num_lst_per_step)
+
+    # plot_obj = PlottingTARS(tars, save_plots=True, draw_plots=True)
+    # plot_obj.plot_track_histogram(tars.sim_obj.track_length_lst_per_event, normalize=True)
+    # plot_obj.show()
 
     return new_detector
 
@@ -346,11 +351,14 @@ class TARS:
                                 self.angle_alpha, self.angle_beta)
 
         # for _ in tqdm(range(0, self.particle_number)):
-        for _ in range(0, self.particle_number):
+        for k in range(0, self.particle_number):
+            err = None
             if self.sim_obj.energy_loss_data == 'stepsize':     # TODO
-                self.sim_obj.event_generation()
+                err = self.sim_obj.event_generation()
             elif self.sim_obj.energy_loss_data == 'geant4':
-                self.sim_obj.event_generation_geant4()
+                err = self.sim_obj.event_generation_geant4()
+            if err:
+                k -= 1
 
         size = len(self.sim_obj.e_num_lst_per_step)
         self.sim_obj.e_vel0_lst = [0.] * size

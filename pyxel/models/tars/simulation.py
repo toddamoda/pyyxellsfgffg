@@ -279,11 +279,14 @@ class Simulation:
             self.sec_lst_per_event += [secondary_per_event]
             self.ter_lst_per_event += [tertiary_per_event]
 
+        return False
+
     def event_generation_geant4(self):
         """Generate an event running a geant4 app directly.
 
         :return:
         """
+        # error = None
         electron_number_per_event = 0
         secondary_per_event = 0
         tertiary_per_event = 0
@@ -296,19 +299,24 @@ class Simulation:
                                  # self.angle_alpha, self.angle_beta
                                  )
         particle = self.particle
-        self.track_length_lst_per_event += [particle.track_length()]
+        if particle.track_length < 1.:
+            return True
+
+        self.track_length_lst_per_event += [particle.track_length]
         self.p_energy_lst_per_event += [particle.energy]
         self.alpha_lst_per_event += [particle.alpha]
         self.beta_lst_per_event += [particle.beta]
 
-        result = subprocess.call(['./pyxel/models/tars/data/geant4/TestEm18',
-                                  'Silicon', particle.type,
-                                  str(particle.energy), str(particle.track_length())],
-                                 stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        error = subprocess.call(['./pyxel/models/tars/data/geant4/TestEm18',
+                                 'Silicon', particle.type,
+                                 str(particle.energy), str(particle.track_length)],
+                                stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        if error != 0:
+            return True
 
         # mat = self.detector.material
         # subprocess.call(['./TestEm18', mat.xxx, particle.type,
-        # particle.energy, particle.track_length()'])
+        # str(particle.energy), str(particle.track_length)'])
 
         g4_data_path = Path(__file__).parent.joinpath('data', 'geant4', 'tars_geant4.data')
         g4data = read_data(g4_data_path)            # mm (!)
@@ -352,8 +360,11 @@ class Simulation:
             self.sec_lst_per_event += [secondary_per_event]
             self.ter_lst_per_event += [tertiary_per_event]
 
-        print('p energy: ', particle.energy, '\telectrons/event: ', electron_number_per_event,
-              '\tsteps: ', len(step_size_vector), '\tresult: ', result)
+        print('p energy: ', particle.energy, '\ttrack length: ', particle.track_length,
+              '\telectrons/event: ', electron_number_per_event,
+              '\tsteps: ', len(step_size_vector), '\terror: ', error)
+
+        return False
 
     # def _ionization_(self, particle):
     #     """TBW.

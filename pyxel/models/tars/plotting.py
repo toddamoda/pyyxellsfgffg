@@ -293,7 +293,7 @@ class PlottingTARS:
         :return:
         """
         hist_bins = 500
-        hist_range = (0, 200)
+        hist_range = (0, 1000)
 
         plt.figure()
         plt.title('Proton track length distribution')
@@ -537,10 +537,8 @@ class PlottingTARS:
         ]
         i = 0
 
-        # hist_bins = 500
-        hist_bins = 360
-        # hist_range = (0, 15E3)
-        hist_range = (0, 2*np.pi)
+        hist_bins = 500
+        hist_range = (0, 15E3)
 
         plt.figure()
         plt.title('Number of electrons per event')
@@ -549,7 +547,8 @@ class PlottingTARS:
             if data1.endswith('.npy'):
                 data1 = np.load(data1)
 
-        # data1 = data1[data1 > 500]
+        data1 = data1[data1 > 100]
+        data1 = data1[data1 < 15000]
 
         if normalize:
             plt.hist(data1, bins=hist_bins, range=hist_range, label=labels[i], fc=(1, 0, 0, 0.5), density=True)
