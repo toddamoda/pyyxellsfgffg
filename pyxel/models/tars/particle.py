@@ -94,6 +94,8 @@ class Particle:
         # # update direction:
         # self.dir_ver, self.dir_hor, self.dir_z = get_direction_from_angles()
 
+        self.track_length = None
+
         self.dir_ver, self.dir_hor, self.dir_z = isotropic_direction()
 
         self.random_det_pt_vert = geo.vert_dimension * np.random.random()
@@ -169,22 +171,31 @@ class Particle:
         track_direction = np.array([self.dir_ver, self.dir_hor, self.dir_z])
         random_det_point = np.array([self.random_det_pt_vert, self.random_det_pt_horz, self.random_det_pt_z])
 
-        surface_starting_point = None
+        surface_start_point = None
+        surface_end_point = None
         for i in range(6):
             intersect_points[i, :] = find_intersection(n=norm_vectors[i], p0=points[i],
                                                        ls=random_det_point, lv=track_direction)
 
-            eps = 1E-6
+            eps = 1E-8
             if 0.0 - eps <= intersect_points[i, 0] <= geo.vert_dimension + eps:
                 if 0.0 - eps <= intersect_points[i, 1] <= geo.horz_dimension + eps:
                     if -1 * geo.total_thickness - eps <= intersect_points[i, 2] <= 0.0 + eps:
                         if np.dot(track_direction, intersect_points[i, :] - random_det_point) < 0:
-                            surface_starting_point = intersect_points[i, :]
-                            break
-        if surface_starting_point is None:
-            raise NotImplementedError
+                            surface_start_point = self.intersection_correction(intersect_points[i, :])
+                        else:
+                            surface_end_point = self.intersection_correction(intersect_points[i, :])
 
-        return surface_starting_point
+        self.track_length = np.linalg.norm(surface_end_point - surface_start_point)
+
+        if np.all(surface_start_point == surface_end_point):
+            raise ValueError('This should not happen')
+        if surface_start_point is None:
+            raise ValueError('This should not happen')
+        if surface_end_point is None:
+            raise ValueError('This should not happen')
+
+        return surface_start_point
 
     def get_angles(self):
         """TBW.
@@ -202,40 +213,63 @@ class Particle:
 
         return alpha, beta
 
-    def track_length(self):
-        """TBW.
+    # def track_length(self):
+    #     """TBW.
+    #
+    #     :return:
+    #     """
+    #     geo = self.detector.geometry
+    #
+    #     norm_vectors = [np.array([0., 0., -1.]),    # top plane (usually particle enters vol. via this)
+    #                     np.array([0., 0., 1.]),     # bottom plane (usually particle leaves vol. via this)
+    #                     np.array([0., 1., 0.]),
+    #                     np.array([-1., 0., 0.]),
+    #                     np.array([0., -1., 0.]),
+    #                     np.array([1., 0., 0.])]
+    #
+    #     points = [np.array([0., 0., 0.]),                       # top plane (usually particle enters vol. via this)
+    #               np.array([0., 0., -1 * geo.total_thickness]), # bottom plane (usually particle leaves vol. via this)
+    #               np.array([0., 0., 0.]),
+    #               np.array([geo.vert_dimension, 0., 0.]),
+    #               np.array([geo.vert_dimension, geo.horz_dimension, 0.]),
+    #               np.array([0., geo.horz_dimension, 0.])]
+    #
+    #     track_length = np.inf
+    #     intersect_points = np.zeros((6, 3))
+    #     dir_array = np.array([self.dir_ver,
+    #                           self.dir_hor,
+    #                           self.dir_z])
+    #     for i in range(6):
+    #         intersect_points[i, :] = find_intersection(n=norm_vectors[i], p0=points[i],
+    #                                                    ls=self.starting_position, lv=dir_array)
+    #         track_length_new = np.linalg.norm(intersect_points[i, :] - self.starting_position)
+    #         if track_length_new < track_length and track_length_new != 0.:
+    #             track_length = track_length_new
+    #
+    #     return track_length
 
+    def intersection_correction(self, array: np.ndarray):
+        """
+
+        :param array:
         :return:
         """
+        eps = 1E-8
         geo = self.detector.geometry
+        if abs(array[0] - geo.vert_dimension) < eps:
+            array[0] = geo.vert_dimension
+        if abs(array[0]) < eps:
+            array[0] = 0.
+        if abs(array[1] - geo.horz_dimension) < eps:
+            array[1] = geo.horz_dimension
+        if abs(array[1]) < eps:
+            array[1] = 0.
+        if abs(array[2] + geo.total_thickness) < eps:
+            array[2] = -1 * geo.total_thickness
+        if abs(array[2]) < eps:
+            array[2] = 0.
 
-        norm_vectors = [np.array([0., 0., -1.]),    # top plane (usually particle enters vol. via this)
-                        np.array([0., 0., 1.]),     # bottom plane (usually particle leaves vol. via this)
-                        np.array([0., 1., 0.]),
-                        np.array([-1., 0., 0.]),
-                        np.array([0., -1., 0.]),
-                        np.array([1., 0., 0.])]
-
-        points = [np.array([0., 0., 0.]),                        # top plane (usually particle enters vol. via this)
-                  np.array([0., 0., -1 * geo.total_thickness]),  # bottom plane (usually particle leaves vol. via this)
-                  np.array([0., 0., 0.]),
-                  np.array([geo.vert_dimension, 0., 0.]),
-                  np.array([geo.vert_dimension, geo.horz_dimension, 0.]),
-                  np.array([0., geo.horz_dimension, 0.])]
-
-        track_length = np.inf
-        intersect_points = np.zeros((6, 3))
-        dir_array = np.array([self.dir_ver,
-                              self.dir_hor,
-                              self.dir_z])
-        for i in range(6):
-            intersect_points[i, :] = find_intersection(n=norm_vectors[i], p0=points[i],
-                                                       ls=self.starting_position, lv=dir_array)
-            track_length_new = np.linalg.norm(intersect_points[i, :] - self.starting_position)
-            if track_length_new < track_length and track_length_new != 0.:
-                track_length = track_length_new
-
-        return track_length
+        return array
 
 
 def find_intersection(n, p0, ls, lv):
