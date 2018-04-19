@@ -165,15 +165,15 @@ def run_tars(detector: Detector,
         plot_obj.show()
     else:
         raise ValueError
-
-    np.save('tars-e_num_lst_per_event.npy', tars.sim_obj.e_num_lst_per_event)
-    np.save('tars-sec_lst_per_event.npy', tars.sim_obj.sec_lst_per_event)
-    np.save('tars-ter_lst_per_event.npy', tars.sim_obj.ter_lst_per_event)
-    np.save('tars-track_length_lst_per_event.npy', tars.sim_obj.track_length_lst_per_event)
-    np.save('tars-p_energy_lst_per_event.npy', tars.sim_obj.p_energy_lst_per_event)
-    np.save('tars-alpha_lst_per_event.npy', tars.sim_obj.alpha_lst_per_event)
-    np.save('tars-beta_lst_per_event.npy', tars.sim_obj.beta_lst_per_event)
-    np.save('tars-e_num_lst_per_step.npy', tars.sim_obj.e_num_lst_per_step)
+    #
+    # np.save('tars-e_num_lst_per_event.npy', tars.sim_obj.e_num_lst_per_event)
+    # np.save('tars-sec_lst_per_event.npy', tars.sim_obj.sec_lst_per_event)
+    # np.save('tars-ter_lst_per_event.npy', tars.sim_obj.ter_lst_per_event)
+    # np.save('tars-track_length_lst_per_event.npy', tars.sim_obj.track_length_lst_per_event)
+    # np.save('tars-p_energy_lst_per_event.npy', tars.sim_obj.p_energy_lst_per_event)
+    # np.save('tars-alpha_lst_per_event.npy', tars.sim_obj.alpha_lst_per_event)
+    # np.save('tars-beta_lst_per_event.npy', tars.sim_obj.beta_lst_per_event)
+    # np.save('tars-e_num_lst_per_step.npy', tars.sim_obj.e_num_lst_per_step)
 
     # plot_obj = PlottingTARS(tars, save_plots=True, draw_plots=True)
     # plot_obj.plot_track_histogram(tars.sim_obj.track_length_lst_per_event, normalize=True)
@@ -357,8 +357,17 @@ class TARS:
                 err = self.sim_obj.event_generation()
             elif self.sim_obj.energy_loss_data == 'geant4':
                 err = self.sim_obj.event_generation_geant4()
+            if k % 10 == 0:
+                np.save('tars-e_num_lst_per_event.npy', self.sim_obj.e_num_lst_per_event)
+                np.save('tars-sec_lst_per_event.npy', self.sim_obj.sec_lst_per_event)
+                np.save('tars-ter_lst_per_event.npy', self.sim_obj.ter_lst_per_event)
+                np.save('tars-track_length_lst_per_event.npy', self.sim_obj.track_length_lst_per_event)
+                np.save('tars-p_energy_lst_per_event.npy', self.sim_obj.p_energy_lst_per_event)
+                np.save('tars-alpha_lst_per_event.npy', self.sim_obj.alpha_lst_per_event)
+                np.save('tars-beta_lst_per_event.npy', self.sim_obj.beta_lst_per_event)
+                np.save('tars-e_num_lst_per_step.npy', self.sim_obj.e_num_lst_per_step)
             if err:
-                k -= 1
+                    k -= 1
 
         size = len(self.sim_obj.e_num_lst_per_step)
         self.sim_obj.e_vel0_lst = [0.] * size

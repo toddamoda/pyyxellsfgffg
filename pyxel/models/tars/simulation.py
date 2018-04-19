@@ -320,7 +320,10 @@ class Simulation:
 
         g4_data_path = Path(__file__).parent.joinpath('data', 'geant4', 'tars_geant4.data')
         g4data = read_data(g4_data_path)            # mm (!)
-        if g4data.shape == (2,):
+        if g4data.shape == (0,):
+            step_size_vector = []       # um
+            electron_number_vector = []
+        elif g4data.shape == (2,):
             step_size_vector = [g4data[0] * 1E3]       # um
             electron_number_vector = [g4data[1].astype(int)]
         else:
