@@ -124,11 +124,11 @@ def run_tars(detector: Detector,
 
         # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180418_2\tars-e_num_lst_per_event.npy',
         # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180418_2\tars-e_num_lst_per_step.npy',
-        plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180418_2\tars-p_energy_lst_per_event.npy',
+        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180418_2\tars-p_energy_lst_per_event.npy',
         # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180418_2\tars-sec_lst_per_event.npy',
         # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180418_2\tars-ter_lst_per_event.npy',
         #                             )
-                                    normalize=True)
+        #                             normalize=True)
 
         # plot_obj.polar_angle_dist(r'C:\dev\work\pyxel\tars-alpha_lst_per_event.npy')
         # plot_obj.polar_angle_dist(r'C:\dev\work\pyxel\tars-beta_lst_per_event.npy')
@@ -351,7 +351,7 @@ class TARS:
                                 self.angle_alpha, self.angle_beta)
 
         for k in tqdm(range(0, self.particle_number)):
-        # for k in range(0, self.particle_number):
+            # for k in range(0, self.particle_number):
             err = None
             if self.sim_obj.energy_loss_data == 'stepsize':     # TODO
                 err = self.sim_obj.event_generation()
