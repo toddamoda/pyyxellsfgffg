@@ -540,6 +540,9 @@ class PlottingTARS:
         hist_bins = 500
         hist_range = (0, 15E3)
 
+        # hist_bins = 500
+        # hist_range = (10, 2E4)
+
         plt.figure()
         plt.title('Number of electrons per event')
 
@@ -547,7 +550,7 @@ class PlottingTARS:
             if data1.endswith('.npy'):
                 data1 = np.load(data1)
 
-        data1 = data1[data1 > 100]
+        data1 = data1[data1 > 20]
         data1 = data1[data1 < 15000]
 
         if normalize:
