@@ -8,6 +8,7 @@
 
 import numpy as np
 from matplotlib import pyplot as plt
+import pylab as pl
 # import pandas as pd
 from pathlib import Path
 # import typing as t   # noqa: F401
@@ -126,33 +127,34 @@ class PlottingTARS:
         plt.loglog(lin_energy_range, flux_dist)
         self.save_and_draw('flux_spectrum')
 
-    # def plot_spectrum_hist(self, normalize: bool = None):
-    #     """
-    #     TBW.
-    #
-    #     :return:
-    #     """
-    #     plt.figure()
-    #     plt.title('Proton flux spectrum sampled by TARS')
-    #     plt.xlabel('Energy (MeV)')
-    #     plt.ylabel('Counts')
-    #     # plt.ylabel('Flux (1/(s*MeV))')
-    #     # plt.loglog(lin_energy_range, flux_dist)
-    #
-    #     hist_bins = 500
-    #     hist_range = (1e-1, 1e5)
-    #
-    #     col = (1, 1, 1, 1)
-    #
-    #     if normalize:
-    #         plt.hist(self.tars.sim_obj.p_energy_lst_per_event, log=True, bins=hist_bins,
-    #                  range=hist_range, fc=col, density=True)
-    #     else:
-    #         plt.hist(self.tars.sim_obj.p_energy_lst_per_event, log=True, bins=hist_bins,
-    #                  range=hist_range, fc=col)
-    #
-    #     # plt.legend(loc='upper right')
-    #     self.save_and_draw('tars_spectrum')
+    def plot_spectrum_hist(self, data):
+        """
+        TBW.
+
+        :return:
+        """
+        plt.figure()
+        plt.title('Proton flux spectrum sampled by TARS')
+        plt.xlabel('Energy (MeV)')
+        plt.ylabel('Counts')
+        # plt.ylabel('Flux (1/(s*MeV))')
+        # plt.loglog(lin_energy_range, flux_dist)
+
+        if isinstance(data, str):
+            if data.endswith('.npy'):
+                data = np.load(data)
+
+        hist_bins = 250
+        # hist_range = (1e-1, 1e5)
+
+        col = (0, 1, 1, 1)
+
+        plt.hist(data, bins=np.logspace(np.log10(0.1), np.log10(1e5), hist_bins))
+        plt.gca().set_xscale("log")
+
+        # plt.legend(loc='upper right')
+
+        self.save_and_draw('tars_spectrum')
 
     def plot_charges_3d(self):
         """
@@ -401,9 +403,10 @@ class PlottingTARS:
                                               'Gaia_CCD_study', 'Data')
         hist_names = [
                       'complete_G4_H_He_GCR_sim_deposition.npy',  # G4, contains a lot of events with ZERO number of e-!
-                      'CRs_from_BAM_Gaia_CCDs.npy',               # GAIA BAM data
+                      'CRs_from_BAM_Gaia_CCDs.npy'                # GAIA BAM data
+                      # r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_6\tars-e_num_lst_per_event.npy'
                       ]
-        labels = ['Geant4 data', 'GAIA BAM data']
+        labels = ['Geant4 data', 'GAIA BAM data']   # , 'TARS (David), 40um, CREME spectrum']
         i = 0
 
         hist_bins = 500
@@ -419,6 +422,8 @@ class PlottingTARS:
                 col = (0, 0, 1, 0.5)
             if i == 1:
                 col = (0, 1, 0, 0.5)
+            if i == 2:
+                col = (1, 0, 0, 0.5)
 
             if normalize:
                 plt.hist(histogram, bins=hist_bins, range=hist_range, label=labels[i], fc=col, density=True)
@@ -524,7 +529,8 @@ class PlottingTARS:
         plt.legend(loc='upper right')
         self.save_and_draw('gaia_BAM_vs_SM_electron_hist')
 
-    def plot_electron_hist(self, data1, data2=None, data3=None, normalize: bool=None):
+    def plot_electron_hist(self, data1, data2=None, data3=None,
+                           title='', hist_bins=500, hist_range=(0, 15000), normalize: bool=None):
         """TBW.
 
         :return:
@@ -537,21 +543,21 @@ class PlottingTARS:
         ]
         i = 0
 
-        hist_bins = 500
-        hist_range = (0, 15000)
+        # hist_bins = 5000
+        # hist_range = (0, 15000)
 
         # hist_bins = 500
         # hist_range = (10, 2E4)
 
         plt.figure()
-        plt.title('Number of electrons per event')
+        plt.title(title)
 
         if isinstance(data1, str):
             if data1.endswith('.npy'):
                 data1 = np.load(data1)
 
-        # data1 = data1[data1 > 2]
-        # data1 = data1[data1 < 50]
+        # data1 = data1[data1 > ]
+        # data1 = data1[data1 < 15000]
 
         if normalize:
             plt.hist(data1, bins=hist_bins, range=hist_range, label=labels[i], fc=(1, 0, 0, 0.5), density=True)

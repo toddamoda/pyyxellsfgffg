@@ -105,7 +105,7 @@ processor:
         enabled: true
         arguments:
           simulation_mode: cosmic_ray   # snowflakes
-          running_mode: geant4  # stepsize  # stopping  # plotting  # geant4
+          running_mode: plotting  # stepsize  # stopping  # plotting  # geant4
           particle_type: proton
           initial_energy: random   # MeV
           particle_number: 1000
