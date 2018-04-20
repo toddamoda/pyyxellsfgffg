@@ -538,7 +538,7 @@ class PlottingTARS:
         i = 0
 
         hist_bins = 500
-        hist_range = (0, 15E3)
+        hist_range = (0, 15000)
 
         # hist_bins = 500
         # hist_range = (10, 2E4)
@@ -550,8 +550,8 @@ class PlottingTARS:
             if data1.endswith('.npy'):
                 data1 = np.load(data1)
 
-        data1 = data1[data1 > 20]
-        data1 = data1[data1 < 15000]
+        # data1 = data1[data1 > 2]
+        # data1 = data1[data1 < 50]
 
         if normalize:
             plt.hist(data1, bins=hist_bins, range=hist_range, label=labels[i], fc=(1, 0, 0, 0.5), density=True)

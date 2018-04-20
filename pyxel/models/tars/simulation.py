@@ -291,6 +291,9 @@ class Simulation:
         secondary_per_event = 0
         tertiary_per_event = 0
 
+        secondaries = 0
+        tertiaries = 0
+
         self.particle = Particle(self.detector,
                                  self.simulation_mode,
                                  self.particle_type,
@@ -320,7 +323,13 @@ class Simulation:
 
         g4_data_path = Path(__file__).parent.joinpath('data', 'geant4', 'tars_geant4.data')
         g4data = read_data(g4_data_path)            # mm (!)
-        if g4data.shape == (0,):
+
+        if g4data.shape == (3,):    # alternative running mode, only all electron number without proton step size data
+            electron_number_vector = [g4data[0].astype(int)]
+            secondaries = g4data[1].astype(int)
+            tertiaries = g4data[2].astype(int)
+            step_size_vector = [0]
+        elif g4data.shape == (0,):
             step_size_vector = []       # um
             electron_number_vector = []
         elif g4data.shape == (2,):
@@ -331,16 +340,17 @@ class Simulation:
             electron_number_vector = g4data[:, 1].astype(int)
 
         if np.any(electron_number_vector):
-            for j in range(len(step_size_vector)):
+            # for j in range(len(step_size_vector)):
+            for j in range(len(electron_number_vector)):
 
                 # UPDATE POSITION OF IONIZING PARTICLES
                 particle.position[0] += particle.dir_ver * step_size_vector[j]    # um
                 particle.position[1] += particle.dir_hor * step_size_vector[j]    # um
                 particle.position[2] += particle.dir_z * step_size_vector[j]      # um
 
-                secondary_per_event += 1
-                tertiary_per_event += electron_number_vector[j] - 1
                 electron_number_per_event += electron_number_vector[j]
+                secondary_per_event += secondaries
+                tertiary_per_event += tertiaries
 
                 self.e_num_lst_per_step += [electron_number_vector[j]]
                 self.e_pos0_lst += [particle.position[0]]   # um
