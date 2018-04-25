@@ -1,6 +1,6 @@
 ################
 # Pyxel configuration file for CCD detectors
-# Used and modified by David
+# David Lucsanyi
 ################
 
 parametric:
@@ -12,18 +12,6 @@ parametric:
       enabled: false
       key: pipeline.photon_generation.photon_level.arguments.level
       values: [10, 20, 30]
-    -
-      enabled: false
-      key:
-      values:
-    -
-      enabled: false
-      key:
-      values:
-    -
-      enabled: false
-      key:
-      values:
 
 processor:
   class: pyxel.pipelines.processor.Processor
@@ -105,7 +93,7 @@ processor:
         enabled: true
         arguments:
           simulation_mode: cosmic_ray   # snowflakes
-          running_mode: plotting  # stepsize  # stopping  # plotting  # geant4
+          running_mode: geant4 # stepsize  # stopping  # plotting  # geant4
           particle_type: proton
           initial_energy: random   # MeV
           particle_number: 1000

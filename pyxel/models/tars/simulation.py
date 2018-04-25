@@ -198,10 +198,11 @@ class Simulation:
                                  # self.angle_alpha, self.angle_beta)
                                  )
         particle = self.particle
-        self.track_length_lst_per_event += [particle.track_length()]
+        self.track_length_lst_per_event += [particle.track_length]
 
         if self.energy_loss_data == 'stepsize':
-            data_filename = self.select_stepsize_data(particle.type, particle.energy, particle.track_length())
+            # data_filename = self.select_stepsize_data(particle.type, particle.energy, particle.track_length)
+            data_filename = self.select_stepsize_data(particle.type, 1000., 40.)
             self.set_stepsize_distribution(data_filename)
             # TODO make a stack of stepsize cdfs and do not load them more than once!!!
         # elif self.energy_loss_data == 'geant4':
@@ -321,23 +322,34 @@ class Simulation:
         # subprocess.call(['./TestEm18', mat.xxx, particle.type,
         # str(particle.energy), str(particle.track_length)'])
 
-        g4_data_path = Path(__file__).parent.joinpath('data', 'geant4', 'tars_geant4.data')
-        g4data = read_data(g4_data_path)            # mm (!)
+        g4_data_energy_path = Path(__file__).parent.joinpath('data', 'geant4', 'tars_geant4_energy.data')
+        g4energydata = read_data(g4_data_energy_path)       # MeV
 
-        if g4data.shape == (3,):    # alternative running mode, only all electron number without proton step size data
-            electron_number_vector = [g4data[0].astype(int)]
-            secondaries = g4data[1].astype(int)
-            tertiaries = g4data[2].astype(int)
-            step_size_vector = [0]
-        elif g4data.shape == (0,):
-            step_size_vector = []       # um
-            electron_number_vector = []
-        elif g4data.shape == (2,):
-            step_size_vector = [g4data[0] * 1E3]       # um
-            electron_number_vector = [g4data[1].astype(int)]
-        else:
-            step_size_vector = g4data[:, 0] * 1E3       # um
-            electron_number_vector = g4data[:, 1].astype(int)
+        primary_e_balance = g4energydata[0]
+        all_e_loss = g4energydata[1]
+        primary_e_loss = g4energydata[2]
+        secondary_e_loss = g4energydata[3]
+        electron_number_vector = [all_e_loss / 3.6]
+        # electron_number_vector = [secondary_e_loss / 3.6]
+        step_size_vector = [0]
+
+        # g4_data_path = Path(__file__).parent.joinpath('data', 'geant4', 'tars_geant4.data')
+        # g4data = read_data(g4_data_path)  # mm (!)
+        #
+        # if g4data.shape == (3,):    # alternative running mode, only all electron number without proton step size data
+        #     electron_number_vector = [g4data[0].astype(int)]
+        #     secondaries = g4data[1].astype(int)
+        #     tertiaries = g4data[2].astype(int)
+        #     step_size_vector = [0]
+        # elif g4data.shape == (0,):
+        #     step_size_vector = []       # um
+        #     electron_number_vector = []
+        # elif g4data.shape == (2,):
+        #     step_size_vector = [g4data[0] * 1E3]       # um
+        #     electron_number_vector = [g4data[1].astype(int)]
+        # else:
+        #     step_size_vector = g4data[:, 0] * 1E3       # um
+        #     electron_number_vector = g4data[:, 1].astype(int)
 
         if np.any(electron_number_vector):
             # for j in range(len(step_size_vector)):

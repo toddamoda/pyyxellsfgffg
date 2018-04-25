@@ -9,7 +9,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 import pylab as pl
-# import pandas as pd
+import pandas as pd
 from pathlib import Path
 # import typing as t   # noqa: F401
 from mpl_toolkits.mplot3d import Axes3D     # noqa: F401
@@ -99,19 +99,21 @@ class PlottingTARS:
         self.save_and_draw('edep_per_particle')
         return n, bins, patches
 
-    # def plot_spectrum_cdf(self):
-    #     """
-    #     TBW.
-    #
-    #     :return:
-    #     """
-    #     lin_energy_range = self.tars.sim_obj.spectrum_cdf[:, 0]
-    #     cum_sum = self.tars.sim_obj.spectrum_cdf[:, 1]
-    #     plt.figure()
-    #     plt.title('Spectrum CDF')
-    #     # plt.semilogx(lin_energy_range, cum_sum)
-    #     self.save_and_draw('spectrum_cdf')
-    #
+    def plot_spectrum_cdf(self):
+        """
+        TBW.
+
+        :return:
+        """
+        lin_energy_range = self.tars.sim_obj.spectrum_cdf[:, 0]
+        cum_sum = self.tars.sim_obj.spectrum_cdf[:, 1]
+        plt.figure()
+        plt.title('Spectrum CDF')
+        plt.xlabel('Energy (MeV)')
+        plt.ylabel('Probability')
+        plt.semilogx(lin_energy_range, cum_sum)
+        self.save_and_draw('spectrum_cdf')
+
     def plot_flux_spectrum(self):
         """
         TBW.
@@ -167,7 +169,7 @@ class PlottingTARS:
         # set up a figure twice as wide as it is tall
         fig = plt.figure(figsize=plt.figaspect(0.5))
 
-        size = self.tars.sim_obj.e_num_lst
+        size = self.tars.sim_obj.e_num_lst_per_event
         ax = fig.add_subplot(1, 2, 1, projection='3d')
         ax.scatter(self.tars.sim_obj.e_pos0_lst, self.tars.sim_obj.e_pos1_lst, self.tars.sim_obj.e_pos2_lst,
                    c='b', marker='.', s=size)
@@ -220,6 +222,8 @@ class PlottingTARS:
         """
         plt.figure()
         plt.title('Step size distribution')
+        plt.xlabel('step size (um)')
+        plt.ylabel('counts')
         plt.plot(self.tars.sim_obj.step_size_dist['step_size'],
                  self.tars.sim_obj.step_size_dist['counts'], '.')
         self.save_and_draw('step_dist')
@@ -319,42 +323,42 @@ class PlottingTARS:
         plt.legend(loc='upper right')
         self.save_and_draw('track_length')
 
-    # def plot_step_size_histograms(self, normalize: bool=None):
-    #     """TBW.
-    #
-    #     :return:
-    #     """
-    #     energies = ['100MeV', '1GeV']
-    #     thicknesses = ['10um', '50um', '100um', '200um']
-    #     p_types = ['proton']
-    #
-    #     path = Path(__file__).parent.joinpath('data', 'inputs')
-    #
-    #     # step_rows = 10000
-    #
-    #     plt.figure()
-    #     plt.title('Step size')
-    #     for p_type in p_types:
-    #         for energy in energies:
-    #             for thickness in thicknesses:
-    #                 filename = 'stepsize_' + p_type + '_' + energy + '_' + thickness + '_1M.ascii'
-    #                 step_size = pd.read_csv(str(Path(path, filename)),
-    #                                         delimiter="\t", names=["step_size", "counts"], usecols=[1, 2],
-    #                                         skiprows=4, nrows=10000)
-    #
-    #                 if normalize:
-    #                     plotted_counts = step_size['counts'] / sum(step_size['counts'])
-    #                 else:
-    #                     plotted_counts = step_size['counts']
-    #
-    #                 plt.plot(step_size['step_size'], plotted_counts, '.-',
-    #                          label=p_type + ', ' + energy + ', ' + thickness)
-    #
-    #     plt.axis([0, 200, 0, 0.025])
-    #     plt.xlabel('Step size')
-    #     plt.ylabel('Counts')
-    #     plt.legend(loc='upper right')
-    #     self.save_and_draw('step_size_histograms')
+    def plot_step_size_histograms(self, normalize: bool=None):
+        """TBW.
+
+        :return:
+        """
+        energies = ['100MeV']
+        thicknesses = ['40um', '50um', '60um', '70um', '100um']
+        p_types = ['proton']
+
+        path = Path(__file__).parent.joinpath('data', 'inputs')
+
+        # step_rows = 10000
+
+        plt.figure()
+        plt.title('Step size')
+        for p_type in p_types:
+            for energy in energies:
+                for thickness in thicknesses:
+                    filename = 'stepsize_' + p_type + '_' + energy + '_' + thickness + '_Si_10k.ascii'
+                    step_size = pd.read_csv(str(Path(path, filename)),
+                                            delimiter="\t", names=["step_size", "counts"], usecols=[1, 2],
+                                            skiprows=4, nrows=10000)
+
+                    if normalize:
+                        plotted_counts = step_size['counts'] / sum(step_size['counts'])
+                    else:
+                        plotted_counts = step_size['counts']
+
+                    plt.plot(step_size['step_size'], plotted_counts, '.-',
+                             label=p_type + ', ' + energy + ', ' + thickness)
+
+        plt.axis([0, 20, 0, 0.010])
+        plt.xlabel('Step size (um)')
+        plt.ylabel('Counts')
+        plt.legend(loc='upper right')
+        self.save_and_draw('step_size_histograms')
     #
     # def plot_secondary_spectra(self, normalize: bool=None):
     #     """TBW.
@@ -402,11 +406,11 @@ class PlottingTARS:
         path = Path(__file__).parent.joinpath('data', 'validation', 'Gaia_CCD_study-20180404T115340Z-001',
                                               'Gaia_CCD_study', 'Data')
         hist_names = [
-                      'complete_G4_H_He_GCR_sim_deposition.npy',  # G4, contains a lot of events with ZERO number of e-!
-                      'CRs_from_BAM_Gaia_CCDs.npy'                # GAIA BAM data
-                      # r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_6\tars-e_num_lst_per_event.npy'
+            'CRs_from_BAM_Gaia_CCDs.npy',  # GAIA BAM data
+            'complete_G4_H_He_GCR_sim_deposition.npy',  # G4, contains a lot of events with ZERO number of e-!
+            # r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_6\tars-e_num_lst_per_event.npy'
                       ]
-        labels = ['Geant4 data', 'GAIA BAM data']   # , 'TARS (David), 40um, CREME spectrum']
+        labels = ['GAIA BAM data', 'Geant4 data']   # , 'TARS (David), 40um, CREME spectrum']
         i = 0
 
         hist_bins = 500

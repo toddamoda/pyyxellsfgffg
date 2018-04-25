@@ -94,8 +94,8 @@ def run_tars(detector: Detector,
         plot_obj = PlottingTARS(tars, save_plots=True, draw_plots=True)
 
         # # # plot_obj.plot_flux_spectrum()
-        # # # plot_obj.plot_spectrum_cdf()
-        # #
+
+        #
         # # plot_obj.plot_step_dist()
         # # plot_obj.plot_step_cdf()
 
@@ -127,17 +127,18 @@ def run_tars(detector: Detector,
         # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_2\tars-e_num_lst_per_step.npy',
         # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_2\tars-p_energy_lst_per_event.npy',
 
-        plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_6\tars-e_num_lst_per_event.npy',
-                                    title='all e per event', hist_bins=500, hist_range=(0, 15000))  # , normalize=True)
+        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_6\tars-e_num_lst_per_event.npy',
+        #                             title='all e per event', hist_bins=500, hist_range=(0, 15000))  # , normalize=True)
 
-        plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_6\tars-sec_lst_per_event.npy',
-                                    title='secondary e per event', hist_bins=400, hist_range=(0, 2000))  # , normalize=True)
+        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_6\tars-sec_lst_per_event.npy',
+        #                             title='secondary e per event', hist_bins=400, hist_range=(0, 2000))  # , normalize=True)
 
         plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_6\tars-ter_lst_per_event.npy',
                                     title='tertiary e per event', hist_bins=500, hist_range=(0, 5000))     # , normalize=True)
 
-        plot_obj.plot_spectrum_hist(
-            r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_6\tars-p_energy_lst_per_event.npy')
+        # plot_obj.plot_spectrum_hist(
+        #     r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_6\tars-p_energy_lst_per_event.npy')
+        plot_obj.plot_spectrum_hist(r'C:\dev\work\pyxel\tars-p_energy_lst_per_event.npy')
 
         # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420\tars-e_num_lst_per_event.npy',
         #                             title='all e per event', hist_bins=500, hist_range=(0, 15000))  # , normalize=True)
@@ -150,7 +151,9 @@ def run_tars(detector: Detector,
 
         # plot_obj.plot_spectrum_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420\tars-p_energy_lst_per_event.npy')
 
-        plot_obj.polar_angle_dist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_6\tars-alpha_lst_per_event.npy')
+        # plot_obj.polar_angle_dist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_6\tars-alpha_lst_per_event.npy')
+        plot_obj.polar_angle_dist(r'C:\dev\work\pyxel\tars-alpha_lst_per_event.npy')
+
         # plot_obj.polar_angle_dist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_6\tars-beta_lst_per_event.npy')
 
         # plot_obj.polar_angle_dist(r'C:\dev\work\pyxel\tars-beta_lst_per_event.npy')
@@ -198,7 +201,13 @@ def run_tars(detector: Detector,
     # np.save('tars-e_num_lst_per_step.npy', tars.sim_obj.e_num_lst_per_step)
 
     # plot_obj = PlottingTARS(tars, save_plots=True, draw_plots=True)
-    # plot_obj.plot_track_histogram(tars.sim_obj.track_length_lst_per_event, normalize=True)
+    # # plot_obj.plot_track_histogram(tars.sim_obj.track_length_lst_per_event, normalize=True)
+    # plot_obj.plot_track_histogram(tars.sim_obj.track_length_lst_per_event)
+    # # plot_obj.plot_spectrum_cdf()
+    # # plot_obj.plot_charges_3d()
+    # # plot_obj.plot_step_dist()
+    #
+    # plot_obj.plot_step_size_histograms(normalize=True)
     # plot_obj.show()
 
     return new_detector
