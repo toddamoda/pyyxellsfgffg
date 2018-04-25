@@ -311,12 +311,12 @@ class Simulation:
         self.alpha_lst_per_event += [particle.alpha]
         self.beta_lst_per_event += [particle.beta]
 
-        # error = subprocess.call(['./pyxel/models/tars/data/geant4/TestEm18',
-        #                          'Silicon', particle.type,
-        #                          str(particle.energy), str(particle.track_length)],
-        #                         stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
-        # if error != 0:
-        #     return True
+        error = subprocess.call(['./pyxel/models/tars/data/geant4/TestEm18',
+                                 'Silicon', particle.type,
+                                 str(particle.energy), str(particle.track_length)],
+                                stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        if error != 0:
+            return True
 
         # mat = self.detector.material
         # subprocess.call(['./TestEm18', mat.xxx, particle.type,
