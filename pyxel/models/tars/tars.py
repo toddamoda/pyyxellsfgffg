@@ -127,14 +127,14 @@ def run_tars(detector: Detector,
         # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_2\tars-e_num_lst_per_step.npy',
         # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_2\tars-p_energy_lst_per_event.npy',
 
-        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_6\tars-e_num_lst_per_event.npy',
-        #                             title='all e per event', hist_bins=500, hist_range=(0, 15000))  # , normalize=True)
+        plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180425\tars-e_num_lst_per_event.npy',
+                                    title='all e per event', hist_bins=500, hist_range=(0, 15000))  # , normalize=True)
 
         # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_6\tars-sec_lst_per_event.npy',
         #                             title='secondary e per event', hist_bins=400, hist_range=(0, 2000))  # , normalize=True)
 
-        plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_6\tars-ter_lst_per_event.npy',
-                                    title='tertiary e per event', hist_bins=500, hist_range=(0, 5000))     # , normalize=True)
+        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180425\tars-ter_lst_per_event.npy',
+        #                             title='tertiary e per event', hist_bins=500, hist_range=(0, 5000))     # , normalize=True)
 
         # plot_obj.plot_spectrum_hist(
         #     r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_6\tars-p_energy_lst_per_event.npy')

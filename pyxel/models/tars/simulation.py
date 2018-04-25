@@ -311,12 +311,12 @@ class Simulation:
         self.alpha_lst_per_event += [particle.alpha]
         self.beta_lst_per_event += [particle.beta]
 
-        error = subprocess.call(['./pyxel/models/tars/data/geant4/TestEm18',
-                                 'Silicon', particle.type,
-                                 str(particle.energy), str(particle.track_length)],
-                                stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
-        if error != 0:
-            return True
+        # error = subprocess.call(['./pyxel/models/tars/data/geant4/TestEm18',
+        #                          'Silicon', particle.type,
+        #                          str(particle.energy), str(particle.track_length)],
+        #                         stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        # if error != 0:
+        #     return True
 
         # mat = self.detector.material
         # subprocess.call(['./TestEm18', mat.xxx, particle.type,
@@ -325,12 +325,13 @@ class Simulation:
         g4_data_energy_path = Path(__file__).parent.joinpath('data', 'geant4', 'tars_geant4_energy.data')
         g4energydata = read_data(g4_data_energy_path)       # MeV
 
-        primary_e_balance = g4energydata[0]
-        all_e_loss = g4energydata[1]
-        primary_e_loss = g4energydata[2]
-        secondary_e_loss = g4energydata[3]
-        electron_number_vector = [all_e_loss / 3.6]
-        # electron_number_vector = [secondary_e_loss / 3.6]
+        primary_e_balance = g4energydata[0] * 1.E6
+        all_e_loss = g4energydata[1] * 1.E6
+        primary_e_loss = g4energydata[2] * 1.E6
+        secondary_e_loss = g4energydata[3] * 1.E6
+        electron_number_vector = [np.floor(all_e_loss / 3.6).astype(int)]
+        secondaries = np.floor(primary_e_loss / 3.6).astype(int)
+        tertiaries = np.floor(secondary_e_loss / 3.6).astype(int)
         step_size_vector = [0]
 
         # g4_data_path = Path(__file__).parent.joinpath('data', 'geant4', 'tars_geant4.data')
