@@ -110,16 +110,16 @@ def run_tars(detector: Detector,
 
         # plot_obj.plot_charges_3d()
 
-        # plot_obj.plot_flux_spectrum()
+        plot_obj.plot_flux_spectrum()
 
         # plot_obj.plot_gaia_bam_vs_sm_electron_hist(normalize=True)
         # plot_obj.plot_old_tars_hist(normalize=True)
 
-        plot_obj.plot_gaia_vs_geant4_hist(normalize=True)
+        plot_obj.plot_gaia_vs_gras_hist(normalize=True)
 
         # plot_obj.plot_track_histogram(tars.sim_obj.track_length_list)
         plot_obj.plot_track_histogram(
-            r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_6\tars-track_length_lst_per_event.npy',
+            r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180425\tars-track_length_lst_per_event.npy',
             normalize=True)
 
         # plot_obj.plot_electron_hist(tars.sim_obj.e_num_lst_per_event, normalize=True)
@@ -130,15 +130,15 @@ def run_tars(detector: Detector,
         plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180425\tars-e_num_lst_per_event.npy',
                                     title='all e per event', hist_bins=500, hist_range=(0, 15000))  # , normalize=True)
 
-        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_6\tars-sec_lst_per_event.npy',
-        #                             title='secondary e per event', hist_bins=400, hist_range=(0, 2000))  # , normalize=True)
+        plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180425\tars-sec_lst_per_event.npy',
+                                    title='secondary e per event', hist_bins=500, hist_range=(0, 15000))  # , normalize=True)
 
-        # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180425\tars-ter_lst_per_event.npy',
-        #                             title='tertiary e per event', hist_bins=500, hist_range=(0, 5000))     # , normalize=True)
+        plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180425\tars-ter_lst_per_event.npy',
+                                    title='tertiary e per event', hist_bins=500, hist_range=(0, 15000))     # , normalize=True)
 
         # plot_obj.plot_spectrum_hist(
         #     r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_6\tars-p_energy_lst_per_event.npy')
-        plot_obj.plot_spectrum_hist(r'C:\dev\work\pyxel\tars-p_energy_lst_per_event.npy')
+        # plot_obj.plot_spectrum_hist(r'C:\dev\work\pyxel\tars-p_energy_lst_per_event.npy')
 
         # plot_obj.plot_electron_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420\tars-e_num_lst_per_event.npy',
         #                             title='all e per event', hist_bins=500, hist_range=(0, 15000))  # , normalize=True)
@@ -152,7 +152,7 @@ def run_tars(detector: Detector,
         # plot_obj.plot_spectrum_hist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420\tars-p_energy_lst_per_event.npy')
 
         # plot_obj.polar_angle_dist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_6\tars-alpha_lst_per_event.npy')
-        plot_obj.polar_angle_dist(r'C:\dev\work\pyxel\tars-alpha_lst_per_event.npy')
+        # plot_obj.polar_angle_dist(r'C:\dev\work\pyxel\tars-alpha_lst_per_event.npy')
 
         # plot_obj.polar_angle_dist(r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_6\tars-beta_lst_per_event.npy')
 
@@ -397,6 +397,10 @@ class TARS:
                 np.save('tars-alpha_lst_per_event.npy', self.sim_obj.alpha_lst_per_event)
                 np.save('tars-beta_lst_per_event.npy', self.sim_obj.beta_lst_per_event)
                 np.save('tars-e_num_lst_per_step.npy', self.sim_obj.e_num_lst_per_step)
+
+                np.save('tars-all_e_from_eloss.npy', self.sim_obj.electron_number_from_eloss)
+                np.save('tars-sec_e_from_eloss.npy', self.sim_obj.secondaries_from_eloss)
+                np.save('tars-ter_e_from_eloss.npy', self.sim_obj.tertiaries_from_eloss)
             if err:
                     k -= 1
 

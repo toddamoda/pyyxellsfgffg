@@ -298,7 +298,7 @@ class PlottingTARS:
 
         :return:
         """
-        hist_bins = 500
+        hist_bins = 1000
         hist_range = (0, 1000)
 
         plt.figure()
@@ -397,20 +397,20 @@ class PlottingTARS:
     #     plt.legend(loc='upper right')
     #     self.save_and_draw('secondary_spectra')
 
-    def plot_gaia_vs_geant4_hist(self, normalize: bool=None):
+    def plot_gaia_vs_gras_hist(self, normalize: bool=None):
         """TBW.
 
         :return:
         """
-        # Geant4 (GRAS) simulation results (by Giovanni?) + GAIA BAM data - Perfect overlap in case of normalization!
+        # GRAS simulation results (by Marco) + GAIA BAM data - Perfect overlap in case of normalization!
         path = Path(__file__).parent.joinpath('data', 'validation', 'Gaia_CCD_study-20180404T115340Z-001',
                                               'Gaia_CCD_study', 'Data')
         hist_names = [
             'CRs_from_BAM_Gaia_CCDs.npy',  # GAIA BAM data
             'complete_G4_H_He_GCR_sim_deposition.npy',  # G4, contains a lot of events with ZERO number of e-!
-            # r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180420_6\tars-e_num_lst_per_event.npy'
+            r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180425\tars-e_num_lst_per_event.npy'
                       ]
-        labels = ['GAIA BAM data', 'Geant4 data']   # , 'TARS (David), 40um, CREME spectrum']
+        labels = ['GAIA BAM data', 'GRAS simulation (Marco)', 'TARS simulation (David) ']
         i = 0
 
         hist_bins = 500
@@ -442,7 +442,7 @@ class PlottingTARS:
         plt.xlabel('')
         plt.ylabel('Counts')
         plt.legend(loc='upper right')
-        self.save_and_draw('gaia_vs_geant4_electron_hist')
+        self.save_and_draw('gaia_vs_gras_electron_hist')
 
     def plot_old_tars_hist(self, normalize: bool=None):
         """TBW.
@@ -540,8 +540,7 @@ class PlottingTARS:
         :return:
         """
         labels = [
-            'TARS data (David), 40um'
-            # 'Geant4 data (David), 40um, 100MeV',
+            'TARS (David), 40um'
             # 'secondary e-',
             # 'tertiary e-'
         ]

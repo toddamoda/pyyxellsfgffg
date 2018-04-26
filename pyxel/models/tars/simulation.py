@@ -62,15 +62,19 @@ class Simulation:
         self.e_vel1_lst = []            # type: t.List[float]
         self.e_vel2_lst = []            # type: t.List[float]
 
-        self.track_length_lst_per_event = []         # type: t.List[float]
-        self.e_num_lst_per_event = []       # type: t.List[int]
-        self.sec_lst_per_event = []         # type: t.List[int]
-        self.ter_lst_per_event = []         # type: t.List[int]
-        self.edep_per_step = []             # type: t.List[float]
-        self.total_edep_per_particle = []   # type: t.List[float]
-        self.p_energy_lst_per_event = []    # type: t.List[float]
-        self.alpha_lst_per_event = []       # type: t.List[float]
-        self.beta_lst_per_event = []        # type: t.List[float]
+        self.electron_number_from_eloss = []     # type: t.List[int]
+        self.secondaries_from_eloss = []         # type: t.List[int]
+        self.tertiaries_from_eloss = []          # type: t.List[int]
+
+        self.track_length_lst_per_event = []     # type: t.List[float]
+        self.e_num_lst_per_event = []            # type: t.List[int]
+        self.sec_lst_per_event = []              # type: t.List[int]
+        self.ter_lst_per_event = []              # type: t.List[int]
+        self.edep_per_step = []                  # type: t.List[float]
+        self.total_edep_per_particle = []        # type: t.List[float]
+        self.p_energy_lst_per_event = []         # type: t.List[float]
+        self.alpha_lst_per_event = []            # type: t.List[float]
+        self.beta_lst_per_event = []             # type: t.List[float]
 
     def parameters(self, sim_mode, part_type, init_energy, pos_ver, pos_hor, pos_z, alpha, beta):
         """TBW.
@@ -329,28 +333,28 @@ class Simulation:
         all_e_loss = g4energydata[1] * 1.E6
         primary_e_loss = g4energydata[2] * 1.E6
         secondary_e_loss = g4energydata[3] * 1.E6
-        electron_number_vector = [np.floor(all_e_loss / 3.6).astype(int)]
-        secondaries = np.floor(primary_e_loss / 3.6).astype(int)
-        tertiaries = np.floor(secondary_e_loss / 3.6).astype(int)
-        step_size_vector = [0]
+        if all_e_loss > 0.:
+            self.electron_number_from_eloss += [np.floor(all_e_loss / 3.6).astype(int)]
+            self.secondaries_from_eloss += [np.floor(primary_e_loss / 3.6).astype(int)]
+            self.tertiaries_from_eloss += [np.floor(secondary_e_loss / 3.6).astype(int)]
 
-        # g4_data_path = Path(__file__).parent.joinpath('data', 'geant4', 'tars_geant4.data')
-        # g4data = read_data(g4_data_path)  # mm (!)
-        #
-        # if g4data.shape == (3,):    # alternative running mode, only all electron number without proton step size data
-        #     electron_number_vector = [g4data[0].astype(int)]
-        #     secondaries = g4data[1].astype(int)
-        #     tertiaries = g4data[2].astype(int)
-        #     step_size_vector = [0]
-        # elif g4data.shape == (0,):
-        #     step_size_vector = []       # um
-        #     electron_number_vector = []
-        # elif g4data.shape == (2,):
-        #     step_size_vector = [g4data[0] * 1E3]       # um
-        #     electron_number_vector = [g4data[1].astype(int)]
-        # else:
-        #     step_size_vector = g4data[:, 0] * 1E3       # um
-        #     electron_number_vector = g4data[:, 1].astype(int)
+        g4_data_path = Path(__file__).parent.joinpath('data', 'geant4', 'tars_geant4.data')
+        g4data = read_data(g4_data_path)  # mm (!)
+
+        if g4data.shape == (3,):    # alternative running mode, only all electron number without proton step size data
+            electron_number_vector = [g4data[0].astype(int)]
+            secondaries = g4data[1].astype(int)
+            tertiaries = g4data[2].astype(int)
+            step_size_vector = [0]
+        elif g4data.shape == (0,):
+            step_size_vector = []       # um
+            electron_number_vector = []
+        elif g4data.shape == (2,):
+            step_size_vector = [g4data[0] * 1E3]       # um
+            electron_number_vector = [g4data[1].astype(int)]
+        else:
+            step_size_vector = g4data[:, 0] * 1E3       # um
+            electron_number_vector = g4data[:, 1].astype(int)
 
         if np.any(electron_number_vector):
             # for j in range(len(step_size_vector)):
