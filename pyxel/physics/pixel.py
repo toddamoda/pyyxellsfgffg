@@ -68,7 +68,7 @@ class Pixel:
             raise ValueError('List arguments have different lengths')
 
         # Rounding and converting to integer
-        charge = util.round_convert_to_int(charge)
+        # charge = util.round_convert_to_int(charge)
         pixel_index_ver = util.round_convert_to_int(pixel_index_ver)
         pixel_index_hor = util.round_convert_to_int(pixel_index_hor)
 
@@ -96,7 +96,8 @@ class Pixel:
         charge_2d_array = np.zeros((self.detector.geometry.row, self.detector.geometry.col), dtype=float)
         charge_2d_array[pixel_index_ver, pixel_index_hor] = charge_per_pixel
 
-        return util.convert_to_int(charge_2d_array)
+        # return util.convert_to_int(charge_2d_array)
+        return charge_2d_array
 
     def update_from_2d_charge_array(self, array):
         """Recreate pixel DataFrame from a 2d numpy array.
@@ -127,7 +128,8 @@ class Pixel:
         else:
             array = self.frame.query('id in %s' % id_list).charge.values
 
-        return util.convert_to_int(array)
+        # return util.convert_to_int(array)
+        return array
 
     def get_pixel_positions_ver(self, id_list='all'):
         """Get vertical positions of pixels.

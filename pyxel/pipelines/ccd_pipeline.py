@@ -91,7 +91,10 @@ class CCDDetectionPipeline(DetectionPipeline):
         # CHARGE READOUT
         # -> create signal -> modify signal ->
         detector.signal = detector.pixels.generate_2d_charge_array()
-        detector.signal = detector.signal.astype('float64')
+
+        cht = detector.characteristics
+        # detector.signal = detector.signal.astype('float64') * cht.sv * cht.amp * cht.a1 * cht.a2
+        detector.signal *= cht.sv * cht.amp * cht.a1 * cht.a2
 
         detector = self.run_model_group('charge_measurement', detector)
 
@@ -99,6 +102,8 @@ class CCDDetectionPipeline(DetectionPipeline):
         # -> create image -> modify image -> END
         detector = self.run_model_group('readout_electronics', detector)  # todo: rounding signal in models
         # at this point the image pixel values should be rounded to integers (quantization)
-        detector.image = detector.signal.astype('uint16')  # todo: replace this into detector class
+
+        # detector.image = detector.signal.astype('uint16')  # todo: replace this into detector class
+        detector.image = detector.signal  # todo: replace this into detector class
 
         return detector

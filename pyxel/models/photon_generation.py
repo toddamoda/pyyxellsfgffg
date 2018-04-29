@@ -27,7 +27,8 @@ def load_image(detector: pyxel.Detector, image_file: str) -> pyxel.Detector:
         image = fits.getdata(image_file)
         geo.row, geo.col = image.shape
         photon_number_list = image / (cht.qe * cht.eta * cht.sv * cht.amp * cht.a1 * cht.a2)
-        photon_number_list = np.rint(photon_number_list).astype(int).flatten()
+        # photon_number_list = np.rint(photon_number_list).astype(int).flatten()
+        photon_number_list = photon_number_list.flatten()
         photon_energy_list = [0.] * geo.row * geo.col
         detector.photons.generate_photons(photon_number_list, photon_energy_list)
 
