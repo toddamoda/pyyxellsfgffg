@@ -64,15 +64,15 @@ processor:
       -
         name: load_image
         func: pyxel.models.photon_generation.load_image
-        enabled: true
+        enabled: false # true
         arguments:
           image_file: data/m42_40min_ir.fits # pyxel/cosmics-shot-fpn-cti.fits
       -
         name: photon_level
         func: pyxel.models.photon_generation.add_photon_level
-        enabled: false
+        enabled: true  # false
         arguments:
-          level: 100
+          level: 0
       -
         name: shot_noise
         func: pyxel.models.photon_generation.add_shot_noise
@@ -96,7 +96,7 @@ processor:
           running_mode: geant4 # stepsize  # stopping  # plotting  # geant4
           particle_type: proton
           initial_energy: random   # MeV
-          particle_number: 10
+          particle_number: 100
           incident_angles:      # rad
 #            - 0.31415 # pi / 4
 #            - 3.1415  # 0 # 1.570 # 3.1415 # 2.094 # pi / 2
