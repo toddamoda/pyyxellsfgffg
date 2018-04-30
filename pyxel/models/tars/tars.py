@@ -80,7 +80,8 @@ def run_tars(detector: Detector,
     tars.set_particle_spectrum(spectrum_file)
 
     if running_mode == 'stopping':
-        raise NotImplementedError
+        tars.run_mod()
+        # raise NotImplementedError
         # tars.set_stopping_power(stopping_file)
         # tars.run()
     elif running_mode == 'stepsize':
@@ -396,7 +397,11 @@ class TARS:
                 np.save('tars-p_energy_lst_per_event.npy', self.sim_obj.p_energy_lst_per_event)
                 np.save('tars-alpha_lst_per_event.npy', self.sim_obj.alpha_lst_per_event)
                 np.save('tars-beta_lst_per_event.npy', self.sim_obj.beta_lst_per_event)
+
                 np.save('tars-e_num_lst_per_step.npy', self.sim_obj.e_num_lst_per_step)
+                np.save('tars-e_pos0_lst.npy', self.sim_obj.e_pos0_lst)
+                np.save('tars-e_pos1_lst.npy', self.sim_obj.e_pos1_lst)
+                np.save('tars-e_pos2_lst.npy', self.sim_obj.e_pos2_lst)
 
                 np.save('tars-all_e_from_eloss.npy', self.sim_obj.electron_number_from_eloss)
                 np.save('tars-sec_e_from_eloss.npy', self.sim_obj.secondaries_from_eloss)
@@ -418,3 +423,31 @@ class TARS:
                                    self.sim_obj.e_vel0_lst,
                                    self.sim_obj.e_vel1_lst,
                                    self.sim_obj.e_vel2_lst)
+
+    def run_mod(self):
+        """TBW.
+
+        :return:
+        """
+        print("TARS - adding previous cosmic ray signals to image ...\n")
+
+        e_num_lst_per_step = np.load('tars-e_num_lst_per_step.npy')
+        e_pos0_lst = np.load('tars-e_pos0_lst.npy')
+        e_pos1_lst = np.load('tars-e_pos1_lst.npy')
+        e_pos2_lst = np.load('tars-e_pos2_lst.npy')
+
+        size = len(e_num_lst_per_step)
+        e_energy_lst = [0.] * size
+        e_vel0_lst = [0.] * size
+        e_vel1_lst = [0.] * size
+        e_vel2_lst = [0.] * size
+
+        self.charge_obj.add_charge('e',
+                                   e_num_lst_per_step,
+                                   e_energy_lst,
+                                   e_pos0_lst,
+                                   e_pos1_lst,
+                                   e_pos2_lst,
+                                   e_vel0_lst,
+                                   e_vel1_lst,
+                                   e_vel2_lst)
