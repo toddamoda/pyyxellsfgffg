@@ -27,15 +27,7 @@ def add_fix_pattern_noise(detector: Detector,
     pnu = np.loadtxt(pix_non_uniformity)
     pnu = pnu.reshape((geo.row, geo.col))
 
-    pix_rows = new_detector.pixels.get_pixel_positions_ver()
-    pix_cols = new_detector.pixels.get_pixel_positions_hor()
-
-    charge_with_noise = np.zeros((geo.row, geo.col), dtype=float)
-    charge_with_noise[pix_rows, pix_cols] = new_detector.pixels.get_pixel_charges()
-
-    charge_with_noise *= pnu
-
-    new_detector.pixels.update_from_2d_charge_array(charge_with_noise)
+    new_detector.pixels.pixel_array *= pnu
 
     return new_detector
 

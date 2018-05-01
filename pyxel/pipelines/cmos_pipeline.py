@@ -80,21 +80,23 @@ class CMOSDetectionPipeline(DetectionPipeline):
         # -> transport/modify charges ->
         # -> collect charges in pixels ->
         detector.pixels = Pixel(detector)
-        detector.pixels.generate_pixels()
         detector = self.run_model_group('charge_collection', detector)
 
         # CHARGE READOUT
         # -> create signal -> modify signal ->
-        detector.signal = detector.pixels.generate_2d_charge_array()
-        detector.signal = detector.signal.astype('float64')
-
+        char = detector.characteristics
+        detector.signal = detector.pixels.pixel_array * char.sv * char.amp * char.a1 * char.a2
+        # detector.signal = detector.signal.astype('float64')
         detector = self.run_model_group('charge_measurement', detector)
+
         detector = self.run_model_group('signal_transfer', detector)
 
         # READOUT ELECTRONICS
         # -> create image -> modify image -> END
+        # detector.image = detector.signal.astype('uint16')           # todo: replace this into detector class
+        detector.image = detector.signal
+
         detector = self.run_model_group('readout_electronics', detector)    # todo: rounding signal in models
         # at this point the image pixel values should be rounded to integers (quantization)
-        detector.image = detector.signal.astype('uint16')           # todo: replace this into detector class
 
         return detector

@@ -73,7 +73,7 @@ def cdm(detector: CCD,
     sfwc: Full Well Capacity in electrons (serial)
     """
     new_detector = detector  # type: CCD
-    chr = cast(CCDCharacteristics, new_detector.characteristics)  # type: CCDCharacteristics
+    char = cast(CCDCharacteristics, new_detector.characteristics)  # type: CCDCharacteristics
 
     # Charge injection:     # todo make a new function from this
     # image = np.zeros((100, 100), dtype=np.float32)
@@ -89,8 +89,8 @@ def cdm(detector: CCD,
 
     cdm_obj = CDM03Python(
                           # rdose=new_detector.environment.total_non_ionising_dose,
-                          fwc=chr.fwc,
-                          sfwc=chr.fwc_serial,
+                          fwc=char.fwc,
+                          sfwc=char.fwc_serial,
                           vth=new_detector.e_thermal_velocity,
                           beta_p=beta_p, beta_s=beta_s,
                           vg=vg, svg=svg,
@@ -98,11 +98,7 @@ def cdm(detector: CCD,
                           parallel_trap_file=parallel_trap_file,
                           serial_trap_file=serial_trap_file)
 
-    charge_data = new_detector.pixels.generate_2d_charge_array()
-
-    image_with_cti = cdm_obj.apply_cti(charge_data)
-
-    new_detector.pixels.update_from_2d_charge_array(image_with_cti)
+    new_detector.pixels.pixel_array = cdm_obj.apply_cti(new_detector.pixels.pixel_array)
 
     return new_detector
 

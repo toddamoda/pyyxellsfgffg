@@ -80,7 +80,7 @@ def run_tars(detector: Detector,
     tars.set_particle_spectrum(spectrum_file)
 
     if running_mode == 'stopping':
-        tars.run_mod()
+        tars.run_mod()          #####################################
         # raise NotImplementedError
         # tars.set_stopping_power(stopping_file)
         # tars.run()
@@ -410,6 +410,12 @@ class TARS:
                     k -= 1
 
         size = len(self.sim_obj.e_num_lst_per_step)
+
+        ######################################################
+        # self.sim_obj.e_num_lst_per_step = [i * 10 for i in self.sim_obj.e_num_lst_per_step]
+        # TODO delete this asap
+        # ##############################
+
         self.sim_obj.e_vel0_lst = [0.] * size
         self.sim_obj.e_vel1_lst = [0.] * size
         self.sim_obj.e_vel2_lst = [0.] * size

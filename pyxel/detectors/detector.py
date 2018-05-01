@@ -93,13 +93,13 @@ class Detector:
         assert isinstance(obj, Detector)
         return self.__getstate__() == obj.__getstate__()
 
-    @property
-    def e_effective_mass(self):
-        """TBW.
-
-        :return:
-        """
-        return self.geometry.e_effective_mass   # kg
+    # @property
+    # def e_effective_mass(self):
+    #     """TBW.
+    #
+    #     :return:
+    #     """
+    #     return self.   # kg
 
     @property
     def e_thermal_velocity(self):
@@ -108,7 +108,7 @@ class Detector:
         :return:
         """
         k_boltzmann = 1.38064852e-23   # J/K
-        return sqrt(3 * k_boltzmann * self.environment.temperature / self.geometry.e_effective_mass)
+        return sqrt(3 * k_boltzmann * self.environment.temperature / self.material.e_effective_mass)
 
     @property
     def photons(self):
