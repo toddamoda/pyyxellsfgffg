@@ -8,7 +8,6 @@
 
 import numpy as np
 from matplotlib import pyplot as plt
-import pylab as pl
 import pandas as pd
 from pathlib import Path
 # import typing as t   # noqa: F401
@@ -148,14 +147,10 @@ class PlottingTARS:
 
         hist_bins = 250
         # hist_range = (1e-1, 1e5)
-
-        col = (0, 1, 1, 1)
-
+        # col = (0, 1, 1, 1)
         plt.hist(data, bins=np.logspace(np.log10(0.1), np.log10(1e5), hist_bins))
         plt.gca().set_xscale("log")
-
         # plt.legend(loc='upper right')
-
         self.save_and_draw('tars_spectrum')
 
     def plot_charges_3d(self):
@@ -457,12 +452,11 @@ class PlottingTARS:
             histogram = np.load(str(Path(path, filename)))
 
             if i == 0:
-                col = (0, 0, 1, 0.7)
+                col = (0, 0, 1, 0.7)    # blue
             if i == 1:
-                col = (0, 1, 0, 0.7)
+                col = (0, 1, 0, 0.7)    # green
             if i == 2:
-                col = (1, 0, 0, 0.7)
-
+                col = (1, 0, 0, 0.7)    # red
             # cyan      (0, 1, 1, 0.5)
             # magenta   (1, 0, 1, 0.5)
 
@@ -482,8 +476,6 @@ class PlottingTARS:
 
         ax.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
         plt.legend(loc='upper right')
-        fig = plt.gcf()
-
         self.save_and_draw('gaia_vs_gras_electron_hist')
 
     def plot_old_tars_hist(self, normalize: bool=None):

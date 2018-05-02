@@ -33,7 +33,6 @@ def run_parametric(input_filename, output_file, random_seed=None, key=None, valu
     :param value:
     :return:
     """
-
     if random_seed:
         np.random.seed(random_seed)
     output = []

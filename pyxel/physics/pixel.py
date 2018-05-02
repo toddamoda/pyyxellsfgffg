@@ -3,11 +3,11 @@
 #   --------------------------------------------------------------------------
 """PyXel! Pixel class to store and transfer charge packets inside detector."""
 import numpy as np
-import pandas as pd
+# import pandas as pd
 # from astropy import units as u
 from astropy.units import cds
 
-from pyxel import util
+# from pyxel import util
 
 cds.enable()
 

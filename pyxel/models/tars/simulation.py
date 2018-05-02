@@ -329,7 +329,7 @@ class Simulation:
         g4_data_energy_path = Path(__file__).parent.joinpath('data', 'geant4', 'tars_geant4_energy.data')
         g4energydata = read_data(g4_data_energy_path)       # MeV
 
-        primary_e_balance = g4energydata[0] * 1.E6
+        # primary_e_balance = g4energydata[0] * 1.E6
         all_e_loss = g4energydata[1] * 1.E6
         primary_e_loss = g4energydata[2] * 1.E6
         secondary_e_loss = g4energydata[3] * 1.E6
