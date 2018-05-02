@@ -33,7 +33,8 @@ def run_tars(detector: Detector,
              starting_position: tuple = None,
              # step_size_file: str = None,
              # stopping_file: str = None,
-             spectrum_file: str = None) -> Detector:
+             spectrum_file: str = None,
+             random_seed: int = None) -> Detector:
     """TBW.
 
     :param detector:
@@ -47,10 +48,12 @@ def run_tars(detector: Detector,
     # :param step_size_file:
     # :param stopping_file:
     :param spectrum_file:
+    :param random_seed:
     :return:
     """
     new_detector = detector
-
+    if random_seed:
+        np.random.seed(random_seed)
     tars = TARS(new_detector)
 
     if simulation_mode is None:
@@ -80,8 +83,8 @@ def run_tars(detector: Detector,
     tars.set_particle_spectrum(spectrum_file)
 
     if running_mode == 'stopping':
-        tars.run_mod()          #####################################
-        # raise NotImplementedError
+        # tars.run_mod()          ########
+        raise NotImplementedError
         # tars.set_stopping_power(stopping_file)
         # tars.run()
     elif running_mode == 'stepsize':
@@ -201,15 +204,15 @@ def run_tars(detector: Detector,
     # np.save('tars-beta_lst_per_event.npy', tars.sim_obj.beta_lst_per_event)
     # np.save('tars-e_num_lst_per_step.npy', tars.sim_obj.e_num_lst_per_step)
 
-    # plot_obj = PlottingTARS(tars, save_plots=True, draw_plots=True)
+    plot_obj = PlottingTARS(tars, save_plots=True, draw_plots=True)
     # # plot_obj.plot_track_histogram(tars.sim_obj.track_length_lst_per_event, normalize=True)
     # plot_obj.plot_track_histogram(tars.sim_obj.track_length_lst_per_event)
     # # plot_obj.plot_spectrum_cdf()
-    # # plot_obj.plot_charges_3d()
+    plot_obj.plot_charges_3d()
     # # plot_obj.plot_step_dist()
     #
     # plot_obj.plot_step_size_histograms(normalize=True)
-    # plot_obj.show()
+    plot_obj.show()
 
     return new_detector
 

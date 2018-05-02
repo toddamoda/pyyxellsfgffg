@@ -88,7 +88,7 @@ def cdm(detector: CCD,
     # image[:, x_start1:x_stop1] = charge_injection
 
     cdm_obj = CDM03Python(
-                          # rdose=new_detector.environment.total_non_ionising_dose,
+                          # rdose=1.5e3,
                           fwc=char.fwc,
                           sfwc=char.fwc_serial,
                           vth=new_detector.e_thermal_velocity,
@@ -107,7 +107,7 @@ class CDM03Python:
     """Class to run CDM03 CTI model, class Fortran routine to perform the actual CDM03 calculations."""
 
     def __init__(self,
-                 # rdose: float = 8.0e11,
+                 rdose: float = None,
                  vth: float = None,
                  beta_p: float = None, beta_s: float = None,
                  vg: float = None, svg: float = None,
@@ -149,7 +149,11 @@ class CDM03Python:
             else:
                 raise ValueError('Trap data can not be read')
 
-        # self.rdose = rdose
+        if rdose:
+            self.rdose = rdose
+        else:
+            self.rdose = 1.
+
         # self.dob = dob
         self.vth = vth
 
@@ -319,7 +323,7 @@ class CDM03Python:
             print('adding parallel')
 
             no = np.zeros_like(image, dtype=np.float64)
-            # self.nt_p *= self.rdose             # absolute trap density [per cm**3]
+            self.nt_p *= self.rdose             # absolute trap density [per cm**3]
             zdim_p = len(self.nt_p)
 
             alpha_p = self.t * self.sigma_p * self.vth * self.fwc ** self.beta_p / (2. * self.vg)
@@ -348,7 +352,7 @@ class CDM03Python:
             print('adding serial')
 
             sno = np.zeros_like(image, dtype=np.float64)
-            # self.nt_s *= self.rdose             # absolute trap density [per cm**3]
+            self.nt_s *= self.rdose             # absolute trap density [per cm**3]
             zdim_s = len(self.nt_s)
 
             alpha_s = self.st * self.sigma_s * self.vth * self.sfwc ** self.beta_s / (2. * self.svg)

@@ -33,15 +33,21 @@ def add_fix_pattern_noise(detector: Detector,
 
 
 @registry.decorator('charge_measurement', name='output_node_noise', detector='ccd')
-def add_output_node_noise(detector: Detector, std_deviation: float) -> Detector:
+def add_output_node_noise(detector: Detector,
+                          std_deviation: float,
+                          random_seed: int = None) -> Detector:
     """Adding noise to signal array of detector output node using normal random distribution.
 
     detector Signal unit: Volt
     :param detector:
     :param std_deviation:
+    :param random_seed:
     :return: detector output signal with noise
     """
     new_detector = detector
+
+    if random_seed:
+        np.random.seed(random_seed)
 
     signal_mean_array = new_detector.signal.astype('float64')
     sigma_array = std_deviation * np.ones(new_detector.signal.shape)

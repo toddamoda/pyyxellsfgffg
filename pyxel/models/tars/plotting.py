@@ -168,8 +168,11 @@ class PlottingTARS:
 
         # set up a figure twice as wide as it is tall
         fig = plt.figure(figsize=plt.figaspect(0.5))
+        # fig = plt.figure()
 
         size = self.tars.sim_obj.e_num_lst_per_event
+        size = [x / 10. for x in size]
+        # ax = fig.add_subplot(1, 2, 1, projection='3d')
         ax = fig.add_subplot(1, 2, 1, projection='3d')
         ax.scatter(self.tars.sim_obj.e_pos0_lst, self.tars.sim_obj.e_pos1_lst, self.tars.sim_obj.e_pos2_lst,
                    c='b', marker='.', s=size)
@@ -177,9 +180,38 @@ class PlottingTARS:
         #         self.tars.sim_obj.particle.trajectory[:, 1],
         #         self.tars.sim_obj.particle.trajectory[:, 2], 'c-')
 
-        ax2 = fig.add_subplot(1, 2, 2, projection='3d')
-        ax2.scatter(self.tars.sim_obj.e_pos0_lst, self.tars.sim_obj.e_pos1_lst, 0,
-                    c='r', marker='.', s=size)
+        # ax2 = fig.add_subplot(1, 2, 2, projection='3d')
+        # ax2.scatter(self.tars.sim_obj.e_pos0_lst, self.tars.sim_obj.e_pos1_lst, 0,
+        #             c='r', marker='.', s=size)
+
+        # ax.hold(True)
+        point1 = np.array([0, 0, 0])
+        point2 = np.array([0, 0, -1 * geo.total_thickness])
+        # point3 = np.array([1, 2, 3])
+        normal = np.array([0, 0, 1])
+        # norma2 = np.array([0, 1, 0])
+        # norma3 = np.array([1, 0, 0])
+
+        # point2 = np.array([10, 50, 50])
+
+        # a plane is a*x+b*y+c*z+d=0
+        # [a,b,c] is the normal. Thus, we have to calculate
+        # d and we're set
+        d1 = -point1.dot(normal)
+        d2 = -point2.dot(normal)
+        # d3 = -point3.dot(norma3)
+
+        # create x,y
+        xx, yy = np.meshgrid(range(int(geo.vert_dimension)), range(int(geo.horz_dimension)))
+
+        # calculate corresponding z
+        z1 = (-normal[0] * xx - normal[1] * yy - d1) * 1. / normal[2]
+        z2 = (-normal[0] * xx - normal[1] * yy - d2) * 1. / normal[2]
+        # z3 = (-norma3[0] * xx - norma3[1] * yy - d3) * 1. / norma3[2]
+
+        ax.plot_surface(xx, yy, z1, alpha=0.2, color=(0, 0, 1))
+        ax.plot_surface(xx, yy, z2, alpha=0.2, color=(0, 0, 1))
+        # ax.plot_surface(xx, yy, z3, alpha=0.2)
 
         ax.set_xlim(0, geo.vert_dimension)
         ax.set_ylim(0, geo.horz_dimension)
@@ -188,12 +220,12 @@ class PlottingTARS:
         ax.set_ylabel('horizontal ($\mu$m)')
         ax.set_zlabel('z ($\mu$m)')
 
-        ax2.set_xlim(0, geo.vert_dimension)
-        ax2.set_ylim(0, geo.horz_dimension)
-        ax2.set_zlim(-1 * geo.total_thickness, 0)
-        ax2.set_xlabel('vertical ($\mu$m)')
-        ax2.set_ylabel('horizontal ($\mu$m)')
-        ax2.set_zlabel('z ($\mu$m)')
+        # ax2.set_xlim(0, geo.vert_dimension)
+        # ax2.set_ylim(0, geo.horz_dimension)
+        # ax2.set_zlim(-1 * geo.total_thickness, 0)
+        # ax2.set_xlabel('vertical ($\mu$m)')
+        # ax2.set_ylabel('horizontal ($\mu$m)')
+        # ax2.set_zlabel('z ($\mu$m)')
 
     def plot_let_cdf(self):
         """TBW.
@@ -410,38 +442,48 @@ class PlottingTARS:
             'complete_G4_H_He_GCR_sim_deposition.npy',  # G4, contains a lot of events with ZERO number of e-!
             r'C:\dev\work\pyxel\pyxel\models\tars\data\validation\G4_app_results_20180425\tars-e_num_lst_per_event.npy'
                       ]
-        labels = ['GAIA BAM data', 'GRAS simulation (Marco)', 'TARS simulation (David) ']
+        labels = ['Gaia BAM CCD data', 'GRAS simulation', 'TARS (Pyxel) simulation']
         i = 0
 
-        hist_bins = 500
+        hist_bins = 250
         hist_range = (1, 15E3)
 
         plt.figure()
-        plt.title('Number of electrons per event')
+        ax = plt.axes()
+
+        plt.title('Charges deposited per single event')
         for filename in hist_names:
 
             histogram = np.load(str(Path(path, filename)))
 
             if i == 0:
-                col = (0, 0, 1, 0.5)
+                col = (0, 0, 1, 0.7)
             if i == 1:
-                col = (0, 1, 0, 0.5)
+                col = (0, 1, 0, 0.7)
             if i == 2:
-                col = (1, 0, 0, 0.5)
+                col = (1, 0, 0, 0.7)
+
+            # cyan      (0, 1, 1, 0.5)
+            # magenta   (1, 0, 1, 0.5)
 
             if normalize:
-                plt.hist(histogram, bins=hist_bins, range=hist_range, label=labels[i], fc=col, density=True)
+                plt.hist(histogram, bins=hist_bins, range=hist_range, histtype='step',
+                         label=labels[i], color=col, density=True)
             else:
-                plt.hist(histogram, bins=hist_bins, range=hist_range, label=labels[i], fc=col)
+                plt.hist(histogram, bins=hist_bins, range=hist_range, histtype='step',
+                         label=labels[i], color=col)
 
             i += 1
 
-        # plt.axis([0, 15e3, 0, 0.0001])
-        # plt.axis([0, 15e3, 0, 3E3])
+        plt.axis([0, 15e3, 0, 3.e-4])
 
-        plt.xlabel('')
-        plt.ylabel('Counts')
+        plt.xlabel('Number of electrons')
+        plt.ylabel('Counts (normalized)')
+
+        ax.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
         plt.legend(loc='upper right')
+        fig = plt.gcf()
+
         self.save_and_draw('gaia_vs_gras_electron_hist')
 
     def plot_old_tars_hist(self, normalize: bool=None):

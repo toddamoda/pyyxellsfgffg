@@ -11,7 +11,7 @@ import logging
 import argparse
 import typing as t   # noqa: F401
 from pathlib import Path
-
+import numpy as np
 # import yaml
 
 import esapy_config as om
@@ -23,15 +23,19 @@ from pyxel import util
 import pyxel.pipelines.processor
 
 
-def run_parametric(input_filename, output_file, key=None, value=None):
+def run_parametric(input_filename, output_file, random_seed=None, key=None, value=None):
     """TBW.
 
     :param input_filename:
     :param output_file:
+    :param random_seed:
     :param key:
     :param value:
     :return:
     """
+
+    if random_seed:
+        np.random.seed(random_seed)
     output = []
     # parametric, processor = util.load(Path(input_filename))
     cfg = om.load(Path(input_filename))
@@ -161,8 +165,11 @@ def main():
     parser.add_argument('-o', '--output',
                         help='output file')
 
-    parser.add_argument('-t', '--type', choices=['ccd', 'cmos'],
-                        help='Used by the export command')
+    # parser.add_argument('-t', '--type', choices=['ccd', 'cmos'],
+    #                     help='Used by the export command')
+
+    parser.add_argument('-s', '--seed',
+                        help='Define random seed for the framework')
 
     opts = parser.parse_args()
 
@@ -172,7 +179,7 @@ def main():
     logging.basicConfig(level=log_level, format=log_format)
 
     if opts.command == 'run':
-        run_parametric(opts.config, opts.output)
+        run_parametric(opts.config, opts.output, opts.seed)
 
     elif opts.command == 'export':
         if opts.type is None:

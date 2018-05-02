@@ -21,13 +21,13 @@ processor:
 
     geometry:
       class: pyxel.detectors.ccd_geometry.CCDGeometry
-      row:   100 # 2381 #580 # 4494                   # compulsory
-      col:   100 # 2376 #640 # 1966                   # compulsory
-      total_thickness: 200.0         # um
+      row:   4 # 2381 #580 # 4494                   # compulsory
+      col:   4 # 2376 #640 # 1966                   # compulsory
+      total_thickness: 40.0         # um
       depletion_thickness: 0.0      # um
       field_free_thickness: 0.0     # um
-      pixel_vert_size: 15. #10.0         # um
-      pixel_horz_size: 15. #10.0  #30.   # um
+      pixel_vert_size: 10. #10.0         # um
+      pixel_horz_size: 10. #10.0  #30.   # um
 
     material:
       class: pyxel.detectors.material.Material
@@ -52,8 +52,8 @@ processor:
       amp: 1.              # V/V
       a1: 100               # V/V
       a2: 65536             # DN/V
-      fwc: 20000            # e
-      fwc_serial: 30000     # e
+      fwc: 2800            # e
+      fwc_serial: 3000     # e
 #      bias_voltage: 0.0             # V
 
   pipeline:
@@ -66,13 +66,15 @@ processor:
         func: pyxel.models.photon_generation.load_image
         enabled: false
         arguments:
-          image_file: data/m42_40min_ir.fits # pyxel/cosmics-shot-fpn-cti.fits
+          image_file: data/055.fits # data/m42_40min_ir.fits # pyxel/cosmics-shot-fpn-cti.fits
+          rows: 1000 # 2381/2
+          cols: 1000 # 2376/2
       -
         name: photon_level
         func: pyxel.models.photon_generation.add_photon_level
         enabled: true
         arguments:
-          level: 100
+          level: 0
       -
         name: shot_noise
         func: pyxel.models.photon_generation.add_shot_noise
@@ -85,8 +87,8 @@ processor:
     charge_generation:
       -
         name: photoelectrons
-        enabled: true
         func: pyxel.models.photoelectrons.simple_conversion
+        enabled: true
       -
         name: tars
         func: pyxel.models.tars.tars.run_tars
@@ -96,13 +98,13 @@ processor:
           running_mode: stepsize  # stopping  # plotting  # geant4
           particle_type: proton
           initial_energy: random   # MeV
-          particle_number: 10
+          particle_number: 5
           incident_angles:      # rad
 #            - 0.31415 # pi / 4
 #            - 3.1415  # 0 # 1.570 # 3.1415 # 2.094 # pi / 2
           starting_position:    # um
-#            - 10. #500.0  # vertical
-#            - 20. #500.0  # horizontal
+#            - random # 10. #500.0  # vertical
+#            - random # 20. #500.0  # horizontal
 #            - 0.0         # z
           spectrum_file: 'pyxel/models/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
 
@@ -110,8 +112,8 @@ processor:
     charge_collection:
       -
         name: fixed_pattern_noise
-        enabled: false
         func: pyxel.models.ccd_noise.add_fix_pattern_noise
+        enabled: false
         arguments:
           pix_non_uniformity: data/non_uniformity_array_normal_random_dist.data
       -
@@ -123,8 +125,8 @@ processor:
     charge_transfer:
       -
         name: cdm
-        enabled: false
         func: pyxel.models.cdm.CDM.cdm
+        enabled: false
         arguments:
          beta_p: 0.6
          beta_s: 0.6
@@ -133,16 +135,16 @@ processor:
          t: 20.48e-3
          st: 5.0e-6
          parallel_trap_file: pyxel/models/cdm/cdm_euclid_parallel.dat
-         serial_trap_file: pyxel/models/cdm/cdm_euclid_serial.dat
+#         serial_trap_file: pyxel/models/cdm/cdm_euclid_serial.dat
 
     # charge -> signal
     charge_measurement:
       -
         name: output_node_noise
-        enabled: false
         func: pyxel.models.ccd_noise.add_output_node_noise
+        enabled: false
         arguments:
-          std_deviation: 1.0
+          std_deviation: 1000.
 
     # signal -> image
     readout_electronics:
