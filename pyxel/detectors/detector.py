@@ -47,6 +47,10 @@ class Detector:
         self.characteristics = characteristics
         self.header = OrderedDict()  # type: t.Dict[str, object]
 
+        ##### experimantal ######
+        self.geometry.create_sensor()
+        #########################
+
     def update_header(self):
         """TBW."""
         for name, obj in self.__getstate__().items():
@@ -92,14 +96,6 @@ class Detector:
         """
         assert isinstance(obj, Detector)
         return self.__getstate__() == obj.__getstate__()
-
-    # @property
-    # def e_effective_mass(self):
-    #     """TBW.
-    #
-    #     :return:
-    #     """
-    #     return self.   # kg
 
     @property
     def e_thermal_velocity(self):

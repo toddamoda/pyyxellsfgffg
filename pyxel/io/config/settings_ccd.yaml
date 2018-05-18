@@ -21,13 +21,31 @@ processor:
 
     geometry:
       class: pyxel.detectors.ccd_geometry.CCDGeometry
-      row:   4 # 2381 #580 # 4494                   # compulsory
-      col:   4 # 2376 #640 # 1966                   # compulsory
+
+      row:   10 # 2381 #580 # 4494                   # compulsory
+      col:   16 # 2376 #640 # 1966                   # compulsory
       total_thickness: 40.0         # um
       depletion_thickness: 0.0      # um
       field_free_thickness: 0.0     # um
       pixel_vert_size: 10. #10.0         # um
       pixel_horz_size: 10. #10.0  #30.   # um
+
+      readout_nodes: 1    # channels
+#      image_area:
+#        row:   5
+#        col:   10
+#      parallel_overscan:
+#        type: physical  # virtual
+#        row:   3
+#        col:   10
+#      serial_underscan:
+#        type: physical  # virtual
+#        row:   8
+#        col:   2
+#      serial_overscan:
+#        type: physical  # virtual
+#        row:   8
+#        col:   4
 
     material:
       class: pyxel.detectors.material.Material
