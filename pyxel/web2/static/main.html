@@ -36,7 +36,7 @@
             {% include "control.html" %}
         </div>
 
-        {% for index, group in enumerate(controller.gui) %}
+        {% for index, group in enumerate(handler.application.controller.gui) %}
         <div id="group-{{index}}" class="pe-tab">
             {% include "gui_def.html" %}
         </div>
@@ -53,7 +53,7 @@
             <td style="vertical-align:top;">
             {% include "control.html" %}
             </td>
-        {% for index, group in enumerate(controller.gui) %}
+        {% for index, group in enumerate(handler.application.controller.gui) %}
             <td style="vertical-align:top;">
             {% include "gui_def.html" %}
             </td>
