@@ -4,8 +4,8 @@ import esapy_config as om
 from pyxel.detectors.geometry import Geometry
 
 # import os
-import numpy as np
-from esapy_sensor.sensor_ccd import CCDSensorGeometry, CCDFrame, HeaderPLATO
+# import numpy as np
+# from esapy_sensor.sensor_ccd import CCDSensorGeometry, CCDFrame, HeaderPLATO
 
 
 @om.attr_class
@@ -25,7 +25,7 @@ class CCDGeometry(Geometry):
         return {**states, **ccd_states}
 
     def create_sensor(self):
-        """Construct esapy_sensor objects for CCD geometry and frame
+        """Construct esapy_sensor objects for CCD geometry and frame.
 
         :return:
         """

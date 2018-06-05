@@ -19,10 +19,10 @@ import datetime
 import os
 
 import astropy.io.fits as fits
-import numba  # todo: remove or add to requirements, but only if it works
+# import numba
 import numpy as np
 from typing import cast
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 from pyxel.detectors.ccd import CCD
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics  # noqa: F401
@@ -363,8 +363,10 @@ class CDM03Python:
         # jdim == xdim
 
         # array sizes
-        ############## ydim, xdim = image.shape
-        ############## s = image
+        #############
+        # ydim, xdim = image.shape
+        # s = image
+        #############
 
         # add background electrons (diffuse optical background level)
         # s += self.dob
@@ -377,9 +379,11 @@ class CDM03Python:
         if self.parallel_cti:
             print('adding parallel')
 
-            ########## no = np.zeros_like(image, dtype=np.float64)
+            #########
+            # no = np.zeros_like(image, dtype=np.float64)
             # self.nt_p *= self.rdose             # absolute trap density [per cm**3]
-            ########## zdim_p = len(self.nt_p)
+            # zdim_p = len(self.nt_p)
+            #########
 
             alpha_p = self.t * self.sigma_p * self.vth * self.fwc ** self.beta_p / (2. * self.vg)
             g_p = 2. * self.nt_p * self.vg / self.fwc ** self.beta_p
@@ -390,36 +394,39 @@ class CDM03Python:
             for i in range(ydim):
                 print(i)
                 gamma_p = g_p * (x + i)
-                ######### for k in range(zdim_p):
+                #######
+                # for k in range(zdim_p):
+                #######
                 for k in range(kdim):
                     for j in range(xdim):
                         nc = 0.
 
-                        if s[j,i] > 0.:
+                        if s[j, i] > 0.:
                             # nc = max((gamma_p[i, k] * s[i, j] ** self.beta_p - no[j, k]) /
                             #          (gamma_p[i, k] * s[i, j] ** (self.beta_p - 1.) + 1.) *
                             #          (1. - np.exp(-alpha_p[k] * s[i, j] ** (1. - self.beta_p))), 0.)
                             # nc = max((gamma_p[k] * s[i, j] ** self.beta_p - no[j, k]) /
                             #          (gamma_p[k] * s[i, j] ** (self.beta_p - 1.) + 1.) *
                             #          (1. - np.exp(-alpha_p[k] * s[i, j] ** (1. - self.beta_p))), 0.)
-                            nc = max((gamma_p[k] * s[j,i] ** self.beta_p - no[j, k]) /
-                                     (gamma_p[k] * s[j,i] ** (self.beta_p - 1.) + 1.) *
-                                     (1. - np.exp(-alpha_p[k] * s[j,i] ** (1. - self.beta_p))), 0.)
+                            nc = max((gamma_p[k] * s[j, i] ** self.beta_p - no[j, k]) /
+                                     (gamma_p[k] * s[j, i] ** (self.beta_p - 1.) + 1.) *
+                                     (1. - np.exp(-alpha_p[k] * s[j, i] ** (1. - self.beta_p))), 0.)
                             no[j, k] += nc
                         # no[j, k] += nc
                         nr = no[j, k] * (1. - np.exp(-self.t/self.tr_p[k]))
                         # s[i, j] += -1 * nc + nr
-                        s[j,i] += -1 * nc + nr
+                        s[j, i] += -1 * nc + nr
                         no[j, k] -= nr
 
         # now serial direction
         if self.serial_cti:
             print('adding serial')
 
-            ########### sno = np.zeros_like(image, dtype=np.float64)
+            ##########
+            #  sno = np.zeros_like(image, dtype=np.float64)
             # self.nt_s *= self.rdose             # absolute trap density [per cm**3]
             # zdim_s = len(self.nt_s)
-
+            ##########
             alpha_s = self.st * self.sigma_s * self.vth * self.sfwc ** self.beta_s / (2. * self.svg)
             g_s = 2. * self.nt_s * self.svg / self.sfwc ** self.beta_s
 
@@ -428,27 +435,29 @@ class CDM03Python:
             for j in range(xdim):
                 print(j)
                 gamma_s = g_s * (j + y)
-                ######### for k in range(zdim_s):
+                ########
+                #  for k in range(zdim_s):
+                ########
                 for k in range(kdim):
                     # if self.tr_s[k] < self.t:
                     for i in range(ydim):
                         nc = 0.
 
-                        if s[j,i] > 0.:
+                        if s[j, i] > 0.:
                             # nc = max((gamma_s[j, k] * s[i, j] ** self.beta_s - sno[i, k]) /
                             #          (gamma_s[j, k] * s[i, j] ** (self.beta_s - 1.) + 1.) *
                             #          (1. - np.exp(-alpha_s[k] * s[i, j] ** (1. - self.beta_s))), 0.)
                             # nc = max((gamma_s[k] * s[i, j] ** self.beta_s - sno[i, k]) /
                             #          (gamma_s[k] * s[i, j] ** (self.beta_s - 1.) + 1.) *
                             #          (1. - np.exp(-alpha_s[k] * s[i, j] ** (1. - self.beta_s))), 0.)
-                            nc = max((gamma_s[k] * s[j,i] ** self.beta_s - sno[i, k]) /
-                                     (gamma_s[k] * s[j,i] ** (self.beta_s - 1.) + 1.) *
-                                     (1. - np.exp(-alpha_s[k] * s[j,i] ** (1. - self.beta_s))), 0.)
+                            nc = max((gamma_s[k] * s[j, i] ** self.beta_s - sno[i, k]) /
+                                     (gamma_s[k] * s[j, i] ** (self.beta_s - 1.) + 1.) *
+                                     (1. - np.exp(-alpha_s[k] * s[j, i] ** (1. - self.beta_s))), 0.)
                             sno[i, k] += nc
                         # sno[i, k] += nc
                         nr = sno[i, k] * (1. - np.exp(-self.st/self.tr_s[k]))
                         # s[i, j] += -1 * nc + nr
-                        s[j,i] += -1 * nc + nr
+                        s[j, i] += -1 * nc + nr
                         sno[i, k] -= nr
 
         ######################

@@ -47,9 +47,9 @@ class Detector:
         self.characteristics = characteristics
         self.header = OrderedDict()  # type: t.Dict[str, object]
 
-        ##### experimantal ######
-        self.geometry.create_sensor()
-        #########################
+        # experimantal! ############
+        # self.geometry.create_sensor()
+        ############################
 
     def update_header(self):
         """TBW."""

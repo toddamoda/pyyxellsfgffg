@@ -1,7 +1,7 @@
 """Geometry class for detector."""
 import esapy_config as om
 
-from esapy_sensor.sensor_ccd import CCDSensorGeometry, CCDFrame
+# from esapy_sensor.sensor_ccd import CCDSensorGeometry, CCDFrame
 
 
 @om.attr_class
@@ -62,16 +62,16 @@ class Geometry:
         units='',
         validate=om.check_range(1, 4, 1, False)
     )
-    sensor_geometry = om.attr_def(
-        type=CCDSensorGeometry,
-        default=None,
-        cast=True
-    )
-    frame = om.attr_def(
-        type=CCDFrame,
-        default=None,
-        cast=True
-    )
+    # sensor_geometry = om.attr_def(
+    #     type=CCDSensorGeometry,
+    #     default=None,
+    #     cast=True
+    # )
+    # frame = om.attr_def(
+    #     type=CCDFrame,
+    #     default=None,
+    #     cast=True
+    # )
 
     def copy(self):
         """TBW."""
@@ -116,4 +116,3 @@ class Geometry:
     def calculate_depletion_thickness(self):
         """TBW."""
         pass
-
