@@ -1,17 +1,15 @@
 ################
-# Pyxel configuration file for CCD detectors
-# David Lucsanyi
+# Pyxel - YAML configuration file for CCD detectors
+# by David Lucsanyi
 ################
-
-parametric:
-  mode: single
-#  mode: embedded
-#  mode: sequential
+simulation:
+  mode: parametric  # calibration  # single
   steps:
     -
-      enabled: false
+      enabled: true
       key: pipeline.photon_generation.photon_level.arguments.level
-      values: [10, 20, 30]
+      values: [100, 200, 300]
+
 
 processor:
   class: pyxel.pipelines.processor.Processor
@@ -21,61 +19,43 @@ processor:
 
     geometry:
       class: pyxel.detectors.ccd_geometry.CCDGeometry
-
-      row:   4510 # 2381 #580 # 4494                   # compulsory
-      col:   1000 # 2376 #640 # 1966                   # compulsory
-      total_thickness: 40.0         # um
-      depletion_thickness: 0.0      # um
-      field_free_thickness: 0.0     # um
-      pixel_vert_size: 10. #10.0         # um
-      pixel_horz_size: 10. #10.0  #30.   # um
-
-      readout_nodes: 1    # channels
-#      image_area:
-#        row:   5
-#        col:   10
-#      parallel_overscan:
-#        type: physical  # virtual
-#        row:   3
-#        col:   10
-#      serial_underscan:
-#        type: physical  # virtual
-#        row:   8
-#        col:   2
-#      serial_overscan:
-#        type: physical  # virtual
-#        row:   8
-#        col:   4
+      row:   2000
+      col:   2000
+      total_thickness: 40.0              # um
+      depletion_thickness: 0.0           # um
+      field_free_thickness: 0.0          # um
+      pixel_vert_size: 10.               # um
+      pixel_horz_size: 10.               # um
+      readout_nodes: 1
 
     material:
       class: pyxel.detectors.material.Material
       material: 'silicon'
-#      compound: 'silicon'
-#        element: 'silicon'
-#        ratio: 1.
-      n_acceptor: 0.0               # cm-3
-      n_donor: 0.0                  # cm-3
+      n_acceptor: 0.0                    # cm-3
+      n_donor: 0.0                       # cm-3
 
     environment:
       class: pyxel.detectors.environment.Environment
-      temperature: 300                     # K
-#      total_ionising_dose: 0              #
-#      total_non_ionising_dose: 0          #
+      temperature: 300                   # K
+      total_ionising_dose: 1e+8          # MeV/g
+      niel: 2.e+5                        # MeV/g
 
     characteristics:
       class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
-      qe: 0.5               # -
-      eta: 0.5                # e/photon
-      sv: 1.0e-6            # V/e
-      amp: 1.              # V/V
-      a1: 100               # V/V
-      a2: 65536             # DN/V
-      fwc: 2800            # e
-      fwc_serial: 3000     # e
-#      bias_voltage: 0.0             # V
+      qe: 0.5                            # -
+      eta: 0.5                           # e/photon
+      sv: 1.0e-6                         # V/e
+      amp: 1.                            # V/V
+      a1: 100                            # V/V
+      a2: 65536                          # DN/V
+      fwc: 2800                          # e
+      fwc_serial: 3000                   # e
+      bias_voltage: 50.0                 # V
+
 
   pipeline:
     class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
+
 
     # -> photons
     photon_generation:
@@ -106,27 +86,22 @@ processor:
       -
         name: photoelectrons
         func: pyxel.models.photoelectrons.simple_conversion
-        enabled: false
+        enabled: true
       -
         name: tars
         func: pyxel.models.tars.tars.run_tars
-        enabled: false
+        enabled: true
         arguments:
-          simulation_mode: cosmic_ray   # snowflakes
-          running_mode: plotting # stepsize  # stopping  # plotting  # geant4
-          particle_type: proton
-          initial_energy: random   # MeV
-          particle_number: 5
-          incident_angles:      # rad
-#            - 0.31415 # pi / 4
-#            - 3.1415  # 0 # 1.570 # 3.1415 # 2.094 # pi / 2
-          starting_position:    # um
-#            - random # 10. #500.0  # vertical
-#            - random # 20. #500.0  # horizontal
-#            - 0.0         # z
+          simulation_mode: cosmic_ray
+          running_mode: stepsize  # stopping  # geant4
+          particle_type: proton   # ion  # electron
+          initial_energy: random            # MeV
+          particle_number: 100
+          incident_angles:                  # rad
+          starting_position:                # um
           spectrum_file: 'pyxel/models/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
 
-    # charge -> charge
+    # charge -> pixel
     charge_collection:
       -
         name: fixed_pattern_noise
@@ -139,7 +114,7 @@ processor:
         func: pyxel.models.full_well.simple_pixel_full_well
         enabled: false
 
-    # charge -> charge
+    # pixel -> pixel
     charge_transfer:
       -
         name: cdm
@@ -155,12 +130,12 @@ processor:
          parallel_trap_file: pyxel/models/cdm/cdm_euclid_parallel.dat
          serial_trap_file: pyxel/models/cdm/cdm_euclid_serial.dat
 
-    # charge -> signal
+    # pixel -> signal
     charge_measurement:
       -
         name: output_node_noise
         func: pyxel.models.ccd_noise.add_output_node_noise
-        enabled: false
+        enabled: true
         arguments:
           std_deviation: 1000.
 

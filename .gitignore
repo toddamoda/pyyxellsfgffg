@@ -3,6 +3,9 @@
 *.fits
 *.npy
 
+# Pyxel YAML files created by GUI
+test.yaml
+
 # Pyxel plots
 *.png
 *.jpg
