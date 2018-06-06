@@ -3,7 +3,7 @@ $(document).ready(function() {
 
     $('#get-state').on('click', function() {
         console.log('get-state')
-        connection.emit('api', 'GET-STATE', [])
+        connection.emit('*', 'GET-STATE', [])
     });
 
     // define the application action handlers
@@ -15,36 +15,36 @@ $(document).ready(function() {
         window.location = url;
     });
     $('#generate button').on('click', function() {
-        connection.emit('api', 'EXECUTE-CALL', ['save_config', $(this).get_value()]);
+        connection.emit('*', 'EXECUTE-CALL', ['save_config', $(this).get_value()]);
     });
     $('#load button').on('click', function() {
-        connection.emit('api', 'EXECUTE-CALL', ['load_config', $(this).get_value()]);
+        connection.emit('*', 'EXECUTE-CALL', ['load_config', $(this).get_value()]);
     });
     $('#load-module button').on('click', function() {
-        connection.emit('api', 'EXECUTE-CALL', ['load_modules', $(this).get_value()]);
+        connection.emit('*', 'EXECUTE-CALL', ['load_modules', $(this).get_value()]);
         $('#pipeline select').trigger('change');
     });
     $('#registry button').on('click', function() {
-        connection.emit('api', 'EXECUTE-CALL', ['load_registry', $(this).get_value()]);
+        connection.emit('*', 'EXECUTE-CALL', ['load_registry', $(this).get_value()]);
         $('#pipeline select').trigger('change');
     });
     $('#update-from-file button').on('click', function() {
-        connection.emit('api', 'EXECUTE-CALL', ['load_defaults', $(this).get_value()]);
+        connection.emit('*', 'EXECUTE-CALL', ['load_defaults', $(this).get_value()]);
     });
     $('#sequence-mode button').on('click', function() {
         var run_mode = $('#sequence-mode input[name=mode]:checked').val();
-        connection.emit('api', 'EXECUTE-CALL', ['set_sequence_mode', run_mode])
+        connection.emit('*', 'EXECUTE-CALL', ['set_sequence_mode', run_mode])
         $('.sequence').each(function(index) {
             var is_enabled = $(this).is_enabled();
             var key = $('select', $(this)).val();
             var range = $('input[type="text"]', $(this)).val();
-            connection.emit('api', 'SET-SEQUENCE', [index, key, range, is_enabled])
+            connection.emit('*', 'SET-SEQUENCE', [index, key, range, is_enabled])
         });
     });
 
     $('#state button').on('click', function() {
         var output_file = $('#output_file').get_value();
-        connection.emit('api', 'RUN-PIPELINE', [output_file]);
+        connection.emit('*', 'RUN-PIPELINE', [output_file]);
     });
 
     $('#setting-reset').on('click', function() {
@@ -61,12 +61,13 @@ $(document).ready(function() {
     });
 
     $('.model-state').on('change', function() {
-        connection.emit('api', 'SET-MODEL-STATE', [this.id, this.checked]);
+        connection.emit('*', 'SET-MODEL-STATE', [this.id, this.checked]);
     });
 
 
     $('.model-state').on('update', function(event) {
-        connection.emit('api', 'GET-MODEL-STATE', [this.id]);
+        connection.emit('*', 'GET-MODEL-STATE', [this.id]);
+        connection.emit('*', 'GET-MODEL-STATE', [this.id]);
     });
 
 

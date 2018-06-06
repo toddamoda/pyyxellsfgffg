@@ -31,8 +31,8 @@ processor:
   class: pyxel.pipelines.processor.Processor
   detector:
     characteristics:
-      a1: 100
-      a2: 65536
+      a1: 100.0
+      a2: 65536.0
       amp: 0.8
       class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
       eta: 1

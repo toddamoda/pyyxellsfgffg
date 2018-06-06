@@ -1,6 +1,9 @@
 """Geometry class for detector."""
 import esapy_config as om
 
+# Universal global constants
+M_ELECTRON = 9.10938356e-31    # kg
+
 
 @om.attr_class
 class Geometry:
@@ -28,100 +31,100 @@ class Geometry:
     row = om.attr_def(
         type=int,
         default=0,
-        cast=True,
-        validate=om.check_range(0, 10000, 1, False)
+        converter=int,
+        validator=om.validate_range(0, 10000, 1, False)
     )
     col = om.attr_def(
         type=int,
         default=0,
-        cast=True,
-        validate=om.check_range(0, 10000, 1, False)
+        converter=int,
+        validator=om.validate_range(0, 10000, 1, False)
     )
     depletion_thickness = om.attr_def(
         type=float,
         default=0.0,
-        cast=True,
-        units='um',
-        validate=om.check_range(0.0, 1000.0, 0.1, False)
+        converter=float,
+        validator=om.validate_range(0.0, 1000.0, 0.1, False),
+        metadata={'units': 'um'}
     )
     field_free_thickness = om.attr_def(
         type=float,
         default=0.0,
-        cast=True,
-        units='um',
-        validate=om.check_range(0.0, 1000.0, 0.1, False)
+        converter=float,
+        validator=om.validate_range(0.0, 1000.0, 0.1, False),
+        metadata={'units': 'um'}
     )
     total_thickness = om.attr_def(
         type=float,
         default=0.0,
-        cast=True,
-        units='um',
-        validate=om.check_range(0.0, 1000.0, 0.1, False)
+        converter=float,
+        validator=om.validate_range(0.0, 1000.0, 0.1, False),
+        metadata={'units': 'um'}
     )
     pixel_vert_size = om.attr_def(
         type=float,
         default=0.0,
-        cast=True,
-        units='um',
-        validate=om.check_range(0.0, 1000.0, 0.1, False)
+        converter=float,
+        validator=om.validate_range(0.0, 1000.0, 0.1, False),
+        metadata={'units': 'um'}
     )
     pixel_horz_size = om.attr_def(
         type=float,
         default=0.0,
-        cast=True,
-        units='um',
-        validate=om.check_range(0.0, 1000.0, 0.1, False)
+        converter=float,
+        validator=om.validate_range(0.0, 1000.0, 0.1, False),
+        metadata={'units': 'um'}
     )
     n_acceptor = om.attr_def(
         type=float,
         default=0.0,
-        cast=True,
-        units='cm-3',
-        validate=om.check_range(0.0, 1000.0, 0.1, False)
+        converter=float,
+        validator=om.validate_range(0.0, 1000.0, 0.1, False),
+        metadata={'units': 'cm-3'}
     )
     n_donor = om.attr_def(
         type=float,
         default=0.0,
-        cast=True,
-        units='cm-3',
-        validate=om.check_range(0.0, 1000.0, 0.1, False)
+        converter=float,
+        validator=om.validate_range(0.0, 1000.0, 0.1, False),
+        metadata={'units': 'cm-3'}
     )
     bias_voltage = om.attr_def(
         type=float,
         default=0.0,
-        cast=True,
-        units='V',
-        validate=om.check_range(0.0, 40.0, 0.001, False)
+        converter=float,
+        validator=om.validate_range(0.0, 40.0, 0.001, False),
+        metadata={'units': 'V'}
     )
     material = om.attr_def(
         type=str,
         default='silicon',
-        validate=om.check_choices(['', 'silicon', 'hxrg']),
+        validator=om.validate_choices(['', 'silicon', 'hxrg']),
         on_set=set_material
     )
     material_density = om.attr_def(
         init=False,
         type=float,
         default=0.0,
-        units='g/cm3',
+        metadata={'units': 'g/cm3'}
     )
     material_ionization_energy = om.attr_def(
         init=False,
         type=float,
         default=0.0,
-        units='eV',
+        metadata={'units': 'eV'}
     )
     band_gap = om.attr_def(
         init=False,
         type=float,
         default=0.0,
-        units='eV',
+        metadata={'units': 'eV'}
     )
     e_effective_mass = om.attr_def(
         init=False,
         type=float,
         default=0.0,
-        units='kg',
+        metadata={'units': 'kg'}
     )
 
     def copy(self):

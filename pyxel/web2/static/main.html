@@ -3,6 +3,9 @@
 <head>
     {% include "head.html" %}
     <title>PyXEL GUI</title>
+    <link rel="stylesheet" href="/gui/static/control.css">
+    <script src="/gui/static/jquery.pe.js"></script>
+    <script src="/gui/static/control.js"></script>
     <script src="/pyxel/pyxel.js"></script>
 </head>
 
@@ -21,39 +24,13 @@
         <button class="btn btn-primary" id="start-imager" >Start Imager</button>
     </div>
 
-{% if use_tabs %}
-    <br/>
-    <ul class="nav nav-tabs">
-        <li class="active"><a data-toggle="tab" href="#group-control">Pipeline Control</a></li>
-        <li><a data-toggle="tab" href="#group-0">Detector Attributes</a></li>
-        <li><a data-toggle="tab" href="#group-1">Model Settings</a></li>
-        <li><a data-toggle="tab" href="#group-viewer">JS9 Viewer</a></li>
-    </ul>
-
-    <div class="tab-content">
-
-        <div id="group-control" class="pe-tab">
-            {% include "control.html" %}
-        </div>
-
-        {% for index, group in enumerate(handler.application.controller.gui) %}
-        <div id="group-{{index}}" class="pe-tab">
-            {% include "gui_def.html" %}
-        </div>
-        {% end %}
-
-        <div id="group-viewer" class="pe-tab">
-            {% include "viewer.html" %}
-        </div>
-
-    </div>
-{% else %}
     <table>
         <tr>
             <td style="vertical-align:top;">
-            {% include "control.html" %}
+            {% include "/home/hsmit/PycharmProjects/pyxel/pyxel/web2/static/control.html" %}
             </td>
-        {% for index, group in enumerate(handler.application.controller.gui) %}
+
+        {% for index, group in enumerate(handler.groups()) %}
             <td style="vertical-align:top;">
             {% include "gui_def.html" %}
             </td>
@@ -62,8 +39,9 @@
             {% include "viewer.html" %}
             </td>
         </tr>
+
     </table>
-{% end %}
+
 
 </div>
 

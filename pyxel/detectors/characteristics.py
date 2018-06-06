@@ -9,49 +9,49 @@ class Characteristics:
     qe = om.attr_def(
         type=float,
         default=0.0,
-        cast=True,
-        validate=om.check_range(0.0, 100.0, 0.01, False),
+        converter=float,
+        validator=om.validate_range(0.0, 100.0, 0.01, False),
         doc='quantum efficiency'
     )
 
     eta = om.attr_def(
         type=float,
         default=0.0,
-        cast=True,
-        validate=om.check_range(0.0, 100.0, 0.01, False),
+        converter=float,
+        validator=om.validate_range(0.0, 100.0, 0.01, False),
         doc='quantum yield'
     )
 
     sv = om.attr_def(
         type=float,
         default=0.0,
-        cast=True,
-        validate=om.check_range(0.0, 100.0, 0.01, False),
+        converter=float,
+        validator=om.validate_range(0.0, 100.0, 0.01, False),
         doc='sensitivity of CCD amplifier',
-        units='V/-e'
+        metadata={'units': 'V/-e'}
     )
 
     amp = om.attr_def(
         type=float,
         default=0.0,
-        cast=True,
-        validate=om.check_range(0.0, 100.0, 0.01, False),
+        converter=float,
+        validator=om.validate_range(0.0, 100.0, 0.01, False),
         doc='output amplifier gain',
     )
 
     a1 = om.attr_def(
         type=float,
         default=0.0,
-        cast=True,
-        validate=om.check_range(0.0, 100.0, 1.0, False),
+        converter=float,
+        validator=om.validate_range(0.0, 100.0, 1.0, False),
         doc='gain of the signal processor',
     )
 
     a2 = om.attr_def(
         type=float,
-        default=0,
-        cast=True,
-        validate=om.check_range(0.0, 65536.0, 1.0, False),
+        default=0.0,
+        converter=float,
+        validator=om.validate_range(0.0, 65536.0, 1.0, False),
         # validate=om.check_range(0.0, 10.0, 0.01, False),
         doc='gain of the ADC',
     )
@@ -59,10 +59,10 @@ class Characteristics:
     fwc = om.attr_def(
         type=int,
         default=0,
-        cast=True,
-        validate=om.check_range(0, 1000000, 1, False),
+        converter=int,
+        validator=om.validate_range(0, 1000000, 1, False),
         doc='full well capacity (parallel)',
-        units='electrons'
+        metadata={'units': 'electrons'}
     )
     #
     # def __init__(self,

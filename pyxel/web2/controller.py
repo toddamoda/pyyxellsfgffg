@@ -3,10 +3,11 @@ import logging
 import threading
 import importlib
 from pathlib import Path
+import typing as t
 
-import esapy_config as om
-from esapy_web.webapp2 import webapp
-from esapy_web.webapp2 import signals
+import esapy_config as om  # noqa: F401
+
+from esapy_web.webapp2.modules import guiconfig
 
 from pyxel import util
 from pyxel.pipelines.processor import Processor
@@ -22,39 +23,65 @@ LOAD_PIPELINE = 'LOAD-PIPELINE'
 RUN_PIPELINE = 'RUN-PIPELINE'
 SET_SEQUENCE = 'SET-SEQUENCE'
 OUTPUT_DATA_DIR = 'OUTPUT-DIR'
+SET_SETTING = 'SET-SETTING'
+GET_SETTING = 'GET-SETTING'
+GET_STATE = 'GET-STATE'
+# APPEND_STATE = 'APPEND-STATE'
+# SAVE_STATE = 'SAVE-STATE'
+# LOAD_STATE = 'LOAD-STATE'
+# UPDATED = 'UPDATED'
+PROGRESS = 'PROGRESS'
+EXECUTE_CALL = 'EXECUTE-CALL'
+# CALL_FUNCTION = 'CALL-FUNCTION'
+# CALL_FUNCTION_ASYNC = 'CALL-FUNCTION-ASYNC'
 
 
-class Controller:
+class Controller(guiconfig.Controller):
     """TBW."""
 
-    def __init__(self, processor: Processor=None) -> None:
+    def __init__(self, dispatcher: t.Any, processor: Processor=None) -> None:
         """TBW.
 
         :param processor:
         """
+        super(Controller, self).__init__(processor, dispatcher)
+
         config_dir = Path(__file__).parent.parent
         self.pipeline_paths = {
             'ccd': config_dir.joinpath('io', 'templates', 'ccd.yaml'),
             'cmos': config_dir.joinpath('io', 'templates', 'cmos.yaml'),
         }
         self._log = logging.getLogger(__name__)
-        self._th = None             # type: threading.Thread
+        self._th = None             # type: t.Optional[threading.Thread]
         self._is_running = False    # type: bool
-        self._modified_time = None  # type: float
-        self._items = None          # type: dict
-        self.processor = processor  # type: Processor
+        self._modified_time = None  # type: t.Optional[float]
+        self._items = None          # type: t.Optional[dict]
+        self.processor = processor  # type: t.Optional[Processor]
         self.parametric = None
+        self.dispatcher = dispatcher
 
-        signals.dispatcher.connect(sender='api', signal=LOAD_PIPELINE, callback=self.load_template)
-        signals.dispatcher.connect(sender='api', signal=RUN_PIPELINE, callback=self.toggle_pipeline)
-        signals.dispatcher.connect(sender='api', signal=SET_SEQUENCE, callback=self.set_sequence)
-        signals.dispatcher.connect(sender='api', signal=SET_MODEL_STATE, callback=self.set_model_state)
-        signals.dispatcher.connect(sender='api', signal=GET_MODEL_STATE, callback=self.get_model_state)
-        signals.dispatcher.connect(sender='api', signal=signals.SET_SETTING, callback=self.set_setting)
-        signals.dispatcher.connect(sender='api', signal=signals.GET_SETTING, callback=self.get_setting)
-        signals.dispatcher.connect(sender='api', signal=signals.PROGRESS, callback=webapp.announce_progress)
-        signals.dispatcher.connect(sender='api', signal=signals.GET_STATE, callback=self.get_state)
-        signals.dispatcher.connect(sender='api', signal=signals.EXECUTE_CALL, callback=self.execute_call)
+        sender = guiconfig.Signals.SENDER_CONFIG
+        dispatcher.connect(sender, signal=LOAD_PIPELINE, callback=self.load_template)
+        dispatcher.connect(sender, signal=RUN_PIPELINE, callback=self.toggle_pipeline)
+        dispatcher.connect(sender, signal=SET_SEQUENCE, callback=self.set_sequence)
+        dispatcher.connect(sender, signal=SET_MODEL_STATE, callback=self.set_model_state)
+        dispatcher.connect(sender, signal=GET_MODEL_STATE, callback=self.get_model_state)
+        dispatcher.connect(sender, signal=SET_SETTING, callback=self.set_setting)
+        dispatcher.connect(sender, signal=GET_SETTING, callback=self.get_setting)
+        dispatcher.connect(sender, signal=PROGRESS, callback=self.progress)
+        # dispatcher.connect(sender, signal=PROGRESS, callback=webapp.announce_progress)
+        dispatcher.connect(sender, signal=GET_STATE, callback=self.get_state)
+        dispatcher.connect(sender, signal=EXECUTE_CALL, callback=self.execute_call)
+
+    @property
+    def config(self):
+        """TBW."""
+        return self.processor
+
+    @config.setter
+    def config(self, config_object):
+        """TBW."""
+        self.processor = config_object
 
     def execute_call(self, method, *args, **kwargs):
         """TBW."""
@@ -181,43 +208,43 @@ class Controller:
             importlib.import_module(module)
         self._modified_time = None  # force GUI definition to reload
 
-    @property
-    def gui(self):
-        """Dynamically create the object model GUI schema.
-
-        This method is referenced in control.html template file.
-
-        :return:
-        """
-        sections_detector = []
-        sections_model = []
-        cfg = {
-            'gui': [
-                {
-                    'label': 'Detector Attributes',
-                    'section': sections_detector,
-                },
-                {
-                    'label': 'Models Settings',
-                    'section': sections_model,
-                }
-            ]
-        }
-        serializer = om.serializer.pyxel_gui.Serializer
-        if self.processor:
-            for key, value in self.processor.detector.__getstate__().items():
-                sections = serializer.create_section_from_object(value, 'detector.' + key)
-                sections_detector.extend(sections)
-
-            pipeline = self.processor.pipeline
-            for group in pipeline.model_group_names:
-                items = registry.get_group(pipeline.name, group)
-                for item in items:
-                    prefix = 'pipeline.' + group + '.' + item.name + '.arguments'
-                    gui_def = serializer.create_section_from_func_def(item, prefix)
-                    sections_model.append(gui_def)
-
-        return cfg['gui']
+    # @property
+    # def gui(self):
+    #     """Dynamically create the object model GUI schema.
+    #
+    #     This method is referenced in control.html template file.
+    #
+    #     :return:
+    #     """
+    #     sections_detector = []
+    #     sections_model = []
+    #     cfg = {
+    #         'gui': [
+    #             {
+    #                 'label': 'Detector Attributes',
+    #                 'section': sections_detector,
+    #             },
+    #             {
+    #                 'label': 'Models Settings',
+    #                 'section': sections_model,
+    #             }
+    #         ]
+    #     }
+    #     serializer = om.serializer.pyxel_gui.Serializer
+    #     if self.processor:
+    #         for key, value in self.processor.detector.__getstate__().items():
+    #             sections = serializer.create_section_from_object(value, 'detector.' + key)
+    #             sections_detector.extend(sections)
+    #
+    #         pipeline = self.processor.pipeline
+    #         for group in pipeline.model_group_names:
+    #             items = registry.get_group(pipeline.name, group)
+    #             for item in items:
+    #                 prefix = 'pipeline.' + group + '.' + item.name + '.arguments'
+    #                 gui_def = serializer.create_section_from_func_def(item, prefix)
+    #                 sections_model.append(gui_def)
+    #
+    #     return cfg['gui']
 
     def toggle_pipeline(self, output_file=None):
         """TBW."""
@@ -227,15 +254,25 @@ class Controller:
             self._th = threading.Thread(target=self.run_pipeline_sequence, args=[output_file])
             self._th.start()
 
-    @staticmethod
-    def announce(type_key, key, value):
-        """TBW."""
-        msg = {
-            'type': type_key,
-            'id': key,
-            'fields': {'value': value},
-        }
-        webapp.WebSocketHandler.announce(msg)
+    # @staticmethod
+    # def announce(type_key, key, value):
+    #     """TBW."""
+    #     msg = {
+    #         'type': type_key,
+    #         'id': key,
+    #         'fields': {'value': value},
+    #     }
+    #     dispatch.announce(msg)
+    #
+    # @staticmethod
+    # def progress(key, fields):
+    #     """TBW."""
+    #     msg = {
+    #         'type': 'progress',
+    #         'id': key,
+    #         'fields': fields,
+    #     }
+    #     dispatch.announce(msg)
 
     def set_sequence_mode(self, run_mode):
         """TBW."""
@@ -340,7 +377,7 @@ class Controller:
         try:
             self._is_running = True
             if self.parametric:
-                signals.progress('state', {'value': 'running', 'state': 1})
+                self.progress('state', {'value': 'running', 'state': 1})
                 configs = self.parametric.collect(self.processor)
                 configs_len = len(list(configs))
                 configs = self.parametric.collect(self.processor)
@@ -352,20 +389,20 @@ class Controller:
                     id_value_dict = om.get_state_ids(result)
                     self.announce('state', 'all', id_value_dict)
 
-                    signals.progress('state', {'value': 'running (%d of %d)' % (i+1, configs_len), 'state': 1})
+                    self.progress('state', {'value': 'running (%d of %d)' % (i+1, configs_len), 'state': 1})
                     detector = config.pipeline.run_pipeline(config.detector)
 
                     if output_file:
                         save_to = util.apply_run_number(output_file)
                         out = util.FitsFile(save_to)
                         out.save(detector.signal, header=None, overwrite=True)
-                        signals.dispatcher.emit(sender='api', signal=OUTPUT_DATA_DIR)(save_to)
-                        signals.progress('state', {'value': 'saved', 'state': 2, 'file': save_to})
+                        self.dispatcher.emit('*', signal=OUTPUT_DATA_DIR)(save_to)
+                        self.progress('state', {'value': 'saved', 'state': 2, 'file': save_to})
                         # output.append(output_file)
-                signals.progress('state', {'value': 'completed', 'state': 0})
+                        self.progress('state', {'value': 'completed', 'state': 0})
 
         except Exception as exc:
             self._log.exception(exc)
-            signals.progress('state', {'value': 'error: %s' % str(exc), 'state': -1})
+            self.progress('state', {'value': 'error: %s' % str(exc), 'state': -1})
         finally:
             self._is_running = False
