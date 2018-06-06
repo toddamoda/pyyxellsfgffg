@@ -4,8 +4,9 @@
 """CMOS detector modeling class."""
 
 from pyxel.detectors.detector import Detector
-from pyxel.detectors.environment import Environment
 from pyxel.detectors.cmos_geometry import CMOSGeometry
+from pyxel.detectors.material import Material
+from pyxel.detectors.environment import Environment
 from pyxel.detectors.cmos_characteristics import CMOSCharacteristics
 
 
@@ -14,15 +15,18 @@ class CMOS(Detector):
 
     def __init__(self,
                  geometry: CMOSGeometry,
+                 material: Material,
                  environment: Environment,
                  characteristics: CMOSCharacteristics) -> None:
         """TBW.
 
         :param geometry:
+        :param material:
         :param environment:
         :param characteristics:
         """
         super().__init__(geometry=geometry,
+                         material=material,
                          environment=environment,
                          characteristics=characteristics)
 
@@ -31,6 +35,7 @@ class CMOS(Detector):
         cpy = super().copy()
         kwargs = {
             'geometry': cpy.geometry,
+            'material': cpy.material,
             'environment': cpy.environment,
             'characteristics': cpy.characteristics,
         }

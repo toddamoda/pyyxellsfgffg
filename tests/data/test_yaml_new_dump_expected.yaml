@@ -47,18 +47,19 @@ processor:
       total_ionising_dose: 0
       total_non_ionising_dose: 8.0e11
     geometry:
-      bias_voltage: 0.0
       class: pyxel.detectors.ccd_geometry.CCDGeometry
       col: 100
       depletion_thickness: 10.0
       field_free_thickness: 0.0
-      material: silicon
-      n_acceptor: 0.0
-      n_donor: 0.0
       pixel_horz_size: 10.0
       pixel_vert_size: 10.0
       row: 100
       total_thickness: 10.0
+    material:
+      class: pyxel.detectors.material.Material
+      material: silicon
+      n_acceptor: 0.0
+      n_donor: 0.0
   pipeline:
     charge_collection:
     - arguments:

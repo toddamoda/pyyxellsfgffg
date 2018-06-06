@@ -44,10 +44,15 @@ processor:
       field_free_thickness: 0.0     # um
       pixel_vert_size: 10.0         # um
       pixel_horz_size: 10.0         # um
+
+    material:
+      class: pyxel.detectors.material.Material
       material: 'silicon'
+#      compound: 'silicon'
+#        element: 'silicon'
+#        ratio: 1.
       n_acceptor: 0.0               # cm-3
       n_donor: 0.0                  # cm-3
-      bias_voltage: 0.0             # V
 
     environment:
       class: pyxel.detectors.environment.Environment
@@ -60,11 +65,12 @@ processor:
       qe: 0.5               # -
       eta: 1                # e/photon
       sv: 1.0e-6            # V/e
-      amp: 0.8             # V/V
+      amp: 0.8              # V/V
       a1: 100               # V/V
       a2: 65536             # DN/V
       fwc: 20000            # e
       fwc_serial: 30000     # e
+#      bias_voltage: 0.0             # V
 
   pipeline:
     class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
@@ -103,22 +109,16 @@ processor:
         enabled: true
         arguments:
           particle_type: proton
-          initial_energy: 100   # MeV
-          particle_number: 10
+          initial_energy: random   # MeV
+          particle_number: 100
           incident_angles:      # rad
 #            - 0.31415 # pi / 4
 #            - 3.1415  # 0 # 1.570 # 3.1415 # 2.094 # pi / 2
           starting_position:    # um
-#            - 10. #500.0  #vertical
-#            - 20. #500.0  #horizontal
+#            - 10. #500.0  # vertical
+#            - 20. #500.0  # horizontal
 #            - 0.0         # z
           spectrum_file: 'pyxel/models/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
-          step_size_file: 'pyxel/models/tars/data/inputs/stepsize_proton_100MeV_10um_1M.ascii'
-
-#          step_size_file: 'pyxel/models/tars/data/inputs/stepsize_proton_1GeV_100um_1M.ascii'
-#          stepping_length: 1.0  # um
-#          let_file: 'pyxel/models/tars/data/inputs/let_proton_1GeV_100um_geant4_HighResHist.ascii'
-#          stopping_file: 'pyxel/models/tars/data/inputs/stopping_power_protons.txt'
 
     # charge -> charge
     charge_collection:

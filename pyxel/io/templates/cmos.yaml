@@ -34,6 +34,9 @@ processor:
     geometry:
       class: pyxel.detectors.cmos_geometry.CMOSGeometry
 
+    material:
+      class: pyxel.detectors.material.Material
+
     environment:
       class: pyxel.detectors.environment.Environment
 

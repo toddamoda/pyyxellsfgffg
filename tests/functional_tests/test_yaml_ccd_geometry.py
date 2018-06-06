@@ -20,9 +20,8 @@ def test_loader():
  # material: foo
  n_acceptor: 6.0
  n_donor: 7.0
- bias_voltage: 8.0
 """
-
+    # bias_voltage: 8.0
     obj = io.load(data)
 
     assert isinstance(obj, CCDGeometry)
@@ -36,7 +35,7 @@ def test_loader():
     # assert obj.material == 'foo'
     assert obj.n_acceptor == 6.0
     assert obj.n_donor == 7.0
-    assert obj.bias_voltage == 8.0
+    # assert obj.bias_voltage == 8.0
 
 
 @pytest.mark.skip(reason=None)
@@ -51,12 +50,11 @@ def test_dumper():
                       pixel_horz_size=5.0,
                       # material=foo,
                       n_acceptor=6.0,
-                      n_donor=7.0,
-                      bias_voltage=8.0)
+                      n_donor=7.0)   # bias_voltage=8.0)
 
+    # bias_voltage: 8.0
     data = io.dump(obj)
     assert data == """!ccd_geometry
-bias_voltage: 8.0
 col: 1001
 depletion_thickness: 1.0
 field_free_thickness: 2.0

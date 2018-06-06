@@ -8,9 +8,10 @@ import typing as t  # noqa: F401
 import numpy as np
 
 # from astropy import units as u
-from pyxel.detectors.characteristics import Characteristics
-from pyxel.detectors.environment import Environment
 from pyxel.detectors.geometry import Geometry
+from pyxel.detectors.material import Material
+from pyxel.detectors.environment import Environment
+from pyxel.detectors.characteristics import Characteristics
 from pyxel.physics.charge import Charge  # noqa: F401
 from pyxel.physics.photon import Photon  # noqa: F401
 from pyxel.physics.pixel import Pixel  # noqa: F401
@@ -25,6 +26,7 @@ class Detector:
 
     def __init__(self,
                  geometry: Geometry,
+                 material: Material,
                  environment: Environment,
                  characteristics: Characteristics) -> None:
         """TBW.
@@ -33,12 +35,14 @@ class Detector:
         :param environment:
         :param characteristics:
         """
-        self._photons = None  # type: Photon
-        self._charges = None  # type: Charge
-        self._pixels = None  # type: Pixel
-        self._signal = None     # signal read out directly from CCD
+        self._photons = None   # type: Photon
+        self._charges = None   # type: Charge
+        self._pixels = None    # type: Pixel
+        self._signal = None    # ndarray, signal read out directly from detector
+        self._image = None     # ndarray, image read out via readout electronics
 
         self.geometry = geometry
+        self.material = material
         self.environment = environment
         self.characteristics = characteristics
         self.header = OrderedDict()  # type: t.Dict[str, object]
@@ -57,6 +61,7 @@ class Detector:
         """TBW."""
         kwargs = {
             'geometry': self.geometry.copy(),
+            'material': self.material.copy(),
             'environment': self.environment.copy(),
             'characteristics': self.characteristics.copy(),
         }
@@ -73,6 +78,7 @@ class Detector:
         """
         return {
             'geometry': self.geometry,
+            'material': self.material,
             'environment': self.environment,
             'characteristics': self.characteristics
         }
@@ -174,4 +180,13 @@ class Detector:
 
         :return:
         """
-        return self._signal
+        # return self._signal
+        return self._image
+
+    @image.setter
+    def image(self, new_image: np.ndarray):
+        """TBW.
+
+        :return:
+        """
+        self._image = new_image

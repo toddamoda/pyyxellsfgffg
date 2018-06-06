@@ -13,6 +13,8 @@ ccd_process:
       pixel_horz_size: 10.0         # um
       total_thickness: 10.0         # um
 
+    material:
+
     environment:
       temperature: 320    # Kelvin
 

@@ -21,7 +21,6 @@ def test_loader():
  material: hxrg
  n_acceptor: 6.0
  n_donor: 7.0
- bias_voltage: 8.0
  n_output: 9
  n_row_overhead: 10
  n_frame_overhead: 11
@@ -42,7 +41,7 @@ def test_loader():
     # assert obj.material == 'foo'
     assert obj.n_acceptor == 6.0
     assert obj.n_donor == 7.0
-    assert obj.bias_voltage == 8.0
+    # assert obj.bias_voltage == 8.0
     assert obj.n_output == 9
     assert obj.n_row_overhead == 10
     assert obj.n_frame_overhead == 11
@@ -63,16 +62,17 @@ def test_dumper():
                        # material=foo,
                        n_acceptor=6.0,
                        n_donor=7.0,
-                       bias_voltage=8.0,
+                       # bias_voltage=8.0,
                        n_output=9,
                        n_row_overhead=10,
                        n_frame_overhead=11,
                        reverse_scan_direction=True,
                        reference_pixel_border_width=1)
 
+    # bias_voltage: 8.0
     data = io.dump(obj)
     assert data == """!cmos_geometry
-bias_voltage: 8.0
+
 col: 1001
 depletion_thickness: 1.0
 field_free_thickness: 2.0
@@ -89,3 +89,4 @@ reverse_scan_direction: true
 row: 1000
 total_thickness: 3.0
 """
+# bias_voltage: 8.0

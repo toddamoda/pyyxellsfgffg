@@ -2,10 +2,6 @@
 import esapy_config as om
 
 
-# Universal global constants
-M_ELECTRON = 9.10938356e-31    # kg
-
-
 @om.attr_class
 class Geometry:
     """TBW."""
@@ -142,10 +138,6 @@ class Geometry:
             'field_free_thickness': self.field_free_thickness,
             'pixel_vert_size': self.pixel_vert_size,
             'pixel_horz_size': self.pixel_horz_size,
-            'n_acceptor': self.n_acceptor,
-            'n_donor': self.n_donor,
-            'bias_voltage': self.bias_voltage,
-            'material': self.material
         }
 
     # TODO: create unittests for this method
@@ -167,21 +159,6 @@ class Geometry:
     def vert_dimension(self):
         """TBW."""
         return self.pixel_vert_size * self.row
-
-    # @property
-    # def material(self):
-    #     """TBW."""
-    #     return self._material
-    #
-    # @material.setter
-    # def material(self, new_material):
-    #     """TBW.
-    #
-    #     :param new_material:
-    #     :return:
-    #     """
-    #     self._material = new_material
-    #     self.set_material(new_material)
 
     def calculate_field_free_thickness(self):
         """TBW."""

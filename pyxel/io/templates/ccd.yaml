@@ -34,6 +34,9 @@ processor:
     geometry:
       class: pyxel.detectors.ccd_geometry.CCDGeometry
 
+    material:
+      class: pyxel.detectors.material.Material
+
     environment:
       class: pyxel.detectors.environment.Environment
 
