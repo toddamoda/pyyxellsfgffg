@@ -45,7 +45,7 @@ class Material:
     )
     material = om.attr_def(
         type=str,
-        default=None,
+        default='',
         validator=om.validate_choices(['', 'silicon', 'hxrg']),
         on_set=set_material,
     )

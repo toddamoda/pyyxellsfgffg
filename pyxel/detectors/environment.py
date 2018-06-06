@@ -13,7 +13,7 @@ class Environment:
 
     temperature = om.attr_def(
         type=float,
-        default=None,
+        default=0.0,
         converter=float,
         validator=om.validate_range(0.00, 400.0, 0.01, False),
         metadata={'units': 'K'}
@@ -21,14 +21,14 @@ class Environment:
 
     total_ionising_dose = om.attr_def(
         type=float,
-        default=None,
+        default=0.0,
         converter=float,
         metadata={'units': 'MeV/g'}
     )
 
     total_non_ionising_dose = om.attr_def(
         type=float,
-        default=None,
+        default=0.0,
         converter=float,
         metadata={'units': 'MeV/g'}
     )
