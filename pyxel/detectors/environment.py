@@ -14,23 +14,23 @@ class Environment:
     temperature = om.attr_def(
         type=float,
         default=None,
-        units='K',
-        cast=True,
-        validate=om.check_range(0.00, 400.0, 0.01, False)
+        converter=float,
+        validator=om.validate_range(0.00, 400.0, 0.01, False),
+        metadata={'units': 'K'}
     )
 
     total_ionising_dose = om.attr_def(
         type=float,
         default=None,
-        units='MeV/g',
-        cast=True
+        converter=float,
+        metadata={'units': 'MeV/g'}
     )
 
     total_non_ionising_dose = om.attr_def(
         type=float,
         default=None,
-        units='MeV/g',
-        cast=True
+        converter=float,
+        metadata={'units': 'MeV/g'}
     )
 
     def copy(self):

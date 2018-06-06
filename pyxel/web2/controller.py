@@ -3,6 +3,7 @@ import logging
 import threading
 import importlib
 from pathlib import Path
+import typing as t
 
 import esapy_config as om
 from esapy_web.webapp2 import webapp
@@ -38,11 +39,11 @@ class Controller:
             'cmos': config_dir.joinpath('io', 'templates', 'cmos.yaml'),
         }
         self._log = logging.getLogger(__name__)
-        self._th = None             # type: threading.Thread
+        self._th = None             # type: t.Optional[threading.Thread]
         self._is_running = False    # type: bool
-        self._modified_time = None  # type: float
-        self._items = None          # type: dict
-        self.processor = processor  # type: Processor
+        self._modified_time = None  # type: t.Optional[float]
+        self._items = None          # type: t.Optional[dict]
+        self.processor = processor  # type: t.Optional[Processor]
         self.parametric = None
 
         signals.dispatcher.connect(sender='api', signal=LOAD_PIPELINE, callback=self.load_template)
