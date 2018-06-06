@@ -7,7 +7,6 @@ import typing as t  # noqa: F401
 
 import tornado.web
 
-import esapy_config as om
 import esapy_web.webapp2.modules.guiconfig.guiconfig_serializer as serializer
 from esapy_dispatcher import dispatcher
 from esapy_web.webapp2 import webapp
@@ -34,6 +33,7 @@ class PipelinePageHandler(guiconfig.IndexPageHandler):
 
     @property
     def detector(self):
+        """TBW."""
         config = self.application.settings['gui_controller'].config
         if config:
             value = config.pipeline.name
@@ -41,11 +41,13 @@ class PipelinePageHandler(guiconfig.IndexPageHandler):
 
     @property
     def pipelines(self):
+        """TBW."""
         values = self.application.settings['gui_controller'].get_pipeline_names()
         return values
 
     @property
     def model_groups(self):
+        """TBW."""
         values = self.application.settings['gui_controller'].model_groups
         return values
 

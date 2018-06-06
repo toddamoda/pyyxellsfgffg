@@ -5,11 +5,8 @@ import importlib
 from pathlib import Path
 import typing as t
 
-import esapy_config as om
-from esapy_web.webapp2 import webapp
-from esapy_web.webapp2.modules import dispatch
+import esapy_config as om  # noqa: F401
 
-# from esapy_web.webapp2 import signals
 from esapy_web.webapp2.modules import guiconfig
 
 from pyxel import util
@@ -78,10 +75,12 @@ class Controller(guiconfig.Controller):
 
     @property
     def config(self):
+        """TBW."""
         return self.processor
 
     @config.setter
     def config(self, config_object):
+        """TBW."""
         self.processor = config_object
 
     def execute_call(self, method, *args, **kwargs):
