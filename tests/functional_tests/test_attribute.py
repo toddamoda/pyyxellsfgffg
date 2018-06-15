@@ -10,15 +10,21 @@ import esapy_config as om
 
 @om.attr_class
 class MyClass1:
-    _cols = attr.ib(type=int, validator=om.validate_range(0, 100, 1), default=None,
+    _cols = attr.ib(type=int,
+                    validator=om.validate_range(0, 100, 1, is_optional=True),
+                    default=None,
                     metadata={'doc': "This is the cols documentation",
                               'readonly': False,
                               })
 
-    rows = om.attr_def(type=int, default=None,
+    rows = om.attr_def(type=int,
+                       default=None,
                        doc="This is the rows documentation",
                        readonly=False,
-                       validator=om.validate_range(0, 100, 1))
+                       validator=[om.validate_type(int, is_optional=True),
+                                  om.validate_range(0, 100, 1, is_optional=True)
+                                  ]
+                       )
 
     width = attr.ib(type=int,
                     validator=[attr.validators.instance_of(int), om.validate_range(0, 100, 1)],
@@ -27,13 +33,15 @@ class MyClass1:
                               'readonly': False,
                               })
 
-    height = om.attr_def(type=int, default=None, cast=True,
+    height = om.attr_def(type=int,
+                         default=None,
+                         converter=om.optional(int),
                          doc="This is the rows documentation",
                          readonly=False,
-                         validator=om.validate_range(0, 100, 1))
+                         validator=om.validate_range(0, 100, 1, is_optional=True))
 
 
-@pytest.mark.skip(reason="not working for some strange reason")
+# @pytest.mark.skip(reason="not working for some strange reason")
 def test_attr_class():
 
     #
@@ -91,7 +99,7 @@ def test_attr_class():
     #
     att_rows = next(att for att in attr.fields(MyClass1) if att.name == '_rows')
     # att_rows.metadata['cast'] = True  # This does not work. mappingproxy is immutable
-    info = om.get_validate_info(att_rows.metadata['validate'])
+    info = om.get_validate_info(att_rows.validator._validators[1])
     assert info['min_val'] == 0
     assert info['max_val'] == 100
     obj.rows = info['min_val']  # check limits
