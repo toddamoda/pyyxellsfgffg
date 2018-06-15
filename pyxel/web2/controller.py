@@ -61,17 +61,28 @@ class Controller(guiconfig.Controller):
         self.dispatcher = dispatcher
 
         sender = guiconfig.Signals.SENDER_CONFIG
-        dispatcher.connect(sender, signal=LOAD_PIPELINE, callback=self.load_template)
-        dispatcher.connect(sender, signal=RUN_PIPELINE, callback=self.toggle_pipeline)
-        dispatcher.connect(sender, signal=SET_SEQUENCE, callback=self.set_sequence)
-        dispatcher.connect(sender, signal=SET_MODEL_STATE, callback=self.set_model_state)
-        dispatcher.connect(sender, signal=GET_MODEL_STATE, callback=self.get_model_state)
-        dispatcher.connect(sender, signal=SET_SETTING, callback=self.set_setting)
-        dispatcher.connect(sender, signal=GET_SETTING, callback=self.get_setting)
-        dispatcher.connect(sender, signal=PROGRESS, callback=self.progress)
-        # dispatcher.connect(sender, signal=PROGRESS, callback=webapp.announce_progress)
-        dispatcher.connect(sender, signal=GET_STATE, callback=self.get_state)
-        dispatcher.connect(sender, signal=EXECUTE_CALL, callback=self.execute_call)
+        dispatcher.connect(sender=sender, signal=LOAD_PIPELINE,
+                           callback=self.load_template)
+        dispatcher.connect(sender=sender, signal=RUN_PIPELINE,
+                           callback=self.toggle_pipeline)
+        dispatcher.connect(sender=sender, signal=SET_SEQUENCE,
+                           callback=self.set_sequence)
+        dispatcher.connect(sender=sender, signal=SET_MODEL_STATE,
+                           callback=self.set_model_state)
+        dispatcher.connect(sender=sender, signal=GET_MODEL_STATE,
+                           callback=self.get_model_state)
+        dispatcher.connect(sender=sender, signal=SET_SETTING,
+                           callback=self.set_setting)
+        dispatcher.connect(sender=sender, signal=GET_SETTING,
+                           callback=self.get_setting)
+        dispatcher.connect(sender=sender, signal=PROGRESS,
+                           callback=self.progress)
+        # dispatcher.connect(sender=sender, signal=PROGRESS,
+        #                    callback=webapp.announce_progress)
+        dispatcher.connect(sender=sender, signal=GET_STATE,
+                           callback=self.get_state)
+        dispatcher.connect(sender=sender, signal=EXECUTE_CALL,
+                           callback=self.execute_call)
 
     @property
     def config(self):
