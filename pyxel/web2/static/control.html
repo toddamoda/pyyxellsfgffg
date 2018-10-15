@@ -15,8 +15,8 @@
             <td>
                 <select>
                     <option></option>
-                    {% set detector = controller.processor.pipeline.name if controller.processor else "" %}
-                    {% for name in controller.get_pipeline_names() %}
+                    {% set detector = handler.detector %}
+                    {% for name in handler.pipelines %}
                     {% set selected = "selected=1" if detector == name else "" %}
                     <option {{selected}}>{{ name }}</option>
                     {% end %}
@@ -92,7 +92,16 @@
             <td id="steps.{{i}}.key">
                 <select>
                     <option value=""></option>
-                    {% for section in controller.gui[1]['section'] %}
+                    {% for section in handler.groups()[0]['section'] %}
+                    {% if len(section['items']) %}
+                    <optgroup label="{{ section['label'] }}">
+                        {% for item in section['items'] %}
+                        <option value="{{ item['id'] }}">{{ item['label'] }}</option>
+                        {% end %}
+                    </optgroup>
+                    {% end %}
+                    {% end %}
+                    {% for section in handler.groups()[1]['section'] %}
                     {% if len(section['items']) %}
                     <optgroup label="{{ section['label'] }}">
                         {% for item in section['items'] %}
@@ -111,7 +120,7 @@
 
     <table class="pe-table pe-form">
         <caption class="pe-section">Models</caption>
-        {% for i, (name, group) in enumerate(controller.model_groups.items()) %}
+        {% for i, (name, group) in enumerate(handler.model_groups.items()) %}
         <tr>
             <td style="vertical-align:top;">{{ name.replace('_', ' ') }}</td>
             <td>
@@ -127,5 +136,4 @@
         </tr>
         {% end %}
     </table>
-
 </div>

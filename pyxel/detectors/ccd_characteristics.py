@@ -11,10 +11,10 @@ class CCDCharacteristics(Characteristics):
     fwc_serial = om.attr_def(
         type=int,
         default=0.0,
-        cast=True,
-        validate=om.check_range(0, 1000000, 1, False),
+        converter=int,
+        validator=om.validate_range(0, 1000000, 1, False),
         doc='full well capacity (serial)',
-        units='electrons',
+        metadata={'units': 'electrons'}
     )
 
     def copy(self):

@@ -35,9 +35,9 @@ class Detector:
         :param environment:
         :param characteristics:
         """
-        self._photons = None   # type: Photon
-        self._charges = None   # type: Charge
-        self._pixels = None    # type: Pixel
+        self._photons = None   # type: t.Optional[Photon]
+        self._charges = None   # type: t.Optional[Charge]
+        self._pixels = None    # type: t.Optional[Pixel]
         self._signal = None    # ndarray, signal read out directly from detector
         self._image = None     # ndarray, image read out via readout electronics
 
