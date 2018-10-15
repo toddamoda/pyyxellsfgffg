@@ -17,12 +17,16 @@ import esapy_config as om
 @pyxel.register('photon_generation')
 def load_image(detector: Detector,
                image_file: str,
+               row0: int = 0,
+               col0: int = 0,
                rows: int = None,
                cols: int = None) -> Detector:
     """TBW.
 
     :param detector:
     :param image_file:
+    :param row0:
+    :param col0:
     :param rows:
     :param cols:
     :return:
@@ -37,7 +41,8 @@ def load_image(detector: Detector,
             geo.row = rows
         if cols is not None:
             geo.col = cols
-        image = image[0:geo.row, 0:geo.col]
+
+        image = image[row0:row0+geo.row, col0:col0+geo.col]
         # image = image[0:rows, cols:]
         # image = image[rows:, 0:cols]
         # image = image[rows:, cols:]

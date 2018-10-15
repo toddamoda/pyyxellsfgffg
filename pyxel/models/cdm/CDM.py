@@ -310,14 +310,14 @@ class CDM03Python:
 
         ####################################
         # Alex new CDM version and parameters
-        ydim = 400   # jdim = 300    ## COLUMNS
-        xdim = 300   # idim = 300    ## ROWS
+        ydim = 500   # jdim = 300    ## COLUMNS
+        xdim = 500   # idim = 300    ## ROWS
 
         kdim = 3
 
         # I think Plato has 4510 rows right?
-        x = 4510.
-        y = 1000.
+        x = 2000.  # 4510.
+        y = 2000.
         # ydim, xdim = image.shape
 
         # FWC is 900k?
@@ -344,16 +344,17 @@ class CDM03Python:
         self.tr_s = np.array([0.03, 0.002, 1.e-6])
 
         self.nt_p = np.array([1., 1., 1.])
-        self.nt_p = self.nt_p * 5.e10
+        self.nt_p = self.nt_p * 9.e11
         self.nt_s = self.nt_p
 
         # Here is a test image with 4 injection blocks (10000 electrons injected)
-        s = np.zeros((xdim, ydim), float)
-        s[:, 50:60] = 5000.
-        s[:, 150:160] = 5000.
-        s[:, 250:260] = 5000.
+        s = image
+        # s = np.zeros((xdim, ydim), float)
+        # s[:, 50:60] = 5000.
+        # s[:, 150:160] = 5000.
+        # s[:, 250:260] = 5000.
         # s = s + dob
-        np.clip(s, 0., self.fwc, s)
+        # np.clip(s, 0., self.fwc, s)
 
         no = np.zeros((xdim, kdim), float)
         sno = np.zeros((ydim, kdim), float)
@@ -394,6 +395,7 @@ class CDM03Python:
             for i in range(ydim):
                 print(i)
                 gamma_p = g_p * (x + i)
+                # gamma_p = g_p * x
                 #######
                 # for k in range(zdim_p):
                 #######
@@ -401,21 +403,21 @@ class CDM03Python:
                     for j in range(xdim):
                         nc = 0.
 
-                        if s[j, i] > 0.:
+                        # if s[j, i] > 0.:
+                        if s[i, j] > 0.:
                             # nc = max((gamma_p[i, k] * s[i, j] ** self.beta_p - no[j, k]) /
                             #          (gamma_p[i, k] * s[i, j] ** (self.beta_p - 1.) + 1.) *
                             #          (1. - np.exp(-alpha_p[k] * s[i, j] ** (1. - self.beta_p))), 0.)
                             # nc = max((gamma_p[k] * s[i, j] ** self.beta_p - no[j, k]) /
                             #          (gamma_p[k] * s[i, j] ** (self.beta_p - 1.) + 1.) *
                             #          (1. - np.exp(-alpha_p[k] * s[i, j] ** (1. - self.beta_p))), 0.)
-                            nc = max((gamma_p[k] * s[j, i] ** self.beta_p - no[j, k]) /
-                                     (gamma_p[k] * s[j, i] ** (self.beta_p - 1.) + 1.) *
-                                     (1. - np.exp(-alpha_p[k] * s[j, i] ** (1. - self.beta_p))), 0.)
+                            nc = max((gamma_p[k] * s[i, j] ** self.beta_p - no[j, k]) /
+                                     (gamma_p[k] * s[i, j] ** (self.beta_p - 1.) + 1.) *
+                                     (1. - np.exp(-alpha_p[k] * s[i, j] ** (1. - self.beta_p))), 0.)
                             no[j, k] += nc
                         # no[j, k] += nc
                         nr = no[j, k] * (1. - np.exp(-self.t/self.tr_p[k]))
-                        # s[i, j] += -1 * nc + nr
-                        s[j, i] += -1 * nc + nr
+                        s[i, j] += -1 * nc + nr
                         no[j, k] -= nr
 
         # now serial direction
@@ -443,21 +445,22 @@ class CDM03Python:
                     for i in range(ydim):
                         nc = 0.
 
-                        if s[j, i] > 0.:
+                        # if s[j, i] > 0.:
+                        if s[i, j] > 0.:
                             # nc = max((gamma_s[j, k] * s[i, j] ** self.beta_s - sno[i, k]) /
                             #          (gamma_s[j, k] * s[i, j] ** (self.beta_s - 1.) + 1.) *
                             #          (1. - np.exp(-alpha_s[k] * s[i, j] ** (1. - self.beta_s))), 0.)
                             # nc = max((gamma_s[k] * s[i, j] ** self.beta_s - sno[i, k]) /
                             #          (gamma_s[k] * s[i, j] ** (self.beta_s - 1.) + 1.) *
                             #          (1. - np.exp(-alpha_s[k] * s[i, j] ** (1. - self.beta_s))), 0.)
-                            nc = max((gamma_s[k] * s[j, i] ** self.beta_s - sno[i, k]) /
-                                     (gamma_s[k] * s[j, i] ** (self.beta_s - 1.) + 1.) *
-                                     (1. - np.exp(-alpha_s[k] * s[j, i] ** (1. - self.beta_s))), 0.)
+                            nc = max((gamma_s[k] * s[i, j] ** self.beta_s - sno[i, k]) /
+                                     (gamma_s[k] * s[i, j] ** (self.beta_s - 1.) + 1.) *
+                                     (1. - np.exp(-alpha_s[k] * s[i, j] ** (1. - self.beta_s))), 0.)
                             sno[i, k] += nc
                         # sno[i, k] += nc
                         nr = sno[i, k] * (1. - np.exp(-self.st/self.tr_s[k]))
-                        # s[i, j] += -1 * nc + nr
-                        s[j, i] += -1 * nc + nr
+                        s[i, j] += -1 * nc + nr
+                        # s[j, i] += -1 * nc + nr
                         sno[i, k] -= nr
 
         ######################

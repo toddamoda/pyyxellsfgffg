@@ -23,7 +23,7 @@ from pyxel import util
 import pyxel.pipelines.processor
 
 
-def run_parametric(input_filename, output_file, random_seed=None, key=None, value=None):
+def run_parametric(input_filename, output_file, random_seed: int = None, key=None, value=None):
     """TBW.
 
     :param input_filename:
@@ -164,9 +164,6 @@ def main():
     parser.add_argument('-o', '--output',
                         help='output file')
 
-    # parser.add_argument('-t', '--type', choices=['ccd', 'cmos'],
-    #                     help='Used by the export command')
-
     parser.add_argument('-s', '--seed',
                         help='Define random seed for the framework')
 
@@ -178,7 +175,7 @@ def main():
     logging.basicConfig(level=log_level, format=log_format)
 
     if opts.command == 'run':
-        run_parametric(opts.config, opts.output, opts.seed)
+        run_parametric(opts.config, opts.output, int(opts.seed))
 
     elif opts.command == 'export':
         if opts.type is None:

@@ -22,8 +22,8 @@ processor:
     geometry:
       class: pyxel.detectors.ccd_geometry.CCDGeometry
 
-      row:   4510 # 2381 #580 # 4494                   # compulsory
-      col:   1000 # 2376 #640 # 1966                   # compulsory
+      row:   500 # 2381 #580 # 4494                   # compulsory
+      col:   500 # 2376 #640 # 1966                   # compulsory
       total_thickness: 40.0         # um
       depletion_thickness: 0.0      # um
       field_free_thickness: 0.0     # um
@@ -70,7 +70,7 @@ processor:
       amp: 1.              # V/V
       a1: 100               # V/V
       a2: 65536             # DN/V
-      fwc: 2800            # e
+      fwc: 2000            # e
       fwc_serial: 3000     # e
 #      bias_voltage: 0.0             # V
 
@@ -82,11 +82,13 @@ processor:
       -
         name: load_image
         func: pyxel.models.photon_generation.load_image
-        enabled: false
+        enabled: true
         arguments:
-          image_file: data/055.fits # data/m42_40min_ir.fits # pyxel/cosmics-shot-fpn-cti.fits
-          rows: 1000 # 2381/2
-          cols: 1000 # 2376/2
+          image_file: data/004.fits
+          row0: 0
+          col0: 0
+          rows: 500
+          cols: 500
       -
         name: photon_level
         func: pyxel.models.photon_generation.add_photon_level
@@ -106,17 +108,17 @@ processor:
       -
         name: photoelectrons
         func: pyxel.models.photoelectrons.simple_conversion
-        enabled: false
+        enabled: true
       -
         name: tars
         func: pyxel.models.tars.tars.run_tars
         enabled: false
         arguments:
           simulation_mode: cosmic_ray   # snowflakes
-          running_mode: plotting # stepsize  # stopping  # plotting  # geant4
+          running_mode: stepsize  # stopping  # plotting  # geant4
           particle_type: proton
           initial_energy: random   # MeV
-          particle_number: 5
+          particle_number: 80
           incident_angles:      # rad
 #            - 0.31415 # pi / 4
 #            - 3.1415  # 0 # 1.570 # 3.1415 # 2.094 # pi / 2
@@ -144,7 +146,7 @@ processor:
       -
         name: cdm
         func: pyxel.models.cdm.CDM.cdm
-        enabled: true
+        enabled: false
         arguments:
          beta_p: 0.6
          beta_s: 0.6
@@ -153,7 +155,7 @@ processor:
          t: 20.48e-3
          st: 5.0e-6
          parallel_trap_file: pyxel/models/cdm/cdm_euclid_parallel.dat
-         serial_trap_file: pyxel/models/cdm/cdm_euclid_serial.dat
+#         serial_trap_file: pyxel/models/cdm/cdm_euclid_serial.dat
 
     # charge -> signal
     charge_measurement:
