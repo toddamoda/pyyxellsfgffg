@@ -145,6 +145,9 @@ class ParametricConfig:
         elif self.mode == 'single':
             configs = [om.copy_processor(processor)]
 
+        elif self.mode == 'calibration':
+            configs = [om.copy_processor(processor)]
+
         else:
             configs = []
 

@@ -9,21 +9,18 @@ in MCT, diffusion, cross-talk etc.) on a given image.
 """
 import logging
 import argparse
-import typing as t   # noqa: F401
 from pathlib import Path
 import numpy as np
-# import yaml
+import typing as t   # noqa: F401
 
 import esapy_config as om
-
 import pyxel
-# from pyxel import registry
 from pyxel import util
-# from pyxel.util import objmod as om
 import pyxel.pipelines.processor
+from pyxel.calibration.calibration import Calibration
 
 
-def run_parametric(input_filename, output_file, random_seed: int = None, key=None, value=None):
+def run(input_filename, output_file, random_seed: int = None):  # key=None, value=None
     """TBW.
 
     :param input_filename:
@@ -36,113 +33,60 @@ def run_parametric(input_filename, output_file, random_seed: int = None, key=Non
     if random_seed:
         np.random.seed(random_seed)
     output = []
-    # parametric, processor = util.load(Path(input_filename))
+
     cfg = om.load(Path(input_filename))
-    parametric = cfg['parametric']
+    parametric = cfg['parametric']      # todo: "parametric" should be renamed e.g. to "simulation"
     processor = cfg['processor']
-    if key and value:
-        # processor.set(key, value)
-        pass
-    parametric.debug(processor)
+    detector = None
+
+    # if key and value:
+    #     # processor.set(key, value)
+    #     pass
+
+    # parametric.debug(processor)
     configs = parametric.collect(processor)
 
     for config in configs:
-        detector = config.pipeline.run_pipeline(config.detector)
+        # "model calibration" mode
+        if parametric.mode == 'calibration':        # todo: call pygmo applicaiton
+            run_pipeline_calibration(parametric, config)
+        # "single run" or "parametric analysis" mode
+        else:
+            detector = config.pipeline.run_pipeline(config.detector)
 
-        if output_file:
-            save_to = util.apply_run_number(output_file)
-            out = util.FitsFile(save_to)
-            # out.save(detector.signal, header=None, overwrite=True)
-            out.save(detector.image, header=None, overwrite=True)
-            output.append(output_file)
+    if output_file and detector:
+        save_to = util.apply_run_number(output_file)
+        out = util.FitsFile(save_to)
+        out.save(detector.image, header=None, overwrite=True)
+        output.append(output_file)
 
     print('Pipeline completed.')
     return output
 
 
-def optimization_func(fits_files):      # TODO
-    """TBW.
+def run_pipeline_calibration(settings, config):
+    """
 
-    :param fits_files:
+    :param settings:
+    :param config:
     :return:
     """
-    return 10.0
+    # what we have in the beginning:
+    # - settings (which is the "parametric" object)
+    # - config.pipeline
+    # - config.detector
+
+    # read data you want to fit with your models:
+
+    # create and initialize your calibration class (setting params based on config):
+    calibration = Calibration(settings, config)
 
 
-def run_optimization(input_filename, output_file):
-    """TBW.
 
-    TODO: this function is not yet complete.
-    """
-    key = None
-    max_loops = 100
-    convergent_criteria = 10.0
-    new_optimized_value = 1.0
-    # old_optimized_value = new_optimized_value
-    while max_loops:
-        max_loops -= 1
-        old_optimized_value = new_optimized_value
-        files = run_parametric(input_filename, output_file, key, new_optimized_value)
-        # TODO: send file names to optimization model
+    # detector = config.pipeline.run_pipeline(config.detector)
 
-        opt_func = optimization_func
-        # opt_func = lambda fits_files: 10.0
-        new_optimized_value = opt_func(files)  # this should be the output from the model
-        if abs(old_optimized_value - new_optimized_value) < convergent_criteria:
-            break
-
-
-# def run_pipeline(input_filename, output_file):
-#     """TBW.
-#
-#     :param input_filename:
-#     :param output_file:
-#     :return:
-#     """
-#     cfg = om.load(Path(input_filename))
-#
-#     processor = cfg[next(iter(cfg))]  # type: pyxel.pipelines.processor.Processor
-#
-#     pipeline = processor.pipeline  # type: t.Union[CCDDetectionPipeline, CMOSDetectionPipeline]
-#
-#     # Run the pipeline
-#     detector = pipeline.run_pipeline(processor.detector)  # type: t.Union[CCD, CMOS]
-#
-#     print('Pipeline completed.')
-#
-#     if output_file:
-#         out = util.FitsFile(output_file)
-#         out.save(detector.signal, header=None, overwrite=True)    # TODO should replace result.signal to result.image
-
-
-# def run_export(registry_file, output_file, processor_type):
-#     """TBW.
-#
-#     :param registry_file:
-#     :param output_file:
-#     :param processor_type:
-#     """
-#     # yaml_content = yaml.dump(registry_map, default_flow_style=False)
-#     with open(registry_file, 'r') as fd:
-#         # load template file
-#         config_file = Path('pyxel', 'io', 'templates', processor_type + '.yaml')
-#         cfg = om.load(config_file)
-#
-#         # load registry
-#         content = fd.read()
-#         reg_map = yaml.load(content)
-#         registry.register_map(reg_map, processor_type)
-#
-#         # inject models into pipeline model groups
-#         processor = cfg['processor']
-#         registry.import_models(processor)
-#
-#         content = om.dump(cfg)
-#         if output_file:
-#             with open(output_file, 'w') as fd2:
-#                 fd2.write(content)
-#         else:
-#             print(content)
+    # calibration.problem()
+    # calibration.algorithm()
 
 
 def main():
@@ -175,7 +119,7 @@ def main():
     logging.basicConfig(level=log_level, format=log_format)
 
     if opts.command == 'run':
-        run_parametric(opts.config, opts.output, int(opts.seed))
+        run(opts.config, opts.output, int(opts.seed))
 
     elif opts.command == 'export':
         if opts.type is None:

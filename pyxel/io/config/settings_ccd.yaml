@@ -4,7 +4,8 @@
 ################
 
 parametric:
-  mode: single
+#  mode: single
+  mode: calibration
 #  mode: embedded
 #  mode: sequential
   steps:
@@ -12,6 +13,10 @@ parametric:
       enabled: false
       key: pipeline.photon_generation.photon_level.arguments.level
       values: [10, 20, 30]
+    -
+      enabled: true
+      key: pipeline.photon_generation.photon_level.arguments.level
+      values: list(range(10, 13))
 
 processor:
   class: pyxel.pipelines.processor.Processor
