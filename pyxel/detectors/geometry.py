@@ -130,9 +130,10 @@ class Geometry:
     readout_nodes = om.attr_def(
         type=int,
         default=1,
-        cast=True,
-        units='',
-        validate=om.check_range(1, 4, 1, False)
+        # cast=True,
+        # units='',
+        # validate=om.validate_range(1, 4, 1, False)
+        validator=om.validate_range(1, 4, 1, False)
     )
     # sensor_geometry = om.attr_def(
     #     type=CCDSensorGeometry,
