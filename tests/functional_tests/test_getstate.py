@@ -2,7 +2,7 @@ import json
 from ast import literal_eval
 from pathlib import Path
 
-import pyxel
+# import pyxel
 import esapy_config as om
 # from pyxel.util import objmod as om
 # from pyxel.io.yaml_processor import load

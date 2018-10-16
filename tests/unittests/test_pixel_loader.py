@@ -4,9 +4,9 @@ import numpy as np
 import pytest
 import re
 import inspect
-
 # from pyxel.io.yaml_processor import load
 import yaml
+
 
 def _expr_processor(loader: yaml.Loader, node: yaml.ScalarNode):
     value = loader.construct_scalar(node)

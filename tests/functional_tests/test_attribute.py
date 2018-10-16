@@ -1,5 +1,5 @@
 import attr
-import pytest
+# import pytest
 
 import esapy_config as om
 # from esapy_config.attribute import att_validator
@@ -118,8 +118,6 @@ def test_attr_class():
 
 if __name__ == '__main__':
     test_attr_class()
-
-
 
 # import attr
 # import pyxel
@@ -389,7 +387,3 @@ if __name__ == '__main__':
 # # y.rows = 20
 # # y.cols = '2'
 # # print(y)
-#
-#
-#
-#

@@ -35,6 +35,5 @@
 #     assert isinstance(image, np.ndarray)
 #     np.testing.assert_array_equal(image, expected)
 
-
-if __name__ == '__main__':
-    test_pipeline_tars('tests/data/pipeline_tars.yaml', 'tests/data/expected_ccd_pipeline01.fits')
+# if __name__ == '__main__':
+#     test_pipeline_tars('tests/data/pipeline_tars.yaml', 'tests/data/expected_ccd_pipeline01.fits')

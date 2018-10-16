@@ -1,6 +1,7 @@
 import pytest
 
 from pyxel.detectors.ccd_geometry import CCDGeometry
+from esapy_config import io
 # from pyxel.io.yaml_processor import dump
 # from pyxel.io.yaml_processor import load
 

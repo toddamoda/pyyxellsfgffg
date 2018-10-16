@@ -1,18 +1,14 @@
-import pytest
-
-
 from pathlib import Path
 # import typing as t
-import numpy as np
+# import numpy as np
 import pytest
-from astropy.io import fits
-
+# from astropy.io import fits
 # from pyxel.pipelines.processor import Processor
 # from pyxel.pipelines.ccd_pipeline import CCDDetectionPipeline
 # from pyxel.pipelines.cmos_pipeline import CMOSDetectionPipeline
 # from pyxel.detectors.ccd import CCD
 # from pyxel.io.yaml_processor import load_config
-import pyxel
+import pyxel    # noqa: F401
 from esapy_config import io
 
 expected_single = [

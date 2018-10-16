@@ -11,7 +11,7 @@ from esapy_config import io
 
 @pytest.mark.skip(reason=None)
 def test_loader_with_extra_tags():
-    """Test `PyxelLoader`"""
+    """Test `PyxelLoader`."""
     # bias_voltage: 8.0
     data = """
 !CCD
@@ -74,7 +74,7 @@ def test_loader_with_extra_tags():
 
 @pytest.mark.skip(reason=None)
 def test_dumper():
-    """Test `PyxelLoader`"""
+    """Test `PyxelLoader`."""
     obj = CCD(geometry=CCDGeometry(row=1000, col=1001,
                                    depletion_thickness=1.0, field_free_thickness=2.0,
                                    total_thickness=3.0, pixel_vert_size=4.0,
