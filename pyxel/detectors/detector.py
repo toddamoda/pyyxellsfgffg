@@ -47,6 +47,8 @@ class Detector:
         self.characteristics = characteristics
         self.header = OrderedDict()  # type: t.Dict[str, object]
 
+        self._charge_injection_profile = None
+
         # experimantal! ############
         # self.geometry.create_sensor()
         ############################
@@ -105,6 +107,22 @@ class Detector:
         """
         k_boltzmann = 1.38064852e-23   # J/K
         return sqrt(3 * k_boltzmann * self.environment.temperature / self.material.e_effective_mass)
+
+    @property
+    def charge_injection_profile(self):
+        """TBW.
+
+        :return:
+        """
+        return self._charge_injection_profile
+
+    @charge_injection_profile.setter
+    def charge_injection_profile(self, new_charge_injection_profile):
+        """TBW.
+
+        :param new_photon:
+        """
+        self._charge_injection_profile = new_charge_injection_profile
 
     @property
     def photons(self):

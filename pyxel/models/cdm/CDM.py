@@ -10,243 +10,142 @@ This is a function to run the upgraded CDM CTI model developed by Alex Short (ES
 :author: Sami-Matias Niemi
 :author: David Lucsanyi
 """
-
-# import os
-# import astropy.io.fits as fits
 import numpy as np
 import matplotlib.pyplot as plt
 import numba
+from typing import cast
+from pyxel.detectors.ccd import CCD
+from pyxel.detectors.ccd_characteristics import CCDCharacteristics  # noqa: F401
+from pyxel.pipelines.model_registry import registry
 
-#
-# def main():
-#     """
-#     Main function to run CDM with defined arguments.
-#
-#     The readout node is always next to the (0, 0) index element of the 2d array!
-#     When you load in the image you should rotate it relatively to the (0, 0) element with n parameter
-#
-#     """
-#     print('CDM')
-#
-#     # absolute trap density which should be scaled according to radiation dose
-#     # (nt=1.5e10 gives approx fit to GH data for a dose of 8e9 10MeV equiv. protons)
-#
-#     # # ###########
-#     # y = 1500
-#     # x = 1500
-#     # fullframe = np.zeros((y, x), dtype=float)
-#     #
-#     # # image
-#     # # yimgpos = 100   # image position relative to readout node (0, 0)
-#     # # ximgpos = 150
-#     # # image_file = 'data/01.fits'
-#     # # image = fits.getdata(image_file)
-#     # # n = 0
-#     # # image = np.rot90(image, n)
-#     # # yimage, ximage = image.shape
-#     # # fullframe[yimgpos:yimgpos+yimage, ximgpos:ximgpos+ximage] += image
-#     #
-#     # fullframe = injection(fullframe)
-#     #
-#     # # CTI window
-#     # para_transfers = 0   # CTI window position relative to readout node (0, 0)
-#     # seri_transfers = 0
-#     # ydim = 700              # CTI window dimensions
-#     # xdim = 500
-#     ###################
-#
-#     ####################
-#     # # CTI window
-#     para_transfers = 1553  # 1552    # full dimensions of camera
-#     seri_transfers = 0
-#     # ydim = 2052   # CTI window dimensions (either time in case of charge inj. or pixel dim. in case of image)
-#     xdim = 1
-#     #### TODO
-#
-#     charge_inj_flag = True
-#     injection_profile = np.loadtxt('data/cdm-input.txt')
-#     ydim = len(injection_profile)
-#     injection_profile = injection_profile.reshape((ydim, 1))
-#     fullframe = injection_profile
-#
-#     # ylength = len(injection_profile)
-#     # injection_profile = injection_profile.reshape((ylength, 1))
-#     # fullframe = np.zeros((ylength + para_transfers, 1), dtype=float)
-#     # fullframe[para_transfers: para_transfers + ylength, 0] += injection_profile[:, 0]
-#
-#
-#
-#     # original_cti_profile = np.loadtxt('data/cdm-output-pCTI-1trapspecies.txt')
-#     # ylength2 = len(original_cti_profile)
-#     # original_cti_profile = original_cti_profile.reshape((ylength2, 1))
-#     # original_output = np.zeros((ylength2 + para_transfers, 1), dtype=float)
-#     # original_output[para_transfers: para_transfers + ylength2, 0] += original_cti_profile[:, 0]
-#     #
-#     # original_cti_profile = np.loadtxt('data/cdm-output-pCTI-2trapspecies_David.txt')
-#     original_cti_profile = np.loadtxt('data/cdm-output-pCTI-3trapspecies_David.txt')
-#     original_output = original_cti_profile.reshape((len(original_cti_profile), 1))
-#     #####################
-#
-#     # ptp = 947.22e-6 #sec (parallel transfer period)
-#     # CCD temperature = 203 K
-#     # iLevel = 0
-#     # iDur = 0
-#     # iPer = 1000000
-#     # tCi = 0
-#     # Beta = 0.3
-#     # Dob = 0
-#     # TDI mode = false(imaging)
-#     # Fwc = 1e6
-#     # Volume definition: 18e-6 * 18e-6 / 2 * 1e-6;
-#
-#     # Trap species # 0:
-#     # volume = 1.62E-16 m^-3
-#     # temperature = 203.0 K
-#     # energy(eV) = 0.40852255
-#     # release time constant(s) = 0.09472207122546614
-#     # density(traps / pixel) = 10.0
-#     # capture cross section(m2) = 5.0E-20
-#     # i.e.tau = 10 * ptp
-#
-#     # Parallel CTI only
-#     # ###################
-#
-#     t = 947.22e-6       # 0.9828e-3
-#     fwc = 1.e6          # 900000.
-#     vg = 1.62e-10       # 1.4e-10   # cm-3
-#
-#     beta_p = 0.3        # 0.5        ### ????????????
-#     # beta_p = 0.5
-#
-#     # sigma_p = np.array([5.0e-16])                         # cm**2
-#     sigma_p = np.array([5.0e-16, 5.0e-16, 8.0e-16])                  # cm**2
-#     # tr_p = np.array([0.09472207122546614])                # sec
-#     tr_p = np.array([0.09472207122546614, 0.0112425, 0.22342])       # sec
-#     # nt_p = np.array([10.])                                # traps / pixel
-#     nt_p = np.array([10., 20., 30.])                             # traps / pixel
-#
-#     dob = 0.
-#     # rdose = 1.
-#     vth = 1.2175e7       # # ??????????
-#
-#     st = 0.9828e-3  # 1.e-7
-#     sfwc = 900000.  # 1800000.
-#     svg = 1.4e-10   # 2.25e-10
-#
-#     beta_s = 0.3
-#     # sigma_s = np.array([1., 1., 1.])
-#     # tr_s = np.array([0.03, 0.002, 1.e-6])
-#     sigma_s = np.array([1.])
-#     tr_s = np.array([0.03])
-#     nt_s = nt_p
-#
-#     result = cdm(s=fullframe,
-#                  y_start=None,
-#                  x_start=None,
-#                  ydim=None,
-#                  xdim=None,
-#                  # rdose=rdose,
-#                  dob=dob,
-#                  beta_p=beta_p,
-#                  beta_s=beta_s,
-#                  vg=vg,
-#                  svg=svg,
-#                  t=t,
-#                  st=st,
-#                  fwc=fwc,
-#                  sfwc=sfwc,
-#                  vth=vth,
-#                  charge_injection=charge_inj_flag,
-#                  all_parallel_trans=para_transfers,
-#                  all_serial_trans=None,
-#                  # parallel_trap_file= ,
-#                  # serial_trap_file= ,
-#                  sigma_p=sigma_p, sigma_s=sigma_s,
-#                  tr_p=tr_p, tr_s=tr_s,
-#                  nt_p=nt_p, nt_s=nt_s)
-#
-#     # Add noise:
-#     np.random.seed(12421351)
-#     sigma = 30
-#     sigma_array = sigma * np.ones((len(result), 1))
-#     result = np.random.normal(loc=result, scale=sigma_array)
-#     np.clip(result, 0., None, result)  # full well capacity
-#
-#     # np.savetxt('data/cdm-output-pCTI-2trapspecies_David.txt', result)
-#     np.savetxt('data/cdm-output-pCTI-3trapspecies_NOISE_sigma'+str(sigma)+'_David.txt', result)
-#
-#     # plt.figure()    # SERIAL PROFILE
-#     # plot_serial_profile(data=fullframe, data2=result, row=250)
-#     # plt.ylim(0, 25e3)
-#     #
-#     # plt.figure()    # PARALLEL PROFILE
-#     # plot_parallel_profile(data=fullframe, data2=result, col=250)
-#     # plt.ylim(0, 25e3)
-#     #
-#     # plt.figure()
-#     # plot_image(result)
-#     #
-#     plt.figure()
-#     plot_1d_profile(fullframe)
-#     plot_1d_profile(original_output)
-#     plot_1d_profile(result)
-#
-#     plt.figure()
-#     plot_residuals(data=result, data2=original_output)
-#
-#     plt.show()
-#
-#
-# def injection(image):  # TODO finish
-#     """Inject charge
-#
-#     :return:
-#     """
-#     image[:, 50:60] = 10000.
-#     image[:, 150:160] = 10000.
-#     image[:, 300:310] = 10000.
-#
-#     image[50:60, :] = 10000.
-#     image[150:160, :] = 10000.
-#     image[300:310, :] = 10000.
-#     # y_start1 = 50
-#     # y_stop1 = 55
-#     # x_start1 = 50
-#     # x_stop1 = 55
-#     # charge_injected = 100.
-#     # # add horizontal charge injection lines
-#     # image[y_start1:y_stop1, :] = charge_injected
-#     # # add vertical charge injection lines
-#     # image[:, x_start1:x_stop1] = charge_injected
-#     return image
 
+@registry.decorator('charge_transfer', name='cdm', detector='ccd')
+def cdm(detector: CCD,
+        beta_p: float = None, beta_s: float = None,
+        # vg: float = None, svg: float = None,
+        # t: float = None, st: float = None,
+        # dob: float = None,
+        chg_inj: bool = None,
+        parallel_cti: bool = None, serial_cti: bool = None,
+        para_transfers: float = None,
+        tr_p: float = None, tr_s: float = None,
+        nt_p: float = None, nt_s: float = None,
+        sigma_p: float = None, sigma_s: float = None,
+        parallel_trap_file: str = None,
+        serial_trap_file: str = None
+        ) -> CCD:
+    """
+    CDM model wrapper.
+
+    :param detector: PyXel CCD detector object
+    :param beta_p: electron cloud expansion coefficient (parallel)
+    :param beta_s: electron cloud expansion coefficient (serial)
+    # :param vg: assumed maximum geometrical volume electrons can occupy within a pixel (parallel)
+    # :param svg: assumed maximum geometrical volume electrons can occupy within a pixel (serial)
+    # :param t: constant TDI period (parallel)
+    # :param st: constant TDI period (serial)
+    :param parallel_trap_file: ascii file with absolute trap densities (nt),
+        trap capture cross-sections (σ), trap release time constants (τr)
+    :param serial_trap_file: ascii file with absolute trap densities (nt),
+        trap capture cross-sections (σ), trap release time constants (τr)
+
+    :return:
+
+    Ne - number of electrons in a pixel
+    ne - electron density in the vicinity of the trap
+    Vc - volume of the charge cloud
+
+    nt - trap density
+    σ - trap capture cross-section
+    τr - trap release time constant
+    Pr - the probability that the trap will release the electron into the sample
+    τc - capture time constant
+    Pc - capture probability (per vacant trap) as a function of the number of sample electrons Ne
+
+    NT - number of traps in the column,
+        NT = 2*nt*Vg*x  where x is the number of TDI transfers or the column length in pixels.
+    Nc - number of electrons captured by a given trap species during the transit of an integrating signal packet
+    N0 - initial trap occupancy
+    Nr - number of electrons released into the sample during a transit along the column
+
+    fwc: Full Well Capacity in electrons (parallel)
+    sfwc: Full Well Capacity in electrons (serial)
+    """
+    new_detector = detector  # type: CCD
+    char = cast(CCDCharacteristics, new_detector.characteristics)  # type: CCDCharacteristics
+
+    # read in the absolute trap density [per cm**3]     # todo: fix this
+    # if parallel_trap_file is not None:
+    #     trapdata = np.loadtxt(parallel_trap_file)
+    #     if trapdata.ndim > 1:
+    #         nt_p = trapdata[:, 0]
+    #         sigma_p = trapdata[:, 1]
+    #         tr_p = trapdata[:, 2]
+    #     else:
+    #         raise ValueError('Trap data can not be read')
+    # read in the absolute trap density [per cm**3]     # todo: fix this
+    # if serial_trap_file is not None:
+    #     trapdata = np.loadtxt(serial_trap_file)
+    #     if trapdata.ndim > 1:
+    #         nt_s = trapdata[:, 0]
+    #         sigma_s = trapdata[:, 1]
+    #         tr_s = trapdata[:, 2]
+    #     else:
+    #         raise ValueError('Trap data can not be read')
+
+    if isinstance(tr_p, list):
+        tr_p = np.array(tr_p)
+    if isinstance(tr_s, list):
+        tr_s = np.array(tr_s)
+    if isinstance(nt_p, list):
+        nt_p = np.array(nt_p)
+    if isinstance(nt_s, list):
+        nt_s = np.array(nt_s)
+    if isinstance(sigma_p, list):
+        sigma_p = np.array(sigma_p)
+    if isinstance(sigma_s, list):
+        sigma_s = np.array(sigma_s)
+
+    new_detector.pixels.pixel_array = run_cdm(s=new_detector.pixels.pixel_array,   # self.fullframe[dataset],
+                                              beta_p=beta_p, beta_s=beta_s,
+                                              vg=char.vg, svg=char.svg,
+                                              t=char.t, st=char.st,
+                                              fwc=char.fwc, sfwc=char.fwc_serial,
+                                              vth=new_detector.e_thermal_velocity,
+                                              parallel_cti=parallel_cti, serial_cti=serial_cti,
+                                              charge_injection=chg_inj,
+                                              all_parallel_trans=para_transfers,
+                                              sigma_p=sigma_p, sigma_s=sigma_s,
+                                              tr_p=tr_p, tr_s=tr_s,
+                                              nt_p=nt_p, nt_s=nt_s)
+
+    return new_detector
 
 @numba.jit
-def cdm(s: np.ndarray = None,
-        # y_start: int = None,
-        # x_start: int = None,
-        # ydim: int = None,
-        # xdim: int = None,
-        # rdose: float = None,
-        dob: float = None,
-        beta_p: float = None,
-        beta_s: float = None,
-        vg: float = None,
-        svg: float = None,
-        t: float = None,
-        st: float = None,
-        fwc: float = None,
-        sfwc: float = None,
-        vth: float = None,
-        charge_injection: bool = False,
-        all_parallel_trans: int = None,
-        all_serial_trans: int = None,
-        # parallel_trap_file: str = None,
-        # serial_trap_file: str = None,
-        sigma_p: np.ndarray = None, sigma_s: np.ndarray = None,
-        tr_p: np.ndarray = None, tr_s: np.ndarray = None,
-        nt_p: np.ndarray = None, nt_s: np.ndarray = None
-        ):
+def run_cdm(s: np.ndarray = None,
+            # y_start: int = None,
+            # x_start: int = None,
+            # ydim: int = None,
+            # xdim: int = None,
+            # rdose: float = None,
+            # dob: float = None,
+            beta_p: float = None,
+            beta_s: float = None,
+            vg: float = None,
+            svg: float = None,
+            t: float = None,
+            st: float = None,
+            fwc: float = None,
+            sfwc: float = None,
+            vth: float = None,
+            charge_injection: bool = False,
+            all_parallel_trans: int = None,
+            parallel_cti=True,
+            serial_cti=True,
+            sigma_p: np.ndarray = None, sigma_s: np.ndarray = None,
+            tr_p: np.ndarray = None, tr_s: np.ndarray = None,
+            nt_p: np.ndarray = None, nt_s: np.ndarray = None
+            ):
     """ CDM model.
 
     :param s:
@@ -271,7 +170,6 @@ def cdm(s: np.ndarray = None,
     #     trap capture cross-sections (σ), trap release time constants (τr)
     :param charge_injection:
     :param all_parallel_trans:
-    :param all_serial_trans:
     :param sigma_p:
     :param sigma_s:
     :param tr_p:
@@ -301,29 +199,6 @@ def cdm(s: np.ndarray = None,
     sfwc: Full Well Capacity in electrons (serial)
     """
 
-    parallel_cti = True
-    serial_cti = False
-
-    # read in the absolute trap density [per cm**3]     # todo: fix this
-    # if parallel_trap_file is not None:
-    #     trapdata = np.loadtxt(parallel_trap_file)
-    #     if trapdata.ndim > 1:
-    #         nt_p = trapdata[:, 0]
-    #         sigma_p = trapdata[:, 1]
-    #         tr_p = trapdata[:, 2]
-    #     else:
-    #         raise ValueError('Trap data can not be read')
-
-    # read in the absolute trap density [per cm**3]     # todo: fix this
-    # if serial_trap_file is not None:
-    #     trapdata = np.loadtxt(serial_trap_file)
-    #     if trapdata.ndim > 1:
-    #         nt_s = trapdata[:, 0]
-    #         sigma_s = trapdata[:, 1]
-    #         tr_s = trapdata[:, 2]
-    #     else:
-    #         raise ValueError('Trap data can not be read')
-
     ydim, xdim = s.shape        # full signal array we want to apply cdm for
 
     kdim_p = len(nt_p)
@@ -338,7 +213,7 @@ def cdm(s: np.ndarray = None,
     # if xdim is None:
     #     xdim = x_total_dim
 
-    s = s + dob                 # diffuse optical background
+    # s = s + dob                 # diffuse optical background
     np.clip(s, 0., fwc, s)      # full well capacity
 
     nt_p = nt_p / vg            # parallel trap density (traps / cm**3)
@@ -568,7 +443,3 @@ def plot_image(data):
 #
 #     # write the actual file
 #     ofd.writeto(output)
-#
-#
-# if __name__ == '__main__':
-#     main()

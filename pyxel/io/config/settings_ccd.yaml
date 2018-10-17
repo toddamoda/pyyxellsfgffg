@@ -4,8 +4,8 @@
 ################
 
 parametric:
-#  mode: single
-  mode: calibration
+  mode: single
+#  mode: calibration
 #  mode: embedded
 #  mode: sequential
   steps:
@@ -16,7 +16,7 @@ parametric:
     -
       enabled: true
       key: pipeline.photon_generation.photon_level.arguments.level
-      values: list(range(10, 13))
+      values: # todo: list(range(10, 13))
 
 processor:
   class: pyxel.pipelines.processor.Processor
@@ -69,15 +69,19 @@ processor:
 
     characteristics:
       class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
-      qe: 0.5               # -
+      qe: 0.5                 # -
       eta: 0.5                # e/photon
-      sv: 1.0e-6            # V/e
-      amp: 1.              # V/V
-      a1: 100               # V/V
-      a2: 65536             # DN/V
-      fwc: 2000            # e
-      fwc_serial: 3000     # e
-#      bias_voltage: 0.0             # V
+      sv: 1.0e-6              # V/e
+      amp: 1.                 # V/V
+      a1: 100                 # V/V
+      a2: 65536               # DN/V
+      fwc: 1.e6               # e
+      fwc_serial: 1.e6        # e
+      vg: 1.6200e-10          # cm2
+      svg: 1.6200e-10         # cm2
+      t: 9.4722e-04           # s
+      st: 9.4722e-04          # s
+#      bias_voltage: 0.0        # V
 
   pipeline:
     class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
@@ -89,7 +93,7 @@ processor:
         func: pyxel.models.photon_generation.load_image
         enabled: true
         arguments:
-          image_file: data/004.fits
+          image_file: data/01.fits
           row0: 0
           col0: 0
           rows: 500
@@ -111,6 +115,12 @@ processor:
     # photons -> charge
     charge_generation:
       -
+        name: charge_injection
+        func: pyxel.models.charge_injection.charge_injection
+        enabled: false
+        arguments:
+          input_data_list: #path
+      -
         name: photoelectrons
         func: pyxel.models.photoelectrons.simple_conversion
         enabled: true
@@ -125,12 +135,7 @@ processor:
           initial_energy: random   # MeV
           particle_number: 80
           incident_angles:      # rad
-#            - 0.31415 # pi / 4
-#            - 3.1415  # 0 # 1.570 # 3.1415 # 2.094 # pi / 2
           starting_position:    # um
-#            - random # 10. #500.0  # vertical
-#            - random # 20. #500.0  # horizontal
-#            - 0.0         # z
           spectrum_file: 'pyxel/models/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
 
     # charge -> charge
@@ -151,15 +156,21 @@ processor:
       -
         name: cdm
         func: pyxel.models.cdm.CDM.cdm
-        enabled: false
+        enabled: true
         arguments:
-         beta_p: 0.6
-         beta_s: 0.6
-         vg: 6.e-11
-         svg: 1.0e-10
-         t: 20.48e-3
-         st: 5.0e-6
-         parallel_trap_file: pyxel/models/cdm/cdm_euclid_parallel.dat
+         beta_p: 0.3
+         beta_s: 0.3
+         parallel_cti: true
+         serial_cti: true  # false
+         chg_inj: false
+         para_transfers: 1552
+         tr_p: [0.01]
+         tr_s: [0.01]
+         nt_p: [1000.]
+         nt_s: [1000.]
+         sigma_p: [1.]
+         sigma_s: [1.]
+#         parallel_trap_file: pyxel/models/cdm/cdm_euclid_parallel.dat
 #         serial_trap_file: pyxel/models/cdm/cdm_euclid_serial.dat
 
     # charge -> signal

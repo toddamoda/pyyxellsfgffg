@@ -56,7 +56,7 @@ def load_image(detector: Detector,
     return detector
 
 
-@om.argument('level', label='Photons', units='ADU', validate=om.check_range(0, 65535, 1))
+@om.argument('level', label='Photons', units='ADU', validate=om.check_range(0, 65535, 1))    # todo fix this
 @pyxel.register('photon_generation', name='photon_level')
 def add_photon_level(detector: Detector,
                      level: int,
