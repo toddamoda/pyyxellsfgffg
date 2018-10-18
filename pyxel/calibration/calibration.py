@@ -10,9 +10,12 @@ class Calibration:
 
     :return:
     """
+
     def __init__(self, settings, config):
         """TBW.
 
+        :param settings:
+        :param config:
         """
         self.detector = config.detector
         self.pipeline = config.pipeline
@@ -127,19 +130,16 @@ class Calibration:
         :return:
         """
         self.fitting = ModelFitting(input_data=self.model_input_data,
-                                  target=self.target_output,
-                                    # calib_obj=self,
-                                  # detector=self.detector,
-                                  # pipeline=self.pipeline,
-                                  variables=self.parameters,
-                                  gen=self.generations,
-                                  pop=self.population_size)
+                                    target=self.target_output,
+                                    variables=self.parameters,
+                                    gen=self.generations,
+                                    pop=self.population_size)
         self.fitting.set_simulated_fit_range((self.sim_start_fit, self.sim_end_fit))
         self.fitting.set_target_fit_range((self.target_start_fit, self.target_end_fit))
         self.fitting.set_uniformity_scales(sc_tr=self.tr_scale,
-                                         sc_nt=self.nt_scale,
-                                         sc_sig=self.sigma_scale,
-                                         sc_be=self.beta_scale)
+                                           sc_nt=self.nt_scale,
+                                           sc_sig=self.sigma_scale,
+                                           sc_be=self.beta_scale)
         self.fitting.set_bound(low_val=self.lb, up_val=self.ub)
         self.fitting.set_normalization()
         self.fitting.save_champions_in_file()
@@ -148,7 +148,7 @@ class Calibration:
 
         # #################################################
         # Model specific input arguements:
-        traps = 4                                                       # TODO read these from YAML config automatically
+        traps = 4                                                 # TODO read these from YAML config automatically
         number_of_transfers = 1552
         t = 947.22e-6  # s
         fwc = 1.e6  # e-
@@ -157,7 +157,7 @@ class Calibration:
         vth = 1.866029409893778e7  # cm/s, from Thibaut's jupyter notebook
         # sigma = 5.e-16              # cm**2 (for all traps)
         sigma = None  # cm**2 (for all traps)
-        self.fitting.charge_injection(True)                                # TODO set these from YAML config automatically
+        self.fitting.charge_injection(True)                           # TODO set these from YAML config automatically
         self.fitting.set_parallel_parameters(traps=traps, t=t, vg=vg, fwc=fwc, vth=vth, sigma=sigma)
         self.fitting.set_dimensions(para_transfers=number_of_transfers)
 
@@ -280,7 +280,7 @@ class Calibration:
             return cx_final, cf_final
 
     def log(self):
-        """
+        """TBW.
 
         :return:
         """
@@ -349,7 +349,7 @@ class Calibration:
         #         file.write('\n  Relative tolerance:      %.2e' % nlopt_xtol_rel)
 
     def results(self):
-        """
+        """TBW.
 
         :return:
         """

@@ -1,7 +1,6 @@
-"""
-Charge Distortion Model for CCDs
-============================
+"""Charge Distortion Model for CCDs.
 
+============================
 This is a function to run the upgraded CDM CTI model developed by Alex Short (ESA).
 
 :requires: NumPy
@@ -118,6 +117,7 @@ def cdm(detector: CCD,
 
     return new_detector
 
+
 @numba.jit
 def run_cdm(s: np.ndarray = None,
             # y_start: int = None,
@@ -143,7 +143,7 @@ def run_cdm(s: np.ndarray = None,
             tr_p: np.ndarray = None, tr_s: np.ndarray = None,
             nt_p: np.ndarray = None, nt_s: np.ndarray = None
             ):
-    """ CDM model.
+    """CDM model.
 
     :param s:
     # :param y_start:
@@ -195,7 +195,6 @@ def run_cdm(s: np.ndarray = None,
     fwc: Full Well Capacity in electrons (parallel)
     sfwc: Full Well Capacity in electrons (serial)
     """
-
     ydim, xdim = s.shape        # full signal array we want to apply cdm for
 
     kdim_p = len(nt_p)
@@ -325,7 +324,7 @@ def plot_parallel_profile(data, col, data2=None):
 
 
 def plot_1d_profile(array, offset=0, label='', m='-'):
-    """plot profile on log scale
+    """Plot profile on log scale.
 
     :param array:
     :param offset:
@@ -402,41 +401,3 @@ def plot_image(data):
     plt.ylabel('y - parallel direction')
     plt.title('CCD image with CTI')
     plt.colorbar()
-
-
-# def write_fits_file(data, output, unsigned16bit=True):
-#     """Write out FITS files using PyFITS.
-#
-#     :param data: data to write to a FITS file
-#     :type data: ndarray
-#     :param output: name of the output file
-#     :type output: string
-#     :param unsigned16bit: whether to scale the data using bzero=32768
-#     :type unsigned16bit: bool
-#
-#     :return: None
-#     """
-#     if os.path.isfile(output):
-#         os.remove(output)
-#
-#     # create a new FITS file, using HDUList instance
-#     ofd = fits.HDUList(fits.PrimaryHDU())
-#
-#     # new image HDU
-#     hdu = fits.ImageHDU(data=data)
-#
-#     # convert to unsigned 16bit int if requested
-#     if unsigned16bit:
-#         hdu.scale('int16', '', bzero=32768)
-#         hdu.header.add_history('Scaled to unsigned 16bit integer!')
-#
-#     # update and verify the header
-#     # hdu.header.add_history('If questions, please contact Sami-Matias Niemi (s.niemi at ucl.ac.uk).')
-#     # hdu.header.add_history('This file has been created with the VISsim Python Package at %s'
-#     #                        % datetime.datetime.isoformat(datetime.datetime.now()))
-#     # hdu.verify('fix')
-#
-#     ofd.append(hdu)
-#
-#     # write the actual file
-#     ofd.writeto(output)

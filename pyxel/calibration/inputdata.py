@@ -1,6 +1,4 @@
-"""
-PLATO CCD data reading script for CDM model calibration script
-"""
+"""PLATO CCD data reading script for CDM model calibration script."""
 import numpy as np
 
 
@@ -131,6 +129,8 @@ def read_former_campaign_data(data_path, data_files, flatfield_avg_signal, det_p
 
     :param data_path: path to datafiles
     :param data_files: datafile names
+    :param flatfield_avg_signal:
+    :param det_pix_rows:
     :return:
     """
     data = []
@@ -164,13 +164,13 @@ def read_plato_data(data_path, data_files, start, end):
 
 
 def _format_data_(data_list, start=None, end=None):
-    """
-    
+    """TBW.
+
     :param data_list: list of loaded data
     :param start: index of first data point to be read
     :param end: index of last data point to be read
     :param thr: threshold for generating injection profile
-    :return: 
+    :return:
     """
     injected = []
     target = []
@@ -186,7 +186,7 @@ def _format_data_(data_list, start=None, end=None):
 
 
 def _format_singlecol_data_(data_list, start=None, end=None):
-    """
+    """TBW.
 
     :param data_list: list of loaded data
     :param start: index of first data point to be read

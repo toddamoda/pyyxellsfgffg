@@ -1,17 +1,15 @@
-"""
-CDM model calibration with PYGMO
-https://esa.github.io/pagmo2/index.html
+"""CDM model calibration with PYGMO.
 
+https://esa.github.io/pagmo2/index.html
 """
 import numpy as np
 # from pyxel.models.cdm.CDM import cdm
 import pandas as pd
-import pyxel.detectors.detector
+# import pyxel.detectors.detector
 
 
 class ModelFitting:
-    """Pygmo problem class to fit data with any model in Pyxel.
-    """
+    """Pygmo problem class to fit data with any model in Pyxel."""
 
     def __init__(self, variables, gen, pop,    # ##### detector, pipeline,
                  input_data, target,           # todo get rid of these
@@ -233,18 +231,19 @@ class ModelFitting:
     def set_dimensions(self,
                        para_transfers: int = None,
                        seri_transfers: int = None,
-                       ydim: int = None,
-                       xdim: int = None,
-                       ystart: int = None,
-                       xstart: int = None):
+                       # ydim: int = None,
+                       # xdim: int = None,
+                       # ystart: int = None,
+                       # xstart: int = None
+                       ):
         """TBW.
 
         :param para_transfers:
         :param seri_transfers:
-        :param ydim:
-        :param xdim:
-        :param ystart:
-        :param xstart:
+        # :param ydim:
+        # :param xdim:
+        # :param ystart:
+        # :param xstart:
         :return:
         """
         self.para_transfers = para_transfers
@@ -278,7 +277,7 @@ class ModelFitting:
         return np.sum(diff_square)
 
     def normalize(self, array, dataset):
-        """Normalizing dataset arrays by injected signal maximum
+        """Normalize dataset arrays by injected signal maximum.
 
         :param array: 1d np.array
         :param dataset: int
@@ -287,7 +286,7 @@ class ModelFitting:
         return array / np.average(self.target_data[dataset][self.targ_fit_range])
 
     def fitness(self, parameter):
-        """Calling the fitness function, elements of parameter array could be logarithm values
+        """Call the fitness function, elements of parameter array could be logarithm values.
 
         :param parameter: 1d np.array
         :return:
@@ -303,8 +302,9 @@ class ModelFitting:
         return self.fitness_evaluation(parameter)
 
     def fitness_evaluation(self, parameter):
-        """The fitness function, elements of parameter can not be logarithm values
+        """Evaluate fitness.
 
+        The fitness function, elements of parameter can not be logarithm values!
         :param parameter: 1d np.array
         :return:
         """
@@ -313,7 +313,8 @@ class ModelFitting:
 
         overall_fitness = 0.
         for i in range(self.datasets):
-            results = self.run_cdm(parameter, dataset=i)
+            self.run_cdm(parameter, dataset=i)
+            # results = self.run_cdm(parameter, dataset=i)
             # fitness = self.least_squares(results, dataset=i)
             fitness = 1
             overall_fitness += fitness
@@ -445,7 +446,6 @@ class ModelFitting:
         #              parallel_cti=True,  # #############
         #              serial_cti=False,  # ##############
         #              para_transfers=self.para_transfers)  # #########
-
 
         # calib_pipeline, calib_detector = self.calib.get_everything()
         # output_detector = calib_pipeline.run_pipeline(calib_detector)
