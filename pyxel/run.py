@@ -40,17 +40,16 @@ def run(input_filename, output_file, random_seed: int = None):  # key=None, valu
     detector = None
 
     # if key and value:
-    #     # processor.set(key, value)
-    #     pass
+    #     processor.set(key, value)
 
     # parametric.debug(processor)
     configs = parametric.collect(processor)
 
     for config in configs:
         # "model calibration" mode
-        if parametric.mode == 'calibration':        # todo: call pygmo applicaiton
+        if parametric.mode == 'calibration':        # todo: call pygmo applicaiton, multi-processing
             run_pipeline_calibration(parametric, config)
-        # "single run" or "parametric analysis" mode
+        # "single run" or "parametric/sensitivity analysis" mode
         else:
             detector = config.pipeline.run_pipeline(config.detector)
 
@@ -77,16 +76,15 @@ def run_pipeline_calibration(settings, config):
     # - config.detector
 
     # read data you want to fit with your models:
+    # Todo call target data reading func
 
     # create and initialize your calibration class (setting params based on config):
     calibration = Calibration(settings, config)
-
-
+    calibration.problem()
+    aa, bb = calibration.evolutionary_algorithm()
+    # calibration.nonlinear_optimization_algorithm()
 
     # detector = config.pipeline.run_pipeline(config.detector)
-
-    # calibration.problem()
-    # calibration.algorithm()
 
 
 def main():

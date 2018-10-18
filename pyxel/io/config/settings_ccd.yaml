@@ -4,8 +4,8 @@
 ################
 
 parametric:
-  mode: single
-#  mode: calibration
+#  mode: single
+  mode: calibration
 #  mode: embedded
 #  mode: sequential
   steps:
@@ -17,6 +17,12 @@ parametric:
       enabled: true
       key: pipeline.photon_generation.photon_level.arguments.level
       values: # todo: list(range(10, 13))
+
+#  calibration: none
+#    arguments:
+#      target_data:
+#      fitting_rang:
+
 
 processor:
   class: pyxel.pipelines.processor.Processor
@@ -161,8 +167,8 @@ processor:
          beta_p: 0.3
          beta_s: 0.3
          parallel_cti: true
-         serial_cti: true  # false
-         chg_inj: false
+         serial_cti: false
+         chg_inj: true
          para_transfers: 1552
          tr_p: [0.01]
          tr_s: [0.01]

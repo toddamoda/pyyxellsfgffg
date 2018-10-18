@@ -8,19 +8,17 @@ from pyxel.models.cdm.CDM import cdm
 import pandas as pd
 
 
-class CDMFitting:
-    """Pygmo problem class to fit data with CDM.
+class ModelFitting:
+    """Pygmo problem class to fit data with any model in Pyxel.
     """
 
-    def __init__(self, input_data, target, trap_species, variables):
+    def __init__(self, input_data, target, variables, gen, pop):
         """TBW.
 
         :param input_data: np.array
         :param target: np.array
-        :param trap_species: int
         :param variables: list of str, like ['tr_p', 'nt_p', 'beta_p'] or ['tr_p', 'nt_p', 'sigma_p', 'beta_p']
         """
-        self.traps = trap_species
         self.variables = variables
 
         self.write2file = False
@@ -33,11 +31,11 @@ class CDMFitting:
         self.population = None
         self.champion_f_list = None
         self.champion_x_list = None
-        self.evol = False
+
         self.n = 0
         self.g = 0
-        self.gen = None
-        self.pop = None
+        self.gen = gen
+        self.pop = pop
 
         self.lbd = None         # lower boundary
         self.ubd = None         # upper boundary
@@ -46,14 +44,13 @@ class CDMFitting:
 
         self.para_transfers = None
         self.seri_transfers = None
-        self.ydim = None      # CTI window dimensions
-        self.xdim = None
-        self.y_start = None   # CTI window position relative to the readout node (0, 0)
-        self.x_start = None
+        # self.ydim = None      # CTI window dimensions
+        # self.xdim = None
+        # self.y_start = None   # CTI window position relative to the readout node (0, 0)
+        # self.x_start = None
 
         self.fullframe = input_data
         self.target_data = target
-        # self.std_dev = std_dev
         self.datasets = len(target)
 
         self.normalization = False
@@ -70,6 +67,7 @@ class CDMFitting:
         self.sigma_log = False
         self.beta_log = False
 
+        self.traps = None
         self.t = None           # parallel transfer period (s)
         self.fwc = None         # full well capacity in e-
         self.vg = None          # HALF of the pixel geometrical volume and max volume of e- cloud (cm**3)
@@ -82,7 +80,7 @@ class CDMFitting:
 
         self.dob = 0.           # diffuse optical background
 
-        if self.variables:      # (if the list is not empty)
+        if self.variables:      # (if the list is not empty)  # TODO
             if 'tr_p' not in self.variables:
                 raise NotImplementedError()
             if 'nt_p' not in self.variables:
@@ -171,21 +169,6 @@ class CDMFitting:
         self.lbd = low_val
         self.ubd = up_val
 
-    def set_sga_algo(self, evol=False, gen=0, pop=0):
-        """TBW.
-
-        :param evol: boolean , set if the algo is an evolutionary algo
-        :param gen: int , number of generations
-        :param pop: int , size of population
-        :return:
-        """
-        self.evol = evol
-        self.gen = gen
-        self.pop = pop
-
-        self.champion_f_list = np.zeros((1, 1))
-        self.champion_x_list = np.zeros((1, 3 * self.traps + 1))
-
     def save_champions_in_file(self):
         """TBW.
 
@@ -195,7 +178,6 @@ class CDMFitting:
         self.champion_file = 'champion.out'
         f1 = open(self.champion_file, 'wb')  # truncate output file
         f1.close()
-
         self.pop_file = 'population.out'
         f2 = open(self.pop_file, 'wb')  # truncate output file
         f2.close()
@@ -213,6 +195,7 @@ class CDMFitting:
         self.chg_inj = flag
 
     def set_parallel_parameters(self,
+                                traps: int = None,
                                 t: float = None,
                                 vg: float = None,
                                 fwc: float = None,
@@ -220,6 +203,7 @@ class CDMFitting:
                                 sigma: float = None):
         """TBW.
 
+        :param traps: number of trap species
         :param t: parallel transfer period (s)
         :param vg: HALF of the pixel geometrical volume and max volume of e- cloud (cm**3)
         :param fwc: full well capacity of pixels in e-
@@ -227,6 +211,7 @@ class CDMFitting:
         :param sigma: capture cross-section for all traps (cm**2)
         :return:
         """
+        self.traps = traps
         self.t = t
         self.vg = vg
         self.fwc = fwc
@@ -235,6 +220,8 @@ class CDMFitting:
             self.sigma_p = sigma * np.ones(self.traps)
         else:
             self.sigma_p = sigma
+        self.champion_f_list = np.zeros((1, 1))
+        self.champion_x_list = np.zeros((1, 3 * self.traps + 1))
 
     def set_dimensions(self,
                        para_transfers: int = None,
@@ -255,10 +242,10 @@ class CDMFitting:
         """
         self.para_transfers = para_transfers
         self.seri_transfers = seri_transfers
-        self.ydim = ydim
-        self.xdim = xdim
-        self.y_start = ystart
-        self.x_start = xstart
+        # self.ydim = ydim
+        # self.xdim = xdim
+        # self.y_start = ystart
+        # self.x_start = xstart
 
     def least_squares(self, simulated_data, dataset):
         """TBW.
@@ -350,49 +337,48 @@ class CDMFitting:
         ord_param = np.append(ord_param, parameter[-1])
         ord_param = ord_param.reshape(1, paramsize)
 
-        if self.evol:
-            if self.n % self.pop == 0:
-                self.fitness_array = np.array([overall_fitness])
-                self.population = ord_param
+        if self.n % self.pop == 0:
+            self.fitness_array = np.array([overall_fitness])
+            self.population = ord_param
+        else:
+            self.fitness_array = np.vstack((self.fitness_array, np.array([overall_fitness])))
+            self.population = np.vstack((self.population, ord_param))
+
+        if (self.n + 1) % self.pop == 0:
+
+            best_index = np.argmin(self.fitness_array)
+
+            if self.g == 0:
+                self.champion_f_list[self.g] = self.fitness_array[best_index]
+                self.champion_x_list[self.g] = self.population[best_index, :]
             else:
-                self.fitness_array = np.vstack((self.fitness_array, np.array([overall_fitness])))
-                self.population = np.vstack((self.population, ord_param))
+                best_champ_index = np.argmin(self.champion_f_list)
 
-            if (self.n + 1) % self.pop == 0:
-
-                best_index = np.argmin(self.fitness_array)
-
-                if self.g == 0:
-                    self.champion_f_list[self.g] = self.fitness_array[best_index]
-                    self.champion_x_list[self.g] = self.population[best_index, :]
+                if self.fitness_array[best_index] <= self.champion_f_list[best_champ_index]:
+                    self.champion_f_list = np.vstack((self.champion_f_list, self.fitness_array[best_index]))
+                    self.champion_x_list = np.vstack((self.champion_x_list, self.population[best_index]))
                 else:
-                    best_champ_index = np.argmin(self.champion_f_list)
+                    self.champion_f_list = np.vstack((self.champion_f_list, self.champion_f_list[-1]))
+                    self.champion_x_list = np.vstack((self.champion_x_list, self.champion_x_list[-1]))
 
-                    if self.fitness_array[best_index] <= self.champion_f_list[best_champ_index]:
-                        self.champion_f_list = np.vstack((self.champion_f_list, self.fitness_array[best_index]))
-                        self.champion_x_list = np.vstack((self.champion_x_list, self.population[best_index]))
-                    else:
-                        self.champion_f_list = np.vstack((self.champion_f_list, self.champion_f_list[-1]))
-                        self.champion_x_list = np.vstack((self.champion_x_list, self.champion_x_list[-1]))
+            if self.write2file:
+                str_format = '%d' + (paramsize + 1) * ' %.6E'
+                with open(self.champion_file, 'ab') as f3:
+                    np.savetxt(f3, np.c_[np.array([self.g]),
+                                         self.champion_f_list[self.g],
+                                         self.champion_x_list[self.g, :].reshape(1, paramsize)],
+                               fmt=str_format)
 
-                if self.write2file:
+                if self.g % 200 == 0 or self.g == self.gen:
                     str_format = '%d' + (paramsize + 1) * ' %.6E'
-                    with open(self.champion_file, 'ab') as f3:
-                        np.savetxt(f3, np.c_[np.array([self.g]),
-                                             self.champion_f_list[self.g],
-                                             self.champion_x_list[self.g, :].reshape(1, paramsize)],
-                                   fmt=str_format)
+                    with open(self.pop_file, 'ab') as f4:
+                        np.savetxt(f4, np.c_[self.g * np.ones(self.fitness_array.shape),
+                                             self.fitness_array,
+                                             self.population], fmt=str_format)
 
-                    if self.g % 200 == 0 or self.g == self.gen:
-                        str_format = '%d' + (paramsize + 1) * ' %.6E'
-                        with open(self.pop_file, 'ab') as f4:
-                            np.savetxt(f4, np.c_[self.g * np.ones(self.fitness_array.shape),
-                                                 self.fitness_array,
-                                                 self.population], fmt=str_format)
+            self.g += 1
 
-                self.g += 1
-
-            self.n += 1
+        self.n += 1
 
         return [overall_fitness]
 
@@ -426,27 +412,23 @@ class CDMFitting:
             self.sigma_p = subarrays[2]
             self.beta_p = subarrays[3][0]
 
-        output = cdm(s=self.fullframe[dataset],
-                     # y_start=self.y_start,
-                     # x_start=self.x_start,
-                     # ydim=self.ydim,
-                     # xdim=self.xdim,
-                     dob=self.dob,
-                     beta_p=self.beta_p,
-                     beta_s=self.beta_s,
-                     vg=self.vg, svg=self.svg,
-                     t=self.t, st=self.st,
-                     fwc=self.fwc, sfwc=self.sfwc,
-                     vth=self.vth,
-                     charge_injection=self.chg_inj,
-                     all_parallel_trans=self.para_transfers,
-                     all_serial_trans=self.seri_transfers,
-                     sigma_p=self.sigma_p,
-                     sigma_s=self.sigma_s,
-                     tr_p=self.tr_p,
-                     tr_s=self.tr_s,
-                     nt_p=self.nt_p,
-                     nt_s=self.nt_s)
+        # output = cdm(s=self.fullframe[dataset],
+        #              beta_p=self.beta_p,
+        #              beta_s=self.beta_s,
+        #              vg=self.vg, svg=self.svg,
+        #              t=self.t, st=self.st,
+        #              fwc=self.fwc, sfwc=self.sfwc,
+        #              vth=self.vth,
+        #              charge_injection=self.chg_inj,
+        #              all_parallel_trans=self.para_transfers,
+        #              all_serial_trans=self.seri_transfers,
+        #              sigma_p=self.sigma_p,
+        #              sigma_s=self.sigma_s,
+        #              tr_p=self.tr_p,
+        #              tr_s=self.tr_s,
+        #              nt_p=self.nt_p,
+        #              nt_s=self.nt_s)
+
         return output
 
     def get_bounds(self):

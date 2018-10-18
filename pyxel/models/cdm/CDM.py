@@ -22,9 +22,6 @@ from pyxel.pipelines.model_registry import registry
 @registry.decorator('charge_transfer', name='cdm', detector='ccd')
 def cdm(detector: CCD,
         beta_p: float = None, beta_s: float = None,
-        # vg: float = None, svg: float = None,
-        # t: float = None, st: float = None,
-        # dob: float = None,
         chg_inj: bool = None,
         parallel_cti: bool = None, serial_cti: bool = None,
         para_transfers: float = None,
