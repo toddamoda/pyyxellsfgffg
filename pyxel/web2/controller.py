@@ -8,6 +8,7 @@ import typing as t
 import esapy_config as om  # noqa: F401
 
 from esapy_web.webapp2.modules import guiconfig
+from esapy_web.webapp2.modules import dispatch
 
 from pyxel import util
 from pyxel.pipelines.processor import Processor
@@ -265,25 +266,25 @@ class Controller(guiconfig.Controller):
             self._th = threading.Thread(target=self.run_pipeline_sequence, args=[output_file])
             self._th.start()
 
-    # @staticmethod
-    # def announce(type_key, key, value):
-    #     """TBW."""
-    #     msg = {
-    #         'type': type_key,
-    #         'id': key,
-    #         'fields': {'value': value},
-    #     }
-    #     dispatch.announce(msg)
-    #
-    # @staticmethod
-    # def progress(key, fields):
-    #     """TBW."""
-    #     msg = {
-    #         'type': 'progress',
-    #         'id': key,
-    #         'fields': fields,
-    #     }
-    #     dispatch.announce(msg)
+    @staticmethod
+    def announce(type_key, key, value):
+        """TBW."""
+        msg = {
+            'type': type_key,
+            'id': key,
+            'fields': {'value': value},
+        }
+        dispatch.announce(msg)
+
+    @staticmethod
+    def progress(key, fields):
+        """TBW."""
+        msg = {
+            'type': 'progress',
+            'id': key,
+            'fields': fields,
+        }
+        dispatch.announce(msg)
 
     def set_sequence_mode(self, run_mode):
         """TBW."""
