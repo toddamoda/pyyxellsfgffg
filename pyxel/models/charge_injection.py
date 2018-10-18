@@ -21,13 +21,13 @@ def charge_injection(detector: CCD,
     :return:
     """
     new_detector = detector
-    injected_profiles = []
-    # # read data from files and create     # TODO
-    # for i in range(len(input_data_list)):
-    #     rows, _ = input_data_list[i].shape
-    #     injected_profiles += [create_injection_profile_highest(input_data_list[i])]
-    #     # injected_profiles += [create_injection_profile_average(input_data_list[i])]
-    new_detector.charge_injection_profile = injected_profiles
+    # injected_profiles = []  # type: np.array
+    # # # read data from files and create     # TODO
+    # # for i in range(len(input_data_list)):
+    # #     rows, _ = input_data_list[i].shape
+    # #     injected_profiles += [create_injection_profile_highest(input_data_list[i])]
+    # #     # injected_profiles += [create_injection_profile_average(input_data_list[i])]
+    # new_detector.charge_injection_profile = injected_profiles
     return new_detector
 
 

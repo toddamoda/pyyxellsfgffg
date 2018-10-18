@@ -5,9 +5,9 @@
 # ESA libraries        #
 ########################
 
-esapy_config
-esapy_web
-pygmo
+esapy-config v0.4.0
+esapy-web v0.2.1
+pygmo v2.8
 
 ########################
 # Scientific / Imaging #

@@ -24,8 +24,8 @@ import time
 import argparse
 import numpy as np
 import pygmo as pg
-from pyxel.calibration.problem import CDMFitting
-from pyxel.calibration.inputdata import read_plato_data, read_test_data, read_former_campaign_data
+# from pyxel.calibration.problem import ModelFitting
+# from pyxel.calibration.inputdata import read_plato_data, read_test_data, read_former_campaign_data
 
 
 def time_log(loc, ref_time):
