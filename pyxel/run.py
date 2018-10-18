@@ -18,6 +18,7 @@ import pyxel
 from pyxel import util
 import pyxel.pipelines.processor
 from pyxel.calibration.calibration import Calibration
+from pyxel.calibration.inputdata import read_plato_data
 
 
 def run(input_filename, output_file, random_seed: int = None):  # key=None, value=None
@@ -57,6 +58,8 @@ def run(input_filename, output_file, random_seed: int = None):  # key=None, valu
         save_to = util.apply_run_number(output_file)
         out = util.FitsFile(save_to)
         out.save(detector.image, header=None, overwrite=True)
+        # todo: BUG creates new, fits file with random filename and without extension
+        # ... when it can not save data to fits file (because it is opened/used by other process)
         output.append(output_file)
 
     print('Pipeline completed.')
@@ -76,15 +79,23 @@ def run_pipeline_calibration(settings, config):
     # - config.detector
 
     # read data you want to fit with your models:
-    # Todo call target data reading func
+    data_files = ['cold/CCD280-14482-06-02-cryo-irrad-gd15.5V.txt',
+                  'cold/CCD280-14482-06-02-cryo-irrad-gd16.5V.txt',
+                  'cold/CCD280-14482-06-02-cryo-irrad-gd18.5V.txt',
+                  'cold/CCD280-14482-06-02-cryo-irrad-gd19.5V.txt']
+    injection_profile, target_output, target_error = read_plato_data(
+        data_path=r'C:/dev/work/cdm/data/better-plato-target-data/', data_files=data_files, start=None, end=None)
 
     # create and initialize your calibration class (setting params based on config):
     calibration = Calibration(settings, config)
-    calibration.problem()
+    calibration.set_data(model_input_data=injection_profile,
+                         target_output=target_output)
+
+    problem_obj = calibration.fitting_problem()
+    calibration.create_pygmo_prob(problem_obj)
+
     aa, bb = calibration.evolutionary_algorithm()
     # calibration.nonlinear_optimization_algorithm()
-
-    # detector = config.pipeline.run_pipeline(config.detector)
 
 
 def main():

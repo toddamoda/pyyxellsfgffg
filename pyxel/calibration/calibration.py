@@ -14,6 +14,10 @@ class Calibration:
         """TBW.
 
         """
+        self.detector = config.detector
+        self.pipeline = config.pipeline
+        self.settings = settings
+
         self.model_input_data = None
         self.target_output = None
         self.target_output_error = None
@@ -32,8 +36,8 @@ class Calibration:
         self.sga = False
         self.neldermead = False
 
-        self.generations = 100
-        self.population_size = 100
+        self.generations = 10
+        self.population_size = 10
         if self.sade:
             self.self_adaptation_scheme = 1
             self.mutant_var = 2
@@ -50,7 +54,7 @@ class Calibration:
 
         # self.champion_x, self.champion_f = None, None
 
-        self.model = None
+        self.fitting = None
         self.prob = None
 
         seed = 1111
@@ -105,27 +109,42 @@ class Calibration:
         # # weighting_func = 1/target_error         # -> not good, because error values can be negative!!!!
         # # weighting_func = 1/(target_error ** 2)  # -> used earlier as "chi-square"
 
-    def problem(self):
+    def set_data(self,
+                 model_input_data=None,
+                 target_output=None,
+                 weighting_func=None):
         """TBW.
 
         :return:
         """
-        self.model = ModelFitting(self.model_input_data,
-                                  self.target_output,
+        self.model_input_data = model_input_data
+        self.target_output = target_output
+        self.weighting_func = weighting_func
+
+    def fitting_problem(self):
+        """TBW.
+
+        :return:
+        """
+        self.fitting = ModelFitting(input_data=self.model_input_data,
+                                  target=self.target_output,
+                                    # calib_obj=self,
+                                  # detector=self.detector,
+                                  # pipeline=self.pipeline,
                                   variables=self.parameters,
                                   gen=self.generations,
                                   pop=self.population_size)
-        self.model.set_simulated_fit_range((self.sim_start_fit, self.sim_end_fit))
-        self.model.set_target_fit_range((self.target_start_fit, self.target_end_fit))
-        self.model.set_uniformity_scales(sc_tr=self.tr_scale,
+        self.fitting.set_simulated_fit_range((self.sim_start_fit, self.sim_end_fit))
+        self.fitting.set_target_fit_range((self.target_start_fit, self.target_end_fit))
+        self.fitting.set_uniformity_scales(sc_tr=self.tr_scale,
                                          sc_nt=self.nt_scale,
                                          sc_sig=self.sigma_scale,
                                          sc_be=self.beta_scale)
-        self.model.set_bound(low_val=self.lb, up_val=self.ub)
-        self.model.set_normalization()
-        self.model.save_champions_in_file()
+        self.fitting.set_bound(low_val=self.lb, up_val=self.ub)
+        self.fitting.set_normalization()
+        self.fitting.save_champions_in_file()
         if self.weighting_func is not None:
-            self.model.set_weighting_function(self.weighting_func)
+            self.fitting.set_weighting_function(self.weighting_func)
 
         # #################################################
         # Model specific input arguements:
@@ -138,15 +157,21 @@ class Calibration:
         vth = 1.866029409893778e7  # cm/s, from Thibaut's jupyter notebook
         # sigma = 5.e-16              # cm**2 (for all traps)
         sigma = None  # cm**2 (for all traps)
-        # data_files = ['cold/CCD280-14482-06-02-cryo-irrad-gd15.5V.txt',
-        #               'cold/CCD280-14482-06-02-cryo-irrad-gd16.5V.txt',
-        #               'cold/CCD280-14482-06-02-cryo-irrad-gd18.5V.txt',
-        #               'cold/CCD280-14482-06-02-cryo-irrad-gd19.5V.txt']
-        self.model.charge_injection(True)                                # TODO set these from YAML config automatically
-        self.model.set_parallel_parameters(traps=traps, t=t, vg=vg, fwc=fwc, vth=vth, sigma=sigma)
-        self.model.set_dimensions(para_transfers=number_of_transfers)
+        self.fitting.charge_injection(True)                                # TODO set these from YAML config automatically
+        self.fitting.set_parallel_parameters(traps=traps, t=t, vg=vg, fwc=fwc, vth=vth, sigma=sigma)
+        self.fitting.set_dimensions(para_transfers=number_of_transfers)
 
-        self.prob = pg.problem(self.model)
+        # self.prob = pg.problem(self.fitting)
+        # self.prob = pg.problem(pg.rosenbrock())
+        return self.fitting
+
+    def create_pygmo_prob(self, obj):
+        """TBW.
+
+        :return:
+        """
+        self.prob = pg.problem(obj)
+        # self.prob = pg.problem(pg.rosenbrock())
 
     def evolutionary_algorithm(self):
         """TBW.
@@ -216,7 +241,7 @@ class Calibration:
         # Non-Linear Optimization - Nelder-Mead Simplex
         ##################################################
         if self.neldermead:
-            prob2 = pg.problem(self.model)
+            prob2 = pg.problem(self.fitting)
 
             nl = pg.nlopt('neldermead')
             # nl.maxtime = 180                # stop when the optimization time (in seconds) exceeds maxtime

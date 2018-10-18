@@ -2,6 +2,7 @@
 *.data
 *.fits
 *.npy
+*.out
 
 # Pyxel YAML files created by GUI
 test.yaml

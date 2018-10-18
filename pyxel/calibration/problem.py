@@ -4,22 +4,38 @@ https://esa.github.io/pagmo2/index.html
 
 """
 import numpy as np
-from pyxel.models.cdm.CDM import cdm
+# from pyxel.models.cdm.CDM import cdm
 import pandas as pd
+import pyxel.detectors.detector
 
 
 class ModelFitting:
     """Pygmo problem class to fit data with any model in Pyxel.
     """
 
-    def __init__(self, input_data, target, variables, gen, pop):
+    def __init__(self, variables, gen, pop,    # ##### detector, pipeline,
+                 input_data, target,           # todo get rid of these
+                 # calib_obj
+                 ):
         """TBW.
 
         :param input_data: np.array
         :param target: np.array
         :param variables: list of str, like ['tr_p', 'nt_p', 'beta_p'] or ['tr_p', 'nt_p', 'sigma_p', 'beta_p']
         """
+        # self.calib = calib_obj
+
+        # self.detector = detector
+        # self.pipeline = pipeline
         self.variables = variables
+        self.gen = gen
+        self.pop = pop
+        self.fullframe = input_data
+        self.target_data = target
+        self.datasets = len(target)
+
+        self.n = 0
+        self.g = 0
 
         self.write2file = False
         self.champion_file = None
@@ -32,11 +48,6 @@ class ModelFitting:
         self.champion_f_list = None
         self.champion_x_list = None
 
-        self.n = 0
-        self.g = 0
-        self.gen = gen
-        self.pop = pop
-
         self.lbd = None         # lower boundary
         self.ubd = None         # upper boundary
 
@@ -48,10 +59,6 @@ class ModelFitting:
         # self.xdim = None
         # self.y_start = None   # CTI window position relative to the readout node (0, 0)
         # self.x_start = None
-
-        self.fullframe = input_data
-        self.target_data = target
-        self.datasets = len(target)
 
         self.normalization = False
         self.target_data_norm = []
@@ -306,9 +313,9 @@ class ModelFitting:
 
         overall_fitness = 0.
         for i in range(self.datasets):
-            result = self.run_cdm(parameter, dataset=i)
-            fitness = self.least_squares(result, dataset=i)
-
+            results = self.run_cdm(parameter, dataset=i)
+            # fitness = self.least_squares(results, dataset=i)
+            fitness = 1
             overall_fitness += fitness
 
         paramsize = len(parameter)
@@ -429,7 +436,22 @@ class ModelFitting:
         #              nt_p=self.nt_p,
         #              nt_s=self.nt_s)
 
-        return output
+        # output = cdm(
+        #              beta_p=self.beta_p, beta_s=self.beta_s,
+        #              sigma_p=self.sigma_p, sigma_s=self.sigma_s,
+        #              tr_p=self.tr_p, tr_s=self.tr_s,
+        #              nt_p=self.nt_p, nt_s=self.nt_s,
+        #              chg_inj=self.chg_inj,  # ###########
+        #              parallel_cti=True,  # #############
+        #              serial_cti=False,  # ##############
+        #              para_transfers=self.para_transfers)  # #########
+
+
+        # calib_pipeline, calib_detector = self.calib.get_everything()
+        # output_detector = calib_pipeline.run_pipeline(calib_detector)
+
+        # return output_detector
+        return 1
 
     def get_bounds(self):
         """TBW.
