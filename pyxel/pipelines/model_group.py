@@ -110,8 +110,8 @@ class ModelGroup:
 
     def __getattr__(self, item):
         """TBW."""
-        for model in self.models:
-            if model.name == item:
-                return model
+        # for model in self.models:         # TODO BUG BUG BUG BUG BUG BUG : INFINITE RECURSIVE LOOP FOUND HERE
+        #     if model.name == item:
+        #         return model
 
         return super().__getattr__(item)

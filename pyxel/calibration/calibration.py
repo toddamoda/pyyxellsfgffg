@@ -1,7 +1,7 @@
 """TBW."""
 import numpy as np
 import pygmo as pg
-from pyxel.calibration.problem import ModelFitting
+# from pyxel.calibration.problem import ModelFitting
 # from pyxel.calibration.inputdata import read_plato_data, read_test_data, read_former_campaign_data
 
 
@@ -124,54 +124,54 @@ class Calibration:
         self.target_output = target_output
         self.weighting_func = weighting_func
 
-    def fitting_problem(self):
-        """TBW.
+    # def fitting_problem(self):
+    #     """TBW.
+    #
+    #     :return:
+    #     """
+    #     self.fitting = ModelFitting(input_data=self.model_input_data,
+    #                                 target=self.target_output,
+    #                                 variables=self.parameters,
+    #                                 gen=self.generations,
+    #                                 pop=self.population_size)
+    #     self.fitting.set_simulated_fit_range((self.sim_start_fit, self.sim_end_fit))
+    #     self.fitting.set_target_fit_range((self.target_start_fit, self.target_end_fit))
+    #     self.fitting.set_uniformity_scales(sc_tr=self.tr_scale,
+    #                                        sc_nt=self.nt_scale,
+    #                                        sc_sig=self.sigma_scale,
+    #                                        sc_be=self.beta_scale)
+    #     self.fitting.set_bound(low_val=self.lb, up_val=self.ub)
+    #     self.fitting.set_normalization()
+    #     self.fitting.save_champions_in_file()
+    #     if self.weighting_func is not None:
+    #         self.fitting.set_weighting_function(self.weighting_func)
+    #
+    #     # #################################################
+    #     # Model specific input arguements:
+    #     traps = 4                                                 # TODO read these from YAML config automatically
+    #     number_of_transfers = 1552
+    #     t = 947.22e-6  # s
+    #     fwc = 1.e6  # e-
+    #     vg = 1.62e-10  # cm**3 (half volume!)
+    #     # # vth = 1.2175e7            # cm/s, from Alex's code
+    #     vth = 1.866029409893778e7  # cm/s, from Thibaut's jupyter notebook
+    #     # sigma = 5.e-16              # cm**2 (for all traps)
+    #     sigma = None  # cm**2 (for all traps)
+    #     self.fitting.charge_injection(True)                           # TODO set these from YAML config automatically
+    #     self.fitting.set_parallel_parameters(traps=traps, t=t, vg=vg, fwc=fwc, vth=vth, sigma=sigma)
+    #     self.fitting.set_dimensions(para_transfers=number_of_transfers)
+    #
+    #     # self.prob = pg.problem(self.fitting)
+    #     # self.prob = pg.problem(pg.rosenbrock())
+    #     return self.fitting
 
-        :return:
-        """
-        self.fitting = ModelFitting(input_data=self.model_input_data,
-                                    target=self.target_output,
-                                    variables=self.parameters,
-                                    gen=self.generations,
-                                    pop=self.population_size)
-        self.fitting.set_simulated_fit_range((self.sim_start_fit, self.sim_end_fit))
-        self.fitting.set_target_fit_range((self.target_start_fit, self.target_end_fit))
-        self.fitting.set_uniformity_scales(sc_tr=self.tr_scale,
-                                           sc_nt=self.nt_scale,
-                                           sc_sig=self.sigma_scale,
-                                           sc_be=self.beta_scale)
-        self.fitting.set_bound(low_val=self.lb, up_val=self.ub)
-        self.fitting.set_normalization()
-        self.fitting.save_champions_in_file()
-        if self.weighting_func is not None:
-            self.fitting.set_weighting_function(self.weighting_func)
-
-        # #################################################
-        # Model specific input arguements:
-        traps = 4                                                 # TODO read these from YAML config automatically
-        number_of_transfers = 1552
-        t = 947.22e-6  # s
-        fwc = 1.e6  # e-
-        vg = 1.62e-10  # cm**3 (half volume!)
-        # # vth = 1.2175e7            # cm/s, from Alex's code
-        vth = 1.866029409893778e7  # cm/s, from Thibaut's jupyter notebook
-        # sigma = 5.e-16              # cm**2 (for all traps)
-        sigma = None  # cm**2 (for all traps)
-        self.fitting.charge_injection(True)                           # TODO set these from YAML config automatically
-        self.fitting.set_parallel_parameters(traps=traps, t=t, vg=vg, fwc=fwc, vth=vth, sigma=sigma)
-        self.fitting.set_dimensions(para_transfers=number_of_transfers)
-
-        # self.prob = pg.problem(self.fitting)
-        # self.prob = pg.problem(pg.rosenbrock())
-        return self.fitting
-
-    def create_pygmo_prob(self, obj):
-        """TBW.
-
-        :return:
-        """
-        self.prob = pg.problem(obj)
-        # self.prob = pg.problem(pg.rosenbrock())
+    # def create_pygmo_prob(self, obj):
+    #     """TBW.
+    #
+    #     :return:
+    #     """
+    #     self.prob = pg.problem(obj)
+    #     self.prob = pg.problem(pg.rosenbrock())
 
     def evolutionary_algorithm(self):
         """TBW.

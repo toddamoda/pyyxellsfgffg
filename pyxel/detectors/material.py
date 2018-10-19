@@ -11,25 +11,25 @@ class Material:
     """TBW."""
 
     # TODO create func for compound materials
-    def set_material(self, material):
-        """Set material properties.
+    # def set_material(self, material):
+    #     """Set material properties.
+    #
+    #     :param material:
+    #     """
+    #     # TODO put these constants to a data file
+    #     if material == 'silicon' or 'Si' or 'si':
+    #         self.material_density = 2.328  # TODO add unit (g/cm3)
+    #         self.ionization_energy = 3.6  # TODO add unit (eV)
+    #         self.band_gap = 1.12  # TODO add unit (eV)
+    #         self.e_effective_mass = 0.5 * M_ELECTRON  # TODO add unit (kg)
+    #
+    #     else:
+    #         raise NotImplementedError('Given material has not implemented yet')
 
-        :param material:
-        """
-        # TODO put these constants to a data file
-        if material == 'silicon' or 'Si' or 'si':
-            self.material_density = 2.328  # TODO add unit (g/cm3)
-            self.ionization_energy = 3.6  # TODO add unit (eV)
-            self.band_gap = 1.12  # TODO add unit (eV)
-            self.e_effective_mass = 0.5 * M_ELECTRON  # TODO add unit (kg)
-
-        else:
-            raise NotImplementedError('Given material has not implemented yet')
-
-    def __attrs_post_init__(self):
-        """TBW."""
-        if self.material:
-            self.set_material(self.material)
+    # def __attrs_post_init__(self):
+    #     """TBW."""
+    #     if self.material:
+    #         self.set_material(self.material)
 
     n_acceptor = om.attr_def(
         type=float,
@@ -48,31 +48,35 @@ class Material:
     material = om.attr_def(
         type=str,
         default='',
-        validator=om.validate_choices(['', 'silicon', 'hxrg']),
-        on_set=set_material,
+        validator=om.validate_choices(['', 'silicon', 'hxrg'])
+        # on_set=set_material,
     )
     material_density = om.attr_def(
-        init=False,
+        # init=False,
         type=float,
         default=0.0,
+        validator=om.validate_range(0.0, 10000.0, 0.001, False),
         metadata={'units': 'g/cm3'}
     )
     ionization_energy = om.attr_def(
-        init=False,
+        # init=False,
         type=float,
         default=0.0,
+        validator=om.validate_range(0.0, 100.0, 0.001, False),
         metadata={'units': 'eV'}
     )
     band_gap = om.attr_def(
-        init=False,
+        # init=False,
         type=float,
         default=0.0,
+        validator=om.validate_range(0.0, 10.0, 0.001, False),
         metadata={'units': 'eV'}
     )
     e_effective_mass = om.attr_def(
-        init=False,
+        # init=False,
         type=float,
         default=0.0,
+        validator=om.validate_range(0.0, 1.e-10, 1.e-30, False),
         metadata={'units': 'kg'}
     )
 
@@ -85,7 +89,11 @@ class Material:
         return {
             'n_acceptor': self.n_acceptor,
             'n_donor': self.n_donor,
-            'material': self.material
+            'material': self.material,
+            'material_density': self.material_density,
+            'ionization_energy': self.ionization_energy,
+            'band_gap': self.band_gap,
+            'e_effective_mass': self.e_effective_mass
         }
 
     # TODO: create unittests for this method

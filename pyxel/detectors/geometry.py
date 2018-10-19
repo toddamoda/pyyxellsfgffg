@@ -10,19 +10,19 @@ M_ELECTRON = 9.10938356e-31    # kg
 class Geometry:
     """TBW."""
 
-    def set_material(self, material):
-        """Set material properties.
-
-        :param material:
-        """
-        if material == 'silicon' or 'Si' or 'si':
-            self.material_density = 2.328  # TODO add unit (g/cm3)
-            self.material_ionization_energy = 3.6  # TODO add unit (eV)
-            self.band_gap = 1.12  # TODO add unit (eV)
-            self.e_effective_mass = 0.5 * M_ELECTRON  # TODO add unit (kg)
-
-        else:
-            raise NotImplementedError('Given material has not implemented yet')
+    # def set_material(self, material):
+    #     """Set material properties.
+    #
+    #     :param material:
+    #     """
+    #     # if material == 'silicon' or 'Si' or 'si':
+    #     #     self.material_density = 2.328  # TODO add unit (g/cm3)
+    #     #     self.material_ionization_energy = 3.6  # TODO add unit (eV)
+    #     #     self.band_gap = 1.12  # TODO add unit (eV)
+    #     #     self.e_effective_mass = 0.5 * M_ELECTRON  # TODO add unit (kg)
+    #
+    #     # else:
+    #     #     raise NotImplementedError('Given material has not implemented yet')
 
     # def __attrs_post_init__(self):
     #     """TBW."""
@@ -76,65 +76,65 @@ class Geometry:
         validator=om.validate_range(0.0, 1000.0, 0.1, False),
         metadata={'units': 'um'}
     )
-    n_acceptor = om.attr_def(
-        type=float,
-        default=0.0,
-        converter=float,
-        validator=om.validate_range(0.0, 1000.0, 0.1, False),
-        metadata={'units': 'cm-3'}
-    )
-    n_donor = om.attr_def(
-        type=float,
-        default=0.0,
-        converter=float,
-        validator=om.validate_range(0.0, 1000.0, 0.1, False),
-        metadata={'units': 'cm-3'}
-    )
-    bias_voltage = om.attr_def(
-        type=float,
-        default=0.0,
-        converter=float,
-        validator=om.validate_range(0.0, 40.0, 0.001, False),
-        metadata={'units': 'V'}
-    )
-    material = om.attr_def(
-        type=str,
-        default='silicon',
-        validator=om.validate_choices(['', 'silicon', 'hxrg']),
-        on_set=set_material
-    )
-    material_density = om.attr_def(
-        init=False,
-        type=float,
-        default=0.0,
-        metadata={'units': 'g/cm3'}
-    )
-    material_ionization_energy = om.attr_def(
-        init=False,
-        type=float,
-        default=0.0,
-        metadata={'units': 'eV'}
-    )
-    band_gap = om.attr_def(
-        init=False,
-        type=float,
-        default=0.0,
-        metadata={'units': 'eV'}
-    )
-    e_effective_mass = om.attr_def(
-        init=False,
-        type=float,
-        default=0.0,
-        metadata={'units': 'kg'}
-    )
-    readout_nodes = om.attr_def(
-        type=int,
-        default=1,
-        # cast=True,
-        # units='',
-        # validate=om.validate_range(1, 4, 1, False)
-        validator=om.validate_range(1, 4, 1, False)
-    )
+    # n_acceptor = om.attr_def(
+    #     type=float,
+    #     default=0.0,
+    #     converter=float,
+    #     validator=om.validate_range(0.0, 1000.0, 0.1, False),
+    #     metadata={'units': 'cm-3'}
+    # )
+    # n_donor = om.attr_def(
+    #     type=float,
+    #     default=0.0,
+    #     converter=float,
+    #     validator=om.validate_range(0.0, 1000.0, 0.1, False),
+    #     metadata={'units': 'cm-3'}
+    # )
+    # bias_voltage = om.attr_def(
+    #     type=float,
+    #     default=0.0,
+    #     converter=float,
+    #     validator=om.validate_range(0.0, 40.0, 0.001, False),
+    #     metadata={'units': 'V'}
+    # )
+    # material = om.attr_def(
+    #     type=str,
+    #     default='silicon',
+    #     validator=om.validate_choices(['', 'silicon', 'hxrg']),
+    #     on_set=set_material
+    # )
+    # # material_density = om.attr_def(
+    # #     init=False,
+    # #     type=float,
+    # #     default=0.0,
+    # #     metadata={'units': 'g/cm3'}
+    # # )
+    # material_ionization_energy = om.attr_def(
+    #     init=False,
+    #     type=float,
+    #     default=0.0,
+    #     metadata={'units': 'eV'}
+    # )
+    # band_gap = om.attr_def(
+    #     init=False,
+    #     type=float,
+    #     default=0.0,
+    #     metadata={'units': 'eV'}
+    # )
+    # e_effective_mass = om.attr_def(
+    #     init=False,
+    #     type=float,
+    #     default=0.0,
+    #     metadata={'units': 'kg'}
+    # )
+    # readout_nodes = om.attr_def(
+    #     type=int,
+    #     default=1,
+    #     # cast=True,
+    #     # units='',
+    #     # validate=om.validate_range(1, 4, 1, False)
+    #     validator=om.validate_range(1, 4, 1, False)
+    # )
     # sensor_geometry = om.attr_def(
     #     type=CCDSensorGeometry,
     #     default=None,
@@ -159,7 +159,7 @@ class Geometry:
             'depletion_thickness': self.depletion_thickness,
             'field_free_thickness': self.field_free_thickness,
             'pixel_vert_size': self.pixel_vert_size,
-            'pixel_horz_size': self.pixel_horz_size,
+            'pixel_horz_size': self.pixel_horz_size
         }
 
     # TODO: create unittests for this method

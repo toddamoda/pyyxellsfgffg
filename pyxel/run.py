@@ -19,6 +19,8 @@ from pyxel import util
 import pyxel.pipelines.processor
 from pyxel.calibration.calibration import Calibration
 from pyxel.calibration.inputdata import read_plato_data
+from pyxel.calibration.problem import ModelFitting
+import pygmo as pg
 
 
 def run(input_filename, output_file, random_seed: int = None):  # key=None, value=None
@@ -87,15 +89,52 @@ def run_pipeline_calibration(settings, config):
         data_path=r'C:/dev/work/cdm/data/better-plato-target-data/', data_files=data_files, start=None, end=None)
 
     # create and initialize your calibration class (setting params based on config):
-    calibration = Calibration(settings, config)
-    calibration.set_data(model_input_data=injection_profile,
-                         target_output=target_output)
+    # calibration = Calibration(settings, config)
+    # calibration.set_data(model_input_data=injection_profile,
+    #                      target_output=target_output)
+    #
+    fitting = ModelFitting(detector=config.detector,
+                           pipeline=config.pipeline)
+    prob = pg.problem(fitting)
+    # prob = pg.problem(pg.rosenbrock())
+    print('evolution')
+    opt_algorithm = pg.sade(gen=10)
+    algo = pg.algorithm(opt_algorithm)
+    pop = pg.population(prob, size=10)
+    pop = algo.evolve(pop)
+    uda = algo.extract(pg.sade)
+    uda.get_log()
+    champion_x = pop.champion_x  # TODO: select the best N champions and fill pop2 with them
+    champion_f = pop.champion_f
+    print(champion_x, champion_f)
+        # input_data=model_input_data, target=target_output, variables=parameters,
+        #                         gen=generations, pop=population_size)
+    # fitting.set_simulated_fit_range((sim_start_fit, sim_end_fit))
+    # fitting.set_target_fit_range((target_start_fit, target_end_fit))
+    # fitting.set_uniformity_scales(sc_tr=tr_scale, sc_nt=nt_scale, sc_sig=sigma_scale,
+    #                                    sc_be=beta_scale)
+    # fitting.set_bound(low_val=lb, up_val=ub)
+    # fitting.set_normalization()
+    # fitting.save_champions_in_file()
+    # if weighting_func is not None:
+    #     fitting.set_weighting_function(weighting_func)
+    # # #################################################
+    # # Model specific input arguements:
+    # traps = 4  # TODO read these from YAML config automatically
+    # number_of_transfers = 1552
+    # t = 947.22e-6  # s
+    # fwc = 1.e6  # e-
+    # vg = 1.62e-10  # cm**3 (half volume!)
+    # # # vth = 1.2175e7            # cm/s, from Alex's code
+    # vth = 1.866029409893778e7  # cm/s, from Thibaut's jupyter notebook
+    # # sigma = 5.e-16              # cm**2 (for all traps)
+    # sigma = None  # cm**2 (for all traps)
+    # fitting.charge_injection(True)  # TODO set these from YAML config automatically
+    # fitting.set_parallel_parameters(traps=traps, t=t, vg=vg, fwc=fwc, vth=vth, sigma=sigma)
+    # fitting.set_dimensions(para_transfers=number_of_transfers)
 
-    problem_obj = calibration.fitting_problem()
-    calibration.create_pygmo_prob(problem_obj)
-
-    aa, bb = calibration.evolutionary_algorithm()
-    # calibration.nonlinear_optimization_algorithm()
+    # aa, bb = calibration.evolutionary_algorithm()
+    # # calibration.nonlinear_optimization_algorithm()
 
 
 def main():

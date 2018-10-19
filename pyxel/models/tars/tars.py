@@ -371,7 +371,7 @@ class TARS:
 
         :return:
         """
-        print("TARS - simulation processing...\n")
+        # print("TARS - simulation processing...\n")
 
         self.sim_obj.parameters(self.simulation_mode,
                                 self.part_type,

@@ -12,7 +12,6 @@ This is a function to run the upgraded CDM CTI model developed by Alex Short (ES
 import numpy as np
 import matplotlib.pyplot as plt
 import numba
-import typing
 from typing import cast
 from pyxel.detectors.ccd import CCD
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics  # noqa: F401

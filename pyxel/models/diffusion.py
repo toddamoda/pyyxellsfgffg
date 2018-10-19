@@ -20,7 +20,8 @@ cds.enable()
 # @registry.decorator('charge_collection')
 def diffusion(detector: CCD) -> CCD:
     """TBD."""
-    new_detector = copy.deepcopy(detector)
+    new_detector = detector
+    # new_detector = copy.deepcopy(detector)
 
     # diff = Diffusion(new_detector)
 
