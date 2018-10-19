@@ -1,0 +1,71 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  name: pyxel-deployment
+  namespace: esa-david-lucsanyi-pyxel
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: pyxel
+    spec:
+      containers:
+      - image: gitlab.esa.int:4567/sci-fv/pyxel:latest
+        imagePullPolicy: Always
+        name: pyxel-container
+        ports:
+        - containerPort: 9999
+        resources: {}
+#        readinessProbe:
+#          httpGet:
+#            path: /DocumentNumberGenerator.asmx
+#            port: 80
+#          initialDelaySeconds: 10
+#          periodSeconds: 5
+#        livenessProbe:
+#          httpGet:
+#            path: /DocumentNumberGenerator.asmx
+#            port: 80
+#          initialDelaySeconds: 3
+#          periodSeconds: 3
+      restartPolicy: Always
+      imagePullSecrets:
+      - name: registry-secret
+status: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+  creationTimestamp: null
+  name: pyxel-service
+  namespace: esa-david-lucsanyi-pyxel
+spec:
+  ports:
+  - name: "http"
+    port: 80
+    targetPort: 9999
+  selector:
+      app: pyxel
+status:
+  loadBalancer: {}
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: pyxel-ingress
+  namespace: esa-david-lucsanyi-pyxel
+spec:
+  rules:
+  - host: pyxel.it.esa.int
+    http:
+      paths:
+      - backend:
+          serviceName: pyxel-service
+          servicePort: 80

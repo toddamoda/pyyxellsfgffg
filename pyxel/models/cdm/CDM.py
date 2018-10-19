@@ -12,6 +12,7 @@ This is a function to run the upgraded CDM CTI model developed by Alex Short (ES
 import numpy as np
 import matplotlib.pyplot as plt
 import numba
+import typing
 from typing import cast
 from pyxel.detectors.ccd import CCD
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics  # noqa: F401
@@ -145,7 +146,7 @@ def run_cdm(s: np.ndarray = None,
             ):
     """CDM model.
 
-    :param s:
+    :param s: np.ndarray
     # :param y_start:
     # :param x_start:
     # :param ydim:
@@ -231,7 +232,7 @@ def run_cdm(s: np.ndarray = None,
     # Parallel direction
     if parallel_cti:
         # print('adding parallel CTI')
-        alpha_p = t * sigma_p * vth * fwc ** beta_p / (2. * vg)
+        alpha_p = t * sigma_p * vth * fwc ** beta_p / (2. * vg)     # type: np.ndarray
         g_p = 2. * nt_p * vg / fwc ** beta_p
         # for i in range(y_start, y_start+ydim):
         for i in range(0, ydim):
@@ -248,7 +249,7 @@ def run_cdm(s: np.ndarray = None,
                     if s[i, j] > 0.01:
                         nc = max((gamma_p[k] * s[i, j] ** beta_p - no[j, k]) /
                                  (gamma_p[k] * s[i, j] ** (beta_p - 1.) + 1.) *
-                                 (1. - np.exp(-alpha_p[k] * s[i, j] ** (1. - beta_p))), 0.)
+                                 (1. - np.exp(-1 * alpha_p[k] * s[i, j] ** (1. - beta_p))), 0.)
                         no[j, k] += nc
 
                     nr = no[j, k] * (1. - np.exp(-t/tr_p[k]))
@@ -261,7 +262,7 @@ def run_cdm(s: np.ndarray = None,
     # Serial direction
     if serial_cti:
         # print('adding serial CTI')
-        alpha_s = st * sigma_s * vth * sfwc ** beta_s / (2. * svg)
+        alpha_s = st * sigma_s * vth * sfwc ** beta_s / (2. * svg)      # type: np.ndarray
         g_s = 2. * nt_s * svg / sfwc ** beta_s
         # for j in range(x_start, x_start+xdim):
         for j in range(0, xdim):
@@ -275,7 +276,7 @@ def run_cdm(s: np.ndarray = None,
                     if s[i, j] > 0.01:
                         nc = max((gamma_s[k] * s[i, j] ** beta_s - sno[i, k]) /
                                  (gamma_s[k] * s[i, j] ** (beta_s - 1.) + 1.) *
-                                 (1. - np.exp(-alpha_s[k] * s[i, j] ** (1. - beta_s))), 0.)
+                                 (1. - np.exp(-1 * alpha_s[k] * s[i, j] ** (1. - beta_s))), 0.)
                         sno[i, k] += nc
 
                     nr = sno[i, k] * (1. - np.exp(-st/tr_s[k]))

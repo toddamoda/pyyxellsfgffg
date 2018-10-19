@@ -33,8 +33,8 @@ processor:
     geometry:
       class: pyxel.detectors.ccd_geometry.CCDGeometry
 
-      row:   500 # 2381 #580 # 4494                   # compulsory
-      col:   500 # 2376 #640 # 1966                   # compulsory
+      row:   1000 # 2381 #580 # 4494                   # compulsory
+      col:   1000 # 2376 #640 # 1966                   # compulsory
       total_thickness: 40.0         # um
       depletion_thickness: 0.0      # um
       field_free_thickness: 0.0     # um
@@ -102,8 +102,8 @@ processor:
           image_file: data/01.fits
           row0: 0
           col0: 0
-          rows: 500
-          cols: 500
+#          rows: None
+#          cols: None
       -
         name: photon_level
         func: pyxel.models.photon_generation.add_photon_level
@@ -139,7 +139,7 @@ processor:
           running_mode: stepsize  # stopping  # plotting  # geant4
           particle_type: proton
           initial_energy: random   # MeV
-          particle_number: 100
+          particle_number: 200
           incident_angles:      # rad
           starting_position:    # um
           spectrum_file: 'pyxel/models/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
@@ -186,7 +186,7 @@ processor:
         func: pyxel.models.ccd_noise.add_output_node_noise
         enabled: true
         arguments:
-          std_deviation: 20.
+          std_deviation: 40.
 
     # signal -> image
     readout_electronics:
