@@ -8,7 +8,7 @@
 esapy-config==0.4.0
 esapy-web==0.2.1
 esapy-dispatcher==0.4
-pygmo==2.8
+pygmo==2.9
 
 ########################
 # Scientific / Imaging #
