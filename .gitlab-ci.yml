@@ -5,7 +5,7 @@
 variables:
     PYPI_USER: SECURE
     PYPI_PASSWORD: SECURE
-
+    CONTAINER_LATEST_IMAGE: gitlab.esa.int:4567/sci-fv/pyxel:latest
 
 stages:
   - build
@@ -36,6 +36,13 @@ doc:
     paths:
       - docs/html
 
+docker:
+  stage: build
+  image: docker:dind
+  script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN gitlab.esa.int:4567
+    - docker build --pull -t $CONTAINER_LATEST_IMAGE .
+    - docker push $CONTAINER_LATEST_IMAGE
 
 #
 # Test Stage

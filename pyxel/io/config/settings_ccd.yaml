@@ -4,8 +4,8 @@
 ################
 
 parametric:
-#  mode: single
-  mode: calibration
+  mode: single
+#  mode: calibration
 #  mode: embedded
 #  mode: sequential
   steps:
@@ -133,13 +133,13 @@ processor:
       -
         name: tars
         func: pyxel.models.tars.tars.run_tars
-        enabled: false
+        enabled: true
         arguments:
           simulation_mode: cosmic_ray   # snowflakes
           running_mode: stepsize  # stopping  # plotting  # geant4
           particle_type: proton
           initial_energy: random   # MeV
-          particle_number: 80
+          particle_number: 100
           incident_angles:      # rad
           starting_position:    # um
           spectrum_file: 'pyxel/models/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
@@ -172,8 +172,8 @@ processor:
          para_transfers: 1552
          tr_p: [0.01]
          tr_s: [0.01]
-         nt_p: [1000.]
-         nt_s: [1000.]
+         nt_p: [100.]
+         nt_s: [1.]
          sigma_p: [1.]
          sigma_s: [1.]
 #         parallel_trap_file: pyxel/models/cdm/cdm_euclid_parallel.dat
@@ -184,9 +184,9 @@ processor:
       -
         name: output_node_noise
         func: pyxel.models.ccd_noise.add_output_node_noise
-        enabled: false
+        enabled: true
         arguments:
-          std_deviation: 1000.
+          std_deviation: 20.
 
     # signal -> image
     readout_electronics:
