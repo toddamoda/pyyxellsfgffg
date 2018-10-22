@@ -13,11 +13,11 @@ parametric:
       enabled: true
 #      key: pipeline.photon_generation.photon_level.arguments.level
       key: pipeline.charge_generation.tars.arguments.particle_number
-      values: [1, 2, 3]
+      values: [2, 3]
     -
-      enabled: false
+      enabled: true
       key: pipeline.photon_generation.photon_level.arguments.level
-      values: # todo: list(range(10, 13))
+      values: [1, 2] # todo: list(range(10, 13))
 
 #  calibration: none
 #    arguments:
@@ -34,8 +34,8 @@ processor:
     geometry:
       class: pyxel.detectors.ccd_geometry.CCDGeometry
 
-      row:   1000 # 2381 #580 # 4494                   # compulsory
-      col:   1000 # 2376 #640 # 1966                   # compulsory
+      row:   100 # 2381 #580 # 4494                   # compulsory
+      col:   100 # 2376 #640 # 1966                   # compulsory
       total_thickness: 40.0         # um
       depletion_thickness: 0.0      # um
       field_free_thickness: 0.0     # um
@@ -139,8 +139,8 @@ processor:
           simulation_mode: cosmic_ray   # snowflakes
           running_mode: stepsize  # stopping  # plotting  # geant4
           particle_type: proton
-          initial_energy: random   # MeV
-          particle_number: 2
+          initial_energy: 100   # MeV
+          particle_number: 1
           incident_angles:      # rad
           starting_position:    # um
           spectrum_file: 'pyxel/models/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
@@ -163,7 +163,7 @@ processor:
       -
         name: cdm
         func: pyxel.models.cdm.CDM.cdm
-        enabled: true
+        enabled: false
         arguments:
          beta_p: 0.3
          beta_s: 0.3

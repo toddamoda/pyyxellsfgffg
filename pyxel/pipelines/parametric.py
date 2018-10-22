@@ -143,7 +143,8 @@ class ParametricConfig:
             configs = self._sequential(om.copy_processor(processor))
 
         elif self.mode == 'single':
-            configs = [om.copy_processor(processor)]
+            # configs = [om.copy_processor(processor)]
+            configs = [processor]
 
         elif self.mode == 'calibration':
             # configs = [om.copy_processor(processor)]

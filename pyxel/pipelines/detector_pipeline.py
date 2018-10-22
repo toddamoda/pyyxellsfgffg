@@ -22,6 +22,9 @@ class DetectionPipeline:
                  charge_collection: ModelGroup = None,
                  charge_measurement: ModelGroup = None,
                  readout_electronics: ModelGroup = None,
+                 _name=None,
+                 _model_groups=None,
+                 _model_steps=None,
                  doc=None) -> None:
         """TBW.
 
@@ -67,12 +70,8 @@ class DetectionPipeline:
             'optics': self.optics,
             'charge_generation': self.charge_generation,
             'charge_collection': self.charge_collection,
-            'charge_measurement': self.charge_measurement,      # TODO
-            'readout_electronics': self.readout_electronics,    # TODO
-            '_name': self._name,                                # TODO
-            '_model_groups': self._model_groups,                # TODO
-            '_model_steps': self._model_steps,                  # TODO
-            # '_log': self._log
+            'charge_measurement': self.charge_measurement,
+            'readout_electronics': self.readout_electronics,
         }
 
     def clear(self):

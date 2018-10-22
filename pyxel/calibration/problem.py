@@ -40,6 +40,7 @@ class ModelFitting:
         """
         print('fitness')
         # output_detector = self.pipe.run_pipeline(self.det)
+        self.pipe.run_pipeline(self.det)
         return [0.5]
     #
     #     # self.variables = variables

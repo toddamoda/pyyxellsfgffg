@@ -52,7 +52,10 @@ class CCDDetectionPipeline(DetectionPipeline):
         """TBW."""
         kwargs = super().__getstate__()
         kwargs_obj = {
-            'charge_transfer': self.charge_transfer
+            'charge_transfer': self.charge_transfer,
+            '_name': self._name,
+            '_model_groups': self._model_groups,
+            '_model_steps': self._model_steps
         }
         return {**kwargs, **kwargs_obj}
 
