@@ -2,8 +2,8 @@
 
 https://esa.github.io/pagmo2/index.html
 """
-import numpy as np
-import pandas as pd
+# import numpy as np
+# import pandas as pd
 # from pyxel.models.cdm.CDM import cdm
 
 
@@ -11,9 +11,9 @@ class ModelFitting:
     """Pygmo problem class to fit data with any model in Pyxel."""
 
     def __init__(self, detector, pipeline):
-                 # variables, gen, pop,     # ##### detector, pipeline,
-                 # input_data, target           # todo get rid of these
-                 # ):
+                # variables, gen, pop,
+                # input_data, target           # todo get rid of these
+                # ):
         """TBW.
 
         # :param input_data: np.array
@@ -27,6 +27,7 @@ class ModelFitting:
 
     def get_bounds(self):
         """TBW.
+
         :return:
         """
         return self.lbd, self.ubd
@@ -38,7 +39,7 @@ class ModelFitting:
         :return:
         """
         print('fitness')
-        output_detector = self.pipe.run_pipeline(self.det)
+        # output_detector = self.pipe.run_pipeline(self.det)
         return [0.5]
     #
     #     # self.variables = variables

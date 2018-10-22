@@ -112,7 +112,6 @@ class ModelGroup:
 
     def __getattr__(self, item):
         """TBW."""
-
         if item == '__deepcopy__':
             return self.copy()
         if item == '__setstate__':

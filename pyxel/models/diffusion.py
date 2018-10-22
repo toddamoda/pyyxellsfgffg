@@ -3,9 +3,7 @@
 #   --------------------------------------------------------------------------
 """PyXel! Charge diffusion and collection model extracted from TARS."""
 
-import copy
 from math import sqrt, log
-
 import numpy as np
 from astropy import units as u
 from astropy.units import cds

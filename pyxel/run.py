@@ -17,7 +17,7 @@ import esapy_config as om
 import pyxel
 from pyxel import util
 import pyxel.pipelines.processor
-from pyxel.calibration.calibration import Calibration
+# from pyxel.calibration.calibration import Calibration
 from pyxel.calibration.inputdata import read_plato_data
 from pyxel.calibration.problem import ModelFitting
 import pygmo as pg
@@ -92,7 +92,8 @@ def run_pipeline_calibration(settings, config):
     # calibration = Calibration(settings, config)
     # calibration.set_data(model_input_data=injection_profile,
     #                      target_output=target_output)
-    #
+    #                      input_data=model_input_data, target=target_output, variables=parameters,
+    #                      gen=generations, pop=population_size)
     fitting = ModelFitting(detector=config.detector,
                            pipeline=config.pipeline)
     prob = pg.problem(fitting)
@@ -107,8 +108,7 @@ def run_pipeline_calibration(settings, config):
     champion_x = pop.champion_x  # TODO: select the best N champions and fill pop2 with them
     champion_f = pop.champion_f
     print(champion_x, champion_f)
-        # input_data=model_input_data, target=target_output, variables=parameters,
-        #                         gen=generations, pop=population_size)
+
     # fitting.set_simulated_fit_range((sim_start_fit, sim_end_fit))
     # fitting.set_target_fit_range((target_start_fit, target_end_fit))
     # fitting.set_uniformity_scales(sc_tr=tr_scale, sc_nt=nt_scale, sc_sig=sigma_scale,

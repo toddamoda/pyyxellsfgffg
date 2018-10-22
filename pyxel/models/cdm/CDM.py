@@ -23,7 +23,7 @@ def cdm(detector: CCD,
         beta_p: float = None, beta_s: float = None,
         chg_inj: bool = None,
         parallel_cti: bool = None, serial_cti: bool = None,
-        para_transfers: float = None,
+        para_transfers: int = None,
         tr_p: float = None, tr_s: float = None,
         nt_p: float = None, nt_s: float = None,
         sigma_p: float = None, sigma_s: float = None,
@@ -119,29 +119,29 @@ def cdm(detector: CCD,
 
 
 @numba.jit
-def run_cdm(s: np.ndarray = None,
-            # y_start: int = None,
-            # x_start: int = None,
-            # ydim: int = None,
-            # xdim: int = None,
-            # rdose: float = None,
-            # dob: float = None,
-            beta_p: float = None,
-            beta_s: float = None,
-            vg: float = None,
-            svg: float = None,
-            t: float = None,
-            st: float = None,
-            fwc: float = None,
-            sfwc: float = None,
-            vth: float = None,
+def run_cdm(s: np.ndarray,
+            # y_start: int,
+            # x_start: int,
+            # ydim: int,
+            # xdim: int,
+            # rdose: float,
+            # dob: float,
+            beta_p: float,
+            beta_s: float,
+            vg: float,
+            svg: float,
+            t: float,
+            st: float,
+            fwc: float,
+            sfwc: float,
+            vth: float,
+            tr_p: np.ndarray, tr_s: np.ndarray,
+            nt_p: np.ndarray, nt_s: np.ndarray,
+            sigma_p: np.ndarray, sigma_s: np.ndarray,
             charge_injection: bool = False,
-            all_parallel_trans: int = None,
-            parallel_cti=True,
-            serial_cti=True,
-            sigma_p: np.ndarray = None, sigma_s: np.ndarray = None,
-            tr_p: np.ndarray = None, tr_s: np.ndarray = None,
-            nt_p: np.ndarray = None, nt_s: np.ndarray = None
+            all_parallel_trans: int = 0,
+            parallel_cti: bool = True,
+            serial_cti: bool = True,
             ):
     """CDM model.
 
@@ -173,6 +173,8 @@ def run_cdm(s: np.ndarray = None,
     :param tr_s:
     :param nt_p: number of traps per electron cloud (and not pixel!) in parallel direction
     :param nt_s: number of traps per electron cloud (and not pixel!) in serial direction
+    :param parallel_cti:
+    :param serial_cti:
     :return:
 
     Ne - number of electrons in a pixel
