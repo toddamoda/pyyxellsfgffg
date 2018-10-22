@@ -10,11 +10,12 @@ parametric:
 #  mode: sequential
   steps:
     -
-      enabled: false
-      key: pipeline.photon_generation.photon_level.arguments.level
-      values: [10, 20, 30]
-    -
       enabled: true
+#      key: pipeline.photon_generation.photon_level.arguments.level
+      key: pipeline.charge_generation.tars.arguments.particle_number
+      values: [1, 2, 3]
+    -
+      enabled: false
       key: pipeline.photon_generation.photon_level.arguments.level
       values: # todo: list(range(10, 13))
 

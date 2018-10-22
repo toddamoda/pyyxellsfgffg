@@ -54,28 +54,28 @@ class Material:
     material_density = om.attr_def(
         # init=False,
         type=float,
-        default=0.0,
+        default=2.328,  # Silicon
         validator=om.validate_range(0.0, 10000.0, 0.001, False),
         metadata={'units': 'g/cm3'}
     )
     ionization_energy = om.attr_def(
         # init=False,
         type=float,
-        default=0.0,
+        default=3.6,  # Silicon
         validator=om.validate_range(0.0, 100.0, 0.001, False),
         metadata={'units': 'eV'}
     )
     band_gap = om.attr_def(
         # init=False,
         type=float,
-        default=0.0,
+        default=1.12,  # Silicon
         validator=om.validate_range(0.0, 10.0, 0.001, False),
         metadata={'units': 'eV'}
     )
     e_effective_mass = om.attr_def(
         # init=False,
         type=float,
-        default=0.0,
+        default=0.5 * M_ELECTRON,  # Silicon
         validator=om.validate_range(0.0, 1.e-10, 1.e-30, False),
         metadata={'units': 'kg'}
     )

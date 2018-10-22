@@ -90,17 +90,19 @@ class ModelGroup:
         """Execute each enabled model in this group."""
         for model in self.models:
             if model.enabled:
-                self._log.debug('Running %r', model.func)
-                for arg in model.arguments:
-                    util.update_fits_header(detector.header,
-                                            key=[model.name, arg],
-                                            value=model.arguments[arg])
+                # self._log.debug('Running %r', model.func)
+                # for arg in model.arguments:
+                #     util.update_fits_header(detector.header,
+                #                             key=[model.name, arg],
+                #                             value=model.arguments[arg])
                 model.function(detector)
                 if not pipeline.is_running:
                     self._log.debug('Aborted after %r', model.func)
                     raise util.PipelineAborted()
             else:
-                self._log.debug('Skipping %r', model.func)
+                # self._log.debug('Skipping %r', model.func)
+                # print('Skipping model, ', model.func)
+                pass
 
     def __getstate__(self):
         """TBW."""
@@ -110,8 +112,14 @@ class ModelGroup:
 
     def __getattr__(self, item):
         """TBW."""
-        # for model in self.models:         # TODO BUG BUG BUG BUG BUG BUG : INFINITE RECURSIVE LOOP FOUND HERE
-        #     if model.name == item:
-        #         return model
 
-        return super().__getattr__(item)
+        if item == '__deepcopy__':
+            return self.copy()
+        if item == '__setstate__':
+            return super().__getattr__(item)
+
+        for model in self.models:         # THIS CAUSED AN INFINITE RECURSIVE LOOP, WHEN ModelGroup was deepcopied
+            if model.name == item:
+                return model
+
+        # return super().__getattr__(item)

@@ -67,8 +67,12 @@ class DetectionPipeline:
             'optics': self.optics,
             'charge_generation': self.charge_generation,
             'charge_collection': self.charge_collection,
-            'charge_measurement': self.charge_measurement,
-            'readout_electronics': self.readout_electronics,
+            'charge_measurement': self.charge_measurement,      # TODO
+            'readout_electronics': self.readout_electronics,    # TODO
+            '_name': self._name,                                # TODO
+            '_model_groups': self._model_groups,                # TODO
+            '_model_steps': self._model_steps,                  # TODO
+            # '_log': self._log
         }
 
     def clear(self):
