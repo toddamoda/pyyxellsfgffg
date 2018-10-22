@@ -15,7 +15,7 @@ parametric:
       key: pipeline.charge_generation.tars.arguments.particle_number
       values: [2, 3]
     -
-      enabled: true
+      enabled: false
       key: pipeline.photon_generation.photon_level.arguments.level
       values: [1, 2] # todo: list(range(10, 13))
 
@@ -103,8 +103,8 @@ processor:
           image_file: data/01.fits
           row0: 0
           col0: 0
-#          rows: None
-#          cols: None
+          rows: 100
+          cols: 100
       -
         name: photon_level
         func: pyxel.models.photon_generation.add_photon_level
@@ -134,7 +134,7 @@ processor:
       -
         name: tars
         func: pyxel.models.tars.tars.run_tars
-        enabled: true
+        enabled: false
         arguments:
           simulation_mode: cosmic_ray   # snowflakes
           running_mode: stepsize  # stopping  # plotting  # geant4
@@ -163,19 +163,19 @@ processor:
       -
         name: cdm
         func: pyxel.models.cdm.CDM.cdm
-        enabled: false
+        enabled: true
         arguments:
-         beta_p: 0.3
+         beta_p: _
          beta_s: 0.3
          parallel_cti: true
          serial_cti: false
          chg_inj: true
          para_transfers: 1552
-         tr_p: [0.01]
+         tr_p: _
          tr_s: [0.01]
-         nt_p: [100.]
+         nt_p: _
          nt_s: [1.]
-         sigma_p: [1.]
+         sigma_p: _
          sigma_s: [1.]
 #         parallel_trap_file: pyxel/models/cdm/cdm_euclid_parallel.dat
 #         serial_trap_file: pyxel/models/cdm/cdm_euclid_serial.dat
@@ -185,7 +185,7 @@ processor:
       -
         name: output_node_noise
         func: pyxel.models.ccd_noise.add_output_node_noise
-        enabled: true
+        enabled: false
         arguments:
           std_deviation: 40.
 

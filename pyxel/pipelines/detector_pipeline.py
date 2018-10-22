@@ -143,8 +143,12 @@ class DetectionPipeline:
             if name in steps:
                 models_obj = getattr(self, group)  # type: Models
                 if models_obj:
-                    if name in models_obj.models:
-                        return models_obj.models[name]
+                    i = 0
+                    while name != models_obj.models[i].name:
+                        i += 1
+                    return models_obj.models[i]
+                    # return models_obj.models[i].func
+                    # return models_obj.models[i].function
 
     def run_model_group(self, name, detector):
         """TBW.

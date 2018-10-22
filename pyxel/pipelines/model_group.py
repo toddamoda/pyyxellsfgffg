@@ -116,7 +116,6 @@ class ModelGroup:
             return self.copy()
         if item == '__setstate__':
             return super().__getattr__(item)
-
         for model in self.models:         # THIS CAUSED AN INFINITE RECURSIVE LOOP, WHEN ModelGroup was deepcopied
             if model.name == item:
                 return model

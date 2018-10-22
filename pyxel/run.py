@@ -19,7 +19,7 @@ from pyxel import util
 import pyxel.pipelines.processor
 # from pyxel.calibration.calibration import Calibration
 from pyxel.calibration.inputdata import read_plato_data
-from pyxel.calibration.problem import ModelFitting
+from pyxel.calibration.fitting import ModelFitting
 import pygmo as pg
 
 
@@ -75,18 +75,90 @@ def run_pipeline_calibration(settings, config):
     :param config:
     :return:
     """
-    # what we have in the beginning:
-    # - settings (which is the "parametric" object)
-    # - config.pipeline
-    # - config.detector
-
     # read data you want to fit with your models:
     data_files = ['cold/CCD280-14482-06-02-cryo-irrad-gd15.5V.txt',
                   'cold/CCD280-14482-06-02-cryo-irrad-gd16.5V.txt',
                   'cold/CCD280-14482-06-02-cryo-irrad-gd18.5V.txt',
                   'cold/CCD280-14482-06-02-cryo-irrad-gd19.5V.txt']
     injection_profile, target_output, target_error = read_plato_data(
-        data_path=r'C:/dev/work/cdm/data/better-plato-target-data/', data_files=data_files, start=None, end=None)
+        data_path=r'C:/dev/work/cdm/data/better-plato-target-data/',
+        data_files=data_files, start=None, end=None)
+
+    fitting = ModelFitting(detector=config.detector,
+                           pipeline=config.pipeline)
+
+    weighting_func = None
+    generations = 3
+    population_size = 10
+    parameters = ['tr_p', 'nt_p', 'sigma_p', 'beta_p']
+    tr_scale = 'log'
+    nt_scale = 'log'
+    sigma_scale = 'log'
+    beta_scale = 'lin'
+    fit_range_length = 350
+    target_start_fit, target_end_fit = 51, 51 + fit_range_length
+    sim_start_fit, sim_end_fit = 1103, 1103 + fit_range_length
+
+    # #################################################
+    # Model specific input arguements:
+    traps = 4                           # TODO read these from YAML config automatically
+    number_of_transfers = 1552
+    ptp = 947.22e-6  # s
+    fwc = 1.e6  # e-
+    vg = 1.62e-10  # cm**3 (half volume!)
+    # # vth = 1.2175e7            # cm/s, from Alex's code
+    vth = 1.866029409893778e7  # cm/s, from Thibaut's jupyter notebook
+    # sigma = 5.e-16              # cm**2 (for all traps)
+    sigma = None  # cm**2 (for all traps)
+
+    if tr_scale == 'log':              # TODO for loop and list for boundary values!!
+        lo_tr_p, up_tr_p = traps * [np.log10(ptp)], traps * [np.log10(2.)]
+    else:
+        lo_tr_p, up_tr_p = traps * [t], traps * [2.]
+    if nt_scale == 'log':
+        lo_nt_p, up_nt_p = traps * [np.log10(0.0001)], traps * [np.log10(100.)]
+    else:
+        lo_nt_p, up_nt_p = traps * [0.0001], traps * [100.]
+    if sigma_scale == 'log':
+        lo_sigma_p, up_sigma_p = traps * [np.log10(1.e-21)], traps * [np.log10(1.e-16)]
+    else:
+        lo_sigma_p, up_sigma_p = traps * [1.e-21], traps * [1.e-16]
+    if beta_scale == 'log':
+        lo_beta_p, up_beta_p = [np.log10(0.01)], [np.log10(0.99)]
+    else:
+        lo_beta_p, up_beta_p = [0.01], [0.99]
+    lb = lo_tr_p + lo_nt_p + lo_sigma_p + lo_beta_p
+    ub = up_tr_p + up_nt_p + up_sigma_p + up_beta_p
+
+    fitting.set_data(model_input=injection_profile,
+                     target_output=target_output,
+                     variables=parameters,
+                     generations=generations,
+                     population_size=population_size)
+
+    fitting.set_simulated_fit_range((sim_start_fit, sim_end_fit))
+    fitting.set_target_fit_range((target_start_fit, target_end_fit))
+    fitting.set_uniformity_scales(sc_tr=tr_scale, sc_nt=nt_scale, sc_sig=sigma_scale, sc_be=beta_scale)
+    fitting.set_bound(low_val=lb, up_val=ub)
+    fitting.set_normalization()
+    fitting.save_champions_in_file()
+    if weighting_func is not None:
+        fitting.set_weighting_function(weighting_func)
+
+    fitting.charge_injection(True)  # TODO set these from YAML config automatically
+    fitting.set_parallel_parameters(traps=traps, t=ptp, vg=vg, fwc=fwc, vth=vth, sigma=sigma)
+    fitting.set_dimensions(para_transfers=number_of_transfers)
+
+    prob = pg.problem(fitting)
+    print('evolution started ...')
+    opt_algorithm = pg.sade(gen=generations)
+    algo = pg.algorithm(opt_algorithm)
+    pop = pg.population(prob, size=population_size)
+    pop = algo.evolve(pop)
+    champion_x = pop.champion_x
+    champion_f = pop.champion_f
+    print('champion_x: ', champion_x,
+          '\nchampion_f: ', champion_f)
 
     # create and initialize your calibration class (setting params based on config):
     # calibration = Calibration(settings, config)
@@ -94,45 +166,8 @@ def run_pipeline_calibration(settings, config):
     #                      target_output=target_output)
     #                      input_data=model_input_data, target=target_output, variables=parameters,
     #                      gen=generations, pop=population_size)
-    fitting = ModelFitting(detector=config.detector,
-                           pipeline=config.pipeline)
-    prob = pg.problem(fitting)
-    # prob = pg.problem(pg.rosenbrock())
-    print('evolution')
-    opt_algorithm = pg.sade(gen=10)
-    algo = pg.algorithm(opt_algorithm)
-    pop = pg.population(prob, size=10)
-    pop = algo.evolve(pop)
-    uda = algo.extract(pg.sade)
-    uda.get_log()
-    champion_x = pop.champion_x  # TODO: select the best N champions and fill pop2 with them
-    champion_f = pop.champion_f
-    print(champion_x, champion_f)
-
-    # fitting.set_simulated_fit_range((sim_start_fit, sim_end_fit))
-    # fitting.set_target_fit_range((target_start_fit, target_end_fit))
-    # fitting.set_uniformity_scales(sc_tr=tr_scale, sc_nt=nt_scale, sc_sig=sigma_scale,
-    #                                    sc_be=beta_scale)
-    # fitting.set_bound(low_val=lb, up_val=ub)
-    # fitting.set_normalization()
-    # fitting.save_champions_in_file()
-    # if weighting_func is not None:
-    #     fitting.set_weighting_function(weighting_func)
-    # # #################################################
-    # # Model specific input arguements:
-    # traps = 4  # TODO read these from YAML config automatically
-    # number_of_transfers = 1552
-    # t = 947.22e-6  # s
-    # fwc = 1.e6  # e-
-    # vg = 1.62e-10  # cm**3 (half volume!)
-    # # # vth = 1.2175e7            # cm/s, from Alex's code
-    # vth = 1.866029409893778e7  # cm/s, from Thibaut's jupyter notebook
-    # # sigma = 5.e-16              # cm**2 (for all traps)
-    # sigma = None  # cm**2 (for all traps)
-    # fitting.charge_injection(True)  # TODO set these from YAML config automatically
-    # fitting.set_parallel_parameters(traps=traps, t=t, vg=vg, fwc=fwc, vth=vth, sigma=sigma)
-    # fitting.set_dimensions(para_transfers=number_of_transfers)
-
+    # ...
+    #
     # aa, bb = calibration.evolutionary_algorithm()
     # # calibration.nonlinear_optimization_algorithm()
 
