@@ -4,7 +4,7 @@ https://esa.github.io/pagmo2/index.html
 """
 import numpy as np
 import pandas as pd
-# from pyxel.models.cdm.CDM import cdm
+from typing import List  # noqa: F401
 
 
 class ModelFitting:
@@ -22,11 +22,15 @@ class ModelFitting:
         self.det = detector
         self.pipe = pipeline
 
-        self.variables = None
+        self.variable_name_lst = []     # type:  List[str]
+        self.is_var_array = []          # type:  List[bool]
+        self.is_var_log = []            # type:  List[bool]
+
         self.gen = None
         self.pop = None
         self.fullframe = None
         self.target_data = None
+
         self.datasets = None
 
         self.n = 0
@@ -62,10 +66,10 @@ class ModelFitting:
         self.weighting = False
         self.weighting_function = None
 
-        self.tr_log = False
-        self.nt_log = False
-        self.sigma_log = False
-        self.beta_log = False
+        # self.tr_log = False
+        # self.nt_log = False
+        # self.sigma_log = False
+        # self.beta_log = False
 
         self.traps = None
         self.t = None           # parallel transfer period (s)
@@ -102,13 +106,29 @@ class ModelFitting:
         """
         return self.name
 
-    def set_data(self, model_input=None, target_output=None,
-                 variables=None, generations=None, population_size=None):
+    def set_data(self,
+                 model_input,
+                 target_output,
+                 variables,
+                 var_arrays,
+                 var_log,
+                 generations,
+                 population_size):
         """TBW.
 
+        :param model_input:
+        :param target_output:
+        :param variables:
+        :param var_arrays:
+        :param var_log:
+        :param generations:
+        :param population_size:
         :return:
         """
-        self.variables = variables
+        self.variable_name_lst = variables
+        self.is_var_array = var_arrays
+        self.is_var_log = var_log
+
         self.gen = generations
         self.pop = population_size
 
@@ -134,23 +154,23 @@ class ModelFitting:
         self.weighting = True
         self.weighting_function = func.reshape(len(func), 1)
 
-    def set_uniformity_scales(self, sc_tr='lin', sc_nt='lin', sc_sig='lin', sc_be='lin'):
-        """TBW.
-
-        :param sc_tr:
-        :param sc_nt:
-        :param sc_sig:
-        :param sc_be:
-        :return:
-        """
-        if sc_tr == 'log':
-            self.tr_log = True
-        if sc_nt == 'log':
-            self.nt_log = True
-        if sc_sig == 'log':
-            self.sigma_log = True
-        if sc_be == 'log':
-            self.beta_log = True
+    # def set_uniformity_scales(self, sc_tr='lin', sc_nt='lin', sc_sig='lin', sc_be='lin'):
+    #     """TBW.
+    #
+    #     :param sc_tr:
+    #     :param sc_nt:
+    #     :param sc_sig:
+    #     :param sc_be:
+    #     :return:
+    #     """
+    #     if sc_tr == 'log':
+    #         self.tr_log = True
+    #     if sc_nt == 'log':
+    #         self.nt_log = True
+    #     if sc_sig == 'log':
+    #         self.sigma_log = True
+    #     if sc_be == 'log':
+    #         self.beta_log = True
 
     def set_simulated_fit_range(self, fit_range):
         """TBW.
@@ -282,77 +302,97 @@ class ModelFitting:
         :param parameter: 1d np.array
         :return:
         """
-        parameter = self.update_parameter(parameter)                      # TODO
+        parameter_lst = self.update_parameter(parameter)
 
-        # self.update_detector_object(parameter)                      # TODO
-        self.update_pipeline_object(parameter)                      # TODO
+        # self.add_model_inputs_to_detector_object(self.fullframe)        # TODO not a priority
+
+        # If we want to optimize detector properties and not model arguments
+        # self.update_detector_object(parameter_lst)                        # TODO not a priority
+
+        # If we want to optimize model arguments
+        model_name_lst = ['cdm']   # ['tars', 'cdm']                        # TODO get this from yaml
+        self.update_pipeline_object(parameter_lst, model_name_lst)
 
         self.det = self.pipe.run_pipeline(self.det)
 
         overall_fitness = 0.
-        # overall_fitness = self.calculate_least_squares(self.det)         # TODO
+        # overall_fitness = self.calculate_least_squares(self.det)         # TODO update
 
-        self.population_and_champions(parameter, overall_fitness)
+        # self.population_and_champions(parameter_lst, overall_fitness)     # TODO update to use parameter_lst
 
         print('minden fasza')
 
         return [overall_fitness]
 
-    def update_parameter(self, parameter):      # TODO
+    def split_parameter(self, parameter):
+        """TBW.
+
+        :param parameter: 1d np.array
+        :return:
+        """
+        nn = len(self.variable_name_lst)
+
+        # ####### This parameter splitting, grouping is MODEL-SPECIFIC !!!  # TODO
+        if nn == 2:
+            subarrays = np.split(parameter, [self.traps, 2 * self.traps])
+        elif nn == 3:
+            subarrays = np.split(parameter, [self.traps, 2 * self.traps, 2 * self.traps + 1])
+        elif nn == 4:
+            subarrays = np.split(parameter, [self.traps, 2 * self.traps, 3 * self.traps, 3 * self.traps + 1])
+        else:
+            subarrays = None
+        # #######
+
+        return subarrays[:-1]
+
+    def update_parameter(self, parameter):
         """Update elements of parameter array, if they are logarithmic values.
 
         :param parameter: 1d np.array
         :return:
         """
-        if self.tr_log:
-            parameter[0: self.traps] = np.power(10, parameter[0: self.traps])  # TODO: generalize this
-        if self.nt_log:
-            parameter[self.traps: 2 * self.traps] = np.power(10, parameter[self.traps: 2 * self.traps])
-        if self.sigma_log:
-            parameter[2 * self.traps: 3 * self.traps] = np.power(10, parameter[2 * self.traps: 3 * self.traps])
-        if self.beta_log:
-            raise NotImplementedError('You do not want this :)')
-        return parameter
+        subarrays = self.split_parameter(parameter)
 
-    def update_pipeline_object(self, parameter):        # TODO
+        nn = len(self.variable_name_lst)
+        for i in range(nn):
+            if self.is_var_log[i]:
+                subarrays[i] = np.power(10, subarrays[i])
+            if not self.is_var_array[i]:
+                subarrays[i] = subarrays[i][0]
+
+        return subarrays
+
+    def update_pipeline_object(self, param_grp_list, model_name_list):
         """TBW.
 
-        :param parameter:
+        :param param_grp_list:
+        :param model_name_list:
         :return:
         """
-        if len(self.variables) == 2:
-            subarrays = np.split(parameter, [self.traps, 2 * self.traps])
-            self.tr_p = subarrays[0]
-            self.nt_p = subarrays[1]
-        elif len(self.variables) == 3:
-            subarrays = np.split(parameter, [self.traps, 2 * self.traps, 2 * self.traps + 1])
-            self.tr_p = subarrays[0]
-            self.nt_p = subarrays[1]
-            self.beta_p = subarrays[2][0]
-        elif len(self.variables) == 4:
-            subarrays = np.split(parameter, [self.traps, 2 * self.traps, 3 * self.traps, 3 * self.traps + 1])
-            self.tr_p = subarrays[0]
-            self.nt_p = subarrays[1]
-            self.sigma_p = subarrays[2]
-            self.beta_p = subarrays[3][0]
+        if len(model_name_list) > 1:
+            raise NotImplementedError
+
+        for model_name in model_name_list:
+            fitted_pipeline_model = self.pipe.get_model(model_name)
+            nn = len(self.variable_name_lst)                        # TODO how many parameter groups this model has ???
+            for i in range(nn):
+                fitted_pipeline_model.arguments[self.variable_name_lst[i]] = param_grp_list[i]
+
+        # # VALIDATION - just for the first time before running calibration
+        # nn = len(self.variable_name_lst)
+        # for i in range(nn):
+        #     arg_value = fitted_pipeline_model.arguments[self.variable_name_lst[i]]
+        #     if str(arg_value) != '_':
+        #         raise AttributeError
 
         # ###############################
-        # cdm_model = self.pipe.get_model('cdm')
-        # asd = cdm_model.func
-        # csd = cdm_model.function
-        # out = cdm_model.function(self.det)
-
+        # fitted_model = self.pipe.get_model('cdm')
+        # asd = fitted_model.func
+        # csd = fitted_model.function
+        # out = fitted_model.function(self.det) # not working yet
         # ize = self.pipe.model_groups
         # ize2 = self.pipe.model_group_names
         # ###############################
-
-        var = self.pipe.charge_transfer.models[0].arguments[self.variables[0]]                   # TODO
-        if var == '_':
-            self.pipe.charge_transfer.models[0].arguments[self.variables[0]] = self.tr_p
-
-        self.pipe.charge_transfer.models[0].arguments[self.variables[1]] = self.nt_p
-        self.pipe.charge_transfer.models[0].arguments[self.variables[2]] = self.sigma_p
-        self.pipe.charge_transfer.models[0].arguments[self.variables[3]] = self.beta_p
 
     def population_and_champions(self, parameter, overall_fitness):
         """Get champion (also population) of each generation and write it to output file(s).

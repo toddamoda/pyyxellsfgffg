@@ -133,12 +133,14 @@ def run_pipeline_calibration(settings, config):
     fitting.set_data(model_input=injection_profile,
                      target_output=target_output,
                      variables=parameters,
+                     var_arrays=[True, True, True, False],
+                     var_log=[True, True, True, False],
                      generations=generations,
                      population_size=population_size)
 
     fitting.set_simulated_fit_range((sim_start_fit, sim_end_fit))
     fitting.set_target_fit_range((target_start_fit, target_end_fit))
-    fitting.set_uniformity_scales(sc_tr=tr_scale, sc_nt=nt_scale, sc_sig=sigma_scale, sc_be=beta_scale)
+    # fitting.set_uniformity_scales(sc_tr=tr_scale, sc_nt=nt_scale, sc_sig=sigma_scale, sc_be=beta_scale)
     fitting.set_bound(low_val=lb, up_val=ub)
     fitting.set_normalization()
     fitting.save_champions_in_file()
