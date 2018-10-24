@@ -11,20 +11,18 @@ class ModelFitting:
     """Pygmo problem class to fit data with any model in Pyxel."""
 
     def __init__(self, detector, pipeline):
-        """TBW.
-
-        # :param input_data: np.array
-        # :param target: np.array
-        # :param variables: list of str, like ['tr_p', 'nt_p', 'beta_p'] or ['tr_p', 'nt_p', 'sigma_p', 'beta_p']
-        """
+        """TBW."""
         self.name = "model fitting"
 
         self.det = detector
         self.pipe = pipeline
 
-        self.variable_name_lst = []     # type:  List[str]
-        self.is_var_array = []          # type:  List[bool]
-        self.is_var_log = []            # type:  List[bool]
+        self.model_name_list = []           # type: List[str]
+        self.params_per_model = []          # type: List[List[int]]
+
+        self.variable_name_lst = []         # type: List[List[str]]
+        self.is_var_array = []              # type: List[List[bool]]
+        self.is_var_log = []                # type: List[List[bool]]
 
         self.gen = None
         self.pop = None
@@ -35,6 +33,8 @@ class ModelFitting:
 
         self.n = 0
         self.g = 0
+
+        self.sort_by_var_name = None
 
         self.write2file = False
         self.champion_file = None
@@ -66,32 +66,6 @@ class ModelFitting:
         self.weighting = False
         self.weighting_function = None
 
-        # self.tr_log = False
-        # self.nt_log = False
-        # self.sigma_log = False
-        # self.beta_log = False
-
-        self.traps = None
-        self.t = None           # parallel transfer period (s)
-        self.fwc = None         # full well capacity in e-
-        self.vg = None          # HALF of the pixel geometrical volume and max volume of e- cloud (cm**3)
-        self.vth = None         # thermal velocity of e- (cm/s)
-
-        self.tr_p = None
-        self.nt_p = None
-        self.sigma_p = None
-        self.beta_p = None
-
-        self.dob = 0.           # diffuse optical background
-
-        self.st = 0.9828e-3
-        self.sfwc = 900000.
-        self.svg = 1.4e-10
-        self.beta_s = 0.3
-        self.sigma_s = np.array([1.])
-        self.tr_s = np.array([0.03])
-        self.nt_s = np.array([10.])                     # traps / pixel
-
     def get_bounds(self):
         """TBW.
 
@@ -106,25 +80,32 @@ class ModelFitting:
         """
         return self.name
 
-    def set_data(self,
-                 model_input,
-                 target_output,
-                 variables,
-                 var_arrays,
-                 var_log,
-                 generations,
-                 population_size):
+    def configure(self,
+                  model_names,
+                  params_per_model,
+                  variables,
+                  var_arrays,
+                  var_log,
+                  model_input,
+                  target_output,
+                  generations,
+                  population_size):
         """TBW.
 
-        :param model_input:
-        :param target_output:
-        :param variables:
-        :param var_arrays:
-        :param var_log:
-        :param generations:
-        :param population_size:
+        :param model_names: list
+        :param params_per_model: list
+        :param variables: list
+        :param var_arrays: list
+        :param var_log: list
+        :param model_input: list
+        :param target_output: list
+        :param generations: int
+        :param population_size: int
         :return:
         """
+        self.model_name_list = model_names
+        self.params_per_model = params_per_model
+
         self.variable_name_lst = variables
         self.is_var_array = var_arrays
         self.is_var_log = var_log
@@ -135,6 +116,10 @@ class ModelFitting:
         self.fullframe = model_input
         self.target_data = target_output
         self.datasets = len(target_output)
+
+        self.sort_by_var_name = self.variable_name_lst[0][0]  # todo
+        self.champion_f_list = np.zeros((1, 1))
+        self.champion_x_list = np.zeros((1, np.sum(np.sum(self.params_per_model))))
 
     def set_normalization(self):
         """TBW.
@@ -154,24 +139,6 @@ class ModelFitting:
         self.weighting = True
         self.weighting_function = func.reshape(len(func), 1)
 
-    # def set_uniformity_scales(self, sc_tr='lin', sc_nt='lin', sc_sig='lin', sc_be='lin'):
-    #     """TBW.
-    #
-    #     :param sc_tr:
-    #     :param sc_nt:
-    #     :param sc_sig:
-    #     :param sc_be:
-    #     :return:
-    #     """
-    #     if sc_tr == 'log':
-    #         self.tr_log = True
-    #     if sc_nt == 'log':
-    #         self.nt_log = True
-    #     if sc_sig == 'log':
-    #         self.sigma_log = True
-    #     if sc_be == 'log':
-    #         self.beta_log = True
-
     def set_simulated_fit_range(self, fit_range):
         """TBW.
 
@@ -188,15 +155,55 @@ class ModelFitting:
         """
         self.targ_fit_range = slice(fit_range[0], fit_range[1])
 
-    def set_bound(self, low_val, up_val):
+    def set_bound(self, low_val=None, up_val=None):                                     # TODO
         """TBW.
 
         :param low_val: np.array
         :param up_val: np.array
         :return:
         """
-        self.lbd = low_val
-        self.ubd = up_val
+        traps = 4
+        ptp = 0.001
+        # if tr_scale == 'log':
+        lo_tr_p, up_tr_p = traps * [np.log10(ptp)], traps * [np.log10(2.)]
+        # else:
+        #     lo_tr_p, up_tr_p = traps * [t], traps * [2.]
+        # if nt_scale == 'log':
+        lo_nt_p, up_nt_p = traps * [np.log10(0.0001)], traps * [np.log10(100.)]
+        # else:
+        #     lo_nt_p, up_nt_p = traps * [0.0001], traps * [100.]
+        # if sigma_scale == 'log':
+        lo_sigma_p, up_sigma_p = traps * [np.log10(1.e-21)], traps * [np.log10(1.e-16)]
+        # else:
+        #     lo_sigma_p, up_sigma_p = traps * [1.e-21], traps * [1.e-16]
+        # if beta_scale == 'log':
+        #     lo_beta_p, up_beta_p = [np.log10(0.01)], [np.log10(0.99)]
+        # else:
+        lo_beta_p, up_beta_p = [0.01], [0.99]
+
+        lo_pn, up_pn = [0], [3]
+
+        # if tr_scale == 'log':  # TODO for loop and list for boundary values!!
+        #     lo_tr_p, up_tr_p = traps * [np.log10(ptp)], traps * [np.log10(2.)]
+        # else:
+        #     lo_tr_p, up_tr_p = traps * [t], traps * [2.]
+        # if nt_scale == 'log':
+        #     lo_nt_p, up_nt_p = traps * [np.log10(0.0001)], traps * [np.log10(100.)]
+        # else:
+        #     lo_nt_p, up_nt_p = traps * [0.0001], traps * [100.]
+        # if sigma_scale == 'log':
+        #     lo_sigma_p, up_sigma_p = traps * [np.log10(1.e-21)], traps * [np.log10(1.e-16)]
+        # else:
+        #     lo_sigma_p, up_sigma_p = traps * [1.e-21], traps * [1.e-16]
+        # if beta_scale == 'log':
+        #     lo_beta_p, up_beta_p = [np.log10(0.01)], [np.log10(0.99)]
+        # else:
+        #     lo_beta_p, up_beta_p = [0.01], [0.99]
+        # lb = lo_tr_p + lo_nt_p + lo_sigma_p + lo_beta_p
+        # ub = up_tr_p + up_nt_p + up_sigma_p + up_beta_p
+
+        self.lbd = lo_tr_p + lo_nt_p + lo_sigma_p + lo_beta_p + lo_pn
+        self.ubd = up_tr_p + up_nt_p + up_sigma_p + up_beta_p + up_pn
 
     def save_champions_in_file(self):
         """TBW.
@@ -222,47 +229,6 @@ class ModelFitting:
         :return:
         """
         self.chg_inj = flag
-
-    def set_parallel_parameters(self,
-                                traps: int,
-                                t: float,
-                                vg: float,
-                                fwc: float,
-                                vth: float,
-                                sigma: float):
-        """TBW.
-
-        :param traps: number of trap species
-        :param t: parallel transfer period (s)
-        :param vg: HALF of the pixel geometrical volume and max volume of e- cloud (cm**3)
-        :param fwc: full well capacity of pixels in e-
-        :param vth: thermal velocity of e- (cm/s)
-        :param sigma: capture cross-section for all traps (cm**2)
-        :return:
-        """
-        self.traps = traps
-        self.t = t
-        self.vg = vg
-        self.fwc = fwc
-        self.vth = vth
-        if isinstance(sigma, float) or isinstance(sigma, int):
-            self.sigma_p = sigma * np.ones(self.traps)
-        else:
-            self.sigma_p = sigma
-        self.champion_f_list = np.zeros((1, 1))
-        self.champion_x_list = np.zeros((1, 3 * self.traps + 1))
-
-    def set_dimensions(self,
-                       para_transfers: int = None,
-                       seri_transfers: int = None):
-        """TBW.
-
-        :param para_transfers:
-        :param seri_transfers:
-        :return:
-        """
-        self.para_transfers = para_transfers
-        self.seri_transfers = seri_transfers
 
     def calculate_least_squares(self, simulated_data, dataset):
         """TBW.
@@ -302,81 +268,65 @@ class ModelFitting:
         :param parameter: 1d np.array
         :return:
         """
-        parameter_lst = self.update_parameter(parameter)
+        parameter_lst = self.split_and_update(parameter)
 
-        # self.add_model_inputs_to_detector_object(self.fullframe)        # TODO not a priority
-
-        # If we want to optimize detector properties and not model arguments
+        # # If we want to optimize detector properties and not model arguments:
         # self.update_detector_object(parameter_lst)                        # TODO not a priority
-
-        # If we want to optimize model arguments
-        model_name_lst = ['cdm']   # ['tars', 'cdm']                        # TODO get this from yaml
-        self.update_pipeline_object(parameter_lst, model_name_lst)
+        # # If we want to optimize model arguments:
+        self.update_pipeline_object(parameter_lst)
 
         self.det = self.pipe.run_pipeline(self.det)
 
         overall_fitness = 0.
-        # overall_fitness = self.calculate_least_squares(self.det)         # TODO update
+        # overall_fitness = self.calculate_least_squares(self.det)          # TODO update
 
-        # self.population_and_champions(parameter_lst, overall_fitness)     # TODO update to use parameter_lst
+        self.population_and_champions(parameter_lst, overall_fitness)
 
         print('minden fasza')
 
         return [overall_fitness]
 
-    def split_parameter(self, parameter):
+    def split_and_update(self, parameter):
         """TBW.
 
         :param parameter: 1d np.array
         :return:
         """
-        nn = len(self.variable_name_lst)
+        split_list = []
+        for i in range(len(self.params_per_model)):
+            for j in range(len(self.params_per_model[i])):
+                if i == 0 and j == 0:
+                    split_list += [self.params_per_model[0][0]]
+                else:
+                    split_list += [split_list[j-1] + self.params_per_model[i][j]]
 
-        # ####### This parameter splitting, grouping is MODEL-SPECIFIC !!!  # TODO
-        if nn == 2:
-            subarrays = np.split(parameter, [self.traps, 2 * self.traps])
-        elif nn == 3:
-            subarrays = np.split(parameter, [self.traps, 2 * self.traps, 2 * self.traps + 1])
-        elif nn == 4:
-            subarrays = np.split(parameter, [self.traps, 2 * self.traps, 3 * self.traps, 3 * self.traps + 1])
-        else:
-            subarrays = None
-        # #######
+        subarrays = np.split(parameter, split_list)
+        subarrays = subarrays[:-1]
 
-        return subarrays[:-1]
-
-    def update_parameter(self, parameter):
-        """Update elements of parameter array, if they are logarithmic values.
-
-        :param parameter: 1d np.array
-        :return:
-        """
-        subarrays = self.split_parameter(parameter)
-
-        nn = len(self.variable_name_lst)
-        for i in range(nn):
-            if self.is_var_log[i]:
-                subarrays[i] = np.power(10, subarrays[i])
-            if not self.is_var_array[i]:
-                subarrays[i] = subarrays[i][0]
+        k = 0
+        for i in range(len(self.variable_name_lst)):
+            for j in range(len(self.variable_name_lst[i])):
+                if self.is_var_log[i][j]:
+                    subarrays[k] = np.power(10, subarrays[k])
+                if not self.is_var_array[i][j]:
+                    subarrays[k] = subarrays[k][0]
+                k += 1
 
         return subarrays
 
-    def update_pipeline_object(self, param_grp_list, model_name_list):
+    def update_pipeline_object(self, param_array_list):
         """TBW.
 
-        :param param_grp_list:
-        :param model_name_list:
+        :param param_array_list:
         :return:
         """
-        if len(model_name_list) > 1:
-            raise NotImplementedError
+        k = 0
+        for i in range(len(self.variable_name_lst)):
+            fitted_pipeline_model = self.pipe.get_model(self.model_name_list[i])
 
-        for model_name in model_name_list:
-            fitted_pipeline_model = self.pipe.get_model(model_name)
-            nn = len(self.variable_name_lst)                        # TODO how many parameter groups this model has ???
-            for i in range(nn):
-                fitted_pipeline_model.arguments[self.variable_name_lst[i]] = param_grp_list[i]
+            for j in range(len(self.variable_name_lst[i])):
+                fitted_pipeline_model.arguments[self.variable_name_lst[i][j]] = param_array_list[k]
+                k += 1
 
         # # VALIDATION - just for the first time before running calibration
         # nn = len(self.variable_name_lst)
@@ -404,30 +354,25 @@ class ModelFitting:
         # if self.champion_file is None:
         #     self.champion_file = 'champion_id' + str(id(self)) + '.out'
 
-        paramsize = len(parameter)
-        ord_param = None
-        if paramsize == (2 * self.traps + 1):
-            ordered_parameter = pd.DataFrame(np.c_[parameter[0:self.traps],
-                                                   parameter[self.traps:2 * self.traps]],
-                                             columns=['time',
-                                                      'density'])
-            ordered_parameter = ordered_parameter.sort_values(by=['time'])
-            ord_param = np.append(np.array([]), ordered_parameter.time.values)
-            ord_param = np.append(ord_param, ordered_parameter.density.values)
+        df = pd.DataFrame()
+        k = 0
+        for i in range(len(self.variable_name_lst)):
+            for j in range(len(self.variable_name_lst[i])):
+                df[self.variable_name_lst[i][j]] = parameter[k]
+                k += 1
 
-        elif paramsize == (3 * self.traps + 1):
-            ordered_parameter = pd.DataFrame(np.c_[parameter[0:self.traps],
-                                                   parameter[self.traps:2 * self.traps],
-                                                   parameter[2 * self.traps:3 * self.traps]],
-                                             columns=['time',
-                                                      'density',
-                                                      'sigma'])
-            ordered_parameter = ordered_parameter.sort_values(by=['time'])
-            ord_param = np.append(np.array([]), ordered_parameter.time.values)
-            ord_param = np.append(ord_param, ordered_parameter.density.values)
-            ord_param = np.append(ord_param, ordered_parameter.sigma.values)
+        ordered_df = df.sort_values(by=[self.sort_by_var_name])
 
-        ord_param = np.append(ord_param, parameter[-1])
+        ord_param = np.array([])
+        for i in range(len(self.is_var_array)):
+            for j in range(len(self.is_var_array[i])):
+                if self.is_var_array[i][j]:
+                    ord_param = np.append(ord_param, ordered_df[self.variable_name_lst[i][j]].values)
+                else:
+                    ord_param = np.append(ord_param,
+                                          np.unique(ordered_df[self.variable_name_lst[i][j]].values))
+
+        paramsize = len(ord_param)
         ord_param = ord_param.reshape(1, paramsize)
 
         if self.n % self.pop == 0:

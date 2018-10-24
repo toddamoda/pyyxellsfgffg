@@ -139,7 +139,7 @@ processor:
           simulation_mode: cosmic_ray   # snowflakes
           running_mode: stepsize  # stopping  # plotting  # geant4
           particle_type: proton
-          initial_energy: 100   # MeV
+          initial_energy: 100.   # MeV
           particle_number: 1
           incident_angles:      # rad
           starting_position:    # um
