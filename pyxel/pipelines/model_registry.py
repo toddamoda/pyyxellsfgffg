@@ -27,7 +27,7 @@ class registry:  # noqa: N801
         return result
 
     @staticmethod
-    def import_models(processor: Processor, name: str=None):
+    def import_models(processor: Processor, name: str = None):
         """TBW.
 
         :param processor:

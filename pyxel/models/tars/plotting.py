@@ -22,9 +22,9 @@ class PlottingTARS:
     """
 
     def __init__(self, tars,
-                 draw_plots: bool=False,
-                 save_plots: bool=False,
-                 file_format: str='png') -> None:
+                 draw_plots: bool = False,
+                 save_plots: bool = False,
+                 file_format: str = 'png') -> None:
         """TBW.
 
         :param tars:
@@ -211,16 +211,16 @@ class PlottingTARS:
         ax.set_xlim(0, geo.vert_dimension)
         ax.set_ylim(0, geo.horz_dimension)
         ax.set_zlim(-1 * geo.total_thickness, 0)
-        ax.set_xlabel('vertical ($\mu$m)')
-        ax.set_ylabel('horizontal ($\mu$m)')
-        ax.set_zlabel('z ($\mu$m)')
+        ax.set_xlabel(r'vertical ($\mu$m)')
+        ax.set_ylabel(r'horizontal ($\mu$m)')
+        ax.set_zlabel(r'z ($\mu$m)')
 
         # ax2.set_xlim(0, geo.vert_dimension)
         # ax2.set_ylim(0, geo.horz_dimension)
         # ax2.set_zlim(-1 * geo.total_thickness, 0)
-        # ax2.set_xlabel('vertical ($\mu$m)')
-        # ax2.set_ylabel('horizontal ($\mu$m)')
-        # ax2.set_zlabel('z ($\mu$m)')
+        # ax2.set_xlabel(r'vertical ($\mu$m)')
+        # ax2.set_ylabel(r'horizontal ($\mu$m)')
+        # ax2.set_zlabel(r'z ($\mu$m)')
 
     def plot_let_cdf(self):
         """TBW.
@@ -296,8 +296,8 @@ class PlottingTARS:
         # self.trajectory[:, 0] - VERTICAL COORDINATE
         # self.trajectory[:, 1] - HORIZONTAL COORDINATE
         plt.plot(self.tars.sim_obj.particle.trajectory[:, 1], self.tars.sim_obj.particle.trajectory[:, 0], '.')
-        plt.xlabel('horizontal ($\mu$m)')
-        plt.ylabel('vertical ($\mu$m)')
+        plt.xlabel(r'horizontal ($\mu$m)')
+        plt.ylabel(r'vertical ($\mu$m)')
         plt.title('p trajectory in CCD')
         plt.axis([0, geo.horz_dimension, 0, geo.vert_dimension])
         plt.grid(True)
@@ -313,8 +313,8 @@ class PlottingTARS:
         # self.trajectory[:, 2] - Z COORDINATE
         # self.trajectory[:, 1] - HORIZONTAL COORDINATE
         plt.plot(self.tars.sim_obj.particle.trajectory[:, 1], self.tars.sim_obj.particle.trajectory[:, 2], '.')
-        plt.xlabel('horizontal ($\mu$m)')
-        plt.ylabel('z ($\mu$m)')
+        plt.xlabel(r'horizontal ($\mu$m)')
+        plt.ylabel(r'z ($\mu$m)')
         plt.title('p trajectory in CCD')
         plt.axis([0, geo.horz_dimension, -1*geo.total_thickness, 0])
         plt.grid(True)
@@ -350,7 +350,7 @@ class PlottingTARS:
         plt.legend(loc='upper right')
         self.save_and_draw('track_length')
 
-    def plot_step_size_histograms(self, normalize: bool=None):
+    def plot_step_size_histograms(self, normalize: bool = None):
         """TBW.
 
         :return:
@@ -424,7 +424,7 @@ class PlottingTARS:
     #     plt.legend(loc='upper right')
     #     self.save_and_draw('secondary_spectra')
 
-    def plot_gaia_vs_gras_hist(self, normalize: bool=None):
+    def plot_gaia_vs_gras_hist(self, normalize: bool = None):
         """TBW.
 
         :return:
@@ -478,7 +478,7 @@ class PlottingTARS:
         plt.legend(loc='upper right')
         self.save_and_draw('gaia_vs_gras_electron_hist')
 
-    def plot_old_tars_hist(self, normalize: bool=None):
+    def plot_old_tars_hist(self, normalize: bool = None):
         """TBW.
 
         :return:
@@ -523,7 +523,7 @@ class PlottingTARS:
         plt.legend(loc='upper right')
         self.save_and_draw('old_tars_electron_hist')
 
-    def plot_gaia_bam_vs_sm_electron_hist(self, normalize: bool=None):
+    def plot_gaia_bam_vs_sm_electron_hist(self, normalize: bool = None):
         """TBW.
 
         :return:
@@ -568,7 +568,7 @@ class PlottingTARS:
         self.save_and_draw('gaia_BAM_vs_SM_electron_hist')
 
     def plot_electron_hist(self, data1, data2=None, data3=None,
-                           title='', hist_bins=500, hist_range=(0, 15000), normalize: bool=None):
+                           title='', hist_bins=500, hist_range=(0, 15000), normalize: bool = None):
         """TBW.
 
         :return:

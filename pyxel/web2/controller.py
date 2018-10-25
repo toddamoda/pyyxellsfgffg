@@ -40,7 +40,7 @@ EXECUTE_CALL = 'EXECUTE-CALL'
 class Controller(guiconfig.Controller):
     """TBW."""
 
-    def __init__(self, dispatcher: t.Any, processor: Processor=None) -> None:
+    def __init__(self, dispatcher: t.Any, processor: Processor = None) -> None:
         """TBW.
 
         :param processor:
