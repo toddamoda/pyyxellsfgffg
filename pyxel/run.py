@@ -124,7 +124,8 @@ def run_pipeline_calibration(settings, config):
                       generations=generations,
                       population_size=population_size)
 
-    fitting.set_bound()  # low_val=lb, up_val=ub)   # TODO
+    fitting.set_bound(low_val=[[1.e-3, 1.e-2, 1.e-20, 0.], [1.]],
+                      up_val=[[2., 1.e+1, 1.e-15, 1.], [10.]])
 
     fitting.set_simulated_fit_range((sim_start_fit, sim_end_fit))
     fitting.set_target_fit_range((target_start_fit, target_end_fit))

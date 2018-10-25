@@ -155,55 +155,26 @@ class ModelFitting:
         """
         self.targ_fit_range = slice(fit_range[0], fit_range[1])
 
-    def set_bound(self, low_val=None, up_val=None):                                     # TODO
+    def set_bound(self, low_val, up_val):
         """TBW.
 
-        :param low_val: np.array
-        :param up_val: np.array
+        :param low_val: list
+        :param up_val: list
         :return:
         """
-        traps = 4
-        ptp = 0.001
-        # if tr_scale == 'log':
-        lo_tr_p, up_tr_p = traps * [np.log10(ptp)], traps * [np.log10(2.)]
-        # else:
-        #     lo_tr_p, up_tr_p = traps * [t], traps * [2.]
-        # if nt_scale == 'log':
-        lo_nt_p, up_nt_p = traps * [np.log10(0.0001)], traps * [np.log10(100.)]
-        # else:
-        #     lo_nt_p, up_nt_p = traps * [0.0001], traps * [100.]
-        # if sigma_scale == 'log':
-        lo_sigma_p, up_sigma_p = traps * [np.log10(1.e-21)], traps * [np.log10(1.e-16)]
-        # else:
-        #     lo_sigma_p, up_sigma_p = traps * [1.e-21], traps * [1.e-16]
-        # if beta_scale == 'log':
-        #     lo_beta_p, up_beta_p = [np.log10(0.01)], [np.log10(0.99)]
-        # else:
-        lo_beta_p, up_beta_p = [0.01], [0.99]
-
-        lo_pn, up_pn = [0], [3]
-
-        # if tr_scale == 'log':  # TODO for loop and list for boundary values!!
-        #     lo_tr_p, up_tr_p = traps * [np.log10(ptp)], traps * [np.log10(2.)]
-        # else:
-        #     lo_tr_p, up_tr_p = traps * [t], traps * [2.]
-        # if nt_scale == 'log':
-        #     lo_nt_p, up_nt_p = traps * [np.log10(0.0001)], traps * [np.log10(100.)]
-        # else:
-        #     lo_nt_p, up_nt_p = traps * [0.0001], traps * [100.]
-        # if sigma_scale == 'log':
-        #     lo_sigma_p, up_sigma_p = traps * [np.log10(1.e-21)], traps * [np.log10(1.e-16)]
-        # else:
-        #     lo_sigma_p, up_sigma_p = traps * [1.e-21], traps * [1.e-16]
-        # if beta_scale == 'log':
-        #     lo_beta_p, up_beta_p = [np.log10(0.01)], [np.log10(0.99)]
-        # else:
-        #     lo_beta_p, up_beta_p = [0.01], [0.99]
-        # lb = lo_tr_p + lo_nt_p + lo_sigma_p + lo_beta_p
-        # ub = up_tr_p + up_nt_p + up_sigma_p + up_beta_p
-
-        self.lbd = lo_tr_p + lo_nt_p + lo_sigma_p + lo_beta_p + lo_pn
-        self.ubd = up_tr_p + up_nt_p + up_sigma_p + up_beta_p + up_pn
+        self.lbd = []
+        self.ubd = []
+        for i in range(len(low_val)):
+            for j in range(len(up_val[i])):
+                if self.is_var_log[i][j]:
+                    lo_bd, up_bd = [np.log10(low_val[i][j])], [np.log10(up_val[i][j])]
+                else:
+                    lo_bd, up_bd = [low_val[i][j]], [up_val[i][j]]
+                if self.is_var_array[i][j]:
+                    lo_bd = self.params_per_model[i][j] * lo_bd
+                    up_bd = self.params_per_model[i][j] * up_bd
+                self.lbd += lo_bd
+                self.ubd += up_bd
 
     def save_champions_in_file(self):
         """TBW.
