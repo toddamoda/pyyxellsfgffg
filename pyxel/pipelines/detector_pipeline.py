@@ -150,7 +150,6 @@ class DetectionPipeline:
                     # return models_obj.models[i].func
                     # return models_obj.models[i].function
 
-
     def run_model_group(self, name, detector):
         """TBW.
 

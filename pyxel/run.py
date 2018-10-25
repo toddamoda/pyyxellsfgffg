@@ -43,7 +43,6 @@ def run(input_filename, output_file, random_seed: int = None):  # key=None, valu
 
     # if key and value:
     #     processor.set(key, value)
-
     # simulation.debug(processor)
 
     if simulation.mode == 'single':
@@ -58,7 +57,7 @@ def run(input_filename, output_file, random_seed: int = None):  # key=None, valu
             detector = config.pipeline.run_pipeline(config.detector)
 
     else:
-        raise NotImplementedError
+        raise AttributeError
 
     if output_file and detector:
         save_to = util.apply_run_number(output_file)
