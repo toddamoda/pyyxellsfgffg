@@ -108,7 +108,7 @@ class Controller(guiconfig.Controller):
         if name in self.pipeline_paths:
             config_path = self.pipeline_paths[name]
             cfg = om.load(config_path)
-            self.parametric = cfg['parametric']
+            self.parametric = cfg['simulation']
             self.processor = cfg['processor']
             registry.import_models(self.processor)
         else:
@@ -175,7 +175,7 @@ class Controller(guiconfig.Controller):
     def load_config(self, path):
         """TBW."""
         cfg = om.load(Path(path))
-        self.parametric = cfg['parametric']
+        self.parametric = cfg['simulation']
         self.processor = cfg['processor']
         self.get_state()
 
@@ -183,7 +183,7 @@ class Controller(guiconfig.Controller):
         """TBW."""
         cfg = {
             'processor': self.processor,
-            'parametric': self.parametric,
+            'simulation': self.parametric,
         }
         output = om.dump(cfg)
         print(output)
@@ -331,7 +331,7 @@ class Controller(guiconfig.Controller):
         if self.processor:
             result = {
                 'processor': self.processor.get_state_json(),
-                'parametric': self.parametric.get_state_json(),
+                'simulation': self.parametric.get_state_json(),
             }
             self._rewire_pipeline_dict(result['processor']['pipeline'])
 
@@ -396,7 +396,7 @@ class Controller(guiconfig.Controller):
                 for i, config in enumerate(configs):
                     result = {
                         'processor': config.get_state_json(),
-                        'parametric': self.parametric.get_state_json(),
+                        'simulation': self.parametric.get_state_json(),
                     }
                     id_value_dict = om.get_state_ids(result)
                     self.announce('state', 'all', id_value_dict)

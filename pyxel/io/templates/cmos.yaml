@@ -1,5 +1,5 @@
 
-parametric:
+simulation:
   mode: single
 #  mode: embedded
 #  mode: sequential

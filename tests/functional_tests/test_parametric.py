@@ -45,10 +45,10 @@ expected_embedded = [
 def test_pipeline_parametric(mode, expected):
     input_filename = 'tests/data/pipeline_parametric.yaml'
     cfg = io.load(Path(input_filename))
-    parametric = cfg.pop('parametric')
-    parametric.mode = mode
+    simulation = cfg.pop('simulation')
+    simulation.mode = mode
     processor = cfg['processor']  # type: pyxel.pipelines.processor.Processor
-    result = parametric.debug(processor)
+    result = simulation.debug(processor)
 
     assert result == expected
 

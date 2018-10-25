@@ -2,13 +2,10 @@
 import typing as t
 
 import esapy_config as om
-# from pyxel import util
 from pyxel.detectors.ccd import CCD
 from pyxel.detectors.cmos import CMOS
 from pyxel.pipelines.ccd_pipeline import CCDDetectionPipeline
 from pyxel.pipelines.cmos_pipeline import CMOSDetectionPipeline
-# from pyxel.pipelines import validator
-# from pyxel.util import objmod as om
 
 
 class Processor:

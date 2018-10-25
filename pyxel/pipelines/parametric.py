@@ -49,7 +49,7 @@ class StepValues:
             yield value
 
 
-class ParametricConfig:
+class Configuration:
     """TBW."""
 
     def __init__(self, mode, steps: t.List[StepValues]) -> None:
@@ -63,7 +63,7 @@ class ParametricConfig:
 
     def copy(self):
         """TBW."""
-        return ParametricConfig([step.copy() for step in self.steps], self.mode)
+        return Configuration([step.copy() for step in self.steps], self.mode)
 
     def get_state_json(self):
         """TBW."""

@@ -3,7 +3,7 @@
 # David Lucsanyi
 ################
 
-parametric:
+simulation:
 #  mode: single
   mode: calibration
 #  mode: embedded

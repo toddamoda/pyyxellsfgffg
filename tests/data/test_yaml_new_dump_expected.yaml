@@ -1,4 +1,4 @@
-parametric:
+simulation:
   mode: single
   steps:
   - current: null

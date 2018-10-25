@@ -17,7 +17,6 @@ import esapy_config as om
 import pyxel
 from pyxel import util
 import pyxel.pipelines.processor
-# from pyxel.calibration.calibration import Calibration
 from pyxel.calibration.inputdata import read_plato_data
 from pyxel.calibration.fitting import ModelFitting
 import pygmo as pg
@@ -38,20 +37,20 @@ def run(input_filename, output_file, random_seed: int = None):  # key=None, valu
     output = []
 
     cfg = om.load(Path(input_filename))
-    parametric = cfg['parametric']      # todo: "parametric" should be renamed e.g. to "simulation"
+    simulation = cfg['simulation']
     processor = cfg['processor']
     detector = None
 
     # if key and value:
     #     processor.set(key, value)
 
-    # parametric.debug(processor)
-    configs = parametric.collect(processor)
+    # simulation.debug(processor)
+    configs = simulation.collect(processor)
 
     for config in configs:
         # "model calibration" mode
-        if parametric.mode == 'calibration':        # todo: call pygmo applicaiton, multi-processing
-            run_pipeline_calibration(parametric, config)
+        if simulation.mode == 'calibration':
+            run_pipeline_calibration(simulation, config)
         # "single run" or "parametric/sensitivity analysis" mode
         else:
             detector = config.pipeline.run_pipeline(config.detector)
@@ -68,14 +67,13 @@ def run(input_filename, output_file, random_seed: int = None):  # key=None, valu
     return output
 
 
-def run_pipeline_calibration(settings, config):
+def run_pipeline_calibration(simulation_settings, config):
     """TBW.
 
-    :param settings:
+    :param simulation_settings:
     :param config:
     :return:
     """
-    # read data you want to fit with your models:
     data_files = ['cold/CCD280-14482-06-02-cryo-irrad-gd15.5V.txt',
                   'cold/CCD280-14482-06-02-cryo-irrad-gd16.5V.txt',
                   'cold/CCD280-14482-06-02-cryo-irrad-gd18.5V.txt',
@@ -84,19 +82,17 @@ def run_pipeline_calibration(settings, config):
         data_path=r'C:/dev/work/cdm/data/better-plato-target-data/',
         data_files=data_files, start=None, end=None)
     weighting_func = None
+    config.detector.charge_injection_profile = injection_profile
+    config.detector.target_output_data = target_output
+    config.detector.weighting_function = weighting_func
+
     fit_range_length = 350
     target_start_fit, target_end_fit = 51, 51 + fit_range_length
     sim_start_fit, sim_end_fit = 1103, 1103 + fit_range_length
     generations = 3
     population_size = 10
 
-    # # FUNC TO ADD MODEL INPUT DATA AND TARGET DATA TO DETECTOR OBJ:
-    config.detector.charge_injection_profile = injection_profile
-    config.detector.target_output_data = target_output
-    config.detector.weighting_function = weighting_func
-
-    fitting = ModelFitting(detector=config.detector,
-                           pipeline=config.pipeline)
+    fitting = ModelFitting(detector=config.detector, pipeline=config.pipeline)
 
     fitting.configure(model_names=['cdm', 'tars'],
                       params_per_model=[[4, 4, 4, 1], [1]],
