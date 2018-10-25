@@ -165,17 +165,17 @@ processor:
         func: pyxel.models.cdm.CDM.cdm
         enabled: true
         arguments:
-         beta_p: _
+         beta_p: 0.1  # _
          beta_s: 0.3
          parallel_cti: true
          serial_cti: false
          chg_inj: true
          para_transfers: 1552
-         tr_p: _
+         tr_p: [0.01] # _
          tr_s: [0.01]
-         nt_p: _
+         nt_p: [1.] # _
          nt_s: [1.]
-         sigma_p: _
+         sigma_p: [1.] # _
          sigma_s: [1.]
 #         parallel_trap_file: pyxel/models/cdm/cdm_euclid_parallel.dat
 #         serial_trap_file: pyxel/models/cdm/cdm_euclid_serial.dat

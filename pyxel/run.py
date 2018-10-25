@@ -91,28 +91,12 @@ def run_pipeline_calibration(settings, config):
     population_size = 10
 
     # # FUNC TO ADD MODEL INPUT DATA AND TARGET DATA TO DETECTOR OBJ:
-    # add_data_to_detector_object(injection_profile,    # TODO
-    #                             target_output,
-    #                             weighting_func
-    #                             )
+    config.detector.charge_injection_profile = injection_profile
+    config.detector.target_output_data = target_output
+    config.detector.weighting_function = weighting_func
 
     fitting = ModelFitting(detector=config.detector,
                            pipeline=config.pipeline)
-
-    # # #################################################
-    # # Model specific input arguements:
-    # traps = 4                           # TODO read these from YAML config automatically
-    # number_of_transfers = 1552
-    # ptp = 947.22e-6  # s
-    # fwc = 1.e6  # e-
-    # vg = 1.62e-10  # cm**3 (half volume!)
-    # # # vth = 1.2175e7            # cm/s, from Alex's code
-    # vth = 1.866029409893778e7  # cm/s, from Thibaut's jupyter notebook
-    # # sigma = 5.e-16              # cm**2 (for all traps)
-    # sigma = None  # cm**2 (for all traps)
-    # fitting.charge_injection(True)
-    # fitting.set_parallel_parameters(traps=traps, t=ptp, vg=vg, fwc=fwc, vth=vth, sigma=sigma)
-    # fitting.set_dimensions(para_transfers=number_of_transfers)
 
     fitting.configure(model_names=['cdm', 'tars'],
                       params_per_model=[[4, 4, 4, 1], [1]],

@@ -8,6 +8,7 @@ from pyxel.detectors.ccd_geometry import CCDGeometry
 from pyxel.detectors.material import Material
 from pyxel.detectors.environment import Environment
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
+from typing import List
 
 
 class CCD(Detector):
@@ -17,7 +18,9 @@ class CCD(Detector):
                  geometry: CCDGeometry,
                  material: Material,
                  environment: Environment,
-                 characteristics: CCDCharacteristics) -> None:
+                 characteristics: CCDCharacteristics,
+                 charge_injection_profile: List = None
+                 ) -> None:
         """TBW.
 
         :param geometry:
@@ -30,13 +33,34 @@ class CCD(Detector):
                          environment=environment,
                          characteristics=characteristics)
 
-    def copy(self):
-        """TBW."""
-        cpy = super().copy()
-        kwargs = {
-            'geometry': cpy.geometry,
-            'material': cpy.material,
-            'environment': cpy.environment,
-            'characteristics': cpy.characteristics,
-        }
-        return CCD(**kwargs)
+        self._charge_injection_profile = None
+        if charge_injection_profile:
+            self._charge_injection_profile = charge_injection_profile
+
+    # def copy(self):
+    #     """TBW."""
+    #     cpy = super().copy()
+    #     kwargs = {
+    #         'geometry': cpy.geometry,
+    #         'material': cpy.material,
+    #         'environment': cpy.environment,
+    #         'characteristics': cpy.characteristics #,
+    #         # '_charge_injection_profile': self._charge_injection_profile
+    #     }
+    #     return CCD(**kwargs)
+
+    @property
+    def charge_injection_profile(self):
+        """TBW.
+
+        :return:
+        """
+        return self._charge_injection_profile
+
+    @charge_injection_profile.setter
+    def charge_injection_profile(self, new_chg_inj_profile):
+        """TBW.
+
+        :param new_chg_inj_profile:
+        """
+        self._charge_injection_profile = new_chg_inj_profile
