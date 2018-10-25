@@ -45,15 +45,20 @@ def run(input_filename, output_file, random_seed: int = None):  # key=None, valu
     #     processor.set(key, value)
 
     # simulation.debug(processor)
-    configs = simulation.collect(processor)
 
-    for config in configs:
-        # "model calibration" mode
-        if simulation.mode == 'calibration':
-            run_pipeline_calibration(simulation, config)
-        # "single run" or "parametric/sensitivity analysis" mode
-        else:
+    if simulation.mode == 'single':
+        detector = processor.pipeline.run_pipeline(processor.detector)
+
+    elif simulation.mode == 'calibration':
+        run_pipeline_calibration(simulation.calibration, processor)
+
+    elif simulation.mode == 'parametric':
+        configs = simulation.parametric_analysis.collect(processor)
+        for config in configs:
             detector = config.pipeline.run_pipeline(config.detector)
+
+    else:
+        raise NotImplementedError
 
     if output_file and detector:
         save_to = util.apply_run_number(output_file)

@@ -4,26 +4,31 @@
 ################
 
 simulation:
-#  mode: single
+###################
+  mode: single
+#  mode: parametric
 #  mode: calibration
-  mode: embedded
-#  mode: sequential
-  steps:
-    -
-      enabled: true
-#      key: pipeline.photon_generation.photon_level.arguments.level
-      key: pipeline.charge_generation.tars.arguments.particle_number
-      values: [2, 3]
-    -
-      enabled: true
-      key: pipeline.photon_generation.photon_level.arguments.level
-      values: [1, 2] # todo: list(range(10, 13))
+###################
 
-#  calibration: none
-#    arguments:
-#      target_data:
-#      fitting_rang:
+  parametric_analysis:
+    parametric_mode: sequential
+#    parametric_mode: embedded
+    steps:
+      -
+        enabled: true
+  #      key: pipeline.photon_generation.photon_level.arguments.level
+        key: pipeline.charge_generation.tars.arguments.particle_number
+        values: [2, 3]
+      -
+        enabled: true
+        key: pipeline.photon_generation.photon_level.arguments.level
+        values: [1, 2] # todo: list(range(10, 13))
 
+  calibration:
+    calibration_mode: pipeline  # single_model
+    arguments:
+      target_output_data:
+      fitting_range:
 
 processor:
   class: pyxel.pipelines.processor.Processor

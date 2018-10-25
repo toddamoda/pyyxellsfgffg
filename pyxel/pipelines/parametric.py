@@ -3,7 +3,6 @@ import itertools
 import typing as t
 
 import esapy_config as om
-# from pyxel.util import objmod as om
 
 
 class StepValues:
@@ -49,21 +48,20 @@ class StepValues:
             yield value
 
 
-class Configuration:
+class ParametricAnalysis:
     """TBW."""
 
-    def __init__(self, mode, steps: t.List[StepValues]) -> None:
-        """TBW.
-
-        :param mode:
-        :param steps:
-        """
+    def __init__(self,
+                 parametric_mode,
+                 steps: t.List[StepValues]
+                 ) -> None:
+        """TBW."""
+        self.parametric_mode = parametric_mode
         self.steps = steps
-        self.mode = mode
 
     def copy(self):
         """TBW."""
-        return Configuration([step.copy() for step in self.steps], self.mode)
+        return Configuration(self.parametric_mode, [step.copy() for step in self.steps])
 
     def get_state_json(self):
         """TBW."""
@@ -71,10 +69,7 @@ class Configuration:
 
     def __getstate__(self):
         """TBW."""
-        return {
-            'steps': self.steps,
-            'mode': self.mode
-        }
+        return {'mode': self.parametric_mode, 'steps': self.steps}
 
     @property
     def enabled_steps(self):
@@ -127,8 +122,8 @@ class Configuration:
         key = step.key
         for value in step:
             processor.set(key, value)
-            if level+1 < len(self.enabled_steps):
-                self._embedded(processor, level+1, configs)
+            if level + 1 < len(self.enabled_steps):
+                self._embedded(processor, level + 1, configs)
             else:
                 configs.append(om.copy_processor(processor))
 
@@ -136,19 +131,10 @@ class Configuration:
 
     def collect(self, processor):
         """TBW."""
-        if self.mode == 'embedded':
+        if self.parametric_mode == 'embedded':
             configs = self._embedded(om.copy_processor(processor))
-
-        elif self.mode == 'sequential':
+        elif self.parametric_mode == 'sequential':
             configs = self._sequential(om.copy_processor(processor))
-
-        elif self.mode == 'single':
-            # configs = [om.copy_processor(processor)]
-            configs = [processor]
-
-        elif self.mode == 'calibration':
-            # configs = [om.copy_processor(processor)]
-            configs = [processor]
         else:
             configs = []
 
@@ -167,3 +153,21 @@ class Configuration:
             print('%d: %r' % (i, values))
             result.append((i, values))
         return result
+
+
+class Configuration:
+    """TBW."""
+
+    def __init__(self, mode,
+                 parametric_analysis=None,
+                 calibration=None
+                 ) -> None:
+        """TBW.
+
+        :param mode:
+        :param parametric_analysis:
+        :param calibration:
+        """
+        self.mode = mode
+        self.parametric_analysis = parametric_analysis
+        self.calibration = calibration
