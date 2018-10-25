@@ -71,62 +71,60 @@ def run(input_filename, output_file, random_seed: int = None):  # key=None, valu
     return output
 
 
-def run_pipeline_calibration(simulation_settings, config):
+def run_pipeline_calibration(calib, config):
     """TBW.
 
-    :param simulation_settings:
+    :param calib:
     :param config:
     :return:
     """
+    # TODO these are still CDM SPECIFIC!!!
     data_files = ['cold/CCD280-14482-06-02-cryo-irrad-gd15.5V.txt',
                   'cold/CCD280-14482-06-02-cryo-irrad-gd16.5V.txt',
                   'cold/CCD280-14482-06-02-cryo-irrad-gd18.5V.txt',
                   'cold/CCD280-14482-06-02-cryo-irrad-gd19.5V.txt']
-    injection_profile, target_output, target_error = read_plato_data(
-        data_path=r'C:/dev/work/cdm/data/better-plato-target-data/',
+    injection_profile, target_output, target_error = read_plato_data(       # TODO
+        data_path=calib.args['target_data'],
         data_files=data_files, start=None, end=None)
-    weighting_func = None
+    weighting_func = calib.args['weighting_func']
+
     config.detector.charge_injection_profile = injection_profile
     config.detector.target_output_data = target_output
     config.detector.weighting_function = weighting_func
 
-    fit_range_length = 350
-    target_start_fit, target_end_fit = 51, 51 + fit_range_length
-    sim_start_fit, sim_end_fit = 1103, 1103 + fit_range_length
-    generations = 3
-    population_size = 10
-
     fitting = ModelFitting(detector=config.detector, pipeline=config.pipeline)
 
-    fitting.configure(model_names=['cdm', 'tars'],
-                      params_per_model=[[4, 4, 4, 1], [1]],
-                      variables=[['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['initial_energy']],
-                      var_arrays=[[True, True, True, False], [False]],
-                      var_log=[[True, True, True, False], [False]],
-                      model_input=injection_profile,                    # TODO should be added to detector obj
-                      target_output=target_output,                      # TODO should be added to detector obj
-                      generations=generations,
-                      population_size=population_size)
+    fitting.configure(model_names=calib.args['model_names'],
+                      variables=calib.args['variables'],
+                      var_arrays=calib.args['var_arrays'],
+                      var_log=calib.args['var_log'],
+                      params_per_variable=calib.args['params_per_variable'],
+                      model_input=injection_profile,
+                      target_output=target_output,
+                      generations=calib.args['generations'],
+                      population_size=calib.args['population_size'],
+                      target_fit_range=calib.args['target_fit_range'],
+                      out_fit_range=calib.args['output_fit_range']
+                      )
 
-    fitting.set_bound(low_val=[[1.e-3, 1.e-2, 1.e-20, 0.], [1.]],
-                      up_val=[[2., 1.e+1, 1.e-15, 1.], [10.]])
+    fitting.set_bound(low_val=calib.args['lower_boundary'],
+                      up_val=calib.args['upper_boundary'])
 
-    fitting.set_simulated_fit_range((sim_start_fit, sim_end_fit))
-    fitting.set_target_fit_range((target_start_fit, target_end_fit))
-    fitting.set_normalization()
+    # fitting.set_normalization()                                       # TODO
+
     fitting.save_champions_in_file()
     if weighting_func is not None:
         fitting.set_weighting_function(weighting_func)
 
     prob = pg.problem(fitting)
     print('evolution started ...')
-    opt_algorithm = pg.sade(gen=generations)
+    opt_algorithm = pg.sade(gen=calib.args['generations'])
     algo = pg.algorithm(opt_algorithm)
-    pop = pg.population(prob, size=population_size)
+    pop = pg.population(prob, size=calib.args['population_size'])
     pop = algo.evolve(pop)
     champion_x = pop.champion_x
     champion_f = pop.champion_f
-    print('champion_x: ', champion_x,
+    print('champion_x: ', champion_x,           # TODO log
           '\nchampion_f: ', champion_f)
 
 

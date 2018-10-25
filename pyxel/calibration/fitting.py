@@ -18,7 +18,7 @@ class ModelFitting:
         self.pipe = pipeline
 
         self.model_name_list = []           # type: List[str]
-        self.params_per_model = []          # type: List[List[int]]
+        self.params_per_variable = []          # type: List[List[int]]
 
         self.variable_name_lst = []         # type: List[List[str]]
         self.is_var_array = []              # type: List[List[bool]]
@@ -82,18 +82,21 @@ class ModelFitting:
 
     def configure(self,
                   model_names,
-                  params_per_model,
+                  params_per_variable,
                   variables,
                   var_arrays,
                   var_log,
                   model_input,
                   target_output,
                   generations,
-                  population_size):
+                  population_size,
+                  target_fit_range,
+                  out_fit_range
+                  ):
         """TBW.
 
         :param model_names: list
-        :param params_per_model: list
+        :param params_per_variable: list
         :param variables: list
         :param var_arrays: list
         :param var_log: list
@@ -101,10 +104,12 @@ class ModelFitting:
         :param target_output: list
         :param generations: int
         :param population_size: int
+        :param target_fit_range: slice
+        :param out_fit_range: slice
         :return:
         """
         self.model_name_list = model_names
-        self.params_per_model = params_per_model
+        self.params_per_variable = params_per_variable
 
         self.variable_name_lst = variables
         self.is_var_array = var_arrays
@@ -117,9 +122,12 @@ class ModelFitting:
         self.target_data = target_output
         self.datasets = len(target_output)
 
+        self.targ_fit_range = target_fit_range
+        self.sim_fit_range = out_fit_range
+
         self.sort_by_var_name = self.variable_name_lst[0][0]  # todo
         self.champion_f_list = np.zeros((1, 1))
-        self.champion_x_list = np.zeros((1, np.sum(np.sum(self.params_per_model))))
+        self.champion_x_list = np.zeros((1, np.sum(np.sum(self.params_per_variable))))
 
     def set_normalization(self):
         """TBW.
@@ -139,21 +147,15 @@ class ModelFitting:
         self.weighting = True
         self.weighting_function = func.reshape(len(func), 1)
 
-    def set_simulated_fit_range(self, fit_range):
-        """TBW.
-
-        :param fit_range: tuple
-        :return:
-        """
-        self.sim_fit_range = slice(fit_range[0], fit_range[1])
-
-    def set_target_fit_range(self, fit_range):
-        """TBW.
-
-        :param fit_range: tuple
-        :return:
-        """
-        self.targ_fit_range = slice(fit_range[0], fit_range[1])
+    # def set_fit_ranges(self, target_range, out_range):
+    #     """TBW.
+    #
+    #     :param target_range: slice
+    #     :param out_range: slice
+    #     :return:
+    #     """
+    #     self.targ_fit_range = target_range
+    #     self.sim_fit_range = out_range
 
     def set_bound(self, low_val, up_val):
         """TBW.
@@ -171,8 +173,8 @@ class ModelFitting:
                 else:
                     lo_bd, up_bd = [low_val[i][j]], [up_val[i][j]]
                 if self.is_var_array[i][j]:
-                    lo_bd = self.params_per_model[i][j] * lo_bd
-                    up_bd = self.params_per_model[i][j] * up_bd
+                    lo_bd = self.params_per_variable[i][j] * lo_bd
+                    up_bd = self.params_per_variable[i][j] * up_bd
                 self.lbd += lo_bd
                 self.ubd += up_bd
 
@@ -264,12 +266,12 @@ class ModelFitting:
         :return:
         """
         split_list = []
-        for i in range(len(self.params_per_model)):
-            for j in range(len(self.params_per_model[i])):
+        for i in range(len(self.params_per_variable)):
+            for j in range(len(self.params_per_variable[i])):
                 if i == 0 and j == 0:
-                    split_list += [self.params_per_model[0][0]]
+                    split_list += [self.params_per_variable[0][0]]
                 else:
-                    split_list += [split_list[j-1] + self.params_per_model[i][j]]
+                    split_list += [split_list[j-1] + self.params_per_variable[i][j]]
 
         subarrays = np.split(parameter, split_list)
         subarrays = subarrays[:-1]
