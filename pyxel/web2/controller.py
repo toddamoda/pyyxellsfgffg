@@ -147,7 +147,7 @@ class Controller(guiconfig.Controller):
         """
         for model_group_key in pipeline:
             model_dict = {}
-            if isinstance(pipeline[model_group_key], list):
+            if isinstance(pipeline[model_group_key], list) and model_group_key != '_model_groups':
                 for model in pipeline[model_group_key]:
                     model_dict[model['name']] = model
             pipeline[model_group_key] = model_dict

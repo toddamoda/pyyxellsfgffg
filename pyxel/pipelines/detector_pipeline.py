@@ -22,9 +22,9 @@ class DetectionPipeline:
                  charge_collection: ModelGroup = None,
                  charge_measurement: ModelGroup = None,
                  readout_electronics: ModelGroup = None,
-                 _name=None,
-                 _model_groups=None,
-                 _model_steps=None,
+                 _name=None,                                # TODO
+                 _model_groups=None,                        # TODO
+                 _model_steps=None,                         # TODO
                  doc=None) -> None:
         """TBW.
 
@@ -44,10 +44,10 @@ class DetectionPipeline:
         self.charge_measurement = charge_measurement
         self.readout_electronics = readout_electronics
 
-        self._name = ''
-        self._model_groups = []  # type: t.List[str]
-        self._model_steps = {}   # type: t.Dict[str, t.List[str]]
-        self._log = logging.getLogger(__name__)
+        self._name = ''                                             # TODO
+        self._model_groups = []  # type: t.List[str]                # TODO
+        self._model_steps = {}   # type: t.Dict[str, t.List[str]]   # TODO
+        self._log = logging.getLogger(__name__)                     # TODO
 
     @property
     def name(self):
@@ -149,6 +149,7 @@ class DetectionPipeline:
                     return models_obj.models[i]
                     # return models_obj.models[i].func
                     # return models_obj.models[i].function
+
 
     def run_model_group(self, name, detector):
         """TBW.

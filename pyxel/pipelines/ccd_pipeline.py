@@ -22,8 +22,8 @@ class CCDDetectionPipeline(DetectionPipeline):
         super().__init__(**kwargs)
         self.charge_transfer = charge_transfer
 
-        self._name = 'ccd'
-        self._model_groups = ['photon_generation',
+        self._name = 'ccd'                                          # TODO
+        self._model_groups = ['photon_generation',                  # TODO
                               'optics',
                               'charge_generation',
                               'charge_collection',
@@ -31,7 +31,7 @@ class CCDDetectionPipeline(DetectionPipeline):
                               'charge_measurement',
                               'readout_electronics']
 
-        self._model_steps = {
+        self._model_steps = {                                           # TODO
             'photon_generation':    ['load_image', 'photon_level',
                                      'shot_noise'],
             'optics':               [],
@@ -53,9 +53,9 @@ class CCDDetectionPipeline(DetectionPipeline):
         kwargs = super().__getstate__()
         kwargs_obj = {
             'charge_transfer': self.charge_transfer,
-            '_name': self._name,
-            '_model_groups': self._model_groups,
-            '_model_steps': self._model_steps
+            '_name': self._name,                            # TODO
+            '_model_groups': self._model_groups,            # TODO
+            '_model_steps': self._model_steps               # TODO
         }
         return {**kwargs, **kwargs_obj}
 

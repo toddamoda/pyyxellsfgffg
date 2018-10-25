@@ -5,8 +5,8 @@
 
 simulation:
 #  mode: single
-  mode: calibration
-#  mode: embedded
+#  mode: calibration
+  mode: embedded
 #  mode: sequential
   steps:
     -
@@ -15,7 +15,7 @@ simulation:
       key: pipeline.charge_generation.tars.arguments.particle_number
       values: [2, 3]
     -
-      enabled: false
+      enabled: true
       key: pipeline.photon_generation.photon_level.arguments.level
       values: [1, 2] # todo: list(range(10, 13))
 
@@ -134,7 +134,7 @@ processor:
       -
         name: tars
         func: pyxel.models.tars.tars.run_tars
-        enabled: false
+        enabled: true
         arguments:
           simulation_mode: cosmic_ray   # snowflakes
           running_mode: stepsize  # stopping  # plotting  # geant4

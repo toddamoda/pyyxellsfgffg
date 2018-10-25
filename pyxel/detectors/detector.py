@@ -74,18 +74,6 @@ class Detector:
     #     }
     #     return Detector(**kwargs)
     #
-    # def __getstate__(self):
-    #     """TBW.
-    #
-    #     :return:
-    #     """
-    #     return {
-    #         'geometry': self.geometry,
-    #         'material': self.material,
-    #         'environment': self.environment,
-    #         'characteristics': self.characteristics
-    #     }
-    #
     # # TODO: create unittests for this method
     # def __eq__(self, obj) -> bool:
     #     """TBW.
@@ -96,6 +84,19 @@ class Detector:
     #     assert isinstance(obj, Detector)
     #     return self.__getstate__() == obj.__getstate__()
     ######################################
+
+    def __getstate__(self):
+        """TBW.
+
+        This function is used by the GUI.
+        :return:
+        """
+        return {
+            'geometry': self.geometry,
+            'material': self.material,
+            'environment': self.environment,
+            'characteristics': self.characteristics
+        }
 
     def get_state_json(self):
         """TBW.
