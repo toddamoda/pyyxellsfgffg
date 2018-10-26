@@ -5,7 +5,7 @@ from pathlib import Path
 # import argparse
 # import typing as t  # noqa: F401
 
-import tornado.web            # TODO get rid of tornado dependency
+# import tornado.web
 
 import esapy_web.webapp2.modules.guiconfig.guiconfig_serializer as serializer
 from esapy_dispatcher import dispatcher
@@ -120,8 +120,8 @@ def run_web_server(port=9999, js9_dir='../pyxel_js9', data_dir='../data'):
     app_handlers = [
         ('/pipeline/(.*)', PipelinePageHandler, {}, None),
         # ('/pyxel/(.*)', webapp.MultiStaticPage, {}, None),
-        ('/js9/(.*)', tornado.web.StaticFileHandler, {'path': js9_dir}, None),          # TODO get rid of tornado dependency
-        ('/data/(.*)', tornado.web.StaticFileHandler, {'path': data_dir}, 'data'),      # TODO get rid of tornado dependency
+        # ('/js9/(.*)', tornado.web.StaticFileHandler, {'path': js9_dir}, None),      # TODO do we need this?
+        # ('/data/(.*)', tornado.web.StaticFileHandler, {'path': data_dir}, 'data'),  # TODO do we need this?
     ]
     modules.settings['gui_controller'] = ctrl
     modules.settings['template_paths'].append(web_dir)

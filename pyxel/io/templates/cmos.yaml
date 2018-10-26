@@ -17,6 +17,14 @@ simulation:
         enabled: false
         key:
         values:
+      -
+        enabled: false
+        key:
+        values:
+      -
+        enabled: false
+        key:
+        values:
 
   calibration:
     calibration_mode:

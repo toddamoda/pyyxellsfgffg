@@ -63,9 +63,9 @@ class ParametricAnalysis:
         """TBW."""
         return Configuration(self.parametric_mode, [step.copy() for step in self.steps])
 
-    # def get_state_json(self):
-    #     """TBW."""
-    #     return om.get_state_dict(self)
+    def get_state_json(self):
+        """TBW."""
+        return om.get_state_dict(self)
 
     def __getstate__(self):
         """TBW."""
