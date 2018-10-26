@@ -122,8 +122,11 @@ class ModelFitting:
         self.target_data = target_output
         self.datasets = len(target_output)
 
-        self.targ_fit_range = target_fit_range
-        self.sim_fit_range = out_fit_range
+        if (target_fit_range[1] - target_fit_range[0]) == (out_fit_range[1] - out_fit_range[0]):
+            self.targ_fit_range = slice(target_fit_range[0], target_fit_range[1])
+            self.sim_fit_range = slice(out_fit_range[0], out_fit_range[1])
+        else:
+            raise AttributeError('Fitting ranges have different lengths')
 
         self.sort_by_var_name = self.variable_name_lst[0][0]  # todo
         self.champion_f_list = np.zeros((1, 1))

@@ -19,9 +19,6 @@ class Calibration:
         self.calibration_mode = calibration_mode
         self.args = arguments
 
-        self.args['target_fit_range'] = slice(self.args['target_fit_range'][0], self.args['target_fit_range'][1])
-        self.args['output_fit_range'] = slice(self.args['output_fit_range'][0], self.args['output_fit_range'][1])
-
 
 def run_pipeline_calibration(calib, config):
     """TBW.

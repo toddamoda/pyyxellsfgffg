@@ -14,8 +14,6 @@ from esapy_web.webapp2.modules import guiconfig
 from esapy_web.webapp2.modules import sequencer
 from esapy_web.webapp2.modules import dispatch
 
-# from esapy_web.webapp2 import signals
-
 import pyxel
 import pyxel.pipelines.processor
 from pyxel.pipelines.model_registry import registry

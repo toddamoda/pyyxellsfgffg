@@ -10,7 +10,7 @@ import esapy_config as om  # noqa: F401
 from esapy_web.webapp2.modules import guiconfig
 from esapy_web.webapp2.modules import dispatch
 
-from pyxel import util
+# from pyxel import util
 from pyxel.pipelines.processor import Processor
 from pyxel.pipelines.model_registry import registry
 from pyxel.pipelines.model_group import ModelFunction
@@ -58,7 +58,7 @@ class Controller(guiconfig.Controller):
         self._modified_time = None  # type: t.Optional[float]
         self._items = None          # type: t.Optional[dict]
         self.processor = processor  # type: t.Optional[Processor]
-        self.parametric = None
+        self.simulation = None
         self.dispatcher = dispatcher
 
         sender = guiconfig.Signals.SENDER_CONFIG
@@ -108,11 +108,11 @@ class Controller(guiconfig.Controller):
         if name in self.pipeline_paths:
             config_path = self.pipeline_paths[name]
             cfg = om.load(config_path)
-            self.parametric = cfg['simulation']
+            self.simulation = cfg['simulation']
             self.processor = cfg['processor']
             registry.import_models(self.processor)
         else:
-            self.parametric = None
+            self.simulation = None
             self.processor = None
 
     @staticmethod
@@ -175,7 +175,7 @@ class Controller(guiconfig.Controller):
     def load_config(self, path):
         """TBW."""
         cfg = om.load(Path(path))
-        self.parametric = cfg['simulation']
+        self.simulation = cfg['simulation']
         self.processor = cfg['processor']
         self.get_state()
 
@@ -183,7 +183,7 @@ class Controller(guiconfig.Controller):
         """TBW."""
         cfg = {
             'processor': self.processor,
-            'simulation': self.parametric,
+            'simulation': self.simulation,
         }
         output = om.dump(cfg)
         print(output)
@@ -288,7 +288,7 @@ class Controller(guiconfig.Controller):
 
     def set_sequence_mode(self, run_mode):
         """TBW."""
-        self.parametric.mode = run_mode
+        self.simulation.parametric_analysis.parametric_mode = run_mode
 
     def set_sequence(self, index, key, values, enabled):
         """TBW.
@@ -298,8 +298,8 @@ class Controller(guiconfig.Controller):
         :param values:
         :param enabled:
         """
-        if self.parametric:
-            step = self.parametric.steps[index]
+        if self.simulation:
+            step = self.simulation.parametric_analysis.steps[index]
             step.key = key
             step.enabled = enabled
             step.values = values
@@ -331,7 +331,7 @@ class Controller(guiconfig.Controller):
         if self.processor:
             result = {
                 'processor': self.processor.get_state_json(),
-                'simulation': self.parametric.get_state_json(),
+                'simulation': self.simulation.get_state_json(),
             }
             self._rewire_pipeline_dict(result['processor']['pipeline'])
 
@@ -388,30 +388,30 @@ class Controller(guiconfig.Controller):
         # is_sequence = True in [sequence['enabled'] for sequence in self.sequence]
         try:
             self._is_running = True
-            if self.parametric:
+            if self.simulation:
                 self.progress('state', {'value': 'running', 'state': 1})
-                configs = self.parametric.collect(self.processor)
-                configs_len = len(list(configs))
-                configs = self.parametric.collect(self.processor)
-                for i, config in enumerate(configs):
-                    result = {
-                        'processor': config.get_state_json(),
-                        'simulation': self.parametric.get_state_json(),
-                    }
-                    id_value_dict = om.get_state_ids(result)
-                    self.announce('state', 'all', id_value_dict)
-
-                    self.progress('state', {'value': 'running (%d of %d)' % (i+1, configs_len), 'state': 1})
-                    detector = config.pipeline.run_pipeline(config.detector)
-
-                    if output_file:
-                        save_to = util.apply_run_number(output_file)
-                        out = util.FitsFile(save_to)
-                        out.save(detector.signal, header=None, overwrite=True)
-                        self.dispatcher.emit('*', signal=OUTPUT_DATA_DIR)(save_to)
-                        self.progress('state', {'value': 'saved', 'state': 2, 'file': save_to})
-                        # output.append(output_file)
-                        self.progress('state', {'value': 'completed', 'state': 0})
+                # configs = self.simulation.parametric_analysis.collect(self.processor)
+                # configs_len = len(list(configs))
+                # configs = self.simulation.parametric_analysis.collect(self.processor)
+                # for i, config in enumerate(configs):
+                #     result = {
+                #         'processor': config.get_state_json(),
+                #         'simulation': self.simulation.get_state_json(),
+                #     }
+                #     id_value_dict = om.get_state_ids(result)
+                #     self.announce('state', 'all', id_value_dict)
+                #
+                #     self.progress('state', {'value': 'running (%d of %d)' % (i+1, configs_len), 'state': 1})
+                #     detector = config.pipeline.run_pipeline(config.detector)
+                #
+                #     if output_file:
+                #         save_to = util.apply_run_number(output_file)
+                #         out = util.FitsFile(save_to)
+                #         out.save(detector.signal, header=None, overwrite=True)
+                #         self.dispatcher.emit('*', signal=OUTPUT_DATA_DIR)(save_to)
+                #         self.progress('state', {'value': 'saved', 'state': 2, 'file': save_to})
+                #         # output.append(output_file)
+                #         self.progress('state', {'value': 'completed', 'state': 0})
 
         except Exception as exc:
             self._log.exception(exc)
