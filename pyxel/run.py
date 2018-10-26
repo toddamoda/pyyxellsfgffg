@@ -16,6 +16,7 @@ import pyxel
 import pyxel.pipelines.processor
 from pyxel import util
 from pyxel.calibration.calibration import run_pipeline_calibration
+from pyxel.web2.runweb import run_web_server
 
 
 def run(input_filename, output_file, random_seed: int = None):  # key=None, value=None
@@ -72,16 +73,16 @@ def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter,
                                      description=__doc__)
 
-    parser.add_argument('command', nargs='?', default='run',
-                        choices=['run', 'export'])
-
     parser.add_argument('-v', '--verbosity', action='count', default=0,
                         help='Increase output verbosity')
+
     parser.add_argument('--version', action='version',
                         version='%(prog)s (version {version})'.format(version=pyxel.__version__))
 
+    parser.add_argument('-g', '--gui', default=False, help='run Graphical User Interface')
+
     parser.add_argument('-c', '--config', required=True,
-                        help='Configuration file to load (YAML or INI)')
+                        help='Configuration file to load (YAML)')
 
     parser.add_argument('-o', '--output',
                         help='output file')
@@ -89,22 +90,20 @@ def main():
     parser.add_argument('-s', '--seed',
                         help='Define random seed for the framework')
 
+    parser.add_argument('-p', '--port', default=9999, type=int, help='The port to run the web server on')
+
     opts = parser.parse_args()
 
     # Set logger
     log_level = [logging.ERROR, logging.INFO, logging.DEBUG][min(opts.verbosity, 2)]
     log_format = '%(asctime)s - %(name)s - %(funcName)s - %(thread)d - %(levelname)s - %(message)s'
+    # del logging.root.handlers[:]                                  # todo: what is this???
     logging.basicConfig(level=log_level, format=log_format)
 
-    if opts.command == 'run':
+    if opts.gui:
+        run_web_server(opts.port)
+    else:
         run(opts.config, opts.output, int(opts.seed))
-
-    elif opts.command == 'export':
-        if opts.type is None:
-            print('Missing argument -t/--type')
-            parser.print_help()
-            return
-        # run_export(opts.config, opts.output, opts.type)
 
 
 if __name__ == '__main__':

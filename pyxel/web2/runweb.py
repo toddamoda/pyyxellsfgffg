@@ -1,11 +1,11 @@
 """TBW."""
 
 import logging
-import argparse
 from pathlib import Path
-import typing as t  # noqa: F401
+# import argparse
+# import typing as t  # noqa: F401
 
-import tornado.web
+import tornado.web            # TODO get rid of tornado dependency
 
 import esapy_web.webapp2.modules.guiconfig.guiconfig_serializer as serializer
 from esapy_dispatcher import dispatcher
@@ -14,9 +14,10 @@ from esapy_web.webapp2.modules import guiconfig
 from esapy_web.webapp2.modules import sequencer
 from esapy_web.webapp2.modules import dispatch
 
-import pyxel
-import pyxel.pipelines.processor
-from pyxel.pipelines.model_registry import registry
+# import pyxel
+# import pyxel.pipelines.processor
+from pyxel.pipelines.model_registry import registry         # TODO get rid of pyxel dependency
+
 
 from pyxel.web2 import controller
 
@@ -80,7 +81,7 @@ class PipelinePageHandler(guiconfig.IndexPageHandler):
 
             pipeline = processor.pipeline
             for group in pipeline.model_group_names:
-                items = registry.get_group(pipeline.name, group)
+                items = registry.get_group(pipeline.name, group)             # TODO get rid of pyxel dependency
                 for item in items:
                     prefix = 'pipeline.' + group + '.' + item.name + '.arguments'
                     gui_def = serializer.Serializer.create_section_from_func_def(item, prefix)
@@ -101,7 +102,7 @@ class PipelinePageHandler(guiconfig.IndexPageHandler):
         return cfg['gui']
 
 
-def run_web_server(port=9999, js9_dir=None, data_dir=None):
+def run_web_server(port=9999, js9_dir='../pyxel_js9', data_dir='../data'):
     """TBW.
 
     :param port:
@@ -119,15 +120,15 @@ def run_web_server(port=9999, js9_dir=None, data_dir=None):
     app_handlers = [
         ('/pipeline/(.*)', PipelinePageHandler, {}, None),
         # ('/pyxel/(.*)', webapp.MultiStaticPage, {}, None),
-        ('/js9/(.*)', tornado.web.StaticFileHandler, {'path': js9_dir}, None),
-        ('/data/(.*)', tornado.web.StaticFileHandler, {'path': data_dir}, 'data'),
+        ('/js9/(.*)', tornado.web.StaticFileHandler, {'path': js9_dir}, None),          # TODO get rid of tornado dependency
+        ('/data/(.*)', tornado.web.StaticFileHandler, {'path': data_dir}, 'data'),      # TODO get rid of tornado dependency
     ]
     modules.settings['gui_controller'] = ctrl
     modules.settings['template_paths'].append(web_dir)
     modules.handlers.extend(app_handlers)
 
     api = webapp.WebApplication(modules.handlers, modules.settings)
-    thread = webapp.TornadoServer(api, ('0.0.0.0', port))
+    thread = webapp.TornadoServer(api, ('0.0.0.0', port), additional_url='/pipeline/ccd')  # todo: added by David
     try:
         thread.run()
     except KeyboardInterrupt:
@@ -173,36 +174,36 @@ def run_web_server(port=9999, js9_dir=None, data_dir=None):
 #         thread.stop()
 
 
-def main():
-    """TBW."""
-    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-                                     description=__doc__)
-
-    parser.add_argument('-p', '--port', default=9999, type=int,
-                        help='The port to run the web server on')
-
-    parser.add_argument('-d', '--data-dir', default='../data',
-                        help='Data directory')
-
-    parser.add_argument('-j', '--js9-dir', default='../pyxel_js9',
-                        help='JS9 directory')
-
-    parser.add_argument('-v', '--verbosity', action='count', default=0,
-                        help='Increase output verbosity')
-
-    parser.add_argument('--version', action='version',
-                        version='%(prog)s (version {version})'.format(version=pyxel.__version__))
-
-    opts = parser.parse_args()
-
-    # Set logger
-    log_level = [logging.ERROR, logging.INFO, logging.DEBUG][min(opts.verbosity, 2)]
-    log_format = '%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(thread)d - %(message)s'
-    del logging.root.handlers[:]
-    logging.basicConfig(level=log_level, format=log_format)
-
-    run_web_server(opts.port, opts.js9_dir, opts.data_dir)
-
-
-if __name__ == '__main__':
-    main()
+# def main():
+#     """TBW."""
+#     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+#                                      description=__doc__)
+#
+#     parser.add_argument('-p', '--port', default=9999, type=int,
+#                         help='The port to run the web server on')
+#
+#     parser.add_argument('-d', '--data-dir', default='../data',
+#                         help='Data directory')
+#
+#     parser.add_argument('-j', '--js9-dir', default='../pyxel_js9',
+#                         help='JS9 directory')
+#
+#     parser.add_argument('-v', '--verbosity', action='count', default=0,
+#                         help='Increase output verbosity')
+#
+#     parser.add_argument('--version', action='version',
+#                         version='%(prog)s (version {version})'.format(version=pyxel.__version__))
+#
+#     opts = parser.parse_args()
+#
+#     # Set logger
+#     log_level = [logging.ERROR, logging.INFO, logging.DEBUG][min(opts.verbosity, 2)]
+#     log_format = '%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(thread)d - %(message)s'
+#     del logging.root.handlers[:]
+#     logging.basicConfig(level=log_level, format=log_format)
+#
+#     run_web_server(opts.port, opts.js9_dir, opts.data_dir)
+#
+#
+# if __name__ == '__main__':
+#     main()
