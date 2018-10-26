@@ -168,7 +168,7 @@ processor:
       -
         name: tars
         func: pyxel.models.tars.tars.run_tars
-        enabled: true
+        enabled: false
         arguments:
           simulation_mode: cosmic_ray   # snowflakes
           running_mode: stepsize  # stopping  # plotting  # geant4

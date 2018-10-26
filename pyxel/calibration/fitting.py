@@ -150,16 +150,6 @@ class ModelFitting:
         self.weighting = True
         self.weighting_function = func.reshape(len(func), 1)
 
-    # def set_fit_ranges(self, target_range, out_range):
-    #     """TBW.
-    #
-    #     :param target_range: slice
-    #     :param out_range: slice
-    #     :return:
-    #     """
-    #     self.targ_fit_range = target_range
-    #     self.sim_fit_range = out_range
-
     def set_bound(self, low_val, up_val):
         """TBW.
 
@@ -206,20 +196,86 @@ class ModelFitting:
         """
         self.chg_inj = flag
 
-    def calculate_least_squares(self, simulated_data, dataset):
+    def calculate_fitness(self, detector):          # TODO
         """TBW.
 
-        :param simulated_data: 2d np.array
+        :param detector:
+        :return:
+        """
+        overall_fitness = 0.
+        fitness = 0.
+        # self.fitness_mode = 'residuals'
+        self.fitness_mode = 'least-squares'
+        self.sim_output = 'fits'
+
+        # what is the simulated data we want to compare?
+        if self.sim_output == 'fits' or 'image':
+            simulated_data = detector.image
+        else:
+            raise NotImplementedError
+
+        # is the target / simulated data a list or a np.array or a pandas df?        # todo
+
+        # it it 1d or 2d data?
+        try:
+            row, col = simulated_data.shape
+            # data_dimension = 2
+        except AttributeError:
+            len(simulated_data)
+            # data_dimension = 1
+
+        # what if the target_output data is a list of arrays/lists????   # todo
+
+        if self.fitness_mode == 'residuals':
+            fitness = self.residuals(simulated_data)
+        elif self.fitness_mode == 'least-squares':
+            fitness = self.least_squares_new(simulated_data)
+        elif self.fitness_mode == 'chi-square':
+            raise NotImplementedError
+        else:
+            raise AttributeError
+
+        overall_fitness = fitness
+        return overall_fitness
+
+    def residuals(self, simulated_data, dimension=1):           # TODO
+        """TBW.
+
+        :param simulated_data:
+        :return:
+        """
+        return np.sum(self.target_data - simulated_data)
+
+    def least_squares_new(self, simulated_data, dimension=1):           # TODO
+        """TBW.
+
+        :param simulated_data:
+        :return:
+        """
+        diff = self.target_data - simulated_data
+        return np.sum(diff * diff)
+
+    def least_squares(self, simulated_data, dataset=None):   # TODO
+        """TBW.
+
+        :param simulated_data:
         :param dataset: int
         :return:
         """
         input_array = simulated_data[self.sim_fit_range]
 
-        if self.normalization:
-            input_array = self.normalize(input_array, dataset=dataset)
-            target = self.target_data_norm[dataset][self.targ_fit_range]
+        if dataset is not None:
+            if self.normalization:
+                input_array = self.normalize(input_array, dataset=dataset)
+                target = self.target_data_norm[dataset][self.targ_fit_range]
+            else:
+                target = self.target_data[dataset][self.targ_fit_range]
         else:
-            target = self.target_data[dataset][self.targ_fit_range]
+            if self.normalization:
+                input_array = self.normalize(input_array)               # TODO
+                target = self.target_data_norm[self.targ_fit_range]
+            else:
+                target = self.target_data[self.targ_fit_range]
 
         diff = target - input_array
         diff_square = diff * diff
@@ -251,10 +307,9 @@ class ModelFitting:
         # # If we want to optimize model arguments:
         self.update_pipeline_object(parameter_lst)
 
-        self.det = self.pipe.run_pipeline(self.det)
+        new_det = self.pipe.run_pipeline(self.det)
 
-        overall_fitness = 0.
-        # overall_fitness = self.calculate_least_squares(self.det)          # TODO update
+        overall_fitness = self.calculate_fitness(new_det)
 
         self.population_and_champions(parameter_lst, overall_fitness)
 

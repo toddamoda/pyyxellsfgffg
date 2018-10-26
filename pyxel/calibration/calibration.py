@@ -1,6 +1,6 @@
 """TBW."""
 import pygmo as pg
-
+from astropy.io import fits
 from pyxel.calibration.fitting import ModelFitting
 from pyxel.calibration.inputdata import read_plato_data
 
@@ -35,7 +35,11 @@ def run_pipeline_calibration(calib, config):
     injection_profile, target_output, target_error = read_plato_data(       # TODO
         data_path=calib.args['target_data'],
         data_files=data_files, start=None, end=None)
+
     weighting_func = calib.args['weighting_func']
+
+    # target_output = fits.getdata(calib.args['target_data'])
+    target_output = fits.getdata('pyxel/results.fits')      # 100 x 100 pixels
 
     config.detector.charge_injection_profile = injection_profile
     config.detector.target_output_data = target_output
