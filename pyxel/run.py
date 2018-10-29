@@ -19,14 +19,12 @@ from pyxel.calibration.calibration import run_pipeline_calibration
 from pyxel.web2.runweb import run_web_server
 
 
-def run(input_filename, output_file, random_seed: int = None):  # key=None, value=None
+def run(input_filename, output_file: str = None, random_seed: int = None):  # key=None, value=None
     """TBW.
 
     :param input_filename:
     :param output_file:
     :param random_seed:
-    :param key:
-    :param value:
     :return:
     """
     if random_seed:
@@ -81,9 +79,9 @@ def main():
 
     parser.add_argument('-g', '--gui', default=False, type=bool, help='run Graphical User Interface')
 
-    parser.add_argument('-c', '--config', help='Configuration file to load (YAML)')
+    parser.add_argument('-c', '--config', type=str, help='Configuration file to load (YAML)')
 
-    parser.add_argument('-o', '--output', help='output file')
+    parser.add_argument('-o', '--output', type=str, help='output file')
 
     parser.add_argument('-s', '--seed', type=int, help='Random seed for the framework')
 
@@ -97,10 +95,14 @@ def main():
     # del logging.root.handlers[:]                                  # todo: what is this???
     logging.basicConfig(level=log_level, format=log_format)
 
+    print('\n*** Pyxel ***\n')
+
     if opts.gui:
-        run_web_server(opts.port)
+        run_web_server(opts.port)  # todo: add opts.config, opts.output, opts.seed as optional args
+    elif opts.config:
+        run(opts.config, opts.output, opts.seed)
     else:
-        run(opts.config, opts.output, int(opts.seed))
+        print('Either define a YAML config file or use the GUI')
 
 
 if __name__ == '__main__':

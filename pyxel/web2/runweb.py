@@ -128,7 +128,8 @@ def run_web_server(port=9999, js9_dir='../pyxel_js9', data_dir='../data'):
     modules.handlers.extend(app_handlers)
 
     api = webapp.WebApplication(modules.handlers, modules.settings)
-    thread = webapp.TornadoServer(api, ('0.0.0.0', port), additional_url='/pipeline/ccd')  # todo: added by David
+    # thread = webapp.TornadoServer(api, ('0.0.0.0', port), additional_url='/pipeline/ccd')  # todo: added by David
+    thread = webapp.TornadoServer(api, ('0.0.0.0', port))
     try:
         thread.run()
     except KeyboardInterrupt:
