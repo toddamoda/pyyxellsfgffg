@@ -79,16 +79,13 @@ def main():
     parser.add_argument('--version', action='version',
                         version='%(prog)s (version {version})'.format(version=pyxel.__version__))
 
-    parser.add_argument('-g', '--gui', default=False, help='run Graphical User Interface')
+    parser.add_argument('-g', '--gui', default=False, type=bool, help='run Graphical User Interface')
 
-    parser.add_argument('-c', '--config', required=True,
-                        help='Configuration file to load (YAML)')
+    parser.add_argument('-c', '--config', help='Configuration file to load (YAML)')
 
-    parser.add_argument('-o', '--output',
-                        help='output file')
+    parser.add_argument('-o', '--output', help='output file')
 
-    parser.add_argument('-s', '--seed',
-                        help='Define random seed for the framework')
+    parser.add_argument('-s', '--seed', type=int, help='Random seed for the framework')
 
     parser.add_argument('-p', '--port', default=9999, type=int, help='The port to run the web server on')
 
