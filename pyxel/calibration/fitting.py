@@ -31,10 +31,13 @@ class ModelFitting:
 
         self.datasets = None
 
+        self.fitness_mode = None
+        self.sim_output = None
+
         self.n = 0
         self.g = 0
 
-        self.sort_by_var_name = None
+        self.sort_by_var = None
 
         self.write2file = False
         self.champion_file = None
@@ -91,7 +94,10 @@ class ModelFitting:
                   generations,
                   population_size,
                   target_fit_range,
-                  out_fit_range
+                  out_fit_range,
+                  fitness_mode,
+                  simulation_output,
+                  sort_by_var
                   ):
         """TBW.
 
@@ -106,6 +112,9 @@ class ModelFitting:
         :param population_size: int
         :param target_fit_range: slice
         :param out_fit_range: slice
+        :param fitness_mode: str
+        :param simulation_output: str
+        :param sort_by_var: str
         :return:
         """
         self.model_name_list = model_names
@@ -122,24 +131,42 @@ class ModelFitting:
         self.target_data = target_output
         self.datasets = len(target_output)
 
-        if (target_fit_range[1] - target_fit_range[0]) == (out_fit_range[1] - out_fit_range[0]):
+        self.fitness_mode = fitness_mode
+        self.sim_output = simulation_output
+
+        self.sort_by_var = sort_by_var
+
+        if (target_fit_range[1] - target_fit_range[0]) != (out_fit_range[1] - out_fit_range[0]):
+            raise AttributeError('Fitting ranges have different lengths in 1st dimension')
+
+        if len(target_fit_range) == 2 and len(out_fit_range) == 2:
             self.targ_fit_range = slice(target_fit_range[0], target_fit_range[1])
             self.sim_fit_range = slice(out_fit_range[0], out_fit_range[1])
-        else:
-            raise AttributeError('Fitting ranges have different lengths')
 
-        self.sort_by_var_name = self.variable_name_lst[0][0]  # todo
+        elif len(target_fit_range) == 4 and len(out_fit_range) == 4:
+            self.targ_fit_range = (slice(target_fit_range[0], target_fit_range[1]),
+                                   slice(target_fit_range[2], target_fit_range[3]))
+            self.sim_fit_range = (slice(out_fit_range[0], out_fit_range[1]),
+                                  slice(out_fit_range[2], out_fit_range[3]))
+
+            if (target_fit_range[3] - target_fit_range[2]) != (out_fit_range[3] - out_fit_range[2]):
+                raise AttributeError('Fitting ranges have different lengths in 2nd dimension')
+        else:
+            raise AttributeError('Both fitting ranges should have 2 or 4 values')
+
+        self.target_data = self.target_data[self.targ_fit_range]
+
         self.champion_f_list = np.zeros((1, 1))
         self.champion_x_list = np.zeros((1, np.sum(np.sum(self.params_per_variable))))
 
-    def set_normalization(self):
-        """TBW.
-
-        :return:
-        """
-        self.normalization = True
-        for i in range(len(self.target_data)):
-            self.target_data_norm += [self.normalize(self.target_data[i], dataset=i)]
+    # def set_normalization(self):
+    #     """TBW.
+    #
+    #     :return:
+    #     """
+    #     self.normalization = True
+    #     for i in range(len(self.target_data)):
+    #         self.target_data_norm += [self.normalize(self.target_data[i], dataset=i)]
 
     def set_weighting_function(self, func):
         """TBW.
@@ -196,57 +223,42 @@ class ModelFitting:
         """
         self.chg_inj = flag
 
-    def calculate_fitness(self, detector):          # TODO
+    def calculate_fitness(self, detector):
         """TBW.
 
         :param detector:
         :return:
         """
-        overall_fitness = 0.
-        fitness = 0.
-        # self.fitness_mode = 'residuals'
-        self.fitness_mode = 'least-squares'
-        self.sim_output = 'fits'
-
-        # what is the simulated data we want to compare?
-        if self.sim_output == 'fits' or 'image':
+        if self.sim_output == 'image':
             simulated_data = detector.image
+        elif self.sim_output == 'signal':
+            raise NotImplementedError       # todo
+        elif self.sim_output == 'charge':
+            raise NotImplementedError       # todo
         else:
-            raise NotImplementedError
-
-        # is the target / simulated data a list or a np.array or a pandas df?        # todo
-
-        # it it 1d or 2d data?
-        try:
-            row, col = simulated_data.shape
-            # data_dimension = 2
-        except AttributeError:
-            len(simulated_data)
-            # data_dimension = 1
-
-        # what if the target_output data is a list of arrays/lists????   # todo
+            raise NotImplementedError       # todo
+        simulated_data = simulated_data[self.sim_fit_range]
 
         if self.fitness_mode == 'residuals':
-            fitness = self.residuals(simulated_data)
+            fitness = self.sum_of_abs_residuals(simulated_data)
         elif self.fitness_mode == 'least-squares':
-            fitness = self.least_squares_new(simulated_data)
+            fitness = self.sum_of_squared_residuals(simulated_data)
         elif self.fitness_mode == 'chi-square':
-            raise NotImplementedError
+            raise NotImplementedError       # todo >>> weighting function
         else:
             raise AttributeError
 
-        overall_fitness = fitness
-        return overall_fitness
+        return fitness
 
-    def residuals(self, simulated_data, dimension=1):           # TODO
+    def sum_of_abs_residuals(self, simulated_data):
         """TBW.
 
         :param simulated_data:
         :return:
         """
-        return np.sum(self.target_data - simulated_data)
+        return np.sum(np.abs(self.target_data - simulated_data))
 
-    def least_squares_new(self, simulated_data, dimension=1):           # TODO
+    def sum_of_squared_residuals(self, simulated_data):
         """TBW.
 
         :param simulated_data:
@@ -255,44 +267,44 @@ class ModelFitting:
         diff = self.target_data - simulated_data
         return np.sum(diff * diff)
 
-    def least_squares(self, simulated_data, dataset=None):   # TODO
-        """TBW.
+    # def least_squares(self, simulated_data, dataset=None):
+    #     """TBW.
+    #
+    #     :param simulated_data:
+    #     :param dataset: int
+    #     :return:
+    #     """
+    #     input_array = simulated_data[self.sim_fit_range]
+    #
+    #     if dataset is not None:
+    #         if self.normalization:
+    #             input_array = self.normalize(input_array, dataset=dataset)
+    #             target = self.target_data_norm[dataset][self.targ_fit_range]
+    #         else:
+    #             target = self.target_data[dataset][self.targ_fit_range]
+    #     else:
+    #         if self.normalization:
+    #             input_array = self.normalize(input_array)
+    #             target = self.target_data_norm[self.targ_fit_range]
+    #         else:
+    #             target = self.target_data[self.targ_fit_range]
+    #
+    #     diff = target - input_array
+    #     diff_square = diff * diff
+    #
+    #     if self.weighting:
+    #         diff_square *= self.weighting_function
+    #
+    #     return np.sum(diff_square)
 
-        :param simulated_data:
-        :param dataset: int
-        :return:
-        """
-        input_array = simulated_data[self.sim_fit_range]
-
-        if dataset is not None:
-            if self.normalization:
-                input_array = self.normalize(input_array, dataset=dataset)
-                target = self.target_data_norm[dataset][self.targ_fit_range]
-            else:
-                target = self.target_data[dataset][self.targ_fit_range]
-        else:
-            if self.normalization:
-                input_array = self.normalize(input_array)               # TODO
-                target = self.target_data_norm[self.targ_fit_range]
-            else:
-                target = self.target_data[self.targ_fit_range]
-
-        diff = target - input_array
-        diff_square = diff * diff
-
-        if self.weighting:
-            diff_square *= self.weighting_function
-
-        return np.sum(diff_square)
-
-    def normalize(self, array, dataset):
-        """Normalize dataset arrays by injected signal maximum.
-
-        :param array: 1d np.array
-        :param dataset: int
-        :return:
-        """
-        return array / np.average(self.target_data[dataset][self.targ_fit_range])
+    # def normalize(self, array, dataset):
+    #     """Normalize dataset arrays by injected signal maximum.
+    #
+    #     :param array: 1d np.array
+    #     :param dataset: int
+    #     :return:
+    #     """
+    #     return array / np.average(self.target_data[dataset][self.targ_fit_range])
 
     def fitness(self, parameter):
         """Call the fitness function, elements of parameter array could be logarithm values.
@@ -392,16 +404,17 @@ class ModelFitting:
                 df[self.variable_name_lst[i][j]] = parameter[k]
                 k += 1
 
-        ordered_df = df.sort_values(by=[self.sort_by_var_name])
+        if self.sort_by_var:
+            df = df.sort_values(by=[self.sort_by_var])
 
         ord_param = np.array([])
         for i in range(len(self.is_var_array)):
             for j in range(len(self.is_var_array[i])):
                 if self.is_var_array[i][j]:
-                    ord_param = np.append(ord_param, ordered_df[self.variable_name_lst[i][j]].values)
+                    ord_param = np.append(ord_param, df[self.variable_name_lst[i][j]].values)
                 else:
                     ord_param = np.append(ord_param,
-                                          np.unique(ordered_df[self.variable_name_lst[i][j]].values))
+                                          np.unique(df[self.variable_name_lst[i][j]].values))
 
         paramsize = len(ord_param)
         ord_param = ord_param.reshape(1, paramsize)

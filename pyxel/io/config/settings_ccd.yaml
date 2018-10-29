@@ -27,11 +27,16 @@ simulation:
   calibration:
     calibration_mode: pipeline  # single_model
     arguments:
+      output: image   # signal # charge
+      output_fit_range: [10, 30, 20, 50] # [1103, 1453]
+
       target_data: 'C:/dev/work/cdm/data/better-plato-target-data/'
-#      data_type: 1d np.array, 2d np.array
-      target_fit_range: [51, 401]
-      output_fit_range: [1103, 1453]
+      #data_type: 1d np.array, 2d np.array
+      target_fit_range: [10, 30, 20, 50] # [51, 401]
+
+      fitness_mode: residuals    # least-squares
       weighting_func:
+
       generations: 3
       population_size: 10
 
@@ -42,6 +47,7 @@ simulation:
       params_per_variable: [[4, 4, 4, 1], [1]]
       lower_boundary: [[1.e-3, 1.e-2, 1.e-20, 0.], [1.]]
       upper_boundary: [[2., 1.e+1, 1.e-15, 1.], [10.]]
+      sort_by_var:  # tr_p
 
 #      model: 'cdm'
 #        variables: ['tr_p', 'nt_p', 'sigma_p', 'beta_p']

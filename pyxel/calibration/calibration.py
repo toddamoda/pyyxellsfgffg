@@ -38,7 +38,7 @@ def run_pipeline_calibration(calib, config):
 
     weighting_func = calib.args['weighting_func']
 
-    # target_output = fits.getdata(calib.args['target_data'])
+    # target_output = target_output[0]
     target_output = fits.getdata('pyxel/results.fits')      # 100 x 100 pixels
 
     config.detector.charge_injection_profile = injection_profile
@@ -57,7 +57,10 @@ def run_pipeline_calibration(calib, config):
                       generations=calib.args['generations'],
                       population_size=calib.args['population_size'],
                       target_fit_range=calib.args['target_fit_range'],
-                      out_fit_range=calib.args['output_fit_range']
+                      out_fit_range=calib.args['output_fit_range'],
+                      fitness_mode=calib.args['fitness_mode'],
+                      simulation_output=calib.args['output'],
+                      sort_by_var=calib.args['sort_by_var']
                       )
 
     fitting.set_bound(low_val=calib.args['lower_boundary'],
