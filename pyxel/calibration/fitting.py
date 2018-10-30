@@ -4,7 +4,8 @@ https://esa.github.io/pagmo2/index.html
 """
 import numpy as np
 import pandas as pd
-from typing import List  # noqa: F401
+from typing import List   # noqa: F401
+from typing import Union  # noqa: F401
 
 
 class ModelFitting:
@@ -18,17 +19,16 @@ class ModelFitting:
         self.pipe = pipeline
 
         self.model_name_list = []           # type: List[str]
-        self.params_per_variable = []          # type: List[List[int]]
+        self.params_per_variable = []       # type: List[List[int]]
 
         self.variable_name_lst = []         # type: List[List[str]]
         self.is_var_array = []              # type: List[List[bool]]
         self.is_var_log = []                # type: List[List[bool]]
 
-        self.gen = None
+        self.generations = None
         self.pop = None
-        self.fullframe = None
-        self.target_data = None
 
+        self.target_data = None
         self.datasets = None
 
         self.fitness_mode = None
@@ -60,8 +60,6 @@ class ModelFitting:
 
         self.sim_fit_range = None
         self.targ_fit_range = None
-        # self.sim_fit_range = slice(0, len(target[0]))
-        # self.targ_fit_range = slice(0, len(target[0]))  # these two should have the same length!
 
         self.normalization = False
         self.target_data_norm = []
@@ -84,20 +82,18 @@ class ModelFitting:
         return self.name
 
     def configure(self,
-                  model_names,
-                  params_per_variable,
-                  variables,
-                  var_arrays,
-                  var_log,
-                  model_input,
+                  model_names: list,
+                  params_per_variable: list,
+                  variables: list,
+                  var_arrays: list,
+                  var_log: list,
                   target_output,
-                  generations,
-                  population_size,
-                  target_fit_range,
-                  out_fit_range,
-                  fitness_mode,
-                  simulation_output,
-                  sort_by_var
+                  population_size: int = None,
+                  target_fit_range: list = None,
+                  out_fit_range: list = None,
+                  fitness_mode: str = 'residuals',
+                  simulation_output: str = 'image',
+                  sort_by_var: str = None
                   ):
         """TBW.
 
@@ -106,9 +102,7 @@ class ModelFitting:
         :param variables: list
         :param var_arrays: list
         :param var_log: list
-        :param model_input: list
         :param target_output: list
-        :param generations: int
         :param population_size: int
         :param target_fit_range: slice
         :param out_fit_range: slice
@@ -124,35 +118,60 @@ class ModelFitting:
         self.is_var_array = var_arrays
         self.is_var_log = var_log
 
-        self.gen = generations
         self.pop = population_size
 
-        self.fullframe = model_input
         self.target_data = target_output
-        self.datasets = len(target_output)
+        cols = None
+
+        try:
+            rows, cols = self.target_data.shape
+        except AttributeError:
+            rows = len(self.target_data)
+        # self.datasets = len(target_output)
 
         self.fitness_mode = fitness_mode
         self.sim_output = simulation_output
 
         self.sort_by_var = sort_by_var
 
-        if (target_fit_range[1] - target_fit_range[0]) != (out_fit_range[1] - out_fit_range[0]):
-            raise AttributeError('Fitting ranges have different lengths in 1st dimension')
-
-        if len(target_fit_range) == 2 and len(out_fit_range) == 2:
-            self.targ_fit_range = slice(target_fit_range[0], target_fit_range[1])
-            self.sim_fit_range = slice(out_fit_range[0], out_fit_range[1])
-
-        elif len(target_fit_range) == 4 and len(out_fit_range) == 4:
-            self.targ_fit_range = (slice(target_fit_range[0], target_fit_range[1]),
-                                   slice(target_fit_range[2], target_fit_range[3]))
-            self.sim_fit_range = (slice(out_fit_range[0], out_fit_range[1]),
-                                  slice(out_fit_range[2], out_fit_range[3]))
-
-            if (target_fit_range[3] - target_fit_range[2]) != (out_fit_range[3] - out_fit_range[2]):
-                raise AttributeError('Fitting ranges have different lengths in 2nd dimension')
+        if target_fit_range is None:
+            self.targ_fit_range = slice(None)
         else:
-            raise AttributeError('Both fitting ranges should have 2 or 4 values')
+            if len(target_fit_range) == 2:
+                self.targ_fit_range = slice(target_fit_range[0], target_fit_range[1])
+            elif len(target_fit_range) == 4:
+                self.targ_fit_range = (slice(target_fit_range[0], target_fit_range[1]),
+                                       slice(target_fit_range[2], target_fit_range[3]))
+            else:
+                raise AttributeError('Fitting range should have 2 or 4 values')
+
+        if out_fit_range is None:
+            self.sim_fit_range = slice(None)
+        else:
+            if len(out_fit_range) == 2:
+                self.sim_fit_range = slice(out_fit_range[0], out_fit_range[1])
+            elif len(out_fit_range) == 4:
+                self.sim_fit_range = (slice(out_fit_range[0], out_fit_range[1]),
+                                      slice(out_fit_range[2], out_fit_range[3]))
+            else:
+                raise AttributeError('Fitting range should have 2 or 4 values')
+
+        if target_fit_range and out_fit_range:
+            if (target_fit_range[1] - target_fit_range[0]) != (out_fit_range[1] - out_fit_range[0]):
+                raise AttributeError('Fitting ranges have different lengths in 1st dimension')
+            if len(target_fit_range) == 4 and len(out_fit_range) == 4:
+                if (target_fit_range[3] - target_fit_range[2]) != (out_fit_range[3] - out_fit_range[2]):
+                    raise AttributeError('Fitting ranges have different lengths in 2nd dimension')
+
+        if target_fit_range[0] < 0 or target_fit_range[0] > rows:       # todo: mypy
+            raise ValueError('Value of fitting range is wrong')
+        if target_fit_range[1] < 0 or target_fit_range[1] > rows:     # todo: mypy
+            raise ValueError('Value of fitting range is wrong')
+        if len(target_fit_range) > 2:                                   # todo: mypy
+            if target_fit_range[2] < 0 or target_fit_range[2] > cols:       # todo: mypy
+                raise ValueError('Value of fitting range is wrong')
+            if target_fit_range[3] < 0 or target_fit_range[3] > cols:       # todo: mypy
+                raise ValueError('Value of fitting range is wrong')
 
         self.target_data = self.target_data[self.targ_fit_range]
 
@@ -451,7 +470,7 @@ class ModelFitting:
                                          self.champion_x_list[self.g, :].reshape(1, paramsize)],
                                fmt=str_format)
 
-                if self.g % 200 == 0 or self.g == self.gen:
+                if self.g % 100 == 0 or self.g == self.generations:
                     str_format = '%d' + (paramsize + 1) * ' %.6E'
                     with open(self.pop_file, 'ab') as f4:
                         np.savetxt(f4, np.c_[self.g * np.ones(self.fitness_array.shape),

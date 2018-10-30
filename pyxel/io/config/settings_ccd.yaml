@@ -28,17 +28,20 @@ simulation:
     calibration_mode: pipeline  # single_model
     arguments:
       output: image   # signal # charge
-      output_fit_range: [10, 30, 20, 50] # [1103, 1453]
+      output_fit_range: [10, 30, 20, 50] #
 
       target_data: 'C:/dev/work/cdm/data/better-plato-target-data/'
       #data_type: 1d np.array, 2d np.array
-      target_fit_range: [10, 30, 20, 50] # [51, 401]
+      target_fit_range: [10, 30, 20, 50]
 
       fitness_mode: residuals    # least-squares
       weighting_func:
 
-      generations: 3
-      population_size: 10
+      algorithm: sade   # sga  # nlopt
+      nlopt_solver: sbplx  # neldermead
+      generations: 2
+      population_size: 7
+#      variant: 3
 
       model_names: ['cdm', 'tars']
       variables: [['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['initial_energy']]
