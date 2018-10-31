@@ -4,8 +4,7 @@ https://esa.github.io/pagmo2/index.html
 """
 import numpy as np
 import pandas as pd
-from typing import List   # noqa: F401
-from typing import Union  # noqa: F401
+import typing as t   # noqa: F401
 
 
 class ModelFitting:
@@ -18,18 +17,22 @@ class ModelFitting:
         self.det = detector
         self.pipe = pipeline
 
-        self.model_name_list = []           # type: List[str]
-        self.params_per_variable = []       # type: List[List[int]]
-
-        self.variable_name_lst = []         # type: List[List[str]]
-        self.is_var_array = []              # type: List[List[bool]]
-        self.is_var_log = []                # type: List[List[bool]]
+        self.model_name_list = []           # type: t.List[str]
+        self.params_per_variable = []       # type: t.List[t.List[int]]
+        self.variable_name_lst = []         # type: t.List[t.List[str]]
+        self.is_var_array = []              # type: t.List[t.List[bool]]
+        self.is_var_log = []                # type: t.List[t.List[bool]]
 
         self.generations = None
         self.pop = None
 
+        self.all_target_data = []
         self.target_data = None
-        self.datasets = None
+
+        # self.normalization = False
+        # self.target_data_norm = []
+        self.weighting = False
+        self.weighting_function = None
 
         self.fitness_mode = None
         self.sim_output = None
@@ -43,8 +46,6 @@ class ModelFitting:
         self.champion_file = None
         self.pop_file = None
 
-        self.pop_obj = None
-
         self.fitness_array = None
         self.population = None
         self.champion_f_list = None
@@ -53,19 +54,8 @@ class ModelFitting:
         self.lbd = None         # lower boundary
         self.ubd = None         # upper boundary
 
-        self.chg_inj = None
-
-        self.para_transfers = None
-        self.seri_transfers = None
-
         self.sim_fit_range = None
         self.targ_fit_range = None
-
-        self.normalization = False
-        self.target_data_norm = []
-
-        self.weighting = False
-        self.weighting_function = None
 
     def get_bounds(self):
         """TBW.
@@ -74,12 +64,12 @@ class ModelFitting:
         """
         return self.lbd, self.ubd
 
-    def get_name(self):
+    def set_generations(self, gen):
         """TBW.
 
         :return:
         """
-        return self.name
+        self.generations = gen
 
     def configure(self,
                   model_names: list,
@@ -87,10 +77,10 @@ class ModelFitting:
                   variables: list,
                   var_arrays: list,
                   var_log: list,
-                  target_output,
+                  target_output_list,
                   population_size: int = None,
-                  target_fit_range: list = None,
-                  out_fit_range: list = None,
+                  target_fit_range=None,        # t.Optional[list]      # todo
+                  out_fit_range=None,           # t.Union[list, None]   # todo
                   fitness_mode: str = 'residuals',
                   simulation_output: str = 'image',
                   sort_by_var: str = None
@@ -102,10 +92,10 @@ class ModelFitting:
         :param variables: list
         :param var_arrays: list
         :param var_log: list
-        :param target_output: list
+        :param target_output_list: list
         :param population_size: int
-        :param target_fit_range: slice
-        :param out_fit_range: slice
+        :param target_fit_range:
+        :param out_fit_range:
         :param fitness_mode: str
         :param simulation_output: str
         :param sort_by_var: str
@@ -120,14 +110,12 @@ class ModelFitting:
 
         self.pop = population_size
 
-        self.target_data = target_output
+        self.target_data = target_output_list[0]
         cols = None
-
         try:
             rows, cols = self.target_data.shape
         except AttributeError:
             rows = len(self.target_data)
-        # self.datasets = len(target_output)
 
         self.fitness_mode = fitness_mode
         self.sim_output = simulation_output
@@ -163,17 +151,19 @@ class ModelFitting:
                 if (target_fit_range[3] - target_fit_range[2]) != (out_fit_range[3] - out_fit_range[2]):
                     raise AttributeError('Fitting ranges have different lengths in 2nd dimension')
 
-        if target_fit_range[0] < 0 or target_fit_range[0] > rows:       # todo: mypy
+        if target_fit_range[0] < 0 or target_fit_range[0] > rows:
             raise ValueError('Value of fitting range is wrong')
-        if target_fit_range[1] < 0 or target_fit_range[1] > rows:     # todo: mypy
+        if target_fit_range[1] < 0 or target_fit_range[1] > rows:
             raise ValueError('Value of fitting range is wrong')
-        if len(target_fit_range) > 2:                                   # todo: mypy
-            if target_fit_range[2] < 0 or target_fit_range[2] > cols:       # todo: mypy
+        if len(target_fit_range) > 2:
+            if target_fit_range[2] < 0 or target_fit_range[2] > cols:
                 raise ValueError('Value of fitting range is wrong')
-            if target_fit_range[3] < 0 or target_fit_range[3] > cols:       # todo: mypy
+            if target_fit_range[3] < 0 or target_fit_range[3] > cols:
                 raise ValueError('Value of fitting range is wrong')
 
         self.target_data = self.target_data[self.targ_fit_range]
+        for target in target_output_list:
+            self.all_target_data += [target[self.targ_fit_range]]
 
         self.champion_f_list = np.zeros((1, 1))
         self.champion_x_list = np.zeros((1, np.sum(np.sum(self.params_per_variable))))
@@ -190,11 +180,11 @@ class ModelFitting:
     def set_weighting_function(self, func):
         """TBW.
 
-        :param func: 1d np.array
+        :param func: 1d or 2d np.array
         :return:
         """
         self.weighting = True
-        self.weighting_function = func.reshape(len(func), 1)
+        self.weighting_function = func[self.targ_fit_range]
 
     def set_bound(self, low_val, up_val):
         """TBW.
@@ -223,68 +213,58 @@ class ModelFitting:
         :return:
         """
         self.write2file = True
-        self.champion_file = 'champion.out'
+        self.champion_file = 'data/calibration_champions.out'
         f1 = open(self.champion_file, 'wb')  # truncate output file
         f1.close()
-        self.pop_file = 'population.out'
-        f2 = open(self.pop_file, 'wb')  # truncate output file
+        self.pop_file = 'data/calibration_populations.out'
+        f2 = open(self.pop_file, 'wb')       # truncate output file
         f2.close()
-
         # filelist = glob.glob('champion_id*.out')
         # for file in filelist:
         #     os.remove(file)
 
-    def charge_injection(self, flag: bool):
+    def calculate_fitness(self, simulated_data, target_data):
         """TBW.
 
-        :param flag:
+        :param simulated_data:
+        :param target_data:
         :return:
         """
-        self.chg_inj = flag
-
-    def calculate_fitness(self, detector):
-        """TBW.
-
-        :param detector:
-        :return:
-        """
-        if self.sim_output == 'image':
-            simulated_data = detector.image
-        elif self.sim_output == 'signal':
-            raise NotImplementedError       # todo
-        elif self.sim_output == 'charge':
-            raise NotImplementedError       # todo
-        else:
-            raise NotImplementedError       # todo
-        simulated_data = simulated_data[self.sim_fit_range]
-
         if self.fitness_mode == 'residuals':
-            fitness = self.sum_of_abs_residuals(simulated_data)
+            fitness = self.sum_of_abs_residuals(simulated=simulated_data,
+                                                target=target_data)
         elif self.fitness_mode == 'least-squares':
-            fitness = self.sum_of_squared_residuals(simulated_data)
-        elif self.fitness_mode == 'chi-square':
-            raise NotImplementedError       # todo >>> weighting function
+            fitness = self.sum_of_squared_residuals(simulated=simulated_data,
+                                                    target=target_data)
         else:
-            raise AttributeError
+            raise ValueError
 
         return fitness
 
-    def sum_of_abs_residuals(self, simulated_data):
+    def sum_of_abs_residuals(self, simulated, target):
         """TBW.
 
-        :param simulated_data:
+        :param simulated:
+        :param target:
         :return:
         """
-        return np.sum(np.abs(self.target_data - simulated_data))
+        diff = target - simulated
+        if self.weighting:
+            diff *= self.weighting_function
+        return np.sum(np.abs(diff))
 
-    def sum_of_squared_residuals(self, simulated_data):
+    def sum_of_squared_residuals(self, simulated, target):
         """TBW.
 
-        :param simulated_data:
+        :param simulated:
+        :param target:
         :return:
         """
-        diff = self.target_data - simulated_data
-        return np.sum(diff * diff)
+        diff = target - simulated
+        diff_square = diff * diff
+        if self.weighting:
+            diff_square *= self.weighting_function
+        return np.sum(diff_square)
 
     # def least_squares(self, simulated_data, dataset=None):
     #     """TBW.
@@ -340,11 +320,23 @@ class ModelFitting:
 
         new_det = self.pipe.run_pipeline(self.det)
 
-        overall_fitness = self.calculate_fitness(new_det)
+        if self.sim_output == 'image':
+            simulated_data = new_det.image
+        elif self.sim_output == 'signal':
+            raise NotImplementedError       # todo: new_det.signal
+        elif self.sim_output == 'charge':
+            raise NotImplementedError       # todo: new_det.charge
+        else:
+            raise ValueError
+        simulated_data = simulated_data[self.sim_fit_range]
 
-        self.population_and_champions(parameter_lst, overall_fitness)
+        overall_fitness = 0
+        for target_data in self.all_target_data:
+            overall_fitness += self.calculate_fitness(simulated_data, target_data)
 
-        print('minden fasza')
+        # print('fitness: %1.5e' % overall_fitness)
+        if self.write2file:
+            self.population_and_champions(parameter_lst, overall_fitness)
 
         return [overall_fitness]
 
@@ -462,20 +454,21 @@ class ModelFitting:
                     self.champion_f_list = np.vstack((self.champion_f_list, self.champion_f_list[-1]))
                     self.champion_x_list = np.vstack((self.champion_x_list, self.champion_x_list[-1]))
 
-            if self.write2file:
-                str_format = '%d' + (paramsize + 1) * ' %.6E'
-                with open(self.champion_file, 'ab') as f3:
-                    np.savetxt(f3, np.c_[np.array([self.g]),
-                                         self.champion_f_list[self.g],
-                                         self.champion_x_list[self.g, :].reshape(1, paramsize)],
-                               fmt=str_format)
+            print('champion\'s fitness: %1.5e' % self.champion_f_list[self.g])
 
-                if self.g % 100 == 0 or self.g == self.generations:
-                    str_format = '%d' + (paramsize + 1) * ' %.6E'
-                    with open(self.pop_file, 'ab') as f4:
-                        np.savetxt(f4, np.c_[self.g * np.ones(self.fitness_array.shape),
-                                             self.fitness_array,
-                                             self.population], fmt=str_format)
+            str_format = '%d' + (paramsize + 1) * ' %.6E'
+            with open(self.champion_file, 'ab') as f3:
+                np.savetxt(f3, np.c_[np.array([self.g]),
+                                     self.champion_f_list[self.g],
+                                     self.champion_x_list[self.g, :].reshape(1, paramsize)],
+                           fmt=str_format)
+
+            if self.g % 100 == 0 or self.g == self.generations:
+                str_format = '%d' + (paramsize + 1) * ' %.6E'
+                with open(self.pop_file, 'ab') as f4:
+                    np.savetxt(f4, np.c_[self.g * np.ones(self.fitness_array.shape),
+                                         self.fitness_array,
+                                         self.population], fmt=str_format)
 
             self.g += 1
 

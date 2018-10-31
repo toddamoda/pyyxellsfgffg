@@ -1,8 +1,9 @@
 """TBW."""
+import numpy as np
 import pygmo as pg
+import typing as t      # noqa: F401
 from astropy.io import fits
 from pyxel.calibration.fitting import ModelFitting
-# from pyxel.calibration.inputdata import read_plato_data
 
 
 class Calibration:
@@ -14,92 +15,17 @@ class Calibration:
     def __init__(self,
                  calibration_mode: str,
                  arguments: dict,
-                 ) -> None:
+                 seed: int = None) -> None:
         """TBW."""
-        self.calibration_mode = calibration_mode
-        self.args = arguments
+        self.calibration_mode = calibration_mode    # type: str                # TODO
+        self.args = arguments                       # type: dict
+        self.algo_type = self.args['algorithm']     # type: str
+        self.generations = None                     # type: t.Optional[int]
 
-
-def run_pipeline_calibration(calib, config):
-    """TBW.
-
-    :param calib:
-    :param config:
-    :return:
-    """
-    # TODO these are still CDM SPECIFIC!!!
-    # data_files = ['cold/CCD280-14482-06-02-cryo-irrad-gd15.5V.txt',
-    #               'cold/CCD280-14482-06-02-cryo-irrad-gd16.5V.txt',
-    #               'cold/CCD280-14482-06-02-cryo-irrad-gd18.5V.txt',
-    #               'cold/CCD280-14482-06-02-cryo-irrad-gd19.5V.txt']
-    # injection_profile, target_output, target_error = read_plato_data(       # TODO
-    #     data_path=calib.args['target_data'],
-    #     data_files=data_files, start=None, end=None)
-
-    weighting_func = calib.args['weighting_func']               # TODO read wf from a file as 1d np.array
-
-    # target_output = target_output[0]
-    target_output = fits.getdata('pyxel/results.fits')      # 100 x 100 pixels
-
-    # config.detector.charge_injection_profile = injection_profile
-    config.detector.target_output_data = target_output
-    config.detector.weighting_function = weighting_func
-
-    fitting = ModelFitting(detector=config.detector, pipeline=config.pipeline)
-
-    if 'population_size' in calib.args:
-        population_size = calib.args['population_size']
-    else:
-        raise AttributeError('Missing "population_size" from YAML config')
-
-    fitting.configure(model_names=calib.args['model_names'],
-                      variables=calib.args['variables'],
-                      var_arrays=calib.args['var_arrays'],
-                      var_log=calib.args['var_log'],
-                      params_per_variable=calib.args['params_per_variable'],
-                      target_output=target_output,
-                      population_size=population_size,
-                      target_fit_range=calib.args['target_fit_range'],
-                      out_fit_range=calib.args['output_fit_range'],
-                      fitness_mode=calib.args['fitness_mode'],
-                      simulation_output=calib.args['output'],
-                      sort_by_var=calib.args['sort_by_var'])
-
-    # fitting.set_normalization()                                       # TODO
-
-    fitting.set_bound(low_val=calib.args['lower_boundary'],
-                      up_val=calib.args['upper_boundary'])
-
-    fitting.save_champions_in_file()
-    if weighting_func is not None:
-        fitting.set_weighting_function(weighting_func)
-
-    prob = pg.problem(fitting)
-    print('evolution started ...')
-
-    alg_set = AlgorithmSettings(calib)
-    opt_algorithm = alg_set.set_algorithm()
-    fitting.generations = alg_set.generations
-    algo = pg.algorithm(opt_algorithm)
-    pop = pg.population(prob, size=population_size)
-    pop = algo.evolve(pop)
-
-    champion_f = pop.champion_f
-    champion_x = fitting.split_and_update(pop.champion_x)
-    print('\nchampion_f: ', champion_f[0])
-    print('champion_x:', *champion_x, sep="\n")
-
-
-class AlgorithmSettings:
-    """TBW.
-
-    :return:
-    """
-
-    def __init__(self, calib: Calibration) -> None:
-        """TBW."""
-        self.algo_type = calib.args['algorithm']    # type: str
-        self.generations = None
+        if seed is None:
+            seed = np.random.randint(0, 1000000)
+        print('pygmo seed: ', seed)
+        pg.set_global_rng_seed(seed=seed)
 
         if self.algo_type == 'sade':
             self.generations = 1                    # type: int
@@ -139,8 +65,8 @@ class AlgorithmSettings:
                  'maxtime', 'maxeval', 'xtol_rel', 'xtol_abs', 'ftol_rel', 'ftol_abs', 'stopval',
                  'local_optimizer', 'replacement', 'selection', 'nlopt_solver']
         for name in names:
-            if name in calib.args:
-                value = calib.args[name]
+            if name in self.args:
+                value = self.args[name]
                 setattr(self, name, value)
 
     def set_algorithm(self):
@@ -180,3 +106,82 @@ class AlgorithmSettings:
             raise NotImplementedError
 
         return opt_algorithm
+
+    def run_pipeline_calibration(self, config):
+        """TBW.
+
+        :param config:
+        :return:
+        """
+        fitting = ModelFitting(detector=config.detector, pipeline=config.pipeline)
+
+        target_output = read_data(self.args['target_data_path'])
+        config.detector.target_output_data = target_output
+
+        if 'population_size' in self.args:
+            population_size = self.args['population_size']
+        else:
+            raise AttributeError('Missing "population_size" from YAML config')
+
+        fitting.configure(model_names=self.args['model_names'],
+                          variables=self.args['variables'],
+                          var_arrays=self.args['var_arrays'],
+                          var_log=self.args['var_log'],
+                          params_per_variable=self.args['params_per_variable'],
+                          target_output_list=target_output,
+                          population_size=population_size,
+                          target_fit_range=self.args['target_fit_range'],
+                          out_fit_range=self.args['output_fit_range'],
+                          fitness_mode=self.args['fitness_mode'],
+                          simulation_output=self.args['output'],
+                          sort_by_var=self.args['sort_by_var'])
+
+        if 'weighting_func_path' in self.args:
+            weighting_func = read_data(self.args['target_data_path'])
+            fitting.set_weighting_function(weighting_func[0])           # works only with one weighting function
+
+        # fitting.set_normalization()                                       # TODO
+        fitting.set_bound(low_val=self.args['lower_boundary'],
+                          up_val=self.args['upper_boundary'])
+        fitting.set_generations(self.generations)
+        fitting.save_champions_in_file()
+
+        prob = pg.problem(fitting)
+        print('evolution started ...')
+
+        opt_algorithm = self.set_algorithm()
+        algo = pg.algorithm(opt_algorithm)
+
+        pop = pg.population(prob, size=population_size)
+        pop = algo.evolve(pop)
+
+        champion_f = pop.champion_f
+        champion_x = fitting.split_and_update(pop.champion_x)
+        print('\nchampion_f:   %1.5e' % champion_f[0])
+        print('champion_x: ', *champion_x, sep="\n")
+
+
+def read_data(data_path: list):
+    """TBW.
+
+    :param data_path:
+    :return:
+    """
+    if isinstance(data_path, str):
+        data_path = [data_path]
+    elif all(isinstance(item, str) for item in data_path):
+        pass
+    else:
+        raise TypeError
+
+    output = []                             # type: list
+    for i in range(len(data_path)):
+        if '.fits' in data_path[i]:
+            data = fits.getdata(data_path[i])
+        elif '.npy' in data_path[i]:
+            data = np.load(data_path[i])
+        else:
+            data = np.loadtxt(data_path[i], dtype=float, delimiter='|')
+        output += [data]
+
+    return output

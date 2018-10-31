@@ -15,11 +15,10 @@ import esapy_config as om
 import pyxel
 import pyxel.pipelines.processor
 from pyxel import util
-from pyxel.calibration.calibration import run_pipeline_calibration
 from pyxel.web2.runweb import run_web_server
 
 
-def run(input_filename, output_file: str = None, random_seed: int = None):  # key=None, value=None
+def run(input_filename, output_file: str = None, random_seed: int = None):
     """TBW.
 
     :param input_filename:
@@ -36,15 +35,14 @@ def run(input_filename, output_file: str = None, random_seed: int = None):  # ke
     processor = cfg['processor']
     detector = None
 
-    # if key and value:
-    #     processor.set(key, value)
     # simulation.debug(processor)
 
     if simulation.mode == 'single':
         detector = processor.pipeline.run_pipeline(processor.detector)
 
     elif simulation.mode == 'calibration':
-        run_pipeline_calibration(simulation.calibration, processor)
+        # run_pipeline_calibration(simulation.calibration, processor)
+        simulation.calibration.run_pipeline_calibration(processor)
 
     elif simulation.mode == 'parametric':
         configs = simulation.parametric_analysis.collect(processor)

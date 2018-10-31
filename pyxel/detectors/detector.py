@@ -45,7 +45,7 @@ class Detector:
         self.header = OrderedDict()             # type: t.Dict[str, object]
 
         self._target_output_data = None
-        self._weighting_function = None
+        # self._weighting_function = None
 
         # experimantal! ############
         # self.geometry.create_sensor()
@@ -201,21 +201,21 @@ class Detector:
         """
         self._target_output_data = target_output
 
-    @property
-    def weighting_function(self):
-        """TBW.
-
-        :return:
-        """
-        return self._weighting_function
-
-    @weighting_function.setter
-    def weighting_function(self, weighting_func):
-        """TBW.
-
-        :return:
-        """
-        self._weighting_function = weighting_func
+    # @property
+    # def weighting_function(self):
+    #     """TBW.
+    #
+    #     :return:
+    #     """
+    #     return self._weighting_function
+    #
+    # @weighting_function.setter
+    # def weighting_function(self, weighting_func):
+    #     """TBW.
+    #
+    #     :return:
+    #     """
+    #     self._weighting_function = weighting_func
 
     @property
     def e_thermal_velocity(self):

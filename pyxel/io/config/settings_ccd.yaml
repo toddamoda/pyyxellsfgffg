@@ -26,31 +26,31 @@ simulation:
 
   calibration:
     calibration_mode: pipeline  # single_model
+#    seed:
     arguments:
       output: image   # signal # charge
       output_fit_range: [10, 30, 20, 50] #
 
-      target_data: 'C:/dev/work/cdm/data/better-plato-target-data/'
-      #data_type: 1d np.array, 2d np.array
+      target_data_path: ['pyxel/results.fits', 'pyxel/results.fits']     # <*.npy> <*.fits> <ascii>
       target_fit_range: [10, 30, 20, 50]
 
       fitness_mode: residuals    # least-squares
-      weighting_func:
+#      weighting_func_path:  # 'pyxel/results.fits'
 
       algorithm: sade   # sga  # nlopt
-      nlopt_solver: sbplx  # neldermead
-      generations: 2
-      population_size: 7
-#      variant: 3
+#      nlopt_solver: sbplx  # neldermead
+      generations: 1
+      population_size: 10
+      variant: 2
 
-      model_names: ['cdm', 'tars']
-      variables: [['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['initial_energy']]
-      var_log: [[True, True, True, False], [False]]
-      var_arrays: [[True, True, True, False], [False]]
-      params_per_variable: [[4, 4, 4, 1], [1]]
-      lower_boundary: [[1.e-3, 1.e-2, 1.e-20, 0.], [1.]]
-      upper_boundary: [[2., 1.e+1, 1.e-15, 1.], [10.]]
-      sort_by_var:  # tr_p
+      model_names: ['cdm'] #, 'tars']
+      variables: [['tr_p', 'nt_p', 'sigma_p', 'beta_p']]  # , ['initial_energy']]
+      var_log: [[True, True, True, False]] #, [False]]
+      var_arrays: [[True, True, True, False]] #, [False]]
+      params_per_variable: [[4, 4, 4, 1]] #, [1]]
+      lower_boundary: [[1.e-3, 1.e-2, 1.e-20, 0.]] #, [1.]]
+      upper_boundary: [[2., 1.e+1, 1.e-15, 1.]] #, [10.]]
+      sort_by_var: tr_p
 
 #      model: 'cdm'
 #        variables: ['tr_p', 'nt_p', 'sigma_p', 'beta_p']
