@@ -5,6 +5,7 @@ https://esa.github.io/pagmo2/index.html
 import numpy as np
 import pandas as pd
 import typing as t   # noqa: F401
+# from pyxel.util import apply_run_number, FitsFile
 
 
 class ModelFitting:
@@ -333,6 +334,12 @@ class ModelFitting:
         overall_fitness = 0
         for target_data in self.all_target_data:
             overall_fitness += self.calculate_fitness(simulated_data, target_data)
+
+        # if (self.n + 1) % self.pop == 0:
+        #     save_to = apply_run_number('data/calib_image_?.fits')             # TODO
+        #     print('saving image to %s' % save_to)
+        #     out = FitsFile(save_to)
+        #     out.save(new_det.image, header=None, overwrite=False)
 
         # print('fitness: %1.5e' % overall_fitness)
         if self.write2file:

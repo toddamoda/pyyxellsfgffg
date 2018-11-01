@@ -26,7 +26,6 @@ simulation:
 
   calibration:
     calibration_mode: pipeline  # single_model
-#    seed:
     arguments:
       output: image   # signal # charge
       output_fit_range: [10, 30, 20, 50] #
@@ -38,6 +37,7 @@ simulation:
 #      weighting_func_path:  # 'pyxel/results.fits'
 
       algorithm: sade   # sga  # nlopt
+      seed:
 #      nlopt_solver: sbplx  # neldermead
       generations: 1
       population_size: 10
