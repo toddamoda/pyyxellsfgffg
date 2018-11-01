@@ -17,21 +17,11 @@ spec:
       - image: gitlab.esa.int:4567/sci-fv/pyxel:latest
         imagePullPolicy: Always
         name: pyxel-container
+        command: ["python"]
+        args: ["/app/pyxel/run.py", "--gui", "True"]
         ports:
         - containerPort: 9999
         resources: {}
-#        readinessProbe:
-#          httpGet:
-#            path: /DocumentNumberGenerator.asmx
-#            port: 80
-#          initialDelaySeconds: 10
-#          periodSeconds: 5
-#        livenessProbe:
-#          httpGet:
-#            path: /DocumentNumberGenerator.asmx
-#            port: 80
-#          initialDelaySeconds: 3
-#          periodSeconds: 3
       restartPolicy: Always
       imagePullSecrets:
       - name: registry-secret
@@ -63,7 +53,7 @@ metadata:
   namespace: esa-david-lucsanyi-pyxel
 spec:
   rules:
-  - host: pyxel.it.esa.int
+  - host: pixel.it.esa.int
     http:
       paths:
       - backend:
