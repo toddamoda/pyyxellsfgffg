@@ -51,11 +51,18 @@ kind: Ingress
 metadata:
   name: pyxel-ingress
   namespace: esa-david-lucsanyi-pyxel
+  annotations:
+    nginx.org/websocket-services: "pyxel-service"
 spec:
   rules:
   - host: pixel.it.esa.int
     http:
       paths:
-      - backend:
+      - path: /dispatch
+        backend:
+          serviceName: pyxel-service
+          servicePort: 80
+      - path: /
+        backend:
           serviceName: pyxel-service
           servicePort: 80
