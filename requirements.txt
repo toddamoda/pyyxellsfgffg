@@ -19,11 +19,12 @@ astropy
 pandas
 matplotlib
 scipy
-numba
 
 ########################
 # Others               #
 ########################
 
 pyyaml
+numba
 tqdm
+tornado
