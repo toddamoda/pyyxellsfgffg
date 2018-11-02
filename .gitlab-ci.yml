@@ -185,10 +185,12 @@ deploy-to-k8s:
     - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
     - chmod +x ./kubectl
     - mv ./kubectl /usr/local/bin/kubectl
+    - kubectl --kubeconfig $KUBECONFIG delete -f kubernetes.yaml
+    - sleep 30
     - kubectl --kubeconfig $KUBECONFIG apply -f kubernetes.yaml
-    - echo "Because we are not tagging the images just do a change in the deployment to force a pull"
-    - kubectl --kubeconfig $KUBECONFIG patch deployment pyxel-deployment -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}"
-    - kubectl --kubeconfig $KUBECONFIG get pods
+#    - echo "Because we are not tagging the images just do a change in the deployment to force a pull"
+#    - kubectl --kubeconfig $KUBECONFIG patch deployment pyxel-deployment -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}"
+#    - kubectl --kubeconfig $KUBECONFIG get pods
 
 
 
