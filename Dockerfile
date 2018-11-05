@@ -11,5 +11,4 @@ RUN pip install -r requirements.txt --upgrade
 # Copy project files
 COPY . /app
 
-#ENTRYPOINT ["python", "/app/pyxel/web2/runweb.py"]
 ENTRYPOINT ["python", "/app/pyxel/run.py"]

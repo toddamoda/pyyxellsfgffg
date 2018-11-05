@@ -26,7 +26,8 @@ class Pixel:
         """
         self.detector = detector
         self.pixel_array = None
-        self.fill_pixels_with_charges()
+
+        # self.fill_pixels_with_charges()
 
         # self.nextid = None
         # self.frame = None

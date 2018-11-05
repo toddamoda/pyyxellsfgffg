@@ -8,7 +8,8 @@ from pyxel.detectors.ccd_geometry import CCDGeometry
 from pyxel.detectors.material import Material
 from pyxel.detectors.environment import Environment
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
-from typing import List
+from pyxel.physics.photon import Photon
+import typing as t  # noqa: F401
 
 
 class CCD(Detector):
@@ -19,7 +20,7 @@ class CCD(Detector):
                  material: Material,
                  environment: Environment,
                  characteristics: CCDCharacteristics,
-                 charge_injection_profile: List = None
+                 charge_injection_profile: t.List = None
                  ) -> None:
         """TBW.
 

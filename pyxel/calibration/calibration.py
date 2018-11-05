@@ -13,13 +13,13 @@ class Calibration:
     """
 
     def __init__(self,
-                 calibration_mode: str,
                  arguments: dict) -> None:
         """TBW."""
-        self.calibration_mode = calibration_mode      # type: str                # TODO
         self.args = arguments                         # type: dict
+        self.mode = 'pipeline'
         self.algo_type = None
         if self.args:
+            self.mode = self.args['calibration_mode'] # type: str
             self.algo_type = self.args['algorithm']   # type: str
         self.generations = None                       # type: t.Optional[int]
 
@@ -104,7 +104,7 @@ class Calibration:
 
         return opt_algorithm
 
-    def run_pipeline_calibration(self, config):
+    def run_calibration(self, config):
         """TBW.
 
         :param config:
@@ -126,7 +126,8 @@ class Calibration:
         else:
             raise AttributeError('Missing "population_size" from YAML config')
 
-        fitting.configure(model_names=self.args['model_names'],
+        fitting.configure(calibration_mode=self.mode,
+                          model_names=self.args['model_names'],
                           variables=self.args['variables'],
                           var_arrays=self.args['var_arrays'],
                           var_log=self.args['var_log'],

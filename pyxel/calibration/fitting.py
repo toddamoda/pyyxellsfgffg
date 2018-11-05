@@ -13,7 +13,7 @@ class ModelFitting:
 
     def __init__(self, detector, pipeline):
         """TBW."""
-        self.name = "model fitting"
+        self.calibration_mode = None
 
         self.det = detector
         self.pipe = pipeline
@@ -73,6 +73,7 @@ class ModelFitting:
         self.generations = gen
 
     def configure(self,
+                  calibration_mode: str,
                   model_names: list,
                   params_per_variable: list,
                   variables: list,
@@ -88,6 +89,7 @@ class ModelFitting:
                   ):
         """TBW.
 
+        :param calibration_mode: str
         :param model_names: list
         :param params_per_variable: list
         :param variables: list
@@ -102,6 +104,7 @@ class ModelFitting:
         :param sort_by_var: str
         :return:
         """
+        self.calibration_mode = calibration_mode
         self.model_name_list = model_names
         self.params_per_variable = params_per_variable
 
@@ -314,12 +317,21 @@ class ModelFitting:
         """
         parameter_lst = self.split_and_update(parameter)
 
-        # # If we want to optimize detector properties and not model arguments:
-        # self.update_detector_object(parameter_lst)                        # TODO not a priority
-        # # If we want to optimize model arguments:
-        self.update_pipeline_object(parameter_lst)
+        self.update_detector_object(parameter_lst)                           # TODO finish this
+        self.update_pipeline_model_arguments(parameter_lst)
 
-        new_det = self.pipe.run_pipeline(self.det)
+        if self.calibration_mode == 'pipeline':
+            new_det = self.pipe.run_pipeline(self.det)
+        elif self.calibration_mode == 'single_model':
+            raise NotImplementedError
+            # ###############################
+            # fitted_model = self.pipe.get_model(self.model_name_list[0])
+            # self.det.pixels.pixel_array = np.array([[100., 100.], [100., 100.]])              # TODO input of model
+            # new_det = fitted_model.function(self.det)
+            # new_det.image = new_det.pixels.pixel_array                                        # TODO output of model
+            # ###############################
+        else:
+            raise ValueError
 
         if self.sim_output == 'image':
             simulated_data = new_det.image
@@ -334,12 +346,6 @@ class ModelFitting:
         overall_fitness = 0
         for target_data in self.all_target_data:
             overall_fitness += self.calculate_fitness(simulated_data, target_data)
-
-        # if (self.n + 1) % self.pop == 0:
-        #     save_to = apply_run_number('data/calib_image_?.fits')             # TODO
-        #     print('saving image to %s' % save_to)
-        #     out = FitsFile(save_to)
-        #     out.save(new_det.image, header=None, overwrite=False)
 
         # print('fitness: %1.5e' % overall_fitness)
         if self.write2file:
@@ -375,7 +381,16 @@ class ModelFitting:
 
         return subarrays
 
-    def update_pipeline_object(self, param_array_list):
+    def update_detector_object(self, param_array_list):
+        """TBW.
+
+        :param param_array_list:
+        :return:
+        """
+        self.det.initialize()
+        # TODO update Material, Geometry, Char and Environment classes
+
+    def update_pipeline_model_arguments(self, param_array_list):
         """TBW.
 
         :param param_array_list:
@@ -395,15 +410,6 @@ class ModelFitting:
         #     arg_value = fitted_pipeline_model.arguments[self.variable_name_lst[i]]
         #     if str(arg_value) != '_':
         #         raise AttributeError
-
-        # ###############################
-        # fitted_model = self.pipe.get_model('cdm')
-        # asd = fitted_model.func
-        # csd = fitted_model.function
-        # out = fitted_model.function(self.det) # not working yet
-        # ize = self.pipe.model_groups
-        # ize2 = self.pipe.model_group_names
-        # ###############################
 
     def population_and_champions(self, parameter, overall_fitness):
         """Get champion (also population) of each generation and write it to output file(s).

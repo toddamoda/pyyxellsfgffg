@@ -25,13 +25,14 @@ simulation:
         values: [1, 2] # todo: list(range(10, 13))
 
   calibration:
-    calibration_mode: pipeline  # single_model
+
     arguments:
+      calibration_mode:  pipeline  #  single_model  #
       output: image   # signal # charge
-      output_fit_range: [10, 30, 20, 50] #
+      output_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50] #
 
       target_data_path: ['pyxel/results.fits', 'pyxel/results.fits']     # <*.npy> <*.fits> <ascii>
-      target_fit_range: [10, 30, 20, 50]
+      target_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50]
 
       fitness_mode: residuals    # least-squares
 #      weighting_func_path:  # 'pyxel/results.fits'

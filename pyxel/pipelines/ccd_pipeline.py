@@ -67,7 +67,7 @@ class CCDDetectionPipeline(DetectionPipeline):
         """
         # INITIALIZATION (open or generate image):
         # START -> create photons ->
-        detector.photons = Photon(detector)
+        # detector.photons = Photon(detector)   ########
         # detector.photons.generate_photons()
         detector = self.run_model_group('photon_generation', detector)
 
@@ -77,13 +77,15 @@ class CCDDetectionPipeline(DetectionPipeline):
 
         # CHARGE GENERATION:
         # -> create charges & remove photons ->
-        detector.charges = Charge(detector)
+        # detector.charges = Charge(detector)           ########
         detector = self.run_model_group('charge_generation', detector)
 
         # CHARGE COLLECTION:
         # -> transport/modify charges ->
         # -> collect charges in pixels ->
-        detector.pixels = Pixel(detector)
+        # detector.pixels = Pixel(detector)         #######
+        detector.pixels.fill_pixels_with_charges()
+
         detector = self.run_model_group('charge_collection', detector)
 
         # CHARGE TRANSFER:
@@ -93,14 +95,14 @@ class CCDDetectionPipeline(DetectionPipeline):
         # CHARGE READOUT
         # -> create signal -> modify signal ->
         char = detector.characteristics
-        detector.signal = detector.pixels.pixel_array * char.sv * char.amp * char.a1 * char.a2
+        detector.signal = detector.pixels.pixel_array * char.sv * char.amp * char.a1 * char.a2      # TODO
         # detector.signal = detector.signal.astype('float64')
         detector = self.run_model_group('charge_measurement', detector)
 
         # READOUT ELECTRONICS
         # -> create image -> modify image -> END
         # detector.image = detector.signal.astype('uint16')  # todo: replace this into detector class
-        detector.image = detector.signal                     # todo: replace this into detector class
+        detector.image = detector.signal                     # todo: replace this into detector class   # TODO
 
         detector = self.run_model_group('readout_electronics', detector)  # todo: rounding signal in models
         # at this point the image pixel values should be rounded to integers (quantization)

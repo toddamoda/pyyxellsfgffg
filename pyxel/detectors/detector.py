@@ -25,31 +25,44 @@ class Detector:
                  geometry: Geometry,
                  material: Material,
                  environment: Environment,
-                 characteristics: Characteristics) -> None:
+                 characteristics: Characteristics
+                 ) -> None:
         """TBW.
 
         :param geometry:
         :param environment:
         :param characteristics:
         """
-        self._photons = None   # type: t.Optional[Photon]
-        self._charges = None   # type: t.Optional[Charge]
-        self._pixels = None    # type: t.Optional[Pixel]
-        self._signal = None    # ndarray, signal read out directly from detector
-        self._image = None     # ndarray, image read out via readout electronics
-
         self.geometry = geometry                # type: Geometry
         self.material = material                # type: Material
         self.environment = environment          # type: Environment
         self.characteristics = characteristics  # type: Characteristics
         self.header = OrderedDict()             # type: t.Dict[str, object]
 
-        self._target_output_data = None
-        # self._weighting_function = None
+        self.photons = None                     # type: t.Optional[Photon]
+        self.charges = None                     # type: t.Optional[Charge]
+        self.pixels = None                      # type: t.Optional[Pixel]
+        self.signal = None                      # ndarray, signal read out directly from detector
+        self.image = None                       # ndarray, image read out via readout electronics
 
-        # experimantal! ############
+        self._target_output_data = None
+
+        self.initialize()
+
+        # ##### experimantal! #######
         # self.geometry.create_sensor()
         ############################
+
+    def initialize(self):
+        """
+
+        :return:
+        """
+        self.photons = Photon(self)
+        self.charges = Charge(self)
+        self.pixels = Pixel(self)
+        self.signal = None              # TODO
+        self.image = None               # TODO
 
     ######################################
     # These functions are not called at all:
@@ -95,7 +108,12 @@ class Detector:
             'geometry': self.geometry,
             'material': self.material,
             'environment': self.environment,
-            'characteristics': self.characteristics
+            'characteristics': self.characteristics,
+            'photons': self.photons,
+            'charges': self.charges,
+            'pixels': self.pixels,
+            'signal': self.signal,
+            'image': self.image
         }
 
     def get_state_json(self):
@@ -105,85 +123,85 @@ class Detector:
         """
         return om.get_state_dict(self)
 
-    @property
-    def photons(self):
-        """TBW.
-
-        :return:
-        """
-        return self._photons
-
-    @photons.setter
-    def photons(self, new_photon):
-        """TBW.
-
-        :param new_photon:
-        """
-        self._photons = new_photon
-
-    @property
-    def charges(self):
-        """TBW.
-
-        :return:
-        """
-        return self._charges
-
-    @charges.setter
-    def charges(self, new_charge):
-        """TBW.
-
-        :param new_charge:
-        """
-        self._charges = new_charge
-
-    @property
-    def pixels(self):
-        """TBW.
-
-        :return:
-        """
-        return self._pixels
-
-    @pixels.setter
-    def pixels(self, new_pixel):
-        """TBW.
-
-        :param new_pixel:
-        """
-        self._pixels = new_pixel
-
-    @property
-    def signal(self):
-        """TBW.
-
-        :return:
-        """
-        return self._signal
-
-    @signal.setter
-    def signal(self, new_signal: np.ndarray):
-        """TBW.
-
-        :param new_signal:
-        """
-        self._signal = new_signal
-
-    @property
-    def image(self):
-        """TBW.
-
-        :return:
-        """
-        return self._image
-
-    @image.setter
-    def image(self, new_image: np.ndarray):
-        """TBW.
-
-        :return:
-        """
-        self._image = new_image
+    # @property
+    # def photons(self):
+    #     """TBW.
+    #
+    #     :return:
+    #     """
+    #     return self._photons
+    #
+    # @photons.setter
+    # def photons(self, new_photon):
+    #     """TBW.
+    #
+    #     :param new_photon:
+    #     """
+    #     self._photons = new_photon
+    #
+    # @property
+    # def charges(self):
+    #     """TBW.
+    #
+    #     :return:
+    #     """
+    #     return self._charges
+    #
+    # @charges.setter
+    # def charges(self, new_charge):
+    #     """TBW.
+    #
+    #     :param new_charge:
+    #     """
+    #     self._charges = new_charge
+    #
+    # @property
+    # def pixels(self):
+    #     """TBW.
+    #
+    #     :return:
+    #     """
+    #     return self._pixels
+    #
+    # @pixels.setter
+    # def pixels(self, new_pixel):
+    #     """TBW.
+    #
+    #     :param new_pixel:
+    #     """
+    #     self._pixels = new_pixel
+    #
+    # @property
+    # def signal(self):
+    #     """TBW.
+    #
+    #     :return:
+    #     """
+    #     return self._signal
+    #
+    # @signal.setter
+    # def signal(self, new_signal: np.ndarray):
+    #     """TBW.
+    #
+    #     :param new_signal:
+    #     """
+    #     self._signal = new_signal
+    #
+    # @property
+    # def image(self):
+    #     """TBW.
+    #
+    #     :return:
+    #     """
+    #     return self._image
+    #
+    # @image.setter
+    # def image(self, new_image: np.ndarray):
+    #     """TBW.
+    #
+    #     :return:
+    #     """
+    #     self._image = new_image
 
     @property
     def target_output_data(self):
@@ -200,22 +218,6 @@ class Detector:
         :return:
         """
         self._target_output_data = target_output
-
-    # @property
-    # def weighting_function(self):
-    #     """TBW.
-    #
-    #     :return:
-    #     """
-    #     return self._weighting_function
-    #
-    # @weighting_function.setter
-    # def weighting_function(self, weighting_func):
-    #     """TBW.
-    #
-    #     :return:
-    #     """
-    #     self._weighting_function = weighting_func
 
     @property
     def e_thermal_velocity(self):

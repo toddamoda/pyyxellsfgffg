@@ -9,6 +9,7 @@ in MCT, diffusion, cross-talk etc.) on a given image.
 """
 import argparse
 import logging
+import time
 from pathlib import Path
 import numpy as np
 import esapy_config as om
@@ -26,6 +27,7 @@ def run(input_filename, output_file: str = None, random_seed: int = None):
     :param random_seed:
     :return:
     """
+    start_time = time.time()
     if random_seed:
         np.random.seed(random_seed)
     output = []
@@ -41,8 +43,7 @@ def run(input_filename, output_file: str = None, random_seed: int = None):
         detector = processor.pipeline.run_pipeline(processor.detector)
 
     elif simulation.mode == 'calibration':
-        # run_pipeline_calibration(simulation.calibration, processor)
-        simulation.calibration.run_pipeline_calibration(processor)
+        simulation.calibration.run_calibration(processor)
 
     elif simulation.mode == 'parametric':
         configs = simulation.parametric_analysis.collect(processor)
@@ -50,7 +51,7 @@ def run(input_filename, output_file: str = None, random_seed: int = None):
             detector = config.pipeline.run_pipeline(config.detector)
 
     else:
-        raise AttributeError
+        raise ValueError
 
     if output_file and detector:
         save_to = util.apply_run_number(output_file)
@@ -60,7 +61,8 @@ def run(input_filename, output_file: str = None, random_seed: int = None):
         # ... when it can not save data to fits file (because it is opened/used by other process)
         output.append(output_file)
 
-    print('Pipeline completed.')
+    print('\nPipeline completed.')
+    print("Runnig time: %.3f seconds" % (time.time() - start_time))
     return output
 
 
