@@ -5,9 +5,9 @@
 
 simulation:
 ###################
-#  mode: single
+  mode: single
 #  mode: parametric
-  mode: calibration
+#  mode: calibration
 ###################
 
   parametric_analysis:
@@ -178,7 +178,7 @@ processor:
       -
         name: tars
         func: pyxel.models.tars.tars.run_tars
-        enabled: false
+        enabled: true
         arguments:
           simulation_mode: cosmic_ray   # snowflakes
           running_mode: stepsize  # stopping  # plotting  # geant4
@@ -229,7 +229,7 @@ processor:
       -
         name: output_node_noise
         func: pyxel.models.ccd_noise.add_output_node_noise
-        enabled: false
+        enabled: true
         arguments:
           std_deviation: 40.
 

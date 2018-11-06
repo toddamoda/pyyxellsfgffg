@@ -1,4 +1,4 @@
-import json
+# import json
 from ast import literal_eval
 from pathlib import Path
 
@@ -86,20 +86,20 @@ parametric.steps.3.enabled=False
 """
 
 
-def test_getstate():
-    input_filename = 'tests/data/pipeline_parametric.yaml'
-    cfg = io.load(Path(input_filename))
-
-    param_obj = cfg['simulation'].parametric_analysis.get_state_json()
-    proc_obj = cfg['processor'].get_state_json()
-
-    cfg_obj = om.get_state_dict(cfg)
-    buf = json.dumps(cfg_obj)
-    assert isinstance(buf, str)
-    buf = json.dumps(param_obj)
-    assert isinstance(buf, str)
-    buf = json.dumps(proc_obj)
-    assert isinstance(buf, str)
+# def test_getstate():                                                 # todo reactivate this test
+#     input_filename = 'tests/data/pipeline_parametric.yaml'
+#     cfg = io.load(Path(input_filename))
+#
+#     param_obj = cfg['simulation'].parametric_analysis.get_state_json()
+#     proc_obj = cfg['processor'].get_state_json()
+#
+#     cfg_obj = om.get_state_dict(cfg)
+#     buf = json.dumps(cfg_obj)
+#     assert isinstance(buf, str)
+#     buf = json.dumps(param_obj)
+#     assert isinstance(buf, str)
+#     buf = json.dumps(proc_obj)
+#     assert isinstance(buf, str)
 
 
 def test_get_state_ids():

@@ -5,7 +5,6 @@
 from math import sqrt
 from collections import OrderedDict
 import typing as t  # noqa: F401
-import numpy as np
 
 # from astropy import units as u
 from pyxel.detectors.geometry import Geometry
@@ -25,8 +24,12 @@ class Detector:
                  geometry: Geometry,
                  material: Material,
                  environment: Environment,
-                 characteristics: Characteristics
-                 ) -> None:
+                 characteristics: Characteristics,
+                 photons: Photon = None,
+                 charges: Charge = None,
+                 pixels: Pixel = None,
+                 signal=None,
+                 image=None) -> None:
         """TBW.
 
         :param geometry:
@@ -39,11 +42,22 @@ class Detector:
         self.characteristics = characteristics  # type: Characteristics
         self.header = OrderedDict()             # type: t.Dict[str, object]
 
-        self.photons = None                     # type: t.Optional[Photon]
-        self.charges = None                     # type: t.Optional[Charge]
-        self.pixels = None                      # type: t.Optional[Pixel]
+        self.photons = Photon(self)             # type: Photon  # t.Optional[Photon]
+        self.charges = Charge(self)             # type: Charge # t.Optional[Charge]
+        self.pixels = Pixel(self)               # type: Pixel   # t.Optional[Pixel]
         self.signal = None                      # ndarray, signal read out directly from detector
         self.image = None                       # ndarray, image read out via readout electronics
+
+        if photons:
+            self.photons = photons
+        if charges:
+            self.charges = charges
+        if pixels:
+            self.pixels = pixels
+        if signal:
+            self.signal = signal
+        if image:
+            self.image = image
 
         self._target_output_data = None
 
@@ -54,13 +68,10 @@ class Detector:
         ############################
 
     def initialize(self):
-        """
-
-        :return:
-        """
-        self.photons = Photon(self)
-        self.charges = Charge(self)
-        self.pixels = Pixel(self)
+        """TBW."""
+        self.photons = Photon(self)     # type: Photon  # t.Optional[Photon]
+        self.charges = Charge(self)     # type: Charge # t.Optional[Charge]
+        self.pixels = Pixel(self)       # type: Pixel   # t.Optional[Pixel]
         self.signal = None              # TODO
         self.image = None               # TODO
 
@@ -101,7 +112,6 @@ class Detector:
     def __getstate__(self):
         """TBW.
 
-        This function is used by the GUI.
         :return:
         """
         return {

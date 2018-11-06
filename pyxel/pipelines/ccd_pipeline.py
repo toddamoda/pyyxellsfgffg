@@ -2,9 +2,6 @@
 from pyxel import util
 from pyxel.pipelines.detector_pipeline import DetectionPipeline
 from pyxel.detectors.detector import Detector
-from pyxel.physics.charge import Charge
-from pyxel.physics.photon import Photon
-from pyxel.physics.pixel import Pixel
 from pyxel.pipelines.model_group import ModelGroup
 
 
@@ -65,10 +62,7 @@ class CCDDetectionPipeline(DetectionPipeline):
         :param detector:
         :return:
         """
-        # INITIALIZATION (open or generate image):
         # START -> create photons ->
-        # detector.photons = Photon(detector)   ########
-        # detector.photons.generate_photons()
         detector = self.run_model_group('photon_generation', detector)
 
         # OPTICS:
@@ -77,15 +71,11 @@ class CCDDetectionPipeline(DetectionPipeline):
 
         # CHARGE GENERATION:
         # -> create charges & remove photons ->
-        # detector.charges = Charge(detector)           ########
         detector = self.run_model_group('charge_generation', detector)
 
         # CHARGE COLLECTION:
-        # -> transport/modify charges ->
-        # -> collect charges in pixels ->
-        # detector.pixels = Pixel(detector)         #######
+        # -> transport/modify charges -> collect charges in pixels ->
         detector.pixels.fill_pixels_with_charges()
-
         detector = self.run_model_group('charge_collection', detector)
 
         # CHARGE TRANSFER:

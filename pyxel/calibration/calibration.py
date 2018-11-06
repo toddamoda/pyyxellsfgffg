@@ -15,45 +15,45 @@ class Calibration:
     def __init__(self,
                  arguments: dict) -> None:
         """TBW."""
-        self.args = arguments                         # type: dict
+        self.args = arguments                               # type: dict
         self.mode = 'pipeline'
         self.algo_type = None
         if self.args:
-            self.mode = self.args['calibration_mode'] # type: str
-            self.algo_type = self.args['algorithm']   # type: str
-        self.generations = None                       # type: t.Optional[int]
+            self.mode = self.args['calibration_mode']       # type: str
+            self.algo_type = self.args['algorithm']         # type: str
+        self.generations = None                             # type: t.Optional[int]
 
         if self.algo_type == 'sade':
-            self.generations = 1                      # type: int
-            self.variant = 2                          # type: int
-            self.variant_adptv = 1                    # type: int
-            self.ftol = 1e-06                         # type: float
-            self.xtol = 1e-06                         # type: float
-            self.memory = False                       # type: bool
+            self.generations = 1                            # type: int
+            self.variant = 2                                # type: int
+            self.variant_adptv = 1                          # type: int
+            self.ftol = 1e-06                               # type: float
+            self.xtol = 1e-06                               # type: float
+            self.memory = False                             # type: bool
 
         elif self.algo_type == 'sga':
-            self.generations = 1                      # type: int
-            self.cr = 0.9                             # type: float
-            self.eta_c = 1.0                          # type: float
-            self.m = 0.02                             # type: float
-            self.param_m = 1.0                        # type: float
-            self.param_s = 2                          # type: int
-            self.crossover = 'exponential'            # type: str
-            self.mutation = 'polynomial'              # type: str
-            self.selection = 'tournament'             # type: str
+            self.generations = 1                            # type: int
+            self.cr = 0.9                                   # type: float
+            self.eta_c = 1.0                                # type: float
+            self.m = 0.02                                   # type: float
+            self.param_m = 1.0                              # type: float
+            self.param_s = 2                                # type: int
+            self.crossover = 'exponential'                  # type: str
+            self.mutation = 'polynomial'                    # type: str
+            self.selection = 'tournament'                   # type: str
 
         elif self.algo_type == 'nlopt':
-            self.nlopt_solver = 'neldermead'          # type: str
-            self.maxtime = 0                          # type: int
-            self.maxeval = 0                          # type: int
-            self.xtol_rel = 1.e-8                     # type: float
-            self.xtol_abs = 0.                        # type: float
-            self.ftol_rel = 0.                        # type: float
-            self.ftol_abs = 0.                        # type: float
-            self.stopval = float('-inf')              # type: float
-            self.local_optimizer = None               # type: None
-            self.replacement = 'best'                 # type: str
-            self.selection = 'best'                   # type: str
+            self.nlopt_solver = 'neldermead'                # type: str
+            self.maxtime = 0                                # type: int
+            self.maxeval = 0                                # type: int
+            self.xtol_rel = 1.e-8                           # type: float
+            self.xtol_abs = 0.                              # type: float
+            self.ftol_rel = 0.                              # type: float
+            self.ftol_abs = 0.                              # type: float
+            self.stopval = float('-inf')                    # type: float
+            self.local_optimizer = None                     # type: None
+            self.replacement = 'best'                       # type: str
+            self.selection = 'best'                         # type: str
 
         names = ['generations',
                  'variant', 'variant_adptv', 'ftol', 'xtol', 'memory',

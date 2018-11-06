@@ -8,7 +8,9 @@ from pyxel.detectors.ccd_geometry import CCDGeometry
 from pyxel.detectors.material import Material
 from pyxel.detectors.environment import Environment
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
-from pyxel.physics.photon import Photon
+from pyxel.physics.charge import Charge  # noqa: F401
+from pyxel.physics.photon import Photon  # noqa: F401
+from pyxel.physics.pixel import Pixel    # noqa: F401
 import typing as t  # noqa: F401
 
 
@@ -20,7 +22,12 @@ class CCD(Detector):
                  material: Material,
                  environment: Environment,
                  characteristics: CCDCharacteristics,
-                 charge_injection_profile: t.List = None
+                 charge_injection_profile: t.List = None,
+                 photons: Photon = None,
+                 charges: Charge = None,
+                 pixels: Pixel = None,
+                 signal=None,
+                 image=None
                  ) -> None:
         """TBW.
 
@@ -32,11 +39,27 @@ class CCD(Detector):
         super().__init__(geometry=geometry,
                          material=material,
                          environment=environment,
-                         characteristics=characteristics)
+                         characteristics=characteristics,
+                         photons=photons,
+                         charges=charges,
+                         pixels=pixels,
+                         signal=signal,
+                         image=image)
 
         self._charge_injection_profile = None
         if charge_injection_profile:
             self._charge_injection_profile = charge_injection_profile
+
+        # if photons:
+        #     self.photons = photons
+        # if charges:
+        #     self.charges = charges
+        # if pixels:
+        #     self.pixels = pixels
+        # if signal:
+        #     self.signal = signal
+        # if image:
+        #     self.image = image
 
     # def copy(self):
     #     """TBW."""
