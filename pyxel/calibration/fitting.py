@@ -334,7 +334,7 @@ class ModelFitting:
             raise ValueError
 
         if self.sim_output == 'image':
-            simulated_data = new_det.image
+            simulated_data = new_det.image.array
         elif self.sim_output == 'signal':
             raise NotImplementedError       # todo: new_det.signal
         elif self.sim_output == 'charge':
@@ -387,7 +387,7 @@ class ModelFitting:
         :param param_array_list:
         :return:
         """
-        self.det.initialize()
+        self.det.reinitialize()
         # TODO update Material, Geometry, Char and Environment classes
 
     def update_pipeline_model_arguments(self, param_array_list):

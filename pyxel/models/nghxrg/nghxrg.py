@@ -84,10 +84,10 @@ def ktc_bias_noise(detector: CMOS,
     result = ng_h2rg.format_result(result)
 
     if window_mode == 'FULL':
-        new_detector.signal += result
+        new_detector.signal.array += result
     elif window_mode == 'WINDOW':
-        new_detector.signal[wind_y0:wind_y0 + wind_y_size, wind_x0:wind_x0 + wind_x_size] += result
-    # TODO: add to new_detector.signal OR new_detector.image OR charge dataframe ?
+        new_detector.signal.array[wind_y0:wind_y0 + wind_y_size, wind_x0:wind_x0 + wind_x_size] += result
+    # TODO: add to new_detector.signal.array OR new_detector.image OR charge dataframe ?
 
     # ng_h2rg.create_hdu(result, 'pyxel/hxrg_read_noise.fits')
 
@@ -137,10 +137,10 @@ def white_read_noise(detector: CMOS,
     result = ng_h2rg.format_result(result)
 
     if window_mode == 'FULL':
-        new_detector.signal += result
+        new_detector.signal.array += result
     elif window_mode == 'WINDOW':
-        new_detector.signal[wind_y0:wind_y0 + wind_y_size, wind_x0:wind_x0 + wind_x_size] += result
-    # TODO: add to new_detector.signal OR new_detector.image OR charge dataframe ?
+        new_detector.signal.array[wind_y0:wind_y0 + wind_y_size, wind_x0:wind_x0 + wind_x_size] += result
+    # TODO: add to new_detector.signal.array OR new_detector.image OR charge dataframe ?
 
     # ng_h2rg.create_hdu(result, 'pyxel/hxrg_read_noise.fits')
 
@@ -187,10 +187,10 @@ def acn_noise(detector: CMOS,
     result = ng_h2rg.format_result(result)
 
     if window_mode == 'FULL':
-        new_detector.signal += result
+        new_detector.signal.array += result
     elif window_mode == 'WINDOW':
-        new_detector.signal[wind_y0:wind_y0 + wind_y_size, wind_x0:wind_x0 + wind_x_size] += result
-    # TODO: add to new_detector.signal OR new_detector.image OR charge dataframe ?
+        new_detector.signal.array[wind_y0:wind_y0 + wind_y_size, wind_x0:wind_x0 + wind_x_size] += result
+    # TODO: add to new_detector.signal.array OR new_detector.image OR charge dataframe ?
 
     # ng_h2rg.create_hdu(result, 'pyxel/hxrg_read_noise.fits')
 
@@ -237,10 +237,10 @@ def uncorr_pink_noise(detector: CMOS,
     result = ng_h2rg.format_result(result)
 
     if window_mode == 'FULL':
-        new_detector.signal += result
+        new_detector.signal.array += result
     elif window_mode == 'WINDOW':
-        new_detector.signal[wind_y0:wind_y0 + wind_y_size, wind_x0:wind_x0 + wind_x_size] += result
-    # TODO: add to new_detector.signal OR new_detector.image OR charge dataframe ?
+        new_detector.signal.array[wind_y0:wind_y0 + wind_y_size, wind_x0:wind_x0 + wind_x_size] += result
+    # TODO: add to new_detector.signal.array OR new_detector.image OR charge dataframe ?
 
     # ng_h2rg.create_hdu(result, 'pyxel/hxrg_read_noise.fits')
 
@@ -287,10 +287,10 @@ def corr_pink_noise(detector: CMOS,
     result = ng_h2rg.format_result(result)
 
     if window_mode == 'FULL':
-        new_detector.signal += result
+        new_detector.signal.array += result
     elif window_mode == 'WINDOW':
-        new_detector.signal[wind_y0:wind_y0 + wind_y_size, wind_x0:wind_x0 + wind_x_size] += result
-    # TODO: add to new_detector.signal OR new_detector.image OR charge dataframe ?
+        new_detector.signal.array[wind_y0:wind_y0 + wind_y_size, wind_x0:wind_x0 + wind_x_size] += result
+    # TODO: add to new_detector.signal.array OR new_detector.image OR charge dataframe ?
 
     # ng_h2rg.create_hdu(result, 'pyxel/hxrg_read_noise.fits')
 
@@ -336,10 +336,10 @@ def pca_zero_noise(detector: CMOS,
     result = ng_h2rg.format_result(result)
 
     if window_mode == 'FULL':
-        new_detector.signal += result
+        new_detector.signal.array += result
     elif window_mode == 'WINDOW':
-        new_detector.signal[wind_y0:wind_y0 + wind_y_size, wind_x0:wind_x0 + wind_x_size] += result
-    # TODO: add to new_detector.signal OR new_detector.image OR charge dataframe ?
+        new_detector.signal.array[wind_y0:wind_y0 + wind_y_size, wind_x0:wind_x0 + wind_x_size] += result
+    # TODO: add to new_detector.signal.array OR new_detector.image OR charge dataframe ?
 
     # ng_h2rg.create_hdu(result, 'pyxel/hxrg_read_noise.fits')
 

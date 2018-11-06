@@ -1,13 +1,11 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-"""PyXel! Pixel class to store and transfer charge packets inside detector."""
+"""Pyxel Pixel class to store and transfer charge packets inside detector."""
 import numpy as np
 # import pandas as pd
 # from astropy import units as u
 from astropy.units import cds
-
-# from pyxel import util
 
 cds.enable()
 

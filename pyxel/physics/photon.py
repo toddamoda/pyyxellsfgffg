@@ -1,9 +1,8 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-"""PyXel! Photon class to generate and track photons."""
+"""Pyxel Photon class to generate and track photons."""
 import math
-
 import numpy as np
 import pandas as pd
 # from astropy import units as u

@@ -29,7 +29,7 @@
 #     print('Pipeline completed.')
 #
 #     expected = fits.getdata(exp_filename)
-#     image = detector.image  # type: np.ndarray
+#     image = detector.image.array  # type: np.ndarray
 #
 #     # fits.writeto('tests/data/expected_ccd_pipeline01.fits', image, None, output_verify='ignore', overwrite=True)
 #     assert isinstance(image, np.ndarray)

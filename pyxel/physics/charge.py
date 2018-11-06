@@ -1,14 +1,12 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-"""PyXel! Charge class to generate electrons or holes inside detector."""
+"""Pyxel Charge class to generate electrons or holes inside detector."""
 import math
-
 import numpy as np
 import pandas as pd
 # from astropy import units as u
 from astropy.units import cds
-
 # from pyxel.util.util import round_convert_to_int    # , convert_to_int
 
 cds.enable()

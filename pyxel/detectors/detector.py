@@ -14,6 +14,8 @@ from pyxel.detectors.characteristics import Characteristics
 from pyxel.physics.charge import Charge  # noqa: F401
 from pyxel.physics.photon import Photon  # noqa: F401
 from pyxel.physics.pixel import Pixel    # noqa: F401
+from pyxel.physics.signal import Signal  # noqa: F401
+from pyxel.physics.image import Image    # noqa: F401
 import esapy_config as om
 
 
@@ -28,8 +30,8 @@ class Detector:
                  photons: Photon = None,
                  charges: Charge = None,
                  pixels: Pixel = None,
-                 signal=None,
-                 image=None) -> None:
+                 signal: Signal = None,
+                 image: Image = None) -> None:
         """TBW.
 
         :param geometry:
@@ -42,11 +44,11 @@ class Detector:
         self.characteristics = characteristics  # type: Characteristics
         self.header = OrderedDict()             # type: t.Dict[str, object]
 
-        self.photons = Photon(self)             # type: Photon  # t.Optional[Photon]
-        self.charges = Charge(self)             # type: Charge # t.Optional[Charge]
-        self.pixels = Pixel(self)               # type: Pixel   # t.Optional[Pixel]
-        self.signal = None                      # ndarray, signal read out directly from detector
-        self.image = None                       # ndarray, image read out via readout electronics
+        self.photons = Photon(self)             # type: Photon
+        self.charges = Charge(self)             # type: Charge
+        self.pixels = Pixel(self)               # type: Pixel
+        self.signal = Signal(self)              # type: Signal
+        self.image = Image(self)                # type: Image
 
         if photons:
             self.photons = photons
@@ -61,19 +63,17 @@ class Detector:
 
         self._target_output_data = None
 
-        self.initialize()
-
         # ##### experimantal! #######
         # self.geometry.create_sensor()
         ############################
 
-    def initialize(self):
+    def reinitialize(self):
         """TBW."""
-        self.photons = Photon(self)     # type: Photon  # t.Optional[Photon]
-        self.charges = Charge(self)     # type: Charge # t.Optional[Charge]
-        self.pixels = Pixel(self)       # type: Pixel   # t.Optional[Pixel]
-        self.signal = None              # TODO
-        self.image = None               # TODO
+        self.photons = Photon(self)  # type: Photon
+        self.charges = Charge(self)  # type: Charge
+        self.pixels = Pixel(self)    # type: Pixel
+        self.signal = Signal(self)   # type: Signal
+        self.image = Image(self)     # type: Image
 
     ######################################
     # These functions are not called at all:

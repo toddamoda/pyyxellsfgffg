@@ -11,6 +11,8 @@ from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.physics.charge import Charge  # noqa: F401
 from pyxel.physics.photon import Photon  # noqa: F401
 from pyxel.physics.pixel import Pixel    # noqa: F401
+from pyxel.physics.signal import Signal  # noqa: F401
+from pyxel.physics.image import Image    # noqa: F401
 import typing as t  # noqa: F401
 
 
@@ -26,9 +28,8 @@ class CCD(Detector):
                  photons: Photon = None,
                  charges: Charge = None,
                  pixels: Pixel = None,
-                 signal=None,
-                 image=None
-                 ) -> None:
+                 signal: Signal = None,
+                 image: Image = None) -> None:
         """TBW.
 
         :param geometry:
@@ -49,17 +50,6 @@ class CCD(Detector):
         self._charge_injection_profile = None
         if charge_injection_profile:
             self._charge_injection_profile = charge_injection_profile
-
-        # if photons:
-        #     self.photons = photons
-        # if charges:
-        #     self.charges = charges
-        # if pixels:
-        #     self.pixels = pixels
-        # if signal:
-        #     self.signal = signal
-        # if image:
-        #     self.image = image
 
     # def copy(self):
     #     """TBW."""

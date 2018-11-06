@@ -56,13 +56,13 @@ def run(input_filename, output_file: str = None, random_seed: int = None):
     if output_file and detector:
         save_to = util.apply_run_number(output_file)
         out = util.FitsFile(save_to)
-        out.save(detector.image, header=None, overwrite=True)
+        out.save(detector.image.array, header=None, overwrite=True)
         # todo: BUG creates new, fits file with random filename and without extension
         # ... when it can not save data to fits file (because it is opened/used by other process)
         output.append(output_file)
 
     print('\nPipeline completed.')
-    print("Runnig time: %.3f seconds" % (time.time() - start_time))
+    print("Running time: %.3f seconds" % (time.time() - start_time))
     return output
 
 
