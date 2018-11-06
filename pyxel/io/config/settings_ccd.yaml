@@ -11,8 +11,8 @@ simulation:
 ###################
 
   parametric_analysis:
-    parametric_mode: sequential
-#    parametric_mode: embedded
+#    parametric_mode: sequential
+    parametric_mode: embedded
     steps:
       -
         enabled: true

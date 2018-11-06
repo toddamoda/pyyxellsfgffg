@@ -75,10 +75,10 @@ class ModelGroup:
         self.models = models    # type: t.List[ModelFunction]
         self._log = logging.getLogger(__name__)
 
-    def copy(self):
-        """TBW."""
-        models = {key: model.copy() for key, model in self.models.items()}
-        return ModelGroup(models=models)
+    # def copy(self):
+    #     """TBW."""
+    #     models = {key: model.copy() for key, model in self.models.items()}
+    #     return ModelGroup(models=models)
 
     def get_state_json(self):
         """TBW."""
@@ -110,8 +110,8 @@ class ModelGroup:
 
     def __getattr__(self, item):
         """TBW."""
-        if item == '__deepcopy__':
-            return self.copy()
+        # if item == '__deepcopy__':
+        #     return self.copy()
         if item == '__setstate__':
             return super().__getattr__(item)
         for model in self.models:         # THIS CAUSED AN INFINITE RECURSIVE LOOP, WHEN ModelGroup was deepcopied

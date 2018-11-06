@@ -55,6 +55,9 @@ class Photon:
 
         :param detector:
         """
+        print('id(detector): ', id(detector))
+        print('id(self): ', id(self))
+
         self.detector = detector
         self.nextid = 0
         self.frame = pd.DataFrame(columns=['id',

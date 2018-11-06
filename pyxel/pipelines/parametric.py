@@ -1,7 +1,7 @@
 """TBW."""
 import itertools
 import typing as t
-
+from copy import deepcopy
 import esapy_config as om
 
 
@@ -22,10 +22,10 @@ class StepValues:
         self.enabled = enabled  # bool
         self.current = current
 
-    def copy(self):
-        """TBW."""
-        kwargs = {key: type(value)(value) for key, value in self.__getstate__().items()}
-        return StepValues(**kwargs)
+    # def copy(self):
+    #     """TBW."""
+    #     kwargs = {key: type(value)(value) for key, value in self.__getstate__().items()}
+    #     return StepValues(**kwargs)
 
     def __getstate__(self):
         """TBW."""
@@ -59,9 +59,9 @@ class ParametricAnalysis:
         self.parametric_mode = parametric_mode
         self.steps = steps
 
-    def copy(self):
-        """TBW."""
-        return Configuration(self.parametric_mode, [step.copy() for step in self.steps])
+    # def copy(self):
+    #     """TBW."""
+    #     return Configuration(self.parametric_mode, [step.copy() for step in self.steps])
 
     def get_state_json(self):
         """TBW."""
@@ -86,7 +86,8 @@ class ParametricAnalysis:
             key = step.key
             for value in step:
                 step.current = value
-                new_proc = om.copy_processor(processor)
+                # new_proc = om.copy_processor(processor)
+                new_proc = deepcopy(processor)
                 new_proc.set(key, value)
                 yield new_proc
 
@@ -99,7 +100,8 @@ class ParametricAnalysis:
         all_steps = self.enabled_steps
         keys = [step.key for step in self.enabled_steps]
         for params in itertools.product(*all_steps):
-            new_proc = om.copy_processor(processor)
+            # new_proc = om.copy_processor(processor)
+            new_proc = deepcopy(processor)
             for key, value in zip(keys, params):
                 for step in all_steps:
                     if step.key == key:
@@ -107,34 +109,36 @@ class ParametricAnalysis:
                 new_proc.set(key=key, value=value)
             yield new_proc
 
-    def _embedded_org(self, processor, level=0, configs=None):
-        """TBW.
-
-        :param processor:
-        :param level:
-        :param sequence:
-        :return:
-        """
-        if configs is None:
-            configs = []
-
-        step = self.enabled_steps[level]
-        key = step.key
-        for value in step:
-            processor.set(key, value)
-            if level + 1 < len(self.enabled_steps):
-                self._embedded(processor, level + 1, configs)
-            else:
-                configs.append(om.copy_processor(processor))
-
-        return configs
+    # def _embedded_org(self, processor, level=0, configs=None):
+    #     """TBW.
+    #
+    #     :param processor:
+    #     :param level:
+    #     :param sequence:
+    #     :return:
+    #     """
+    #     if configs is None:
+    #         configs = []
+    #
+    #     step = self.enabled_steps[level]
+    #     key = step.key
+    #     for value in step:
+    #         processor.set(key, value)
+    #         if level + 1 < len(self.enabled_steps):
+    #             self._embedded(processor, level + 1, configs)
+    #         else:
+    #             configs.append(om.copy_processor(processor))
+    #
+    #     return configs
 
     def collect(self, processor):
         """TBW."""
         if self.parametric_mode == 'embedded':
-            configs = self._embedded(om.copy_processor(processor))
+            # configs = self._embedded(om.copy_processor(processor))
+            configs = self._embedded(processor)
         elif self.parametric_mode == 'sequential':
-            configs = self._sequential(om.copy_processor(processor))
+            # configs = self._sequential(om.copy_processor(processor))
+            configs = self._sequential(processor)
         else:
             configs = []
 

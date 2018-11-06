@@ -1,5 +1,5 @@
 """TBW."""
-from pyxel import util
+# from pyxel import util
 from pyxel.pipelines.detector_pipeline import DetectionPipeline
 from pyxel.detectors.detector import Detector
 from pyxel.pipelines.model_group import ModelGroup
@@ -41,9 +41,9 @@ class CCDDetectionPipeline(DetectionPipeline):
             'readout_electronics':  []
         }
 
-    def copy(self):
-        """TBW."""
-        return CCDDetectionPipeline(**util.copy_state(self))
+    # def copy(self):
+    #     """TBW."""
+    #     return CCDDetectionPipeline(**util.copy_state(self))
 
     def __getstate__(self):
         """TBW."""
