@@ -24,6 +24,8 @@ class ModelFitting:
         self.is_var_array = []              # type: t.List[t.List[bool]]
         self.is_var_log = []                # type: t.List[t.List[bool]]
 
+        self.det_attr_class_list = []     # ['characteristics', 'geometry']  # todo
+
         self.generations = None
         self.pop = None
 
@@ -77,7 +79,7 @@ class ModelFitting:
                   model_names: list,
                   params_per_variable: list,
                   variables: list,
-                  var_arrays: list,
+                  var_array: list,
                   var_log: list,
                   target_output_list,
                   population_size: int = None,
@@ -93,7 +95,7 @@ class ModelFitting:
         :param model_names: list
         :param params_per_variable: list
         :param variables: list
-        :param var_arrays: list
+        :param var_array: list
         :param var_log: list
         :param target_output_list: list
         :param population_size: int
@@ -109,8 +111,10 @@ class ModelFitting:
         self.params_per_variable = params_per_variable
 
         self.variable_name_lst = variables
-        self.is_var_array = var_arrays
+        self.is_var_array = var_array
         self.is_var_log = var_log
+
+        self.det_attr_class_list = model_names      # ['characteristics.amp', 'geometry.row']  # TODO
 
         self.pop = population_size
 
@@ -336,7 +340,7 @@ class ModelFitting:
         if self.sim_output == 'image':
             simulated_data = new_det.image.array
         elif self.sim_output == 'signal':
-            raise NotImplementedError       # todo: new_det.signal
+            simulated_data = new_det.signal.array
         elif self.sim_output == 'charge':
             raise NotImplementedError       # todo: new_det.charge
         else:
@@ -388,7 +392,17 @@ class ModelFitting:
         :return:
         """
         self.det.reinitialize()
-        # TODO update Material, Geometry, Char and Environment classes
+
+        if self.det_attr_class_list:
+            k = 0
+            for i in range(len(self.variable_name_lst)):
+                class_str = self.det_attr_class_list[i]
+                det_class = getattr(self.det, class_str)
+                for j in range(len(self.variable_name_lst[i])):
+                    setattr(det_class, self.variable_name_lst[i][j], param_array_list[k])
+                    k += 1
+
+        pass
 
     def update_pipeline_model_arguments(self, param_array_list):
         """TBW.

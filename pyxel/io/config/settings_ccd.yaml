@@ -6,8 +6,8 @@
 simulation:
 ###################
 #  mode: single
-  mode: parametric
-#  mode: calibration
+#  mode: parametric
+  mode: calibration
 ###################
 
   parametric_analysis:
@@ -44,14 +44,23 @@ simulation:
       population_size: 10
       variant: 2
 
-      model_names: ['cdm'] #, 'tars']
-      variables: [['tr_p', 'nt_p', 'sigma_p', 'beta_p']]  # , ['initial_energy']]
-      var_log: [[True, True, True, False]] #, [False]]
-      var_arrays: [[True, True, True, False]] #, [False]]
-      params_per_variable: [[4, 4, 4, 1]] #, [1]]
-      lower_boundary: [[1.e-3, 1.e-2, 1.e-20, 0.]] #, [1.]]
-      upper_boundary: [[2., 1.e+1, 1.e-15, 1.]] #, [10.]]
-      sort_by_var: tr_p
+#      detector_attributes: ['characteristics.amp', 'geometry.thickness', 'environment.temperature']
+      model_names: ['characteristics', 'environment']
+      variables: [['amp'], ['temperature']]
+      var_log: [[False], [False]]
+      var_array: [[False], [False]]
+      params_per_variable: [[1], [1]]
+      lower_boundary: [[1.], [200.]]
+      upper_boundary: [[10.], [300.]]
+
+#      model_names:  ['cdm'] #, 'tars']
+#      variables: [['tr_p', 'nt_p', 'sigma_p', 'beta_p']]  # , ['initial_energy']]
+#      var_log: [[True, True, True, False]] #, [False]]
+#      var_arrays: [[True, True, True, False]] #, [False]]
+#      params_per_variable: [[4, 4, 4, 1]] #, [1]]
+#      lower_boundary: [[1.e-3, 1.e-2, 1.e-20, 0.]] #, [1.]]
+#      upper_boundary: [[2., 1.e+1, 1.e-15, 1.]] #, [10.]]
+#      sort_by_var: tr_p
 
 #      model: 'cdm'
 #        variables: ['tr_p', 'nt_p', 'sigma_p', 'beta_p']

@@ -126,10 +126,14 @@ class Calibration:
         else:
             raise AttributeError('Missing "population_size" from YAML config')
 
+        sort_var = None
+        if 'sort_by_var' in self.args:
+            sort_var = self.args['sort_by_var']
+
         fitting.configure(calibration_mode=self.mode,
                           model_names=self.args['model_names'],
                           variables=self.args['variables'],
-                          var_arrays=self.args['var_arrays'],
+                          var_array=self.args['var_array'],
                           var_log=self.args['var_log'],
                           params_per_variable=self.args['params_per_variable'],
                           target_output_list=target_output,
@@ -138,7 +142,7 @@ class Calibration:
                           out_fit_range=self.args['output_fit_range'],
                           fitness_mode=self.args['fitness_mode'],
                           simulation_output=self.args['output'],
-                          sort_by_var=self.args['sort_by_var'])
+                          sort_by_var=sort_var)
 
         if 'weighting_func_path' in self.args:
             weighting_func = read_data(self.args['target_data_path'])
