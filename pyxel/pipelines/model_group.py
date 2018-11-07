@@ -35,10 +35,10 @@ class ModelFunction:
         """TBW."""
         return 'ModelFunction(%(name)r, %(func)r, %(arguments)r, %(enabled)r)' % vars(self)
 
-    def copy(self):
-        """TBW."""
-        # kwargs = {key: type(value)(value) for key, value in self.__getstate__().items()}
-        return ModelFunction(**om.copy_state(self))
+    # def copy(self):
+    #     """TBW."""
+    #     # kwargs = {key: type(value)(value) for key, value in self.__getstate__().items()}
+    #     return ModelFunction(**om.copy_state(self))
 
     def get_state_json(self):
         """TBW."""

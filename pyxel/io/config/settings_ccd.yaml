@@ -16,7 +16,6 @@ simulation:
     steps:
       -
         enabled: true
-  #      key: pipeline.photon_generation.photon_level.arguments.level
         key: pipeline.charge_generation.tars.arguments.particle_number
         values: [2, 3]
       -
@@ -34,7 +33,7 @@ simulation:
       target_data_path: ['pyxel/results.fits', 'pyxel/results.fits']     # <*.npy> <*.fits> <ascii>
       target_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50]
 
-      fitness_mode: residuals    # least-squares
+      fitness_mode: residuals    # least-squares   # custom
 #      weighting_func_path:  # 'pyxel/results.fits'
 
       algorithm: sade   # sga  # nlopt
@@ -44,39 +43,22 @@ simulation:
       population_size: 10
       variant: 2
 
-#      detector_attributes: ['characteristics.amp', 'geometry.thickness', 'environment.temperature']
-      model_names: ['characteristics', 'environment']
-      variables: [['amp'], ['temperature']]
-      var_log: [[False], [False]]
-      var_array: [[False], [False]]
-      params_per_variable: [[1], [1]]
-      lower_boundary: [[1.], [200.]]
-      upper_boundary: [[10.], [300.]]
+      model_names:         ['characteristics', 'cdm', 'environment']
+      variables:           [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['temperature']]
+      var_log:             [[False], [True, True, True, False], [False]]    # todo remove this, params_per_variable should be enough
+      var_array:           [[False], [True, True, True, False], [False]]
+      params_per_variable: [[1], [4, 4, 4, 1], [1]]
+      lower_boundary:      [[1.], [1.e-3, 1.e-2, 1.e-20, 0.], [200.]]
+      upper_boundary:      [[10.], [2., 1.e+1, 1.e-15, 1.], [300.]]
 
 #      model_names:  ['cdm'] #, 'tars']
 #      variables: [['tr_p', 'nt_p', 'sigma_p', 'beta_p']]  # , ['initial_energy']]
 #      var_log: [[True, True, True, False]] #, [False]]
-#      var_arrays: [[True, True, True, False]] #, [False]]
+#      var_array: [[True, True, True, False]] #, [False]]
 #      params_per_variable: [[4, 4, 4, 1]] #, [1]]
 #      lower_boundary: [[1.e-3, 1.e-2, 1.e-20, 0.]] #, [1.]]
 #      upper_boundary: [[2., 1.e+1, 1.e-15, 1.]] #, [10.]]
 #      sort_by_var: tr_p
-
-#      model: 'cdm'
-#        variables: ['tr_p', 'nt_p', 'sigma_p', 'beta_p']
-#        var_log: [True, True, True, False]
-#        var_arrays: [True, True, True, False]
-#        params_per_variable: [4, 4, 4, 1]
-#        lower_boundary: [1.e-3, 1.e-2, 1.e-20, 0.]
-#        upper_boundary: [2., 1.e+1, 1.e-15, 1.]
-#      model: 'tars'
-#        variables: ['initial_energy']
-#        var_log: [False]
-#        var_arrays: [False]
-#        params_per_variable: [1]
-#        lower_boundary: [1.]
-#        upper_boundary: [10.]
-
 
 processor:
   class: pyxel.pipelines.processor.Processor
@@ -187,7 +169,7 @@ processor:
       -
         name: tars
         func: pyxel.models.tars.tars.run_tars
-        enabled: true
+        enabled: false
         arguments:
           simulation_mode: cosmic_ray   # snowflakes
           running_mode: stepsize  # stopping  # plotting  # geant4

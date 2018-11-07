@@ -5,10 +5,10 @@ from collections import OrderedDict
 
 import esapy_config as om
 
-from pyxel.detectors.detector import Detector
-# from pyxel.pipelines.models import Model  # noqa: F401
 from pyxel.pipelines.model_group import ModelGroup
-from pyxel import util
+# from pyxel.detectors.detector import Detector
+# from pyxel.pipelines.models import Model  # noqa: F401
+# from pyxel import util
 # from pyxel.util import objmod as om
 
 
@@ -113,15 +113,15 @@ class DetectionPipeline:
         """TBW."""
         return self._model_groups
 
-    def run(self, detector: Detector) -> Detector:
-        """TBW."""
-        try:
-            self._is_running = True
-            return self.run_pipeline(detector)
-        except util.PipelineAborted:
-            raise  # send signal to caller to ensure no output is saved
-        finally:
-            self._is_running = False
+    # def run(self, detector: Detector) -> Detector:
+    #     """TBW."""
+    #     try:
+    #         self._is_running = True
+    #         return self.run_pipeline(detector)
+    #     except util.PipelineAborted:
+    #         raise  # send signal to caller to ensure no output is saved
+    #     finally:
+    #         self._is_running = False
 
     def abort(self):
         """TBW."""
@@ -164,10 +164,10 @@ class DetectionPipeline:
                 models_obj.run(detector, self)
         return detector
 
-    def run_pipeline(self, detector: Detector) -> Detector:
-        """TBW.
-
-        :param detector:
-        :return:
-        """
-        raise NotImplementedError
+    # def run_pipeline(self, detector: Detector) -> Detector:
+    #     """TBW.
+    #
+    #     :param detector:
+    #     :return:
+    #     """
+    #     raise NotImplementedError

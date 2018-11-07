@@ -170,7 +170,7 @@ def test_model_registry_decorator():
     processor.pipeline.set_model_enabled('*', False)
     processor.pipeline.set_model_enabled('my_dec_model_class', True)
     processor.pipeline.set_model_enabled('my_dec_model_func', True)
-    detector = processor.pipeline.run(processor.detector)
+    detector = processor.pipeline.run_pipeline(processor.detector)
     assert detector.class_std == 1.0
     assert detector.func_std == 2.0
 

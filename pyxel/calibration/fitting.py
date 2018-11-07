@@ -3,9 +3,10 @@
 https://esa.github.io/pagmo2/index.html
 """
 import numpy as np
-import pandas as pd
+# import pandas as pd
 import typing as t   # noqa: F401
-# from pyxel.util import apply_run_number, FitsFile
+
+from pyxel.pipelines.model_group import ModelFunction
 
 
 class ModelFitting:
@@ -241,9 +242,19 @@ class ModelFitting:
         if self.fitness_mode == 'residuals':
             fitness = self.sum_of_abs_residuals(simulated=simulated_data,
                                                 target=target_data)
+
         elif self.fitness_mode == 'least-squares':
             fitness = self.sum_of_squared_residuals(simulated=simulated_data,
                                                     target=target_data)
+
+        elif self.fitness_mode == 'custom':
+            custom_fitness_func = ModelFunction(name='test_func',       # TODO finish and test
+                                                func='func',
+                                                arguments=None,
+                                                enabled=True)
+
+            fitness = custom_fitness_func.function()   # simulated_data, target_data, self.det
+
         else:
             raise ValueError
 
@@ -319,10 +330,9 @@ class ModelFitting:
         :param parameter: 1d np.array
         :return:
         """
-        parameter_lst = self.split_and_update(parameter)
+        parameter_lst = self.split_and_update_parameter(parameter)
 
-        self.update_detector_object(parameter_lst)                           # TODO finish this
-        self.update_pipeline_model_arguments(parameter_lst)
+        self.update_detector_and_models(parameter_lst)
 
         if self.calibration_mode == 'pipeline':
             new_det = self.pipe.run_pipeline(self.det)
@@ -342,7 +352,7 @@ class ModelFitting:
         elif self.sim_output == 'signal':
             simulated_data = new_det.signal.array
         elif self.sim_output == 'charge':
-            raise NotImplementedError       # todo: new_det.charge
+            raise NotImplementedError       # todo: new_det.charge.array
         else:
             raise ValueError
         simulated_data = simulated_data[self.sim_fit_range]
@@ -357,7 +367,7 @@ class ModelFitting:
 
         return [overall_fitness]
 
-    def split_and_update(self, parameter):
+    def split_and_update_parameter(self, parameter):
         """TBW.
 
         :param parameter: 1d np.array
@@ -369,7 +379,7 @@ class ModelFitting:
                 if i == 0 and j == 0:
                     split_list += [self.params_per_variable[0][0]]
                 else:
-                    split_list += [split_list[j-1] + self.params_per_variable[i][j]]
+                    split_list += [split_list[-1] + self.params_per_variable[i][j]]
 
         subarrays = np.split(parameter, split_list)
         subarrays = subarrays[:-1]
@@ -385,7 +395,7 @@ class ModelFitting:
 
         return subarrays
 
-    def update_detector_object(self, param_array_list):
+    def update_detector_and_models(self, param_array_list):
         """TBW.
 
         :param param_array_list:
@@ -393,37 +403,19 @@ class ModelFitting:
         """
         self.det.reinitialize()
 
-        if self.det_attr_class_list:
-            k = 0
-            for i in range(len(self.variable_name_lst)):
-                class_str = self.det_attr_class_list[i]
+        k = 0
+        for i in range(len(self.model_name_list)):
+            if self.model_name_list[i] in ['geometry', 'material', 'environment', 'characteristics']:
+                class_str = self.model_name_list[i]
                 det_class = getattr(self.det, class_str)
                 for j in range(len(self.variable_name_lst[i])):
                     setattr(det_class, self.variable_name_lst[i][j], param_array_list[k])
                     k += 1
-
-        pass
-
-    def update_pipeline_model_arguments(self, param_array_list):
-        """TBW.
-
-        :param param_array_list:
-        :return:
-        """
-        k = 0
-        for i in range(len(self.variable_name_lst)):
-            fitted_pipeline_model = self.pipe.get_model(self.model_name_list[i])
-
-            for j in range(len(self.variable_name_lst[i])):
-                fitted_pipeline_model.arguments[self.variable_name_lst[i][j]] = param_array_list[k]
-                k += 1
-
-        # # VALIDATION - just for the first time before running calibration
-        # nn = len(self.variable_name_lst)
-        # for i in range(nn):
-        #     arg_value = fitted_pipeline_model.arguments[self.variable_name_lst[i]]
-        #     if str(arg_value) != '_':
-        #         raise AttributeError
+            else:
+                fitted_pipeline_model = self.pipe.get_model(self.model_name_list[i])
+                for j in range(len(self.variable_name_lst[i])):
+                    fitted_pipeline_model.arguments[self.variable_name_lst[i][j]] = param_array_list[k]
+                    k += 1
 
     def population_and_champions(self, parameter, overall_fitness):
         """Get champion (also population) of each generation and write it to output file(s).
@@ -435,25 +427,28 @@ class ModelFitting:
         # if self.champion_file is None:
         #     self.champion_file = 'champion_id' + str(id(self)) + '.out'
 
-        df = pd.DataFrame()
-        k = 0
-        for i in range(len(self.variable_name_lst)):
-            for j in range(len(self.variable_name_lst[i])):
-                df[self.variable_name_lst[i][j]] = parameter[k]
-                k += 1
-
-        if self.sort_by_var:
-            df = df.sort_values(by=[self.sort_by_var])
+        # df = pd.DataFrame()       # TODO fill df only with cdm param and sort only them not other params
+        # k = 0
+        # for i in range(len(self.variable_name_lst)):
+        #     for j in range(len(self.variable_name_lst[i])):
+        #         df[self.variable_name_lst[i][j]] = parameter[k]
+        #         k += 1
+        #
+        # if self.sort_by_var:
+        #     df = df.sort_values(by=[self.sort_by_var])
+        #
+        # ord_param = np.array([])
+        # for i in range(len(self.is_var_array)):
+        #     for j in range(len(self.is_var_array[i])):
+        #         if self.is_var_array[i][j]:
+        #             ord_param = np.append(ord_param, df[self.variable_name_lst[i][j]].values)
+        #         else:
+        #             ord_param = np.append(ord_param,
+        #                                   np.unique(df[self.variable_name_lst[i][j]].values))
 
         ord_param = np.array([])
-        for i in range(len(self.is_var_array)):
-            for j in range(len(self.is_var_array[i])):
-                if self.is_var_array[i][j]:
-                    ord_param = np.append(ord_param, df[self.variable_name_lst[i][j]].values)
-                else:
-                    ord_param = np.append(ord_param,
-                                          np.unique(df[self.variable_name_lst[i][j]].values))
-
+        for p in parameter:
+            ord_param = np.append(ord_param, p)     # todo: not yet ordered
         paramsize = len(ord_param)
         ord_param = ord_param.reshape(1, paramsize)
 
