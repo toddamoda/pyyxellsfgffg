@@ -8,7 +8,9 @@ import esapy_config as om
 class StepValues:
     """TBW."""
 
-    def __init__(self, key, values, enabled=True, current=None):
+    def __init__(self, key, values,
+                 enabled=True, current=None,
+                 model_names=None, variables=None, params_per_variable=None):
         """TBW.
 
         :param key:
@@ -21,6 +23,10 @@ class StepValues:
         self.values = values  # t.List[float|int]
         self.enabled = enabled  # bool
         self.current = current
+
+        self.model_names = model_names
+        self.variables = variables
+        self.params_per_variable = params_per_variable
 
     # def copy(self):
     #     """TBW."""
@@ -76,6 +82,35 @@ class ParametricAnalysis:
         """TBW."""
         return [step for step in self.steps if step.enabled]
 
+    def _image_generator(self, processor):
+        """TBW.
+
+        :param processor:
+        :return:
+        """
+        # todo generate keys from
+        # todo update all arg
+        # todo generate new processors
+
+        # for step in self.enabled_steps:
+        #
+        #     model_names = step.model_names
+        #     variables = step.variables
+        #     params_per_variable = step.params_per_variable
+        #
+        #     key = step.key
+        #     todo read calibration_champion.out file
+        #
+        #     for value in step:
+        #
+        #         step.current = value
+        #
+        #
+        #         new_proc = deepcopy(processor)
+        #         new_proc.set(key, value)
+        #         yield new_proc
+        pass
+
     def _sequential(self, processor):
         """TBW.
 
@@ -86,7 +121,6 @@ class ParametricAnalysis:
             key = step.key
             for value in step:
                 step.current = value
-                # new_proc = om.copy_processor(processor)
                 new_proc = deepcopy(processor)
                 new_proc.set(key, value)
                 yield new_proc
@@ -100,7 +134,6 @@ class ParametricAnalysis:
         all_steps = self.enabled_steps
         keys = [step.key for step in self.enabled_steps]
         for params in itertools.product(*all_steps):
-            # new_proc = om.copy_processor(processor)
             new_proc = deepcopy(processor)
             for key, value in zip(keys, params):
                 for step in all_steps:
@@ -109,36 +142,17 @@ class ParametricAnalysis:
                 new_proc.set(key=key, value=value)
             yield new_proc
 
-    # def _embedded_org(self, processor, level=0, configs=None):
-    #     """TBW.
-    #
-    #     :param processor:
-    #     :param level:
-    #     :param sequence:
-    #     :return:
-    #     """
-    #     if configs is None:
-    #         configs = []
-    #
-    #     step = self.enabled_steps[level]
-    #     key = step.key
-    #     for value in step:
-    #         processor.set(key, value)
-    #         if level + 1 < len(self.enabled_steps):
-    #             self._embedded(processor, level + 1, configs)
-    #         else:
-    #             configs.append(om.copy_processor(processor))
-    #
-    #     return configs
-
     def collect(self, processor):
         """TBW."""
         if self.parametric_mode == 'embedded':
-            # configs = self._embedded(om.copy_processor(processor))
             configs = self._embedded(processor)
+
         elif self.parametric_mode == 'sequential':
-            # configs = self._sequential(om.copy_processor(processor))
             configs = self._sequential(processor)
+
+        elif self.parametric_mode == 'image_generator':
+            configs = self._image_generator(processor)
+
         else:
             configs = []
 

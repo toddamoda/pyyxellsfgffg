@@ -4,6 +4,7 @@ https://esa.github.io/pagmo2/index.html
 """
 import numpy as np
 # import pandas as pd
+from copy import deepcopy
 import typing as t   # noqa: F401
 
 from pyxel.pipelines.model_group import ModelFunction
@@ -22,7 +23,7 @@ class ModelFitting:
         self.model_name_list = []           # type: t.List[str]
         self.params_per_variable = []       # type: t.List[t.List[int]]
         self.variable_name_lst = []         # type: t.List[t.List[str]]
-        self.is_var_array = []              # type: t.List[t.List[bool]]
+        self.is_var_array = []              # type: t.List[t.List[int]]
         self.is_var_log = []                # type: t.List[t.List[bool]]
 
         self.det_attr_class_list = []     # ['characteristics', 'geometry']  # todo
@@ -80,7 +81,6 @@ class ModelFitting:
                   model_names: list,
                   params_per_variable: list,
                   variables: list,
-                  var_array: list,
                   var_log: list,
                   target_output_list,
                   population_size: int = None,
@@ -96,7 +96,6 @@ class ModelFitting:
         :param model_names: list
         :param params_per_variable: list
         :param variables: list
-        :param var_array: list
         :param var_log: list
         :param target_output_list: list
         :param population_size: int
@@ -111,8 +110,17 @@ class ModelFitting:
         self.model_name_list = model_names
         self.params_per_variable = params_per_variable
 
+        self.is_var_array = deepcopy(self.params_per_variable)
+        for i in range(len(self.params_per_variable)):
+            for j in range(len(self.params_per_variable[i])):
+                item = self.params_per_variable[i][j]
+                if item > 1:
+                    item = 1
+                else:
+                    item = 0
+                self.is_var_array[i][j] = item
+
         self.variable_name_lst = variables
-        self.is_var_array = var_array
         self.is_var_log = var_log
 
         self.det_attr_class_list = model_names      # ['characteristics.amp', 'geometry.row']  # TODO

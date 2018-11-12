@@ -12,16 +12,26 @@ simulation:
 
   parametric_analysis:
 #    parametric_mode: sequential
-    parametric_mode: embedded
+#    parametric_mode: embedded
+    parametric_mode: image_generator
     steps:
       -
-        enabled: true
+        enabled: false
         key: pipeline.charge_generation.tars.arguments.particle_number
         values: [2, 3]
       -
-        enabled: true
+        enabled: false
         key: pipeline.photon_generation.photon_level.arguments.level
-        values: [1, 2] # todo: list(range(10, 13))
+        values: range(10, 13)           # an iterable
+      -
+        enabled: true
+        key:                 'pyxel/calibration_champions.out'
+
+#        model_names:         ['characteristics', 'cdm', 'output_node_noise']
+#        variables:           [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['std_deviation']]
+#        params_per_variable: [[1], [4, 4, 4, 1], [1]]
+        values:                    # should be an iterable
+
 
   calibration:
 
@@ -39,17 +49,16 @@ simulation:
       algorithm: sade   # sga  # nlopt
       seed:
 #      nlopt_solver: sbplx  # neldermead
-      generations: 1
+      generations: 3
       population_size: 10
       variant: 2
 
-      model_names:         ['characteristics', 'cdm', 'environment']
-      variables:           [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['temperature']]
-      var_log:             [[False], [True, True, True, False], [False]]    # todo remove this, params_per_variable should be enough
-      var_array:           [[False], [True, True, True, False], [False]]
+      model_names:         ['characteristics', 'cdm', 'output_node_noise']  # , 'environment']
+      variables:           [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['std_deviation']]  # , ['temperature']]
       params_per_variable: [[1], [4, 4, 4, 1], [1]]
-      lower_boundary:      [[1.], [1.e-3, 1.e-2, 1.e-20, 0.], [200.]]
-      upper_boundary:      [[10.], [2., 1.e+1, 1.e-15, 1.], [300.]]
+      var_log:             [[False], [True, True, True, False], [False]]
+      lower_boundary:      [[1.], [1.e-3, 1.e-2, 1.e-20, 0.], [10.]]
+      upper_boundary:      [[10.], [2., 1.e+1, 1.e-15, 1.], [200.]]
 
 #      model_names:  ['cdm'] #, 'tars']
 #      variables: [['tr_p', 'nt_p', 'sigma_p', 'beta_p']]  # , ['initial_energy']]
