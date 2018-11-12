@@ -27,7 +27,6 @@ simulation:
         values:
 
   calibration:
-    calibration_mode:
     arguments:
 
 processor:

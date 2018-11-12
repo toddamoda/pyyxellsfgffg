@@ -74,8 +74,9 @@ class PipelinePageHandler(guiconfig.IndexPageHandler):
         if processor:
             items = processor.detector.__getstate__().items()
             for key, value in items:
-                sections = serializer.Serializer.create_section_from_object(value, 'detector.' + key)
-                sections_detector.extend(sections)
+                if key not in ['photons', 'charges', 'pixels', 'signal', 'image']:
+                    sections = serializer.Serializer.create_section_from_object(value, 'detector.' + key)
+                    sections_detector.extend(sections)
 
             pipeline = processor.pipeline
             for group in pipeline.model_group_names:
