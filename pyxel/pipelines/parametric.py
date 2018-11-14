@@ -1,6 +1,7 @@
 """TBW."""
 import itertools
 import typing as t
+import numpy as np
 from copy import deepcopy
 import esapy_config as om
 
@@ -9,8 +10,9 @@ class StepValues:
     """TBW."""
 
     def __init__(self, key, values,
-                 enabled=True, current=None,
-                 model_names=None, variables=None, params_per_variable=None):
+                 enabled=True, current=None  # ,
+                 # model_names=None, variables=None, params_per_variable=None
+                 ):
         """TBW.
 
         :param key:
@@ -24,9 +26,9 @@ class StepValues:
         self.enabled = enabled  # bool
         self.current = current
 
-        self.model_names = model_names
-        self.variables = variables
-        self.params_per_variable = params_per_variable
+        # self.model_names = model_names
+        # self.variables = variables
+        # self.params_per_variable = params_per_variable
 
     # def copy(self):
     #     """TBW."""
@@ -88,28 +90,52 @@ class ParametricAnalysis:
         :param processor:
         :return:
         """
-        # todo generate keys from
-        # todo update all arg
-        # todo generate new processors
+        for step in self.enabled_steps:
 
-        # for step in self.enabled_steps:
-        #
-        #     model_names = step.model_names
-        #     variables = step.variables
-        #     params_per_variable = step.params_per_variable
-        #
-        #     key = step.key
-        #     todo read calibration_champion.out file
-        #
-        #     for value in step:
-        #
-        #         step.current = value
-        #
-        #
-        #         new_proc = deepcopy(processor)
-        #         new_proc.set(key, value)
-        #         yield new_proc
-        pass
+            if isinstance(step.key, list) and isinstance(step.values, str):
+                model_name_list = step.key[0]
+                variable_name_lst = step.key[1]
+                params_per_variable = step.key[2]
+                split_list = []
+                for i in range(len(params_per_variable)):
+                    for j in range(len(params_per_variable[i])):
+                        if i == 0 and j == 0:
+                            split_list += [params_per_variable[0][0]]
+                        else:
+                            split_list += [split_list[-1] + params_per_variable[i][j]]
+
+                data = np.loadtxt(step.values)
+                data = data[:, 2:]
+
+                if len(data[0, :]) != np.sum(np.sum(params_per_variable)):
+                    raise ValueError
+
+                for jj in range(len(data[:, 0])):
+                    param = data[jj, :]
+                    param_array_list = np.split(param, split_list)
+                    param_array_list = param_array_list[:-1]
+
+                    new_proc = deepcopy(processor)
+
+                    k = 0
+                    for i in range(len(model_name_list)):
+                        if model_name_list[i] in ['geometry', 'material', 'environment', 'characteristics']:
+                            class_str = model_name_list[i]
+                            det_class = getattr(new_proc.detector, class_str)
+                            for j in range(len(variable_name_lst[i])):
+                                if len(param_array_list[k]) == 1:
+                                    param_array_list[k] = param_array_list[k][0]
+                                setattr(det_class, variable_name_lst[i][j], param_array_list[k])
+                                k += 1
+                        else:
+                            fitted_pipeline_model = new_proc.pipeline.get_model(model_name_list[i])
+                            for j in range(len(variable_name_lst[i])):
+                                if len(param_array_list[k]) == 1:
+                                    param_array_list[k] = param_array_list[k][0]
+                                fitted_pipeline_model.arguments[variable_name_lst[i][j]] = param_array_list[k]
+                                k += 1
+
+                    yield new_proc
 
     def _sequential(self, processor):
         """TBW.

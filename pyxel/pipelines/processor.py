@@ -76,7 +76,7 @@ class Processor:
         :param convert_value:
         :return:
         """
-        if convert_value and value:
+        if convert_value:  # and value:
             # convert the string based value to a number
             if isinstance(value, list):
                 for i, val in enumerate(value):
@@ -85,7 +85,7 @@ class Processor:
             else:
                 value = om.eval_entry(value)
 
-        obj, att = om.get_obj_att(self, key)
+        obj, att = om.get_obj_att(self, key)        # TODO wtf???
 
         if isinstance(obj, dict) and att in obj:
             obj[att] = value

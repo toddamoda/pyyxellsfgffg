@@ -5,8 +5,8 @@
 
 simulation:
 ###################
-  mode: single
-#  mode: parametric
+#  mode: single
+  mode: parametric
 #  mode: calibration
 ###################
 
@@ -22,16 +22,13 @@ simulation:
       -
         enabled: false
         key: pipeline.photon_generation.photon_level.arguments.level
-        values: range(10, 13)           # an iterable
+        values: range(10, 13)
       -
         enabled: true
-        key:                 'pyxel/calibration_champions.out'
-
-#        model_names:         ['characteristics', 'cdm', 'output_node_noise']
-#        variables:           [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['std_deviation']]
-#        params_per_variable: [[1], [4, 4, 4, 1], [1]]
-        values:                    # should be an iterable
-
+        key:  [['characteristics', 'cdm', 'output_node_noise'],
+              [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['std_deviation']],
+              [[1], [4, 4, 4, 1], [1]]]
+        values: 'pyxel/calibration_champions.out'
 
   calibration:
 

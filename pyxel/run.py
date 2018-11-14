@@ -53,7 +53,7 @@ def run(input_filename, output_file: str = None, random_seed: int = None):
     else:
         raise ValueError
 
-    if output_file and detector:
+    if output_file and detector:            # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
         save_to = util.apply_run_number(output_file)
         out = util.FitsFile(save_to)
         out.save(detector.image.array, header=None, overwrite=True)
