@@ -1,0 +1,68 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  name: pyxel-deployment
+  namespace: esa-david-lucsanyi-pyxel
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: pyxel
+    spec:
+      containers:
+      - image: gitlab.esa.int:4567/sci-fv/pyxel:latest
+        imagePullPolicy: Always
+        name: pyxel-container
+        command: ["python"]
+        args: ["/app/pyxel/run.py", "--gui", "True"]
+        ports:
+        - containerPort: 9999
+        resources: {}
+      restartPolicy: Always
+      imagePullSecrets:
+      - name: registry-secret
+status: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+  creationTimestamp: null
+  name: pyxel-service
+  namespace: esa-david-lucsanyi-pyxel
+spec:
+  ports:
+  - name: "http"
+    port: 80
+    targetPort: 9999
+  selector:
+      app: pyxel
+status:
+  loadBalancer: {}
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: pyxel-ingress
+  namespace: esa-david-lucsanyi-pyxel
+  annotations:
+    nginx.org/websocket-services: "pyxel-service"
+spec:
+  rules:
+  - host: pixel.it.esa.int
+    http:
+      paths:
+      - path: /dispatch
+        backend:
+          serviceName: pyxel-service
+          servicePort: 80
+      - path: /
+        backend:
+          serviceName: pyxel-service
+          servicePort: 80

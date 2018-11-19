@@ -1,8 +1,7 @@
 from pathlib import Path
 import pytest
 import esapy_config as om
-
-import pyxel
+# import pyxel
 # from pyxel.util import objmod as om
 
 
@@ -13,8 +12,8 @@ def test_yaml_load():
     yaml_file = CWD.joinpath('data', 'test_yaml_new.yaml')
     cfg = om.load(yaml_file)
 
-    assert cfg['parametric'].__class__.__name__ == 'ParametricConfig'
-    assert cfg['parametric'].steps[0].__class__.__name__ == 'StepValues'
+    assert cfg['simulation'].__class__.__name__ == 'Configuration'
+    assert cfg['simulation'].parametric_analysis.steps[0].__class__.__name__ == 'StepValues'
     assert cfg['processor'].detector.__class__.__name__ == 'CCD'
     assert cfg['processor'].detector.geometry.__class__.__name__ == 'CCDGeometry'
     assert cfg['processor'].pipeline.__class__.__name__ == 'CCDDetectionPipeline'

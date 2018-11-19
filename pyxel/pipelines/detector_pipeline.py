@@ -5,10 +5,10 @@ from collections import OrderedDict
 
 import esapy_config as om
 
-from pyxel.detectors.detector import Detector
-# from pyxel.pipelines.models import Model  # noqa: F401
 from pyxel.pipelines.model_group import ModelGroup
-from pyxel import util
+# from pyxel.detectors.detector import Detector
+# from pyxel.pipelines.models import Model  # noqa: F401
+# from pyxel import util
 # from pyxel.util import objmod as om
 
 
@@ -22,6 +22,9 @@ class DetectionPipeline:
                  charge_collection: ModelGroup = None,
                  charge_measurement: ModelGroup = None,
                  readout_electronics: ModelGroup = None,
+                 _name=None,                                # TODO
+                 _model_groups=None,                        # TODO
+                 _model_steps=None,                         # TODO
                  doc=None) -> None:
         """TBW.
 
@@ -41,10 +44,10 @@ class DetectionPipeline:
         self.charge_measurement = charge_measurement
         self.readout_electronics = readout_electronics
 
-        self._name = ''
-        self._model_groups = []  # type: t.List[str]
-        self._model_steps = {}   # type: t.Dict[str, t.List[str]]
-        self._log = logging.getLogger(__name__)
+        self._name = ''                                             # TODO
+        self._model_groups = []  # type: t.List[str]                # TODO
+        self._model_steps = {}   # type: t.Dict[str, t.List[str]]   # TODO
+        self._log = logging.getLogger(__name__)                     # TODO
 
     @property
     def name(self):
@@ -110,15 +113,15 @@ class DetectionPipeline:
         """TBW."""
         return self._model_groups
 
-    def run(self, detector: Detector) -> Detector:
-        """TBW."""
-        try:
-            self._is_running = True
-            return self.run_pipeline(detector)
-        except util.PipelineAborted:
-            raise  # send signal to caller to ensure no output is saved
-        finally:
-            self._is_running = False
+    # def run(self, detector: Detector) -> Detector:
+    #     """TBW."""
+    #     try:
+    #         self._is_running = True
+    #         return self.run_pipeline(detector)
+    #     except util.PipelineAborted:
+    #         raise  # send signal to caller to ensure no output is saved
+    #     finally:
+    #         self._is_running = False
 
     def abort(self):
         """TBW."""
@@ -140,8 +143,12 @@ class DetectionPipeline:
             if name in steps:
                 models_obj = getattr(self, group)  # type: Models
                 if models_obj:
-                    if name in models_obj.models:
-                        return models_obj.models[name]
+                    i = 0
+                    while name != models_obj.models[i].name:
+                        i += 1
+                    return models_obj.models[i]
+                    # return models_obj.models[i].func
+                    # return models_obj.models[i].function
 
     def run_model_group(self, name, detector):
         """TBW.
@@ -157,10 +164,10 @@ class DetectionPipeline:
                 models_obj.run(detector, self)
         return detector
 
-    def run_pipeline(self, detector: Detector) -> Detector:
-        """TBW.
-
-        :param detector:
-        :return:
-        """
-        raise NotImplementedError
+    # def run_pipeline(self, detector: Detector) -> Detector:
+    #     """TBW.
+    #
+    #     :param detector:
+    #     :return:
+    #     """
+    #     raise NotImplementedError

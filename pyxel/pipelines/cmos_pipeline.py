@@ -1,5 +1,5 @@
 """TBW."""
-from pyxel import util
+# from pyxel import util
 from pyxel.pipelines.detector_pipeline import DetectionPipeline
 from pyxel.detectors.detector import Detector
 from pyxel.physics.charge import Charge
@@ -41,21 +41,24 @@ class CMOSDetectionPipeline(DetectionPipeline):
             'readout_electronics':  ['nghxrg_pca_zero']
         }
 
-    def copy(self):
-        """TBW."""
-        # kwargs = {key: value.copy() if value else None for key, value in self.__getstate__().items()}
-        # kwargs = {
-        #     'signal_transfer': self.signal_transfer.copy(),
-        # }
-        # for key in super().__getstate__():
-        #     kwargs[key] = getattr(cpy, key).copy()
-        return CMOSDetectionPipeline(**util.copy_state(self))
+    # def copy(self):
+    #     """TBW."""
+    #     # kwargs = {key: value.copy() if value else None for key, value in self.__getstate__().items()}
+    #     # kwargs = {
+    #     #     'signal_transfer': self.signal_transfer.copy(),
+    #     # }
+    #     # for key in super().__getstate__():
+    #     #     kwargs[key] = getattr(cpy, key).copy()
+    #     return CMOSDetectionPipeline(**util.copy_state(self))
 
     def __getstate__(self):
         """TBW."""
         kwargs = super().__getstate__()
         kwargs_obj = {
-            'signal_transfer': self.signal_transfer
+            'signal_transfer': self.signal_transfer,
+            '_name': self._name,
+            '_model_groups': self._model_groups,
+            '_model_steps': self._model_steps
         }
         return {**kwargs, **kwargs_obj}
 
@@ -80,21 +83,23 @@ class CMOSDetectionPipeline(DetectionPipeline):
         # -> transport/modify charges ->
         # -> collect charges in pixels ->
         detector.pixels = Pixel(detector)
-        detector.pixels.generate_pixels()
         detector = self.run_model_group('charge_collection', detector)
 
         # CHARGE READOUT
         # -> create signal -> modify signal ->
-        detector.signal = detector.pixels.generate_2d_charge_array()
-        detector.signal = detector.signal.astype('float64')
-
+        char = detector.characteristics
+        detector.signal.array = detector.pixels.pixel_array * char.sv * char.amp * char.a1 * char.a2
+        # detector.signal.array = detector.signal.array.astype('float64')
         detector = self.run_model_group('charge_measurement', detector)
+
         detector = self.run_model_group('signal_transfer', detector)
 
         # READOUT ELECTRONICS
         # -> create image -> modify image -> END
+        # detector.image.array = detector.signal.array.astype('uint16')     # todo: replace this into detector class
+        detector.image.array = detector.signal.array
+
         detector = self.run_model_group('readout_electronics', detector)    # todo: rounding signal in models
         # at this point the image pixel values should be rounded to integers (quantization)
-        detector.image = detector.signal.astype('uint16')           # todo: replace this into detector class
 
         return detector

@@ -11,13 +11,6 @@ from pyxel.detectors.detector import Detector
 
 
 __all__ = ['models', 'processor',
-           # 'ccd_pipeline', 'cmos_pipeline',
-           # 'check_range', 'check_choices',
-           # 'validate_call', 'validate', 'ValidationError',
-           # 'AttrClass', 'attr_class', 'attr_def',
-           # 'argument', 'parameters',
-           # 'register',
-           # 'registry', 'register', 'MetaModel',
            'ModelFunction', 'ModelGroup',
            'DetectionPipeline', 'Processor', 'Detector']
 
@@ -49,8 +42,10 @@ def register(group, maybe_func=None, **kwargs):
 
 def define_pyxel_loader():
     """TBW."""
+    from pyxel.pipelines.parametric import Configuration
+    from pyxel.pipelines.parametric import ParametricAnalysis
     from pyxel.pipelines.parametric import StepValues
-    from pyxel.pipelines.parametric import ParametricConfig
+    from pyxel.calibration.calibration import Calibration
     from pyxel.pipelines.model_group import ModelFunction
     from pyxel.pipelines.model_group import ModelGroup
 
@@ -59,8 +54,10 @@ def define_pyxel_loader():
     om.ObjectModelLoader.add_class_ref(['processor', 'detector', None, 'class'])
     om.ObjectModelLoader.add_class_ref(['processor', 'pipeline', 'class'])
 
-    om.ObjectModelLoader.add_class(ParametricConfig, ['parametric'])
-    om.ObjectModelLoader.add_class(StepValues, ['parametric', 'steps'], is_list=True)
+    om.ObjectModelLoader.add_class(Configuration, ['simulation'])
+    om.ObjectModelLoader.add_class(ParametricAnalysis, ['simulation', 'parametric_analysis'])
+    om.ObjectModelLoader.add_class(StepValues, ['simulation', 'parametric_analysis', 'steps'], is_list=True)
+    om.ObjectModelLoader.add_class(Calibration, ['simulation', 'calibration'])
     om.ObjectModelLoader.add_class(ModelGroup, ['processor', 'pipeline', None])
     om.ObjectModelLoader.add_class(ModelFunction, ['processor', 'pipeline', None, None])
 

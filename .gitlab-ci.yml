@@ -5,7 +5,7 @@
 variables:
     PYPI_USER: SECURE
     PYPI_PASSWORD: SECURE
-
+    CONTAINER_LATEST_IMAGE: gitlab.esa.int:4567/sci-fv/pyxel:latest
 
 stages:
   - build
@@ -36,6 +36,13 @@ doc:
     paths:
       - docs/html
 
+docker:
+  stage: build
+  image: docker:dind
+  script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN gitlab.esa.int:4567
+    - docker build --pull -t $CONTAINER_LATEST_IMAGE .
+    - docker push $CONTAINER_LATEST_IMAGE
 
 #
 # Test Stage
@@ -166,6 +173,25 @@ pages:
       - public
 #  only:
 #    - tags
+
+
+deploy-to-k8s:
+  stage: deploy
+  image: docker:dind
+  environment:
+    name: development
+  allow_failure: true
+  script:
+    - apk add --no-cache curl
+    - curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.10.7/bin/linux/amd64/kubectl
+    - chmod +x ./kubectl
+    - mv ./kubectl /usr/local/bin/kubectl
+    - kubectl --kubeconfig $KUBECONFIG --ignore-not-found=true delete -f kubernetes.yaml
+    - sleep 30
+    - kubectl --kubeconfig $KUBECONFIG apply -f kubernetes.yaml
+#    - echo "Because we are not tagging the images just do a change in the deployment to force a pull"
+#    - kubectl --kubeconfig $KUBECONFIG patch deployment pyxel-deployment -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}"
+#    - kubectl --kubeconfig $KUBECONFIG get pods
 
 
 # Create wheel file

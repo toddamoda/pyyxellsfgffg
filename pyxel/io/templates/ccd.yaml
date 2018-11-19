@@ -1,29 +1,33 @@
 
-parametric:
+simulation:
   mode: single
-#  mode: embedded
-#  mode: sequential
-  steps:
-    -
-      enabled: false
-      key:
-      values:
-    -
-      enabled: false
-      key:
-      values:
-    -
-      enabled: false
-      key:
-      values:
-    -
-      enabled: false
-      key:
-      values:
-    -
-      enabled: false
-      key:
-      values:
+
+  parametric_analysis:
+    parametric_mode:
+    steps:
+      -
+        enabled: false
+        key:
+        values:
+      -
+        enabled: false
+        key:
+        values:
+      -
+        enabled: false
+        key:
+        values:
+      -
+        enabled: false
+        key:
+        values:
+      -
+        enabled: false
+        key:
+        values:
+
+  calibration:
+    arguments:
 
 processor:
   class: pyxel.pipelines.processor.Processor

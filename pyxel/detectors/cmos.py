@@ -8,6 +8,11 @@ from pyxel.detectors.cmos_geometry import CMOSGeometry
 from pyxel.detectors.material import Material
 from pyxel.detectors.environment import Environment
 from pyxel.detectors.cmos_characteristics import CMOSCharacteristics
+from pyxel.physics.charge import Charge  # noqa: F401
+from pyxel.physics.photon import Photon  # noqa: F401
+from pyxel.physics.pixel import Pixel    # noqa: F401
+from pyxel.physics.signal import Signal  # noqa: F401
+from pyxel.physics.image import Image    # noqa: F401
 
 
 class CMOS(Detector):
@@ -17,7 +22,12 @@ class CMOS(Detector):
                  geometry: CMOSGeometry,
                  material: Material,
                  environment: Environment,
-                 characteristics: CMOSCharacteristics) -> None:
+                 characteristics: CMOSCharacteristics,
+                 photons: Photon = None,
+                 charges: Charge = None,
+                 pixels: Pixel = None,
+                 signal: Signal = None,
+                 image: Image = None) -> None:
         """TBW.
 
         :param geometry:
@@ -28,15 +38,20 @@ class CMOS(Detector):
         super().__init__(geometry=geometry,
                          material=material,
                          environment=environment,
-                         characteristics=characteristics)
+                         characteristics=characteristics,
+                         photons=photons,
+                         charges=charges,
+                         pixels=pixels,
+                         signal=signal,
+                         image=image)
 
-    def copy(self):
-        """TBW."""
-        cpy = super().copy()
-        kwargs = {
-            'geometry': cpy.geometry,
-            'material': cpy.material,
-            'environment': cpy.environment,
-            'characteristics': cpy.characteristics,
-        }
-        return CMOS(**kwargs)
+    # def copy(self):
+    #     """TBW."""
+    #     cpy = super().copy()
+    #     kwargs = {
+    #         'geometry': cpy.geometry,
+    #         'material': cpy.material,
+    #         'environment': cpy.environment,
+    #         'characteristics': cpy.characteristics,
+    #     }
+    #     return CMOS(**kwargs)

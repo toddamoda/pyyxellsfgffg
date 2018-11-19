@@ -27,35 +27,33 @@ def add_fix_pattern_noise(detector: Detector,
     pnu = np.loadtxt(pix_non_uniformity)
     pnu = pnu.reshape((geo.row, geo.col))
 
-    pix_rows = new_detector.pixels.get_pixel_positions_ver()
-    pix_cols = new_detector.pixels.get_pixel_positions_hor()
-
-    charge_with_noise = np.zeros((geo.row, geo.col), dtype=float)
-    charge_with_noise[pix_rows, pix_cols] = new_detector.pixels.get_pixel_charges()
-
-    charge_with_noise *= pnu
-
-    new_detector.pixels.update_from_2d_charge_array(charge_with_noise)
+    new_detector.pixels.pixel_array *= pnu
 
     return new_detector
 
 
 @registry.decorator('charge_measurement', name='output_node_noise', detector='ccd')
-def add_output_node_noise(detector: Detector, std_deviation: float) -> Detector:
+def add_output_node_noise(detector: Detector,
+                          std_deviation: float,
+                          random_seed: int = None) -> Detector:
     """Adding noise to signal array of detector output node using normal random distribution.
 
     detector Signal unit: Volt
     :param detector:
     :param std_deviation:
+    :param random_seed:
     :return: detector output signal with noise
     """
     new_detector = detector
 
-    signal_mean_array = new_detector.signal.astype('float64')
-    sigma_array = std_deviation * np.ones(new_detector.signal.shape)
+    if random_seed:
+        np.random.seed(random_seed)
+
+    signal_mean_array = new_detector.signal.array.astype('float64')
+    sigma_array = std_deviation * np.ones(signal_mean_array.shape)
 
     signal = np.random.normal(loc=signal_mean_array, scale=sigma_array)
 
-    new_detector.signal = signal
+    new_detector.signal.array = signal
 
     return new_detector

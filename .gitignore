@@ -1,6 +1,15 @@
 # Pyxel output data files
 *.data
 *.fits
+*.npy
+*.out
+
+# Pyxel YAML files created by GUI
+test.yaml
+
+# Pyxel plots
+*.png
+*.jpg
 
 # Geant4 i/o files
 *.mac

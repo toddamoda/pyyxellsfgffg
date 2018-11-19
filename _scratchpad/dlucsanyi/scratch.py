@@ -1,1 +1,1 @@
-""" scratch pad for trial code and testing """
+"""Scratch pad for trial code and testing."""

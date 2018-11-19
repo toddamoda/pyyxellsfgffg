@@ -1,15 +1,18 @@
 """TBW."""
 import itertools
 import typing as t
-
+import numpy as np
+from copy import deepcopy
 import esapy_config as om
-# from pyxel.util import objmod as om
 
 
 class StepValues:
     """TBW."""
 
-    def __init__(self, key, values, enabled=True, current=None):
+    def __init__(self, key, values,
+                 enabled=True, current=None  # ,
+                 # model_names=None, variables=None, params_per_variable=None
+                 ):
         """TBW.
 
         :param key:
@@ -23,10 +26,14 @@ class StepValues:
         self.enabled = enabled  # bool
         self.current = current
 
-    def copy(self):
-        """TBW."""
-        kwargs = {key: type(value)(value) for key, value in self.__getstate__().items()}
-        return StepValues(**kwargs)
+        # self.model_names = model_names
+        # self.variables = variables
+        # self.params_per_variable = params_per_variable
+
+    # def copy(self):
+    #     """TBW."""
+    #     kwargs = {key: type(value)(value) for key, value in self.__getstate__().items()}
+    #     return StepValues(**kwargs)
 
     def __getstate__(self):
         """TBW."""
@@ -49,21 +56,20 @@ class StepValues:
             yield value
 
 
-class ParametricConfig:
+class ParametricAnalysis:
     """TBW."""
 
-    def __init__(self, mode, steps: t.List[StepValues]) -> None:
-        """TBW.
-
-        :param mode:
-        :param steps:
-        """
-        self.steps = steps
-        self.mode = mode
-
-    def copy(self):
+    def __init__(self,
+                 parametric_mode,
+                 steps: t.List[StepValues]
+                 ) -> None:
         """TBW."""
-        return ParametricConfig([step.copy() for step in self.steps], self.mode)
+        self.parametric_mode = parametric_mode
+        self.steps = steps
+
+    # def copy(self):
+    #     """TBW."""
+    #     return Configuration(self.parametric_mode, [step.copy() for step in self.steps])
 
     def get_state_json(self):
         """TBW."""
@@ -71,15 +77,65 @@ class ParametricConfig:
 
     def __getstate__(self):
         """TBW."""
-        return {
-            'steps': self.steps,
-            'mode': self.mode
-        }
+        return {'mode': self.parametric_mode, 'steps': self.steps}
 
     @property
     def enabled_steps(self):
         """TBW."""
         return [step for step in self.steps if step.enabled]
+
+    def _image_generator(self, processor):
+        """TBW.
+
+        :param processor:
+        :return:
+        """
+        for step in self.enabled_steps:
+
+            if isinstance(step.key, list) and isinstance(step.values, str):
+                model_name_list = step.key[0]
+                variable_name_lst = step.key[1]
+                params_per_variable = step.key[2]
+                split_list = []
+                for i in range(len(params_per_variable)):
+                    for j in range(len(params_per_variable[i])):
+                        if i == 0 and j == 0:
+                            split_list += [params_per_variable[0][0]]
+                        else:
+                            split_list += [split_list[-1] + params_per_variable[i][j]]
+
+                data = np.loadtxt(step.values)
+                data = data[:, 2:]
+
+                if len(data[0, :]) != np.sum(np.sum(params_per_variable)):
+                    raise ValueError
+
+                for jj in range(len(data[:, 0])):
+                    param = data[jj, :]
+                    param_array_list = np.split(param, split_list)
+                    param_array_list = param_array_list[:-1]
+
+                    new_proc = deepcopy(processor)
+
+                    k = 0
+                    for i in range(len(model_name_list)):
+                        if model_name_list[i] in ['geometry', 'material', 'environment', 'characteristics']:
+                            class_str = model_name_list[i]
+                            det_class = getattr(new_proc.detector, class_str)
+                            for j in range(len(variable_name_lst[i])):
+                                if len(param_array_list[k]) == 1:
+                                    param_array_list[k] = param_array_list[k][0]
+                                setattr(det_class, variable_name_lst[i][j], param_array_list[k])
+                                k += 1
+                        else:
+                            fitted_pipeline_model = new_proc.pipeline.get_model(model_name_list[i])
+                            for j in range(len(variable_name_lst[i])):
+                                if len(param_array_list[k]) == 1:
+                                    param_array_list[k] = param_array_list[k][0]
+                                fitted_pipeline_model.arguments[variable_name_lst[i][j]] = param_array_list[k]
+                                k += 1
+
+                    yield new_proc
 
     def _sequential(self, processor):
         """TBW.
@@ -91,7 +147,7 @@ class ParametricConfig:
             key = step.key
             for value in step:
                 step.current = value
-                new_proc = om.copy_processor(processor)
+                new_proc = deepcopy(processor)
                 new_proc.set(key, value)
                 yield new_proc
 
@@ -104,7 +160,7 @@ class ParametricConfig:
         all_steps = self.enabled_steps
         keys = [step.key for step in self.enabled_steps]
         for params in itertools.product(*all_steps):
-            new_proc = om.copy_processor(processor)
+            new_proc = deepcopy(processor)
             for key, value in zip(keys, params):
                 for step in all_steps:
                     if step.key == key:
@@ -112,38 +168,16 @@ class ParametricConfig:
                 new_proc.set(key=key, value=value)
             yield new_proc
 
-    def _embedded_org(self, processor, level=0, configs=None):
-        """TBW.
-
-        :param processor:
-        :param level:
-        :param sequence:
-        :return:
-        """
-        if configs is None:
-            configs = []
-
-        step = self.enabled_steps[level]
-        key = step.key
-        for value in step:
-            processor.set(key, value)
-            if level+1 < len(self.enabled_steps):
-                self._embedded(processor, level+1, configs)
-            else:
-                configs.append(om.copy_processor(processor))
-
-        return configs
-
     def collect(self, processor):
         """TBW."""
-        if self.mode == 'embedded':
-            configs = self._embedded(om.copy_processor(processor))
+        if self.parametric_mode == 'embedded':
+            configs = self._embedded(processor)
 
-        elif self.mode == 'sequential':
-            configs = self._sequential(om.copy_processor(processor))
+        elif self.parametric_mode == 'sequential':
+            configs = self._sequential(processor)
 
-        elif self.mode == 'single':
-            configs = [om.copy_processor(processor)]
+        elif self.parametric_mode == 'image_generator':
+            configs = self._image_generator(processor)
 
         else:
             configs = []
@@ -163,3 +197,25 @@ class ParametricConfig:
             print('%d: %r' % (i, values))
             result.append((i, values))
         return result
+
+
+class Configuration:
+    """TBW."""
+
+    def __init__(self, mode,
+                 parametric_analysis=None,
+                 calibration=None
+                 ) -> None:
+        """TBW.
+
+        :param mode:
+        :param parametric_analysis:
+        :param calibration:
+        """
+        self.mode = mode
+        self.parametric_analysis = parametric_analysis
+        self.calibration = calibration
+
+    def get_state_json(self):
+        """TBW."""
+        return om.get_state_dict(self)

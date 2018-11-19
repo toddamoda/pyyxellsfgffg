@@ -6,11 +6,12 @@
 import typing as t  # noqa: F401
 import numpy as np
 from bisect import bisect
+import subprocess
+from pathlib import Path
 
 from pyxel.models.tars.particle import Particle
-from pyxel.models.tars.util import sampling_distribution
+from pyxel.models.tars.util import sampling_distribution, load_histogram_data, read_data
 from pyxel.detectors.detector import Detector
-from pyxel.models.tars.util import load_step_data
 
 
 class Simulation:
@@ -22,12 +23,15 @@ class Simulation:
         :param Detector detector: Detector object(from CCD/CMSO library) containing all the simulated detector specs
         """
         self.detector = detector
+        self.simulation_mode = None
 
         self.flux_dist = None
         self.spectrum_cdf = None
 
         self.energy_loss_data = None
 
+        self.elec_number_dist = None
+        self.elec_number_cdf = np.zeros((1, 2))
         self.step_size_dist = None
         self.step_cdf = np.zeros((1, 2))
         self.kin_energy_dist = None
@@ -49,21 +53,33 @@ class Simulation:
         self.step_length = 1.0          # fix, all the other data/parameters should be adjusted to this
         self.energy_cut = 1.0e-5        # MeV
 
-        self.e_num_lst = []     # type: t.List[int]
-        self.e_energy_lst = []  # type: t.List[float]
-        self.e_pos0_lst = []    # type: t.List[float]
-        self.e_pos1_lst = []    # type: t.List[float]
-        self.e_pos2_lst = []    # type: t.List[float]
-        self.e_vel0_lst = []    # type: t.List[float]
-        self.e_vel1_lst = []    # type: t.List[float]
-        self.e_vel2_lst = []    # type: t.List[float]
+        self.e_num_lst_per_step = []    # type: t.List[int]
+        self.e_energy_lst = []          # type: t.List[float]
+        self.e_pos0_lst = []            # type: t.List[float]
+        self.e_pos1_lst = []            # type: t.List[float]
+        self.e_pos2_lst = []            # type: t.List[float]
+        self.e_vel0_lst = []            # type: t.List[float]
+        self.e_vel1_lst = []            # type: t.List[float]
+        self.e_vel2_lst = []            # type: t.List[float]
 
-        self.edep_per_step = []             # type: t.List[float]
-        self.total_edep_per_particle = []   # type: t.List[float]
+        self.electron_number_from_eloss = []     # type: t.List[int]
+        self.secondaries_from_eloss = []         # type: t.List[int]
+        self.tertiaries_from_eloss = []          # type: t.List[int]
 
-    def parameters(self, part_type, init_energy, pos_ver, pos_hor, pos_z, alpha, beta):
+        self.track_length_lst_per_event = []     # type: t.List[float]
+        self.e_num_lst_per_event = []            # type: t.List[int]
+        self.sec_lst_per_event = []              # type: t.List[int]
+        self.ter_lst_per_event = []              # type: t.List[int]
+        self.edep_per_step = []                  # type: t.List[float]
+        self.total_edep_per_particle = []        # type: t.List[float]
+        self.p_energy_lst_per_event = []         # type: t.List[float]
+        self.alpha_lst_per_event = []            # type: t.List[float]
+        self.beta_lst_per_event = []             # type: t.List[float]
+
+    def parameters(self, sim_mode, part_type, init_energy, pos_ver, pos_hor, pos_z, alpha, beta):
         """TBW.
 
+        :param sim_mode:
         :param part_type:
         :param init_energy:
         :param pos_ver:
@@ -73,6 +89,7 @@ class Simulation:
         :param beta:
         :return:
         """
+        self.simulation_mode = sim_mode
         self.particle_type = part_type
         self.initial_energy = init_energy
         self.position_ver = pos_ver
@@ -141,19 +158,28 @@ class Simulation:
         :return:
         .. warning:: EXPERIMENTAL - NOT FINSHED YET
         """
-        # step size distribution in um
-        self.step_size_dist = load_step_data(step_size_file, hist_type='step_size', skip_rows=4, read_rows=10000)
+        # # step size distribution in um
+        self.step_size_dist = load_histogram_data(step_size_file, hist_type='step_size',
+                                                  skip_rows=4, read_rows=10000)
 
         cum_sum = np.cumsum(self.step_size_dist['counts'])
         cum_sum /= np.max(cum_sum)
         self.step_cdf = np.stack((self.step_size_dist['step_size'], cum_sum), axis=1)
 
-        # secondary electron spectrum in keV
-        self.kin_energy_dist = load_step_data(step_size_file, hist_type='energy', skip_rows=10008, read_rows=200)
+        # # tertiary electron numbers created by secondary electrons
+        self.elec_number_dist = load_histogram_data(step_size_file, hist_type='electron',
+                                                    skip_rows=10008, read_rows=10000)
 
-        cum_sum = np.cumsum(self.kin_energy_dist['counts'])
-        cum_sum /= np.max(cum_sum)
-        self.kin_energy_cdf = np.stack((self.kin_energy_dist['energy'], cum_sum), axis=1)
+        cum_sum_2 = np.cumsum(self.elec_number_dist['counts'])
+        cum_sum_2 /= np.max(cum_sum_2)
+        self.elec_number_cdf = np.stack((self.elec_number_dist['electron']-0.5, cum_sum_2), axis=1)
+
+        # # secondary electron spectrum in keV
+        # self.kin_energy_dist = load_histogram_data(step_size_file, hist_type='energy', skip_rows=10008, read_rows=200)
+        #
+        # cum_sum = np.cumsum(self.kin_energy_dist['counts'])
+        # cum_sum /= np.max(cum_sum)
+        # self.kin_energy_cdf = np.stack((self.kin_energy_dist['energy'], cum_sum), axis=1)
 
     def event_generation(self):
         """Generate an event.
@@ -161,23 +187,31 @@ class Simulation:
         :return:
         """
         track_left = False
+        electron_number_per_event = 0
+        secondary_per_event = 0
+        tertiary_per_event = 0
         geo = self.detector.geometry
         mat = self.detector.material
         ioniz_energy = mat.ionization_energy   # eV
 
         self.particle = Particle(self.detector,
+                                 self.simulation_mode,
                                  self.particle_type,
                                  self.initial_energy, self.spectrum_cdf,
-                                 self.position_ver, self.position_hor, self.position_z,
-                                 self.angle_alpha, self.angle_beta)
+                                 self.position_ver, self.position_hor, self.position_z
+                                 # self.angle_alpha, self.angle_beta)
+                                 )
         particle = self.particle
+        self.track_length_lst_per_event += [particle.track_length]
 
         if self.energy_loss_data == 'stepsize':
-            data_filename = self.select_stepsize_data(particle.type, particle.energy, particle.track_length())
+            # data_filename = self.select_stepsize_data(particle.type, particle.energy, particle.track_length)
+            data_filename = self.select_stepsize_data(particle.type, 1000., 40.)
             self.set_stepsize_distribution(data_filename)
             # TODO make a stack of stepsize cdfs and do not load them more than once!!!
-
-        if self.energy_loss_data == 'stopping':
+        # elif self.energy_loss_data == 'geant4':
+        #     pass
+        elif self.energy_loss_data == 'stopping':
             raise NotImplementedError  # TODO: implement this
 
         while True:
@@ -189,10 +223,13 @@ class Simulation:
 
             if self.energy_loss_data == 'stepsize':
                 current_step_size = sampling_distribution(self.step_cdf)        # um
-                e_kin_energy = sampling_distribution(self.kin_energy_cdf)     # keV
-            if self.energy_loss_data == 'stopping':
+                # e_kin_energy = sampling_distribution(self.kin_energy_cdf)     # keV   TODO
+            # elif self.energy_loss_data == 'geant4':
+            #     pass
+            elif self.energy_loss_data == 'stopping':
                 raise NotImplementedError   # TODO: implement this
 
+            e_kin_energy = 1.   # TODO
             particle.deposited_energy = e_kin_energy + ioniz_energy * 1e-3  # keV
 
             # UPDATE POSITION OF IONIZING PARTICLES
@@ -201,11 +238,11 @@ class Simulation:
             particle.position[2] += particle.dir_z * current_step_size      # um
 
             # check if p is still inside detector and have enough energy:
-            if particle.position[0] < 0.0 or particle.position[0] > geo.vert_dimension:
+            if particle.position[0] <= 0.0 or particle.position[0] >= geo.vert_dimension:
                 break
-            if particle.position[1] < 0.0 or particle.position[1] > geo.horz_dimension:
+            if particle.position[1] <= 0.0 or particle.position[1] >= geo.horz_dimension:
                 break
-            if particle.position[2] < -1 * geo.total_thickness or particle.position[2] > 0.0:
+            if particle.position[2] <= -1 * geo.total_thickness or particle.position[2] >= 0.0:
                 break
             if particle.deposited_energy >= particle.energy * 1e3:
                 break
@@ -214,9 +251,21 @@ class Simulation:
 
             particle.energy -= particle.deposited_energy * 1e-3     # MeV
 
-            electron_number = int(e_kin_energy * 1e3 / ioniz_energy) + 1     # the +1 is the original secondary electron
+            if self.energy_loss_data == 'stepsize':
+                # the +1 is the original secondary electron
+                electron_number = int(sampling_distribution(self.elec_number_cdf)) + 1
+                # electron_number = int(e_kin_energy * 1e3 / ioniz_energy) + 1
+            # elif self.energy_loss_data == 'geant4':
+            #     electron_number = electron_number_vector[g4_j]
+            #     g4_j += 1
+            elif self.energy_loss_data == 'stopping':
+                raise NotImplementedError
 
-            self.e_num_lst += [electron_number]
+            secondary_per_event += 1
+            tertiary_per_event += electron_number - 1
+            electron_number_per_event += electron_number
+            self.e_num_lst_per_step += [electron_number]
+
             self.e_energy_lst += [e_kin_energy * 1e3]   # eV
             self.e_pos0_lst += [particle.position[0]]   # um
             self.e_pos1_lst += [particle.position[1]]   # um
@@ -231,6 +280,121 @@ class Simulation:
 
         if track_left:
             self.total_edep_per_particle.append(particle.total_edep)  # keV
+            self.e_num_lst_per_event += [electron_number_per_event]
+            self.sec_lst_per_event += [secondary_per_event]
+            self.ter_lst_per_event += [tertiary_per_event]
+
+        return False
+
+    def event_generation_geant4(self):
+        """Generate an event running a geant4 app directly.
+
+        :return:
+        """
+        # error = None
+        electron_number_per_event = 0
+        secondary_per_event = 0
+        tertiary_per_event = 0
+
+        secondaries = 0
+        tertiaries = 0
+
+        self.particle = Particle(self.detector,
+                                 self.simulation_mode,
+                                 self.particle_type,
+                                 self.initial_energy, self.spectrum_cdf,
+                                 self.position_ver, self.position_hor, self.position_z
+                                 # self.angle_alpha, self.angle_beta
+                                 )
+        particle = self.particle
+        if particle.track_length < 1.:
+            return True
+
+        self.track_length_lst_per_event += [particle.track_length]
+        self.p_energy_lst_per_event += [particle.energy]
+        self.alpha_lst_per_event += [particle.alpha]
+        self.beta_lst_per_event += [particle.beta]
+
+        error = subprocess.call(['./pyxel/models/tars/data/geant4/TestEm18',
+                                 'Silicon', particle.type,
+                                 str(particle.energy), str(particle.track_length)],
+                                stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        if error != 0:
+            return True
+
+        # mat = self.detector.material
+        # subprocess.call(['./TestEm18', mat.xxx, particle.type,
+        # str(particle.energy), str(particle.track_length)'])
+
+        g4_data_energy_path = Path(__file__).parent.joinpath('data', 'geant4', 'tars_geant4_energy.data')
+        g4energydata = read_data(g4_data_energy_path)       # MeV
+
+        # primary_e_balance = g4energydata[0] * 1.E6
+        all_e_loss = g4energydata[1] * 1.E6
+        primary_e_loss = g4energydata[2] * 1.E6
+        secondary_e_loss = g4energydata[3] * 1.E6
+        if all_e_loss > 0.:
+            self.electron_number_from_eloss += [np.floor(all_e_loss / 3.6).astype(int)]
+            self.secondaries_from_eloss += [np.floor(primary_e_loss / 3.6).astype(int)]
+            self.tertiaries_from_eloss += [np.floor(secondary_e_loss / 3.6).astype(int)]
+
+        g4_data_path = Path(__file__).parent.joinpath('data', 'geant4', 'tars_geant4.data')
+        g4data = read_data(g4_data_path)  # mm (!)
+
+        if g4data.shape == (3,):    # alternative running mode, only all electron number without proton step size data
+            electron_number_vector = [g4data[0].astype(int)]
+            secondaries = g4data[1].astype(int)
+            tertiaries = g4data[2].astype(int)
+            step_size_vector = [0]
+        elif g4data.shape == (0,):
+            step_size_vector = []       # um
+            electron_number_vector = []
+        elif g4data.shape == (2,):
+            step_size_vector = [g4data[0] * 1E3]       # um
+            electron_number_vector = [g4data[1].astype(int)]
+        else:
+            step_size_vector = g4data[:, 0] * 1E3       # um
+            electron_number_vector = g4data[:, 1].astype(int)
+
+        if np.any(electron_number_vector):
+            # for j in range(len(step_size_vector)):
+            for j in range(len(electron_number_vector)):
+
+                # UPDATE POSITION OF IONIZING PARTICLES
+                particle.position[0] += particle.dir_ver * step_size_vector[j]    # um
+                particle.position[1] += particle.dir_hor * step_size_vector[j]    # um
+                particle.position[2] += particle.dir_z * step_size_vector[j]      # um
+
+                electron_number_per_event += electron_number_vector[j]
+                secondary_per_event += secondaries
+                tertiary_per_event += tertiaries
+
+                self.e_num_lst_per_step += [electron_number_vector[j]]
+                self.e_pos0_lst += [particle.position[0]]   # um
+                self.e_pos1_lst += [particle.position[1]]   # um
+                self.e_pos2_lst += [particle.position[2]]   # um
+
+                e_kin_energy = 1.
+                self.e_energy_lst += [e_kin_energy]   # eV
+
+                # self.edep_per_step.append(particle.deposited_energy)    # keV
+                # particle.total_edep += particle.deposited_energy        # keV
+
+                # save particle trajectory
+                particle.trajectory = np.vstack((particle.trajectory, particle.position))
+
+            # END of loop
+
+            # self.total_edep_per_particle.append(particle.total_edep)  # keV
+            self.e_num_lst_per_event += [electron_number_per_event]
+            self.sec_lst_per_event += [secondary_per_event]
+            self.ter_lst_per_event += [tertiary_per_event]
+
+        # print('p energy: ', particle.energy, '\ttrack length: ', particle.track_length,
+        #       '\telectrons/event: ', electron_number_per_event,
+        #       '\tsteps: ', len(step_size_vector), '\terror: ', error)
+
+        return False
 
     # def _ionization_(self, particle):
     #     """TBW.

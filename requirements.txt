@@ -5,14 +5,10 @@
 # ESA libraries        #
 ########################
 
-esapy_config
-esapy_web
-
-########################
-# Others               #
-########################
-
-pyyaml
+esapy-config==0.4.0
+esapy-web==0.2.1
+esapy-dispatcher==0.4
+pygmo==2.9
 
 ########################
 # Scientific / Imaging #
@@ -23,10 +19,12 @@ astropy
 pandas
 matplotlib
 scipy
+
+########################
+# Others               #
+########################
+
+pyyaml
 numba
-
-########################
-# TARS                 #
-########################
-
 tqdm
+tornado

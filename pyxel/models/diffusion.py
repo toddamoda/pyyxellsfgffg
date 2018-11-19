@@ -3,9 +3,7 @@
 #   --------------------------------------------------------------------------
 """PyXel! Charge diffusion and collection model extracted from TARS."""
 
-import copy
 from math import sqrt, log
-
 import numpy as np
 from astropy import units as u
 from astropy.units import cds
@@ -20,7 +18,8 @@ cds.enable()
 # @registry.decorator('charge_collection')
 def diffusion(detector: CCD) -> CCD:
     """TBD."""
-    new_detector = copy.deepcopy(detector)
+    new_detector = detector
+    # new_detector = copy.deepcopy(detector)
 
     # diff = Diffusion(new_detector)
 

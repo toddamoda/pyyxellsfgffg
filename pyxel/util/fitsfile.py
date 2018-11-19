@@ -214,7 +214,11 @@ class FitsFile(ImageData):
                 new_header = header
 
             # Update the extension 'self._hdu_index' with data and header
+            # try:
             pyfits.update(str(self._filename), new_data, new_header)
+            # except PermissionError:
+            #     print('File is opened or used by another process, data have been saved into file: temp.fits')
+            #     pyfits.writeto(str('temp.fits'), new_data, new_header, output_verify='ignore', overwrite=overwrite)
 
         self._data = new_data
         self._header = new_header

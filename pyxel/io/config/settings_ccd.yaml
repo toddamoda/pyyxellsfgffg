@@ -1,33 +1,70 @@
 ################
 # Pyxel configuration file for CCD detectors
-# Used and modified by David
+# David Lucsanyi
 ################
 
-parametric:
-  mode: single
-#  mode: embedded
-#  mode: sequential
-  steps:
-    -
-      enabled: true
-      key: pipeline.photon_generation.photon_level.arguments.level
-      values: [10, 20, 30]
-    -
-      enabled: true
-      key: pipeline.charge_generation.tars.arguments.initial_energy
-      values: [100, 200, 300]
-    -
-      enabled: false
-      key:
-      values:
-    -
-      enabled: false
-      key:
-      values:
-    -
-      enabled: false
-      key:
-      values:
+simulation:
+###################
+#  mode: single
+  mode: parametric
+#  mode: calibration
+###################
+
+  parametric_analysis:
+#    parametric_mode: sequential
+#    parametric_mode: embedded
+    parametric_mode: image_generator
+    steps:
+      -
+        enabled: false
+        key: pipeline.charge_generation.tars.arguments.particle_number
+        values: [2, 3]
+      -
+        enabled: false
+        key: pipeline.photon_generation.photon_level.arguments.level
+        values: range(10, 13)
+      -
+        enabled: true
+        key:  [['characteristics', 'cdm', 'output_node_noise'],
+              [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['std_deviation']],
+              [[1], [4, 4, 4, 1], [1]]]
+        values: 'pyxel/calibration_champions.out'
+
+  calibration:
+
+    arguments:
+      calibration_mode:  pipeline  #  single_model  #
+      output: image   # signal # charge
+      output_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50] #
+
+      target_data_path: ['pyxel/results.fits', 'pyxel/results.fits']     # <*.npy> <*.fits> <ascii>
+      target_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50]
+
+      fitness_mode: residuals    # least-squares   # custom
+#      weighting_func_path:  # 'pyxel/results.fits'
+
+      algorithm: sade   # sga  # nlopt
+      seed:
+#      nlopt_solver: sbplx  # neldermead
+      generations: 3
+      population_size: 10
+      variant: 2
+
+      model_names:         ['characteristics', 'cdm', 'output_node_noise']  # , 'environment']
+      variables:           [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['std_deviation']]  # , ['temperature']]
+      params_per_variable: [[1], [4, 4, 4, 1], [1]]
+      var_log:             [[False], [True, True, True, False], [False]]
+      lower_boundary:      [[1.], [1.e-3, 1.e-2, 1.e-20, 0.], [10.]]
+      upper_boundary:      [[10.], [2., 1.e+1, 1.e-15, 1.], [200.]]
+
+#      model_names:  ['cdm'] #, 'tars']
+#      variables: [['tr_p', 'nt_p', 'sigma_p', 'beta_p']]  # , ['initial_energy']]
+#      var_log: [[True, True, True, False]] #, [False]]
+#      var_array: [[True, True, True, False]] #, [False]]
+#      params_per_variable: [[4, 4, 4, 1]] #, [1]]
+#      lower_boundary: [[1.e-3, 1.e-2, 1.e-20, 0.]] #, [1.]]
+#      upper_boundary: [[2., 1.e+1, 1.e-15, 1.]] #, [10.]]
+#      sort_by_var: tr_p
 
 processor:
   class: pyxel.pipelines.processor.Processor
@@ -37,13 +74,31 @@ processor:
 
     geometry:
       class: pyxel.detectors.ccd_geometry.CCDGeometry
-      row: 100                      # compulsory
-      col: 100                      # compulsory
-      total_thickness: 10.0         # um
-      depletion_thickness: 10.0     # um
+
+      row:   100 # 2381 #580 # 4494                   # compulsory
+      col:   100 # 2376 #640 # 1966                   # compulsory
+      total_thickness: 40.0         # um
+      depletion_thickness: 0.0      # um
       field_free_thickness: 0.0     # um
-      pixel_vert_size: 10.0         # um
-      pixel_horz_size: 10.0         # um
+      pixel_vert_size: 10. #10.0         # um
+      pixel_horz_size: 10. #10.0  #30.   # um
+
+#      readout_nodes: 1    # channels
+#      image_area:
+#        row:   5
+#        col:   10
+#      parallel_overscan:
+#        type: physical  # virtual
+#        row:   3
+#        col:   10
+#      serial_underscan:
+#        type: physical  # virtual
+#        row:   8
+#        col:   2
+#      serial_overscan:
+#        type: physical  # virtual
+#        row:   8
+#        col:   4
 
     material:
       class: pyxel.detectors.material.Material
@@ -62,15 +117,19 @@ processor:
 
     characteristics:
       class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
-      qe: 0.5               # -
-      eta: 1                # e/photon
-      sv: 1.0e-6            # V/e
-      amp: 0.8              # V/V
-      a1: 100               # V/V
-      a2: 65536             # DN/V
-      fwc: 20000            # e
-      fwc_serial: 30000     # e
-#      bias_voltage: 0.0             # V
+      qe: 0.5                 # -
+      eta: 0.5                # e/photon
+      sv: 1.0e-6              # V/e
+      amp: 1.                 # V/V
+      a1: 100                 # V/V
+      a2: 65536               # DN/V
+      fwc: 1.e6               # e
+      fwc_serial: 1.e6        # e
+      vg: 1.6200e-10          # cm2
+      svg: 1.6200e-10         # cm2
+      t: 9.4722e-04           # s
+      st: 9.4722e-04          # s
+#      bias_voltage: 0.0        # V
 
   pipeline:
     class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
@@ -80,19 +139,23 @@ processor:
       -
         name: load_image
         func: pyxel.models.photon_generation.load_image
-        enabled: false
+        enabled: true
         arguments:
-          image_file: null
+          image_file: data/01.fits
+          row0: 0
+          col0: 0
+          rows: 100
+          cols: 100
       -
         name: photon_level
         func: pyxel.models.photon_generation.add_photon_level
-        enabled: true
+        enabled: false
         arguments:
-          level: 100
+          level: 0
       -
         name: shot_noise
         func: pyxel.models.photon_generation.add_shot_noise
-        enabled: true
+        enabled: false
 
     # photons -> photons
     optics:
@@ -100,63 +163,72 @@ processor:
     # photons -> charge
     charge_generation:
       -
+        name: charge_injection
+        func: pyxel.models.charge_injection.charge_injection
+        enabled: false
+        arguments:
+          input_data_list: #path
+      -
         name: photoelectrons
-        enabled: true
         func: pyxel.models.photoelectrons.simple_conversion
+        enabled: true
       -
         name: tars
         func: pyxel.models.tars.tars.run_tars
-        enabled: true
+        enabled: false
         arguments:
+          simulation_mode: cosmic_ray   # snowflakes
+          running_mode: stepsize  # stopping  # plotting  # geant4
           particle_type: proton
-          initial_energy: random   # MeV
-          particle_number: 100
+          initial_energy: 100.   # MeV
+          particle_number: 1
           incident_angles:      # rad
-#            - 0.31415 # pi / 4
-#            - 3.1415  # 0 # 1.570 # 3.1415 # 2.094 # pi / 2
           starting_position:    # um
-#            - 10. #500.0  # vertical
-#            - 20. #500.0  # horizontal
-#            - 0.0         # z
           spectrum_file: 'pyxel/models/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
 
     # charge -> charge
     charge_collection:
       -
         name: fixed_pattern_noise
-        enabled: true
         func: pyxel.models.ccd_noise.add_fix_pattern_noise
+        enabled: false
         arguments:
           pix_non_uniformity: data/non_uniformity_array_normal_random_dist.data
       -
         name: full_well
         func: pyxel.models.full_well.simple_pixel_full_well
-        enabled: true
+        enabled: false
 
     # charge -> charge
     charge_transfer:
       -
         name: cdm
-        enabled: false
         func: pyxel.models.cdm.CDM.cdm
+        enabled: true
         arguments:
-         beta_p: 0.6
-         beta_s: 0.6
-         vg: 6.e-11
-         svg: 1.0e-10
-         t: 20.48e-3
-         st: 5.0e-6
-         parallel_trap_file: pyxel/models/cdm/cdm_euclid_parallel.dat
-         serial_trap_file: pyxel/models/cdm/cdm_euclid_serial.dat
+         beta_p: 0.1  # _
+         beta_s: 0.3
+         parallel_cti: true
+         serial_cti: false
+         chg_inj: true
+         para_transfers: 1552
+         tr_p: [0.01] # _
+         tr_s: [0.01]
+         nt_p: [1.] # _
+         nt_s: [1.]
+         sigma_p: [1.] # _
+         sigma_s: [1.]
+#         parallel_trap_file: pyxel/models/cdm/cdm_euclid_parallel.dat
+#         serial_trap_file: pyxel/models/cdm/cdm_euclid_serial.dat
 
     # charge -> signal
     charge_measurement:
       -
         name: output_node_noise
-        enabled: true
         func: pyxel.models.ccd_noise.add_output_node_noise
+        enabled: true
         arguments:
-          std_deviation: 1.0
+          std_deviation: 40.
 
     # signal -> image
     readout_electronics:

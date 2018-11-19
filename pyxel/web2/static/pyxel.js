@@ -53,7 +53,7 @@ $(document).ready(function() {
     $('#start-imager').on('click', function(event) {
         event.preventDefault();
         var url = '/js9/js9.html';  //$this.attr("href");
-        var name = "JS9 PyXEL Viewer";
+        var name = "JS9 Viewer";
         var specs = 'width=500,height=500'
         viewer = window.open(url, name, specs);
         viewer.focus()

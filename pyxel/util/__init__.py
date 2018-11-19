@@ -43,7 +43,7 @@ def convert_to_int(input_array: np.ndarray):
 #     from pyxel.io.yaml_processor import load
 #     cfg = load(yaml_filename)
 #     if 'parametric' in cfg:
-#         parametric = cfg.pop('parametric')  # type: pyxel.pipelines.parametric.ParametricConfig
+#         parametric = cfg.pop('parametric')  # type: pyxel.pipelines.parametric.Configuration
 #     else:
 #         parametric = None
 #

@@ -1,14 +1,12 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-"""PyXel! Charge class to generate electrons or holes inside detector."""
+"""Pyxel Charge class to generate electrons or holes inside detector."""
 import math
-
 import numpy as np
 import pandas as pd
 # from astropy import units as u
 from astropy.units import cds
-
 # from pyxel.util.util import round_convert_to_int    # , convert_to_int
 
 cds.enable()
@@ -157,7 +155,7 @@ class Charge:
         self.nextid = self.nextid + elements
 
         # Adding new particles to the DataFrame
-        self.frame = pd.concat([self.frame, new_charge_df], ignore_index=True)
+        self.frame = pd.concat([self.frame, new_charge_df], ignore_index=True, sort=False)
 
     def remove_charges(self, id_list='all'):
         """Remove list of charges from DataFrame if they are not needed, tracked anymore.

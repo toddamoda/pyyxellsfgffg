@@ -52,45 +52,26 @@ class Characteristics:
         default=0.0,
         converter=float,
         validator=om.validate_range(0.0, 65536.0, 1.0, False),
-        # validate=om.check_range(0.0, 10.0, 0.01, False),
         doc='gain of the ADC',
     )
 
     fwc = om.attr_def(
-        type=int,
+        type=float,
         default=0,
-        converter=int,
-        validator=om.validate_range(0, 1000000, 1, False),
-        doc='full well capacity (parallel)',
+        converter=float,
+        validator=om.validate_range(0., 1.e+7, 1., False),
+        doc='full well capacity',
         metadata={'units': 'electrons'}
     )
-    #
-    # def __init__(self,
-    #              qe: float = None,
-    #              eta: float = None,
-    #              sv: float = None,
-    #              amp: float = None,
-    #              a1: float = None,
-    #              a2: float = None,
-    #              fwc: int = None,
-    #              **invalid_kwargs) -> None:  # TODO: should we allow bad arguments to be passed??
-    #     """TBW.
-    #
-    #     :param qe:
-    #     :param eta:
-    #     :param sv:
-    #     :param amp:
-    #     :param a1:
-    #     :param a2:
-    #     :param fwc:
-    #     """
-    #     self.qe = qe                            # quantum efficiency
-    #     self.eta = eta                          # * u.electron / u.ph       # quantum yield
-    #     self.sv = sv                            # * u.V / u.electron        # sensitivity of CCD amplifier [V/-e]
-    #     self.amp = amp                          # * u.V / u.V               # output amplifier gain
-    #     self.a1 = a1                            # * u.V / u.V               # gain of the signal processor
-    #     self.a2 = a2                            # * u.adu / u.V             # gain of the ADC
-    #     self.fwc = fwc                          # * u.electrons             # full well capacity (parallel)
+
+    vg = om.attr_def(
+        type=float,
+        default=0.0,
+        converter=float,
+        validator=om.validate_range(0., 1., 1.e-8, False),
+        doc='half pixel volume charges can occupy',
+        metadata={'units': 'cm^2'}
+    )
 
     def copy(self):
         """TBW."""
@@ -104,7 +85,9 @@ class Characteristics:
                 'amp': self.amp,
                 'a1': self.a1,
                 'a2': self.a2,
-                'fwc': self.fwc}
+                'fwc': self.fwc,
+                'vg': self.vg
+                }
 
     # TODO: create unittests for this method
     def __eq__(self, obj):

@@ -144,4 +144,3 @@ registry_map = {
         }
     ]
 }
-

@@ -1,32 +1,35 @@
-parametric:
+simulation:
   mode: single
-  steps:
-  - current: null
-    enabled: true
-    key: pipeline.photon_generation.photon_level.arguments.level
-    values:
-    - 10
-    - 20
-    - 30
-  - current: null
-    enabled: true
-    key: pipeline.charge_generation.tars.arguments.initial_energy
-    values:
-    - 100
-    - 200
-    - 300
-  - current: null
-    enabled: false
-    key: null
-    values: null
-  - current: null
-    enabled: false
-    key: null
-    values: null
-  - current: null
-    enabled: false
-    key: null
-    values: null
+  parametric_analysis:
+  parametric_mode: sequential
+    steps:
+    - current: null
+      enabled: true
+      key: pipeline.photon_generation.photon_level.arguments.level
+      values:
+      - 10
+      - 20
+      - 30
+    - current: null
+      enabled: true
+      key: pipeline.charge_generation.tars.arguments.initial_energy
+      values:
+      - 100
+      - 200
+      - 300
+    - current: null
+      enabled: false
+      key: null
+      values: null
+    - current: null
+      enabled: false
+      key: null
+      values: null
+    - current: null
+      enabled: false
+      key: null
+      values: null
+  calibration:
 processor:
   class: pyxel.pipelines.processor.Processor
   detector:
