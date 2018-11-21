@@ -23,10 +23,8 @@ doc:
   script:
     - pip install sphinx sphinx_rtd_theme
     - pip install -r requirements.txt
-
     - export PYTHONPATH=$PWD
     - sphinx-build docs/source docs/html
-
     - ls
   artifacts:
     paths:
@@ -35,6 +33,8 @@ doc:
     key: "$CI_COMMIT_REF_NAME"
     paths:
       - docs/html
+  allow_failure: false
+
 
 docker:
   stage: build
@@ -43,6 +43,7 @@ docker:
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN gitlab.esa.int:4567
     - docker build --pull -t $CONTAINER_LATEST_IMAGE .
     - docker push $CONTAINER_LATEST_IMAGE
+  allow_failure: false
 
 #
 # Test Stage
@@ -54,11 +55,9 @@ anaconda3:
   stage: test
   script:
     - pip install pytest pytest-cov pytest-html
-
     - pip install -r requirements.txt
     - export PYTHONPATH=$PWD
     - pytest --cov=pyxel --cov-report html --html=pytest_report.html --self-contained-html --color=yes --full-trace --showlocals --verbose
-
     - ls
   artifacts:
     paths:
@@ -69,6 +68,7 @@ anaconda3:
     paths:
       - htmlcov
       - pytest_report.html
+  allow_failure: false
 
 
 # Run pytest for Python 3.6
@@ -77,10 +77,9 @@ python36:
   stage: test
   script:
     - pip install pytest
-
     - pip install -r requirements.txt
     - pytest --color=yes --full-trace --showlocals --verbose
-  allow_failure: true   # TODO: This line should be removed
+  allow_failure: false
 
 
 # Run pytest for Python 3.5
@@ -89,10 +88,9 @@ python35:
   stage: test
   script:
     - pip install pytest
-
     - pip install -r requirements.txt
     - pytest --color=yes --full-trace --showlocals --verbose
-  allow_failure: true   # TODO: This line should be removed
+  allow_failure: false
 
 
 
@@ -112,10 +110,8 @@ lint:
   stage: test
   script:
     - pip install pytest-pylint pytest-html
-
     - pip install -r requirements.txt
     - pytest --pylint --color=yes --verbose --pylint-rcfile=pylint.cfg --html=pylint_report.html --self-contained-html -m pylint || echo 1
-
     - ls
   artifacts:
     paths:
@@ -124,7 +120,7 @@ lint:
     key: "$CI_COMMIT_REF_NAME"
     paths:
       - pylint_report.html
-
+  allow_failure: false
 
 flake8:
   image: python:3.6
@@ -133,8 +129,6 @@ flake8:
     - pip install flake8 flake8-docstrings pep8-naming
     - flake8 pyxel
   allow_failure: false
-
-
 
 
 doc8:
@@ -150,7 +144,7 @@ doc8:
 # Deploy Stage
 #
 
-# Create the pages into http://sci-fv.io.esa.int/steam
+# Create the pages
 pages:
   image: python:3.6
   stage: deploy
@@ -171,9 +165,9 @@ pages:
   artifacts:
     paths:
       - public
+  allow_failure: false
 #  only:
 #    - tags
-
 
 deploy-to-k8s:
   stage: deploy
