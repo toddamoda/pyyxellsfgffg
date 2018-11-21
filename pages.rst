@@ -15,4 +15,4 @@ CI Output Results
 
 .. footer:: This document was generated on |date| at |time|.
 
-Copyright (c) 2018 - SCI-FV, Estec, ESA
+Copyright (c) 2018 - SCI-FIV, ESTEC, ESA

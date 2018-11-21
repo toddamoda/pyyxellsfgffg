@@ -1,5 +1,5 @@
 #   --------------------------------------------------------------------------
-#   Copyright 2016 SRE-F, ESA (European Space Agency)
+#   Copyright 2016 SCI-FIV, ESA (European Space Agency)
 #       Lionel Garcia <lionel_garcia@live.fr>
 #
 #   This is restricted software and is only to be used with permission

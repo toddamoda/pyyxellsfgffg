@@ -42,3 +42,6 @@ dist/
 
 # mypy
 .mypy_cache/
+
+# test coverage report
+htmlcov/

@@ -378,7 +378,7 @@ class TARS:
                                 self.init_energy,
                                 self.position_ver, self.position_hor, self.position_z,
                                 self.angle_alpha, self.angle_beta)
-
+        out_path = 'data/'
         for k in tqdm(range(0, self.particle_number)):
             # for k in range(0, self.particle_number):
             err = None
@@ -387,22 +387,22 @@ class TARS:
             elif self.sim_obj.energy_loss_data == 'geant4':
                 err = self.sim_obj.event_generation_geant4()
             if k % 10 == 0:
-                np.save('tars-e_num_lst_per_event.npy', self.sim_obj.e_num_lst_per_event)
-                np.save('tars-sec_lst_per_event.npy', self.sim_obj.sec_lst_per_event)
-                np.save('tars-ter_lst_per_event.npy', self.sim_obj.ter_lst_per_event)
-                np.save('tars-track_length_lst_per_event.npy', self.sim_obj.track_length_lst_per_event)
-                np.save('tars-p_energy_lst_per_event.npy', self.sim_obj.p_energy_lst_per_event)
-                np.save('tars-alpha_lst_per_event.npy', self.sim_obj.alpha_lst_per_event)
-                np.save('tars-beta_lst_per_event.npy', self.sim_obj.beta_lst_per_event)
+                np.save(out_path + 'tars-e_num_lst_per_event.npy', self.sim_obj.e_num_lst_per_event)
+                np.save(out_path + 'tars-sec_lst_per_event.npy', self.sim_obj.sec_lst_per_event)
+                np.save(out_path + 'tars-ter_lst_per_event.npy', self.sim_obj.ter_lst_per_event)
+                np.save(out_path + 'tars-track_length_lst_per_event.npy', self.sim_obj.track_length_lst_per_event)
+                np.save(out_path + 'tars-p_energy_lst_per_event.npy', self.sim_obj.p_energy_lst_per_event)
+                np.save(out_path + 'tars-alpha_lst_per_event.npy', self.sim_obj.alpha_lst_per_event)
+                np.save(out_path + 'tars-beta_lst_per_event.npy', self.sim_obj.beta_lst_per_event)
 
-                np.save('tars-e_num_lst_per_step.npy', self.sim_obj.e_num_lst_per_step)
-                np.save('tars-e_pos0_lst.npy', self.sim_obj.e_pos0_lst)
-                np.save('tars-e_pos1_lst.npy', self.sim_obj.e_pos1_lst)
-                np.save('tars-e_pos2_lst.npy', self.sim_obj.e_pos2_lst)
+                np.save(out_path + 'tars-e_num_lst_per_step.npy', self.sim_obj.e_num_lst_per_step)
+                np.save(out_path + 'tars-e_pos0_lst.npy', self.sim_obj.e_pos0_lst)
+                np.save(out_path + 'tars-e_pos1_lst.npy', self.sim_obj.e_pos1_lst)
+                np.save(out_path + 'tars-e_pos2_lst.npy', self.sim_obj.e_pos2_lst)
 
-                np.save('tars-all_e_from_eloss.npy', self.sim_obj.electron_number_from_eloss)
-                np.save('tars-sec_e_from_eloss.npy', self.sim_obj.secondaries_from_eloss)
-                np.save('tars-ter_e_from_eloss.npy', self.sim_obj.tertiaries_from_eloss)
+                np.save(out_path + 'tars-all_e_from_eloss.npy', self.sim_obj.electron_number_from_eloss)
+                np.save(out_path + 'tars-sec_e_from_eloss.npy', self.sim_obj.secondaries_from_eloss)
+                np.save(out_path + 'tars-ter_e_from_eloss.npy', self.sim_obj.tertiaries_from_eloss)
             if err:
                     k -= 1
 
@@ -433,11 +433,11 @@ class TARS:
         :return:
         """
         print("TARS - adding previous cosmic ray signals to image ...\n")
-
-        e_num_lst_per_step = np.load('tars-e_num_lst_per_step.npy')
-        e_pos0_lst = np.load('tars-e_pos0_lst.npy')
-        e_pos1_lst = np.load('tars-e_pos1_lst.npy')
-        e_pos2_lst = np.load('tars-e_pos2_lst.npy')
+        out_path = 'data/'
+        e_num_lst_per_step = np.load(out_path + 'tars-e_num_lst_per_step.npy')
+        e_pos0_lst = np.load(out_path + 'tars-e_pos0_lst.npy')
+        e_pos1_lst = np.load(out_path + 'tars-e_pos1_lst.npy')
+        e_pos2_lst = np.load(out_path + 'tars-e_pos2_lst.npy')
 
         size = len(e_num_lst_per_step)
         e_energy_lst = [0.] * size
