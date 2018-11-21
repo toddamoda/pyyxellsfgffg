@@ -16,6 +16,22 @@ stages:
 # Build stage
 #
 
+# Scan sourcecode for licenses, copyrights & dependencies     # todo: temporary, replace this stage
+licenses:
+  image: python:2.7.14
+  stage: deploy
+  allow_failure: true
+  script:
+    - ls
+    - pip install scancode-toolkit
+    - scancode -h
+    - scancode --format html-app pyxel license_report.html
+    - ls
+  artifacts:
+    paths:
+      - license_report.html
+
+
 # Generate the Sphinx documentation into 'doc/html'
 doc:
   image: continuumio/anaconda3
@@ -111,23 +127,23 @@ mypy:
   allow_failure: true
 
 
-# Run pylint (with pytest) and generate HTML report
-lint:
-  image: python:3.6
-  stage: test
-  script:
-    - pip install pytest-pylint pytest-html
-    - pip install -r requirements.txt
-    - pytest --pylint --color=yes --verbose --pylint-rcfile=pylint.cfg --html=pylint_report.html --self-contained-html -m pylint || echo 1
-    - ls
-  artifacts:
-    paths:
-      - pylint_report.html
-  cache:
-    key: "$CI_COMMIT_REF_NAME"
-    paths:
-      - pylint_report.html
-  allow_failure: false
+## Run pylint (with pytest) and generate HTML report
+#lint:
+#  image: python:3.6
+#  stage: test
+#  script:
+#    - pip install pytest-pylint pytest-html
+#    - pip install -r requirements.txt
+#    - pytest --pylint --color=yes --verbose --pylint-rcfile=pylint.cfg --html=pylint_report.html --self-contained-html -m pylint || echo 1
+#    - ls
+#  artifacts:
+#    paths:
+#      - pylint_report.html
+#  cache:
+#    key: "$CI_COMMIT_REF_NAME"
+#    paths:
+#      - pylint_report.html
+#  allow_failure: false     # todo uncomment this stage
 
 flake8:
   image: python:3.6
@@ -143,7 +159,6 @@ doc8:
   stage: test
   script:
     - pip install sphinx doc8
-
     - doc8 docs/source
   allow_failure: false
 
@@ -151,22 +166,20 @@ doc8:
 # Deploy Stage
 #
 
-# Scan sourcecode for licenses, copyrights & dependencies
-licenses:
-  stage: deploy
-  image: python:2.7.14
-  allow_failure: true
-  script:
-    - ls
-    - pip install scancode-toolkit
-#    - export PYTHONPATH=$PWD
-    - python scancode -h
-    - ./scancode -h
-#    - ./scancode --format html-app pyxel licences.html
-    - ls
+## Scan sourcecode for licenses, copyrights & dependencies
+#licenses:
+#  image: python:2.7.14
+#  stage: deploy
+#  allow_failure: true
+#  script:
+#    - ls
+#    - pip install scancode-toolkit
+#    - scancode -h
+#    - scancode --format html-app pyxel license_report.html
+#    - ls
 #  artifacts:
 #    paths:
-#      - pytest_report.html
+#      - license_report.html
 
 
 # Create the pages
@@ -186,7 +199,8 @@ pages:
     - mv pages.html public/index.html
     - mv htmlcov public/coverage
     - mv pytest_report.html public
-    - mv pylint_report.html public
+#    - mv pylint_report.html public   # todo uncomment this line
+    - mv license_report.html public
     - ls public
   artifacts:
     paths:
