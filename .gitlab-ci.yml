@@ -151,6 +151,24 @@ doc8:
 # Deploy Stage
 #
 
+# Scan sourcecode for licenses, copyrights & dependencies
+licenses:
+  stage: deploy
+  image: python:2.7.14
+  allow_failure: true
+  script:
+    - ls
+    - pip install scancode-toolkit
+#    - export PYTHONPATH=$PWD
+    - python scancode -h
+    - ./scancode -h
+#    - ./scancode --format html-app pyxel licences.html
+    - ls
+#  artifacts:
+#    paths:
+#      - pytest_report.html
+
+
 # Create the pages
 pages:
   image: python:3.6
