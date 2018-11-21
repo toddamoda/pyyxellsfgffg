@@ -25,10 +25,10 @@ licenses:
     - pwd
     - pip install scancode-toolkit
 #    - scancode -h
-    - scancode docs --html-app license_report.html
-#    - scancode --license --package --copyright --info --email --url --license-diag  pyxel --html-app license_report.html
+#    - scancode docs --html-app license_report.html
+    - scancode --license --package --copyright --info --email --url --license-diag  pyxel --html-app license_report.html
     - ls
-    - ls pyxel
+#    - ls pyxel
   artifacts:
     paths:
       - license_report_files
@@ -204,6 +204,7 @@ pages:
     - mv pytest_report.html public
 #    - mv pylint_report.html public   # todo uncomment this line
     - mv license_report.html public
+    - mv license_report_files public/license_report_files
     - ls public
   artifacts:
     paths:
