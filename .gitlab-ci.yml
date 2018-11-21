@@ -22,10 +22,9 @@ licenses:
   stage: build  # deploy
   allow_failure: true
   script:
-    - ls
     - pip install scancode-toolkit
-    - scancode -h
-    - scancode --format html-app pyxel license_report.html
+#    - scancode -h
+    - scancode --license --package --copyright --info --email --url --license-diag  pyxel --html-app license_report.html
     - ls
   artifacts:
     paths:
