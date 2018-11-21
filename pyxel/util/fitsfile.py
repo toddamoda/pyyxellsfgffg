@@ -1,5 +1,5 @@
 #   --------------------------------------------------------------------------
-#   Copyright 2016 SRE-F, ESA (European Space Agency)
+#   Copyright 2016 SCI-FIV, ESA (European Space Agency)
 #       Hans Smit <Hans.Smit@esa.int>
 #       Frederic Lemmel <Frederic.Lemmel@esa.int>
 #   --------------------------------------------------------------------------
