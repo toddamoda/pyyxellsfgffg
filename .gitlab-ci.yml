@@ -57,17 +57,23 @@ anaconda3:
     - pip install pytest pytest-cov pytest-html
     - pip install -r requirements.txt
     - export PYTHONPATH=$PWD
-    - pytest --cov=pyxel --cov-report term:test-cov.out  --cov-report html --html=pytest_report.html --self-contained-html --color=yes --full-trace --showlocals --verbose
+    - pytest --cov=pyxel --cov-report= --cov-report=html --html=pytest_report.html --self-contained-html --color=yes --full-trace --showlocals --verbose
+    - coverage report > coverage.out
+    - PERCENT=$(sh -c "tail -n 1 coverage.out" | grep -o '[0-9]*%')
+    - PERCENT=$(echo $PERCENT | grep -o '[0-9]*')
+    - sh -c "wget -O coverage.svg https://img.shields.io/badge/coverage-$NUMBER%25-green.svg"
     - ls
   artifacts:
     paths:
       - htmlcov
       - pytest_report.html
+      - coverage.svg
   cache:
     key: "$CI_COMMIT_REF_NAME"
     paths:
       - htmlcov
       - pytest_report.html
+      - coverage.svg
   allow_failure: false
 
 
@@ -156,6 +162,8 @@ pages:
     - mkdir public
     - ls
 
+    - mv coverage.out public/coverage.out
+    - mv coverage.svg public/coverage.svg
     - mv docs/html public/doc
     - mv pages.html public/index.html
     - mv htmlcov public/coverage
