@@ -19,7 +19,7 @@ stages:
 # Scan sourcecode for licenses, copyrights & dependencies     # todo: temporary, replace this stage
 licenses:
   image: python:2.7.14
-  stage: deploy
+  stage: build  # deploy
   allow_failure: true
   script:
     - ls
