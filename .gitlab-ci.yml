@@ -61,7 +61,8 @@ anaconda3:
     - coverage report > coverage.out
     - PERCENT=$(sh -c "tail -n 1 coverage.out" | grep -o '[0-9]*%')
     - PERCENT=$(echo $PERCENT | grep -o '[0-9]*')
-    - wget -O coverage.svg https://img.shields.io/badge/coverage-$PERCENT%25-green.svg
+    - COLOR="red"
+    - wget -O coverage.svg https://img.shields.io/badge/coverage-$PERCENT%25-$COLOR.svg
     - ls
   artifacts:
     paths:
