@@ -24,11 +24,11 @@ licenses:
   script:
     - pwd
     - pip install scancode-toolkit==2.2.1  # 2.9.2
-#    - scancode -h     # --license-diag                         # todo: use latest release when it will be available !
+#    - scancode -h     # --license-diag                         # todo: use latest release when it will be available !   # todo make it parallel
 #    - scancode --license --package --copyright --info --email --url . --html-app license_report.html        # latest version
 #    - scancode --license --package --copyright --info --email --url --format html-app . license_report.html   # v2.2.1
-#    - scancode --license --package --copyright --info --email --url --format html . license_report.html   # v2.2.1
-    - scancode --format html . license_report.html   # v2.2.1
+#    - scancode --license --package --copyright --info --email --url --format html . license_report.html      # v2.2.1
+    - scancode -n 4 --format json --diag . license_report.json       # v2.2.1
 #    - scancode . --html-app license_report.html
     - ls
   artifacts:
@@ -174,22 +174,6 @@ doc8:
 # Deploy Stage
 #
 
-## Scan sourcecode for licenses, copyrights & dependencies
-#licenses:
-#  image: python:2.7.14
-#  stage: deploy
-#  allow_failure: true
-#  script:
-#    - ls
-#    - pip install scancode-toolkit
-#    - scancode -h
-#    - scancode --format html-app pyxel license_report.html
-#    - ls
-#  artifacts:
-#    paths:
-#      - license_report.html
-
-
 # Create the pages
 pages:
   image: python:3.6
@@ -207,14 +191,14 @@ pages:
     - mv pages.html public/index.html
     - mv htmlcov public/coverage
     - mv pytest_report.html public
-#    - mv pylint_report.html public   # todo uncomment this line
-    - mv license_report.html public
-    - mv license_report_files public/license_report_files
+#    - mv pylint_report.html public                         # todo uncomment this line
+#    - mv license_report.html public                          # todo uncomment this line
+#    - mv license_report_files public/license_report_files      # todo uncomment this line
     - ls public
   artifacts:
     paths:
       - public
-  allow_failure: true # false    # todo uncomment this line
+  allow_failure: false
 #  only:
 #    - tags
 
