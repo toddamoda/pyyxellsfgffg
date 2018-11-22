@@ -24,9 +24,11 @@ licenses:
   script:
     - pwd
     - pip install scancode-toolkit==2.2.1  # 2.9.2
-#    - scancode -h     # --license-diag
+#    - scancode -h     # --license-diag                         # todo: use latest release when it will be available !
 #    - scancode --license --package --copyright --info --email --url . --html-app license_report.html        # latest version
-    - scancode --license --package --copyright --info --email --url --format html-app . license_report.html   # v2.2.1
+#    - scancode --license --package --copyright --info --email --url --format html-app . license_report.html   # v2.2.1
+#    - scancode --license --package --copyright --info --email --url --format html . license_report.html   # v2.2.1
+    - scancode --format html . license_report.html   # v2.2.1
 #    - scancode . --html-app license_report.html
     - ls
   artifacts:
