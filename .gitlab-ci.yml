@@ -32,7 +32,7 @@ licenses:
 #    - scancode --license --package --copyright --info --email --url --format html . license_report.html      # v2.2.1
 #    - scancode -n 4 --ignore *.fits --format json --diag . license_report.json || echo 0      # v2.2.1   worked
 #    - scancode -n 4 --ignore *.fits --format html-app --diag . license_report.html || echo 0      # v2.2.1   worked
-    - scancode -n 4 --ignore *.fits --diag . --html-app license_report.html || echo 0      # latest
+    - scancode -n 4 --ignore *.fits --license-diag . --html-app license_report.html || echo 0      # latest
 #    - scancode . --html-app license_report.html
     - ls
   artifacts:
