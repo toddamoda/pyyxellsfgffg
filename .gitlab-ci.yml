@@ -193,13 +193,13 @@ pages:
     - mv htmlcov public/coverage
     - mv pytest_report.html public
 #    - mv pylint_report.html public                         # todo uncomment this line
-#    - mv license_report.html public                          # todo uncomment this line
-#    - mv license_report_files public/license_report_files      # todo uncomment this line
+    - mv license_report.html public
+    - mv license_report_files public/license_report_files
     - ls public
   artifacts:
     paths:
       - public
-  allow_failure: false
+  allow_failure: true       # todo
 #  only:
 #    - tags
 
