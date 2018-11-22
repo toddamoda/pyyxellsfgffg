@@ -23,13 +23,16 @@ licenses:
   allow_failure: true
   script:
     - pwd
-    - pip install scancode-toolkit==2.2.1  # 2.9.2
-#    - scancode -h     # --license-diag                         # todo: use latest release when it will be available !   # todo make it parallel
+#    - pip install scancode-toolkit==2.2.1    # worked
+#    - pip install scancode-toolkit==2.9.2
+    - pip install scancode-toolkit
+    - scancode -h             # todo: use latest release when it will be available !   # todo make it parallel
 #    - scancode --license --package --copyright --info --email --url . --html-app license_report.html        # latest version
 #    - scancode --license --package --copyright --info --email --url --format html-app . license_report.html   # v2.2.1
 #    - scancode --license --package --copyright --info --email --url --format html . license_report.html      # v2.2.1
 #    - scancode -n 4 --ignore *.fits --format json --diag . license_report.json || echo 0      # v2.2.1   worked
-    - scancode -n 4 --ignore *.fits --format html-app --diag . license_report.html || echo 0      # v2.2.1
+#    - scancode -n 4 --ignore *.fits --format html-app --diag . license_report.html || echo 0      # v2.2.1   worked
+    - scancode -n 4 --ignore *.fits --diag . --html-app license_report.html || echo 0      # latest
 #    - scancode . --html-app license_report.html
     - ls
   artifacts:
