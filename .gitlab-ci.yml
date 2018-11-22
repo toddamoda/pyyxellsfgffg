@@ -23,11 +23,10 @@ licenses:
   allow_failure: true
   script:
     - pwd
-    - pip install scancode-toolkit
-    - scancode -h
-#    - scancode docs --html-app license_report.html
-#    - scancode --license --package --copyright --info --email --url --license-diag  pyxel --html-app license_report.html
-    - scancode . --html-app license_report.html
+    - pip install scancode-toolkit==2.9.2
+#    - scancode -h     # --license-diag
+    - scancode --license --package --copyright --info --email --url . --html-app license_report.html
+#    - scancode . --html-app license_report.html
     - ls
   artifacts:
     paths:
