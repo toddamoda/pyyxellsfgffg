@@ -27,7 +27,7 @@ licenses:
     - scancode -h
 #    - scancode docs --html-app license_report.html
 #    - scancode --license --package --copyright --info --email --url --license-diag  pyxel --html-app license_report.html
-    - scancode pyxel --html-app license_report.html
+    - scancode . --html-app license_report.html
     - ls
   artifacts:
     paths:
@@ -212,7 +212,7 @@ pages:
   artifacts:
     paths:
       - public
-  allow_failure: false
+  allow_failure: true # false    # todo uncomment this line
 #  only:
 #    - tags
 
