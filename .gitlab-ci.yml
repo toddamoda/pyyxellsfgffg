@@ -24,15 +24,18 @@ licenses:
   script:
     - pwd
     - pip install scancode-toolkit
-#    - scancode -h
+    - scancode -h
 #    - scancode docs --html-app license_report.html
-    - scancode --license --package --copyright --info --email --url --license-diag  pyxel --html-app license_report.html
+#    - scancode --license --package --copyright --info --email --url --license-diag  pyxel --html-app license_report.html
+    - scancode pyxel --html-app license_report.html
     - ls
-#    - ls pyxel
   artifacts:
     paths:
       - license_report_files
       - license_report.html
+#  only:
+#    - master
+#    - tags
 
 
 # Generate the Sphinx documentation into 'doc/html'
