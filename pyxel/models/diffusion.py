@@ -1,5 +1,5 @@
 #   --------------------------------------------------------------------------
-#   Copyright 2017 SCI-FIV, ESA (European Space Agency)
+#   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
 """PyXel! Charge diffusion and collection model extracted from TARS."""
 
