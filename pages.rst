@@ -8,9 +8,10 @@ CI Output Results
 -----------------
 
 * `Documentation <doc>`_
-* `Coverage <coverage>`_
+* `Test coverage <coverage>`_
 * `Tests <pytest_report.html>`_
 * `Pylint <pylint_report.html>`_
+* `Licenses & Copyrights <license_report.html>`_
 
 
 .. footer:: This document was generated on |date| at |time|.

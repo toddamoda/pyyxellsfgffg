@@ -16,6 +16,34 @@ stages:
 # Build stage
 #
 
+# Scan sourcecode for licenses, copyrights & dependencies     # todo: temporary, replace this stage to elsewhere
+licenses:
+  image: python:2.7.14
+  stage: build  # deploy
+  allow_failure: true
+  script:
+    - pwd
+    - pip install scancode-toolkit==2.2.1    # worked
+#    - pip install scancode-toolkit==2.9.2
+#    - pip install scancode-toolkit        # not worked:  EMPTY REPORT
+    - scancode -h             # todo: use latest release when it will be available !
+#    - scancode --license --package --copyright --info --email --url . --html-app license_report.html        # latest version
+#    - scancode --license --package --copyright --info --email --url --format html-app . license_report.html   # v2.2.1
+#    - scancode --license --package --copyright --info --email --url --format html . license_report.html      # v2.2.1
+#    - scancode -n 4 --ignore *.fits --format json --diag . license_report.json || echo 0      # v2.2.1   worked
+    - scancode -n 4 --ignore *.fits --format html-app --diag . license_report.html || echo 0      # v2.2.1   worked
+#    - scancode -n 4 --ignore *.fits . --html-app license_report.html || echo 0      # latest version, EMPTY REPORT
+#    - scancode . --html-app license_report.html
+    - ls
+  artifacts:
+    paths:
+      - license_report_files
+      - license_report.html
+#  only:
+#    - master
+#    - tags
+
+
 # Generate the Sphinx documentation into 'doc/html'
 doc:
   image: continuumio/anaconda3
@@ -129,6 +157,7 @@ lint:
       - pylint_report.html
   allow_failure: false
 
+
 flake8:
   image: python:3.6
   stage: test
@@ -143,7 +172,6 @@ doc8:
   stage: test
   script:
     - pip install sphinx doc8
-
     - doc8 docs/source
   allow_failure: false
 
@@ -169,6 +197,8 @@ pages:
     - mv htmlcov public/coverage
     - mv pytest_report.html public
     - mv pylint_report.html public
+    - mv license_report.html public
+    - mv license_report_files public/license_report_files
     - ls public
   artifacts:
     paths:

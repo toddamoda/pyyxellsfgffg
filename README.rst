@@ -84,5 +84,3 @@ The documentation of **Pyxel** can be found at this link: http://sci-fv.io.esa.i
 
 License
 -------
-
-ESA Software Community License - Type 3. See License File.
