@@ -24,6 +24,7 @@ scipy
 # Others               #
 ########################
 
+versioneer
 pyyaml
 numba
 tqdm

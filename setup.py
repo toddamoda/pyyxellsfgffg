@@ -1,20 +1,5 @@
 """
 Pyxel detector simulation framework.
-
-Copyright 2018 SCI-FIV, ESA (European Space Agency)
-Hans Smit <Hans.Smit@esa.int>
-Frederic Lemmel <Frederic.Lemmel@esa.int>
-
-This is restricted software and is only to be used with permission
-from the author, or from ESA.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-DEALINGS IN THE SOFTWARE.
 """
 
 from setuptools import setup, find_packages
@@ -51,10 +36,10 @@ setup(
     long_description=open('README.rst').read(),
     author=pyxel.__author__,
     author_email=pyxel.__author_email__,
-    url='http://www.esa.int',
-    # license='',
+    url='http://www.sci.esa.int/pyxel',
+    license='MIT',
     keywords='esa',
-    install_requires=get_requires(['requirements.txt']),
+    install_requires=get_requires('requirements.txt'),
     packages=find_packages(exclude=['tests*']),
     include_package_data=True,
     package_data={'': ['*.glade', '*.ui', '*.acf']},
@@ -67,7 +52,7 @@ setup(
         'Intended Audience :: Developers',
         'Intended Audience :: End Users/Desktop',
         'Topic :: Software Development :: Build Tools',
-        # 'License :: OSI Approved :: ???',
+        'License :: OSI Approved :: MIT',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',

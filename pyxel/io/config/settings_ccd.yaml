@@ -5,8 +5,8 @@
 
 simulation:
 ###################
-#  mode: single
-  mode: parametric
+  mode: single
+#  mode: parametric
 #  mode: calibration
 ###################
 
