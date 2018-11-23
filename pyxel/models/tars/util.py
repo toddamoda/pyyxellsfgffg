@@ -1,7 +1,4 @@
-#   --------------------------------------------------------------------------
-#   Copyright 2018 SCI-FIV, ESA (European Space Agency)
-#   --------------------------------------------------------------------------
-"""PyXel! util funcs for TARS charge generation model."""
+"""Pyxel TARS model to generate charges by ionization."""
 
 import bisect
 import numpy as np

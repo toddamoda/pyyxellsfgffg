@@ -1,7 +1,4 @@
-#   --------------------------------------------------------------------------
-#   Copyright 2018 SCI-FIV, ESA (European Space Agency)
-#   --------------------------------------------------------------------------
-"""PyXel! TARS model for charge generation by ionization."""
+"""Pyxel TARS model to generate charges by ionization."""
 
 import logging
 import math

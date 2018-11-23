@@ -1,20 +1,4 @@
-#   --------------------------------------------------------------------------
-#   Copyright 2016 SCI-FIV, ESA (European Space Agency)
-#       Lionel Garcia <lionel_garcia@live.fr>
-#
-#   This is restricted software and is only to be used with permission
-#   from the author, or from ESA.
-#
-#   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-#   THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-#   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-#   DEALINGS IN THE SOFTWARE.
-#   --------------------------------------------------------------------------
-
-"""TBW."""
+"""Pyxel TARS model to generate charges by ionization."""
 
 import numpy as np
 from pyxel.models.tars.util import sampling_distribution
