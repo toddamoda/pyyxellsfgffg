@@ -107,12 +107,11 @@ def test_boundaries(yaml_file):
     assert u == ubd_expected
 
 
-@pytest.mark.parametrize('yaml_file',
+@pytest.mark.parametrize('wf',
                          [
-                             'tests/data/calibrate_pipeline.yaml',
-                             'tests/data/calibrate_pipeline_fits.yaml',
+
                           ])
-def test_weighting_func(yaml_file):
+def test_weighting_func(wf):
     """Test"""
     pass
 
@@ -121,7 +120,7 @@ def test_weighting_func(yaml_file):
                          [
 
                           ])
-def test_calculate_fitness(yaml_file):
+def test_calculate_fitness(simulated_data):
     """Test"""
     pass
 
