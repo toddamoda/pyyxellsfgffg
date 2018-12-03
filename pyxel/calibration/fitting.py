@@ -3,7 +3,6 @@
 https://esa.github.io/pagmo2/index.html
 """
 import numpy as np
-# import pandas as pd
 from copy import deepcopy
 import typing as t   # noqa: F401
 

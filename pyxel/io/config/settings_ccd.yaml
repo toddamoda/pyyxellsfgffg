@@ -5,9 +5,9 @@
 
 simulation:
 ###################
-  mode: single
+#  mode: single
 #  mode: parametric
-#  mode: calibration
+  mode: calibration
 ###################
 
   parametric_analysis:
@@ -37,7 +37,7 @@ simulation:
       output: image   # signal # charge
       output_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50] #
 
-      target_data_path: ['pyxel/results.fits', 'pyxel/results.fits']     # <*.npy> <*.fits> <ascii>
+      target_data_path: ['data/results.fits']     #  <*.npy> <*.fits> <ascii>
       target_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50]
 
       fitness_mode: residuals    # least-squares   # custom
@@ -46,7 +46,7 @@ simulation:
       algorithm: sade   # sga  # nlopt
       seed:
 #      nlopt_solver: sbplx  # neldermead
-      generations: 3
+      generations: 10
       population_size: 10
       variant: 2
 

@@ -18,10 +18,11 @@ class Calibration:
         self.args = arguments                               # type: dict
         self.mode = 'pipeline'
         self.algo_type = None
+        self.generations = None                             # type: t.Optional[int]
+
         if self.args:
             self.mode = self.args['calibration_mode']       # type: str
             self.algo_type = self.args['algorithm']         # type: str
-        self.generations = None                             # type: t.Optional[int]
 
         if self.algo_type == 'sade':
             self.generations = 1                            # type: int
@@ -188,7 +189,7 @@ def read_data(data_path: list):
         elif '.npy' in data_path[i]:
             data = np.load(data_path[i])
         else:
-            data = np.loadtxt(data_path[i], dtype=float, delimiter='|')
+            data = np.loadtxt(data_path[i], dtype=float, delimiter='|')     # todo: more general with try-except
         output += [data]
 
     return output

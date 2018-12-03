@@ -4,7 +4,6 @@ import numpy as np
 import pytest
 import re
 import inspect
-# from pyxel.io.yaml_processor import load
 import yaml
 
 
@@ -27,7 +26,7 @@ yaml.Loader.add_implicit_resolver('!expr', re.compile(r'^.*$'), None)
 yaml.Loader.add_constructor('!expr', _expr_processor)
 
 
-@pytest.mark.parametrize('data, expected', [
+@pytest.mark.parametrize('data, expected',  [
     ('a: !expr 3.14', {'a': 3.14}),
     ('x: !expr 2**16', {'x': 65536}),
     ('- !expr 3 * (4 + 5)', [27]),
@@ -53,7 +52,6 @@ yaml.Loader.add_constructor('!expr', _expr_processor)
     ('- range(3)', [range(3)]),
     ('- range(3, 10, 2)', [range(3, 10, 2)]),
     ('arange(4)', np.array([0, 1, 2, 3])),
-
 ])
 def test_expr_with_tag(data, expected):
     """Test tag '!expr'."""

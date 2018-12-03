@@ -43,20 +43,5 @@ setup(
     packages=find_packages(exclude=['tests*']),
     include_package_data=True,
     package_data={'': ['*.glade', '*.ui', '*.acf']},
-    classifiers=[
-        # How mature is this project? Common values are
-        #   3 - Alpha
-        #   4 - Beta
-        #   5 - Production/Stable
-        'Development Status :: 4 - Beta',
-        'Intended Audience :: Developers',
-        'Intended Audience :: End Users/Desktop',
-        'Topic :: Software Development :: Build Tools',
-        'License :: OSI Approved :: MIT',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-    ],
     entry_points={'console_scripts': []},
 )
