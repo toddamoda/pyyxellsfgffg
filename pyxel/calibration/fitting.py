@@ -12,12 +12,13 @@ from pyxel.pipelines.model_group import ModelFunction
 class ModelFitting:
     """Pygmo problem class to fit data with any model in Pyxel."""
 
-    def __init__(self, detector, pipeline):
+    # def __init__(self, detector, pipeline):
+    def __init__(self, processor):
         """TBW."""
         self.calibration_mode = None
 
-        self.det = detector
-        self.pipe = pipeline
+        self.det = processor.detector
+        self.pipe = processor.pipeline
 
         self.model_name_list = []           # type: t.List[str]
         self.params_per_variable = []       # type: t.List[t.List[int]]
@@ -25,7 +26,7 @@ class ModelFitting:
         self.is_var_array = []              # type: t.List[t.List[int]]
         self.is_var_log = []                # type: t.List[t.List[bool]]
 
-        self.det_attr_class_list = []     # ['characteristics', 'geometry']  # todo
+        # self.det_attr_class_list = []     # ['characteristics', 'geometry']  # todo
 
         self.generations = None
         self.pop = None
@@ -122,7 +123,7 @@ class ModelFitting:
         self.variable_name_lst = variables
         self.is_var_log = var_log
 
-        self.det_attr_class_list = model_names      # ['characteristics.amp', 'geometry.row']  # TODO
+        # self.det_attr_class_list = model_names      # ['characteristics.amp', 'geometry.row']  # TODO
 
         self.pop = population_size
 

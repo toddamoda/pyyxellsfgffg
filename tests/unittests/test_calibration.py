@@ -41,14 +41,14 @@ def test_set_algo(data):
         raise ReferenceError
 
 
-@pytest.mark.parametrize('input',
+@pytest.mark.parametrize('input_data',
                          ['tests/data/expected_ccd_pipeline01.fits',
                           'tests/data/data.npy',
-                          'tests/data/cti-data.txt',
-                         ])
-def test_read_data(input):
+                          'tests/data/cti-data.txt'
+                          ])
+def test_read_data(input_data):
     """Test """
-    output = read_data(input)
+    output = read_data(input_data)
     if isinstance(output, list):
         pass
     else:

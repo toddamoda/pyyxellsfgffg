@@ -105,10 +105,10 @@ class Calibration:
 
         return opt_algorithm
 
-    def run_calibration(self, config):
+    def run_calibration(self, processor):
         """TBW.
 
-        :param config:
+        :param processor:
         :return:
         """
         seed = self.args['seed']
@@ -117,10 +117,10 @@ class Calibration:
         print('pygmo seed: ', seed)
         pg.set_global_rng_seed(seed=seed)
 
-        fitting = ModelFitting(detector=config.detector, pipeline=config.pipeline)
+        fitting = ModelFitting(processor)
 
         target_output = read_data(self.args['target_data_path'])
-        config.detector.target_output_data = target_output
+        processor.detector.target_output_data = target_output
 
         if 'population_size' in self.args:
             population_size = self.args['population_size']

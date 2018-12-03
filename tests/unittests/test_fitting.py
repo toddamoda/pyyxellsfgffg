@@ -1,0 +1,153 @@
+"""Unittests for the 'ModelFitting' class."""
+
+import pytest
+import numpy as np
+import esapy_config as om
+from pyxel.calibration.calibration import read_data
+from pyxel.calibration.fitting import ModelFitting
+from pyxel.detectors.detector import Detector
+from pyxel.pipelines.detector_pipeline import DetectionPipeline
+
+
+def configure(mf, sim, target=None):
+    """TBW."""
+    if target is None:
+        target = read_data(sim.calibration.args['target_data_path'])
+    mf.configure(calibration_mode=sim.calibration.args['calibration_mode'],
+                 model_names=sim.calibration.args['model_names'],
+                 variables=sim.calibration.args['variables'],
+                 params_per_variable=sim.calibration.args['params_per_variable'],
+                 var_log=sim.calibration.args['var_log'],
+                 target_fit_range=sim.calibration.args['target_fit_range'],
+                 out_fit_range=sim.calibration.args['output_fit_range'],
+                 fitness_mode=sim.calibration.args['fitness_mode'],
+                 simulation_output=sim.calibration.args['output'],
+                 target_output_list=target,
+                 population_size=10,
+                 sort_by_var=None)
+
+
+@pytest.mark.parametrize('yaml_file',
+                         [
+                             'tests/data/calibrate_pipeline.yaml',
+                          ])
+def test_configure_params(yaml_file):
+    """Test """
+    cfg = om.load(yaml_file)
+    processor = cfg['processor']
+    simulation = cfg['simulation']
+    mf = ModelFitting(processor)
+
+    if not isinstance(mf.pipe, DetectionPipeline):
+        raise ValueError
+    if not isinstance(mf.det, Detector):
+        raise ValueError
+
+    target_output = [[1., 2., 3., 4., 5., 6., 7., 8.]]
+    configure(mf, simulation, target_output)
+
+    assert mf.is_var_array == [[0], [1, 1, 0], [0]]
+    assert mf.is_var_log == [[False], [True, True, False], [False]]
+    assert mf.model_name_list == ['characteristics', 'cdm', 'output_node_noise']
+    assert mf.params_per_variable == [[1], [2, 2, 1], [1]]
+    assert mf.variable_name_lst == [['amp'], ['tr_p', 'nt_p', 'beta_p'], ['std_deviation']]
+
+    assert mf.calibration_mode == 'pipeline'
+    assert mf.fitness_mode == 'residuals'
+    assert mf.sim_fit_range == slice(2, 5, None)
+    assert mf.targ_fit_range == slice(1, 4, None)
+    assert mf.sim_output == 'image'
+    assert mf.target_data == [2., 3., 4.]
+    assert mf.all_target_data == [[2., 3., 4.]]
+
+
+@pytest.mark.parametrize('yaml_file',
+                         [
+                             'tests/data/calibrate_pipeline_fits.yaml',
+                          ])
+def test_configure_fits_target(yaml_file):
+    """Test """
+    cfg = om.load(yaml_file)
+    processor = cfg['processor']
+    simulation = cfg['simulation']
+    mf = ModelFitting(processor)
+
+    configure(mf, simulation)
+
+    assert mf.sim_fit_range == (slice(2, 5, None), slice(4, 7, None))
+    assert mf.targ_fit_range == (slice(1, 4, None), slice(5, 8, None))
+    assert mf.sim_output == 'image'
+    expected = np.array([[1362., 1378., 1411.],
+                         [1308., 1309., 1284.],
+                         [1390., 1346., 1218.]])
+    np.testing.assert_array_equal(mf.target_data, expected)
+
+
+@pytest.mark.parametrize('yaml_file',
+                         [
+                             'tests/data/calibrate_pipeline.yaml',
+                             'tests/data/calibrate_pipeline_fits.yaml',
+                          ])
+def test_boundaries(yaml_file):
+    """Test """
+    cfg = om.load(yaml_file)
+    processor = cfg['processor']
+    simulation = cfg['simulation']
+    mf = ModelFitting(processor)
+
+    configure(mf, simulation)
+    mf.set_bound(low_val=simulation.calibration.args['lower_boundary'],
+                 up_val=simulation.calibration.args['upper_boundary'])
+    lbd_expected = [1.0, -3.0, -3.0, -2.0, -2.0, 0.0, 10.0]
+    ubd_expected = [10.0, 0.3010299956639812, 0.3010299956639812, 1.0, 1.0, 1.0, 200.0]
+    assert mf.lbd == lbd_expected
+    assert mf.ubd == ubd_expected
+    l, u = mf.get_bounds()
+    assert l == lbd_expected
+    assert u == ubd_expected
+
+
+@pytest.mark.parametrize('yaml_file',
+                         [
+                             'tests/data/calibrate_pipeline.yaml',
+                             'tests/data/calibrate_pipeline_fits.yaml',
+                          ])
+def test_weighting_func(yaml_file):
+    """Test"""
+    pass
+
+
+@pytest.mark.parametrize('simulated_data',
+                         [
+
+                          ])
+def test_calculate_fitness(yaml_file):
+    """Test"""
+    pass
+
+
+@pytest.mark.parametrize('parameter',
+                         [
+
+                          ])
+def test_fitness(parameter):
+    """Test"""
+    pass
+
+
+@pytest.mark.parametrize('parameter',
+                         [
+
+                          ])
+def test_split_and_update(parameter):
+    """Test"""
+    pass
+
+
+@pytest.mark.parametrize('param_array_list',
+                         [
+
+                          ])
+def test_detector_and_model_update(param_array_list):
+    """Test"""
+    pass

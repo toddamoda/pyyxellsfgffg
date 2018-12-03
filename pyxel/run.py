@@ -44,6 +44,8 @@ def run(input_filename, output_file: str = None, random_seed: int = None):
 
     elif simulation.mode == 'calibration':
         simulation.calibration.run_calibration(processor)
+        # TODO: detector = simulation.calibration.run_calibration(processor)
+        # TODO: return also the optimal model/detector parameters as dict or obj
 
     elif simulation.mode == 'parametric':
         configs = simulation.parametric_analysis.collect(processor)
