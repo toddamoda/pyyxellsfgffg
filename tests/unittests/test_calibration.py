@@ -24,7 +24,7 @@ yaml_dict3 = {
 
 
 @pytest.mark.parametrize('data',
-                         [yaml_dict2,
+                         [yaml_dict1,
                           yaml_dict2,
                           yaml_dict3])
 def test_set_algo(data):
@@ -44,7 +44,10 @@ def test_set_algo(data):
 @pytest.mark.parametrize('input_data',
                          ['tests/data/expected_ccd_pipeline01.fits',
                           'tests/data/data.npy',
-                          'tests/data/cti-data.txt'
+                          'tests/data/cti-data.txt',
+                          ['tests/data/expected_ccd_pipeline01.fits'],
+                          ['tests/data/data.npy'],
+                          ['tests/data/cti-data.txt']
                           ])
 def test_read_data(input_data):
     """Test """

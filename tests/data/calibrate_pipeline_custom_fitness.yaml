@@ -5,72 +5,35 @@
 
 simulation:
 ###################
-#  mode: single
-#  mode: parametric
   mode: calibration
 ###################
 
-  parametric_analysis:
-#    parametric_mode: sequential
-#    parametric_mode: embedded
-    parametric_mode: image_generator
-    steps:
-      -
-        enabled: false
-        key: pipeline.charge_generation.tars.arguments.particle_number
-        values: [2, 3]
-      -
-        enabled: false
-        key: pipeline.photon_generation.photon_level.arguments.level
-        values: range(10, 13)
-      -
-        enabled: true
-        key:  [['characteristics', 'cdm', 'output_node_noise'],
-              [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['std_deviation']],
-              [[1], [4, 4, 4, 1], [1]]]
-        values: 'pyxel/calibration_champions.out'
-
   calibration:
-
     arguments:
-      calibration_mode:  pipeline  #  single_model  #
-      output: image   # signal # charge
-      output_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50] #
+      calibration_mode:  pipeline
+      output: image
+      output_fit_range: [2, 5]
 
-      target_data_path: ['data/results.fits']     #  <*.npy> <*.fits> <ascii>
-      target_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50]
+      target_data_path: ['tests/data/cti-data.txt']   # not used
+      target_fit_range: [1, 4]
 
-      fitness_mode: custom  # residuals    # least-squares
+      fitness_mode: custom
       fitness_function:
         func: tests.unittests.test_fitting.custom_fitness_func
-#        name: funcy
         arguments:
-          asd: 32534
-
-#      weighting_func_path:  # 'pyxel/results.fits'
 
       algorithm: sade   # sga  # nlopt
       seed:
-#      nlopt_solver: sbplx  # neldermead
       generations: 10
-      population_size: 10
+#      population_size: 10
       variant: 2
 
-      model_names:         ['characteristics', 'cdm', 'output_node_noise']  # , 'environment']
-      variables:           [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['std_deviation']]  # , ['temperature']]
-      params_per_variable: [[1], [4, 4, 4, 1], [1]]
-      var_log:             [[False], [True, True, True, False], [False]]
-      lower_boundary:      [[1.], [1.e-3, 1.e-2, 1.e-20, 0.], [10.]]
-      upper_boundary:      [[10.], [2., 1.e+1, 1.e-15, 1.], [200.]]
-
-#      model_names:  ['cdm'] #, 'tars']
-#      variables: [['tr_p', 'nt_p', 'sigma_p', 'beta_p']]  # , ['initial_energy']]
-#      var_log: [[True, True, True, False]] #, [False]]
-#      var_array: [[True, True, True, False]] #, [False]]
-#      params_per_variable: [[4, 4, 4, 1]] #, [1]]
-#      lower_boundary: [[1.e-3, 1.e-2, 1.e-20, 0.]] #, [1.]]
-#      upper_boundary: [[2., 1.e+1, 1.e-15, 1.]] #, [10.]]
-#      sort_by_var: tr_p
+      model_names:         ['characteristics', 'cdm', 'output_node_noise']
+      variables:           [['amp'], ['tr_p', 'nt_p', 'beta_p'], ['std_deviation']]
+      params_per_variable: [[1], [2, 2, 1], [1]]
+      var_log:             [[False], [True, True, False], [False]]
+      lower_boundary:      [[1.], [1.e-3, 1.e-2, 0.], [10.]]
+      upper_boundary:      [[10.], [2., 1.e+1, 1.], [200.]]
 
 processor:
   class: pyxel.pipelines.processor.Processor
@@ -86,8 +49,8 @@ processor:
 #      total_thickness: 40.0         # um
 #      depletion_thickness: 0.0      # um
 #      field_free_thickness: 0.0     # um
-      pixel_vert_size: 10. #10.0         # um
-      pixel_horz_size: 10. #10.0  #30.   # um
+#      pixel_vert_size: 10. #10.0         # um
+#      pixel_horz_size: 10. #10.0  #30.   # um
 
 #      readout_nodes: 1    # channels
 #      image_area:
@@ -117,7 +80,7 @@ processor:
 
     environment:
       class: pyxel.detectors.environment.Environment
-#      temperature: 300                     # K
+      temperature: 300                     # K
 #      total_ionising_dose: 0              #
 #      total_non_ionising_dose: 0          #
 

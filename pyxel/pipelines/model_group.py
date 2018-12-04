@@ -11,8 +11,8 @@ class ModelFunction:
     """TBW."""
 
     def __init__(self,
-                 name: str,
                  func,  # callable or str
+                 name: str = None,
                  arguments: dict = None,
                  enabled: bool = True) -> None:
         """TBW.

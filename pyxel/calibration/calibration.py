@@ -144,15 +144,16 @@ class Calibration:
                           simulation_output=self.args['output'],
                           sort_by_var=sort_var)
 
+        if self.args['fitness_mode'] == 'custom':
+            fitting.set_custom_fitness(self.args['fitness_function'])
         if 'weighting_func_path' in self.args:
             weighting_func = read_data(self.args['target_data_path'])
             fitting.set_weighting_function(weighting_func[0])           # works only with one weighting function
-
-        # fitting.set_normalization()                                       # TODO
         fitting.set_bound(low_val=self.args['lower_boundary'],
                           up_val=self.args['upper_boundary'])
         fitting.set_generations(self.generations)
         fitting.save_champions_in_file()
+        # fitting.set_normalization()                                       # TODO
 
         prob = pg.problem(fitting)
         print('evolution started ...')
@@ -169,7 +170,7 @@ class Calibration:
         print('champion_x: ', *champion_x, sep="\n")
 
 
-def read_data(data_path: list):
+def read_data(data_path: t.Union[str, list]):
     """TBW.
 
     :param data_path:
@@ -177,7 +178,7 @@ def read_data(data_path: list):
     """
     if isinstance(data_path, str):
         data_path = [data_path]
-    elif all(isinstance(item, str) for item in data_path):
+    elif isinstance(data_path, list) and all(isinstance(item, str) for item in data_path):
         pass
     else:
         raise TypeError

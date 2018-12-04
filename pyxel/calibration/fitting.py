@@ -6,8 +6,6 @@ import numpy as np
 from copy import deepcopy
 import typing as t   # noqa: F401
 
-from pyxel.pipelines.model_group import ModelFunction
-
 
 class ModelFitting:
     """Pygmo problem class to fit data with any model in Pyxel."""
@@ -40,6 +38,7 @@ class ModelFitting:
         self.weighting_function = None
 
         self.fitness_mode = None
+        self.custom_fitness_func = None
         self.sim_output = None
 
         self.n = 0
@@ -108,7 +107,17 @@ class ModelFitting:
         """
         self.calibration_mode = calibration_mode
         self.model_name_list = model_names
+        self.variable_name_lst = variables
+        self.is_var_log = var_log
+        self.pop = population_size
+        self.fitness_mode = fitness_mode
+        self.sim_output = simulation_output
+        self.sort_by_var = sort_by_var
+        # self.det_attr_class_list = model_names      # ['characteristics.amp', 'geometry.row']  # TODO
+
         self.params_per_variable = params_per_variable
+        self.champion_f_list = np.zeros((1, 1))
+        self.champion_x_list = np.zeros((1, np.sum(np.sum(self.params_per_variable))))
 
         self.is_var_array = deepcopy(self.params_per_variable)
         for i in range(len(self.params_per_variable)):
@@ -120,24 +129,12 @@ class ModelFitting:
                     item = 0
                 self.is_var_array[i][j] = item
 
-        self.variable_name_lst = variables
-        self.is_var_log = var_log
-
-        # self.det_attr_class_list = model_names      # ['characteristics.amp', 'geometry.row']  # TODO
-
-        self.pop = population_size
-
         self.target_data = target_output_list[0]
         cols = None
         try:
             rows, cols = self.target_data.shape
         except AttributeError:
             rows = len(self.target_data)
-
-        self.fitness_mode = fitness_mode
-        self.sim_output = simulation_output
-
-        self.sort_by_var = sort_by_var
 
         if target_fit_range is None:
             self.targ_fit_range = slice(None)
@@ -182,9 +179,6 @@ class ModelFitting:
         for target in target_output_list:
             self.all_target_data += [target[self.targ_fit_range]]
 
-        self.champion_f_list = np.zeros((1, 1))
-        self.champion_x_list = np.zeros((1, np.sum(np.sum(self.params_per_variable))))
-
     # def set_normalization(self):
     #     """TBW.
     #
@@ -193,6 +187,15 @@ class ModelFitting:
     #     self.normalization = True
     #     for i in range(len(self.target_data)):
     #         self.target_data_norm += [self.normalize(self.target_data[i], dataset=i)]
+
+    def set_custom_fitness(self, func):
+        """TBW.
+
+        :param func: ModelFunction
+        :return:
+        """
+        self.fitness_mode = 'custom'
+        self.custom_fitness_func = func
 
     def set_weighting_function(self, func):
         """TBW.
@@ -256,12 +259,7 @@ class ModelFitting:
                                                     target=target_data)
 
         elif self.fitness_mode == 'custom':
-            custom_fitness_func = ModelFunction(name='test_func',       # TODO finish and test
-                                                func='func',
-                                                arguments=None,
-                                                enabled=True)
-
-            fitness = custom_fitness_func.function()   # simulated_data, target_data, self.det
+            fitness = self.custom_fitness_func.function(simulated_data, target_data)
 
         else:
             raise ValueError
