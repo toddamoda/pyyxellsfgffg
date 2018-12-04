@@ -168,6 +168,8 @@ class Calibration:
         print('\nchampion_f:   %1.5e' % champion_f[0])
         print('champion_x: ', *champion_x, sep="\n")
 
+        return 1        # todo: return results as output!!
+
 
 def read_data(data_path: t.Union[str, list]):
     """TBW.

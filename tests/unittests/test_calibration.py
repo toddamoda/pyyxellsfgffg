@@ -2,6 +2,7 @@
 
 import pytest
 import pygmo as pg
+import esapy_config as om
 from pyxel.calibration.calibration import Calibration
 from pyxel.calibration.calibration import read_data
 
@@ -57,3 +58,14 @@ def test_read_data(input_data):
     else:
         raise TypeError
     print(output)
+
+
+# @pytest.mark.parametrize('data',
+#                          [])
+def test_run_calibration():
+    """Test """
+    cfg = om.load('tests/data/calibrate_pipeline_models.yaml')
+    processor = cfg['processor']
+    simulation = cfg['simulation']
+    result = simulation.calibration.run_calibration(processor)
+    assert result == 1
