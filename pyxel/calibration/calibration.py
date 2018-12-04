@@ -126,32 +126,31 @@ class Calibration:
             population_size = self.args['population_size']
         else:
             raise AttributeError('Missing "population_size" from YAML config')
-
         sort_var = None
         if 'sort_by_var' in self.args:
             sort_var = self.args['sort_by_var']
 
-        fitting.configure(calibration_mode=self.mode,
-                          model_names=self.args['model_names'],
-                          variables=self.args['variables'],
-                          params_per_variable=self.args['params_per_variable'],
-                          var_log=self.args['var_log'],
+        fitting.set_parameters(calibration_mode=self.mode,
+                               model_names=self.args['model_names'],
+                               variables=self.args['variables'],
+                               var_log=self.args['var_log'],
+                               generations=self.generations,
+                               population_size=population_size,
+                               fitness_mode=self.args['fitness_mode'],
+                               simulation_output=self.args['output'],
+                               sort_by_var=sort_var)
+        fitting.configure(params_per_variable=self.args['params_per_variable'],
                           target_output_list=target_output,
-                          population_size=population_size,
                           target_fit_range=self.args['target_fit_range'],
-                          out_fit_range=self.args['output_fit_range'],
-                          fitness_mode=self.args['fitness_mode'],
-                          simulation_output=self.args['output'],
-                          sort_by_var=sort_var)
+                          out_fit_range=self.args['output_fit_range'])
 
         if self.args['fitness_mode'] == 'custom':
-            fitting.set_custom_fitness(self.args['fitness_function'])
+            fitting.set_custom_fitness(self.args['fitness_func_path'])
         if 'weighting_func_path' in self.args:
             weighting_func = read_data(self.args['target_data_path'])
             fitting.set_weighting_function(weighting_func[0])           # works only with one weighting function
         fitting.set_bound(low_val=self.args['lower_boundary'],
                           up_val=self.args['upper_boundary'])
-        fitting.set_generations(self.generations)
         fitting.save_champions_in_file()
         # fitting.set_normalization()                                       # TODO
 

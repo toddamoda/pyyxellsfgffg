@@ -68,53 +68,56 @@ class ModelFitting:
         """
         return self.lbd, self.ubd
 
-    def set_generations(self, gen):
+    def set_parameters(self,
+                       calibration_mode: str,
+                       model_names: list,
+                       variables: list,
+                       var_log: list,
+                       generations: int,
+                       population_size: int = None,
+                       fitness_mode: str = 'residuals',
+                       simulation_output: str = 'image',
+                       sort_by_var: str = None
+                       ):
         """TBW.
 
-        :return:
-        """
-        self.generations = gen
-
-    def configure(self,
-                  calibration_mode: str,
-                  model_names: list,
-                  params_per_variable: list,
-                  variables: list,
-                  var_log: list,
-                  target_output_list,
-                  population_size: int = None,
-                  target_fit_range=None,        # t.Optional[list]      # todo
-                  out_fit_range=None,           # t.Union[list, None]   # todo
-                  fitness_mode: str = 'residuals',
-                  simulation_output: str = 'image',
-                  sort_by_var: str = None
-                  ):
-        """TBW.
-
-        :param calibration_mode: str
-        :param model_names: list
-        :param params_per_variable: list
-        :param variables: list
-        :param var_log: list
-        :param target_output_list: list
-        :param population_size: int
-        :param target_fit_range:
-        :param out_fit_range:
-        :param fitness_mode: str
-        :param simulation_output: str
-        :param sort_by_var: str
+        :param calibration_mode:
+        :param model_names:
+        :param variables:
+        :param var_log:
+        :param generations:
+        :param population_size:
+        :param fitness_mode:
+        :param simulation_output:
+        :param sort_by_var:
         :return:
         """
         self.calibration_mode = calibration_mode
         self.model_name_list = model_names
         self.variable_name_lst = variables
         self.is_var_log = var_log
-        self.pop = population_size
         self.fitness_mode = fitness_mode
         self.sim_output = simulation_output
         self.sort_by_var = sort_by_var
+
+        self.pop = population_size
+        self.generations = generations
         # self.det_attr_class_list = model_names      # ['characteristics.amp', 'geometry.row']  # TODO
 
+    def configure(self,
+                  params_per_variable: list,
+                  target_output_list,
+                  target_fit_range=None,        # t.Optional[list]      # todo
+                  out_fit_range=None            # t.Union[list, None]   # todo
+                  ):
+        """TBW.
+
+        :param params_per_variable: list
+        :param target_output_list: list
+        :param target_fit_range:
+        :param out_fit_range:
+        :return:
+        """
         self.params_per_variable = params_per_variable
         self.champion_f_list = np.zeros((1, 1))
         self.champion_x_list = np.zeros((1, np.sum(np.sum(self.params_per_variable))))

@@ -13,18 +13,21 @@ def configure(mf, sim, target=None):
     """TBW."""
     if target is None:
         target = read_data(sim.calibration.args['target_data_path'])
-    mf.configure(calibration_mode=sim.calibration.args['calibration_mode'],
-                 model_names=sim.calibration.args['model_names'],
-                 variables=sim.calibration.args['variables'],
-                 params_per_variable=sim.calibration.args['params_per_variable'],
-                 var_log=sim.calibration.args['var_log'],
-                 target_fit_range=sim.calibration.args['target_fit_range'],
-                 out_fit_range=sim.calibration.args['output_fit_range'],
-                 fitness_mode=sim.calibration.args['fitness_mode'],
-                 simulation_output=sim.calibration.args['output'],
+    population_size = 10
+    sort_var = None
+    mf.set_parameters(calibration_mode=sim.calibration.mode,
+                      model_names=sim.calibration.args['model_names'],
+                      variables=sim.calibration.args['variables'],
+                      var_log=sim.calibration.args['var_log'],
+                      generations=sim.calibration.generations,
+                      population_size=population_size,
+                      fitness_mode=sim.calibration.args['fitness_mode'],
+                      simulation_output=sim.calibration.args['output'],
+                      sort_by_var=sort_var)
+    mf.configure(params_per_variable=sim.calibration.args['params_per_variable'],
                  target_output_list=target,
-                 population_size=10,
-                 sort_by_var=None)
+                 target_fit_range=sim.calibration.args['target_fit_range'],
+                 out_fit_range=sim.calibration.args['output_fit_range'])
 
 
 @pytest.mark.parametrize('yaml_file',
@@ -51,7 +54,6 @@ def test_configure_params(yaml_file):
     assert mf.model_name_list == ['characteristics', 'cdm', 'output_node_noise']
     assert mf.params_per_variable == [[1], [2, 2, 1], [1]]
     assert mf.variable_name_lst == [['amp'], ['tr_p', 'nt_p', 'beta_p'], ['std_deviation']]
-
     assert mf.calibration_mode == 'pipeline'
     assert mf.fitness_mode == 'residuals'
     assert mf.sim_fit_range == slice(2, 5, None)
@@ -165,7 +167,7 @@ def test_custom_fitness(simulated_data, target_data, expected_fitness):
     simulation = cfg['simulation']
     mf = ModelFitting(processor)
     configure(mf, simulation)
-    mf.set_custom_fitness(simulation.calibration.args['fitness_function'])
+    mf.set_custom_fitness(simulation.calibration.args['fitness_func_path'])
     fitness = mf.calculate_fitness(simulated_data, target_data)
     assert fitness == expected_fitness
     print('fitness: ', fitness)
