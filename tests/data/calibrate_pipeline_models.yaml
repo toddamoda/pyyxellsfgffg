@@ -14,7 +14,7 @@ simulation:
       output: image   # signal # charge
       output_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50] #
 
-      target_data_path: ['data/results.fits']     #  <*.npy> <*.fits> <ascii>
+      target_data_path: ['tests/data/test.fits']     #  <*.npy> <*.fits> <ascii>
       target_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50]
 
       fitness_mode: residuals    # least-squares
@@ -45,8 +45,8 @@ processor:
       class: pyxel.detectors.ccd_geometry.CCDGeometry
       row:   100                    # compulsory
       col:   100                    # compulsory
-      pixel_vert_size: 10. #10.0         # um
-      pixel_horz_size: 10. #10.0  #30.   # um
+      pixel_vert_size: 10.          # um
+      pixel_horz_size: 10.          # um
 
     material:
       class: pyxel.detectors.material.Material
