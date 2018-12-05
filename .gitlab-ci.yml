@@ -89,8 +89,9 @@ anaconda3:
     - coverage report > coverage.out
     - tail -n 1 coverage.out > cov_total.out
     - PERCENT=$(awk '{printf "%.2f", ($2-$3)/$2*100}' cov_total.out)
-    - COLOR="red"
-    - wget -O coverage.svg https://img.shields.io/badge/coverage-$PERCENT%25-$COLOR.svg
+#    - COLOUR=$(./colour.sh PERCENT)   # COLOR="red"
+    - python badges.py -cov=$PERCENT
+#    - wget -O coverage.svg https://img.shields.io/badge/coverage-$PERCENT%25-$COLOUR.svg
     - ls
   artifacts:
     paths:
@@ -104,6 +105,17 @@ anaconda3:
       - pytest_report.html
       - coverage.svg
   allow_failure: false
+
+
+# Run pytest for Python 3.7
+python37:
+  image: python:3.7
+  stage: test
+  script:
+    - pip install pytest
+    - pip install -r requirements.txt
+    - pytest --color=yes --full-trace --showlocals --verbose
+  allow_failure: true
 
 
 # Run pytest for Python 3.6
