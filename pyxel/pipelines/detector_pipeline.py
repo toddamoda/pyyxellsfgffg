@@ -6,10 +6,6 @@ import collections
 import esapy_config as om
 
 from pyxel.pipelines.model_group import ModelGroup
-# from pyxel.detectors.detector import Detector
-# from pyxel.pipelines.models import Model  # noqa: F401
-# from pyxel import util
-# from pyxel.util import objmod as om
 
 
 class DetectionPipeline:
