@@ -155,7 +155,10 @@ class Charge:
         self.nextid = self.nextid + elements
 
         # Adding new particles to the DataFrame
-        self.frame = pd.concat([self.frame, new_charge_df], ignore_index=True, sort=False)
+        try:
+            self.frame = pd.concat([self.frame, new_charge_df], ignore_index=True, sort=False)
+        except TypeError:
+            self.frame = pd.concat([self.frame, new_charge_df], ignore_index=True)
 
     def remove_charges(self, id_list='all'):
         """Remove list of charges from DataFrame if they are not needed, tracked anymore.

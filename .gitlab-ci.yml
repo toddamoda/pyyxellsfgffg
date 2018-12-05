@@ -128,7 +128,6 @@ python35:
   allow_failure: false
 
 
-
 # Run mypy
 mypy:
   image: continuumio/anaconda3
