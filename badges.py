@@ -1,4 +1,6 @@
-"""Badge creator."""
+"""Badge creator script.
+by David Lucsanyi
+"""
 import argparse
 import subprocess
 
@@ -6,7 +8,11 @@ import subprocess
 def badges():
     """Create badges."""
     parser = argparse.ArgumentParser()
-    parser.add_argument('-cov', '--coverage', type=float, default=None, help='Test coverage percent')
+    parser.add_argument('-cov', '--coverage', type=float, default=None, help='Test coverage badge with percent')
+    parser.add_argument('-ver', '--version', type=str, default=None, help='Version badge')
+    parser.add_argument('-lic', '--license', type=str, default=None, help='License badge')
+    parser.add_argument('-doc', '--documentation', type=str, default=None, help='Documentation badge')
+    parser.add_argument('-ch', '--chat', type=str, default=None, help='Chat badge')
     opts = parser.parse_args()
 
     if opts.coverage:

@@ -13,7 +13,8 @@ import numpy as np
 try:
     import matplotlib.pyplot as plt
 except ImportError:
-    raise Warning('Matplotlib cannot be imported')
+    # raise Warning('Matplotlib cannot be imported')
+    pass
 import numba
 from typing import cast
 from pyxel.detectors.ccd import CCD

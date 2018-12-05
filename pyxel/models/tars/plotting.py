@@ -8,7 +8,8 @@ try:
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 except ImportError:
-    raise Warning('Matplotlib cannot be imported')
+    # raise Warning('Matplotlib cannot be imported')
+    pass
 import pandas as pd
 from pathlib import Path
 # import typing as t   # noqa: F401
