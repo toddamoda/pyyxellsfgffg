@@ -4,11 +4,14 @@
 # import math
 
 import numpy as np
-from matplotlib import pyplot as plt
+try:
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+except ImportError:
+    raise Warning('Matplotlib cannot be imported')
 import pandas as pd
 from pathlib import Path
 # import typing as t   # noqa: F401
-from mpl_toolkits.mplot3d import Axes3D     # noqa: F401
 
 
 class PlottingTARS:
