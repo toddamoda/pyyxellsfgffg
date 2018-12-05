@@ -3,7 +3,7 @@
 #   --------------------------------------------------------------------------
 """CCD detector modeling class."""
 from math import sqrt
-from collections import OrderedDict
+import collections
 import typing as t  # noqa: F401
 
 # from astropy import units as u
@@ -38,17 +38,17 @@ class Detector:
         :param environment:
         :param characteristics:
         """
-        self.geometry = geometry                # type: Geometry
-        self.material = material                # type: Material
-        self.environment = environment          # type: Environment
-        self.characteristics = characteristics  # type: Characteristics
-        self.header = OrderedDict()             # type: t.Dict[str, object]
+        self.geometry = geometry                  # type: Geometry
+        self.material = material                  # type: Material
+        self.environment = environment            # type: Environment
+        self.characteristics = characteristics    # type: Characteristics
+        self.header = collections.OrderedDict()   # type: t.Dict[str, object]
 
-        self.photons = Photon(self)             # type: Photon
-        self.charges = Charge(self)             # type: Charge
-        self.pixels = Pixel(self)               # type: Pixel
-        self.signal = Signal(self)              # type: Signal
-        self.image = Image(self)                # type: Image
+        self.photons = Photon(self)               # type: Photon
+        self.charges = Charge(self)               # type: Charge
+        self.pixels = Pixel(self)                 # type: Pixel
+        self.signal = Signal(self)                # type: Signal
+        self.image = Image(self)                  # type: Image
 
         if photons:
             self.photons = photons

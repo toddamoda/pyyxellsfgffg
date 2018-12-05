@@ -10,16 +10,14 @@ simulation:
 
   calibration:
     arguments:
-      calibration_mode:  pipeline  #  single_model  #
-      output: image   # signal # charge
-      output_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50] #
+      calibration_mode:  pipeline
+      output: image
+      output_fit_range: [0, 2, 0, 2]
 
       target_data_path: ['tests/data/test.fits']     #  <*.npy> <*.fits> <ascii>
-      target_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50]
+      target_fit_range: [0, 2, 0, 2]
 
       fitness_mode: residuals    # least-squares
-
-#      weighting_func_path:  # 'pyxel/results.fits'
 
       algorithm: sade   # sga  # nlopt
       seed:
@@ -79,7 +77,7 @@ processor:
         func: pyxel.models.photon_generation.load_image
         enabled: true
         arguments:
-          image_file: data/01.fits
+          image_file: tests/data/image.fits
           row0: 0
           col0: 0
           rows: 100
@@ -105,17 +103,17 @@ processor:
         func: pyxel.models.cdm.CDM.cdm
         enabled: true
         arguments:
-         beta_p: 0.1  # _
+         beta_p: 0.1
          beta_s: 0.3
          parallel_cti: true
          serial_cti: false
          chg_inj: true
          para_transfers: 1552
-         tr_p: [0.01] # _
+         tr_p: [0.01]
          tr_s: [0.01]
-         nt_p: [1.] # _
+         nt_p: [1.]
          nt_s: [1.]
-         sigma_p: [1.] # _
+         sigma_p: [1.]
          sigma_s: [1.]
 
     # charge -> signal

@@ -1,7 +1,7 @@
 """TBW."""
 import logging
 import typing as t  # noqa: F401
-from collections import OrderedDict
+import collections
 
 import esapy_config as om
 
@@ -101,7 +101,7 @@ class DetectionPipeline:
     @property
     def model_groups(self):
         """TBW."""
-        result = OrderedDict()
+        result = collections.OrderedDict()
         for group in self._model_groups:
             model_group = getattr(self, group)
             if model_group:
