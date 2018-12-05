@@ -31,44 +31,35 @@ simulation:
         values: 'pyxel/calibration_champions.out'
 
   calibration:
+#    arguments:
+    calibration_mode:  pipeline  #  single_model  #
+    output: image   # signal # charge
+    output_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50] #
 
-    arguments:
-      calibration_mode:  pipeline  #  single_model  #
-      output: image   # signal # charge
-      output_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50] #
+    target_data_path: ['data/results.fits']     #  <*.npy> <*.fits> <ascii>
+    target_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50]
 
-      target_data_path: ['data/results.fits']     #  <*.npy> <*.fits> <ascii>
-      target_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50]
-
-      fitness_mode: custom  # residuals    # least-squares
-      fitness_func_path:
-        func: tests.unittests.test_fitting.custom_fitness_func
-        arguments:
+    fitness_mode:  residuals    # least-squares  custom
+#      fitness_func_path:
+#        func: tests.unittests.test_fitting.custom_fitness_func
+#        arguments:
 
 #      weighting_func_path:  # 'pyxel/results.fits'
 
-      algorithm: sade   # sga  # nlopt
-      seed:
+    algorithm: sade   # sga  # nlopt
+    seed: 132
 #      nlopt_solver: sbplx  # neldermead
-      generations: 10
-      population_size: 10
-      variant: 2
+    generations: 10
+    population_size: 10
+    variant: 2
 
-      model_names:         ['characteristics', 'cdm', 'output_node_noise']  # , 'environment']
-      variables:           [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['std_deviation']]  # , ['temperature']]
-      params_per_variable: [[1], [4, 4, 4, 1], [1]]
-      var_log:             [[False], [True, True, True, False], [False]]
-      lower_boundary:      [[1.], [1.e-3, 1.e-2, 1.e-20, 0.], [10.]]
-      upper_boundary:      [[10.], [2., 1.e+1, 1.e-15, 1.], [200.]]
+    model_names:         ['characteristics', 'cdm', 'output_node_noise']  # , 'environment']
+    variables:           [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['std_deviation']]  # , ['temperature']]
+    params_per_variable: [[1], [4, 4, 4, 1], [1]]
+    var_log:             [[False], [True, True, True, False], [False]]
+    lower_boundary:      [[1.], [1.e-3, 1.e-2, 1.e-20, 0.], [10.]]
+    upper_boundary:      [[10.], [2., 1.e+1, 1.e-15, 1.], [200.]]
 
-#      model_names:  ['cdm'] #, 'tars']
-#      variables: [['tr_p', 'nt_p', 'sigma_p', 'beta_p']]  # , ['initial_energy']]
-#      var_log: [[True, True, True, False]] #, [False]]
-#      var_array: [[True, True, True, False]] #, [False]]
-#      params_per_variable: [[4, 4, 4, 1]] #, [1]]
-#      lower_boundary: [[1.e-3, 1.e-2, 1.e-20, 0.]] #, [1.]]
-#      upper_boundary: [[2., 1.e+1, 1.e-15, 1.]] #, [10.]]
-#      sort_by_var: tr_p
 
 processor:
   class: pyxel.pipelines.processor.Processor

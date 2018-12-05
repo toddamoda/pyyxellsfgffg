@@ -89,9 +89,7 @@ anaconda3:
     - coverage report > coverage.out
     - tail -n 1 coverage.out > cov_total.out
     - PERCENT=$(awk '{printf "%.2f", ($2-$3)/$2*100}' cov_total.out)
-#    - COLOUR=$(./colour.sh PERCENT)   # COLOR="red"
     - python badges.py -cov=$PERCENT
-#    - wget -O coverage.svg https://img.shields.io/badge/coverage-$PERCENT%25-$COLOUR.svg
     - ls
   artifacts:
     paths:
