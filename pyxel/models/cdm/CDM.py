@@ -10,7 +10,10 @@ This is a function to run the upgraded CDM CTI model developed by Alex Short (ES
 :author: David Lucsanyi
 """
 import numpy as np
-import matplotlib.pyplot as plt
+try:
+    import matplotlib.pyplot as plt
+except ImportError:
+    pass
 import numba
 from typing import cast
 from pyxel.detectors.ccd import CCD
