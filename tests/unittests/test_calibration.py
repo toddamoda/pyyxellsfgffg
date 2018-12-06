@@ -3,35 +3,24 @@
 import pytest
 import pygmo as pg
 import esapy_config as om
-from pyxel.calibration.calibration import Calibration
 from pyxel.calibration.calibration import read_data
 
 
-yaml_dict1 = {
-  'calibration_mode': 'pipeline',
-  'algorithm': 'sade',
-  'generations': 2
-}
-yaml_dict2 = {
-  'calibration_mode': 'pipeline',
-  'algorithm': 'sga',
-  'generations': 3
-}
-yaml_dict3 = {
-  'calibration_mode': 'pipeline',
-  'algorithm': 'nlopt',
-  'generations': 4
-}
-
-
-@pytest.mark.parametrize('data',
-                         [yaml_dict1,
-                          yaml_dict2,
-                          yaml_dict3])
-def test_set_algo(data):
+@pytest.mark.parametrize('config',
+                         [
+                             'tests/data/calibrate_pipeline.yaml',
+                             'tests/data/calibrate_pipeline_sade.yaml',
+                             'tests/data/calibrate_pipeline_sga.yaml',
+                             'tests/data/calibrate_pipeline_nlopt.yaml',
+                             'tests/data/calibrate_pipeline_models.yaml',
+                             # 'tests/data/calibrate_pipeline_custom_fitness.yaml',        # todo
+                             'tests/data/calibrate_pipeline_fits.yaml',
+                          ])
+def test_set_algo(config):
     """Test """
-    cal = Calibration(data)
-    obj = cal.set_algorithm()
+    cfg = om.load(config)
+    simulation = cfg['simulation']
+    obj = simulation.calibration.set_algorithm()
     if isinstance(obj, pg.sade):
         pass
     elif isinstance(obj, pg.sga):

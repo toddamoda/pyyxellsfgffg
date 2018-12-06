@@ -20,7 +20,7 @@ class Calibration:
         default='pipeline',
         doc=''
     )
-    output = om.attr_def(
+    output_type = om.attr_def(
         type=str,
         validator=om.validate_choices(['image', 'signal', 'charge']),
         default='image',
@@ -125,8 +125,8 @@ class Calibration:
     ###### SADE
     variant = om.attr_def(type=int, validator=om.validate_range(1, 18), default=2, doc='')
     variant_adptv = om.attr_def(type=int, validator=om.validate_range(1, 2), default=1, doc='')
-    ftol = om.attr_def(type=float, default=1e-06, doc='')  # validator=om.validate_range(1, 18),
-    xtol = om.attr_def(type=float, default=1e-06, doc='')  # validator=om.validate_range(1, 18),
+    ftol = om.attr_def(type=float, default=1e-06, doc='')  # validator=om.validate_range(),
+    xtol = om.attr_def(type=float, default=1e-06, doc='')  # validator=om.validate_range(),
     memory = om.attr_def(type=bool, default=False, doc='')
     ###### SADE
 
@@ -141,64 +141,21 @@ class Calibration:
     selection = om.attr_def(type=str, default='tournament', doc='')   # validator=om.validate_choices(),
     ###### SGA
 
-    # TODO other attributes from __init__
-    # TODO custom fitness_func
+    ###### NLOPT
+    nlopt_solver = om.attr_def(type=str, default='neldermead', doc='')    # validator=om.validate_choices(),  todo
+    maxtime = om.attr_def(type=int, default=0, doc='')                     # validator=om.validate_range(),  todo
+    maxeval = om.attr_def(type=int, default=0, doc='')
+    xtol_rel = om.attr_def(type=float, default=1.e-8, doc='')
+    xtol_abs = om.attr_def(type=float, default=0., doc='')
+    ftol_rel = om.attr_def(type=float, default=0., doc='')
+    ftol_abs = om.attr_def(type=float, default=0., doc='')
+    stopval = om.attr_def(type=float, default=float('-inf'), doc='')
+    local_optimizer = om.attr_def(type=None, default=None, doc='')          # validator=om.validate_choices(),  todo
+    replacement = om.attr_def(type=str, default='best', doc='')
+    nlopt_selection = om.attr_def(type=str, default='best', doc='')         # todo: "selection" - same name as in SGA
+    ###### NLOPT
 
-    # def __init__(self,
-    #              arguments: dict) -> None:
-    #     """TBW."""
-    #     # arguments = {}
-    #     self.args = arguments                               # type: dict
-    #     self.mode = 'pipeline'
-    #     self.algo_type = None
-    #     self.generations = None                             # type: t.Optional[int]
-    #
-    #     if self.args:
-    #         self.mode = self.args['calibration_mode']       # type: str
-    #         self.algo_type = self.args['algorithm']         # type: str
-    #
-    #     if self.algo_type == 'sade':
-    #         self.generations = 1                            # type: int
-    #         self.variant = 2                                # type: int
-    #         self.variant_adptv = 1                          # type: int
-    #         self.ftol = 1e-06                               # type: float
-    #         self.xtol = 1e-06                               # type: float
-    #         self.memory = False                             # type: bool
-    #
-    #     elif self.algo_type == 'sga':
-    #         self.generations = 1                            # type: int
-    #         self.cr = 0.9                                   # type: float
-    #         self.eta_c = 1.0                                # type: float
-    #         self.m = 0.02                                   # type: float
-    #         self.param_m = 1.0                              # type: float
-    #         self.param_s = 2                                # type: int
-    #         self.crossover = 'exponential'                  # type: str
-    #         self.mutation = 'polynomial'                    # type: str
-    #         self.selection = 'tournament'                   # type: str
-    #
-    #     elif self.algo_type == 'nlopt':
-    #         self.nlopt_solver = 'neldermead'                # type: str
-    #         self.maxtime = 0                                # type: int
-    #         self.maxeval = 0                                # type: int
-    #         self.xtol_rel = 1.e-8                           # type: float
-    #         self.xtol_abs = 0.                              # type: float
-    #         self.ftol_rel = 0.                              # type: float
-    #         self.ftol_abs = 0.                              # type: float
-    #         self.stopval = float('-inf')                    # type: float
-    #         self.local_optimizer = None                     # type: None
-    #         self.replacement = 'best'                       # type: str
-    #         self.selection = 'best'                         # type: str
-    #
-    #     names = ['generations',
-    #              'variant', 'variant_adptv', 'ftol', 'xtol', 'memory',
-    #              'cr', 'crossover', 'm', 'mutation', 'param_s', 'selection', 'eta_c', 'param_m',
-    #              'maxtime', 'maxeval', 'xtol_rel', 'xtol_abs', 'ftol_rel', 'ftol_abs', 'stopval',
-    #              'local_optimizer', 'replacement', 'selection', 'nlopt_solver']
-    #     if self.args:
-    #         for name in names:
-    #             if name in self.args:
-    #                 value = self.args[name]
-    #                 setattr(self, name, value)
+    # TODO custom fitness_func
 
     def set_algorithm(self):
         """TBW.
@@ -221,18 +178,18 @@ class Calibration:
                                    selection=self.selection,        # tournament, truncated
                                    eta_c=self.eta_c,                # distribution index for sbx crossover
                                    param_m=self.param_m)            # mutation parameter
-        # elif self.algorithm == 'nlopt':
-        #     opt_algorithm = pg.nlopt(self.nlopt_solver)
-        #     opt_algorithm.maxtime = self.maxtime        # stop when the optimization time (in seconds) exceeds maxtime
-        #     opt_algorithm.maxeval = self.maxeval        # stop when the number of function evaluations exceeds maxeval
-        #     opt_algorithm.xtol_rel = self.xtol_rel      # relative stopping criterion for x
-        #     opt_algorithm.xtol_abs = self.xtol_abs      # absolute stopping criterion for x
-        #     opt_algorithm.ftol_rel = self.ftol_rel
-        #     opt_algorithm.ftol_abs = self.ftol_abs
-        #     opt_algorithm.stopval = self.stopval
-        #     opt_algorithm.local_optimizer = self.local_optimizer
-        #     opt_algorithm.replacement = self.replacement
-        #     opt_algorithm.selection = self.selection
+        elif self.algorithm == 'nlopt':
+            opt_algorithm = pg.nlopt(self.nlopt_solver)
+            opt_algorithm.maxtime = self.maxtime        # stop when the optimization time (in seconds) exceeds maxtime
+            opt_algorithm.maxeval = self.maxeval        # stop when the number of function evaluations exceeds maxeval
+            opt_algorithm.xtol_rel = self.xtol_rel      # relative stopping criterion for x
+            opt_algorithm.xtol_abs = self.xtol_abs      # absolute stopping criterion for x
+            opt_algorithm.ftol_rel = self.ftol_rel
+            opt_algorithm.ftol_abs = self.ftol_abs
+            opt_algorithm.stopval = self.stopval
+            opt_algorithm.local_optimizer = self.local_optimizer
+            opt_algorithm.replacement = self.replacement
+            opt_algorithm.selection = self.nlopt_selection
         else:
             raise NotImplementedError
 
@@ -244,7 +201,6 @@ class Calibration:
         :param processor:
         :return:
         """
-        # seed = self.args['seed']
         if self.seed is None:
             self.seed = np.random.randint(0, 1000000)
         print('pygmo seed: ', self.seed)
@@ -255,14 +211,6 @@ class Calibration:
         target_output = read_data(self.target_data_path)
         processor.detector.target_output_data = target_output
 
-        # if 'population_size' in self.args:
-        #     population_size = self.args['population_size']
-        # else:
-        #     raise AttributeError('Missing "population_size" from YAML config')
-        # sort_var = None
-        # if 'sort_by_var' in self.args:
-        #     sort_var = self.args['sort_by_var']
-
         fitting.set_parameters(calibration_mode=self.calibration_mode,
                                model_names=self.model_names,
                                variables=self.variables,
@@ -270,7 +218,7 @@ class Calibration:
                                generations=self.generations,
                                population_size=self.population_size,
                                fitness_mode=self.fitness_mode,
-                               simulation_output=self.output,
+                               simulation_output=self.output_type,
                                sort_by_var=self.sort_var)
         fitting.configure(params_per_variable=self.params_per_variable,
                           target_output_list=target_output,

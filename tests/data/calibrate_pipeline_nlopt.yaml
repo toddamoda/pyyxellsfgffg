@@ -17,7 +17,7 @@ simulation:
 
     fitness_mode: residuals
 
-    algorithm: sade
+    algorithm: nlopt
 #    seed:
     generations: 2
     population_size: 2
