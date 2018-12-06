@@ -122,15 +122,15 @@ class Calibration:
         doc=''
     )
 
-    ###### SADE
+    # SADE #####
     variant = om.attr_def(type=int, validator=om.validate_range(1, 18), default=2, doc='')
     variant_adptv = om.attr_def(type=int, validator=om.validate_range(1, 2), default=1, doc='')
     ftol = om.attr_def(type=float, default=1e-06, doc='')  # validator=om.validate_range(),
     xtol = om.attr_def(type=float, default=1e-06, doc='')  # validator=om.validate_range(),
     memory = om.attr_def(type=bool, default=False, doc='')
-    ###### SADE
+    # SADE #####
 
-    ###### SGA
+    # SGA #####
     cr = om.attr_def(type=float, validator=om.validate_range(0, 1), default=0.9, doc='')
     eta_c = om.attr_def(type=float, default=1.0, doc='')    # validator=om.validate_range(0, 1),
     m = om.attr_def(type=float, validator=om.validate_range(0, 1), default=0.02, doc='')
@@ -139,9 +139,9 @@ class Calibration:
     crossover = om.attr_def(type=str, default='exponential', doc='')  # validator=om.validate_choices(),
     mutation = om.attr_def(type=str, default='polynomial', doc='')  # validator=om.validate_choices(),
     selection = om.attr_def(type=str, default='tournament', doc='')   # validator=om.validate_choices(),
-    ###### SGA
+    # SGA #####
 
-    ###### NLOPT
+    # NLOPT #####
     nlopt_solver = om.attr_def(type=str, default='neldermead', doc='')    # validator=om.validate_choices(),  todo
     maxtime = om.attr_def(type=int, default=0, doc='')                     # validator=om.validate_range(),  todo
     maxeval = om.attr_def(type=int, default=0, doc='')
@@ -153,7 +153,7 @@ class Calibration:
     local_optimizer = om.attr_def(type=None, default=None, doc='')          # validator=om.validate_choices(),  todo
     replacement = om.attr_def(type=str, default='best', doc='')
     nlopt_selection = om.attr_def(type=str, default='best', doc='')         # todo: "selection" - same name as in SGA
-    ###### NLOPT
+    # NLOPT #####
 
     # TODO custom fitness_func
 
