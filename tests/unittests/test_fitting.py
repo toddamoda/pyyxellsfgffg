@@ -153,22 +153,22 @@ def custom_fitness_func(sim, targ):
     return np.sum(targ * 2 - sim / 2 + 1.)
 
 
-# @pytest.mark.parametrize('simulated_data, target_data, expected_fitness',         # TODO
-#                          [
-#                              (1., 2., 4.5),
-#                              (np.array([1., 2., 3.]), np.array([2., 5., 6.]), 26.),
-#                           ])
-# def test_custom_fitness(simulated_data, target_data, expected_fitness):
-#     """Test"""
-#     cfg = om.load('tests/data/calibrate_pipeline_custom_fitness.yaml')
-#     processor = cfg['processor']
-#     simulation = cfg['simulation']
-#     mf = ModelFitting(processor)
-#     configure(mf, simulation)
-#     mf.set_custom_fitness(simulation.calibration.fitness_func_path)
-#     fitness = mf.calculate_fitness(simulated_data, target_data)
-#     assert fitness == expected_fitness
-#     print('fitness: ', fitness)
+@pytest.mark.parametrize('simulated_data, target_data, expected_fitness',
+                         [
+                             (1., 2., 4.5),
+                             (np.array([1., 2., 3.]), np.array([2., 5., 6.]), 26.),
+                          ])
+def test_custom_fitness(simulated_data, target_data, expected_fitness):
+    """Test"""
+    cfg = om.load('tests/data/calibrate_pipeline_custom_fitness.yaml')
+    processor = cfg['processor']
+    simulation = cfg['simulation']
+    mf = ModelFitting(processor)
+    configure(mf, simulation)
+    mf.set_custom_fitness(simulation.calibration.fitness_func_path)
+    fitness = mf.calculate_fitness(simulated_data, target_data)
+    assert fitness == expected_fitness
+    print('fitness: ', fitness)
 
 
 @pytest.mark.parametrize('parameter',

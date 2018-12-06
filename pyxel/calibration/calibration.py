@@ -49,12 +49,11 @@ class Calibration:
         default='residuals',
         doc=''
     )
-    # fitness_func_path = om.attr_def(
-    #     type=str,
-    #     validator=om.validate_choices([]),
-    #     default='image',
-    #     doc='output'
-    # )
+    fitness_func_path = om.attr_def(
+        type=str,
+        default='',
+        doc=''
+    )
     algorithm = om.attr_def(
         type=str,
         validator=om.validate_choices(['sade', 'sga', 'nlopt']),
