@@ -19,9 +19,9 @@ def configure(mf, sim, target=None):
                       var_log=sim.calibration.var_log,
                       generations=sim.calibration.generations,
                       population_size=sim.calibration.population_size,
-                      fitness_mode=sim.calibration.fitness_mode,
                       simulation_output=sim.calibration.output_type,
-                      sort_by_var=sim.calibration.sort_var)
+                      sort_by_var=sim.calibration.sort_var,
+                      fitness_func=sim.calibration.fitness_function)
     mf.configure(params_per_variable=sim.calibration.params_per_variable,
                  target_output_list=target,
                  target_fit_range=sim.calibration.target_fit_range,
@@ -53,7 +53,7 @@ def test_configure_params(yaml_file):
     assert mf.params_per_variable == [[1], [2, 2, 1], [1]]
     assert mf.variable_name_lst == [['amp'], ['tr_p', 'nt_p', 'beta_p'], ['std_deviation']]
     assert mf.calibration_mode == 'pipeline'
-    assert mf.fitness_mode == 'residuals'
+    # assert mf.fitness_mode == 'residuals'
     assert mf.sim_fit_range == slice(2, 5, None)
     assert mf.targ_fit_range == slice(1, 4, None)
     assert mf.sim_output == 'image'
@@ -138,14 +138,13 @@ def test_calculate_fitness(simulated_data, target_data, expected_fitness):
     simulation = cfg['simulation']
     mf = ModelFitting(processor)
     configure(mf, simulation)
-    mf.fitness_mode = 'residuals'
     fitness = mf.calculate_fitness(simulated_data, target_data)
     assert fitness == expected_fitness[0]
     print('fitness: ', fitness)
-    mf.fitness_mode = 'least-squares'
-    fitness = mf.calculate_fitness(simulated_data, target_data)
-    assert fitness == expected_fitness[1]
-    print('fitness: ', fitness)
+    # mf.fitness_mode = 'least-squares'
+    # fitness = mf.calculate_fitness(simulated_data, target_data)
+    # assert fitness == expected_fitness[1]
+    # print('fitness: ', fitness)
 
 
 def custom_fitness_func(sim, targ):
@@ -165,7 +164,7 @@ def test_custom_fitness(simulated_data, target_data, expected_fitness):
     simulation = cfg['simulation']
     mf = ModelFitting(processor)
     configure(mf, simulation)
-    mf.set_custom_fitness(simulation.calibration.fitness_func_path)
+    # mf.set_custom_fitness(simulation.calibration.fitness_function)
     fitness = mf.calculate_fitness(simulated_data, target_data)
     assert fitness == expected_fitness
     print('fitness: ', fitness)

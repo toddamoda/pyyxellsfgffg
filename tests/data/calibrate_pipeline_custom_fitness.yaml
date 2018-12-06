@@ -15,8 +15,7 @@ simulation:
     target_data_path: ['tests/data/cti-data.txt']   # not used
     target_fit_range: [1, 4]
 
-    fitness_mode: custom
-    fitness_func_path:
+    fitness_function:
       func: tests.unittests.test_fitting.custom_fitness_func
       arguments:
 

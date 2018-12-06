@@ -59,7 +59,7 @@ def define_pyxel_loader():
     om.ObjectModelLoader.add_class(StepValues, ['simulation', 'parametric_analysis', 'steps'], is_list=True)
 
     om.ObjectModelLoader.add_class(Calibration, ['simulation', 'calibration'])
-    om.ObjectModelLoader.add_class(ModelFunction, ['simulation', 'calibration', 'fitness_func_path'])
+    om.ObjectModelLoader.add_class(ModelFunction, ['simulation', 'calibration', 'fitness_function'])
 
     om.ObjectModelLoader.add_class(ModelGroup, ['processor', 'pipeline', None])
     om.ObjectModelLoader.add_class(ModelFunction, ['processor', 'pipeline', None, None])

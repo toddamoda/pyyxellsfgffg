@@ -38,8 +38,8 @@ simulation:
     target_data_path: ['data/results.fits']     #  <*.npy> <*.fits> <ascii>
     target_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50]
 
-    fitness_mode: custom    # residuals   # least-squares
-    fitness_func_path:
+#    fitness_mode: custom    # residuals   # least-squares
+    fitness_function:
       func: tests.unittests.test_fitting.custom_fitness_func
       arguments:
 

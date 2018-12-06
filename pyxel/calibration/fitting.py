@@ -37,7 +37,7 @@ class ModelFitting:
         self.weighting = False
         self.weighting_function = None
 
-        self.fitness_mode = None
+        # self.fitness_mode = None
         self.custom_fitness_func = None
         self.sim_output = None
 
@@ -74,10 +74,10 @@ class ModelFitting:
                        variables: list,
                        var_log: list,
                        generations: int,
-                       population_size: int = None,
-                       fitness_mode: str = 'residuals',
-                       simulation_output: str = 'image',
-                       sort_by_var: str = None
+                       population_size: int,
+                       simulation_output: str,
+                       sort_by_var: str,
+                       fitness_func
                        ):
         """TBW.
 
@@ -87,18 +87,19 @@ class ModelFitting:
         :param var_log:
         :param generations:
         :param population_size:
-        :param fitness_mode:
         :param simulation_output:
         :param sort_by_var:
+        :param fitness_func:
         :return:
         """
         self.calibration_mode = calibration_mode
         self.model_name_list = model_names
         self.variable_name_lst = variables
         self.is_var_log = var_log
-        self.fitness_mode = fitness_mode
+        # self.fitness_mode = fitness_mode
         self.sim_output = simulation_output
         self.sort_by_var = sort_by_var
+        self.custom_fitness_func = fitness_func
 
         self.pop = population_size
         self.generations = generations
@@ -191,14 +192,14 @@ class ModelFitting:
     #     for i in range(len(self.target_data)):
     #         self.target_data_norm += [self.normalize(self.target_data[i], dataset=i)]
 
-    def set_custom_fitness(self, func):
-        """TBW.
-
-        :param func: ModelFunction
-        :return:
-        """
-        self.fitness_mode = 'custom'
-        self.custom_fitness_func = func
+    # def set_custom_fitness(self, func):
+    #     """TBW.
+    #
+    #     :param func: ModelFunction
+    #     :return:
+    #     """
+    #     # self.fitness_mode = 'custom'
+    #     self.custom_fitness_func = func
 
     def set_weighting_function(self, func):
         """TBW.
@@ -253,19 +254,21 @@ class ModelFitting:
         :param target_data:
         :return:
         """
-        if self.fitness_mode == 'residuals':
-            fitness = self.sum_of_abs_residuals(simulated=simulated_data,
-                                                target=target_data)
+        # if self.fitness_mode == 'residuals':
+        #     fitness = self.sum_of_abs_residuals(simulated=simulated_data,
+        #                                         target=target_data)
+        #
+        # elif self.fitness_mode == 'least-squares':
+        #     fitness = self.sum_of_squared_residuals(simulated=simulated_data,
+        #                                             target=target_data)
 
-        elif self.fitness_mode == 'least-squares':
-            fitness = self.sum_of_squared_residuals(simulated=simulated_data,
-                                                    target=target_data)
+        # elif self.fitness_mode == 'custom':
+        #     fitness = self.custom_fitness_func.function(simulated_data, target_data)
 
-        elif self.fitness_mode == 'custom':
-            fitness = self.custom_fitness_func.function(simulated_data, target_data)
+        fitness = self.custom_fitness_func.function(simulated_data, target_data)
 
-        else:
-            raise ValueError
+        # else:
+        #     raise ValueError
 
         return fitness
 

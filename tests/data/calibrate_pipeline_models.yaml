@@ -16,7 +16,9 @@ simulation:
     target_data_path: ['tests/data/test.fits']     #  <*.npy> <*.fits> <ascii>
     target_fit_range: [0, 2, 0, 2]
 
-    fitness_mode: residuals    # least-squares
+    fitness_function:
+      func: pyxel.calibration.fitness.sum_of_abs_residuals
+      arguments:
 
     algorithm: sade   # sga  # nlopt
 #    seed:

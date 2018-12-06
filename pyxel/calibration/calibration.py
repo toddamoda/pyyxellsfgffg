@@ -43,13 +43,13 @@ class Calibration:
         default=None,
         doc=''
     )
-    fitness_mode = om.attr_def(
-        type=str,
-        validator=om.validate_choices(['residuals', 'least-squares', 'custom']),
-        default='residuals',
-        doc=''
-    )
-    fitness_func_path = om.attr_def(
+    # fitness_mode = om.attr_def(
+    #     type=str,
+    #     validator=om.validate_choices(['residuals', 'least-squares', 'custom']),
+    #     default='residuals',
+    #     doc=''
+    # )
+    fitness_function = om.attr_def(
         type=str,
         default='',
         doc=''
@@ -154,8 +154,6 @@ class Calibration:
     nlopt_selection = om.attr_def(type=str, default='best', doc='')         # todo: "selection" - same name as in SGA
     # NLOPT #####
 
-    # TODO custom fitness_func
-
     def set_algorithm(self):
         """TBW.
 
@@ -216,16 +214,14 @@ class Calibration:
                                var_log=self.var_log,
                                generations=self.generations,
                                population_size=self.population_size,
-                               fitness_mode=self.fitness_mode,
                                simulation_output=self.output_type,
-                               sort_by_var=self.sort_var)
+                               sort_by_var=self.sort_var,
+                               fitness_func=self.fitness_function)
         fitting.configure(params_per_variable=self.params_per_variable,
                           target_output_list=target_output,
                           target_fit_range=self.target_fit_range,
                           out_fit_range=self.output_fit_range)
 
-        if self.fitness_mode == 'custom':
-            fitting.set_custom_fitness(self.fitness_func_path)
         # if self.weighting_func_path:
         #     weighting_func = read_data(self.weighting_func_path)
         #     fitting.set_weighting_function(weighting_func[0])           # works only with one weighting function

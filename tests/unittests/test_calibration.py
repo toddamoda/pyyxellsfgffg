@@ -13,7 +13,7 @@ from pyxel.calibration.calibration import read_data
                              'tests/data/calibrate_pipeline_sga.yaml',
                              'tests/data/calibrate_pipeline_nlopt.yaml',
                              'tests/data/calibrate_pipeline_models.yaml',
-                             # 'tests/data/calibrate_pipeline_custom_fitness.yaml',        # todo
+                             'tests/data/calibrate_pipeline_custom_fitness.yaml',        # todo
                              'tests/data/calibrate_pipeline_fits.yaml',
                           ])
 def test_set_algo(config):

@@ -15,7 +15,9 @@ simulation:
     target_data_path: ['tests/data/cti-data.txt']   # not used
     target_fit_range: [1, 4]
 
-    fitness_mode: residuals
+    fitness_function:
+      func: pyxel.calibration.fitness.sum_of_abs_residuals
+      arguments:
 
     algorithm: nlopt
 #    seed:
