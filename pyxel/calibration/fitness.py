@@ -1,3 +1,4 @@
+"""Fitness functions for model fitting."""
 import numpy as np
 
 
