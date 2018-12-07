@@ -10,20 +10,21 @@ simulation:
   calibration:
     calibration_mode:  pipeline
     output_type: image
-    output_fit_range: [2, 5, 4, 7]
+    output_fit_range: [2, 5]
 
-    target_data_path: ['tests/data/expected_ccd_pipeline01.fits']     #  <*.npy> <*.fits> <ascii>
-    target_fit_range: [1, 4, 5, 8]
+    target_data_path: ['tests/data/cti-data.txt']   # not used
+    target_fit_range: [1, 4]
 
     fitness_function:
       func: pyxel.calibration.fitness.sum_of_abs_residuals
       arguments:
 
-    algorithm: sade   # sga  # nlopt
 #    seed:
-    generations: 10
-#      population_size: 10
-    variant: 2
+    algorithm:
+      type: nlopt
+      nlopt_solver: sbplx  # neldermead
+      generations: 2
+      population_size: 2
 
     model_names:         ['characteristics', 'cdm', 'output_node_noise']
     variables:           [['amp'], ['tr_p', 'nt_p', 'beta_p'], ['std_deviation']]

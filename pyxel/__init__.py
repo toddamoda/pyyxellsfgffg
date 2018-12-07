@@ -46,6 +46,7 @@ def define_pyxel_loader():
     from pyxel.pipelines.parametric import ParametricAnalysis
     from pyxel.pipelines.parametric import StepValues
     from pyxel.calibration.calibration import Calibration
+    from pyxel.calibration.calibration import Algorithm
     from pyxel.pipelines.model_group import ModelFunction
     from pyxel.pipelines.model_group import ModelGroup
 
@@ -60,6 +61,7 @@ def define_pyxel_loader():
 
     om.ObjectModelLoader.add_class(Calibration, ['simulation', 'calibration'])
     om.ObjectModelLoader.add_class(ModelFunction, ['simulation', 'calibration', 'fitness_function'])
+    om.ObjectModelLoader.add_class(Algorithm, ['simulation', 'calibration', 'algorithm'])
 
     om.ObjectModelLoader.add_class(ModelGroup, ['processor', 'pipeline', None])
     om.ObjectModelLoader.add_class(ModelFunction, ['processor', 'pipeline', None, None])

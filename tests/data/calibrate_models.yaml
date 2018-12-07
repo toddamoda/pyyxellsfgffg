@@ -20,12 +20,12 @@ simulation:
       func: pyxel.calibration.fitness.sum_of_abs_residuals
       arguments:
 
-    algorithm: sade   # sga  # nlopt
 #    seed:
-#      nlopt_solver: sbplx  # neldermead
-    generations: 10
-    population_size: 10
-    variant: 2
+    algorithm:
+      type: sade
+      generations: 1
+      population_size: 10
+      variant: 2
 
     model_names:         ['characteristics', 'cdm', 'output_node_noise']  # , 'environment']
     variables:           [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['std_deviation']]  # , ['temperature']]

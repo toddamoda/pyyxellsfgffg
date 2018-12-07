@@ -8,19 +8,19 @@ from pyxel.calibration.calibration import read_data
 
 @pytest.mark.parametrize('config',
                          [
-                             'tests/data/calibrate_pipeline.yaml',
-                             'tests/data/calibrate_pipeline_sade.yaml',
-                             'tests/data/calibrate_pipeline_sga.yaml',
-                             'tests/data/calibrate_pipeline_nlopt.yaml',
-                             'tests/data/calibrate_pipeline_models.yaml',
-                             'tests/data/calibrate_pipeline_custom_fitness.yaml',        # todo
-                             'tests/data/calibrate_pipeline_fits.yaml',
+                             'tests/data/calibrate.yaml',
+                             'tests/data/calibrate_sade.yaml',
+                             'tests/data/calibrate_sga.yaml',
+                             'tests/data/calibrate_nlopt.yaml',
+                             'tests/data/calibrate_models.yaml',
+                             'tests/data/calibrate_custom_fitness.yaml',
+                             'tests/data/calibrate_fits.yaml',
                           ])
 def test_set_algo(config):
     """Test """
     cfg = om.load(config)
     simulation = cfg['simulation']
-    obj = simulation.calibration.set_algorithm()
+    obj = simulation.calibration.algorithm.get_algorithm()
     if isinstance(obj, pg.sade):
         pass
     elif isinstance(obj, pg.sga):
@@ -53,7 +53,7 @@ def test_read_data(input_data):
 #                          [])
 def test_run_calibration():
     """Test """
-    cfg = om.load('tests/data/calibrate_pipeline_models.yaml')
+    cfg = om.load('tests/data/calibrate_models.yaml')
     processor = cfg['processor']
     simulation = cfg['simulation']
     result = simulation.calibration.run_calibration(processor)

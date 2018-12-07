@@ -38,7 +38,7 @@ class ModelFitting:
         self.weighting_function = None
 
         # self.fitness_mode = None
-        self.custom_fitness_func = None
+        self.fitness_func = None
         self.sim_output = None
 
         self.n = 0
@@ -99,7 +99,7 @@ class ModelFitting:
         # self.fitness_mode = fitness_mode
         self.sim_output = simulation_output
         self.sort_by_var = sort_by_var
-        self.custom_fitness_func = fitness_func
+        self.fitness_func = fitness_func
 
         self.pop = population_size
         self.generations = generations
@@ -192,15 +192,6 @@ class ModelFitting:
     #     for i in range(len(self.target_data)):
     #         self.target_data_norm += [self.normalize(self.target_data[i], dataset=i)]
 
-    # def set_custom_fitness(self, func):
-    #     """TBW.
-    #
-    #     :param func: ModelFunction
-    #     :return:
-    #     """
-    #     # self.fitness_mode = 'custom'
-    #     self.custom_fitness_func = func
-
     def set_weighting_function(self, func):
         """TBW.
 
@@ -254,48 +245,34 @@ class ModelFitting:
         :param target_data:
         :return:
         """
-        # if self.fitness_mode == 'residuals':
-        #     fitness = self.sum_of_abs_residuals(simulated=simulated_data,
-        #                                         target=target_data)
-        #
-        # elif self.fitness_mode == 'least-squares':
-        #     fitness = self.sum_of_squared_residuals(simulated=simulated_data,
-        #                                             target=target_data)
-
-        # elif self.fitness_mode == 'custom':
-        #     fitness = self.custom_fitness_func.function(simulated_data, target_data)
-
-        fitness = self.custom_fitness_func.function(simulated_data, target_data)
-
-        # else:
-        #     raise ValueError
+        fitness = self.fitness_func.function(simulated_data, target_data)
 
         return fitness
 
-    def sum_of_abs_residuals(self, simulated, target):
-        """TBW.
-
-        :param simulated:
-        :param target:
-        :return:
-        """
-        diff = target - simulated
-        if self.weighting:
-            diff *= self.weighting_function
-        return np.sum(np.abs(diff))
-
-    def sum_of_squared_residuals(self, simulated, target):
-        """TBW.
-
-        :param simulated:
-        :param target:
-        :return:
-        """
-        diff = target - simulated
-        diff_square = diff * diff
-        if self.weighting:
-            diff_square *= self.weighting_function
-        return np.sum(diff_square)
+    # def sum_of_abs_residuals(self, simulated, target):
+    #     """TBW.
+    #
+    #     :param simulated:
+    #     :param target:
+    #     :return:
+    #     """
+    #     diff = target - simulated
+    #     if self.weighting:
+    #         diff *= self.weighting_function
+    #     return np.sum(np.abs(diff))
+    #
+    # def sum_of_squared_residuals(self, simulated, target):
+    #     """TBW.
+    #
+    #     :param simulated:
+    #     :param target:
+    #     :return:
+    #     """
+    #     diff = target - simulated
+    #     diff_square = diff * diff
+    #     if self.weighting:
+    #         diff_square *= self.weighting_function
+    #     return np.sum(diff_square)
 
     # def least_squares(self, simulated_data, dataset=None):
     #     """TBW.

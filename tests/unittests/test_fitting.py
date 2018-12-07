@@ -17,8 +17,8 @@ def configure(mf, sim, target=None):
                       model_names=sim.calibration.model_names,
                       variables=sim.calibration.variables,
                       var_log=sim.calibration.var_log,
-                      generations=sim.calibration.generations,
-                      population_size=sim.calibration.population_size,
+                      generations=sim.calibration.algorithm.generations,
+                      population_size=sim.calibration.algorithm.population_size,
                       simulation_output=sim.calibration.output_type,
                       sort_by_var=sim.calibration.sort_var,
                       fitness_func=sim.calibration.fitness_function)
@@ -30,7 +30,7 @@ def configure(mf, sim, target=None):
 
 @pytest.mark.parametrize('yaml_file',
                          [
-                             'tests/data/calibrate_pipeline.yaml',
+                             'tests/data/calibrate.yaml',
                           ])
 def test_configure_params(yaml_file):
     """Test """
@@ -53,7 +53,6 @@ def test_configure_params(yaml_file):
     assert mf.params_per_variable == [[1], [2, 2, 1], [1]]
     assert mf.variable_name_lst == [['amp'], ['tr_p', 'nt_p', 'beta_p'], ['std_deviation']]
     assert mf.calibration_mode == 'pipeline'
-    # assert mf.fitness_mode == 'residuals'
     assert mf.sim_fit_range == slice(2, 5, None)
     assert mf.targ_fit_range == slice(1, 4, None)
     assert mf.sim_output == 'image'
@@ -63,7 +62,7 @@ def test_configure_params(yaml_file):
 
 @pytest.mark.parametrize('yaml_file',
                          [
-                             'tests/data/calibrate_pipeline_fits.yaml',
+                             'tests/data/calibrate_fits.yaml',
                           ])
 def test_configure_fits_target(yaml_file):
     """Test """
@@ -71,6 +70,10 @@ def test_configure_fits_target(yaml_file):
     processor = cfg['processor']
     simulation = cfg['simulation']
     mf = ModelFitting(processor)
+    # output_type: image
+    # output_fit_range: [2, 5, 4, 7]
+    # target_data_path: ['tests/data/expected_ccd_pipeline01.fits']
+    # target_fit_range: [1, 4, 5, 8]
 
     configure(mf, simulation)
 
@@ -85,8 +88,8 @@ def test_configure_fits_target(yaml_file):
 
 @pytest.mark.parametrize('yaml_file',
                          [
-                             'tests/data/calibrate_pipeline.yaml',
-                             'tests/data/calibrate_pipeline_fits.yaml',
+                             'tests/data/calibrate.yaml',
+                             'tests/data/calibrate_fits.yaml',
                           ])
 def test_boundaries(yaml_file):
     """Test """
@@ -133,7 +136,7 @@ def test_weighting_func(wf):
                           ])
 def test_calculate_fitness(simulated_data, target_data, expected_fitness):
     """Test"""
-    cfg = om.load('tests/data/calibrate_pipeline.yaml')
+    cfg = om.load('tests/data/calibrate.yaml')
     processor = cfg['processor']
     simulation = cfg['simulation']
     mf = ModelFitting(processor)
@@ -141,10 +144,6 @@ def test_calculate_fitness(simulated_data, target_data, expected_fitness):
     fitness = mf.calculate_fitness(simulated_data, target_data)
     assert fitness == expected_fitness[0]
     print('fitness: ', fitness)
-    # mf.fitness_mode = 'least-squares'
-    # fitness = mf.calculate_fitness(simulated_data, target_data)
-    # assert fitness == expected_fitness[1]
-    # print('fitness: ', fitness)
 
 
 def custom_fitness_func(sim, targ):
@@ -159,12 +158,11 @@ def custom_fitness_func(sim, targ):
                           ])
 def test_custom_fitness(simulated_data, target_data, expected_fitness):
     """Test"""
-    cfg = om.load('tests/data/calibrate_pipeline_custom_fitness.yaml')
+    cfg = om.load('tests/data/calibrate_custom_fitness.yaml')
     processor = cfg['processor']
     simulation = cfg['simulation']
     mf = ModelFitting(processor)
     configure(mf, simulation)
-    # mf.set_custom_fitness(simulation.calibration.fitness_function)
     fitness = mf.calculate_fitness(simulated_data, target_data)
     assert fitness == expected_fitness
     print('fitness: ', fitness)

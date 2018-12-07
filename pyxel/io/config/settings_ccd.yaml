@@ -45,12 +45,13 @@ simulation:
 
 #    weighting_func_path:  # 'pyxel/results.fits'
 
-    algorithm: sade   # sga  # nlopt
     seed: 132
-#   nlopt_solver: sbplx  # neldermead
-    generations: 10
-    population_size: 10
-    variant: 2
+    algorithm:
+      type: sade   # sga  # nlopt
+      nlopt_solver: sbplx  # neldermead
+      generations: 2
+      population_size: 10
+      variant: 2
 
     model_names:         ['characteristics', 'cdm', 'output_node_noise']  # , 'environment']
     variables:           [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['std_deviation']]  # , ['temperature']]
