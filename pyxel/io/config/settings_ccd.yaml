@@ -45,10 +45,10 @@ simulation:
 
 #    weighting_func_path:  # 'pyxel/results.fits'
 
-    seed: 132
+#    seed: 132
     algorithm:
       type: sade   # sga  # nlopt
-      nlopt_solver: sbplx  # neldermead
+#      nlopt_solver: sbplx  # neldermead
       generations: 2
       population_size: 10
       variant: 2

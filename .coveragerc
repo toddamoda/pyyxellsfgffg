@@ -1,0 +1,11 @@
+[report]
+exclude_lines =
+    pragma: no cover
+    debug
+    raise NotImplementedError
+    # def func
+
+[run]
+omit =
+    pyxel/calibration/inputdata.py
+    pyxel/models/cdm/CDM_old.py

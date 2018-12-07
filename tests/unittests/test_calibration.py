@@ -49,12 +49,12 @@ def test_read_data(input_data):
     print(output)
 
 
-# @pytest.mark.parametrize('data',
-#                          [])
-def test_run_calibration():
-    """Test """
-    cfg = om.load('tests/data/calibrate_models.yaml')
-    processor = cfg['processor']
-    simulation = cfg['simulation']
-    result = simulation.calibration.run_calibration(processor)
-    assert result == 1
+# # @pytest.mark.parametrize('data',
+# #                          [])
+# def test_run_calibration():
+#     """Test """
+#     cfg = om.load('tests/data/calibrate_models.yaml')
+#     processor = cfg['processor']
+#     simulation = cfg['simulation']
+#     result = simulation.calibration.run_calibration(processor)
+#     assert result == 1

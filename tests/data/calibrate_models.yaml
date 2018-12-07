@@ -20,7 +20,7 @@ simulation:
       func: pyxel.calibration.fitness.sum_of_abs_residuals
       arguments:
 
-#    seed:
+    seed: 1111
     algorithm:
       type: sade
       generations: 1

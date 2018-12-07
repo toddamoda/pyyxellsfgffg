@@ -137,14 +137,13 @@ class DetectionPipeline:
         for group in self._model_groups:
             steps = self._model_steps[group]
             if name in steps:
-                models_obj = getattr(self, group)  # type: Models
-                if models_obj:
+                model_group = getattr(self, group)  # type: Models
+                if model_group:
                     i = 0
-                    while name != models_obj.models[i].name:
+                    while name != model_group.models[i].name:
                         i += 1
-                    return models_obj.models[i]
-                    # return models_obj.models[i].func
-                    # return models_obj.models[i].function
+                    return model_group.models[i]
+        raise AttributeError('Model has not found')
 
     def run_model_group(self, name, detector):
         """TBW.

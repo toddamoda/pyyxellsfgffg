@@ -3,6 +3,7 @@
 import pytest
 import numpy as np
 import esapy_config as om
+import pygmo as pg
 from pyxel.calibration.calibration import read_data
 from pyxel.calibration.fitting import ModelFitting
 from pyxel.detectors.detector import Detector
@@ -11,6 +12,9 @@ from pyxel.pipelines.detector_pipeline import DetectionPipeline
 
 def configure(mf, sim, target=None):
     """TBW."""
+    pg.set_global_rng_seed(sim.calibration.seed)
+    np.random.seed(sim.calibration.seed)
+
     if target is None:
         target = read_data(sim.calibration.target_data_path)
     mf.set_parameters(calibration_mode=sim.calibration.calibration_mode,
@@ -168,13 +172,22 @@ def test_custom_fitness(simulated_data, target_data, expected_fitness):
     print('fitness: ', fitness)
 
 
-@pytest.mark.parametrize('parameter',
+@pytest.mark.parametrize('parameter, expected_fitness',
                          [
-
+                             (np.array([1., 0.5, 1.5, 2., 3., 4.5, 4.,
+                                        1., 0.5, 1.5, 2., 3., 5., 6., 10.]),
+                              153.80868562371415)
                           ])
-def test_fitness(parameter):
+def test_fitness(parameter, expected_fitness):
     """Test"""
-    pass
+    cfg = om.load('tests/data/calibrate_models.yaml')
+    processor = cfg['processor']
+    simulation = cfg['simulation']
+    mf = ModelFitting(processor)
+    configure(mf, simulation)
+    overall_fitness = mf.fitness(parameter)
+    assert overall_fitness[0] == expected_fitness
+    print('fitness: ', overall_fitness[0])
 
 
 @pytest.mark.parametrize('parameter',
