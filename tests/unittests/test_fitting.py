@@ -62,7 +62,6 @@ def test_configure_params(yaml_file):
     assert mf.sim_fit_range == slice(2, 5, None)
     assert mf.targ_fit_range == slice(1, 4, None)
     assert mf.sim_output == 'image'
-    assert mf.target_data == [2., 3., 4.]
     assert mf.all_target_data == [[2., 3., 4.]]
 
 
@@ -76,20 +75,14 @@ def test_configure_fits_target(yaml_file):
     processor = cfg['processor']
     simulation = cfg['simulation']
     mf = ModelFitting(processor)
-    # output_type: image
-    # output_fit_range: [2, 5, 4, 7]
-    # target_data_path: ['tests/data/expected_ccd_pipeline01.fits']
-    # target_fit_range: [1, 4, 5, 8]
-
     configure(mf, simulation)
-
     assert mf.sim_fit_range == (slice(2, 5, None), slice(4, 7, None))
     assert mf.targ_fit_range == (slice(1, 4, None), slice(5, 8, None))
     assert mf.sim_output == 'image'
     expected = np.array([[1362., 1378., 1411.],
                          [1308., 1309., 1284.],
                          [1390., 1346., 1218.]])
-    np.testing.assert_array_equal(mf.target_data, expected)
+    np.testing.assert_array_equal(mf.all_target_data[0], expected)
 
 
 @pytest.mark.parametrize('yaml_file',
@@ -157,7 +150,7 @@ def test_weighting(factor, expected_fitness):
     simulation = cfg['simulation']
     mf = ModelFitting(processor)
     configure(mf, simulation)
-    fitness = mf.calculate_fitness(mf.target_data*factor, mf.target_data)
+    fitness = mf.calculate_fitness(mf.all_target_data[0]*factor, mf.all_target_data[0])
     assert fitness == expected_fitness
     print('fitness: ', fitness)
 

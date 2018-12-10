@@ -241,9 +241,7 @@ class Calibration:
                           weighting=weighting)
         fitting.set_bound(low_val=self.lower_boundary,
                           up_val=self.upper_boundary)
-
         fitting.save_champions_in_file()
-        # fitting.set_normalization()                                       # TODO
 
         prob = pg.problem(fitting)
         print('evolution started ...')
@@ -260,27 +258,3 @@ class Calibration:
         print('champion_x: ', *champion_x, sep="\n")
 
         return 1        # todo: return results as output!!
-
-    # def read_data(self, data_path: t.Union[str, list]):
-    #     """TBW.
-    #     :param data_path:
-    #     :return:
-    #     """
-    #     if isinstance(data_path, str):
-    #         data_path = [data_path]
-    #     elif isinstance(data_path, list) and all(isinstance(item, str) for item in data_path):
-    #         pass
-    #     else:
-    #         raise TypeError
-    #
-    #     output = []                             # type: list
-    #     for i in range(len(data_path)):
-    #         if '.fits' in data_path[i]:
-    #             data = fits.getdata(data_path[i])
-    #         elif '.npy' in data_path[i]:
-    #             data = np.load(data_path[i])
-    #         else:
-    #             data = np.loadtxt(data_path[i], dtype=float, delimiter='|')     # todo: more general with try-except
-    #         output += [data]
-    #
-    #     return output

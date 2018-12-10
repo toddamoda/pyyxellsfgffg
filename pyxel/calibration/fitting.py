@@ -5,6 +5,7 @@ https://esa.github.io/pagmo2/index.html
 import numpy as np
 from copy import deepcopy
 import typing as t   # noqa: F401
+from pyxel.calibration.util import list_to_slice, check_ranges
 
 
 class ModelFitting:
@@ -24,13 +25,10 @@ class ModelFitting:
         self.is_var_array = []              # type: t.List[t.List[int]]
         self.is_var_log = []                # type: t.List[t.List[bool]]
 
-        # self.det_attr_class_list = []     # ['characteristics', 'geometry']  # todo
-
         self.generations = None
         self.pop = None
 
         self.all_target_data = []
-        self.target_data = None
 
         # self.normalization = False
         # self.target_data_norm = []
@@ -97,15 +95,13 @@ class ModelFitting:
         self.sim_output = simulation_output
         self.sort_by_var = sort_by_var
         self.fitness_func = fitness_func
-
         self.pop = population_size
         self.generations = generations
-        # self.det_attr_class_list = model_names      # ['characteristics.amp', 'geometry.row']  # TODO
 
     def configure(self,
                   params_per_variable: list,
-                  target_output_list,
-                  target_fit_range=None,        # t.Optional[list]      # todo
+                  target_output_list: list,
+                  target_fit_range=None,        # type: t.Optional[list]      # todo
                   out_fit_range=None,           # t.Union[list, None]   # todo
                   weighting=None
                   ):
@@ -132,53 +128,15 @@ class ModelFitting:
                     item = 0
                 self.is_var_array[i][j] = item
 
-        self.target_data = target_output_list[0]
-        cols = None
         try:
-            rows, cols = self.target_data.shape
+            rows, cols = target_output_list[0].shape
         except AttributeError:
-            rows = len(self.target_data)
+            rows = len(target_output_list[0])
+            cols = None
+        check_ranges(target_fit_range, out_fit_range, rows, cols)
+        self.targ_fit_range = list_to_slice(target_fit_range)
+        self.sim_fit_range = list_to_slice(out_fit_range)
 
-        if target_fit_range is None:
-            self.targ_fit_range = slice(None)
-        else:
-            if len(target_fit_range) == 2:
-                self.targ_fit_range = slice(target_fit_range[0], target_fit_range[1])
-            elif len(target_fit_range) == 4:
-                self.targ_fit_range = (slice(target_fit_range[0], target_fit_range[1]),
-                                       slice(target_fit_range[2], target_fit_range[3]))
-            else:
-                raise AttributeError('Fitting range should have 2 or 4 values')
-
-        if out_fit_range is None:
-            self.sim_fit_range = slice(None)
-        else:
-            if len(out_fit_range) == 2:
-                self.sim_fit_range = slice(out_fit_range[0], out_fit_range[1])
-            elif len(out_fit_range) == 4:
-                self.sim_fit_range = (slice(out_fit_range[0], out_fit_range[1]),
-                                      slice(out_fit_range[2], out_fit_range[3]))
-            else:
-                raise AttributeError('Fitting range should have 2 or 4 values')
-
-        if target_fit_range and out_fit_range:
-            if (target_fit_range[1] - target_fit_range[0]) != (out_fit_range[1] - out_fit_range[0]):
-                raise AttributeError('Fitting ranges have different lengths in 1st dimension')
-            if len(target_fit_range) == 4 and len(out_fit_range) == 4:
-                if (target_fit_range[3] - target_fit_range[2]) != (out_fit_range[3] - out_fit_range[2]):
-                    raise AttributeError('Fitting ranges have different lengths in 2nd dimension')
-
-        if target_fit_range[0] < 0 or target_fit_range[0] > rows:
-            raise ValueError('Value of fitting range is wrong')
-        if target_fit_range[1] < 0 or target_fit_range[1] > rows:
-            raise ValueError('Value of fitting range is wrong')
-        if len(target_fit_range) > 2:
-            if target_fit_range[2] < 0 or target_fit_range[2] > cols:
-                raise ValueError('Value of fitting range is wrong')
-            if target_fit_range[3] < 0 or target_fit_range[3] > cols:
-                raise ValueError('Value of fitting range is wrong')
-
-        self.target_data = self.target_data[self.targ_fit_range]
         for target in target_output_list:
             self.all_target_data += [target[self.targ_fit_range]]
 
@@ -187,15 +145,6 @@ class ModelFitting:
                 self.weighting = weighting[self.targ_fit_range]
             else:
                 self.weighting = weighting
-
-    # def set_normalization(self):
-    #     """TBW.
-    #
-    #     :return:
-    #     """
-    #     self.normalization = True
-    #     for i in range(len(self.target_data)):
-    #         self.target_data_norm += [self.normalize(self.target_data[i], dataset=i)]
 
     def set_bound(self, low_val, up_val):
         """TBW.
@@ -273,6 +222,15 @@ class ModelFitting:
     #     diff_square = diff * diff
     #     return np.sum(diff_square)
 
+    # def set_normalization(self):
+    #     """TBW.
+    #
+    #     :return:
+    #     """
+    #     self.normalization = True
+    #     for i in range(len(self.target_data)):
+    #         self.target_data_norm += [self.normalize(self.target_data[i], dataset=i)]
+
     # def normalize(self, array, dataset):
     #     """Normalize dataset arrays by injected signal maximum.
     #
@@ -319,7 +277,6 @@ class ModelFitting:
         for target_data in self.all_target_data:
             overall_fitness += self.calculate_fitness(simulated_data, target_data)
 
-        # print('fitness: %1.5e' % overall_fitness)
         if self.write2file:
             self.population_and_champions(parameter_lst, overall_fitness)
 

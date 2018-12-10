@@ -3,7 +3,7 @@
 import pytest
 import pygmo as pg
 import esapy_config as om
-from pyxel.calibration.calibration import read_data
+from pyxel.calibration.util import read_data, list_to_slice, check_ranges
 
 
 @pytest.mark.parametrize('config',
@@ -47,6 +47,40 @@ def test_read_data(input_data):
     else:
         raise TypeError
     print(output)
+
+
+@pytest.mark.parametrize('input_data',
+                         [
+                             [1., 3., 2., 5.],
+                             [1, 3, 2, 5],
+                             [1, 10],
+                             [10, 1],
+                             [0, 0],
+                             None,
+                             # [1],
+                             # [1, 2, 3],
+                             # [1, 2, 3, 4, 5],
+                          ])
+def test_list_to_slice(input_data):
+    """Test """
+    output = list_to_slice(input_data)
+    if isinstance(output, slice):
+        pass
+    elif isinstance(output, tuple) and all(isinstance(item, slice) for item in output):
+        pass
+    else:
+        raise TypeError
+    print(output)
+
+
+@pytest.mark.parametrize('target_row, range_col, row, col',
+                         [
+
+                          ])
+def test_check_ranges(target_row, range_col, row, col):     # TODO
+    """Test """
+    # output = check_ranges(target_row, range_col, row, col)
+    pass
 
 
 # # @pytest.mark.parametrize('data',
