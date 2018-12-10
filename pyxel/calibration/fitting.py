@@ -42,8 +42,7 @@ class ModelFitting:
 
         self.sort_by_var = None
 
-        self.write2file = False
-        self.champion_file = None
+        self.champions_file = None
         self.pop_file = None
 
         self.fitness_array = None
@@ -73,7 +72,9 @@ class ModelFitting:
                        population_size: int,
                        simulation_output: str,
                        sort_by_var: str,
-                       fitness_func
+                       fitness_func,
+                       champions_file: str,
+                       population_file: str
                        ):
         """TBW.
 
@@ -86,6 +87,8 @@ class ModelFitting:
         :param simulation_output:
         :param sort_by_var:
         :param fitness_func:
+        :param champions_file:
+        :param population_file:
         :return:
         """
         self.calibration_mode = calibration_mode
@@ -97,6 +100,17 @@ class ModelFitting:
         self.fitness_func = fitness_func
         self.pop = population_size
         self.generations = generations
+
+        self.champions_file = champions_file
+        file1 = open(self.champions_file, 'wb')  # truncate output file
+        file1.close()
+        if population_file:
+            self.pop_file = population_file
+            file2 = open(self.pop_file, 'wb')  # truncate output file
+            file2.close()
+        # filelist = glob.glob('champion_id*.out')
+        # for file in filelist:
+        #     os.remove(file)
 
     def configure(self,
                   params_per_variable: list,
@@ -167,22 +181,6 @@ class ModelFitting:
                 self.lbd += lo_bd
                 self.ubd += up_bd
 
-    def save_champions_in_file(self):
-        """TBW.
-
-        :return:
-        """
-        self.write2file = True
-        self.champion_file = 'data/calibration_champions.out'
-        f1 = open(self.champion_file, 'wb')  # truncate output file
-        f1.close()
-        self.pop_file = 'data/calibration_populations.out'
-        f2 = open(self.pop_file, 'wb')       # truncate output file
-        f2.close()
-        # filelist = glob.glob('champion_id*.out')
-        # for file in filelist:
-        #     os.remove(file)
-
     def calculate_fitness(self, simulated_data, target_data):
         """TBW.
 
@@ -195,50 +193,6 @@ class ModelFitting:
         else:
             fitness = self.fitness_func.function(simulated_data, target_data)
         return fitness
-
-    # def least_squares(self, simulated_data, dataset=None):
-    #     """TBW.
-    #
-    #     :param simulated_data:
-    #     :param dataset: int
-    #     :return:
-    #     """
-    #     input_array = simulated_data[self.sim_fit_range]
-    #
-    #     if dataset is not None:
-    #         if self.normalization:
-    #             input_array = self.normalize(input_array, dataset=dataset)
-    #             target = self.target_data_norm[dataset][self.targ_fit_range]
-    #         else:
-    #             target = self.target_data[dataset][self.targ_fit_range]
-    #     else:
-    #         if self.normalization:
-    #             input_array = self.normalize(input_array)
-    #             target = self.target_data_norm[self.targ_fit_range]
-    #         else:
-    #             target = self.target_data[self.targ_fit_range]
-    #
-    #     diff = target - input_array
-    #     diff_square = diff * diff
-    #     return np.sum(diff_square)
-
-    # def set_normalization(self):
-    #     """TBW.
-    #
-    #     :return:
-    #     """
-    #     self.normalization = True
-    #     for i in range(len(self.target_data)):
-    #         self.target_data_norm += [self.normalize(self.target_data[i], dataset=i)]
-
-    # def normalize(self, array, dataset):
-    #     """Normalize dataset arrays by injected signal maximum.
-    #
-    #     :param array: 1d np.array
-    #     :param dataset: int
-    #     :return:
-    #     """
-    #     return array / np.average(self.target_data[dataset][self.targ_fit_range])
 
     def fitness(self, parameter):
         """Call the fitness function, elements of parameter array could be logarithm values.
@@ -277,8 +231,7 @@ class ModelFitting:
         for target_data in self.all_target_data:
             overall_fitness += self.calculate_fitness(simulated_data, target_data)
 
-        if self.write2file:
-            self.population_and_champions(parameter_lst, overall_fitness)
+        self.population_and_champions(parameter_lst, overall_fitness)
 
         return [overall_fitness]
 
@@ -316,7 +269,7 @@ class ModelFitting:
         :param param_array_list:
         :return:
         """
-        self.det.reinitialize()
+        self.det.reinitialize()     # TODO: WHY? DO WE REALLY NEED THIS? IT IS NOT GOOD....
 
         k = 0
         for i in range(len(self.model_name_list)):
@@ -394,19 +347,64 @@ class ModelFitting:
             print('champion\'s fitness: %1.5e' % self.champion_f_list[self.g])
 
             str_format = '%d' + (paramsize + 1) * ' %.6E'
-            with open(self.champion_file, 'ab') as f3:
+            with open(self.champions_file, 'ab') as f3:
                 np.savetxt(f3, np.c_[np.array([self.g]),
                                      self.champion_f_list[self.g],
                                      self.champion_x_list[self.g, :].reshape(1, paramsize)],
                            fmt=str_format)
 
-            if self.g % 100 == 0 or self.g == self.generations:
-                str_format = '%d' + (paramsize + 1) * ' %.6E'
-                with open(self.pop_file, 'ab') as f4:
-                    np.savetxt(f4, np.c_[self.g * np.ones(self.fitness_array.shape),
-                                         self.fitness_array,
-                                         self.population], fmt=str_format)
+            if self.pop_file:
+                if self.g % 100 == 0 or self.g == self.generations:
+                    str_format = '%d' + (paramsize + 1) * ' %.6E'
+                    with open(self.pop_file, 'ab') as f4:
+                        np.savetxt(f4, np.c_[self.g * np.ones(self.fitness_array.shape),
+                                             self.fitness_array,
+                                             self.population], fmt=str_format)
 
             self.g += 1
 
         self.n += 1
+
+    # def least_squares(self, simulated_data, dataset=None):
+    #     """TBW.
+    #
+    #     :param simulated_data:
+    #     :param dataset: int
+    #     :return:
+    #     """
+    #     input_array = simulated_data[self.sim_fit_range]
+    #
+    #     if dataset is not None:
+    #         if self.normalization:
+    #             input_array = self.normalize(input_array, dataset=dataset)
+    #             target = self.target_data_norm[dataset][self.targ_fit_range]
+    #         else:
+    #             target = self.target_data[dataset][self.targ_fit_range]
+    #     else:
+    #         if self.normalization:
+    #             input_array = self.normalize(input_array)
+    #             target = self.target_data_norm[self.targ_fit_range]
+    #         else:
+    #             target = self.target_data[self.targ_fit_range]
+    #
+    #     diff = target - input_array
+    #     diff_square = diff * diff
+    #     return np.sum(diff_square)
+
+    # def set_normalization(self):
+    #     """TBW.
+    #
+    #     :return:
+    #     """
+    #     self.normalization = True
+    #     for i in range(len(self.target_data)):
+    #         self.target_data_norm += [self.normalize(self.target_data[i], dataset=i)]
+
+    # def normalize(self, array, dataset):
+    #     """Normalize dataset arrays by injected signal maximum.
+    #
+    #     :param array: 1d np.array
+    #     :param dataset: int
+    #     :return:
+    #     """
+    #     return array / np.average(self.target_data[dataset][self.targ_fit_range])

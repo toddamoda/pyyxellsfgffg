@@ -207,6 +207,16 @@ class Calibration:
         default=None,
         doc=''
     )
+    champions_file = om.attr_def(
+        type=str,
+        default='data/calibration_champions.out',
+        doc=''
+    )
+    population_file = om.attr_def(
+        type=str,
+        default=None,
+        doc=''
+    )
 
     def run_calibration(self, processor):
         """TBW.
@@ -233,7 +243,9 @@ class Calibration:
                                population_size=self.algorithm.population_size,
                                simulation_output=self.output_type,
                                sort_by_var=self.sort_var,
-                               fitness_func=self.fitness_function)
+                               fitness_func=self.fitness_function,
+                               champions_file=self.champions_file,
+                               population_file=self.population_file)
         fitting.configure(params_per_variable=self.params_per_variable,
                           target_output_list=target_output,
                           target_fit_range=self.target_fit_range,
@@ -241,7 +253,6 @@ class Calibration:
                           weighting=weighting)
         fitting.set_bound(low_val=self.lower_boundary,
                           up_val=self.upper_boundary)
-        fitting.save_champions_in_file()
 
         prob = pg.problem(fitting)
         print('evolution started ...')

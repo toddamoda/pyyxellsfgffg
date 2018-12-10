@@ -26,7 +26,9 @@ def configure(mf, sim, target=None, wf=None):
                       population_size=sim.calibration.algorithm.population_size,
                       simulation_output=sim.calibration.output_type,
                       sort_by_var=sim.calibration.sort_var,
-                      fitness_func=sim.calibration.fitness_function)
+                      fitness_func=sim.calibration.fitness_function,
+                      champions_file=sim.calibration.champions_file,
+                      population_file=sim.calibration.population_file)
     mf.configure(params_per_variable=sim.calibration.params_per_variable,
                  target_output_list=target,
                  target_fit_range=sim.calibration.target_fit_range,
@@ -65,13 +67,13 @@ def test_configure_params(yaml_file):
     assert mf.all_target_data == [[2., 3., 4.]]
 
 
-@pytest.mark.parametrize('yaml_file',
+@pytest.mark.parametrize('yaml',
                          [
                              'tests/data/calibrate_fits.yaml',
                           ])
-def test_configure_fits_target(yaml_file):
+def test_configure_fits_target(yaml):
     """Test """
-    cfg = om.load(yaml_file)
+    cfg = om.load(yaml)
     processor = cfg['processor']
     simulation = cfg['simulation']
     mf = ModelFitting(processor)
@@ -85,14 +87,14 @@ def test_configure_fits_target(yaml_file):
     np.testing.assert_array_equal(mf.all_target_data[0], expected)
 
 
-@pytest.mark.parametrize('yaml_file',
+@pytest.mark.parametrize('yaml',
                          [
                              'tests/data/calibrate.yaml',
                              'tests/data/calibrate_fits.yaml',
                           ])
-def test_boundaries(yaml_file):
+def test_boundaries(yaml):
     """Test """
-    cfg = om.load(yaml_file)
+    cfg = om.load(yaml)
     processor = cfg['processor']
     simulation = cfg['simulation']
     mf = ModelFitting(processor)
@@ -136,16 +138,16 @@ def test_calculate_fitness(simulated_data, target_data, expected_fitness):
     print('fitness: ', fitness)
 
 
-@pytest.mark.parametrize('factor, expected_fitness',
+@pytest.mark.parametrize('yaml, factor, expected_fitness',
                          [
-                             (1., 0.),
-                             (2., 965633.1990208979),
-                             (3., 1931266.398041796),
+                             ('tests/data/calibrate_weighting.yaml', 1., 0.),
+                             ('tests/data/calibrate_weighting.yaml', 2., 965633.1990208979),
+                             ('tests/data/calibrate_weighting.yaml', 3., 1931266.398041796),
                           ])
-def test_weighting(factor, expected_fitness):
+def test_weighting(yaml, factor, expected_fitness):
     """Test"""
     pass
-    cfg = om.load('tests/data/calibrate_weighting.yaml')
+    cfg = om.load(yaml)
     processor = cfg['processor']
     simulation = cfg['simulation']
     mf = ModelFitting(processor)
@@ -160,14 +162,16 @@ def custom_fitness_func(sim, targ):
     return np.sum(targ * 2 - sim / 2 + 1.)
 
 
-@pytest.mark.parametrize('simulated_data, target_data, expected_fitness',
+@pytest.mark.parametrize('yaml, simulated_data, target_data, expected_fitness',
                          [
-                             (1., 2., 4.5),
-                             (np.array([1., 2., 3.]), np.array([2., 5., 6.]), 26.),
+                             ('tests/data/calibrate_custom_fitness.yaml',
+                              1., 2., 4.5),
+                             ('tests/data/calibrate_custom_fitness.yaml',
+                              np.array([1., 2., 3.]), np.array([2., 5., 6.]), 26.),
                           ])
-def test_custom_fitness(simulated_data, target_data, expected_fitness):
+def test_custom_fitness(yaml, simulated_data, target_data, expected_fitness):
     """Test"""
-    cfg = om.load('tests/data/calibrate_custom_fitness.yaml')
+    cfg = om.load(yaml)
     processor = cfg['processor']
     simulation = cfg['simulation']
     mf = ModelFitting(processor)
@@ -177,15 +181,16 @@ def test_custom_fitness(simulated_data, target_data, expected_fitness):
     print('fitness: ', fitness)
 
 
-@pytest.mark.parametrize('parameter, expected_fitness',
+@pytest.mark.parametrize('yaml, parameter, expected_fitness',
                          [
-                             (np.array([1., 0.5, 1.5, 2., 3., 4.5, 4.,
-                                        1., 0.5, 1.5, 2., 3., 5., 6., 10.]),
-                              153.80868562371415)
+                             ('tests/data/calibrate_models.yaml',
+                              np.array([1., 0.5, 1.5, -2., -3., 4.5, -4., 1.,
+                                        0.5, -1.5, 2., -3., 5., -6., 10., 9.]),
+                              19858088388.867405)
                           ])
-def test_fitness(parameter, expected_fitness):
+def test_fitness(yaml, parameter, expected_fitness):
     """Test"""
-    cfg = om.load('tests/data/calibrate_models.yaml')
+    cfg = om.load(yaml)
     processor = cfg['processor']
     simulation = cfg['simulation']
     mf = ModelFitting(processor)
@@ -195,19 +200,70 @@ def test_fitness(parameter, expected_fitness):
     print('fitness: ', overall_fitness[0])
 
 
-@pytest.mark.parametrize('parameter',
+@pytest.mark.parametrize('yaml, parameter, expected_subarrays',
                          [
-
+                             ('tests/data/calibrate_models.yaml', np.arange(16.),
+                              [
+                                  0.0,
+                                  np.array([10., 100., 1000., 10000.]),
+                                  np.array([5., 6., 7., 8.]),
+                                  np.array([1.e+09, 1.e+10, 1.e+11, 1.e+12]),
+                                  13.0,
+                                  1.e+14,
+                                  15.0
+                               ]),
                           ])
-def test_split_and_update(parameter):
+def test_split_and_update(yaml, parameter, expected_subarrays):
     """Test"""
-    pass
+    cfg = om.load(yaml)
+    processor = cfg['processor']
+    simulation = cfg['simulation']
+    mf = ModelFitting(processor)
+    configure(mf, simulation)
+    subarrays = mf.split_and_update_parameter(parameter)
+    for i in range(len(subarrays)):
+        np.testing.assert_array_equal(subarrays[i], expected_subarrays[i])
 
 
-@pytest.mark.parametrize('param_array_list',
+@pytest.mark.parametrize('yaml, param_array_list',
                          [
-
+                             ('tests/data/calibrate_models.yaml',
+                              [
+                                  1.,
+                                  np.array([10., 100., 1000., 10000.]),
+                                  np.array([5., 6., 7., 8.]),
+                                  np.array([1.e+09, 1.e+10, 1.e+11, 1.e+12]),
+                                  13.0,
+                                  1.e+14,
+                                  150
+                               ]),
                           ])
-def test_detector_and_model_update(param_array_list):
+def test_detector_and_model_update(yaml, param_array_list):
     """Test"""
-    pass
+    cfg = om.load(yaml)
+    processor = cfg['processor']
+    simulation = cfg['simulation']
+    mf = ModelFitting(processor)
+    configure(mf, simulation)
+    mf.update_detector_and_models(param_array_list)
+    attributes = [
+        mf.det.characteristics.amp,
+        mf.pipe.charge_transfer.models[0].arguments['tr_p'],
+        mf.pipe.charge_transfer.models[0].arguments['nt_p'],
+        mf.pipe.charge_transfer.models[0].arguments['sigma_p'],
+        mf.pipe.charge_transfer.models[0].arguments['beta_p'],
+        mf.pipe.charge_measurement.models[0].arguments['std_deviation'],
+        mf.det.environment.temperature
+    ]
+    attributes2 = [
+        mf.det.characteristics.amp,
+        mf.pipe.model_groups['charge_transfer'].models[0].arguments['tr_p'],
+        mf.pipe.model_groups['charge_transfer'].models[0].arguments['nt_p'],
+        mf.pipe.model_groups['charge_transfer'].models[0].arguments['sigma_p'],
+        mf.pipe.model_groups['charge_transfer'].models[0].arguments['beta_p'],
+        mf.pipe.model_groups['charge_measurement'].models[0].arguments['std_deviation'],
+        mf.det.environment.temperature
+    ]
+    for i in range(len(param_array_list)):
+        np.testing.assert_array_equal(param_array_list[i], attributes[i])
+        np.testing.assert_array_equal(param_array_list[i], attributes2[i])
