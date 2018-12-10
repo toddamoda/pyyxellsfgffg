@@ -61,7 +61,7 @@ class Detector:
         if image:
             self.image = image
 
-        self._target_output_data = None
+        # self._target_output_data = None
 
         # ##### experimantal! #######
         # self.geometry.create_sensor()
@@ -212,22 +212,22 @@ class Detector:
     #     :return:
     #     """
     #     self._image = new_image
-
-    @property
-    def target_output_data(self):
-        """TBW.
-
-        :return:
-        """
-        return self._target_output_data
-
-    @target_output_data.setter
-    def target_output_data(self, target_output):
-        """TBW.
-
-        :return:
-        """
-        self._target_output_data = target_output
+    #
+    # @property
+    # def target_output_data(self):
+    #     """TBW.
+    #
+    #     :return:
+    #     """
+    #     return self._target_output_data
+    #
+    # @target_output_data.setter
+    # def target_output_data(self, target_output):
+    #     """TBW.
+    #
+    #     :return:
+    #     """
+    #     self._target_output_data = target_output
 
     @property
     def e_thermal_velocity(self):

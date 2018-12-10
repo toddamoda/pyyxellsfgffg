@@ -1,10 +1,11 @@
 """TBW."""
 import numpy as np
 import pygmo as pg
-import typing as t      # noqa: F401
+# import typing as t      # noqa: F401
 import esapy_config as om
-from astropy.io import fits
+
 from pyxel.calibration.fitting import ModelFitting
+from pyxel.calibration.util import read_data
 
 
 @om.attr_class
@@ -200,6 +201,12 @@ class Calibration:
         default=None,
         doc=''
     )
+    weighting_path = om.attr_def(
+        type=list,
+        # validator=
+        default=None,
+        doc=''
+    )
 
     def run_calibration(self, processor):
         """TBW.
@@ -213,7 +220,10 @@ class Calibration:
         fitting = ModelFitting(processor)
 
         target_output = read_data(self.target_data_path)
-        processor.detector.target_output_data = target_output
+        if self.weighting_path:
+            weighting = read_data(self.weighting_path)[0]
+        else:
+            weighting = None
 
         fitting.set_parameters(calibration_mode=self.calibration_mode,
                                model_names=self.model_names,
@@ -227,13 +237,10 @@ class Calibration:
         fitting.configure(params_per_variable=self.params_per_variable,
                           target_output_list=target_output,
                           target_fit_range=self.target_fit_range,
-                          out_fit_range=self.output_fit_range)
+                          out_fit_range=self.output_fit_range,
+                          weighting=weighting)
         fitting.set_bound(low_val=self.lower_boundary,
                           up_val=self.upper_boundary)
-
-        # if self.weighting_func_path:
-        #     weighting_func = read_data(self.weighting_func_path)
-        #     fitting.set_weighting_function(weighting_func[0])           # works only with one weighting function
 
         fitting.save_champions_in_file()
         # fitting.set_normalization()                                       # TODO
@@ -254,28 +261,26 @@ class Calibration:
 
         return 1        # todo: return results as output!!
 
-
-def read_data(data_path: t.Union[str, list]):
-    """TBW.
-
-    :param data_path:
-    :return:
-    """
-    if isinstance(data_path, str):
-        data_path = [data_path]
-    elif isinstance(data_path, list) and all(isinstance(item, str) for item in data_path):
-        pass
-    else:
-        raise TypeError
-
-    output = []                             # type: list
-    for i in range(len(data_path)):
-        if '.fits' in data_path[i]:
-            data = fits.getdata(data_path[i])
-        elif '.npy' in data_path[i]:
-            data = np.load(data_path[i])
-        else:
-            data = np.loadtxt(data_path[i], dtype=float, delimiter='|')     # todo: more general with try-except
-        output += [data]
-
-    return output
+    # def read_data(self, data_path: t.Union[str, list]):
+    #     """TBW.
+    #     :param data_path:
+    #     :return:
+    #     """
+    #     if isinstance(data_path, str):
+    #         data_path = [data_path]
+    #     elif isinstance(data_path, list) and all(isinstance(item, str) for item in data_path):
+    #         pass
+    #     else:
+    #         raise TypeError
+    #
+    #     output = []                             # type: list
+    #     for i in range(len(data_path)):
+    #         if '.fits' in data_path[i]:
+    #             data = fits.getdata(data_path[i])
+    #         elif '.npy' in data_path[i]:
+    #             data = np.load(data_path[i])
+    #         else:
+    #             data = np.loadtxt(data_path[i], dtype=float, delimiter='|')     # todo: more general with try-except
+    #         output += [data]
+    #
+    #     return output

@@ -1,0 +1,73 @@
+################
+# Pyxel configuration file for testing model calibration mode
+################
+
+simulation:
+###################
+  mode: calibration
+###################
+
+  calibration:
+    calibration_mode:  pipeline
+    output_type: image
+    output_fit_range: [2, 5]
+
+    target_data_path: ['tests/data/cti-data.txt']   # not used
+    target_fit_range: [1, 4]
+    weighting_path: ['tests/data/cti-data.txt']   # not used
+
+    fitness_function:
+      func: pyxel.calibration.fitness.sum_of_abs_residuals
+      arguments:
+
+    algorithm:
+      type: sade
+      generations: 2
+      population_size: 2
+      variant: 2
+
+    model_names:         ['characteristics', 'cdm', 'output_node_noise']
+    variables:           [['amp'], ['tr_p', 'nt_p', 'beta_p'], ['std_deviation']]
+    params_per_variable: [[1], [2, 2, 1], [1]]
+    var_log:             [[False], [True, True, False], [False]]
+    lower_boundary:      [[1.], [1.e-3, 1.e-2, 0.], [10.]]
+    upper_boundary:      [[10.], [2., 1.e+1, 1.], [200.]]
+
+processor:
+  class: pyxel.pipelines.processor.Processor
+
+  detector:
+    class: pyxel.detectors.ccd.CCD
+
+    geometry:
+      class: pyxel.detectors.ccd_geometry.CCDGeometry
+
+    material:
+      class: pyxel.detectors.material.Material
+
+    environment:
+      class: pyxel.detectors.environment.Environment
+
+    characteristics:
+      class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
+
+  pipeline:
+    class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
+
+    # -> photons
+    photon_generation:
+
+    # photons -> photons
+    optics:
+
+    # photons -> charge
+    charge_generation:
+
+    # charge -> charge
+    charge_transfer:
+
+    # charge -> signal
+    charge_measurement:
+
+    # signal -> image
+    readout_electronics:

@@ -34,10 +34,8 @@ class ModelFitting:
 
         # self.normalization = False
         # self.target_data_norm = []
-        self.weighting = False
-        self.weighting_function = None
 
-        # self.fitness_mode = None
+        self.weighting = None
         self.fitness_func = None
         self.sim_output = None
 
@@ -108,7 +106,8 @@ class ModelFitting:
                   params_per_variable: list,
                   target_output_list,
                   target_fit_range=None,        # t.Optional[list]      # todo
-                  out_fit_range=None            # t.Union[list, None]   # todo
+                  out_fit_range=None,           # t.Union[list, None]   # todo
+                  weighting=None
                   ):
         """TBW.
 
@@ -116,6 +115,7 @@ class ModelFitting:
         :param target_output_list: list
         :param target_fit_range:
         :param out_fit_range:
+        :param weighting:
         :return:
         """
         self.params_per_variable = params_per_variable
@@ -182,6 +182,12 @@ class ModelFitting:
         for target in target_output_list:
             self.all_target_data += [target[self.targ_fit_range]]
 
+        if weighting is not None:
+            if isinstance(weighting, np.ndarray):
+                self.weighting = weighting[self.targ_fit_range]
+            else:
+                self.weighting = weighting
+
     # def set_normalization(self):
     #     """TBW.
     #
@@ -190,15 +196,6 @@ class ModelFitting:
     #     self.normalization = True
     #     for i in range(len(self.target_data)):
     #         self.target_data_norm += [self.normalize(self.target_data[i], dataset=i)]
-
-    def set_weighting_function(self, func):
-        """TBW.
-
-        :param func: 1d or 2d np.array
-        :return:
-        """
-        self.weighting = True
-        self.weighting_function = func[self.targ_fit_range]
 
     def set_bound(self, low_val, up_val):
         """TBW.
@@ -244,8 +241,10 @@ class ModelFitting:
         :param target_data:
         :return:
         """
-        fitness = self.fitness_func.function(simulated_data, target_data)
-
+        if self.weighting is not None:
+            fitness = self.fitness_func.function(simulated_data, target_data, self.weighting)
+        else:
+            fitness = self.fitness_func.function(simulated_data, target_data)
         return fitness
 
     # def least_squares(self, simulated_data, dataset=None):
@@ -272,10 +271,6 @@ class ModelFitting:
     #
     #     diff = target - input_array
     #     diff_square = diff * diff
-    #
-    #     if self.weighting:
-    #         diff_square *= self.weighting_function
-    #
     #     return np.sum(diff_square)
 
     # def normalize(self, array, dataset):

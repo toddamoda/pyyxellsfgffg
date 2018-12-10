@@ -4,17 +4,18 @@ import pytest
 import numpy as np
 import esapy_config as om
 import pygmo as pg
-from pyxel.calibration.calibration import read_data
+from pyxel.calibration.util import read_data
 from pyxel.calibration.fitting import ModelFitting
 from pyxel.detectors.detector import Detector
 from pyxel.pipelines.detector_pipeline import DetectionPipeline
 
 
-def configure(mf, sim, target=None):
+def configure(mf, sim, target=None, wf=None):
     """TBW."""
     pg.set_global_rng_seed(sim.calibration.seed)
     np.random.seed(sim.calibration.seed)
-
+    if wf:
+        wf = read_data(wf)[0]
     if target is None:
         target = read_data(sim.calibration.target_data_path)
     mf.set_parameters(calibration_mode=sim.calibration.calibration_mode,
@@ -29,7 +30,8 @@ def configure(mf, sim, target=None):
     mf.configure(params_per_variable=sim.calibration.params_per_variable,
                  target_output_list=target,
                  target_fit_range=sim.calibration.target_fit_range,
-                 out_fit_range=sim.calibration.output_fit_range)
+                 out_fit_range=sim.calibration.output_fit_range,
+                 weighting=wf)
 
 
 @pytest.mark.parametrize('yaml_file',
@@ -114,15 +116,6 @@ def test_boundaries(yaml_file):
     assert u == ubd_expected
 
 
-@pytest.mark.parametrize('wf',
-                         [
-
-                          ])
-def test_weighting_func(wf):
-    """Test"""
-    pass
-
-
 @pytest.mark.parametrize('simulated_data, target_data, expected_fitness',
                          [
                              (231, 231, (0, 0)),
@@ -147,6 +140,25 @@ def test_calculate_fitness(simulated_data, target_data, expected_fitness):
     configure(mf, simulation)
     fitness = mf.calculate_fitness(simulated_data, target_data)
     assert fitness == expected_fitness[0]
+    print('fitness: ', fitness)
+
+
+@pytest.mark.parametrize('factor, expected_fitness',
+                         [
+                             (1., 0.),
+                             (2., 965633.1990208979),
+                             (3., 1931266.398041796),
+                          ])
+def test_weighting(factor, expected_fitness):
+    """Test"""
+    pass
+    cfg = om.load('tests/data/calibrate_weighting.yaml')
+    processor = cfg['processor']
+    simulation = cfg['simulation']
+    mf = ModelFitting(processor)
+    configure(mf, simulation)
+    fitness = mf.calculate_fitness(mf.target_data*factor, mf.target_data)
+    assert fitness == expected_fitness
     print('fitness: ', fitness)
 
 
