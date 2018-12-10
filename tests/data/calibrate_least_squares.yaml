@@ -14,16 +14,14 @@ simulation:
 
     target_data_path: ['tests/data/cti-data.txt']   # not used
     target_fit_range: [1, 4]
-    weighting_path: ['tests/data/cti-data.txt']
 
     fitness_function:
-      func: pyxel.calibration.fitness.sum_of_abs_residuals
+      func: pyxel.calibration.fitness.sum_of_squared_residuals
       arguments:
 
     algorithm:
-      type: sade
-      generations: 2
-      population_size: 2
+      type: sade   # sga  # nlopt
+      generations: 10
       variant: 2
 
     model_names:         ['characteristics', 'cdm', 'output_node_noise']

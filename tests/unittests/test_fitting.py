@@ -10,12 +10,14 @@ from pyxel.detectors.detector import Detector
 from pyxel.pipelines.detector_pipeline import DetectionPipeline
 
 
-def configure(mf, sim, target=None, wf=None):
+def configure(mf, sim, target=None):
     """TBW."""
     pg.set_global_rng_seed(sim.calibration.seed)
     np.random.seed(sim.calibration.seed)
-    if wf:
-        wf = read_data(wf)[0]
+    if sim.calibration.weighting_path:
+        wf = read_data(sim.calibration.weighting_path)[0]
+    else:
+        wf = None
     if target is None:
         target = read_data(sim.calibration.target_data_path)
     mf.set_parameters(calibration_mode=sim.calibration.calibration_mode,
@@ -141,8 +143,8 @@ def test_calculate_fitness(simulated_data, target_data, expected_fitness):
 @pytest.mark.parametrize('yaml, factor, expected_fitness',
                          [
                              ('tests/data/calibrate_weighting.yaml', 1., 0.),
-                             ('tests/data/calibrate_weighting.yaml', 2., 965633.1990208979),
-                             ('tests/data/calibrate_weighting.yaml', 3., 1931266.398041796),
+                             ('tests/data/calibrate_weighting.yaml', 2., 310815803081.51117),
+                             ('tests/data/calibrate_weighting.yaml', 3., 621631606163.0223),
                           ])
 def test_weighting(yaml, factor, expected_fitness):
     """Test"""
@@ -168,6 +170,8 @@ def custom_fitness_func(sim, targ):
                               1., 2., 4.5),
                              ('tests/data/calibrate_custom_fitness.yaml',
                               np.array([1., 2., 3.]), np.array([2., 5., 6.]), 26.),
+                             ('tests/data/calibrate_least_squares.yaml',
+                              2., 4., 4.),
                           ])
 def test_custom_fitness(yaml, simulated_data, target_data, expected_fitness):
     """Test"""

@@ -6,7 +6,7 @@ import esapy_config as om
 from pyxel.calibration.util import read_data, list_to_slice, check_ranges
 
 
-@pytest.mark.parametrize('config',
+@pytest.mark.parametrize('yaml',
                          [
                              'tests/data/calibrate.yaml',
                              'tests/data/calibrate_sade.yaml',
@@ -16,9 +16,9 @@ from pyxel.calibration.util import read_data, list_to_slice, check_ranges
                              'tests/data/calibrate_custom_fitness.yaml',
                              'tests/data/calibrate_fits.yaml',
                           ])
-def test_set_algo(config):
+def test_set_algo(yaml):
     """Test """
-    cfg = om.load(config)
+    cfg = om.load(yaml)
     simulation = cfg['simulation']
     obj = simulation.calibration.algorithm.get_algorithm()
     if isinstance(obj, pg.sade):
@@ -83,12 +83,14 @@ def test_check_ranges(target_row, range_col, row, col):     # TODO
     pass
 
 
-# # @pytest.mark.parametrize('data',
-# #                          [])
-# def test_run_calibration():
-#     """Test """
-#     cfg = om.load('tests/data/calibrate_models.yaml')
-#     processor = cfg['processor']
-#     simulation = cfg['simulation']
-#     result = simulation.calibration.run_calibration(processor)
-#     assert result == 1
+@pytest.mark.parametrize('yaml',
+                         [
+                             'tests/data/calibrate_models.yaml'
+                         ])
+def test_run_calibration(yaml):
+    """Test """
+    cfg = om.load(yaml)
+    processor = cfg['processor']
+    simulation = cfg['simulation']
+    result = simulation.calibration.run_calibration(processor)
+    assert result == 1
