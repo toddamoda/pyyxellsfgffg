@@ -98,7 +98,7 @@ def cdm(detector: CCD,
                           parallel_trap_file=parallel_trap_file,
                           serial_trap_file=serial_trap_file)
 
-    new_detector.pixels.pixel_array = cdm_obj.apply_cti(new_detector.pixels.pixel_array)
+    new_detector.pixels.array = cdm_obj.apply_cti(new_detector.pixels.array)
 
     return new_detector
 

@@ -106,18 +106,18 @@ def cdm(detector: CCD,
     if isinstance(sigma_s, list):
         sigma_s = np.array(sigma_s)
 
-    new_detector.pixels.pixel_array = run_cdm(s=new_detector.pixels.pixel_array,   # self.fullframe[dataset],
-                                              beta_p=beta_p, beta_s=beta_s,
-                                              vg=char.vg, svg=char.svg,
-                                              t=char.t, st=char.st,
-                                              fwc=char.fwc, sfwc=char.fwc_serial,
-                                              vth=new_detector.e_thermal_velocity,
-                                              parallel_cti=parallel_cti, serial_cti=serial_cti,
-                                              charge_injection=chg_inj,
-                                              all_parallel_trans=para_transfers,
-                                              sigma_p=sigma_p, sigma_s=sigma_s,
-                                              tr_p=tr_p, tr_s=tr_s,
-                                              nt_p=nt_p, nt_s=nt_s)
+    new_detector.pixels.array = run_cdm(s=new_detector.pixels.array,   # self.fullframe[dataset],
+                                        beta_p=beta_p, beta_s=beta_s,
+                                        vg=char.vg, svg=char.svg,
+                                        t=char.t, st=char.st,
+                                        fwc=char.fwc, sfwc=char.fwc_serial,
+                                        vth=new_detector.e_thermal_velocity,
+                                        parallel_cti=parallel_cti, serial_cti=serial_cti,
+                                        charge_injection=chg_inj,
+                                        all_parallel_trans=para_transfers,
+                                        sigma_p=sigma_p, sigma_s=sigma_s,
+                                        tr_p=tr_p, tr_s=tr_s,
+                                        nt_p=nt_p, nt_s=nt_s)
 
     return new_detector
 

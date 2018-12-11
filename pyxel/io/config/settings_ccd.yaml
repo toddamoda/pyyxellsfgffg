@@ -31,20 +31,21 @@ simulation:
         values: 'pyxel/calibration_champions.out'
 
   calibration:
-    calibration_mode:  pipeline  #  single_model  #
-    output_type: image   # signal # charge
+    calibration_mode:  single_model  # pipeline  #
+    single_model_input: ['data/results.fits']
+    output_type: pixel  # image   # signal # pixel
     output_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50] #
 
     target_data_path: ['data/results.fits']     #  <*.npy> <*.fits> <ascii>
     target_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50]
-    weighting_path: ['data/results.fits']
+#    weighting_path: ['data/results.fits']
 
     fitness_function:
 #      func: tests.unittests.test_fitting.custom_fitness_func
       func: pyxel.calibration.fitness.sum_of_abs_residuals
       arguments:
 
-#    seed: 132
+    seed: 132
     algorithm:
       type: sade   # sga  # nlopt
 #      nlopt_solver: sbplx  # neldermead
@@ -52,12 +53,19 @@ simulation:
       population_size: 10
       variant: 2
 
-    model_names:         ['characteristics', 'cdm', 'output_node_noise']  # , 'environment']
-    variables:           [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['std_deviation']]  # , ['temperature']]
-    params_per_variable: [[1], [4, 4, 4, 1], [1]]
-    var_log:             [[False], [True, True, True, False], [False]]
-    lower_boundary:      [[1.], [1.e-3, 1.e-2, 1.e-20, 0.], [10.]]
-    upper_boundary:      [[10.], [2., 1.e+1, 1.e-15, 1.], [200.]]
+    model_names:         ['cdm']
+    variables:           [['tr_p', 'nt_p', 'sigma_p', 'beta_p']]
+    params_per_variable: [[4, 4, 4, 1]]
+    var_log:             [[True, True, True, False]]
+    lower_boundary:      [[1.e-3, 1.e-2, 1.e-20, 0.]]
+    upper_boundary:      [[2., 1.e+1, 1.e-15, 1.]]
+#
+#    model_names:         ['characteristics', 'cdm', 'output_node_noise']  # , 'environment']
+#    variables:           [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['std_deviation']]  # , ['temperature']]
+#    params_per_variable: [[1], [4, 4, 4, 1], [1]]
+#    var_log:             [[False], [True, True, True, False], [False]]
+#    lower_boundary:      [[1.], [1.e-3, 1.e-2, 1.e-20, 0.], [10.]]
+#    upper_boundary:      [[10.], [2., 1.e+1, 1.e-15, 1.], [200.]]
 
 #    results:
     champions_file: 'data/calibration_champions.out'

@@ -5,7 +5,7 @@ https://esa.github.io/pagmo2/index.html
 import numpy as np
 from copy import deepcopy
 import typing as t   # noqa: F401
-from pyxel.calibration.util import list_to_slice, check_ranges
+from pyxel.calibration.util import list_to_slice, check_ranges, read_data
 
 
 class ModelFitting:
@@ -33,6 +33,7 @@ class ModelFitting:
         # self.normalization = False
         # self.target_data_norm = []
 
+        self.single_model_input = None
         self.weighting = None
         self.fitness_func = None
         self.sim_output = None
@@ -101,6 +102,16 @@ class ModelFitting:
         self.pop = population_size
         self.generations = generations
 
+        if self.calibration_mode == 'single_model':
+            if len(self.model_name_list) > 1:
+                raise ValueError('Select only one pipeline model!')
+            if self.model_name_list[0] in ['geometry', 'material', 'environment', 'characteristics']:
+                raise ValueError('Select a pipeline model and not a detector attribute!')
+
+            # # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+            # self.det = self.pipe.run_pipeline(self.det)  # run pipeline once to heve the input(s) of that specific model
+            # # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+
         self.champions_file = champions_file
         file1 = open(self.champions_file, 'wb')  # truncate output file
         file1.close()
@@ -114,18 +125,20 @@ class ModelFitting:
 
     def configure(self,
                   params_per_variable: list,
-                  target_output_list: list,
-                  target_fit_range=None,        # type: t.Optional[list]      # todo
-                  out_fit_range=None,           # t.Union[list, None]   # todo
-                  weighting=None
+                  target_output,
+                  target_fit_range,        # type: t.Optional[list]      # todo
+                  out_fit_range,           # t.Union[list, None]   # todo
+                  weighting,
+                  single_model_input
                   ):
         """TBW.
 
         :param params_per_variable: list
-        :param target_output_list: list
+        :param target_output:
         :param target_fit_range:
         :param out_fit_range:
         :param weighting:
+        :param single_model_input:
         :return:
         """
         self.params_per_variable = params_per_variable
@@ -142,23 +155,24 @@ class ModelFitting:
                     item = 0
                 self.is_var_array[i][j] = item
 
+        target_list = read_data(target_output)
         try:
-            rows, cols = target_output_list[0].shape
+            rows, cols = target_list[0].shape
         except AttributeError:
-            rows = len(target_output_list[0])
+            rows = len(target_list[0])
             cols = None
         check_ranges(target_fit_range, out_fit_range, rows, cols)
         self.targ_fit_range = list_to_slice(target_fit_range)
         self.sim_fit_range = list_to_slice(out_fit_range)
-
-        for target in target_output_list:
+        for target in target_list:
             self.all_target_data += [target[self.targ_fit_range]]
 
-        if weighting is not None:
-            if isinstance(weighting, np.ndarray):
-                self.weighting = weighting[self.targ_fit_range]
-            else:
-                self.weighting = weighting
+        if single_model_input:
+            self.single_model_input = read_data(single_model_input)
+
+        if weighting:
+            self.weighting = read_data(weighting)[0]
+            self.weighting = self.weighting[self.targ_fit_range]
 
     def set_bound(self, low_val, up_val):
         """TBW.
@@ -200,29 +214,31 @@ class ModelFitting:
         :param parameter: 1d np.array
         :return:
         """
+        new_det = None
+        simulated_data = None
+
         parameter_lst = self.split_and_update_parameter(parameter)
 
-        self.update_detector_and_models(parameter_lst)
-
-        new_det = None
         if self.calibration_mode == 'pipeline':
+            self.det.reinitialize()
+            self.update_detector_and_models(parameter_lst)
             new_det = self.pipe.run_pipeline(self.det)
-        elif self.calibration_mode == 'single_model':
-            raise NotImplementedError
-            # ###############################
-            # fitted_model = self.pipe.get_model(self.model_name_list[0])
-            # self.det.pixels.pixel_array = np.array([[100., 100.], [100., 100.]])              # TODO input of model
-            # new_det = fitted_model.function(self.det)
-            # new_det.image = new_det.pixels.pixel_array                                        # TODO output of model
-            # ###############################
 
-        simulated_data = None
+        elif self.calibration_mode == 'single_model':
+
+            # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+            self.update_detector_and_models(parameter_lst)
+            fitted_model = self.pipe.get_model(self.model_name_list[0])
+            self.det.pixels.array = np.array([[10000., 20000.], [30000., 40000.]])         # TODO input of model
+            new_det = fitted_model.function(self.det)
+            # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+
         if self.sim_output == 'image':
             simulated_data = new_det.image.array[self.sim_fit_range]
         elif self.sim_output == 'signal':
             simulated_data = new_det.signal.array[self.sim_fit_range]
-        elif self.sim_output == 'charge':
-            raise NotImplementedError       # todo: new_det.charge.array
+        elif self.sim_output == 'pixel':
+            simulated_data = new_det.pixels.array[self.sim_fit_range]
 
         overall_fitness = 0
         for target_data in self.all_target_data:
@@ -266,8 +282,6 @@ class ModelFitting:
         :param param_array_list:
         :return:
         """
-        self.det.reinitialize()     # TODO: WHY? DO WE REALLY NEED THIS? IT IS NOT GOOD....
-
         k = 0
         for i in range(len(self.model_name_list)):
             if self.model_name_list[i] in ['geometry', 'material', 'environment', 'characteristics']:

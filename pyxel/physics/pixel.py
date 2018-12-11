@@ -23,7 +23,7 @@ class Pixel:
         :param detector:
         """
         self.detector = detector
-        self.pixel_array = None
+        self.array = None
 
         # self.fill_pixels_with_charges()
 
@@ -64,10 +64,10 @@ class Pixel:
         pixel_index_ver = np.floor_divide(charge_pos_ver, self.detector.geometry.pixel_vert_size).astype(int)
         pixel_index_hor = np.floor_divide(charge_pos_hor, self.detector.geometry.pixel_horz_size).astype(int)
 
-        self.pixel_array = np.zeros((self.detector.geometry.row, self.detector.geometry.col), dtype=float)
+        self.array = np.zeros((self.detector.geometry.row, self.detector.geometry.col), dtype=float)
 
         for i in range(len(charge_per_pixel)):
-            self.pixel_array[pixel_index_ver[i], pixel_index_hor[i]] += charge_per_pixel[i]
+            self.array[pixel_index_ver[i], pixel_index_hor[i]] += charge_per_pixel[i]
 
         # return util.convert_to_int(charge_2d_array)
 

@@ -10,16 +10,10 @@ from pyxel.detectors.detector import Detector
 from pyxel.pipelines.detector_pipeline import DetectionPipeline
 
 
-def configure(mf, sim, target=None):
+def configure(mf, sim):  # , target=None):
     """TBW."""
     pg.set_global_rng_seed(sim.calibration.seed)
     np.random.seed(sim.calibration.seed)
-    if sim.calibration.weighting_path:
-        wf = read_data(sim.calibration.weighting_path)[0]
-    else:
-        wf = None
-    if target is None:
-        target = read_data(sim.calibration.target_data_path)
     mf.set_parameters(calibration_mode=sim.calibration.calibration_mode,
                       model_names=sim.calibration.model_names,
                       variables=sim.calibration.variables,
@@ -32,10 +26,11 @@ def configure(mf, sim, target=None):
                       champions_file=sim.calibration.champions_file,
                       population_file=sim.calibration.population_file)
     mf.configure(params_per_variable=sim.calibration.params_per_variable,
-                 target_output_list=target,
+                 target_output=sim.calibration.target_data_path,
                  target_fit_range=sim.calibration.target_fit_range,
                  out_fit_range=sim.calibration.output_fit_range,
-                 weighting=wf)
+                 weighting=sim.calibration.weighting_path,
+                 single_model_input=sim.calibration.single_model_input)
 
 
 @pytest.mark.parametrize('yaml_file',
@@ -54,8 +49,7 @@ def test_configure_params(yaml_file):
     if not isinstance(mf.det, Detector):
         raise ValueError
 
-    target_output = [[1., 2., 3., 4., 5., 6., 7., 8.]]
-    configure(mf, simulation, target_output)
+    configure(mf, simulation)
 
     assert mf.is_var_array == [[0], [1, 1, 0], [0]]
     assert mf.is_var_log == [[False], [True, True, False], [False]]
@@ -66,7 +60,6 @@ def test_configure_params(yaml_file):
     assert mf.sim_fit_range == slice(2, 5, None)
     assert mf.targ_fit_range == slice(1, 4, None)
     assert mf.sim_output == 'image'
-    assert mf.all_target_data == [[2., 3., 4.]]
 
 
 @pytest.mark.parametrize('yaml',

@@ -5,7 +5,6 @@ import pygmo as pg
 import esapy_config as om
 
 from pyxel.calibration.fitting import ModelFitting
-from pyxel.calibration.util import read_data
 
 
 @om.attr_class
@@ -122,7 +121,7 @@ class Calibration:
     )
     output_type = om.attr_def(
         type=str,
-        validator=om.validate_choices(['image', 'signal', 'charge']),
+        validator=om.validate_choices(['image', 'signal', 'pixel']),
         default='image',
         doc=''
     )
@@ -217,6 +216,11 @@ class Calibration:
         default=None,
         doc=''
     )
+    single_model_input = om.attr_def(
+        type=list,
+        default=None,
+        doc=''
+    )
 
     def run_calibration(self, processor):
         """TBW.
@@ -228,12 +232,6 @@ class Calibration:
         print('pygmo seed: ', self.seed)
 
         fitting = ModelFitting(processor)
-
-        target_output = read_data(self.target_data_path)
-        if self.weighting_path:
-            weighting = read_data(self.weighting_path)[0]
-        else:
-            weighting = None
 
         fitting.set_parameters(calibration_mode=self.calibration_mode,
                                model_names=self.model_names,
@@ -247,10 +245,11 @@ class Calibration:
                                champions_file=self.champions_file,
                                population_file=self.population_file)
         fitting.configure(params_per_variable=self.params_per_variable,
-                          target_output_list=target_output,
+                          target_output=self.target_data_path,  # target_output,
                           target_fit_range=self.target_fit_range,
                           out_fit_range=self.output_fit_range,
-                          weighting=weighting)
+                          weighting=self.weighting_path,
+                          single_model_input=self.single_model_input)
         fitting.set_bound(low_val=self.lower_boundary,
                           up_val=self.upper_boundary)
 

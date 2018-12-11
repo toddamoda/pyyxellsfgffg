@@ -85,7 +85,7 @@ class CCDDetectionPipeline(DetectionPipeline):
         # CHARGE READOUT
         # -> create signal -> modify signal ->
         char = detector.characteristics
-        detector.signal.array = detector.pixels.pixel_array * char.sv * char.amp * char.a1 * char.a2      # TODO
+        detector.signal.array = detector.pixels.array * char.sv * char.amp * char.a1 * char.a2      # TODO
         # detector.signal.array = detector.signal.array.astype('float64')
         detector = self.run_model_group('charge_measurement', detector)
 

@@ -20,7 +20,7 @@ def simple_pixel_full_well(detector: Detector) -> Detector:
     if fwc is None:
         raise ValueError('Full Well Capacity is not defined')
 
-    charge_array = new_detector.pixels.pixel_array
+    charge_array = new_detector.pixels.array
     mask = charge_array > fwc
     charge_array[mask] = fwc
 

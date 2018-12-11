@@ -27,7 +27,7 @@ def add_fix_pattern_noise(detector: Detector,
     pnu = np.loadtxt(pix_non_uniformity)
     pnu = pnu.reshape((geo.row, geo.col))
 
-    new_detector.pixels.pixel_array *= pnu
+    new_detector.pixels.array *= pnu
 
     return new_detector
 
