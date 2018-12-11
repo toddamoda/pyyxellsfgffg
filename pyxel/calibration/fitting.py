@@ -204,6 +204,7 @@ class ModelFitting:
 
         self.update_detector_and_models(parameter_lst)
 
+        new_det = None
         if self.calibration_mode == 'pipeline':
             new_det = self.pipe.run_pipeline(self.det)
         elif self.calibration_mode == 'single_model':
@@ -214,18 +215,14 @@ class ModelFitting:
             # new_det = fitted_model.function(self.det)
             # new_det.image = new_det.pixels.pixel_array                                        # TODO output of model
             # ###############################
-        else:
-            raise ValueError
 
+        simulated_data = None
         if self.sim_output == 'image':
-            simulated_data = new_det.image.array
+            simulated_data = new_det.image.array[self.sim_fit_range]
         elif self.sim_output == 'signal':
-            simulated_data = new_det.signal.array
+            simulated_data = new_det.signal.array[self.sim_fit_range]
         elif self.sim_output == 'charge':
             raise NotImplementedError       # todo: new_det.charge.array
-        else:
-            raise ValueError
-        simulated_data = simulated_data[self.sim_fit_range]
 
         overall_fitness = 0
         for target_data in self.all_target_data:

@@ -73,14 +73,31 @@ def test_list_to_slice(input_data):
     print(output)
 
 
-@pytest.mark.parametrize('target_row, range_col, row, col',
+@pytest.mark.parametrize('targ_range, out_range, row, col',
                          [
+                             ([0, 2, 0, 2], [0, 2, 0, 2], 5, None),
+                             ([0, 3, 0, 2], [0, 2, 0, 2], 5, 5),
+                             ([0, 2, 0, 2], [0, 2, 0, 3], 5, 5),
+                             ([0, 2, 0, 2], [0, 2, 0, 2], 1, 5),
+                             ([0, 2, 0, 2], [0, 2, 0, 2], 1, 1),
+                             ([0, 2, 0, 2], [0, 2, 0, 2], 0, 0),
+                             ([0, 2], [0, 3], 3, 3),
+                             ([-1, 2], [0, 2], 3, 3),
+                             ([-1, 1], [0, 2], 3, 3),
+                             ([0, 2], [0, 2], 1, 1),
+                             ([0, 2], [0, 2], 0, 0),
+                             ([0, 2], [0, 2], 0, None),
+                             ([0, 2], [0, 2], 0, 0),
+                             ([0], [0, 2], 4, 4),
+                             ([0, 2], [0, 2, 3], 4, 4),
+                             ([0, 2, 0, 4], [0, 2, 0, 4], 3, 3),
+                             ([0, 2, -2, 2], [0, 2, -2, 2], 3, 3),
 
                           ])
-def test_check_ranges(target_row, range_col, row, col):     # TODO
+def test_check_ranges(targ_range, out_range, row, col):
     """Test """
-    # output = check_ranges(target_row, range_col, row, col)
-    pass
+    with pytest.raises(ValueError):
+        check_ranges(targ_range, out_range, row, col)
 
 
 @pytest.mark.parametrize('yaml',

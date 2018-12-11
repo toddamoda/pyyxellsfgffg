@@ -32,6 +32,9 @@ simulation:
     lower_boundary:      [[1.], [1.e-3, 1.e-2, 0.], [10.]]
     upper_boundary:      [[10.], [2., 1.e+1, 1.], [200.]]
 
+    champions_file: 'data/calibration_champions.out'
+    population_file: 'data/calibration_populations.out'
+
 processor:
   class: pyxel.pipelines.processor.Processor
 

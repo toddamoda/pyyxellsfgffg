@@ -61,7 +61,7 @@ simulation:
 
 #    results:
     champions_file: 'data/calibration_champions.out'
-#    population_file: 'data/calibration_populations.out'
+    population_file: 'data/calibration_populations.out'
 
 
 processor:
