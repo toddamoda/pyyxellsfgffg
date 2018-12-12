@@ -84,8 +84,6 @@ processor:
           image_file: tests/data/image.fits
           row0: 0
           col0: 0
-          rows: 100
-          cols: 100
 
     # photons -> photons
     optics:

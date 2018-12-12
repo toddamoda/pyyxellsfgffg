@@ -90,9 +90,7 @@ processor:
         func: pyxel.models.photon_generation.load_image
         enabled: false
         arguments:
-          image_file: data/055.fits # data/m42_40min_ir.fits # pyxel/cosmics-shot-fpn-cti.fits
-          rows: 1000 # 2381/2
-          cols: 1000 # 2376/2
+          image_file: data/055.fits
       -
         name: photon_level
         func: pyxel.models.photon_generation.add_photon_level

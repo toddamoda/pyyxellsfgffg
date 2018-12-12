@@ -150,14 +150,12 @@ processor:
           image_file: data/01.fits
           row0: 0
           col0: 0
-          rows: 100
-          cols: 100
       -
         name: photon_level
         func: pyxel.models.photon_generation.add_photon_level
-        enabled: false
+        enabled: true
         arguments:
-          level: 0
+          level: 1.1
       -
         name: shot_noise
         func: pyxel.models.photon_generation.add_shot_noise

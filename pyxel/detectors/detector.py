@@ -61,7 +61,7 @@ class Detector:
         if image:
             self.image = image
 
-        # self._target_output_data = None
+        self.input_image = None
 
         # ##### experimantal! #######
         # self.geometry.create_sensor()
@@ -123,7 +123,8 @@ class Detector:
             'charges': self.charges,
             'pixels': self.pixels,
             'signal': self.signal,
-            'image': self.image
+            'image': self.image,
+            'input_image': self.input_image
         }
 
     def get_state_json(self):

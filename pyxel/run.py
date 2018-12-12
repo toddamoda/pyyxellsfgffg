@@ -92,12 +92,12 @@ def main():
     opts = parser.parse_args()
 
     # Set logger
-    log_level = [logging.ERROR, logging.INFO, logging.DEBUG][min(opts.verbosity, 2)]
-    log_format = '%(asctime)s - %(name)s - %(funcName)s - %(thread)d - %(levelname)s - %(message)s'
-    # del logging.root.handlers[:]                                  # todo: what is this???
-    logging.basicConfig(level=log_level, format=log_format)
-
-    print('\n*** Pyxel ***\n')
+    logging_level = logging.INFO  # logging.DEBUG
+    # log_level = [logging.ERROR, logging.INFO, logging.DEBUG][min(opts.verbosity, 2)]
+    del logging.root.handlers[:]
+    log_format = '%(asctime)s - %(name)s - %(funcName)s \t\t\t %(message)s'   # %(threadName)s -
+    logging.basicConfig(level=logging_level, format=log_format)
+    logging.info('\n*** Pyxel ***\n')
 
     if opts.gui:
         run_web_server(opts.port)  # todo: add opts.config, opts.output, opts.seed as optional args
