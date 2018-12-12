@@ -8,8 +8,9 @@ import pyxel
 from pyxel.detectors.detector import Detector
 
 
+@om.validate
 @om.argument('image_file', label='fits file', validate=os.path.exists)
-@pyxel.register('load_image')
+@pyxel.register('photon_generation', name='load_image')
 def load_image(detector: Detector,
                image_file: str,
                row0: int = 0,
@@ -43,7 +44,9 @@ def load_image(detector: Detector,
     return detector
 
 
-@om.argument('level', label='number of photons', units='', validate=om.validate_type(int))  # todo fix this
+@om.validate
+# @om.argument('level', label='number of photons', units='', validate=om.check_type(int))
+@om.argument('level', label='number of photons', units='', validate=om.check_range(0, 1000000, 1))
 @pyxel.register('photon_generation', name='photon_level')
 def add_photon_level(detector: Detector,
                      level: int,

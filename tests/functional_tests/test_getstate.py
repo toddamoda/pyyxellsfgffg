@@ -104,7 +104,7 @@ parametric.steps.3.enabled=False
 
 def test_get_state_ids():
     input_filename = 'tests/data/pipeline_parametric.yaml'
-    cfg = io.load(Path(input_filename))
+    cfg = om.load(Path(input_filename))
     cfg_obj = om.get_state_dict(cfg)
     result = om.get_state_ids(cfg_obj)
     assert isinstance(result, dict)

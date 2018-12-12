@@ -11,18 +11,18 @@ sys.path.append(str(CWD))
 
 
 @om.validate
-@om.argument('even_value', label='Argument 1', validate=om.validate_range(0, 10, 2))
+@om.argument('even_value', label='Argument 1', validate=om.check_range(0, 10, 2))
 @om.argument('file_value', label='Argument 2', validate=Path.is_file)
-@om.argument('choice_value', label='Argument 3', validate=om.validate_choices(['silicon', 'hxrg', 'other']))
+@om.argument('choice_value', label='Argument 3', validate=om.check_choices(['silicon', 'hxrg', 'other']))
 # @register('photon_generation')
 def my_model_with_validate(detector, even_value: int, file_value: Path, choice_value: str='silicon'):
     # print(even_value, choice_value, file_value)
     return detector
 
 
-@om.argument('even_value', label='Argument 1', validate=om.validate_range(0, 10, 2))
+@om.argument('even_value', label='Argument 1', validate=om.check_range(0, 10, 2))
 @om.argument('file_value', label='Argument 2', validate=Path.is_file)
-@om.argument('choice_value', label='Argument 3', validate=om.validate_choices(['silicon', 'hxrg', 'other']))
+@om.argument('choice_value', label='Argument 3', validate=om.check_choices(['silicon', 'hxrg', 'other']))
 # @register('photon_generation')
 def my_model_no_validate(detector, even_value: int, file_value: Path, choice_value: str='silicon'):
     # print(even_value, choice_value, file_value)

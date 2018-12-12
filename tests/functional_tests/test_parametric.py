@@ -9,7 +9,8 @@ import pytest
 # from pyxel.detectors.ccd import CCD
 # from pyxel.io.yaml_processor import load_config
 import pyxel    # noqa: F401
-from esapy_config import io
+import esapy_config as om
+# from esapy_config import io
 
 # expected_single = [
 #     (0, [('level', 100), ('initial_energy', 100.0)])
@@ -44,7 +45,7 @@ expected_embedded = [
 ])
 def test_pipeline_parametric(mode, expected):
     input_filename = 'tests/data/pipeline_parametric.yaml'
-    cfg = io.load(Path(input_filename))
+    cfg = om.load(Path(input_filename))
     simulation = cfg.pop('simulation')
     parametric_analysis = simulation.parametric_analysis
     parametric_analysis.parametric_mode = mode
