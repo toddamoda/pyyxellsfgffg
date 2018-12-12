@@ -142,6 +142,7 @@ class DetectionPipeline:
                     i = 0
                     while name != model_group.models[i].name:
                         i += 1
+                    model_group.models[i].group = group
                     return model_group.models[i]
         raise AttributeError('Model has not found')
 

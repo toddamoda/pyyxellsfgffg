@@ -30,6 +30,7 @@ class ModelFunction:
         self.name = name
         self.enabled = enabled
         self.arguments = arguments
+        self.group = None               # TODO
 
     def __repr__(self):
         """TBW."""

@@ -5,9 +5,9 @@
 
 simulation:
 ###################
-#  mode: single
+  mode: single
 #  mode: parametric
-  mode: calibration
+#  mode: calibration
 ###################
 
   parametric_analysis:
@@ -31,8 +31,8 @@ simulation:
         values: 'pyxel/calibration_champions.out'
 
   calibration:
-    calibration_mode:  single_model  # pipeline  #
-    single_model_input: ['data/results.fits']
+    calibration_mode:  pipeline  # single_model
+
     output_type: pixel  # image   # signal # pixel
     output_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50] #
 
@@ -83,7 +83,7 @@ processor:
 
       row:   100 # 2381 #580 # 4494                   # compulsory
       col:   100 # 2376 #640 # 1966                   # compulsory
-#      total_thickness: 40.0         # um
+      total_thickness: 40.0         # um
 #      depletion_thickness: 0.0      # um
 #      field_free_thickness: 0.0     # um
       pixel_vert_size: 10. #10.0         # um
@@ -181,7 +181,7 @@ processor:
       -
         name: tars
         func: pyxel.models.tars.tars.run_tars
-        enabled: false
+        enabled: true
         arguments:
           simulation_mode: cosmic_ray   # snowflakes
           running_mode: stepsize  # stopping  # plotting  # geant4

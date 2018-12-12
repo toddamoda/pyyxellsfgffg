@@ -108,10 +108,6 @@ class ModelFitting:
             if self.model_name_list[0] in ['geometry', 'material', 'environment', 'characteristics']:
                 raise ValueError('Select a pipeline model and not a detector attribute!')
 
-            # # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-            # self.det = self.pipe.run_pipeline(self.det)  # run pipeline once to heve the input(s) of that specific model
-            # # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-
         self.champions_file = champions_file
         file1 = open(self.champions_file, 'wb')  # truncate output file
         file1.close()
@@ -168,7 +164,7 @@ class ModelFitting:
             self.all_target_data += [target[self.targ_fit_range]]
 
         if single_model_input:
-            self.single_model_input = read_data(single_model_input)
+            self.single_model_input = read_data(single_model_input)[0]
 
         if weighting:
             self.weighting = read_data(weighting)[0]
@@ -225,13 +221,19 @@ class ModelFitting:
             new_det = self.pipe.run_pipeline(self.det)
 
         elif self.calibration_mode == 'single_model':
-
-            # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-            self.update_detector_and_models(parameter_lst)
-            fitted_model = self.pipe.get_model(self.model_name_list[0])
-            self.det.pixels.array = np.array([[10000., 20000.], [30000., 40000.]])         # TODO input of model
-            new_det = fitted_model.function(self.det)
-            # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+            raise NotImplementedError
+            # # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+            # self.det.reinitialize()
+            # self.update_detector_and_models(parameter_lst)
+            # fitted_model = self.pipe.get_model(self.model_name_list[0])
+            # if fitted_model.group is 'charge_transfer':
+            #     self.det.pixels.array = self.single_model_input
+            # elif fitted_model.group is 'charge_measurement':
+            #     self.det.signal.array = self.single_model_input
+            # elif fitted_model.group is 'readout_electronics':
+            #     self.det.image.array = self.single_model_input
+            # new_det = fitted_model.function(self.det)
+            # # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 
         if self.sim_output == 'image':
             simulated_data = new_det.image.array[self.sim_fit_range]

@@ -4,7 +4,6 @@ import pytest
 import numpy as np
 import esapy_config as om
 import pygmo as pg
-from pyxel.calibration.util import read_data
 from pyxel.calibration.fitting import ModelFitting
 from pyxel.detectors.detector import Detector
 from pyxel.pipelines.detector_pipeline import DetectionPipeline
