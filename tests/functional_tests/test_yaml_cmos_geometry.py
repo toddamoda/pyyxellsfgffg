@@ -1,9 +1,7 @@
 import pytest
 
 from pyxel.detectors.cmos_geometry import CMOSGeometry
-# from pyxel.io.yaml_processor import dump
-# from pyxel.io.yaml_processor import load
-from esapy_config import io
+import esapy_config as om
 
 
 @pytest.mark.skip(reason=None)
@@ -28,7 +26,7 @@ def test_loader():
  reference_pixel_border_width: 12
 """
 
-    obj = io.load(data)
+    obj = om.load(data)
 
     assert isinstance(obj, CMOSGeometry)
     assert obj.row == 1000
@@ -70,7 +68,7 @@ def test_dumper():
                        reference_pixel_border_width=1)
 
     # bias_voltage: 8.0
-    data = io.dump(obj)
+    data = om.dump(obj)
     assert data == """!cmos_geometry
 
 col: 1001

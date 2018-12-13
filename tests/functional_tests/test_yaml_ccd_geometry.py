@@ -1,9 +1,7 @@
 import pytest
 
 from pyxel.detectors.ccd_geometry import CCDGeometry
-from esapy_config import io
-# from pyxel.io.yaml_processor import dump
-# from pyxel.io.yaml_processor import load
+import esapy_config as om
 
 
 @pytest.mark.skip(reason=None)
@@ -18,7 +16,7 @@ def test_loader():
  pixel_horz_size: 5.0
 """
     # bias_voltage: 8.0
-    obj = io.load(data)
+    obj = om.load(data)
 
     assert isinstance(obj, CCDGeometry)
     assert obj.row == 1000
@@ -50,7 +48,7 @@ def test_dumper():
                       )
 
     # bias_voltage: 8.0
-    data = io.dump(obj)
+    data = om.dump(obj)
 #     assert data == """geometry:
 # class: pyxel.detectors.ccd_geometry.CCDGeometry
 # row: 1000

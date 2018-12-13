@@ -1,28 +1,10 @@
 from pathlib import Path
-# import inspect
-# import itertools
-
-# import yaml
 import sys
-# from pyxel import util
-# from pyxel.util import objmod as om
-# from pyxel.io.yaml_processor_new import load
-# from pyxel.io.yaml_processor_new import dump
-
-# from pyxel.pipelines.model_registry import Registry
-# from pyxel.pipelines.model_registry import import_model
-# from pyxel.pipelines.model_registry import create_model_def
 
 from pyxel.pipelines.model_group import ModelFunction
-# from pyxel.pipelines.model_group import ModelRegistry
 from pyxel.detectors.detector import Detector
-
-# from pyxel.pipelines.model_registry import registry
 from pyxel.pipelines.model_registry import import_model
 from tests.functional_tests import my_models
-# from pyxel import register
-# from pyxel import registry
-# from pyxel.util import objmod as om
 import esapy_config as om
 
 CWD = Path(__file__).parent.parent
@@ -213,37 +195,3 @@ def test_model_registry_decorator():
 #     assert processor.detector.level == 1.0
 #
 #     print(om.dump(cfg))
-
-
-if __name__ == '__main__':
-    # test_model_registry_singleton()
-    # test_model_registry_map()
-    # test_add_model()              # todo reactivate this test
-    # test_model_registry()
-    test_model_registry_decorator()
-    # test_pipeline_import()
-
-#
-#
-# import old_non_pyxel_models
-#
-# # __FOO__ = []
-#
-#
-# def decorator_new(self, group, name=None, enabled=True):
-#     """Auto register callable class or function using a decorator."""
-#
-#     def _wrapper(func):
-#         self.register(func, group=group, name=name, enabled=enabled)
-#
-#
-#         return func
-#
-#     return _wrapper
-#
-#
-# @decorator_new(group='new_group', name='a_name')
-# def pyxel_model_call(detector):
-#     result = old_non_pyxel_models.some_model(detector.rows, detector.cols, ...)
-#     detector.add_signal(result)
-#     return detector
