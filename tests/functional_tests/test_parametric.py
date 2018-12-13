@@ -1,20 +1,8 @@
 from pathlib import Path
-# import typing as t
-# import numpy as np
 import pytest
-# from astropy.io import fits
-# from pyxel.pipelines.processor import Processor
-# from pyxel.pipelines.ccd_pipeline import CCDDetectionPipeline
-# from pyxel.pipelines.cmos_pipeline import CMOSDetectionPipeline
-# from pyxel.detectors.ccd import CCD
-# from pyxel.io.yaml_processor import load_config
 import pyxel    # noqa: F401
 import esapy_config as om
-# from esapy_config import io
 
-# expected_single = [
-#     (0, [('level', 100), ('initial_energy', 100.0)])
-# ]
 
 expected_sequential = [
     (0, [('level', 10), ('initial_energy', 100.0)]),

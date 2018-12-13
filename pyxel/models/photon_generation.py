@@ -45,8 +45,8 @@ def load_image(detector: Detector,
 
 
 @om.validate
-# @om.argument('level', label='number of photons', units='', validate=om.check_type(int))
-@om.argument('level', label='number of photons', units='', validate=om.check_range(0, 1000000, 1))
+@om.argument('level', label='number of photons', units='', validate=om.check_type(int))
+# @om.argument('level', label='number of photons', units='', validate=om.check_range(0, 1000000, 1))
 @pyxel.register('photon_generation', name='photon_level')
 def add_photon_level(detector: Detector,
                      level: int,

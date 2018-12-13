@@ -3,7 +3,6 @@ from pathlib import Path
 
 import pyxel
 
-# from pyxel.util import objmod as om
 import esapy_config as om
 
 CWD = Path(__file__).parent.parent
@@ -16,7 +15,7 @@ sys.path.append(str(CWD))
 @om.argument('choice_value', label='Argument 3', validate=om.check_choices(['silicon', 'hxrg', 'other']))
 # @register('photon_generation')
 def my_model_with_validate(detector, even_value: int, file_value: Path, choice_value: str='silicon'):
-    # print(even_value, choice_value, file_value)
+    print(even_value, choice_value, file_value)
     return detector
 
 
@@ -25,7 +24,7 @@ def my_model_with_validate(detector, even_value: int, file_value: Path, choice_v
 @om.argument('choice_value', label='Argument 3', validate=om.check_choices(['silicon', 'hxrg', 'other']))
 # @register('photon_generation')
 def my_model_no_validate(detector, even_value: int, file_value: Path, choice_value: str='silicon'):
-    # print(even_value, choice_value, file_value)
+    print(even_value, choice_value, file_value)
     return detector
 
 
@@ -72,16 +71,19 @@ def test_argument_validation():
     #
     # test that annotation argument conversion takes place on the __file__ argument
     #
-    my_model_with_validate("my detector object", 6, __file__, 'silicon')  # default convert is True
-    om.ArgumentDef.cast_enable(model_with_validate_id, False)
-    # om.parameters[model_with_validate_id]['convert'] = False
+    try:
+        my_model_with_validate("my detector object", 6, __file__, 'silicon')  # default convert is True
+    except om.ValidationError as exc:
+        print(exc)
+    # om.ArgumentDef.cast_enable(model_with_validate_id, False)
+    # # om.parameters[model_with_validate_id]['convert'] = False
     try:
         my_model_with_validate("my detector object", 6, __file__, 'silicon')
     except Exception as exc:
         print(exc)
         om.ArgumentDef.cast_enable(model_with_validate_id, True)
-        # om.parameters[model_with_validate_id]['convert'] = True
-    my_model_with_validate("my detector object", 6, __file__, 'silicon')
+        # # om.parameters[model_with_validate_id]['convert'] = True
+    # my_model_with_validate("my detector object", 6, __file__, 'silicon')
 
 
 def test_model_validation():
@@ -168,9 +170,3 @@ def test_processor_validate():
     errors = processor.validate()
     assert len(errors) == 1
     assert model.arguments['level'] == 'fred'
-
-
-if __name__ == '__main__':
-    test_argument_validation()
-    test_model_validation()
-    test_processor_validate()

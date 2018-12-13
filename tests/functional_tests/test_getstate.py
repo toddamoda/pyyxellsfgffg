@@ -1,12 +1,6 @@
-# import json
 from ast import literal_eval
 from pathlib import Path
-
-# import pyxel
 import esapy_config as om
-# from pyxel.util import objmod as om
-# from pyxel.io.yaml_processor import load
-from esapy_config import io
 
 # processor.detector.geometry.bias_voltage=0.0
 expected_str = """
@@ -118,7 +112,3 @@ def test_get_state_ids():
     #     assert expected[key] == result[key]
     # buf = '\n'.join(['%s=%r' % (key, val) for key, val in result.items()])
     # assert buf.strip() == expected_str.strip()
-
-
-# test_getstate()
-test_get_state_ids()
