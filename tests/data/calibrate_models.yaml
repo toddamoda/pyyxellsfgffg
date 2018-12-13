@@ -84,6 +84,11 @@ processor:
           image_file: tests/data/image.fits
           row0: 0
           col0: 0
+      -
+        name: photon_level
+        func: pyxel.models.photon_generation.add_photon_level
+        enabled: true
+        arguments:
 
     # photons -> photons
     optics:

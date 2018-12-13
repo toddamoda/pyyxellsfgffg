@@ -81,7 +81,7 @@ processor:
     geometry:
       class: pyxel.detectors.ccd_geometry.CCDGeometry
 
-      row:   10.0                    # compulsory
+      row:   100                   # compulsory
       col:   100                     # compulsory
       total_thickness: 40.0          # um
 #      depletion_thickness: 0.0      # um
@@ -155,7 +155,7 @@ processor:
         func: pyxel.models.photon_generation.add_photon_level
         enabled: true
         arguments:
-          level: 12
+#          level:
       -
         name: shot_noise
         func: pyxel.models.photon_generation.add_shot_noise

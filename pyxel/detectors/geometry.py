@@ -1,5 +1,6 @@
 """Geometry class for detector."""
 import esapy_config as om
+import attr
 
 # from esapy_sensor.sensor_ccd import CCDSensorGeometry, CCDFrame
 # Universal global constants
@@ -29,71 +30,72 @@ class Geometry:
     #     if self.material:
     #         self.set_material(self.material)
 
+    # converter=int,
     row = om.attr_def(
-        type=int,
+        type=int,       # just for your information
         default=0,
-        converter=int,
-        validator=om.validate_range(0, 10000, 1, False)
+        validator=[om.validate_type(int, is_optional=False),
+                   om.validate_range(0, 10000, 1, False)]
     )
     col = om.attr_def(
         type=int,
         default=0,
-        converter=int,
-        validator=om.validate_range(0, 10000, 1, False)
+        validator=[om.validate_type(int, is_optional=False),
+                   om.validate_range(0, 10000, 1, False)]
     )
     depletion_thickness = om.attr_def(
         type=float,
         default=0.0,
-        converter=float,
-        validator=om.validate_range(0.0, 1000.0, 0.1, False),
+        validator=[om.validate_type(float, is_optional=True),
+                   om.validate_range(0, 10000, 0.001, False)],
         metadata={'units': 'um'}
     )
     field_free_thickness = om.attr_def(
         type=float,
         default=0.0,
-        converter=float,
-        validator=om.validate_range(0.0, 1000.0, 0.1, False),
+        validator=[om.validate_type(float, is_optional=True),
+                   om.validate_range(0, 10000, 0.001, False)],
         metadata={'units': 'um'}
     )
     total_thickness = om.attr_def(
         type=float,
         default=0.0,
-        converter=float,
-        validator=om.validate_range(0.0, 1000.0, 0.1, False),
+        validator=[om.validate_type(float, is_optional=True),
+                   om.validate_range(0, 10000, 0.001, False)],
         metadata={'units': 'um'}
     )
     pixel_vert_size = om.attr_def(
         type=float,
         default=0.0,
-        converter=float,
-        validator=om.validate_range(0.0, 1000.0, 0.1, False),
+        validator=[om.validate_type(float, is_optional=False),
+                   om.validate_range(0., 1000., 0.001, False)],
         metadata={'units': 'um'}
     )
     pixel_horz_size = om.attr_def(
         type=float,
         default=0.0,
-        converter=float,
-        validator=om.validate_range(0.0, 1000.0, 0.1, False),
+        validator=[om.validate_type(float, is_optional=False),
+                   om.validate_range(0., 1000., 0.001, False)],
         metadata={'units': 'um'}
     )
     # n_acceptor = om.attr_def(
     #     type=float,
     #     default=0.0,
-    #     converter=float,
+    #
     #     validator=om.validate_range(0.0, 1000.0, 0.1, False),
     #     metadata={'units': 'cm-3'}
     # )
     # n_donor = om.attr_def(
     #     type=float,
     #     default=0.0,
-    #     converter=float,
+    #
     #     validator=om.validate_range(0.0, 1000.0, 0.1, False),
     #     metadata={'units': 'cm-3'}
     # )
     # bias_voltage = om.attr_def(
     #     type=float,
     #     default=0.0,
-    #     converter=float,
+    #
     #     validator=om.validate_range(0.0, 40.0, 0.001, False),
     #     metadata={'units': 'V'}
     # )
