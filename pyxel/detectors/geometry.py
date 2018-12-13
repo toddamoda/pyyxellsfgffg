@@ -1,6 +1,5 @@
 """Geometry class for detector."""
 import esapy_config as om
-import attr
 
 # from esapy_sensor.sensor_ccd import CCDSensorGeometry, CCDFrame
 # Universal global constants

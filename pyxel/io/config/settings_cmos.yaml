@@ -98,7 +98,7 @@ processor:
           image_file: null
       -
         name: photon_level
-        func: pyxel.models.photon_generation.add_photon_level
+        func: pyxel.models.photon_generation.add_photons
         enabled: true
         arguments:
           level: 100

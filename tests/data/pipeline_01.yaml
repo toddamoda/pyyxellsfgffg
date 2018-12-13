@@ -57,7 +57,7 @@ processor:
         arguments:
       -
         name: photon_level
-        func: pyxel.models.photon_generation.add_photon_level
+        func: pyxel.models.photon_generation.add_photons
         enabled: false
         arguments:
           level: 0

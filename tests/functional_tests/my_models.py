@@ -50,7 +50,7 @@ registry_map = {
             'func': 'pyxel.models.photon_generation.load_image',
         },
         {
-            'func': 'pyxel.models.photon_generation.add_photon_level',
+            'func': 'pyxel.models.photon_generation.add_photons',
         },
         {
             'func': 'pyxel.models.photon_generation.add_shot_noise',

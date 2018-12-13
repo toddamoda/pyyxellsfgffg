@@ -74,7 +74,7 @@ class Photon:
                                            'velocity_hor',
                                            'velocity_z'])
 
-    def generate_photons(self, photon_number_list, photon_energy_list):
+    def generate_with_random_pos_within_pixels(self, photon_number_list, photon_energy_list):
         """Create photons randomly distributed inside pixels with Photon class from photon_number_list.
 
         :param photon_number_list:

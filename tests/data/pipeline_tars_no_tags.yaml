@@ -38,7 +38,7 @@ ccd_process:
           image_file: data/HorseHead_orig.fits
 
       photon_level:
-        name: pyxel.models.photon_generation.add_photon_level
+        name: pyxel.models.photon_generation.add_photons
         enabled: false
         arguments:
           level: 0
