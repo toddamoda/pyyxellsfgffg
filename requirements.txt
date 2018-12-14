@@ -2,24 +2,14 @@
 --trusted-host lab-linux-server.estec.esa.int
 
 ########################
-# ESA libraries        #
-########################
-
-git+https://gitlab.esa.int/sci-fv/esapy_config#egg=esapy-config
-# esapy-config==0.6.0  (when it will be available)
-esapy-web==0.2.1
-esapy-dispatcher==0.4
-pygmo==2.9
-
-########################
 # Scientific / Imaging #
 ########################
 
 numpy
 astropy
 pandas
-matplotlib
-scipy
+matplotlib              # should be optional
+scipy                   # should be removed
 
 ########################
 # Others               #
@@ -27,6 +17,17 @@ scipy
 
 versioneer
 pyyaml
+attrs>=18.1             # temporary, needed by esapy-config
 numba
 tqdm
 tornado
+
+########################
+# ESA libraries        #
+########################
+
+esapy-web==0.2.1
+esapy-dispatcher==0.4
+pygmo==2.9
+# esapy-config==0.6.0   # when it will be available
+git+https://gitlab.esa.int/sci-fv/esapy_config#egg=esapy-config
