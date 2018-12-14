@@ -31,19 +31,19 @@ ccd_process: !PROCESSOR
     # -> photons
     photon_generation: !models
       load_image: !model
-        name: pyxel.models.photon_generation.load_image
+        name: pyxel.models.photon_generation.load_image.load_image
         enabled: true
         arguments:
           image_file: data/HorseHead_orig.fits
 
       photon_level: !model
-        name: pyxel.models.photon_generation.add_photons
+        name: pyxel.models.photon_generation.add_photons.add_photons
         enabled: false
         arguments:
           level: 0
 
       shot_noise:
-        name: pyxel.models.photon_generation.add_shot_noise
+        name: pyxel.models.photon_generation.shot_noise.add_shot_noise
 
     # photons -> photons
     optics: !models
@@ -52,10 +52,10 @@ ccd_process: !PROCESSOR
     charge_generation: !models
 
       photoelectrons: !model
-        name: pyxel.models.photoelectrons.simple_conversion
+        name: pyxel.models.charge_generation.photoelectrons.simple_conversion
 
       tars: !model
-        name: pyxel.models.tars.tars.run_tars
+        name: pyxel.models.charge_generation.tars.tars.run_tars
         enabled: true
         arguments:
           particle_type: proton
@@ -69,7 +69,7 @@ ccd_process: !PROCESSOR
             - 500.0
             - 0.0
 #          stepping_length: 1.0  # um
-          spectrum_file: 'pyxel/models/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
+          spectrum_file: 'pyxel/models/charge_generation/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
           let_file: 'pyxel/models/tars/data/inputs/let_proton_1GeV_100um_geant4_HighResHist.ascii'
 
     # charge -> charge
@@ -81,7 +81,7 @@ ccd_process: !PROCESSOR
     # charge -> signal
     charge_measurement: !models
       readout_noise: !model
-        name: pyxel.models.ccd_noise.add_output_node_noise
+        name: pyxel.models.charge_measurement.readout_noise.add_output_node_noise
         arguments:
           std_deviation: 1.0
 

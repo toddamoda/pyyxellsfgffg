@@ -78,7 +78,7 @@ processor:
     photon_generation:
       -
         name: load_image
-        func: pyxel.models.photon_generation.load_image
+        func: pyxel.models.photon_generation.load_image.load_image
         enabled: true
         arguments:
           image_file: tests/data/image.fits
@@ -86,7 +86,7 @@ processor:
           col0: 0
       -
         name: photon_level
-        func: pyxel.models.photon_generation.add_photons
+        func: pyxel.models.photon_generation.add_photons.add_photons
         enabled: true
         arguments:
 
@@ -97,7 +97,7 @@ processor:
     charge_generation:
       -
         name: photoelectrons
-        func: pyxel.models.photoelectrons.simple_conversion
+        func: pyxel.models.charge_generation.photoelectrons.simple_conversion
         enabled: true
 
     # charge -> charge
@@ -107,7 +107,7 @@ processor:
     charge_transfer:
       -
         name: cdm
-        func: pyxel.models.cdm.CDM.cdm
+        func: pyxel.models.charge_transfer.cdm.CDM.cdm
         enabled: true
         arguments:
          beta_p: 0.1
@@ -127,7 +127,7 @@ processor:
     charge_measurement:
       -
         name: output_node_noise
-        func: pyxel.models.ccd_noise.add_output_node_noise
+        func: pyxel.models.charge_measurement.readout_noise.add_output_node_noise
         enabled: true
         arguments:
           std_deviation: 40.

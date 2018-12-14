@@ -142,28 +142,20 @@ processor:
 
     # -> photons
     photon_generation:
-      -
-        name: load_image
-        func: pyxel.models.photon_generation.load_image
+      - name: load_image
+        func: pyxel.models.photon_generation.load_image.load_image
         enabled: true
         arguments:
           image_file: data/01.fits
           row0: 0
           col0: 0
       - name: photon_level
-        func: pyxel.models.photon_generation.add_photons
+        func: pyxel.models.photon_generation.add_photons.add_photons
         enabled: true
         arguments:
 #          level:
-      -
-        name: photon_level
-        func: pyxel.models.photon_generation.add_photons
-        enabled: true
-        arguments:
-          level: 10
-      -
-        name: shot_noise
-        func: pyxel.models.photon_generation.add_shot_noise
+      - name: shot_noise
+        func: pyxel.models.photon_generation.shot_noise.add_shot_noise
         enabled: false
 
     # photons -> photons
@@ -173,17 +165,17 @@ processor:
     charge_generation:
       -
         name: charge_injection
-        func: pyxel.models.charge_injection.charge_injection
+        func: pyxel.models.charge_generation.charge_injection.charge_injection
         enabled: false
         arguments:
           input_data_list: #path
       -
         name: photoelectrons
-        func: pyxel.models.photoelectrons.simple_conversion
+        func: pyxel.models.charge_generation.photoelectrons.simple_conversion
         enabled: true
       -
         name: tars
-        func: pyxel.models.tars.tars.run_tars
+        func: pyxel.models.charge_generation.tars.tars.run_tars
         enabled: true
         arguments:
           simulation_mode: cosmic_ray   # snowflakes
@@ -193,26 +185,26 @@ processor:
           particle_number: 1
           incident_angles:      # rad
           starting_position:    # um
-          spectrum_file: 'pyxel/models/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
+          spectrum_file: 'pyxel/models/charge_generation/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
 
     # charge -> charge
     charge_collection:
       -
         name: fixed_pattern_noise
-        func: pyxel.models.ccd_noise.add_fix_pattern_noise
+        func: pyxel.models.charge_collection.fix_pattern_noise.add_fix_pattern_noise
         enabled: false
         arguments:
           pix_non_uniformity: data/non_uniformity_array_normal_random_dist.data
       -
         name: full_well
-        func: pyxel.models.full_well.simple_pixel_full_well
+        func: pyxel.models.charge_collection.full_well.simple_pixel_full_well
         enabled: false
 
     # charge -> charge
     charge_transfer:
       -
         name: cdm
-        func: pyxel.models.cdm.CDM.cdm
+        func: pyxel.models.charge_transfer.cdm.CDM.cdm
         enabled: true
         arguments:
          beta_p: 0.1
@@ -234,7 +226,7 @@ processor:
     charge_measurement:
       -
         name: output_node_noise
-        func: pyxel.models.ccd_noise.add_output_node_noise
+        func: pyxel.models.charge_measurement.readout_noise.add_output_node_noise
         enabled: true
         arguments:
           std_deviation: 40.

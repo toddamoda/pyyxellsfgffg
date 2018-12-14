@@ -47,13 +47,13 @@ def my_decorated_function(detector: Detector, func_std=2.0):
 registry_map = {
     'photon_generation': [
         {
-            'func': 'pyxel.models.photon_generation.load_image',
+            'func': 'pyxel.models.photon_generation.load_image.load_image',
         },
         {
-            'func': 'pyxel.models.photon_generation.add_photons',
+            'func': 'pyxel.models.photon_generation.add_photons.add_photons',
         },
         {
-            'func': 'pyxel.models.photon_generation.add_shot_noise',
+            'func': 'pyxel.models.photon_generation.shot_noise.add_shot_noise',
 
         }
     ],
@@ -62,7 +62,7 @@ registry_map = {
     ],
     'charge_generation': [
         {
-            'func': 'pyxel.models.photoelectrons.simple_conversion',
+            'func': 'pyxel.models.charge_generation.photoelectrons.simple_conversion',
             'name': 'photoelectrons',
         },
         {
@@ -72,51 +72,51 @@ registry_map = {
     ],
     'charge_collection': [
         {
-            'func': 'pyxel.models.ccd_noise.add_fix_pattern_noise',
+            'func': 'pyxel.models.charge_collection.fix_pattern_noise.add_fix_pattern_noise',
             'type': 'ccd',
         },
         {
-            'func': 'pyxel.models.full_well.simple_pixel_full_well',
+            'func': 'pyxel.models.charge_collection.full_well.simple_pixel_full_well',
             'name': 'full_well',
         }
     ],
     'charge_transfer': [
         {
-            'func': 'pyxel.models.cdm.CDM.cdm',
+            'func': 'pyxel.models.charge_transfer.cdm.CDM.cdm',
             'type': 'ccd',
         }
     ],
     'charge_measurement': [
         {
-            'func': 'pyxel.models.ccd_noise.add_output_node_noise',
+            'func': 'pyxel.models.charge_measurement.readout_noise.add_output_node_noise',
             'type': 'ccd',
         },
         {
-            'func': 'pyxel.models.nghxrg.nghxrg.ktc_bias_noise',
+            'func': 'pyxel.models.signal_transfer.nghxrg.nghxrg.ktc_bias_noise',
             'type': 'cmos',
         },
         {
-            'func': 'pyxel.models.nghxrg.nghxrg.white_read_noise',
+            'func': 'pyxel.models.signal_transfer.nghxrg.nghxrg.white_read_noise',
         }
     ],
     'signal_transfer': [
         {
-            'func': 'pyxel.models.nghxrg.nghxrg.corr_pink_noise',
+            'func': 'pyxel.models.signal_transfer.nghxrg.nghxrg.corr_pink_noise',
             'type': 'cmos',
         },
         {
-            'func': 'pyxel.models.nghxrg.nghxrg.uncorr_pink_noise',
+            'func': 'pyxel.models.signal_transfer.nghxrg.nghxrg.uncorr_pink_noise',
             'type': 'cmos',
         },
         {
-            'func': 'pyxel.models.nghxrg.nghxrg.acn_noise',
+            'func': 'pyxel.models.signal_transfer.nghxrg.nghxrg.acn_noise',
             'type': 'cmos',
         }
 
     ],
     'readout_electronics': [
         {
-            'func': 'pyxel.models.nghxrg.nghxrg.pca_zero_noise',
+            'func': 'pyxel.models.signal_transfer.nghxrg.nghxrg.pca_zero_noise',
             'type': 'cmos',
         }
     ]

@@ -2,7 +2,6 @@
 import pytest
 import numpy as np
 from pyxel.run import run
-# from pyxel.util.fitsfile import FitsFile
 from astropy.io import fits
 
 
