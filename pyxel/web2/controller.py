@@ -122,11 +122,13 @@ class Controller(guiconfig.Controller):
         The pipeline JSON structure is like so::
 
             {'charge_generation': [
-                {'func': 'pyxel.models.charge_generation.photoelectrons.simple_conversion', 'name': 'photoelectrons', ... },
+                {'func': 'pyxel.models.charge_generation.photoelectrons.simple_conversion',
+                 'name': 'photoelectrons', ... },
                 ...
             ]},
             {'photon_generation': [
-                {'func': 'pyxel.models.photon_generation.load_image.load_image', 'name': 'load_image', ... },
+                {'func': 'pyxel.models.photon_generation.load_image.load_image',
+                 'name': 'load_image', ... },
                 ...
             ]}
 
@@ -137,7 +139,8 @@ class Controller(guiconfig.Controller):
                 ...
             ]},
             {'photon_generation': [
-                'load_image': {'func': 'pyxel.models.photon_generation.load_image.load_image', 'name': 'load_image', ... },
+                'load_image': {'func': 'pyxel.models.photon_generation.load_image.load_image',
+                'name': 'load_image', ... },
                 ...
             ]}
 

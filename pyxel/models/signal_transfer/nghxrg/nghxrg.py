@@ -13,7 +13,7 @@ from pyxel.detectors.cmos import CMOS
 from pyxel.detectors.cmos_geometry import CMOSGeometry  # noqa: F401
 from pyxel.detectors.ccd_geometry import CCDGeometry  # noqa: F401
 from pyxel.detectors.geometry import Geometry  # noqa: F401
-from pyxel.models.signal_transfer.nghxrg import HXRGNoise
+from pyxel.models.signal_transfer.nghxrg.nghxrg_beta import HXRGNoise
 from pyxel.pipelines.model_registry import registry
 
 
