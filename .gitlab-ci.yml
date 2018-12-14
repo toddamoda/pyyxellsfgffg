@@ -8,15 +8,128 @@ variables:
     CONTAINER_LATEST_IMAGE: gitlab.esa.int:4567/sci-fv/pyxel:latest
 
 stages:
-  - build
   - test
+  - build
   - deploy
 
-#
-# Build stage
-#
 
-# Scan sourcecode for licenses, copyrights & dependencies     # todo: temporary, replace this stage to elsewhere
+# ###########################
+# Test Stage
+# ###########################
+
+# Run pytest + coverage and create html report (pytest_report.html)
+anaconda3:
+  image: continuumio/anaconda3
+  stage: test
+  script:
+    - pip install pytest pytest-cov pytest-html
+    - pip install -r requirements.txt
+    - export PYTHONPATH=$PWD
+    - pytest --cov=pyxel --cov-report= --cov-report=html --html=pytest_report.html --self-contained-html --color=yes --full-trace --showlocals --verbose
+    - coverage report > coverage.out
+    - tail -n 1 coverage.out > cov_total.out
+    - PERCENT=$(awk '{printf "%.2f", ($2-$3)/$2*100}' cov_total.out)
+    - python badges.py -cov=$PERCENT
+    - ls
+  artifacts:
+    paths:
+      - htmlcov
+      - pytest_report.html
+      - coverage.svg
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    paths:
+      - htmlcov
+      - pytest_report.html
+      - coverage.svg
+  allow_failure: false
+
+
+# Run pytest for Python 3.7
+python37:
+  image: python:3.7
+  stage: test
+  script:
+    - pip install pytest attrs pyyaml             # TODO remove attrs and pyyaml
+    - pip install -r requirements.txt
+    - pytest --color=yes --full-trace --showlocals --verbose
+  allow_failure: false
+
+
+# Run pytest for Python 3.6
+python36:
+  image: python:3.6
+  stage: test
+  script:
+    - pip install pytest attrs pyyaml             # TODO remove attrs and pyyaml
+    - pip install -r requirements.txt
+    - pytest --color=yes --full-trace --showlocals --verbose
+  allow_failure: false
+
+
+# Run pytest for Python 3.5
+python35:
+  image: python:3.5
+  stage: test
+  script:
+    - pip install pytest attrs pyyaml             # TODO remove attrs and pyyaml
+    - pip install -r requirements.txt
+    - pytest --color=yes --full-trace --showlocals --verbose
+  allow_failure: false
+
+
+# Run mypy
+mypy:
+  image: continuumio/anaconda3
+  stage: test
+  script:
+    - pip install mypy
+    - mypy --ignore-missing-imports pyxel
+  allow_failure: true
+
+
+# Run pylint (with pytest) and generate HTML report
+lint:
+  image: python:3.6
+  stage: test
+  script:
+    - pip install pytest-pylint pytest-html attrs pyyaml             # TODO remove attrs and pyyaml
+    - pip install -r requirements.txt
+    - pytest --pylint --color=yes --verbose --pylint-rcfile=pylint.cfg --html=pylint_report.html --self-contained-html -m pylint  # || echo 1
+    - ls
+  artifacts:
+    paths:
+      - pylint_report.html
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    paths:
+      - pylint_report.html
+  allow_failure: false
+
+
+flake8:
+  image: python:3.6
+  stage: test
+  script:
+    - pip install flake8 flake8-docstrings pep8-naming
+    - flake8 pyxel
+  allow_failure: false
+
+
+doc8:
+  image: python:3.6
+  stage: test
+  script:
+    - pip install sphinx doc8
+    - doc8 docs/source
+  allow_failure: false
+
+
+# ###########################
+# Build stage
+# ###########################
+
+# Scan sourcecode for licenses, copyrights & dependencies
 licenses:
   image: python:2.7.14
   stage: build  # deploy
@@ -73,133 +186,32 @@ docker:
     - docker push $CONTAINER_LATEST_IMAGE
   allow_failure: false
 
-#
-# Test Stage
-#
 
-# Run pytest + coverage and create html report (pytest_report.html)
-anaconda3:
-  image: continuumio/anaconda3
-  stage: test
-  script:
-    - pip install pytest pytest-cov pytest-html
-    - pip install -r requirements.txt
-    - export PYTHONPATH=$PWD
-    - pytest --cov=pyxel --cov-report= --cov-report=html --html=pytest_report.html --self-contained-html --color=yes --full-trace --showlocals --verbose
-    - coverage report > coverage.out
-    - tail -n 1 coverage.out > cov_total.out
-    - PERCENT=$(awk '{printf "%.2f", ($2-$3)/$2*100}' cov_total.out)
-    - python badges.py -cov=$PERCENT
-    - ls
-  artifacts:
-    paths:
-      - htmlcov
-      - pytest_report.html
-      - coverage.svg
-  cache:
-    key: "$CI_COMMIT_REF_NAME"
-    paths:
-      - htmlcov
-      - pytest_report.html
-      - coverage.svg
-  allow_failure: false
+# Create wheel file
+#deploy:
+#  image: python:3.6
+#  stage: deploy
+#  environment: deploy
+#  script:
+#    - pip install wheel setuptools
+#    - python setup.py bdist_wheel
+#  artifacts:
+#    paths:
+#      - dist
 
 
-# Run pytest for Python 3.7
-python37:
-  image: python:3.7
-  stage: test
-  script:
-    - pip install pytest
-    - pip install -r requirements.txt
-    - pytest --color=yes --full-trace --showlocals --verbose
-  allow_failure: true
-
-
-# Run pytest for Python 3.6
-python36:
-  image: python:3.6
-  stage: test
-  script:
-    - pip install pytest
-    - pip install -r requirements.txt
-    - pytest --color=yes --full-trace --showlocals --verbose
-  allow_failure: false
-
-
-# Run pytest for Python 3.5
-python35:
-  image: python:3.5
-  stage: test
-  script:
-    - pip install pytest
-    - pip install -r requirements.txt
-    - pytest --color=yes --full-trace --showlocals --verbose
-  allow_failure: false
-
-
-# Run mypy
-mypy:
-  image: continuumio/anaconda3
-  stage: test
-  script:
-    - pip install mypy
-    - mypy --ignore-missing-imports pyxel
-  allow_failure: true
-
-
-# Run pylint (with pytest) and generate HTML report
-lint:
-  image: python:3.6
-  stage: test
-  script:
-    - pip install pytest-pylint pytest-html
-    - pip install -r requirements.txt
-    - pytest --pylint --color=yes --verbose --pylint-rcfile=pylint.cfg --html=pylint_report.html --self-contained-html -m pylint || echo 1
-    - ls
-  artifacts:
-    paths:
-      - pylint_report.html
-  cache:
-    key: "$CI_COMMIT_REF_NAME"
-    paths:
-      - pylint_report.html
-  allow_failure: false
-
-
-flake8:
-  image: python:3.6
-  stage: test
-  script:
-    - pip install flake8 flake8-docstrings pep8-naming
-    - flake8 pyxel
-  allow_failure: false
-
-
-doc8:
-  image: python:3.6
-  stage: test
-  script:
-    - pip install sphinx doc8
-    - doc8 docs/source
-  allow_failure: false
-
-#
+# ###########################
 # Deploy Stage
-#
+# ###########################
 
 # Create the pages
 pages:
   image: python:3.6
   stage: deploy
   script:
-    - pip install docutils
-    - pip install pygments
+    - pip install docutils pygments
     - rst2html.py --stylesheet=README.css pages.rst pages.html
-
     - mkdir public
-    - ls
-
     - mv coverage.svg public/coverage.svg
     - mv docs/html public/doc
     - mv pages.html public/index.html
@@ -234,18 +246,6 @@ deploy-to-k8s:
 #    - kubectl --kubeconfig $KUBECONFIG patch deployment pyxel-deployment -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}"
 #    - kubectl --kubeconfig $KUBECONFIG get pods
 
-
-# Create wheel file
-#deploy:
-#  image: python:3.6
-#  stage: deploy
-#  environment: deploy
-#  script:
-#    - pip install wheel setuptools
-#    - python setup.py bdist_wheel
-#  artifacts:
-#    paths:
-#      - dist
 
 # Upload to pypi
 # Reference: http://samb.io/blog/2016/devops/python/gitlab/continuous-deployment/continuous-deployment-to-python-packaging
