@@ -1,9 +1,4 @@
 """TBW."""
-# from pyxel.pipelines.validator import AttrClass
-# from pyxel.pipelines.validator import attr_class
-# from pyxel.pipelines.validator import attr_def
-# from pyxel.pipelines.validator import check_range
-# from pyxel.util import objmod as om
 import esapy_config as om
 
 

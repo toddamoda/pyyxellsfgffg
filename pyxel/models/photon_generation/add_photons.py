@@ -1,13 +1,13 @@
 """Pyxel photon generator models."""
 import logging
 import numpy as np
-import esapy_config as om
 import pyxel
+from pyxel import check_type
 from pyxel.detectors.detector import Detector
 
 
-@om.validate
-@om.argument(name='level', label='number of photons', units='', validate=om.check_type_function(int))
+@pyxel.validate
+@pyxel.argument(name='level', label='number of photons', units='', validate=check_type(int))
 @pyxel.register(group='photon_generation', name='add photons')
 def add_photons(detector: Detector,
                 level: int = -1
@@ -19,7 +19,6 @@ def add_photons(detector: Detector,
     :return:
     """
     logging.info('')
-
     geo = detector.geometry
     cht = detector.characteristics
 

@@ -2,23 +2,23 @@
 
 import logging
 import math
-
 from pathlib import Path
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 import typing as t   # noqa: F401
-
+import pyxel
 from pyxel.detectors.detector import Detector
 from pyxel.models.charge_generation.tars.simulation import Simulation
 from pyxel.models.charge_generation.tars.util import read_data, interpolate_data  # , load_histogram_data
-from pyxel.pipelines.model_registry import registry
 from pyxel.models.charge_generation.tars.plotting import PlottingTARS
 
 # from astropy import units as u
 
 
-@registry.decorator('charge_generation', name='tars')
+# @pyxel.validate
+# @pyxel.argument(name='', label='', units='', validate=)
+@pyxel.register(group='charge_generation', name='tars')
 def run_tars(detector: Detector,
              simulation_mode: str = None,
              running_mode: str = None,
@@ -47,10 +47,10 @@ def run_tars(detector: Detector,
     :param random_seed:
     :return:
     """
-    new_detector = detector
+    logging.info('')
     if random_seed:
         np.random.seed(random_seed)
-    tars = TARS(new_detector)
+    tars = TARS(detector)
 
     if simulation_mode is None:
         raise ValueError('TARS: Simulation mode is not defined')
@@ -204,7 +204,7 @@ def run_tars(detector: Detector,
     # plot_obj.plot_charges_3d()
     # plot_obj.show()
 
-    return new_detector
+    return detector
 
 
 class TARS:

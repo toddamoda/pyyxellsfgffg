@@ -2,8 +2,6 @@
 
 import logging
 from pathlib import Path
-# import argparse
-# import typing as t  # noqa: F401
 import tornado.web
 import esapy_web.webapp2.modules.guiconfig.guiconfig_serializer as serializer
 from esapy_dispatcher import dispatcher
@@ -12,8 +10,6 @@ from esapy_web.webapp2.modules import guiconfig
 from esapy_web.webapp2.modules import sequencer
 from esapy_web.webapp2.modules import dispatch
 
-# import pyxel
-# import pyxel.pipelines.processor
 from pyxel.pipelines.model_registry import registry         # TODO get rid of pyxel dependency
 
 

@@ -22,13 +22,12 @@ import astropy.io.fits as fits
 # import numba
 import numpy as np
 from typing import cast
-
+import pyxel
 from pyxel.detectors.ccd import CCD
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics  # noqa: F401
-from pyxel.pipelines.model_registry import registry
 
 
-@registry.decorator('charge_transfer', name='cdm', detector='ccd')
+@pyxel.register(group='charge_transfer', name='cdm', detector='ccd')
 def cdm(detector: CCD,
         beta_p: float = None, beta_s: float = None,
         vg: float = None, svg: float = None,
@@ -72,8 +71,7 @@ def cdm(detector: CCD,
     fwc: Full Well Capacity in electrons (parallel)
     sfwc: Full Well Capacity in electrons (serial)
     """
-    new_detector = detector  # type: CCD
-    char = cast(CCDCharacteristics, new_detector.characteristics)  # type: CCDCharacteristics
+    char = cast(CCDCharacteristics, detector.characteristics)  # type: CCDCharacteristics
 
     # Charge injection:     # todo make a new function from this
     # image = np.zeros((100, 100), dtype=np.float32)
@@ -91,16 +89,16 @@ def cdm(detector: CCD,
                           # rdose=1.5e3,
                           fwc=char.fwc,
                           sfwc=char.fwc_serial,
-                          vth=new_detector.e_thermal_velocity,
+                          vth=detector.e_thermal_velocity,
                           beta_p=beta_p, beta_s=beta_s,
                           vg=vg, svg=svg,
                           t=t, st=st,
                           parallel_trap_file=parallel_trap_file,
                           serial_trap_file=serial_trap_file)
 
-    new_detector.pixels.array = cdm_obj.apply_cti(new_detector.pixels.array)
+    detector.pixels.array = cdm_obj.apply_cti(detector.pixels.array)
 
-    return new_detector
+    return detector
 
 
 class CDM03Python:

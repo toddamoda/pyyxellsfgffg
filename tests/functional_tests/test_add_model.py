@@ -111,9 +111,9 @@ def my_other_model(detector: Detector, level: int, noise: float=2.0):
 
 
 # def test_model_registry_singleton():
-#     reg1 = Registry()
+#     reg1 = registry()
 #     assert reg1 == registry
-#     reg2 = Registry(singleton=False)
+#     reg2 = registry(singleton=False)
 #     assert reg2 != registry
 
 
@@ -159,7 +159,7 @@ def test_model_registry_decorator():
 
 # def test_model_registry_map():
 #     group_models = my_models.registry_map
-#     registry_new = Registry(singleton=False)
+#     registry_new = registry(singleton=False)
 #     registry_new.register_map(group_models)
 #     expected_len = len(list(itertools.chain.from_iterable(group_models.values())))
 #     assert expected_len == len(registry_new)

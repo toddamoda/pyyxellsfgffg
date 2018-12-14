@@ -1,20 +1,18 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-"""PyXel! wrapper class for NGHXRG - Teledyne HxRG Noise Generator model."""
+"""Pyxel wrapper class for NGHXRG - Teledyne HxRG Noise Generator model."""
 
-# import logging
+import logging
 from os import path
-
 import typing as t
-
 # import numpy as np
+import pyxel
 from pyxel.detectors.cmos import CMOS
-from pyxel.detectors.cmos_geometry import CMOSGeometry  # noqa: F401
-from pyxel.detectors.ccd_geometry import CCDGeometry  # noqa: F401
-from pyxel.detectors.geometry import Geometry  # noqa: F401
+from pyxel.detectors.cmos_geometry import CMOSGeometry          # noqa: F401
+from pyxel.detectors.ccd_geometry import CCDGeometry            # noqa: F401
+from pyxel.detectors.geometry import Geometry                   # noqa: F401
 from pyxel.models.signal_transfer.nghxrg.nghxrg_beta import HXRGNoise
-from pyxel.pipelines.model_registry import registry
 
 
 def get_geom(detector_obj):
@@ -40,7 +38,9 @@ def get_geom(detector_obj):
 #         return t.cast(Characteristic, detector_obj.characteristic)
 
 
-@registry.decorator('charge_measurement', name='nghxrg_ktc_bias', detector='cmos')
+# @pyxel.validate
+# @pyxel.argument(name='', label='', units='', validate=)
+@pyxel.register(group='charge_measurement', name='nghxrg_ktc_bias', detector='cmos')
 def ktc_bias_noise(detector: CMOS,
                    ktc_noise: float = None,
                    bias_offset: float = None,
@@ -61,8 +61,8 @@ def ktc_bias_noise(detector: CMOS,
     :param wind_y_size:
     :return:
     """
-    new_detector = detector
-    geo = t.cast(CMOSGeometry, new_detector.geometry)
+    logging.info('')
+    geo = t.cast(CMOSGeometry, detector.geometry)
 
     number_of_fits = 1
 
@@ -84,17 +84,19 @@ def ktc_bias_noise(detector: CMOS,
     result = ng_h2rg.format_result(result)
 
     if window_mode == 'FULL':
-        new_detector.signal.array += result
+        detector.signal.array += result
     elif window_mode == 'WINDOW':
-        new_detector.signal.array[wind_y0:wind_y0 + wind_y_size, wind_x0:wind_x0 + wind_x_size] += result
-    # TODO: add to new_detector.signal.array OR new_detector.image OR charge dataframe ?
+        detector.signal.array[wind_y0:wind_y0 + wind_y_size, wind_x0:wind_x0 + wind_x_size] += result
+    # TODO: add to detector.signal.array OR detector.image OR charge dataframe ?
 
     # ng_h2rg.create_hdu(result, 'pyxel/hxrg_read_noise.fits')
 
-    return new_detector
+    return detector
 
 
-@registry.decorator('charge_measurement', name='nghxrg_read', detector='cmos')
+# @pyxel.validate
+# @pyxel.argument(name='', label='', units='', validate=)
+@pyxel.register(group='charge_measurement', name='nghxrg_read', detector='cmos')
 def white_read_noise(detector: CMOS,
                      rd_noise: float = None,
                      ref_pixel_noise_ratio: float = None,
@@ -113,9 +115,8 @@ def white_read_noise(detector: CMOS,
     :param wind_y_size:
     :return:
     """
-    new_detector = detector  # type: CMOS
-
-    geo = get_geom(new_detector)
+    logging.info('')
+    geo = get_geom(detector)
 
     number_of_fits = 1
 
@@ -137,17 +138,19 @@ def white_read_noise(detector: CMOS,
     result = ng_h2rg.format_result(result)
 
     if window_mode == 'FULL':
-        new_detector.signal.array += result
+        detector.signal.array += result
     elif window_mode == 'WINDOW':
-        new_detector.signal.array[wind_y0:wind_y0 + wind_y_size, wind_x0:wind_x0 + wind_x_size] += result
-    # TODO: add to new_detector.signal.array OR new_detector.image OR charge dataframe ?
+        detector.signal.array[wind_y0:wind_y0 + wind_y_size, wind_x0:wind_x0 + wind_x_size] += result
+    # TODO: add to detector.signal.array OR detector.image OR charge dataframe ?
 
     # ng_h2rg.create_hdu(result, 'pyxel/hxrg_read_noise.fits')
 
-    return new_detector
+    return detector
 
 
-@registry.decorator('signal_transfer', name='nghxrg_acn', detector='cmos')
+# @pyxel.validate
+# @pyxel.argument(name='', label='', units='', validate=)
+@pyxel.register(group='signal_transfer', name='nghxrg_acn', detector='cmos')
 def acn_noise(detector: CMOS,
               acn: float = None,
               window_mode: str = 'FULL',
@@ -164,8 +167,8 @@ def acn_noise(detector: CMOS,
     :param wind_y_size:
     :return:
     """
-    new_detector = detector
-    geo = t.cast(CMOSGeometry, new_detector.geometry)
+    logging.info('')
+    geo = t.cast(CMOSGeometry, detector.geometry)
 
     number_of_fits = 1
 
@@ -187,17 +190,19 @@ def acn_noise(detector: CMOS,
     result = ng_h2rg.format_result(result)
 
     if window_mode == 'FULL':
-        new_detector.signal.array += result
+        detector.signal.array += result
     elif window_mode == 'WINDOW':
-        new_detector.signal.array[wind_y0:wind_y0 + wind_y_size, wind_x0:wind_x0 + wind_x_size] += result
-    # TODO: add to new_detector.signal.array OR new_detector.image OR charge dataframe ?
+        detector.signal.array[wind_y0:wind_y0 + wind_y_size, wind_x0:wind_x0 + wind_x_size] += result
+    # TODO: add to detector.signal.array OR detector.image OR charge dataframe ?
 
     # ng_h2rg.create_hdu(result, 'pyxel/hxrg_read_noise.fits')
 
-    return new_detector
+    return detector
 
 
-@registry.decorator('signal_transfer', name='nghxrg_u_pink', detector='cmos')
+# @pyxel.validate
+# @pyxel.argument(name='', label='', units='', validate=)
+@pyxel.register(group='signal_transfer', name='nghxrg_u_pink', detector='cmos')
 def uncorr_pink_noise(detector: CMOS,
                       u_pink: float = None,
                       window_mode: str = 'FULL',
@@ -214,8 +219,8 @@ def uncorr_pink_noise(detector: CMOS,
     :param wind_y_size:
     :return:
     """
-    new_detector = detector
-    geo = t.cast(CMOSGeometry, new_detector.geometry)
+    logging.info('')
+    geo = t.cast(CMOSGeometry, detector.geometry)
 
     number_of_fits = 1
 
@@ -237,17 +242,19 @@ def uncorr_pink_noise(detector: CMOS,
     result = ng_h2rg.format_result(result)
 
     if window_mode == 'FULL':
-        new_detector.signal.array += result
+        detector.signal.array += result
     elif window_mode == 'WINDOW':
-        new_detector.signal.array[wind_y0:wind_y0 + wind_y_size, wind_x0:wind_x0 + wind_x_size] += result
-    # TODO: add to new_detector.signal.array OR new_detector.image OR charge dataframe ?
+        detector.signal.array[wind_y0:wind_y0 + wind_y_size, wind_x0:wind_x0 + wind_x_size] += result
+    # TODO: add to detector.signal.array OR detector.image OR charge dataframe ?
 
     # ng_h2rg.create_hdu(result, 'pyxel/hxrg_read_noise.fits')
 
-    return new_detector
+    return detector
 
 
-@registry.decorator('signal_transfer', name='nghxrg_c_pink', detector='cmos')
+# @pyxel.validate
+# @pyxel.argument(name='', label='', units='', validate=)
+@pyxel.register(group='signal_transfer', name='nghxrg_c_pink', detector='cmos')
 def corr_pink_noise(detector: CMOS,
                     c_pink: float = None,
                     window_mode: str = 'FULL',
@@ -264,8 +271,8 @@ def corr_pink_noise(detector: CMOS,
     :param wind_y_size:
     :return:
     """
-    new_detector = detector
-    geo = t.cast(CMOSGeometry, new_detector.geometry)
+    logging.info('')
+    geo = t.cast(CMOSGeometry, detector.geometry)
 
     number_of_fits = 1
 
@@ -287,17 +294,19 @@ def corr_pink_noise(detector: CMOS,
     result = ng_h2rg.format_result(result)
 
     if window_mode == 'FULL':
-        new_detector.signal.array += result
+        detector.signal.array += result
     elif window_mode == 'WINDOW':
-        new_detector.signal.array[wind_y0:wind_y0 + wind_y_size, wind_x0:wind_x0 + wind_x_size] += result
-    # TODO: add to new_detector.signal.array OR new_detector.image OR charge dataframe ?
+        detector.signal.array[wind_y0:wind_y0 + wind_y_size, wind_x0:wind_x0 + wind_x_size] += result
+    # TODO: add to detector.signal.array OR detector.image OR charge dataframe ?
 
     # ng_h2rg.create_hdu(result, 'pyxel/hxrg_read_noise.fits')
 
-    return new_detector
+    return detector
 
 
-@registry.decorator('readout_electronics', name='nghxrg_pca_zero', detector='cmos')
+# @pyxel.validate
+# @pyxel.argument(name='', label='', units='', validate=)
+@pyxel.register(group='readout_electronics', name='nghxrg_pca_zero', detector='cmos')
 def pca_zero_noise(detector: CMOS,
                    pca0_amp: float = None,
                    window_mode: str = 'FULL',
@@ -314,8 +323,8 @@ def pca_zero_noise(detector: CMOS,
     :param wind_y_size:
     :return:
     """
-    new_detector = detector
-    geo = t.cast(CMOSGeometry, new_detector.geometry)
+    logging.info('')
+    geo = t.cast(CMOSGeometry, detector.geometry)
     number_of_fits = 1
 
     ng_h2rg = HXRGNoise(n_out=geo.n_output,
@@ -336,11 +345,11 @@ def pca_zero_noise(detector: CMOS,
     result = ng_h2rg.format_result(result)
 
     if window_mode == 'FULL':
-        new_detector.signal.array += result
+        detector.signal.array += result
     elif window_mode == 'WINDOW':
-        new_detector.signal.array[wind_y0:wind_y0 + wind_y_size, wind_x0:wind_x0 + wind_x_size] += result
-    # TODO: add to new_detector.signal.array OR new_detector.image OR charge dataframe ?
+        detector.signal.array[wind_y0:wind_y0 + wind_y_size, wind_x0:wind_x0 + wind_x_size] += result
+    # TODO: add to detector.signal.array OR detector.image OR charge dataframe ?
 
     # ng_h2rg.create_hdu(result, 'pyxel/hxrg_read_noise.fits')
 
-    return new_detector
+    return detector

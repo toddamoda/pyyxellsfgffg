@@ -1,17 +1,16 @@
 """Pyxel photon generator models."""
-import os
 import logging
 from astropy.io import fits
-import esapy_config as om
 import pyxel
+from pyxel import check_type, check_path
 from pyxel.detectors.detector import Detector
 
 
-@om.validate
-@om.argument(name='image_file', label='fits file', validate=os.path.exists)
-@om.argument(name='row0', label='first row', validate=om.check_type_function(int))
-@om.argument(name='col0', label='first column', validate=om.check_type_function(int))
-@om.argument(name='load_full_image', label='full image (updates geometry)', validate=om.check_type_function(bool))
+@pyxel.validate
+@pyxel.argument(name='image_file', label='fits file', validate=check_path)
+@pyxel.argument(name='row0', label='first row', validate=check_type(int))
+@pyxel.argument(name='col0', label='first column', validate=check_type(int))
+@pyxel.argument(name='load_full_image', label='full image (updates geometry)', validate=check_type(bool))
 @pyxel.register(group='photon_generation', name='load image')
 def load_image(detector: Detector,
                image_file: str,

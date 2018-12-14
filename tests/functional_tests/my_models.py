@@ -1,9 +1,8 @@
+import pyxel
 from pyxel.detectors.detector import Detector
-from pyxel.pipelines.model_registry import registry
-from pyxel import register
 
 
-@register('charge_generation', name='my_class_model')
+@pyxel.register(group='charge_generation', name='my_class_model')
 class MyClassModel:
 
     def __call__(self, detector: Detector, level: int, noise: float=2.0):
@@ -12,7 +11,7 @@ class MyClassModel:
         return detector
 
 
-@register('charge_generation', name='my_other_class_model')
+@pyxel.register(group='charge_generation', name='my_other_class_model')
 class MyOtherClassModel:
 
     def __call__(self, detector: Detector, std: float=2.0):
@@ -27,10 +26,10 @@ def my_function_model(detector: Detector, level, noise: float=2.0):
     return detector
 
 
-register('charge_generation', my_function_model)
+pyxel.register(group='charge_generation', maybe_func=my_function_model)
 
 
-@registry.decorator(group='charge_generation', name='my_dec_model_class')
+@pyxel.register(group='charge_generation', name='my_dec_model_class')
 class MyDecoratedModel:
 
     def __call__(self, detector: Detector, class_std=1.0):
@@ -38,7 +37,7 @@ class MyDecoratedModel:
         return detector
 
 
-@registry.decorator(group='charge_generation', name='my_dec_model_func')
+@pyxel.register(group='charge_generation', name='my_dec_model_func')
 def my_decorated_function(detector: Detector, func_std=2.0):
     setattr(detector, 'func_std', func_std)
     return detector

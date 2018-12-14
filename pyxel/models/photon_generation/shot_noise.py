@@ -1,13 +1,13 @@
 """Pyxel photon generator models."""
 import logging
 import numpy as np
-import esapy_config as om
 import pyxel
+from pyxel import check_type
 from pyxel.detectors.detector import Detector
 
 
-@om.validate
-@om.argument(name='seed', label='random seed', units='', validate=om.check_type_function(int))
+@pyxel.validate
+@pyxel.argument(name='seed', label='random seed', units='', validate=check_type(int))
 @pyxel.register(group='photon_generation', name='shot noise')
 def add_shot_noise(detector: Detector,
                    random_seed: int = 0) -> Detector:

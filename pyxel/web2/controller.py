@@ -10,7 +10,6 @@ import esapy_config as om  # noqa: F401
 from esapy_web.webapp2.modules import guiconfig
 from esapy_web.webapp2.modules import dispatch
 
-# from pyxel import util
 from pyxel.pipelines.processor import Processor
 from pyxel.pipelines.model_registry import registry
 from pyxel.pipelines.model_group import ModelFunction

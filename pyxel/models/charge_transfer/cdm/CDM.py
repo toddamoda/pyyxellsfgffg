@@ -9,6 +9,7 @@ This is a function to run the upgraded CDM CTI model developed by Alex Short (ES
 :author: Sami-Matias Niemi
 :author: David Lucsanyi
 """
+import logging
 import numpy as np
 try:
     import matplotlib.pyplot as plt
@@ -17,12 +18,14 @@ except ImportError:
     pass
 import numba
 from typing import cast
+import pyxel
 from pyxel.detectors.ccd import CCD
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics  # noqa: F401
-from pyxel.pipelines.model_registry import registry
 
 
-@registry.decorator('charge_transfer', name='cdm', detector='ccd')
+# @pyxel.validate
+# @pyxel.argument(name='', label='', units='', validate=)
+@pyxel.register(group='charge_transfer', name='cdm', detector='ccd')
 def cdm(detector: CCD,
         beta_p: float = None, beta_s: float = None,
         chg_inj: bool = None,
@@ -71,8 +74,8 @@ def cdm(detector: CCD,
     fwc: Full Well Capacity in electrons (parallel)
     sfwc: Full Well Capacity in electrons (serial)
     """
-    new_detector = detector  # type: CCD
-    char = cast(CCDCharacteristics, new_detector.characteristics)  # type: CCDCharacteristics
+    logging.info('')
+    char = cast(CCDCharacteristics, detector.characteristics)  # type: CCDCharacteristics
 
     # read in the absolute trap density [per cm**3]     # todo: fix this
     # if parallel_trap_file is not None:
@@ -106,20 +109,20 @@ def cdm(detector: CCD,
     if isinstance(sigma_s, list):
         sigma_s = np.array(sigma_s)
 
-    new_detector.pixels.array = run_cdm(s=new_detector.pixels.array,   # self.fullframe[dataset],
-                                        beta_p=beta_p, beta_s=beta_s,
-                                        vg=char.vg, svg=char.svg,
-                                        t=char.t, st=char.st,
-                                        fwc=char.fwc, sfwc=char.fwc_serial,
-                                        vth=new_detector.e_thermal_velocity,
-                                        parallel_cti=parallel_cti, serial_cti=serial_cti,
-                                        charge_injection=chg_inj,
-                                        all_parallel_trans=para_transfers,
-                                        sigma_p=sigma_p, sigma_s=sigma_s,
-                                        tr_p=tr_p, tr_s=tr_s,
-                                        nt_p=nt_p, nt_s=nt_s)
+    detector.pixels.array = run_cdm(s=detector.pixels.array,   # self.fullframe[dataset],
+                                    beta_p=beta_p, beta_s=beta_s,
+                                    vg=char.vg, svg=char.svg,
+                                    t=char.t, st=char.st,
+                                    fwc=char.fwc, sfwc=char.fwc_serial,
+                                    vth=detector.e_thermal_velocity,
+                                    parallel_cti=parallel_cti, serial_cti=serial_cti,
+                                    charge_injection=chg_inj,
+                                    all_parallel_trans=para_transfers,
+                                    sigma_p=sigma_p, sigma_s=sigma_s,
+                                    tr_p=tr_p, tr_s=tr_s,
+                                    nt_p=nt_p, nt_s=nt_s)
 
-    return new_detector
+    return detector
 
 
 @numba.jit

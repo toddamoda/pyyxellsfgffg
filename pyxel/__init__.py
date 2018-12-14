@@ -1,9 +1,11 @@
 """Pyxel detector simulation framework."""
-
+import os
+import typing as t
 import esapy_config as om
 
 
-__all__ = ['models', 'detectors', 'pipelines']
+__all__ = ['models', 'detectors', 'pipelines',
+           'check_type', 'check_path', 'check_range']
 
 __appname__ = 'Pyxel'
 __author__ = 'David Lucsanyi'
@@ -29,6 +31,32 @@ def register(group, maybe_func=None, **kwargs):
     metadata = kwargs
     metadata['group'] = group
     return om.register(maybe_func, ignore_args, name, enabled, metadata)
+
+
+def validate(func: t.Callable):
+    """TBW."""
+    return om.validate(func)
+
+
+def argument(name: str, **kwargs):
+    """TBW."""
+    return om.argument(name, **kwargs)
+
+
+def check_type(att_type, is_optional: bool = False) -> t.Callable[..., bool]:
+    """TBW."""
+    return om.check_type_function(att_type, is_optional)
+
+
+def check_path(path):
+    """TBW."""
+    return os.path.exists(path)
+
+
+def check_range(min_val: t.Union[float, int], max_val: t.Union[float, int],
+                step: t.Union[float, int] = None, enforce_step: bool = True):
+    """TBW."""
+    return om.check_range(min_val, max_val, step, enforce_step)
 
 
 def define_pyxel_loader():
