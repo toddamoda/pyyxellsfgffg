@@ -29,5 +29,5 @@ tornado
 esapy-web==0.2.1
 esapy-dispatcher==0.4
 pygmo==2.9
-# esapy-config==0.6.0   # when it will be available
+# esapy-config==0.6.0   # use this when it will be available
 git+https://gitlab.esa.int/sci-fv/esapy_config#egg=esapy-config

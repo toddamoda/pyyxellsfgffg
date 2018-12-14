@@ -71,7 +71,7 @@ docker:
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN gitlab.esa.int:4567
     - docker build --pull -t $CONTAINER_LATEST_IMAGE .
     - docker push $CONTAINER_LATEST_IMAGE
-  allow_failure: true # false
+  allow_failure: false
 
 #
 # Test Stage
