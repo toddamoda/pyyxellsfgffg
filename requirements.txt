@@ -17,8 +17,6 @@ scipy                   # should be removed
 
 versioneer
 pyyaml
-attrs                   # temporary, needed by esapy-config
-attr                    # temporary, needed by esapy-config
 numba
 tqdm
 tornado
