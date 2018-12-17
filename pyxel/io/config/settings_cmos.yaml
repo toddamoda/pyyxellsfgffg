@@ -21,21 +21,25 @@ simulation:
 
   calibration:
     calibration_mode: pipeline  # single_model
-    arguments:
-      target_data: 'C:/dev/work/cdm/data/better-plato-target-data/'
-      target_fit_range: [51, 401]
-      output_fit_range: [1103, 1453]
-      weighting_func:
+    target_data: 'C:/dev/work/cdm/data/better-plato-target-data/'
+    target_fit_range: [51, 401]
+    output_type: pixel
+    output_fit_range: [1103, 1453]
+    weighting_func:
+    fitness_function:
+      func: pyxel.calibration.fitness.sum_of_abs_residuals
+    algorithm:
+      type: sade
       generations: 3
       population_size: 10
-
-      model_names: ['cdm', 'tars']
-      variables: [['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['initial_energy']]
-      var_log: [[True, True, True, False], [False]]
-      var_arrays: [[True, True, True, False], [False]]
-      params_per_variable: [[4, 4, 4, 1], [1]]
-      lower_boundary: [[1.e-3, 1.e-2, 1.e-20, 0.], [1.]]
-      upper_boundary: [[2., 1.e+1, 1.e-15, 1.], [10.]]
+      variant: 2
+    model_names: ['cdm', 'tars']
+    variables: [['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['initial_energy']]
+    var_log: [[True, True, True, False], [False]]
+    var_arrays: [[True, True, True, False], [False]]
+    params_per_variable: [[4, 4, 4, 1], [1]]
+    lower_boundary: [[1.e-3, 1.e-2, 1.e-20, 0.], [1.]]
+    upper_boundary: [[2., 1.e+1, 1.e-15, 1.], [10.]]
 
 processor:
   class: pyxel.pipelines.processor.Processor

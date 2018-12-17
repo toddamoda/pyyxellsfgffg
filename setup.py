@@ -3,9 +3,8 @@ Pyxel detector simulation framework.
 """
 
 from setuptools import setup, find_packages
-
-import pyxel
 import versioneer
+import pyxel
 
 
 def get_requires(filenames):
@@ -38,7 +37,7 @@ setup(
     author_email=pyxel.__author_email__,
     url='http://www.sci.esa.int/pyxel',
     license='MIT',
-    keywords='esa',
+    keywords='ESA',
     install_requires=get_requires('requirements.txt'),
     packages=find_packages(exclude=['tests*']),
     include_package_data=True,
