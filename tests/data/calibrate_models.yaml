@@ -102,6 +102,10 @@ processor:
 
     # charge -> charge
     charge_collection:
+      -
+        name: simple_collection
+        func: pyxel.models.charge_collection.collection.simple_collection
+        enabled: true
 
     # charge -> charge
     charge_transfer:

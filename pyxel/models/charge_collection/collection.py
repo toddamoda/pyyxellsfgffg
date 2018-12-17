@@ -26,8 +26,6 @@ def simple_collection(detector: Detector) -> Detector:
     pixel_index_ver = np.floor_divide(charge_pos_ver, geo.pixel_vert_size).astype(int)
     pixel_index_hor = np.floor_divide(charge_pos_hor, geo.pixel_horz_size).astype(int)
 
-    # detector.pixels.array = np.zeros((geo.row, geo.col), dtype=float)       # TODO move this elsewhere!!!
-
     for i in range(len(charge_per_pixel)):
         detector.pixels.array[pixel_index_ver[i], pixel_index_hor[i]] += charge_per_pixel[i]
 

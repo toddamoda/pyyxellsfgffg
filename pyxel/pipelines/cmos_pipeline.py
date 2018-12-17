@@ -19,8 +19,8 @@ class CMOSDetectionPipeline(DetectionPipeline):
         super().__init__(**kwargs)
         self.signal_transfer = signal_transfer
 
-        self._name = 'cmos'
-        self._model_groups = ['photon_generation',
+        self._name = 'cmos'             # TODO is it used somewhere?
+        self._model_groups = ['photon_generation',          # TODO is it used somewhere?
                               'optics',
                               'charge_generation',
                               'charge_collection',
@@ -28,7 +28,7 @@ class CMOSDetectionPipeline(DetectionPipeline):
                               'signal_transfer',
                               'readout_electronics']
 
-        self._model_steps = {                                               # TODO depraceted?
+        self._model_steps = {                             # TODO depraceted?
             'photon_generation':    ['load_image', 'photon_level',
                                      'shot_noise'],
             'optics':               [],

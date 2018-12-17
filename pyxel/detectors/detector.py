@@ -69,11 +69,11 @@ class Detector:
 
     def reinitialize(self):
         """TBW."""
-        self.photons = Photon(self)  # type: Photon
-        self.charges = Charge(self)  # type: Charge
-        self.pixels = Pixel(self)    # type: Pixel
-        self.signal = Signal(self)   # type: Signal
-        self.image = Image(self)     # type: Image
+        self.photons = Photon()                 # type: Photon
+        self.charges = Charge()                 # type: Charge
+        self.pixels = Pixel(self.geometry)      # type: Pixel
+        self.signal = Signal(self.geometry)     # type: Signal
+        self.image = Image(self.geometry)       # type: Image
 
     ######################################
     # These functions are not called at all:
