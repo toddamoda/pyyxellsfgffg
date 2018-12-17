@@ -2,9 +2,6 @@
 # from pyxel import util
 from pyxel.pipelines.detector_pipeline import DetectionPipeline
 from pyxel.detectors.detector import Detector
-from pyxel.physics.charge import Charge
-from pyxel.physics.photon import Photon
-from pyxel.physics.pixel import Pixel
 from pyxel.pipelines.model_group import ModelGroup
 
 
@@ -23,10 +20,15 @@ class CMOSDetectionPipeline(DetectionPipeline):
         self.signal_transfer = signal_transfer
 
         self._name = 'cmos'
-        self._model_groups = ['photon_generation', 'optics', 'charge_generation', 'charge_collection',
-                              'charge_measurement', 'signal_transfer', 'readout_electronics']
+        self._model_groups = ['photon_generation',
+                              'optics',
+                              'charge_generation',
+                              'charge_collection',
+                              'charge_measurement',
+                              'signal_transfer',
+                              'readout_electronics']
 
-        self._model_steps = {
+        self._model_steps = {                                               # TODO depraceted?
             'photon_generation':    ['load_image', 'photon_level',
                                      'shot_noise'],
             'optics':               [],
@@ -66,7 +68,7 @@ class CMOSDetectionPipeline(DetectionPipeline):
         """TBW."""
         # INITIALIZATION (open or generate image):
         # START -> create photons ->
-        detector.photons = Photon(detector)
+        # detector.photons = Photon(detector)
         # detector.photons.generate_photons()
         detector = self.run_model_group('photon_generation', detector)
 
@@ -76,13 +78,13 @@ class CMOSDetectionPipeline(DetectionPipeline):
 
         # CHARGE GENERATION:
         # -> create charges & remove photons ->
-        detector.charges = Charge(detector)
+        # detector.charges = Charge(detector)
         detector = self.run_model_group('charge_generation', detector)
 
         # CHARGE COLLECTION:
         # -> transport/modify charges ->
         # -> collect charges in pixels ->
-        detector.pixels = Pixel(detector)
+        # detector.pixels = Pixel(detector)
         detector = self.run_model_group('charge_collection', detector)
 
         # CHARGE READOUT

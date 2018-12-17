@@ -28,7 +28,7 @@ class CCDDetectionPipeline(DetectionPipeline):
                               'charge_measurement',
                               'readout_electronics']
 
-        self._model_steps = {                                           # TODO
+        self._model_steps = {                                           # TODO depraceted?
             'photon_generation':    ['load_image', 'photon_level',
                                      'shot_noise'],
             'optics':               [],
@@ -75,7 +75,7 @@ class CCDDetectionPipeline(DetectionPipeline):
 
         # CHARGE COLLECTION:
         # -> transport/modify charges -> collect charges in pixels ->
-        detector.pixels.fill_pixels_with_charges()
+        # detector.pixels.fill_pixels_with_charges()
         detector = self.run_model_group('charge_collection', detector)
 
         # CHARGE TRANSFER:

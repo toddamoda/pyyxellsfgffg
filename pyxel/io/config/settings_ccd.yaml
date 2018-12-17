@@ -199,6 +199,10 @@ processor:
         name: full_well
         func: pyxel.models.charge_collection.full_well.simple_pixel_full_well
         enabled: false
+      -
+        name: simple_collection
+        func: pyxel.models.charge_collection.collection.simple_collection
+        enabled: true
 
     # charge -> charge
     charge_transfer:

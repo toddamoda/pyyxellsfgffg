@@ -44,11 +44,11 @@ class Detector:
         self.characteristics = characteristics    # type: Characteristics
         self.header = collections.OrderedDict()   # type: t.Dict[str, object]
 
-        self.photons = Photon(self)               # type: Photon
-        self.charges = Charge(self)               # type: Charge
-        self.pixels = Pixel(self)                 # type: Pixel
-        self.signal = Signal(self)                # type: Signal
-        self.image = Image(self)                  # type: Image
+        self.photons = Photon()                     # type: Photon
+        self.charges = Charge()                     # type: Charge
+        self.pixels = Pixel(self.geometry)          # type: Pixel
+        self.signal = Signal(self.geometry)         # type: Signal
+        self.image = Image(self.geometry)           # type: Image
 
         if photons:
             self.photons = photons

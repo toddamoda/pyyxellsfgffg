@@ -1,62 +1,32 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-"""Pyxel general particle class to track particles like photons and electrons, holes."""
-# import math
+"""Pyxel general particle class to track particles like photons, electrons, holes."""
 import numpy as np
 import pandas as pd
 # from astropy import units as u
 # from astropy.units import cds
-
 # cds.enable()
 
 
 class Particle:
     """Class defining and storing information of all particles with their position, velocity, energy."""
 
-    def __init__(self, detector=None):
-        """TBW.
+    def __init__(self) -> None:
+        """TBW."""
+        self.frame = None
 
-        :param detector:
+    def get_numbers(self, id_list='all'):
+        """Get number of photons per DataFrame row.
+
+        :param id_list:
+        :return:
         """
-        self.detector = detector
-        self.nextid = 0
-        self.frame = pd.DataFrame(columns=['id',
-                                           'number',
-                                           'init_energy',
-                                           'energy',
-                                           'init_pos_ver',
-                                           'init_pos_hor',
-                                           'init_pos_z',
-                                           'position_ver',
-                                           'position_hor',
-                                           'position_z',
-                                           'velocity_ver',
-                                           'velocity_hor',
-                                           'velocity_z'])
-
-    # def get_photon_numbers(self, id_list='all'):
-    #     """Get number of photons per DataFrame row.
-    #
-    #     :param id_list:
-    #     :return:
-    #     """
-    #     if id_list == 'all':
-    #         array = self.frame.number.values
-    #     else:
-    #         array = self.frame.query('id in %s' % id_list).number.values
-    #     return array
-    #
-    # def remove_photons(self, id_list='all'):
-    #     """Remove list of photons from DataFrame if they are not needed, tracked anymore.
-    #
-    #     :param id_list:
-    #     :return:
-    #     """
-    #     if id_list == 'all':
-    #         self.frame.drop(self.frame.id[:], inplace=True)
-    #     else:
-    #         self.frame.query('id not in %s' % id_list, inplace=True)
+        if id_list == 'all':
+            array = self.frame.number.values
+        else:
+            array = self.frame.query('id in %s' % id_list).number.values
+        return array
 
     def get_positions(self, id_list='all'):
         """Get all 3 positions of a list of photons as a numpy array.
@@ -212,3 +182,14 @@ class Particle:
         :return:
         """
         self.frame.at[self.frame.index[self.frame['id'] == id_num], 'number'] = new_number
+
+    def remove(self, id_list='all'):
+        """Remove list of photons from DataFrame if they are not needed, tracked anymore.
+
+        :param id_list:
+        :return:
+        """
+        if id_list == 'all':
+            self.frame.drop(self.frame.id[:], inplace=True)
+        else:
+            self.frame.query('id not in %s' % id_list, inplace=True)

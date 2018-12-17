@@ -19,7 +19,7 @@ def simple_conversion(detector: Detector) -> Detector:
     logging.info('')
     ch = detector.characteristics
     ph = detector.photons
-    photon_number = ph.get_photon_numbers()
+    photon_number = ph.get_numbers()
     size = len(photon_number)
     # Calculate the average charge numbers per pixel
     charge_number = photon_number * ch.qe * ch.eta
@@ -34,7 +34,7 @@ def simple_conversion(detector: Detector) -> Detector:
                                 init_hor_velocity=[0.] * size,
                                 init_z_velocity=[0.] * size)
     # Removing all the photons because they have either created some photoelectrons or got lost
-    ph.remove_photons()
+    ph.remove()
     return detector
 
 
