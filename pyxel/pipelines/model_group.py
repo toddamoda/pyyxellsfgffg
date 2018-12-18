@@ -1,5 +1,4 @@
 """TBW."""
-import logging
 import typing as t  # noqa: F401
 import esapy_config as om
 from pyxel.pipelines.model_function import ModelFunction
@@ -15,7 +14,6 @@ class ModelGroup:
         :param models:
         """
         self.models = models    # type: t.List[ModelFunction]
-        # self._log = logging.getLogger(__name__)
 
     def get_state_json(self):
         """TBW."""

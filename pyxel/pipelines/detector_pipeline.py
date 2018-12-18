@@ -6,6 +6,7 @@ import typing as t  # noqa: F401
 import esapy_config as om
 
 from pyxel.pipelines.model_group import ModelGroup
+from pyxel.detectors.detector import Detector
 
 
 class DetectionPipeline:
@@ -134,7 +135,7 @@ class DetectionPipeline:
         :param name:
         :return:
         """
-        for group_name in self._model_groups:
+        for group_name in self.model_group_names:
             model_group = getattr(self, group_name)  # type: Models
             if model_group:
                 for model in model_group.models:
@@ -150,16 +151,43 @@ class DetectionPipeline:
         :return:
         """
         self._is_running = True
-        if name in self._model_groups:
+        if name in self.model_group_names:
             models_obj = getattr(self, name)
             if models_obj:
                 models_obj.run(detector, self)
         return detector
 
-    # def run_pipeline(self, detector: Detector) -> Detector:
-    #     """TBW.
-    #
-    #     :param detector:
-    #     :return:
-    #     """
-    #     raise NotImplementedError
+    def run_pipeline(self, detector: Detector) -> Detector:
+        """TBW.
+
+        :param detector:
+        :return:
+        """
+        # START -> create photons ->
+        detector = self.run_model_group('photon_generation', detector)
+
+        # OPTICS:
+        # -> transport/modify photons ->
+        detector = self.run_model_group('optics', detector)
+
+        # CHARGE GENERATION:
+        # -> create charges & remove photons ->
+        detector = self.run_model_group('charge_generation', detector)
+
+        # CHARGE COLLECTION:
+        # -> transport/modify charges -> collect charges in pixels ->
+        detector = self.run_model_group('charge_collection', detector)
+
+        # CHARGE TRANSFER:
+        # -> transport/modify pixels ->
+        detector = self.run_model_group('charge_transfer', detector)
+
+        # CHARGE READOUT
+        # -> create signal -> modify signal ->
+        detector = self.run_model_group('charge_measurement', detector)
+
+        # READOUT ELECTRONICS
+        # -> create image -> modify image -> END
+        detector = self.run_model_group('readout_electronics', detector)
+
+        return detector
