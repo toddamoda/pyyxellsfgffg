@@ -19,9 +19,7 @@ class DetectionPipeline:
                  charge_collection: ModelGroup = None,
                  charge_measurement: ModelGroup = None,
                  readout_electronics: ModelGroup = None,
-                 _name=None,                                # TODO
                  _model_groups=None,                        # TODO
-                 _model_steps=None,                         # TODO
                  doc=None) -> None:
         """TBW.
 
@@ -41,10 +39,8 @@ class DetectionPipeline:
         self.charge_measurement = charge_measurement
         self.readout_electronics = readout_electronics
 
-        # self._name = ''                                             # TODO
-        self._model_groups = []  # type: t.List[str]                # TODO
-        # self._model_steps = {}   # type: t.Dict[str, t.List[str]]   # TODO
-        self._log = logging.getLogger(__name__)                     # TODO
+        self._model_groups = []  # type: t.List[str]
+        self._log = logging.getLogger(__name__)
 
     # @property
     # def name(self):
@@ -57,10 +53,10 @@ class DetectionPipeline:
 
     def __getstate__(self):
         """TBW."""
-        def state(ref):
-            """TBW."""
-            if ref:
-                return ref  # .__getstate__()
+        # def state(ref):
+        #     """TBW."""
+        #     if ref:
+        #         return ref  # .__getstate__()
 
         return {
             'photon_generation': self.photon_generation,
@@ -110,16 +106,6 @@ class DetectionPipeline:
         """TBW."""
         return self._model_groups
 
-    # def run(self, detector: Detector) -> Detector:
-    #     """TBW."""
-    #     try:
-    #         self._is_running = True
-    #         return self.run_pipeline(detector)
-    #     except util.PipelineAborted:
-    #         raise  # send signal to caller to ensure no output is saved
-    #     finally:
-    #         self._is_running = False
-
     def abort(self):
         """TBW."""
         self._is_running = False
@@ -157,7 +143,7 @@ class DetectionPipeline:
                 models_obj.run(detector, self)
         return detector
 
-    def run_pipeline(self, detector: Detector) -> Detector:
+    def run_pipeline(self, detector: Detector) -> Detector:              # TODO TODO TODO TODO (like run_model_group)
         """TBW.
 
         :param detector:
@@ -191,3 +177,13 @@ class DetectionPipeline:
         detector = self.run_model_group('readout_electronics', detector)
 
         return detector
+
+    # def run(self, detector: Detector) -> Detector:
+    #     """TBW."""
+    #     try:
+    #         self._is_running = True
+    #         return self.run_pipeline(detector)
+    #     except util.PipelineAborted:
+    #         raise  # send signal to caller to ensure no output is saved
+    #     finally:
+    #         self._is_running = False
