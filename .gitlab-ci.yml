@@ -24,6 +24,7 @@ anaconda3:
   script:
     - pip install pytest pytest-cov pytest-html
     - pip install -r requirements.txt
+    - pip freeze              # TODO remove
     - export PYTHONPATH=$PWD
     - pytest --cov=pyxel --cov-report= --cov-report=html --html=pytest_report.html --self-contained-html --color=yes --full-trace --showlocals --verbose
     - coverage report > coverage.out
