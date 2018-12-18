@@ -18,9 +18,10 @@ def simple_digitization(detector: Detector) -> Detector:
     :return: detector:
     """
     logging.info('')
-    # floor of signal values element-wise (quantization)
-    array = np.floor(detector.signal.array)
-    # convert floats to integers
-    detector.image.array = array.astype('uint16')
+    # # floor of signal values element-wise (quantization)
+    # array = np.floor(detector.signal.array)
+    # # convert floats to integers
+    # detector.image.array = array.astype('uint16')
+    detector.image.array = detector.signal.array
 
     return detector
