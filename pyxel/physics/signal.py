@@ -5,11 +5,12 @@
 import numpy as np
 from astropy.units import cds
 from pyxel.detectors.geometry import Geometry
+from pyxel.physics.array import Array
 
 cds.enable()
 
 
-class Signal:
+class Signal(Array):
     """Signal class defining and storing information of detector signal."""
 
     def __init__(self, geo: Geometry) -> None:
@@ -17,4 +18,7 @@ class Signal:
 
         :param geo:
         """
-        self.array = np.zeros((geo.row, geo.col), dtype=float)  # todo
+        super().__init__()
+        self.exp_type = np.float
+        self.type_list = [np.float, np.float16, np.float32, np.float64]
+        self._array = np.zeros((geo.row, geo.col), dtype=self.exp_type)
