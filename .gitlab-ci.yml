@@ -64,6 +64,7 @@ python36:
   script:
     - pip install pytest attrs pyyaml             # TODO remove attrs and pyyaml
     - pip install -r requirements.txt
+    - pip freeze                                  # TODO remove
     - pytest --color=yes --full-trace --showlocals --verbose
   allow_failure: false
 
