@@ -1,6 +1,5 @@
 """TBW."""
 from pyxel.pipelines.detector_pipeline import DetectionPipeline
-from pyxel.detectors.detector import Detector
 from pyxel.pipelines.model_group import ModelGroup
 
 
@@ -34,38 +33,3 @@ class CCDDetectionPipeline(DetectionPipeline):
             '_model_groups': self.model_group_names,
         }
         return {**kwargs, **kwargs_obj}
-
-    # def run_pipeline(self, detector: Detector) -> Detector:
-    #     """TBW.
-    #
-    #     :param detector:
-    #     :return:
-    #     """
-    #     # START -> create photons ->
-    #     detector = self.run_model_group('photon_generation', detector)
-    #
-    #     # OPTICS:
-    #     # -> transport/modify photons ->
-    #     detector = self.run_model_group('optics', detector)
-    #
-    #     # CHARGE GENERATION:
-    #     # -> create charges & remove photons ->
-    #     detector = self.run_model_group('charge_generation', detector)
-    #
-    #     # CHARGE COLLECTION:
-    #     # -> transport/modify charges -> collect charges in pixels ->
-    #     detector = self.run_model_group('charge_collection', detector)
-    #
-    #     # CHARGE TRANSFER:
-    #     # -> transport/modify pixels ->
-    #     detector = self.run_model_group('charge_transfer', detector)
-    #
-    #     # CHARGE READOUT
-    #     # -> create signal -> modify signal ->
-    #     detector = self.run_model_group('charge_measurement', detector)
-    #
-    #     # READOUT ELECTRONICS
-    #     # -> create image -> modify image -> END
-    #     detector = self.run_model_group('readout_electronics', detector)
-    #
-    #     return detector
