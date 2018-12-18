@@ -3,7 +3,7 @@
 #   --------------------------------------------------------------------------
 """Pyxel full well models."""
 import logging
-import pyxel
+# import pyxel
 from pyxel.detectors.detector import Detector
 
 

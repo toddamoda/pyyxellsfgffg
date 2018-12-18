@@ -11,9 +11,8 @@ from esapy_web.webapp2.modules import guiconfig
 from esapy_web.webapp2.modules import dispatch
 
 from pyxel.pipelines.processor import Processor
-from pyxel.pipelines.model_registry import registry
-from pyxel.pipelines.model_group import ModelFunction
-
+# from pyxel.pipelines.model_registry import registry
+from pyxel.pipelines.model_function import ModelFunction
 
 CWD_PATH = Path(__file__).parent
 SET_MODEL_STATE = 'SET-MODEL-STATE'
@@ -109,7 +108,7 @@ class Controller(guiconfig.Controller):
             cfg = om.load(config_path)
             self.simulation = cfg['simulation']
             self.processor = cfg['processor']
-            registry.import_models(self.processor)
+            # registry.import_models(self.processor)
         else:
             self.simulation = None
             self.processor = None

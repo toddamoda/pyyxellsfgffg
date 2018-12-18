@@ -34,22 +34,6 @@ def convert_to_int(input_array: np.ndarray):
     """
     return input_array.astype(int)
 
-# def load(yaml_filename):
-#     """TBW.
-#
-#     :param yaml_filename:
-#     :return:
-#     """
-#     from pyxel.io.yaml_processor import load
-#     cfg = load(yaml_filename)
-#     if 'parametric' in cfg:
-#         parametric = cfg.pop('parametric')  # type: pyxel.pipelines.parametric.Configuration
-#     else:
-#         parametric = None
-#
-#     processor = cfg[next(iter(cfg))]  # type: pyxel.pipelines.processor.Processor
-#     return parametric, processor
-
 
 def update_fits_header(header, key, value):
     """TBW.

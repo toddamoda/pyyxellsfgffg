@@ -10,7 +10,7 @@ from esapy_web.webapp2.modules import guiconfig
 from esapy_web.webapp2.modules import sequencer
 from esapy_web.webapp2.modules import dispatch
 
-from pyxel.pipelines.model_registry import registry         # TODO get rid of pyxel dependency
+# from pyxel.pipelines.model_registry import registry         # TODO get rid of pyxel dependency
 
 
 from pyxel.web2 import controller
@@ -76,7 +76,7 @@ class PipelinePageHandler(guiconfig.IndexPageHandler):
 
             pipeline = processor.pipeline
             for group in pipeline.model_group_names:
-                items = registry.get_group(pipeline.name, group)             # TODO get rid of pyxel dependency
+                # items = registry.get_group(pipeline.name, group)             # TODO get rid of pyxel dependency
                 for item in items:
                     prefix = 'pipeline.' + group + '.' + item.name + '.arguments'
                     gui_def = serializer.Serializer.create_section_from_func_def(item, prefix)

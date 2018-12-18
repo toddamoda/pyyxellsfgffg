@@ -3,7 +3,7 @@
 #   --------------------------------------------------------------------------
 """Simple model to convert photons into photo-electrons inside detector."""
 import logging
-import pyxel
+# import pyxel
 from pyxel.detectors.detector import Detector
 
 

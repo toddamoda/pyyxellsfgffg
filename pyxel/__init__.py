@@ -66,7 +66,7 @@ def define_pyxel_loader():
     from pyxel.pipelines.parametric import StepValues
     from pyxel.calibration.calibration import Calibration
     from pyxel.calibration.calibration import Algorithm
-    from pyxel.pipelines.model_group import ModelFunction
+    from pyxel.pipelines.model_function import ModelFunction
     from pyxel.pipelines.model_group import ModelGroup
 
     om.ObjectModelLoader.add_class_ref(['processor', 'class'])

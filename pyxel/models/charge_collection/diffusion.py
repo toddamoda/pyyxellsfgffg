@@ -8,7 +8,7 @@ import logging
 # from astropy import units as u
 # from scipy.special import erf
 from astropy.units import cds
-import pyxel
+# import pyxel
 from pyxel.detectors.ccd import CCD
 
 cds.enable()

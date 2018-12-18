@@ -7,7 +7,7 @@ import logging
 from os import path
 import typing as t
 # import numpy as np
-import pyxel
+# import pyxel
 from pyxel.detectors.cmos import CMOS
 from pyxel.detectors.cmos_geometry import CMOSGeometry          # noqa: F401
 from pyxel.detectors.ccd_geometry import CCDGeometry            # noqa: F401

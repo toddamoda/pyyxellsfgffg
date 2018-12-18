@@ -1,4 +1,4 @@
-import pyxel
+# import pyxel
 from pyxel.detectors.detector import Detector
 
 

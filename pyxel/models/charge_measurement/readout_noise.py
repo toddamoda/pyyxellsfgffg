@@ -4,7 +4,7 @@
 """Readout noise model."""
 import logging
 import numpy as np
-import pyxel
+# import pyxel
 from pyxel.detectors.detector import Detector
 
 # from astropy import units as u

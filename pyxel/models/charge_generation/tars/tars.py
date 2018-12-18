@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 import typing as t   # noqa: F401
-import pyxel
+# import pyxel
 from pyxel.detectors.detector import Detector
 from pyxel.models.charge_generation.tars.simulation import Simulation
 from pyxel.models.charge_generation.tars.util import read_data, interpolate_data  # , load_histogram_data

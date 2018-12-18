@@ -22,7 +22,7 @@ import astropy.io.fits as fits
 # import numba
 import numpy as np
 from typing import cast
-import pyxel
+# import pyxel
 from pyxel.detectors.ccd import CCD
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics  # noqa: F401
 

@@ -4,7 +4,7 @@
 """Fix pattern noise model."""
 import logging
 import numpy as np
-import pyxel
+# import pyxel
 from pyxel.detectors.detector import Detector
 from pyxel.detectors.geometry import Geometry  # noqa: F401
 
