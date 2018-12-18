@@ -12,7 +12,7 @@ from pyxel.detectors.detector import Detector
 
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
-@pyxel.register(group='charge_measurement', name='output_node_noise', detector='ccd')
+# @pyxel.register(group='charge_measurement', name='output_node_noise', detector='ccd')
 def add_output_node_noise(detector: Detector,
                           std_deviation: float,
                           random_seed: int = None) -> Detector:

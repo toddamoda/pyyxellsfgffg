@@ -9,7 +9,7 @@ from pyxel.detectors.detector import Detector
 
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
-@pyxel.register(group='charge_generation', name='photoelectrons')
+# @pyxel.register(group='charge_generation', name='photoelectrons')
 def simple_conversion(detector: Detector) -> Detector:
     """Generate charges from incident photons via photoelectric effect, simple statistical model.
 
@@ -40,7 +40,7 @@ def simple_conversion(detector: Detector) -> Detector:
 
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
-@pyxel.register(group='charge_generation', name='monte_carlo_photoelectrons')
+# @pyxel.register(group='charge_generation', name='monte_carlo_photoelectrons')
 def monte_carlo_conversion(detector: Detector) -> Detector:
     """Generate charges from incident photons via photoelectric effect, more exact, stochastic (Monte Carlo) model.
 

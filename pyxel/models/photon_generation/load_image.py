@@ -11,7 +11,7 @@ from pyxel.detectors.detector import Detector
 @pyxel.argument(name='row0', label='first row', validate=check_type(int))
 @pyxel.argument(name='col0', label='first column', validate=check_type(int))
 @pyxel.argument(name='load_full_image', label='full image (updates geometry)', validate=check_type(bool))
-@pyxel.register(group='photon_generation', name='load image')
+# @pyxel.register(group='photon_generation', name='load image')
 def load_image(detector: Detector,
                image_file: str,
                row0: int = 0,

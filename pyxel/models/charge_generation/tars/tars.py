@@ -18,7 +18,7 @@ from pyxel.models.charge_generation.tars.plotting import PlottingTARS
 
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
-@pyxel.register(group='charge_generation', name='tars')
+# @pyxel.register(group='charge_generation', name='tars')
 def run_tars(detector: Detector,
              simulation_mode: str = None,
              running_mode: str = None,

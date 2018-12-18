@@ -13,7 +13,7 @@ from pyxel.detectors.geometry import Geometry  # noqa: F401
 
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
-@pyxel.register(group='charge_collection', name='fixed_pattern_noise', detector='ccd')
+# @pyxel.register(group='charge_collection', name='fixed_pattern_noise', detector='ccd')
 def add_fix_pattern_noise(detector: Detector,
                           pix_non_uniformity=None) -> Detector:
     """Add fix pattern noise caused by pixel non-uniformity during charge collection.

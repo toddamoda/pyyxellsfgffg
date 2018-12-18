@@ -9,7 +9,7 @@ class CMOSDetectionPipeline(DetectionPipeline):
     """TBW."""
 
     def __init__(self,
-                 signal_transfer: ModelGroup,
+                 signal_transfer: ModelGroup = None,
                  **kwargs) -> None:
         """TBW.
 
@@ -19,7 +19,7 @@ class CMOSDetectionPipeline(DetectionPipeline):
         super().__init__(**kwargs)
         self.signal_transfer = signal_transfer
 
-        self._name = 'cmos'             # TODO is it used somewhere?
+        # self._name = 'cmos'             # TODO is it used somewhere?
         self._model_groups = ['photon_generation',          # TODO is it used somewhere?
                               'optics',
                               'charge_generation',
@@ -28,20 +28,20 @@ class CMOSDetectionPipeline(DetectionPipeline):
                               'signal_transfer',
                               'readout_electronics']
 
-        self._model_steps = {                             # TODO depraceted?
-            'photon_generation':    ['load_image', 'photon_level',
-                                     'shot_noise'],
-            'optics':               [],
-            'charge_generation':    ['photoelectrons',
-                                     'tars'],
-            'charge_collection':    ['full_well'],
-            'charge_measurement':   ['nghxrg_ktc_bias',
-                                     'nghxrg_read'],
-            'signal_transfer':      ['nghxrg_acn',
-                                     'nghxrg_u_pink',
-                                     'nghxrg_c_pink'],
-            'readout_electronics':  ['nghxrg_pca_zero']
-        }
+        # self._model_steps = {                             # TODO this is not updated automatically
+        #     'photon_generation':    ['load_image', 'photon_level',
+        #                              'shot_noise'],
+        #     'optics':               [],
+        #     'charge_generation':    ['photoelectrons',
+        #                              'tars'],
+        #     'charge_collection':    ['full_well'],
+        #     'charge_measurement':   ['nghxrg_ktc_bias',
+        #                              'nghxrg_read'],
+        #     'signal_transfer':      ['nghxrg_acn',
+        #                              'nghxrg_u_pink',
+        #                              'nghxrg_c_pink'],
+        #     'readout_electronics':  ['nghxrg_pca_zero']
+        # }
 
     # def copy(self):
     #     """TBW."""

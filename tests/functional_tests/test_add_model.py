@@ -1,10 +1,10 @@
 from pathlib import Path
 import sys
 
-from pyxel.pipelines.model_group import ModelFunction
-from pyxel.detectors.detector import Detector
+# from pyxel.pipelines.model_group import ModelFunction
+# from pyxel.detectors.detector import Detector
 from pyxel.pipelines.model_registry import import_model
-from tests.functional_tests import my_models
+# from tests.functional_tests import my_models
 import esapy_config as om
 
 CWD = Path(__file__).parent.parent
@@ -29,22 +29,22 @@ sys.path.append(str(CWD))
 #         'level': 7.5
 #     }
 # }
-
-
-def my_model(detector, level):
-    # set a new attribute so it can be checked later
-    setattr(detector, 'level', level)  # NOTE: this is purely for testing
-    return detector
-
-
-def my_other_model(detector: Detector, level: int, noise: float=2.0):
-    # set a new attribute so it can be checked later
-    setattr(detector, 'level', level)
-    setattr(detector, 'noise', noise)
-    return detector
-
-
-# def test_add_model():                                                      # todo reactivate this test
+#
+#
+# def my_model(detector, level):
+#     # set a new attribute so it can be checked later
+#     setattr(detector, 'level', level)  # NOTE: this is purely for testing
+#     return detector
+#
+#
+# def my_other_model(detector: Detector, level: int, noise: float=2.0):
+#     # set a new attribute so it can be checked later
+#     setattr(detector, 'level', level)
+#     setattr(detector, 'noise', noise)
+#     return detector
+#
+#
+# def test_add_model():
 #     cfg = om.load(Path(CWD, 'data', 'test_yaml_new.yaml'))
 #     processor = cfg['processor']
 #     pipeline = processor.pipeline

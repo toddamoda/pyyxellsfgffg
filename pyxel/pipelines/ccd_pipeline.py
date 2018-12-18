@@ -9,7 +9,7 @@ class CCDDetectionPipeline(DetectionPipeline):
     """TBW."""
 
     def __init__(self,
-                 charge_transfer: ModelGroup,
+                 charge_transfer: ModelGroup = None,
                  **kwargs) -> None:
         """TBW.
 
@@ -19,7 +19,7 @@ class CCDDetectionPipeline(DetectionPipeline):
         super().__init__(**kwargs)
         self.charge_transfer = charge_transfer
 
-        self._name = 'ccd'                                          # TODO
+        # self._name = 'ccd'                                          # TODO
         self._model_groups = ['photon_generation',                  # TODO
                               'optics',
                               'charge_generation',
@@ -28,18 +28,18 @@ class CCDDetectionPipeline(DetectionPipeline):
                               'charge_measurement',
                               'readout_electronics']
 
-        self._model_steps = {                                           # TODO depraceted?
-            'photon_generation':    ['load_image', 'photon_level',
-                                     'shot_noise'],
-            'optics':               [],
-            'charge_generation':    ['photoelectrons',
-                                     'tars'],
-            'charge_collection':    ['fixed_pattern_noise',
-                                     'full_well'],
-            'charge_transfer':      ['cdm'],
-            'charge_measurement':   ['output_node_noise'],
-            'readout_electronics':  []
-        }
+        # self._model_steps = {                                           # TODO this is not updated automatically
+        #     'photon_generation':    ['load_image', 'photon_level',
+        #                              'shot_noise'],
+        #     'optics':               [],
+        #     'charge_generation':    ['photoelectrons',
+        #                              'tars'],
+        #     'charge_collection':    ['fixed_pattern_noise',
+        #                              'full_well'],
+        #     'charge_transfer':      ['cdm'],
+        #     'charge_measurement':   ['output_node_noise'],
+        #     'readout_electronics':  []
+        # }
 
     # def copy(self):
     #     """TBW."""

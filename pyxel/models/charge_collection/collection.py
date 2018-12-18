@@ -10,7 +10,7 @@ from pyxel.detectors.detector import Detector
 
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
-@pyxel.register(group='charge_collection', name='simple_collection')
+# @pyxel.register(group='charge_collection', name='simple_collection')
 def simple_collection(detector: Detector) -> Detector:
     """Simply associate charges with a pixel.
 

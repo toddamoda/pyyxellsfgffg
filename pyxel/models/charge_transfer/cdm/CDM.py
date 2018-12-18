@@ -25,7 +25,7 @@ from pyxel.detectors.ccd_characteristics import CCDCharacteristics  # noqa: F401
 
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
-@pyxel.register(group='charge_transfer', name='cdm', detector='ccd')
+# @pyxel.register(group='charge_transfer', name='cdm', detector='ccd')
 def cdm(detector: CCD,
         beta_p: float = None, beta_s: float = None,
         chg_inj: bool = None,

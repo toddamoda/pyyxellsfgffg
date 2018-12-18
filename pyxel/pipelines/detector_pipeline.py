@@ -134,17 +134,18 @@ class DetectionPipeline:
         :param name:
         :return:
         """
-        for group in self._model_groups:
-            steps = self._model_steps[group]
-            if name in steps:
-                model_group = getattr(self, group)  # type: Models
-                if model_group:
-                    i = 0
-                    while name != model_group.models[i].name:
-                        i += 1
-                    model_group.models[i].group = group
-                    return model_group.models[i]
-        raise AttributeError('Model has not found')
+        # # TODO SHOULD NOT BE USED ANYMORE UNLESS IT IS UPDATED !
+        # for group in self._model_groups:
+        #     steps = self._model_steps[group]
+        #     if name in steps:
+        #         model_group = getattr(self, group)  # type: Models
+        #         if model_group:
+        #             i = 0
+        #             while name != model_group.models[i].name:
+        #                 i += 1
+        #             model_group.models[i].group = group
+        #             return model_group.models[i]
+        # raise AttributeError('Model has not found')
 
     def run_model_group(self, name, detector):
         """TBW.

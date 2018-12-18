@@ -42,11 +42,11 @@ class registry:  # noqa: N801
                     print('Cannot import: %r', item)
                     print(exc)
 
-    @staticmethod
-    def decorator(*args, **kwargs):
-        """TBW."""
-        import pyxel
-        return pyxel.register(*args, **kwargs)
+    # @staticmethod
+    # def decorator(*args, **kwargs):
+    #     """TBW."""
+    #     import pyxel
+    #     return pyxel.register(*args, **kwargs)
 
 
 def import_model(processor, model_def):

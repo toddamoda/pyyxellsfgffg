@@ -8,7 +8,7 @@ from pyxel.detectors.detector import Detector
 
 @pyxel.validate
 @pyxel.argument(name='level', label='number of photons', units='', validate=check_type(int))
-@pyxel.register(group='photon_generation', name='add photons')
+# @pyxel.register(group='photon_generation', name='add photons')
 def add_photons(detector: Detector,
                 level: int = -1
                 ) -> Detector:
