@@ -5,7 +5,7 @@
 # Scientific / Imaging #
 ########################
 
-numpy=1.15.3
+numpy==1.15.3
 astropy
 pandas
 matplotlib              # should be optional
