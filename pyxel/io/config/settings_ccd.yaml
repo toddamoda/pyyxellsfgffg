@@ -224,17 +224,23 @@ processor:
          nt_s: [1.]
          sigma_p: [1.]
          sigma_s: [1.]
-#         parallel_trap_file: pyxel/models/cdm/cdm_euclid_parallel.dat
-#         serial_trap_file: pyxel/models/cdm/cdm_euclid_serial.dat
 
     # charge -> signal
     charge_measurement:
       -
+        name: simple_measurement
+        func: pyxel.models.charge_measurement.measurement.simple_measurement
+        enabled: true
+      -
         name: output_node_noise
-        func: pyxel.models.charge_measurement.readout_noise.add_output_node_noise
+        func: pyxel.models.charge_measurement.readout_noise.output_node_noise
         enabled: true
         arguments:
           std_deviation: 40.
 
     # signal -> image
     readout_electronics:
+      -
+        name: simple_digitization
+        func: pyxel.models.readout_electronics.digitization.simple_digitization
+        enabled: true

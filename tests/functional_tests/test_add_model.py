@@ -129,32 +129,32 @@ sys.path.append(str(CWD))
 #         assert isinstance(model_def, dict)
 
 
-def test_model_registry_decorator():
-    # my_models.my_decorated_function(None)
-    om.evaluate_reference('functional_tests.my_models.my_decorated_function')
-    cfg = om.load(Path(CWD, 'data', 'test_yaml_new.yaml'))
-    processor = cfg['processor']
-
-    # remove all models from the pipeline
-    for model_group in processor.pipeline.model_groups.values():
-        model_group.models.clear()
-
-    # import all model definitions into the processor
-    for name in om.functions:
-        model_def = om.functions[name]
-        import_model(processor, model_def)
-
-    # 'my_class_model'
-    # 'my_other_class_model'
-    # 'my_function_model'
-    # 'my_dec_model_class'
-    # 'my_dec_model_func'
-    processor.pipeline.set_model_enabled('*', False)
-    processor.pipeline.set_model_enabled('my_dec_model_class', True)
-    processor.pipeline.set_model_enabled('my_dec_model_func', True)
-    detector = processor.pipeline.run_pipeline(processor.detector)
-    assert detector.class_std == 1.0
-    assert detector.func_std == 2.0
+# def test_model_registry_decorator():
+#     # my_models.my_decorated_function(None)
+#     om.evaluate_reference('functional_tests.my_models.my_decorated_function')
+#     cfg = om.load(Path(CWD, 'data', 'test_yaml_new.yaml'))
+#     processor = cfg['processor']
+#
+#     # remove all models from the pipeline
+#     for model_group in processor.pipeline.model_groups.values():
+#         model_group.models.clear()
+#
+#     # import all model definitions into the processor
+#     for name in om.functions:
+#         model_def = om.functions[name]
+#         import_model(processor, model_def)
+#
+#     # 'my_class_model'
+#     # 'my_other_class_model'
+#     # 'my_function_model'
+#     # 'my_dec_model_class'
+#     # 'my_dec_model_func'
+#     processor.pipeline.set_model_enabled('*', False)
+#     processor.pipeline.set_model_enabled('my_dec_model_class', True)
+#     processor.pipeline.set_model_enabled('my_dec_model_func', True)
+#     detector = processor.pipeline.run_pipeline(processor.detector)
+#     assert detector.class_std == 1.0
+#     assert detector.func_std == 2.0
 
 
 # def test_model_registry_map():

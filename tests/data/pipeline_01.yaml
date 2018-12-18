@@ -132,7 +132,7 @@ processor:
     charge_measurement:
       -
         name: output_node_noise
-        func: pyxel.models.charge_measurement.readout_noise.add_output_node_noise
+        func: pyxel.models.charge_measurement.readout_noise.output_node_noise
         enabled: false
         arguments:
           std_deviation: 40.

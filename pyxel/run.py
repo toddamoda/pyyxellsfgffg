@@ -95,7 +95,7 @@ def main():
     logging_level = logging.INFO  # logging.DEBUG
     # log_level = [logging.ERROR, logging.INFO, logging.DEBUG][min(opts.verbosity, 2)]
     del logging.root.handlers[:]
-    log_format = '%(asctime)s - %(name)s - %(funcName)s \t\t\t %(message)s'   # %(threadName)s -
+    log_format = '%(asctime)s - %(funcName)s \t\t\t %(message)s'   # %(name)s - %(threadName)s -
     logging.basicConfig(level=logging_level, format=log_format)
     logging.info('\n*** Pyxel ***\n')
 

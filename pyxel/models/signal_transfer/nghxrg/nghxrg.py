@@ -40,7 +40,7 @@ def get_geom(detector_obj):
 
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
-@pyxel.register(group='charge_measurement', name='nghxrg_ktc_bias', detector='cmos')
+# @pyxel.register(group='charge_measurement', name='nghxrg_ktc_bias', detector='cmos')
 def ktc_bias_noise(detector: CMOS,
                    ktc_noise: float = None,
                    bias_offset: float = None,
@@ -96,7 +96,7 @@ def ktc_bias_noise(detector: CMOS,
 
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
-@pyxel.register(group='charge_measurement', name='nghxrg_read', detector='cmos')
+# @pyxel.register(group='charge_measurement', name='nghxrg_read', detector='cmos')
 def white_read_noise(detector: CMOS,
                      rd_noise: float = None,
                      ref_pixel_noise_ratio: float = None,
@@ -150,7 +150,7 @@ def white_read_noise(detector: CMOS,
 
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
-@pyxel.register(group='signal_transfer', name='nghxrg_acn', detector='cmos')
+# @pyxel.register(group='signal_transfer', name='nghxrg_acn', detector='cmos')
 def acn_noise(detector: CMOS,
               acn: float = None,
               window_mode: str = 'FULL',
@@ -202,7 +202,7 @@ def acn_noise(detector: CMOS,
 
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
-@pyxel.register(group='signal_transfer', name='nghxrg_u_pink', detector='cmos')
+# @pyxel.register(group='signal_transfer', name='nghxrg_u_pink', detector='cmos')
 def uncorr_pink_noise(detector: CMOS,
                       u_pink: float = None,
                       window_mode: str = 'FULL',
@@ -254,7 +254,7 @@ def uncorr_pink_noise(detector: CMOS,
 
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
-@pyxel.register(group='signal_transfer', name='nghxrg_c_pink', detector='cmos')
+# @pyxel.register(group='signal_transfer', name='nghxrg_c_pink', detector='cmos')
 def corr_pink_noise(detector: CMOS,
                     c_pink: float = None,
                     window_mode: str = 'FULL',
@@ -306,7 +306,7 @@ def corr_pink_noise(detector: CMOS,
 
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
-@pyxel.register(group='readout_electronics', name='nghxrg_pca_zero', detector='cmos')
+# @pyxel.register(group='readout_electronics', name='nghxrg_pca_zero', detector='cmos')
 def pca_zero_noise(detector: CMOS,
                    pca0_amp: float = None,
                    window_mode: str = 'FULL',
