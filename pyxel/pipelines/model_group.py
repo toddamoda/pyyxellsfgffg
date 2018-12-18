@@ -1,7 +1,6 @@
 """TBW."""
 import logging
 import typing as t  # noqa: F401
-
 import esapy_config as om
 from pyxel.pipelines.model_function import ModelFunction
 from pyxel import util
@@ -16,7 +15,7 @@ class ModelGroup:
         :param models:
         """
         self.models = models    # type: t.List[ModelFunction]
-        self._log = logging.getLogger(__name__)
+        # self._log = logging.getLogger(__name__)
 
     def get_state_json(self):
         """TBW."""
@@ -26,10 +25,8 @@ class ModelGroup:
         """Execute each enabled model in this group."""
         for model in self.models:
             if model.enabled:
-                self._log.debug('Running %r', model.func)
                 model.function(detector)
                 if not pipeline.is_running:
-                    self._log.debug('Aborted after %r', model.func)
                     raise util.PipelineAborted()
             else:
                 pass
@@ -45,7 +42,7 @@ class ModelGroup:
         # if item == '__deepcopy__':
         #     return self.copy()
         if item == '__setstate__':
-            return super().__getattr__(item)
+            return super().__getattr__(item)        # TODO
         for model in self.models:         # THIS CAUSED AN INFINITE RECURSIVE LOOP, WHEN ModelGroup was deepcopied
             if model.name == item:
                 return model

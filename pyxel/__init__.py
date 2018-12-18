@@ -3,6 +3,13 @@ import os
 import typing as t
 import esapy_config as om
 
+from pyxel.pipelines.parametric import Configuration
+from pyxel.pipelines.parametric import ParametricAnalysis
+from pyxel.pipelines.parametric import StepValues
+from pyxel.calibration.calibration import Calibration
+from pyxel.calibration.calibration import Algorithm
+from pyxel.pipelines.model_function import ModelFunction
+from pyxel.pipelines.model_group import ModelGroup
 
 __all__ = ['models', 'detectors', 'pipelines',
            'check_type', 'check_path', 'check_range']
@@ -15,6 +22,22 @@ __pkgname__ = 'pyxel'
 from ._version import get_versions
 __version__ = get_versions()['version']
 del get_versions
+
+om.ObjectModelLoader.add_class_ref(['processor', 'class'])
+om.ObjectModelLoader.add_class_ref(['processor', 'detector', 'class'])
+om.ObjectModelLoader.add_class_ref(['processor', 'detector', None, 'class'])
+om.ObjectModelLoader.add_class_ref(['processor', 'pipeline', 'class'])
+
+om.ObjectModelLoader.add_class(Configuration, ['simulation'])
+om.ObjectModelLoader.add_class(ParametricAnalysis, ['simulation', 'parametric_analysis'])
+om.ObjectModelLoader.add_class(StepValues, ['simulation', 'parametric_analysis', 'steps'], is_list=True)
+
+om.ObjectModelLoader.add_class(Calibration, ['simulation', 'calibration'])
+om.ObjectModelLoader.add_class(ModelFunction, ['simulation', 'calibration', 'fitness_function'])
+om.ObjectModelLoader.add_class(Algorithm, ['simulation', 'calibration', 'algorithm'])
+
+om.ObjectModelLoader.add_class(ModelGroup, ['processor', 'pipeline', None])
+om.ObjectModelLoader.add_class(ModelFunction, ['processor', 'pipeline', None, None])
 
 
 # def register(group, maybe_func=None, **kwargs):         # TODO WHAT IS THIS DOING AND WHY?!?!?
@@ -57,33 +80,3 @@ def check_range(min_val: t.Union[float, int], max_val: t.Union[float, int],
                 step: t.Union[float, int] = None, enforce_step: bool = True):
     """TBW."""
     return om.check_range(min_val, max_val, step, enforce_step)
-
-
-def define_pyxel_loader():
-    """TBW."""
-    from pyxel.pipelines.parametric import Configuration
-    from pyxel.pipelines.parametric import ParametricAnalysis
-    from pyxel.pipelines.parametric import StepValues
-    from pyxel.calibration.calibration import Calibration
-    from pyxel.calibration.calibration import Algorithm
-    from pyxel.pipelines.model_function import ModelFunction
-    from pyxel.pipelines.model_group import ModelGroup
-
-    om.ObjectModelLoader.add_class_ref(['processor', 'class'])
-    om.ObjectModelLoader.add_class_ref(['processor', 'detector', 'class'])
-    om.ObjectModelLoader.add_class_ref(['processor', 'detector', None, 'class'])
-    om.ObjectModelLoader.add_class_ref(['processor', 'pipeline', 'class'])
-
-    om.ObjectModelLoader.add_class(Configuration, ['simulation'])
-    om.ObjectModelLoader.add_class(ParametricAnalysis, ['simulation', 'parametric_analysis'])
-    om.ObjectModelLoader.add_class(StepValues, ['simulation', 'parametric_analysis', 'steps'], is_list=True)
-
-    om.ObjectModelLoader.add_class(Calibration, ['simulation', 'calibration'])
-    om.ObjectModelLoader.add_class(ModelFunction, ['simulation', 'calibration', 'fitness_function'])
-    om.ObjectModelLoader.add_class(Algorithm, ['simulation', 'calibration', 'algorithm'])
-
-    om.ObjectModelLoader.add_class(ModelGroup, ['processor', 'pipeline', None])
-    om.ObjectModelLoader.add_class(ModelFunction, ['processor', 'pipeline', None, None])
-
-
-define_pyxel_loader()

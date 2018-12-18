@@ -130,6 +130,10 @@ processor:
     # charge -> signal
     charge_measurement:
       -
+        name: simple_measurement
+        func: pyxel.models.charge_measurement.measurement.simple_measurement
+        enabled: true
+      -
         name: output_node_noise
         func: pyxel.models.charge_measurement.readout_noise.output_node_noise
         enabled: true
@@ -138,3 +142,7 @@ processor:
 
     # signal -> image
     readout_electronics:
+      -
+        name: simple_digitization
+        func: pyxel.models.readout_electronics.digitization.simple_digitization
+        enabled: true

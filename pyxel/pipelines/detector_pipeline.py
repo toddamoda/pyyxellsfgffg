@@ -1,7 +1,7 @@
 """TBW."""
 import logging
 import typing as t  # noqa: F401
-import collections
+# import collections
 
 import esapy_config as om
 
@@ -70,39 +70,39 @@ class DetectionPipeline:
             'readout_electronics': self.readout_electronics,
         }
 
-    def clear(self):
-        """Remove all the models from this pipeline."""
-        for model_group in self.model_groups.values():
-            if model_group.models:
-                model_group.models.clear()
-
-    def set_model_enabled(self, expression: str, is_enabled: bool):
-        """TBW.
-
-        :param expression:
-        :param is_enabled:
-        :return:
-        """
-        groups = self.model_groups
-        for group_name, group in groups.items():
-            for model in group.models:
-                model_name = model.name
-                can_set = 0
-                can_set |= expression == '*'
-                can_set |= group_name in expression
-                can_set |= model_name in expression
-                if can_set:
-                    model.enabled = is_enabled
-
-    @property
-    def model_groups(self):
-        """TBW."""
-        result = collections.OrderedDict()
-        for group in self._model_groups:
-            model_group = getattr(self, group)
-            if model_group:
-                result[group] = model_group
-        return result
+    # def clear(self):
+    #     """Remove all the models from this pipeline."""
+    #     for model_group in self.model_groups.values():
+    #         if model_group.models:
+    #             model_group.models.clear()
+    #
+    # def set_model_enabled(self, expression: str, is_enabled: bool):
+    #     """TBW.
+    #
+    #     :param expression:
+    #     :param is_enabled:
+    #     :return:
+    #     """
+    #     groups = self.model_groups
+    #     for group_name, group in groups.items():
+    #         for model in group.models:
+    #             model_name = model.name
+    #             can_set = 0
+    #             can_set |= expression == '*'
+    #             can_set |= group_name in expression
+    #             can_set |= model_name in expression
+    #             if can_set:
+    #                 model.enabled = is_enabled
+    #
+    # @property
+    # def model_groups(self):
+    #     """TBW."""
+    #     result = collections.OrderedDict()
+    #     for group in self._model_groups:
+    #         model_group = getattr(self, group)
+    #         if model_group:
+    #             result[group] = model_group
+    #     return result
 
     @property
     def model_group_names(self):
@@ -134,18 +134,13 @@ class DetectionPipeline:
         :param name:
         :return:
         """
-        # # TODO SHOULD NOT BE USED ANYMORE UNLESS IT IS UPDATED !
-        # for group in self._model_groups:
-        #     steps = self._model_steps[group]
-        #     if name in steps:
-        #         model_group = getattr(self, group)  # type: Models
-        #         if model_group:
-        #             i = 0
-        #             while name != model_group.models[i].name:
-        #                 i += 1
-        #             model_group.models[i].group = group
-        #             return model_group.models[i]
-        # raise AttributeError('Model has not found')
+        for group_name in self._model_groups:
+            model_group = getattr(self, group_name)  # type: Models
+            if model_group:
+                for model in model_group.models:
+                    if name == model.name:
+                        return model
+        raise AttributeError('Model has not found')
 
     def run_model_group(self, name, detector):
         """TBW.

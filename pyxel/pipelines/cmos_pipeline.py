@@ -20,23 +20,13 @@ class CMOSDetectionPipeline(DetectionPipeline):
         self.signal_transfer = signal_transfer
 
         # self._name = 'cmos'
-        self._model_groups = ['photon_generation',          # TODO is it used somewhere?
+        self._model_groups = ['photon_generation',
                               'optics',
                               'charge_generation',
                               'charge_collection',
                               'charge_measurement',
                               'signal_transfer',
                               'readout_electronics']
-
-    # def copy(self):
-    #     """TBW."""
-    #     # kwargs = {key: value.copy() if value else None for key, value in self.__getstate__().items()}
-    #     # kwargs = {
-    #     #     'signal_transfer': self.signal_transfer.copy(),
-    #     # }
-    #     # for key in super().__getstate__():
-    #     #     kwargs[key] = getattr(cpy, key).copy()
-    #     return CMOSDetectionPipeline(**util.copy_state(self))
 
     def __getstate__(self):
         """TBW."""
@@ -69,10 +59,11 @@ class CMOSDetectionPipeline(DetectionPipeline):
         detector = self.run_model_group('charge_collection', detector)
 
         # CHARGE READOUT
-        # -> create signal -> modify signal ->
+        # -> create signal ->
         detector = self.run_model_group('charge_measurement', detector)
 
         # SIGNAL TRANSFER
+        # -> modify signal ->
         detector = self.run_model_group('signal_transfer', detector)
 
         # READOUT ELECTRONICS

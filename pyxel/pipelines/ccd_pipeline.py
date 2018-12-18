@@ -18,7 +18,7 @@ class CCDDetectionPipeline(DetectionPipeline):
         super().__init__(**kwargs)
         self.charge_transfer = charge_transfer
 
-        self._model_groups = ['photon_generation',                  # TODO
+        self._model_groups = ['photon_generation',
                               'optics',
                               'charge_generation',
                               'charge_collection',

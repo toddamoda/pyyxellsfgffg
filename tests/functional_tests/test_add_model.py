@@ -1,14 +1,14 @@
-from pathlib import Path
-import sys
-
-# from pyxel.pipelines.model_group import ModelFunction
-# from pyxel.detectors.detector import Detector
-from pyxel.pipelines.model_registry import import_model
-# from tests.functional_tests import my_models
-import esapy_config as om
-
-CWD = Path(__file__).parent.parent
-sys.path.append(str(CWD))
+# from pathlib import Path
+# import sys
+#
+# # from pyxel.pipelines.model_group import ModelFunction
+# # from pyxel.detectors.detector import Detector
+# # from pyxel.pipelines.model_registry import import_model
+# # from tests.functional_tests import my_models
+# # import esapy_config as om
+#
+# CWD = Path(__file__).parent.parent
+# sys.path.append(str(CWD))
 
 #
 # my_model_def_yaml = """
