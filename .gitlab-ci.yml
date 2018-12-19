@@ -70,16 +70,16 @@ python36:
   allow_failure: false
 
 
-# Run pytest for Python 3.5
-python35:
-  image: python:3.5
-  stage: test
-  script:
-    - pip install pytest attrs pyyaml             # TODO remove attrs and pyyaml
-    - pip install -r requirements.txt
-    - pip freeze
-    - pytest --color=yes --full-trace --showlocals --verbose
-  allow_failure: true                             # TODO
+## Run pytest for Python 3.5
+#python35:
+#  image: python:3.5
+#  stage: test
+#  script:
+#    - pip install pytest attrs pyyaml             # TODO remove attrs and pyyaml
+#    - pip install -r requirements.txt
+#    - pip freeze
+#    - pytest --color=yes --full-trace --showlocals --verbose
+#  allow_failure: true
 
 
 # Run mypy
