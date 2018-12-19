@@ -107,18 +107,18 @@ def test_boundaries(yaml):
 
 @pytest.mark.parametrize('simulated_data, target_data, expected_fitness',
                          [
-                             (231, 231, (0, 0)),
-                             (231, 145, (86, 7396)),
-                             (2.31, 1.45, (0.8600000000000001, 0.7396000000000001)),
-                             (2., 1, (1.0, 1.0)),
-                             (np.array([1, 9, 45, 548, 2, 2]), np.array([1, 9, 45, 548, 2, 2]), (0, 0)),
-                             (np.array([1, 9, 45, 548, 2, 2]), np.array([1, 3, 56, 21, 235, 11]), (786, 332256)),
+                             (231, 231, 0.),
+                             (231, 145, 86.),
+                             (2.31, 1.45, 0.8600000000000001),
+                             (2., 1, 1.0),
+                             (np.array([1, 9, 45, 548, 2, 2]), np.array([1, 9, 45, 548, 2, 2]), 0.),
+                             (np.array([1, 9, 45, 548, 2, 2]), np.array([1, 3, 56, 21, 235, 11]), 786.),
                              (np.array([[1362., 1378.], [1308., 1309.]]),
-                              np.array([[1362., 1378.], [1308., 1309.]]), (0, 0)),
+                              np.array([[1362., 1378.], [1308., 1309.]]), 0.),
                              (np.array([[1362., 1378.],
                                         [1308., 1309.]]),
                               np.array([[1462., 1368.],
-                                        [1508., 1399.]]), (400.0, 58200.0))
+                                        [1508., 1399.]]), 400.)
                           ])
 def test_calculate_fitness(simulated_data, target_data, expected_fitness):
     """Test"""
@@ -128,7 +128,7 @@ def test_calculate_fitness(simulated_data, target_data, expected_fitness):
     mf = ModelFitting(processor)
     configure(mf, simulation)
     fitness = mf.calculate_fitness(simulated_data, target_data)
-    assert fitness == expected_fitness[0]
+    assert fitness == expected_fitness
     print('fitness: ', fitness)
 
 
@@ -182,8 +182,7 @@ def test_custom_fitness(yaml, simulated_data, target_data, expected_fitness):
                              ('tests/data/calibrate_models.yaml',
                               np.array([1., 0.5, 1.5, -2., -3., 4.5, -4., 1.,
                                         0.5, -3.5, 2., -3., -4., 0.5, 1., 100.]),
-                              # 185720.6490372545)
-                              5131.350962745482)
+                              5180.350962745482)
                           ])
 def test_fitness(yaml, parameter, expected_fitness):
     """Test"""

@@ -11,10 +11,7 @@ cds.enable()
 
 
 class Pixel(Array):
-    """Pixel class defining and storing information of charge packets.
-
-    Pixel properties stored are: charge, position, lost charge.
-    """
+    """Pixel class defining and storing information of charge packets. Inherits from Array class."""
 
     def __init__(self, geo: Geometry) -> None:
         """TBW.

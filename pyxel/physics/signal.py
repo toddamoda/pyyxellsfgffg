@@ -11,7 +11,7 @@ cds.enable()
 
 
 class Signal(Array):
-    """Signal class defining and storing information of detector signal."""
+    """Signal class defining and storing information of detector signal. Inherits from Array class."""
 
     def __init__(self, geo: Geometry) -> None:
         """TBW.

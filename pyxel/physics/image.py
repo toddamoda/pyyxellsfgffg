@@ -11,7 +11,7 @@ cds.enable()
 
 
 class Image(Array):
-    """Image class defining and storing information of detector image."""
+    """Image class defining and storing information of detector image. Inherits from Array class."""
 
     def __init__(self, geo: Geometry) -> None:
         """TBW.
@@ -22,4 +22,3 @@ class Image(Array):
         self.exp_type = np.uint
         self.type_list = [np.uint16, np.uint32, np.uint64]
         self._array = np.zeros((geo.row, geo.col), dtype=self.exp_type)
-        # np.int8 results bitpix error from fitsfile

@@ -13,7 +13,7 @@ from pyxel.detectors.detector import Detector
 @pyxel.validate
 @pyxel.argument(name='data_type', label='type of output data array', units='ADU',
                 validate=pyxel.check_choices(['numpy.uint16', 'numpy.uint32', 'numpy.uint64',
-                                              'numpy.int32', 'numpy.int64', None]))
+                                              'numpy.int32', 'numpy.int64']))
 def simple_digitization(detector: Detector,
                         data_type: str = 'numpy.uint16') -> Detector:
     """Create an image array from signal array mimicking readout electronics.

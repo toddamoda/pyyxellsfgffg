@@ -33,10 +33,10 @@ simulation:
   calibration:
     calibration_mode:  pipeline  # single_model
 
-    output_type: pixel  # image   # signal # pixel
+    output_type: image   # signal # pixel
     output_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50] #
 
-    target_data_path: ['data/results.fits']     #  <*.npy> <*.fits> <ascii>
+    target_data_path: ['outputs/in.fits'] # data/results.fits']     #  <*.npy> <*.fits> <ascii>
     target_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50]
 #    weighting_path: ['data/results.fits']
 
@@ -146,7 +146,7 @@ processor:
         func: pyxel.models.photon_generation.load_image.load_image
         enabled: true
         arguments:
-          image_file: data/01.fits
+          image_file: outputs/in.fits # data/01.fits
           row0: 0
           col0: 0
       - name: photon_level
