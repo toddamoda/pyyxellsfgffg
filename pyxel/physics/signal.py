@@ -20,5 +20,5 @@ class Signal(Array):
         """
         super().__init__()
         self.exp_type = np.float
-        self.type_list = [np.float, np.float16, np.float32, np.float64]
+        self.type_list = [np.float16, np.float32, np.float64]
         self._array = np.zeros((geo.row, geo.col), dtype=self.exp_type)

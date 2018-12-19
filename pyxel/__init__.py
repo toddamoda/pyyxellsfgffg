@@ -12,7 +12,7 @@ from pyxel.pipelines.model_function import ModelFunction
 from pyxel.pipelines.model_group import ModelGroup
 
 __all__ = ['models', 'detectors', 'pipelines',
-           'check_type', 'check_path', 'check_range']
+           'check_type', 'check_path', 'check_range', 'check_choices']
 
 __appname__ = 'Pyxel'
 __author__ = 'David Lucsanyi'
@@ -76,7 +76,13 @@ def check_path(path):
     return os.path.exists(path)
 
 
-def check_range(min_val: t.Union[float, int], max_val: t.Union[float, int],
-                step: t.Union[float, int] = None, enforce_step: bool = True):
+def check_range(min_val: t.Union[float, int], max_val: t.Union[float, int]):
+                # step: t.Union[float, int] = None, enforce_step: bool = False):
     """TBW."""
-    return om.check_range(min_val, max_val, step, enforce_step)
+    return om.check_range(min_val, max_val, step=None, enforce_step=False)
+    # todo: rounding BUG in om.check_range() when value is a float!
+
+
+def check_choices(choices: list):
+    """TBW."""
+    return om.check_choices(choices)

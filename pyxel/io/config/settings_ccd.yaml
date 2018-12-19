@@ -244,3 +244,5 @@ processor:
         name: simple_digitization
         func: pyxel.models.readout_electronics.digitization.simple_digitization
         enabled: true
+        arguments:
+          data_type: numpy.uint16

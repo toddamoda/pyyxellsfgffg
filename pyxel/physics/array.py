@@ -23,7 +23,7 @@ class Array:
     @array.setter
     def array(self, value):
         """TBW."""
-        if isinstance(value, np.ndarray):      # TODO
+        if isinstance(value, np.ndarray):        # TODO
             if value.dtype in self.type_list:
                 self.type = value.dtype
             else:
