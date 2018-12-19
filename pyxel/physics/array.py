@@ -1,12 +1,7 @@
-
-#   --------------------------------------------------------------------------
-#   Copyright 2018 SCI-FIV, ESA (European Space Agency)
-#   --------------------------------------------------------------------------
-"""Pyxel Signal class."""
+"""Pyxel Array class."""
 import numpy as np
+import typing as t  # noqa: F401
 from astropy.units import cds
-from pyxel.detectors.geometry import Geometry
-
 cds.enable()
 
 
@@ -14,14 +9,11 @@ class Array:
     """Array class."""
 
     def __init__(self) -> None:
-        """TBW.
-
-        :param geo:
-        """
-        self.type = None
-        self.exp_type = None
-        self.type_list = None
-        self._array = None
+        """TBW."""
+        self.type = None            # type: t.Optional[type]
+        self.exp_type = None        # type: t.Optional[type]
+        self.type_list = None       # type: t.Optional[t.List[type]]
+        self._array = None          # type: t.Optional[np.ndarray]
 
     @property
     def array(self):

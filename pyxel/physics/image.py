@@ -21,5 +21,5 @@ class Image(Array):
         super().__init__()
         self.exp_type = np.int
         self.type_list = [np.int, np.int16, np.int32, np.int64]       # uint16, uint64 ??
-        # np.int8 results bitpix error from fitsfile
         self._array = np.zeros((geo.row, geo.col), dtype=self.exp_type)
+        # np.int8 results bitpix error from fitsfile

@@ -51,7 +51,7 @@ python37:
   image: python:3.7
   stage: test
   script:
-    - pip install pytest attrs pyyaml             # TODO remove attrs and pyyaml
+    - pip install pytest
     - pip install -r requirements.txt
     - pip freeze
     - pytest --color=yes --full-trace --showlocals --verbose
@@ -63,7 +63,7 @@ python36:
   image: python:3.6
   stage: test
   script:
-    - pip install pytest attrs pyyaml             # TODO remove attrs and pyyaml
+    - pip install pytest
     - pip install -r requirements.txt
     - pip freeze
     - pytest --color=yes --full-trace --showlocals --verbose
@@ -75,7 +75,7 @@ python36:
 #  image: python:3.5
 #  stage: test
 #  script:
-#    - pip install pytest attrs pyyaml             # TODO remove attrs and pyyaml
+#    - pip install pytest
 #    - pip install -r requirements.txt
 #    - pip freeze
 #    - pytest --color=yes --full-trace --showlocals --verbose
@@ -97,7 +97,7 @@ lint:
   image: python:3.6
   stage: test
   script:
-    - pip install pytest-pylint pytest-html attrs pyyaml             # TODO remove attrs and pyyaml
+    - pip install pytest-pylint pytest-html
     - pip install -r requirements.txt
     - pytest --pylint --color=yes --verbose --pylint-rcfile=pylint.cfg --html=pylint_report.html --self-contained-html -m pylint || echo 1
     - ls
