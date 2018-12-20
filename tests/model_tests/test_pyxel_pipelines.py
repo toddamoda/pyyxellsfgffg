@@ -12,7 +12,8 @@ from astropy.io import fits
                           ])
 def test_pyxel_pipeline(yaml, expected_image, seed):
     """Test """
-    output = run(input_filename=yaml, output_file='tests/data/temp.fits', random_seed=seed)
-    image = fits.getdata(output[0])
+    out = 'tests/data/temp.fits'
+    run(input_filename=yaml, output_file=out, random_seed=seed)
+    image = fits.getdata(out)
     expected_image = fits.getdata(expected_image)
     np.testing.assert_array_equal(image, expected_image)

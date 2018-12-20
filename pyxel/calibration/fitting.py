@@ -18,6 +18,7 @@ class ModelFitting:
 
         self.det = processor.detector
         self.pipe = processor.pipeline
+        self.orig_det = None
 
         self.model_name_list = []           # type: t.List[str]
         self.params_per_variable = []       # type: t.List[t.List[int]]
@@ -25,18 +26,19 @@ class ModelFitting:
         self.is_var_array = []              # type: t.List[t.List[int]]
         self.is_var_log = []                # type: t.List[t.List[bool]]
 
-        self.generations = None
-        self.pop = None
+        self.generations = None             # type: int
+        self.pop = None                     # type: int
 
-        self.all_target_data = []
+        self.all_target_data = []           # type: t.List[t.List[t.Any]]
 
         # self.normalization = False
         # self.target_data_norm = []
 
-        self.single_model_input = None
-        self.weighting = None
+        # self.single_model_input = None
+        self.weighting = None               # type: t.List[float]
         self.fitness_func = None
         self.sim_output = None
+        self.fitted_model = None
 
         self.n = 0
         self.g = 0
@@ -103,17 +105,16 @@ class ModelFitting:
         self.generations = generations
 
         if self.calibration_mode == 'single_model':
-            if len(self.model_name_list) > 1:
-                raise ValueError('Select only one pipeline model!')
-            if self.model_name_list[0] in ['geometry', 'material', 'environment', 'characteristics']:
-                raise ValueError('Select a pipeline model and not a detector attribute!')
+            self.single_model_calibration()
+
+        self.orig_det = deepcopy(self.det)
 
         self.champions_file = champions_file
         file1 = open(self.champions_file, 'wb')  # truncate output file
         file1.close()
         if population_file:
             self.pop_file = population_file
-            file2 = open(self.pop_file, 'wb')  # truncate output file
+            file2 = open(self.pop_file, 'wb')    # truncate output file
             file2.close()
         # filelist = glob.glob('champion_id*.out')
         # for file in filelist:
@@ -121,10 +122,10 @@ class ModelFitting:
 
     def configure(self,
                   params_per_variable: list,
-                  target_output,
-                  target_fit_range,        # type: t.Optional[list]      # todo
-                  out_fit_range,           # t.Union[list, None]   # todo
-                  weighting,
+                  target_output: str,
+                  target_fit_range: list,
+                  out_fit_range: list,
+                  weighting: str,
                   single_model_input
                   ):
         """TBW.
@@ -163,12 +164,25 @@ class ModelFitting:
         for target in target_list:
             self.all_target_data += [target[self.targ_fit_range]]
 
-        if single_model_input:
-            self.single_model_input = read_data(single_model_input)[0]
+        # if single_model_input:
+        #     self.single_model_input = read_data(single_model_input)[0]
 
         if weighting:
             self.weighting = read_data(weighting)[0]
             self.weighting = self.weighting[self.targ_fit_range]
+
+    def single_model_calibration(self):
+        """TBW.
+
+        :return:
+        """
+        if len(self.model_name_list) > 1:
+            raise ValueError('Select only one pipeline model!')
+        if self.model_name_list[0] in ['geometry', 'material', 'environment', 'characteristics']:
+            raise ValueError('Select a pipeline model and not a detector attribute!')
+
+        self.fitted_model = self.pipe.get_model(self.model_name_list[0])
+        self.pipe.run_pipeline(self.det, abort_before=self.model_name_list[0])
 
     def set_bound(self, low_val, up_val):
         """TBW.
@@ -210,39 +224,26 @@ class ModelFitting:
         :param parameter: 1d np.array
         :return:
         """
-        new_det = None
-        simulated_data = None
-
         parameter_lst = self.split_and_update_parameter(parameter)
 
+        self.det = deepcopy(self.orig_det)
+        self.update_models(parameter_lst)
+
         if self.calibration_mode == 'pipeline':
-            self.det.reinitialize()
-            self.update_detector_and_models(parameter_lst)
-            new_det = self.pipe.run_pipeline(self.det)
-
+            self.update_detector(parameter_lst)
+            self.pipe.run_pipeline(self.det)
         elif self.calibration_mode == 'single_model':
-            raise NotImplementedError
-            # # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-            # self.det.reinitialize()
-            # self.update_detector_and_models(parameter_lst)
-            # fitted_model = self.pipe.get_model(self.model_name_list[0])
-            # if fitted_model.group is 'charge_transfer':
-            #     self.det.pixels.array = self.single_model_input
-            # elif fitted_model.group is 'charge_measurement':
-            #     self.det.signal.array = self.single_model_input
-            # elif fitted_model.group is 'readout_electronics':
-            #     self.det.image.array = self.single_model_input
-            # new_det = fitted_model.function(self.det)
-            # # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+            self.fitted_model.function(self.det)
 
+        simulated_data = None
         if self.sim_output == 'image':
-            simulated_data = new_det.image.array[self.sim_fit_range]
+            simulated_data = self.det.image.array[self.sim_fit_range]
         elif self.sim_output == 'signal':
-            simulated_data = new_det.signal.array[self.sim_fit_range]
+            simulated_data = self.det.signal.array[self.sim_fit_range]
         elif self.sim_output == 'pixel':
-            simulated_data = new_det.pixels.array[self.sim_fit_range]
+            simulated_data = self.det.pixels.array[self.sim_fit_range]
 
-        overall_fitness = 0
+        overall_fitness = 0.
         for target_data in self.all_target_data:
             overall_fitness += self.calculate_fitness(simulated_data, target_data)
 
@@ -278,7 +279,7 @@ class ModelFitting:
 
         return subarrays
 
-    def update_detector_and_models(self, param_array_list):
+    def update_detector(self, param_array_list):
         """TBW.
 
         :param param_array_list:
@@ -292,6 +293,19 @@ class ModelFitting:
                 for j in range(len(self.variable_name_lst[i])):
                     setattr(det_class, self.variable_name_lst[i][j], param_array_list[k])
                     k += 1
+            else:
+                k += len(self.variable_name_lst[i])
+
+    def update_models(self, param_array_list):
+        """TBW.
+
+        :param param_array_list:
+        :return:
+        """
+        k = 0
+        for i in range(len(self.model_name_list)):
+            if self.model_name_list[i] in ['geometry', 'material', 'environment', 'characteristics']:
+                k += len(self.variable_name_lst[i])
             else:
                 fitted_pipeline_model = self.pipe.get_model(self.model_name_list[i])
                 for j in range(len(self.variable_name_lst[i])):

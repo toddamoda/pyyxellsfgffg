@@ -19,14 +19,17 @@ class ModelGroup:
         """TBW."""
         return om.get_state_dict(self.models)
 
-    def run(self, detector, pipeline):
+    def run(self, detector, pipeline, abort_model: str = None):
         """Execute each enabled model in this group."""
         for model in self.models:
+            if model.name == abort_model:
+                return True
             if not pipeline.is_running:
                 raise util.PipelineAborted('Pipeline has been aborted.')
             else:
                 if model.enabled:
                     model.function(detector)
+        return False
 
     def __getstate__(self):
         """TBW."""

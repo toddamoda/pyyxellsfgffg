@@ -82,17 +82,20 @@ class DetectionPipeline:
                         return model
         raise AttributeError('Model has not found.')
 
-    def run_pipeline(self, detector: Detector) -> Detector:
+    def run_pipeline(self, detector: Detector, abort_before: str = None) -> Detector:
         """TBW.
 
         :param detector:
+        :param abort_before: str, model name, the pipeline should be aborted before this
         :return:
         """
         self._is_running = True
         for group_name in self.model_group_names:
             models_grp = getattr(self, group_name)      # type: ModelGroup
             if models_grp:
-                models_grp.run(detector, self)
+                abort_flag = models_grp.run(detector, self, abort_model=abort_before)
+                if abort_flag:
+                    break
         self._is_running = False
         return detector
 

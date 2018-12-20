@@ -10,8 +10,7 @@ from pyxel.detectors.ccd import CCD
 
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
-# @pyxel.register('charge_generation', name='charge_injection')
-def charge_injection(detector: CCD,
+def charge_injection(detector: CCD,         # TODO TODO TODO
                      input_data_list: str = None
                      ) -> CCD:
     """TBW.

@@ -19,6 +19,24 @@ from pyxel import util
 from pyxel.web2.runweb import run_web_server
 
 
+def single_output(detector, output_file):    # TODO
+    """TBW."""
+    if output_file:
+        save_to = util.apply_run_number(output_file)
+        out = util.FitsFile(save_to)
+        out.save(detector.image.array, header=None, overwrite=True)
+
+
+def calibration_output(results):        # TODO
+    """TBW."""
+    pass
+
+
+def parametric_output(config, detector):        # TODO
+    """TBW."""
+    pass
+
+
 def run(input_filename, output_file: str = None, random_seed: int = None):
     """TBW.
 
@@ -30,40 +48,43 @@ def run(input_filename, output_file: str = None, random_seed: int = None):
     start_time = time.time()
     if random_seed:
         np.random.seed(random_seed)
-    output = []
 
     cfg = om.load(Path(input_filename))
     simulation = cfg['simulation']
     processor = cfg['processor']
-    detector = None
+    # detector = None
 
     if simulation.mode == 'single':
         detector = processor.pipeline.run_pipeline(processor.detector)
+        single_output(detector, output_file)             # TODO implement
 
     elif simulation.mode == 'calibration':
         simulation.calibration.run_calibration(processor)
-        # TODO: detector = simulation.calibration.run_calibration(processor)
-        # TODO: return also the optimal model/detector parameters as dict or obj
+        # calibration_results = simulation.calibration.run_calibration(processor)
+        # TODO: return the optimal model/detector parameters as dict or obj
+        # calibration_output(calibration_results)      # TODO implement
 
     elif simulation.mode == 'parametric':
         configs = simulation.parametric_analysis.collect(processor)
         for config in configs:
             detector = config.pipeline.run_pipeline(config.detector)
+            # parametric_output(config, detector)      # TODO implement
 
     else:
         raise ValueError
 
-    if output_file and detector:            # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-        save_to = util.apply_run_number(output_file)
-        out = util.FitsFile(save_to)
-        out.save(detector.image.array, header=None, overwrite=True)
-        # todo: BUG creates new, fits file with random filename and without extension
-        # ... when it can not save data to fits file (because it is opened/used by other process)
-        output.append(output_file)
+    # output = []
+    # if output_file and detector:            # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+    #     save_to = util.apply_run_number(output_file)
+    #     out = util.FitsFile(save_to)
+    #     out.save(detector.image.array, header=None, overwrite=True)
+    #     # todo: BUG creates new, fits file with random filename and without extension
+    #     # ... when it can not save data to fits file (because it is opened/used by other process)
+    #     output.append(output_file)
 
     print('\nPipeline completed.')
     print("Running time: %.3f seconds" % (time.time() - start_time))
-    return output
+    # return output
 
 
 def main():

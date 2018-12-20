@@ -134,9 +134,9 @@ def test_calculate_fitness(simulated_data, target_data, expected_fitness):
 
 @pytest.mark.parametrize('yaml, factor, expected_fitness',
                          [
-                             ('tests/data/calibrate_weighting.yaml', 1., 0.),
-                             ('tests/data/calibrate_weighting.yaml', 2., 310815803081.51117),
-                             ('tests/data/calibrate_weighting.yaml', 3., 621631606163.0223),
+                             ('tests/data/calibrate_weighting.yaml', 1, 0.),
+                             ('tests/data/calibrate_weighting.yaml', 2, 310815803081.51117),
+                             ('tests/data/calibrate_weighting.yaml', 3, 621631606163.0223),
                           ])
 def test_weighting(yaml, factor, expected_fitness):
     """Test"""
@@ -182,7 +182,7 @@ def test_custom_fitness(yaml, simulated_data, target_data, expected_fitness):
                              ('tests/data/calibrate_models.yaml',
                               np.array([1., 0.5, 1.5, -2., -3., 4.5, -4., 1.,
                                         0.5, -3.5, 2., -3., -4., 0.5, 1., 100.]),
-                              5180.350962745482)
+                              2852.6490372545177)
                           ])
 def test_fitness(yaml, parameter, expected_fitness):
     """Test"""
@@ -241,7 +241,8 @@ def test_detector_and_model_update(yaml, param_array_list):
     simulation = cfg['simulation']
     mf = ModelFitting(processor)
     configure(mf, simulation)
-    mf.update_detector_and_models(param_array_list)
+    mf.update_detector(param_array_list)
+    mf.update_models(param_array_list)
     attributes = [
         mf.det.characteristics.amp,
         mf.pipe.charge_transfer.models[0].arguments['tr_p'],

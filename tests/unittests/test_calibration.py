@@ -111,3 +111,4 @@ def test_run_calibration(yaml):
     simulation = cfg['simulation']
     result = simulation.calibration.run_calibration(processor)
     assert result == 1
+

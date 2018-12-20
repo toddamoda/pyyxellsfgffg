@@ -70,23 +70,3 @@ def check_ranges(target_fit_range: t.Optional[t.List[int]],
             for i in [2, 3]:
                 if target_fit_range[i] < 0 or target_fit_range[i] > cols:
                     raise ValueError('Value of target fit range is wrong')
-
-
-# def check_array_types(a, b):
-#     """TBW.
-#
-#     :param a: np
-#     :param b:
-#     :return:
-#     """
-#     if isinstance(a, np.ndarray) and isinstance(b, np.ndarray):
-#         if a.dtype and b.dtype in [np.int32, np.int64]:
-#             pass
-#         elif a.dtype and b.dtype in [np.float16, np.float32, np.float64]:
-#             pass
-#         elif a.dtype and b.dtype in [np.uint16, np.uint32, np.uint64]:
-#             pass
-#         else:
-#             raise TypeError('Numpy.ndarray objects should have the same type.')
-#     else:
-#         raise TypeError('Arrays should be numpy.ndarray objects.')
