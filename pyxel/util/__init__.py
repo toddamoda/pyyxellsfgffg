@@ -1,13 +1,19 @@
 """Utility functions."""
 import glob
-
 import numpy as np
-
 from pyxel.util.fitsfile import FitsFile
+
+__all__ = ['update_fits_header', 'apply_run_number', 'convert_to_int', 'round_convert_to_int',
+           'FitsFile', 'PipelineAborted']
 
 
 class PipelineAborted(Exception):
     """Exception to force the pipeline to stop processing."""
+
+    def __init__(self, message: str = None, errors=None):
+        """TBW."""
+        super().__init__(message)
+        self.errors = errors
 
 
 def round_convert_to_int(input_array: np.ndarray):
@@ -45,15 +51,11 @@ def update_fits_header(header, key, value):
     """
     if not isinstance(value, (str, int, float)):
         value = '%r' % value
-
     if isinstance(value, str):
         value = value[0:24]
-
     if isinstance(key, (list, tuple)):
         key = '/'.join(key)
-
     key = key.replace('.', '/')[0:36]
-
     header[key] = value
 
 
@@ -77,6 +79,3 @@ def apply_run_number(path):
         last_num += 1
         path_str = path_str.format(last_num)
     return type(path)(path_str)
-
-
-__all__ = ['FitsFile', 'update_fits_header', 'apply_run_number']

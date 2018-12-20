@@ -22,12 +22,11 @@ class ModelGroup:
     def run(self, detector, pipeline):
         """Execute each enabled model in this group."""
         for model in self.models:
-            if model.enabled:
-                model.function(detector)
-                if not pipeline.is_running:
-                    raise util.PipelineAborted()
+            if not pipeline.is_running:
+                raise util.PipelineAborted('Pipeline has been aborted.')
             else:
-                pass
+                if model.enabled:
+                    model.function(detector)
 
     def __getstate__(self):
         """TBW."""
