@@ -30,18 +30,14 @@ class ModelGroup:
 
     def __getstate__(self):
         """TBW."""
-        return {
-            'models': self.models
-        }
+        return {'models': self.models}
+
+    def __setstate__(self, item):
+        """TBW."""
+        self.models = item['models']
 
     def __getattr__(self, item):
         """TBW."""
-        # if item == '__deepcopy__':
-        #     return self.copy()
-        if item == '__setstate__':
-            return super().__getattr__(item)        # TODO
-        for model in self.models:         # THIS CAUSED AN INFINITE RECURSIVE LOOP, WHEN ModelGroup was deepcopied
+        for model in self.models:
             if model.name == item:
                 return model
-
-        # return super().__getattr__(item)

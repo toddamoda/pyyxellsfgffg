@@ -37,8 +37,6 @@ def run(input_filename, output_file: str = None, random_seed: int = None):
     processor = cfg['processor']
     detector = None
 
-    # simulation.debug(processor)
-
     if simulation.mode == 'single':
         detector = processor.pipeline.run_pipeline(processor.detector)
 

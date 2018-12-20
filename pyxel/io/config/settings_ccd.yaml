@@ -5,26 +5,26 @@
 
 simulation:
 ###################
-  mode: single
-#  mode: parametric
+#  mode: single
+  mode: parametric
 #  mode: calibration
 ###################
 
   parametric_analysis:
 #    parametric_mode: sequential
-#    parametric_mode: embedded
-    parametric_mode: image_generator
+    parametric_mode: embedded
+#    parametric_mode: image_generator
     steps:
       -
-        enabled: false
+        enabled: true
         key: pipeline.charge_generation.tars.arguments.particle_number
         values: [2, 3]
       -
-        enabled: false
+        enabled: true
         key: pipeline.photon_generation.photon_level.arguments.level
         values: range(10, 13)
       -
-        enabled: true
+        enabled: false
         key:  [['characteristics', 'cdm', 'output_node_noise'],
               [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['std_deviation']],
               [[1], [4, 4, 4, 1], [1]]]
@@ -153,7 +153,7 @@ processor:
         func: pyxel.models.photon_generation.add_photons.add_photons
         enabled: true
         arguments:
-#          level: 10
+          level:
       - name: shot_noise
         func: pyxel.models.photon_generation.shot_noise.add_shot_noise
         enabled: false
