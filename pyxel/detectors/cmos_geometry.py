@@ -1,10 +1,11 @@
 """TBW."""
+import pyxel
 import esapy_config as om
 
 from pyxel.detectors.geometry import Geometry
 
 
-@om.attr_class
+@pyxel.detector_class
 class CMOSGeometry(Geometry):
     """TBW."""
 
@@ -42,19 +43,3 @@ class CMOSGeometry(Geometry):
         # converter=int,
         validator=om.validate_range(0, 32, 1)
     )
-
-    def copy(self):
-        """TBW."""
-        return CMOSGeometry(**self.__getstate__())
-
-    def __getstate__(self):
-        """TBW."""
-        states = super().__getstate__()
-        cmos_states = {
-            'n_output': self.n_output,
-            'n_row_overhead': self.n_row_overhead,
-            'n_frame_overhead': self.n_frame_overhead,
-            'reverse_scan_direction': self.reverse_scan_direction,
-            'reference_pixel_border_width': self.reference_pixel_border_width
-        }
-        return {**states, **cmos_states}

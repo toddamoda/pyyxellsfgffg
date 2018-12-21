@@ -1,10 +1,11 @@
 """TBW."""
+import pyxel
 import esapy_config as om
 
 from pyxel.detectors.characteristics import Characteristics
 
 
-@om.attr_class
+@pyxel.detector_class
 class CCDCharacteristics(Characteristics):
     """TBW."""
 
@@ -40,21 +41,3 @@ class CCDCharacteristics(Characteristics):
         doc='serial transfer period',
         metadata={'units': 's'}
     )
-
-    def copy(self):
-        """TBW."""
-        return CCDCharacteristics(**self.__getstate__())
-
-    def __getstate__(self):
-        """TBW.
-
-        :return:
-        """
-        states = super().__getstate__()
-        ccd_states = {
-            'fwc_serial': self.fwc_serial,
-            'svg': self.svg,
-            't': self.t,
-            'st': self.st,
-        }
-        return {**states, **ccd_states}

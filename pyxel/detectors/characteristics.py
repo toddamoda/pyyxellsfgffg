@@ -1,8 +1,9 @@
 """TBW."""
+import pyxel
 import esapy_config as om
 
 
-@om.attr_class
+@pyxel.detector_class
 class Characteristics:
     """TBW."""
 
@@ -72,25 +73,3 @@ class Characteristics:
         doc='half pixel volume charges can occupy',
         metadata={'units': 'cm^2'}
     )
-
-    def copy(self):
-        """TBW."""
-        return Characteristics(**self.__getstate__())
-
-    def __getstate__(self):
-        """TBW."""
-        return {'qe': self.qe,
-                'eta': self.eta,
-                'sv': self.sv,
-                'amp': self.amp,
-                'a1': self.a1,
-                'a2': self.a2,
-                'fwc': self.fwc,
-                'vg': self.vg
-                }
-
-    # TODO: create unittests for this method
-    def __eq__(self, obj):
-        """TBW."""
-        assert isinstance(obj, Characteristics)
-        return self.__getstate__() == obj.__getstate__()

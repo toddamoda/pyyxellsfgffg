@@ -1,4 +1,5 @@
 """Geometry class for detector."""
+import pyxel
 import esapy_config as om
 
 
@@ -6,7 +7,7 @@ import esapy_config as om
 M_ELECTRON = 9.10938356e-31    # kg     # TODO put these global constants to a data file
 
 
-@om.attr_class
+@pyxel.detector_class
 class Material:
     """TBW."""
 
@@ -18,10 +19,10 @@ class Material:
     #     """
     #     # TODO put these constants to a data file
     #     if material == 'silicon' or 'Si' or 'si':
-    #         self.material_density = 2.328  # TODO add unit (g/cm3)
-    #         self.ionization_energy = 3.6  # TODO add unit (eV)
-    #         self.band_gap = 1.12  # TODO add unit (eV)
-    #         self.e_effective_mass = 0.5 * M_ELECTRON  # TODO add unit (kg)
+    #         self.material_density = 2.328                 # (g/cm3)
+    #         self.ionization_energy = 3.6                  # (eV)
+    #         self.band_gap = 1.12                          # (eV)
+    #         self.e_effective_mass = 0.5 * M_ELECTRON      # (kg)
     #
     #     else:
     #         raise NotImplementedError('Given material has not implemented yet')
@@ -79,34 +80,3 @@ class Material:
         validator=om.validate_range(0.0, 1.e-10, 1.e-30, False),
         metadata={'units': 'kg'}
     )
-
-    def copy(self):
-        """TBW."""
-        return Material(**self.__getstate__())
-
-    def __getstate__(self):
-        """TBW."""
-        return {
-            'n_acceptor': self.n_acceptor,
-            'n_donor': self.n_donor,
-            'material': self.material,
-            'material_density': self.material_density,
-            'ionization_energy': self.ionization_energy,
-            'band_gap': self.band_gap,
-            'e_effective_mass': self.e_effective_mass
-        }
-
-    # TODO: create unittests for this method
-    def __eq__(self, obj):
-        """TBW.
-
-        :param obj:
-        :return:
-        """
-        assert isinstance(obj, Material)
-        return self.__getstate__() == obj.__getstate__()
-
-    # @property
-    # def horz_dimension(self):
-    #     """TBW."""
-    #     return self.pixel_horz_size * self.col

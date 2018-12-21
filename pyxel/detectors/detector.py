@@ -67,13 +67,13 @@ class Detector:
         # self.geometry.create_sensor()
         ############################
 
-    def reinitialize(self):
-        """TBW."""
-        self.photons = Photon()                 # type: Photon
-        self.charges = Charge()                 # type: Charge
-        self.pixels = Pixel(self.geometry)      # type: Pixel
-        self.signal = Signal(self.geometry)     # type: Signal
-        self.image = Image(self.geometry)       # type: Image
+    # def reinitialize(self):
+    #     """TBW."""
+    #     self.photons = Photon()                 # type: Photon
+    #     self.charges = Charge()                 # type: Charge
+    #     self.pixels = Pixel(self.geometry)      # type: Pixel
+    #     self.signal = Signal(self.geometry)     # type: Signal
+    #     self.image = Image(self.geometry)       # type: Image
 
     ######################################
     # These functions are not called at all:

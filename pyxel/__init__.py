@@ -56,6 +56,11 @@ om.ObjectModelLoader.add_class(ModelFunction, ['processor', 'pipeline', None, No
 #     return om.register(maybe_func, ignore_args, name, enabled, metadata)
 
 
+def detector_class(cls: t.Callable):
+    """TBW."""
+    return om.attr_class(cls)
+
+
 def validate(func: t.Callable):
     """TBW."""
     return om.validate(func)
