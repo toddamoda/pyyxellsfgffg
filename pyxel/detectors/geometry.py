@@ -1,6 +1,5 @@
 """Geometry class for detector."""
 import pyxel as pyx
-# from esapy_sensor.sensor_ccd import CCDSensorGeometry, CCDFrame
 
 
 @pyx.detector_class
@@ -8,7 +7,7 @@ class Geometry:
     """TBW."""
 
     row = pyx.attribute(
-        type=int,       # just for your information
+        type=int,
         default=0,
         validator=[pyx.validate_type(int, is_optional=False),
                    pyx.validate_range(0, 10000)]

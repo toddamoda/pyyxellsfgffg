@@ -2,10 +2,6 @@
 import pyxel as pyx
 from pyxel.detectors.geometry import Geometry
 
-# import os
-# import numpy as np
-# from esapy_sensor.sensor_ccd import CCDSensorGeometry, CCDFrame, HeaderPLATO
-
 
 @pyx.detector_class
 class CCDGeometry(Geometry):
