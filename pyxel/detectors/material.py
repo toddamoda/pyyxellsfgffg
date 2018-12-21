@@ -1,13 +1,11 @@
 """Geometry class for detector."""
-import pyxel
-import esapy_config as om
-
+import pyxel as pyx
 
 # Universal global constants
 M_ELECTRON = 9.10938356e-31    # kg     # TODO put these global constants to a data file
 
 
-@pyxel.detector_class
+@pyx.detector_class
 class Material:
     """TBW."""
 
@@ -32,51 +30,62 @@ class Material:
     #     if self.material:
     #         self.set_material(self.material)
 
-    n_acceptor = om.attr_def(
+    n_acceptor = pyx.attribute(
         type=float,
         default=0.0,
         converter=float,
-        validator=om.validate_range(0.0, 1000.0, 0.1, False),
+        validator=[pyx.validate_type(float),
+                   pyx.validate_range(0., 1000.)],
         metadata={'units': 'cm-3'}
     )
-    n_donor = om.attr_def(
+    n_donor = pyx.attribute(
         type=float,
         default=0.0,
         converter=float,
-        validator=om.validate_range(0.0, 1000.0, 0.1, False),
+        validator=[pyx.validate_type(float),
+                   pyx.validate_range(0., 1000.)],
         metadata={'units': 'cm-3'}
     )
-    material = om.attr_def(
+    material = pyx.attribute(
         type=str,
-        default='',
-        validator=om.validate_choices(['', 'silicon', 'hxrg'])
+        default='silicon',
+        validator=[pyx.validate_type(str),
+                   pyx.validate_choices(['silicon', 'hxrg'])],
         # on_set=set_material,
     )
-    material_density = om.attr_def(
+    material_density = pyx.attribute(       # todo: set automatically depending on the material
         # init=False,
         type=float,
-        default=2.328,  # Silicon
-        validator=om.validate_range(0.0, 10000.0, 0.001, False),
+        default=2.328,                      # Silicon
+        converter=float,
+        validator=[pyx.validate_type(float),
+                   pyx.validate_range(0., 10000.)],
         metadata={'units': 'g/cm3'}
     )
-    ionization_energy = om.attr_def(
+    ionization_energy = pyx.attribute(       # todo: set automatically depending on the material
         # init=False,
         type=float,
-        default=3.6,  # Silicon
-        validator=om.validate_range(0.0, 100.0, 0.001, False),
+        default=3.6,                        # Silicon
+        converter=float,
+        validator=[pyx.validate_type(float),
+                   pyx.validate_range(0., 100.)],
         metadata={'units': 'eV'}
     )
-    band_gap = om.attr_def(
+    band_gap = pyx.attribute(       # todo: set automatically depending on the material
         # init=False,
         type=float,
-        default=1.12,  # Silicon
-        validator=om.validate_range(0.0, 10.0, 0.001, False),
+        default=1.12,                       # Silicon
+        converter=float,
+        validator=[pyx.validate_type(float),
+                   pyx.validate_range(0., 10.)],
         metadata={'units': 'eV'}
     )
-    e_effective_mass = om.attr_def(
+    e_effective_mass = pyx.attribute(       # todo: set automatically depending on the material
         # init=False,
         type=float,
-        default=0.5 * M_ELECTRON,  # Silicon
-        validator=om.validate_range(0.0, 1.e-10, 1.e-30, False),
+        default=0.5 * M_ELECTRON,           # Silicon
+        converter=float,
+        validator=[pyx.validate_type(float),
+                   pyx.validate_range(0., 1.e-10)],
         metadata={'units': 'kg'}
     )

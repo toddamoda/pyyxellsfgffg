@@ -1,8 +1,8 @@
 """TBW."""
-import pyxel
+import pyxel as pyx
 
 
-@pyxel.detector_class
+@pyx.detector_class
 class Optics:
     """TBW."""
 

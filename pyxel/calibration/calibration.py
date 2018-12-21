@@ -2,68 +2,75 @@
 import numpy as np
 import pygmo as pg
 # import typing as t      # noqa: F401
-import esapy_config as om
-
+import pyxel as pyx
 from pyxel.calibration.fitting import ModelFitting
+from pyxel.pipelines.model_function import ModelFunction
 
 
-@om.attr_class
+@pyx.detector_class
 class Algorithm:
     """TBW.
 
     :return:
     """
 
-    type = om.attr_def(
+    type = pyx.attribute(
         type=str,
-        validator=om.validate_choices(['sade', 'sga', 'nlopt']),
+        validator=[pyx.validate_type(str),
+                   pyx.validate_choices(['sade', 'sga', 'nlopt'])],
         default='sade',
         doc=''
     )
-    generations = om.attr_def(
+    generations = pyx.attribute(
         type=int,
-        validator=om.validate_range(1, 100000),
+        validator=[pyx.validate_type(int),
+                   pyx.validate_range(1, 100000)],
         default=1,
         doc=''
     )
-    population_size = om.attr_def(
+    population_size = pyx.attribute(
         type=int,
-        validator=om.validate_range(1, 100000),
+        validator=[pyx.validate_type(int),
+                   pyx.validate_range(1, 100000)],
         default=1,
         doc=''
     )
 
     # SADE #####
-    variant = om.attr_def(type=int, validator=om.validate_range(1, 18), default=2, doc='')
-    variant_adptv = om.attr_def(type=int, validator=om.validate_range(1, 2), default=1, doc='')
-    ftol = om.attr_def(type=float, default=1e-06, doc='')  # validator=om.validate_range(),
-    xtol = om.attr_def(type=float, default=1e-06, doc='')  # validator=om.validate_range(),
-    memory = om.attr_def(type=bool, default=False, doc='')
+    variant = pyx.attribute(type=int, validator=[pyx.validate_type(int),
+                                                 pyx.validate_range(1, 18)], default=2, doc='')
+    variant_adptv = pyx.attribute(type=int, validator=[pyx.validate_type(int),
+                                                       pyx.validate_range(1, 2)], default=1, doc='')
+    ftol = pyx.attribute(type=float, default=1e-06, doc='')  # validator=pyx.validate_range(),
+    xtol = pyx.attribute(type=float, default=1e-06, doc='')  # validator=pyx.validate_range(),
+    memory = pyx.attribute(type=bool, default=False, doc='')
     # SADE #####
 
     # SGA #####
-    cr = om.attr_def(type=float, validator=om.validate_range(0, 1), default=0.9, doc='')
-    eta_c = om.attr_def(type=float, default=1.0, doc='')    # validator=om.validate_range(0, 1),
-    m = om.attr_def(type=float, validator=om.validate_range(0, 1), default=0.02, doc='')
-    param_m = om.attr_def(type=float, default=1.0, doc='')   # validator=om.validate_range(1, 2),
-    param_s = om.attr_def(type=int, default=2, doc='')  # validator=om.validate_range(1, 2),
-    crossover = om.attr_def(type=str, default='exponential', doc='')  # validator=om.validate_choices(),
-    mutation = om.attr_def(type=str, default='polynomial', doc='')  # validator=om.validate_choices(),
-    selection = om.attr_def(type=str, default='tournament', doc='')   # validator=om.validate_choices(),
+    cr = pyx.attribute(type=float, converter=float, validator=[pyx.validate_type(float),
+                                                               pyx.validate_range(0, 1)], default=0.9, doc='')
+    eta_c = pyx.attribute(type=float, converter=float, validator=[pyx.validate_type(float)], default=1.0, doc='')
+    m = pyx.attribute(type=float, converter=float, validator=[pyx.validate_type(float),
+                                                              pyx.validate_range(0, 1)], default=0.02, doc='')
+    param_m = pyx.attribute(type=float, default=1.0, doc='')   # validator=pyx.validate_range(1, 2),
+    param_s = pyx.attribute(type=int, default=2, doc='')  # validator=pyx.validate_range(1, 2),
+    crossover = pyx.attribute(type=str, default='exponential', doc='')  # validator=pyx.validate_choices(),
+    mutation = pyx.attribute(type=str, default='polynomial', doc='')  # validator=pyx.validate_choices(),
+    selection = pyx.attribute(type=str, default='tournament', doc='')   # validator=pyx.validate_choices(),
     # SGA #####
 
     # NLOPT #####
-    nlopt_solver = om.attr_def(type=str, default='neldermead', doc='')    # validator=om.validate_choices(),  todo
-    maxtime = om.attr_def(type=int, default=0, doc='')                     # validator=om.validate_range(),  todo
-    maxeval = om.attr_def(type=int, default=0, doc='')
-    xtol_rel = om.attr_def(type=float, default=1.e-8, doc='')
-    xtol_abs = om.attr_def(type=float, default=0., doc='')
-    ftol_rel = om.attr_def(type=float, default=0., doc='')
-    ftol_abs = om.attr_def(type=float, default=0., doc='')
-    stopval = om.attr_def(type=float, default=float('-inf'), doc='')
-    local_optimizer = om.attr_def(type=None, default=None, doc='')          # validator=om.validate_choices(),  todo
-    replacement = om.attr_def(type=str, default='best', doc='')
-    nlopt_selection = om.attr_def(type=str, default='best', doc='')         # todo: "selection" - same name as in SGA
+    nlopt_solver = pyx.attribute(type=str, default='neldermead', doc='')    # validator=pyx.validate_choices(),  todo
+    maxtime = pyx.attribute(type=int, default=0, doc='')                     # validator=pyx.validate_range(),  todo
+    maxeval = pyx.attribute(type=int, default=0, doc='')
+    xtol_rel = pyx.attribute(type=float, default=1.e-8, doc='')
+    xtol_abs = pyx.attribute(type=float, default=0., doc='')
+    ftol_rel = pyx.attribute(type=float, default=0., doc='')
+    ftol_abs = pyx.attribute(type=float, default=0., doc='')
+    stopval = pyx.attribute(type=float, default=float('-inf'), doc='')
+    local_optimizer = pyx.attribute(type=None, default=None, doc='')          # validator=pyx.validate_choices(),  todo
+    replacement = pyx.attribute(type=str, default='best', doc='')
+    nlopt_selection = pyx.attribute(type=str, default='best', doc='')         # todo: "selection" - same name as in SGA
     # NLOPT #####
 
     def get_algorithm(self):
@@ -106,118 +113,127 @@ class Algorithm:
         return opt_algorithm
 
 
-@om.attr_class
+@pyx.detector_class
 class Calibration:
     """TBW.
 
     :return:
     """
 
-    calibration_mode = om.attr_def(
+    calibration_mode = pyx.attribute(
         type=str,
-        validator=om.validate_choices(['pipeline', 'single_model']),
+        validator=[pyx.validate_type(str),
+                   pyx.validate_choices(['pipeline', 'single_model'])],
         default='pipeline',
         doc=''
     )
-    output_type = om.attr_def(
+    output_type = pyx.attribute(
         type=str,
-        validator=om.validate_choices(['image', 'signal', 'pixel']),
+        validator=[pyx.validate_type(str),
+                   pyx.validate_choices(['image', 'signal', 'pixel'])],
         default='image',
         doc=''
     )
-    output_fit_range = om.attr_def(
+    output_fit_range = pyx.attribute(
         type=list,
-        # validator=
+        validator=[pyx.validate_type(list)],
         default=None,
         doc=''
     )
-    target_data_path = om.attr_def(
+    target_data_path = pyx.attribute(
         type=list,
+        validator=[pyx.validate_type(list)],
         default=None,
         doc=''
     )
-    target_fit_range = om.attr_def(
+    target_fit_range = pyx.attribute(
         type=list,
-        # validator=
+        validator=[pyx.validate_type(list)],
         default=None,
         doc=''
     )
-    fitness_function = om.attr_def(
-        type=str,
+    fitness_function = pyx.attribute(
+        type=ModelFunction,
+        validator=[pyx.validate_type(ModelFunction)],
         default='',
         doc=''
     )
-    algorithm = om.attr_def(
-        type=str,
+    algorithm = pyx.attribute(
+        type=Algorithm,
+        validator=[pyx.validate_type(Algorithm)],
         default='',
         doc=''
     )
-    seed = om.attr_def(
+    seed = pyx.attribute(
         type=int,
-        validator=om.validate_range(0, 100000),
+        validator=[pyx.validate_type(int),
+                   pyx.validate_range(0, 100000)],
         default=np.random.randint(0, 100000),
         doc=''
     )
-    model_names = om.attr_def(
+    model_names = pyx.attribute(
         type=list,
-        # validator=
+        # validator=[pyx.validate_type(list)],
         default=None,
         doc=''
     )
-    variables = om.attr_def(
+    variables = pyx.attribute(
         type=list,
-        # validator=
+        # validator=[pyx.validate_type(list)],
         default=None,
         doc=''
     )
-    params_per_variable = om.attr_def(
+    params_per_variable = pyx.attribute(
         type=list,
-        # validator=
+        # validator=[pyx.validate_type(list)],
         default=None,
         doc=''
     )
-    var_log = om.attr_def(
+    var_log = pyx.attribute(
         type=list,
-        # validator=
+        # validator=[pyx.validate_type(list)],
         default=None,
         doc=''
     )
-    lower_boundary = om.attr_def(
+    lower_boundary = pyx.attribute(
         type=list,
-        # validator=
+        # validator=[pyx.validate_type(list)],
         default=None,
         doc=''
     )
-    upper_boundary = om.attr_def(
+    upper_boundary = pyx.attribute(
         type=list,
-        # validator=
+        # validator=[pyx.validate_type(list)],
         default=None,
         doc=''
     )
-    sort_var = om.attr_def(
+    sort_var = pyx.attribute(       # TODO
         type=str,
         # validator=
         default=None,
         doc=''
     )
-    weighting_path = om.attr_def(
+    weighting_path = pyx.attribute(
         type=list,
-        # validator=
+        # validator=[pyx.validate_type(list)],  # todo:
         default=None,
         doc=''
     )
-    champions_file = om.attr_def(
+    champions_file = pyx.attribute(
         type=str,
+        # validator=[pyx.validate_type(str)],
         default='data/calibration_champions.out',
         doc=''
     )
-    population_file = om.attr_def(
+    population_file = pyx.attribute(
         type=str,
+        # validator=[pyx.validate_type(str)],
         default=None,
         doc=''
     )
-    single_model_input = om.attr_def(
+    single_model_input = pyx.attribute(     # todo: remove
         type=list,
+        # validator=[pyx.validate_type(str)],
         default=None,
         doc=''
     )

@@ -1,43 +1,44 @@
 """TBW."""
-import pyxel
-import esapy_config as om
-
+import pyxel as pyx
 from pyxel.detectors.characteristics import Characteristics
 
 
-@pyxel.detector_class
+@pyx.detector_class
 class CCDCharacteristics(Characteristics):
     """TBW."""
 
-    fwc_serial = om.attr_def(
-        type=float,
+    fwc_serial = pyx.attribute(
+        type=int,
         default=0,
-        converter=float,
-        validator=om.validate_range(0., 1.e+7, 1., False),
+        validator=[pyx.validate_type(int),
+                   pyx.validate_range(0., 1.e+7)],          # TODO test this
         doc='full well capacity (serial)',
         metadata={'units': 'electrons'}
     )
-    svg = om.attr_def(
+    svg = pyx.attribute(
         type=float,
         default=0.0,
         converter=float,
-        validator=om.validate_range(0., 1., 1.e-8, False),
+        validator=[pyx.validate_type(float),
+                   pyx.validate_range(0., 1.)],
         doc='half pixel volume charges can occupy (serial)',
         metadata={'units': 'cm^2'}
     )
-    t = om.attr_def(
+    t = pyx.attribute(
         type=float,
         default=0.0,
         converter=float,
-        validator=om.validate_range(0., 10., 1.e-9, False),
+        validator=[pyx.validate_type(float),
+                   pyx.validate_range(0., 10.)],
         doc='parallel transfer period',
         metadata={'units': 's'}
     )
-    st = om.attr_def(
+    st = pyx.attribute(
         type=float,
         default=0.0,
         converter=float,
-        validator=om.validate_range(0., 10., 1.e-9, False),
+        validator=[pyx.validate_type(float),
+                   pyx.validate_range(0., 10.)],
         doc='serial transfer period',
         metadata={'units': 's'}
     )

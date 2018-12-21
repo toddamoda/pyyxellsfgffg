@@ -1,10 +1,8 @@
 """TBW."""
-import pyxel
-import esapy_config as om
-
+import pyxel as pyx
 from pyxel.detectors.characteristics import Characteristics
 
 
-@pyxel.detector_class
+@pyx.detector_class
 class CMOSCharacteristics(Characteristics):
     """TBW."""

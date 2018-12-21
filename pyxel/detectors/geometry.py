@@ -1,99 +1,89 @@
 """Geometry class for detector."""
-import pyxel
-import esapy_config as om
-
+import pyxel as pyx
 # from esapy_sensor.sensor_ccd import CCDSensorGeometry, CCDFrame
 
 
-@pyxel.detector_class
+@pyx.detector_class
 class Geometry:
     """TBW."""
 
-    row = om.attr_def(
+    row = pyx.attribute(
         type=int,       # just for your information
         default=0,
-        validator=[om.validate_type(int, is_optional=False),
-                   om.validate_range(0, 10000, 1, False)]
+        validator=[pyx.validate_type(int, is_optional=False),
+                   pyx.validate_range(0, 10000)]
     )
-    col = om.attr_def(
+    col = pyx.attribute(
         type=int,
         default=0,
-        validator=[om.validate_type(int, is_optional=False),
-                   om.validate_range(0, 10000, 1, False)]
+        validator=[pyx.validate_type(int, is_optional=False),
+                   pyx.validate_range(0, 10000)]
     )
-    depletion_thickness = om.attr_def(
+    depletion_thickness = pyx.attribute(
         type=float,
         default=0.0,
-        validator=[om.validate_type(float, is_optional=True),
-                   om.validate_range(0, 10000, 0.001, False)],
+        validator=[pyx.validate_type(float, is_optional=True),
+                   pyx.validate_range(0, 10000)],
         metadata={'units': 'um'}
     )
-    field_free_thickness = om.attr_def(
+    field_free_thickness = pyx.attribute(
         type=float,
         default=0.0,
-        validator=[om.validate_type(float, is_optional=True),
-                   om.validate_range(0, 10000, 0.001, False)],
+        validator=[pyx.validate_type(float, is_optional=True),
+                   pyx.validate_range(0, 10000)],
         metadata={'units': 'um'}
     )
-    total_thickness = om.attr_def(
+    total_thickness = pyx.attribute(
         type=float,
         default=0.0,
-        validator=[om.validate_type(float, is_optional=True),
-                   om.validate_range(0, 10000, 0.001, False)],
+        validator=[pyx.validate_type(float, is_optional=True),
+                   pyx.validate_range(0, 10000)],
         metadata={'units': 'um'}
     )
-    pixel_vert_size = om.attr_def(
+    pixel_vert_size = pyx.attribute(
         type=float,
         default=0.0,
-        validator=[om.validate_type(float, is_optional=False),
-                   om.validate_range(0., 1000., 0.001, False)],
+        validator=[pyx.validate_type(float, is_optional=False),
+                   pyx.validate_range(0, 1000)],
         metadata={'units': 'um'}
     )
-    pixel_horz_size = om.attr_def(
+    pixel_horz_size = pyx.attribute(
         type=float,
         default=0.0,
-        validator=[om.validate_type(float, is_optional=False),
-                   om.validate_range(0., 1000., 0.001, False)],
+        validator=[pyx.validate_type(float, is_optional=False),
+                   pyx.validate_range(0, 1000)],
         metadata={'units': 'um'}
     )
-    # n_acceptor = om.attr_def(
+    # n_acceptor = pyx.attribute(
     #     type=float,
     #     default=0.0,
-    #
-    #     validator=om.validate_range(0.0, 1000.0, 0.1, False),
+    #     validator=pyx.validate_range(0.0, 1000.0, 0.1, False),
     #     metadata={'units': 'cm-3'}
     # )
-    # n_donor = om.attr_def(
+    # n_donor = pyx.attribute(
     #     type=float,
     #     default=0.0,
-    #
-    #     validator=om.validate_range(0.0, 1000.0, 0.1, False),
+    #     validator=pyx.validate_range(0.0, 1000.0, 0.1, False),
     #     metadata={'units': 'cm-3'}
     # )
-    # bias_voltage = om.attr_def(
+    # bias_voltage = pyx.attribute(
     #     type=float,
     #     default=0.0,
-    #
-    #     validator=om.validate_range(0.0, 40.0, 0.001, False),
+    #     validator=pyx.validate_range(0.0, 40.0, 0.001, False),
     #     metadata={'units': 'V'}
     # )
-    # readout_nodes = om.attr_def(
+    # readout_nodes = pyx.attribute(
     #     type=int,
     #     default=1,
-    #     # cast=True,
-    #     # units='',
-    #     # validate=om.validate_range(1, 4, 1, False)
-    #     validator=om.validate_range(1, 4, 1, False)
+    #     validator=pyx.validate_range(1, 4, 1, False)
     # )
-    # sensor_geometry = om.attr_def(
+    # sensor_geometry = pyx.attribute(
     #     type=CCDSensorGeometry,
     #     default=None,
-    #     cast=True
     # )
-    # frame = om.attr_def(
+    # frame = pyx.attribute(
     #     type=CCDFrame,
     #     default=None,
-    #     cast=True
     # )
 
     @property

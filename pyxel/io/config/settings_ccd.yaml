@@ -5,9 +5,9 @@
 
 simulation:
 ###################
-#  mode: single
+  mode: single
 #  mode: parametric
-  mode: calibration
+#  mode: calibration
 ###################
 
   parametric_analysis:
@@ -127,10 +127,10 @@ processor:
       eta: 0.5                # e/photon
       sv: 1.0e-6              # V/e
       amp: 1.                 # V/V
-      a1: 100                 # V/V
+      a1: 100.                # V/V
       a2: 65536               # DN/V
-      fwc: 1.e6               # e
-      fwc_serial: 1.e6        # e
+      fwc: 1000000            # e
+      fwc_serial: 1000000     # e
       vg: 1.6200e-10          # cm2
       svg: 1.6200e-10         # cm2
       t: 9.4722e-04           # s

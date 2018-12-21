@@ -1,5 +1,5 @@
 """TBW."""
-import pyxel
+import pyxel as pyx
 from pyxel.detectors.geometry import Geometry
 
 # import os
@@ -7,7 +7,7 @@ from pyxel.detectors.geometry import Geometry
 # from esapy_sensor.sensor_ccd import CCDSensorGeometry, CCDFrame, HeaderPLATO
 
 
-@pyxel.detector_class
+@pyx.detector_class
 class CCDGeometry(Geometry):
     """TBW."""
 
