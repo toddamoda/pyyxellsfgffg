@@ -25,7 +25,7 @@ licenses-latest:
   script:
     - python --version
     - pwd
-    - apt-get update
+#    - apt-get update
     - apt-get --yes install python-dev libbz2-1.0 xz-utils zlib1g libxml2-dev libxslt1-dev wget
     - cd ..
     - wget --quiet https://github.com/nexB/scancode-toolkit/archive/v2.9.8.tar.gz
