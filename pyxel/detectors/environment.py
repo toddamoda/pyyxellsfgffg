@@ -12,7 +12,8 @@ class Environment:
         converter=float,
         validator=[pyx.validate_type(float),
                    pyx.validate_range(0, 1000)],
-        metadata={'units': 'K'}
+        metadata={'units': 'K'},
+        doc='TBW'
     )
     total_ionising_dose = pyx.attribute(
         type=float,
@@ -20,7 +21,8 @@ class Environment:
         converter=float,
         validator=[pyx.validate_type(float),
                    pyx.validate_range(0, 1.e15)],
-        metadata={'units': 'MeV/g'}
+        metadata={'units': 'MeV/g'},
+        doc='TBW'
     )
     total_non_ionising_dose = pyx.attribute(
         type=float,
@@ -28,5 +30,6 @@ class Environment:
         converter=float,
         validator=[pyx.validate_type(float),
                    pyx.validate_range(0, 1.e15)],
-        metadata={'units': 'MeV/g'}
+        metadata={'units': 'MeV/g'},
+        doc='TBW'
     )

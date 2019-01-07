@@ -51,9 +51,22 @@ def attribute(doc: t.Optional[str] = None,
                        use_dispatcher, on_get_update, **kwargs)
 
 
+# from functools import wraps
 def validate(func: t.Callable):
     """TBW."""
-    return om.validate(func)
+    # @wraps(func)
+    # def new_func(*args, **kwargs):
+    #     prev_func = om.validate(func)  # type: t.Callable
+    #     return prev_func(*args, **kwargs)
+    # return new_func
+    new_func = om.validate(func)            # type: t.Callable
+    new_func.__doc__ = func.__doc__                     # used by sphinx
+    new_func.__annotations__ = func.__annotations__     # used by sphinx
+    new_func.__module__ = func.__module__               # used by sphinx
+
+    # new_func.__name__ = func.__name__               # not used by sphinx unless we missing something
+    # new_func.__defaults__ = func.__defaults__       # not used by sphinx unless we missing something !!!!
+    return new_func
 
 
 def argument(name: str, **kwargs):

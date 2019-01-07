@@ -36,7 +36,8 @@ class Material:
         converter=float,
         validator=[pyx.validate_type(float),
                    pyx.validate_range(0., 1000.)],
-        metadata={'units': 'cm-3'}
+        metadata={'units': 'cm-3'},
+        doc='TBW'
     )
     n_donor = pyx.attribute(
         type=float,
@@ -44,7 +45,8 @@ class Material:
         converter=float,
         validator=[pyx.validate_type(float),
                    pyx.validate_range(0., 1000.)],
-        metadata={'units': 'cm-3'}
+        metadata={'units': 'cm-3'},
+        doc='TBW'
     )
     material = pyx.attribute(
         type=str,
@@ -52,6 +54,7 @@ class Material:
         validator=[pyx.validate_type(str),
                    pyx.validate_choices(['silicon', 'hxrg'])],
         # on_set=set_material,
+        doc='TBW'
     )
     material_density = pyx.attribute(       # todo: set automatically depending on the material
         # init=False,
@@ -60,7 +63,8 @@ class Material:
         converter=float,
         validator=[pyx.validate_type(float),
                    pyx.validate_range(0., 10000.)],
-        metadata={'units': 'g/cm3'}
+        metadata={'units': 'g/cm3'},
+        doc='TBW'
     )
     ionization_energy = pyx.attribute(       # todo: set automatically depending on the material
         # init=False,
@@ -69,7 +73,8 @@ class Material:
         converter=float,
         validator=[pyx.validate_type(float),
                    pyx.validate_range(0., 100.)],
-        metadata={'units': 'eV'}
+        metadata={'units': 'eV'},
+        doc='TBW'
     )
     band_gap = pyx.attribute(       # todo: set automatically depending on the material
         # init=False,
@@ -78,7 +83,8 @@ class Material:
         converter=float,
         validator=[pyx.validate_type(float),
                    pyx.validate_range(0., 10.)],
-        metadata={'units': 'eV'}
+        metadata={'units': 'eV'},
+        doc='TBW'
     )
     e_effective_mass = pyx.attribute(       # todo: set automatically depending on the material
         # init=False,
@@ -87,5 +93,6 @@ class Material:
         converter=float,
         validator=[pyx.validate_type(float),
                    pyx.validate_range(0., 1.e-10)],
-        metadata={'units': 'kg'}
+        metadata={'units': 'kg'},
+        doc='TBW'
     )

@@ -17,7 +17,7 @@ stages:
 # Test Stage
 # ###########################
 
-# experimental
+# experimental, latest version, it STILL gives an EMPTY html REPORT!
 licenses-latest:
   image: python:2.7  # debian:jessie-slim  #
   stage: test  # build
@@ -33,16 +33,14 @@ licenses-latest:
     - rm v2.9.8.tar.gz
     - cd scancode-toolkit-2.9.8
     - ./scancode --help
-#    - ./scancode --verbose --license --package --copyright --info --email --url --html license_report2.html /builds/sci-fv/pyxel        # latest version
-    - ./scancode -n 4 --ignore *.fits --verbose --html license_report2.html /builds/sci-fv/pyxel || echo 0      # latest version, EMPTY REPORT
+#    - ./scancode --verbose --license --package --copyright --info --email --url --html license_report2.html /builds/sci-fv/pyxel
+    - ./scancode -n 4 --ignore *.fits --verbose --html license_report2.html /builds/sci-fv/pyxel || echo 0      # latest version, STILL EMPTY REPORT
 #    - ./scancode --verbose --html license_report2.html /builds/sci-fv/pyxel
     - pwd
     - ls
     - mv license_report2.html ../pyxel
   artifacts:
     paths:
-#      - /builds/sci-fv/scancode-toolkit-2.9.8/license_report2_files
-#      - /builds/sci-fv/scancode-toolkit-2.9.8/license_report2.html
       - license_report2.html
 
 

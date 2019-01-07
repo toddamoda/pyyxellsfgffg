@@ -10,48 +10,55 @@ class Geometry:
         type=int,
         default=0,
         validator=[pyx.validate_type(int, is_optional=False),
-                   pyx.validate_range(0, 10000)]
+                   pyx.validate_range(0, 10000)],
+        doc='TBW'
     )
     col = pyx.attribute(
         type=int,
         default=0,
         validator=[pyx.validate_type(int, is_optional=False),
-                   pyx.validate_range(0, 10000)]
+                   pyx.validate_range(0, 10000)],
+        doc='TBW'
     )
     depletion_thickness = pyx.attribute(
         type=float,
         default=0.0,
         validator=[pyx.validate_type(float, is_optional=True),
                    pyx.validate_range(0, 10000)],
-        metadata={'units': 'um'}
+        metadata={'units': 'um'},
+        doc='TBW'
     )
     field_free_thickness = pyx.attribute(
         type=float,
         default=0.0,
         validator=[pyx.validate_type(float, is_optional=True),
                    pyx.validate_range(0, 10000)],
-        metadata={'units': 'um'}
+        metadata={'units': 'um'},
+        doc='TBW'
     )
     total_thickness = pyx.attribute(
         type=float,
         default=0.0,
         validator=[pyx.validate_type(float, is_optional=True),
                    pyx.validate_range(0, 10000)],
-        metadata={'units': 'um'}
+        metadata={'units': 'um'},
+        doc='TBW'
     )
     pixel_vert_size = pyx.attribute(
         type=float,
         default=0.0,
         validator=[pyx.validate_type(float, is_optional=False),
                    pyx.validate_range(0, 1000)],
-        metadata={'units': 'um'}
+        metadata={'units': 'um'},
+        doc='TBW'
     )
     pixel_horz_size = pyx.attribute(
         type=float,
         default=0.0,
         validator=[pyx.validate_type(float, is_optional=False),
                    pyx.validate_range(0, 1000)],
-        metadata={'units': 'um'}
+        metadata={'units': 'um'},
+        doc='TBW'
     )
     # n_acceptor = pyx.attribute(
     #     type=float,

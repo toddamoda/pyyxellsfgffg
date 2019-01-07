@@ -11,29 +11,34 @@ class CMOSGeometry(Geometry):
         type=int,
         default=1,
         validator=[pyx.validate_type(int),
-                   pyx.validate_range(0, 32)]
+                   pyx.validate_range(0, 32)],
+        doc='TBW'
     )
     n_row_overhead = pyx.attribute(
         type=int,
         default=0,
         validator=[pyx.validate_type(int),
-                   pyx.validate_range(0, 100)]
+                   pyx.validate_range(0, 100)],
+        doc='TBW'
     )
     n_frame_overhead = pyx.attribute(
         type=int,
         default=0,
         validator=[pyx.validate_type(int),
-                   pyx.validate_range(0, 100)]
+                   pyx.validate_range(0, 100)],
+        doc='TBW'
     )
     reverse_scan_direction = pyx.attribute(
         type=bool,
         default=False,
         converter=bool,
-        validator=[pyx.validate_type(bool)]
+        validator=[pyx.validate_type(bool)],
+        doc='TBW'
     )
     reference_pixel_border_width = pyx.attribute(
         type=int,
         default=4,
         validator=[pyx.validate_type(int),
-                   pyx.validate_range(0, 32)]
+                   pyx.validate_range(0, 32)],
+        doc='TBW'
     )

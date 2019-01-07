@@ -1,34 +1,23 @@
 Package API
 ===========
 
-UML from file location
 
-# .. uml:: _static/example.puml
+..
+  UML from file location
+  .. uml:: _static/example.puml
 
+Detector classes
+----------------
 
-run module
-----------
+Detector classes and their attributes.
 
-.. automodule:: pyxel.run
-    :special-members:
-    :exclude-members: __dict__, __weakref__
+.. autoclass:: pyxel.detectors.ccd_geometry.CCDGeometry
     :members:
     :undoc-members:
     :show-inheritance:
+    :exclude-members:
 
-
-Detectors
----------
-
-List of available detectors.
-
-.. currentmodule:: pyxel.detectors
-
-.. autosummary::
-    ccd.CCD
-
-.. currentmodule:: pyxel.detectors
-.. autoclass:: pyxel.detectors.ccd.CCD
+.. autoclass:: pyxel.detectors.cmos_geometry.CMOSGeometry
     :members:
     :undoc-members:
     :show-inheritance:
@@ -38,7 +27,7 @@ List of available detectors.
     :undoc-members:
     :show-inheritance:
 
-.. autoclass:: pyxel.detectors.ccd_geometry.CCDGeometry
+.. autoclass:: pyxel.detectors.cmos_characteristics.CMOSCharacteristics
     :members:
     :undoc-members:
     :show-inheritance:
@@ -46,33 +35,53 @@ List of available detectors.
 .. autoclass:: pyxel.detectors.material.Material
     :members:
     :undoc-members:
-    :show-inheritance:
 
 .. autoclass:: pyxel.detectors.environment.Environment
     :members:
     :undoc-members:
-    :show-inheritance:
 
 .. autoclass:: pyxel.detectors.optics.Optics
     :members:
     :undoc-members:
-    :show-inheritance:
 
 
 Models
 ------
 
-List of available models.
 
-.. currentmodule:: pyxel.models
-
-.. autosummary::
+Photon Generation models
+************************
 
 .. automodule:: pyxel.models.photon_generation
     :members:
+    :undoc-members:
+    :imported-members:
+
+.. autofunction:: pyxel.models.photon_generation.add_photons.add_photons(param1 = None, param2)
+
+.. autofunction:: pyxel.models.photon_generation.load_image.load_image(param1, param2: int = 0)
+
+.. autofunction:: pyxel.models.photon_generation.shot_noise.add_shot_noise(param1, param2)
+
+Optical models
+**************
 
 .. automodule:: pyxel.models.optics
     :members:
+    :undoc-members:
+    :imported-members:
+
+Charge Generation models
+*********************************
 
 .. automodule:: pyxel.models.charge_generation
     :members:
+    :undoc-members:
+    :imported-members:
+
+.. autofunction:: pyxel.models.charge_generation.tars.tars.run_tars
+
+.. autofunction:: pyxel.models.charge_generation.charge_injection.charge_injection
+
+.. autofunction:: pyxel.models.charge_generation.photoelectrons.simple_conversion
+

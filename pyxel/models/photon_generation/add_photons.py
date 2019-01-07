@@ -12,11 +12,11 @@ from pyxel.detectors.detector import Detector
 def add_photons(detector: Detector,
                 level: int = -1
                 ) -> Detector:
-    """TBW.
+    """TBW. asd
 
     :param detector:
     :param level:
-    :return:
+    :return detector:
     """
     logging.info('')
     geo = detector.geometry
