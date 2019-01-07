@@ -1,4 +1,4 @@
-FROM python:3.6.3
+FROM python:3.6.7
 
 RUN mkdir /app
 WORKDIR /app
@@ -6,6 +6,7 @@ ENV PYTHONPATH /app
 
 # Install requirements
 COPY ./requirements.txt requirements.txt
+RUN pip install attrs pyyaml             # TODO remove this, when fixed (needed by esapy-config)
 RUN pip install -r requirements.txt --upgrade
 
 # Copy project files

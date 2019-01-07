@@ -1,32 +1,14 @@
-from pathlib import Path
-# import inspect
-# import itertools
-
-# import yaml
-import sys
-# from pyxel import util
-# from pyxel.util import objmod as om
-# from pyxel.io.yaml_processor_new import load
-# from pyxel.io.yaml_processor_new import dump
-
-# from pyxel.pipelines.model_registry import Registry
-# from pyxel.pipelines.model_registry import import_model
-# from pyxel.pipelines.model_registry import create_model_def
-
-from pyxel.pipelines.model_group import ModelFunction
-# from pyxel.pipelines.model_group import ModelRegistry
-from pyxel.detectors.detector import Detector
-
-# from pyxel.pipelines.model_registry import registry
-from pyxel.pipelines.model_registry import import_model
-from tests.functional_tests import my_models
-# from pyxel import register
-# from pyxel import registry
-# from pyxel.util import objmod as om
-import esapy_config as om
-
-CWD = Path(__file__).parent.parent
-sys.path.append(str(CWD))
+# from pathlib import Path
+# import sys
+#
+# # from pyxel.pipelines.model_group import ModelFunction
+# # from pyxel.detectors.detector import Detector
+# # from pyxel.pipelines.model_registry import import_model
+# # from tests.functional_tests import my_models
+# # import esapy_config as om
+#
+# CWD = Path(__file__).parent.parent
+# sys.path.append(str(CWD))
 
 #
 # my_model_def_yaml = """
@@ -47,22 +29,22 @@ sys.path.append(str(CWD))
 #         'level': 7.5
 #     }
 # }
-
-
-def my_model(detector, level):
-    # set a new attribute so it can be checked later
-    setattr(detector, 'level', level)  # NOTE: this is purely for testing
-    return detector
-
-
-def my_other_model(detector: Detector, level: int, noise: float=2.0):
-    # set a new attribute so it can be checked later
-    setattr(detector, 'level', level)
-    setattr(detector, 'noise', noise)
-    return detector
-
-
-# def test_add_model():                                                      # todo reactivate this test
+#
+#
+# def my_model(detector, level):
+#     # set a new attribute so it can be checked later
+#     setattr(detector, 'level', level)  # NOTE: this is purely for testing
+#     return detector
+#
+#
+# def my_other_model(detector: Detector, level: int, noise: float=2.0):
+#     # set a new attribute so it can be checked later
+#     setattr(detector, 'level', level)
+#     setattr(detector, 'noise', noise)
+#     return detector
+#
+#
+# def test_add_model():
 #     cfg = om.load(Path(CWD, 'data', 'test_yaml_new.yaml'))
 #     processor = cfg['processor']
 #     pipeline = processor.pipeline
@@ -129,9 +111,9 @@ def my_other_model(detector: Detector, level: int, noise: float=2.0):
 
 
 # def test_model_registry_singleton():
-#     reg1 = Registry()
+#     reg1 = registry()
 #     assert reg1 == registry
-#     reg2 = Registry(singleton=False)
+#     reg2 = registry(singleton=False)
 #     assert reg2 != registry
 
 
@@ -147,37 +129,37 @@ def my_other_model(detector: Detector, level: int, noise: float=2.0):
 #         assert isinstance(model_def, dict)
 
 
-def test_model_registry_decorator():
-    # my_models.my_decorated_function(None)
-    om.evaluate_reference('functional_tests.my_models.my_decorated_function')
-    cfg = om.load(Path(CWD, 'data', 'test_yaml_new.yaml'))
-    processor = cfg['processor']
-
-    # remove all models from the pipeline
-    for model_group in processor.pipeline.model_groups.values():
-        model_group.models.clear()
-
-    # import all model definitions into the processor
-    for name in om.functions:
-        model_def = om.functions[name]
-        import_model(processor, model_def)
-
-    # 'my_class_model'
-    # 'my_other_class_model'
-    # 'my_function_model'
-    # 'my_dec_model_class'
-    # 'my_dec_model_func'
-    processor.pipeline.set_model_enabled('*', False)
-    processor.pipeline.set_model_enabled('my_dec_model_class', True)
-    processor.pipeline.set_model_enabled('my_dec_model_func', True)
-    detector = processor.pipeline.run_pipeline(processor.detector)
-    assert detector.class_std == 1.0
-    assert detector.func_std == 2.0
+# def test_model_registry_decorator():
+#     # my_models.my_decorated_function(None)
+#     om.evaluate_reference('functional_tests.my_models.my_decorated_function')
+#     cfg = om.load(Path(CWD, 'data', 'test_yaml_new.yaml'))
+#     processor = cfg['processor']
+#
+#     # remove all models from the pipeline
+#     for model_group in processor.pipeline.model_groups.values():
+#         model_group.models.clear()
+#
+#     # import all model definitions into the processor
+#     for name in om.functions:
+#         model_def = om.functions[name]
+#         import_model(processor, model_def)
+#
+#     # 'my_class_model'
+#     # 'my_other_class_model'
+#     # 'my_function_model'
+#     # 'my_dec_model_class'
+#     # 'my_dec_model_func'
+#     processor.pipeline.set_model_enabled('*', False)
+#     processor.pipeline.set_model_enabled('my_dec_model_class', True)
+#     processor.pipeline.set_model_enabled('my_dec_model_func', True)
+#     detector = processor.pipeline.run_pipeline(processor.detector)
+#     assert detector.class_std == 1.0
+#     assert detector.func_std == 2.0
 
 
 # def test_model_registry_map():
 #     group_models = my_models.registry_map
-#     registry_new = Registry(singleton=False)
+#     registry_new = registry(singleton=False)
 #     registry_new.register_map(group_models)
 #     expected_len = len(list(itertools.chain.from_iterable(group_models.values())))
 #     assert expected_len == len(registry_new)
@@ -213,37 +195,3 @@ def test_model_registry_decorator():
 #     assert processor.detector.level == 1.0
 #
 #     print(om.dump(cfg))
-
-
-if __name__ == '__main__':
-    # test_model_registry_singleton()
-    # test_model_registry_map()
-    # test_add_model()              # todo reactivate this test
-    # test_model_registry()
-    test_model_registry_decorator()
-    # test_pipeline_import()
-
-#
-#
-# import old_non_pyxel_models
-#
-# # __FOO__ = []
-#
-#
-# def decorator_new(self, group, name=None, enabled=True):
-#     """Auto register callable class or function using a decorator."""
-#
-#     def _wrapper(func):
-#         self.register(func, group=group, name=name, enabled=enabled)
-#
-#
-#         return func
-#
-#     return _wrapper
-#
-#
-# @decorator_new(group='new_group', name='a_name')
-# def pyxel_model_call(detector):
-#     result = old_non_pyxel_models.some_model(detector.rows, detector.cols, ...)
-#     detector.add_signal(result)
-#     return detector

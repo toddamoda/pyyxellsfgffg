@@ -2,19 +2,23 @@
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
 """Pyxel Image class."""
-# import numpy as np
+import numpy as np
 from astropy.units import cds
+from pyxel.detectors.geometry import Geometry
+from pyxel.physics.array import Array
 
 cds.enable()
 
 
-class Image:
-    """Image class defining and storing information of detector image."""
+class Image(Array):
+    """Image class defining and storing information of detector image. Inherits from Array class."""
 
-    def __init__(self, detector=None):
+    def __init__(self, geo: Geometry) -> None:
         """TBW.
 
-        :param detector:
+        :param geo:
         """
-        self.detector = detector
-        self.array = None
+        super().__init__()
+        self.exp_type = np.uint
+        self.type_list = [np.uint16, np.uint32, np.uint64]
+        self._array = np.zeros((geo.row, geo.col), dtype=self.exp_type)

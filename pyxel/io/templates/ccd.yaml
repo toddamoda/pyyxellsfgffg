@@ -27,7 +27,6 @@ simulation:
         values:
 
   calibration:
-    arguments:
 
 processor:
   class: pyxel.pipelines.processor.Processor

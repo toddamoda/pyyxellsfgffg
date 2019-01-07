@@ -4,9 +4,7 @@ from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.ccd_geometry import CCDGeometry
 from pyxel.detectors.material import Material
 from pyxel.detectors.environment import Environment
-# from pyxel.io.yaml_processor import dump
-# from pyxel.io.yaml_processor import load
-from esapy_config import io
+import esapy_config as om
 
 
 @pytest.mark.skip(reason=None)
@@ -39,7 +37,7 @@ def test_loader_with_extra_tags():
     a2: 8
 """
 
-    obj = io.load(data)
+    obj = om.load(data)
 
     assert isinstance(obj, CCD)
     # assert obj.photons == 10
@@ -86,7 +84,7 @@ def test_dumper():
                                                  sv=5, amp=6,
                                                  a1=7, a2=8))
 
-    data = io.dump(obj)
+    data = om.dump(obj)
 
     # bias_voltage: 8.0
     assert data == """!CCD

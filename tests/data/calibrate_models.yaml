@@ -1,0 +1,148 @@
+################
+# Pyxel configuration file for CCD detectors
+# David Lucsanyi
+################
+
+simulation:
+###################
+  mode: calibration
+###################
+
+  calibration:
+    calibration_mode:  pipeline
+    output_type: image
+    output_fit_range: [0, 2, 0, 2]
+
+    target_data_path: ['tests/data/test.fits']     #  <*.npy> <*.fits> <ascii>
+    target_fit_range: [0, 2, 0, 2]
+
+    fitness_function:
+      func: pyxel.calibration.fitness.sum_of_abs_residuals
+      arguments:
+
+    seed: 1111
+    algorithm:
+      type: sade
+      generations: 1
+      population_size: 10
+      variant: 2
+
+    model_names:         ['characteristics', 'cdm', 'output_node_noise', 'environment']
+    variables:           [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['std_deviation'], ['temperature']]
+    params_per_variable: [[1], [4, 4, 4, 1], [1], [1]]
+    var_log:             [[False], [True, False, True, False], [True], [False]]
+    lower_boundary:      [[1.], [1.e-3, 1.e-2, 1.e-20, 0.], [10.], [100.]]
+    upper_boundary:      [[10.], [2., 1.e+1, 1.e-15, 1.], [200.], [300.]]
+
+    champions_file: 'data/calibration_champions.out'
+    population_file: 'data/calibration_populations.out'
+
+processor:
+  class: pyxel.pipelines.processor.Processor
+
+  detector:
+    class: pyxel.detectors.ccd.CCD
+
+    geometry:
+      class: pyxel.detectors.ccd_geometry.CCDGeometry
+      row:   100                    # compulsory
+      col:   100                    # compulsory
+      pixel_vert_size: 10.          # um
+      pixel_horz_size: 10.          # um
+
+    material:
+      class: pyxel.detectors.material.Material
+
+    environment:
+      class: pyxel.detectors.environment.Environment
+
+    characteristics:
+      class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
+      qe: 0.5                 # -
+      eta: 0.5                # e/photon
+      sv: 1.0e-6              # V/e
+      amp: 1.                 # V/V
+      a1: 100                 # V/V
+      a2: 65536               # DN/V
+      fwc: 1000000               # e
+      fwc_serial: 1000000        # e
+      vg: 1.6200e-10          # cm2
+      svg: 1.6200e-10         # cm2
+      t: 9.4722e-04           # s
+      st: 9.4722e-04          # s
+
+  pipeline:
+    class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
+
+    # -> photons
+    photon_generation:
+      -
+        name: load_image
+        func: pyxel.models.photon_generation.load_image.load_image
+        enabled: true
+        arguments:
+          image_file: tests/data/image.fits
+          row0: 0
+          col0: 0
+      -
+        name: photon_level
+        func: pyxel.models.photon_generation.add_photons.add_photons
+        enabled: true
+        arguments:
+
+    # photons -> photons
+    optics:
+
+    # photons -> charge
+    charge_generation:
+      -
+        name: photoelectrons
+        func: pyxel.models.charge_generation.photoelectrons.simple_conversion
+        enabled: true
+
+    # charge -> charge
+    charge_collection:
+      -
+        name: simple_collection
+        func: pyxel.models.charge_collection.collection.simple_collection
+        enabled: true
+
+    # charge -> charge
+    charge_transfer:
+      -
+        name: cdm
+        func: pyxel.models.charge_transfer.cdm.CDM.cdm
+        enabled: true
+        arguments:
+         beta_p: 0.1
+         beta_s: 0.3
+         parallel_cti: true
+         serial_cti: false
+         chg_inj: true
+         para_transfers: 1552
+         tr_p: [0.01]
+         tr_s: [0.01]
+         nt_p: [1.]
+         nt_s: [1.]
+         sigma_p: [1.]
+         sigma_s: [1.]
+
+    # charge -> signal
+    charge_measurement:
+      -
+        name: simple_measurement
+        func: pyxel.models.charge_measurement.measurement.simple_measurement
+        enabled: true
+      -
+        name: output_node_noise
+        func: pyxel.models.charge_measurement.readout_noise.output_node_noise
+        enabled: true
+        arguments:
+          std_deviation: 40.
+
+    # signal -> image
+    readout_electronics:
+      -
+        name: simple_digitization
+        func: pyxel.models.readout_electronics.digitization.simple_digitization
+        enabled: true

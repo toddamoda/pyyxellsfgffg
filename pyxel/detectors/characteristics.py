@@ -1,96 +1,85 @@
 """TBW."""
-import esapy_config as om
+import pyxel as pyx
 
 
-@om.attr_class
+@pyx.detector_class
 class Characteristics:
     """TBW."""
 
-    qe = om.attr_def(
+    qe = pyx.attribute(
         type=float,
-        default=0.0,
+        default=0.,
         converter=float,
-        validator=om.validate_range(0.0, 100.0, 0.01, False),
-        doc='quantum efficiency'
+        validator=[pyx.validate_type(float),
+                   pyx.validate_range(0., 1.)],
+        doc='quantum efficiency',
+        metadata={'units': ''}
     )
 
-    eta = om.attr_def(
+    eta = pyx.attribute(
         type=float,
-        default=0.0,
+        default=0.,
         converter=float,
-        validator=om.validate_range(0.0, 100.0, 0.01, False),
-        doc='quantum yield'
+        validator=[pyx.validate_type(float),
+                   pyx.validate_range(0., 1.)],
+        doc='quantum yield',
+        metadata={'units': 'e-/photon'}
     )
 
-    sv = om.attr_def(
+    sv = pyx.attribute(
         type=float,
-        default=0.0,
+        default=0.,
         converter=float,
-        validator=om.validate_range(0.0, 100.0, 0.01, False),
+        validator=[pyx.validate_type(float),
+                   pyx.validate_range(0., 100.)],
         doc='sensitivity of CCD amplifier',
-        metadata={'units': 'V/-e'}
+        metadata={'units': 'V/e-'}
     )
 
-    amp = om.attr_def(
+    amp = pyx.attribute(
         type=float,
-        default=0.0,
+        default=0.,
         converter=float,
-        validator=om.validate_range(0.0, 100.0, 0.01, False),
+        validator=[pyx.validate_type(float),
+                   pyx.validate_range(0., 100.)],
         doc='output amplifier gain',
+        metadata={'units': 'V/V'}
     )
 
-    a1 = om.attr_def(
+    a1 = pyx.attribute(
         type=float,
-        default=0.0,
+        default=0.,
         converter=float,
-        validator=om.validate_range(0.0, 100.0, 1.0, False),
+        validator=[pyx.validate_type(float),
+                   pyx.validate_range(0., 100.)],
         doc='gain of the signal processor',
+        metadata={'units': 'V/V'}
     )
 
-    a2 = om.attr_def(
-        type=float,
-        default=0.0,
-        converter=float,
-        validator=om.validate_range(0.0, 65536.0, 1.0, False),
-        doc='gain of the ADC',
-    )
-
-    fwc = om.attr_def(
-        type=float,
+    a2 = pyx.attribute(
+        type=int,
         default=0,
-        converter=float,
-        validator=om.validate_range(0., 1.e+7, 1., False),
-        doc='full well capacity',
-        metadata={'units': 'electrons'}
+        validator=[pyx.validate_type(int),
+                   pyx.validate_range(0, 65536)],
+        doc='gain of the ADC',
+        metadata={'units': 'ADU/V'}
     )
 
-    vg = om.attr_def(
+    fwc = pyx.attribute(
+        type=int,
+        default=0,
+        validator=[pyx.validate_type(int),
+                   pyx.validate_range(0., 1.e+7)],
+        doc='full well capacity',
+        metadata={'units': 'e-'}
+    )
+
+    vg = pyx.attribute(
         type=float,
-        default=0.0,
+        default=0.,
         converter=float,
-        validator=om.validate_range(0., 1., 1.e-8, False),
+        validator=[pyx.validate_type(float),
+                   pyx.validate_range(0., 1.)],
         doc='half pixel volume charges can occupy',
         metadata={'units': 'cm^2'}
     )
-
-    def copy(self):
-        """TBW."""
-        return Characteristics(**self.__getstate__())
-
-    def __getstate__(self):
-        """TBW."""
-        return {'qe': self.qe,
-                'eta': self.eta,
-                'sv': self.sv,
-                'amp': self.amp,
-                'a1': self.a1,
-                'a2': self.a2,
-                'fwc': self.fwc,
-                'vg': self.vg
-                }
-
-    # TODO: create unittests for this method
-    def __eq__(self, obj):
-        """TBW."""
-        assert isinstance(obj, Characteristics)
-        return self.__getstate__() == obj.__getstate__()

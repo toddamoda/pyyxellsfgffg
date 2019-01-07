@@ -2,8 +2,6 @@
 
 import logging
 from pathlib import Path
-# import argparse
-# import typing as t  # noqa: F401
 import tornado.web
 import esapy_web.webapp2.modules.guiconfig.guiconfig_serializer as serializer
 from esapy_dispatcher import dispatcher
@@ -12,9 +10,7 @@ from esapy_web.webapp2.modules import guiconfig
 from esapy_web.webapp2.modules import sequencer
 from esapy_web.webapp2.modules import dispatch
 
-# import pyxel
-# import pyxel.pipelines.processor
-from pyxel.pipelines.model_registry import registry         # TODO get rid of pyxel dependency
+# from pyxel.pipelines.model_registry import registry         # TODO get rid of pyxel dependency
 
 
 from pyxel.web2 import controller
@@ -80,7 +76,7 @@ class PipelinePageHandler(guiconfig.IndexPageHandler):
 
             pipeline = processor.pipeline
             for group in pipeline.model_group_names:
-                items = registry.get_group(pipeline.name, group)             # TODO get rid of pyxel dependency
+                # items = registry.get_group(pipeline.name, group)             # TODO get rid of pyxel dependency
                 for item in items:
                     prefix = 'pipeline.' + group + '.' + item.name + '.arguments'
                     gui_def = serializer.Serializer.create_section_from_func_def(item, prefix)

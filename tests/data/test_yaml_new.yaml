@@ -59,7 +59,7 @@ processor:
       sv: 1.0e-6            # V/e
       amp: 0.8             # V/V
       a1: 100.0               # V/V
-      a2: 65536.0             # DN/V
+      a2: 65536             # DN/V
       fwc: 20000            # e
       fwc_serial: 30000     # e
 
@@ -69,19 +69,19 @@ processor:
     photon_generation:
       -
         name: load_image
-        func: pyxel.models.photon_generation.load_image
+        func: pyxel.models.photon_generation.load_image.load_image
         enabled: false
         arguments:
           image_file: null
       -
         name: photon_level
-        func: pyxel.models.photon_generation.add_photon_level
+        func: pyxel.models.photon_generation.add_photons.add_photons
         enabled: true
         arguments:
           level: 100
       -
         name: shot_noise
-        func: pyxel.models.photon_generation.add_shot_noise
+        func: pyxel.models.photon_generation.shot_noise.add_shot_noise
         enabled: true
 
     # -> photons
@@ -92,7 +92,7 @@ processor:
       -
         name: photoelectrons
         enabled: false
-        func: pyxel.models.photoelectrons.simple_conversion
+        func: pyxel.models.charge_generation.photoelectrons.simple_conversion
       -
         name: tars
         func: pyxel.models.tars.tars.run_tars
@@ -109,7 +109,7 @@ processor:
 #            - 500.0
 #            - 0.0
 #          stepping_length: 1.0  # um
-          spectrum_file: 'pyxel/models/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
+          spectrum_file: 'pyxel/models/charge_generation/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
           let_file: 'pyxel/models/tars/data/inputs/let_proton_1GeV_100um_geant4_HighResHist.ascii'
 
     # -> charge
@@ -117,17 +117,17 @@ processor:
       -
         name: fixed_pattern_noise
         enabled: false
-        func: pyxel.models.ccd_noise.add_fix_pattern_noise
+        func: pyxel.models.charge_collection.fix_pattern_noise.add_fix_pattern_noise
         arguments:
           pix_non_uniformity: data/non_uniformity_array_normal_random_dist.data
 
   #      diffusion:
   #        enabled: false
-  #        name: pyxel.models.diffusion.diffusion
+  #        name: pyxel.models.charge_collection.diffusion.diffusion
   ##        arguments:
       -
         name: full_well
-        func: pyxel.models.full_well.simple_pixel_full_well
+        func: pyxel.models.charge_collection.full_well.simple_pixel_full_well
         enabled: false
 
     # -> charge
@@ -135,7 +135,7 @@ processor:
       -
         name: cdm
         enabled: false
-        func: pyxel.models.cdm.CDM.cdm
+        func: pyxel.models.charge_transfer.cdm.CDM.cdm
         arguments:
          beta_p: 0.6
          beta_s: 0.6
@@ -151,7 +151,7 @@ processor:
       -
         name: output_node_noise
         enabled: false
-        func: pyxel.models.ccd_noise.add_output_node_noise
+        func: pyxel.models.charge_measurement.readout_noise.output_node_noise
         arguments:
           std_deviation: 1.0
 

@@ -10,11 +10,9 @@ import esapy_config as om  # noqa: F401
 from esapy_web.webapp2.modules import guiconfig
 from esapy_web.webapp2.modules import dispatch
 
-# from pyxel import util
 from pyxel.pipelines.processor import Processor
-from pyxel.pipelines.model_registry import registry
-from pyxel.pipelines.model_group import ModelFunction
-
+# from pyxel.pipelines.model_registry import registry
+from pyxel.pipelines.model_function import ModelFunction
 
 CWD_PATH = Path(__file__).parent
 SET_MODEL_STATE = 'SET-MODEL-STATE'
@@ -110,7 +108,7 @@ class Controller(guiconfig.Controller):
             cfg = om.load(config_path)
             self.simulation = cfg['simulation']
             self.processor = cfg['processor']
-            registry.import_models(self.processor)
+            # registry.import_models(self.processor)
         else:
             self.simulation = None
             self.processor = None
@@ -122,22 +120,25 @@ class Controller(guiconfig.Controller):
         The pipeline JSON structure is like so::
 
             {'charge_generation': [
-                {'func': 'pyxel.models.photoelectrons.simple_conversion', 'name': 'photoelectrons', ... },
+                {'func': 'pyxel.models.charge_generation.photoelectrons.simple_conversion',
+                 'name': 'photoelectrons', ... },
                 ...
             ]},
             {'photon_generation': [
-                {'func': 'pyxel.models.photon_generation.load_image', 'name': 'load_image', ... },
+                {'func': 'pyxel.models.photon_generation.load_image.load_image',
+                 'name': 'load_image', ... },
                 ...
             ]}
 
         The pipeline is rewired like so::
 
             {'charge_generation': {
-                'photoelectrons': {'func': 'pyxel.models.photoelectrons.simple_conversion', ... },
+                'photoelectrons': {'func': 'pyxel.models.charge_generation.photoelectrons.simple_conversion', ... },
                 ...
             ]},
             {'photon_generation': [
-                'load_image': {'func': 'pyxel.models.photon_generation.load_image', 'name': 'load_image', ... },
+                'load_image': {'func': 'pyxel.models.photon_generation.load_image.load_image',
+                'name': 'load_image', ... },
                 ...
             ]}
 

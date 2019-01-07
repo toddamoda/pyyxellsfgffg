@@ -21,21 +21,25 @@ simulation:
 
   calibration:
     calibration_mode: pipeline  # single_model
-    arguments:
-      target_data: 'C:/dev/work/cdm/data/better-plato-target-data/'
-      target_fit_range: [51, 401]
-      output_fit_range: [1103, 1453]
-      weighting_func:
+    target_data: 'C:/dev/work/cdm/data/better-plato-target-data/'
+    target_fit_range: [51, 401]
+    output_type: pixel
+    output_fit_range: [1103, 1453]
+    weighting_func:
+    fitness_function:
+      func: pyxel.calibration.fitness.sum_of_abs_residuals
+    algorithm:
+      type: sade
       generations: 3
       population_size: 10
-
-      model_names: ['cdm', 'tars']
-      variables: [['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['initial_energy']]
-      var_log: [[True, True, True, False], [False]]
-      var_arrays: [[True, True, True, False], [False]]
-      params_per_variable: [[4, 4, 4, 1], [1]]
-      lower_boundary: [[1.e-3, 1.e-2, 1.e-20, 0.], [1.]]
-      upper_boundary: [[2., 1.e+1, 1.e-15, 1.], [10.]]
+      variant: 2
+    model_names: ['cdm', 'tars']
+    variables: [['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['initial_energy']]
+    var_log: [[True, True, True, False], [False]]
+    var_arrays: [[True, True, True, False], [False]]
+    params_per_variable: [[4, 4, 4, 1], [1]]
+    lower_boundary: [[1.e-3, 1.e-2, 1.e-20, 0.], [1.]]
+    upper_boundary: [[2., 1.e+1, 1.e-15, 1.], [10.]]
 
 processor:
   class: pyxel.pipelines.processor.Processor
@@ -92,19 +96,19 @@ processor:
     photon_generation:
       -
         name: load_image
-        func: pyxel.models.photon_generation.load_image
+        func: pyxel.models.photon_generation.load_image.load_image
         enabled: false
         arguments:
           image_file: null
       -
         name: photon_level
-        func: pyxel.models.photon_generation.add_photon_level
+        func: pyxel.models.photon_generation.add_photons.add_photons
         enabled: true
         arguments:
           level: 100
       -
         name: shot_noise
-        func: pyxel.models.photon_generation.add_shot_noise
+        func: pyxel.models.photon_generation.shot_noise.add_shot_noise
         enabled: true
 
     # photons -> photons
@@ -115,7 +119,7 @@ processor:
       -
         name: photoelectrons
         enabled: true
-        func: pyxel.models.photoelectrons.simple_conversion
+        func: pyxel.models.charge_generation.photoelectrons.simple_conversion
       -
         name: tars
         func: pyxel.models.tars.tars.run_tars
@@ -127,7 +131,7 @@ processor:
           incident_angles:      # rad
           starting_position:    # um
 #          stepping_length: 1.0  # um
-          spectrum_file: 'pyxel/models/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
+          spectrum_file: 'pyxel/models/charge_generation/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
           let_file: 'pyxel/models/tars/data/inputs/let_proton_1GeV_100um_geant4_HighResHist.ascii'
 #          stopping_file: 'pyxel/models/tars/data/inputs/stopping_power_protons.txt'
 
@@ -135,14 +139,14 @@ processor:
     charge_collection:
       -
         name: full_well
-        func: pyxel.models.full_well.simple_pixel_full_well
+        func: pyxel.models.charge_collection.full_well.simple_pixel_full_well
         enabled: true
 
     # charge -> signal
     charge_measurement:
       - # kTC and Bias noises
         name: nghxrg_ktc_bias
-        func: pyxel.models.nghxrg.nghxrg.ktc_bias_noise
+        func: pyxel.models.signal_transfer.nghxrg.nghxrg.ktc_bias_noise
         enabled: true
         arguments:
           ktc_noise: 500.
@@ -155,7 +159,7 @@ processor:
 #          wind_y_size: 200
       - # White read noise
         name: nghxrg_read
-        func: pyxel.models.nghxrg.nghxrg.white_read_noise
+        func: pyxel.models.signal_transfer.nghxrg.nghxrg.white_read_noise
         enabled: true
         arguments:
           rd_noise: 400.
@@ -170,7 +174,7 @@ processor:
     signal_transfer:
       - # Correlated pink noise
         name: nghxrg_c_pink
-        func: pyxel.models.nghxrg.nghxrg.corr_pink_noise
+        func: pyxel.models.signal_transfer.nghxrg.nghxrg.corr_pink_noise
         enabled: true
         arguments:
           c_pink: 300.
@@ -181,7 +185,7 @@ processor:
 #          wind_y_size: 200
       - # Uncorrelated pink noise
         name: nghxrg_u_pink
-        func: pyxel.models.nghxrg.nghxrg.uncorr_pink_noise
+        func: pyxel.models.signal_transfer.nghxrg.nghxrg.uncorr_pink_noise
         enabled: true
         arguments:
           u_pink: 200.
@@ -192,7 +196,7 @@ processor:
 #          wind_y_size: 200
       - # Alternating Column Noise
         name: nghxrg_acn
-        func: pyxel.models.nghxrg.nghxrg.acn_noise
+        func: pyxel.models.signal_transfer.nghxrg.nghxrg.acn_noise
         enabled: true
         arguments:
           acn: 500.
@@ -206,7 +210,7 @@ processor:
     readout_electronics:
       - # PCA zero "picture frame" noise
         name: nghxrg_pca_zero
-        func: pyxel.models.nghxrg.nghxrg.pca_zero_noise
+        func: pyxel.models.signal_transfer.nghxrg.nghxrg.pca_zero_noise
         enabled: true
         arguments:
           pca0_amp: 450.

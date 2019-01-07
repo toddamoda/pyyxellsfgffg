@@ -1,165 +1,281 @@
 """TBW."""
 import numpy as np
 import pygmo as pg
-import typing as t      # noqa: F401
-from astropy.io import fits
+# import typing as t      # noqa: F401
+import pyxel as pyx
 from pyxel.calibration.fitting import ModelFitting
+from pyxel.pipelines.model_function import ModelFunction
 
 
+@pyx.detector_class
+class Algorithm:
+    """TBW.
+
+    :return:
+    """
+
+    type = pyx.attribute(
+        type=str,
+        validator=[pyx.validate_type(str),
+                   pyx.validate_choices(['sade', 'sga', 'nlopt'])],
+        default='sade',
+        doc=''
+    )
+    generations = pyx.attribute(
+        type=int,
+        validator=[pyx.validate_type(int),
+                   pyx.validate_range(1, 100000)],
+        default=1,
+        doc=''
+    )
+    population_size = pyx.attribute(
+        type=int,
+        validator=[pyx.validate_type(int),
+                   pyx.validate_range(1, 100000)],
+        default=1,
+        doc=''
+    )
+
+    # SADE #####
+    variant = pyx.attribute(type=int, validator=[pyx.validate_type(int),
+                                                 pyx.validate_range(1, 18)], default=2, doc='')
+    variant_adptv = pyx.attribute(type=int, validator=[pyx.validate_type(int),
+                                                       pyx.validate_range(1, 2)], default=1, doc='')
+    ftol = pyx.attribute(type=float, default=1e-06, doc='')  # validator=pyx.validate_range(),
+    xtol = pyx.attribute(type=float, default=1e-06, doc='')  # validator=pyx.validate_range(),
+    memory = pyx.attribute(type=bool, default=False, doc='')
+    # SADE #####
+
+    # SGA #####
+    cr = pyx.attribute(type=float, converter=float, validator=[pyx.validate_type(float),
+                                                               pyx.validate_range(0, 1)], default=0.9, doc='')
+    eta_c = pyx.attribute(type=float, converter=float, validator=[pyx.validate_type(float)], default=1.0, doc='')
+    m = pyx.attribute(type=float, converter=float, validator=[pyx.validate_type(float),
+                                                              pyx.validate_range(0, 1)], default=0.02, doc='')
+    param_m = pyx.attribute(type=float, default=1.0, doc='')   # validator=pyx.validate_range(1, 2),
+    param_s = pyx.attribute(type=int, default=2, doc='')  # validator=pyx.validate_range(1, 2),
+    crossover = pyx.attribute(type=str, default='exponential', doc='')  # validator=pyx.validate_choices(),
+    mutation = pyx.attribute(type=str, default='polynomial', doc='')  # validator=pyx.validate_choices(),
+    selection = pyx.attribute(type=str, default='tournament', doc='')   # validator=pyx.validate_choices(),
+    # SGA #####
+
+    # NLOPT #####
+    nlopt_solver = pyx.attribute(type=str, default='neldermead', doc='')    # validator=pyx.validate_choices(),  todo
+    maxtime = pyx.attribute(type=int, default=0, doc='')                     # validator=pyx.validate_range(),  todo
+    maxeval = pyx.attribute(type=int, default=0, doc='')
+    xtol_rel = pyx.attribute(type=float, default=1.e-8, doc='')
+    xtol_abs = pyx.attribute(type=float, default=0., doc='')
+    ftol_rel = pyx.attribute(type=float, default=0., doc='')
+    ftol_abs = pyx.attribute(type=float, default=0., doc='')
+    stopval = pyx.attribute(type=float, default=float('-inf'), doc='')
+    local_optimizer = pyx.attribute(type=None, default=None, doc='')          # validator=pyx.validate_choices(),  todo
+    replacement = pyx.attribute(type=str, default='best', doc='')
+    nlopt_selection = pyx.attribute(type=str, default='best', doc='')         # todo: "selection" - same name as in SGA
+    # NLOPT #####
+
+    def get_algorithm(self):
+        """TBW.
+
+        :return:
+        """
+        if self.type == 'sade':
+            opt_algorithm = pg.sade(gen=self.generations,
+                                    variant=self.variant,
+                                    variant_adptv=self.variant_adptv,
+                                    ftol=self.ftol,
+                                    xtol=self.xtol,
+                                    memory=self.memory)
+        elif self.type == 'sga':
+            opt_algorithm = pg.sga(gen=self.generations,
+                                   cr=self.cr,  # crossover probability
+                                   crossover=self.crossover,  # single, exponential, binomial, sbx
+                                   m=self.m,  # mutation probability
+                                   mutation=self.mutation,  # uniform, gaussian, polynomial
+                                   param_s=self.param_s,  # number of best ind. in 'truncated'/tournament
+                                   selection=self.selection,  # tournament, truncated
+                                   eta_c=self.eta_c,  # distribution index for sbx crossover
+                                   param_m=self.param_m)  # mutation parameter
+        elif self.type == 'nlopt':
+            opt_algorithm = pg.nlopt(self.nlopt_solver)
+            opt_algorithm.maxtime = self.maxtime  # stop when the optimization time (in seconds) exceeds maxtime
+            opt_algorithm.maxeval = self.maxeval  # stop when the number of function evaluations exceeds maxeval
+            opt_algorithm.xtol_rel = self.xtol_rel  # relative stopping criterion for x
+            opt_algorithm.xtol_abs = self.xtol_abs  # absolute stopping criterion for x
+            opt_algorithm.ftol_rel = self.ftol_rel
+            opt_algorithm.ftol_abs = self.ftol_abs
+            opt_algorithm.stopval = self.stopval
+            opt_algorithm.local_optimizer = self.local_optimizer
+            opt_algorithm.replacement = self.replacement
+            opt_algorithm.selection = self.nlopt_selection
+        else:
+            raise NotImplementedError
+
+        return opt_algorithm
+
+
+@pyx.detector_class
 class Calibration:
     """TBW.
 
     :return:
     """
 
-    def __init__(self,
-                 arguments: dict) -> None:
-        """TBW."""
-        self.args = arguments                               # type: dict
-        self.mode = 'pipeline'
-        self.algo_type = None
-        if self.args:
-            self.mode = self.args['calibration_mode']       # type: str
-            self.algo_type = self.args['algorithm']         # type: str
-        self.generations = None                             # type: t.Optional[int]
+    calibration_mode = pyx.attribute(
+        type=str,
+        validator=[pyx.validate_type(str),
+                   pyx.validate_choices(['pipeline', 'single_model'])],
+        default='pipeline',
+        doc=''
+    )
+    output_type = pyx.attribute(
+        type=str,
+        validator=[pyx.validate_type(str),
+                   pyx.validate_choices(['image', 'signal', 'pixel'])],
+        default='image',
+        doc=''
+    )
+    output_fit_range = pyx.attribute(
+        type=list,
+        validator=[pyx.validate_type(list)],
+        default=None,
+        doc=''
+    )
+    target_data_path = pyx.attribute(
+        type=list,
+        validator=[pyx.validate_type(list)],
+        default=None,
+        doc=''
+    )
+    target_fit_range = pyx.attribute(
+        type=list,
+        validator=[pyx.validate_type(list)],
+        default=None,
+        doc=''
+    )
+    fitness_function = pyx.attribute(
+        type=ModelFunction,
+        validator=[pyx.validate_type(ModelFunction)],
+        default='',
+        doc=''
+    )
+    algorithm = pyx.attribute(
+        type=Algorithm,
+        validator=[pyx.validate_type(Algorithm)],
+        default='',
+        doc=''
+    )
+    seed = pyx.attribute(
+        type=int,
+        validator=[pyx.validate_type(int),
+                   pyx.validate_range(0, 100000)],
+        default=np.random.randint(0, 100000),
+        doc=''
+    )
+    model_names = pyx.attribute(
+        type=list,
+        # validator=[pyx.validate_type(list)],
+        default=None,
+        doc=''
+    )
+    variables = pyx.attribute(
+        type=list,
+        # validator=[pyx.validate_type(list)],
+        default=None,
+        doc=''
+    )
+    params_per_variable = pyx.attribute(
+        type=list,
+        # validator=[pyx.validate_type(list)],
+        default=None,
+        doc=''
+    )
+    var_log = pyx.attribute(
+        type=list,
+        # validator=[pyx.validate_type(list)],
+        default=None,
+        doc=''
+    )
+    lower_boundary = pyx.attribute(
+        type=list,
+        # validator=[pyx.validate_type(list)],
+        default=None,
+        doc=''
+    )
+    upper_boundary = pyx.attribute(
+        type=list,
+        # validator=[pyx.validate_type(list)],
+        default=None,
+        doc=''
+    )
+    sort_var = pyx.attribute(       # TODO
+        type=str,
+        # validator=
+        default=None,
+        doc=''
+    )
+    weighting_path = pyx.attribute(
+        type=list,
+        # validator=[pyx.validate_type(list)],  # todo:
+        default=None,
+        doc=''
+    )
+    champions_file = pyx.attribute(
+        type=str,
+        # validator=[pyx.validate_type(str)],
+        default='data/calibration_champions.out',
+        doc=''
+    )
+    population_file = pyx.attribute(
+        type=str,
+        # validator=[pyx.validate_type(str)],
+        default=None,
+        doc=''
+    )
+    single_model_input = pyx.attribute(     # todo: remove
+        type=list,
+        # validator=[pyx.validate_type(str)],
+        default=None,
+        doc=''
+    )
 
-        if self.algo_type == 'sade':
-            self.generations = 1                            # type: int
-            self.variant = 2                                # type: int
-            self.variant_adptv = 1                          # type: int
-            self.ftol = 1e-06                               # type: float
-            self.xtol = 1e-06                               # type: float
-            self.memory = False                             # type: bool
-
-        elif self.algo_type == 'sga':
-            self.generations = 1                            # type: int
-            self.cr = 0.9                                   # type: float
-            self.eta_c = 1.0                                # type: float
-            self.m = 0.02                                   # type: float
-            self.param_m = 1.0                              # type: float
-            self.param_s = 2                                # type: int
-            self.crossover = 'exponential'                  # type: str
-            self.mutation = 'polynomial'                    # type: str
-            self.selection = 'tournament'                   # type: str
-
-        elif self.algo_type == 'nlopt':
-            self.nlopt_solver = 'neldermead'                # type: str
-            self.maxtime = 0                                # type: int
-            self.maxeval = 0                                # type: int
-            self.xtol_rel = 1.e-8                           # type: float
-            self.xtol_abs = 0.                              # type: float
-            self.ftol_rel = 0.                              # type: float
-            self.ftol_abs = 0.                              # type: float
-            self.stopval = float('-inf')                    # type: float
-            self.local_optimizer = None                     # type: None
-            self.replacement = 'best'                       # type: str
-            self.selection = 'best'                         # type: str
-
-        names = ['generations',
-                 'variant', 'variant_adptv', 'ftol', 'xtol', 'memory',
-                 'cr', 'crossover', 'm', 'mutation', 'param_s', 'selection', 'eta_c', 'param_m',
-                 'maxtime', 'maxeval', 'xtol_rel', 'xtol_abs', 'ftol_rel', 'ftol_abs', 'stopval',
-                 'local_optimizer', 'replacement', 'selection', 'nlopt_solver']
-        if self.args:
-            for name in names:
-                if name in self.args:
-                    value = self.args[name]
-                    setattr(self, name, value)
-
-    def set_algorithm(self):
+    def run_calibration(self, processor):
         """TBW.
 
+        :param processor:
         :return:
         """
-        if self.algo_type == 'sade':
-            opt_algorithm = pg.sade(gen=self.generations,
-                                    variant=self.variant,
-                                    variant_adptv=self.variant_adptv,
-                                    ftol=self.ftol, xtol=self.xtol,
-                                    memory=self.memory)
-        elif self.algo_type == 'sga':
-            opt_algorithm = pg.sga(gen=self.generations,
-                                   cr=self.cr,                      # crossover probability
-                                   crossover=self.crossover,        # single, exponential, binomial, sbx
-                                   m=self.m,                        # mutation probability
-                                   mutation=self.mutation,          # uniform, gaussian, polynomial
-                                   param_s=self.param_s,            # number of best ind. in 'truncated'/tournament
-                                   selection=self.selection,        # tournament, truncated
-                                   eta_c=self.eta_c,                # distribution index for sbx crossover
-                                   param_m=self.param_m)            # mutation parameter
-        elif self.algo_type == 'nlopt':
-            opt_algorithm = pg.nlopt(self.nlopt_solver)
-            opt_algorithm.maxtime = self.maxtime        # stop when the optimization time (in seconds) exceeds maxtime
-            opt_algorithm.maxeval = self.maxeval        # stop when the number of function evaluations exceeds maxeval
-            opt_algorithm.xtol_rel = self.xtol_rel      # relative stopping criterion for x
-            opt_algorithm.xtol_abs = self.xtol_abs      # absolute stopping criterion for x
-            opt_algorithm.ftol_rel = self.ftol_rel
-            opt_algorithm.ftol_abs = self.ftol_abs
-            opt_algorithm.stopval = self.stopval
-            opt_algorithm.local_optimizer = self.local_optimizer
-            opt_algorithm.replacement = self.replacement
-            opt_algorithm.selection = self.selection
-        else:
-            raise NotImplementedError
+        pg.set_global_rng_seed(seed=self.seed)
+        print('pygmo seed: ', self.seed)
 
-        return opt_algorithm
+        fitting = ModelFitting(processor)
 
-    def run_calibration(self, config):
-        """TBW.
-
-        :param config:
-        :return:
-        """
-        seed = self.args['seed']
-        if seed is None:
-            seed = np.random.randint(0, 1000000)
-        print('pygmo seed: ', seed)
-        pg.set_global_rng_seed(seed=seed)
-
-        fitting = ModelFitting(detector=config.detector, pipeline=config.pipeline)
-
-        target_output = read_data(self.args['target_data_path'])
-        config.detector.target_output_data = target_output
-
-        if 'population_size' in self.args:
-            population_size = self.args['population_size']
-        else:
-            raise AttributeError('Missing "population_size" from YAML config')
-
-        sort_var = None
-        if 'sort_by_var' in self.args:
-            sort_var = self.args['sort_by_var']
-
-        fitting.configure(calibration_mode=self.mode,
-                          model_names=self.args['model_names'],
-                          variables=self.args['variables'],
-                          params_per_variable=self.args['params_per_variable'],
-                          var_log=self.args['var_log'],
-                          target_output_list=target_output,
-                          population_size=population_size,
-                          target_fit_range=self.args['target_fit_range'],
-                          out_fit_range=self.args['output_fit_range'],
-                          fitness_mode=self.args['fitness_mode'],
-                          simulation_output=self.args['output'],
-                          sort_by_var=sort_var)
-
-        if 'weighting_func_path' in self.args:
-            weighting_func = read_data(self.args['target_data_path'])
-            fitting.set_weighting_function(weighting_func[0])           # works only with one weighting function
-
-        # fitting.set_normalization()                                       # TODO
-        fitting.set_bound(low_val=self.args['lower_boundary'],
-                          up_val=self.args['upper_boundary'])
-        fitting.set_generations(self.generations)
-        fitting.save_champions_in_file()
+        fitting.set_parameters(calibration_mode=self.calibration_mode,
+                               model_names=self.model_names,
+                               variables=self.variables,
+                               var_log=self.var_log,
+                               generations=self.algorithm.generations,
+                               population_size=self.algorithm.population_size,
+                               simulation_output=self.output_type,
+                               sort_by_var=self.sort_var,
+                               fitness_func=self.fitness_function,
+                               champions_file=self.champions_file,
+                               population_file=self.population_file)
+        fitting.configure(params_per_variable=self.params_per_variable,
+                          target_output=self.target_data_path,
+                          target_fit_range=self.target_fit_range,
+                          out_fit_range=self.output_fit_range,
+                          weighting=self.weighting_path,
+                          single_model_input=self.single_model_input)
+        fitting.set_bound(low_val=self.lower_boundary,
+                          up_val=self.upper_boundary)
 
         prob = pg.problem(fitting)
         print('evolution started ...')
 
-        opt_algorithm = self.set_algorithm()
+        opt_algorithm = self.algorithm.get_algorithm()
         algo = pg.algorithm(opt_algorithm)
 
-        pop = pg.population(prob, size=population_size)
+        pop = pg.population(prob, size=self.algorithm.population_size)
         pop = algo.evolve(pop)
 
         champion_f = pop.champion_f
@@ -167,28 +283,4 @@ class Calibration:
         print('\nchampion_f:   %1.5e' % champion_f[0])
         print('champion_x: ', *champion_x, sep="\n")
 
-
-def read_data(data_path: list):
-    """TBW.
-
-    :param data_path:
-    :return:
-    """
-    if isinstance(data_path, str):
-        data_path = [data_path]
-    elif all(isinstance(item, str) for item in data_path):
-        pass
-    else:
-        raise TypeError
-
-    output = []                             # type: list
-    for i in range(len(data_path)):
-        if '.fits' in data_path[i]:
-            data = fits.getdata(data_path[i])
-        elif '.npy' in data_path[i]:
-            data = np.load(data_path[i])
-        else:
-            data = np.loadtxt(data_path[i], dtype=float, delimiter='|')
-        output += [data]
-
-    return output
+        return 1        # todo: return results as output!!

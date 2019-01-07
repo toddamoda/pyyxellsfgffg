@@ -12,7 +12,7 @@ simulation:
       - 30
     - current: null
       enabled: true
-      key: pipeline.charge_generation.tars.arguments.initial_energy
+      key: pipeline.charge_generation.tars.tars.arguments.initial_energy
       values:
       - 100
       - 200
@@ -68,16 +68,16 @@ processor:
     - arguments:
         pix_non_uniformity: data/non_uniformity_array_normal_random_dist.data
       enabled: false
-      func: pyxel.models.ccd_noise.add_fix_pattern_noise
+      func: pyxel.models.charge_collection.fix_pattern_noise.add_fix_pattern_noise
       name: fixed_pattern_noise
     - arguments: {}
       enabled: false
-      func: pyxel.models.full_well.simple_pixel_full_well
+      func: pyxel.models.charge_collection.full_well.simple_pixel_full_well
       name: full_well
     charge_generation:
     - arguments: {}
       enabled: false
-      func: pyxel.models.photoelectrons.simple_conversion
+      func: pyxel.models.charge_generation.photoelectrons.simple_conversion
       name: photoelectrons
     - arguments:
         incident_angles: null
@@ -85,16 +85,16 @@ processor:
         let_file: pyxel/models/tars/data/inputs/let_proton_1GeV_100um_geant4_HighResHist.ascii
         particle_number: 10
         particle_type: proton
-        spectrum_file: pyxel/models/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt
+        spectrum_file: pyxel/models/charge_generation/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt
         starting_position: null
       enabled: true
-      func: pyxel.models.tars.tars.run_tars
+      func: pyxel.models.charge_generation.tars.tars.run_tars
       name: tars
     charge_measurement:
     - arguments:
         std_deviation: 1.0
       enabled: false
-      func: pyxel.models.ccd_noise.add_output_node_noise
+      func: pyxel.models.charge_measurement.readout_noise.output_node_noise
       name: output_node_noise
     charge_transfer:
     - arguments:
@@ -107,7 +107,7 @@ processor:
         t: 0.02048
         vg: 6.0e-11
       enabled: false
-      func: pyxel.models.cdm.CDM.cdm
+      func: pyxel.models.charge_transfer.cdm.CDM.cdm
       name: cdm
     class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
     optics: null
@@ -115,15 +115,15 @@ processor:
     - arguments:
         image_file: null
       enabled: false
-      func: pyxel.models.photon_generation.load_image
+      func: pyxel.models.photon_generation.load_image.load_image
       name: load_image
     - arguments:
         level: 100
       enabled: true
-      func: pyxel.models.photon_generation.add_photon_level
+      func: pyxel.models.photon_generation.add_photons.add_photons
       name: photon_level
     - arguments: {}
       enabled: true
-      func: pyxel.models.photon_generation.add_shot_noise
+      func: pyxel.models.photon_generation.shot_noise.add_shot_noise
       name: shot_noise
     readout_electronics: null

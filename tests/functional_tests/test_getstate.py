@@ -1,12 +1,6 @@
-# import json
 from ast import literal_eval
 from pathlib import Path
-
-# import pyxel
 import esapy_config as om
-# from pyxel.util import objmod as om
-# from pyxel.io.yaml_processor import load
-from esapy_config import io
 
 # processor.detector.geometry.bias_voltage=0.0
 expected_str = """
@@ -33,24 +27,24 @@ processor.detector.geometry.depletion_thickness=10.0
 processor.detector.geometry.field_free_thickness=0.0
 processor.pipeline.charge_collection.0.enabled=False
 processor.pipeline.charge_collection.0.name='fixed_pattern_noise'
-processor.pipeline.charge_collection.0.func='pyxel.models.ccd_noise.add_fix_pattern_noise'
+processor.pipeline.charge_collection.0.func='pyxel.models.charge_collection.fix_pattern_noise.add_fix_pattern_noise'
 processor.pipeline.charge_collection.0.arguments.pix_non_uniformity='data/non_uniformity_array_normal_random_dist.data'
 processor.pipeline.charge_collection.1.enabled=False
 processor.pipeline.charge_collection.1.name='full_well'
-processor.pipeline.charge_collection.1.func='pyxel.models.full_well.simple_pixel_full_well'
+processor.pipeline.charge_collection.1.func='pyxel.models.charge_collection.full_well.simple_pixel_full_well'
 processor.pipeline.photon_generation.0.enabled=False
 processor.pipeline.photon_generation.0.name='load_image'
-processor.pipeline.photon_generation.0.func='pyxel.models.photon_generation.load_image'
+processor.pipeline.photon_generation.0.func='pyxel.models.photon_generation.load_image.load_image'
 processor.pipeline.photon_generation.1.enabled=True
 processor.pipeline.photon_generation.1.name='photon_level'
-processor.pipeline.photon_generation.1.func='pyxel.models.photon_generation.add_photon_level'
+processor.pipeline.photon_generation.1.func='pyxel.models.photon_generation.add_photons.add_photons'
 processor.pipeline.photon_generation.1.arguments.level=100
 processor.pipeline.photon_generation.2.enabled=True
 processor.pipeline.photon_generation.2.name='shot_noise'
-processor.pipeline.photon_generation.2.func='pyxel.models.photon_generation.add_shot_noise'
+processor.pipeline.photon_generation.2.func='pyxel.models.photon_generation.shot_noise.add_shot_noise'
 processor.pipeline.charge_transfer.0.enabled=False
 processor.pipeline.charge_transfer.0.name='cdm'
-processor.pipeline.charge_transfer.0.func='pyxel.models.cdm.CDM.cdm'
+processor.pipeline.charge_transfer.0.func='pyxel.models.charge_transfer.cdm.CDM.cdm'
 processor.pipeline.charge_transfer.0.arguments.t=0.02048
 processor.pipeline.charge_transfer.0.arguments.svg=1e-10
 processor.pipeline.charge_transfer.0.arguments.parallel_trap_file='pyxel/models/cdm/cdm_euclid_parallel.dat'
@@ -61,16 +55,16 @@ processor.pipeline.charge_transfer.0.arguments.beta_p=0.6
 processor.pipeline.charge_transfer.0.arguments.st=5e-06
 processor.pipeline.charge_measurement.0.enabled=False
 processor.pipeline.charge_measurement.0.name='output_node_noise'
-processor.pipeline.charge_measurement.0.func='pyxel.models.ccd_noise.add_output_node_noise'
+processor.pipeline.charge_measurement.0.func='pyxel.models.charge_measurement.readout_noise.output_node_noise'
 processor.pipeline.charge_measurement.0.arguments.std_deviation=1.0
 processor.pipeline.charge_generation.0.enabled=False
 processor.pipeline.charge_generation.0.name='photoelectrons'
-processor.pipeline.charge_generation.0.func='pyxel.models.photoelectrons.simple_conversion'
+processor.pipeline.charge_generation.0.func='pyxel.models.charge_generation.photoelectrons.simple_conversion'
 processor.pipeline.charge_generation.1.enabled=True
 processor.pipeline.charge_generation.1.name='tars'
 processor.pipeline.charge_generation.1.func='pyxel.models.tars.tars.run_tars'
 processor.pipeline.charge_generation.1.arguments.particle_number=10
-processor.pipeline.charge_generation.1.arguments.spectrum_file='pyxel/models/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
+processor.pipeline.charge_generation.1.arguments.spectrum_file='pyxel/models/charge_generation/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
 processor.pipeline.charge_generation.1.arguments.initial_energy=100.0
 processor.pipeline.charge_generation.1.arguments.particle_type='proton'
 processor.pipeline.charge_generation.1.arguments.let_file='pyxel/models/tars/data/inputs/let_proton_1GeV_100um_geant4_HighResHist.ascii'
@@ -104,7 +98,7 @@ parametric.steps.3.enabled=False
 
 def test_get_state_ids():
     input_filename = 'tests/data/pipeline_parametric.yaml'
-    cfg = io.load(Path(input_filename))
+    cfg = om.load(Path(input_filename))
     cfg_obj = om.get_state_dict(cfg)
     result = om.get_state_ids(cfg_obj)
     assert isinstance(result, dict)
@@ -118,7 +112,3 @@ def test_get_state_ids():
     #     assert expected[key] == result[key]
     # buf = '\n'.join(['%s=%r' % (key, val) for key, val in result.items()])
     # assert buf.strip() == expected_str.strip()
-
-
-# test_getstate()
-test_get_state_ids()

@@ -1,60 +1,39 @@
 """TBW."""
-import esapy_config as om
-
+import pyxel as pyx
 from pyxel.detectors.geometry import Geometry
 
 
-@om.attr_class
+@pyx.detector_class
 class CMOSGeometry(Geometry):
     """TBW."""
 
-    n_output = om.attr_def(
+    n_output = pyx.attribute(
         type=int,
         default=1,
-        converter=int,
-        validator=om.validate_range(0, 32, 1)
+        validator=[pyx.validate_type(int),
+                   pyx.validate_range(0, 32)]
     )
-
-    n_row_overhead = om.attr_def(
+    n_row_overhead = pyx.attribute(
         type=int,
         default=0,
-        converter=int,
-        validator=om.validate_range(0, 100, 1)
+        validator=[pyx.validate_type(int),
+                   pyx.validate_range(0, 100)]
     )
-
-    n_frame_overhead = om.attr_def(
+    n_frame_overhead = pyx.attribute(
         type=int,
         default=0,
-        converter=int,
-        validator=om.validate_range(0, 100, 1)
+        validator=[pyx.validate_type(int),
+                   pyx.validate_range(0, 100)]
     )
-
-    reverse_scan_direction = om.attr_def(
+    reverse_scan_direction = pyx.attribute(
         type=bool,
         default=False,
         converter=bool,
-        validator=om.validate_range(0, 1, 1)
+        validator=[pyx.validate_type(bool)]
     )
-
-    reference_pixel_border_width = om.attr_def(
+    reference_pixel_border_width = pyx.attribute(
         type=int,
         default=4,
-        converter=int,
-        validator=om.validate_range(0, 32, 1)
+        validator=[pyx.validate_type(int),
+                   pyx.validate_range(0, 32)]
     )
-
-    def copy(self):
-        """TBW."""
-        return CMOSGeometry(**self.__getstate__())
-
-    def __getstate__(self):
-        """TBW."""
-        states = super().__getstate__()
-        cmos_states = {
-            'n_output': self.n_output,
-            'n_row_overhead': self.n_row_overhead,
-            'n_frame_overhead': self.n_frame_overhead,
-            'reverse_scan_direction': self.reverse_scan_direction,
-            'reference_pixel_border_width': self.reference_pixel_border_width
-        }
-        return {**states, **cmos_states}

@@ -1,26 +1,10 @@
 """
 Pyxel detector simulation framework.
-
-Copyright 2017 SCI-FIV, ESA (European Space Agency)
-Hans Smit <Hans.Smit@esa.int>
-Frederic Lemmel <Frederic.Lemmel@esa.int>
-
-This is restricted software and is only to be used with permission
-from the author, or from ESA.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-DEALINGS IN THE SOFTWARE.
 """
 
 from setuptools import setup, find_packages
-
-import pyxel
 import versioneer
+import pyxel
 
 
 def get_requires(filenames):
@@ -51,27 +35,12 @@ setup(
     long_description=open('README.rst').read(),
     author=pyxel.__author__,
     author_email=pyxel.__author_email__,
-    url='http://www.esa.int',
-    # license='',
-    keywords='esa',
-    install_requires=get_requires(['requirements.txt']),
+    url='http://www.sci.esa.int/pyxel',
+    license='MIT',
+    keywords='ESA',
+    install_requires=get_requires('requirements.txt'),
     packages=find_packages(exclude=['tests*']),
     include_package_data=True,
     package_data={'': ['*.glade', '*.ui', '*.acf']},
-    classifiers=[
-        # How mature is this project? Common values are
-        #   3 - Alpha
-        #   4 - Beta
-        #   5 - Production/Stable
-        'Development Status :: 4 - Beta',
-        'Intended Audience :: Developers',
-        'Intended Audience :: End Users/Desktop',
-        'Topic :: Software Development :: Build Tools',
-        # 'License :: OSI Approved :: ???',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-    ],
     entry_points={'console_scripts': []},
 )

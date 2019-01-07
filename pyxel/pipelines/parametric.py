@@ -10,9 +10,7 @@ class StepValues:
     """TBW."""
 
     def __init__(self, key, values,
-                 enabled=True, current=None  # ,
-                 # model_names=None, variables=None, params_per_variable=None
-                 ):
+                 enabled=True, current=None):
         """TBW.
 
         :param key:
@@ -21,19 +19,10 @@ class StepValues:
         :param current:
         """
         # TODO: should the values be evaluated?
-        self.key = key  # unique identifier to the step. example: detector.geometry.row
-        self.values = values  # t.List[float|int]
-        self.enabled = enabled  # bool
+        self.key = key                              # unique identifier to the step. example: detector.geometry.row
+        self.values = values                        # type: t.List[t.Union[float, int]]
+        self.enabled = enabled                      # type: bool
         self.current = current
-
-        # self.model_names = model_names
-        # self.variables = variables
-        # self.params_per_variable = params_per_variable
-
-    # def copy(self):
-    #     """TBW."""
-    #     kwargs = {key: type(value)(value) for key, value in self.__getstate__().items()}
-    #     return StepValues(**kwargs)
 
     def __getstate__(self):
         """TBW."""
@@ -67,17 +56,15 @@ class ParametricAnalysis:
         self.parametric_mode = parametric_mode
         self.steps = steps
 
-    # def copy(self):
-    #     """TBW."""
-    #     return Configuration(self.parametric_mode, [step.copy() for step in self.steps])
-
     def get_state_json(self):
         """TBW."""
         return om.get_state_dict(self)
 
     def __getstate__(self):
         """TBW."""
-        return {'mode': self.parametric_mode, 'steps': self.steps}
+        return {'mode': self.parametric_mode,
+                'steps': self.steps
+                }
 
     @property
     def enabled_steps(self):

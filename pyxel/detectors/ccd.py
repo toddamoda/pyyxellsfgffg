@@ -51,18 +51,6 @@ class CCD(Detector):
         if charge_injection_profile:
             self._charge_injection_profile = charge_injection_profile
 
-    # def copy(self):
-    #     """TBW."""
-    #     cpy = super().copy()
-    #     kwargs = {
-    #         'geometry': cpy.geometry,
-    #         'material': cpy.material,
-    #         'environment': cpy.environment,
-    #         'characteristics': cpy.characteristics #,
-    #         # '_charge_injection_profile': self._charge_injection_profile
-    #     }
-    #     return CCD(**kwargs)
-
     @property
     def charge_injection_profile(self):
         """TBW.

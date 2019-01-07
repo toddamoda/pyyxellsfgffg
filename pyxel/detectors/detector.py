@@ -3,7 +3,7 @@
 #   --------------------------------------------------------------------------
 """CCD detector modeling class."""
 from math import sqrt
-from collections import OrderedDict
+import collections
 import typing as t  # noqa: F401
 
 # from astropy import units as u
@@ -38,17 +38,17 @@ class Detector:
         :param environment:
         :param characteristics:
         """
-        self.geometry = geometry                # type: Geometry
-        self.material = material                # type: Material
-        self.environment = environment          # type: Environment
-        self.characteristics = characteristics  # type: Characteristics
-        self.header = OrderedDict()             # type: t.Dict[str, object]
+        self.geometry = geometry                  # type: Geometry
+        self.material = material                  # type: Material
+        self.environment = environment            # type: Environment
+        self.characteristics = characteristics    # type: Characteristics
+        self.header = collections.OrderedDict()   # type: t.Dict[str, object]
 
-        self.photons = Photon(self)             # type: Photon
-        self.charges = Charge(self)             # type: Charge
-        self.pixels = Pixel(self)               # type: Pixel
-        self.signal = Signal(self)              # type: Signal
-        self.image = Image(self)                # type: Image
+        self.photons = Photon()                     # type: Photon
+        self.charges = Charge()                     # type: Charge
+        self.pixels = Pixel(self.geometry)          # type: Pixel
+        self.signal = Signal(self.geometry)         # type: Signal
+        self.image = Image(self.geometry)           # type: Image
 
         if photons:
             self.photons = photons
@@ -61,19 +61,19 @@ class Detector:
         if image:
             self.image = image
 
-        self._target_output_data = None
+        self.input_image = None
 
         # ##### experimantal! #######
         # self.geometry.create_sensor()
         ############################
 
-    def reinitialize(self):
-        """TBW."""
-        self.photons = Photon(self)  # type: Photon
-        self.charges = Charge(self)  # type: Charge
-        self.pixels = Pixel(self)    # type: Pixel
-        self.signal = Signal(self)   # type: Signal
-        self.image = Image(self)     # type: Image
+    # def reinitialize(self):
+    #     """TBW."""
+    #     self.photons = Photon()                 # type: Photon
+    #     self.charges = Charge()                 # type: Charge
+    #     self.pixels = Pixel(self.geometry)      # type: Pixel
+    #     self.signal = Signal(self.geometry)     # type: Signal
+    #     self.image = Image(self.geometry)       # type: Image
 
     ######################################
     # These functions are not called at all:
@@ -123,7 +123,8 @@ class Detector:
             'charges': self.charges,
             'pixels': self.pixels,
             'signal': self.signal,
-            'image': self.image
+            'image': self.image,
+            'input_image': self.input_image
         }
 
     def get_state_json(self):
@@ -212,22 +213,22 @@ class Detector:
     #     :return:
     #     """
     #     self._image = new_image
-
-    @property
-    def target_output_data(self):
-        """TBW.
-
-        :return:
-        """
-        return self._target_output_data
-
-    @target_output_data.setter
-    def target_output_data(self, target_output):
-        """TBW.
-
-        :return:
-        """
-        self._target_output_data = target_output
+    #
+    # @property
+    # def target_output_data(self):
+    #     """TBW.
+    #
+    #     :return:
+    #     """
+    #     return self._target_output_data
+    #
+    # @target_output_data.setter
+    # def target_output_data(self, target_output):
+    #     """TBW.
+    #
+    #     :return:
+    #     """
+    #     self._target_output_data = target_output
 
     @property
     def e_thermal_velocity(self):

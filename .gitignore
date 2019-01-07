@@ -27,6 +27,9 @@ build/
 dist/
 *.egg-info/
 
+# Doc
+docs/html/
+
 # Pycharm
 .idea/
 
@@ -36,14 +39,13 @@ dist/
 .coverage.
 *.cache
 .pytest_cache/
+htmlcov/
+pytest_report.html
+pylint_report.html
+assets/
 
 # Jupyter Notebook
 .ipynb_checkpoints
 
 # mypy
 .mypy_cache/
-
-# test coverage report
-htmlcov/
-pytest_report.html
-assets/

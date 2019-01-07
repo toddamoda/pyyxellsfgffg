@@ -1,24 +1,13 @@
 from pathlib import Path
-# import typing as t
-# import numpy as np
 import pytest
-# from astropy.io import fits
-# from pyxel.pipelines.processor import Processor
-# from pyxel.pipelines.ccd_pipeline import CCDDetectionPipeline
-# from pyxel.pipelines.cmos_pipeline import CMOSDetectionPipeline
-# from pyxel.detectors.ccd import CCD
-# from pyxel.io.yaml_processor import load_config
 import pyxel    # noqa: F401
-from esapy_config import io
+import esapy_config as om
 
-# expected_single = [
-#     (0, [('level', 100), ('initial_energy', 100.0)])
-# ]
 
 expected_sequential = [
-    (0, [('level', 10), ('initial_energy', 100.0)]),
-    (1, [('level', 20), ('initial_energy', 100.0)]),
-    (2, [('level', 30), ('initial_energy', 100.0)]),
+    (0, [('level', 10), ('initial_energy', 100)]),
+    (1, [('level', 20), ('initial_energy', 100)]),
+    (2, [('level', 30), ('initial_energy', 100)]),
     (3, [('level', 100), ('initial_energy', 100)]),
     (4, [('level', 100), ('initial_energy', 200)]),
     (5, [('level', 100), ('initial_energy', 300)])
@@ -44,16 +33,15 @@ expected_embedded = [
 ])
 def test_pipeline_parametric(mode, expected):
     input_filename = 'tests/data/pipeline_parametric.yaml'
-    cfg = io.load(Path(input_filename))
+    cfg = om.load(Path(input_filename))
     simulation = cfg.pop('simulation')
     parametric_analysis = simulation.parametric_analysis
     parametric_analysis.parametric_mode = mode
     processor = cfg['processor']  # type: pyxel.pipelines.processor.Processor
     result = parametric_analysis.debug(processor)
-
     assert result == expected
+    configs = parametric_analysis.collect(processor)
+    for config in configs:
+        # detector = config.pipeline.run_pipeline(config.detector)
+        pass
 
-
-# test_pipeline_parametric('single', expected_single)
-test_pipeline_parametric('sequential', expected_sequential)
-test_pipeline_parametric('embedded', expected_embedded)

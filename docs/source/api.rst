@@ -38,17 +38,17 @@ List of available detectors.
     :undoc-members:
     :show-inheritance:
 
-.. autoclass:: pyxel.detectors.environment.Environment
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 .. autoclass:: pyxel.detectors.ccd_geometry.CCDGeometry
     :members:
     :undoc-members:
     :show-inheritance:
 
-.. autoclass:: pyxel.detectors.cmos_geometry.CMOSGeometry
+.. autoclass:: pyxel.detectors.material.Material
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. autoclass:: pyxel.detectors.environment.Environment
     :members:
     :undoc-members:
     :show-inheritance:
@@ -67,7 +67,12 @@ List of available models.
 .. currentmodule:: pyxel.models
 
 .. autosummary::
-    ccd_noise
 
-.. automodule:: pyxel.models.ccd_noise
+.. automodule:: pyxel.models.photon_generation
+    :members:
+
+.. automodule:: pyxel.models.optics
+    :members:
+
+.. automodule:: pyxel.models.charge_generation
     :members:
