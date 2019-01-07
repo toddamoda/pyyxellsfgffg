@@ -19,14 +19,16 @@ stages:
 
 # experimental
 licenses-latest:
-  image: debian:wheezy-slim  # python:2.7
-  stage: build
+  image: debian:jessie-slim  # python:2.7
+  stage: test  # build
   allow_failure: true
   script:
     - pwd
+    - apt-get update
     - apt-get install python-dev libbz2-1.0 xz-utils zlib1g libxml2-dev libxslt1-dev
     - wget https://github.com/nexB/scancode-toolkit/archive/v2.9.8.tar.gz
     - tar -xvf v2.9.8.tar.gz
+    - cd scancode-toolkit-2.9.8
     - ./scancode --help
 #    - ./scancode --license --package --copyright --info --email --url . --html-app license_report.html        # latest version
     - ./scancode -n 4 --ignore *.fits . --html-app license_report2.html || echo 0      # latest version, EMPTY REPORT
