@@ -17,6 +17,27 @@ stages:
 # Test Stage
 # ###########################
 
+# experimental
+licenses-latest:
+  image: python:2.7
+  stage: build
+  allow_failure: true
+  script:
+    - pwd
+    - apt-get install python-dev libbz2-1.0 xz-utils zlib1g libxml2-dev libxslt1-dev
+    - wget https://github.com/nexB/scancode-toolkit/archive/v2.9.8.tar.gz
+    - tar -xvf v2.9.8.tar.gz
+    - ./scancode --help
+#    - ./scancode --license --package --copyright --info --email --url . --html-app license_report.html        # latest version
+    - ./scancode -n 4 --ignore *.fits . --html-app license_report2.html || echo 0      # latest version, EMPTY REPORT
+#    - ./scancode . --html-app license_report.html
+    - ls
+  artifacts:
+    paths:
+      - license_report2_files
+      - license_report2.html
+
+
 # Run pytest + coverage and create html report (pytest_report.html)
 anaconda3:
   image: continuumio/anaconda3
@@ -159,26 +180,6 @@ licenses:
 #  only:
 #    - master
 #    - tags
-
-licenses-latest:
-  image: python:2.7
-  stage: build
-  allow_failure: true
-  script:
-    - pwd
-    - sudo apt-get install python-dev libbz2-1.0 xz-utils zlib1g libxml2-dev libxslt1-dev
-    - wget https://github.com/nexB/scancode-toolkit/archive/v2.9.8.tar.gz
-    - tar -xvf v2.9.8.tar.gz
-    - ./scancode --help
-#    - ./scancode --license --package --copyright --info --email --url . --html-app license_report.html        # latest version
-    - ./scancode -n 4 --ignore *.fits . --html-app license_report2.html || echo 0      # latest version, EMPTY REPORT
-#    - ./scancode . --html-app license_report.html
-    - ls
-  artifacts:
-    paths:
-      - license_report2_files
-      - license_report2.html
-
 
 # Generate the Sphinx documentation into 'doc/html'
 doc:
