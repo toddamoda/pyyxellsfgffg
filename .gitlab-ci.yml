@@ -31,15 +31,16 @@ licenses-latest:
     - tar -xf v2.9.8.tar.gz
     - rm v2.9.8.tar.gz
     - cd scancode-toolkit-2.9.8
-#    - ./scancode --help
-#    - ./scancode --license --package --copyright --info --email --url /builds/sci-fv/pyxel --html-app license_report2.html        # latest version
-    - ./scancode -n 4 --ignore *.fits /builds/sci-fv/pyxel --html-app license_report2.html || echo 0      # latest version, EMPTY REPORT
-#    - ./scancode /builds/sci-fv/pyxel --html-app license_report2.html
+    - ./scancode --help
+#    - ./scancode --verbose --license --package --copyright --info --email --url --html license_report2.html /builds/sci-fv/pyxel        # latest version
+    - ./scancode -n 4 --ignore *.fits --verbose --html license_report2.html /builds/sci-fv/pyxel || echo 0      # latest version, EMPTY REPORT
+#    - ./scancode --verbose --html license_report2.html /builds/sci-fv/pyxel
+    - pwd
     - ls
   artifacts:
     paths:
-      - scancode-toolkit-2.9.8/license_report2_files
-      - scancode-toolkit-2.9.8/license_report2.html
+      - /builds/sci-fv/scancode-toolkit-2.9.8/license_report2_files
+      - /builds/sci-fv/scancode-toolkit-2.9.8/license_report2.html
 
 
 # Run pytest + coverage and create html report (pytest_report.html)
