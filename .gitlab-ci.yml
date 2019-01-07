@@ -26,18 +26,19 @@ licenses-latest:
     - pwd
     - apt-get update
     - apt-get --yes install python-dev libbz2-1.0 xz-utils zlib1g libxml2-dev libxslt1-dev wget
-    - wget https://github.com/nexB/scancode-toolkit/archive/v2.9.8.tar.gz
-    - tar -xvf v2.9.8.tar.gz
+    - wget --quiet https://github.com/nexB/scancode-toolkit/archive/v2.9.8.tar.gz
+    - tar -xf v2.9.8.tar.gz
     - cd scancode-toolkit-2.9.8
     - ./scancode --help
-#    - ./scancode --license --package --copyright --info --email --url . --html-app license_report.html        # latest version
-    - ./scancode -n 4 --ignore *.fits . --html-app license_report2.html || echo 0      # latest version, EMPTY REPORT
-#    - ./scancode . --html-app license_report.html
+    - pwd
+#    - ./scancode --license --package --copyright --info --email --url /builds/sci-fv/pyxel --html-app license_report2.html        # latest version
+    - ./scancode -n 4 --ignore *.fits /builds/sci-fv/pyxel --html-app license_report2.html || echo 0      # latest version, EMPTY REPORT
+#    - ./scancode /builds/sci-fv/pyxel --html-app license_report2.html
     - ls
   artifacts:
     paths:
-      - license_report2_files
-      - license_report2.html
+      - scancode-toolkit-2.9.8/license_report2_files
+      - scancode-toolkit-2.9.8/license_report2.html
 
 
 # Run pytest + coverage and create html report (pytest_report.html)
