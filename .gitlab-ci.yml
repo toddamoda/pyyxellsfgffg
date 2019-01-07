@@ -19,10 +19,11 @@ stages:
 
 # experimental
 licenses-latest:
-  image: debian:jessie-slim  # python:2.7
+  image: python:2.7  # debian:jessie-slim  #
   stage: test  # build
   allow_failure: true
   script:
+    - python --version
     - pwd
     - apt-get update
     - apt-get --yes install python-dev libbz2-1.0 xz-utils zlib1g libxml2-dev libxslt1-dev wget
@@ -37,10 +38,12 @@ licenses-latest:
 #    - ./scancode --verbose --html license_report2.html /builds/sci-fv/pyxel
     - pwd
     - ls
+    - mv license_report2.html ../pyxel
   artifacts:
     paths:
-      - /builds/sci-fv/scancode-toolkit-2.9.8/license_report2_files
-      - /builds/sci-fv/scancode-toolkit-2.9.8/license_report2.html
+#      - /builds/sci-fv/scancode-toolkit-2.9.8/license_report2_files
+#      - /builds/sci-fv/scancode-toolkit-2.9.8/license_report2.html
+      - license_report2.html
 
 
 # Run pytest + coverage and create html report (pytest_report.html)
