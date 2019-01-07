@@ -12,7 +12,7 @@ from pyxel.detectors.detector import Detector
 def add_photons(detector: Detector,
                 level: int = -1
                 ) -> Detector:
-    """TBW. asd
+    """TBW.
 
     :param detector:
     :param level:
