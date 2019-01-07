@@ -136,14 +136,14 @@ doc8:
 # Scan sourcecode for licenses, copyrights & dependencies
 licenses:
   image: python:2.7.14
-  stage: build  # deploy
+  stage: build
   allow_failure: true
   script:
     - pwd
     - pip install scancode-toolkit==2.2.1    # worked
 #    - pip install scancode-toolkit==2.9.2
 #    - pip install scancode-toolkit        # not worked:  EMPTY REPORT
-    - scancode -h             # todo: use latest release when it will be available !
+    - scancode --help            # todo: use latest release when it will be available !
 #    - scancode --license --package --copyright --info --email --url . --html-app license_report.html        # latest version
 #    - scancode --license --package --copyright --info --email --url --format html-app . license_report.html   # v2.2.1
 #    - scancode --license --package --copyright --info --email --url --format html . license_report.html      # v2.2.1
@@ -159,6 +159,25 @@ licenses:
 #  only:
 #    - master
 #    - tags
+
+licenses-latest:
+  image: python:2.7
+  stage: build
+  allow_failure: true
+  script:
+    - pwd
+    - sudo apt-get install python-dev libbz2-1.0 xz-utils zlib1g libxml2-dev libxslt1-dev
+    - wget https://github.com/nexB/scancode-toolkit/archive/v2.9.8.tar.gz
+    - tar -xvf v2.9.8.tar.gz
+    - ./scancode --help
+#    - ./scancode --license --package --copyright --info --email --url . --html-app license_report.html        # latest version
+    - ./scancode -n 4 --ignore *.fits . --html-app license_report2.html || echo 0      # latest version, EMPTY REPORT
+#    - ./scancode . --html-app license_report.html
+    - ls
+  artifacts:
+    paths:
+      - license_report2_files
+      - license_report2.html
 
 
 # Generate the Sphinx documentation into 'doc/html'
@@ -216,14 +235,16 @@ pages:
     - pip install docutils pygments
     - rst2html.py --stylesheet=README.css pages.rst pages.html
     - mkdir public
-    - mv coverage.svg public/coverage.svg
+    - mv coverage.svg public
     - mv docs/html public/doc
     - mv pages.html public/index.html
     - mv htmlcov public/coverage
     - mv pytest_report.html public
     - mv pylint_report.html public
     - mv license_report.html public
-    - mv license_report_files public/license_report_files
+    - mv license_report_files public
+    - mv license_report2.html public
+    - mv license_report2_files public
     - ls public
   artifacts:
     paths:

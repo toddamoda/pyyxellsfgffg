@@ -5,8 +5,8 @@ Pyxel
 The **pyxel** documentation.
 
 
-Table of Contents
------------------
+# Table of Contents
+# -----------------
 
 .. toctree::
    :caption: Getting Started
