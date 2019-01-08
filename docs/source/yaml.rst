@@ -2,7 +2,7 @@ Configuration files
 *************************
 
 
-.. figure:: _static/yaml.png
+.. figure:: _static/yaml_new.png
     :alt: yaml
     :align: center
 

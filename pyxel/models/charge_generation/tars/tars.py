@@ -41,8 +41,6 @@ def run_tars(detector: Detector,
     :param starting_position:
     :param simulation_mode:
     :param running_mode:
-    # :param step_size_file:
-    # :param stopping_file:
     :param spectrum_file:
     :param random_seed:
     :return:

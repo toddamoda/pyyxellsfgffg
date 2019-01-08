@@ -40,18 +40,13 @@ def cdm(detector: CCD,
     """
     CDM model wrapper.
 
-    :param detector: PyXel CCD detector object
+    :param detector: Pyxel CCD detector object
     :param beta_p: electron cloud expansion coefficient (parallel)
     :param beta_s: electron cloud expansion coefficient (serial)
-    # :param vg: assumed maximum geometrical volume electrons can occupy within a pixel (parallel)
-    # :param svg: assumed maximum geometrical volume electrons can occupy within a pixel (serial)
-    # :param t: constant TDI period (parallel)
-    # :param st: constant TDI period (serial)
     :param parallel_trap_file: ascii file with absolute trap densities (nt),
         trap capture cross-sections (σ), trap release time constants (τr)
     :param serial_trap_file: ascii file with absolute trap densities (nt),
         trap capture cross-sections (σ), trap release time constants (τr)
-
     :return:
 
     Ne - number of electrons in a pixel
@@ -59,20 +54,25 @@ def cdm(detector: CCD,
     Vc - volume of the charge cloud
 
     nt - trap density
-    σ - trap capture cross-section
-    τr - trap release time constant
+    sigma - trap capture cross-section
+    tau_r - trap release time constant
     Pr - the probability that the trap will release the electron into the sample
-    τc - capture time constant
+    tau_c - capture time constant
     Pc - capture probability (per vacant trap) as a function of the number of sample electrons Ne
 
     NT - number of traps in the column,
-        NT = 2*nt*Vg*x  where x is the number of TDI transfers or the column length in pixels.
+    NT = 2*nt*Vg*x  where x is the number of TDI transfers or the column length in pixels.
     Nc - number of electrons captured by a given trap species during the transit of an integrating signal packet
     N0 - initial trap occupancy
     Nr - number of electrons released into the sample during a transit along the column
 
     fwc: Full Well Capacity in electrons (parallel)
     sfwc: Full Well Capacity in electrons (serial)
+
+    vg: assumed maximum geometrical volume electrons can occupy within a pixel (parallel)
+    svg: assumed maximum geometrical volume electrons can occupy within a pixel (serial)
+    t: constant TDI period (parallel)
+    st: constant TDI period (serial)
     """
     logging.info('')
     char = cast(CCDCharacteristics, detector.characteristics)  # type: CCDCharacteristics
@@ -122,7 +122,8 @@ def cdm(detector: CCD,
                      tr_p=tr_p, tr_s=tr_s,
                      nt_p=nt_p, nt_s=nt_s)
 
-    detector.pixels.array = np.round(output).astype(np.int32)
+    # detector.pixels.array = np.round(output).astype(np.int32)
+    detector.pixels.array = output
 
     return detector
 

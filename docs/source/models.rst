@@ -1,6 +1,30 @@
 Models
 ===========
 
+By models, we mean various analytical functions, numerical methods or algorithms implemented in order to
+approximate, calculate, visualize electro-optical performance and degradation due to the operational environment
+(space, laboratory test) and its effects (e.g. radiation damage).
+
+Models can be grouped into 7 model levels per detector type according to which object or parameter
+of the Detector object is used or modified by the models. These levels correspond roughly to
+the detector fundamental functions. Models in Pyxel should be able to add photons, charge, charge packets or
+signal values to the corresponding objects (Photon, Charge, Pixel, Signal or Image object), which are storing the
+physics data either inside a Pandas dataframe or in a NumPy array. Via dataframe or array handling functions,
+models can also modify properties of photons, charge, etc. within these objects, like wavelength, position, kinetic
+energy, number of electrons per charge packet, signal amplitude, etc. Models could also modify any detector
+parameters (like quantum effciency, gain, standard deviation of noises) globally on detector level or locally (on
+pixel level or for a specific detector area).
+
+.. figure:: _static/model-table.PNG
+    :scale: 70%
+    :alt: models
+    :align: center
+
+    All the 8 model levels, which are imitating the physical working principles of imaging detectors. They were
+    grouped according to which physics data storing objects are modified by them. Note that 2 out of the 8 levels are
+    specific to a single detector type.
+
+
 Photon Generation models
 ---------------------------------
 
