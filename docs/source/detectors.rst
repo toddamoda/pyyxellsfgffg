@@ -1,13 +1,9 @@
 Detectors
 ===========
 
-
 ..
   UML from file location
   .. uml:: _static/example.puml
-
-Detectors
------------
 
 Detector classes and their attributes.
 

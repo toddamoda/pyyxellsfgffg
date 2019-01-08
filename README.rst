@@ -1,4 +1,4 @@
-PYXEL a detector simulation framework
+Pyxel detector simulation framework
 =====================================
 
 tbd
