@@ -22,7 +22,8 @@ Table of Contents
    :maxdepth: 4
    :hidden:
 
-   api.rst
+   detectors.rst
+   models.rst
 
 .. toctree::
    :caption: Help & Reference
