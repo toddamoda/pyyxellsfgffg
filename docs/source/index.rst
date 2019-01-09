@@ -6,52 +6,46 @@ Pyxel
 
 The **pyxel** documentation.
 
-
-.. toctree::
-   :caption: Introduction
-   :maxdepth: 4
-   :hidden:
-
-   overview.rst
-
 .. toctree::
    :caption: Getting Started
    :maxdepth: 4
    :hidden:
 
+   overview.rst
    install.rst
    examples.rst
 
 .. toctree::
-   :caption: API
+   :caption: User Guide
    :maxdepth: 4
    :hidden:
 
    detectors.rst
    models.rst
+   yaml.rst
+   gui.rst
+   running_modes.rst
 
 .. toctree::
-   :caption: User interface
+   :caption: Physics Reference
    :maxdepth: 4
    :hidden:
 
-   yaml.rst
-   gui.rst
+.. toctree::
+   :caption: Developer Guide
+   :maxdepth: 4
+   :hidden:
 
 .. toctree::
-   :caption: Help
+   :caption: About
    :maxdepth: 4
    :hidden:
 
    faq.rst
    acronyms.rst
-
-.. toctree::
-   :caption: Misc
-   :maxdepth: 4
-   :hidden:
-
    changelog.rst
+   license.rst
+   authors.rst
    acknowledgement.rst
    reference.rst
 

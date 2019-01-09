@@ -1,8 +1,7 @@
-=============
-pyxel authors
-=============
+Authors
+============
 
-* `David Lucsanyi <david.lucsanyi@esa.int>`_
-* `Thibaut Prodhomme <thibaut.prodhomme@esa.int>`_
-* `Hans Smit <hans.smit@esa.int>`_
-* `Frederic Lemmel <frederic.lemmel@esa.int>`_
+* `David Lucsanyi (ESA) <david.lucsanyi@esa.int>`_
+* `Thibaut Prodhomme (ESA) <thibaut.prodhomme@esa.int>`_
+* `Hans Smit (ESA) <hans.smit@esa.int>`_
+* `Frederic Lemmel (ESA) <frederic.lemmel@esa.int>`_

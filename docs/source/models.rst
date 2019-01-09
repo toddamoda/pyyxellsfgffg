@@ -32,6 +32,8 @@ gain, standard deviation of noises) globally on detector level or locally
     specific to a single detector type.
 
 
+.. _photon_generation:
+
 Photon Generation models
 ---------------------------------
 
@@ -44,6 +46,9 @@ Photon Generation models
 .. autofunction:: pyxel.models.photon_generation.load_image.load_image(param1, param2: int = 0)
 .. autofunction:: pyxel.models.photon_generation.shot_noise.add_shot_noise(param1, param2)
 
+
+.. _optical:
+
 Optical models
 ---------------------------------
 
@@ -51,6 +56,9 @@ Optical models
     :members:
     :undoc-members:
     :imported-members:
+
+
+.. _charge_generation:
 
 Charge Generation models
 ---------------------------------
@@ -64,6 +72,9 @@ Charge Generation models
 .. autofunction:: pyxel.models.charge_generation.charge_injection.charge_injection
 .. autofunction:: pyxel.models.charge_generation.photoelectrons.simple_conversion
 
+
+.. _charge_collection:
+
 Charge Collection models
 ---------------------------------
 
@@ -75,6 +86,9 @@ Charge Collection models
 .. autofunction:: pyxel.models.charge_collection.collection.simple_collection
 .. autofunction:: pyxel.models.charge_collection.fix_pattern_noise.add_fix_pattern_noise
 .. autofunction:: pyxel.models.charge_collection.full_well.simple_pixel_full_well
+
+
+.. _charge_transfer:
 
 Charge Transfer models (CCD)
 ---------------------------------
@@ -88,6 +102,9 @@ Only for CCD detectors.
 
 .. autofunction:: pyxel.models.charge_transfer.cdm.CDM.cdm
 
+
+.. _charge_measurement:
+
 Charge Measurement models
 ---------------------------------
 
@@ -98,6 +115,9 @@ Charge Measurement models
 
 .. autofunction:: pyxel.models.charge_measurement.measurement.simple_measurement
 .. autofunction:: pyxel.models.charge_measurement.readout_noise.output_node_noise
+
+
+.. _signal_transfer:
 
 Signal Transfer models (CMOS)
 ---------------------------------
@@ -115,6 +135,9 @@ Only for CMOS-based detectors.
 .. autofunction:: pyxel.models.signal_transfer.nghxrg.nghxrg.uncorr_pink_noise
 .. autofunction:: pyxel.models.signal_transfer.nghxrg.nghxrg.corr_pink_noise
 .. autofunction:: pyxel.models.signal_transfer.nghxrg.nghxrg.pca_zero_noise
+
+
+.. _readout_electronics:
 
 Readout Electronics models
 ---------------------------------

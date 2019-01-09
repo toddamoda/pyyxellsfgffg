@@ -9,6 +9,8 @@ Detectors
 
 Detector classes and their attributes.
 
+.. _geometry:
+
 Geometry
 -----------
 
@@ -24,6 +26,8 @@ Geometry
     :show-inheritance:
 
 
+.. _characteristics:
+
 Characteristics
 ----------------
 
@@ -38,6 +42,8 @@ Characteristics
     :show-inheritance:
 
 
+.. _material:
+
 Material
 -----------
 
@@ -46,6 +52,8 @@ Material
     :undoc-members:
 
 
+.. _environment:
+
 Environment
 -----------
 
@@ -53,6 +61,8 @@ Environment
     :members:
     :undoc-members:
 
+
+.. _optics:
 
 Optics
 -----------

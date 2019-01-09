@@ -11,5 +11,3 @@ run Pyxel in batch mode with :ref:`yaml`.
     :align: center
 
     The Graphical User Interface (GUI) of Pyxel.
-
-

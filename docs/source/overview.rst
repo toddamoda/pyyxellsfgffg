@@ -60,13 +60,13 @@ contribute and expand the framework capabilities by adding their own models.
 
 
 
-:cite:`2001:janesick`
+:ref:`License <license>`
 
-:cite:`2015:rauscher`
 
-:cite:`2013:short`
+|release|
 
-:cite:`2016:prodhomme`
 
-:cite:`2003:agostinelli,2016:verhoeve`
+|version|
 
+
+|today|

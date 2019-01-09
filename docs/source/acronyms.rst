@@ -18,4 +18,5 @@ QE               Quantum Efficiency
 PNRU             Photo-Response Non-Uniformity
 FPN              Fixed-pattern noise
 ADC              Analog-Digital Converter
+PSF              Point Spread Function
 ===============  ==============================================================

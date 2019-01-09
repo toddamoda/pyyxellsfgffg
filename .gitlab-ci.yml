@@ -192,10 +192,9 @@ doc:
   image: continuumio/anaconda3
   stage: build
   script:
-    - pip install sphinx sphinx_rtd_theme
-    - pip install -r requirements.txt
+    - pip install -r docs/requirements-docs.txt
     - export PYTHONPATH=$PWD
-    - sphinx-build docs/source docs/html
+    - sphinx-build docs/source docs/html -E -a -j 4
     - ls
   artifacts:
     paths:
