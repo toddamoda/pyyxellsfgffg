@@ -25,34 +25,42 @@ similarly to the architecture, so the Pyxel class hierarchy can be
 recognized in the group hierarchy of YAML files.
 
 The groups and subgroups of the YAML file create objects from the
-classes defined with their "class" arguments. During this process,
+classes defined with their *class* arguments. During this process,
 classes get all the parameters as input arguments defined within the group
 or subgroup.
 
 * **simulation:**
 
     In the beginning of the configuration file, the user should define
-    running
-    mode and in case of parametric mode the ranges or lists in order to do
-    parametric analysis. In case of calibration mode, the path of target
-    dataset and path of user defined optimization class has to be defined.
+    the running mode. For details, see :ref:`running_modes`.
 
-* **processor:**
+* **detector:**
 
-    * **detector:**
+    All arguments of Detector subclasses (Geometry, Characteristics,
+    Environment, Material and Optics) are defined here.
+    For details, see :ref:`detectors`.
 
-        The next, "processor" part contains a "detector" group, where all the
-        input arguments of Detector subclasses (Geometry, Environment,
-        Material and Characteristics) are defined.
+* **pipeline:**
 
-    * **pipeline:**
+    It contains the model levels as subgroups
+    (*photon_generation*, *optics*, *charge_generation*, etc.).
+    For details, see :ref:`pipelines`.
 
-        Similarly, the "pipeline" group contains the model levels as subgroups
-        ("photon_generation", "optics", "charge_generation", etc.).
-        Models need a "name" which defines the path to the model wrapper
-        function. Models also have an "enabled" boolean switch, where the user
-        can enable or disable the given model. The optional and compulsory
-        arguments of the models have to be listed inside the "arguments".
+    The order of model levels and models are important,
+    as the execution order is defined here!
 
-        The order of models is important, as the execution order of models
-        is defined here!
+    * **photon_generation**
+    * **optics**
+    * **charge_generation**
+    * **charge_collection**
+    * **(charge_transfer)**
+    * **charge_measurement**
+    * **(signal_transfer)**
+    * **readout_electronics**
+
+
+    Models need a *name* which defines the path to the model wrapper
+    function. Models also have an *enabled* boolean switch, where the user
+    can enable or disable the given model. The optional and compulsory
+    arguments of the model functions have to be listed inside the
+    *arguments*. For details, see :ref:`models`.

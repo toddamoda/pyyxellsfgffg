@@ -124,13 +124,19 @@ def pyxel_yaml_loader():
     from pyxel.pipelines.model_function import ModelFunction
     from pyxel.pipelines.model_group import ModelGroup
 
-    om.ObjectModelLoader.add_class_ref(['processor', 'class'])
-    om.ObjectModelLoader.add_class_ref(['processor', 'detector', 'class'])
-    om.ObjectModelLoader.add_class_ref(['processor', 'detector', None, 'class'])
-    om.ObjectModelLoader.add_class_ref(['processor', 'pipeline', 'class'])
+    # om.ObjectModelLoader.add_class_ref(['processor', 'class'])
+    # om.ObjectModelLoader.add_class_ref(['processor', 'detector', 'class'])
+    # om.ObjectModelLoader.add_class_ref(['processor', 'detector', None, 'class'])
+    # om.ObjectModelLoader.add_class_ref(['processor', 'pipeline', 'class'])
+    # om.ObjectModelLoader.add_class(ModelGroup, ['processor', 'pipeline', None])
+    # om.ObjectModelLoader.add_class(ModelFunction, ['processor', 'pipeline', None, None])
 
-    om.ObjectModelLoader.add_class(ModelGroup, ['processor', 'pipeline', None])
-    om.ObjectModelLoader.add_class(ModelFunction, ['processor', 'pipeline', None, None])
+    om.ObjectModelLoader.add_class_ref(['detector', 'class'])
+    om.ObjectModelLoader.add_class_ref(['detector', None, 'class'])
+
+    om.ObjectModelLoader.add_class_ref(['pipeline', 'class'])
+    om.ObjectModelLoader.add_class(ModelGroup, ['pipeline', None])
+    om.ObjectModelLoader.add_class(ModelFunction, ['pipeline', None, None])
 
     om.ObjectModelLoader.add_class(Configuration, ['simulation'])
 

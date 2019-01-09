@@ -14,7 +14,7 @@ from pathlib import Path
 import numpy as np
 import esapy_config as om
 import pyxel
-import pyxel.pipelines.processor
+from pyxel.pipelines.processor import Processor
 from pyxel import util
 from pyxel.web2.runweb import run_web_server
 
@@ -51,8 +51,10 @@ def run(input_filename, output_file: str = None, random_seed: int = None):
 
     cfg = om.load(Path(input_filename))
     simulation = cfg['simulation']
-    processor = cfg['processor']
-    # detector = None
+    # processor = cfg['processor']
+    detector = cfg['detector']
+    pipeline = cfg['pipeline']
+    processor = Processor(detector, pipeline)
 
     if simulation.mode == 'single':
         detector = processor.pipeline.run_pipeline(processor.detector)
