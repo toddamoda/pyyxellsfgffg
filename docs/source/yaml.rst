@@ -8,7 +8,8 @@ input, which defines all the detector parameters, detector effect models and
 their input arguments.
 
 After the framework loads and
-validates the YAML file, it creates a single or stack of Detector based on
+validates the YAML file (with .yaml extension),
+then it creates *Detector* and *Detection Pipeline* object(s) based on
 the YAML file with all the information needed for the framework to run
 the simulation.
 
@@ -16,7 +17,7 @@ the simulation.
     :alt: yaml
     :align: center
 
-    The YAML configuration file of Pyxel is structured, so the class hierarchy can be recognized in the group hierarchy of YAML files.
+    The structured YAML configuration file of Pyxel.
     Left: Parts of the file where the running mode and detector parameters are defined;
     Right: Some model levels with all the models and their arguments inside.
 

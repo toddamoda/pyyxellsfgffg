@@ -34,6 +34,24 @@ def badges():
         process = 'wget -O coverage.svg https://img.shields.io/badge/coverage-' + percent + '%25-' + colour + '.svg'
         subprocess.run(process, shell=True)
 
+    if opts.documentation:
+        colour = 'brightgreen'
+        process = 'wget -O documentation.svg https://img.shields.io/badge/docs-' + \
+                  opts.documentation + '-' + colour + '.svg'
+        subprocess.run(process, shell=True)
+
+    if opts.license:
+        colour = 'green'
+        process = 'wget -O license.svg https://img.shields.io/badge/license-' + \
+                  opts.license + '-' + colour + '.svg'
+        subprocess.run(process, shell=True)
+
+    if opts.chat:
+        colour = 'green'
+        process = 'wget -O chat.svg https://img.shields.io/badge/chat-' + \
+                  opts.chat + '-' + colour + '.svg'
+        subprocess.run(process, shell=True)
+
 
 if __name__ == '__main__':
     badges()

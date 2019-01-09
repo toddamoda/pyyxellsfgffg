@@ -39,9 +39,11 @@ licenses-latest:
     - pwd
     - ls
     - mv license_report2.html ../pyxel
+    - python badges.py -lic="MIT"
   artifacts:
     paths:
       - license_report2.html
+      - license.svg
 
 
 # Run pytest + coverage and create html report (pytest_report.html)
@@ -196,10 +198,12 @@ doc:
     - pip install -r requirements.txt
     - export PYTHONPATH=$PWD
     - sphinx-build docs/source docs/html -E -a -j 4
+    - python badges.py -doc="passed"
     - ls
   artifacts:
     paths:
       - docs/html
+      - documentation.svg
   cache:
     key: "$CI_COMMIT_REF_NAME"
     paths:
@@ -242,7 +246,6 @@ pages:
     - pip install docutils pygments
     - rst2html.py --stylesheet=README.css pages.rst pages.html
     - mkdir public
-    - mv coverage.svg public
     - mv docs/html public/doc
     - mv pages.html public/index.html
     - mv htmlcov public/coverage
@@ -251,6 +254,9 @@ pages:
     - mv license_report.html public
     - mv license_report_files public
     - mv license_report2.html public
+    - mv coverage.svg public
+    - mv license.svg public
+    - mv documentation.svg public
     - ls public
   artifacts:
     paths:
