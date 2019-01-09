@@ -251,7 +251,6 @@ pages:
     - mv license_report.html public
     - mv license_report_files public
     - mv license_report2.html public
-    - mv license_report2_files public
     - ls public
   artifacts:
     paths:
