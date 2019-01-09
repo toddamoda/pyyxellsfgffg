@@ -70,3 +70,11 @@ contribute and expand the framework capabilities by adding their own models.
 
 
 |today|
+
+.. note::
+
+    This is a note.
+
+.. warning::
+
+    This is a warning!

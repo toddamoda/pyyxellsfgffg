@@ -20,6 +20,7 @@ The **pyxel** documentation.
    :maxdepth: 4
    :hidden:
 
+   pipelines.rst
    detectors.rst
    models.rst
    yaml.rst
@@ -35,6 +36,8 @@ The **pyxel** documentation.
    :caption: Developer Guide
    :maxdepth: 4
    :hidden:
+
+   contributing.rst
 
 .. toctree::
    :caption: About
