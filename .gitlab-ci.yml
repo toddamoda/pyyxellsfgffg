@@ -193,6 +193,7 @@ doc:
   stage: build
   script:
     - pip install -r docs/requirements-docs.txt
+    - pip install -r requirements.txt
     - export PYTHONPATH=$PWD
     - sphinx-build docs/source docs/html -E -a -j 4
     - ls
