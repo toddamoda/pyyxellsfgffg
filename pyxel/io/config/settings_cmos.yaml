@@ -41,179 +41,176 @@ simulation:
     lower_boundary: [[1.e-3, 1.e-2, 1.e-20, 0.], [1.]]
     upper_boundary: [[2., 1.e+1, 1.e-15, 1.], [10.]]
 
-processor:
-  class: pyxel.pipelines.processor.Processor
+detector:
+  class: pyxel.detectors.cmos.CMOS
 
-  detector:
-    class: pyxel.detectors.cmos.CMOS
+  geometry:
+    class: pyxel.detectors.cmos_geometry.CMOSGeometry
+    row: 150                      # compulsory
+    col: 200                      # compulsory
+    total_thickness: 10.0         # um
+    depletion_thickness: 10.0     # um
+    field_free_thickness: 0.0     # um
+    pixel_vert_size: 10.0         # um
+    pixel_horz_size: 10.0         # um
+    n_output: 4
+    n_row_overhead: 0
+    n_frame_overhead: 0
+    reverse_scan_direction: False
+    reference_pixel_border_width: 4
 
-    geometry:
-      class: pyxel.detectors.cmos_geometry.CMOSGeometry
-      row: 150                      # compulsory
-      col: 200                      # compulsory
-      total_thickness: 10.0         # um
-      depletion_thickness: 10.0     # um
-      field_free_thickness: 0.0     # um
-      pixel_vert_size: 10.0         # um
-      pixel_horz_size: 10.0         # um
-      n_output: 4
-      n_row_overhead: 0
-      n_frame_overhead: 0
-      reverse_scan_direction: False
-      reference_pixel_border_width: 4
-
-    material:
-      class: pyxel.detectors.material.Material
-      material: 'silicon'
+  material:
+    class: pyxel.detectors.material.Material
+    material: 'silicon'
 #      compound: 'silicon'
 #        element: 'silicon'
 #        ratio: 1.
-      n_acceptor: 0.0               # cm-3
-      n_donor: 0.0                  # cm-3
+    n_acceptor: 0.0               # cm-3
+    n_donor: 0.0                  # cm-3
 
-    environment:
-      class: pyxel.detectors.environment.Environment
-      temperature: 300                     # K
+  environment:
+    class: pyxel.detectors.environment.Environment
+    temperature: 300                     # K
 #      total_ionising_dose: 0              #
 #      total_non_ionising_dose: 0          #
 
-    characteristics:
-      class: pyxel.detectors.cmos_characteristics.CMOSCharacteristics
-      qe: 0.5               # -
-      eta: 1                # e/photon
-      sv: 1.0e-6            # V/e
-      amp: 0.8             # V/V
-      a1: 100               # V/V
-      a2: 65536             # DN/V
-      fwc: 20000            # e
-      fwc_serial: 30000     # e
+  characteristics:
+    class: pyxel.detectors.cmos_characteristics.CMOSCharacteristics
+    qe: 0.5               # -
+    eta: 1                # e/photon
+    sv: 1.0e-6            # V/e
+    amp: 0.8             # V/V
+    a1: 100               # V/V
+    a2: 65536             # DN/V
+    fwc: 20000            # e
+    fwc_serial: 30000     # e
 #      bias_voltage: 0.0             # V
 
-  pipeline:
-    class: pyxel.pipelines.cmos_pipeline.CMOSDetectionPipeline
+pipeline:
+  class: pyxel.pipelines.cmos_pipeline.CMOSDetectionPipeline
 
-    # -> photons
-    photon_generation:
-      -
-        name: load_image
-        func: pyxel.models.photon_generation.load_image.load_image
-        enabled: false
-        arguments:
-          image_file: null
-      -
-        name: photon_level
-        func: pyxel.models.photon_generation.add_photons.add_photons
-        enabled: true
-        arguments:
-          level: 100
-      -
-        name: shot_noise
-        func: pyxel.models.photon_generation.shot_noise.add_shot_noise
-        enabled: true
+  # -> photons
+  photon_generation:
+    -
+      name: load_image
+      func: pyxel.models.photon_generation.load_image.load_image
+      enabled: false
+      arguments:
+        image_file: null
+    -
+      name: photon_level
+      func: pyxel.models.photon_generation.add_photons.add_photons
+      enabled: true
+      arguments:
+        level: 100
+    -
+      name: shot_noise
+      func: pyxel.models.photon_generation.shot_noise.add_shot_noise
+      enabled: true
 
-    # photons -> photons
-    optics:
+  # photons -> photons
+  optics:
 
-    # photons -> charge
-    charge_generation:
-      -
-        name: photoelectrons
-        enabled: true
-        func: pyxel.models.charge_generation.photoelectrons.simple_conversion
-      -
-        name: tars
-        func: pyxel.models.tars.tars.run_tars
-        enabled: true
-        arguments:
-          particle_type: proton
-          initial_energy: random   # MeV
-          particle_number: 10
-          incident_angles:      # rad
-          starting_position:    # um
+  # photons -> charge
+  charge_generation:
+    -
+      name: photoelectrons
+      enabled: true
+      func: pyxel.models.charge_generation.photoelectrons.simple_conversion
+    -
+      name: tars
+      func: pyxel.models.tars.tars.run_tars
+      enabled: true
+      arguments:
+        particle_type: proton
+        initial_energy: random   # MeV
+        particle_number: 10
+        incident_angles:      # rad
+        starting_position:    # um
 #          stepping_length: 1.0  # um
-          spectrum_file: 'pyxel/models/charge_generation/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
-          let_file: 'pyxel/models/tars/data/inputs/let_proton_1GeV_100um_geant4_HighResHist.ascii'
+        spectrum_file: 'pyxel/models/charge_generation/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
+        let_file: 'pyxel/models/tars/data/inputs/let_proton_1GeV_100um_geant4_HighResHist.ascii'
 #          stopping_file: 'pyxel/models/tars/data/inputs/stopping_power_protons.txt'
 
-    # charge -> charge
-    charge_collection:
-      -
-        name: full_well
-        func: pyxel.models.charge_collection.full_well.simple_pixel_full_well
-        enabled: true
+  # charge -> charge
+  charge_collection:
+    -
+      name: full_well
+      func: pyxel.models.charge_collection.full_well.simple_pixel_full_well
+      enabled: true
 
-    # charge -> signal
-    charge_measurement:
-      - # kTC and Bias noises
-        name: nghxrg_ktc_bias
-        func: pyxel.models.signal_transfer.nghxrg.nghxrg.ktc_bias_noise
-        enabled: true
-        arguments:
-          ktc_noise: 500.
-          bias_offset: 300.
-          bias_amp: 400.
+  # charge -> signal
+  charge_measurement:
+    - # kTC and Bias noises
+      name: nghxrg_ktc_bias
+      func: pyxel.models.signal_transfer.nghxrg.nghxrg.ktc_bias_noise
+      enabled: true
+      arguments:
+        ktc_noise: 500.
+        bias_offset: 300.
+        bias_amp: 400.
 #          window_mode: WINDOW
 #          wind_x0: 550
 #          wind_y0: 350
 #          wind_x_size: 200
 #          wind_y_size: 200
-      - # White read noise
-        name: nghxrg_read
-        func: pyxel.models.signal_transfer.nghxrg.nghxrg.white_read_noise
-        enabled: true
-        arguments:
-          rd_noise: 400.
-          ref_pixel_noise_ratio: 80.
+    - # White read noise
+      name: nghxrg_read
+      func: pyxel.models.signal_transfer.nghxrg.nghxrg.white_read_noise
+      enabled: true
+      arguments:
+        rd_noise: 400.
+        ref_pixel_noise_ratio: 80.
 #          window_mode: WINDOW
 #          wind_x0: 50
 #          wind_y0: 100
 #          wind_x_size: 200
 #          wind_y_size: 200
 
-    # signal -> signal
-    signal_transfer:
-      - # Correlated pink noise
-        name: nghxrg_c_pink
-        func: pyxel.models.signal_transfer.nghxrg.nghxrg.corr_pink_noise
-        enabled: true
-        arguments:
-          c_pink: 300.
+  # signal -> signal
+  signal_transfer:
+    - # Correlated pink noise
+      name: nghxrg_c_pink
+      func: pyxel.models.signal_transfer.nghxrg.nghxrg.corr_pink_noise
+      enabled: true
+      arguments:
+        c_pink: 300.
 #          window_mode: WINDOW
 #          wind_x0: 550
 #          wind_y0: 100
 #          wind_x_size: 200
 #          wind_y_size: 200
-      - # Uncorrelated pink noise
-        name: nghxrg_u_pink
-        func: pyxel.models.signal_transfer.nghxrg.nghxrg.uncorr_pink_noise
-        enabled: true
-        arguments:
-          u_pink: 200.
+    - # Uncorrelated pink noise
+      name: nghxrg_u_pink
+      func: pyxel.models.signal_transfer.nghxrg.nghxrg.uncorr_pink_noise
+      enabled: true
+      arguments:
+        u_pink: 200.
 #          window_mode: WINDOW
 #          wind_x0: 50
 #          wind_y0: 350
 #          wind_x_size: 200
 #          wind_y_size: 200
-      - # Alternating Column Noise
-        name: nghxrg_acn
-        func: pyxel.models.signal_transfer.nghxrg.nghxrg.acn_noise
-        enabled: true
-        arguments:
-          acn: 500.
+    - # Alternating Column Noise
+      name: nghxrg_acn
+      func: pyxel.models.signal_transfer.nghxrg.nghxrg.acn_noise
+      enabled: true
+      arguments:
+        acn: 500.
 #          window_mode: WINDOW
 #          wind_x0: 300
 #          wind_y0: 350
 #          wind_x_size: 200
 #          wind_y_size: 200
 
-    # signal -> image
-    readout_electronics:
-      - # PCA zero "picture frame" noise
-        name: nghxrg_pca_zero
-        func: pyxel.models.signal_transfer.nghxrg.nghxrg.pca_zero_noise
-        enabled: true
-        arguments:
-          pca0_amp: 450.
+  # signal -> image
+  readout_electronics:
+    - # PCA zero "picture frame" noise
+      name: nghxrg_pca_zero
+      func: pyxel.models.signal_transfer.nghxrg.nghxrg.pca_zero_noise
+      enabled: true
+      arguments:
+        pca0_amp: 450.
 #          window_mode: WINDOW
 #          wind_x0: 300
 #          wind_y0: 100

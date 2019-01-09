@@ -4,6 +4,7 @@ import pytest
 import pygmo as pg
 import esapy_config as om
 from pyxel.calibration.util import read_data, list_to_slice, check_ranges
+from pyxel.pipelines.processor import Processor
 
 
 @pytest.mark.parametrize('yaml',
@@ -107,7 +108,9 @@ def test_check_ranges(targ_range, out_range, row, col):
 def test_run_calibration(yaml):
     """Test """
     cfg = om.load(yaml)
-    processor = cfg['processor']
+    detector = cfg['detector']
+    pipeline = cfg['pipeline']
+    processor = Processor(detector, pipeline)
     simulation = cfg['simulation']
     result = simulation.calibration.run_calibration(processor)
     assert result == 1

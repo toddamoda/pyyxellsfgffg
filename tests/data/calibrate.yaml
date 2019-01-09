@@ -35,41 +35,38 @@ simulation:
     champions_file: 'data/calibration_champions.out'
     population_file: 'data/calibration_populations.out'
 
-processor:
-  class: pyxel.pipelines.processor.Processor
+detector:
+  class: pyxel.detectors.ccd.CCD
 
-  detector:
-    class: pyxel.detectors.ccd.CCD
+  geometry:
+    class: pyxel.detectors.ccd_geometry.CCDGeometry
 
-    geometry:
-      class: pyxel.detectors.ccd_geometry.CCDGeometry
+  material:
+    class: pyxel.detectors.material.Material
 
-    material:
-      class: pyxel.detectors.material.Material
+  environment:
+    class: pyxel.detectors.environment.Environment
 
-    environment:
-      class: pyxel.detectors.environment.Environment
+  characteristics:
+    class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
 
-    characteristics:
-      class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
+pipeline:
+  class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
 
-  pipeline:
-    class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
+  # -> photons
+  photon_generation:
 
-    # -> photons
-    photon_generation:
+  # photons -> photons
+  optics:
 
-    # photons -> photons
-    optics:
+  # photons -> charge
+  charge_generation:
 
-    # photons -> charge
-    charge_generation:
+  # charge -> charge
+  charge_transfer:
 
-    # charge -> charge
-    charge_transfer:
+  # charge -> signal
+  charge_measurement:
 
-    # charge -> signal
-    charge_measurement:
-
-    # signal -> image
-    readout_electronics:
+  # signal -> image
+  readout_electronics:
