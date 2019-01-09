@@ -3,10 +3,56 @@
 Configuration files
 *************************
 
+The framework uses a user-friendly, structured YAML configuration file as an
+input, which defines all the detector parameters, detector effect models and
+their input arguments.
+
+After the framework loads and
+validates the YAML file, it creates a single or stack of Detector based on
+the YAML file with all the information needed for the framework to run
+the simulation.
 
 .. figure:: _static/yaml_new.png
     :alt: yaml
     :align: center
 
-    A YAML configuration file of Pyxel.
+    The YAML configuration file of Pyxel is structured, so the class hierarchy can be recognized in the group hierarchy of YAML files.
+    Left: Parts of the file where the running mode and detector parameters are defined;
+    Right: Some model levels with all the models and their arguments inside.
 
+The YAML configuration file of Pyxel is structured
+similarly to the architecture, so the Pyxel class hierarchy can be
+recognized in the group hierarchy of YAML files.
+
+The groups and subgroups of the YAML file create objects from the
+classes defined with their "class" arguments. During this process,
+classes get all the parameters as input arguments defined within the group
+or subgroup.
+
+* **simulation:**
+
+    In the beginning of the configuration file, the user should define
+    running
+    mode and in case of parametric mode the ranges or lists in order to do
+    parametric analysis. In case of calibration mode, the path of target
+    dataset and path of user defined optimization class has to be defined.
+
+* **processor:**
+
+    * **detector:**
+
+        The next, "processor" part contains a "detector" group, where all the
+        input arguments of Detector subclasses (Geometry, Environment,
+        Material and Characteristics) are defined.
+
+    * **pipeline:**
+
+        Similarly, the "pipeline" group contains the model levels as subgroups
+        ("photon_generation", "optics", "charge_generation", etc.).
+        Models need a "name" which defines the path to the model wrapper
+        function. Models also have an "enabled" boolean switch, where the user
+        can enable or disable the given model. The optional and compulsory
+        arguments of the models have to be listed inside the "arguments".
+
+        The order of models is important, as the execution order of models
+        is defined here!
