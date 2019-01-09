@@ -1,3 +1,5 @@
+.. _acronyms:
+
 List of Acronyms
 ****************
 

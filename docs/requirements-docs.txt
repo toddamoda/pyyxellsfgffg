@@ -1,4 +1,6 @@
 sphinx
 sphinx-rtd-theme
-sphinxcontrib-plantuml
-sphinxcontrib-mermaid
+sphinxcontrib-bibtex
+
+# sphinxcontrib-plantuml
+# sphinxcontrib-mermaid

@@ -57,6 +57,7 @@ extensions = [
     'sphinx.ext.mathjax',       # render math via Javascript
     'sphinx.ext.viewcode',      # add links to highlighted source code
     'sphinx.ext.autosummary',   # Generate autodoc summaries
+    'sphinxcontrib.bibtex',
     # 'sphinxcontrib.plantuml',
     # 'sphinxcontrib.mermaid',
 ]
