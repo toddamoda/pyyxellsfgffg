@@ -9,13 +9,13 @@ made by CCD or CMOS-based detectors.
 Documentation
 -------------
 
-**`Pyxel documentation <http://sci-fv.io.esa.int/pyxel/doc>`_**
+`Pyxel documentation <http://sci-fv.io.esa.int/pyxel/doc>`_
 
 
 Installation
 ------------
 
-**`How to install Pyxel <http://sci-fv.io.esa.int/pyxel/doc/install.html>`_**
+`How to install Pyxel <http://sci-fv.io.esa.int/pyxel/doc/install.html>`_
 
 Requirements
 ************
@@ -30,25 +30,25 @@ Development
 Reports
 *******
 
-**`PyTest report <http://sci-fv.io.esa.int/pyxel/pytest_report.html>`_**
+`PyTest report <http://sci-fv.io.esa.int/pyxel/pytest_report.html>`_
 
-**`PyTest coverage <http://sci-fv.io.esa.int/pyxel/coverage/>`_**
+`PyTest coverage <http://sci-fv.io.esa.int/pyxel/coverage/>`_
 
-**`PyLint report <http://sci-fv.io.esa.int/pyxel/pylint_report.html>`_**
+`PyLint report <http://sci-fv.io.esa.int/pyxel/pylint_report.html>`_
 
-**`License report <http://sci-fv.io.esa.int/pyxel/license_report.html>`_**
+`License report <http://sci-fv.io.esa.int/pyxel/license_report.html>`_
 
 Changelog
 ---------
 
-**`Changelog <http://sci-fv.io.esa.int/pyxel/doc/changelog.html>`_**
+`Changelog <http://sci-fv.io.esa.int/pyxel/doc/changelog.html>`_
 
 License
 -------
 
-**`Pyxel license (MIT) <http://sci-fv.io.esa.int/pyxel/doc/license.html>`_**
+`Pyxel license (MIT) <http://sci-fv.io.esa.int/pyxel/doc/license.html>`_
 
 Authors
 -------
 
-**`Developers and contributors <http://sci-fv.io.esa.int/pyxel/doc/authors.html>`_**
+`Developers and contributors <http://sci-fv.io.esa.int/pyxel/doc/authors.html>`_
