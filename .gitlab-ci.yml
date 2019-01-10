@@ -178,13 +178,11 @@ licenses:
     - scancode -n 4 --ignore *.fits --format html-app --diag . license_report.html || echo 0      # v2.2.1   worked
 #    - scancode -n 4 --ignore *.fits . --html-app license_report.html || echo 0      # latest version, EMPTY REPORT
 #    - scancode . --html-app license_report.html
-    - python badges.py -lic="MIT"
     - ls
   artifacts:
     paths:
       - license_report_files
       - license_report.html
-      - license.svg
 #  only:
 #    - master
 #    - tags
