@@ -20,30 +20,39 @@ Requirements
 * esapy-dispatcher==0.4
 * esapy-config==0.6
 
-From source (inside ESA network)
+From source
 --------------------------------
+
+.. attention::
+    The source is available in `ESA GitLab <https://gitlab.esa.int>`_
+    which can be only accessed from ESA network!
+
+Clone the GitLab repository of Pyxel:c
 
 .. code-block:: bash
 
     git clone https://gitlab.esa.int/sci-fv/pyxel.git
 
-Give your ESAAD credentials.
+Give your ESAAD credentials to access GitLab.
 
-Then, install requirements with ``pip`` using ``requirements.txt`` file inside the ``pyxel`` folder:
+After cloning the repository, install the requirements with ``pip`` using
+the ``requirements.txt`` file inside the ``pyxel`` folder:
 
 .. code-block:: bash
 
   pip install -r requirements.txt
 
-or with ``conda``:
-
-Download the whl files of the requirements and install them with ``conda install``.
+If a package is not available in any PyPI server for your OS, but
+you are using Conda or Anaconda Python distribution, then
+download the whl file of the requirement and install it manually
+with ``conda install``.
 
 
 Using Docker
 -------------
 
-Using Docker, you can just download the Pyxel Docker image and run it without installing Pyxel.
+Using Docker, you can just download the Pyxel Docker image and run it without
+installing Pyxel.
 
 How to run a Pyxel container with Docker:
 

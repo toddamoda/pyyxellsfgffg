@@ -3,10 +3,18 @@
 Running Pyxel
 ==============
 
+To run Pyxel on your local computer, simply run it from the command-line:
 
--c pyxel/io/config/input.yaml -o outputs/out.fits
+.. code-block:: bash
 
+  python pyxel/run.py
+         -c pyxel/io/config/input.yaml
+         -o outputs/out.fits
 
+where
+
+* ``-c`` or ``--config`` defines the path of the input yaml configuration file
+* ``-o`` or ``--output`` defines the path of the output file(s)
 
 
 ..
