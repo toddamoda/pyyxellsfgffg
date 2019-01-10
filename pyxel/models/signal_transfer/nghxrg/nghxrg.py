@@ -71,7 +71,7 @@ def ktc_bias_noise(detector: CMOS,
                         nfoh=geo.n_frame_overhead,
                         reverse_scan_direction=geo.reverse_scan_direction,
                         reference_pixel_border_width=geo.reference_pixel_border_width,
-                        pca0_file=path.dirname(path.abspath(__file__)) + '/nirspec_pca0.fits',
+                        pca0_file=path.dirname(path.abspath(__file__)) + '/nirspec_pca0.fits',  # TODO
                         det_size_x=geo.col, det_size_y=geo.row,
                         wind_mode=window_mode,
                         wind_x_size=wind_x_size, wind_y_size=wind_y_size,
