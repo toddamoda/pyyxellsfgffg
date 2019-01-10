@@ -243,10 +243,8 @@ pages:
   stage: deploy
   script:
     - pip install docutils pygments
-#    - rst2html.py --stylesheet=README.css pages.rst pages.html
     - mkdir public
     - mv docs/html public/doc
-#    - mv pages.html public/index.html
     - mv htmlcov public/coverage
     - mv pytest_report.html public
     - mv pylint_report.html public

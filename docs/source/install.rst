@@ -1,7 +1,7 @@
 .. _install:
 
 Installation
-************
+==============
 
 ..
    **pyxel** is available on our own ``PyPI server`` at the following

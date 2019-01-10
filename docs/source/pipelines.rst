@@ -3,10 +3,7 @@
 Pipelines
 ===========
 
-Pipeline classes and their methods.
 
-
-%pipeline
 The core algorithm of the architecture is the Detection pipeline allowing to
 host any type of models in an arbitrary number. This is either a CCD or a
 CMOS Detection pipeline inheriting relevant subclasses, properties, functions
@@ -21,6 +18,9 @@ for loop, looping over all the included and selected models in a predefined
 order, which can be changed by the user. All the models in a thread, get
 and modify the same Detector object one after another. At the end, the
 pipeline returns the Detector object as an output.
+
+
+Pipeline classes and their methods.
 
 
 .. _ccd_pipeline:

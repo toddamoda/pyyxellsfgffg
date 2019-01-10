@@ -13,9 +13,9 @@ __author__ = 'David Lucsanyi'
 __author_email__ = 'david.lucsanyi@esa.int'
 __pkgname__ = 'pyxel'
 
-from ._version import get_versions
-__version__ = get_versions()['version']
-del get_versions
+# from pyxel._version import get_versions
+__version__ = 0.3   # get_versions()['version']
+# del get_versions
 
 # def register(group, maybe_func=None, **kwargs):         # TODO WHAT IS THIS DOING AND WHY?!?!?
 #     """TBW.

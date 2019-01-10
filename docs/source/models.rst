@@ -23,13 +23,10 @@ Models could also modify any detector parameters (like quantum efficiency,
 gain, standard deviation of noises) globally on detector level or locally
 (on pixel level or for a specific detector area).
 
-
-%aka 'model plug-in mechanism'
 Users and developers can easily add any kind of new or already existing
 model to Pyxel thanks to the model plug-in mechanism developed for this
 purpose.
 
-%what is a model, how it works
 Models are Python functions, which need to have a Detector object defined as
 their input argument and as a return value. The model function has to be
 registered in Pyxel model registry and added to the YAML configuration file.
@@ -37,18 +34,15 @@ Then the function is automatically called by Pyxel inside a loop of its
 model level and the Detector object is passed to it. The model modifies
 this Detector object and returns it for the next models in the pipeline.
 
-% general, CCD or CMOS specific models
 This object can be a general,  a CCD or a CMOS type Detector object,
 whether if the model is supposed to simulate a general (e.g. cosmic rays),
 a CCD (e.g. CTI) or a CMOS (e.g. Alternating Column Noise) specific detector
 effect.
 
-% other arguments from yaml
 Any other (optional) input arguments can be defined for the model as well,
 which will be loaded from the YAML file or GUI and passed to the model
 automatically.
 
-% existing model, wrapper function
 If an existing model is a Python class or it is implemented in a different
 programming language (C/C++, Fortran, Java), then the model function is a
 wrapper function, which needs to call and handle the original code (class

@@ -1,7 +1,7 @@
 .. _yaml:
 
 Configuration files
-*************************
+====================
 
 The framework uses a user-friendly, structured YAML configuration file as an
 input, which defines all the detector parameters, detector effect models and
@@ -65,3 +65,17 @@ or subgroup.
     can enable or disable the given model. The optional and compulsory
     arguments of the model functions have to be listed inside the
     *arguments*. For details, see :ref:`models`.
+
+
+Argument validation
+-------------------
+
+Independently of which UI is used to run the framework, before starting
+the simulation, Pyxel validates all input arguments using the
+Attrs Python package via esapy-config.
+
+Usually it validates the type and range of parameters, attributes
+when a validation rule is defined.
+
+These validation rules could be also defined for
+any model input arguments via a simple Python decorator.

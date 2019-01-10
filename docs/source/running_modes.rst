@@ -3,6 +3,27 @@
 Running Pyxel
 ==============
 
+..
+    % Time dependent simulation and readout...
+    For simulating the effects of different readout modes (like TDI or
+    nondestructive Up-The-Ramp sampling) or time-dependent models (like
+    persistence), the framework includes a time stepping loop, which can
+    feed the pipeline repeatedly with the output Detector objects of the
+    previous run. During each step, the time value is increased (according
+    to the readout mode settings) and can be used by any time-dependent
+    model in the inner pipeline. The time simulation of a Detector object
+    is single-threaded, but more Detector objects can be simulated in
+    parallel. After each time step, the current state of output Detector
+    objects can be saved and used later, for example to plot parameters
+    in function of time during post-processing.
+    % Post-processing, outputs
+    At the end of the simulation process, depending on the current running
+    mode, the post-processing functions can extract data from a stack of
+    output Detector objects and save them into output files. Various
+    output types and formats are available for the users, such as
+    images (FITS), plots (histograms, graphs), reports (jupyter
+    notebook) and even the raw data (dataframes, arrays).
+
 
 .. _single_mode:
 

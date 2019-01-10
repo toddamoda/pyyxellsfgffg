@@ -7,8 +7,6 @@ Detectors
   UML from file location
   .. uml:: _static/example.puml
 
-Detector classes and their attributes.
-
 
 According to the YAML file, one CCD or CMOS Detector object is instantiated
 for each thread, inheriting from a general (abstract) Detector class. The
@@ -19,6 +17,9 @@ related to the physical properties of the simulated detector (geometry,
 material, environment, characteristics), incident photons, created
 charge-carriers and the generated signals we are interested in at the
 end of the simulation.
+
+
+Detector classes and their attributes.
 
 
 

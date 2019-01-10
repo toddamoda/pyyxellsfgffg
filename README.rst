@@ -51,6 +51,6 @@ Authors
 .. |date| date::  %A %d %B %Y
 .. |time| date::  %H:%M:%S
 
-.. footer:: This document was generated on |date| at |time|.
-
-Copyright (c) 2018 - SCI-FIV, European Space Agency
+.. footer::
+    This document was generated on |date| at |time|.
+    Copyright (c) 2018 - European Space Agency
