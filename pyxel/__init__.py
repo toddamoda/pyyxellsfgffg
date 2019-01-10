@@ -14,23 +14,9 @@ __author_email__ = 'david.lucsanyi@esa.int'
 __pkgname__ = 'pyxel'
 
 # from pyxel._version import get_versions
-__version__ = 0.3   # get_versions()['version']
+# __version__ = get_versions()['version']
 # del get_versions
-
-# def register(group, maybe_func=None, **kwargs):         # TODO WHAT IS THIS DOING AND WHY?!?!?
-#     """TBW.
-#
-#     :param group:
-#     :param maybe_func:
-#     :param kwargs:
-#     :return:
-#     """
-#     enabled = kwargs.pop('enabled', True)
-#     ignore_args = kwargs.pop('ignore_args', ['detector'])
-#     name = kwargs.pop('name', None)
-#     metadata = kwargs
-#     metadata['group'] = group
-#     return om.register(maybe_func, ignore_args, name, enabled, metadata)
+__version__ = '0.3'
 
 
 def detector_class(cls):
