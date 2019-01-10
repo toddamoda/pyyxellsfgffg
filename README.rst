@@ -27,19 +27,13 @@ Requirements
 Development
 -----------
 
-Reports
-*******
-
 `PyTest report <http://sci-fv.io.esa.int/pyxel/pytest_report.html>`_
 
 `PyTest coverage <http://sci-fv.io.esa.int/pyxel/coverage/>`_
 
 `PyLint report <http://sci-fv.io.esa.int/pyxel/pylint_report.html>`_
 
-`License report <http://sci-fv.io.esa.int/pyxel/license_report.html>`_
-
-Changelog
----------
+`License & copyrights report <http://sci-fv.io.esa.int/pyxel/license_report.html>`_
 
 `Changelog <http://sci-fv.io.esa.int/pyxel/doc/changelog.html>`_
 
@@ -52,3 +46,11 @@ Authors
 -------
 
 `Developers and contributors <http://sci-fv.io.esa.int/pyxel/doc/authors.html>`_
+
+
+.. |date| date::  %A %d %B %Y
+.. |time| date::  %H:%M:%S
+
+.. footer:: This document was generated on |date| at |time|.
+
+Copyright (c) 2018 - SCI-FIV, European Space Agency
