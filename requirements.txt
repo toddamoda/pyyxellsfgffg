@@ -15,7 +15,6 @@ scipy                   # should be removed
 # Others               #
 ########################
 
-versioneer
 pyyaml
 numba
 tqdm

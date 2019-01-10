@@ -21,8 +21,6 @@ end of the simulation.
 
 Detector classes and their attributes.
 
-
-
 .. _geometry:
 
 Geometry

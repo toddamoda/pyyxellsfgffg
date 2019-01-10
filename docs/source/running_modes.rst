@@ -3,6 +3,12 @@
 Running Pyxel
 ==============
 
+
+-c pyxel/io/config/input.yaml -o outputs/out.fits
+
+
+
+
 ..
     % Time dependent simulation and readout...
     For simulating the effects of different readout modes (like TDI or

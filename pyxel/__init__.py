@@ -13,9 +13,6 @@ __author__ = 'David Lucsanyi'
 __author_email__ = 'david.lucsanyi@esa.int'
 __pkgname__ = 'pyxel'
 
-# from pyxel._version import get_versions
-# __version__ = get_versions()['version']
-# del get_versions
 __version__ = '0.3'
 
 
@@ -109,13 +106,6 @@ def pyxel_yaml_loader():
     from pyxel.calibration.calibration import Algorithm
     from pyxel.pipelines.model_function import ModelFunction
     from pyxel.pipelines.model_group import ModelGroup
-
-    # om.ObjectModelLoader.add_class_ref(['processor', 'class'])
-    # om.ObjectModelLoader.add_class_ref(['processor', 'detector', 'class'])
-    # om.ObjectModelLoader.add_class_ref(['processor', 'detector', None, 'class'])
-    # om.ObjectModelLoader.add_class_ref(['processor', 'pipeline', 'class'])
-    # om.ObjectModelLoader.add_class(ModelGroup, ['processor', 'pipeline', None])
-    # om.ObjectModelLoader.add_class(ModelFunction, ['processor', 'pipeline', None, None])
 
     om.ObjectModelLoader.add_class_ref(['detector', 'class'])
     om.ObjectModelLoader.add_class_ref(['detector', None, 'class'])
