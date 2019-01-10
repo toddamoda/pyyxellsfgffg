@@ -6,10 +6,10 @@ Pyxel
 
 The **pyxel** documentation.
 
+
 .. toctree::
    :caption: Getting Started
    :maxdepth: 4
-   :hidden:
 
    overview.rst
    install.rst
@@ -18,7 +18,6 @@ The **pyxel** documentation.
 .. toctree::
    :caption: User Guide
    :maxdepth: 4
-   :hidden:
 
    pipelines.rst
    detectors.rst
@@ -30,19 +29,16 @@ The **pyxel** documentation.
 .. toctree::
    :caption: Physics Reference
    :maxdepth: 4
-   :hidden:
 
 .. toctree::
    :caption: Developer Guide
    :maxdepth: 4
-   :hidden:
 
    contributing.rst
 
 .. toctree::
    :caption: About
-   :maxdepth: 4
-   :hidden:
+   :maxdepth: 1
 
    faq.rst
    acronyms.rst
@@ -51,12 +47,3 @@ The **pyxel** documentation.
    authors.rst
    acknowledgement.rst
    reference.rst
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
