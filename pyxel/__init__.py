@@ -18,7 +18,7 @@ __version__ = '0.3'
 
 def detector_class(cls):
     """TBW."""
-    return om.attr_class(cls)
+    return om.attr_class(maybe_cls=cls)
 
 
 def attribute(doc: t.Optional[str] = None,
@@ -30,8 +30,14 @@ def attribute(doc: t.Optional[str] = None,
               on_get_update: t.Optional[bool] = None,
               **kwargs):
     """TBW."""
-    return om.attr_def(doc, is_property, on_set, on_get, on_change,
-                       use_dispatcher, on_get_update, **kwargs)
+    return om.attr_def(doc=doc,
+                       is_property=is_property,
+                       on_set=on_set,
+                       on_get=on_get,
+                       on_change=on_change,
+                       use_dispatcher=use_dispatcher,
+                       on_get_update=on_get_update,
+                       **kwargs)
 
 
 # from functools import wraps
@@ -54,12 +60,13 @@ def validate(func: t.Callable):
 
 def argument(name: str, **kwargs):
     """TBW."""
-    return om.argument(name, **kwargs)
+    return om.argument(name=name, **kwargs)
 
 
 def check_type(att_type, is_optional: bool = False) -> t.Callable[..., bool]:
     """TBW."""
-    return om.check_type_function(att_type, is_optional)
+    return om.check_type_function(att_type=att_type,
+                                  is_optional=is_optional)
 
 
 def check_path(path):
@@ -70,7 +77,9 @@ def check_path(path):
 def check_range(min_val: t.Union[float, int], max_val: t.Union[float, int]):
                 # step: t.Union[float, int] = None, enforce_step: bool = False):
     """TBW."""
-    return om.check_range(min_val, max_val, step=None, enforce_step=False)
+    return om.check_range(min_val=min_val,
+                          max_val=max_val,
+                          step=None, enforce_step=False)
     # todo: rounding BUG in om.check_range() when value is a float!
 
 
@@ -81,20 +90,25 @@ def check_choices(choices: list):
 
 def validate_choices(choices, is_optional=False):
     """TBW."""
-    return om.validate_choices(choices, is_optional)
+    return om.validate_choices(choices=choices,
+                               is_optional=is_optional)
 
 
 def validate_range(min_val: t.Union[float, int], max_val: t.Union[float, int],
                    # step: t.Union[float, int] = None, enforce_step: bool = True,
                    is_optional: bool = False):
     """TBW."""
-    return om.validate_range(min_val, max_val, is_optional)
+    return om.validate_range(min_val=min_val,
+                             max_val=max_val,
+                             is_optional=is_optional,
+                             step=None, enforce_step=False)
     # todo: rounding BUG in om.check_range() when value is a float!
 
 
 def validate_type(att_type, is_optional: bool = False):
     """TBW."""
-    return om.validate_type(att_type, is_optional)
+    return om.validate_type(att_type=att_type,
+                            is_optional=is_optional)
 
 
 def pyxel_yaml_loader():

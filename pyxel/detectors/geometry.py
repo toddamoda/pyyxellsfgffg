@@ -6,6 +6,16 @@ import pyxel as pyx
 class Geometry:
     """Geometrical attributes of the detector."""
 
+    # @property
+    def __hdimension__(self):
+        """Total horizontal dimension of detector."""
+        return self.pixel_horz_size * self.col
+
+    # @property
+    def __vdimension__(self):
+        """Total vertical dimension of detector."""
+        return self.pixel_vert_size * self.row
+
     row = pyx.attribute(
         type=int,
         default=0,
@@ -61,12 +71,18 @@ class Geometry:
         doc='Horizontal dimension of pixels'
     )
 
-    @property
-    def horz_dimension(self):
-        """Total horizontal dimension of detector."""
-        return self.pixel_horz_size * self.col
+    horz_dimension = pyx.attribute(
+        default=0.0,
+        metadata={'units': 'um'},
+        doc='Total horizontal dimension of detector; Calculated automatically, do not define in yaml!',
+        on_get=__hdimension__,
+        on_get_update=True
+    )
+    vert_dimension = pyx.attribute(
+        default=0.0,
+        metadata={'units': 'um'},
+        doc='Total vertical dimension of detector; Calculated automatically, do not define in yaml!',
+        on_get=__vdimension__,
+        on_get_update=True
+    )
 
-    @property
-    def vert_dimension(self):
-        """Total vertical dimension of detector."""
-        return self.pixel_vert_size * self.row
