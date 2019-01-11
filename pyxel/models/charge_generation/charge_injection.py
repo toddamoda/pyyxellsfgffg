@@ -12,12 +12,11 @@ from pyxel.detectors.ccd import CCD
 # @pyxel.argument(name='', label='', units='', validate=)
 def charge_injection(detector: CCD,         # TODO TODO TODO
                      input_data_list: str = None
-                     ) -> CCD:
+                     ):
     """TBW.
 
     :param detector:
     :param input_data_list: path to (list of) 1d np.arrays
-    :return:
     """
     logging.info('')
     # injected_profiles = []  # type: np.array
@@ -27,7 +26,6 @@ def charge_injection(detector: CCD,         # TODO TODO TODO
     # #     injected_profiles += [create_injection_profile_highest(input_data_list[i])]
     # #     # injected_profiles += [create_injection_profile_average(input_data_list[i])]
     # detector.charge_injection_profile = injected_profiles
-    return detector
 
 
 def create_injection_profile_average(array):

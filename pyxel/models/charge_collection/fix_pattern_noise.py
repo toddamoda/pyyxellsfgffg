@@ -15,12 +15,11 @@ from pyxel.detectors.geometry import Geometry  # noqa: F401
 # @pyxel.argument(name='', label='', units='', validate=)
 # @pyxel.register(group='charge_collection', name='fixed_pattern_noise', detector='ccd')
 def add_fix_pattern_noise(detector: Detector,
-                          pix_non_uniformity=None) -> Detector:
+                          pix_non_uniformity=None):
     """Add fix pattern noise caused by pixel non-uniformity during charge collection.
 
     :param detector:
     :param pix_non_uniformity: a path to a file
-    :return:
     """
     logging.info('')
     geo = detector.geometry  # type: Geometry
@@ -29,5 +28,3 @@ def add_fix_pattern_noise(detector: Detector,
     pnu = pnu.reshape((geo.row, geo.col))
 
     detector.pixels.array *= pnu
-
-    return detector

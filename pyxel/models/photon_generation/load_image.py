@@ -17,7 +17,7 @@ def load_image(detector: Detector,
                row0: int = 0,
                col0: int = 0,
                load_full_image: bool = False
-               ) -> Detector:
+               ):
     """TBW.
 
     :param detector:
@@ -25,7 +25,6 @@ def load_image(detector: Detector,
     :param row0:
     :param col0:
     :param load_full_image:
-    :return:
     """
     logging.info('')
     geo = detector.geometry
@@ -36,5 +35,3 @@ def load_image(detector: Detector,
         geo.row, geo.col = image.shape
     image = image[row0: row0 + geo.row, col0: col0 + geo.col]
     detector.input_image = image
-
-    return detector

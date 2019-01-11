@@ -11,12 +11,11 @@ from pyxel.detectors.detector import Detector
 # @pyxel.register(group='photon_generation', name='add photons')
 def add_photons(detector: Detector,
                 level: int = -1
-                ) -> Detector:
+                ):
     """TBW.
 
     :param detector:
     :param level:
-    :return detector:
     """
     logging.info('')
     geo = detector.geometry
@@ -54,5 +53,3 @@ def add_photons(detector: Detector,
                                 init_ver_velocity,
                                 init_hor_velocity,
                                 init_z_velocity)
-
-    return detector

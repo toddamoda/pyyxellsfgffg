@@ -84,7 +84,6 @@ class Simulation:
         :param pos_z:
         :param alpha:
         :param beta:
-        :return:
         """
         self.simulation_mode = sim_mode
         self.particle_type = part_type

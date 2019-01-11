@@ -17,7 +17,7 @@ cds.enable()
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
 # @pyxel.register(group='charge_collection')
-def diffusion(detector: CCD) -> CCD:
+def diffusion(detector: CCD):
     """TBW."""
     logging.info('')
 
@@ -34,8 +34,6 @@ def diffusion(detector: CCD) -> CCD:
     # # Overwrite the list of charge clusters in the detector object because Charge attributes have changed
     # detector.charge_list = collected_charge_list
     # detector.charge = collected_charge_list      # TEMPORARY
-
-    return detector
 
 
 # class Diffusion:

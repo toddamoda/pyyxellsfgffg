@@ -10,11 +10,10 @@ from pyxel.detectors.detector import Detector
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
 # @pyxel.register(group='charge_generation', name='photoelectrons')
-def simple_conversion(detector: Detector) -> Detector:
+def simple_conversion(detector: Detector):
     """Generate charges from incident photons via photoelectric effect, simple statistical model.
 
     :param detector:
-    :return detector:
     """
     logging.info('')
     ch = detector.characteristics
@@ -35,17 +34,15 @@ def simple_conversion(detector: Detector) -> Detector:
                                 init_z_velocity=[0.] * size)
     # Removing all the photons because they have either created some photoelectrons or got lost
     ph.remove()
-    return detector
 
 
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
 # @pyxel.register(group='charge_generation', name='monte_carlo_photoelectrons')
-def monte_carlo_conversion(detector: Detector) -> Detector:
+def monte_carlo_conversion(detector: Detector):
     """Generate charges from incident photons via photoelectric effect, more exact, stochastic (Monte Carlo) model.
 
     :param detector:
-    :return:
     """
     logging.info('')
 
@@ -63,14 +60,11 @@ def monte_carlo_conversion(detector: Detector) -> Detector:
     # TODO: random number for eta
     # TODO: energy threshold
 
-    return detector
 
-
-def random_pos(detector: Detector) -> Detector:
+def random_pos(detector: Detector):
     """Generate random position for photoelectric effect inside detector.
 
     :param detector:
-    :return:
     """
     # pos1 = detector.vert_dimension * np.random.random()
     # pos2 = detector.horz_dimension * np.random.random()

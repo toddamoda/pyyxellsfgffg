@@ -36,7 +36,7 @@ def cdm(detector: CCD,
         sigma_p: float = None, sigma_s: float = None,
         parallel_trap_file: str = None,
         serial_trap_file: str = None
-        ) -> CCD:
+        ):
     """
     CDM model wrapper.
 
@@ -124,8 +124,6 @@ def cdm(detector: CCD,
 
     # detector.pixels.array = np.round(output).astype(np.int32)
     detector.pixels.array = output
-
-    return detector
 
 
 @numba.jit
@@ -305,7 +303,6 @@ def plot_serial_profile(data, row, data2=None):
     :param data:
     :param row:
     :param data2:
-    :return:
     """
     ydim, xdim = data.shape
     profile_x = list(range(ydim))
@@ -323,7 +320,6 @@ def plot_parallel_profile(data, col, data2=None):
     :param data:
     :param col:
     :param data2:
-    :return:
     """
     ydim, xdim = data.shape
     profile_x = list(range(xdim))
@@ -342,7 +338,6 @@ def plot_1d_profile(array, offset=0, label='', m='-'):
     :param offset:
     :param label:
     :param m:
-    :return:
     """
     x = list(range(offset, offset + len(array)))
     # plt.title('Parallel profile, charge injection')
@@ -359,7 +354,6 @@ def plot_1d_profile_lin(array, offset=0, label='', m='-', col=None):
     :param label:
     :param m:
     :param col:
-    :return:
     """
     x = list(range(offset, offset + len(array)))
     # plt.title('Parallel profile, charge injection')
@@ -375,7 +369,6 @@ def plot_1d_profile_with_err(array, error, offset=0, label=''):
     :param error:
     :param offset:
     :param label:
-    :return:
     """
     x = list(range(offset, offset + len(array)))
     plt.title('Parallel profile with error, charge injection')
@@ -391,7 +384,6 @@ def plot_residuals(data, data2, label=''):  # col='magenta',
     :param data2:
     # :param col:
     :param label:
-    :return:
     """
     x = list(range(len(data)))
     # plt.title('Residuals of fitted and target parallel CTI profiles')
@@ -406,7 +398,6 @@ def plot_image(data):
     """TBW.
 
     :param data:
-    :return:
     """
     plt.imshow(data, cmap=plt.gray())  # , interpolation='nearest')
     plt.xlabel('x - serial direction')

@@ -15,7 +15,7 @@ from pyxel.detectors.detector import Detector
 # @pyxel.register(group='charge_measurement', name='output_node_noise', detector='ccd')
 def output_node_noise(detector: Detector,
                       std_deviation: float,
-                      random_seed: int = None) -> Detector:
+                      random_seed: int = None):
     """Adding noise to signal array of detector output node using normal random distribution.
 
     detector Signal unit: Volt
@@ -34,5 +34,3 @@ def output_node_noise(detector: Detector,
     signal = np.random.normal(loc=signal_mean_array, scale=sigma_array)
 
     detector.signal.array = signal
-
-    return detector
