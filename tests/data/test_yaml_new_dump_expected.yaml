@@ -50,8 +50,6 @@ detector:
   geometry:
     class: pyxel.detectors.ccd_geometry.CCDGeometry
     col: 100
-    depletion_thickness: 10.0
-    field_free_thickness: 0.0
     pixel_horz_size: 10.0
     pixel_vert_size: 10.0
     row: 100

@@ -4,45 +4,45 @@ import pyxel as pyx
 
 @pyx.detector_class
 class Geometry:
-    """TBW."""
+    """Geometrical attributes of the detector."""
 
     row = pyx.attribute(
         type=int,
         default=0,
         validator=[pyx.validate_type(int, is_optional=False),
                    pyx.validate_range(0, 10000)],
-        doc='TBW'
+        doc='Number of pixel rows'
     )
     col = pyx.attribute(
         type=int,
         default=0,
         validator=[pyx.validate_type(int, is_optional=False),
                    pyx.validate_range(0, 10000)],
-        doc='TBW'
+        doc='Number of pixel columns'
     )
-    depletion_thickness = pyx.attribute(
-        type=float,
-        default=0.0,
-        validator=[pyx.validate_type(float, is_optional=True),
-                   pyx.validate_range(0, 10000)],
-        metadata={'units': 'um'},
-        doc='TBW'
-    )
-    field_free_thickness = pyx.attribute(
-        type=float,
-        default=0.0,
-        validator=[pyx.validate_type(float, is_optional=True),
-                   pyx.validate_range(0, 10000)],
-        metadata={'units': 'um'},
-        doc='TBW'
-    )
+    # depletion_thickness = pyx.attribute(
+    #     type=float,
+    #     default=0.0,
+    #     validator=[pyx.validate_type(float, is_optional=True),
+    #                pyx.validate_range(0, 10000)],
+    #     metadata={'units': 'um'},
+    #     doc='Thickness of charge depleted semiconductor'
+    # )
+    # field_free_thickness = pyx.attribute(
+    #     type=float,
+    #     default=0.0,
+    #     validator=[pyx.validate_type(float, is_optional=True),
+    #                pyx.validate_range(0, 10000)],
+    #     metadata={'units': 'um'},
+    #     doc='Thickness of field free region in semiconductor'
+    # )
     total_thickness = pyx.attribute(
         type=float,
         default=0.0,
         validator=[pyx.validate_type(float, is_optional=True),
                    pyx.validate_range(0, 10000)],
         metadata={'units': 'um'},
-        doc='TBW'
+        doc='Thickness of detector'
     )
     pixel_vert_size = pyx.attribute(
         type=float,
@@ -50,7 +50,7 @@ class Geometry:
         validator=[pyx.validate_type(float, is_optional=False),
                    pyx.validate_range(0, 1000)],
         metadata={'units': 'um'},
-        doc='TBW'
+        doc='Vertical dimension of pixels'
     )
     pixel_horz_size = pyx.attribute(
         type=float,
@@ -58,54 +58,15 @@ class Geometry:
         validator=[pyx.validate_type(float, is_optional=False),
                    pyx.validate_range(0, 1000)],
         metadata={'units': 'um'},
-        doc='TBW'
+        doc='Horizontal dimension of pixels'
     )
-    # n_acceptor = pyx.attribute(
-    #     type=float,
-    #     default=0.0,
-    #     validator=pyx.validate_range(0.0, 1000.0, 0.1, False),
-    #     metadata={'units': 'cm-3'}
-    # )
-    # n_donor = pyx.attribute(
-    #     type=float,
-    #     default=0.0,
-    #     validator=pyx.validate_range(0.0, 1000.0, 0.1, False),
-    #     metadata={'units': 'cm-3'}
-    # )
-    # bias_voltage = pyx.attribute(
-    #     type=float,
-    #     default=0.0,
-    #     validator=pyx.validate_range(0.0, 40.0, 0.001, False),
-    #     metadata={'units': 'V'}
-    # )
-    # readout_nodes = pyx.attribute(
-    #     type=int,
-    #     default=1,
-    #     validator=pyx.validate_range(1, 4, 1, False)
-    # )
-    # sensor_geometry = pyx.attribute(
-    #     type=CCDSensorGeometry,
-    #     default=None,
-    # )
-    # frame = pyx.attribute(
-    #     type=CCDFrame,
-    #     default=None,
-    # )
 
     @property
     def horz_dimension(self):
-        """TBW."""
+        """Total horizontal dimension of detector."""
         return self.pixel_horz_size * self.col
 
     @property
     def vert_dimension(self):
-        """TBW."""
+        """Total vertical dimension of detector."""
         return self.pixel_vert_size * self.row
-
-    # def calculate_field_free_thickness(self):
-    #     """TBW."""
-    #     pass
-    #
-    # def calculate_depletion_thickness(self):
-    #     """TBW."""
-    #     pass

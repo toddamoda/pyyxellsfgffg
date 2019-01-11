@@ -4,7 +4,7 @@ import pyxel as pyx
 
 @pyx.detector_class
 class Environment:
-    """TBW."""
+    """Environmental attributes of the detector."""
 
     temperature = pyx.attribute(
         type=float,
@@ -13,7 +13,7 @@ class Environment:
         validator=[pyx.validate_type(float),
                    pyx.validate_range(0, 1000)],
         metadata={'units': 'K'},
-        doc='TBW'
+        doc='Temperature of the detector'
     )
     total_ionising_dose = pyx.attribute(
         type=float,
@@ -22,7 +22,7 @@ class Environment:
         validator=[pyx.validate_type(float),
                    pyx.validate_range(0, 1.e15)],
         metadata={'units': 'MeV/g'},
-        doc='TBW'
+        doc='Total Ionising Dose (TID) of the detector'
     )
     total_non_ionising_dose = pyx.attribute(
         type=float,
@@ -31,5 +31,5 @@ class Environment:
         validator=[pyx.validate_type(float),
                    pyx.validate_range(0, 1.e15)],
         metadata={'units': 'MeV/g'},
-        doc='TBW'
+        doc='Total Non-Ionising Dose (TNID) of the detector'
     )

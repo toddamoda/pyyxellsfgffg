@@ -1,1 +1,1 @@
-"""The detector data structures package."""
+"""The detector attribute and data structure subpackage."""

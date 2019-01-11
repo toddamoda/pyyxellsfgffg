@@ -5,8 +5,6 @@ detector: !CCD
   geometry: !ccd_geometry
     row: 100                      # compulsory
     col: 100                      # compulsory
-    depletion_thickness: 10.0     # um
-    field_free_thickness: 0.0     # um
     pixel_vert_size: 10.0         # um
     pixel_horz_size: 10.0         # um
     total_thickness: 10.0         # um

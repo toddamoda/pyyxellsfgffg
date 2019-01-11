@@ -81,8 +81,6 @@ detector:
     row:   100                   # compulsory
     col:   100                     # compulsory
     total_thickness: 40.0          # um
-#      depletion_thickness: 0.0      # um
-#      field_free_thickness: 0.0     # um
     pixel_vert_size: 10. #10.0         # um
     pixel_horz_size: 10. #10.0  #30.   # um
 

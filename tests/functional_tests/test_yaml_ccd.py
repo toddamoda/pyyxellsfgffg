@@ -16,8 +16,6 @@ def test_loader_with_extra_tags():
   geometry: !ccd_geometry
    row: 1000
    col: 1001
-   depletion_thickness: 1.0
-   field_free_thickness: 2.0
    total_thickness: 3.0
    pixel_vert_size: 4.0
    pixel_horz_size: 5.0
@@ -46,8 +44,6 @@ def test_loader_with_extra_tags():
     assert isinstance(obj.geometry, CCDGeometry)
     assert obj.geometry.row == 1000
     assert obj.geometry.col == 1001
-    assert obj.geometry.depletion_thickness == 1.0
-    assert obj.geometry.field_free_thickness == 2.0
     assert obj.geometry.total_thickness == 3.0
     assert obj.geometry.pixel_vert_size == 4.0
     assert obj.geometry.pixel_horz_size == 5.0
@@ -74,7 +70,6 @@ def test_loader_with_extra_tags():
 def test_dumper():
     """Test `PyxelLoader`."""
     obj = CCD(geometry=CCDGeometry(row=1000, col=1001,
-                                   depletion_thickness=1.0, field_free_thickness=2.0,
                                    total_thickness=3.0, pixel_vert_size=4.0,
                                    pixel_horz_size=5.0),    # bias_voltage=8.0),
               material=Material(n_acceptor=6.0,
@@ -103,8 +98,6 @@ environment: !environment
   total_non_ionising_dose: null
 geometry: !ccd_geometry
   col: 1001
-  depletion_thickness: 1.0
-  field_free_thickness: 2.0
   material: null
   n_acceptor: 6.0
   n_donor: 7.0

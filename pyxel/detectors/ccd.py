@@ -17,7 +17,7 @@ import typing as t  # noqa: F401
 
 
 class CCD(Detector):
-    """TBW."""
+    """Charge-Coupled Device class containing all detector attributes and data."""
 
     def __init__(self,
                  geometry: CCDGeometry,

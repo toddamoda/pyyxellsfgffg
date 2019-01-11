@@ -16,7 +16,7 @@ from pyxel.physics.image import Image    # noqa: F401
 
 
 class CMOS(Detector):
-    """TBW."""
+    """CMOS-based detector class containing all detector attributes and data."""
 
     def __init__(self,
                  geometry: CMOSGeometry,
