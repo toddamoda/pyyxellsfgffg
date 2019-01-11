@@ -26,6 +26,9 @@ Detector classes and their attributes.
 Geometry
 -----------
 
+CCD
+*****
+
 .. autoclass:: pyxel.detectors.ccd_geometry.CCDGeometry
     :members:
     :inherited-members:
@@ -33,17 +36,23 @@ Geometry
     :show-inheritance:
     :exclude-members:
 
+CMOS
+******
+
 .. autoclass:: pyxel.detectors.cmos_geometry.CMOSGeometry
     :members:
     :inherited-members:
     :undoc-members:
     :show-inheritance:
-
+    :exclude-members:
 
 .. _characteristics:
 
 Characteristics
 ----------------
+
+CCD
+*****
 
 .. autoclass:: pyxel.detectors.ccd_characteristics.CCDCharacteristics
     :members:
@@ -51,6 +60,9 @@ Characteristics
     :undoc-members:
     :show-inheritance:
     :exclude-members:
+
+CMOS
+******
 
 .. autoclass:: pyxel.detectors.cmos_characteristics.CMOSCharacteristics
     :members:

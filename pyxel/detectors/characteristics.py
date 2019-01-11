@@ -30,7 +30,7 @@ class Characteristics:
         converter=float,
         validator=[pyx.validate_type(float),
                    pyx.validate_range(0., 100.)],
-        doc='Sensitivity of CCD amplifier',
+        doc='Sensitivity of charge readout',
         metadata={'units': 'V/e-'}
     )
     amp = pyx.attribute(
@@ -39,7 +39,7 @@ class Characteristics:
         converter=float,
         validator=[pyx.validate_type(float),
                    pyx.validate_range(0., 100.)],
-        doc='Output amplifier gain',
+        doc='Gain of output amplifier',
         metadata={'units': 'V/V'}
     )
     a1 = pyx.attribute(
