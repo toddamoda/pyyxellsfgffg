@@ -22,7 +22,6 @@ def output_node_noise(detector: Detector,
     :param detector:
     :param std_deviation:
     :param random_seed:
-    :return: detector output signal with noise
     """
     logging.info('')
     if random_seed:

@@ -47,7 +47,6 @@ def cdm(detector: CCD,
         trap capture cross-sections (σ), trap release time constants (τr)
     :param serial_trap_file: ascii file with absolute trap densities (nt),
         trap capture cross-sections (σ), trap release time constants (τr)
-    :return:
 
     Ne - number of electrons in a pixel
     ne - electron density in the vicinity of the trap
@@ -184,7 +183,6 @@ def run_cdm(s: np.ndarray,
     :param parallel_cti:
     :param serial_cti:
     :return:
-
     Ne - number of electrons in a pixel
     ne - electron density in the vicinity of the trap
     Vc - volume of the charge cloud

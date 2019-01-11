@@ -15,7 +15,6 @@ def simple_measurement(detector: Detector):
 
     detector Signal unit: Volt
     :param detector:
-    :return: detector:
     """
     logging.info('')
     char = detector.characteristics
