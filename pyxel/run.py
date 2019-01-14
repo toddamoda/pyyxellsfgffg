@@ -67,7 +67,7 @@ def run(input_filename, output_file: str = None, random_seed: int = None):
         # calibration_output(calibration_results)      # TODO implement
 
     elif simulation.mode == 'parametric':
-        configs = simulation.parametric_analysis.collect(processor)
+        configs = simulation.parametric.collect(processor)
         for config in configs:
             detector = config.pipeline.run_pipeline(config.detector)
             # parametric_output(config, detector)      # TODO implement
@@ -88,7 +88,7 @@ def main():
     parser.add_argument('-v', '--verbosity', action='count', default=0,
                         help='Increase output verbosity')
 
-    parser.add_argument('--version', action='version',
+    parser.add_argument('-V', '--version', action='version',
                         version='%(prog)s (version {version})'.format(version=pyxel.__version__))
 
     parser.add_argument('-g', '--gui', default=False, type=bool, help='run Graphical User Interface')

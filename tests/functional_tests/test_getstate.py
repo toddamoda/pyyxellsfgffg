@@ -82,7 +82,7 @@ parametric.steps.3.enabled=False
 #     input_filename = 'tests/data/pipeline_parametric.yaml'
 #     cfg = io.load(Path(input_filename))
 #
-#     param_obj = cfg['simulation'].parametric_analysis.get_state_json()
+#     param_obj = cfg['simulation'].parametric.get_state_json()
 #     proc_obj = cfg['processor'].get_state_json()
 #
 #     cfg_obj = om.get_state_dict(cfg)

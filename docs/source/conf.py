@@ -57,10 +57,18 @@ extensions = [
     'sphinx.ext.mathjax',       # render math via Javascript
     'sphinx.ext.viewcode',      # add links to highlighted source code
     'sphinx.ext.autosummary',   # Generate autodoc summaries
-    'sphinxcontrib.bibtex',
+    'sphinxcontrib.bibtex'
+    # 'sphinxcontrib.autoyaml'
     # 'sphinxcontrib.plantuml',
     # 'sphinxcontrib.mermaid',
 ]
+
+highlight_language = 'python3'
+
+# autoyaml_root
+# autoyaml_doc_delimeter
+# autoyaml_comment
+
 
 autodoc_member_order = 'bysource'
 

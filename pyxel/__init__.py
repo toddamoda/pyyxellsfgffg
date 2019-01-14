@@ -130,8 +130,8 @@ def pyxel_yaml_loader():
 
     om.ObjectModelLoader.add_class(Configuration, ['simulation'])
 
-    om.ObjectModelLoader.add_class(ParametricAnalysis, ['simulation', 'parametric_analysis'])
-    om.ObjectModelLoader.add_class(StepValues, ['simulation', 'parametric_analysis', 'steps'], is_list=True)
+    om.ObjectModelLoader.add_class(ParametricAnalysis, ['simulation', 'parametric'])
+    om.ObjectModelLoader.add_class(StepValues, ['simulation', 'parametric', 'steps'], is_list=True)
 
     om.ObjectModelLoader.add_class(Calibration, ['simulation', 'calibration'])
     om.ObjectModelLoader.add_class(Algorithm, ['simulation', 'calibration', 'algorithm'])

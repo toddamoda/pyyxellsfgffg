@@ -289,7 +289,7 @@ class Controller(guiconfig.Controller):
 
     def set_sequence_mode(self, run_mode):
         """TBW."""
-        self.simulation.parametric_analysis.parametric_mode = run_mode
+        self.simulation.parametric.parametric_mode = run_mode
 
     def set_sequence(self, index, key, values, enabled):
         """TBW.
@@ -300,7 +300,7 @@ class Controller(guiconfig.Controller):
         :param enabled:
         """
         if self.simulation:
-            step = self.simulation.parametric_analysis.steps[index]
+            step = self.simulation.parametric.steps[index]
             step.key = key
             step.enabled = enabled
             step.values = values
@@ -391,9 +391,9 @@ class Controller(guiconfig.Controller):
             self._is_running = True
             if self.simulation:
                 self.progress('state', {'value': 'running', 'state': 1})
-                # configs = self.simulation.parametric_analysis.collect(self.processor)
+                # configs = self.simulation.parametric.collect(self.processor)
                 # configs_len = len(list(configs))
-                # configs = self.simulation.parametric_analysis.collect(self.processor)
+                # configs = self.simulation.parametric.collect(self.processor)
                 # for i, config in enumerate(configs):
                 #     result = {
                 #         'processor': config.get_state_json(),

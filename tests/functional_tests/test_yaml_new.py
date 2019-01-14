@@ -11,7 +11,7 @@ def test_yaml_load():
     cfg = om.load(yaml_file)
 
     assert cfg['simulation'].__class__.__name__ == 'Configuration'
-    assert cfg['simulation'].parametric_analysis.steps[0].__class__.__name__ == 'StepValues'
+    assert cfg['simulation'].parametric.steps[0].__class__.__name__ == 'StepValues'
     assert cfg['detector'].__class__.__name__ == 'CCD'
     assert cfg['detector'].geometry.__class__.__name__ == 'CCDGeometry'
     assert cfg['pipeline'].__class__.__name__ == 'CCDDetectionPipeline'

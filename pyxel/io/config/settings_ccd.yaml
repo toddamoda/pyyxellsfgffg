@@ -1,16 +1,15 @@
-################
-# Pyxel configuration file for CCD detectors
-# David Lucsanyi
-################
+# ###############
+### Pyxel configuration file for CCD detectors
+### David Lucsanyi
+# ###############
 
 simulation:
-###################
+
   mode: single
 #  mode: parametric
 #  mode: calibration
-###################
 
-  parametric_analysis:
+  parametric:
 #    parametric_mode: sequential
     parametric_mode: embedded
 #    parametric_mode: image_generator

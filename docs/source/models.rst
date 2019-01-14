@@ -28,11 +28,12 @@ model to Pyxel thanks to the model plug-in mechanism developed for this
 purpose.
 
 Models are Python functions, which need to have a Detector object defined as
-their input argument and as a return value. The model function has to be
+their input argument. The model function has to be
 registered in Pyxel model registry and added to the YAML configuration file.
 Then the function is automatically called by Pyxel inside a loop of its
 model level and the Detector object is passed to it. The model modifies
-this Detector object and returns it for the next models in the pipeline.
+this Detector object which can be also
+used by the next models in the pipeline.
 
 This object can be a general,  a CCD or a CMOS type Detector object,
 whether if the model is supposed to simulate a general (e.g. cosmic rays),

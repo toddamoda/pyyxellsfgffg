@@ -10,7 +10,7 @@ simulation:
 #  mode: calibration
 ###################
 
-  parametric_analysis:
+  parametric:
     parametric_mode: sequential
 #    parametric_mode: embedded
     steps:
