@@ -36,6 +36,7 @@ The **pyxel** documentation.
    :maxdepth: 4
 
    contributing.rst
+   new_model.rst
 
 .. toctree::
    :caption: About

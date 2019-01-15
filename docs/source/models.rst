@@ -9,47 +9,33 @@ electro-optical performance and degradation due to the operational
 environment (space, laboratory test) and its effects (e.g. radiation
 damage).
 
-Models can be grouped into 7 model levels per detector type according to
-which object or parameter of the Detector object is used or modified by
-the models. These levels correspond roughly to the detector fundamental
-functions. Models in Pyxel should be able to add photons, charge,
-charge packets or signal values to the corresponding objects (Photon,
-Charge, Pixel, Signal or Image object), which are storing the physics data
-either inside a Pandas dataframe or in a NumPy array. Via dataframe or
-array handling functions, models can also modify properties of photons,
-charge, etc. within these objects, like wavelength, position, kinetic
-energy, number of electrons per charge packet, signal amplitude, etc.
-Models could also modify any detector parameters (like quantum efficiency,
-gain, standard deviation of noises) globally on detector level or locally
-(on pixel level or for a specific detector area).
-
-Users and developers can easily add any kind of new or already existing
-model to Pyxel thanks to the model plug-in mechanism developed for this
-purpose.
-
-Models are Python functions, which need to have a Detector object defined as
+Models are Python functions with a Detector object defined as
 their input argument. The model function has to be
 registered in Pyxel model registry and added to the YAML configuration file.
 Then the function is automatically called by Pyxel inside a loop of its
-model level and the Detector object is passed to it. The model modifies
-this Detector object which can be also
-used by the next models in the pipeline.
+model group (level) and the Detector object is passed to it. The model modifies
+this Detector object which is also used and modified further by the next
+models in the pipeline.
 
-This object can be a general,  a CCD or a CMOS type Detector object,
-whether if the model is supposed to simulate a general (e.g. cosmic rays),
-a CCD (e.g. CTI) or a CMOS (e.g. Alternating Column Noise) specific detector
-effect.
 
-Any other (optional) input arguments can be defined for the model as well,
-which will be loaded from the YAML file or GUI and passed to the model
-automatically.
+**Model groups**
 
-If an existing model is a Python class or it is implemented in a different
-programming language (C/C++, Fortran, Java), then the model function is a
-wrapper function, which needs to call and handle the original code (class
-or non-Python code), then link or add the results to the Pyxel Detector
-object.
+    Models are grouped into 7 model levels per detector type according to
+    which object of the Detector object is used or modified by
+    the models. These levels correspond roughly to the detector fundamental
+    functions.
 
+    Models in Pyxel makes changes and storing there data in data structure
+    classes (Photon, Charge, Pixel, Signal or Image class).
+    For details, see the :ref:`Data Structure <data_structure>` page.
+
+    Models could also modify any detector attributes (like Quantum Efficiency,
+    gains, temperature, etc.) stored in a Detector subclass (Characteristics,
+    Environment, Material).
+
+..
+    Detector attributes changes could happen globally (on detector level)
+    or locally (on pixel level or only for a specific detector area).
 
 .. figure:: _static/model-table.PNG
     :scale: 70%
@@ -60,6 +46,27 @@ object.
     grouped according to which physics data storing objects are modified by them. Note that 2 out of the 8 levels are
     specific to a single detector type.
 
+
+**Model inputs**
+
+    Models functions have at least one compulsory input argument,
+    which is either a general, a CCD or a CMOS type Detector object,
+    depending on what the model is supposed to simulate:
+    a general (e.g. cosmic rays),
+    a CCD (e.g. CTI) or a CMOS (e.g. Alternating Column Noise) specific
+    detector effect.
+
+    Any other (optional) input arguments can be defined for the model as well,
+    which will be loaded from the YAML file or GUI and passed to the model
+    automatically.
+
+**Adding new models**
+
+    Users and developers can easily add any kind of new or already existing
+    model to Pyxel, thanks to the easy-to-use model plug-in mechanism
+    developed for this purpose.
+
+    For more details, see the :ref:`Adding new models <new_model>` page.
 
 .. _photon_generation:
 
