@@ -71,7 +71,7 @@ registry_map = {
     ],
     'charge_collection': [
         {
-            'func': 'pyxel.models.charge_collection.fix_pattern_noise.add_fix_pattern_noise',
+            'func': 'pyxel.models.charge_collection.fix_pattern_noise.fix_pattern_noise',
             'type': 'ccd',
         },
         {

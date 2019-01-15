@@ -11,7 +11,7 @@ from pyxel.detectors.detector import Detector
 # @pyxel.argument(name='', label='', units='', validate=)
 # @pyxel.register(group='charge_collection', name='full_well')
 def simple_pixel_full_well(detector: Detector):
-    """Simply removing charges from pixels due to full well."""
+    """Limiting the amount of charges in pixels due to full well capacity."""
     logging.info('')
     fwc = detector.characteristics.fwc
     if fwc is None:

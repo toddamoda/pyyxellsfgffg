@@ -60,7 +60,7 @@ models in the pipeline.
     which will be loaded from the YAML file or GUI and passed to the model
     automatically.
 
-**Adding new models**
+**Adding a new model**
 
     Users and developers can easily add any kind of new or already existing
     model to Pyxel, thanks to the easy-to-use model plug-in mechanism
@@ -161,16 +161,15 @@ Simple charge collection
 
 .. autofunction:: pyxel.models.charge_collection.collection.simple_collection
 
-Fix pattern noise
-***************************
-
-.. autofunction:: pyxel.models.charge_collection.fix_pattern_noise.add_fix_pattern_noise
-
 Simple full well
 ***************************
 
 .. autofunction:: pyxel.models.charge_collection.full_well.simple_pixel_full_well
 
+Fix pattern noise
+***************************
+
+.. autofunction:: pyxel.models.charge_collection.fix_pattern_noise.fix_pattern_noise
 
 .. _charge_transfer:
 
