@@ -40,7 +40,7 @@ pipeline: !CCD_PIPELINE
         level: 0
 
     shot_noise:
-      name: pyxel.models.photon_generation.shot_noise.add_shot_noise
+      name: pyxel.models.photon_generation.shot_noise.shot_noise
 
   # photons -> photons
   optics: !models

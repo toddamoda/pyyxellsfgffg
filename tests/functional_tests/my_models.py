@@ -52,7 +52,7 @@ registry_map = {
             'func': 'pyxel.models.photon_generation.add_photons.add_photons',
         },
         {
-            'func': 'pyxel.models.photon_generation.shot_noise.add_shot_noise',
+            'func': 'pyxel.models.photon_generation.shot_noise.shot_noise',
 
         }
     ],

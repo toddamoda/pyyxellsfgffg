@@ -43,7 +43,7 @@ You should copy the python file including your function in the folder
       #######################################################################
 
       - name: shot_noise
-        func: pyxel.models.photon_generation.shot_noise.add_shot_noise
+        func: pyxel.models.photon_generation.shot_noise.shot_noise
         enabled: false
 
 

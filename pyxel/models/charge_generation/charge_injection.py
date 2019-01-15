@@ -2,30 +2,30 @@
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
 """Pyxel charge injection functions for CCDs."""
-import logging
+# import logging
 import numpy as np
 # import pyxel
-from pyxel.detectors.ccd import CCD
+# from pyxel.detectors.ccd import CCD
 
 
-# @pyxel.validate
-# @pyxel.argument(name='', label='', units='', validate=)
-def charge_injection(detector: CCD,         # TODO TODO TODO
-                     input_data_list: str = None
-                     ):
-    """TBW.
-
-    :param detector:
-    :param input_data_list: path to (list of) 1d np.arrays
-    """
-    logging.info('')
-    # injected_profiles = []  # type: np.array
-    # # # read data from files and create     # TODO
-    # # for i in range(len(input_data_list)):
-    # #     rows, _ = input_data_list[i].shape
-    # #     injected_profiles += [create_injection_profile_highest(input_data_list[i])]
-    # #     # injected_profiles += [create_injection_profile_average(input_data_list[i])]
-    # detector.charge_injection_profile = injected_profiles
+# # @pyxel.validate
+# # @pyxel.argument(name='', label='', units='', validate=)
+# def charge_injection(detector: CCD,         # TODO TODO TODO
+#                      input_data_list: str = None
+#                      ):
+#     """TBW.
+#
+#     :param detector:
+#     :param input_data_list: path to (list of) 1d np.arrays
+#     """
+#     logging.info('')
+#     # injected_profiles = []  # type: np.array
+#     # # # read data from files and create     # TODO
+#     # # for i in range(len(input_data_list)):
+#     # #     rows, _ = input_data_list[i].shape
+#     # #     injected_profiles += [create_injection_profile_highest(input_data_list[i])]
+#     # #     # injected_profiles += [create_injection_profile_average(input_data_list[i])]
+#     # detector.charge_injection_profile = injected_profiles
 
 
 def create_injection_profile_average(array):

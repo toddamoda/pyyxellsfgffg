@@ -149,7 +149,7 @@ pipeline:
       arguments:
 #          level:
     - name: shot_noise
-      func: pyxel.models.photon_generation.shot_noise.add_shot_noise
+      func: pyxel.models.photon_generation.shot_noise.shot_noise
       enabled: false
 
   # photons -> photons

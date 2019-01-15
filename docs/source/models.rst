@@ -81,17 +81,17 @@ Photon Generation models
 Loading image
 ***************************
 
-.. autofunction:: pyxel.models.photon_generation.load_image.load_image(param1, param2: int = 0)
+.. autofunction:: pyxel.models.photon_generation.load_image.load_image(detector: Detector, image_file: str, row0: int = 0, col0: int = 0, load_full_image: bool = False)
 
 Simple photon generation
 ***************************
 
-.. autofunction:: pyxel.models.photon_generation.add_photons.add_photons(param1 = None, param2)
+.. autofunction:: pyxel.models.photon_generation.add_photons.add_photons(detector: Detector, level: int = -1)
 
 Shot noise
 ***************************
 
-.. autofunction:: pyxel.models.photon_generation.shot_noise.add_shot_noise(param1, param2)
+.. autofunction:: pyxel.models.photon_generation.shot_noise.shot_noise(detector: Detector, random_seed: int = None)
 
 
 .. _optical:
@@ -139,11 +139,11 @@ Monitor CCDs is ongoing via Pyxel.
 
 .. autofunction:: pyxel.models.charge_generation.tars.tars.run_tars
 
+..
+    CCD charge injection
+    ***************************
 
-CCD charge injection
-***************************
-
-.. autofunction:: pyxel.models.charge_generation.charge_injection.charge_injection
+    .. autofunction:: pyxel.models.charge_generation.charge_injection.charge_injection
 
 
 .. _charge_collection:

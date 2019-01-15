@@ -31,18 +31,18 @@ def run_tars(detector: Detector,
              # stopping_file: str = None,
              spectrum_file: str = None,
              random_seed: int = None):
-    """TBW.
+    """Simulate charge deposition by cosmic rays.
 
-    :param detector:
-    :param particle_type:
-    :param initial_energy:
-    :param particle_number:
-    :param incident_angles:
-    :param starting_position:
-    :param simulation_mode:
-    :param running_mode:
-    :param spectrum_file:
-    :param random_seed:
+    :param detector: Pyxel detector object
+    :param particle_type: type of particle (proton, ion, alpha, ...)
+    :param initial_energy: Kinetic energy of particle
+    :param particle_number: Number of particles
+    :param incident_angles: incident angle, tuple of alpha and beta
+    :param starting_position: starting position
+    :param simulation_mode: simulation mode [cosmic rays, radioactive_decay]
+    :param running_mode: mode [stopping, stepsize, geant4, plotting]
+    :param spectrum_file: path to input spectrum
+    :param random_seed: seed
     """
     logging.info('')
     if random_seed:

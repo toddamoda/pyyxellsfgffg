@@ -9,8 +9,8 @@ from pyxel.detectors.detector import Detector
 @pyxel.validate
 @pyxel.argument(name='seed', label='random seed', units='', validate=check_type(int))
 # @pyxel.register(group='photon_generation', name='shot noise')
-def add_shot_noise(detector: Detector,
-                   random_seed: int = None):
+def shot_noise(detector: Detector,
+               random_seed: int = None):
     """Add shot noise to the number of photons.
 
     :param detector: Pyxel Detector object
