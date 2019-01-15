@@ -16,15 +16,14 @@ def load_image(detector: Detector,
                image_file: str,
                row0: int = 0,
                col0: int = 0,
-               load_full_image: bool = False
-               ):
-    """TBW.
+               load_full_image: bool = False):
+    """Load FITS file as a numpy array and add to the detector as input image.
 
-    :param detector:
-    :param image_file:
-    :param row0:
-    :param col0:
-    :param load_full_image:
+    :param detector: Pyxel Detector object
+    :param image_file: path to FITS image file
+    :param row0: index of starting row
+    :param col0: index of starting column
+    :param load_full_image: use this to load the full image and update the detector geometry based on image size
     """
     logging.info('')
     geo = detector.geometry
@@ -33,5 +32,6 @@ def load_image(detector: Detector,
     if load_full_image:
         row0, col0 = 0, 0
         geo.row, geo.col = image.shape
+
     image = image[row0: row0 + geo.row, col0: col0 + geo.col]
     detector.input_image = image

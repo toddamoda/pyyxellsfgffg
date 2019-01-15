@@ -78,15 +78,15 @@ Photon Generation models
     :undoc-members:
     :imported-members:
 
-Simple photon generation
-***************************
-
-.. autofunction:: pyxel.models.photon_generation.add_photons.add_photons(param1 = None, param2)
-
 Loading image
 ***************************
 
 .. autofunction:: pyxel.models.photon_generation.load_image.load_image(param1, param2: int = 0)
+
+Simple photon generation
+***************************
+
+.. autofunction:: pyxel.models.photon_generation.add_photons.add_photons(param1 = None, param2)
 
 Shot noise
 ***************************

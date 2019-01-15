@@ -65,8 +65,7 @@ def argument(name: str, **kwargs):
 
 def check_type(att_type, is_optional: bool = False) -> t.Callable[..., bool]:
     """TBW."""
-    return om.check_type_function(att_type=att_type,
-                                  is_optional=is_optional)
+    return om.check_type_function(att_type=att_type, is_optional=is_optional)
 
 
 def check_path(path):
