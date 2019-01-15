@@ -6,7 +6,7 @@ import esapy_config as om
 import pygmo as pg
 from pyxel.calibration.fitting import ModelFitting
 from pyxel.detectors.detector import Detector
-from pyxel.pipelines.detector_pipeline import DetectionPipeline
+from pyxel.pipelines.pipeline import DetectionPipeline
 from pyxel.pipelines.processor import Processor
 
 

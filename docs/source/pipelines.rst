@@ -3,11 +3,10 @@
 Pipelines
 ===========
 
-
 The core algorithm of the architecture is the Detection pipeline allowing to
-host any type of models in an arbitrary number. This is either a CCD or a
-CMOS Detection pipeline inheriting relevant subclasses, properties, functions
-from a general Detection pipeline class.
+host any type of models in an arbitrary number. This is either a
+*CCDDetectionPipeline** or a *CMOSDetectionPipeline* inheriting
+subclasses, properties and functions from a general *DetectionPipeline* class.
 
 Inside the pipeline the models are grouped into 7 different levels per
 detector type imitating the working principle of the detector, for example
@@ -20,32 +19,13 @@ and modify the same Detector object one after another. At the end, the
 pipeline returns the Detector object as an output.
 
 
-Pipeline classes and their methods.
-
-
 .. _ccd_pipeline:
 
 CCD Pipeline
 --------------
-
-.. autoclass:: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
-    :members:
-    :inherited-members:
-    :undoc-members:
-    :show-inheritance:
-    :exclude-members:
-
-
 
 
 .. _cmos_pipeline:
 
 CMOS Pipeline
 --------------
-
-.. autoclass:: pyxel.pipelines.cmos_pipeline.CMOSDetectionPipeline
-    :members:
-    :inherited-members:
-    :undoc-members:
-    :show-inheritance:
-    :exclude-members:

@@ -3,7 +3,7 @@
 Data Structure
 ================
 
-Dataframe and array classes and their methods to store and handle the
+Dataframe and Array classes and their methods to store and handle the
 data in Pyxel.
 
 .. _photon:

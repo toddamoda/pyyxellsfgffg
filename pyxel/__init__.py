@@ -113,9 +113,9 @@ def validate_type(att_type, is_optional: bool = False):
 
 def pyxel_yaml_loader():
     """TBW."""
-    from pyxel.pipelines.parametric import Configuration
-    from pyxel.pipelines.parametric import ParametricAnalysis
-    from pyxel.pipelines.parametric import StepValues
+    from pyxel.parametric.parametric import Configuration
+    from pyxel.parametric.parametric import ParametricAnalysis
+    from pyxel.parametric.parametric import StepValues
     from pyxel.calibration.calibration import Calibration
     from pyxel.calibration.calibration import Algorithm
     from pyxel.pipelines.model_function import ModelFunction
