@@ -22,6 +22,7 @@ The **pyxel** documentation.
    pipelines.rst
    detectors.rst
    models.rst
+   dataframes.rst
    yaml.rst
    gui.rst
    running_modes.rst

@@ -11,7 +11,7 @@ cds.enable()
 
 
 class Pixel(Array):
-    """Pixel class defining and storing information of charge packets. Inherits from Array class."""
+    """Pixel class defining and storing information of charge packets within pixels. Inherits from Array class."""
 
     def __init__(self, geo: Geometry) -> None:
         """TBW.

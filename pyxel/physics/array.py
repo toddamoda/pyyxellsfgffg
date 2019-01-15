@@ -17,18 +17,26 @@ class Array:
 
     @property
     def array(self):
-        """TBW."""
+        """Two dimensional numpy array storing the data."""
         return self._array.astype(self.type)
 
     @array.setter
     def array(self, value):
-        """TBW."""
+        """
+        Overwrite the two dimensional numpy array storing the data.
+
+        Only accepts an array with the right type and shape.
+        """
         if isinstance(value, np.ndarray):
             if value.dtype in self.type_list:
-                self.type = value.dtype
+                if value.shape == self._array.shape:
+                    self.type = value.dtype
+                    self._array = value
+                else:
+                    raise ValueError('Shape of %s array should be %s' %
+                                     (self.__class__.__name__, str(self._array.shape)))
             else:
                 raise TypeError('Type of %s array should be a(n) %s' %
                                 (self.__class__.__name__, self.exp_type.__name__))
-            self._array = value
         else:
             raise TypeError('%s array should be a numpy.ndarray' % self.__class__.__name__)
