@@ -17,7 +17,11 @@ class Array:
 
     @property
     def array(self):
-        """Two dimensional numpy array storing the data."""
+        """
+        Two dimensional numpy array storing the data.
+
+        Only accepts an array with the right type and shape.
+        """
         return self._array.astype(self.type)
 
     @array.setter
