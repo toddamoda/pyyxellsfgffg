@@ -1,17 +1,17 @@
-.. _dataframes:
+.. _data_structure:
 
-Dataframes
-===========
+Data Structure
+================
 
-Dataframe and array classes and their methods.
-
+Dataframe and array classes and their methods to store and handle the
+data in Pyxel.
 
 .. _photon:
 
 Photon
 --------------
 
-.. autoclass:: pyxel.physics.photon.Photon
+.. autoclass:: pyxel.data_structure.photon.Photon
     :members:
     :inherited-members:
     :undoc-members:
@@ -19,14 +19,12 @@ Photon
     :exclude-members:
 
 
-
-
 .. _charge:
 
 Charge
 --------------
 
-.. autoclass:: pyxel.physics.charge.Charge
+.. autoclass:: pyxel.data_structure.charge.Charge
     :members:
     :inherited-members:
     :undoc-members:
@@ -39,7 +37,7 @@ Charge
 Pixel
 --------------
 
-.. autoclass:: pyxel.physics.pixel.Pixel
+.. autoclass:: pyxel.data_structure.pixel.Pixel
     :members:
     :inherited-members:
     :undoc-members:
@@ -52,7 +50,7 @@ Pixel
 Signal
 --------------
 
-.. autoclass:: pyxel.physics.signal.Signal
+.. autoclass:: pyxel.data_structure.signal.Signal
     :members:
     :inherited-members:
     :undoc-members:
@@ -65,7 +63,7 @@ Signal
 Image
 --------------
 
-.. autoclass:: pyxel.physics.image.Image
+.. autoclass:: pyxel.data_structure.image.Image
     :members:
     :inherited-members:
     :undoc-members:

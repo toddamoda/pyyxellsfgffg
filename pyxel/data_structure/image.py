@@ -1,20 +1,20 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-"""Pyxel Signal class."""
+"""Pyxel Image class."""
 import numpy as np
 from astropy.units import cds
 from pyxel.detectors.geometry import Geometry
-from pyxel.physics.array import Array
+from pyxel.data_structure.array import Array
 
 cds.enable()
 
 
-class Signal(Array):
+class Image(Array):
     """
-    Signal class defining and storing information of detector signal.
+    Image class defining and storing information of detector image.
 
-    Accepted array types: np.float16, np.float32, np.float64
+    Accepted array types: np.uint16, np.uint32, np.uint64
     """
 
     def __init__(self, geo: Geometry) -> None:
@@ -22,7 +22,7 @@ class Signal(Array):
 
         :param geo:
         """
-        super().__init__()                  # TODO: add unit (V)
-        self.exp_type = np.float
-        self.type_list = [np.float16, np.float32, np.float64]
+        super().__init__()                  # TODO: add unit (ADU)
+        self.exp_type = np.uint
+        self.type_list = [np.uint16, np.uint32, np.uint64]
         self._array = np.zeros((geo.row, geo.col), dtype=self.exp_type)
