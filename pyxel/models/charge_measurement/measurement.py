@@ -14,7 +14,8 @@ def simple_measurement(detector: Detector):
     """Create signal array from pixel array.
 
     detector Signal unit: Volt
-    :param detector:
+
+    :param detector: Pyxel Detector object
     """
     logging.info('')
     char = detector.characteristics

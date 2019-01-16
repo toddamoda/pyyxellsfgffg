@@ -49,7 +49,7 @@ def ktc_bias_noise(detector: CMOS,
                    wind_x_size: int = 0, wind_y_size: int = 0):
     """TBW.
 
-    :param detector:
+    :param detector: Pyxel Detector object
     :param ktc_noise:
     :param bias_offset:
     :param bias_amp:
@@ -101,7 +101,7 @@ def white_read_noise(detector: CMOS,
                      wind_x_size: int = 0, wind_y_size: int = 0):
     """TBW.
 
-    :param detector:
+    :param detector: Pyxel Detector object
     :param rd_noise:
     :param ref_pixel_noise_ratio:
     :param window_mode:
@@ -151,7 +151,7 @@ def acn_noise(detector: CMOS,
               wind_x_size: int = 0, wind_y_size: int = 0):
     """TBW.
 
-    :param detector:
+    :param detector: Pyxel Detector object
     :param acn:
     :param window_mode:
     :param wind_x0:
@@ -200,7 +200,7 @@ def uncorr_pink_noise(detector: CMOS,
                       wind_x_size: int = 0, wind_y_size: int = 0):
     """TBW.
 
-    :param detector:
+    :param detector: Pyxel Detector object
     :param u_pink:
     :param window_mode:
     :param wind_x0:
@@ -249,7 +249,7 @@ def corr_pink_noise(detector: CMOS,
                     wind_x_size: int = 0, wind_y_size: int = 0):
     """TBW.
 
-    :param detector:
+    :param detector: Pyxel Detector object
     :param c_pink:
     :param window_mode:
     :param wind_x0:
@@ -298,7 +298,7 @@ def pca_zero_noise(detector: CMOS,
                    wind_x_size: int = 0, wind_y_size: int = 0):
     """TBW.
 
-    :param detector:
+    :param detector: Pyxel Detector object
     :param pca0_amp:
     :param window_mode:
     :param wind_x0:

@@ -13,7 +13,7 @@ from pyxel.detectors.detector import Detector
 def simple_conversion(detector: Detector):
     """Generate charges from incident photons via photoelectric effect, simple statistical model.
 
-    :param detector:
+    :param detector: Pyxel Detector object
     """
     logging.info('')
     ch = detector.characteristics
@@ -42,7 +42,7 @@ def simple_conversion(detector: Detector):
 def monte_carlo_conversion(detector: Detector):
     """Generate charges from incident photons via photoelectric effect, more exact, stochastic (Monte Carlo) model.
 
-    :param detector:
+    :param detector: Pyxel Detector object
     """
     logging.info('')
 
@@ -64,7 +64,7 @@ def monte_carlo_conversion(detector: Detector):
 def random_pos(detector: Detector):
     """Generate random position for photoelectric effect inside detector.
 
-    :param detector:
+    :param detector: Pyxel Detector object
     """
     # pos1 = detector.vert_dimension * np.random.random()
     # pos2 = detector.horz_dimension * np.random.random()

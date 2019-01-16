@@ -18,8 +18,9 @@ def simple_digitization(detector: Detector,
                         data_type: str = 'numpy.uint16'):
     """Create an image array from signal array mimicking readout electronics.
 
-    :param detector:
-    :param data_type: numpy integer type (numpy.uint16, numpy.uint32, numpy.uint64, numpy.int32, numpy.int64)
+    :param detector: Pyxel Detector object
+    :param data_type: numpy integer type: ``numpy.uint16``, ``numpy.uint32``,
+    ``numpy.uint64``, ``numpy.int32``, ``numpy.int64``
     """
     logging.info('')
 
