@@ -19,4 +19,3 @@ def shot_noise(detector: Detector,
     if random_seed:                         # TODO: is this needed here?
         np.random.seed(random_seed)
     detector.photons.array = np.random.poisson(lam=detector.photons.array)  # * u.ph
-
