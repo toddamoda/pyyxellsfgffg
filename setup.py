@@ -3,11 +3,10 @@ Pyxel detector simulation framework.
 """
 
 from setuptools import setup, find_packages
-import versioneer
 import pyxel
 
 
-def get_requires(filenames):
+def get_requires(filename):
     """Get the esapy2 dependency package list.
 
     :param str filenames: the requirements file location
@@ -15,23 +14,22 @@ def get_requires(filenames):
     """
     requires = []
 
-    for filename in filenames:
-        with open(filename) as file_obj:
-            for line in file_obj:
-                line = line.strip()
+    with open(filename) as file_obj:
+        for line in file_obj:
+            line = line.strip()
 
-                if line.startswith('--') or line.startswith('#') or line.startswith('-r') or not line:
-                    continue
+            if line.startswith('--') or line.startswith('#') or line.startswith('-r') or not line:
+                continue
 
-                requires.append(line)
+            requires.append(line)
 
     return requires
 
 
 setup(
     name=pyxel.__appname__,
-    version=versioneer.get_version(),
-    description=versioneer.get_cmdclass(),
+    version=pyxel.__version__,
+    description=pyxel.__doc__,
     long_description=open('README.rst').read(),
     author=pyxel.__author__,
     author_email=pyxel.__author_email__,
