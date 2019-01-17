@@ -18,8 +18,9 @@ def simple_digitization(detector: Detector,
                         data_type: str = 'numpy.uint16'):
     """Create an image array from signal array mimicking readout electronics.
 
-    :param detector:
-    :param data_type: numpy integer type (numpy.uint16, numpy.uint32, numpy.uint64, numpy.int32, numpy.int64)
+    :param detector: Pyxel Detector object
+    :param data_type: numpy integer type: ``numpy.uint16``, ``numpy.uint32``, ``numpy.uint64``,
+                                          ``numpy.int32``, ``numpy.int64``
     """
     logging.info('')
 
@@ -27,9 +28,10 @@ def simple_digitization(detector: Detector,
     if data_type is None:
         raise TypeError('Can not locate the type defined as `data_type` argument in yaml file.')
 
+    # Gain of the Analog-Digital Converter
+    detector.signal.array *= detector.characteristics.a2
     # floor of signal values element-wise (quantization)
-    array = np.floor(detector.signal.array)
-
+    detector.signal.array = np.floor(detector.signal.array)
     # convert floats to other datatype (e.g. 16-bit unsigned integers)
-    np.clip(array, a_min=np.iinfo(data_type).min, a_max=np.iinfo(data_type).max)
-    detector.image.array = array.astype(data_type)
+    np.clip(detector.signal.array, a_min=np.iinfo(data_type).min, a_max=np.iinfo(data_type).max)
+    detector.image.array = detector.signal.array.astype(data_type)

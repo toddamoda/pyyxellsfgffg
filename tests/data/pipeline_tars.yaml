@@ -32,6 +32,7 @@ pipeline: !CCD_PIPELINE
       enabled: true
       arguments:
         image_file: data/HorseHead_orig.fits
+        convert_to_photons: true
 
     photon_level: !model
       name: pyxel.models.photon_generation.add_photons.add_photons

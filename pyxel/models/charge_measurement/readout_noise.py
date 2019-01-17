@@ -19,9 +19,10 @@ def output_node_noise(detector: Detector,
     """Adding noise to signal array of detector output node using normal random distribution.
 
     detector Signal unit: Volt
-    :param detector:
-    :param std_deviation:
-    :param random_seed:
+
+    :param detector: Pyxel Detector object
+    :param std_deviation: standard deviation
+    :param random_seed: seed
     """
     logging.info('')
     if random_seed:

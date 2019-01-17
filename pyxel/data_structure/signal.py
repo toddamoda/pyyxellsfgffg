@@ -6,7 +6,6 @@ import numpy as np
 from astropy.units import cds
 from pyxel.detectors.geometry import Geometry
 from pyxel.data_structure.array import Array
-
 cds.enable()
 
 

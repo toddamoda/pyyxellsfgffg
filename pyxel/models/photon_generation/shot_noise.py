@@ -8,7 +8,6 @@ from pyxel.detectors.detector import Detector
 
 @pyxel.validate
 @pyxel.argument(name='seed', label='random seed', units='', validate=check_type(int))
-# @pyxel.register(group='photon_generation', name='shot noise')
 def shot_noise(detector: Detector,
                random_seed: int = None):
     """Add shot noise to the number of photons.
@@ -19,7 +18,4 @@ def shot_noise(detector: Detector,
     logging.info('')
     if random_seed:                         # TODO: is this needed here?
         np.random.seed(random_seed)
-    lambda_list = detector.photons.get_numbers()
-    lambda_list = [float(i) for i in lambda_list]
-    new_list = np.random.poisson(lam=lambda_list)  # * u.ph
-    detector.photons.change_all_number(new_list)
+    detector.photons.array = np.random.poisson(lam=detector.photons.array)  # * u.ph

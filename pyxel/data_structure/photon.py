@@ -2,83 +2,26 @@
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
 """Pyxel Photon class to generate and track photons."""
-import pandas as pd
+import numpy as np
 from astropy.units import cds
-from pyxel.data_structure.particle import Particle
-
+from pyxel.detectors.geometry import Geometry
+from pyxel.data_structure.array import Array
 cds.enable()
 
 
-class Photon(Particle):
-    """Photon class defining and storing information of all photons including their position, velocity, energy."""
+class Photon(Array):
+    """
+    Photon class defining and storing information of all photons.
 
-    def __init__(self) -> None:
-        """TBW."""
-        super().__init__()
-        self.nextid = 0
-        self.frame = pd.DataFrame(columns=['id',
-                                           'number',
-                                           'init_energy',
-                                           'energy',
-                                           'init_pos_ver',
-                                           'init_pos_hor',
-                                           'init_pos_z',
-                                           'position_ver',
-                                           'position_hor',
-                                           'position_z',
-                                           'velocity_ver',
-                                           'velocity_hor',
-                                           'velocity_z'])
+    Accepted array types: np.int32, np.int64, np.uint32, np.uint64, np.float16, np.float32, np.float64
+    """
 
-    def add_photon(self,
-                   photons_per_group,
-                   init_energy,
-                   init_ver_position,
-                   init_hor_position,
-                   init_z_position,
-                   init_ver_velocity,
-                   init_hor_velocity,
-                   init_z_velocity):
-        """Create new photon or group of photons inside the detector stored in a pandas DataFrame.
+    def __init__(self, geo: Geometry) -> None:
+        """TBW.
 
-        :param photons_per_group:
-        :param init_energy:
-        :param init_ver_position:
-        :param init_hor_position:
-        :param init_z_position:
-        :param init_ver_velocity:
-        :param init_hor_velocity:
-        :param init_z_velocity:
-        :return:
+        :param geo:
         """
-        # check_position(self.detector, init_ver_position, init_hor_position, init_z_position)
-        # check_energy(init_energy)
-
-        if len(photons_per_group) == len(init_energy) == len(init_ver_position) == len(init_ver_velocity):
-            elements = len(init_energy)
-        else:
-            raise ValueError('List arguments have different lengths')
-
-        # if all(init_ver_velocity) == 0 and all(init_hor_velocity) == 0 and all(init_z_velocity) == 0:
-        #     random_direction(1.0)
-
-        # dict
-        new_photon = {'id': range(self.nextid, self.nextid + elements),
-                      'number': photons_per_group,
-                      'init_energy': init_energy,
-                      'energy': init_energy,
-                      'init_pos_ver': init_ver_position,
-                      'init_pos_hor': init_hor_position,
-                      'init_pos_z': init_z_position,
-                      'position_ver': init_ver_position,
-                      'position_hor': init_hor_position,
-                      'position_z': init_z_position,
-                      'velocity_ver': init_ver_velocity,
-                      'velocity_hor': init_hor_velocity,
-                      'velocity_z': init_z_velocity}
-
-        new_photon_df = pd.DataFrame(new_photon)
-        self.nextid = self.nextid + elements
-
-        # Adding new photons to the DataFrame
-        self.frame = pd.concat([self.frame, new_photon_df], ignore_index=True)
+        super().__init__()                  # TODO: add unit (ph)
+        self.exp_type = np.int
+        self.type_list = [np.int32, np.int64, np.uint32, np.uint64, np.float16, np.float32, np.float64]
+        self._array = np.zeros((geo.row, geo.col), dtype=self.exp_type)

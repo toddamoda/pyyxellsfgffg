@@ -1,42 +1,39 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-"""Pyxel Charge class to generate electrons or holes inside detector."""
+"""Pyxel Photon class to generate and track photons."""
 import pandas as pd
 import numpy as np
+import warnings
 from astropy.units import cds
 from pyxel.data_structure.particle import Particle
 
 cds.enable()
 
 
-class Charge(Particle):
-    """Charged particle class defining and storing information of all electrons and holes.
-
-    Properties stored are: charge, position, velocity, energy.
-    """
+class Photon(Particle):
+    """Photon class defining and storing information of all photons including their position, velocity, energy."""
 
     def __init__(self) -> None:
         """TBW."""
+        warnings.warn('This Photon class is deprecated! Please use new Photon class!', DeprecationWarning)
+
         super().__init__()
         self.nextid = 0
 
-        self.columns = ['charge',
-                        'number',
+        self.columns = ['number',
                         'init_energy', 'energy',
                         'init_pos_ver', 'init_pos_hor', 'init_pos_z',
                         'position_ver', 'position_hor', 'position_z',
-                        'velocity_ver', 'velocity_hor', 'velocity_z',
-                        'pixel_ver', 'pixel_hor']                # todo do we need these columns really ???????
+                        'velocity_ver', 'velocity_hor', 'velocity_z']
 
         self.EMPTY_FRAME = pd.DataFrame(columns=self.columns,
                                         dtype=np.float)         # todo
 
         self.frame = self.EMPTY_FRAME.copy()
 
-    def add_charge(self,
-                   particle_type,
-                   particles_per_cluster,
+    def add_photon(self,
+                   photons_per_group,
                    init_energy,
                    init_ver_position,
                    init_hor_position,
@@ -44,10 +41,9 @@ class Charge(Particle):
                    init_ver_velocity,
                    init_hor_velocity,
                    init_z_velocity):
-        """Create new charge or group of charges inside the detector stored in a pandas DataFrame.
+        """Create new photon or group of photons inside the detector stored in a pandas DataFrame.
 
-        :param particle_type:
-        :param particles_per_cluster:
+        :param photons_per_group:
         :param init_energy:
         :param init_ver_position:
         :param init_hor_position:
@@ -57,29 +53,21 @@ class Charge(Particle):
         :param init_z_velocity:
         :return:
         """
-        if len(particles_per_cluster) == len(init_energy) == len(init_ver_position) == len(init_ver_velocity):
-            elements = len(init_energy)
-        else:
-            raise ValueError('List arguments have different lengths')
-
-        # check_position(self.detector, init_ver_position, init_hor_position, init_z_position)      # TODO
-        # check_energy(init_energy)             # TODO
+        # check_position(self.detector, init_ver_position, init_hor_position, init_z_position)        # TODO
+        # check_energy(init_energy)         # TODO
         # Check if particle number is integer:
         # check_type(particles_per_cluster)      # TODO
 
-        if particle_type == 'e':
-            charge = [-1] * elements            # * cds.e
-        elif particle_type == 'h':
-            charge = [+1] * elements            # * cds.e
+        if len(photons_per_group) == len(init_energy) == len(init_ver_position) == len(init_ver_velocity):
+            elements = len(init_energy)
         else:
-            raise ValueError('Given charged particle type can not be simulated')
+            raise ValueError('List arguments have different lengths')
 
         # if all(init_ver_velocity) == 0 and all(init_hor_velocity) == 0 and all(init_z_velocity) == 0:
         #     random_direction(1.0)
 
         # dict
-        new_charge = {'charge': charge,
-                      'number': particles_per_cluster,
+        new_photon = {'number': photons_per_group,
                       'init_energy': init_energy,
                       'energy': init_energy,
                       'init_pos_ver': init_ver_position,
@@ -92,6 +80,6 @@ class Charge(Particle):
                       'velocity_hor': init_hor_velocity,
                       'velocity_z': init_z_velocity}
 
-        new_charge_df = pd.DataFrame(new_charge, index=range(self.nextid, self.nextid + elements))
+        new_photon_df = pd.DataFrame(new_photon, index=range(self.nextid, self.nextid + elements))
         self.nextid = self.nextid + elements
-        self.frame = self.frame.append(new_charge_df, sort=False)
+        self.frame = self.frame.append(new_photon_df, sort=False)

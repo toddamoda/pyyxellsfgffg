@@ -32,6 +32,7 @@ pipeline:
       enabled: true
       arguments:
         image_file: data/HorseHead_orig.fits
+        convert_to_photons: true
 
     photon_level:
       name: pyxel.models.photon_generation.add_photons.add_photons
