@@ -143,11 +143,12 @@ pipeline:
         image_file: outputs/in.fits # data/01.fits
         row0: 0
         col0: 0
+        convert_to_photons: true
     - name: photon_level
       func: pyxel.models.photon_generation.add_photons.add_photons
-      enabled: true
+      enabled: false
       arguments:
-#          level:
+          level: 10
     - name: shot_noise
       func: pyxel.models.photon_generation.shot_noise.shot_noise
       enabled: false
@@ -228,12 +229,16 @@ pipeline:
     -
       name: output_node_noise
       func: pyxel.models.charge_measurement.readout_noise.output_node_noise
-      enabled: true
+      enabled: false
       arguments:
-        std_deviation: 40.
+        std_deviation: 40.    # TODO too high
 
   # signal -> image
   readout_electronics:
+    -
+      name: simple_amplifier
+      func: pyxel.models.readout_electronics.amplification.simple_amplifier
+      enabled: true
     -
       name: simple_digitization
       func: pyxel.models.readout_electronics.digitization.simple_digitization

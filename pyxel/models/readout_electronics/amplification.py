@@ -10,15 +10,15 @@ from pyxel.detectors.detector import Detector
 
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
-def simple_measurement(detector: Detector):
-    """Create signal array from pixel array.
+def simple_amplifier(detector: Detector):
+    """Amplify signal.
 
+    amp - Gain of output amplifier
+    a1 - Gain of the signal processor
     detector Signal unit: Volt
 
     :param detector: Pyxel Detector object
     """
     logging.info('')
     char = detector.characteristics
-
-    array = detector.pixels.array * char.sv
-    detector.signal.array = array.astype('float64')
+    detector.signal.array *= char.amp * char.a1

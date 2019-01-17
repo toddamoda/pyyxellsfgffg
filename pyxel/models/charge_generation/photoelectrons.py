@@ -3,6 +3,7 @@
 #   --------------------------------------------------------------------------
 """Simple model to convert photons into photo-electrons inside detector."""
 import logging
+import numpy as np
 # import pyxel
 from pyxel.detectors.detector import Detector
 
@@ -16,24 +17,33 @@ def simple_conversion(detector: Detector):
     :param detector: Pyxel Detector object
     """
     logging.info('')
+    geo = detector.geometry
     ch = detector.characteristics
     ph = detector.photons
-    photon_number = ph.get_values(quantity='number')
-    size = len(photon_number)
+    # photon_number = ph.get_values(quantity='number')
+    # photon_number = ph.array
+    size = ph.array.size
     # Calculate the average charge numbers per pixel
-    charge_number = photon_number * ch.qe * ch.eta
+    charge_number = ph.array.flatten() * ch.qe * ch.eta
     # Adding new charge to Charge data frame
+
+    pixel_numbers = geo.row * geo.col
+    init_ver_position = np.arange(0.0, geo.row, 1.0) * geo.pixel_vert_size
+    init_hor_position = np.arange(0.0, geo.col, 1.0) * geo.pixel_horz_size
+    init_ver_position = np.repeat(init_ver_position, geo.col)
+    init_hor_position = np.tile(init_hor_position, geo.row)
+    init_ver_position += np.random.rand(pixel_numbers) * geo.pixel_vert_size
+    init_hor_position += np.random.rand(pixel_numbers) * geo.pixel_horz_size
+
     detector.charges.add_charge(particle_type='e',
                                 particles_per_cluster=charge_number,
                                 init_energy=[0.] * size,
-                                init_ver_position=ph.get_values(quantity='position_ver'),
-                                init_hor_position=ph.get_values(quantity='position_hor'),
-                                init_z_position=ph.get_values(quantity='position_z'),
+                                init_ver_position=init_ver_position,
+                                init_hor_position=init_hor_position,
+                                init_z_position=[0.] * size,
                                 init_ver_velocity=[0.] * size,
                                 init_hor_velocity=[0.] * size,
                                 init_z_velocity=[0.] * size)
-    # Removing all the photons because they have either created some photoelectrons or got lost
-    ph.remove()
 
 
 # @pyxel.validate

@@ -110,6 +110,7 @@ pipeline:
   photon_generation:
   - arguments:
       image_file: null
+      convert_to_photons: true
     enabled: false
     func: pyxel.models.photon_generation.load_image.load_image
     name: load_image

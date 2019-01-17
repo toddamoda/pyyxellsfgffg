@@ -13,7 +13,7 @@ class Array:
         self.type = None            # type: t.Optional[type]
         self.exp_type = None        # type: t.Optional[type]
         self.type_list = None       # type: t.Optional[t.List[type]]
-        self._array = None          # type: t.Optional[np.ndarray]
+        self._array = None           # type: t.Optional[np.ndarray]
 
     @property
     def array(self):
@@ -22,7 +22,7 @@ class Array:
 
         Only accepts an array with the right type and shape.
         """
-        return self._array.astype(self.type)
+        return self._array
 
     @array.setter
     def array(self, value):

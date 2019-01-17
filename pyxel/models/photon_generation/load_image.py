@@ -11,12 +11,13 @@ from pyxel.detectors.detector import Detector
 @pyxel.argument(name='row0', label='first row', validate=check_type(int))
 @pyxel.argument(name='col0', label='first column', validate=check_type(int))
 @pyxel.argument(name='load_full_image', label='full image (updates geometry)', validate=check_type(bool))
-# @pyxel.register(group='photon_generation', name='load image')
+@pyxel.argument(name='convert_to_photons', label='convert image values to photon numbers', validate=check_type(bool))
 def load_image(detector: Detector,
                image_file: str,
                row0: int = 0,
                col0: int = 0,
-               load_full_image: bool = False):
+               load_full_image: bool = False,
+               convert_to_photons: bool = False):
     """Load FITS file as a numpy array and add to the detector as input image.
 
     :param detector: Pyxel Detector object
@@ -24,9 +25,13 @@ def load_image(detector: Detector,
     :param row0: index of starting row
     :param col0: index of starting column
     :param load_full_image: use this to load the full image and update the detector geometry based on image size
+    :param convert_to_photons: if ``True``, the model will generate photon numbers per pixel
+    from detector.input_image array using the Photon Transfer Function:
+    PTF = qe * eta * sv * amp * a1 * a2
     """
     logging.info('')
     geo = detector.geometry
+    cht = detector.characteristics
 
     image = fits.getdata(image_file)
     if load_full_image:
@@ -35,3 +40,6 @@ def load_image(detector: Detector,
 
     image = image[row0: row0 + geo.row, col0: col0 + geo.col]
     detector.input_image = image
+
+    if convert_to_photons:
+        detector.photons.array = detector.input_image / (cht.qe * cht.eta * cht.sv * cht.amp * cht.a1 * cht.a2)
