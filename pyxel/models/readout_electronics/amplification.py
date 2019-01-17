@@ -1,7 +1,7 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-"""Charge readout model."""
+"""Readout electronics model."""
 import logging
 # import pyxel
 from pyxel.detectors.detector import Detector

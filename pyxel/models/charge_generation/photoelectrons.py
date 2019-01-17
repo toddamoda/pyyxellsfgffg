@@ -20,13 +20,8 @@ def simple_conversion(detector: Detector):
     geo = detector.geometry
     ch = detector.characteristics
     ph = detector.photons
-    # photon_number = ph.get_values(quantity='number')
-    # photon_number = ph.array
     size = ph.array.size
-    # Calculate the average charge numbers per pixel
-    charge_number = ph.array.flatten() * ch.qe * ch.eta
-    # Adding new charge to Charge data frame
-
+    charge_number = ph.array.flatten() * ch.qe * ch.eta     # the average charge numbers per pixel
     pixel_numbers = geo.row * geo.col
     init_ver_position = np.arange(0.0, geo.row, 1.0) * geo.pixel_vert_size
     init_hor_position = np.arange(0.0, geo.col, 1.0) * geo.pixel_horz_size
