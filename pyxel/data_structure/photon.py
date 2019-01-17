@@ -4,6 +4,7 @@
 """Pyxel Photon class to generate and track photons."""
 import pandas as pd
 import numpy as np
+import warnings
 from astropy.units import cds
 from pyxel.data_structure.particle import Particle
 
@@ -15,6 +16,8 @@ class Photon(Particle):
 
     def __init__(self) -> None:
         """TBW."""
+        warnings.warn('This Photon class is deprecated! Please use new Photon class!', DeprecationWarning)
+
         super().__init__()
         self.nextid = 0
 
@@ -80,4 +83,3 @@ class Photon(Particle):
         new_photon_df = pd.DataFrame(new_photon, index=range(self.nextid, self.nextid + elements))
         self.nextid = self.nextid + elements
         self.frame = self.frame.append(new_photon_df, sort=False)
-

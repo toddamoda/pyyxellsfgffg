@@ -21,7 +21,7 @@ class Particle:
 
         :param quantity: name of quantity: ``number``, ``energy``, ``position_ver``, ``velocity_hor``, etc.
         :param id_list: list of particle ids: ``[0, 12, 321]``
-        :return:
+        :return: array
         """
         if id_list:
             array = self.frame.query('index in %s' % id_list)[quantity].values
@@ -31,17 +31,16 @@ class Particle:
 
     def set_values(self, quantity: str, new_value_list: list, id_list: list = None):
         """Update quantity values of particles defined with id_list. By default it updates all.
-        
+
         :param quantity: name of quantity: ``number``, ``energy``, ``position_ver``, ``velocity_hor``, etc.
         :param new_value_list: list of values ``[1.12, 2.23, 3.65]``
         :param id_list: list of particle ids: ``[0, 12, 321]``
-        :return:
         """
         new_df = pd.DataFrame({quantity: new_value_list}, index=id_list)
         self.frame.update(new_df)
 
     def remove(self, id_list: list = None):
-        """Remove list of particles defined with id_list. By default it removes all particles from DataFrame.
+        """Remove particles defined with id_list. By default it removes all particles from DataFrame.
 
         :param id_list: list of particle ids: ``[0, 12, 321]``
         """
