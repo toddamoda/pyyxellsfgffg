@@ -221,16 +221,16 @@ docker:
 
 
 # Create wheel file
-#deploy:
-#  image: python:3.6
-#  stage: deploy
-#  environment: deploy
-#  script:
-#    - pip install wheel setuptools
-#    - python setup.py bdist_wheel
-#  artifacts:
-#    paths:
-#      - dist
+deploy:
+  image: python:3
+  stage: deploy
+  environment: deploy
+  script:
+    - pip install wheel setuptools
+    - python setup.py bdist_wheel
+  artifacts:
+    paths:
+      - dist
 
 
 # ###########################
