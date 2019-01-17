@@ -3,6 +3,7 @@
 #   --------------------------------------------------------------------------
 """Pyxel Charge class to generate electrons or holes inside detector."""
 import pandas as pd
+import numpy as np
 from astropy.units import cds
 from pyxel.data_structure.particle import Particle
 
@@ -19,22 +20,37 @@ class Charge(Particle):
         """TBW."""
         super().__init__()
         self.nextid = 0
-        self.frame = pd.DataFrame(columns=['id',
-                                           'charge',
-                                           'number',
-                                           'init_energy',
-                                           'energy',
-                                           'init_pos_ver',
-                                           'init_pos_hor',
-                                           'init_pos_z',
-                                           'position_ver',
-                                           'position_hor',
-                                           'position_z',
-                                           'velocity_ver',
-                                           'velocity_hor',
-                                           'velocity_z',
-                                           'pixel_ver',
-                                           'pixel_hor'])
+
+        self.columns = ['id',        # todo do we need id or not ???
+                        'charge',
+                        'number',    # todo use this list
+                        'init_energy', 'energy',
+                        'init_pos_ver', 'init_pos_hor', 'init_pos_z',
+                        'position_ver', 'position_hor', 'position_z',
+                        'velocity_ver', 'velocity_hor', 'velocity_z',
+                        'pixel_ver', 'pixel_hor']           # todo do we need these columns really ???????
+
+        self.EMPTY_FRAME = pd.DataFrame(columns=self.columns,
+                                        dtype=np.float)         # todo is it ok to define float for all column????
+
+        self.frame = self.EMPTY_FRAME.copy()
+
+        # self.frame = pd.DataFrame(columns=['id',
+        #                                    'charge',
+        #                                    'number',
+        #                                    'init_energy',
+        #                                    'energy',
+        #                                    'init_pos_ver',
+        #                                    'init_pos_hor',
+        #                                    'init_pos_z',
+        #                                    'position_ver',
+        #                                    'position_hor',
+        #                                    'position_z',
+        #                                    'velocity_ver',
+        #                                    'velocity_hor',
+        #                                    'velocity_z',
+        #                                    'pixel_ver',
+        #                                    'pixel_hor'])
 
     def add_charge(self,
                    particle_type,
@@ -64,8 +80,10 @@ class Charge(Particle):
         else:
             raise ValueError('List arguments have different lengths')
 
-        # check_position(self.detector, init_ver_position, init_hor_position, init_z_position)
-        # check_energy(init_energy)
+        # check_position(self.detector, init_ver_position, init_hor_position, init_z_position)      # TODO
+        # check_energy(init_energy)         # TODO
+        # Check if particle number is integer:
+        # check_type(particles_per_cluster)      # TODO
 
         if particle_type == 'e':
             charge = [-1] * elements            # * cds.e
@@ -76,9 +94,6 @@ class Charge(Particle):
 
         # if all(init_ver_velocity) == 0 and all(init_hor_velocity) == 0 and all(init_z_velocity) == 0:
         #     random_direction(1.0)
-
-        # Rounding and converting to integer
-        # charge = round_convert_to_int(particles_per_cluster)      # TODO
 
         # dict
         new_charge = {'id': range(self.nextid, self.nextid + elements),
@@ -100,7 +115,12 @@ class Charge(Particle):
         self.nextid = self.nextid + elements
 
         # Adding new particles to the DataFrame
-        try:
-            self.frame = pd.concat([self.frame, new_charge_df], ignore_index=True, sort=False)
-        except TypeError:
-            self.frame = pd.concat([self.frame, new_charge_df], ignore_index=True)
+        # try:
+        #     self.frame = pd.concat([self.frame, new_charge_df], ignore_index=True, sort=False)
+        # except TypeError:
+        #     self.frame = pd.concat([self.frame, new_charge_df], ignore_index=True)
+        # #
+
+        self.frame = self.frame.append(new_charge_df, sort=False)
+
+        pass

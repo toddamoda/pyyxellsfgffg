@@ -2,7 +2,7 @@
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
 """Pyxel general particle class to track particles like photons, electrons, holes."""
-import numpy as np
+# import numpy as np
 import pandas as pd
 # from astropy.units import cds
 # cds.enable()
@@ -13,6 +13,7 @@ class Particle:
 
     def __init__(self) -> None:
         """TBW."""
+        self.EMPTY_FRAME = pd.DataFrame()
         self.frame = None
 
     def get_numbers(self, id_list='all'):
@@ -27,15 +28,15 @@ class Particle:
             array = self.frame.query('id in %s' % id_list).number.values
         return array
 
-    def get_positions(self, id_list='all'):
-        """Get all 3 positions of a list of photons as a numpy array.
-
-        :param id_list:
-        :return:
-        """
-        return np.stack((self.get_positions_ver(id_list),
-                         self.get_positions_hor(id_list),
-                         self.get_positions_z(id_list)), axis=1)
+    # def get_positions(self, id_list='all'):
+    #     """Get all 3 positions of a list of photons as a numpy array.
+    #
+    #     :param id_list:
+    #     :return:
+    #     """
+    #     return np.stack((self.get_positions_ver(id_list),
+    #                      self.get_positions_hor(id_list),
+    #                      self.get_positions_z(id_list)), axis=1)
 
     def get_positions_ver(self, id_list='all'):
         """Get vertical positions of a list of photons.
@@ -73,15 +74,15 @@ class Particle:
             array = self.frame.query('id in %s' % id_list).position_z.values
         return array
 
-    def get_velocities(self, id_list='all'):
-        """Get all 3 velocities of a list of photons as a numpy array.
-
-        :param id_list:
-        :return:
-        """
-        return np.stack((self.get_velocities_ver(id_list),
-                         self.get_velocities_hor(id_list),
-                         self.get_velocities_z(id_list)), axis=1)
+    # def get_velocities(self, id_list='all'):
+    #     """Get all 3 velocities of a list of photons as a numpy array.
+    #
+    #     :param id_list:
+    #     :return:
+    #     """
+    #     return np.stack((self.get_velocities_ver(id_list),
+    #                      self.get_velocities_hor(id_list),
+    #                      self.get_velocities_z(id_list)), axis=1)
 
     def get_velocities_ver(self, id_list='all'):
         """Get vertical velocities of a list of photons.
@@ -189,6 +190,6 @@ class Particle:
         :return:
         """
         if id_list == 'all':
-            self.frame.drop(self.frame.id[:], inplace=True)
+            self.frame = self.EMPTY_FRAME.copy()
         else:
             self.frame.query('id not in %s' % id_list, inplace=True)

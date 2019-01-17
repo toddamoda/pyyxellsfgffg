@@ -34,6 +34,7 @@ def simple_conversion(detector: Detector):
                                 init_z_velocity=[0.] * size)
     # Removing all the photons because they have either created some photoelectrons or got lost
     ph.remove()
+    pass
 
 
 # @pyxel.validate

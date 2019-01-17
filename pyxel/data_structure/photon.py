@@ -3,6 +3,7 @@
 #   --------------------------------------------------------------------------
 """Pyxel Photon class to generate and track photons."""
 import pandas as pd
+import numpy as np
 from astropy.units import cds
 from pyxel.data_structure.particle import Particle
 
@@ -16,19 +17,32 @@ class Photon(Particle):
         """TBW."""
         super().__init__()
         self.nextid = 0
-        self.frame = pd.DataFrame(columns=['id',
-                                           'number',
-                                           'init_energy',
-                                           'energy',
-                                           'init_pos_ver',
-                                           'init_pos_hor',
-                                           'init_pos_z',
-                                           'position_ver',
-                                           'position_hor',
-                                           'position_z',
-                                           'velocity_ver',
-                                           'velocity_hor',
-                                           'velocity_z'])
+
+        self.columns = ['id',        # todo do we need id or not ???
+                        'number',
+                        'init_energy', 'energy',
+                        'init_pos_ver', 'init_pos_hor', 'init_pos_z',
+                        'position_ver', 'position_hor', 'position_z',
+                        'velocity_ver', 'velocity_hor', 'velocity_z']
+
+        self.EMPTY_FRAME = pd.DataFrame(columns=self.columns,
+                                        dtype=np.float)         # todo is it ok to define float for all column????
+
+        self.frame = self.EMPTY_FRAME.copy()
+
+        # self.frame = pd.DataFrame(columns=['id',
+        #                                    'number',
+        #                                    'init_energy',
+        #                                    'energy',
+        #                                    'init_pos_ver',
+        #                                    'init_pos_hor',
+        #                                    'init_pos_z',
+        #                                    'position_ver',
+        #                                    'position_hor',
+        #                                    'position_z',
+        #                                    'velocity_ver',
+        #                                    'velocity_hor',
+        #                                    'velocity_z'])
 
     def add_photon(self,
                    photons_per_group,
@@ -51,8 +65,10 @@ class Photon(Particle):
         :param init_z_velocity:
         :return:
         """
-        # check_position(self.detector, init_ver_position, init_hor_position, init_z_position)
-        # check_energy(init_energy)
+        # check_position(self.detector, init_ver_position, init_hor_position, init_z_position)        # TODO
+        # check_energy(init_energy)         # TODO
+        # Check if particle number is integer:
+        # check_type(particles_per_cluster)      # TODO
 
         if len(photons_per_group) == len(init_energy) == len(init_ver_position) == len(init_ver_velocity):
             elements = len(init_energy)
@@ -81,4 +97,8 @@ class Photon(Particle):
         self.nextid = self.nextid + elements
 
         # Adding new photons to the DataFrame
-        self.frame = pd.concat([self.frame, new_photon_df], ignore_index=True)
+        # self.frame = pd.concat([self.frame, new_photon_df], ignore_index=True)
+
+        self.frame = self.frame.append(new_photon_df, sort=False)
+
+        pass
