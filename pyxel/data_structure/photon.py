@@ -101,4 +101,3 @@ class Photon(Particle):
 
         self.frame = self.frame.append(new_photon_df, sort=False)
 
-        pass

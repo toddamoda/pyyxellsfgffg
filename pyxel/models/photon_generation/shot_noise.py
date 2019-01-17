@@ -19,7 +19,7 @@ def shot_noise(detector: Detector,
     logging.info('')
     if random_seed:                         # TODO: is this needed here?
         np.random.seed(random_seed)
-    lambda_list = detector.photons.get_numbers()
+    lambda_list = detector.photons.get_values(quantity='number')
     lambda_list = [float(i) for i in lambda_list]
     new_list = np.random.poisson(lam=lambda_list)  # * u.ph
-    detector.photons.change_all_number(new_list)
+    detector.photons.set_all_values(quantity='number', new_value_list=new_list)

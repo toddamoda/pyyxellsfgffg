@@ -122,5 +122,3 @@ class Charge(Particle):
         # #
 
         self.frame = self.frame.append(new_charge_df, sort=False)
-
-        pass

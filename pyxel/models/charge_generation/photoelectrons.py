@@ -18,7 +18,7 @@ def simple_conversion(detector: Detector):
     logging.info('')
     ch = detector.characteristics
     ph = detector.photons
-    photon_number = ph.get_numbers()
+    photon_number = ph.get_values(quantity='number')
     size = len(photon_number)
     # Calculate the average charge numbers per pixel
     charge_number = photon_number * ch.qe * ch.eta
@@ -26,15 +26,14 @@ def simple_conversion(detector: Detector):
     detector.charges.add_charge(particle_type='e',
                                 particles_per_cluster=charge_number,
                                 init_energy=[0.] * size,
-                                init_ver_position=ph.get_positions_ver(),
-                                init_hor_position=ph.get_positions_hor(),
-                                init_z_position=ph.get_positions_z(),
+                                init_ver_position=ph.get_values(quantity='position_ver'),
+                                init_hor_position=ph.get_values(quantity='position_hor'),
+                                init_z_position=ph.get_values(quantity='position_z'),
                                 init_ver_velocity=[0.] * size,
                                 init_hor_velocity=[0.] * size,
                                 init_z_velocity=[0.] * size)
     # Removing all the photons because they have either created some photoelectrons or got lost
     ph.remove()
-    pass
 
 
 # @pyxel.validate
