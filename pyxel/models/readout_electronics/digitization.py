@@ -15,12 +15,11 @@ from pyxel.detectors.detector import Detector
                 validate=pyxel.check_choices(['numpy.uint16', 'numpy.uint32', 'numpy.uint64',
                                               'numpy.int32', 'numpy.int64']))
 def simple_digitization(detector: Detector,
-                        data_type: str = 'numpy.uint16') -> Detector:
+                        data_type: str = 'numpy.uint16'):
     """Create an image array from signal array mimicking readout electronics.
 
     :param detector:
     :param data_type: numpy integer type (numpy.uint16, numpy.uint32, numpy.uint64, numpy.int32, numpy.int64)
-    :return:
     """
     logging.info('')
 
@@ -34,5 +33,3 @@ def simple_digitization(detector: Detector,
     # convert floats to other datatype (e.g. 16-bit unsigned integers)
     np.clip(array, a_min=np.iinfo(data_type).min, a_max=np.iinfo(data_type).max)
     detector.image.array = array.astype(data_type)
-
-    return detector

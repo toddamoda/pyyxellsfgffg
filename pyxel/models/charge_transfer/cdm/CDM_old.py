@@ -33,7 +33,7 @@ def cdm(detector: CCD,
         vg: float = None, svg: float = None,
         t: float = None, st: float = None,
         parallel_trap_file: str = None,
-        serial_trap_file: str = None) -> CCD:
+        serial_trap_file: str = None):
     """
     CDM model wrapper.
 
@@ -97,8 +97,6 @@ def cdm(detector: CCD,
                           serial_trap_file=serial_trap_file)
 
     detector.pixels.array = cdm_obj.apply_cti(detector.pixels.array)
-
-    return detector
 
 
 class CDM03Python:
@@ -300,7 +298,6 @@ class CDM03Python:
         """Electron trapping in imaging mode (non-TDI).
 
         :param image:
-        :return:
         """
         # absolute trap density which should be scaled according to radiation dose
         # (nt=1.5e10 gives approx fit to GH data for a dose of 8e9 10MeV equiv. protons)

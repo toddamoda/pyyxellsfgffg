@@ -19,7 +19,6 @@ def get_geom(detector_obj):
     """TBW.
 
     :param detector_obj:
-    :return:
     """
     if isinstance(detector_obj.geometry, CMOSGeometry):
         return t.cast(CMOSGeometry, detector_obj.geometry)
@@ -47,7 +46,7 @@ def ktc_bias_noise(detector: CMOS,
                    bias_amp: float = None,
                    window_mode: str = 'FULL',
                    wind_x0: int = 0, wind_y0: int = 0,
-                   wind_x_size: int = 0, wind_y_size: int = 0) -> CMOS:
+                   wind_x_size: int = 0, wind_y_size: int = 0):
     """TBW.
 
     :param detector:
@@ -59,7 +58,6 @@ def ktc_bias_noise(detector: CMOS,
     :param wind_y0:
     :param wind_x_size:
     :param wind_y_size:
-    :return:
     """
     logging.info('')
     geo = t.cast(CMOSGeometry, detector.geometry)
@@ -71,7 +69,7 @@ def ktc_bias_noise(detector: CMOS,
                         nfoh=geo.n_frame_overhead,
                         reverse_scan_direction=geo.reverse_scan_direction,
                         reference_pixel_border_width=geo.reference_pixel_border_width,
-                        pca0_file=path.dirname(path.abspath(__file__)) + '/nirspec_pca0.fits',
+                        pca0_file=path.dirname(path.abspath(__file__)) + '/nirspec_pca0.fits',  # TODO
                         det_size_x=geo.col, det_size_y=geo.row,
                         wind_mode=window_mode,
                         wind_x_size=wind_x_size, wind_y_size=wind_y_size,
@@ -91,8 +89,6 @@ def ktc_bias_noise(detector: CMOS,
 
     # ng_h2rg.create_hdu(result, 'pyxel/hxrg_read_noise.fits')
 
-    return detector
-
 
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
@@ -102,7 +98,7 @@ def white_read_noise(detector: CMOS,
                      ref_pixel_noise_ratio: float = None,
                      window_mode: str = 'FULL',
                      wind_x0: int = 0, wind_y0: int = 0,
-                     wind_x_size: int = 0, wind_y_size: int = 0) -> CMOS:
+                     wind_x_size: int = 0, wind_y_size: int = 0):
     """TBW.
 
     :param detector:
@@ -113,7 +109,6 @@ def white_read_noise(detector: CMOS,
     :param wind_y0:
     :param wind_x_size:
     :param wind_y_size:
-    :return:
     """
     logging.info('')
     geo = get_geom(detector)
@@ -145,8 +140,6 @@ def white_read_noise(detector: CMOS,
 
     # ng_h2rg.create_hdu(result, 'pyxel/hxrg_read_noise.fits')
 
-    return detector
-
 
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
@@ -155,7 +148,7 @@ def acn_noise(detector: CMOS,
               acn: float = None,
               window_mode: str = 'FULL',
               wind_x0: int = 0, wind_y0: int = 0,
-              wind_x_size: int = 0, wind_y_size: int = 0) -> CMOS:
+              wind_x_size: int = 0, wind_y_size: int = 0):
     """TBW.
 
     :param detector:
@@ -165,7 +158,6 @@ def acn_noise(detector: CMOS,
     :param wind_y0:
     :param wind_x_size:
     :param wind_y_size:
-    :return:
     """
     logging.info('')
     geo = t.cast(CMOSGeometry, detector.geometry)
@@ -197,8 +189,6 @@ def acn_noise(detector: CMOS,
 
     # ng_h2rg.create_hdu(result, 'pyxel/hxrg_read_noise.fits')
 
-    return detector
-
 
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
@@ -207,7 +197,7 @@ def uncorr_pink_noise(detector: CMOS,
                       u_pink: float = None,
                       window_mode: str = 'FULL',
                       wind_x0: int = 0, wind_y0: int = 0,
-                      wind_x_size: int = 0, wind_y_size: int = 0) -> CMOS:
+                      wind_x_size: int = 0, wind_y_size: int = 0):
     """TBW.
 
     :param detector:
@@ -217,7 +207,6 @@ def uncorr_pink_noise(detector: CMOS,
     :param wind_y0:
     :param wind_x_size:
     :param wind_y_size:
-    :return:
     """
     logging.info('')
     geo = t.cast(CMOSGeometry, detector.geometry)
@@ -249,8 +238,6 @@ def uncorr_pink_noise(detector: CMOS,
 
     # ng_h2rg.create_hdu(result, 'pyxel/hxrg_read_noise.fits')
 
-    return detector
-
 
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
@@ -259,7 +246,7 @@ def corr_pink_noise(detector: CMOS,
                     c_pink: float = None,
                     window_mode: str = 'FULL',
                     wind_x0: int = 0, wind_y0: int = 0,
-                    wind_x_size: int = 0, wind_y_size: int = 0) -> CMOS:
+                    wind_x_size: int = 0, wind_y_size: int = 0):
     """TBW.
 
     :param detector:
@@ -269,7 +256,6 @@ def corr_pink_noise(detector: CMOS,
     :param wind_y0:
     :param wind_x_size:
     :param wind_y_size:
-    :return:
     """
     logging.info('')
     geo = t.cast(CMOSGeometry, detector.geometry)
@@ -301,8 +287,6 @@ def corr_pink_noise(detector: CMOS,
 
     # ng_h2rg.create_hdu(result, 'pyxel/hxrg_read_noise.fits')
 
-    return detector
-
 
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
@@ -311,7 +295,7 @@ def pca_zero_noise(detector: CMOS,
                    pca0_amp: float = None,
                    window_mode: str = 'FULL',
                    wind_x0: int = 0, wind_y0: int = 0,
-                   wind_x_size: int = 0, wind_y_size: int = 0) -> CMOS:
+                   wind_x_size: int = 0, wind_y_size: int = 0):
     """TBW.
 
     :param detector:
@@ -321,7 +305,6 @@ def pca_zero_noise(detector: CMOS,
     :param wind_y0:
     :param wind_x_size:
     :param wind_y_size:
-    :return:
     """
     logging.info('')
     geo = t.cast(CMOSGeometry, detector.geometry)
@@ -351,5 +334,3 @@ def pca_zero_noise(detector: CMOS,
     # TODO: add to detector.signal.array OR detector.image OR charge dataframe ?
 
     # ng_h2rg.create_hdu(result, 'pyxel/hxrg_read_noise.fits')
-
-    return detector

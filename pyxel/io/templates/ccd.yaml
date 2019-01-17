@@ -2,7 +2,7 @@
 simulation:
   mode: single
 
-  parametric_analysis:
+  parametric:
     parametric_mode:
     steps:
       -

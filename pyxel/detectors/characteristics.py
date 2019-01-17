@@ -4,7 +4,7 @@ import pyxel as pyx
 
 @pyx.detector_class
 class Characteristics:
-    """TBW."""
+    """Characteristical attributes of the detector."""
 
     qe = pyx.attribute(
         type=float,
@@ -12,74 +12,76 @@ class Characteristics:
         converter=float,
         validator=[pyx.validate_type(float),
                    pyx.validate_range(0., 1.)],
-        doc='quantum efficiency',
+        doc='Quantum efficiency',
         metadata={'units': ''}
     )
-
     eta = pyx.attribute(
         type=float,
         default=0.,
         converter=float,
         validator=[pyx.validate_type(float),
                    pyx.validate_range(0., 1.)],
-        doc='quantum yield',
+        doc='Quantum yield',
         metadata={'units': 'e-/photon'}
     )
-
     sv = pyx.attribute(
         type=float,
         default=0.,
         converter=float,
         validator=[pyx.validate_type(float),
                    pyx.validate_range(0., 100.)],
-        doc='sensitivity of CCD amplifier',
+        doc='Sensitivity of charge readout',
         metadata={'units': 'V/e-'}
     )
-
     amp = pyx.attribute(
         type=float,
         default=0.,
         converter=float,
         validator=[pyx.validate_type(float),
                    pyx.validate_range(0., 100.)],
-        doc='output amplifier gain',
+        doc='Gain of output amplifier',
         metadata={'units': 'V/V'}
     )
-
     a1 = pyx.attribute(
         type=float,
         default=0.,
         converter=float,
         validator=[pyx.validate_type(float),
                    pyx.validate_range(0., 100.)],
-        doc='gain of the signal processor',
+        doc='Gain of the signal processor',
         metadata={'units': 'V/V'}
     )
-
     a2 = pyx.attribute(
         type=int,
         default=0,
         validator=[pyx.validate_type(int),
                    pyx.validate_range(0, 65536)],
-        doc='gain of the ADC',
+        doc='Gain of the Analog-Digital Converter',
         metadata={'units': 'ADU/V'}
     )
-
     fwc = pyx.attribute(
         type=int,
         default=0,
         validator=[pyx.validate_type(int),
                    pyx.validate_range(0., 1.e+7)],
-        doc='full well capacity',
+        doc='Full well capacity',
         metadata={'units': 'e-'}
     )
-
     vg = pyx.attribute(
         type=float,
         default=0.,
         converter=float,
         validator=[pyx.validate_type(float),
                    pyx.validate_range(0., 1.)],
-        doc='half pixel volume charges can occupy',
+        doc='Half pixel volume charges can occupy',      # TODO should be the full volume and not the half
         metadata={'units': 'cm^2'}
+    )
+    dt = pyx.attribute(
+        type=float,
+        default=0.0,
+        converter=float,
+        validator=[pyx.validate_type(float),
+                   pyx.validate_range(0., 10.)],
+        doc='Pixel dwell time',
+        metadata={'units': 's'}
     )

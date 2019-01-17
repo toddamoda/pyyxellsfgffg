@@ -1,50 +1,47 @@
-# PyXel! settings
+# Pyxel settings
 
-ccd_process: !PROCESSOR
-  detector: !CCD
+detector: !CCD
 
-    geometry: !ccd_geometry
-      row: 100                      # compulsory
-      col: 100                      # compulsory
-      depletion_thickness: 10.0     # um
-      field_free_thickness: 0.0     # um
-      pixel_vert_size: 10.0         # um
-      pixel_horz_size: 10.0         # um
-      total_thickness: 10.0         # um
+  geometry: !ccd_geometry
+    row: 100                      # compulsory
+    col: 100                      # compulsory
+    pixel_vert_size: 10.0         # um
+    pixel_horz_size: 10.0         # um
+    total_thickness: 10.0         # um
 
-    material: !material
+  material: !material
 
-    environment: !environment
-      temperature: 320  # detector temperature Kelvin
+  environment: !environment
+    temperature: 320  # detector temperature Kelvin
 
-    characteristics: !ccd_characteristics
-      qe: 0.5         # -
-      eta: 1          # e/photon
-      sv:  1.0e-6      # V/e
-      amp: 0.8       # V/V
-      a1: 100         # V/V
-      a2: 65536       # DN/V
+  characteristics: !ccd_characteristics
+    qe: 0.5         # -
+    eta: 1          # e/photon
+    sv:  1.0e-6      # V/e
+    amp: 0.8       # V/V
+    a1: 100         # V/V
+    a2: 65536       # DN/V
 
 
-  pipeline: !CCD_PIPELINE
+pipeline: !CCD_PIPELINE
 
-    # -> photons
-    photon_generation: !models
+  # -> photons
+  photon_generation: !models
 
-    # photons -> photons
-    optics: !models
+  # photons -> photons
+  optics: !models
 
-    # photons -> charge
-    charge_generation: !models
+  # photons -> charge
+  charge_generation: !models
 
-    # charge -> charge
-    charge_collection: !models
+  # charge -> charge
+  charge_collection: !models
 
-    # charge -> charge
-    charge_transfer: !models
+  # charge -> charge
+  charge_transfer: !models
 
-    # charge -> signal
-    charge_measurement: !models
+  # charge -> signal
+  charge_measurement: !models
 
-    # signal -> image
-    readout_electronics: !models
+  # signal -> image
+  readout_electronics: !models

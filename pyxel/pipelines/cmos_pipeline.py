@@ -1,5 +1,5 @@
 """TBW."""
-from pyxel.pipelines.detector_pipeline import DetectionPipeline
+from pyxel.pipelines.pipeline import DetectionPipeline
 from pyxel.pipelines.model_group import ModelGroup
 
 

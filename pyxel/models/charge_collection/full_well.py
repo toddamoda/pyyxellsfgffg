@@ -10,11 +10,8 @@ from pyxel.detectors.detector import Detector
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
 # @pyxel.register(group='charge_collection', name='full_well')
-def simple_pixel_full_well(detector: Detector) -> Detector:
-    """Simply removing charges from pixels due to full well.
-
-    :return:
-    """
+def simple_pixel_full_well(detector: Detector):
+    """Limiting the amount of charges in pixels due to full well capacity."""
     logging.info('')
     fwc = detector.characteristics.fwc
     if fwc is None:
@@ -24,14 +21,10 @@ def simple_pixel_full_well(detector: Detector) -> Detector:
     mask = charge_array > fwc
     charge_array[mask] = fwc
 
-    return detector
 
-
-# def mc_full_well(detector: Detector) -> Detector:
+# def mc_full_well(detector: Detector):
 #     """
 #     Moving charges to random neighbour pixels due to full well which depends on pixel location
 #     :return:
 #     """
 #
-#
-#     return detector

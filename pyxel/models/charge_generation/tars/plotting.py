@@ -13,11 +13,7 @@ from pathlib import Path
 
 
 class PlottingTARS:
-    """
-    Plotting class for TARS.
-
-    :return:
-    """
+    """Plotting class for TARS."""
 
     def __init__(self, tars,
                  draw_plots: bool = False,
@@ -40,7 +36,6 @@ class PlottingTARS:
         """TBW.
 
         :param fig_name:
-        :return:
         """
         file_name = fig_name + '.' + self.file_format
         if self.save_plots:
@@ -49,27 +44,16 @@ class PlottingTARS:
             plt.draw()
 
     def show(self):
-        """TBW.
-
-        :return:
-        """
+        """TBW."""
         plt.show()
 
     def save_edep(self):
-        """
-        TBW.
-
-        :return:
-        """
+        """TBW."""
         np.save('orig2_edep_per_step_10k', self.tars.sim_obj.edep_per_step)
         np.save('orig2_edep_per_particle_10k', self.tars.sim_obj.total_edep_per_particle)
 
     def plot_edep_per_step(self):
-        """
-        TBW.
-
-        :return:
-        """
+        """TBW."""
         plt.figure()
         n, bins, patches = plt.hist(self.tars.sim_obj.edep_per_step, 300, facecolor='b')
         plt.xlabel('E_dep (keV)')
@@ -81,11 +65,7 @@ class PlottingTARS:
         return n, bins, patches
 
     def plot_edep_per_particle(self):
-        """
-        TBW.
-
-        :return:
-        """
+        """TBW."""
         plt.figure()
         n, bins, patches = plt.hist(self.tars.sim_obj.total_edep_per_particle, 200, facecolor='g')
         plt.xlabel('E_dep (keV)')
@@ -97,11 +77,7 @@ class PlottingTARS:
         return n, bins, patches
 
     def plot_spectrum_cdf(self):
-        """
-        TBW.
-
-        :return:
-        """
+        """TBW."""
         lin_energy_range = self.tars.sim_obj.spectrum_cdf[:, 0]
         cum_sum = self.tars.sim_obj.spectrum_cdf[:, 1]
         plt.figure()
@@ -112,11 +88,7 @@ class PlottingTARS:
         self.save_and_draw('spectrum_cdf')
 
     def plot_flux_spectrum(self):
-        """
-        TBW.
-
-        :return:
-        """
+        """TBW."""
         lin_energy_range = self.tars.sim_obj.spectrum_cdf[:, 0]
         flux_dist = self.tars.sim_obj.flux_dist
         plt.figure()
@@ -127,11 +99,7 @@ class PlottingTARS:
         self.save_and_draw('flux_spectrum')
 
     def plot_spectrum_hist(self, data):
-        """
-        TBW.
-
-        :return:
-        """
+        """TBW."""
         plt.figure()
         plt.title('Proton flux spectrum sampled by TARS')
         plt.xlabel('Energy (MeV)')
@@ -152,11 +120,7 @@ class PlottingTARS:
         self.save_and_draw('tars_spectrum')
 
     def plot_charges_3d(self):
-        """
-        TBW.
-
-        :return:
-        """
+        """TBW."""
         geo = self.tars.sim_obj.detector.geometry
 
         # set up a figure twice as wide as it is tall
@@ -221,30 +185,21 @@ class PlottingTARS:
         # ax2.set_zlabel(r'z ($\mu$m)')
 
     def plot_let_cdf(self):
-        """TBW.
-
-        :return:
-        """
+        """TBW."""
         plt.figure()
         plt.title('LET CDF')
         plt.plot(self.tars.sim_obj.let_cdf[:, 0], self.tars.sim_obj.let_cdf[:, 1], '.')
         self.save_and_draw('let_cdf')
 
     def plot_step_cdf(self):
-        """TBW.
-
-        :return:
-        """
+        """TBW."""
         plt.figure()
         plt.title('Step size CDF')
         plt.plot(self.tars.sim_obj.step_cdf[:, 0], self.tars.sim_obj.step_cdf[:, 1], '.')
         self.save_and_draw('step_cdf')
 
     def plot_step_dist(self):
-        """TBW.
-
-        :return:
-        """
+        """TBW."""
         plt.figure()
         plt.title('Step size distribution')
         plt.xlabel('step size (um)')
@@ -254,20 +209,14 @@ class PlottingTARS:
         self.save_and_draw('step_dist')
 
     def plot_tertiary_number_cdf(self):
-        """TBW.
-
-        :return:
-        """
+        """TBW."""
         plt.figure()
         plt.title('Tertiary electron number CDF')
         plt.plot(self.tars.sim_obj.elec_number_cdf[:, 0], self.tars.sim_obj.elec_number_cdf[:, 1], '.')
         self.save_and_draw('elec_number_cdf')
 
     def plot_tertiary_number_dist(self):
-        """TBW.
-
-        :return:
-        """
+        """TBW."""
         plt.figure()
         plt.title('Tertiary electron number distribution')
         plt.plot(self.tars.sim_obj.elec_number_dist['electron'],
@@ -275,20 +224,14 @@ class PlottingTARS:
         self.save_and_draw('elec_number_dist')
 
     def plot_let_dist(self):
-        """TBW.
-
-        :return:
-        """
+        """TBW."""
         plt.figure()
         plt.title('LET dist')
         plt.plot(self.tars.sim_obj.let_dist[:, 1], self.tars.sim_obj.let_dist[:, 2], '.')
         self.save_and_draw('let_dist')
 
     def plot_trajectory_xy(self):
-        """TBW.
-
-        :return:
-        """
+        """TBW."""
         plt.figure()
         geo = self.tars.sim_obj.detector.geometry
         # self.trajectory[:, 0] - VERTICAL COORDINATE
@@ -302,10 +245,7 @@ class PlottingTARS:
         self.save_and_draw('trajectory_xy')
 
     def plot_trajectory_xz(self):
-        """TBW.
-
-        :return:
-        """
+        """TBW."""
         plt.figure()
         geo = self.tars.sim_obj.detector.geometry
         # self.trajectory[:, 2] - Z COORDINATE
@@ -319,10 +259,7 @@ class PlottingTARS:
         self.save_and_draw('trajectory_xz')
 
     def plot_track_histogram(self, histogram_data, normalize: bool = None):
-        """TBW.
-
-        :return:
-        """
+        """TBW."""
         hist_bins = 1000
         hist_range = (0, 1000)
 
@@ -349,10 +286,7 @@ class PlottingTARS:
         self.save_and_draw('track_length')
 
     def plot_step_size_histograms(self, normalize: bool = None):
-        """TBW.
-
-        :return:
-        """
+        """TBW."""
         energies = ['100MeV']
         thicknesses = ['40um', '50um', '60um', '70um', '100um']
         p_types = ['proton']
@@ -386,10 +320,7 @@ class PlottingTARS:
         self.save_and_draw('step_size_histograms')
     #
     # def plot_secondary_spectra(self, normalize: bool=None):
-    #     """TBW.
-    #
-    #     :return:
-    #     """
+    #     """TBW."""
     #     energies = ['100MeV', '1GeV']
     #     thicknesses = ['10um', '50um', '100um', '200um']
     #     p_types = ['proton']
@@ -423,10 +354,7 @@ class PlottingTARS:
     #     self.save_and_draw('secondary_spectra')
 
     def plot_gaia_vs_gras_hist(self, normalize: bool = None):
-        """TBW.
-
-        :return:
-        """
+        """TBW."""
         # GRAS simulation results (by Marco) + GAIA BAM data - Perfect overlap in case of normalization!
         path = Path(__file__).parent.joinpath('data', 'validation', 'Gaia_CCD_study-20180404T115340Z-001',
                                               'Gaia_CCD_study', 'Data')
@@ -478,10 +406,7 @@ class PlottingTARS:
         self.save_and_draw('gaia_vs_gras_electron_hist')
 
     def plot_old_tars_hist(self, normalize: bool = None):
-        """TBW.
-
-        :return:
-        """
+        """TBW."""
         # earlier TARS results of Lionel
         folder_path = Path(__file__).parent.joinpath('data', 'validation', 'Results-20180404T121902Z-001', 'Results')
         hist_names = [
@@ -523,10 +448,7 @@ class PlottingTARS:
         self.save_and_draw('old_tars_electron_hist')
 
     def plot_gaia_bam_vs_sm_electron_hist(self, normalize: bool = None):
-        """TBW.
-
-        :return:
-        """
+        """TBW."""
         path = Path(__file__).parent.joinpath('data', 'validation')
         hist_names = [
                       # 'Gaia_bam_ccd_events(13259).npy', NEM JOOOOO
@@ -568,10 +490,7 @@ class PlottingTARS:
 
     def plot_electron_hist(self, data1, data2=None, data3=None,
                            title='', hist_bins=500, hist_range=(0, 15000), normalize: bool = None):
-        """TBW.
-
-        :return:
-        """
+        """TBW."""
         labels = [
             'TARS (David), 40um'
             # 'secondary e-',
@@ -622,10 +541,7 @@ class PlottingTARS:
         self.save_and_draw('electron_hist')
 
     def polar_angle_dist(self, theta):
-        """TBW.
-
-        :return:
-        """
+        """TBW."""
         if isinstance(theta, str):
             if theta.endswith('.npy'):
                 theta = np.load(theta)

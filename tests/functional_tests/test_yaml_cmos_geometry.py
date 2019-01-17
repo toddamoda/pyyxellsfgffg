@@ -11,8 +11,6 @@ def test_loader():
 !cmos_geometry
  row: 1000
  col: 1001
- depletion_thickness: 1.0
- field_free_thickness: 2.0
  total_thickness: 3.0
  pixel_vert_size: 4.0
  pixel_horz_size: 5.0
@@ -31,8 +29,6 @@ def test_loader():
     assert isinstance(obj, CMOSGeometry)
     assert obj.row == 1000
     assert obj.col == 1001
-    assert obj.depletion_thickness == 1.0
-    assert obj.field_free_thickness == 2.0
     assert obj.total_thickness == 3.0
     assert obj.pixel_vert_size == 4.0
     assert obj.pixel_horz_size == 5.0
@@ -52,8 +48,6 @@ def test_dumper():
     """Test `PyxelDumper`."""
     obj = CMOSGeometry(row=1000,
                        col=1001,
-                       depletion_thickness=1.0,
-                       field_free_thickness=2.0,
                        total_thickness=3.0,
                        pixel_vert_size=4.0,
                        pixel_horz_size=5.0,
@@ -72,8 +66,6 @@ def test_dumper():
     assert data == """!cmos_geometry
 
 col: 1001
-depletion_thickness: 1.0
-field_free_thickness: 2.0
 material: null
 n_acceptor: 6.0
 n_donor: 7.0

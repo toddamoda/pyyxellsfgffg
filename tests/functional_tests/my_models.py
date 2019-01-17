@@ -52,7 +52,7 @@ registry_map = {
             'func': 'pyxel.models.photon_generation.add_photons.add_photons',
         },
         {
-            'func': 'pyxel.models.photon_generation.shot_noise.add_shot_noise',
+            'func': 'pyxel.models.photon_generation.shot_noise.shot_noise',
 
         }
     ],
@@ -71,7 +71,7 @@ registry_map = {
     ],
     'charge_collection': [
         {
-            'func': 'pyxel.models.charge_collection.fix_pattern_noise.add_fix_pattern_noise',
+            'func': 'pyxel.models.charge_collection.fix_pattern_noise.fix_pattern_noise',
             'type': 'ccd',
         },
         {

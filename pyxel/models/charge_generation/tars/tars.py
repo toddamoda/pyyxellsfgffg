@@ -30,22 +30,19 @@ def run_tars(detector: Detector,
              # step_size_file: str = None,
              # stopping_file: str = None,
              spectrum_file: str = None,
-             random_seed: int = None) -> Detector:
-    """TBW.
+             random_seed: int = None):
+    """Simulate charge deposition by cosmic rays.
 
-    :param detector:
-    :param particle_type:
-    :param initial_energy:
-    :param particle_number:
-    :param incident_angles:
-    :param starting_position:
-    :param simulation_mode:
-    :param running_mode:
-    # :param step_size_file:
-    # :param stopping_file:
-    :param spectrum_file:
-    :param random_seed:
-    :return:
+    :param detector: Pyxel detector object
+    :param particle_type: type of particle (proton, ion, alpha, ...)
+    :param initial_energy: Kinetic energy of particle
+    :param particle_number: Number of particles
+    :param incident_angles: incident angle, tuple of alpha and beta
+    :param starting_position: starting position
+    :param simulation_mode: simulation mode [cosmic rays, radioactive_decay]
+    :param running_mode: mode [stopping, stepsize, geant4, plotting]
+    :param spectrum_file: path to input spectrum
+    :param random_seed: seed
     """
     logging.info('')
     if random_seed:
@@ -204,8 +201,6 @@ def run_tars(detector: Detector,
     # plot_obj.plot_charges_3d()
     # plot_obj.show()
 
-    return detector
-
 
 class TARS:
     """TBW."""
@@ -233,7 +228,6 @@ class TARS:
         """TBW.
 
         :param sim_mode:
-        :return:
         """
         self.simulation_mode = sim_mode
 
@@ -241,7 +235,6 @@ class TARS:
         """TBW.
 
         :param particle_type:
-        :return:
         """
         self.part_type = particle_type
 
@@ -249,7 +242,6 @@ class TARS:
         """TBW.
 
         :param energy:
-        :return:
         """
         self.init_energy = energy
 
@@ -257,7 +249,6 @@ class TARS:
         """TBW.
 
         :param number:
-        :return:
         """
         self.particle_number = number
 
@@ -265,7 +256,6 @@ class TARS:
         """TBW.
 
         :param angles:
-        :return:
         """
         alpha, beta = angles
         self.angle_alpha = alpha
@@ -275,7 +265,6 @@ class TARS:
         """TBW.
 
         :param start_position:
-        :return:
         """
         position_vertical, position_horizontal, position_z = start_position
         self.position_ver = position_vertical
@@ -306,31 +295,21 @@ class TARS:
         """TBW.
 
         :param stopping_file:
-        :return:
         """
         self.sim_obj.energy_loss_data = 'stopping'
         self.sim_obj.stopping_power = read_data(stopping_file)
 
     def set_stepsize(self):
-        """TBW.
-
-        :return:
-        """
+        """TBW."""
         self.sim_obj.energy_loss_data = 'stepsize'
         self.create_data_library()
 
     def set_geant4(self):
-        """TBW.
-
-        :return:
-        """
+        """TBW."""
         self.sim_obj.energy_loss_data = 'geant4'
 
     def create_data_library(self):
-        """TBW.
-
-        :return:
-        """
+        """TBW."""
         self.sim_obj.data_library = pd.DataFrame(columns=['type', 'energy', 'thickness', 'path'])
 
         # mat_list = ['Si']
@@ -363,10 +342,7 @@ class TARS:
                     i += 1
 
     def run(self):
-        """TBW.
-
-        :return:
-        """
+        """TBW."""
         # print("TARS - simulation processing...\n")
 
         self.sim_obj.parameters(self.simulation_mode,
@@ -424,10 +400,7 @@ class TARS:
                                    self.sim_obj.e_vel2_lst)
 
     def run_mod(self):
-        """TBW.
-
-        :return:
-        """
+        """TBW."""
         print("TARS - adding previous cosmic ray signals to image ...\n")
         out_path = 'data/'
         e_num_lst_per_step = np.load(out_path + 'tars-e_num_lst_per_step.npy')

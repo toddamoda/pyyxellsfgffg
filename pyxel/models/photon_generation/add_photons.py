@@ -10,13 +10,16 @@ from pyxel.detectors.detector import Detector
 @pyxel.argument(name='level', label='number of photons', units='', validate=check_type(int))
 # @pyxel.register(group='photon_generation', name='add photons')
 def add_photons(detector: Detector,
-                level: int = -1
-                ) -> Detector:
-    """TBW.
+                level: int = -1):
+    """Generate photons to Photon class DataFrame.
 
-    :param detector:
-    :param level:
-    :return:
+    If 'level' argument is provided, the model will generate uniform number of photons for all pixels.
+
+    If no 'level' argument is provided, by default the model will generate photon numbers per pixel
+    from detector.input_image array, previously set by load_image model from file.
+
+    :param detector: Pyxel Detector object
+    :param level: number of photons per pixel, int
     """
     logging.info('')
     geo = detector.geometry
@@ -41,7 +44,7 @@ def add_photons(detector: Detector,
     init_ver_position += np.random.rand(pixel_numbers) * geo.pixel_vert_size
     init_hor_position += np.random.rand(pixel_numbers) * geo.pixel_horz_size
 
-    init_z_position = [0.] * pixel_numbers          # todo move back to Photon class
+    init_z_position = [0.] * pixel_numbers
     init_ver_velocity = [0.] * pixel_numbers
     init_hor_velocity = [0.] * pixel_numbers
     init_z_velocity = [0.] * pixel_numbers
@@ -54,5 +57,3 @@ def add_photons(detector: Detector,
                                 init_ver_velocity,
                                 init_hor_velocity,
                                 init_z_velocity)
-
-    return detector

@@ -2,40 +2,37 @@
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
 """Pyxel charge diffusion and collection model extracted from TARS."""
-import logging
+# import logging
 # from math import sqrt, log
 # import numpy as np
 # from astropy import units as u
 # from scipy.special import erf
-from astropy.units import cds
+# from astropy.units import cds
 # import pyxel
-from pyxel.detectors.ccd import CCD
+# from pyxel.detectors.ccd import CCD
+# cds.enable()
 
-cds.enable()
 
-
-# @pyxel.validate
-# @pyxel.argument(name='', label='', units='', validate=)
-# @pyxel.register(group='charge_collection')
-def diffusion(detector: CCD) -> CCD:
-    """TBW."""
-    logging.info('')
-
-    # diff = Diffusion(detector)
-    # collected_charge_list = []  # type: list
-    # cluster_generator = [cluster for cluster in detector.charge_list]
-    # for cluster in cluster_generator:
-    # # Modifying the positions and shapes of charge clusters in list of Charge class instances
-    # sigma_hiraga = diff.hiraga_diffusion_model(cluster)
-    # sigma_janesick = diff.janesick_diffusion_model(cluster)
-    # sigma = 1.0     # temporarily
-    # collected_charge = diff.gaussian_pixel_separation(cluster, sigma, sigma)
-    # collected_charge_list += collected_charge
-    # # Overwrite the list of charge clusters in the detector object because Charge attributes have changed
-    # detector.charge_list = collected_charge_list
-    # detector.charge = collected_charge_list      # TEMPORARY
-
-    return detector
+# # @pyxel.validate
+# # @pyxel.argument(name='', label='', units='', validate=)
+# # @pyxel.register(group='charge_collection')
+# def diffusion(detector: CCD):
+#     """Diffusing electrons with some random charge transport."""
+#     logging.info('')
+#
+#     # diff = Diffusion(detector)
+#     # collected_charge_list = []  # type: list
+#     # cluster_generator = [cluster for cluster in detector.charge_list]
+#     # for cluster in cluster_generator:
+#     # # Modifying the positions and shapes of charge clusters in list of Charge class instances
+#     # sigma_hiraga = diff.hiraga_diffusion_model(cluster)
+#     # sigma_janesick = diff.janesick_diffusion_model(cluster)
+#     # sigma = 1.0     # temporarily
+#     # collected_charge = diff.gaussian_pixel_separation(cluster, sigma, sigma)
+#     # collected_charge_list += collected_charge
+#     # # Overwrite the list of charge clusters in the detector object because Charge attributes have changed
+#     # detector.charge_list = collected_charge_list
+#     # detector.charge = collected_charge_list      # TEMPORARY
 
 
 # class Diffusion:

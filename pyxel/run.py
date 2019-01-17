@@ -14,7 +14,7 @@ from pathlib import Path
 import numpy as np
 import esapy_config as om
 import pyxel
-import pyxel.pipelines.processor
+from pyxel.pipelines.processor import Processor
 from pyxel import util
 from pyxel.web2.runweb import run_web_server
 
@@ -25,6 +25,7 @@ def single_output(detector, output_file):    # TODO
         save_to = util.apply_run_number(output_file)
         out = util.FitsFile(save_to)
         out.save(detector.image.array, header=None, overwrite=True)
+        # todo: BUG creates new, fits file with random filename and without extension when it can not open file
 
 
 def calibration_output(results):        # TODO
@@ -51,12 +52,13 @@ def run(input_filename, output_file: str = None, random_seed: int = None):
 
     cfg = om.load(Path(input_filename))
     simulation = cfg['simulation']
-    processor = cfg['processor']
-    # detector = None
+    detector = cfg['detector']
+    pipeline = cfg['pipeline']
+    processor = Processor(detector, pipeline)
 
     if simulation.mode == 'single':
         detector = processor.pipeline.run_pipeline(processor.detector)
-        single_output(detector, output_file)             # TODO implement
+        single_output(detector, output_file)           # TODO implement
 
     elif simulation.mode == 'calibration':
         simulation.calibration.run_calibration(processor)
@@ -65,7 +67,7 @@ def run(input_filename, output_file: str = None, random_seed: int = None):
         # calibration_output(calibration_results)      # TODO implement
 
     elif simulation.mode == 'parametric':
-        configs = simulation.parametric_analysis.collect(processor)
+        configs = simulation.parametric.collect(processor)
         for config in configs:
             detector = config.pipeline.run_pipeline(config.detector)
             # parametric_output(config, detector)      # TODO implement
@@ -73,29 +75,20 @@ def run(input_filename, output_file: str = None, random_seed: int = None):
     else:
         raise ValueError
 
-    # output = []
-    # if output_file and detector:            # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-    #     save_to = util.apply_run_number(output_file)
-    #     out = util.FitsFile(save_to)
-    #     out.save(detector.image.array, header=None, overwrite=True)
-    #     # todo: BUG creates new, fits file with random filename and without extension
-    #     # ... when it can not save data to fits file (because it is opened/used by other process)
-    #     output.append(output_file)
-
     print('\nPipeline completed.')
     print("Running time: %.3f seconds" % (time.time() - start_time))
     # return output
 
 
 def main():
-    """Define the argument parser and run the pipeline."""
+    """Define the argument parser and run Pyxel."""
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter,
                                      description=__doc__)
 
     parser.add_argument('-v', '--verbosity', action='count', default=0,
                         help='Increase output verbosity')
 
-    parser.add_argument('--version', action='version',
+    parser.add_argument('-V', '--version', action='version',
                         version='%(prog)s (version {version})'.format(version=pyxel.__version__))
 
     parser.add_argument('-g', '--gui', default=False, type=bool, help='run Graphical User Interface')

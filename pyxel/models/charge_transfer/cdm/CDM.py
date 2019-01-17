@@ -36,43 +36,42 @@ def cdm(detector: CCD,
         sigma_p: float = None, sigma_s: float = None,
         parallel_trap_file: str = None,
         serial_trap_file: str = None
-        ) -> CCD:
+        ):
     """
     CDM model wrapper.
 
-    :param detector: PyXel CCD detector object
+    :param detector: Pyxel CCD detector object
     :param beta_p: electron cloud expansion coefficient (parallel)
     :param beta_s: electron cloud expansion coefficient (serial)
-    # :param vg: assumed maximum geometrical volume electrons can occupy within a pixel (parallel)
-    # :param svg: assumed maximum geometrical volume electrons can occupy within a pixel (serial)
-    # :param t: constant TDI period (parallel)
-    # :param st: constant TDI period (serial)
     :param parallel_trap_file: ascii file with absolute trap densities (nt),
         trap capture cross-sections (σ), trap release time constants (τr)
     :param serial_trap_file: ascii file with absolute trap densities (nt),
         trap capture cross-sections (σ), trap release time constants (τr)
-
-    :return:
 
     Ne - number of electrons in a pixel
     ne - electron density in the vicinity of the trap
     Vc - volume of the charge cloud
 
     nt - trap density
-    σ - trap capture cross-section
-    τr - trap release time constant
+    sigma - trap capture cross-section
+    tau_r - trap release time constant
     Pr - the probability that the trap will release the electron into the sample
-    τc - capture time constant
+    tau_c - capture time constant
     Pc - capture probability (per vacant trap) as a function of the number of sample electrons Ne
 
     NT - number of traps in the column,
-        NT = 2*nt*Vg*x  where x is the number of TDI transfers or the column length in pixels.
+    NT = 2*nt*Vg*x  where x is the number of TDI transfers or the column length in pixels.
     Nc - number of electrons captured by a given trap species during the transit of an integrating signal packet
     N0 - initial trap occupancy
     Nr - number of electrons released into the sample during a transit along the column
 
     fwc: Full Well Capacity in electrons (parallel)
     sfwc: Full Well Capacity in electrons (serial)
+
+    vg: assumed maximum geometrical volume electrons can occupy within a pixel (parallel)
+    svg: assumed maximum geometrical volume electrons can occupy within a pixel (serial)
+    t: constant TDI period (parallel)
+    st: constant TDI period (serial)
     """
     logging.info('')
     char = cast(CCDCharacteristics, detector.characteristics)  # type: CCDCharacteristics
@@ -122,9 +121,8 @@ def cdm(detector: CCD,
                      tr_p=tr_p, tr_s=tr_s,
                      nt_p=nt_p, nt_s=nt_s)
 
-    detector.pixels.array = np.round(output).astype(np.int32)
-
-    return detector
+    # detector.pixels.array = np.round(output).astype(np.int32)
+    detector.pixels.array = output
 
 
 @numba.jit
@@ -185,7 +183,6 @@ def run_cdm(s: np.ndarray,
     :param parallel_cti:
     :param serial_cti:
     :return:
-
     Ne - number of electrons in a pixel
     ne - electron density in the vicinity of the trap
     Vc - volume of the charge cloud
@@ -304,7 +301,6 @@ def plot_serial_profile(data, row, data2=None):
     :param data:
     :param row:
     :param data2:
-    :return:
     """
     ydim, xdim = data.shape
     profile_x = list(range(ydim))
@@ -322,7 +318,6 @@ def plot_parallel_profile(data, col, data2=None):
     :param data:
     :param col:
     :param data2:
-    :return:
     """
     ydim, xdim = data.shape
     profile_x = list(range(xdim))
@@ -341,7 +336,6 @@ def plot_1d_profile(array, offset=0, label='', m='-'):
     :param offset:
     :param label:
     :param m:
-    :return:
     """
     x = list(range(offset, offset + len(array)))
     # plt.title('Parallel profile, charge injection')
@@ -358,7 +352,6 @@ def plot_1d_profile_lin(array, offset=0, label='', m='-', col=None):
     :param label:
     :param m:
     :param col:
-    :return:
     """
     x = list(range(offset, offset + len(array)))
     # plt.title('Parallel profile, charge injection')
@@ -374,7 +367,6 @@ def plot_1d_profile_with_err(array, error, offset=0, label=''):
     :param error:
     :param offset:
     :param label:
-    :return:
     """
     x = list(range(offset, offset + len(array)))
     plt.title('Parallel profile with error, charge injection')
@@ -390,7 +382,6 @@ def plot_residuals(data, data2, label=''):  # col='magenta',
     :param data2:
     # :param col:
     :param label:
-    :return:
     """
     x = list(range(len(data)))
     # plt.title('Residuals of fitted and target parallel CTI profiles')
@@ -405,7 +396,6 @@ def plot_image(data):
     """TBW.
 
     :param data:
-    :return:
     """
     plt.imshow(data, cmap=plt.gray())  # , interpolation='nearest')
     plt.xlabel('x - serial direction')

@@ -1,3 +1,5 @@
+.. _index:
+
 =====
 Pyxel
 =====
@@ -5,38 +7,45 @@ Pyxel
 The **pyxel** documentation.
 
 
-Table of Contents
------------------
-
 .. toctree::
    :caption: Getting Started
    :maxdepth: 4
-   :hidden:
 
    overview.rst
    install.rst
    examples.rst
 
 .. toctree::
-   :caption: API
+   :caption: User Guide
    :maxdepth: 4
-   :hidden:
 
-   api.rst
+   pipelines.rst
+   detectors.rst
+   models.rst
+   data_structure.rst
+   yaml.rst
+   gui.rst
+   running_modes.rst
 
 .. toctree::
-   :caption: Help & Reference
+   :caption: Physics Reference
    :maxdepth: 4
-   :hidden:
+
+.. toctree::
+   :caption: Developer Guide
+   :maxdepth: 4
+
+   contributing.rst
+   new_model.rst
+
+.. toctree::
+   :caption: About
+   :maxdepth: 1
 
    faq.rst
    acronyms.rst
    changelog.rst
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   license.rst
+   authors.rst
+   acknowledgement.rst
+   reference.rst

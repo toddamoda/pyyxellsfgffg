@@ -2,6 +2,7 @@ from pathlib import Path
 import pytest
 import pyxel    # noqa: F401
 import esapy_config as om
+from pyxel.pipelines.processor import Processor
 
 
 expected_sequential = [
@@ -35,12 +36,14 @@ def test_pipeline_parametric(mode, expected):
     input_filename = 'tests/data/pipeline_parametric.yaml'
     cfg = om.load(Path(input_filename))
     simulation = cfg.pop('simulation')
-    parametric_analysis = simulation.parametric_analysis
-    parametric_analysis.parametric_mode = mode
-    processor = cfg['processor']  # type: pyxel.pipelines.processor.Processor
-    result = parametric_analysis.debug(processor)
+    parametric = simulation.parametric
+    parametric.parametric_mode = mode
+    detector = cfg['detector']
+    pipeline = cfg['pipeline']
+    processor = Processor(detector, pipeline)  # type: pyxel.pipelines.processor.Processor
+    result = parametric.debug(processor)
     assert result == expected
-    configs = parametric_analysis.collect(processor)
+    configs = parametric.collect(processor)
     for config in configs:
         # detector = config.pipeline.run_pipeline(config.detector)
         pass

@@ -1,86 +1,56 @@
-PYXEL a detector simulation framework
+Pyxel detector simulation framework
 =====================================
 
-tbd
-
-See http://sci-fv.io.esa.int/pyxel
-
-
-Requirements
-------------
-
-- ``python >= 3.5``
-
-
-Build and Test Commands
------------------------
-
-Install this package::
-
-    pip install pyxel --extra-index-url http://lab-linux-server.estec.esa.int/pypiserver --trusted-host lab-linux-server.estec.esa.int
-    
-Install build and test tools::
-
-    pip install docutils
-    pip install coverage
-    pip install pylint
-    pip install nose
-    pip install tox
-    pip install plantuml
-
-From the root directory (rpc) run the following commands::
-
-    pylint --rcfile=pylint.cfg pyxel
-    nosetests --with-coverage --cover-erase --cover-html
-    coverage run -m unittest discover -b -v -s .
-    coverage report
-    python -m unittest discover
-    python setup.py bdist_wheel
-
-To build the README.rst documentation::
-
-    pygmentize -S default -f html -a .python > style.css
-    python %VIRTUAL_ENV%/Scripts/rst2html.py --link-stylesheet --cloak-email-addresses --toc-top-backlinks --syntax-highlight=short --stylesheet-dirs=. --stylesheet README.css README.rst readme.html
-
-Syntax highlighting using pygments: http://pygments.org/docs/cmdline/
-
-PyPI Register / Upload commands::
-
-    python setup.py bdist_wheel
-    # For PyPI LIVE use: https://pypi.python.org/pypi
-    python setup.py register -r https://testpypi.python.org/pypi
-    # For PyPI LIVE use: pypi
-    python setup.py bdist_wheel upload -r pypitest
-    # or,
-    python setup.py bdist_wheel upload -r http://lab-linux-server.estec.esa.int:9999
-    
-To authenticate automatically create a file named *.pypirc* in your $HOME directory,::
-
-	[distutils]
-	index-servers =
-	    sci-fv
-	
-	[sci-fv]
-	repository: http://lab-linux-server.estec.esa.int/packages
-	username: lab
-	password: <password>
-	
-Now the upload command can be executed without an authentication prompt using,::
-
-	python setup.py bdist_wheel upload -r sci-fv
-
-If the above has 
-	
-
-Make sure the `.pypirc` file is defined in your home folder before running
-the above commands.
-
+Pyxel is a general detector simulation framework.
+An easy-to-use framework that can simulate a variety of imaging detector
+effects combined on images (e.g. radiation and optical effects, noises)
+made by CCD or CMOS-based detectors.
 
 Documentation
 -------------
 
-The documentation of **Pyxel** can be found at this link: http://sci-fv.io.esa.int/pyxel/doc
+`Pyxel documentation <http://sci-fv.io.esa.int/pyxel/doc>`_
 
+
+Installation
+------------
+
+`How to install Pyxel <http://sci-fv.io.esa.int/pyxel/doc/install.html>`_
+
+Requirements
+************
+
+- python >= 3.6
+- See requirements.txt file for dependencies!
+
+
+Development
+-----------
+
+`PyTest report <http://sci-fv.io.esa.int/pyxel/pytest_report.html>`_
+
+`PyTest coverage <http://sci-fv.io.esa.int/pyxel/coverage/>`_
+
+`PyLint report <http://sci-fv.io.esa.int/pyxel/pylint_report.html>`_
+
+`License & copyrights report <http://sci-fv.io.esa.int/pyxel/license_report.html>`_
+
+`Changelog <http://sci-fv.io.esa.int/pyxel/doc/changelog.html>`_
 
 License
 -------
+
+`Pyxel license (MIT) <http://sci-fv.io.esa.int/pyxel/doc/license.html>`_
+
+Authors
+-------
+
+`Developers and contributors <http://sci-fv.io.esa.int/pyxel/doc/authors.html>`_
+
+
+.. |date| date::  %A %d %B %Y
+.. |time| date::  %H:%M:%S
+
+.. footer::
+    This document was generated on |date| at |time|.
+    Copyright (c) 2018 - European Space Agency

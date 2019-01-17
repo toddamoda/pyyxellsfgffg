@@ -10,7 +10,6 @@ def sampling_distribution(distribution):
     """TBW.
 
     :param distribution:
-    :return:
     """
     u = np.random.random()
     # random_value_from_dist = distribution[bisect.bisect(distribution[:, 1], u) - 1, 0]
@@ -24,7 +23,6 @@ def get_xvalue_with_interpolation(function_array, y_value):
 
     :param function_array:
     :param y_value:
-    :return:
     """
     if y_value <= function_array[0, 1]:
         intpol_x_value = function_array[0, 0]
@@ -49,7 +47,6 @@ def get_yvalue_with_interpolation(function_array, x_value):
 
     :param function_array:
     :param x_value:
-    :return:
     """
     x_index_bot = bisect.bisect(function_array[:, 0], x_value) - 1
     x_index_top = x_index_bot + 1
@@ -70,7 +67,6 @@ def load_histogram_data(file_name, hist_type, skip_rows, read_rows):
     :param hist_type:
     :param skip_rows:
     :param read_rows:
-    :return:
     """
     # TODO store count in pandas dataframe as int !!!
 

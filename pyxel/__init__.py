@@ -13,29 +13,12 @@ __author__ = 'David Lucsanyi'
 __author_email__ = 'david.lucsanyi@esa.int'
 __pkgname__ = 'pyxel'
 
-from ._version import get_versions
-__version__ = get_versions()['version']
-del get_versions
-
-# def register(group, maybe_func=None, **kwargs):         # TODO WHAT IS THIS DOING AND WHY?!?!?
-#     """TBW.
-#
-#     :param group:
-#     :param maybe_func:
-#     :param kwargs:
-#     :return:
-#     """
-#     enabled = kwargs.pop('enabled', True)
-#     ignore_args = kwargs.pop('ignore_args', ['detector'])
-#     name = kwargs.pop('name', None)
-#     metadata = kwargs
-#     metadata['group'] = group
-#     return om.register(maybe_func, ignore_args, name, enabled, metadata)
+__version__ = '0.3'
 
 
 def detector_class(cls):
     """TBW."""
-    return om.attr_class(cls)
+    return om.attr_class(maybe_cls=cls)
 
 
 def attribute(doc: t.Optional[str] = None,
@@ -47,23 +30,42 @@ def attribute(doc: t.Optional[str] = None,
               on_get_update: t.Optional[bool] = None,
               **kwargs):
     """TBW."""
-    return om.attr_def(doc, is_property, on_set, on_get, on_change,
-                       use_dispatcher, on_get_update, **kwargs)
+    return om.attr_def(doc=doc,
+                       is_property=is_property,
+                       on_set=on_set,
+                       on_get=on_get,
+                       on_change=on_change,
+                       use_dispatcher=use_dispatcher,
+                       on_get_update=on_get_update,
+                       **kwargs)
 
 
+# from functools import wraps
 def validate(func: t.Callable):
     """TBW."""
-    return om.validate(func)
+    # @wraps(func)
+    # def new_func(*args, **kwargs):
+    #     prev_func = om.validate(func)  # type: t.Callable
+    #     return prev_func(*args, **kwargs)
+    # return new_func
+    new_func = om.validate(func)            # type: t.Callable
+    new_func.__doc__ = func.__doc__                     # used by sphinx
+    new_func.__annotations__ = func.__annotations__     # used by sphinx
+    new_func.__module__ = func.__module__               # used by sphinx
+
+    # new_func.__name__ = func.__name__               # not used by sphinx unless we missing something
+    # new_func.__defaults__ = func.__defaults__       # not used by sphinx unless we missing something !!!!
+    return new_func
 
 
 def argument(name: str, **kwargs):
     """TBW."""
-    return om.argument(name, **kwargs)
+    return om.argument(name=name, **kwargs)
 
 
 def check_type(att_type, is_optional: bool = False) -> t.Callable[..., bool]:
     """TBW."""
-    return om.check_type_function(att_type, is_optional)
+    return om.check_type_function(att_type=att_type, is_optional=is_optional)
 
 
 def check_path(path):
@@ -74,7 +76,9 @@ def check_path(path):
 def check_range(min_val: t.Union[float, int], max_val: t.Union[float, int]):
                 # step: t.Union[float, int] = None, enforce_step: bool = False):
     """TBW."""
-    return om.check_range(min_val, max_val, step=None, enforce_step=False)
+    return om.check_range(min_val=min_val,
+                          max_val=max_val,
+                          step=None, enforce_step=False)
     # todo: rounding BUG in om.check_range() when value is a float!
 
 
@@ -85,44 +89,48 @@ def check_choices(choices: list):
 
 def validate_choices(choices, is_optional=False):
     """TBW."""
-    return om.validate_choices(choices, is_optional)
+    return om.validate_choices(choices=choices,
+                               is_optional=is_optional)
 
 
 def validate_range(min_val: t.Union[float, int], max_val: t.Union[float, int],
                    # step: t.Union[float, int] = None, enforce_step: bool = True,
                    is_optional: bool = False):
     """TBW."""
-    return om.validate_range(min_val, max_val, is_optional)
+    return om.validate_range(min_val=min_val,
+                             max_val=max_val,
+                             is_optional=is_optional,
+                             step=None, enforce_step=False)
     # todo: rounding BUG in om.check_range() when value is a float!
 
 
 def validate_type(att_type, is_optional: bool = False):
     """TBW."""
-    return om.validate_type(att_type, is_optional)
+    return om.validate_type(att_type=att_type,
+                            is_optional=is_optional)
 
 
 def pyxel_yaml_loader():
     """TBW."""
-    from pyxel.pipelines.parametric import Configuration
-    from pyxel.pipelines.parametric import ParametricAnalysis
-    from pyxel.pipelines.parametric import StepValues
+    from pyxel.parametric.parametric import Configuration
+    from pyxel.parametric.parametric import ParametricAnalysis
+    from pyxel.parametric.parametric import StepValues
     from pyxel.calibration.calibration import Calibration
     from pyxel.calibration.calibration import Algorithm
     from pyxel.pipelines.model_function import ModelFunction
     from pyxel.pipelines.model_group import ModelGroup
 
-    om.ObjectModelLoader.add_class_ref(['processor', 'class'])
-    om.ObjectModelLoader.add_class_ref(['processor', 'detector', 'class'])
-    om.ObjectModelLoader.add_class_ref(['processor', 'detector', None, 'class'])
-    om.ObjectModelLoader.add_class_ref(['processor', 'pipeline', 'class'])
+    om.ObjectModelLoader.add_class_ref(['detector', 'class'])
+    om.ObjectModelLoader.add_class_ref(['detector', None, 'class'])
 
-    om.ObjectModelLoader.add_class(ModelGroup, ['processor', 'pipeline', None])
-    om.ObjectModelLoader.add_class(ModelFunction, ['processor', 'pipeline', None, None])
+    om.ObjectModelLoader.add_class_ref(['pipeline', 'class'])
+    om.ObjectModelLoader.add_class(ModelGroup, ['pipeline', None])
+    om.ObjectModelLoader.add_class(ModelFunction, ['pipeline', None, None])
 
     om.ObjectModelLoader.add_class(Configuration, ['simulation'])
 
-    om.ObjectModelLoader.add_class(ParametricAnalysis, ['simulation', 'parametric_analysis'])
-    om.ObjectModelLoader.add_class(StepValues, ['simulation', 'parametric_analysis', 'steps'], is_list=True)
+    om.ObjectModelLoader.add_class(ParametricAnalysis, ['simulation', 'parametric'])
+    om.ObjectModelLoader.add_class(StepValues, ['simulation', 'parametric', 'steps'], is_list=True)
 
     om.ObjectModelLoader.add_class(Calibration, ['simulation', 'calibration'])
     om.ObjectModelLoader.add_class(Algorithm, ['simulation', 'calibration', 'algorithm'])

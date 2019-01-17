@@ -17,6 +17,33 @@ stages:
 # Test Stage
 # ###########################
 
+# experimental, latest version, it STILL gives an EMPTY html REPORT!
+licenses-latest:
+  image: python:2.7  # debian:jessie-slim  #
+  stage: test  # build
+  allow_failure: true
+  script:
+    - python --version
+    - pwd
+#    - apt-get update
+    - apt-get --yes install libbz2-1.0 xz-utils zlib1g libxml2-dev libxslt1-dev wget  # python-dev
+    - cd ..
+    - wget --quiet https://github.com/nexB/scancode-toolkit/archive/v2.9.8.tar.gz
+    - tar -xf v2.9.8.tar.gz
+    - rm v2.9.8.tar.gz
+    - cd scancode-toolkit-2.9.8
+    - ./scancode --help
+#    - ./scancode --verbose --license --package --copyright --info --email --url --html license_report2.html /builds/sci-fv/pyxel
+    - ./scancode -n 4 --ignore *.fits --verbose --html license_report2.html /builds/sci-fv/pyxel || echo 0      # latest version, STILL EMPTY REPORT
+#    - ./scancode --verbose --html license_report2.html /builds/sci-fv/pyxel
+    - pwd
+    - ls
+    - mv license_report2.html ../pyxel
+  artifacts:
+    paths:
+      - license_report2.html
+
+
 # Run pytest + coverage and create html report (pytest_report.html)
 anaconda3:
   image: continuumio/anaconda3
@@ -136,14 +163,14 @@ doc8:
 # Scan sourcecode for licenses, copyrights & dependencies
 licenses:
   image: python:2.7.14
-  stage: build  # deploy
+  stage: build
   allow_failure: true
   script:
     - pwd
     - pip install scancode-toolkit==2.2.1    # worked
 #    - pip install scancode-toolkit==2.9.2
 #    - pip install scancode-toolkit        # not worked:  EMPTY REPORT
-    - scancode -h             # todo: use latest release when it will be available !
+    - scancode --help            # todo: use latest release when it will be available !
 #    - scancode --license --package --copyright --info --email --url . --html-app license_report.html        # latest version
 #    - scancode --license --package --copyright --info --email --url --format html-app . license_report.html   # v2.2.1
 #    - scancode --license --package --copyright --info --email --url --format html . license_report.html      # v2.2.1
@@ -160,20 +187,22 @@ licenses:
 #    - master
 #    - tags
 
-
 # Generate the Sphinx documentation into 'doc/html'
 doc:
   image: continuumio/anaconda3
   stage: build
   script:
-    - pip install sphinx sphinx_rtd_theme
+    - pip install -r docs/requirements-docs.txt
     - pip install -r requirements.txt
     - export PYTHONPATH=$PWD
-    - sphinx-build docs/source docs/html
+    - sphinx-build docs/source docs/html -E -a -j 4
+    - python badges.py -doc="passed" -lic="MIT"
     - ls
   artifacts:
     paths:
       - docs/html
+      - documentation.svg
+      - license.svg
   cache:
     key: "$CI_COMMIT_REF_NAME"
     paths:
@@ -214,16 +243,17 @@ pages:
   stage: deploy
   script:
     - pip install docutils pygments
-    - rst2html.py --stylesheet=README.css pages.rst pages.html
     - mkdir public
-    - mv coverage.svg public/coverage.svg
     - mv docs/html public/doc
-    - mv pages.html public/index.html
     - mv htmlcov public/coverage
     - mv pytest_report.html public
     - mv pylint_report.html public
     - mv license_report.html public
-    - mv license_report_files public/license_report_files
+    - mv license_report_files public
+    - mv license_report2.html public
+    - mv coverage.svg public
+    - mv license.svg public
+    - mv documentation.svg public
     - ls public
   artifacts:
     paths:

@@ -1,16 +1,15 @@
-################
-# Pyxel configuration file for CCD detectors
-# David Lucsanyi
-################
+# ###############
+### Pyxel configuration file for CCD detectors
+### David Lucsanyi
+# ###############
 
 simulation:
-###################
+
   mode: single
 #  mode: parametric
 #  mode: calibration
-###################
 
-  parametric_analysis:
+  parametric:
 #    parametric_mode: sequential
     parametric_mode: embedded
 #    parametric_mode: image_generator
@@ -33,7 +32,7 @@ simulation:
   calibration:
     calibration_mode:   single_model # pipeline  #
 
-    output_type: pixel # image   # signal # pixel
+    output_type: pixel # image   # signal
     output_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50] #
 
     target_data_path: ['outputs/in.fits'] # data/results.fits']     #  <*.npy> <*.fits> <ascii>
@@ -72,22 +71,17 @@ simulation:
     population_file: 'data/calibration_populations.out'
 
 
-processor:
-  class: pyxel.pipelines.processor.Processor
+detector:
+  class: pyxel.detectors.ccd.CCD
 
-  detector:
-    class: pyxel.detectors.ccd.CCD
+  geometry:
+    class: pyxel.detectors.ccd_geometry.CCDGeometry
 
-    geometry:
-      class: pyxel.detectors.ccd_geometry.CCDGeometry
-
-      row:   100                   # compulsory
-      col:   100                     # compulsory
-      total_thickness: 40.0          # um
-#      depletion_thickness: 0.0      # um
-#      field_free_thickness: 0.0     # um
-      pixel_vert_size: 10. #10.0         # um
-      pixel_horz_size: 10. #10.0  #30.   # um
+    row:   100                   # compulsory
+    col:   100                     # compulsory
+    total_thickness: 40.0          # um
+    pixel_vert_size: 10. #10.0         # um
+    pixel_horz_size: 10. #10.0  #30.   # um
 
 #      readout_nodes: 1    # channels
 #      image_area:
@@ -106,143 +100,143 @@ processor:
 #        row:   8
 #        col:   4
 
-    material:
-      class: pyxel.detectors.material.Material
-      material: 'silicon'
+  material:
+    class: pyxel.detectors.material.Material
+    material: 'silicon'
 #      compound: 'silicon'
 #        element: 'silicon'
 #        ratio: 1.
-      n_acceptor: 0.0               # cm-3
-      n_donor: 0.0                  # cm-3
+    n_acceptor: 0.0               # cm-3
+    n_donor: 0.0                  # cm-3
 
-    environment:
-      class: pyxel.detectors.environment.Environment
+  environment:
+    class: pyxel.detectors.environment.Environment
 #      temperature: 300                     # K
 #      total_ionising_dose: 0              #
 #      total_non_ionising_dose: 0          #
 
-    characteristics:
-      class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
-      qe: 0.5                 # -
-      eta: 0.5                # e/photon
-      sv: 1.0e-6              # V/e
-      amp: 1.                 # V/V
-      a1: 100.                # V/V
-      a2: 65536               # DN/V
-      fwc: 1000000            # e
-      fwc_serial: 1000000     # e
-      vg: 1.6200e-10          # cm2
-      svg: 1.6200e-10         # cm2
-      t: 9.4722e-04           # s
-      st: 9.4722e-04          # s
+  characteristics:
+    class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
+    qe: 0.5                 # -
+    eta: 0.5                # e/photon
+    sv: 1.0e-6              # V/e
+    amp: 1.                 # V/V
+    a1: 100.                # V/V
+    a2: 65536               # DN/V
+    fwc: 1000000            # e
+    fwc_serial: 1000000     # e
+    vg: 1.6200e-10          # cm2
+    svg: 1.6200e-10         # cm2
+    t: 9.4722e-04           # s
+    st: 9.4722e-04          # s
 #      bias_voltage: 0.0        # V
 
-  pipeline:
-    class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
+pipeline:
+  class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
 
-    # -> photons
-    photon_generation:
-      - name: load_image
-        func: pyxel.models.photon_generation.load_image.load_image
-        enabled: true
-        arguments:
-          image_file: outputs/in.fits # data/01.fits
-          row0: 0
-          col0: 0
-      - name: photon_level
-        func: pyxel.models.photon_generation.add_photons.add_photons
-        enabled: true
-        arguments:
+  # -> photons
+  photon_generation:
+    - name: load_image
+      func: pyxel.models.photon_generation.load_image.load_image
+      enabled: true
+      arguments:
+        image_file: outputs/in.fits # data/01.fits
+        row0: 0
+        col0: 0
+    - name: photon_level
+      func: pyxel.models.photon_generation.add_photons.add_photons
+      enabled: true
+      arguments:
 #          level:
-      - name: shot_noise
-        func: pyxel.models.photon_generation.shot_noise.add_shot_noise
-        enabled: false
+    - name: shot_noise
+      func: pyxel.models.photon_generation.shot_noise.shot_noise
+      enabled: false
 
-    # photons -> photons
-    optics:
+  # photons -> photons
+  optics:
 
-    # photons -> charge
-    charge_generation:
+  # photons -> charge
+  charge_generation:
 
-      -
-        name: photoelectrons
-        func: pyxel.models.charge_generation.photoelectrons.simple_conversion
-        enabled: true
-      -
-        name: tars
-        func: pyxel.models.charge_generation.tars.tars.run_tars
-        enabled: true
-        arguments:
-          simulation_mode: cosmic_ray   # snowflakes
-          running_mode: stepsize  # stopping  # plotting  # geant4
-          particle_type: proton
-          initial_energy: 100.   # MeV
-          particle_number: 1
-          incident_angles:      # rad
-          starting_position:    # um
-          spectrum_file: 'pyxel/models/charge_generation/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
-      -
-        name: charge_injection
-        func: pyxel.models.charge_generation.charge_injection.charge_injection
-        enabled: false
-        arguments:
-          input_data_list: #path
+    -
+      name: photoelectrons
+      func: pyxel.models.charge_generation.photoelectrons.simple_conversion
+      enabled: true
+    -
+      name: tars
+      func: pyxel.models.charge_generation.tars.tars.run_tars
+      enabled: true
+      arguments:
+        simulation_mode: cosmic_ray   # snowflakes
+        running_mode: stepsize  # stopping  # plotting  # geant4
+        particle_type: proton
+        initial_energy: 100.   # MeV
+        particle_number: 1
+        incident_angles:      # rad
+        starting_position:    # um
+        spectrum_file: 'pyxel/models/charge_generation/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
+    -
+      name: charge_injection
+      func: pyxel.models.charge_generation.charge_injection.charge_injection
+      enabled: false
+      arguments:
+        input_data_list: #path
 
-    # charge -> charge
-    charge_collection:
-      -
-        name: fixed_pattern_noise
-        func: pyxel.models.charge_collection.fix_pattern_noise.add_fix_pattern_noise
-        enabled: false
-        arguments:
-          pix_non_uniformity: data/non_uniformity_array_normal_random_dist.data
-      -
-        name: full_well
-        func: pyxel.models.charge_collection.full_well.simple_pixel_full_well
-        enabled: false
-      -
-        name: simple_collection
-        func: pyxel.models.charge_collection.collection.simple_collection
-        enabled: true
+  # charge -> charge
+  charge_collection:
+    -
+      name: fixed_pattern_noise
+      func: pyxel.models.charge_collection.fix_pattern_noise.fix_pattern_noise
+      enabled: false
+      arguments:
+        pix_non_uniformity: data/non_uniformity_array_normal_random_dist.data
+    -
+      name: full_well
+      func: pyxel.models.charge_collection.full_well.simple_pixel_full_well
+      enabled: false
+    -
+      name: simple_collection
+      func: pyxel.models.charge_collection.collection.simple_collection
+      enabled: true
 
-    # charge -> charge
-    charge_transfer:
-      -
-        name: cdm
-        func: pyxel.models.charge_transfer.cdm.CDM.cdm
-        enabled: true
-        arguments:
-         beta_p: 0.1
-         beta_s: 0.3
-         parallel_cti: true
-         serial_cti: false
-         chg_inj: true
-         para_transfers: 1552
-         tr_p: [0.01]
-         tr_s: [0.01]
-         nt_p: [1.]
-         nt_s: [1.]
-         sigma_p: [1.]
-         sigma_s: [1.]
+  # charge -> charge
+  charge_transfer:
+    -
+      name: cdm
+      func: pyxel.models.charge_transfer.cdm.CDM.cdm
+      enabled: true
+      arguments:
+       beta_p: 0.1
+       beta_s: 0.3
+       parallel_cti: true
+       serial_cti: false
+       chg_inj: true
+       para_transfers: 1552
+       tr_p: [0.01]
+       tr_s: [0.01]
+       nt_p: [1.]
+       nt_s: [1.]
+       sigma_p: [1.]
+       sigma_s: [1.]
 
-    # charge -> signal
-    charge_measurement:
-      -
-        name: simple_measurement
-        func: pyxel.models.charge_measurement.measurement.simple_measurement
-        enabled: true
-      -
-        name: output_node_noise
-        func: pyxel.models.charge_measurement.readout_noise.output_node_noise
-        enabled: true
-        arguments:
-          std_deviation: 40.
+  # charge -> signal
+  charge_measurement:
+    -
+      name: simple_measurement
+      func: pyxel.models.charge_measurement.measurement.simple_measurement
+      enabled: true
+    -
+      name: output_node_noise
+      func: pyxel.models.charge_measurement.readout_noise.output_node_noise
+      enabled: true
+      arguments:
+        std_deviation: 40.
 
-    # signal -> image
-    readout_electronics:
-      -
-        name: simple_digitization
-        func: pyxel.models.readout_electronics.digitization.simple_digitization
-        enabled: true
-        arguments:
-          data_type: numpy.uint16
+  # signal -> image
+  readout_electronics:
+    -
+      name: simple_digitization
+      func: pyxel.models.readout_electronics.digitization.simple_digitization
+      enabled: true
+      arguments:
+        data_type: numpy.uint16

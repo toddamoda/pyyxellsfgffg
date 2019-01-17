@@ -11,11 +11,11 @@ from pyxel.detectors.geometry import Geometry
 from pyxel.detectors.material import Material
 from pyxel.detectors.environment import Environment
 from pyxel.detectors.characteristics import Characteristics
-from pyxel.physics.charge import Charge  # noqa: F401
-from pyxel.physics.photon import Photon  # noqa: F401
-from pyxel.physics.pixel import Pixel    # noqa: F401
-from pyxel.physics.signal import Signal  # noqa: F401
-from pyxel.physics.image import Image    # noqa: F401
+from pyxel.data_structure.charge import Charge  # noqa: F401
+from pyxel.data_structure.photon import Photon  # noqa: F401
+from pyxel.data_structure.pixel import Pixel    # noqa: F401
+from pyxel.data_structure.signal import Signal  # noqa: F401
+from pyxel.data_structure.image import Image    # noqa: F401
 import esapy_config as om
 
 
@@ -133,102 +133,6 @@ class Detector:
         This function is probably used by the GUI.
         """
         return om.get_state_dict(self)
-
-    # @property
-    # def photons(self):
-    #     """TBW.
-    #
-    #     :return:
-    #     """
-    #     return self._photons
-    #
-    # @photons.setter
-    # def photons(self, new_photon):
-    #     """TBW.
-    #
-    #     :param new_photon:
-    #     """
-    #     self._photons = new_photon
-    #
-    # @property
-    # def charges(self):
-    #     """TBW.
-    #
-    #     :return:
-    #     """
-    #     return self._charges
-    #
-    # @charges.setter
-    # def charges(self, new_charge):
-    #     """TBW.
-    #
-    #     :param new_charge:
-    #     """
-    #     self._charges = new_charge
-    #
-    # @property
-    # def pixels(self):
-    #     """TBW.
-    #
-    #     :return:
-    #     """
-    #     return self._pixels
-    #
-    # @pixels.setter
-    # def pixels(self, new_pixel):
-    #     """TBW.
-    #
-    #     :param new_pixel:
-    #     """
-    #     self._pixels = new_pixel
-    #
-    # @property
-    # def signal(self):
-    #     """TBW.
-    #
-    #     :return:
-    #     """
-    #     return self._signal
-    #
-    # @signal.setter
-    # def signal(self, new_signal: np.ndarray):
-    #     """TBW.
-    #
-    #     :param new_signal:
-    #     """
-    #     self._signal = new_signal
-    #
-    # @property
-    # def image(self):
-    #     """TBW.
-    #
-    #     :return:
-    #     """
-    #     return self._image
-    #
-    # @image.setter
-    # def image(self, new_image: np.ndarray):
-    #     """TBW.
-    #
-    #     :return:
-    #     """
-    #     self._image = new_image
-    #
-    # @property
-    # def target_output_data(self):
-    #     """TBW.
-    #
-    #     :return:
-    #     """
-    #     return self._target_output_data
-    #
-    # @target_output_data.setter
-    # def target_output_data(self, target_output):
-    #     """TBW.
-    #
-    #     :return:
-    #     """
-    #     self._target_output_data = target_output
 
     @property
     def e_thermal_velocity(self):

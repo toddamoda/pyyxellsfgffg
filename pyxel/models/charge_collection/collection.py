@@ -11,11 +11,8 @@ from pyxel.detectors.detector import Detector
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
 # @pyxel.register(group='charge_collection', name='simple_collection')
-def simple_collection(detector: Detector) -> Detector:
-    """Simply associate charges with a pixel.
-
-    :return:
-    """
+def simple_collection(detector: Detector):
+    """Associate charges with the closest pixel."""
     logging.info('')
     geo = detector.geometry
     array = np.zeros((geo.row, geo.col), int)
@@ -31,5 +28,3 @@ def simple_collection(detector: Detector) -> Detector:
         array[pixel_index_ver[i], pixel_index_hor[i]] += charge_per_pixel[i]
 
     detector.pixels.array = array
-
-    return detector

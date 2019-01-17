@@ -190,17 +190,17 @@ class Configuration:
     """TBW."""
 
     def __init__(self, mode,
-                 parametric_analysis=None,
+                 parametric=None,
                  calibration=None
                  ) -> None:
         """TBW.
 
         :param mode:
-        :param parametric_analysis:
+        :param parametric:
         :param calibration:
         """
         self.mode = mode
-        self.parametric_analysis = parametric_analysis
+        self.parametric = parametric
         self.calibration = calibration
 
     def get_state_json(self):

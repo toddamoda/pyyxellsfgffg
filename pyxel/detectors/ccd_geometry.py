@@ -5,7 +5,7 @@ from pyxel.detectors.geometry import Geometry
 
 @pyx.detector_class
 class CCDGeometry(Geometry):
-    """TBW."""
+    """Geometrical attributes of a CCD detector."""
 
     # def create_sensor(self):
     #     """Construct esapy_sensor objects for CCD geometry and frame.

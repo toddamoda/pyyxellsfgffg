@@ -4,7 +4,6 @@
 """Pyxel general particle class to track particles like photons, electrons, holes."""
 import numpy as np
 import pandas as pd
-# from astropy import units as u
 # from astropy.units import cds
 # cds.enable()
 

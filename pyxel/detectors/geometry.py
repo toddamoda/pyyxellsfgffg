@@ -4,101 +4,99 @@ import pyxel as pyx
 
 @pyx.detector_class
 class Geometry:
-    """TBW."""
+    """Geometrical attributes of the detector."""
 
     row = pyx.attribute(
         type=int,
         default=0,
         validator=[pyx.validate_type(int, is_optional=False),
-                   pyx.validate_range(0, 10000)]
+                   pyx.validate_range(0, 10000)],
+        doc='Number of pixel rows'
     )
     col = pyx.attribute(
         type=int,
         default=0,
         validator=[pyx.validate_type(int, is_optional=False),
-                   pyx.validate_range(0, 10000)]
-    )
-    depletion_thickness = pyx.attribute(
-        type=float,
-        default=0.0,
-        validator=[pyx.validate_type(float, is_optional=True),
                    pyx.validate_range(0, 10000)],
-        metadata={'units': 'um'}
-    )
-    field_free_thickness = pyx.attribute(
-        type=float,
-        default=0.0,
-        validator=[pyx.validate_type(float, is_optional=True),
-                   pyx.validate_range(0, 10000)],
-        metadata={'units': 'um'}
+        doc='Number of pixel columns'
     )
     total_thickness = pyx.attribute(
         type=float,
         default=0.0,
         validator=[pyx.validate_type(float, is_optional=True),
                    pyx.validate_range(0, 10000)],
-        metadata={'units': 'um'}
+        metadata={'units': 'um'},
+        doc='Thickness of detector'
     )
     pixel_vert_size = pyx.attribute(
         type=float,
         default=0.0,
         validator=[pyx.validate_type(float, is_optional=False),
                    pyx.validate_range(0, 1000)],
-        metadata={'units': 'um'}
+        metadata={'units': 'um'},
+        doc='Vertical dimension of pixels'
     )
     pixel_horz_size = pyx.attribute(
         type=float,
         default=0.0,
         validator=[pyx.validate_type(float, is_optional=False),
                    pyx.validate_range(0, 1000)],
-        metadata={'units': 'um'}
+        metadata={'units': 'um'},
+        doc='Horizontal dimension of pixels'
     )
-    # n_acceptor = pyx.attribute(
-    #     type=float,
+
+    # def __hdimension__(self):
+    #     """Total horizontal dimension of detector."""
+    #     return self.pixel_horz_size * self.col
+    #
+    # def __vdimension__(self):
+    #     """Total vertical dimension of detector."""
+    #     return self.pixel_vert_size * self.row
+
+    # horz_dimension = pyx.attribute(
     #     default=0.0,
-    #     validator=pyx.validate_range(0.0, 1000.0, 0.1, False),
-    #     metadata={'units': 'cm-3'}
+    #     metadata={'units': 'um'},
+    #     doc='Total horizontal dimension of detector; Calculated automatically, do not define in yaml!',
+    #     on_get=__hdimension__,
+    #     on_get_update=True
     # )
-    # n_donor = pyx.attribute(
-    #     type=float,
+    # vert_dimension = pyx.attribute(
     #     default=0.0,
-    #     validator=pyx.validate_range(0.0, 1000.0, 0.1, False),
-    #     metadata={'units': 'cm-3'}
-    # )
-    # bias_voltage = pyx.attribute(
-    #     type=float,
-    #     default=0.0,
-    #     validator=pyx.validate_range(0.0, 40.0, 0.001, False),
-    #     metadata={'units': 'V'}
-    # )
-    # readout_nodes = pyx.attribute(
-    #     type=int,
-    #     default=1,
-    #     validator=pyx.validate_range(1, 4, 1, False)
-    # )
-    # sensor_geometry = pyx.attribute(
-    #     type=CCDSensorGeometry,
-    #     default=None,
-    # )
-    # frame = pyx.attribute(
-    #     type=CCDFrame,
-    #     default=None,
+    #     metadata={'units': 'um'},
+    #     doc='Total vertical dimension of detector; Calculated automatically, do not define in yaml!',
+    #     on_get=__vdimension__,
+    #     on_get_update=True
     # )
 
     @property
     def horz_dimension(self):
-        """TBW."""
+        """Get total horizontal dimension of detector. Calculated automatically.
+
+        :return: horizontal dimension
+        """
         return self.pixel_horz_size * self.col
 
     @property
     def vert_dimension(self):
-        """TBW."""
+        """Get total vertical dimension of detector. Calculated automatically.
+
+        :return: vertical dimension
+        """
         return self.pixel_vert_size * self.row
 
-    # def calculate_field_free_thickness(self):
-    #     """TBW."""
-    #     pass
-    #
-    # def calculate_depletion_thickness(self):
-    #     """TBW."""
-    #     pass
+    # depletion_thickness = pyx.attribute(
+    #     type=float,
+    #     default=0.0,
+    #     validator=[pyx.validate_type(float, is_optional=True),
+    #                pyx.validate_range(0, 10000)],
+    #     metadata={'units': 'um'},
+    #     doc='Thickness of charge depleted semiconductor'
+    # )
+    # field_free_thickness = pyx.attribute(
+    #     type=float,
+    #     default=0.0,
+    #     validator=[pyx.validate_type(float, is_optional=True),
+    #                pyx.validate_range(0, 10000)],
+    #     metadata={'units': 'um'},
+    #     doc='Thickness of field free region in semiconductor'
+    # )

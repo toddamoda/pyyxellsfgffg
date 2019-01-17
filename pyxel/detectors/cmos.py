@@ -8,15 +8,15 @@ from pyxel.detectors.cmos_geometry import CMOSGeometry
 from pyxel.detectors.material import Material
 from pyxel.detectors.environment import Environment
 from pyxel.detectors.cmos_characteristics import CMOSCharacteristics
-from pyxel.physics.charge import Charge  # noqa: F401
-from pyxel.physics.photon import Photon  # noqa: F401
-from pyxel.physics.pixel import Pixel    # noqa: F401
-from pyxel.physics.signal import Signal  # noqa: F401
-from pyxel.physics.image import Image    # noqa: F401
+from pyxel.data_structure.charge import Charge  # noqa: F401
+from pyxel.data_structure.photon import Photon  # noqa: F401
+from pyxel.data_structure.pixel import Pixel    # noqa: F401
+from pyxel.data_structure.signal import Signal  # noqa: F401
+from pyxel.data_structure.image import Image    # noqa: F401
 
 
 class CMOS(Detector):
-    """TBW."""
+    """CMOS-based detector class containing all detector attributes and data."""
 
     def __init__(self,
                  geometry: CMOSGeometry,
