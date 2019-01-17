@@ -18,31 +18,16 @@ class Photon(Particle):
         super().__init__()
         self.nextid = 0
 
-        self.columns = ['id',        # todo do we need id or not ???
-                        'number',
+        self.columns = ['number',
                         'init_energy', 'energy',
                         'init_pos_ver', 'init_pos_hor', 'init_pos_z',
                         'position_ver', 'position_hor', 'position_z',
                         'velocity_ver', 'velocity_hor', 'velocity_z']
 
         self.EMPTY_FRAME = pd.DataFrame(columns=self.columns,
-                                        dtype=np.float)         # todo is it ok to define float for all column????
+                                        dtype=np.float)         # todo
 
         self.frame = self.EMPTY_FRAME.copy()
-
-        # self.frame = pd.DataFrame(columns=['id',
-        #                                    'number',
-        #                                    'init_energy',
-        #                                    'energy',
-        #                                    'init_pos_ver',
-        #                                    'init_pos_hor',
-        #                                    'init_pos_z',
-        #                                    'position_ver',
-        #                                    'position_hor',
-        #                                    'position_z',
-        #                                    'velocity_ver',
-        #                                    'velocity_hor',
-        #                                    'velocity_z'])
 
     def add_photon(self,
                    photons_per_group,
@@ -79,8 +64,7 @@ class Photon(Particle):
         #     random_direction(1.0)
 
         # dict
-        new_photon = {'id': range(self.nextid, self.nextid + elements),
-                      'number': photons_per_group,
+        new_photon = {'number': photons_per_group,
                       'init_energy': init_energy,
                       'energy': init_energy,
                       'init_pos_ver': init_ver_position,
@@ -93,11 +77,7 @@ class Photon(Particle):
                       'velocity_hor': init_hor_velocity,
                       'velocity_z': init_z_velocity}
 
-        new_photon_df = pd.DataFrame(new_photon)
+        new_photon_df = pd.DataFrame(new_photon, index=range(self.nextid, self.nextid + elements))
         self.nextid = self.nextid + elements
-
-        # Adding new photons to the DataFrame
-        # self.frame = pd.concat([self.frame, new_photon_df], ignore_index=True)
-
         self.frame = self.frame.append(new_photon_df, sort=False)
 

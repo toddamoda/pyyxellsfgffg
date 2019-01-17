@@ -22,4 +22,4 @@ def shot_noise(detector: Detector,
     lambda_list = detector.photons.get_values(quantity='number')
     lambda_list = [float(i) for i in lambda_list]
     new_list = np.random.poisson(lam=lambda_list)  # * u.ph
-    detector.photons.set_all_values(quantity='number', new_value_list=new_list)
+    detector.photons.set_values(quantity='number', new_value_list=new_list)
