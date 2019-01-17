@@ -18,7 +18,7 @@ def load_image(detector: Detector,
                col0: int = 0,
                load_full_image: bool = False,
                convert_to_photons: bool = False):
-    """Load FITS file as a numpy array and add to the detector as input image.
+    r"""Load FITS file as a numpy array and add to the detector as input image.
 
     :param detector: Pyxel Detector object
     :param image_file: path to FITS image file
@@ -26,8 +26,8 @@ def load_image(detector: Detector,
     :param col0: index of starting column
     :param load_full_image: use this to load the full image and update the detector geometry based on image size
     :param convert_to_photons: if ``True``, the model will generate photon numbers per pixel
-    from detector.input_image array using the Photon Transfer Function:
-    PTF = qe * eta * sv * amp * a1 * a2
+        from detector.input_image array using the Photon Transfer Function:
+        :math:`PTF = QE \cdot \eta \cdot S_{v} \cdot amp \cdot a_{1} \cdot a_{2}`
     """
     logging.info('')
     geo = detector.geometry

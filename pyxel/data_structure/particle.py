@@ -14,7 +14,7 @@ class Particle:
     def __init__(self) -> None:
         """TBW."""
         self.EMPTY_FRAME = pd.DataFrame()
-        self.frame = None
+        self.frame = pd.DataFrame()
 
     def get_values(self, quantity: str, id_list: list = None):
         """Get quantity values of particles defined with id_list. By default it returns values of all particles.
