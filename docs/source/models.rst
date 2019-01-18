@@ -86,7 +86,7 @@ Loading image
 Simple photon generation
 ***************************
 
-.. autofunction:: pyxel.models.photon_generation.add_photons.add_photons(detector: Detector, level: int = -1)
+.. autofunction:: pyxel.models.photon_generation.illumination.illumination(detector: Detector, level: int = -1)
 
 Shot noise
 ***************************

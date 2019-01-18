@@ -20,8 +20,16 @@ class Photon(Array):
         """TBW.
 
         :param geo:
+        :param array:
         """
         super().__init__()                  # TODO: add unit (ph)
         self.exp_type = np.int
         self.type_list = [np.int32, np.int64, np.uint32, np.uint64, np.float16, np.float32, np.float64]
-        self._array = np.zeros((geo.row, geo.col), dtype=self.exp_type)
+        self._array = None
+
+    def new_array(self, new_array):
+        """TBW.
+
+        :param new_array:
+        """
+        self._array = new_array

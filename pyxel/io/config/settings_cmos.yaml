@@ -99,7 +99,7 @@ pipeline:
         convert_to_photons: true
     -
       name: photon_level
-      func: pyxel.models.photon_generation.add_photons.add_photons
+      func: pyxel.models.photon_generation.illumination.illumination
       enabled: true
       arguments:
         level: 100

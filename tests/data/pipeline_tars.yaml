@@ -35,7 +35,7 @@ pipeline: !CCD_PIPELINE
         convert_to_photons: true
 
     photon_level: !model
-      name: pyxel.models.photon_generation.add_photons.add_photons
+      name: pyxel.models.photon_generation.illumination.illumination
       enabled: false
       arguments:
         level: 0

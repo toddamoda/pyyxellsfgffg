@@ -1,9 +1,11 @@
 """Pyxel photon generator models."""
 import logging
+import numpy as np
 from astropy.io import fits
 import pyxel
 from pyxel import check_type, check_path
 from pyxel.detectors.detector import Detector
+from pyxel.data_structure.photon import Photon
 
 
 @pyxel.validate
@@ -34,12 +36,15 @@ def load_image(detector: Detector,
 
     if fit_image_to_det:
         geo = detector.geometry
-        image = image[slice(row0, row0 + geo.row), slice(col0, col0 + geo.col)]
+        image = image[slice(row0, row0+geo.row), slice(col0, col0+geo.col)]
 
     detector.input_image = image
+    photon_array = image
 
     if convert_to_photons:
         cht = detector.characteristics
-        detector.photons.array = detector.input_image / (cht.qe * cht.eta * cht.sv * cht.amp * cht.a1 * cht.a2)
-    else:
-        detector.photons.array = detector.input_image
+        photon_array = detector.input_image / (cht.qe * cht.eta * cht.sv * cht.amp * cht.a1 * cht.a2)
+
+    # detector.photons = Photon(array=photon_array, geo=detector.geometry)  # TODO remove det.geo from Photon arg
+    detector.photons.new_array(photon_array)
+
