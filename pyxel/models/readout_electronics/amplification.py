@@ -13,9 +13,7 @@ from pyxel.detectors.detector import Detector
 def simple_amplifier(detector: Detector):
     """Amplify signal.
 
-    amp - Gain of output amplifier
-    a1 - Gain of the signal processor
-    detector Signal unit: Volt
+    amp - Gain of output amplifier, a1 - Gain of the signal processor
 
     :param detector: Pyxel Detector object
     """

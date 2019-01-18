@@ -2,7 +2,7 @@
 --trusted-host lab-linux-server.estec.esa.int
 
 ########################
-# Scientific / Imaging #
+# Scientific           #
 ########################
 
 numpy
@@ -10,6 +10,7 @@ astropy
 pandas
 matplotlib              # should be optional
 scipy                   # should be removed
+poppy==0.8.0
 
 ########################
 # Others               #
