@@ -21,4 +21,3 @@ def alignment(detector: Detector):
         raise ValueError
     aligned_optical_image = detector.photons.array[slice(row0, row0+geo.row), slice(col0, col0+geo.col)]
     detector.photons.new_array(aligned_optical_image)
-    pass

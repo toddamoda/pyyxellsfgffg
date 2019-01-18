@@ -83,10 +83,10 @@ Loading image
 
 .. autofunction:: pyxel.models.photon_generation.load_image.load_image(detector: Detector, image_file: str, row0: int = 0, col0: int = 0, fit_image_to_det: bool = False)
 
-Simple photon generation
+Simple illumination
 ***************************
 
-.. autofunction:: pyxel.models.photon_generation.illumination.illumination(detector: Detector, level: int = -1)
+.. autofunction:: pyxel.models.photon_generation.illumination.illumination(detector: Detector, level: int, option: str = 'uniform', size: list = None)
 
 Shot noise
 ***************************
@@ -103,6 +103,12 @@ Optical models
     :members:
     :undoc-members:
     :imported-members:
+
+
+Simple optical alignment
+***************************
+
+.. autofunction:: pyxel.models.optics.alignment.alignment
 
 
 .. _charge_generation:
@@ -287,3 +293,8 @@ Simple digitization
 *******************************
 
 .. autofunction:: pyxel.models.readout_electronics.digitization.simple_digitization
+
+Simple amplification
+*******************************
+
+.. autofunction:: pyxel.models.readout_electronics.amplification.simple_amplifier
