@@ -79,6 +79,7 @@ pipeline:
       enabled: true
       arguments:
         image_file: tests/data/image.fits
+        fit_image_to_det: true
         row0: 0
         col0: 0
         convert_to_photons: true
