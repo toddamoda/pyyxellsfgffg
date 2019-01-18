@@ -2,9 +2,7 @@
 import logging
 # from astropy.io import fits
 # import pyxel
-# from pyxel import check_type, check_path
 from pyxel.detectors.detector import Detector
-from pyxel.data_structure.photon import Photon
 
 
 # @pyxel.validate
@@ -20,7 +18,7 @@ def alignment(detector: Detector):
     row0 = int((rows - geo.row) / 2)
     col0 = int((cols - geo.col) / 2)
     if row0 < 0 or col0 < 0:
-        raise ValueError('')
+        raise ValueError
     aligned_optical_image = detector.photons.array[slice(row0, row0+geo.row), slice(col0, col0+geo.col)]
     detector.photons.new_array(aligned_optical_image)
     pass

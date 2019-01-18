@@ -25,16 +25,16 @@ def illumination(detector: Detector,
 
     if size is None:
         try:
-            size = detector.photons.array.shape
+            shape = detector.photons.array.shape
         except AttributeError:
             geo = detector.geometry
             detector.photons.new_array(np.zeros((geo.row, geo.col), dtype=int))
-            size = detector.photons.array.shape
+            shape = detector.photons.array.shape
     else:
-        size = tuple(size)
+        shape = tuple(size)
 
     if option == 'uniform':
-        photon_array = np.ones(size, dtype=int) * level
+        photon_array = np.ones(shape, dtype=int) * level
     else:
         raise NotImplementedError
 
