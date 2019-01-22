@@ -29,4 +29,3 @@ esapy-web==0.2.1
 esapy-dispatcher==0.4
 pygmo==2.9
 esapy-config==0.6
-# git+https://gitlab.esa.int/sci-fv/esapy_config#egg=esapy-config
