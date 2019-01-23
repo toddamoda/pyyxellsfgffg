@@ -16,9 +16,11 @@ def optical_psf(detector: Detector,
                 fov_pixels: int,
                 optical_system: list,
                 fov_arcsec: float = None):
-    """POPPY (Physical Optics Propagation in PYthon) model wrapper to
-    calculate the optical Point Spread Function of an optical system.
+    """POPPY (Physical Optics Propagation in PYthon) model wrapper.
 
+    It calculates the optical Point Spread Function of an optical system.
+
+    Documentation:
     https://poppy-optics.readthedocs.io/en/stable/index.html
 
     detector: Detector
