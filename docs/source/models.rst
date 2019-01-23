@@ -86,7 +86,7 @@ Loading image
 Simple illumination
 ***************************
 
-.. autofunction:: pyxel.models.photon_generation.illumination.illumination(detector: Detector, level: int, option: str = 'uniform', size: list = None)
+.. autofunction:: pyxel.models.photon_generation.illumination.illumination(detector: Detector, level: int, option: str = 'uniform', array_size: list = None, mask_size: t.List[int] = None, mask_center: t.List[int] = None)
 
 Shot noise
 ***************************
@@ -103,6 +103,12 @@ Optical models
     :members:
     :undoc-members:
     :imported-members:
+
+
+POPPY
+***************************
+
+.. autofunction:: pyxel.models.optics.poppy.optical_psf(detector: Detector, wavelength: float, pixelscale: float, fov_pixels: int, optical_system: list, fov_arcsec: float = None)
 
 
 Simple optical alignment

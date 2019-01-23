@@ -10,24 +10,36 @@ from pyxel.detectors.detector import Detector
 @pyxel.validate
 @pyxel.argument(name='level', label='number of photons', units='', validate=check_type(int))
 @pyxel.argument(name='option', label='type of illumination', units='',
-                validate=check_choices(['uniform', 'rectangular_mask', 'elliptic_mask']))
+                validate=check_choices(['uniform', 'rectangular_hole', 'elliptic_hole']))
 # @pyxel.argument(name='size', label='size of 2d array', units='', validate=check_type(list))
-# @pyxel.argument(name='mask_size', label='size of mask', units='', validate=check_type(list))
+# @pyxel.argument(name='hole_size', label='size of hole', units='', validate=check_type(list))
 def illumination(detector: Detector,
                  level: int,
-                 option: str = 'uniform',   # todo: remove default arg.
-                 array_size: list = None,
-                 mask_size: t.List[int] = None,
-                 mask_center: t.List[int] = None,
-                 ):
-    """Generate photons (uniform illumination).
+                 option: str = 'uniform',
+                 array_size: t.List[int] = None,
+                 hole_size: t.List[int] = None,
+                 hole_center: t.List[int] = None):
+    """Generate photons uniformly over the entire array or hole.
 
-    :param detector: Pyxel Detector object
-    :param level: number of photons per pixel, int
-    :param array_size: size of 2d photon array (optional)
-    :param option: ``uniform``, ``elliptic_mask``, ``rectangular_mask``
-    :param mask_size: size of mask
-    :param mask_center: center of mask
+    detector: Detector
+        Pyxel Detector object.
+    level: int
+        Number of photons per pixel.
+    option: str{'uniform', 'elliptic_hole', 'rectangular_hole'}
+        A string indicating the type of illumination:
+
+        - ``uniform``
+           Uniformly fill the entire array with photons. (Default)
+        - ``elliptic_hole``
+           Mask with elliptic hole.
+        - ``rectangular_hole``
+           Mask with rectangular hole.
+    array_size: list, optional
+        List of integers defining the size of 2d photon array.
+    hole_size: list, optional
+        List of integers defining the sizes of the elliptic or rectangular hole.
+    hole_center: list, optional
+        List of integers defining the center of the elliptic or rectangular hole.
     """
     logging.info('')
 
@@ -44,26 +56,26 @@ def illumination(detector: Detector,
     if option == 'uniform':
         photon_array = np.ones(shape, dtype=int) * level
 
-    elif option == 'rectangular_mask':
-        if mask_size:
+    elif option == 'rectangular_hole':
+        if hole_size:
             photon_array = np.zeros(shape, dtype=int)
-            a = int((shape[0]-mask_size[0]) / 2)
-            b = int((shape[1]-mask_size[1]) / 2)
-            photon_array[slice(a, a + mask_size[0]), slice(b, b + mask_size[1])] = level
+            a = int((shape[0]-hole_size[0]) / 2)
+            b = int((shape[1]-hole_size[1]) / 2)
+            photon_array[slice(a, a + hole_size[0]), slice(b, b + hole_size[1])] = level
         else:
-            raise ValueError('mask_size argument should be defined for illumination model')
+            raise ValueError('hole_size argument should be defined for illumination model')
 
-    elif option == 'elliptic_mask':
-        if mask_size:
+    elif option == 'elliptic_hole':
+        if hole_size:
             photon_array = np.zeros(shape, dtype=int)
-            if mask_center is None:
-                mask_center = [int(shape[0] / 2), int(shape[1] / 2)]
+            if hole_center is None:
+                hole_center = [int(shape[0] / 2), int(shape[1] / 2)]
             y, x = np.ogrid[:shape[0], :shape[1]]
-            dist_from_center = np.sqrt(((x - mask_center[1]) / mask_size[1]) ** 2 +
-                                       ((y - mask_center[0]) / mask_size[0]) ** 2)
+            dist_from_center = np.sqrt(((x - hole_center[1]) / hole_size[1]) ** 2 +
+                                       ((y - hole_center[0]) / hole_size[0]) ** 2)
             photon_array[dist_from_center < 1] = level
         else:
-            raise ValueError('mask_size argument should be defined for illumination model')
+            raise ValueError('hole_size argument should be defined for illumination model')
 
     else:
         raise NotImplementedError

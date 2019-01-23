@@ -14,19 +14,55 @@ def optical_psf(detector: Detector,
                 wavelength: float,
                 pixelscale: float,
                 fov_pixels: int,
-                optical_system,
-                fov_arcsec: float = None
-                ):
-    """POPPY (Physical Optics Propagation in PYthon) model wrapper.
+                optical_system: list,
+                fov_arcsec: float = None):
+    """POPPY (Physical Optics Propagation in PYthon) model wrapper to
+    calculate the optical Point Spread Function of an optical system.
 
     https://poppy-optics.readthedocs.io/en/stable/index.html
 
-    :param detector: Pyxel Detector object
-    :param wavelength:
-    :param pixelscale:
-    :param fov_pixels: Field Of View on detector plane in pixels
-    :param fov_arcsec: Field Of View on detector plane in arcsec
-    :return:
+    detector: Detector
+        Pyxel Detector object.
+    wavelength: float
+        Wavelength of incoming light in meters.
+    pixelscale: float
+        Pixel scale on detector plane (micron/pixel or arcsec/pixel).
+        Defines sampling resolution of PSF.
+    fov_pixels: int
+        Field Of View on detector plane in pixels.
+    optical_system:
+        List of optical elements before detector with their specific arguments.
+
+        See details about POPPY Optical Element classes:
+        https://poppy-optics.readthedocs.io/en/stable/available_optics.html
+
+        Supported optical elements:
+
+        - ``CircularAperture``
+        - ``SquareAperture``
+        - ``RectangularAperture``
+        - ``HexagonAperture``
+        - ``ThinLens``
+        - ``SecondaryObscuration``
+        - ``ZernikeWFE``
+        - ``SineWaveWFE``
+
+        .. code-block:: yaml
+
+          # YAML config: arguments of POPPY optical_system
+          optical_system:
+          - item: CircularAperture
+            radius: 1.5
+          - item: ThinLens
+            radius: 1.2
+            nwaves: 1
+          - item: ZernikeWFE
+            radius: 0.8
+            coefficients: [0.1e-6, 3.e-6, -3.e-6, 1.e-6, -7.e-7, 0.4e-6, -2.e-6]
+            aperture_stop: false
+
+    fov_arcsec: float, optional
+        Field Of View on detector plane in arcsec.
     """
     logging.info('')
 
@@ -102,46 +138,7 @@ def optical_psf(detector: Detector,
     ax_int.set_title('Convolution with intensity')
     ax_int.set_axis_off()
 
-    # plt.show()
+    plt.show()
 
-    # conv_with_wavefront = signal.convolve2d(detector.photons.array, psf[1][2].wavefront,
+    # conv_with_wavefront = signal.convolve2d(detector.photons.array, psf[1][-1].wavefront,
     #                                         mode='same', boundary='fill', fillvalue=0)
-
-    # plt.figure()
-    # plt.subplot(3, 3, 1, title='amplitude 0')
-    # plt.imshow(psf[1][0].amplitude, cmap='gray')
-    # plt.subplot(3, 3, 4, title='amplitude 1')
-    # plt.imshow(psf[1][1].amplitude, cmap='gray')
-    # plt.subplot(3, 3, 7, title='amplitude 2')
-    # plt.imshow(psf[1][2].amplitude, cmap='gray')
-    #
-    # plt.subplot(3, 3, 2, title='phase 0')
-    # plt.imshow(psf[1][0].phase)
-    # plt.subplot(3, 3, 5, title='phase 1')
-    # plt.imshow(psf[1][1].phase)
-    # plt.subplot(3, 3, 8, title='phase 2')
-    # plt.imshow(psf[1][2].phase)
-    #
-    # plt.subplot(3, 3, 3, title='intensity 0')
-    # plt.imshow(psf[1][0].intensity, cmap='gray')
-    # plt.subplot(3, 3, 6, title='intensity 1')
-    # plt.imshow(psf[1][1].intensity, cmap='gray')
-    # plt.subplot(3, 3, 9, title='intensity 2')
-    # plt.imshow(psf[1][2].intensity, cmap='gray')
-
-    # plt.figure()
-    # op.display_psf(psf[0], title='display_psf')
-    # plt.figure()
-    # plt.imshow(np.log(psf[1][2].intensity))
-
-    # plt.figure()
-    # ax_mag = plt.gca()
-    # ax_mag.imshow(np.absolute(conv_with_wavefront), cmap='gray')
-    # ax_mag.set_title('Magnitude')
-    # ax_mag.set_axis_off()
-    #
-    # plt.figure()
-    # ax_ang = plt.gca()
-    # ax_ang.imshow(np.angle(conv_with_wavefront), cmap='hsv')   # hsv is cyclic, like angles
-    # ax_ang.set_title('Angle')
-    # ax_ang.set_axis_off()
