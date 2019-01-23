@@ -91,7 +91,7 @@ def optical_psf(detector: Detector,
     ax_int.set_title('Convolution with intensity')
     ax_int.set_axis_off()
 
-    # plt.show()
+    plt.show()
 
     # conv_with_wavefront = signal.convolve2d(detector.photons.array, psf[1][2].wavefront,
     #                                         mode='same', boundary='fill', fillvalue=0)
