@@ -1,6 +1,7 @@
 """Pyxel photon generator models."""
 import logging
 import poppy as op
+import numpy as np
 from scipy import signal
 import matplotlib.pyplot as plt
 # import pyxel
@@ -82,16 +83,26 @@ def optical_psf(detector: Detector,
     ax_orig.set_axis_off()
 
     # Convolution
-    detector.photons.array = signal.convolve2d(detector.photons.array, psf[0][0].data,
-                                               mode='same', boundary='fill', fillvalue=0)
+    a = detector.photons.array.shape[0]
+    b = detector.photons.array.shape[1]
+    new_shape = (a + 2 * fov_pixels, b + 2 * fov_pixels)
+    array = np.zeros(new_shape, detector.photons.array.dtype)
+    roi = slice(fov_pixels, fov_pixels + a), slice(fov_pixels, fov_pixels + b)
+    array[roi] = detector.photons.array
+
+    array = signal.convolve2d(array,
+                              psf[0][0].data,
+                              mode='same',
+                              boundary='fill', fillvalue=0)
+    detector.photons.new_array(array)
 
     plt.figure()
     ax_int = plt.gca()
-    ax_int.imshow(detector.photons.array, cmap='gray')
+    ax_int.imshow(array, cmap='gray')
     ax_int.set_title('Convolution with intensity')
     ax_int.set_axis_off()
 
-    plt.show()
+    # plt.show()
 
     # conv_with_wavefront = signal.convolve2d(detector.photons.array, psf[1][2].wavefront,
     #                                         mode='same', boundary='fill', fillvalue=0)
