@@ -25,7 +25,7 @@ def test_yaml_load():
 #
 #     yaml_file = CWD.joinpath('data', 'test_yaml_new.yaml')
 #     cfg = io.load(yaml_file)
-#     result = om.dump(cfg)
+#     result = io.dump(cfg)
 #     yaml_expected = CWD.joinpath('data', 'test_yaml_new_dump_expected.yaml').open('r').read()
 #     for i in range(len(result)):
 #         if yaml_expected[i] != result[i]:

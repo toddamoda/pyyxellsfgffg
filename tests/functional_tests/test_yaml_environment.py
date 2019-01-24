@@ -27,7 +27,7 @@ def test_dumper():
                       total_ionising_dose=1.0,
                       total_non_ionising_dose=1.0)
 
-    data = om.dump(obj)
+    data = io.dump(obj)
     # data = dump(obj)
     pass
 

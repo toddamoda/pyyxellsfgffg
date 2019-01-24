@@ -79,7 +79,7 @@ def test_dumper():
                                                  sv=5, amp=6,
                                                  a1=7, a2=8))
 
-    data = om.dump(obj)
+    data = io.dump(obj)
 
     # bias_voltage: 8.0
     assert data == """!CCD

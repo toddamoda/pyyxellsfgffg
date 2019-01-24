@@ -107,7 +107,7 @@
 #     detector = pipeline.run(detector)
 #     assert detector.level == 12.0
 #     assert detector.noise == 2.0
-#     om.dump(cfg)
+#     io.dump(cfg)
 
 
 # def test_model_registry_singleton():
@@ -194,4 +194,4 @@
 #     processor.pipeline.run(processor.detector)
 #     assert processor.detector.level == 1.0
 #
-#     print(om.dump(cfg))
+#     print(io.dump(cfg))

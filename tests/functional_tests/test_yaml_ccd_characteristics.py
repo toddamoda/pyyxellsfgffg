@@ -37,7 +37,7 @@ def test_dumper():
     """Test `PyxelDumper`."""
     obj = CCDCharacteristics(qe=3, eta=4, sv=5, amp=6, a1=7, a2=8, fwc=2, fwc_serial=3)
 
-    data = om.dump(obj)
+    data = io.dump(obj)
 
     assert data == """!ccd_characteristics
 a1: 7

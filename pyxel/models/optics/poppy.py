@@ -3,7 +3,7 @@ import logging
 import poppy as op
 import numpy as np
 from scipy import signal
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 # import pyxel
 from pyxel.detectors.detector import Detector
 
@@ -114,11 +114,11 @@ def optical_psf(detector: Detector,
 
     # psf[0][0].data == psf[1][-1].intensity
 
-    plt.figure()
-    ax_orig = plt.gca()
-    ax_orig.imshow(detector.photons.array, cmap='gray')
-    ax_orig.set_title('Original')
-    ax_orig.set_axis_off()
+    # plt.figure()
+    # ax_orig = plt.gca()
+    # ax_orig.imshow(detector.photons.array, cmap='gray')
+    # ax_orig.set_title('Original')
+    # ax_orig.set_axis_off()
 
     # Convolution
     a = detector.photons.array.shape[0]
@@ -134,13 +134,13 @@ def optical_psf(detector: Detector,
                               boundary='fill', fillvalue=0)
     detector.photons.new_array(array)
 
-    plt.figure()
-    ax_int = plt.gca()
-    ax_int.imshow(array, cmap='gray')
-    ax_int.set_title('Convolution with intensity')
-    ax_int.set_axis_off()
+    # plt.figure()
+    # ax_int = plt.gca()
+    # ax_int.imshow(array, cmap='gray')
+    # ax_int.set_title('Convolution with intensity')
+    # ax_int.set_axis_off()
 
-    plt.show()
+    # plt.show()
 
     # conv_with_wavefront = signal.convolve2d(detector.photons.array, psf[1][-1].wavefront,
     #                                         mode='same', boundary='fill', fillvalue=0)

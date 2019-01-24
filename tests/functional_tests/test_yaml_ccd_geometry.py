@@ -44,7 +44,7 @@ def test_dumper():
                       )
 
     # bias_voltage: 8.0
-    data = om.dump(obj)
+    data = io.dump(obj)
 #     assert data == """geometry:
 # class: pyxel.detectors.ccd_geometry.CCDGeometry
 # row: 1000

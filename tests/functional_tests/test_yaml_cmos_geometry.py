@@ -62,7 +62,7 @@ def test_dumper():
                        reference_pixel_border_width=1)
 
     # bias_voltage: 8.0
-    data = om.dump(obj)
+    data = io.dump(obj)
     assert data == """!cmos_geometry
 
 col: 1001
