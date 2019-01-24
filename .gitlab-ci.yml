@@ -50,6 +50,7 @@ anaconda3:
   stage: test
   script:
     - pip install pytest pytest-cov pytest-html
+    - pip install attrs pyyaml            # todo remove this
     - pip install -r requirements.txt
     - pip freeze
     - export PYTHONPATH=$PWD
@@ -79,6 +80,7 @@ python37:
   stage: test
   script:
     - pip install pytest
+    - pip install attrs pyyaml            # todo remove this
     - pip install -r requirements.txt
     - pip freeze
     - pytest --color=yes --full-trace --showlocals --verbose
@@ -91,22 +93,11 @@ python36:
   stage: test
   script:
     - pip install pytest
+    - pip install attrs pyyaml            # todo remove this
     - pip install -r requirements.txt
     - pip freeze
     - pytest --color=yes --full-trace --showlocals --verbose
   allow_failure: false
-
-
-## Run pytest for Python 3.5
-#python35:
-#  image: python:3.5
-#  stage: test
-#  script:
-#    - pip install pytest
-#    - pip install -r requirements.txt
-#    - pip freeze
-#    - pytest --color=yes --full-trace --showlocals --verbose
-#  allow_failure: true
 
 
 # Run mypy
@@ -125,6 +116,7 @@ lint:
   stage: test
   script:
     - pip install pytest-pylint pytest-html
+    - pip install attrs pyyaml            # todo remove this
     - pip install -r requirements.txt
     - pytest --pylint --color=yes --verbose --pylint-rcfile=pylint.cfg --html=pylint_report.html --self-contained-html -m pylint || echo 1
     - ls
@@ -193,6 +185,7 @@ doc:
   stage: build
   script:
     - pip install -r docs/requirements-docs.txt
+    - pip install attrs pyyaml            # todo remove this
     - pip install -r requirements.txt
     - export PYTHONPATH=$PWD
     - sphinx-build docs/source docs/html -E -a -j 4

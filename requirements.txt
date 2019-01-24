@@ -17,7 +17,6 @@ pygmo==2.10
 # Others               #
 ########################
 
-pyyaml
 numba
 tqdm
 # tornado                   # only for GUI
