@@ -13,7 +13,6 @@ from pyxel.data_structure.photon import Photon  # noqa: F401
 from pyxel.data_structure.pixel import Pixel    # noqa: F401
 from pyxel.data_structure.signal import Signal  # noqa: F401
 from pyxel.data_structure.image import Image    # noqa: F401
-from esapy_config import get_state_dict
 
 
 class Detector:
@@ -124,13 +123,6 @@ class Detector:
             'image': self.image,
             'input_image': self.input_image
         }
-
-    def get_state_json(self):
-        """TBW.
-
-        This function is probably used by the GUI.
-        """
-        return get_state_dict(self)
 
     @property
     def e_thermal_velocity(self):

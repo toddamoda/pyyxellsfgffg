@@ -1,6 +1,6 @@
 """TBW."""
 import functools
-from esapy_config import get_state_dict, evaluate_reference
+from esapy_config import evaluate_reference
 
 
 class ModelFunction:
@@ -31,10 +31,6 @@ class ModelFunction:
     def __repr__(self):
         """TBW."""
         return 'ModelFunction(%(name)r, %(func)r, %(arguments)r, %(enabled)r)' % vars(self)
-
-    def get_state_json(self):
-        """TBW."""
-        return get_state_dict(self)
 
     def __getstate__(self):
         """TBW."""

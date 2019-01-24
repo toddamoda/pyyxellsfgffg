@@ -3,7 +3,7 @@ import itertools
 import typing as t
 import numpy as np
 from copy import deepcopy
-from esapy_config import get_state_dict, eval_range, get_value, get_obj_att
+from esapy_config import eval_range, get_obj_att, get_value
 
 
 class StepValues:
@@ -56,15 +56,10 @@ class ParametricAnalysis:
         self.parametric_mode = parametric_mode
         self.steps = steps
 
-    def get_state_json(self):
-        """TBW."""
-        return get_state_dict(self)
-
     def __getstate__(self):
         """TBW."""
         return {'mode': self.parametric_mode,
-                'steps': self.steps
-                }
+                'steps': self.steps}
 
     @property
     def enabled_steps(self):
@@ -202,7 +197,3 @@ class Configuration:
         self.mode = mode
         self.parametric = parametric
         self.calibration = calibration
-
-    def get_state_json(self):
-        """TBW."""
-        return get_state_dict(self)

@@ -1,7 +1,6 @@
 """TBW."""
 # import logging
 import typing as t  # noqa: F401
-from esapy_config import get_state_dict
 from pyxel.pipelines.model_group import ModelGroup
 from pyxel.detectors.detector import Detector
 
@@ -38,10 +37,6 @@ class DetectionPipeline:
 
         self._model_groups = []                                 # type: t.List[str]
         # self._log = logging.getLogger(__name__)
-
-    def get_state_json(self):
-        """TBW."""
-        return get_state_dict(self)
 
     def __getstate__(self):
         """TBW."""
@@ -98,21 +93,6 @@ class DetectionPipeline:
                     break
         self._is_running = False
         return detector
-
-        # PHOTON GENERATION:
-        # START -> create photons ->
-        # OPTICS:
-        # -> transport/modify photons ->
-        # CHARGE GENERATION:
-        # -> create charges & remove photons ->
-        # CHARGE COLLECTION:
-        # -> transport/modify charges -> collect charges in pixels ->
-        # CHARGE TRANSFER:
-        # -> transport/modify pixels ->
-        # CHARGE READOUT
-        # -> create signal -> modify signal ->
-        # READOUT ELECTRONICS
-        # -> create image -> modify image -> END
 
     # def clear(self):
     #     """Remove all the models from this pipeline."""

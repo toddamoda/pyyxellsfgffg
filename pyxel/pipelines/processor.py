@@ -1,6 +1,6 @@
 """TBW."""
 import typing as t
-from esapy_config import get_state_dict, validate_call, get_obj_att, eval_entry, get_value
+from esapy_config import get_obj_att, eval_entry, get_value
 from pyxel.detectors.ccd import CCD
 from pyxel.detectors.cmos import CMOS
 from pyxel.pipelines.ccd_pipeline import CCDDetectionPipeline
@@ -21,14 +21,6 @@ class Processor:
         self.detector = detector
         self.pipeline = pipeline
 
-    # def copy(self):
-    #     """TBW."""
-    #     return Processor(self.detector.copy(), self.pipeline.copy())
-
-    def get_state_json(self):
-        """TBW."""
-        return get_state_dict(self)
-
     def __getstate__(self):
         """TBW."""
         return {
@@ -36,14 +28,14 @@ class Processor:
             'pipeline': self.pipeline,
         }
 
-    def validate(self):
-        """TBW."""
-        errors = []
-        for key, model_group in self.pipeline.model_groups.items():
-            for model in model_group.models:
-                if model.enabled:
-                    errors += validate_call(model.func, False, kwargs=model.arguments)
-        return errors
+    # def validate(self):
+    #     """TBW."""
+    #     errors = []
+    #     for key, model_group in self.pipeline.model_groups.items():     # TODO
+    #         for model in model_group.models:
+    #             if model.enabled:
+    #                 errors += validate_call(model.func, False, kwargs=model.arguments)
+    #     return errors
 
     def has(self, key):
         """TBW.
