@@ -8,9 +8,10 @@
 numpy
 astropy
 pandas
-matplotlib              # should be optional
+matplotlib                  # should be optional
 scipy
-poppy==0.8.0            # should be optional
+poppy==0.8.0
+pygmo==2.10
 
 ########################
 # Others               #
@@ -19,13 +20,12 @@ poppy==0.8.0            # should be optional
 pyyaml
 numba
 tqdm
-tornado
+# tornado                   # only for GUI
 
 ########################
 # ESA libraries        #
 ########################
 
-esapy-web==0.2.1
-esapy-dispatcher==0.4
-pygmo==2.9              # >>> pygmo==2.10
-esapy-config==0.6       # >>> esapy-config==0.7
+esapy-config==0.6           # >>> esapy-config==0.7 or 0.7.1
+# esapy-web==0.2.1          # only for GUI
+# esapy-dispatcher==0.4     # only for GUI

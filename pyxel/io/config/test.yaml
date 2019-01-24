@@ -33,7 +33,7 @@ detector:
     class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
     qe: 0.5                 # -
     eta: 1.                # e/photon
-    sv: 3e-6              # V/e
+    sv: 3e-6               # V/e
     amp: 10.                 # V/V
     a1: 100.                # V/V
     a2: 10000               # DN/V
