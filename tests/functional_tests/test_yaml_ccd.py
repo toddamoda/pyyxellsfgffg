@@ -4,7 +4,7 @@ from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.ccd_geometry import CCDGeometry
 from pyxel.detectors.material import Material
 from pyxel.detectors.environment import Environment
-import esapy_config as om
+import esapy_config.io as io
 
 
 @pytest.mark.skip(reason=None)
@@ -35,7 +35,7 @@ def test_loader_with_extra_tags():
     a2: 8
 """
 
-    obj = om.load(data)
+    obj = io.load(data)
 
     assert isinstance(obj, CCD)
     # assert obj.photons == 10

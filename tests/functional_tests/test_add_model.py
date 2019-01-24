@@ -5,7 +5,7 @@
 # # from pyxel.detectors.detector import Detector
 # # from pyxel.pipelines.model_registry import import_model
 # # from tests.functional_tests import my_models
-# # import esapy_config as om
+# # import esapy_config.io as io
 #
 # CWD = Path(__file__).parent.parent
 # sys.path.append(str(CWD))
@@ -45,7 +45,7 @@
 #
 #
 # def test_add_model():
-#     cfg = om.load(Path(CWD, 'data', 'test_yaml_new.yaml'))
+#     cfg = io.load(Path(CWD, 'data', 'test_yaml_new.yaml'))
 #     processor = cfg['processor']
 #     pipeline = processor.pipeline
 #     detector = processor.detector
@@ -132,7 +132,7 @@
 # def test_model_registry_decorator():
 #     # my_models.my_decorated_function(None)
 #     om.evaluate_reference('functional_tests.my_models.my_decorated_function')
-#     cfg = om.load(Path(CWD, 'data', 'test_yaml_new.yaml'))
+#     cfg = io.load(Path(CWD, 'data', 'test_yaml_new.yaml'))
 #     processor = cfg['processor']
 #
 #     # remove all models from the pipeline
@@ -166,7 +166,7 @@
 
 
 # def test_pipeline_import():
-#     cfg = om.load(Path(CWD, 'data', 'test_yaml_new.yaml'))
+#     cfg = io.load(Path(CWD, 'data', 'test_yaml_new.yaml'))
 #     processor = cfg['processor']
 #
 #     # remove all models from the pipeline

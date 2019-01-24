@@ -7,8 +7,6 @@ import esapy_config.funcargs as funcargs
 import esapy_config.config as config
 import esapy_config.io as io
 
-import esapy_config as om                       # todo: depraceted
-
 
 __all__ = ['models', 'detectors', 'pipelines',
            'attribute', 'detector_class',
@@ -60,7 +58,7 @@ def validate(func: t.Callable):
     #     prev_func = om.validate(func)  # type: t.Callable
     #     return prev_func(*args, **kwargs)
     # return new_func
-    new_func = om.validate(func)            # type: t.Callable
+    new_func = funcargs.validate(func)            # type: t.Callable
     new_func.__doc__ = func.__doc__                     # used by sphinx
     new_func.__annotations__ = func.__annotations__     # used by sphinx
     new_func.__module__ = func.__module__               # used by sphinx

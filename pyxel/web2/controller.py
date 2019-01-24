@@ -6,6 +6,7 @@ from pathlib import Path
 import typing as t
 
 import esapy_config as om  # noqa: F401
+import esapy_config.io as io
 
 from esapy_web.webapp2.modules import guiconfig
 from esapy_web.webapp2.modules import dispatch
@@ -105,7 +106,7 @@ class Controller(guiconfig.Controller):
         """
         if name in self.pipeline_paths:
             config_path = self.pipeline_paths[name]
-            cfg = om.load(config_path)
+            cfg = io.load(config_path)
             self.simulation = cfg['simulation']
             self.processor = cfg['processor']
             # registry.import_models(self.processor)
@@ -155,7 +156,7 @@ class Controller(guiconfig.Controller):
 
     def load_defaults(self, path):
         """TBW."""
-        cfg = om.load(Path(path))
+        cfg = io.load(Path(path))
         obj_dict = om.get_state_dict(cfg['processor'])
 
         self._rewire_pipeline_dict(obj_dict['pipeline'])
@@ -175,7 +176,7 @@ class Controller(guiconfig.Controller):
 
     def load_config(self, path):
         """TBW."""
-        cfg = om.load(Path(path))
+        cfg = io.load(Path(path))
         self.simulation = cfg['simulation']
         self.processor = cfg['processor']
         self.get_state()

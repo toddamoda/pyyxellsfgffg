@@ -1,7 +1,7 @@
 """TBW."""
 # import logging
 import typing as t  # noqa: F401
-import esapy_config as om
+from esapy_config import get_state_dict
 from pyxel.pipelines.model_group import ModelGroup
 from pyxel.detectors.detector import Detector
 
@@ -41,7 +41,7 @@ class DetectionPipeline:
 
     def get_state_json(self):
         """TBW."""
-        return om.get_state_dict(self)
+        return get_state_dict(self)
 
     def __getstate__(self):
         """TBW."""

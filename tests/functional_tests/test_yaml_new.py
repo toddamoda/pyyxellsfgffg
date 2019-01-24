@@ -1,6 +1,6 @@
 from pathlib import Path
 # import pytest
-import esapy_config as om
+import esapy_config.io as io
 
 
 CWD = Path(__file__).parent.parent
@@ -8,7 +8,7 @@ CWD = Path(__file__).parent.parent
 
 def test_yaml_load():
     yaml_file = CWD.joinpath('data', 'test_yaml_new.yaml')
-    cfg = om.load(yaml_file)
+    cfg = io.load(yaml_file)
 
     assert cfg['simulation'].__class__.__name__ == 'Configuration'
     assert cfg['simulation'].parametric.steps[0].__class__.__name__ == 'StepValues'
@@ -24,7 +24,7 @@ def test_yaml_load():
 # def test_yaml_dump():
 #
 #     yaml_file = CWD.joinpath('data', 'test_yaml_new.yaml')
-#     cfg = om.load(yaml_file)
+#     cfg = io.load(yaml_file)
 #     result = om.dump(cfg)
 #     yaml_expected = CWD.joinpath('data', 'test_yaml_new_dump_expected.yaml').open('r').read()
 #     for i in range(len(result)):

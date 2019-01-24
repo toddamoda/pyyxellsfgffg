@@ -1,7 +1,7 @@
 """Test `PyxelLoader` with `CCDChararacteristics`."""
 import pytest
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
-import esapy_config as om
+import esapy_config.io as io
 
 
 @pytest.mark.skip(reason=None)
@@ -19,7 +19,7 @@ def test_loader():
   fwc_serial: 3
 """
 
-    obj = om.load(data)
+    obj = io.load(data)
 
     assert isinstance(obj, CCDCharacteristics)
     assert obj.qe == 3

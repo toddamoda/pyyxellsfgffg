@@ -2,7 +2,7 @@
 
 import pytest
 import pygmo as pg
-import esapy_config as om
+import esapy_config.io as io
 from pyxel.calibration.util import read_data, list_to_slice, check_ranges
 from pyxel.pipelines.processor import Processor
 
@@ -19,7 +19,7 @@ from pyxel.pipelines.processor import Processor
                           ])
 def test_set_algo(yaml):
     """Test """
-    cfg = om.load(yaml)
+    cfg = io.load(yaml)
     simulation = cfg['simulation']
     obj = simulation.calibration.algorithm.get_algorithm()
     if isinstance(obj, pg.sade):
@@ -107,7 +107,7 @@ def test_check_ranges(targ_range, out_range, row, col):
                          ])
 def test_run_calibration(yaml):
     """Test """
-    cfg = om.load(yaml)
+    cfg = io.load(yaml)
     detector = cfg['detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)

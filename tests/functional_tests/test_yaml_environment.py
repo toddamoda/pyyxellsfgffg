@@ -1,7 +1,7 @@
 """Test `PyxelLoader` with `Environment`."""
 import pytest
 from pyxel.detectors.environment import Environment
-import esapy_config as om
+import esapy_config.io as io
 
 
 @pytest.mark.skip(reason=None)
@@ -14,7 +14,7 @@ def test_loader():
   total_non_ionising_dose: 1.0
 """
 
-    obj = om.load(data)
+    obj = io.load(data)
 
     assert isinstance(obj, Environment)
     assert obj.temperature == 3.14

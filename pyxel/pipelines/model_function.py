@@ -1,6 +1,6 @@
 """TBW."""
 import functools
-import esapy_config as om
+from esapy_config import get_state_dict, evaluate_reference
 
 
 class ModelFunction:
@@ -34,7 +34,7 @@ class ModelFunction:
 
     def get_state_json(self):
         """TBW."""
-        return om.get_state_dict(self)
+        return get_state_dict(self)
 
     def __getstate__(self):
         """TBW."""
@@ -48,7 +48,7 @@ class ModelFunction:
     @property
     def function(self):
         """TBW."""
-        func_ref = om.evaluate_reference(self.func)
+        func_ref = evaluate_reference(self.func)
         if isinstance(func_ref, type):
             # this is a class type, instantiate it using default arguments.
             func_ref = func_ref()

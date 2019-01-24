@@ -1,6 +1,6 @@
 """TBW."""
 import typing as t  # noqa: F401
-import esapy_config as om
+from esapy_config import get_state_dict
 from pyxel.pipelines.model_function import ModelFunction
 from pyxel import util
 
@@ -17,7 +17,7 @@ class ModelGroup:
 
     def get_state_json(self):
         """TBW."""
-        return om.get_state_dict(self.models)
+        return get_state_dict(self.models)
 
     def run(self, detector, pipeline, abort_model: str = None):
         """Execute each enabled model in this group."""

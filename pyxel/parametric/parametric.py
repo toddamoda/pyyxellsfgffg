@@ -3,7 +3,7 @@ import itertools
 import typing as t
 import numpy as np
 from copy import deepcopy
-import esapy_config as om
+from esapy_config import get_state_dict, eval_range, get_value, get_obj_att
 
 
 class StepValues:
@@ -35,12 +35,12 @@ class StepValues:
 
     def __len__(self):
         """TBW."""
-        values = om.eval_range(self.values)
+        values = eval_range(self.values)
         return len(values)
 
     def __iter__(self):
         """TBW."""
-        values = om.eval_range(self.values)
+        values = eval_range(self.values)
         for value in values:
             yield value
 
@@ -58,7 +58,7 @@ class ParametricAnalysis:
 
     def get_state_json(self):
         """TBW."""
-        return om.get_state_dict(self)
+        return get_state_dict(self)
 
     def __getstate__(self):
         """TBW."""
@@ -178,8 +178,8 @@ class ParametricAnalysis:
         for i, config in enumerate(configs):
             values = []
             for step in self.enabled_steps:
-                _, att = om.get_obj_att(config, step.key)
-                value = om.get_value(config, step.key)
+                _, att = get_obj_att(config, step.key)
+                value = get_value(config, step.key)
                 values.append((att, value))
             print('%d: %r' % (i, values))
             result.append((i, values))
@@ -205,4 +205,4 @@ class Configuration:
 
     def get_state_json(self):
         """TBW."""
-        return om.get_state_dict(self)
+        return get_state_dict(self)

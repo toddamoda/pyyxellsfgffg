@@ -1,6 +1,3 @@
-#   --------------------------------------------------------------------------
-#   Copyright 2018 SCI-FIV, ESA (European Space Agency)
-#   --------------------------------------------------------------------------
 """CCD detector modeling class."""
 from math import sqrt
 import collections
@@ -16,7 +13,7 @@ from pyxel.data_structure.photon import Photon  # noqa: F401
 from pyxel.data_structure.pixel import Pixel    # noqa: F401
 from pyxel.data_structure.signal import Signal  # noqa: F401
 from pyxel.data_structure.image import Image    # noqa: F401
-import esapy_config as om
+from esapy_config import get_state_dict
 
 
 class Detector:
@@ -133,7 +130,7 @@ class Detector:
 
         This function is probably used by the GUI.
         """
-        return om.get_state_dict(self)
+        return get_state_dict(self)
 
     @property
     def e_thermal_velocity(self):

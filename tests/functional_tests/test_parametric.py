@@ -1,7 +1,7 @@
 from pathlib import Path
 import pytest
 import pyxel    # noqa: F401
-import esapy_config as om
+import esapy_config.io as io
 from pyxel.pipelines.processor import Processor
 
 
@@ -34,7 +34,7 @@ expected_embedded = [
 ])
 def test_pipeline_parametric(mode, expected):
     input_filename = 'tests/data/pipeline_parametric.yaml'
-    cfg = om.load(Path(input_filename))
+    cfg = io.load(Path(input_filename))
     simulation = cfg.pop('simulation')
     parametric = simulation.parametric
     parametric.parametric_mode = mode

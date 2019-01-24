@@ -1,8 +1,8 @@
 from ast import literal_eval
 from pathlib import Path
-import esapy_config as om
+import esapy_config.io as io
+from esapy_config import get_state_ids, get_state_dict
 
-# processor.detector.geometry.bias_voltage=0.0
 expected_str = """
 processor.detector.characteristics.a2=65536
 processor.detector.characteristics.sv=1e-06
@@ -96,9 +96,9 @@ parametric.steps.3.enabled=False
 
 def test_get_state_ids():
     input_filename = 'tests/data/pipeline_parametric.yaml'
-    cfg = om.load(Path(input_filename))
-    cfg_obj = om.get_state_dict(cfg)
-    result = om.get_state_ids(cfg_obj)
+    cfg = io.load(Path(input_filename))
+    cfg_obj = get_state_dict(cfg)
+    result = get_state_ids(cfg_obj)
     assert isinstance(result, dict)
     expected = {}
     for line in expected_str.strip().split('\n'):

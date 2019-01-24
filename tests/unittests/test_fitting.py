@@ -2,7 +2,7 @@
 
 import pytest
 import numpy as np
-import esapy_config as om
+import esapy_config.io as io
 import pygmo as pg
 from pyxel.calibration.fitting import ModelFitting
 from pyxel.detectors.detector import Detector
@@ -39,7 +39,7 @@ def configure(mf, sim):  # , target=None):
                           ])
 def test_configure_params(yaml_file):
     """Test """
-    cfg = om.load(yaml_file)
+    cfg = io.load(yaml_file)
     detector = cfg['detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
@@ -70,7 +70,7 @@ def test_configure_params(yaml_file):
                           ])
 def test_configure_fits_target(yaml):
     """Test """
-    cfg = om.load(yaml)
+    cfg = io.load(yaml)
     detector = cfg['detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
@@ -93,7 +93,7 @@ def test_configure_fits_target(yaml):
                           ])
 def test_boundaries(yaml):
     """Test """
-    cfg = om.load(yaml)
+    cfg = io.load(yaml)
     detector = cfg['detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
@@ -129,7 +129,7 @@ def test_boundaries(yaml):
                           ])
 def test_calculate_fitness(simulated_data, target_data, expected_fitness):
     """Test"""
-    cfg = om.load('tests/data/calibrate.yaml')
+    cfg = io.load('tests/data/calibrate.yaml')
     detector = cfg['detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
@@ -150,7 +150,7 @@ def test_calculate_fitness(simulated_data, target_data, expected_fitness):
 def test_weighting(yaml, factor, expected_fitness):
     """Test"""
     pass
-    cfg = om.load(yaml)
+    cfg = io.load(yaml)
     detector = cfg['detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
@@ -178,7 +178,7 @@ def custom_fitness_func(sim, targ):
                           ])
 def test_custom_fitness(yaml, simulated_data, target_data, expected_fitness):
     """Test"""
-    cfg = om.load(yaml)
+    cfg = io.load(yaml)
     detector = cfg['detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
@@ -199,7 +199,7 @@ def test_custom_fitness(yaml, simulated_data, target_data, expected_fitness):
                           ])
 def test_fitness(yaml, parameter, expected_fitness):
     """Test"""
-    cfg = om.load(yaml)
+    cfg = io.load(yaml)
     detector = cfg['detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
@@ -226,7 +226,7 @@ def test_fitness(yaml, parameter, expected_fitness):
                           ])
 def test_split_and_update(yaml, parameter, expected_subarrays):
     """Test"""
-    cfg = om.load(yaml)
+    cfg = io.load(yaml)
     detector = cfg['detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
@@ -253,7 +253,7 @@ def test_split_and_update(yaml, parameter, expected_subarrays):
                           ])
 def test_detector_and_model_update(yaml, param_array_list):
     """Test"""
-    cfg = om.load(yaml)
+    cfg = io.load(yaml)
     detector = cfg['detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)

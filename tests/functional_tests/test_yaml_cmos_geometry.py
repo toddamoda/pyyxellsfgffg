@@ -1,7 +1,7 @@
 import pytest
 
 from pyxel.detectors.cmos_geometry import CMOSGeometry
-import esapy_config as om
+import esapy_config.io as io
 
 
 @pytest.mark.skip(reason=None)
@@ -24,7 +24,7 @@ def test_loader():
  reference_pixel_border_width: 12
 """
 
-    obj = om.load(data)
+    obj = io.load(data)
 
     assert isinstance(obj, CMOSGeometry)
     assert obj.row == 1000

@@ -1,7 +1,7 @@
 import pytest
 
 from pyxel.detectors.ccd_geometry import CCDGeometry
-import esapy_config as om
+import esapy_config.io as io
 
 
 @pytest.mark.skip(reason=None)
@@ -16,7 +16,7 @@ def test_loader():
  pixel_horz_size: 5.0
 """
     # bias_voltage: 8.0
-    obj = om.load(data)
+    obj = io.load(data)
 
     assert isinstance(obj, CCDGeometry)
     assert obj.row == 1000
