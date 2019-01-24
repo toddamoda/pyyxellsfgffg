@@ -16,7 +16,7 @@ from pyxel.pipelines.processor import Processor
                              'tests/data/calibrate_models.yaml',
                              'tests/data/calibrate_custom_fitness.yaml',
                              'tests/data/calibrate_fits.yaml',
-                          ])
+                         ])
 def test_set_algo(yaml):
     """Test """
     cfg = io.load(yaml)
@@ -61,7 +61,7 @@ def test_read_data(input_data):
                              # [1],              # TODO
                              # [1, 2, 3],
                              # [1, 2, 3, 4, 5],
-                          ])
+                         ])
 def test_list_to_slice(input_data):
     """Test """
     output = list_to_slice(input_data)
@@ -94,7 +94,7 @@ def test_list_to_slice(input_data):
                              ([0, 2, 0, 4], [0, 2, 0, 4], 3, 3),
                              ([0, 2, -2, 2], [0, 2, -2, 2], 3, 3),
 
-                          ])
+                         ])
 def test_check_ranges(targ_range, out_range, row, col):
     """Test """
     with pytest.raises(ValueError):
@@ -114,4 +114,3 @@ def test_run_calibration(yaml):
     simulation = cfg['simulation']
     result = simulation.calibration.run_calibration(processor)
     assert result == 1
-

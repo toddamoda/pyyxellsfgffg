@@ -1,9 +1,8 @@
 """Unittests for the 'PixelLoader' class."""
-
-import numpy as np
-import pytest
 import re
 import inspect
+import numpy as np
+import pytest
 import yaml
 
 
@@ -26,7 +25,7 @@ yaml.Loader.add_implicit_resolver('!expr', re.compile(r'^.*$'), None)
 yaml.Loader.add_constructor('!expr', _expr_processor)
 
 
-@pytest.mark.parametrize('data, expected',  [
+@pytest.mark.parametrize('data, expected', [
     ('a: !expr 3.14', {'a': 3.14}),
     ('x: !expr 2**16', {'x': 65536}),
     ('- !expr 3 * (4 + 5)', [27]),

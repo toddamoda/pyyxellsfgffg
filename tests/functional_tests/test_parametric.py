@@ -1,6 +1,5 @@
 from pathlib import Path
 import pytest
-import pyxel    # noqa: F401
 import esapy_config.io as io
 from pyxel.pipelines.processor import Processor
 
@@ -45,6 +44,4 @@ def test_pipeline_parametric(mode, expected):
     assert result == expected
     configs = parametric.collect(processor)
     for config in configs:
-        # detector = config.pipeline.run_pipeline(config.detector)
-        pass
-
+        detector = config.pipeline.run_pipeline(config.detector)

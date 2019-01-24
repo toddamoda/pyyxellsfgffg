@@ -39,3 +39,4 @@ class ModelGroup:
         for model in self.models:
             if model.name == item:
                 return model
+        return None

@@ -39,7 +39,7 @@ if sys.version_info < (3, 0):
             super(PermissionError, self).__init__(errno.EACCES, *args, **kwargs)
 
 
-class ImageData(object):
+class ImageData:
     """Parent class of all image like data.
 
     This class may be constructed directly with a 2d image numpy array and
@@ -309,10 +309,10 @@ class FitsFile(ImageData):
         return self._is_readonly
 
 
-class HeaderAccess(object):
+class HeaderAccess:
     """Convenience class to convert a dictionary of Fits header into a test-bench independent manner."""
 
-    class Attributes(object):
+    class Attributes:
         """Header attribute class definition.
 
         This class will be constructed dynamically in the to_object

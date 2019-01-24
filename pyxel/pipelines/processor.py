@@ -28,15 +28,6 @@ class Processor:
             'pipeline': self.pipeline,
         }
 
-    # def validate(self):
-    #     """TBW."""
-    #     errors = []
-    #     for key, model_group in self.pipeline.model_groups.items():     # TODO
-    #         for model in model_group.models:
-    #             if model.enabled:
-    #                 errors += validate_call(model.func, False, kwargs=model.arguments)
-    #     return errors
-
     def has(self, key):
         """TBW.
 
@@ -76,7 +67,7 @@ class Processor:
             else:
                 value = eval_entry(value)
 
-        obj, att = get_obj_att(self, key)        # TODO wtf???
+        obj, att = get_obj_att(self, key)
 
         if isinstance(obj, dict) and att in obj:
             obj[att] = value
