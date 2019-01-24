@@ -93,37 +93,3 @@ class DetectionPipeline:
                     break
         self._is_running = False
         return detector
-
-    # def clear(self):
-    #     """Remove all the models from this pipeline."""
-    #     for model_group in self.model_groups.values():
-    #         if model_group.models:
-    #             model_group.models.clear()
-    #
-    # def set_model_enabled(self, expression: str, is_enabled: bool):
-    #     """TBW.
-    #
-    #     :param expression:
-    #     :param is_enabled:
-    #     :return:
-    #     """
-    #     groups = self.model_groups
-    #     for group_name, group in groups.items():
-    #         for model in group.models:
-    #             model_name = model.name
-    #             can_set = 0
-    #             can_set |= expression == '*'
-    #             can_set |= group_name in expression
-    #             can_set |= model_name in expression
-    #             if can_set:
-    #                 model.enabled = is_enabled
-    #
-    # @property
-    # def model_groups(self):
-    #     """TBW."""
-    #     result = collections.OrderedDict()
-    #     for group in self._model_groups:
-    #         model_group = getattr(self, group)
-    #         if model_group:
-    #             result[group] = model_group
-    #     return result

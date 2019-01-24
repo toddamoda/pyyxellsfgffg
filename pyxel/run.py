@@ -16,7 +16,6 @@ import esapy_config.io as io
 import pyxel
 from pyxel.pipelines.processor import Processor
 from pyxel import util
-from pyxel.web2.runweb import run_web_server
 
 
 def single_output(detector, output_file):    # TODO
@@ -112,7 +111,8 @@ def main():
     logging.info('\n*** Pyxel ***\n')
 
     if opts.gui:
-        run_web_server(opts.port)  # todo: add opts.config, opts.output, opts.seed as optional args
+        # run_web_server(opts.port)
+        raise NotImplementedError
     elif opts.config:
         run(opts.config, opts.output, opts.seed)
     else:

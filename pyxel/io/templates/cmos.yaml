@@ -13,59 +13,44 @@ simulation:
         enabled: false
         key:
         values:
-      -
-        enabled: false
-        key:
-        values:
-      -
-        enabled: false
-        key:
-        values:
-      -
-        enabled: false
-        key:
-        values:
 
   calibration:
 
-processor:
-  class: pyxel.pipelines.processor.Processor
+detector:
+  class: pyxel.detectors.cmos.CMOS
 
-  detector:
-    class: pyxel.detectors.cmos.CMOS
+  geometry:
+    class: pyxel.detectors.cmos_geometry.CMOSGeometry
 
-    geometry:
-      class: pyxel.detectors.cmos_geometry.CMOSGeometry
+  material:
+    class: pyxel.detectors.material.Material
 
-    material:
-      class: pyxel.detectors.material.Material
+  environment:
+    class: pyxel.detectors.environment.Environment
 
-    environment:
-      class: pyxel.detectors.environment.Environment
+  characteristics:
+    class: pyxel.detectors.cmos_characteristics.CMOSCharacteristics
 
-    characteristics:
-      class: pyxel.detectors.cmos_characteristics.CMOSCharacteristics
+pipeline:
+  class: pyxel.pipelines.cmos_pipeline.CMOSDetectionPipeline
 
-  pipeline:
-    class: pyxel.pipelines.cmos_pipeline.CMOSDetectionPipeline
+  # -> photons
+  photon_generation: []
 
-    # -> photons
-    photon_generation: []
+  # -> photons
+  optics: []
 
-    # -> photons
-    optics: []
+  # -> charge
+  charge_generation: []
 
-    # -> charge
-    charge_generation: []
+  # -> charge
+  charge_collection: []
 
-    # -> charge
-    charge_collection: []
+  # -> signal
+  charge_measurement: []
 
-    # -> signal
-    charge_measurement: []
+  # -> signal
+  signal_transfer: []
 
-    # -> signal
-    signal_transfer: []
-
-    # -> image
-    readout_electronics: []
+  # -> image
+  readout_electronics: []

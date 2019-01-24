@@ -26,6 +26,7 @@ tqdm
 # ESA libraries        #
 ########################
 
-esapy-config==0.7           # >>> esapy-config==0.7 or 0.7.1
+git+https://gitlab.esa.int/sci-fv/esapy_config
+# esapy-config==0.7
 # esapy-web==0.2.1          # only for GUI
 # esapy-dispatcher==0.4     # only for GUI
