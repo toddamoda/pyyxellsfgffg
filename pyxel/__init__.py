@@ -5,7 +5,7 @@ import esapy_config.checkers as checkers
 import esapy_config.validators as validators
 import esapy_config.funcargs as funcargs
 import esapy_config.config as config
-# import esapy_config.io as io
+import esapy_config.io as io
 
 import esapy_config as om                       # todo: depraceted
 
@@ -127,21 +127,21 @@ def pyxel_yaml_loader():
     from pyxel.pipelines.model_function import ModelFunction
     from pyxel.pipelines.model_group import ModelGroup
 
-    om.ObjectModelLoader.add_class_ref(['detector', 'class'])
-    om.ObjectModelLoader.add_class_ref(['detector', None, 'class'])
+    io.ObjectModelLoader.add_class_ref(['detector', 'class'])
+    io.ObjectModelLoader.add_class_ref(['detector', None, 'class'])
 
-    om.ObjectModelLoader.add_class_ref(['pipeline', 'class'])
-    om.ObjectModelLoader.add_class(ModelGroup, ['pipeline', None])
-    om.ObjectModelLoader.add_class(ModelFunction, ['pipeline', None, None])
+    io.ObjectModelLoader.add_class_ref(['pipeline', 'class'])
+    io.ObjectModelLoader.add_class(ModelGroup, ['pipeline', None])
+    io.ObjectModelLoader.add_class(ModelFunction, ['pipeline', None, None])
 
-    om.ObjectModelLoader.add_class(Configuration, ['simulation'])
+    io.ObjectModelLoader.add_class(Configuration, ['simulation'])
 
-    om.ObjectModelLoader.add_class(ParametricAnalysis, ['simulation', 'parametric'])
-    om.ObjectModelLoader.add_class(StepValues, ['simulation', 'parametric', 'steps'], is_list=True)
+    io.ObjectModelLoader.add_class(ParametricAnalysis, ['simulation', 'parametric'])
+    io.ObjectModelLoader.add_class(StepValues, ['simulation', 'parametric', 'steps'], is_list=True)
 
-    om.ObjectModelLoader.add_class(Calibration, ['simulation', 'calibration'])
-    om.ObjectModelLoader.add_class(Algorithm, ['simulation', 'calibration', 'algorithm'])
-    om.ObjectModelLoader.add_class(ModelFunction, ['simulation', 'calibration', 'fitness_function'])
+    io.ObjectModelLoader.add_class(Calibration, ['simulation', 'calibration'])
+    io.ObjectModelLoader.add_class(Algorithm, ['simulation', 'calibration', 'algorithm'])
+    io.ObjectModelLoader.add_class(ModelFunction, ['simulation', 'calibration', 'fitness_function'])
 
 
 pyxel_yaml_loader()

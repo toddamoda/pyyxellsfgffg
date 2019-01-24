@@ -12,7 +12,7 @@ import logging
 import time
 from pathlib import Path
 import numpy as np
-import esapy_config as om
+import esapy_config.io as io
 import pyxel
 from pyxel.pipelines.processor import Processor
 from pyxel import util
@@ -50,7 +50,7 @@ def run(input_filename, output_file: str = None, random_seed: int = None):
     if random_seed:
         np.random.seed(random_seed)
 
-    cfg = om.load(Path(input_filename))
+    cfg = io.load(Path(input_filename))
     simulation = cfg['simulation']
     detector = cfg['detector']
     pipeline = cfg['pipeline']
