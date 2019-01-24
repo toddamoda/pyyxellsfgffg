@@ -9,8 +9,8 @@ numpy
 astropy
 pandas
 matplotlib              # should be optional
-scipy                   # should be removed
-poppy==0.8.0
+scipy
+poppy==0.8.0            # should be optional
 
 ########################
 # Others               #
@@ -27,5 +27,5 @@ tornado
 
 esapy-web==0.2.1
 esapy-dispatcher==0.4
-pygmo==2.9
-esapy-config==0.6
+pygmo==2.9              # >>> pygmo==2.10
+esapy-config==0.6       # >>> esapy-config==0.7

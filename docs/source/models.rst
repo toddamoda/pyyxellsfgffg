@@ -105,8 +105,8 @@ Optical models
     :imported-members:
 
 
-POPPY
-***************************
+Physical Optics Propagation in PYthon (POPPY)
+***********************************************
 
 .. autofunction:: pyxel.models.optics.poppy.optical_psf(detector: Detector, wavelength: float, pixelscale: float, fov_pixels: int, optical_system: list, fov_arcsec: float = None)
 

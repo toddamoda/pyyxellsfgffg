@@ -1,0 +1,181 @@
+################
+# Pyxel configuration file for TESTING, EXPERIMENTING
+# David Lucsanyi
+################
+
+simulation:
+  mode: single
+
+detector:
+  class: pyxel.detectors.ccd.CCD
+
+  geometry:
+    class: pyxel.detectors.ccd_geometry.CCDGeometry
+
+    row:   500                   # compulsory
+    col:   500                  # compulsory
+    total_thickness: 40.         # um
+    pixel_vert_size: 10.         # um
+    pixel_horz_size: 10.         # um
+
+  material:
+    class: pyxel.detectors.material.Material
+    material: 'silicon'
+
+    n_acceptor: 0.0               # cm-3
+    n_donor: 0.0                  # cm-3
+
+  environment:
+    class: pyxel.detectors.environment.Environment
+
+
+  characteristics:
+    class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
+    qe: 0.5                 # -
+    eta: 1.                # e/photon
+    sv: 3e-6              # V/e
+    amp: 10.                 # V/V
+    a1: 100.                # V/V
+    a2: 10000               # DN/V
+    fwc: 1000000            # e
+    fwc_serial: 1000000     # e
+    vg: 1.6200e-10          # cm2
+    svg: 1.6200e-10         # cm2
+    t: 9.4722e-04           # s
+    st: 9.4722e-04          # s
+#      bias_voltage: 0.0        # V
+
+pipeline:
+  class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
+
+  # -> photons
+  photon_generation:
+    - name: load_image
+      func: pyxel.models.photon_generation.load_image.load_image
+      enabled: false
+      arguments:
+        image_file: data/HorseHead_orig.fits # outputs/200x200px.fits   # outputs/141x123px.fits
+        fit_image_to_det: true
+        convert_to_photons: true
+    - name: photon_level
+      func: pyxel.models.photon_generation.illumination.illumination
+      enabled: true
+      arguments:
+          level: 1111
+          option: 'elliptic_hole'
+          hole_size: [30, 50]
+    - name: photon_level
+      func: pyxel.models.photon_generation.illumination.illumination
+      enabled: true
+      arguments:
+          level: 1111
+          option: 'elliptic_hole'
+          hole_size: [30, 50]
+          hole_center: [500, 500]
+    - name: shot_noise
+      func: pyxel.models.photon_generation.shot_noise.shot_noise
+      enabled: false
+
+  # photons -> photons
+  optics:
+    - name: optical_psf
+      func: pyxel.models.optics.poppy.optical_psf
+      enabled: true
+      arguments:
+        fov_pixels: 30       # FOV in pixels
+        pixelscale: 0.1      # micron/pixel OR arcsec/pixel
+        wavelength: 2.e-6     # wavelength in microns
+        # fov_arcsec = 10.   # FOV in arcsec, do not use this
+        optical_system:
+          - item: CircularAperture
+            radius: 1.5
+          - item: ThinLens
+            radius: 1.2
+            nwaves: 1
+          - item: ZernikeWFE
+            radius: 0.8
+            coefficients: [0.1e-6, 3.e-6, -3.e-6, 1.e-6, -7.e-7, 0.4e-6, -2.e-6]
+            aperture_stop: false
+
+    - name: alignment
+      func: pyxel.models.optics.alignment.alignment
+      enabled: true
+
+  # photons -> charge
+  charge_generation:
+
+    - name: photoelectrons
+      func: pyxel.models.charge_generation.photoelectrons.simple_conversion
+      enabled: true
+    - name: tars
+      func: pyxel.models.charge_generation.tars.tars.run_tars
+      enabled: false
+      arguments:
+        simulation_mode: cosmic_ray   # snowflakes
+        running_mode: stepsize  # stopping  # plotting  # geant4
+        particle_type: proton
+        initial_energy: 100.   # MeV
+        particle_number: 2
+        incident_angles:      # rad
+        starting_position:    # um
+        spectrum_file: 'pyxel/models/charge_generation/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
+    - name: charge_injection
+      func: pyxel.models.charge_generation.charge_injection.charge_injection
+      enabled: false
+      arguments:
+        input_data_list: #path
+
+  # charge -> charge
+  charge_collection:
+    - name: fixed_pattern_noise
+      func: pyxel.models.charge_collection.fix_pattern_noise.fix_pattern_noise
+      enabled: false
+      arguments:
+        pix_non_uniformity: data/non_uniformity_array_normal_random_dist.data
+    - name: full_well
+      func: pyxel.models.charge_collection.full_well.simple_pixel_full_well
+      enabled: false
+    - name: simple_collection
+      func: pyxel.models.charge_collection.collection.simple_collection
+      enabled: true
+
+  # charge -> charge
+  charge_transfer:
+    - name: cdm
+      func: pyxel.models.charge_transfer.cdm.CDM.cdm
+      enabled: false
+      arguments:
+       beta_p: 0.1
+       beta_s: 0.3
+       parallel_cti: true
+       serial_cti: false
+       chg_inj: true
+       para_transfers: 1552
+       tr_p: [0.01]
+       tr_s: [0.01]
+       nt_p: [1.]
+       nt_s: [1.]
+       sigma_p: [1.]
+       sigma_s: [1.]
+
+  # charge -> signal
+  charge_measurement:
+    - name: simple_measurement
+      func: pyxel.models.charge_measurement.measurement.simple_measurement
+      enabled: true
+    - name: output_node_noise
+      func: pyxel.models.charge_measurement.readout_noise.output_node_noise
+      enabled: false
+      arguments:
+        std_deviation: 0.000001     # TODO
+
+  # signal -> image
+  readout_electronics:
+    - name: simple_amplifier
+      func: pyxel.models.readout_electronics.amplification.simple_amplifier
+      enabled: true
+    - name: simple_digitization
+      func: pyxel.models.readout_electronics.digitization.simple_digitization
+      enabled: true
+      arguments:
+        data_type: numpy.uint32
