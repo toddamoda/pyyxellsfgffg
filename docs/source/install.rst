@@ -9,16 +9,14 @@ Requirements
 * numpy
 * astropy
 * pandas
-* matplotlib
 * scipy
-* pyyaml
+* pygmo==2.10
 * numba
 * tqdm
-* tornado
-* pygmo==2.9
-* esapy-web==0.2.1
-* esapy-dispatcher==0.4
-* esapy-config==0.6
+* matplotlib
+* poppy==0.8.0
+* dependencies/esapy_config-0.7-py2.py3-none-any.whl
+
 
 From source
 --------------------------------
@@ -27,7 +25,7 @@ From source
     The source is available in `ESA GitLab <https://gitlab.esa.int>`_
     which can be only accessed from ESA network!
 
-Clone the GitLab repository of Pyxel:c
+Clone the GitLab repository of Pyxel:
 
 .. code-block:: bash
 
