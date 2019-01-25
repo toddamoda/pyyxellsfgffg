@@ -6,7 +6,8 @@ ENV PYTHONPATH /app
 
 # Install requirements
 COPY ./requirements.txt requirements.txt
-RUN pip install attrs pyyaml             # TODO remove this, when fixed (needed by esapy-config)
+COPY ./dependencies dependencies
+RUN pip install attrs pyyaml                         # TODO remove this, when fixed (needed by esapy-config)
 RUN pip install -r requirements.txt --upgrade
 
 # Copy project files
