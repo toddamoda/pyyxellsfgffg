@@ -25,20 +25,19 @@ licenses-latest:
   script:
     - python --version
     - pwd
-#    - apt-get update
     - apt-get --yes install libbz2-1.0 xz-utils zlib1g libxml2-dev libxslt1-dev wget  # python-dev
-    - cd ..
-    - wget --quiet https://github.com/nexB/scancode-toolkit/archive/v2.9.8.tar.gz
-    - tar -xf v2.9.8.tar.gz
-    - rm v2.9.8.tar.gz
-    - cd scancode-toolkit-2.9.8
-    - ./scancode --help
-#    - ./scancode --verbose --license --package --copyright --info --email --url --html license_report2.html /builds/sci-fv/pyxel
-    - ./scancode -n 4 --ignore *.fits --verbose --html license_report2.html ../pyxel || echo 0      # latest version, STILL EMPTY REPORT
-#    - ./scancode --verbose --html license_report2.html /builds/sci-fv/pyxel
+#    - cd ..
+    - wget --quiet --directory-prefix=.. https://github.com/nexB/scancode-toolkit/archive/v2.9.8.tar.gz
+    - tar -xf ../v2.9.8.tar.gz
+    - rm ../v2.9.8.tar.gz
+#    - cd scancode-toolkit-2.9.8
+    - ../scancode-toolkit-2.9.8/scancode --help
+#    - ../scancode-toolkit-2.9.8/scancode --verbose --license --package --copyright --info --email --url --html license_report2.html /builds/sci-fv/pyxel
+    - ../scancode-toolkit-2.9.8/scancode -n 4 --ignore *.fits --verbose --html license_report2.html . || echo 0      # latest version, STILL EMPTY REPORT
+#    - ../scancode-toolkit-2.9.8/scancode --verbose --html license_report2.html /builds/sci-fv/pyxel
     - pwd
     - ls
-    - mv license_report2.html ../pyxel
+#    - mv license_report2.html ../pyxel-mirror
   artifacts:
     paths:
       - license_report2.html
@@ -50,7 +49,6 @@ anaconda3:
   stage: test
   script:
     - pip install pytest pytest-cov pytest-html
-    - pip install attrs pyyaml            # todo remove this
     - pip install -r requirements.txt
     - pip freeze
     - export PYTHONPATH=$PWD
@@ -80,7 +78,6 @@ python37:
   stage: test
   script:
     - pip install pytest
-    - pip install attrs pyyaml            # todo remove this
     - pip install -r requirements.txt
     - pip freeze
     - pytest --color=yes --full-trace --showlocals --verbose
@@ -93,7 +90,6 @@ python36:
   stage: test
   script:
     - pip install pytest
-    - pip install attrs pyyaml            # todo remove this
     - pip install -r requirements.txt
     - pip freeze
     - pytest --color=yes --full-trace --showlocals --verbose
@@ -116,7 +112,6 @@ lint:
   stage: test
   script:
     - pip install pytest-pylint pytest-html
-    - pip install attrs pyyaml            # todo remove this
     - pip install -r requirements.txt
     - pytest --pylint --color=yes --verbose --pylint-rcfile=pylint.cfg --html=pylint_report.html --self-contained-html -m pylint || echo 1
     - ls
@@ -127,7 +122,7 @@ lint:
     key: "$CI_COMMIT_REF_NAME"
     paths:
       - pylint_report.html
-  allow_failure: true  # false      # TODO
+  allow_failure: true
 
 
 flake8:
@@ -159,10 +154,10 @@ licenses:
   allow_failure: true
   script:
     - pwd
-    - pip install scancode-toolkit==2.2.1    # worked
+    - pip install scancode-toolkit==2.2.1    # worked  # todo: use latest release when it will be available !
 #    - pip install scancode-toolkit==2.9.2
 #    - pip install scancode-toolkit        # not worked:  EMPTY REPORT
-    - scancode --help            # todo: use latest release when it will be available !
+    - scancode --help
 #    - scancode --license --package --copyright --info --email --url . --html-app license_report.html        # latest version
 #    - scancode --license --package --copyright --info --email --url --format html-app . license_report.html   # v2.2.1
 #    - scancode --license --package --copyright --info --email --url --format html . license_report.html      # v2.2.1
@@ -185,7 +180,6 @@ doc:
   stage: build
   script:
     - pip install -r docs/requirements-docs.txt
-    - pip install attrs pyyaml            # todo remove this
     - pip install -r requirements.txt
     - export PYTHONPATH=$PWD
     - sphinx-build docs/source docs/html -E -a -j 4
@@ -203,14 +197,14 @@ doc:
   allow_failure: false
 
 
-#docker:
-#  stage: build
-#  image: docker:dind
-#  script:
-#    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN gitlab.esa.int:4567
-#    - docker build --pull -t $CONTAINER_LATEST_IMAGE .
-#    - docker push $CONTAINER_LATEST_IMAGE
-#  allow_failure: false
+docker:
+  stage: build
+  image: docker:dind
+  script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN gitlab.esa.int:4567
+    - docker build --pull -t $CONTAINER_LATEST_IMAGE .
+    - docker push $CONTAINER_LATEST_IMAGE
+  allow_failure: false
 
 
 # Create wheel file
