@@ -5,7 +5,7 @@
 variables:
     PYPI_USER: SECURE
     PYPI_PASSWORD: SECURE
-    CONTAINER_LATEST_IMAGE: gitlab.esa.int:4567/sci-fv/pyxel:latest
+#    CONTAINER_LATEST_IMAGE: gitlab.esa.int:4567/sci-fv/pyxel:latest
 
 stages:
   - test
@@ -197,27 +197,14 @@ doc:
   allow_failure: false
 
 
-docker:
-  stage: build
-  image: docker:dind
-  script:
-    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN gitlab.esa.int:4567
-    - docker build --pull -t $CONTAINER_LATEST_IMAGE .
-    - docker push $CONTAINER_LATEST_IMAGE
-  allow_failure: false
-
-
-# Create wheel file
-#deploy:
-#  image: python:3
-#  stage: deploy
-#  environment: deploy
+#docker:
+#  stage: build
+#  image: docker:dind
 #  script:
-#    - pip install wheel setuptools
-#    - python setup.py bdist_wheel
-#  artifacts:
-#    paths:
-#      - dist
+#    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN gitlab.esa.int:4567
+#    - docker build --pull -t $CONTAINER_LATEST_IMAGE .
+#    - docker push $CONTAINER_LATEST_IMAGE
+#  allow_failure: false
 
 
 # ###########################
@@ -267,6 +254,18 @@ pages:
 ##    - kubectl --kubeconfig $KUBECONFIG patch deployment pyxel-deployment -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}"
 ##    - kubectl --kubeconfig $KUBECONFIG get pods
 
+
+# Create wheel file
+#deploy:
+#  image: python:3
+#  stage: deploy
+#  environment: deploy
+#  script:
+#    - pip install wheel setuptools
+#    - python setup.py bdist_wheel
+#  artifacts:
+#    paths:
+#      - dist
 
 # Upload to pypi
 # Reference: http://samb.io/blog/2016/devops/python/gitlab/continuous-deployment/continuous-deployment-to-python-packaging
