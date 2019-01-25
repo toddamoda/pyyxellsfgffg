@@ -31,10 +31,11 @@ html_theme = 'sphinx_rtd_theme'
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 ROOT_DIR = path.dirname(path.dirname(path.dirname(path.abspath(__file__))))
-PROJ_NAME = path.split(ROOT_DIR)[1]
-SRC_DIR = ROOT_DIR  # path.join(ROOT_DIR, PROJ_NAME)
+PROJ_NAME = 'pyxel'     # path.split(ROOT_DIR)[1]
+SRC_DIR = ROOT_DIR      # path.join(ROOT_DIR, PROJ_NAME)
 print('Adding project source directory to PYTHON_PATH: %s' % SRC_DIR)
 sys.path.append(SRC_DIR)
+print('SRC_DIR:', SRC_DIR)
 pkg = importlib.import_module(PROJ_NAME)
 print('Imported package: %s' % pkg.__pkgname__)
 
