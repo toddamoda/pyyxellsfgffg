@@ -5,7 +5,7 @@
 variables:
     PYPI_USER: SECURE
     PYPI_PASSWORD: SECURE
-#    CONTAINER_LATEST_IMAGE: gitlab.esa.int:4567/sci-fv/pyxel:latest
+    CONTAINER_LATEST_IMAGE: gitlab.esa.int:4567/sci-fv/pyxel:latest
 
 stages:
   - test
