@@ -2,9 +2,9 @@
 # Notes: $CI_COMMIT_REF_NAME => master or branch-xyz
 #
 
-variables:
-    PYPI_USER: SECURE
-    PYPI_PASSWORD: SECURE
+#variables:
+#    PYPI_USER: SECURE
+#    PYPI_PASSWORD: SECURE
 #    CONTAINER_LATEST_IMAGE: gitlab.esa.int:4567/sci-fv/pyxel:latest
 
 stages:
