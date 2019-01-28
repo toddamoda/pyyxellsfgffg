@@ -37,7 +37,7 @@ Authors
 
 `Developers and contributors <https://esa.gitlab.io/pyxel/doc/authors.html>`_
 
-Continous Integration & Deployment
+Continuous Integration & Deployment
 -----------------------------------
 
 .. attention::

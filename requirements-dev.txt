@@ -1,7 +1,5 @@
 # Pyxel additional requirements for developers
 
-# Testing:
-
 pytest
 pytest-html
 pytest-cov

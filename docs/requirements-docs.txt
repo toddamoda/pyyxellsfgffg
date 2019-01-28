@@ -1,3 +1,5 @@
+# Pyxel additional requirements for generating documentation
+
 doc8
 sphinx
 sphinx-rtd-theme

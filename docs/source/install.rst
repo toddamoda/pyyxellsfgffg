@@ -28,7 +28,7 @@ Requirements
 From source
 --------------------------------
 
-Get access to the `Pyxel GitLab repository <https://gitlab.com/esa/pyxel>`_
+First, get access to the `Pyxel GitLab repository <https://gitlab.com/esa/pyxel>`_
 from David Lucsanyi (@david.lucsanyi).
 
 If you can access it, then clone the GitLab repository to your computer
