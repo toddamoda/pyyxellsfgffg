@@ -6,7 +6,7 @@ Installation
 Requirements
 -------------
 
-**Dependencies from official PyPI server:**
+**Dependencies available on official PyPI server:**
 
 * numpy
 * astropy
@@ -18,7 +18,7 @@ Requirements
 * numba
 * tqdm
 
-**Dependencies provided with Pyxel:**
+**Dependencies provided together with Pyxel:**
 
 * dependencies/esapy_config-0.7-py2.py3-none-any.whl
 
@@ -26,9 +26,11 @@ Requirements
 From source
 --------------------------------
 
-Get access to GitLab repo from David Lucsanyi (@david.lucsanyi).
+Get access to the `Pyxel GitLab repository <https://gitlab.com/esa/pyxel>`_
+from David Lucsanyi (@david.lucsanyi).
 
-If you can access it, then clone the GitLab repository:
+If you can access it, then clone the GitLab repository to your computer
+using ``git``:
 
 .. code-block:: bash
 
@@ -110,10 +112,6 @@ Pip install
 
 .. attention::
     Not yet available!
-
-**Pyxel** is available on the PyPI server of ESA SCI-FIV at the following
-url: `<http://lab-linux-server.estec.esa.int/pyxel/>`.
-By using this server, you are sure to have the latest stable version.
 
 To install, simply use ``pip``:
 
