@@ -37,7 +37,7 @@ models in the pipeline.
     Detector attributes changes could happen globally (on detector level)
     or locally (on pixel level or only for a specific detector area).
 
-.. figure:: _static/model-table.PNG
+.. figure:: _static/model-table.png
     :scale: 70%
     :alt: models
     :align: center
@@ -81,12 +81,12 @@ Photon Generation models
 Loading image
 ***************************
 
-.. autofunction:: pyxel.models.photon_generation.load_image.load_image(detector: Detector, image_file: str, row0: int = 0, col0: int = 0, load_full_image: bool = False)
+.. autofunction:: pyxel.models.photon_generation.load_image.load_image(detector: Detector, image_file: str, row0: int = 0, col0: int = 0, fit_image_to_det: bool = False)
 
-Simple photon generation
+Simple illumination
 ***************************
 
-.. autofunction:: pyxel.models.photon_generation.add_photons.add_photons(detector: Detector, level: int = -1)
+.. autofunction:: pyxel.models.photon_generation.illumination.illumination(detector: Detector, level: int, option: str = 'uniform', array_size: list = None, mask_size: t.List[int] = None, mask_center: t.List[int] = None)
 
 Shot noise
 ***************************
@@ -103,6 +103,18 @@ Optical models
     :members:
     :undoc-members:
     :imported-members:
+
+
+Physical Optics Propagation in PYthon (POPPY)
+***********************************************
+
+.. autofunction:: pyxel.models.optics.poppy.optical_psf(detector: Detector, wavelength: float, pixelscale: float, fov_pixels: int, optical_system: list, fov_arcsec: float = None)
+
+
+Simple optical alignment
+***************************
+
+.. autofunction:: pyxel.models.optics.alignment.alignment
 
 
 .. _charge_generation:
@@ -287,3 +299,8 @@ Simple digitization
 *******************************
 
 .. autofunction:: pyxel.models.readout_electronics.digitization.simple_digitization
+
+Simple amplification
+*******************************
+
+.. autofunction:: pyxel.models.readout_electronics.amplification.simple_amplifier

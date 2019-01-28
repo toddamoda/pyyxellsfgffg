@@ -1,8 +1,8 @@
 """Functional tests for the Pyxel pipelines."""
 import pytest
 import numpy as np
-from pyxel.run import run
 from astropy.io import fits
+from pyxel.run import run
 
 
 @pytest.mark.parametrize('yaml, expected_image, seed',
@@ -10,7 +10,7 @@ from astropy.io import fits
                              ('tests/data/photon_transfer_function.yaml', 'tests/data/uniform_1000.fits', 1111),
                              ('tests/data/pipeline_01.yaml', 'tests/data/expected_pipeline_01.fits', 1111),
                              ('tests/data/pipeline_02.yaml', 'tests/data/expected_pipeline_01.fits', 1111),
-                          ])
+                         ])
 def test_pyxel_pipeline(yaml, expected_image, seed):
     """Test """
     out = 'tests/data/temp.fits'

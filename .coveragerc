@@ -8,4 +8,6 @@ exclude_lines =
 [run]
 omit =
     pyxel/calibration/inputdata.py
-    pyxel/models/cdm/CDM_old.py
+    pyxel/models/signal_transfer/nghxrg/nghxrg_beta.py
+    pyxel/models/charge_transfer/cdm/CDM_old.py
+    pyxel/models/charge_generation/tars/plotting.py

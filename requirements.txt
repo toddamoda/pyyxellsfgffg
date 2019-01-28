@@ -1,31 +1,28 @@
---extra-index-url http://lab-linux-server.estec.esa.int/pypi/simple/
---trusted-host lab-linux-server.estec.esa.int
+# Pyxel requirements
 
 ########################
-# Scientific / Imaging #
+# Core packages        #
 ########################
 
 numpy
 astropy
 pandas
-matplotlib              # should be optional
-scipy                   # should be removed
-
-########################
-# Others               #
-########################
-
-pyyaml
+scipy
+pygmo==2.10
 numba
 tqdm
-tornado
+matplotlib                  # should be optional
+
+########################
+# Models               #
+########################
+
+poppy==0.8.0
 
 ########################
 # ESA libraries        #
 ########################
 
-esapy-web==0.2.1
-esapy-dispatcher==0.4
-pygmo==2.9
-esapy-config==0.6
+dependencies/esapy_config-0.7.1-py2.py3-none-any.whl
 # git+https://gitlab.esa.int/sci-fv/esapy_config#egg=esapy-config
+# esapy-config==0.7

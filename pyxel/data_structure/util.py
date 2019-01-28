@@ -1,7 +1,7 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-"""Pyxel util functions for Particle, Photon and Charge classes."""
+"""Pyxel util functions for Particle classes."""
 import math
 import numpy as np
 

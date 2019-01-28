@@ -141,11 +141,10 @@ pipeline:
       enabled: true
       arguments:
         image_file: outputs/in.fits # data/01.fits
-        row0: 0
-        col0: 0
+        fit_image_to_det: false
         convert_to_photons: true
     - name: photon_level
-      func: pyxel.models.photon_generation.add_photons.add_photons
+      func: pyxel.models.photon_generation.illumination.illumination
       enabled: false
       arguments:
           level: 10

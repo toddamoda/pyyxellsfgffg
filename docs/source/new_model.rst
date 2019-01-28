@@ -28,7 +28,7 @@ You should copy the python file including your function in the folder
 
     photon_generation:
       - name: photon_level
-        func: pyxel.models.photon_generation.add_photons.add_photons
+        func: pyxel.models.photon_generation.illumination.illumination
         enabled: true
         arguments:
           level: 1000

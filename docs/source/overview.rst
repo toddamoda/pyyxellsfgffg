@@ -3,7 +3,8 @@
 Overview
 ========
 
-Pyxel is a novel, open-source, modular Python software framework designed
+Pyxel :cite:`2018:lucsanyi` is a novel, open-source, modular
+Python software framework designed
 to host and pipeline models (analytical, numerical, statistical) simulating
 different types of detector effects on images produced by Charge-Coupled
 Devices (CCD), Monolithic, and Hybrid CMOS imaging sensors.
@@ -20,7 +21,6 @@ Point Spread Function (PSF), electronic noises, Charge Transfer Inefficiency
 (CTI), persistence, dark current, charge diffusion, optical effects, etc.
 The output is one or more images including the simulated detector effects
 combined.
-
 
 .. figure:: _static/Pyxel-example-transparent.png
     :alt: example
@@ -47,34 +47,15 @@ a particular application, or to predict instrument and mission performance
 based on existing detector measurements.
 
 One of the main purposes of this new tool is to share existing resources
-and avoid duplication of work. For instance, a concrete need at ESA is
-that detector models developed for a certain project could be reused by
+and avoid duplication of work. For instance, detector models
+developed for a certain project could be reused by
 other projects as well, making knowledge transfer easier.
-
-Pyxel is built with modularity and flexibility in mind and makes use of
-the GitLab infrastructure for version control and to support collaborative
-development. Therefore it shall be easy for its user community to directly
-contribute and expand the framework capabilities by adding their own models.
-
-:cite:`2018:lucsanyi`
-
-
-
-:ref:`License <license>`
-
-
-|release|
-
-
-|version|
-
-
-|today|
 
 .. note::
 
-    This is a note.
+    **This publication should be referenced in context of using Pyxel:**
 
-.. warning::
-
-    This is a warning!
+    D. Lucsanyi, T. Prod’homme, H. Smit, F. Lemmel, P.-E. Crouzet, P. Verhoeve, and B. Shortt.:
+    *"Pyxel - a novel and multi-purpose python-based framework for imaging detector simulation"*
+    Proc. SPIE 10709, High Energy, Optical, and Infrared Detectors for Astronomy VIII, 107091A, 2018.
+    doi:10.1117/12.2314047.

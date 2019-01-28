@@ -2,10 +2,10 @@
 # Notes: $CI_COMMIT_REF_NAME => master or branch-xyz
 #
 
-variables:
-    PYPI_USER: SECURE
-    PYPI_PASSWORD: SECURE
-    CONTAINER_LATEST_IMAGE: gitlab.esa.int:4567/sci-fv/pyxel:latest
+#variables:
+#    PYPI_USER: SECURE
+#    PYPI_PASSWORD: SECURE
+#    CONTAINER_LATEST_IMAGE: gitlab.esa.int:4567/sci-fv/pyxel:latest
 
 stages:
   - test
@@ -25,20 +25,20 @@ licenses-latest:
   script:
     - python --version
     - pwd
-#    - apt-get update
     - apt-get --yes install libbz2-1.0 xz-utils zlib1g libxml2-dev libxslt1-dev wget  # python-dev
-    - cd ..
-    - wget --quiet https://github.com/nexB/scancode-toolkit/archive/v2.9.8.tar.gz
-    - tar -xf v2.9.8.tar.gz
-    - rm v2.9.8.tar.gz
-    - cd scancode-toolkit-2.9.8
-    - ./scancode --help
-#    - ./scancode --verbose --license --package --copyright --info --email --url --html license_report2.html /builds/sci-fv/pyxel
-    - ./scancode -n 4 --ignore *.fits --verbose --html license_report2.html /builds/sci-fv/pyxel || echo 0      # latest version, STILL EMPTY REPORT
-#    - ./scancode --verbose --html license_report2.html /builds/sci-fv/pyxel
+#    - cd ..
+    - wget --quiet --directory-prefix=.. https://github.com/nexB/scancode-toolkit/archive/v2.9.8.tar.gz
+    - tar -xf ../v2.9.8.tar.gz
+    - rm ../v2.9.8.tar.gz
+    - ls
+#    - cd scancode-toolkit-2.9.8
+    - ./../scancode-toolkit-2.9.8/scancode --help
+#    - ./../scancode-toolkit-2.9.8/scancode --verbose --license --package --copyright --info --email --url --html license_report2.html /builds/sci-fv/pyxel
+    - ./../scancode-toolkit-2.9.8/scancode -n 4 --ignore *.fits --verbose --html license_report2.html . || echo 0      # latest version, STILL EMPTY REPORT
+#    - ./../scancode-toolkit-2.9.8/scancode --verbose --html license_report2.html /builds/sci-fv/pyxel
     - pwd
     - ls
-    - mv license_report2.html ../pyxel
+#    - mv license_report2.html ../pyxel-mirror
   artifacts:
     paths:
       - license_report2.html
@@ -97,18 +97,6 @@ python36:
   allow_failure: false
 
 
-## Run pytest for Python 3.5
-#python35:
-#  image: python:3.5
-#  stage: test
-#  script:
-#    - pip install pytest
-#    - pip install -r requirements.txt
-#    - pip freeze
-#    - pytest --color=yes --full-trace --showlocals --verbose
-#  allow_failure: true
-
-
 # Run mypy
 mypy:
   image: continuumio/anaconda3
@@ -135,7 +123,7 @@ lint:
     key: "$CI_COMMIT_REF_NAME"
     paths:
       - pylint_report.html
-  allow_failure: true  # false      # TODO
+  allow_failure: true
 
 
 flake8:
@@ -167,10 +155,10 @@ licenses:
   allow_failure: true
   script:
     - pwd
-    - pip install scancode-toolkit==2.2.1    # worked
+    - pip install scancode-toolkit==2.2.1    # worked  # todo: use latest release when it will be available !
 #    - pip install scancode-toolkit==2.9.2
 #    - pip install scancode-toolkit        # not worked:  EMPTY REPORT
-    - scancode --help            # todo: use latest release when it will be available !
+    - scancode --help
 #    - scancode --license --package --copyright --info --email --url . --html-app license_report.html        # latest version
 #    - scancode --license --package --copyright --info --email --url --format html-app . license_report.html   # v2.2.1
 #    - scancode --license --package --copyright --info --email --url --format html . license_report.html      # v2.2.1
@@ -210,27 +198,14 @@ doc:
   allow_failure: false
 
 
-docker:
-  stage: build
-  image: docker:dind
-  script:
-    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN gitlab.esa.int:4567
-    - docker build --pull -t $CONTAINER_LATEST_IMAGE .
-    - docker push $CONTAINER_LATEST_IMAGE
-  allow_failure: false
-
-
-# Create wheel file
-#deploy:
-#  image: python:3
-#  stage: deploy
-#  environment: deploy
+#docker:
+#  stage: build
+#  image: docker:dind
 #  script:
-#    - pip install wheel setuptools
-#    - python setup.py bdist_wheel
-#  artifacts:
-#    paths:
-#      - dist
+#    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN gitlab.esa.int:4567
+#    - docker build --pull -t $CONTAINER_LATEST_IMAGE .
+#    - docker push $CONTAINER_LATEST_IMAGE
+#  allow_failure: false
 
 
 # ###########################
@@ -262,24 +237,36 @@ pages:
 #  only:
 #    - tags
 
-kubernetes:
-  stage: deploy
-  image: docker:dind
-  environment:
-    name: development
-  allow_failure: true
-  script:
-    - apk add --no-cache curl
-    - curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.10.7/bin/linux/amd64/kubectl
-    - chmod +x ./kubectl
-    - mv ./kubectl /usr/local/bin/kubectl
-    - kubectl --kubeconfig $KUBECONFIG --ignore-not-found=true delete -f kubernetes.yaml
-    - sleep 30
-    - kubectl --kubeconfig $KUBECONFIG apply -f kubernetes.yaml
-#    - echo "Because we are not tagging the images just do a change in the deployment to force a pull"
-#    - kubectl --kubeconfig $KUBECONFIG patch deployment pyxel-deployment -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}"
-#    - kubectl --kubeconfig $KUBECONFIG get pods
+#kubernetes:
+#  stage: deploy
+#  image: docker:dind
+#  environment:
+#    name: development
+#  allow_failure: true
+#  script:
+#    - apk add --no-cache curl
+#    - curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.10.7/bin/linux/amd64/kubectl
+#    - chmod +x ./kubectl
+#    - mv ./kubectl /usr/local/bin/kubectl
+#    - kubectl --kubeconfig $KUBECONFIG --ignore-not-found=true delete -f kubernetes.yaml
+#    - sleep 30
+#    - kubectl --kubeconfig $KUBECONFIG apply -f kubernetes.yaml
+##    - echo "Because we are not tagging the images just do a change in the deployment to force a pull"
+##    - kubectl --kubeconfig $KUBECONFIG patch deployment pyxel-deployment -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}"
+##    - kubectl --kubeconfig $KUBECONFIG get pods
 
+
+# Create wheel file
+#deploy:
+#  image: python:3
+#  stage: deploy
+#  environment: deploy
+#  script:
+#    - pip install wheel setuptools
+#    - python setup.py bdist_wheel
+#  artifacts:
+#    paths:
+#      - dist
 
 # Upload to pypi
 # Reference: http://samb.io/blog/2016/devops/python/gitlab/continuous-deployment/continuous-deployment-to-python-packaging

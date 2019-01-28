@@ -1,6 +1,3 @@
-#   --------------------------------------------------------------------------
-#   Copyright 2018 SCI-FIV, ESA (European Space Agency)
-#   --------------------------------------------------------------------------
 """CCD detector modeling class."""
 from math import sqrt
 import collections
@@ -16,7 +13,6 @@ from pyxel.data_structure.photon import Photon  # noqa: F401
 from pyxel.data_structure.pixel import Pixel    # noqa: F401
 from pyxel.data_structure.signal import Signal  # noqa: F401
 from pyxel.data_structure.image import Image    # noqa: F401
-import esapy_config as om
 
 
 class Detector:
@@ -45,6 +41,7 @@ class Detector:
         self.header = collections.OrderedDict()   # type: t.Dict[str, object]
 
         self.photons = Photon(self.geometry)        # type: Photon
+        # self.photons = None                           # type: t.Optional[Photon]
         self.charges = Charge()                     # type: Charge
         self.pixels = Pixel(self.geometry)          # type: Pixel
         self.signal = Signal(self.geometry)         # type: Signal
@@ -63,52 +60,6 @@ class Detector:
 
         self.input_image = None
 
-        # ##### experimantal! #######
-        # self.geometry.create_sensor()
-        ############################
-
-    # def reinitialize(self):
-    #     """TBW."""
-    #     self.photons = Photon()                 # type: Photon
-    #     self.charges = Charge()                 # type: Charge
-    #     self.pixels = Pixel(self.geometry)      # type: Pixel
-    #     self.signal = Signal(self.geometry)     # type: Signal
-    #     self.image = Image(self.geometry)       # type: Image
-
-    ######################################
-    # These functions are not called at all:
-    #
-    # def update_header(self):
-    #     """TBW."""
-    #     for name, obj in self.__getstate__().items():
-    #         for att, value in obj.__getstate__().items():
-    #             util.update_fits_header(self.header, key=[name, att], value=value)
-    #
-    # def to_fits(self, output_file):
-    #     """Save signal to fits format."""
-    #     pass  # TODO
-    #
-    # def copy(self):
-    #     """TBW."""
-    #     kwargs = {
-    #         'geometry': self.geometry.copy(),
-    #         'material': self.material.copy(),
-    #         'environment': self.environment.copy(),
-    #         'characteristics': self.characteristics.copy(),
-    #     }
-    #     return Detector(**kwargs)
-    #
-    # # TODO: create unittests for this method
-    # def __eq__(self, obj) -> bool:
-    #     """TBW.
-    #
-    #     :param obj:
-    #     :return:
-    #     """
-    #     assert isinstance(obj, Detector)
-    #     return self.__getstate__() == obj.__getstate__()
-    ######################################
-
     def __getstate__(self):
         """TBW.
 
@@ -126,13 +77,6 @@ class Detector:
             'image': self.image,
             'input_image': self.input_image
         }
-
-    def get_state_json(self):
-        """TBW.
-
-        This function is probably used by the GUI.
-        """
-        return om.get_state_dict(self)
 
     @property
     def e_thermal_velocity(self):

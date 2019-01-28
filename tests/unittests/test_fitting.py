@@ -2,7 +2,7 @@
 
 import pytest
 import numpy as np
-import esapy_config as om
+import esapy_config.io as io
 import pygmo as pg
 from pyxel.calibration.fitting import ModelFitting
 from pyxel.detectors.detector import Detector
@@ -36,10 +36,10 @@ def configure(mf, sim):  # , target=None):
 @pytest.mark.parametrize('yaml_file',
                          [
                              'tests/data/calibrate.yaml',
-                          ])
+                         ])
 def test_configure_params(yaml_file):
     """Test """
-    cfg = om.load(yaml_file)
+    cfg = io.load(yaml_file)
     detector = cfg['detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
@@ -67,10 +67,10 @@ def test_configure_params(yaml_file):
 @pytest.mark.parametrize('yaml',
                          [
                              'tests/data/calibrate_fits.yaml',
-                          ])
+                         ])
 def test_configure_fits_target(yaml):
     """Test """
-    cfg = om.load(yaml)
+    cfg = io.load(yaml)
     detector = cfg['detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
@@ -90,10 +90,10 @@ def test_configure_fits_target(yaml):
                          [
                              'tests/data/calibrate.yaml',
                              'tests/data/calibrate_fits.yaml',
-                          ])
+                         ])
 def test_boundaries(yaml):
     """Test """
-    cfg = om.load(yaml)
+    cfg = io.load(yaml)
     detector = cfg['detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
@@ -126,10 +126,10 @@ def test_boundaries(yaml):
                                         [1308., 1309.]]),
                               np.array([[1462., 1368.],
                                         [1508., 1399.]]), 400.)
-                          ])
+                         ])
 def test_calculate_fitness(simulated_data, target_data, expected_fitness):
     """Test"""
-    cfg = om.load('tests/data/calibrate.yaml')
+    cfg = io.load('tests/data/calibrate.yaml')
     detector = cfg['detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
@@ -146,11 +146,10 @@ def test_calculate_fitness(simulated_data, target_data, expected_fitness):
                              ('tests/data/calibrate_weighting.yaml', 1, 0.),
                              ('tests/data/calibrate_weighting.yaml', 2, 310815803081.51117),
                              ('tests/data/calibrate_weighting.yaml', 3, 621631606163.0223),
-                          ])
+                         ])
 def test_weighting(yaml, factor, expected_fitness):
     """Test"""
-    pass
-    cfg = om.load(yaml)
+    cfg = io.load(yaml)
     detector = cfg['detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
@@ -175,10 +174,10 @@ def custom_fitness_func(sim, targ):
                               np.array([1., 2., 3.]), np.array([2., 5., 6.]), 26.),
                              ('tests/data/calibrate_least_squares.yaml',
                               2., 4., 4.),
-                          ])
+                         ])
 def test_custom_fitness(yaml, simulated_data, target_data, expected_fitness):
     """Test"""
-    cfg = om.load(yaml)
+    cfg = io.load(yaml)
     detector = cfg['detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
@@ -196,10 +195,10 @@ def test_custom_fitness(yaml, simulated_data, target_data, expected_fitness):
                               np.array([1., 0.5, 1.5, -2., -3., 4.5, -4., 1.,
                                         0.5, -3.5, 2., -3., -4., 0.5, 1., 100.]),
                               5180.350962745482)
-                          ])
+                         ])
 def test_fitness(yaml, parameter, expected_fitness):
     """Test"""
-    cfg = om.load(yaml)
+    cfg = io.load(yaml)
     detector = cfg['detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
@@ -222,11 +221,11 @@ def test_fitness(yaml, parameter, expected_fitness):
                                   13.0,
                                   1.e+14,
                                   15.0
-                               ]),
-                          ])
+                              ]),
+                         ])
 def test_split_and_update(yaml, parameter, expected_subarrays):
     """Test"""
-    cfg = om.load(yaml)
+    cfg = io.load(yaml)
     detector = cfg['detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
@@ -234,8 +233,8 @@ def test_split_and_update(yaml, parameter, expected_subarrays):
     mf = ModelFitting(processor)
     configure(mf, simulation)
     subarrays = mf.split_and_update_parameter(parameter)
-    for i in range(len(subarrays)):
-        np.testing.assert_array_equal(subarrays[i], expected_subarrays[i])
+    for i, array in enumerate(subarrays):
+        np.testing.assert_array_equal(array, expected_subarrays[i])
 
 
 @pytest.mark.parametrize('yaml, param_array_list',
@@ -249,11 +248,11 @@ def test_split_and_update(yaml, parameter, expected_subarrays):
                                   13.0,
                                   1.e+14,
                                   150
-                               ]),
-                          ])
+                              ]),
+                         ])
 def test_detector_and_model_update(yaml, param_array_list):
     """Test"""
-    cfg = om.load(yaml)
+    cfg = io.load(yaml)
     detector = cfg['detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
@@ -280,6 +279,6 @@ def test_detector_and_model_update(yaml, param_array_list):
     #     mf.pipe.model_groups['charge_measurement'].models[0].arguments['std_deviation'],
     #     mf.det.environment.temperature
     # ]
-    for i in range(len(param_array_list)):
-        np.testing.assert_array_equal(param_array_list[i], attributes[i])
+    for i, array in enumerate(param_array_list):
+        np.testing.assert_array_equal(array, attributes[i])
         # np.testing.assert_array_equal(param_array_list[i], attributes2[i])
