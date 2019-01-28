@@ -37,7 +37,7 @@ models in the pipeline.
     Detector attributes changes could happen globally (on detector level)
     or locally (on pixel level or only for a specific detector area).
 
-.. figure:: _static/model-table.PNG
+.. figure:: _static/model-table.png
     :scale: 70%
     :alt: models
     :align: center

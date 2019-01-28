@@ -3,11 +3,6 @@
 Detectors
 ===========
 
-..
-  UML from file location
-  .. uml:: _static/example.puml
-
-
 According to the YAML file, one CCD or CMOS Detector object is instantiated
 for each thread, inheriting from a general (abstract) Detector class. The
 created Detector object is the input of the Detection pipeline, which is

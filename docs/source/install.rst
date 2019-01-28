@@ -6,48 +6,56 @@ Installation
 Requirements
 -------------
 
+**Dependencies from official PyPI server:**
+
 * numpy
 * astropy
 * pandas
 * scipy
+* matplotlib
 * pygmo==2.10
+* poppy==0.8.0
 * numba
 * tqdm
-* matplotlib
-* poppy==0.8.0
+
+**Dependencies provided with Pyxel:**
+
 * dependencies/esapy_config-0.7-py2.py3-none-any.whl
 
 
 From source
 --------------------------------
 
-.. attention::
-    The source is available in `ESA GitLab <https://gitlab.esa.int>`_
-    which can be only accessed from ESA network!
+Get access to GitLab repo from David Lucsanyi (@david.lucsanyi).
 
-Clone the GitLab repository of Pyxel:
+If you can access it, then clone the GitLab repository:
 
 .. code-block:: bash
 
-    git clone https://gitlab.esa.int/sci-fv/pyxel.git
+    git clone https://gitlab.com/esa/pyxel.git
 
-Give your ESAAD credentials to access GitLab.
-
-After cloning the repository, install the requirements with ``pip`` using
-the ``requirements.txt`` file inside the ``pyxel`` folder:
+After cloning the repository, install all the requirements with
+``pip`` using the ``requirements.txt`` file inside the ``pyxel``
+folder:
 
 .. code-block:: bash
 
   pip install -r requirements.txt
 
-If a package is not available in any PyPI server for your OS, but
-you are using Conda or Anaconda Python distribution, then
-download the whl file of the requirement and install it manually
-with ``conda install``.
+If a package is not available in any PyPI server for your OS, because
+you are using Conda or Anaconda Python distribution, then you might
+have to download the Conda compatible whl file of some dependencies
+and install it manually with ``conda install``.
+
+After these steps, you are ready to run Pyxel, see
+:ref:`here how to run it <running_modes>`.
 
 
 Using Docker
 -------------
+
+.. attention::
+    Not yet available!
 
 Using Docker, you can just download the Pyxel Docker image and run it without
 installing Pyxel.
@@ -95,9 +103,6 @@ After running Pyxel container you can access it:
 .. code-block:: bash
 
   docker exec -it <CONTAINER_NAME> /bin/bash
-
-
-https://gitlab.esa.int/sci-fv/pyxel/container_registry
 
 
 Pip install

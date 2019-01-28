@@ -30,11 +30,12 @@ licenses-latest:
     - wget --quiet --directory-prefix=.. https://github.com/nexB/scancode-toolkit/archive/v2.9.8.tar.gz
     - tar -xf ../v2.9.8.tar.gz
     - rm ../v2.9.8.tar.gz
+    - ls
 #    - cd scancode-toolkit-2.9.8
-    - ../scancode-toolkit-2.9.8/scancode --help
-#    - ../scancode-toolkit-2.9.8/scancode --verbose --license --package --copyright --info --email --url --html license_report2.html /builds/sci-fv/pyxel
-    - ../scancode-toolkit-2.9.8/scancode -n 4 --ignore *.fits --verbose --html license_report2.html . || echo 0      # latest version, STILL EMPTY REPORT
-#    - ../scancode-toolkit-2.9.8/scancode --verbose --html license_report2.html /builds/sci-fv/pyxel
+    - ./../scancode-toolkit-2.9.8/scancode --help
+#    - ./../scancode-toolkit-2.9.8/scancode --verbose --license --package --copyright --info --email --url --html license_report2.html /builds/sci-fv/pyxel
+    - ./../scancode-toolkit-2.9.8/scancode -n 4 --ignore *.fits --verbose --html license_report2.html . || echo 0      # latest version, STILL EMPTY REPORT
+#    - ./../scancode-toolkit-2.9.8/scancode --verbose --html license_report2.html /builds/sci-fv/pyxel
     - pwd
     - ls
 #    - mv license_report2.html ../pyxel-mirror
