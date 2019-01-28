@@ -1,19 +1,8 @@
 # Gitlab CI/CD pipeline to generate documentation
 
-# ###########################
-# Test stage
-# ###########################
-
-doc8:
-  image: python:3.6
-  stage: test
-  script:
-    - pip install sphinx doc8
-    - doc8 docs/source
-  allow_failure: false
-  only:
-    - master
-
+stages:
+  - build
+  - deploy
 
 # ###########################
 # Build stage
@@ -21,21 +10,18 @@ doc8:
 
 # Generate the Sphinx documentation into 'doc/html'
 doc:
-  image: continuumio/anaconda3
+  image: python:3.6  # continuumio/anaconda3
   stage: build
   script:
-#   - pip install docutils pygments
     - pip install -r docs/requirements-docs.txt
     - pip install -r requirements.txt
-    - export PYTHONPATH=$PWD
+    - pip install doc8
+    - doc8 docs/source
+#    - export PYTHONPATH=$PWD
     - sphinx-build docs/source docs/html -E -a -j 4
   artifacts:
     paths:
       - docs/html
-#  cache:
-#    key: "$CI_COMMIT_REF_NAME"
-#    paths:
-#      - docs/html
   allow_failure: false
   only:
     - master
@@ -50,7 +36,6 @@ pages:
   image: python:3.6
   stage: deploy
   script:
-#    - pip install docutils pygments
     - mkdir public
     - mv docs/html public/doc
     - ls public

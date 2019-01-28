@@ -1,0 +1,12 @@
+# Pyxel additional requirements for developers
+
+# Testing:
+
+pytest
+pytest-html
+pytest-cov
+pytest-pylint
+flake8
+flake8-docstrings
+pep8-naming
+mypy

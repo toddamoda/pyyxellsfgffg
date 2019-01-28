@@ -28,9 +28,10 @@ licenses-latest:
     - apt-get --yes install libbz2-1.0 xz-utils zlib1g libxml2-dev libxslt1-dev wget  # python-dev
 #    - cd ..
     - wget --quiet --directory-prefix=.. https://github.com/nexB/scancode-toolkit/archive/v2.9.8.tar.gz
-    - tar -xf ../v2.9.8.tar.gz
+    - tar --directory=.. -xf ../v2.9.8.tar.gz
     - rm ../v2.9.8.tar.gz
     - ls
+    - ls ..
 #    - cd scancode-toolkit-2.9.8
     - ./../scancode-toolkit-2.9.8/scancode --help
 #    - ./../scancode-toolkit-2.9.8/scancode --verbose --license --package --copyright --info --email --url --html license_report2.html /builds/sci-fv/pyxel
@@ -171,9 +172,6 @@ licenses:
     paths:
       - license_report_files
       - license_report.html
-#  only:
-#    - master
-#    - tags
 
 # Generate the Sphinx documentation into 'doc/html'
 doc:
@@ -217,7 +215,7 @@ pages:
   image: python:3.6
   stage: deploy
   script:
-    - pip install docutils pygments
+#    - pip install docutils pygments
     - mkdir public
     - mv docs/html public/doc
     - mv htmlcov public/coverage
@@ -234,63 +232,3 @@ pages:
     paths:
       - public
   allow_failure: false
-#  only:
-#    - tags
-
-#kubernetes:
-#  stage: deploy
-#  image: docker:dind
-#  environment:
-#    name: development
-#  allow_failure: true
-#  script:
-#    - apk add --no-cache curl
-#    - curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.10.7/bin/linux/amd64/kubectl
-#    - chmod +x ./kubectl
-#    - mv ./kubectl /usr/local/bin/kubectl
-#    - kubectl --kubeconfig $KUBECONFIG --ignore-not-found=true delete -f kubernetes.yaml
-#    - sleep 30
-#    - kubectl --kubeconfig $KUBECONFIG apply -f kubernetes.yaml
-##    - echo "Because we are not tagging the images just do a change in the deployment to force a pull"
-##    - kubectl --kubeconfig $KUBECONFIG patch deployment pyxel-deployment -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}"
-##    - kubectl --kubeconfig $KUBECONFIG get pods
-
-
-# Create wheel file
-#deploy:
-#  image: python:3
-#  stage: deploy
-#  environment: deploy
-#  script:
-#    - pip install wheel setuptools
-#    - python setup.py bdist_wheel
-#  artifacts:
-#    paths:
-#      - dist
-
-# Upload to pypi
-# Reference: http://samb.io/blog/2016/devops/python/gitlab/continuous-deployment/continuous-deployment-to-python-packaging
-#deploy_pypi:
-#  image: python:3.6
-#  stage: deploy
-#  environment: deploy
-#  script:   # Configure the PyPI credentials, then push the package, and cleanup the creds.
-#    - pip install -r requirements.txt
-#    - echo "[server-login]" >> ~/.pypirc
-#    - echo "repository=http://lab-linux-server.estec.esa.int/pypi/" >> ~/.pypirc
-#    - echo "username=" ${PYPI_USER} >> ~/.pypirc
-#    - echo "password=" ${PYPI_PASSWORD} >> ~/.pypirc
-#    - python setup.py check bdist_wheel upload # This will fail if your creds are bad.
-#    - echo "" > ~/.pypirc && rm ~/.pypirc  # If the above fails, this won't run.
-#  only:
-#    - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
-#  except:
-#    - branches
-#  only:
-#    - tags
-
-#cleanup_pypirc:
-#   stage: cleanup
-##   when: always   # this is important; run even if preceding stages failed.
-#   script:
-#    - rm -vf ~/.pypirc  # we don't want to leave these around, but GitLab may clean up anyway.

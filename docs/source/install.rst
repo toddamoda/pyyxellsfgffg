@@ -6,6 +6,8 @@ Installation
 Requirements
 -------------
 
+* python >= 3.6
+
 **Dependencies available on official PyPI server:**
 
 * numpy

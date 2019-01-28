@@ -9,13 +9,12 @@ made by CCD or CMOS-based detectors.
 Documentation
 -------------
 
-`Pyxel documentation <http://sci-fv.io.esa.int/pyxel/doc>`_
-
+`Pyxel documentation <https://esa.gitlab.io/pyxel/doc>`_
 
 Installation
 ------------
 
-`How to install Pyxel <http://sci-fv.io.esa.int/pyxel/doc/install.html>`_
+`How to install Pyxel <https://esa.gitlab.io/pyxel/doc/install.html>`_
 
 Requirements
 ************
@@ -23,9 +22,27 @@ Requirements
 - python >= 3.6
 - See requirements.txt file for dependencies!
 
+Changelog
+---------
 
-Development
------------
+`Changelog <https://esa.gitlab.io/pyxel/doc/changelog.html>`_
+
+License
+-------
+
+`Pyxel license (MIT) <https://esa.gitlab.io/pyxel/doc/license.html>`_
+
+Authors
+-------
+
+`Developers and contributors <https://esa.gitlab.io/pyxel/doc/authors.html>`_
+
+Continous Integration & Deployment
+-----------------------------------
+
+.. attention::
+
+    Only accessible inside ESA network!
 
 `PyTest report <http://sci-fv.io.esa.int/pyxel/pytest_report.html>`_
 
@@ -34,18 +51,6 @@ Development
 `PyLint report <http://sci-fv.io.esa.int/pyxel/pylint_report.html>`_
 
 `License & copyrights report <http://sci-fv.io.esa.int/pyxel/license_report.html>`_
-
-`Changelog <http://sci-fv.io.esa.int/pyxel/doc/changelog.html>`_
-
-License
--------
-
-`Pyxel license (MIT) <http://sci-fv.io.esa.int/pyxel/doc/license.html>`_
-
-Authors
--------
-
-`Developers and contributors <http://sci-fv.io.esa.int/pyxel/doc/authors.html>`_
 
 
 .. |date| date::  %A %d %B %Y
