@@ -17,32 +17,30 @@ stages:
 # Test Stage
 # ###########################
 
-# experimental, latest version, it STILL gives an EMPTY html REPORT!
-licenses-latest:
-  image: python:2.7  # debian:jessie-slim  #
-  stage: test  # build
-  allow_failure: true
-  script:
-    - python --version
-    - pwd
-    - apt-get --yes install libbz2-1.0 xz-utils zlib1g libxml2-dev libxslt1-dev wget  # python-dev
-#    - cd ..
-    - wget --quiet --directory-prefix=.. https://github.com/nexB/scancode-toolkit/archive/v2.9.8.tar.gz
-    - tar --directory=.. -xf ../v2.9.8.tar.gz
-    - rm ../v2.9.8.tar.gz
-    - ls
-    - ls ..
-#    - cd scancode-toolkit-2.9.8
-    - ./../scancode-toolkit-2.9.8/scancode --help
-#    - ./../scancode-toolkit-2.9.8/scancode --verbose --license --package --copyright --info --email --url --html license_report2.html /builds/sci-fv/pyxel
-    - ./../scancode-toolkit-2.9.8/scancode -n 4 --ignore *.fits --verbose --html license_report2.html . || echo 0      # latest version, STILL EMPTY REPORT
-#    - ./../scancode-toolkit-2.9.8/scancode --verbose --html license_report2.html /builds/sci-fv/pyxel
-    - pwd
-    - ls
-#    - mv license_report2.html ../pyxel-mirror
-  artifacts:
-    paths:
-      - license_report2.html
+## experimental, latest version, it STILL gives an EMPTY html REPORT!
+#licenses-latest:
+#  image: python:2.7  # debian:jessie-slim  #
+#  stage: test  # build
+#  allow_failure: true
+#  script:
+#    - python --version
+#    - pwd
+#    - apt-get --yes install libbz2-1.0 xz-utils zlib1g libxml2-dev libxslt1-dev wget  # python-dev
+#    - wget --quiet --directory-prefix=.. https://github.com/nexB/scancode-toolkit/archive/v2.9.8.tar.gz
+#    - tar --directory=.. -xf ../v2.9.8.tar.gz
+#    - rm ../v2.9.8.tar.gz
+#    - ls
+#    - ls ..
+#    - ./scancode-toolkit-2.9.8/scancode --help     # TODO scancode-toolkit-2.9.8 folder has to be excluded from license search
+##    - ./scancode-toolkit-2.9.8/scancode --verbose --license --package --copyright --info --email --url --html license_report2.html /builds/sci-fv/pyxel
+#    - ./scancode-toolkit-2.9.8/scancode -n 4 --ignore *.fits --verbose --html license_report2.html . || echo 0      # latest version, STILL EMPTY REPORT
+##    - ./scancode-toolkit-2.9.8/scancode --verbose --html license_report2.html /builds/sci-fv/pyxel
+#    - pwd
+#    - ls
+##    - mv license_report2.html ../pyxel-mirror
+#  artifacts:
+#    paths:
+#      - license_report2.html
 
 
 # Run pytest + coverage and create html report (pytest_report.html)
@@ -215,7 +213,6 @@ pages:
   image: python:3.6
   stage: deploy
   script:
-#    - pip install docutils pygments
     - mkdir public
     - mv docs/html public/doc
     - mv htmlcov public/coverage
