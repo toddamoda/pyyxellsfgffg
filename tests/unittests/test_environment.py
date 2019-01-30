@@ -1,32 +1,31 @@
 """Unittests for class `Environment`."""
-
-import astropy.units as u
 import pytest
 
 from pyxel.detectors.environment import Environment
 
 
-@pytest.mark.parametrize("temperature, total_ionising_dose, total_non_ionising_dose, exp_temp, exp_total, exp_non_total", [
-    # (None, None, None, None, None, None),
-    # (1, None, None, 1.0, None, None),
-    # (None, 2, None, None, 2.0, None),
-    # (None, None, 3, None, None, 3.0),
-    (1, 2, 3, 1.0, 2.0, 3.0),
-    (4.0, 5.0, 6.0, 4.0, 5.0, 6.0),
-    (7, 0, 0, 7.0, 0.0, 0.0),
-])
-def test_init(temperature, total_ionising_dose, total_non_ionising_dose, exp_temp, exp_total, exp_non_total):
+@pytest.mark.parametrize("list_in, list_out",
+                         [
+                            # (None, None, None, None, None, None),
+                            # (1, None, None, 1.0, None, None),
+                            # (None, 2, None, None, 2.0, None),
+                            # (None, None, 3, None, None, 3.0),
+                            ([1, 2, 3], [1.0, 2.0, 3.0]),
+                            ([4.0, 5.0, 6.0], [4.0, 5.0, 6.0]),
+                            ([7, 0, 0], [7.0, 0.0, 0.0]),
+                         ])
+def test_init(list_in, list_out):
     """Test Environment.__init__ with valid entries."""
 
     # Create the object
-    obj = Environment(temperature=temperature,
-                      total_ionising_dose=total_ionising_dose,
-                      total_non_ionising_dose=total_non_ionising_dose)
+    obj = Environment(temperature=list_in[0],
+                      total_ionising_dose=list_in[1],
+                      total_non_ionising_dose=list_in[2])
 
     # Test getters
-    assert obj.temperature == exp_temp
-    assert obj.total_ionising_dose == exp_total
-    assert obj.total_non_ionising_dose == exp_non_total
+    assert obj.temperature == list_out[0]
+    assert obj.total_ionising_dose == list_out[1]
+    assert obj.total_non_ionising_dose == list_out[2]
 
 
 # @pytest.mark.parametrize("temperature, total_inonising_dose, total_non_ionising_dose, exp_exception, exp_msg", [
@@ -160,7 +159,8 @@ def test_init(temperature, total_ionising_dose, total_non_ionising_dose, exp_tem
 #
 # @pytest.mark.parametrize("obj, exp_repr", [
 #     (Environment(), "Environment(temperature=None, total_ionising_dose=None, total_non_ionising_dose=None)"),
-#     (Environment(1.0, 2.0, 3.0), "Environment(temperature=1.0, total_ionising_dose=2.0, total_non_ionising_dose=3.0)"),
+#     (Environment(1.0, 2.0, 3.0), "Environment(temperature=1.0,
+#     total_ionising_dose=2.0, total_non_ionising_dose=3.0)"),
 #
 # ])
 # def test_repr(obj, exp_repr):

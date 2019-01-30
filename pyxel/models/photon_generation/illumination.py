@@ -1,7 +1,7 @@
 """Pyxel photon generator models."""
 import logging
-import numpy as np
 import typing as t
+import numpy as np
 import pyxel
 from pyxel import check_type, check_choices
 from pyxel.detectors.detector import Detector

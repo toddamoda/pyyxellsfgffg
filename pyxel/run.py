@@ -20,11 +20,11 @@ from pyxel import util
 
 def single_output(detector, output_file):    # TODO
     """TBW."""
-    if output_file:
-        save_to = util.apply_run_number(output_file)
-        out = util.FitsFile(save_to)
-        out.save(detector.image.array, header=None, overwrite=True)
-        # todo: BUG creates new, fits file with random filename and without extension when it can not open file
+    # if output_file:
+    save_to = util.apply_run_number(output_file)
+    out = util.FitsFile(save_to)
+    out.save(detector.image.array, header=None, overwrite=True)
+    # todo: BUG creates new, fits file with random filename and without extension when it can not open file
 
 
 def calibration_output(results):        # TODO
@@ -70,6 +70,7 @@ def run(input_filename, output_file: str = None, random_seed: int = None):
         for config in configs:
             detector = config.pipeline.run_pipeline(config.detector)
             # parametric_output(config, detector)      # TODO implement
+            single_output(detector, "outputs/image_generated_??.fits")       # TODO temporarily
 
     else:
         raise ValueError

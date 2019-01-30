@@ -80,7 +80,7 @@ from __future__ import division, print_function
 import datetime
 # Have not verified this in Python 3.x (JML):
 import logging
-import os
+# import os
 import warnings
 from os import path
 
@@ -247,7 +247,7 @@ class HXRGNoise:
         # if pca0_file is None:
         #     self.pca0_file = NGHXRG_HOME + '/nirspec_pca0.fits'
 
-        if os.path.isfile(self.pca0_file) is False:
+        if path.isfile(self.pca0_file) is False:
             print('There was an error finding pca0_file! Check to be')
             print('sure that the NGHXRG_HOME shell environment')
             print('variable is set correctly and that the')

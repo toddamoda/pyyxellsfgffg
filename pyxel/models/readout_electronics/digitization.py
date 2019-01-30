@@ -3,8 +3,8 @@
 #   --------------------------------------------------------------------------
 """Readout electronics model."""
 import logging
-import numpy as np
 from pydoc import locate
+import numpy as np
 import pyxel
 from pyxel.detectors.detector import Detector
 # from astropy import units as u

@@ -31,10 +31,10 @@ stages:
 #    - rm ../v2.9.8.tar.gz
 #    - ls
 #    - ls ..
-#    - ./scancode-toolkit-2.9.8/scancode --help     # TODO scancode-toolkit-2.9.8 folder has to be excluded from license search
-##    - ./scancode-toolkit-2.9.8/scancode --verbose --license --package --copyright --info --email --url --html license_report2.html /builds/sci-fv/pyxel
-#    - ./scancode-toolkit-2.9.8/scancode -n 4 --ignore *.fits --verbose --html license_report2.html . || echo 0      # latest version, STILL EMPTY REPORT
-##    - ./scancode-toolkit-2.9.8/scancode --verbose --html license_report2.html /builds/sci-fv/pyxel
+#    - ./../scancode-toolkit-2.9.8/scancode --help
+##    - ./../scancode-toolkit-2.9.8/scancode --verbose --license --package --copyright --info --email --url --html license_report2.html /builds/sci-fv/pyxel
+#    - ./../scancode-toolkit-2.9.8/scancode -n 4 --ignore *.fits --verbose --html license_report2.html . || echo 0      # latest version, STILL EMPTY REPORT
+##    - ./../scancode-toolkit-2.9.8/scancode --verbose --html license_report2.html /builds/sci-fv/pyxel
 #    - pwd
 #    - ls
 ##    - mv license_report2.html ../pyxel-mirror

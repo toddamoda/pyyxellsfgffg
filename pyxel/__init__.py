@@ -17,7 +17,6 @@ __appname__ = 'Pyxel'
 __author__ = 'David Lucsanyi'
 __author_email__ = 'david.lucsanyi@esa.int'
 __pkgname__ = 'pyxel'
-
 __version__ = '0.3'
 
 

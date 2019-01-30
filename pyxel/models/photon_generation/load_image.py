@@ -15,7 +15,7 @@ from pyxel.detectors.detector import Detector
 def load_image(detector: Detector,
                image_file: str,
                fit_image_to_det: bool = False,
-               row0: int = 0,
+               row0: int = 0,                        # TODO Too many arguments
                col0: int = 0,
                convert_to_photons: bool = False):
     r"""Load FITS file as a numpy array and add to the detector as input image.
