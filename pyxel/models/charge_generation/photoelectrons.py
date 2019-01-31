@@ -20,15 +20,20 @@ def simple_conversion(detector: Detector):
     geo = detector.geometry
     ch = detector.characteristics
     ph = detector.photons
-    size = ph.array.size
-    charge_number = ph.array.flatten() * ch.qe * ch.eta     # the average charge numbers per pixel
-    pixel_numbers = geo.row * geo.col
+
     init_ver_position = np.arange(0.0, geo.row, 1.0) * geo.pixel_vert_size
     init_hor_position = np.arange(0.0, geo.col, 1.0) * geo.pixel_horz_size
     init_ver_position = np.repeat(init_ver_position, geo.col)
     init_hor_position = np.tile(init_hor_position, geo.row)
-    init_ver_position += np.random.rand(pixel_numbers) * geo.pixel_vert_size
-    init_hor_position += np.random.rand(pixel_numbers) * geo.pixel_horz_size
+
+    charge_number = ph.array.flatten() * ch.qe * ch.eta         # the average charge numbers per pixel
+    where_non_zero = np.where(charge_number > 0.)
+    charge_number = charge_number[where_non_zero]
+    init_ver_position = init_ver_position[where_non_zero]
+    init_hor_position = init_hor_position[where_non_zero]
+    size = charge_number.size
+    init_ver_position += np.random.rand(size) * geo.pixel_vert_size
+    init_hor_position += np.random.rand(size) * geo.pixel_horz_size
 
     detector.charges.add_charge(particle_type='e',
                                 particles_per_cluster=charge_number,
