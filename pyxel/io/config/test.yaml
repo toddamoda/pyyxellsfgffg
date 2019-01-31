@@ -80,7 +80,7 @@ pipeline:
   optics:
     - name: optical_psf
       func: pyxel.models.optics.poppy.optical_psf
-      enabled: true
+      enabled: false
       arguments:
         fov_pixels: 30       # FOV in pixels
         pixelscale: 0.1      # micron/pixel OR arcsec/pixel
@@ -107,6 +107,17 @@ pipeline:
     - name: photoelectrons
       func: pyxel.models.charge_generation.photoelectrons.simple_conversion
       enabled: true
+    - name: charge_injection
+      func: pyxel.models.charge_generation.charge_injection.charge_blocks
+      enabled: true
+      arguments:
+        charge_level: 12345
+        columns: [30, 50, 60]
+#        number_of_blocks: 10
+#        block_start: 10
+#        block_length: 20
+#        pause_length: 10
+
     - name: tars
       func: pyxel.models.charge_generation.tars.tars.run_tars
       enabled: false
