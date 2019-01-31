@@ -26,8 +26,7 @@ class Charge(Particle):
                         'init_energy', 'energy',
                         'init_pos_ver', 'init_pos_hor', 'init_pos_z',
                         'position_ver', 'position_hor', 'position_z',
-                        'velocity_ver', 'velocity_hor', 'velocity_z',
-                        'pixel_ver', 'pixel_hor']                # todo do we need these columns really ???????
+                        'velocity_ver', 'velocity_hor', 'velocity_z']
 
         self.EMPTY_FRAME = pd.DataFrame(columns=self.columns,
                                         dtype=np.float)         # todo
