@@ -220,7 +220,7 @@ pages:
     - mv pylint_report.html public
     - mv license_report.html public
     - mv license_report_files public
-    - mv license_report2.html public
+#    - mv license_report2.html public
     - mv coverage.svg public
     - mv license.svg public
     - mv documentation.svg public
