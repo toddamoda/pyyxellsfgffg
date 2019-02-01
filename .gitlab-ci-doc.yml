@@ -40,6 +40,8 @@ pages:
   script:
     - mkdir public
     - mv docs/html public/doc
+    - mv license.svg public
+    - mv documentation.svg public
     - ls public
   artifacts:
     paths:
