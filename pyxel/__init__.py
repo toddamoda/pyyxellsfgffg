@@ -78,7 +78,6 @@ def check_type(att_type, is_optional: bool = False) -> t.Callable[..., bool]:
 
 
 def check_range(min_val: t.Union[float, int], max_val: t.Union[float, int]):
-                # step: t.Union[float, int] = None, enforce_step: bool = False):
     """TBW."""
     return checkers.check_range(min_val=min_val,
                                 max_val=max_val,
@@ -98,7 +97,6 @@ def validate_choices(choices, is_optional=False):
 
 
 def validate_range(min_val: t.Union[float, int], max_val: t.Union[float, int],
-                   # step: t.Union[float, int] = None, enforce_step: bool = True,
                    is_optional: bool = False):
     """TBW."""
     return validators.validate_range(min_val=min_val,

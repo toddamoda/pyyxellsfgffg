@@ -376,7 +376,7 @@ class TARS:
                 np.save(out_path + 'tars-sec_e_from_eloss.npy', self.sim_obj.secondaries_from_eloss)
                 np.save(out_path + 'tars-ter_e_from_eloss.npy', self.sim_obj.tertiaries_from_eloss)
             if err:
-                    k -= 1
+                k -= 1
 
         size = len(self.sim_obj.e_num_lst_per_step)
 
