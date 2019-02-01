@@ -17,11 +17,13 @@ doc:
     - pip install -r requirements.txt
     - pip install doc8
     - doc8 docs/source
-#    - export PYTHONPATH=$PWD
     - sphinx-build docs/source docs/html -E -a -j 4
+    - python badges.py -doc="passed" -lic="MIT"
   artifacts:
     paths:
       - docs/html
+      - documentation.svg
+      - license.svg
   allow_failure: false
   only:
     - master
