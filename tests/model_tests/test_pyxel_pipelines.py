@@ -5,16 +5,19 @@ from astropy.io import fits
 from pyxel.run import run
 
 
-@pytest.mark.parametrize('yaml, expected_image, seed',
+@pytest.mark.parametrize('yaml, expected_image, seed, outfile',
                          [
-                             ('tests/data/photon_transfer_function.yaml', 'tests/data/uniform_1000.fits', 1111),
-                             ('tests/data/pipeline_01.yaml', 'tests/data/expected_pipeline_01.fits', 1111),
-                             ('tests/data/pipeline_02.yaml', 'tests/data/expected_pipeline_01.fits', 1111),
+                             ('tests/data/photon_transfer_function.yaml', 'tests/data/uniform_1000.fits', 1111,
+                              'image_01.fits'),
+                             ('tests/data/pipeline_01.yaml', 'tests/data/expected_pipeline_01.fits', 1111,
+                              'image_02.fits'),
+                             ('tests/data/pipeline_02.yaml', 'tests/data/expected_pipeline_01.fits', 1111,
+                              'image_03.fits'),
                          ])
-def test_pyxel_pipeline(yaml, expected_image, seed):
+def test_pyxel_pipeline(yaml, expected_image, seed, outfile):
     """Test """
-    out = 'tests/data/temp.fits'
-    run(input_filename=yaml, output_file=out, random_seed=seed)
-    image = fits.getdata(out)
+    outdir = 'tests/data'
+    run(input_filename=yaml, output_directory=outdir, random_seed=seed)
+    image = fits.getdata(outdir+'/'+outfile)
     expected_image = fits.getdata(expected_image)
     np.testing.assert_array_equal(image, expected_image)

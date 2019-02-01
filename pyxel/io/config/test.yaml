@@ -111,7 +111,7 @@ pipeline:
       func: pyxel.models.charge_generation.charge_injection.charge_blocks
       enabled: true
       arguments:
-        charge_level: 12345
+        charge_level: 1230
         columns: [30, 50, 60]
 #        number_of_blocks: 10
 #        block_start: 10
@@ -159,7 +159,7 @@ pipeline:
        beta_s: 0.3
        parallel_cti: true
        serial_cti: false
-       chg_inj: true
+       chg_inj: false
        para_transfers: 1552
        tr_p: [0.01]
        tr_s: [0.01]
@@ -177,7 +177,7 @@ pipeline:
       func: pyxel.models.charge_measurement.readout_noise.output_node_noise
       enabled: false
       arguments:
-        std_deviation: 0.000001     # TODO
+        std_deviation: 0.00001     # TODO
 
   # signal -> image
   readout_electronics:
