@@ -1,7 +1,7 @@
 """Unit tests for class `Detector`."""
 
-import pytest
 from copy import deepcopy
+import pytest
 # from pyxel.detectors.ccd import CCD
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics
 from pyxel.detectors.ccd_geometry import CCDGeometry
@@ -75,7 +75,7 @@ def test_init(geometry, environment, characteristics, material):
 ])
 def test_eq(obj, other_obj):
     """Test Detector.__eq__."""
-    assert type(obj) is Detector
+    assert isinstance(obj, Detector)
 
 
 @pytest.mark.parametrize("obj", [
@@ -83,7 +83,7 @@ def test_eq(obj, other_obj):
 ])
 def test_copy(obj):
     """Test Detector.copy."""
-    assert type(obj) is Detector
+    assert isinstance(obj, Detector)
     id_obj = id(obj)
     new_obj = deepcopy(obj)
     assert id_obj == id(obj)

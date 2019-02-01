@@ -16,10 +16,6 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
 
 from os import path
 import sys
@@ -87,7 +83,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = pkg.__pkgname__
-copyright = '2018, European Space Agency'
+copyright = '2019, European Space Agency'
 author = pkg.__author__
 
 # The version info for the project you're documenting, acts as replacement for

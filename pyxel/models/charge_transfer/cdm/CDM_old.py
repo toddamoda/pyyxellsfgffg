@@ -37,7 +37,7 @@ def cdm(detector: CCD,
     """
     CDM model wrapper.
 
-    :param detector: PyXel CCD detector object
+    :param detector: Pyxel CCD detector object
     :param beta_p: electron cloud expansion coefficient (parallel)
     :param beta_s: electron cloud expansion coefficient (serial)
     :param vg: assumed maximum geometrical volume electrons can occupy within a pixel (parallel)

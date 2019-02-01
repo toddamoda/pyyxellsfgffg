@@ -5,32 +5,32 @@
 
 simulation:
 
-  mode: single
-#  mode: parametric
+#  mode: single
+  mode: parametric
 #  mode: calibration
 
   parametric:
 #    parametric_mode: sequential
-    parametric_mode: embedded
-#    parametric_mode: image_generator
+#    parametric_mode: embedded
+    parametric_mode: image_generator
     steps:
+#      -
+#        enabled: true
+#        key: pipeline.charge_generation.tars.arguments.particle_number
+#        values: [2, 3]
+#      -
+#        enabled: true
+#        key: pipeline.photon_generation.photon_level.arguments.level
+#        values: range(10, 13)
       -
         enabled: true
-        key: pipeline.charge_generation.tars.arguments.particle_number
-        values: [2, 3]
-      -
-        enabled: true
-        key: pipeline.photon_generation.photon_level.arguments.level
-        values: range(10, 13)
-      -
-        enabled: false
-        key:  [['characteristics', 'cdm', 'output_node_noise'],
-              [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['std_deviation']],
+        key:  [['characteristics', 'cdm', 'environment'],
+              [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['temperature']],
               [[1], [4, 4, 4, 1], [1]]]
-        values: 'pyxel/calibration_champions.out'
+        values: 'outputs/calibration_champions.out'
 
   calibration:
-    calibration_mode:   single_model # pipeline  #
+    calibration_mode:  pipeline  #  single_model #
 
     output_type: pixel # image   # signal
     output_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50] #
@@ -48,27 +48,27 @@ simulation:
     algorithm:
       type: sade   # sga  # nlopt
 #      nlopt_solver: sbplx  # neldermead
-      generations: 2
+      generations: 3
       population_size: 10
       variant: 2
 
-    model_names:         ['cdm']
-    variables:           [['tr_p', 'nt_p', 'sigma_p', 'beta_p']]
-    params_per_variable: [[4, 4, 4, 1]]
-    var_log:             [[True, True, True, False]]
-    lower_boundary:      [[1.e-3, 1.e-2, 1.e-20, 0.]]
-    upper_boundary:      [[2., 1.e+1, 1.e-15, 1.]]
-
-#    model_names:         ['characteristics', 'cdm', 'output_node_noise', 'environment']
-#    variables:           [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['std_deviation'], ['temperature']]
-#    params_per_variable: [[1], [4, 4, 4, 1], [1], [1]]
-#    var_log:             [[False], [True, True, True, False], [False], [False]]
-#    lower_boundary:      [[1.], [1.e-3, 1.e-2, 1.e-20, 0.], [10.], [100.]]
-#    upper_boundary:      [[10.], [2., 1.e+1, 1.e-15, 1.], [20.], [300.]]
+#    model_names:         ['cdm']
+#    variables:           [['tr_p', 'nt_p', 'sigma_p', 'beta_p']]
+#    params_per_variable: [[4, 4, 4, 1]]
+#    var_log:             [[True, True, True, False]]
+#    lower_boundary:      [[1.e-3, 1.e-2, 1.e-20, 0.]]
+#    upper_boundary:      [[2., 1.e+1, 1.e-15, 1.]]
+#
+    model_names:         ['characteristics', 'cdm', 'environment']
+    variables:           [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['temperature']]
+    params_per_variable: [[1], [4, 4, 4, 1], [1]]
+    var_log:             [[False], [True, True, True, False], [False]]
+    lower_boundary:      [[1.], [1.e-3, 1.e-2, 1.e-20, 0.], [100.]]
+    upper_boundary:      [[10.], [2., 1.e+1, 1.e-15, 1.], [200.]]
 
 #    results:
-    champions_file: 'data/calibration_champions.out'
-    population_file: 'data/calibration_populations.out'
+    champions_file: 'outputs/calibration_champions.out'
+    population_file: 'outputs/calibration_populations.out'
 
 
 detector:

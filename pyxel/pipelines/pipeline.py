@@ -8,14 +8,14 @@ from pyxel.detectors.detector import Detector
 class DetectionPipeline:
     """TBW."""
 
-    def __init__(self,
+    def __init__(self,      # TODO: Too many instance attributes
                  photon_generation: ModelGroup = None,
                  optics: ModelGroup = None,
                  charge_generation: ModelGroup = None,
                  charge_collection: ModelGroup = None,
                  charge_measurement: ModelGroup = None,
                  readout_electronics: ModelGroup = None,
-                 _model_groups=None,                        # TODO
+                 _model_groups: t.List[str] = None,                        # TODO
                  doc=None) -> None:
         """TBW.
 
@@ -28,14 +28,14 @@ class DetectionPipeline:
         """
         self._is_running = False
         self.doc = doc
-        self.photon_generation = photon_generation
-        self.optics = optics
-        self.charge_generation = charge_generation
-        self.charge_collection = charge_collection
-        self.charge_measurement = charge_measurement
-        self.readout_electronics = readout_electronics
+        self.photon_generation = photon_generation              # type: t.Optional[ModelGroup]
+        self.optics = optics                                    # type: t.Optional[ModelGroup]
+        self.charge_generation = charge_generation              # type: t.Optional[ModelGroup]
+        self.charge_collection = charge_collection              # type: t.Optional[ModelGroup]
+        self.charge_measurement = charge_measurement            # type: t.Optional[ModelGroup]
+        self.readout_electronics = readout_electronics          # type: t.Optional[ModelGroup]
 
-        self._model_groups = []                                 # type: t.List[str]
+        self._model_groups = []                                 # type: t.List[str]           # TODO
         # self._log = logging.getLogger(__name__)
 
     def __getstate__(self):

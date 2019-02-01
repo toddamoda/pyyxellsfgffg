@@ -68,9 +68,9 @@ Modification History:
 - Bug fixed in ACN mask, now code works with any naxis1, naxis2 and n_out values not just default arguments
 - Commented out unused code for ACN arrays
 - make_noise() function separated into different noise generator functions,
-which returns result numpy array to be able to add to PyXel! signal
+which returns result numpy array to be able to add to Pyxel detector signal
 - removed STRIPE mode (did not work), use WINDOW instead -> BUG: code doesn't work with different x and y array sizes
-- Integrated into PyXel! detector simulation framework via a wrapper function
+- Integrated into Pyxel detector simulation framework via a wrapper function
 - Version 2.7
 """
 # Necessary for Python 2.6 and later (JML)
@@ -80,7 +80,7 @@ from __future__ import division, print_function
 import datetime
 # Have not verified this in Python 3.x (JML):
 import logging
-import os
+# import os
 import warnings
 from os import path
 
@@ -247,7 +247,7 @@ class HXRGNoise:
         # if pca0_file is None:
         #     self.pca0_file = NGHXRG_HOME + '/nirspec_pca0.fits'
 
-        if os.path.isfile(self.pca0_file) is False:
+        if path.isfile(self.pca0_file) is False:
             print('There was an error finding pca0_file! Check to be')
             print('sure that the NGHXRG_HOME shell environment')
             print('variable is set correctly and that the')
@@ -399,7 +399,7 @@ class HXRGNoise:
 
         """
         # Configure depending on mode setting
-        if mode is 'pink':
+        if mode == 'pink':
             nstep = 2*self.nstep
             nstep2 = 2*self.nstep2  # JML
             # f = self.f2
@@ -430,7 +430,7 @@ class HXRGNoise:
         result *= the_std / np.std(result)
         result = result - np.mean(result) + the_mean
 
-        # if mode is 'acn':
+        # if mode == 'acn':
 
         # Done
         return result

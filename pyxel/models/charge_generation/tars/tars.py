@@ -3,10 +3,10 @@
 import logging
 import math
 from pathlib import Path
+import typing as t   # noqa: F401
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-import typing as t   # noqa: F401
 # import pyxel
 from pyxel.detectors.detector import Detector
 from pyxel.models.charge_generation.tars.simulation import Simulation
@@ -320,12 +320,12 @@ class TARS:
 
         path = Path(__file__).parent.joinpath('data', 'inputs')
         filename_list = [
-                         'stepsize_proton_100MeV_40um_Si_10k.ascii',
-                         'stepsize_proton_100MeV_50um_Si_10k.ascii',
-                         'stepsize_proton_100MeV_60um_Si_10k.ascii',
-                         'stepsize_proton_100MeV_70um_Si_10k.ascii',
-                         'stepsize_proton_100MeV_100um_Si_10k.ascii'
-                        ]
+            'stepsize_proton_100MeV_40um_Si_10k.ascii',
+            'stepsize_proton_100MeV_50um_Si_10k.ascii',
+            'stepsize_proton_100MeV_60um_Si_10k.ascii',
+            'stepsize_proton_100MeV_70um_Si_10k.ascii',
+            'stepsize_proton_100MeV_100um_Si_10k.ascii'
+        ]
 
         i = 0
         for pt in type_list:
@@ -376,14 +376,9 @@ class TARS:
                 np.save(out_path + 'tars-sec_e_from_eloss.npy', self.sim_obj.secondaries_from_eloss)
                 np.save(out_path + 'tars-ter_e_from_eloss.npy', self.sim_obj.tertiaries_from_eloss)
             if err:
-                    k -= 1
+                k -= 1
 
         size = len(self.sim_obj.e_num_lst_per_step)
-
-        ######################################################
-        # self.sim_obj.e_num_lst_per_step = [i * 10 for i in self.sim_obj.e_num_lst_per_step]
-        # TODO delete this asap
-        # ##############################
 
         self.sim_obj.e_vel0_lst = [0.] * size
         self.sim_obj.e_vel1_lst = [0.] * size

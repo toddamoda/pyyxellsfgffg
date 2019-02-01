@@ -8,11 +8,13 @@ from pyxel.detectors.geometry import Geometry
 from pyxel.detectors.material import Material
 from pyxel.detectors.environment import Environment
 from pyxel.detectors.characteristics import Characteristics
-from pyxel.data_structure.charge import Charge  # noqa: F401
-from pyxel.data_structure.photon import Photon  # noqa: F401
-from pyxel.data_structure.pixel import Pixel    # noqa: F401
-from pyxel.data_structure.signal import Signal  # noqa: F401
-from pyxel.data_structure.image import Image    # noqa: F401
+from pyxel.data_structure.charge import Charge                  # noqa: F401
+from pyxel.data_structure.photon import Photon                  # noqa: F401
+from pyxel.data_structure.pixel import Pixel                    # noqa: F401
+from pyxel.data_structure.signal import Signal                  # noqa: F401
+from pyxel.data_structure.image import Image                    # noqa: F401
+from pyxel.detectors.cmos_geometry import CMOSGeometry          # noqa: F401
+from pyxel.detectors.ccd_geometry import CCDGeometry            # noqa: F401
 
 
 class Detector:
@@ -86,3 +88,12 @@ class Detector:
         """
         k_boltzmann = 1.38064852e-23  # J/K
         return sqrt(3 * k_boltzmann * self.environment.temperature / self.material.e_effective_mass)
+
+    def get_geometry(self):
+        """TBW."""
+        if isinstance(self.geometry, CMOSGeometry):
+            return t.cast(CMOSGeometry, self.geometry)
+        elif isinstance(self.geometry, CCDGeometry):
+            return t.cast(CCDGeometry, self.geometry)
+        elif isinstance(self.geometry, Geometry):
+            return t.cast(Geometry, self.geometry)
