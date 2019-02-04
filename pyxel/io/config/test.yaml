@@ -80,7 +80,7 @@ pipeline:
   optics:
     - name: optical_psf
       func: pyxel.models.optics.poppy.optical_psf
-      enabled: false
+      enabled: true
       arguments:
         fov_pixels: 30       # FOV in pixels
         pixelscale: 0.1      # micron/pixel OR arcsec/pixel

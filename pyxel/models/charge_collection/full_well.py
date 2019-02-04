@@ -12,7 +12,8 @@ from pyxel.detectors.detector import Detector
 # @pyxel.register(group='charge_collection', name='full_well')
 def simple_pixel_full_well(detector: Detector):
     """Limiting the amount of charges in pixels due to full well capacity."""
-    logging.info('')
+    logger = logging.getLogger('pyxel')
+    logger.info('')
     fwc = detector.characteristics.fwc
     if fwc is None:
         raise ValueError('Full Well Capacity is not defined')

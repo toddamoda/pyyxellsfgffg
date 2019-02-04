@@ -34,7 +34,8 @@ def ktc_bias_noise(detector: CMOS,
     :param wind_x_size:
     :param wind_y_size:
     """
-    logging.info('')
+    logger = logging.getLogger('pyxel')
+    logger.info('')
     geo = detector.get_geometry()
 
     number_of_fits = 1
@@ -85,7 +86,8 @@ def white_read_noise(detector: CMOS,
     :param wind_x_size:
     :param wind_y_size:
     """
-    logging.info('')
+    logger = logging.getLogger('pyxel')
+    logger.info('')
     geo = detector.get_geometry()
 
     number_of_fits = 1
@@ -134,7 +136,8 @@ def acn_noise(detector: CMOS,
     :param wind_x_size:
     :param wind_y_size:
     """
-    logging.info('')
+    logger = logging.getLogger('pyxel')
+    logger.info('')
     geo = detector.get_geometry()
 
     number_of_fits = 1
@@ -183,7 +186,8 @@ def uncorr_pink_noise(detector: CMOS,
     :param wind_x_size:
     :param wind_y_size:
     """
-    logging.info('')
+    logger = logging.getLogger('pyxel')
+    logger.info('')
     geo = detector.get_geometry()
 
     number_of_fits = 1
@@ -232,7 +236,8 @@ def corr_pink_noise(detector: CMOS,
     :param wind_x_size:
     :param wind_y_size:
     """
-    logging.info('')
+    logger = logging.getLogger('pyxel')
+    logger.info('')
     geo = detector.get_geometry()
 
     number_of_fits = 1
@@ -281,7 +286,8 @@ def pca_zero_noise(detector: CMOS,
     :param wind_x_size:
     :param wind_y_size:
     """
-    logging.info('')
+    logger = logging.getLogger('pyxel')
+    logger.info('')
     geo = detector.get_geometry()
     number_of_fits = 1
 

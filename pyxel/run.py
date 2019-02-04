@@ -106,11 +106,13 @@ def main():
 
     # Set logger
     logging_level = logging.INFO  # logging.DEBUG
+
     # log_level = [logging.ERROR, logging.INFO, logging.DEBUG][min(opts.verbosity, 2)]
     del logging.root.handlers[:]
-    log_format = '%(asctime)s - %(funcName)s \t\t\t %(message)s'   # %(name)s - %(threadName)s -
-    logging.basicConfig(level=logging_level, format=log_format)
-    logging.info('\n*** Pyxel ***\n')
+    log_format = '%(asctime)s - %(name)s - %(module)20s - %(funcName)20s %(message)s'  # %(thread)d -
+    logging.basicConfig(level=logging_level, format=log_format, datefmt='%d-%m-%Y %H:%M:%S')
+    # logger = logging.getLogger('pyxel')
+    # logger.info('\n*** Pyxel ***\n')
 
     output_folder = apply_run_number(opts.output + '/run_??')
     if not os.path.exists(output_folder):
