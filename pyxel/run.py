@@ -11,6 +11,7 @@ import argparse
 import logging
 import time
 import os
+from shutil import copy2
 from pathlib import Path
 import numpy as np
 import esapy_config.io as io
@@ -27,7 +28,7 @@ def single_output(detector, output_dir):
     plt_args = {'bins': 300, 'xlabel': 'ADU', 'ylabel': 'counts', 'title': 'Image histogram'}
     out.plot_histogram(detector.image.array, name='image', arg_dict=plt_args)
     out.save_plot('hist')
-    plt_args = {'axis': [0, 6000, 0, 6000]}
+    plt_args = {'axis': [3000, 6000, 3000, 6000]}
     out.plot_graph(detector.image.array, detector.image.array, name='image', arg_dict=plt_args)
     out.save_plot('graph')
     # todo: copy yaml input file to folder
@@ -115,7 +116,6 @@ def main():
 
     # Set logger
     logging_level = logging.INFO  # logging.DEBUG
-
     # log_level = [logging.ERROR, logging.INFO, logging.DEBUG][min(opts.verbosity, 2)]
     del logging.root.handlers[:]
     log_format = '%(asctime)s - %(name)s - %(module)20s - %(funcName)20s %(message)s'  # %(thread)d -
@@ -128,6 +128,7 @@ def main():
         os.makedirs(output_folder)
     else:
         raise IsADirectoryError('Directory exists.')
+    copy2(opts.config, output_folder)
 
     if opts.gui:
         raise NotImplementedError

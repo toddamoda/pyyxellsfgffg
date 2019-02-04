@@ -1,15 +1,13 @@
-# Pyxel output data files
+# Pyxel input/output data files
+data
+outputs/
 *.data
 *.fits
 *.npy
 *.out
-
-# Pyxel YAML files created by GUI
-test.yaml
-
-# Pyxel plots
 *.png
 *.jpg
+
 
 # Geant4 i/o files
 *.mac
@@ -18,9 +16,10 @@ test.yaml
 # temp files
 **/tmp*
 
-# Byte-compiled
+# Pycharm, Byte-compiled
 __pycache__/
 *.pyc
+.idea/
 
 # Distribution / packaging
 build/
@@ -29,9 +28,6 @@ dist/
 
 # Doc
 docs/html/
-
-# Pycharm
-.idea/
 
 # Unit test / coverage reports
 .tox/
