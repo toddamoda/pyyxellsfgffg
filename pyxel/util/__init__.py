@@ -1,12 +1,12 @@
 """Utility functions."""
 
 import numpy as np
-from pyxel.util.outputs import output_image, output_numpy_array, output_hist_plot, show_plots
-from pyxel.util.outputs import apply_run_number
+# from pyxel.util.outputs import image, numpy_array, hist_plot, graph_plot, show_plots
+from pyxel.util.outputs import Output, apply_run_number
 
 __all__ = ['convert_to_int', 'round_convert_to_int',
            'PipelineAborted',
-           'output_image', 'output_numpy_array', 'output_hist_plot', 'show_plots',
+           'Output',
            'apply_run_number']
 
 

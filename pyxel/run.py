@@ -16,16 +16,22 @@ import numpy as np
 import esapy_config.io as io
 import pyxel
 from pyxel.pipelines.processor import Processor
-from pyxel.util import apply_run_number, output_image  # , output_hist_plot, show_plots,
+from pyxel.util import Output, apply_run_number
 
 
-def single_output(detector, output_dir):    # TODO
+def single_output(detector, output_dir):
     """TBW."""
-    output_image(array=detector.image.array, name='image', output_dir=output_dir)
-    # output_image(array=detector.signal.array, name='signal', output_dir=output_dir)
-    # output_image(array=detector.pixels.array, name='pixels', output_dir=output_dir)
-    # output_hist_plot(detector.image.array, name='fgdfs', output_dir=output_dir)
-    # show_plots()
+    out = Output(output_dir)
+    out.save_to_fits(array=detector.image.array)
+    out.save_to_npy(array=detector.image.array)
+    plt_args = {'bins': 300, 'xlabel': 'ADU', 'ylabel': 'counts', 'title': 'Image histogram'}
+    out.plot_histogram(detector.image.array, name='image', arg_dict=plt_args)
+    out.save_plot('hist')
+    plt_args = {'axis': [0, 6000, 0, 6000]}
+    out.plot_graph(detector.image.array, detector.image.array, name='image', arg_dict=plt_args)
+    out.save_plot('graph')
+    # todo: copy yaml input file to folder
+    # todo: convert to jpg, png, csv(?)
 
 
 def calibration_output(results):        # TODO
@@ -35,7 +41,10 @@ def calibration_output(results):        # TODO
 
 def parametric_output(detector, output_dir, config=None):        # TODO
     """TBW."""
-    output_image(array=detector.image.array, name='image', output_dir=output_dir)
+    out = Output(output_dir)
+    out.save_to_fits(array=detector.image.array)
+    out.plot_histogram(detector.image.array, name='image_hist')
+    out.save_plot('graph')
     # todo: get the parametric variables from configs,
     # todo: then plot things in function of these variables, defined in configs
 

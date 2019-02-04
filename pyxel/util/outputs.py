@@ -1,5 +1,6 @@
 """Utility functions for creating outputs."""
 import glob
+from copy import copy
 import numpy as np
 import astropy.io.fits as fits
 try:
@@ -9,56 +10,97 @@ except ImportError:
     pass
 
 
-def output_numpy_array(array, filename):
+class Output:
     """TBW."""
-    np.save(file=filename, arr=array)
 
+    def __init__(self, output_dir):
+        """TBW."""
+        self.output_dir = output_dir
+        self.default_ax_args = {
+            'xlabel': None, 'ylabel': None, 'title': None, 'axis': None, 'grid': False
+        }
+        self.default_plot_args = {
+            'color': None, 'marker': '.', 'linestyle': '', 'label': None
+        }
+        self.default_hist_args = {
+            'bins': None, 'range': None, 'density': None, 'log': False, 'cumulative': False,
+            'histtype': 'step', 'color': None, 'facecolor': None, 'label': None
+        }
+        plt.figure()
 
-def show_plots():
-    """TBW."""
-    plt.show()
+    def save_to_fits(self, array, filename='image'):
+        """TBW."""
+        filename_image = self.output_dir + '/' + filename + '_??.fits'
+        filename_image = apply_run_number(filename_image)
+        hdu = fits.PrimaryHDU(array)
+        if filename_image is not None:
+            hdu.writeto(filename_image, overwrite=False, output_verify='exception')
 
+    def save_to_npy(self, array, filename='array'):
+        """TBW."""
+        np.save(file=filename, arr=array)
 
-def output_graph_plot(data, name, output_dir):
-    """TBW."""
-    pass
+    def save_plot(self, filename='figure'):
+        """Save plot figure and create new figure canvas for next plot."""
+        plt.savefig(self.output_dir + '/' + filename)
+        plt.figure()
 
+    def show_plots(self):
+        """TBW."""
+        plt.show()
 
-def output_hist_plot(data, name, output_dir):
-    """TBW."""
-    plt.figure()
-    xlabel = None
-    ylabel = None
-    title = None
-    # axis = None
-    # bins = None
-    # density = None
-    # histtype = 'bar'
-    # facecolor = 'b'
+    def get_plotting_arguments(self, plot_type, arg_dict=None):
+        """TBW."""
+        ax_args = copy(self.default_ax_args)
+        if plot_type == 'hist':
+            plt_args = copy(self.default_hist_args)
+        elif plot_type == 'graph':
+            plt_args = copy(self.default_plot_args)
+        else:
+            raise ValueError
+        if arg_dict:
+            for key in arg_dict.keys():
+                if key in plt_args.keys():
+                    plt_args[key] = arg_dict[key]
+                elif key in ax_args.keys():
+                    ax_args[key] = arg_dict[key]
+                else:
+                    raise KeyError
+        return plt_args, ax_args
 
-    if isinstance(data, np.ndarray):
-        data = data.flatten()
-    n, bins, patches = plt.hist(x=data,
-                                # bins=bins, range=range,
-                                # density=density, histtype=histtype, facecolor=facecolor
-                                )
+    def update_plot(self, ax_args):
+        """TBW."""
+        plt.xlabel(ax_args['xlabel'])
+        plt.ylabel(ax_args['ylabel'])
+        plt.title(ax_args['title'])
+        if ax_args['axis']:
+            plt.axis(ax_args['axis'])
+        plt.grid(ax_args['grid'])
+        plt.legend()
 
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    plt.title(title)
-    # plt.axis(axis)
-    # plt.grid(True)
-    plt.savefig(output_dir + '/' + name)
-    plt.draw()
+    def plot_graph(self, x, y, name, arg_dict=None):
+        """TBW."""
+        plt_args, ax_args = self.get_plotting_arguments(plot_type='graph', arg_dict=arg_dict)
+        if isinstance(x, np.ndarray):
+            x = x.flatten()
+        if isinstance(y, np.ndarray):
+            y = y.flatten()
+        plt.plot(x, y, label=name,
+                 color=plt_args['color'], marker=plt_args['marker'], linestyle=plt_args['linestyle'])
+        self.update_plot(ax_args)
+        plt.draw()
 
-
-def output_image(array, name, output_dir):
-    """TBW."""
-    filename_image = output_dir + '/' + name + '_??.fits'
-    filename_image = apply_run_number(filename_image)
-    hdu = fits.PrimaryHDU(array)
-    if filename_image is not None:
-        hdu.writeto(filename_image, overwrite=False, output_verify='exception')
+    def plot_histogram(self, data, name, arg_dict=None):
+        """TBW."""
+        plt_args, ax_args = self.get_plotting_arguments(plot_type='hist', arg_dict=arg_dict)
+        if isinstance(data, np.ndarray):
+            data = data.flatten()
+        plt.hist(x=data, label=name,
+                 bins=plt_args['bins'], range=plt_args['range'],
+                 density=plt_args['density'], log=plt_args['log'], cumulative=plt_args['cumulative'],
+                 histtype=plt_args['histtype'], color=plt_args['color'], facecolor=plt_args['facecolor'])
+        self.update_plot(ax_args)
+        plt.draw()
 
 
 def update_fits_header(header, key, value):
