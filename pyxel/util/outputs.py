@@ -2,6 +2,8 @@
 import glob
 from copy import copy
 import numpy as np
+import pandas as pd
+from PIL import Image
 import astropy.io.fits as fits
 try:
     import matplotlib.pyplot as plt
@@ -10,7 +12,7 @@ except ImportError:
     pass
 
 
-class Output:
+class Outputs:
     """TBW."""
 
     def __init__(self, output_dir):
@@ -28,25 +30,51 @@ class Output:
         }
         plt.figure()
 
-    def save_to_fits(self, array, filename='image'):
-        """TBW."""
-        filename_image = self.output_dir + '/' + filename + '_??.fits'
-        filename_image = apply_run_number(filename_image)
-        hdu = fits.PrimaryHDU(array)
-        if filename_image is not None:
-            hdu.writeto(filename_image, overwrite=False, output_verify='exception')
+    def save_to_bitmap(self, array, filename='image_??'):       # TODO finish, PIL does not work with JPEG !
+        """Write array to bitmap PNG image file."""
+        filename = self.output_dir + '/' + filename + '.png'
+        filename = apply_run_number(filename)
+        im = Image.fromarray(array)
+        im.save(filename, "PNG")
 
-    def save_to_npy(self, array, filename='array'):
-        """TBW."""
+    def save_to_fits(self, array, filename='image_??'):
+        """Write array to FITS file."""
+        filename = self.output_dir + '/' + filename + '.fits'
+        filename = apply_run_number(filename)
+        hdu = fits.PrimaryHDU(array)
+        if filename is not None:
+            hdu.writeto(filename, overwrite=False, output_verify='exception')
+
+    def save_to_hdf(self, data, key='data', filename='store_??'):
+        """Write object to HDF5 file."""
+        filename = self.output_dir + '/' + filename + '.h5'
+        filename = apply_run_number(filename)
+        with pd.HDFStore(filename) as store:
+            store[key] = data
+        # TODO: append more objects if needed to the same HDF5 file
+        # TODO: save whole detector object to a HDF5 file?
+
+    def save_to_csv(self, dataframe: pd.DataFrame, filename='dataframe_??'):
+        """Write pandas Dataframe to CSV file."""
+        filename = self.output_dir + '/' + filename + '.csv'
+        filename = apply_run_number(filename)
+        dataframe.to_csv(filename, float_format='%g')
+
+    def save_to_npy(self, array, filename='array_??'):
+        """Write array to Numpy binary npy file."""
+        filename = self.output_dir + '/' + filename + '.npy'
+        filename = apply_run_number(filename)
         np.save(file=filename, arr=array)
 
-    def save_plot(self, filename='figure'):
-        """Save plot figure and create new figure canvas for next plot."""
-        plt.savefig(self.output_dir + '/' + filename)
+    def save_plot(self, filename='figure_??'):
+        """Save plot figure in PNG format and create new figure canvas for next plot."""
+        filename = self.output_dir + '/' + filename + '.png'
+        filename = apply_run_number(filename)
+        plt.savefig(filename)
         plt.figure()
 
     def show_plots(self):
-        """TBW."""
+        """Show all the previously created figures."""
         plt.show()
 
     def get_plotting_arguments(self, plot_type, arg_dict=None):

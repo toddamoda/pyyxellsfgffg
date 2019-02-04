@@ -17,22 +17,23 @@ import numpy as np
 import esapy_config.io as io
 import pyxel
 from pyxel.pipelines.processor import Processor
-from pyxel.util import Output, apply_run_number
+from pyxel.util import Outputs, apply_run_number
 
 
 def single_output(detector, output_dir):
     """TBW."""
-    out = Output(output_dir)
+    out = Outputs(output_dir)
     out.save_to_fits(array=detector.image.array)
     out.save_to_npy(array=detector.image.array)
     plt_args = {'bins': 300, 'xlabel': 'ADU', 'ylabel': 'counts', 'title': 'Image histogram'}
     out.plot_histogram(detector.image.array, name='image', arg_dict=plt_args)
-    out.save_plot('hist')
+    out.save_plot()
     plt_args = {'axis': [3000, 6000, 3000, 6000]}
     out.plot_graph(detector.image.array, detector.image.array, name='image', arg_dict=plt_args)
-    out.save_plot('graph')
-    # todo: copy yaml input file to folder
-    # todo: convert to jpg, png, csv(?)
+    out.save_plot()
+    out.save_to_bitmap(array=detector.image.array)
+    # out.save_to_hdf(data=detector.charges.frame, key='charge')
+    # out.save_to_csv(dataframe=detector.charges.frame)
 
 
 def calibration_output(results):        # TODO
@@ -42,7 +43,7 @@ def calibration_output(results):        # TODO
 
 def parametric_output(detector, output_dir, config=None):        # TODO
     """TBW."""
-    out = Output(output_dir)
+    out = Outputs(output_dir)
     out.save_to_fits(array=detector.image.array)
     out.plot_histogram(detector.image.array, name='image_hist')
     out.save_plot('graph')
