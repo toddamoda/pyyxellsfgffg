@@ -158,15 +158,21 @@ class ParametricAnalysis:
 
     def collect(self, processor):
         """TBW."""
+        for step in self.enabled_steps:
+            key = step.key
+            if 'pipeline.' in key:
+                model_name = key[:key.find('.arguments')]
+                model_enabled = model_name + '.enabled'
+                if not processor.get(model_enabled):
+                    raise ValueError('The "%s" model referenced in parametric configuration '
+                                     'has not been enabled in yaml config!' % model_name)
+
         if self.parametric_mode == 'embedded':
             configs = self._embedded(processor)
-
         elif self.parametric_mode == 'sequential':
             configs = self._sequential(processor)
-
         elif self.parametric_mode == 'image_generator':
             configs = self._image_generator(processor)
-
         else:
             configs = []
 

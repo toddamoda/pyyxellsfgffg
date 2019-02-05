@@ -5,70 +5,70 @@
 
 simulation:
 
-#  mode: single
-  mode: parametric
+  mode: single
+#  mode: parametric
 #  mode: calibration
 
   parametric:
-#    parametric_mode: sequential
+    parametric_mode: sequential
 #    parametric_mode: embedded
-    parametric_mode: image_generator
+#    parametric_mode: image_generator
     steps:
-#      -
-#        enabled: true
-#        key: pipeline.charge_generation.tars.arguments.particle_number
-#        values: [2, 3]
-#      -
-#        enabled: true
-#        key: pipeline.photon_generation.photon_level.arguments.level
-#        values: range(10, 13)
       -
         enabled: true
-        key:  [['characteristics', 'cdm', 'environment'],
-              [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['temperature']],
-              [[1], [4, 4, 4, 1], [1]]]
-        values: 'outputs/calibration_champions.out'
+        key: pipeline.charge_generation.tars.arguments.particle_number
+        values: [2, 3]
+      -
+        enabled: true
+        key: pipeline.photon_generation.illumination.arguments.level
+        values: range(10, 13)
+#      -
+#        enabled: true
+#        key:  [['characteristics', 'cdm', 'environment'],
+#              [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['temperature']],
+#              [[1], [4, 4, 4, 1], [1]]]
+#        values: 'outputs/calibration_champions.out'
 
-  calibration:
-    calibration_mode:  pipeline  #  single_model #
-
-    output_type: pixel # image   # signal
-    output_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50] #
-
-    target_data_path: ['outputs/in.fits'] # data/results.fits']     #  <*.npy> <*.fits> <ascii>
-    target_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50]
-#    weighting_path: ['data/results.fits']
-
-    fitness_function:
-#      func: tests.unittests.test_fitting.custom_fitness_func
-      func: pyxel.calibration.fitness.sum_of_abs_residuals
-      arguments:
-
-    seed: 132
-    algorithm:
-      type: sade   # sga  # nlopt
-#      nlopt_solver: sbplx  # neldermead
-      generations: 3
-      population_size: 10
-      variant: 2
-
-#    model_names:         ['cdm']
-#    variables:           [['tr_p', 'nt_p', 'sigma_p', 'beta_p']]
-#    params_per_variable: [[4, 4, 4, 1]]
-#    var_log:             [[True, True, True, False]]
-#    lower_boundary:      [[1.e-3, 1.e-2, 1.e-20, 0.]]
-#    upper_boundary:      [[2., 1.e+1, 1.e-15, 1.]]
+#  calibration:
+#    calibration_mode:  pipeline  #  single_model #
 #
-    model_names:         ['characteristics', 'cdm', 'environment']
-    variables:           [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['temperature']]
-    params_per_variable: [[1], [4, 4, 4, 1], [1]]
-    var_log:             [[False], [True, True, True, False], [False]]
-    lower_boundary:      [[1.], [1.e-3, 1.e-2, 1.e-20, 0.], [100.]]
-    upper_boundary:      [[10.], [2., 1.e+1, 1.e-15, 1.], [200.]]
-
-#    results:
-    champions_file: 'outputs/calibration_champions.out'
-    population_file: 'outputs/calibration_populations.out'
+#    output_type: pixel # image   # signal
+#    output_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50] #
+#
+#    target_data_path: ['outputs/in.fits'] # data/results.fits']     #  <*.npy> <*.fits> <ascii>
+#    target_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50]
+##    weighting_path: ['data/results.fits']
+#
+#    fitness_function:
+##      func: tests.unittests.test_fitting.custom_fitness_func
+#      func: pyxel.calibration.fitness.sum_of_abs_residuals
+#      arguments:
+#
+#    seed: 132
+#    algorithm:
+#      type: sade   # sga  # nlopt
+##      nlopt_solver: sbplx  # neldermead
+#      generations: 3
+#      population_size: 10
+#      variant: 2
+#
+##    model_names:         ['cdm']
+##    variables:           [['tr_p', 'nt_p', 'sigma_p', 'beta_p']]
+##    params_per_variable: [[4, 4, 4, 1]]
+##    var_log:             [[True, True, True, False]]
+##    lower_boundary:      [[1.e-3, 1.e-2, 1.e-20, 0.]]
+##    upper_boundary:      [[2., 1.e+1, 1.e-15, 1.]]
+##
+#    model_names:         ['characteristics', 'cdm', 'environment']
+#    variables:           [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['temperature']]
+#    params_per_variable: [[1], [4, 4, 4, 1], [1]]
+#    var_log:             [[False], [True, True, True, False], [False]]
+#    lower_boundary:      [[1.], [1.e-3, 1.e-2, 1.e-20, 0.], [100.]]
+#    upper_boundary:      [[10.], [2., 1.e+1, 1.e-15, 1.], [200.]]
+#
+##    results:
+#    champions_file: 'outputs/calibration_champions.out'
+#    population_file: 'outputs/calibration_populations.out'
 
 
 detector:
@@ -143,9 +143,9 @@ pipeline:
         image_file: outputs/in.fits # data/01.fits
         fit_image_to_det: false
         convert_to_photons: true
-    - name: photon_level
+    - name: illumination #  photon_level
       func: pyxel.models.photon_generation.illumination.illumination
-      enabled: false
+      enabled: true
       arguments:
           level: 10
     - name: shot_noise
@@ -165,7 +165,7 @@ pipeline:
     -
       name: tars
       func: pyxel.models.charge_generation.tars.tars.run_tars
-      enabled: true
+      enabled: false
       arguments:
         simulation_mode: cosmic_ray   # snowflakes
         running_mode: stepsize  # stopping  # plotting  # geant4
@@ -204,7 +204,7 @@ pipeline:
     -
       name: cdm
       func: pyxel.models.charge_transfer.cdm.CDM.cdm
-      enabled: true
+      enabled: false
       arguments:
        beta_p: 0.1
        beta_s: 0.3
@@ -230,7 +230,7 @@ pipeline:
       func: pyxel.models.charge_measurement.readout_noise.output_node_noise
       enabled: false
       arguments:
-        std_deviation: 40.    # TODO too high
+        std_deviation: 0.0001   # TODO too high
 
   # signal -> image
   readout_electronics:
@@ -243,4 +243,4 @@ pipeline:
       func: pyxel.models.readout_electronics.digitization.simple_digitization
       enabled: true
       arguments:
-        data_type: numpy.uint16
+        data_type: numpy.uint32

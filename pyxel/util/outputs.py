@@ -36,6 +36,8 @@ class Outputs:
         filename = apply_run_number(filename)
         im = Image.fromarray(array)
         im.save(filename, "PNG")
+        # todo: with this, it works: simple_digitization / numpy.uint32
+        # todo: with this, it does not work: simple_digitization / numpy.uint16
 
     def save_to_fits(self, array, filename='image_??'):
         """Write array to FITS file."""
