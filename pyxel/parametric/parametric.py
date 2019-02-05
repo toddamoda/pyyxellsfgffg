@@ -9,20 +9,28 @@ from esapy_config import eval_range, get_obj_att, get_value
 class StepValues:
     """TBW."""
 
-    def __init__(self, key, values,
-                 enabled=True, current=None):
+    def __init__(self,
+                 key: str, values,
+                 enabled: bool = True,
+                 current=None,
+                 logarithmic: bool = False,
+                 boundaries: list = None):
         """TBW.
 
         :param key:
         :param values:
         :param enabled:
         :param current:
+        :param logarithmic:
+        :param boundaries:
         """
         # TODO: should the values be evaluated?
         self.key = key                              # unique identifier to the step. example: detector.geometry.row
         self.values = values                        # type: t.List[t.Union[float, int]]
         self.enabled = enabled                      # type: bool
         self.current = current
+        self.logarithmic = logarithmic              # type: bool
+        self.boundaries = boundaries                # type: t.Optional[list]
 
     def __getstate__(self):
         """TBW."""
@@ -31,6 +39,8 @@ class StepValues:
             'values': self.values,
             'enabled': self.enabled,
             'current': self.current,
+            'logarithmic': self.logarithmic,
+            'boundaries': self.boundaries,
         }
 
     def __len__(self):

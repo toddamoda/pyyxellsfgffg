@@ -137,6 +137,7 @@ def pyxel_yaml_loader():
     io.ObjectModelLoader.add_class(Calibration, ['simulation', 'calibration'])
     io.ObjectModelLoader.add_class(Algorithm, ['simulation', 'calibration', 'algorithm'])
     io.ObjectModelLoader.add_class(ModelFunction, ['simulation', 'calibration', 'fitness_function'])
+    io.ObjectModelLoader.add_class(StepValues, ['simulation', 'calibration', 'steps'], is_list=True)
 
 
 pyxel_yaml_loader()

@@ -224,16 +224,18 @@ class ModelFitting:
         :param parameter: 1d np.array
         :return:
         """
-        parameter_lst = self.split_and_update_parameter(parameter)
+        # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+        parameter_lst = self.split_and_update_parameter(parameter)      # todo: remove
 
         self.det = deepcopy(self.orig_det)
-        self.update_models(parameter_lst)
+        self.update_models(parameter_lst)       # todo: remove
 
         if self.calibration_mode == 'pipeline':
-            self.update_detector(parameter_lst)
+            self.update_detector(parameter_lst)     # todo: remove
             self.pipe.run_pipeline(self.det)
         elif self.calibration_mode == 'single_model':
             self.fitted_model.function(self.det)
+        # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 
         simulated_data = None
         if self.sim_output == 'image':

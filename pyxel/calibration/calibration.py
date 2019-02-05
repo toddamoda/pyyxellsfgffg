@@ -1,10 +1,11 @@
 """TBW."""
 import numpy as np
 import pygmo as pg
-# import typing as t      # noqa: F401
+import typing as t      # noqa: F401
 import pyxel as pyx
 from pyxel.calibration.fitting import ModelFitting
 from pyxel.pipelines.model_function import ModelFunction
+from pyxel.parametric.parametric import StepValues
 
 
 @pyx.detector_class
@@ -161,6 +162,12 @@ class Calibration:
     algorithm = pyx.attribute(
         type=Algorithm,
         validator=[pyx.validate_type(Algorithm)],
+        default='',
+        doc=''
+    )
+    steps = pyx.attribute(
+        type=list,
+        validator=[pyx.validate_type(list)],
         default='',
         doc=''
     )

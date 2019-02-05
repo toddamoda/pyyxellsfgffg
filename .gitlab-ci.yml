@@ -77,6 +77,7 @@ python37:
   image: python:3.7
   stage: test
   script:
+    - apt-get install libhdf5-serial-dev   # installing HDF5 needed by PyTables under python 3.7
     - pip install pytest
     - pip install -r requirements.txt
     - pip freeze

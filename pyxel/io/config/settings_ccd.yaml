@@ -6,8 +6,8 @@
 simulation:
 
 #  mode: single
-  mode: parametric
-#  mode: calibration
+#  mode: parametric
+  mode: calibration
 
   parametric:
 #    parametric_mode: sequential
@@ -15,7 +15,7 @@ simulation:
     parametric_mode: parallel
     from_file: 'outputs/calibration_champions.out'
     column_range: [2, 17]
-    steps:
+    steps:         # TODO rename this to parameters or variables
 #      - key: pipeline.charge_generation.tars.arguments.particle_number
 #        values: [2, 3]
 #        enabled: true
@@ -58,13 +58,6 @@ simulation:
       population_size: 10
       variant: 2
 
-#    model_names:         ['cdm']
-#    variables:           [['tr_p', 'nt_p', 'sigma_p', 'beta_p']]
-#    params_per_variable: [[4, 4, 4, 1]]
-#    var_log:             [[True, True, True, False]]
-#    lower_boundary:      [[1.e-3, 1.e-2, 1.e-20, 0.]]
-#    upper_boundary:      [[2., 1.e+1, 1.e-15, 1.]]
-#
     model_names:         ['characteristics', 'cdm', 'environment']
     variables:           [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['temperature']]
     params_per_variable: [[1], [4, 4, 4, 1], [1]]
@@ -72,7 +65,33 @@ simulation:
     lower_boundary:      [[1.], [1.e-3, 1.e-2, 1.e-20, 0.], [100.]]
     upper_boundary:      [[10.], [2., 1.e+1, 1.e-15, 1.], [200.]]
 
-#    results:
+    steps:    # TODO rename this to parameters or variables
+      - key:  detector.characteristics.amp
+        values: _
+        logarithmic: false
+        boundaries: [1., 10.]
+      - key:  pipeline.charge_transfer.cdm.arguments.tr_p
+        values: [_, _, _, _]
+        logarithmic: true
+        boundaries: [1.e-3, 2.]
+      - key:  pipeline.charge_transfer.cdm.arguments.nt_p
+        values: [_, _, _, _]
+        logarithmic: true
+        boundaries: [1.e-2, 1.e+1]
+      - key:  pipeline.charge_transfer.cdm.arguments.sigma_p
+        values: [_, _, _, _]
+        logarithmic: true
+        boundaries: [1.e-20, 1.e-15]
+      - key:  pipeline.charge_transfer.cdm.arguments.beta_p
+        values: _
+        logarithmic: false
+        boundaries: [0., 1.]
+      - key:  detector.environment.temperature
+        values: _
+        logarithmic: false
+        boundaries: [100., 200.]
+
+    #    results:
     champions_file: 'outputs/calibration_champions.out'
     population_file: 'outputs/calibration_populations.out'
 
