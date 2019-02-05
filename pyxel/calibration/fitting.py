@@ -12,19 +12,21 @@ class ModelFitting:
     """Pygmo problem class to fit data with any model in Pyxel."""
 
     # def __init__(self, detector, pipeline):
-    def __init__(self, processor):
+    def __init__(self, processor, variables: list):
         """TBW."""
         self.calibration_mode = None
 
-        self.det = processor.detector
-        self.pipe = processor.pipeline
+        # self.det = processor.detector
+        # self.pipe = processor.pipeline
+        self.processor = processor
         self.orig_det = None
 
-        self.model_name_list = []           # type: t.List[str]
-        self.params_per_variable = []       # type: t.List[t.List[int]]
-        self.variable_name_lst = []         # type: t.List[t.List[str]]
-        self.is_var_array = []              # type: t.List[t.List[int]]
-        self.is_var_log = []                # type: t.List[t.List[bool]]
+        self.variables = variables
+        # self.model_name_list = []           # type: t.List[str]
+        # self.params_per_variable = []       # type: t.List[t.List[int]]
+        # self.variable_name_lst = []         # type: t.List[t.List[str]]
+        # self.is_var_array = []              # type: t.List[t.List[int]]
+        # self.is_var_log = []                # type: t.List[t.List[bool]]
 
         self.generations = None             # type: int
         self.pop = None                     # type: int
@@ -68,9 +70,9 @@ class ModelFitting:
 
     def set_parameters(self,
                        calibration_mode: str,
-                       model_names: list,
-                       variables: list,
-                       var_log: list,
+                       # model_names: list,
+                       # variables: list,
+                       # var_log: list,
                        generations: int,
                        population_size: int,
                        simulation_output: str,
@@ -82,9 +84,9 @@ class ModelFitting:
         """TBW.
 
         :param calibration_mode:
-        :param model_names:
-        :param variables:
-        :param var_log:
+        # :param model_names:
+        # :param variables:
+        # :param var_log:
         :param generations:
         :param population_size:
         :param simulation_output:
@@ -95,19 +97,19 @@ class ModelFitting:
         :return:
         """
         self.calibration_mode = calibration_mode
-        self.model_name_list = model_names
-        self.variable_name_lst = variables
-        self.is_var_log = var_log
+        # self.model_name_list = model_names
+        # self.variable_name_lst = variables
+        # self.is_var_log = var_log
         self.sim_output = simulation_output
         self.sort_by_var = sort_by_var
         self.fitness_func = fitness_func
         self.pop = population_size
         self.generations = generations
 
-        if self.calibration_mode == 'single_model':
-            self.single_model_calibration()
+        # if self.calibration_mode == 'single_model':           # TODO update
+        #     self.single_model_calibration()
 
-        self.orig_det = deepcopy(self.det)
+        self.orig_det = deepcopy(self.processor.detector)
 
         self.champions_file = champions_file
         file1 = open(self.champions_file, 'wb')  # truncate output file
@@ -121,7 +123,7 @@ class ModelFitting:
         #     os.remove(file)
 
     def configure(self,
-                  params_per_variable: list,
+                  # params_per_variable: list,
                   target_output: str,
                   target_fit_range: list,
                   out_fit_range: list,
@@ -130,7 +132,7 @@ class ModelFitting:
                   ):
         """TBW.
 
-        :param params_per_variable: list
+        # :param params_per_variable: list
         :param target_output:
         :param target_fit_range:
         :param out_fit_range:
@@ -138,19 +140,19 @@ class ModelFitting:
         :param single_model_input:
         :return:
         """
-        self.params_per_variable = params_per_variable
-        self.champion_f_list = np.zeros((1, 1))
-        self.champion_x_list = np.zeros((1, np.sum(np.sum(self.params_per_variable))))
+        # self.params_per_variable = params_per_variable
+        # self.champion_f_list = np.zeros((1, 1))                                            # TODO
+        # self.champion_x_list = np.zeros((1, np.sum(np.sum(self.params_per_variable))))     # TODO
 
-        self.is_var_array = deepcopy(self.params_per_variable)
-        for i in range(len(self.params_per_variable)):
-            for j in range(len(self.params_per_variable[i])):
-                item = self.params_per_variable[i][j]
-                if item > 1:
-                    item = 1
-                else:
-                    item = 0
-                self.is_var_array[i][j] = item
+        # self.is_var_array = deepcopy(self.params_per_variable)
+        # for i in range(len(self.params_per_variable)):
+        #     for j in range(len(self.params_per_variable[i])):
+        #         item = self.params_per_variable[i][j]
+        #         if item > 1:
+        #             item = 1
+        #         else:
+        #             item = 0
+        #         self.is_var_array[i][j] = item
 
         target_list = read_data(target_output)
         try:
@@ -171,18 +173,18 @@ class ModelFitting:
             self.weighting = read_data(weighting)[0]
             self.weighting = self.weighting[self.targ_fit_range]
 
-    def single_model_calibration(self):
-        """TBW.
-
-        :return:
-        """
-        if len(self.model_name_list) > 1:
-            raise ValueError('Select only one pipeline model!')
-        if self.model_name_list[0] in ['geometry', 'material', 'environment', 'characteristics']:
-            raise ValueError('Select a pipeline model and not a detector attribute!')
-
-        self.fitted_model = self.pipe.get_model(self.model_name_list[0])
-        self.pipe.run_pipeline(self.det, abort_before=self.model_name_list[0])
+    # def single_model_calibration(self):     # TODO update
+    #     """TBW.
+    #
+    #     :return:
+    #     """
+    #     # if len(self.model_name_list) > 1:
+    #     #     raise ValueError('Select only one pipeline model!')
+    #     # if self.model_name_list[0] in ['geometry', 'material', 'environment', 'characteristics']:
+    #     #     raise ValueError('Select a pipeline model and not a detector attribute!')
+    #
+    #     self.fitted_model = self.processor.pipeline.get_model(self.model_name_list[0])
+    #     self.processor.pipeline.run_pipeline(self.processor.detector, abort_before=self.model_name_list[0])
 
     def set_bound(self, low_val, up_val):
         """TBW.
@@ -193,17 +195,18 @@ class ModelFitting:
         """
         self.lbd = []
         self.ubd = []
-        for i in range(len(low_val)):
-            for j in range(len(up_val[i])):
-                if self.is_var_log[i][j]:
-                    lo_bd, up_bd = [np.log10(low_val[i][j])], [np.log10(up_val[i][j])]
-                else:
-                    lo_bd, up_bd = [low_val[i][j]], [up_val[i][j]]
-                if self.is_var_array[i][j]:
-                    lo_bd = self.params_per_variable[i][j] * lo_bd
-                    up_bd = self.params_per_variable[i][j] * up_bd
-                self.lbd += lo_bd
-                self.ubd += up_bd
+        for var in self.variables:
+            if var.logarithmic:
+                var.boundaries = np.log10(var.boundaries)
+            if var.values == '_':
+                self.lbd += [var.boundaries[0]]
+                self.ubd += [var.boundaries[1]]
+            elif isinstance(var.values, list) and all(x == '_' for x in var.values[:]):
+                self.lbd += [var.boundaries[0]] * len(var.values)
+                self.ubd += [var.boundaries[1]] * len(var.values)
+            else:
+                raise ValueError('Character "_" (or a list of it) should be used to '
+                                 'indicate variables need to be calibrated')
 
     def calculate_fitness(self, simulated_data, target_data):
         """TBW.
@@ -224,26 +227,40 @@ class ModelFitting:
         :param parameter: 1d np.array
         :return:
         """
-        # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-        parameter_lst = self.split_and_update_parameter(parameter)      # todo: remove
 
-        self.det = deepcopy(self.orig_det)
+        # parameter_lst = self.split_and_update_parameter(parameter)
+        #
+        # self.det = deepcopy(self.orig_det)
+        # self.update_models(parameter_lst)
+        #
+        # if self.calibration_mode == 'pipeline':
+        #     self.update_detector(parameter_lst)
+        #     self.pipe.run_pipeline(self.det)
+        # elif self.calibration_mode == 'single_model':
+        #     self.fitted_model.function(self.det)
+
+        # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+        parameter = self.split_and_update_parameter(parameter)
+
+        self.processor.detector = deepcopy(self.orig_det)
+
+
         self.update_models(parameter_lst)       # todo: remove
 
         if self.calibration_mode == 'pipeline':
             self.update_detector(parameter_lst)     # todo: remove
-            self.pipe.run_pipeline(self.det)
+            self.processor.pipeline.run_pipeline(self.processor.detector)
         elif self.calibration_mode == 'single_model':
-            self.fitted_model.function(self.det)
+            self.fitted_model.function(self.processor.detector)
         # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 
         simulated_data = None
         if self.sim_output == 'image':
-            simulated_data = self.det.image.array[self.sim_fit_range]
+            simulated_data = self.processor.detector.image.array[self.sim_fit_range]
         elif self.sim_output == 'signal':
-            simulated_data = self.det.signal.array[self.sim_fit_range]
+            simulated_data = self.processor.detector.signal.array[self.sim_fit_range]
         elif self.sim_output == 'pixel':
-            simulated_data = self.det.pixels.array[self.sim_fit_range]
+            simulated_data = self.processor.detector.pixels.array[self.sim_fit_range]
 
         overall_fitness = 0.
         for target_data in self.all_target_data:
@@ -259,60 +276,48 @@ class ModelFitting:
         :param parameter: 1d np.array
         :return:
         """
-        split_list = []
-        for i in range(len(self.params_per_variable)):
-            for j in range(len(self.params_per_variable[i])):
-                if i == 0 and j == 0:
-                    split_list += [self.params_per_variable[0][0]]
-                else:
-                    split_list += [split_list[-1] + self.params_per_variable[i][j]]
+        a = 0
+        for var in self.variables:
+            b = 1
+            if isinstance(var.values, list):
+                b = len(var.values)
+            if var.logarithmic:
+                parameter[a:a+b] = np.power(10, parameter[a:a+b])
+            a += b
+        return parameter
 
-        subarrays = np.split(parameter, split_list)
-        subarrays = subarrays[:-1]
+    # def update_detector(self, param_array_list):
+    #     """TBW.
+    #
+    #     :param param_array_list:
+    #     :return:
+    #     """
+    #     k = 0
+    #     for i in range(len(self.model_name_list)):
+    #         if self.model_name_list[i] in ['geometry', 'material', 'environment', 'characteristics']:
+    #             class_str = self.model_name_list[i]
+    #             det_class = getattr(self.det, class_str)
+    #             for j in range(len(self.variable_name_lst[i])):
+    #                 setattr(det_class, self.variable_name_lst[i][j], param_array_list[k])
+    #                 k += 1
+    #         else:
+    #             k += len(self.variable_name_lst[i])
 
-        k = 0
-        for i in range(len(self.variable_name_lst)):
-            for j in range(len(self.variable_name_lst[i])):
-                if self.is_var_log[i][j]:
-                    subarrays[k] = np.power(10, subarrays[k])
-                if not self.is_var_array[i][j]:
-                    subarrays[k] = subarrays[k][0]
-                k += 1
-
-        return subarrays
-
-    def update_detector(self, param_array_list):
-        """TBW.
-
-        :param param_array_list:
-        :return:
-        """
-        k = 0
-        for i in range(len(self.model_name_list)):
-            if self.model_name_list[i] in ['geometry', 'material', 'environment', 'characteristics']:
-                class_str = self.model_name_list[i]
-                det_class = getattr(self.det, class_str)
-                for j in range(len(self.variable_name_lst[i])):
-                    setattr(det_class, self.variable_name_lst[i][j], param_array_list[k])
-                    k += 1
-            else:
-                k += len(self.variable_name_lst[i])
-
-    def update_models(self, param_array_list):
-        """TBW.
-
-        :param param_array_list:
-        :return:
-        """
-        k = 0
-        for i in range(len(self.model_name_list)):
-            if self.model_name_list[i] in ['geometry', 'material', 'environment', 'characteristics']:
-                k += len(self.variable_name_lst[i])
-            else:
-                fitted_pipeline_model = self.pipe.get_model(self.model_name_list[i])
-                for j in range(len(self.variable_name_lst[i])):
-                    fitted_pipeline_model.arguments[self.variable_name_lst[i][j]] = param_array_list[k]
-                    k += 1
+    # def update_models(self, param_array_list):
+    #     """TBW.
+    #
+    #     :param param_array_list:
+    #     :return:
+    #     """
+    #     k = 0
+    #     for i in range(len(self.model_name_list)):
+    #         if self.model_name_list[i] in ['geometry', 'material', 'environment', 'characteristics']:
+    #             k += len(self.variable_name_lst[i])
+    #         else:
+    #             fitted_pipeline_model = self.pipe.get_model(self.model_name_list[i])
+    #             for j in range(len(self.variable_name_lst[i])):
+    #                 fitted_pipeline_model.arguments[self.variable_name_lst[i][j]] = param_array_list[k]
+    #                 k += 1
 
     def population_and_champions(self, parameter, overall_fitness):
         """Get champion (also population) of each generation and write it to output file(s).

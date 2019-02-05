@@ -254,12 +254,12 @@ class Calibration:
         pg.set_global_rng_seed(seed=self.seed)
         print('pygmo seed: ', self.seed)
 
-        fitting = ModelFitting(processor)
+        fitting = ModelFitting(processor, self.steps)
 
         fitting.set_parameters(calibration_mode=self.calibration_mode,
-                               model_names=self.model_names,
-                               variables=self.variables,
-                               var_log=self.var_log,
+                               # model_names=self.model_names,
+                               # variables=self.variables,
+                               # var_log=self.var_log,
                                generations=self.algorithm.generations,
                                population_size=self.algorithm.population_size,
                                simulation_output=self.output_type,
@@ -267,12 +267,14 @@ class Calibration:
                                fitness_func=self.fitness_function,
                                champions_file=self.champions_file,
                                population_file=self.population_file)
-        fitting.configure(params_per_variable=self.params_per_variable,
+        fitting.configure(
+                          # params_per_variable=self.params_per_variable,
                           target_output=self.target_data_path,
                           target_fit_range=self.target_fit_range,
                           out_fit_range=self.output_fit_range,
                           weighting=self.weighting_path,
                           single_model_input=self.single_model_input)
+
         fitting.set_bound(low_val=self.lower_boundary,
                           up_val=self.upper_boundary)
 
