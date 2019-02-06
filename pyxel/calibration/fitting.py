@@ -2,9 +2,9 @@
 
 https://esa.github.io/pagmo2/index.html
 """
-import numpy as np
 from copy import deepcopy
 import typing as t   # noqa: F401
+import numpy as np
 from pyxel.calibration.util import list_to_slice, check_ranges, read_data
 from pyxel.parametric.parameter_values import ParameterValues
 

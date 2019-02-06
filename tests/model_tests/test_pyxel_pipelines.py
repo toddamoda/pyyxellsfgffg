@@ -1,10 +1,10 @@
 """Functional tests for the Pyxel pipelines."""
-import pytest
-import os
-import shutil
-import numpy as np
-from astropy.io import fits
-from pyxel.run import run
+# import os
+# import shutil
+# import pytest
+# import numpy as np
+# from astropy.io import fits
+# from pyxel.run import run
 
 
 # @pytest.mark.parametrize('yaml, expected_image, seed, outfile',

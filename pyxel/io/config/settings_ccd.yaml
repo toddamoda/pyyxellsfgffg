@@ -42,7 +42,7 @@ simulation:
     output_type: pixel # image   # signal
     output_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50] #
 
-    target_data_path: ['outputs/in.fits'] # data/results.fits']     #  <*.npy> <*.fits> <ascii>
+    target_data_path: ['data/results.fits']     #  <*.npy> <*.fits> <ascii>
     target_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50]
 #    weighting_path: ['data/results.fits']
 

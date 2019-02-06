@@ -75,10 +75,6 @@ class Outputs:
         plt.savefig(filename)
         plt.figure()
 
-    def show_plots(self):
-        """Show all the previously created figures."""
-        plt.show()
-
     def get_plotting_arguments(self, plot_type, arg_dict=None):
         """TBW."""
         ax_args = copy(self.default_ax_args)
@@ -98,16 +94,6 @@ class Outputs:
                     raise KeyError
         return plt_args, ax_args
 
-    def update_plot(self, ax_args):
-        """TBW."""
-        plt.xlabel(ax_args['xlabel'])
-        plt.ylabel(ax_args['ylabel'])
-        plt.title(ax_args['title'])
-        if ax_args['axis']:
-            plt.axis(ax_args['axis'])
-        plt.grid(ax_args['grid'])
-        plt.legend()
-
     def plot_graph(self, x, y, name, arg_dict=None):
         """TBW."""
         plt_args, ax_args = self.get_plotting_arguments(plot_type='graph', arg_dict=arg_dict)
@@ -117,7 +103,7 @@ class Outputs:
             y = y.flatten()
         plt.plot(x, y, label=name,
                  color=plt_args['color'], marker=plt_args['marker'], linestyle=plt_args['linestyle'])
-        self.update_plot(ax_args)
+        update_plot(ax_args)
         plt.draw()
 
     def plot_histogram(self, data, name, arg_dict=None):
@@ -129,8 +115,24 @@ class Outputs:
                  bins=plt_args['bins'], range=plt_args['range'],
                  density=plt_args['density'], log=plt_args['log'], cumulative=plt_args['cumulative'],
                  histtype=plt_args['histtype'], color=plt_args['color'], facecolor=plt_args['facecolor'])
-        self.update_plot(ax_args)
+        update_plot(ax_args)
         plt.draw()
+
+
+def show_plots():
+    """Show all the previously created figures."""
+    plt.show()
+
+
+def update_plot(ax_args):
+    """TBW."""
+    plt.xlabel(ax_args['xlabel'])
+    plt.ylabel(ax_args['ylabel'])
+    plt.title(ax_args['title'])
+    if ax_args['axis']:
+        plt.axis(ax_args['axis'])
+    plt.grid(ax_args['grid'])
+    plt.legend()
 
 
 def update_fits_header(header, key, value):

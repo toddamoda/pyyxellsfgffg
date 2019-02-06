@@ -38,7 +38,13 @@ def test_set_algo(yaml):
                           'tests/data/cti-data.txt',
                           ['tests/data/expected_ccd_pipeline01.fits'],
                           ['tests/data/data.npy'],
-                          ['tests/data/cti-data.txt']
+                          ['tests/data/cti-data.txt'],
+                          # 'tests/data/ascii_input_0.data',
+                          'tests/data/ascii_input_1.data',
+                          'tests/data/ascii_input_2.data',
+                          ['tests/data/ascii_input_3.data'],
+                          ['tests/data/ascii_input_4.data'],
+                          # ['tests/data/ascii_input_5.data']
                           ])
 def test_read_data(input_data):
     """Test """
