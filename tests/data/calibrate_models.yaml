@@ -27,12 +27,35 @@ simulation:
       population_size: 10
       variant: 2
 
-    model_names:         ['characteristics', 'cdm', 'output_node_noise', 'environment']
-    variables:           [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['std_deviation'], ['temperature']]
-    params_per_variable: [[1], [4, 4, 4, 1], [1], [1]]
-    var_log:             [[False], [True, False, True, False], [True], [False]]
-    lower_boundary:      [[1.], [1.e-3, 1.e-2, 1.e-20, 0.], [10.], [100.]]
-    upper_boundary:      [[10.], [2., 1.e+1, 1.e-15, 1.], [200.], [300.]]
+    steps:
+      - key:  detector.characteristics.amp
+        values: _
+        logarithmic: false
+        boundaries: [1., 10.]
+      - key:  pipeline.charge_transfer.cdm.arguments.tr_p
+        values: [_, _, _, _]
+        logarithmic: true
+        boundaries: [1.e-3, 2.]
+      - key:  pipeline.charge_transfer.cdm.arguments.nt_p
+        values: [_, _, _, _]
+        logarithmic: false
+        boundaries: [1.e-2, 1.e+1]
+      - key:  pipeline.charge_transfer.cdm.arguments.sigma_p
+        values: [_, _, _, _]
+        logarithmic: true
+        boundaries: [1.e-20,  1.e-15]
+      - key:  pipeline.charge_transfer.cdm.arguments.beta_p
+        values: _
+        logarithmic: false
+        boundaries: [0., 1.]
+      - key:  pipeline.charge_measurement.output_node_noise.arguments.std_deviation
+        values: _
+        logarithmic: true
+        boundaries: [10., 200.]
+      - key:  detector.environment.temperature
+        values: _
+        logarithmic: false
+        boundaries: [100., 300.]
 
     champions_file: 'data/calibration_champions.out'
     population_file: 'data/calibration_populations.out'
