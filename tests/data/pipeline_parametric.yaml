@@ -4,7 +4,7 @@ simulation:
 
   parametric:
     parametric_mode: sequential
-    steps:
+    parameters:
       -
         enabled: true
         key: pipeline.photon_generation.photon_level.arguments.level

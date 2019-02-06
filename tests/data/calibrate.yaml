@@ -25,7 +25,7 @@ simulation:
       population_size: 2
       variant: 2
 
-    steps:
+    parameters:
       - key:  detector.characteristics.amp
         values: _
         logarithmic: false

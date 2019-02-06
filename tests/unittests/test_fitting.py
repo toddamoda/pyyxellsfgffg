@@ -38,7 +38,7 @@ def test_configure_params(yaml_file):
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']
-    mf = ModelFitting(processor, simulation.calibration.steps)
+    mf = ModelFitting(processor, simulation.calibration.parameters)
 
     if not isinstance(mf.processor, Processor):
         raise ValueError
@@ -62,7 +62,7 @@ def test_configure_fits_target(yaml):
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']
-    mf = ModelFitting(processor, simulation.calibration.steps)
+    mf = ModelFitting(processor, simulation.calibration.parameters)
     configure(mf, simulation)
     assert mf.sim_fit_range == (slice(2, 5, None), slice(4, 7, None))
     assert mf.targ_fit_range == (slice(1, 4, None), slice(5, 8, None))
@@ -85,7 +85,7 @@ def test_boundaries(yaml):
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']
-    mf = ModelFitting(processor, simulation.calibration.steps)
+    mf = ModelFitting(processor, simulation.calibration.parameters)
 
     configure(mf, simulation)
 
@@ -120,7 +120,7 @@ def test_calculate_fitness(simulated_data, target_data, expected_fitness):
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']
-    mf = ModelFitting(processor, simulation.calibration.steps)
+    mf = ModelFitting(processor, simulation.calibration.parameters)
     configure(mf, simulation)
     fitness = mf.calculate_fitness(simulated_data, target_data)
     assert fitness == expected_fitness
@@ -140,7 +140,7 @@ def test_weighting(yaml, factor, expected_fitness):
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']
-    mf = ModelFitting(processor, simulation.calibration.steps)
+    mf = ModelFitting(processor, simulation.calibration.parameters)
     configure(mf, simulation)
     fitness = mf.calculate_fitness(mf.all_target_data[0]*factor, mf.all_target_data[0])
     assert fitness == expected_fitness
@@ -168,7 +168,7 @@ def test_custom_fitness(yaml, simulated_data, target_data, expected_fitness):
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']
-    mf = ModelFitting(processor, simulation.calibration.steps)
+    mf = ModelFitting(processor, simulation.calibration.parameters)
     configure(mf, simulation)
     fitness = mf.calculate_fitness(simulated_data, target_data)
     assert fitness == expected_fitness
@@ -189,7 +189,7 @@ def test_fitness(yaml, parameter, expected_fitness):
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']
-    mf = ModelFitting(processor, simulation.calibration.steps)
+    mf = ModelFitting(processor, simulation.calibration.parameters)
     configure(mf, simulation)
     overall_fitness = mf.fitness(parameter)
     assert overall_fitness[0] == expected_fitness
@@ -215,7 +215,7 @@ def test_split_and_update(yaml, parameter, expected_array):
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']
-    mf = ModelFitting(processor, simulation.calibration.steps)
+    mf = ModelFitting(processor, simulation.calibration.parameters)
     configure(mf, simulation)
     array = mf.update_parameter(parameter)
     np.testing.assert_array_equal(array, expected_array)
@@ -240,7 +240,7 @@ def test_detector_and_model_update(yaml, param_array):
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']
-    mf = ModelFitting(processor, simulation.calibration.steps)
+    mf = ModelFitting(processor, simulation.calibration.parameters)
     configure(mf, simulation)
     mf.processor = mf.update_processor(param_array)
     attributes = [

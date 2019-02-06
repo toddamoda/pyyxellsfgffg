@@ -86,8 +86,7 @@ def run(input_filename, output_directory: str, random_seed: int = None):
 
     elif simulation.mode == 'calibration':
         logger.info('Mode: Calibration')
-        simulation.calibration.run_calibration(processor)
-        # calibration_results = simulation.calibration.run_calibration(processor)
+        calibration_results = simulation.calibration.run_calibration(processor)
         # TODO: return the optimal model/detector parameters as dict or obj
         # calibration_output(calibration_results)
 

@@ -6,12 +6,13 @@ import numpy as np
 from copy import deepcopy
 import typing as t   # noqa: F401
 from pyxel.calibration.util import list_to_slice, check_ranges, read_data
+from pyxel.parametric.parameter_values import ParameterValues
 
 
 class ModelFitting:
     """Pygmo problem class to fit data with any model in Pyxel."""
 
-    def __init__(self, processor, variables: list):
+    def __init__(self, processor, variables: t.List[ParameterValues]):
         """TBW."""
         self.processor = processor
         self.variables = variables
@@ -246,8 +247,6 @@ class ModelFitting:
                 else:
                     self.champion_f_list = np.vstack((self.champion_f_list, self.champion_f_list[-1]))
                     self.champion_x_list = np.vstack((self.champion_x_list, self.champion_x_list[-1]))
-
-            print('champion\'s fitness: %1.5e' % self.champion_f_list[self.g])
 
             str_format = '%d' + (len(parameter) + 1) * ' %.6E'
             with open(self.champions_file, 'ab') as f3:

@@ -15,13 +15,14 @@ simulation:
     parametric_mode: parallel
     from_file: 'outputs/calibration_champions.out'
     column_range: [2, 17]
-    steps:         # TODO rename this to parameters or variables
+    parameters:
 #      - key: pipeline.charge_generation.tars.arguments.particle_number
 #        values: [2, 3]
 #        enabled: true
 #      - key: pipeline.photon_generation.illumination.arguments.level
 #        values: range(10, 13)
 #        enabled: true
+
       - key:  detector.characteristics.amp
         values: _
       - key:  pipeline.charge_transfer.cdm.arguments.tr_p
@@ -58,7 +59,7 @@ simulation:
       population_size: 10
       variant: 2
 
-    steps:    # TODO rename this to parameters or variables
+    parameters:
       - key:  detector.characteristics.amp
         values: _
         logarithmic: false
@@ -84,7 +85,7 @@ simulation:
         logarithmic: false
         boundaries: [100., 200.]
 
-    #    results:
+    # results:
     champions_file: 'outputs/calibration_champions.out'
     population_file: 'outputs/calibration_populations.out'
 
@@ -101,29 +102,9 @@ detector:
     pixel_vert_size: 10. #10.0         # um
     pixel_horz_size: 10. #10.0  #30.   # um
 
-#      readout_nodes: 1    # channels
-#      image_area:
-#        row:   5
-#        col:   10
-#      parallel_overscan:
-#        type: physical  # virtual
-#        row:   3
-#        col:   10
-#      serial_underscan:
-#        type: physical  # virtual
-#        row:   8
-#        col:   2
-#      serial_overscan:
-#        type: physical  # virtual
-#        row:   8
-#        col:   4
-
   material:
     class: pyxel.detectors.material.Material
     material: 'silicon'
-#      compound: 'silicon'
-#        element: 'silicon'
-#        ratio: 1.
     n_acceptor: 0.0               # cm-3
     n_donor: 0.0                  # cm-3
 

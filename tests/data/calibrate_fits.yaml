@@ -25,7 +25,7 @@ simulation:
       generations: 10
       variant: 2
 
-    steps:
+    parameters:
       - key:  detector.characteristics.amp
         values: _
         logarithmic: false

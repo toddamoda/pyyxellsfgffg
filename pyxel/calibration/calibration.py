@@ -1,4 +1,5 @@
 """TBW."""
+import logging
 import numpy as np
 import pygmo as pg
 import pyxel as pyx
@@ -163,7 +164,7 @@ class Calibration:
         default='',
         doc=''
     )
-    steps = pyx.attribute(
+    parameters = pyx.attribute(
         type=list,
         validator=[pyx.validate_type(list)],
         default='',
@@ -202,9 +203,10 @@ class Calibration:
         :return:
         """
         pg.set_global_rng_seed(seed=self.seed)
-        print('pygmo seed: ', self.seed)
+        logger = logging.getLogger('pyxel')
+        logger.info('Seed: %d' % self.seed)
 
-        fitting = ModelFitting(processor, self.steps)
+        fitting = ModelFitting(processor, self.parameters)
 
         settings = {
             'calibration_mode': self.calibration_mode,
@@ -222,17 +224,13 @@ class Calibration:
         fitting.configure(settings)
 
         prob = pg.problem(fitting)
-        print('evolution started ...')
-
         opt_algorithm = self.algorithm.get_algorithm()
         algo = pg.algorithm(opt_algorithm)
-
         pop = pg.population(prob, size=self.algorithm.population_size)
         pop = algo.evolve(pop)
 
         champion_f = pop.champion_f
         champion_x = fitting.update_parameter(pop.champion_x)
-        print('\nchampion_f:   %1.5e' % champion_f[0])
-        print('champion_x: ', *champion_x, sep="\n")
+        logger.info('Champion fitness:   %1.5e' % champion_f[0])
 
-        return 1        # todo: return results as output!!
+        return champion_f, champion_x
