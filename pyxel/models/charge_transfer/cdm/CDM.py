@@ -73,7 +73,8 @@ def cdm(detector: CCD,
     t: constant TDI period (parallel)
     st: constant TDI period (serial)
     """
-    logging.info('')
+    logger = logging.getLogger('pyxel')
+    logger.info('')
     char = cast(CCDCharacteristics, detector.characteristics)  # type: CCDCharacteristics
 
     # read in the absolute trap density [per cm**3]     # todo: fix this

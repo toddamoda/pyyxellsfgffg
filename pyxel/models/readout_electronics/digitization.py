@@ -22,7 +22,8 @@ def simple_digitization(detector: Detector,
     :param data_type: numpy integer type: ``numpy.uint16``, ``numpy.uint32``, ``numpy.uint64``,
                                           ``numpy.int32``, ``numpy.int64``
     """
-    logging.info('')
+    logger = logging.getLogger('pyxel')
+    logger.info('')
 
     data_type = locate(data_type)
     if data_type is None:

@@ -29,7 +29,8 @@ def load_image(detector: Detector,
         photon numbers for each pixel using the Photon Transfer Function:
         :math:`PTF = QE \cdot \eta \cdot S_{v} \cdot amp \cdot a_{1} \cdot a_{2}`
     """
-    logging.info('')
+    logger = logging.getLogger('pyxel')
+    logger.info('')
     image = fits.getdata(image_file)
 
     if fit_image_to_det:

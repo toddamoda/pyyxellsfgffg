@@ -6,28 +6,35 @@
 simulation:
 
 #  mode: single
-  mode: parametric
-#  mode: calibration
+#  mode: parametric
+  mode: calibration
 
   parametric:
 #    parametric_mode: sequential
 #    parametric_mode: embedded
-    parametric_mode: image_generator
-    steps:
-#      -
-#        enabled: true
-#        key: pipeline.charge_generation.tars.arguments.particle_number
+    parametric_mode: parallel
+    from_file: 'outputs/calibration_champions.out'
+    column_range: [2, 17]
+    parameters:
+#      - key: pipeline.charge_generation.tars.arguments.particle_number
 #        values: [2, 3]
-#      -
 #        enabled: true
-#        key: pipeline.photon_generation.photon_level.arguments.level
+#      - key: pipeline.photon_generation.illumination.arguments.level
 #        values: range(10, 13)
-      -
-        enabled: true
-        key:  [['characteristics', 'cdm', 'environment'],
-              [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['temperature']],
-              [[1], [4, 4, 4, 1], [1]]]
-        values: 'outputs/calibration_champions.out'
+#        enabled: true
+
+      - key:  detector.characteristics.amp
+        values: _
+      - key:  pipeline.charge_transfer.cdm.arguments.tr_p
+        values: [_, _, _, _]
+      - key:  pipeline.charge_transfer.cdm.arguments.nt_p
+        values: [_, _, _, _]
+      - key:  pipeline.charge_transfer.cdm.arguments.sigma_p
+        values: [_, _, _, _]
+      - key:  pipeline.charge_transfer.cdm.arguments.beta_p
+        values: _
+      - key:  detector.environment.temperature
+        values: _
 
   calibration:
     calibration_mode:  pipeline  #  single_model #
@@ -35,7 +42,7 @@ simulation:
     output_type: pixel # image   # signal
     output_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50] #
 
-    target_data_path: ['outputs/in.fits'] # data/results.fits']     #  <*.npy> <*.fits> <ascii>
+    target_data_path: ['data/results.fits']     #  <*.npy> <*.fits> <ascii>
     target_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50]
 #    weighting_path: ['data/results.fits']
 
@@ -52,21 +59,33 @@ simulation:
       population_size: 10
       variant: 2
 
-#    model_names:         ['cdm']
-#    variables:           [['tr_p', 'nt_p', 'sigma_p', 'beta_p']]
-#    params_per_variable: [[4, 4, 4, 1]]
-#    var_log:             [[True, True, True, False]]
-#    lower_boundary:      [[1.e-3, 1.e-2, 1.e-20, 0.]]
-#    upper_boundary:      [[2., 1.e+1, 1.e-15, 1.]]
-#
-    model_names:         ['characteristics', 'cdm', 'environment']
-    variables:           [['amp'], ['tr_p', 'nt_p', 'sigma_p', 'beta_p'], ['temperature']]
-    params_per_variable: [[1], [4, 4, 4, 1], [1]]
-    var_log:             [[False], [True, True, True, False], [False]]
-    lower_boundary:      [[1.], [1.e-3, 1.e-2, 1.e-20, 0.], [100.]]
-    upper_boundary:      [[10.], [2., 1.e+1, 1.e-15, 1.], [200.]]
+    parameters:
+      - key:  detector.characteristics.amp
+        values: _
+        logarithmic: false
+        boundaries: [1., 10.]
+      - key:  pipeline.charge_transfer.cdm.arguments.tr_p
+        values: [_, _, _, _]
+        logarithmic: true
+        boundaries: [1.e-3, 2.]
+      - key:  pipeline.charge_transfer.cdm.arguments.nt_p
+        values: [_, _, _, _]
+        logarithmic: true
+        boundaries: [1.e-2, 1.e+1]
+      - key:  pipeline.charge_transfer.cdm.arguments.sigma_p
+        values: [_, _, _, _]
+        logarithmic: true
+        boundaries: [1.e-20, 1.e-15]
+      - key:  pipeline.charge_transfer.cdm.arguments.beta_p
+        values: _
+        logarithmic: false
+        boundaries: [0., 1.]
+      - key:  detector.environment.temperature
+        values: _
+        logarithmic: false
+        boundaries: [100., 200.]
 
-#    results:
+    # results:
     champions_file: 'outputs/calibration_champions.out'
     population_file: 'outputs/calibration_populations.out'
 
@@ -83,29 +102,9 @@ detector:
     pixel_vert_size: 10. #10.0         # um
     pixel_horz_size: 10. #10.0  #30.   # um
 
-#      readout_nodes: 1    # channels
-#      image_area:
-#        row:   5
-#        col:   10
-#      parallel_overscan:
-#        type: physical  # virtual
-#        row:   3
-#        col:   10
-#      serial_underscan:
-#        type: physical  # virtual
-#        row:   8
-#        col:   2
-#      serial_overscan:
-#        type: physical  # virtual
-#        row:   8
-#        col:   4
-
   material:
     class: pyxel.detectors.material.Material
     material: 'silicon'
-#      compound: 'silicon'
-#        element: 'silicon'
-#        ratio: 1.
     n_acceptor: 0.0               # cm-3
     n_donor: 0.0                  # cm-3
 
@@ -143,9 +142,9 @@ pipeline:
         image_file: outputs/in.fits # data/01.fits
         fit_image_to_det: false
         convert_to_photons: true
-    - name: photon_level
+    - name: illumination #  photon_level
       func: pyxel.models.photon_generation.illumination.illumination
-      enabled: false
+      enabled: true
       arguments:
           level: 10
     - name: shot_noise
@@ -165,7 +164,7 @@ pipeline:
     -
       name: tars
       func: pyxel.models.charge_generation.tars.tars.run_tars
-      enabled: true
+      enabled: false
       arguments:
         simulation_mode: cosmic_ray   # snowflakes
         running_mode: stepsize  # stopping  # plotting  # geant4
@@ -230,7 +229,7 @@ pipeline:
       func: pyxel.models.charge_measurement.readout_noise.output_node_noise
       enabled: false
       arguments:
-        std_deviation: 40.    # TODO too high
+        std_deviation: 0.0001   # TODO too high
 
   # signal -> image
   readout_electronics:
@@ -243,4 +242,4 @@ pipeline:
       func: pyxel.models.readout_electronics.digitization.simple_digitization
       enabled: true
       arguments:
-        data_type: numpy.uint16
+        data_type: numpy.uint32

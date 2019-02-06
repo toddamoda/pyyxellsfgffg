@@ -11,7 +11,10 @@ scipy
 pygmo==2.10
 numba
 tqdm
-matplotlib                  # should be optional
+matplotlib                  # for plotting, should be optional
+tables                      # for reading/writing HDF5 files, should be optional
+Pillow                      # for reading/writing bitmap files, should be optional
+
 
 ########################
 # Models               #

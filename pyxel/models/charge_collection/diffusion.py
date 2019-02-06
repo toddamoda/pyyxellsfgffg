@@ -18,7 +18,8 @@
 # # @pyxel.register(group='charge_collection')
 # def diffusion(detector: CCD):
 #     """Diffusing electrons with some random charge transport."""
-#     logging.info('')
+#     logger = logging.getLogger('pyxel')
+#     logger.info('')
 #
 #     # diff = Diffusion(detector)
 #     # collected_charge_list = []  # type: list

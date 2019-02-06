@@ -21,7 +21,8 @@ def fix_pattern_noise(detector: Detector,
     :param detector: Pyxel Detector object
     :param pix_non_uniformity: path to an ascii file with and array
     """
-    logging.info('')
+    logger = logging.getLogger('pyxel')
+    logger.info('')
     geo = detector.geometry  # type: Geometry
 
     pnu = np.loadtxt(pix_non_uniformity)

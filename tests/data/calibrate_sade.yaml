@@ -26,12 +26,27 @@ simulation:
       population_size: 2
       variant: 2
 
-    model_names:         ['characteristics', 'cdm', 'output_node_noise']
-    variables:           [['amp'], ['tr_p', 'nt_p', 'beta_p'], ['std_deviation']]
-    params_per_variable: [[1], [2, 2, 1], [1]]
-    var_log:             [[False], [True, True, False], [False]]
-    lower_boundary:      [[1.], [1.e-3, 1.e-2, 0.], [10.]]
-    upper_boundary:      [[10.], [2., 1.e+1, 1.], [200.]]
+    parameters:
+      - key:  detector.characteristics.amp
+        values: _
+        logarithmic: false
+        boundaries: [1., 10.]
+      - key:  pipeline.charge_transfer.cdm.arguments.tr_p
+        values: [_, _]
+        logarithmic: true
+        boundaries: [1.e-3, 2.]
+      - key:  pipeline.charge_transfer.cdm.arguments.nt_p
+        values: [_, _]
+        logarithmic: true
+        boundaries: [1.e-2, 1.e+1]
+      - key:  pipeline.charge_transfer.cdm.arguments.beta_p
+        values: _
+        logarithmic: false
+        boundaries: [0., 1.]
+      - key:  pipeline.charge_measurement.cdm.arguments.std_deviation
+        values: _
+        logarithmic: false
+        boundaries: [10., 200.]
 
 detector:
   class: pyxel.detectors.ccd.CCD

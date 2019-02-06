@@ -17,6 +17,7 @@ def simple_amplifier(detector: Detector):
 
     :param detector: Pyxel Detector object
     """
-    logging.info('')
+    logger = logging.getLogger('pyxel')
+    logger.info('')
     char = detector.characteristics
     detector.signal.array *= char.amp * char.a1

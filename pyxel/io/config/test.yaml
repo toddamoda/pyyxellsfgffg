@@ -52,21 +52,21 @@ pipeline:
   photon_generation:
     - name: load_image
       func: pyxel.models.photon_generation.load_image.load_image
-      enabled: false
+      enabled: true
       arguments:
         image_file: data/HorseHead_orig.fits # outputs/200x200px.fits   # outputs/141x123px.fits
         fit_image_to_det: true
         convert_to_photons: true
     - name: photon_level
       func: pyxel.models.photon_generation.illumination.illumination
-      enabled: true
+      enabled: false
       arguments:
           level: 1111
           option: 'elliptic_hole'
           hole_size: [30, 50]
     - name: photon_level
       func: pyxel.models.photon_generation.illumination.illumination
-      enabled: true
+      enabled: false
       arguments:
           level: 1111
           option: 'elliptic_hole'
@@ -111,7 +111,7 @@ pipeline:
       func: pyxel.models.charge_generation.charge_injection.charge_blocks
       enabled: true
       arguments:
-        charge_level: 12345
+        charge_level: 1230
         columns: [30, 50, 60]
 #        number_of_blocks: 10
 #        block_start: 10
@@ -159,7 +159,7 @@ pipeline:
        beta_s: 0.3
        parallel_cti: true
        serial_cti: false
-       chg_inj: true
+       chg_inj: false
        para_transfers: 1552
        tr_p: [0.01]
        tr_s: [0.01]
@@ -177,7 +177,7 @@ pipeline:
       func: pyxel.models.charge_measurement.readout_noise.output_node_noise
       enabled: false
       arguments:
-        std_deviation: 0.000001     # TODO
+        std_deviation: 0.00001     # TODO
 
   # signal -> image
   readout_electronics:

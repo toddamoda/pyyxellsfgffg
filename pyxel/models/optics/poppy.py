@@ -66,7 +66,9 @@ def optical_psf(detector: Detector,
     fov_arcsec: float, optional
         Field Of View on detector plane in arcsec.
     """
-    logging.info('')
+    logging.getLogger("poppy").setLevel(logging.WARNING)
+    logger = logging.getLogger('pyxel')
+    logger.info('')
 
     if fov_arcsec:                      # TODO
         raise NotImplementedError

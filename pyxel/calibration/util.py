@@ -1,4 +1,5 @@
 """TBW."""
+import os
 import typing as t
 import numpy as np
 from astropy.io import fits
@@ -17,15 +18,33 @@ def read_data(data_path: t.Union[str, list]):
     else:
         raise TypeError
 
-    output = []                             # type: list
-    for i in range(len(data_path)):
-        if '.fits' in data_path[i]:
-            data = fits.getdata(data_path[i])
-        elif '.npy' in data_path[i]:
-            data = np.load(data_path[i])
+    output = []                                     # type: list
+    for i, path in enumerate(data_path):
+        if not os.path.exists(path):
+            raise FileNotFoundError('Input file %s can not be found.' % str(path))
+
+        data = None
+        if '.fits' in path:
+            data = fits.getdata(path)
+        elif '.npy' in path:
+            data = np.load(path)
         else:
-            data = np.loadtxt(data_path[i], delimiter='|')     # todo: more general with try-except
-        output += [data]
+            sep = [' ', ',', '|', ';']
+            ii, jj = 0, 1
+            while jj:
+                try:
+                    jj -= 1
+                    data = np.loadtxt(path, delimiter=sep[ii])
+                except ValueError:
+                    ii += 1
+                    jj += 1
+                    if ii >= len(sep):
+                        break
+
+        if data is None:
+            raise IOError('Input file %s can not be read by Pyxel.' % str(path))
+        else:
+            output += [data]
 
     return output
 

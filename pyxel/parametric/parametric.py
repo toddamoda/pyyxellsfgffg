@@ -3,46 +3,8 @@ import itertools
 import typing as t
 from copy import deepcopy
 import numpy as np
-from esapy_config import eval_range, get_obj_att, get_value
-
-
-class StepValues:
-    """TBW."""
-
-    def __init__(self, key, values,
-                 enabled=True, current=None):
-        """TBW.
-
-        :param key:
-        :param values:
-        :param enabled:
-        :param current:
-        """
-        # TODO: should the values be evaluated?
-        self.key = key                              # unique identifier to the step. example: detector.geometry.row
-        self.values = values                        # type: t.List[t.Union[float, int]]
-        self.enabled = enabled                      # type: bool
-        self.current = current
-
-    def __getstate__(self):
-        """TBW."""
-        return {
-            'key': self.key,
-            'values': self.values,
-            'enabled': self.enabled,
-            'current': self.current,
-        }
-
-    def __len__(self):
-        """TBW."""
-        values = eval_range(self.values)
-        return len(values)
-
-    def __iter__(self):
-        """TBW."""
-        values = eval_range(self.values)
-        for value in values:
-            yield value
+from esapy_config import get_obj_att, get_value
+from pyxel.parametric.parameter_values import ParameterValues
 
 
 class ParametricAnalysis:
@@ -50,80 +12,50 @@ class ParametricAnalysis:
 
     def __init__(self,
                  parametric_mode,
-                 steps: t.List[StepValues]
-                 ) -> None:
+                 parameters: t.List[ParameterValues],
+                 from_file: str = None,
+                 column_range: t.List[int] = None) -> None:
         """TBW."""
         self.parametric_mode = parametric_mode
-        self.steps = steps
+        self.parameters = parameters
+        self.file = from_file
+        self.data = None
+        if column_range:
+            self.columns = slice(column_range[0], column_range[1])
 
     def __getstate__(self):
         """TBW."""
-        return {'mode': self.parametric_mode,
-                'steps': self.steps}
+        return {'parametric_mode': self.parametric_mode,
+                'parameters': self.parameters}
 
     @property
     def enabled_steps(self):
         """TBW."""
-        return [step for step in self.steps if step.enabled]
+        return [step for step in self.parameters if step.enabled]
 
-    def load_calib_output(self, step, params_per_variable):
-        """TBW.
-
-        :param step:
-        :param params_per_variable:
-        :return:
-        """
-        split_list = []
-        for i in range(len(params_per_variable)):
-            for j in range(len(params_per_variable[i])):
-                if i == 0 and j == 0:
-                    split_list += [params_per_variable[0][0]]
-                else:
-                    split_list += [split_list[-1] + params_per_variable[i][j]]
-        data = np.loadtxt(step.values)
-        data = data[:, 2:]
-        if len(data[0, :]) != np.sum(np.sum(params_per_variable)):
-            raise ValueError
-        return data, split_list
-
-    def _image_generator(self, processor):      # TODO: Too many local variables, ie. function is too complex
+    def _parallel(self, processor):
         """TBW.
 
         :param processor:
         :return:
         """
-        for step in self.enabled_steps:         # TODO: Too many nested blocks
-
-            if isinstance(step.key, list) and isinstance(step.values, str):
-                model_name_list = step.key[0]
-                variable_name_lst = step.key[1]
-                params_per_variable = step.key[2]
-                data, split_list = self.load_calib_output(step, params_per_variable)
-
-                for jj, param in enumerate(data):
-                    param_array_list = np.split(param, split_list)
-                    param_array_list = param_array_list[:-1]
-
-                    new_proc = deepcopy(processor)
-
-                    k = 0
-                    for i, model_name in enumerate(model_name_list):
-                        if model_name in ['geometry', 'material', 'environment', 'characteristics']:
-                            det_class = getattr(new_proc.detector, model_name)
-                            for j, variable_name in enumerate(variable_name_lst[i]):
-                                if len(param_array_list[k]) == 1:
-                                    param_array_list[k] = param_array_list[k][0]
-                                setattr(det_class, variable_name, param_array_list[k])
-                                k += 1
-                        else:
-                            fitted_pipeline_model = new_proc.pipeline.get_model(model_name)
-                            for j, variable_name in enumerate(variable_name_lst[i]):
-                                if len(param_array_list[k]) == 1:
-                                    param_array_list[k] = param_array_list[k][0]
-                                fitted_pipeline_model.arguments[variable_name] = param_array_list[k]
-                                k += 1
-
-                    yield new_proc
+        self.data = np.loadtxt(self.file)[:, self.columns]
+        for data_array in self.data:
+            i = 0
+            new_proc = deepcopy(processor)
+            for step in self.enabled_steps:
+                key = step.key
+                if step.values == '_':
+                    value = data_array[i]
+                    i += 1
+                elif isinstance(step.values, list) and all(x == '_' for x in step.values[:]):
+                    value = data_array[i: i + len(step.values)]
+                    i += len(value)
+                else:
+                    raise ValueError('Only "_" characters (or a list of them) should be used to '
+                                     'indicate parameters updated from file in parallel')
+                new_proc.set(key, value)
+            yield new_proc
 
     def _sequential(self, processor):
         """TBW.
@@ -158,15 +90,25 @@ class ParametricAnalysis:
 
     def collect(self, processor):
         """TBW."""
+        for step in self.enabled_steps:
+
+            if 'pipeline.' in step.key:
+                model_name = step.key[:step.key.find('.arguments')]
+                model_enabled = model_name + '.enabled'
+                if not processor.get(model_enabled):
+                    raise ValueError('The "%s" model referenced in parametric configuration '
+                                     'has not been enabled in yaml config!' % model_name)
+
+            if any(x == '_' for x in step.values[:]) and self.parametric_mode != 'parallel':
+                raise ValueError('Either define "parallel" as parametric mode or '
+                                 'do not use "_" character in "values" field')
+
         if self.parametric_mode == 'embedded':
             configs = self._embedded(processor)
-
         elif self.parametric_mode == 'sequential':
             configs = self._sequential(processor)
-
-        elif self.parametric_mode == 'image_generator':
-            configs = self._image_generator(processor)
-
+        elif self.parametric_mode == 'parallel':
+            configs = self._parallel(processor)
         else:
             configs = []
 

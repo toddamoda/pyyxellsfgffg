@@ -41,7 +41,8 @@ def illumination(detector: Detector,
     hole_center: list, optional
         List of integers defining the center of the elliptic or rectangular hole.
     """
-    logging.info('')
+    logger = logging.getLogger('pyxel')
+    logger.info('')
 
     if array_size is None:
         try:
