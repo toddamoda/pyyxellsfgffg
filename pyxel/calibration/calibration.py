@@ -1,11 +1,9 @@
 """TBW."""
 import numpy as np
 import pygmo as pg
-import typing as t      # noqa: F401
 import pyxel as pyx
 from pyxel.calibration.fitting import ModelFitting
 from pyxel.pipelines.model_function import ModelFunction
-from pyxel.parametric.parametric import StepValues
 
 
 @pyx.detector_class
@@ -88,20 +86,20 @@ class Algorithm:
                                     memory=self.memory)
         elif self.type == 'sga':
             opt_algorithm = pg.sga(gen=self.generations,
-                                   cr=self.cr,  # crossover probability
-                                   crossover=self.crossover,  # single, exponential, binomial, sbx
-                                   m=self.m,  # mutation probability
-                                   mutation=self.mutation,  # uniform, gaussian, polynomial
-                                   param_s=self.param_s,  # number of best ind. in 'truncated'/tournament
-                                   selection=self.selection,  # tournament, truncated
-                                   eta_c=self.eta_c,  # distribution index for sbx crossover
-                                   param_m=self.param_m)  # mutation parameter
+                                   cr=self.cr,                  # crossover probability
+                                   crossover=self.crossover,    # single, exponential, binomial, sbx
+                                   m=self.m,                    # mutation probability
+                                   mutation=self.mutation,      # uniform, gaussian, polynomial
+                                   param_s=self.param_s,        # number of best ind. in 'truncated'/tournament
+                                   selection=self.selection,    # tournament, truncated
+                                   eta_c=self.eta_c,            # distribution index for sbx crossover
+                                   param_m=self.param_m)        # mutation parameter
         elif self.type == 'nlopt':
             opt_algorithm = pg.nlopt(self.nlopt_solver)
-            opt_algorithm.maxtime = self.maxtime  # stop when the optimization time (in seconds) exceeds maxtime
-            opt_algorithm.maxeval = self.maxeval  # stop when the number of function evaluations exceeds maxeval
-            opt_algorithm.xtol_rel = self.xtol_rel  # relative stopping criterion for x
-            opt_algorithm.xtol_abs = self.xtol_abs  # absolute stopping criterion for x
+            opt_algorithm.maxtime = self.maxtime        # stop when the optimization time (in seconds) exceeds maxtime
+            opt_algorithm.maxeval = self.maxeval        # stop when the number of function evaluations exceeds maxeval
+            opt_algorithm.xtol_rel = self.xtol_rel      # relative stopping criterion for x
+            opt_algorithm.xtol_abs = self.xtol_abs      # absolute stopping criterion for x
             opt_algorithm.ftol_rel = self.ftol_rel
             opt_algorithm.ftol_abs = self.ftol_abs
             opt_algorithm.stopval = self.stopval
@@ -178,68 +176,20 @@ class Calibration:
         default=np.random.randint(0, 100000),
         doc=''
     )
-    model_names = pyx.attribute(
-        type=list,
-        # validator=[pyx.validate_type(list)],
-        default=None,
-        doc=''
-    )
-    variables = pyx.attribute(
-        type=list,
-        # validator=[pyx.validate_type(list)],
-        default=None,
-        doc=''
-    )
-    params_per_variable = pyx.attribute(
-        type=list,
-        # validator=[pyx.validate_type(list)],
-        default=None,
-        doc=''
-    )
-    var_log = pyx.attribute(
-        type=list,
-        # validator=[pyx.validate_type(list)],
-        default=None,
-        doc=''
-    )
-    lower_boundary = pyx.attribute(
-        type=list,
-        # validator=[pyx.validate_type(list)],
-        default=None,
-        doc=''
-    )
-    upper_boundary = pyx.attribute(
-        type=list,
-        # validator=[pyx.validate_type(list)],
-        default=None,
-        doc=''
-    )
-    sort_var = pyx.attribute(       # TODO
-        type=str,
-        # validator=
-        default=None,
-        doc=''
-    )
     weighting_path = pyx.attribute(
         type=list,
-        # validator=[pyx.validate_type(list)],  # todo:
+        # validator=[pyx.validate_type(list)],  # todo
         default=None,
         doc=''
     )
-    champions_file = pyx.attribute(
+    champions_file = pyx.attribute(          # TODO: move to output
         type=str,
         # validator=[pyx.validate_type(str)],
         default='data/calibration_champions.out',
         doc=''
     )
-    population_file = pyx.attribute(
+    population_file = pyx.attribute(          # TODO: move to output
         type=str,
-        # validator=[pyx.validate_type(str)],
-        default=None,
-        doc=''
-    )
-    single_model_input = pyx.attribute(     # todo: remove
-        type=list,
         # validator=[pyx.validate_type(str)],
         default=None,
         doc=''
@@ -256,27 +206,20 @@ class Calibration:
 
         fitting = ModelFitting(processor, self.steps)
 
-        fitting.set_parameters(calibration_mode=self.calibration_mode,
-                               # model_names=self.model_names,
-                               # variables=self.variables,
-                               # var_log=self.var_log,
-                               generations=self.algorithm.generations,
-                               population_size=self.algorithm.population_size,
-                               simulation_output=self.output_type,
-                               sort_by_var=self.sort_var,
-                               fitness_func=self.fitness_function,
-                               champions_file=self.champions_file,
-                               population_file=self.population_file)
-        fitting.configure(
-                          # params_per_variable=self.params_per_variable,
-                          target_output=self.target_data_path,
-                          target_fit_range=self.target_fit_range,
-                          out_fit_range=self.output_fit_range,
-                          weighting=self.weighting_path,
-                          single_model_input=self.single_model_input)
-
-        fitting.set_bound(low_val=self.lower_boundary,
-                          up_val=self.upper_boundary)
+        settings = {
+            'calibration_mode': self.calibration_mode,
+            'generations': self.algorithm.generations,
+            'population_size': self.algorithm.population_size,
+            'simulation_output': self.output_type,
+            'fitness_func': self.fitness_function,
+            'champions_file': self.champions_file,
+            'population_file': self.population_file,
+            'target_output': self.target_data_path,
+            'target_fit_range': self.target_fit_range,
+            'out_fit_range': self.output_fit_range,
+            'weighting': self.weighting_path
+        }
+        fitting.configure(settings)
 
         prob = pg.problem(fitting)
         print('evolution started ...')
