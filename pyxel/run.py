@@ -38,6 +38,7 @@ def single_output(detector, output_dir):
 
 def calibration_output(results):        # TODO
     """TBW."""
+    # print(results)
     pass
 
 
@@ -88,7 +89,7 @@ def run(input_filename, output_directory: str, random_seed: int = None):
         logger.info('Mode: Calibration')
         calibration_results = simulation.calibration.run_calibration(processor)
         # TODO: return the optimal model/detector parameters as dict or obj
-        # calibration_output(calibration_results)
+        calibration_output(calibration_results)
 
     elif simulation.mode == 'parametric':
         logger.info('Mode: Parametric')
