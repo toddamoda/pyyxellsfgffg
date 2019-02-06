@@ -198,7 +198,7 @@ class Calibration:
     )
 
     def run_calibration(self, processor: Processor,
-                        output_files: tuple):
+                        output_files: tuple = (None, None)):
         """TBW.
 
         :param processor:

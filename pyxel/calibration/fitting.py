@@ -270,18 +270,20 @@ class ModelFitting:
 
             str_format = '%d' + (len(parameter) + 1) * ' %.6E'
 
-            with open(self.champions_file, 'ab') as file1:
-                np.savetxt(file1, np.c_[np.array([self.g]),
-                                        self.champion_f_list[self.g],
-                                        self.champion_x_list[self.g, :].reshape(1, len(parameter))],
-                           fmt=str_format)
-
-            if self.g == self.generations:
-                with open(self.pop_file, 'ab') as file2:
-                    np.savetxt(file2, np.c_[self.g * np.ones(self.fitness_array.shape),
-                                            self.fitness_array,
-                                            self.population],
+            if self.champions_file:
+                with open(self.champions_file, 'ab') as file1:
+                    np.savetxt(file1, np.c_[np.array([self.g]),
+                                            self.champion_f_list[self.g],
+                                            self.champion_x_list[self.g, :].reshape(1, len(parameter))],
                                fmt=str_format)
+
+            if self.pop_file:
+                if self.g == self.generations:
+                    with open(self.pop_file, 'ab') as file2:
+                        np.savetxt(file2, np.c_[self.g * np.ones(self.fitness_array.shape),
+                                                self.fitness_array,
+                                                self.population],
+                                   fmt=str_format)
 
             self.g += 1
 
