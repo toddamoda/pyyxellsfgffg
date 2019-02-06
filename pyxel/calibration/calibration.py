@@ -288,7 +288,7 @@ class Calibration:
         pop = algo.evolve(pop)
 
         champion_f = pop.champion_f
-        champion_x = fitting.split_and_update_parameter(pop.champion_x)
+        champion_x = fitting.update_parameter(pop.champion_x)
         print('\nchampion_f:   %1.5e' % champion_f[0])
         print('champion_x: ', *champion_x, sep="\n")
 

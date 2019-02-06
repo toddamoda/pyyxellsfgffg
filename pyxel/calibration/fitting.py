@@ -19,7 +19,8 @@ class ModelFitting:
         # self.det = processor.detector
         # self.pipe = processor.pipeline
         self.processor = processor
-        self.orig_det = None
+        self.original_processor = None
+        # self.orig_det = None
 
         self.variables = variables
         # self.model_name_list = []           # type: t.List[str]
@@ -109,7 +110,8 @@ class ModelFitting:
         # if self.calibration_mode == 'single_model':           # TODO update
         #     self.single_model_calibration()
 
-        self.orig_det = deepcopy(self.processor.detector)
+        # self.orig_det = deepcopy(self.processor.detector)
+        self.original_processor = deepcopy(self.processor)
 
         self.champions_file = champions_file
         file1 = open(self.champions_file, 'wb')  # truncate output file
@@ -141,9 +143,6 @@ class ModelFitting:
         :return:
         """
         # self.params_per_variable = params_per_variable
-        # self.champion_f_list = np.zeros((1, 1))                                            # TODO
-        # self.champion_x_list = np.zeros((1, np.sum(np.sum(self.params_per_variable))))     # TODO
-
         # self.is_var_array = deepcopy(self.params_per_variable)
         # for i in range(len(self.params_per_variable)):
         #     for j in range(len(self.params_per_variable[i])):
@@ -153,6 +152,14 @@ class ModelFitting:
         #         else:
         #             item = 0
         #         self.is_var_array[i][j] = item
+        params = 0
+        for var in self.variables:
+            b = 1
+            if isinstance(var.values, list):
+                b = len(var.values)
+            params += b
+        self.champion_f_list = np.zeros((1, 1))
+        self.champion_x_list = np.zeros((1, params))
 
         target_list = read_data(target_output)
         try:
@@ -222,7 +229,7 @@ class ModelFitting:
         return fitness
 
     def fitness(self, parameter):
-        """Call the fitness function, elements of parameter array could be logarithm values.
+        """Call the fitness function, elements of parameter array could be logarithmic values.
 
         :param parameter: 1d np.array
         :return:
@@ -239,20 +246,18 @@ class ModelFitting:
         # elif self.calibration_mode == 'single_model':
         #     self.fitted_model.function(self.det)
 
-        # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-        parameter = self.split_and_update_parameter(parameter)
+        parameter = self.update_parameter(parameter)
 
-        self.processor.detector = deepcopy(self.orig_det)
+        self.processor = self.update_processor(parameter)
 
-
-        self.update_models(parameter_lst)       # todo: remove
+        # self.processor.detector = deepcopy(self.orig_det)
+        # self.update_models(parameter_lst)       # todo: remove
 
         if self.calibration_mode == 'pipeline':
-            self.update_detector(parameter_lst)     # todo: remove
+            # self.update_detector(parameter_lst)     # todo: remove
             self.processor.pipeline.run_pipeline(self.processor.detector)
-        elif self.calibration_mode == 'single_model':
-            self.fitted_model.function(self.processor.detector)
-        # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+        # elif self.calibration_mode == 'single_model':
+        #     self.fitted_model.function(self.processor.detector)               # todo: update
 
         simulated_data = None
         if self.sim_output == 'image':
@@ -266,11 +271,11 @@ class ModelFitting:
         for target_data in self.all_target_data:
             overall_fitness += self.calculate_fitness(simulated_data, target_data)
 
-        self.population_and_champions(parameter_lst, overall_fitness)
+        self.population_and_champions(parameter, overall_fitness)
 
         return [overall_fitness]
 
-    def split_and_update_parameter(self, parameter):
+    def update_parameter(self, parameter):
         """TBW.
 
         :param parameter: 1d np.array
@@ -285,6 +290,26 @@ class ModelFitting:
                 parameter[a:a+b] = np.power(10, parameter[a:a+b])
             a += b
         return parameter
+
+    def update_processor(self, parameter):
+        """TBW.
+
+        # :param processor:
+        :param parameter:
+        :return:
+        """
+        # self.processor.detector = deepcopy(self.orig_det)
+        new_processor = deepcopy(self.original_processor)
+        a, b = 0, 0
+        for var in self.variables:
+            if var.values == '_':
+                b = 1
+                new_processor.set(var.key, parameter[a])
+            elif isinstance(var.values, list):
+                b = len(var.values)
+                new_processor.set(var.key, parameter[a:a + b])
+            a += b
+        return new_processor
 
     # def update_detector(self, param_array_list):
     #     """TBW.
@@ -348,11 +373,13 @@ class ModelFitting:
         #             ord_param = np.append(ord_param,
         #                                   np.unique(df[self.variable_name_lst[i][j]].values))
 
-        ord_param = np.array([])
-        for p in parameter:
-            ord_param = np.append(ord_param, p)     # todo: not yet ordered
+        # ord_param = np.array([])
+        # for p in parameter:
+        #     ord_param = np.append(ord_param, p)     # todo: not yet ordered
+        # paramsize = len(ord_param)
+        # ord_param = ord_param.reshape(1, paramsize)
+        ord_param  = parameter
         paramsize = len(ord_param)
-        ord_param = ord_param.reshape(1, paramsize)
 
         if self.n % self.pop == 0:
             self.fitness_array = np.array([overall_fitness])
