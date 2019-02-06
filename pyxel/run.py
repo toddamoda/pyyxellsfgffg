@@ -10,47 +10,12 @@ in MCT, diffusion, cross-talk etc.) on a given image.
 import argparse
 import logging
 import time
-import os
-from shutil import copy2
 from pathlib import Path
 import numpy as np
 import esapy_config.io as io
 import pyxel
 from pyxel.pipelines.processor import Processor
-from pyxel.util import Outputs, apply_run_number
-
-
-def single_output(detector, output_dir):
-    """TBW."""
-    out = Outputs(output_dir)
-    out.save_to_fits(array=detector.image.array)
-    out.save_to_npy(array=detector.image.array)
-    plt_args = {'bins': 300, 'xlabel': 'ADU', 'ylabel': 'counts', 'title': 'Image histogram'}
-    out.plot_histogram(detector.image.array, name='image', arg_dict=plt_args)
-    out.save_plot()
-    plt_args = {'axis': [3000, 6000, 3000, 6000]}
-    out.plot_graph(detector.image.array, detector.image.array, name='image', arg_dict=plt_args)
-    out.save_plot()
-    # out.save_to_bitmap(array=detector.image.array)
-    # out.save_to_hdf(data=detector.charges.frame, key='charge')
-    # out.save_to_csv(dataframe=detector.charges.frame)
-
-
-def calibration_output(results):        # TODO
-    """TBW."""
-    # print(results)
-    pass
-
-
-def parametric_output(detector, output_dir, config=None):        # TODO
-    """TBW."""
-    pass
-    # out = Outputs(output_dir)
-    # out.save_to_fits(array=detector.image.array)
-    # out.plot_histogram(detector.image.array, name='image_hist')
-    # out.save_plot('graph')
-    # todo: get the parametric variables from configs,
-    # todo: then plot things in function of these variables, defined in configs
+from pyxel.util import Outputs
 
 
 def run(input_filename, output_directory: str, random_seed: int = None):
@@ -73,30 +38,26 @@ def run(input_filename, output_directory: str, random_seed: int = None):
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
 
-    output_directory = apply_run_number(output_directory + '/run_??')
-    if not os.path.exists(output_directory):
-        os.makedirs(output_directory)
-    else:
-        raise IsADirectoryError('Directory exists.')
-    copy2(input_filename, output_directory)
+    out = Outputs(output=output_directory, input=input_filename)
 
     if simulation.mode == 'single':
         logger.info('Mode: Single')
         detector = processor.pipeline.run_pipeline(processor.detector)
-        single_output(detector=detector, output_dir=output_directory)
+        out.single_output(detector=detector)
 
     elif simulation.mode == 'calibration':
         logger.info('Mode: Calibration')
-        calibration_results = simulation.calibration.run_calibration(processor)
-        # TODO: return the optimal model/detector parameters as dict or obj
-        calibration_output(calibration_results)
+        files = out.create_file('champions.out'), out.create_file('population.out')
+        detector, results = simulation.calibration.run_calibration(processor, files)
+        logger.info('Champion fitness:   %1.5e' % results['fitness'])
+        out.calibration_output(detector=detector, results=results)
 
     elif simulation.mode == 'parametric':
         logger.info('Mode: Parametric')
         configs = simulation.parametric.collect(processor)
         for config in configs:
             detector = config.pipeline.run_pipeline(config.detector)
-            parametric_output(detector=detector, output_dir=output_directory)
+            out.parametric_output(detector=detector)
 
     else:
         raise ValueError

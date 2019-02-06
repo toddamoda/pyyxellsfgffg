@@ -5,6 +5,7 @@ import pygmo as pg
 import pyxel as pyx
 from pyxel.calibration.fitting import ModelFitting
 from pyxel.pipelines.model_function import ModelFunction
+from pyxel.pipelines.processor import Processor
 
 
 @pyx.detector_class
@@ -196,10 +197,12 @@ class Calibration:
         doc=''
     )
 
-    def run_calibration(self, processor):
+    def run_calibration(self, processor: Processor,
+                        output_files: tuple):
         """TBW.
 
         :param processor:
+        :param output_files: tuple
         :return:
         """
         pg.set_global_rng_seed(seed=self.seed)
@@ -214,12 +217,12 @@ class Calibration:
             'population_size': self.algorithm.population_size,
             'simulation_output': self.output_type,
             'fitness_func': self.fitness_function,
-            'champions_file': self.champions_file,
-            'population_file': self.population_file,
             'target_output': self.target_data_path,
             'target_fit_range': self.target_fit_range,
             'out_fit_range': self.output_fit_range,
-            'weighting': self.weighting_path
+            'weighting': self.weighting_path,
+            'champions_file': output_files[0],
+            'population_file': output_files[1]
         }
         fitting.configure(settings)
 
@@ -230,7 +233,6 @@ class Calibration:
         pop = algo.evolve(pop)
 
         champion_f = pop.champion_f
-        champion_x = fitting.update_parameter(pop.champion_x)
-        logger.info('Champion fitness:   %1.5e' % champion_f[0])
-
-        return champion_f, champion_x
+        champion_x = pop.champion_x
+        return fitting.get_results(fitness=champion_f,
+                                   parameter=champion_x)

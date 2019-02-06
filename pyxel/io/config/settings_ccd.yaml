@@ -86,8 +86,8 @@ simulation:
         boundaries: [100., 200.]
 
     # results:
-    champions_file: 'outputs/calibration_champions.out'
-    population_file: 'outputs/calibration_populations.out'
+#    champions_file: 'outputs/calibration_champions.out'
+#    population_file: 'outputs/calibration_populations.out'
 
 
 detector:

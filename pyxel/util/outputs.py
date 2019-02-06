@@ -1,6 +1,8 @@
 """Utility functions for creating outputs."""
+import os
 import glob
 from copy import copy
+from shutil import copy2
 import numpy as np
 import pandas as pd
 from PIL import Image
@@ -15,9 +17,15 @@ except ImportError:
 class Outputs:
     """TBW."""
 
-    def __init__(self, output_dir):
+    def __init__(self, output, input):
         """TBW."""
-        self.output_dir = output_dir
+        self.output_dir = apply_run_number(output + '/run_??')
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
+        else:
+            raise IsADirectoryError('Directory exists.')
+        copy2(input, self.output_dir)
+
         self.default_ax_args = {
             'xlabel': None, 'ylabel': None, 'title': None, 'axis': None, 'grid': False
         }
@@ -28,7 +36,15 @@ class Outputs:
             'bins': None, 'range': None, 'density': None, 'log': False, 'cumulative': False,
             'histtype': 'step', 'color': None, 'facecolor': None, 'label': None
         }
+
         plt.figure()
+
+    def create_file(self, filename: str = 'calibration.out'):
+        """TBW."""
+        filename = self.output_dir + '/' + filename
+        file = open(filename, 'wb')  # truncate output file
+        file.close()
+        return filename
 
     def save_to_bitmap(self, array, filename='image_??'):       # TODO finish, PIL does not work with JPEG !
         """Write array to bitmap PNG image file."""
@@ -117,6 +133,33 @@ class Outputs:
                  histtype=plt_args['histtype'], color=plt_args['color'], facecolor=plt_args['facecolor'])
         update_plot(ax_args)
         plt.draw()
+
+    def single_output(self, detector):
+        """TBW."""
+        self.save_to_fits(array=detector.image.array)
+        self.save_to_npy(array=detector.image.array)
+        plt_args = {'bins': 300, 'xlabel': 'ADU', 'ylabel': 'counts', 'title': 'Image histogram'}
+        self.plot_histogram(detector.image.array, name='image', arg_dict=plt_args)
+        self.save_plot()
+        plt_args = {'axis': [3000, 6000, 3000, 6000]}
+        self.plot_graph(detector.image.array, detector.image.array, name='image', arg_dict=plt_args)
+        self.save_plot()
+        # self.save_to_bitmap(array=detector.image.array)
+        # self.save_to_hdf(data=detector.charges.frame, key='charge')
+        # self.save_to_csv(dataframe=detector.charges.frame)
+
+    def calibration_output(self, detector, results: dict):  # TODO
+        """TBW."""
+        pass
+
+    def parametric_output(self, detector, config=None):  # TODO
+        """TBW."""
+        pass
+        # self.save_to_fits(array=detector.image.array)
+        # self.plot_histogram(detector.image.array, name='image_hist')
+        # self.save_plot('graph')
+        # todo: get the parametric variables from configs,
+        # todo: then plot things in function of these variables, defined in configs
 
 
 def show_plots():
