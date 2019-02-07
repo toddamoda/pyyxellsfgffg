@@ -184,18 +184,6 @@ class Calibration:
         default=None,
         doc=''
     )
-    champions_file = pyx.attribute(          # TODO: move to output
-        type=str,
-        # validator=[pyx.validate_type(str)],
-        default='data/calibration_champions.out',
-        doc=''
-    )
-    population_file = pyx.attribute(          # TODO: move to output
-        type=str,
-        # validator=[pyx.validate_type(str)],
-        default=None,
-        doc=''
-    )
 
     def run_calibration(self, processor: Processor,
                         output_files: tuple = (None, None)):

@@ -50,7 +50,7 @@ def run(input_filename, output_directory: str, random_seed: int = None):
         files = out.create_file('champions.out'), out.create_file('population.out')
         detector, results = simulation.calibration.run_calibration(processor, files)
         logger.info('Champion fitness:   %1.5e' % results['fitness'])
-        out.calibration_output(detector=detector, results=results)
+        out.calibration_output(detector=detector, results=results, files=files)
 
     elif simulation.mode == 'parametric':
         logger.info('Mode: Parametric')

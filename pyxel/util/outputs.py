@@ -28,14 +28,17 @@ class Outputs:
 
         self.default_ax_args = {
             'xlabel': None, 'ylabel': None, 'title': None, 'axis': None, 'grid': False
-        }
+        }   # type: dict
         self.default_plot_args = {
             'color': None, 'marker': '.', 'linestyle': '', 'label': None
-        }
+        }   # type: dict
         self.default_hist_args = {
             'bins': None, 'range': None, 'density': None, 'log': False, 'cumulative': False,
             'histtype': 'step', 'color': None, 'facecolor': None, 'label': None
-        }
+        }   # type: dict
+        self.default_scatter_args = {
+            'size': None, 'cbar_label': None
+        }   # type: dict
 
         plt.figure()
 
@@ -98,6 +101,8 @@ class Outputs:
             plt_args = copy(self.default_hist_args)
         elif plot_type == 'graph':
             plt_args = copy(self.default_plot_args)
+        elif plot_type == 'scatter':
+            plt_args = copy(self.default_scatter_args)
         else:
             raise ValueError
         if arg_dict:
@@ -134,6 +139,19 @@ class Outputs:
         update_plot(ax_args)
         plt.draw()
 
+    def plot_scatter(self, x, y, color=None, arg_dict=None):
+        """TBW."""
+        plt_args, ax_args = self.get_plotting_arguments(plot_type='scatter', arg_dict=arg_dict)
+        fig = plt.gcf()
+        if color is not None:
+            sp = plt.scatter(x, y, c=color, s=plt_args['size'])
+            cbar = fig.colorbar(sp)
+            cbar.set_label(plt_args['cbar_label'])
+        else:
+            plt.scatter(x, y, s=plt_args['size'])
+        update_plot(ax_args)
+        plt.draw()
+
     def single_output(self, detector):
         """TBW."""
         self.save_to_fits(array=detector.image.array)
@@ -141,16 +159,37 @@ class Outputs:
         plt_args = {'bins': 300, 'xlabel': 'ADU', 'ylabel': 'counts', 'title': 'Image histogram'}
         self.plot_histogram(detector.image.array, name='image', arg_dict=plt_args)
         self.save_plot()
-        plt_args = {'axis': [3000, 6000, 3000, 6000]}
-        self.plot_graph(detector.image.array, detector.image.array, name='image', arg_dict=plt_args)
-        self.save_plot()
+        # plt_args = {'axis': [3000, 6000, 3000, 6000]}
+        # self.plot_graph(detector.image.array, detector.image.array, name='image', arg_dict=plt_args)
+        # self.save_plot()
         # self.save_to_bitmap(array=detector.image.array)
         # self.save_to_hdf(data=detector.charges.frame, key='charge')
         # self.save_to_csv(dataframe=detector.charges.frame)
 
-    def calibration_output(self, detector, results: dict):  # TODO
+    def calibration_output(self, detector, results: dict, files=(None, None)):      # todo: use results dict
         """TBW."""
-        pass
+        self.single_output(detector)
+
+        if files[0] is not None:
+            data = np.loadtxt(files[0])
+            generations = data[:, 0]
+            fitnesses = data[:, 1]
+            plt_args0 = {'xlabel': 'generation', 'ylabel': 'fitness', 'title': 'Champion fitness',
+                         'color': 'red', 'linestyle': '-'}
+            self.plot_graph(generations, fitnesses, name='fitness', arg_dict=plt_args0)
+            self.save_plot()
+            # for i, column in enumerate(data[:, 1:].T):         # todo: finish
+            #     self.plot_graph(generations, column, name=str(i), arg_dict=plt_args)
+
+        if files[1] is not None:
+            data = np.loadtxt(files[1])
+            fitnesses = np.log10(data[:, 1])
+            x = data[:, 16]
+            y = data[:, 2]
+            plt_args1 = {'xlabel': 'x', 'ylabel': 'y', 'title': 'Population of the last generation',
+                         'size': 8, 'cbar_label': 'log(fitness)'}
+            self.plot_scatter(x, y, color=fitnesses, arg_dict=plt_args1)
+            self.save_plot()
 
     def parametric_output(self, detector, config=None):  # TODO
         """TBW."""
@@ -163,7 +202,8 @@ class Outputs:
 
 
 def show_plots():
-    """Show all the previously created figures."""
+    """Close last empty canvas Show all the previously created figures."""
+    plt.close()
     plt.show()
 
 

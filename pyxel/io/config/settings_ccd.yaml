@@ -9,6 +9,12 @@ simulation:
 #  mode: parametric
   mode: calibration
 
+
+#  outputs:
+#    champions_file: 'outputs/calibration_champions.out'
+#    population_file: 'outputs/calibration_populations.out'
+
+
   parametric:
 #    parametric_mode: sequential
 #    parametric_mode: embedded
@@ -55,8 +61,8 @@ simulation:
     algorithm:
       type: sade   # sga  # nlopt
 #      nlopt_solver: sbplx  # neldermead
-      generations: 3
-      population_size: 10
+      generations: 5
+      population_size: 30
       variant: 2
 
     parameters:
@@ -84,11 +90,6 @@ simulation:
         values: _
         logarithmic: false
         boundaries: [100., 200.]
-
-    # results:
-#    champions_file: 'outputs/calibration_champions.out'
-#    population_file: 'outputs/calibration_populations.out'
-
 
 detector:
   class: pyxel.detectors.ccd.CCD
