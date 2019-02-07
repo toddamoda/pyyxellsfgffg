@@ -1,6 +1,7 @@
 """Utility functions for creating outputs."""
 import os
 import glob
+import logging
 from copy import copy
 from shutil import copy2
 import numpy as np
@@ -166,29 +167,48 @@ class Outputs:
         # self.save_to_hdf(data=detector.charges.frame, key='charge')
         # self.save_to_csv(dataframe=detector.charges.frame)
 
-    def calibration_output(self, detector, results: dict, files=(None, None)):      # todo: use results dict
+    def calibration_output(self, detector, results: dict, files=(None, None), var=(2, 3)):      # todo: use results dict
         """TBW."""
         self.single_output(detector)
 
         if files[0] is not None:
             data = np.loadtxt(files[0])
             generations = data[:, 0]
-            fitnesses = data[:, 1]
-            plt_args0 = {'xlabel': 'generation', 'ylabel': 'fitness', 'title': 'Champion fitness',
-                         'color': 'red', 'linestyle': '-'}
-            self.plot_graph(generations, fitnesses, name='fitness', arg_dict=plt_args0)
-            self.save_plot()
-            # for i, column in enumerate(data[:, 1:].T):         # todo: finish
-            #     self.plot_graph(generations, column, name=str(i), arg_dict=plt_args)
+
+            # fitnesses = data[:, 1]
+            # plt_args0 = {'xlabel': 'generation', 'ylabel': 'fitness', 'title': 'Champion fitness',
+            #              'color': 'red', 'linestyle': '-'}
+            # self.plot_graph(generations, fitnesses, name='fitness', arg_dict=plt_args0)
+            # self.save_plot()
+
+            plt_args1 = {'xlabel': 'generation', 'ylabel': '', 'title': 'Champion parameters',
+                         'linestyle': '-'}
+            items = list(results.items())
+            a = 1
+            for item in items:
+                column = data[:, a]
+                param_name = item[0]
+                param_name = param_name[param_name.rfind('.')+1:]
+                param_value = item[1]
+                if isinstance(param_value, float) or isinstance(param_value, int):
+                    self.plot_graph(generations, column, name=param_name, arg_dict=plt_args1)
+                    self.save_plot()
+                    b = 1
+                else:
+                    b = len(param_value)
+                    pass                     # todo
+                a += b
+            # self.save_plot()
 
         if files[1] is not None:
+
             data = np.loadtxt(files[1])
             fitnesses = np.log10(data[:, 1])
-            x = data[:, 16]
-            y = data[:, 2]
-            plt_args1 = {'xlabel': 'x', 'ylabel': 'y', 'title': 'Population of the last generation',
+            x = data[:, var[0]]
+            y = data[:, var[1]]
+            plt_args2 = {'xlabel': 'x', 'ylabel': 'y', 'title': 'Population of the last generation',
                          'size': 8, 'cbar_label': 'log(fitness)'}
-            self.plot_scatter(x, y, color=fitnesses, arg_dict=plt_args1)
+            self.plot_scatter(x, y, color=fitnesses, arg_dict=plt_args2)
             self.save_plot()
 
     def parametric_output(self, detector, config=None):  # TODO
@@ -216,6 +236,8 @@ def update_plot(ax_args):
         plt.axis(ax_args['axis'])
     plt.grid(ax_args['grid'])
     plt.legend()
+    # todo: catch log.warning:
+    # "matplotlib.legend -   _parse_legend_args 	 No handles with labels found to put in legend."
 
 
 def update_fits_header(header, key, value):

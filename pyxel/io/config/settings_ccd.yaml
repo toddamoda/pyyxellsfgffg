@@ -62,7 +62,7 @@ simulation:
       type: sade   # sga  # nlopt
 #      nlopt_solver: sbplx  # neldermead
       generations: 5
-      population_size: 30
+      population_size: 10
       variant: 2
 
     parameters:

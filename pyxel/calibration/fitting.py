@@ -3,6 +3,7 @@
 https://esa.github.io/pagmo2/index.html
 """
 from copy import deepcopy
+from collections import OrderedDict
 import typing as t   # noqa: F401
 import numpy as np
 from pyxel.calibration.util import list_to_slice, check_ranges, read_data
@@ -221,7 +222,8 @@ class ModelFitting:
         # elif self.calibration_mode == 'single_model':
         #     self.fitted_model.function(champion.detector)               # todo: update
 
-        results = {'fitness': fitness}
+        results = OrderedDict()
+        results['fitness'] = fitness[0]
         a, b = 0, 0
         for var in self.variables:
             if var.values == '_':
