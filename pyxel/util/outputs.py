@@ -40,6 +40,10 @@ class Outputs:
             'size': None, 'cbar_label': None
         }   # type: dict
 
+        self.parameter_values = np.array([])
+        self.parameter_keys = []
+        self.result_values = np.array([])
+        self.result_keys = []
         plt.figure()
 
     def create_file(self, filename: str = 'calibration.out'):
@@ -119,7 +123,6 @@ class Outputs:
         """TBW."""
         plt_args, ax_args = self.get_plotting_arguments(plot_type='graph', arg_dict=arg_dict)
         plt.plot(x, y,
-                 # color=plt_args.pop('color'), marker=plt_args.pop('marker'), linestyle=plt_args.pop('linestyle'))
                  color=plt_args['color'], marker=plt_args['marker'], linestyle=plt_args['linestyle'])
         update_plot(ax_args)
         plt.draw()
@@ -152,13 +155,10 @@ class Outputs:
     def single_output(self, detector):
         """TBW."""
         self.save_to_fits(array=detector.image.array)
-        self.save_to_npy(array=detector.image.array)
+        # self.save_to_npy(array=detector.image.array)
         plt_args = {'bins': 300, 'xlabel': 'ADU', 'ylabel': 'counts', 'title': 'Image histogram'}
         self.plot_histogram(detector.image.array, arg_dict=plt_args)
         self.save_plot()
-        # plt_args = {'axis': [3000, 6000, 3000, 6000]}
-        # self.plot_graph(detector.image.array, detector.image.array, arg_dict=plt_args)
-        # self.save_plot()
         # self.save_to_bitmap(array=detector.image.array)
         # self.save_to_hdf(data=detector.charges.frame, key='charge')
         # self.save_to_csv(dataframe=detector.charges.frame)
@@ -171,7 +171,7 @@ class Outputs:
             data = np.loadtxt(files[0])
             generations = data[:, 0]
             plt_args1 = {'xlabel': 'generation', 'linestyle': '-'}
-            title = 'Champion parameter: '
+            title = 'Calibrated parameter: '
             items = list(results.items())
             a = 1
             for item in items:
@@ -216,13 +216,44 @@ class Outputs:
             self.plot_scatter(x, y, color=fitnesses, arg_dict=plt_args2)
             self.save_plot()
 
-    def parametric_output(self, detector, config=None):  # TODO
+    def add_parametric_step(self, detector, parametric, processor, results: list = None):
         """TBW."""
         self.single_output(detector)
 
-        # todo: get the parametric variables from configs,
-        # todo: then plot things in function of these variables, defined in configs
+        row = np.array([])
+        for var in parametric.enabled_steps:
+            row = np.append(row, processor.get(var.key))
+            if var.key not in self.parameter_keys:
+                self.parameter_keys += [var.key]
+        
+        if self.parameter_values.size == 0:
+            self.parameter_values = row 
+        else:
+            self.parameter_values = np.vstack((self.parameter_values, row))
 
+        if results is not None:
+            row_2 = np.array([])
+            for key in results:
+                row_2 = np.append(row_2, processor.get(key))
+                if key not in self.result_keys:
+                    self.result_keys += [key]
+                
+            if self.result_values.size == 0:
+                self.result_values = row_2
+            else:
+                self.result_values = np.vstack((self.result_values, row_2))
+
+    def parametric_output(self, parameter_key, result_key):
+        """TBW."""
+        x = self.parameter_values[:, self.parameter_keys.index(parameter_key)]
+        y = self.result_values[:, self.result_keys.index(result_key)]
+        title = 'Parametric analysis'
+        par_name = parameter_key[parameter_key.rfind('.') + 1:]
+        res_name = result_key[result_key.rfind('.') + 1:]
+        plt_args = {'xlabel': par_name, 'ylabel': res_name, 'title': title}
+        self.plot_graph(x, y, arg_dict=plt_args)
+        self.save_plot()
+        
 
 def show_plots():
     """Close last empty canvas Show all the previously created figures."""

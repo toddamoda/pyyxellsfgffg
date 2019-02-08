@@ -6,8 +6,8 @@
 simulation:
 
 #  mode: single
-#  mode: parametric
-  mode: calibration
+  mode: parametric
+#  mode: calibration
 
 
 #  outputs:
@@ -16,31 +16,31 @@ simulation:
 
 
   parametric:
-#    parametric_mode: sequential
+    parametric_mode: sequential
 #    parametric_mode: embedded
-    parametric_mode: parallel
-    from_file: 'outputs/calibration_champions.out'
-    column_range: [2, 17]
+#    parametric_mode: parallel
+#    from_file: 'outputs/calibration_champions.out'
+#    column_range: [2, 17]
     parameters:
-#      - key: pipeline.charge_generation.tars.arguments.particle_number
-#        values: [2, 3]
-#        enabled: true
-#      - key: pipeline.photon_generation.illumination.arguments.level
-#        values: range(10, 13)
-#        enabled: true
+      - key: pipeline.charge_generation.tars.arguments.particle_number
+        values: [2, 3]
+        enabled: true
+      - key: pipeline.photon_generation.illumination.arguments.level
+        values: range(0, 200, 50)
+        enabled: true
 
-      - key:  detector.characteristics.amp
-        values: _
-      - key:  pipeline.charge_transfer.cdm.arguments.tr_p
-        values: [_, _, _, _]
-      - key:  pipeline.charge_transfer.cdm.arguments.nt_p
-        values: [_, _, _, _]
-      - key:  pipeline.charge_transfer.cdm.arguments.sigma_p
-        values: [_, _, _, _]
-      - key:  pipeline.charge_transfer.cdm.arguments.beta_p
-        values: _
-      - key:  detector.environment.temperature
-        values: _
+#      - key:  detector.characteristics.amp
+#        values: _
+#      - key:  pipeline.charge_transfer.cdm.arguments.tr_p
+#        values: [_, _, _, _]
+#      - key:  pipeline.charge_transfer.cdm.arguments.nt_p
+#        values: [_, _, _, _]
+#      - key:  pipeline.charge_transfer.cdm.arguments.sigma_p
+#        values: [_, _, _, _]
+#      - key:  pipeline.charge_transfer.cdm.arguments.beta_p
+#        values: _
+#      - key:  detector.environment.temperature
+#        values: _
 
   calibration:
     calibration_mode:  pipeline  #  single_model #
@@ -165,7 +165,7 @@ pipeline:
     -
       name: tars
       func: pyxel.models.charge_generation.tars.tars.run_tars
-      enabled: false
+      enabled: true
       arguments:
         simulation_mode: cosmic_ray   # snowflakes
         running_mode: stepsize  # stopping  # plotting  # geant4

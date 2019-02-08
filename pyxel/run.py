@@ -57,8 +57,11 @@ def run(input_filename, output_directory: str, random_seed: int = None):
         configs = simulation.parametric.collect(processor)
         for config in configs:
             detector = config.pipeline.run_pipeline(config.detector)
-            out.parametric_output(detector=detector)
-
+            out.add_parametric_step(detector=detector, processor=config,
+                                    parametric=simulation.parametric,
+                                    results=['pipeline.photon_generation.illumination.arguments.level'])
+        out.parametric_output(parameter_key='pipeline.photon_generation.illumination.arguments.level',
+                              result_key='pipeline.photon_generation.illumination.arguments.level')
     else:
         raise ValueError
 
