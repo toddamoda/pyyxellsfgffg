@@ -116,24 +116,24 @@ class Outputs:
                     raise KeyError
         return plt_args, ax_args
 
-    def plot_graph(self, x, y, name, arg_dict=None):
+    def plot_graph(self, x, y, arg_dict=None):
         """TBW."""
         plt_args, ax_args = self.get_plotting_arguments(plot_type='graph', arg_dict=arg_dict)
-        if isinstance(x, np.ndarray):
-            x = x.flatten()
-        if isinstance(y, np.ndarray):
-            y = y.flatten()
-        plt.plot(x, y, label=name,
+        # if isinstance(x, np.ndarray):
+        #     x = x.flatten()
+        # if isinstance(y, np.ndarray):
+        #     y = y.flatten()
+        plt.plot(x, y,
                  color=plt_args['color'], marker=plt_args['marker'], linestyle=plt_args['linestyle'])
         update_plot(ax_args)
         plt.draw()
 
-    def plot_histogram(self, data, name, arg_dict=None):
+    def plot_histogram(self, data, arg_dict=None):
         """TBW."""
         plt_args, ax_args = self.get_plotting_arguments(plot_type='hist', arg_dict=arg_dict)
         if isinstance(data, np.ndarray):
             data = data.flatten()
-        plt.hist(x=data, label=name,
+        plt.hist(x=data,
                  bins=plt_args['bins'], range=plt_args['range'],
                  density=plt_args['density'], log=plt_args['log'], cumulative=plt_args['cumulative'],
                  histtype=plt_args['histtype'], color=plt_args['color'], facecolor=plt_args['facecolor'])
@@ -158,47 +158,54 @@ class Outputs:
         self.save_to_fits(array=detector.image.array)
         self.save_to_npy(array=detector.image.array)
         plt_args = {'bins': 300, 'xlabel': 'ADU', 'ylabel': 'counts', 'title': 'Image histogram'}
-        self.plot_histogram(detector.image.array, name='image', arg_dict=plt_args)
+        self.plot_histogram(detector.image.array, arg_dict=plt_args)
         self.save_plot()
         # plt_args = {'axis': [3000, 6000, 3000, 6000]}
-        # self.plot_graph(detector.image.array, detector.image.array, name='image', arg_dict=plt_args)
+        # self.plot_graph(detector.image.array, detector.image.array, arg_dict=plt_args)
         # self.save_plot()
         # self.save_to_bitmap(array=detector.image.array)
         # self.save_to_hdf(data=detector.charges.frame, key='charge')
         # self.save_to_csv(dataframe=detector.charges.frame)
 
-    def calibration_output(self, detector, results: dict, files=(None, None), var=(2, 3)):      # todo: use results dict
+    def calibration_output(self, detector, results: dict, files=(None, None), var=(2, 3)):
         """TBW."""
         self.single_output(detector)
 
         if files[0] is not None:
             data = np.loadtxt(files[0])
             generations = data[:, 0]
-
-            # fitnesses = data[:, 1]
-            # plt_args0 = {'xlabel': 'generation', 'ylabel': 'fitness', 'title': 'Champion fitness',
-            #              'color': 'red', 'linestyle': '-'}
-            # self.plot_graph(generations, fitnesses, name='fitness', arg_dict=plt_args0)
-            # self.save_plot()
-
-            plt_args1 = {'xlabel': 'generation', 'ylabel': '', 'title': 'Champion parameters',
-                         'linestyle': '-'}
+            plt_args1 = {'xlabel': 'generation', 'linestyle': '-'}
+            title = 'Champion parameter: '
             items = list(results.items())
             a = 1
             for item in items:
-                column = data[:, a]
-                param_name = item[0]
-                param_name = param_name[param_name.rfind('.')+1:]
+
+                key = item[0]
+                param_name = key[key.rfind('.') + 1:]
+                if param_name == 'fitness':
+                    plt_args1['title'] = 'Champion fitness'
+                else:
+                    if key.rfind('.arguments') == -1:
+                        mdn = key[:key.rfind('.' + param_name)]
+                    else:
+                        mdn = key[:key.rfind('.arguments')]
+                    model_name = mdn[mdn.rfind('.') + 1:]
+                    plt_args1['title'] = title + model_name + ' / ' + param_name
                 param_value = item[1]
+                plt_args1['ylabel'] = param_name
+
                 if isinstance(param_value, float) or isinstance(param_value, int):
-                    self.plot_graph(generations, column, name=param_name, arg_dict=plt_args1)
-                    self.save_plot()
                     b = 1
+                    column = data[:, a]
+                    self.plot_graph(generations, column, arg_dict=plt_args1)
+                    self.save_plot()
                 else:
                     b = len(param_value)
-                    pass                     # todo
+                    column = data[:, a:a + b]
+                    self.plot_graph(generations, column, arg_dict=plt_args1)
+                    plt.legend(range(b))
+                    self.save_plot()
                 a += b
-            # self.save_plot()
 
         if files[1] is not None:
 
@@ -215,7 +222,7 @@ class Outputs:
         """TBW."""
         pass
         # self.save_to_fits(array=detector.image.array)
-        # self.plot_histogram(detector.image.array, name='image_hist')
+        # self.plot_histogram(detector.image.array)
         # self.save_plot('graph')
         # todo: get the parametric variables from configs,
         # todo: then plot things in function of these variables, defined in configs
@@ -235,7 +242,7 @@ def update_plot(ax_args):
     if ax_args['axis']:
         plt.axis(ax_args['axis'])
     plt.grid(ax_args['grid'])
-    plt.legend()
+    # plt.legend()
     # todo: catch log.warning:
     # "matplotlib.legend -   _parse_legend_args 	 No handles with labels found to put in legend."
 
