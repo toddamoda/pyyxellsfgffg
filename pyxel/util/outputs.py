@@ -27,7 +27,8 @@ class Outputs:
         copy2(input, self.output_dir)
 
         self.default_ax_args = {
-            'xlabel': None, 'ylabel': None, 'title': None, 'axis': None, 'grid': False
+            'xlabel': None, 'ylabel': None, 'title': None, 'axis': None, 'grid': False,
+            'xscale': 'linear', 'yscale': 'linear'
         }   # type: dict
         self.default_plot_args = {
             'color': None, 'marker': '.', 'linestyle': ''
@@ -122,8 +123,7 @@ class Outputs:
     def plot_graph(self, x, y, arg_dict=None):
         """TBW."""
         plt_args, ax_args = self.get_plotting_arguments(plot_type='graph', arg_dict=arg_dict)
-        plt.plot(x, y,
-                 color=plt_args['color'], marker=plt_args['marker'], linestyle=plt_args['linestyle'])
+        plt.plot(x, y, color=plt_args['color'], marker=plt_args['marker'], linestyle=plt_args['linestyle'])
         update_plot(ax_args)
         plt.draw()
 
@@ -243,7 +243,7 @@ class Outputs:
             else:
                 self.result_values = np.vstack((self.result_values, row_2))
 
-    def parametric_output(self, parameter_key, result_key):
+    def parametric_output(self, parameter_key, result_key, xlog: bool = False, ylog: bool = False):
         """TBW."""
         x = self.parameter_values[:, self.parameter_keys.index(parameter_key)]
         y = self.result_values[:, self.result_keys.index(result_key)]
@@ -251,6 +251,10 @@ class Outputs:
         par_name = parameter_key[parameter_key.rfind('.') + 1:]
         res_name = result_key[result_key.rfind('.') + 1:]
         plt_args = {'xlabel': par_name, 'ylabel': res_name, 'title': title}
+        # if xlog:
+        #     plt_args['xlabel'] = 'log(' + plt_args['xlabel'] + ')'
+        # if ylog:
+        #     plt_args['ylabel'] = 'log(' + plt_args['ylabel'] + ')'
         self.plot_graph(x, y, arg_dict=plt_args)
         self.save_plot()
         
@@ -265,6 +269,8 @@ def update_plot(ax_args):
     """TBW."""
     plt.xlabel(ax_args['xlabel'])
     plt.ylabel(ax_args['ylabel'])
+    plt.xscale(ax_args['xscale'])
+    plt.yscale(ax_args['yscale'])
     plt.title(ax_args['title'])
     if ax_args['axis']:
         plt.axis(ax_args['axis'])

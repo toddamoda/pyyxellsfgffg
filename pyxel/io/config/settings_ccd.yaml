@@ -6,8 +6,8 @@
 simulation:
 
 #  mode: single
-  mode: parametric
-#  mode: calibration
+#  mode: parametric
+  mode: calibration
 
 
 #  outputs:

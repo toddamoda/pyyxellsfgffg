@@ -61,7 +61,8 @@ def run(input_filename, output_directory: str, random_seed: int = None):
                                     parametric=simulation.parametric,
                                     results=['pipeline.photon_generation.illumination.arguments.level'])    # todo
         out.parametric_output(parameter_key='pipeline.photon_generation.illumination.arguments.level',
-                              result_key='pipeline.photon_generation.illumination.arguments.level')         # todo
+                              result_key='pipeline.photon_generation.illumination.arguments.level',
+                              xlog=True, ylog=True)         # todo
     else:
         raise ValueError
 

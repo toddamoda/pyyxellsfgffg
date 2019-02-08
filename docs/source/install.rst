@@ -107,22 +107,3 @@ After running Pyxel container you can access it:
 .. code-block:: bash
 
   docker exec -it <CONTAINER_NAME> /bin/bash
-
-
-Pip install
--------------
-
-.. attention::
-    Not yet available!
-
-To install, simply use ``pip``:
-
-.. code-block:: bash
-
-  pip install pyxel
-
-To upgrade pyxel to the latest version:
-
-.. code-block:: bash
-
-  pip install --upgrade pyxel
