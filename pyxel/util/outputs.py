@@ -216,9 +216,9 @@ class Outputs:
             self.plot_scatter(x, y, color=fitnesses, arg_dict=plt_args2)
             self.save_plot()
 
-    def add_parametric_step(self, detector, parametric, processor, results: list = None):
+    def add_parametric_step(self, parametric, processor, results: list = None):
         """TBW."""
-        self.single_output(detector)
+        self.single_output(processor.detector)
 
         row = np.array([])
         for var in parametric.enabled_steps:

@@ -42,26 +42,26 @@ def run(input_filename, output_directory: str, random_seed: int = None):
 
     if simulation.mode == 'single':
         logger.info('Mode: Single')
-        detector = processor.pipeline.run_pipeline(processor.detector)
-        out.single_output(detector=detector)
+        processor.pipeline.run_pipeline(processor.detector)
+        out.single_output(detector=processor.detector)
 
     elif simulation.mode == 'calibration':
         logger.info('Mode: Calibration')
         files = out.create_file('champions.out'), out.create_file('population.out')
         detector, results = simulation.calibration.run_calibration(processor, files)
         logger.info('Champion fitness:   %1.5e' % results['fitness'])
-        out.calibration_output(detector=detector, results=results, files=files, var=(16, 2))
+        out.calibration_output(detector=detector, results=results, files=files, var=(16, 2))                # todo
 
     elif simulation.mode == 'parametric':
         logger.info('Mode: Parametric')
         configs = simulation.parametric.collect(processor)
-        for config in configs:
-            detector = config.pipeline.run_pipeline(config.detector)
-            out.add_parametric_step(detector=detector, processor=config,
+        for processor in configs:
+            processor.pipeline.run_pipeline(processor.detector)
+            out.add_parametric_step(processor=processor,
                                     parametric=simulation.parametric,
-                                    results=['pipeline.photon_generation.illumination.arguments.level'])
+                                    results=['pipeline.photon_generation.illumination.arguments.level'])    # todo
         out.parametric_output(parameter_key='pipeline.photon_generation.illumination.arguments.level',
-                              result_key='pipeline.photon_generation.illumination.arguments.level')
+                              result_key='pipeline.photon_generation.illumination.arguments.level')         # todo
     else:
         raise ValueError
 
