@@ -23,5 +23,5 @@ class Image(Array):
         """
         super().__init__()                  # TODO: add unit (ADU)
         self.exp_type = np.uint
-        self.type_list = [np.uint16, np.uint32, np.uint64]
+        self.type_list = [np.uint16, np.uint32, np.uint64, np.float16, np.float32, np.float64]
         self._array = np.zeros((geo.row, geo.col), dtype=self.exp_type)

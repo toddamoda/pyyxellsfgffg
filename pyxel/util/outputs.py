@@ -93,10 +93,11 @@ class Outputs:
         np.save(file=filename, arr=array)
 
     def save_plot(self, filename='figure_??'):
-        """Save plot figure in PNG format and create new figure canvas for next plot."""
+        """Save plot figure in PNG format, close figure and create new canvas for next plot."""
         filename = self.output_dir + '/' + filename + '.png'
         filename = apply_run_number(filename)
         plt.savefig(filename)
+        plt.close('all')
         plt.figure()
 
     def get_plotting_arguments(self, plot_type, arg_dict=None):
@@ -156,9 +157,9 @@ class Outputs:
         """TBW."""
         self.save_to_fits(array=detector.image.array)
         # self.save_to_npy(array=detector.image.array)
-        plt_args = {'bins': 300, 'xlabel': 'ADU', 'ylabel': 'counts', 'title': 'Image histogram'}
+        plt_args = {'bins': 100, 'xlabel': 'ADU', 'ylabel': 'counts', 'title': 'Image histogram'}
         self.plot_histogram(detector.image.array, arg_dict=plt_args)
-        self.save_plot()
+        self.save_plot('histogram_??')
         # self.save_to_bitmap(array=detector.image.array)
         # self.save_to_hdf(data=detector.charges.frame, key='charge')
         # self.save_to_csv(dataframe=detector.charges.frame)
@@ -195,13 +196,12 @@ class Outputs:
                 if isinstance(param_value, float) or isinstance(param_value, int):
                     column = data[:, a]
                     self.plot_graph(generations, column, arg_dict=plt_args1)
-                    self.save_plot()
                 elif isinstance(param_value, np.ndarray):
                     b = len(param_value)
                     column = data[:, a:a + b]
                     self.plot_graph(generations, column, arg_dict=plt_args1)
                     plt.legend(range(b))
-                    self.save_plot()
+                self.save_plot('calibrated_parameter_??')
                 a += b
                 if 'color' in plt_args1.keys():
                     plt_args1.pop('color')
@@ -214,26 +214,33 @@ class Outputs:
             plt_args2 = {'xlabel': 'x', 'ylabel': 'y', 'title': 'Population of the last generation',
                          'size': 8, 'cbar_label': 'log(fitness)'}
             self.plot_scatter(x, y, color=fitnesses, arg_dict=plt_args2)
-            self.save_plot()
+            self.save_plot('population_??')
 
-    def add_parametric_step(self, parametric, processor, results: list = None):
+    def add_parametric_step(self, parametric, processor,
+                            result_keys: list = None,
+                            parameter_keys: list = None):
         """TBW."""
-        self.single_output(processor.detector)
+        # self.single_output(processor.detector)
 
         row = np.array([])
         for var in parametric.enabled_steps:
             row = np.append(row, processor.get(var.key))
             if var.key not in self.parameter_keys:
                 self.parameter_keys += [var.key]
+        if parameter_keys is not None:
+            for key in parameter_keys:
+                row = np.append(row, processor.get(key))
+                if key not in self.parameter_keys:
+                    self.parameter_keys += [key]
         
         if self.parameter_values.size == 0:
             self.parameter_values = row 
         else:
             self.parameter_values = np.vstack((self.parameter_values, row))
 
-        if results is not None:
+        if result_keys is not None:
             row_2 = np.array([])
-            for key in results:
+            for key in result_keys:
                 row_2 = np.append(row_2, processor.get(key))
                 if key not in self.result_keys:
                     self.result_keys += [key]
@@ -243,20 +250,17 @@ class Outputs:
             else:
                 self.result_values = np.vstack((self.result_values, row_2))
 
-    def parametric_output(self, parameter_key, result_key, xlog: bool = False, ylog: bool = False):
+    def parametric_output(self, parameter_key, result_key):
         """TBW."""
         x = self.parameter_values[:, self.parameter_keys.index(parameter_key)]
         y = self.result_values[:, self.result_keys.index(result_key)]
         title = 'Parametric analysis'
         par_name = parameter_key[parameter_key.rfind('.') + 1:]
         res_name = result_key[result_key.rfind('.') + 1:]
-        plt_args = {'xlabel': par_name, 'ylabel': res_name, 'title': title}
-        # if xlog:
-        #     plt_args['xlabel'] = 'log(' + plt_args['xlabel'] + ')'
-        # if ylog:
-        #     plt_args['ylabel'] = 'log(' + plt_args['ylabel'] + ')'
+        plt_args = {'xlabel': par_name, 'ylabel': res_name, 'title': title,
+                    'xscale': 'log', 'yscale': 'log'}
         self.plot_graph(x, y, arg_dict=plt_args)
-        self.save_plot()
+        self.save_plot('parametric_??')
         
 
 def show_plots():

@@ -1,0 +1,114 @@
+# ############################################################
+# Pyxel detector simulation framework                        #
+#                                                            #
+# Example yaml config to generate a                          #
+# CCD Photon Transfer Curve in parametric analysis mode      #
+# Created by D. Lucsanyi (ESA)                               #
+# ############################################################
+
+simulation:
+
+  mode: parametric
+
+  parametric:
+    parametric_mode: sequential
+    parameters:
+      - key: pipeline.photon_generation.illumination.arguments.level
+        values: range(0, 50000, 1000)
+
+detector:
+  class: pyxel.detectors.ccd.CCD
+
+  geometry:
+    class: pyxel.detectors.ccd_geometry.CCDGeometry
+
+    row:   100                          # pixels
+    col:   100                          # pixels
+    total_thickness: 10.                # um
+    pixel_vert_size: 10.                # um
+    pixel_horz_size: 10.                # um
+
+  material:
+    class: pyxel.detectors.material.Material
+    material: 'silicon'
+
+  environment:
+    class: pyxel.detectors.environment.Environment
+
+  characteristics:
+    class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
+    qe: 0.5                 # -
+    eta: 0.5                # e/photon
+    sv: 1.0e-6              # V/e
+    amp: 1.                 # V/V
+    a1: 100.                # V/V
+    a2: 65536               # DN/V
+    fwc: 10000            # e
+    fwc_serial: 1000000     # e
+    vg: 1.6200e-10          # cm2
+    svg: 1.6200e-10         # cm2
+    t: 9.4722e-04           # s
+    st: 9.4722e-04          # s
+
+pipeline:
+  class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
+
+  # -> photons
+  photon_generation:
+    - name: illumination
+      func: pyxel.models.photon_generation.illumination.illumination
+      enabled: true
+      arguments:
+          level: 10
+    - name: shot_noise
+      func: pyxel.models.photon_generation.shot_noise.shot_noise
+      enabled: true
+
+  # photons -> photons
+  optics:
+
+  # photons -> charge
+  charge_generation:
+    - name: photoelectrons
+      func: pyxel.models.charge_generation.photoelectrons.simple_conversion
+      enabled: true
+
+  # charge -> charge
+  charge_collection:
+    - name: simple_collection
+      func: pyxel.models.charge_collection.collection.simple_collection
+      enabled: true
+    - name: fixed_pattern_noise
+      func: pyxel.models.charge_collection.fix_pattern_noise.fix_pattern_noise
+      enabled: true
+      arguments:
+        pix_non_uniformity: data/non_uniformity_array_normal_random_dist.data
+    - name: full_well
+      func: pyxel.models.charge_collection.full_well.simple_pixel_full_well
+      enabled: true
+  # charge -> charge
+  charge_transfer:
+
+  # charge -> signal
+  charge_measurement:
+    - name: simple_measurement
+      func: pyxel.models.charge_measurement.measurement.simple_measurement
+      enabled: true
+    - name: output_node_noise
+      func: pyxel.models.charge_measurement.readout_noise.output_node_noise
+      enabled: true
+      arguments:
+        std_deviation: 0.00006      # Volt ????
+
+  # TODO ide is egy SHOT NOISE model?
+
+  # signal -> image
+  readout_electronics:
+    - name: simple_amplifier
+      func: pyxel.models.readout_electronics.amplification.simple_amplifier
+      enabled: true
+    - name: simple_processing
+      func: pyxel.models.readout_electronics.digitization.simple_processing
+      enabled: true
+
+    # TODO ide is egy SHOT NOISE model?

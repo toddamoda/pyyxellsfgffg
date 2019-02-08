@@ -13,7 +13,7 @@ class Array:
         self.type = None            # type: t.Optional[type]
         self.exp_type = None        # type: t.Optional[type]
         self.type_list = None       # type: t.Optional[t.List[type]]
-        self._array = None           # type: t.Optional[np.ndarray]
+        self._array = None          # type: t.Optional[np.ndarray]
 
     @property
     def array(self):
@@ -44,3 +44,33 @@ class Array:
                                 (self.__class__.__name__, self.exp_type.__name__))
         else:
             raise TypeError('%s array should be a numpy.ndarray' % self.__class__.__name__)
+
+    @property
+    def mean(self):
+        """Mean of all pixel values."""
+        return np.mean(self._array)
+
+    @property
+    def std_deviation(self):
+        """Standard deviation of all pixel values."""
+        return np.std(self._array)
+
+    @property
+    def max(self):
+        """Maximum of all pixel values."""
+        return np.max(self._array)
+
+    @property
+    def min(self):
+        """Minimum of all pixel values."""
+        return np.min(self._array)
+
+    @property
+    def peak_to_peak(self):
+        """Minimum of all pixel values."""
+        return np.ptp(self._array)
+
+    @property
+    def sum(self):
+        """Minimum of all pixel values."""
+        return np.sum(self._array)

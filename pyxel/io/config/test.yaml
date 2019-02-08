@@ -13,7 +13,7 @@ detector:
     class: pyxel.detectors.ccd_geometry.CCDGeometry
 
     row:   500                   # compulsory
-    col:   500                  # compulsory
+    col:   500                   # compulsory
     total_thickness: 40.         # um
     pixel_vert_size: 10.         # um
     pixel_horz_size: 10.         # um

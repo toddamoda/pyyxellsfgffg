@@ -34,9 +34,7 @@ def run(input_filename, output_directory: str, random_seed: int = None):
 
     cfg = io.load(Path(input_filename))
     simulation = cfg['simulation']
-    detector = cfg['detector']
-    pipeline = cfg['pipeline']
-    processor = Processor(detector, pipeline)
+    processor = Processor(cfg['detector'], cfg['pipeline'])
 
     out = Outputs(output=output_directory, input=input_filename)
 
@@ -59,10 +57,13 @@ def run(input_filename, output_directory: str, random_seed: int = None):
             processor.pipeline.run_pipeline(processor.detector)
             out.add_parametric_step(processor=processor,
                                     parametric=simulation.parametric,
-                                    results=['pipeline.photon_generation.illumination.arguments.level'])    # todo
-        out.parametric_output(parameter_key='pipeline.photon_generation.illumination.arguments.level',
-                              result_key='pipeline.photon_generation.illumination.arguments.level',
-                              xlog=True, ylog=True)         # todo
+                                    parameter_keys=['detector.image.mean'],
+                                    result_keys=['detector.image.mean',
+                                                 'detector.image.sum',
+                                                 'detector.image.std_deviation']
+                                    )                                                          # todo
+        out.parametric_output(parameter_key='detector.image.mean',
+                              result_key='detector.image.std_deviation')                                # todo
     else:
         raise ValueError
 
