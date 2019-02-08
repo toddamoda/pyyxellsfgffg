@@ -1,7 +1,6 @@
 """Utility functions for creating outputs."""
 import os
 import glob
-import logging
 from copy import copy
 from shutil import copy2
 import numpy as np
@@ -11,7 +10,7 @@ import astropy.io.fits as fits
 try:
     import matplotlib.pyplot as plt
 except ImportError:
-    # raise Warning('Matplotlib cannot be imported')        # TODO
+    # raise Warning('Matplotlib cannot be imported')        # todo
     pass
 
 
@@ -31,11 +30,11 @@ class Outputs:
             'xlabel': None, 'ylabel': None, 'title': None, 'axis': None, 'grid': False
         }   # type: dict
         self.default_plot_args = {
-            'color': None, 'marker': '.', 'linestyle': '', 'label': None
+            'color': None, 'marker': '.', 'linestyle': ''
         }   # type: dict
         self.default_hist_args = {
             'bins': None, 'range': None, 'density': None, 'log': False, 'cumulative': False,
-            'histtype': 'step', 'color': None, 'facecolor': None, 'label': None
+            'histtype': 'step', 'color': None, 'facecolor': None,
         }   # type: dict
         self.default_scatter_args = {
             'size': None, 'cbar_label': None
@@ -50,14 +49,14 @@ class Outputs:
         file.close()
         return filename
 
-    def save_to_bitmap(self, array, filename='image_??'):       # TODO finish, PIL does not work with JPEG !
+    def save_to_bitmap(self, array, filename='image_??'):       # todo: finish, PIL does not work with JPEG !
         """Write array to bitmap PNG image file."""
         filename = self.output_dir + '/' + filename + '.png'
         filename = apply_run_number(filename)
         im = Image.fromarray(array)
         im.save(filename, "PNG")
-        # todo: with this, it works: simple_digitization / numpy.uint32
-        # todo: with this, it does not work: simple_digitization / numpy.uint16
+        # with this, it works: simple_digitization / numpy.uint32
+        # with this, it does not work: simple_digitization / numpy.uint16
 
     def save_to_fits(self, array, filename='image_??'):
         """Write array to FITS file."""
@@ -73,8 +72,8 @@ class Outputs:
         filename = apply_run_number(filename)
         with pd.HDFStore(filename) as store:
             store[key] = data
-        # TODO: append more objects if needed to the same HDF5 file
-        # TODO: save whole detector object to a HDF5 file?
+        # todo: append more objects if needed to the same HDF5 file
+        # todo: save whole detector object to a HDF5 file?
 
     def save_to_csv(self, dataframe: pd.DataFrame, filename='dataframe_??'):
         """Write pandas Dataframe to CSV file."""
@@ -119,11 +118,8 @@ class Outputs:
     def plot_graph(self, x, y, arg_dict=None):
         """TBW."""
         plt_args, ax_args = self.get_plotting_arguments(plot_type='graph', arg_dict=arg_dict)
-        # if isinstance(x, np.ndarray):
-        #     x = x.flatten()
-        # if isinstance(y, np.ndarray):
-        #     y = y.flatten()
         plt.plot(x, y,
+                 # color=plt_args.pop('color'), marker=plt_args.pop('marker'), linestyle=plt_args.pop('linestyle'))
                  color=plt_args['color'], marker=plt_args['marker'], linestyle=plt_args['linestyle'])
         update_plot(ax_args)
         plt.draw()
@@ -181,9 +177,12 @@ class Outputs:
             for item in items:
 
                 key = item[0]
+                param_value = item[1]
                 param_name = key[key.rfind('.') + 1:]
+                plt_args1['ylabel'] = param_name
                 if param_name == 'fitness':
                     plt_args1['title'] = 'Champion fitness'
+                    plt_args1['color'] = 'red'
                 else:
                     if key.rfind('.arguments') == -1:
                         mdn = key[:key.rfind('.' + param_name)]
@@ -191,24 +190,23 @@ class Outputs:
                         mdn = key[:key.rfind('.arguments')]
                     model_name = mdn[mdn.rfind('.') + 1:]
                     plt_args1['title'] = title + model_name + ' / ' + param_name
-                param_value = item[1]
-                plt_args1['ylabel'] = param_name
 
+                b = 1
                 if isinstance(param_value, float) or isinstance(param_value, int):
-                    b = 1
                     column = data[:, a]
                     self.plot_graph(generations, column, arg_dict=plt_args1)
                     self.save_plot()
-                else:
+                elif isinstance(param_value, np.ndarray):
                     b = len(param_value)
                     column = data[:, a:a + b]
                     self.plot_graph(generations, column, arg_dict=plt_args1)
                     plt.legend(range(b))
                     self.save_plot()
                 a += b
+                if 'color' in plt_args1.keys():
+                    plt_args1.pop('color')
 
         if files[1] is not None:
-
             data = np.loadtxt(files[1])
             fitnesses = np.log10(data[:, 1])
             x = data[:, var[0]]
@@ -220,10 +218,8 @@ class Outputs:
 
     def parametric_output(self, detector, config=None):  # TODO
         """TBW."""
-        pass
-        # self.save_to_fits(array=detector.image.array)
-        # self.plot_histogram(detector.image.array)
-        # self.save_plot('graph')
+        self.single_output(detector)
+
         # todo: get the parametric variables from configs,
         # todo: then plot things in function of these variables, defined in configs
 
@@ -242,9 +238,6 @@ def update_plot(ax_args):
     if ax_args['axis']:
         plt.axis(ax_args['axis'])
     plt.grid(ax_args['grid'])
-    # plt.legend()
-    # todo: catch log.warning:
-    # "matplotlib.legend -   _parse_legend_args 	 No handles with labels found to put in legend."
 
 
 def update_fits_header(header, key, value):
