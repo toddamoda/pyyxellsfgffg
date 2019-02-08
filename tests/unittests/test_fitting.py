@@ -17,12 +17,12 @@ def configure(mf, sim):
         'population_size': sim.calibration.algorithm.population_size,
         'simulation_output': sim.calibration.output_type,
         'fitness_func': sim.calibration.fitness_function,
-        'champions_file': sim.calibration.champions_file,
-        'population_file': sim.calibration.population_file,
         'target_output': sim.calibration.target_data_path,
         'target_fit_range': sim.calibration.target_fit_range,
         'out_fit_range': sim.calibration.output_fit_range,
-        'weighting': sim.calibration.weighting_path
+        'weighting': sim.calibration.weighting_path,
+        'champions_file': None,
+        'population_file': None
     }
     mf.configure(settings)
 

@@ -47,9 +47,6 @@ simulation:
         logarithmic: false
         boundaries: [10., 200.]
 
-    champions_file: 'data/calibration_champions.out'
-    population_file: 'data/calibration_populations.out'
-
 detector:
   class: pyxel.detectors.ccd.CCD
 
