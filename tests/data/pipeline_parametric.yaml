@@ -7,7 +7,7 @@ simulation:
     parameters:
       -
         enabled: true
-        key: pipeline.photon_generation.photon_level.arguments.level
+        key: pipeline.photon_generation.illumination.arguments.level
         values: [10, 20, 30]
       -
         enabled: true
@@ -86,7 +86,7 @@ pipeline:
         image_file: null
         convert_to_photons: true
     -
-      name: photon_level
+      name: illumination
       func: pyxel.models.photon_generation.illumination.illumination
       enabled: true
       arguments:

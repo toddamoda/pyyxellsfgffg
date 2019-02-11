@@ -27,7 +27,7 @@ You should copy the python file including your function in the folder
     class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
 
     photon_generation:
-      - name: photon_level
+      - name: illumination
         func: pyxel.models.photon_generation.illumination.illumination
         enabled: true
         arguments:

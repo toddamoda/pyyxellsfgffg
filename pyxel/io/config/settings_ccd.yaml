@@ -143,7 +143,7 @@ pipeline:
         image_file: outputs/in.fits # data/01.fits
         fit_image_to_det: false
         convert_to_photons: true
-    - name: illumination #  photon_level
+    - name: illumination
       func: pyxel.models.photon_generation.illumination.illumination
       enabled: true
       arguments:

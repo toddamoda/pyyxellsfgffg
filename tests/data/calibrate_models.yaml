@@ -104,7 +104,7 @@ pipeline:
         col0: 0
         convert_to_photons: true
     -
-      name: photon_level
+      name: illumination
       func: pyxel.models.photon_generation.illumination.illumination
       enabled: false
       arguments:

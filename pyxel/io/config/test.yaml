@@ -57,14 +57,14 @@ pipeline:
         image_file: data/HorseHead_orig.fits # outputs/200x200px.fits   # outputs/141x123px.fits
         fit_image_to_det: true
         convert_to_photons: true
-    - name: photon_level
+    - name: illumination
       func: pyxel.models.photon_generation.illumination.illumination
       enabled: false
       arguments:
           level: 1111
           option: 'elliptic_hole'
           hole_size: [30, 50]
-    - name: photon_level
+    - name: illumination
       func: pyxel.models.photon_generation.illumination.illumination
       enabled: false
       arguments:

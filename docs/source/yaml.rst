@@ -51,12 +51,19 @@ or subgroup.
     as the execution order is defined here!
 
     * **photon_generation**
+
     * **optics**
+
     * **charge_generation**
+
     * **charge_collection**
+
     * **(charge_transfer)**
+
     * **charge_measurement**
+
     * **(signal_transfer)**
+
     * **readout_electronics**
 
 

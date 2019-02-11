@@ -9,18 +9,16 @@ To run Pyxel on your local computer, simply run it from the command-line:
 
   python pyxel/run.py
          -c pyxel/io/config/input.yaml
-         -o outputs/out.fits
+         -o output_folder
+         -s 1234
 
 where
 
 ======  ===============  =======================================  ==========
 ``-c``  ``--config``     defines the path of the input YAML file  compulsory
-``-o``  ``--output``     defines the path of the output file(s)   optional
+``-o``  ``--output``     defines the path of the output folder    optional
 ``-s``  ``--seed``       defines a seed for random number         optional
                          generator
-``-g``  ``--gui``        runs the Graphical User Interface (GUI)  optional
-``-p``  ``--port``       defines a port to run the web            optional
-                         server and GUI
 ``-v``  ``--verbosity``  increases the output verbosity           optional
 ``-V``  ``--version``    prints the version of Pyxel              optional
 ======  ===============  =======================================  ==========
@@ -84,26 +82,95 @@ a stack of different Detector objects and pipelines.
 At the end, the user can plot and analyze the data
 in function of the variable parameter.
 
+Sequential
+***********
 
 .. code-block:: yaml
 
-  # YAML config file for Parametric mode
+  # YAML config file for Parametric mode (sequential)
 
   simulation:
     mode: parametric
 
     parametric:
-      parametric_mode: sequential           # embedded # image_generator
-      steps:
-        -
-          enabled: true
-          key: pipeline.charge_generation.tars.arguments.particle_number
-          values: [1, 2, 3]
-        -
-          enabled: true
-          key: pipeline.photon_generation.photon_level.arguments.level
-          values: range(100, 200, 10)
+      parametric_mode: sequential
+      parameters:
+        - key:      pipeline.charge_generation.tars.arguments.particle_number
+          values:   [1, 2, 3]
+          enabled:  true
+        - key:      pipeline.photon_generation.illumination.arguments.level
+          values:   range(0, 300, 100)
+          enabled:  true
 
+| The yaml file will start 6 runs in this order:
+| number=1, number=2, number=3, level=0, level=100, level=200
+
+The default values for 'number' and 'level' are defined as the arguments
+of the specific models in the pipeline part of the yaml config file.
+
+Embedded
+***********
+
+.. code-block:: yaml
+
+  # YAML config file for Parametric mode (embedded)
+
+  simulation:
+    mode: parametric
+
+    parametric:
+      parametric_mode: embedded
+      parameters:
+        - key:      pipeline.charge_generation.tars.arguments.particle_number
+          values:   [1, 2, 3]
+          enabled:  true
+        - key:      pipeline.photon_generation.illumination.arguments.level
+          values:   range(0, 300, 100)
+          enabled:  true
+
+| The yaml file will start 9 runs in this order:
+| (number=1, level=0), (number=1, level=100), (number=1, level=200),
+| (number=2, level=0), (number=2, level=100), (number=2, level=200),
+| (number=3, level=0), (number=3, level=100), (number=3, level=200)
+
+The default values for 'number' and 'level' are defined as the arguments
+of the specific models in the pipeline part of the yaml config file.
+
+Parallel
+*********
+
+.. code-block:: yaml
+
+  # YAML config file for Parametric mode (parallel)
+
+  simulation:
+    mode: parametric
+
+    parametric:
+      parametric_mode:  parallel
+      from_file:        'outputs/calibration_champions.out'
+      column_range:     [2, 17]
+      parameters:
+        - key:      detector.characteristics.amp
+          values:   _
+        - key:      pipeline.charge_transfer.cdm.arguments.tr_p
+          values:   [_, _, _, _]
+        - key:      pipeline.charge_transfer.cdm.arguments.nt_p
+          values:   [_, _, _, _]
+        - key:      pipeline.charge_transfer.cdm.arguments.sigma_p
+          values:   [_, _, _, _]
+        - key:      pipeline.charge_transfer.cdm.arguments.beta_p
+          values:   _
+        - key:      detector.environment.temperature
+          values:   _
+
+The parametric values (int, float or str) indicated with with '_' character,
+and all are read and changed in parallel from an ASCII file defined
+with ``from_file``.
+
+Can be used for example to read output file of calibration running mode
+containing the champion parameter set for each generation, and create one
+output fits image for each generation to see the evolution.
 
 .. _calibration_mode:
 
@@ -132,9 +199,9 @@ target dataset the models or detector behaviour shall reproduce.
     mode: calibration
 
     calibration:
-      calibration_mode: single_model                # pipeline
+      calibration_mode: pipeline                    # single_model
 
-      output_type:      pixel                       # signal # image
+      output_type:      image                       # pixel # signal # image
       output_fit_range: [0, 20, 0, 30]
 
       target_data_path: [data/target.fits']         #  <*.npy> <*.fits> <ascii>
@@ -151,11 +218,23 @@ target dataset the models or detector behaviour shall reproduce.
         generations:     20
         population_size: 100
         variant:         2
+
       seed:              1321
 
-      model_names:         ['cdm']
-      variables:           [['tr_p', 'nt_p', 'sigma_p', 'beta_p']]
-      params_per_variable: [[4, 4, 4, 1]]
-      var_log:             [[True, True, True, False]]
-      lower_boundary:      [[1.e-3, 1.e-2, 1.e-20, 0.]]
-      upper_boundary:      [[2., 1.e+1, 1.e-15, 1.]]
+      parameters:
+        - key:  detector.characteristics.amp
+          values: _
+          logarithmic: false
+          boundaries: [1., 10.]
+        - key:  pipeline.charge_transfer.cdm.arguments.tr_p
+          values: [_, _, _, _]
+          logarithmic: true
+          boundaries: [1.e-3, 2.]
+        - key:  pipeline.charge_transfer.cdm.arguments.nt_p
+          values: [_, _, _, _]
+          logarithmic: true
+          boundaries: [1.e-2, 1.e+1]
+        - key:  pipeline.charge_transfer.cdm.arguments.beta_p
+          values: _
+          logarithmic: false
+          boundaries: [0., 1.]

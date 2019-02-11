@@ -53,7 +53,7 @@ pipeline:
       enabled: false
       arguments:
     -
-      name: photon_level
+      name: illumination
       func: pyxel.models.photon_generation.illumination.illumination
       enabled: false
       arguments:
