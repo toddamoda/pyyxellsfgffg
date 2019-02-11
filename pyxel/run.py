@@ -15,14 +15,12 @@ import numpy as np
 import esapy_config.io as io
 import pyxel
 from pyxel.pipelines.processor import Processor
-from pyxel.util import Outputs
 
 
-def run(input_filename, output_directory: str, random_seed: int = None):
+def run(input_filename, random_seed: int = None):
     """TBW.
 
     :param input_filename:
-    :param output_directory:
     :param random_seed:
     :return:
     """
@@ -34,36 +32,31 @@ def run(input_filename, output_directory: str, random_seed: int = None):
 
     cfg = io.load(Path(input_filename))
     simulation = cfg['simulation']
-    processor = Processor(cfg['detector'], cfg['pipeline'])
-
-    out = Outputs(output=output_directory, input=input_filename)
+    processor = Processor(cfg['detector'],
+                          cfg['pipeline'])
+    out = simulation.outputs
+    out.set_input_file(input_filename)
 
     if simulation.mode == 'single':
         logger.info('Mode: Single')
         processor.pipeline.run_pipeline(processor.detector)
         out.single_output(detector=processor.detector)
 
-    elif simulation.mode == 'calibration':
+    elif simulation.mode == 'calibration' and simulation.calibration:
         logger.info('Mode: Calibration')
-        files = out.create_file('champions.out'), out.create_file('population.out')
+        files = out.create_files()
         detector, results = simulation.calibration.run_calibration(processor, files)
         logger.info('Champion fitness:   %1.5e' % results['fitness'])
-        out.calibration_output(detector=detector, results=results, files=files, var=(16, 2))                # todo
+        out.calibration_output(detector=detector, results=results)
 
-    elif simulation.mode == 'parametric':
+    elif simulation.mode == 'parametric' and simulation.parametric:
         logger.info('Mode: Parametric')
         configs = simulation.parametric.collect(processor)
         for processor in configs:
             processor.pipeline.run_pipeline(processor.detector)
             out.add_parametric_step(processor=processor,
-                                    parametric=simulation.parametric,
-                                    parameter_keys=['detector.image.mean'],
-                                    result_keys=['detector.image.mean',
-                                                 'detector.image.sum',
-                                                 'detector.image.std_deviation']
-                                    )                                                          # todo
-        out.parametric_output(parameter_key='detector.image.mean',
-                              result_key='detector.image.std_deviation')                                # todo
+                                    parametric=simulation.parametric)
+        out.parametric_output()
     else:
         raise ValueError
 
@@ -80,9 +73,9 @@ def main():
     parser.add_argument('-V', '--version', action='version',
                         version='Pyxel, version {version}'.format(version=pyxel.__version__))
     parser.add_argument('-c', '--config', type=str, required=True, help='Configuration file to load (YAML)')
-    parser.add_argument('-o', '--output', type=str, default='outputs', help='Path for output folder')
     parser.add_argument('-s', '--seed', type=int, help='Random seed for the framework')
 
+    # parser.add_argument('-o', '--output', type=str, default='outputs', help='Path for output folder')
     # parser.add_argument('-g', '--gui', default=False, type=bool, help='run Graphical User Interface')
     # parser.add_argument('-p', '--port', default=9999, type=int, help='The port to run the web server on')
 
@@ -93,7 +86,7 @@ def main():
     logging.basicConfig(level=logging_level, format=log_format, datefmt='%d-%m-%Y %H:%M:%S')
 
     if opts.config:
-        run(input_filename=opts.config, output_directory=opts.output, random_seed=opts.seed)
+        run(input_filename=opts.config, random_seed=opts.seed)   # output_directory=opts.output,
     else:
         print('Define a YAML configuration file!')
 

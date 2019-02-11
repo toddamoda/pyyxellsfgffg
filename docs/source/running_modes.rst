@@ -16,7 +16,6 @@ where
 
 ======  ===============  =======================================  ==========
 ``-c``  ``--config``     defines the path of the input YAML file  compulsory
-``-o``  ``--output``     defines the path of the output folder    optional
 ``-s``  ``--seed``       defines a seed for random number         optional
                          generator
 ``-v``  ``--verbosity``  increases the output verbosity           optional

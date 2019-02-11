@@ -17,14 +17,26 @@ except ImportError:
 class Outputs:
     """TBW."""
 
-    def __init__(self, output, input):
+    def __init__(self,
+                 output_folder: str = 'outputs',
+                 parametric_plot: dict = None,
+                 calibration_plot: dict = None,
+                 single_plot: dict = None
+                 ):
         """TBW."""
-        self.output_dir = apply_run_number(output + '/run_??')
+        self.input_file = None
+        self.champions_file = None
+        self.population_file = None
+
+        self.parametric_plot = parametric_plot
+        self.calibration_plot = calibration_plot
+        self.single_plot = single_plot
+
+        self.output_dir = apply_run_number(output_folder + '/run_??')
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
         else:
             raise IsADirectoryError('Directory exists.')
-        copy2(input, self.output_dir)
 
         self.default_ax_args = {
             'xlabel': None, 'ylabel': None, 'title': None, 'axis': None, 'grid': False,
@@ -42,12 +54,22 @@ class Outputs:
         }   # type: dict
 
         self.parameter_values = np.array([])
-        self.parameter_keys = []
-        self.result_values = np.array([])
-        self.result_keys = []
+        self.parameter_keys = []                # type: list
+        self.additional_keys = []               # type: list
         plt.figure()
 
-    def create_file(self, filename: str = 'calibration.out'):
+    def set_input_file(self, filename: str):
+        """TBW."""
+        self.input_file = filename
+        copy2(self.input_file, self.output_dir)
+
+    def create_files(self):
+        """TBW."""
+        self.champions_file = self.new_file('champions.out')
+        self.population_file = self.new_file('population.out')
+        return self.champions_file, self.population_file
+
+    def new_file(self, filename: str):
         """TBW."""
         filename = self.output_dir + '/' + filename
         file = open(filename, 'wb')  # truncate output file
@@ -164,61 +186,72 @@ class Outputs:
         # self.save_to_hdf(data=detector.charges.frame, key='charge')
         # self.save_to_csv(dataframe=detector.charges.frame)
 
-    def calibration_output(self, detector, results: dict, files=(None, None), var=(2, 3)):
+    def champions_plot(self, results):
+        """TBW."""
+        data = np.loadtxt(self.champions_file)
+        generations = data[:, 0]
+        plt_args1 = {'xlabel': 'generation', 'linestyle': '-'}
+        title = 'Calibrated parameter: '
+        items = list(results.items())
+        a = 1
+        for item in items:
+
+            key = item[0]
+            param_value = item[1]
+            param_name = key[key.rfind('.') + 1:]
+            plt_args1['ylabel'] = param_name
+            if param_name == 'fitness':
+                plt_args1['title'] = 'Champion fitness'
+                plt_args1['color'] = 'red'
+            else:
+                if key.rfind('.arguments') == -1:
+                    mdn = key[:key.rfind('.' + param_name)]
+                else:
+                    mdn = key[:key.rfind('.arguments')]
+                model_name = mdn[mdn.rfind('.') + 1:]
+                plt_args1['title'] = title + model_name + ' / ' + param_name
+
+            b = 1
+            if isinstance(param_value, float) or isinstance(param_value, int):
+                column = data[:, a]
+                self.plot_graph(generations, column, arg_dict=plt_args1)
+            elif isinstance(param_value, np.ndarray):
+                b = len(param_value)
+                column = data[:, a:a + b]
+                self.plot_graph(generations, column, arg_dict=plt_args1)
+                plt.legend(range(b))
+            self.save_plot('calibrated_parameter_??')
+            a += b
+            if 'color' in plt_args1.keys():
+                plt_args1.pop('color')
+
+    def population_plot(self, ):
+        """TBW."""
+        data = np.loadtxt(self.population_file)
+        fitnesses = np.log10(data[:, 1])
+        a, b = 2, 3
+        if self.calibration_plot['population_plot']:
+            if 'columns' in self.calibration_plot['population_plot']:
+                col = self.calibration_plot['population_plot']['columns']
+                a, b = col[0], col[1]
+        x = data[:, a]
+        y = data[:, b]
+        plt_args2 = {'xlabel': 'x', 'ylabel': 'y', 'title': 'Population of the last generation', 'size': 8,
+                     'cbar_label': 'log(fitness)'}
+        self.plot_scatter(x, y, color=fitnesses, arg_dict=plt_args2)
+        self.save_plot('population_??')
+
+    def calibration_output(self, detector, results: dict):
         """TBW."""
         self.single_output(detector)
 
-        if files[0] is not None:
-            data = np.loadtxt(files[0])
-            generations = data[:, 0]
-            plt_args1 = {'xlabel': 'generation', 'linestyle': '-'}
-            title = 'Calibrated parameter: '
-            items = list(results.items())
-            a = 1
-            for item in items:
+        if self.calibration_plot:
+            if 'champions_plot' in self.calibration_plot:
+                self.champions_plot(results)
+            if 'population_plot' in self.calibration_plot:
+                self.population_plot()
 
-                key = item[0]
-                param_value = item[1]
-                param_name = key[key.rfind('.') + 1:]
-                plt_args1['ylabel'] = param_name
-                if param_name == 'fitness':
-                    plt_args1['title'] = 'Champion fitness'
-                    plt_args1['color'] = 'red'
-                else:
-                    if key.rfind('.arguments') == -1:
-                        mdn = key[:key.rfind('.' + param_name)]
-                    else:
-                        mdn = key[:key.rfind('.arguments')]
-                    model_name = mdn[mdn.rfind('.') + 1:]
-                    plt_args1['title'] = title + model_name + ' / ' + param_name
-
-                b = 1
-                if isinstance(param_value, float) or isinstance(param_value, int):
-                    column = data[:, a]
-                    self.plot_graph(generations, column, arg_dict=plt_args1)
-                elif isinstance(param_value, np.ndarray):
-                    b = len(param_value)
-                    column = data[:, a:a + b]
-                    self.plot_graph(generations, column, arg_dict=plt_args1)
-                    plt.legend(range(b))
-                self.save_plot('calibrated_parameter_??')
-                a += b
-                if 'color' in plt_args1.keys():
-                    plt_args1.pop('color')
-
-        if files[1] is not None:
-            data = np.loadtxt(files[1])
-            fitnesses = np.log10(data[:, 1])
-            x = data[:, var[0]]
-            y = data[:, var[1]]
-            plt_args2 = {'xlabel': 'x', 'ylabel': 'y', 'title': 'Population of the last generation',
-                         'size': 8, 'cbar_label': 'log(fitness)'}
-            self.plot_scatter(x, y, color=fitnesses, arg_dict=plt_args2)
-            self.save_plot('population_??')
-
-    def add_parametric_step(self, parametric, processor,
-                            result_keys: list = None,
-                            parameter_keys: list = None):
+    def add_parametric_step(self, parametric, processor):
         """TBW."""
         # self.single_output(processor.detector)
 
@@ -227,37 +260,29 @@ class Outputs:
             row = np.append(row, processor.get(var.key))
             if var.key not in self.parameter_keys:
                 self.parameter_keys += [var.key]
-        if parameter_keys is not None:
-            for key in parameter_keys:
+
+        additional_params = [self.parametric_plot['x'], self.parametric_plot['y']]
+        for key in additional_params:
+            if key is not None and key not in self.parameter_keys:
                 row = np.append(row, processor.get(key))
-                if key not in self.parameter_keys:
-                    self.parameter_keys += [key]
+                if key not in self.additional_keys:
+                    self.additional_keys += [key]
 
         if self.parameter_values.size == 0:
             self.parameter_values = row
         else:
             self.parameter_values = np.vstack((self.parameter_values, row))
 
-        if result_keys is not None:
-            row_2 = np.array([])
-            for key in result_keys:
-                row_2 = np.append(row_2, processor.get(key))
-                if key not in self.result_keys:
-                    self.result_keys += [key]
-
-            if self.result_values.size == 0:
-                self.result_values = row_2
-            else:
-                self.result_values = np.vstack((self.result_values, row_2))
-
-    def parametric_output(self, parameter_key, result_key):
+    def parametric_output(self):
         """TBW."""
-        x = self.parameter_values[:, self.parameter_keys.index(parameter_key)]
-        y = self.result_values[:, self.result_keys.index(result_key)]
-        title = 'Parametric analysis'
-        par_name = parameter_key[parameter_key.rfind('.') + 1:]
-        res_name = result_key[result_key.rfind('.') + 1:]
-        plt_args = {'xlabel': par_name, 'ylabel': res_name, 'title': title,
+        self.parameter_keys += self.additional_keys
+        x_key = self.parametric_plot['x']
+        y_key = self.parametric_plot['y']
+        x = self.parameter_values[:, self.parameter_keys.index(x_key)]
+        y = self.parameter_values[:, self.parameter_keys.index(y_key)]
+        par_name = x_key[x_key.rfind('.') + 1:]
+        res_name = y_key[y_key.rfind('.') + 1:]
+        plt_args = {'xlabel': par_name, 'ylabel': res_name, 'title': 'Parametric analysis',
                     'xscale': 'log', 'yscale': 'log'}
         self.plot_graph(x, y, arg_dict=plt_args)
         self.save_plot('parametric_??')

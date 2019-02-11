@@ -1,10 +1,10 @@
-# ############################################################
-# Pyxel detector simulation framework                        #
-#                                                            #
-# Example yaml config to generate a                          #
-# CCD Photon Transfer Curve in parametric analysis mode      #
-# Created by D. Lucsanyi (ESA)                               #
-# ############################################################
+# ########################################################### #
+# Pyxel detector simulation framework                         #
+#                                                             #
+# Example yaml config to generate a                           #
+# CCD Photon Transfer Curve in parametric analysis mode       #
+# Created by D. Lucsanyi (ESA)                                #
+# ########################################################### #
 
 simulation:
 
@@ -43,7 +43,7 @@ detector:
     amp: 1.                 # V/V
     a1: 100.                # V/V
     a2: 65536               # DN/V
-    fwc: 10000            # e
+    fwc: 10000              # e
     fwc_serial: 1000000     # e
     vg: 1.6200e-10          # cm2
     svg: 1.6200e-10         # cm2
@@ -80,7 +80,7 @@ pipeline:
       enabled: true
     - name: fixed_pattern_noise
       func: pyxel.models.charge_collection.fix_pattern_noise.fix_pattern_noise
-      enabled: true
+      enabled: false
       arguments:
         pix_non_uniformity: data/non_uniformity_array_normal_random_dist.data
     - name: full_well
@@ -100,8 +100,6 @@ pipeline:
       arguments:
         std_deviation: 0.00006      # Volt ????
 
-  # TODO ide is egy SHOT NOISE model?
-
   # signal -> image
   readout_electronics:
     - name: simple_amplifier
@@ -110,5 +108,3 @@ pipeline:
     - name: simple_processing
       func: pyxel.models.readout_electronics.digitization.simple_processing
       enabled: true
-
-    # TODO ide is egy SHOT NOISE model?
