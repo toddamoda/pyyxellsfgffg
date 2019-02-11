@@ -47,30 +47,30 @@ class Array:
 
     @property
     def mean(self):
-        """Mean of all pixel values."""
+        """Return mean of all pixel values."""
         return np.mean(self._array)
 
     @property
     def std_deviation(self):
-        """Standard deviation of all pixel values."""
+        """Return standard deviation of all pixel values."""
         return np.std(self._array)
 
     @property
     def max(self):
-        """Maximum of all pixel values."""
+        """Return maximum of all pixel values."""
         return np.max(self._array)
 
     @property
     def min(self):
-        """Minimum of all pixel values."""
+        """Return minimum of all pixel values."""
         return np.min(self._array)
 
     @property
     def peak_to_peak(self):
-        """Minimum of all pixel values."""
+        """Return peak-to-peak value of all pixel values."""
         return np.ptp(self._array)
 
     @property
     def sum(self):
-        """Minimum of all pixel values."""
+        """Return sum of all pixel values."""
         return np.sum(self._array)

@@ -232,9 +232,9 @@ class Outputs:
                 row = np.append(row, processor.get(key))
                 if key not in self.parameter_keys:
                     self.parameter_keys += [key]
-        
+
         if self.parameter_values.size == 0:
-            self.parameter_values = row 
+            self.parameter_values = row
         else:
             self.parameter_values = np.vstack((self.parameter_values, row))
 
@@ -244,7 +244,7 @@ class Outputs:
                 row_2 = np.append(row_2, processor.get(key))
                 if key not in self.result_keys:
                     self.result_keys += [key]
-                
+
             if self.result_values.size == 0:
                 self.result_values = row_2
             else:
@@ -261,7 +261,7 @@ class Outputs:
                     'xscale': 'log', 'yscale': 'log'}
         self.plot_graph(x, y, arg_dict=plt_args)
         self.save_plot('parametric_??')
-        
+
 
 def show_plots():
     """Close last empty canvas Show all the previously created figures."""
