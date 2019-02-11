@@ -23,6 +23,22 @@ simulation:
         values:
 
   calibration:
+    calibration_mode:  pipeline
+    output_type: image
+    output_fit_range: [2, 5]
+    target_data_path: ['tests/data/cti-data.txt']   # not used
+    target_fit_range: [1, 4]
+    fitness_function:
+      func: pyxel.calibration.fitness.sum_of_abs_residuals
+      arguments:
+    algorithm:
+      type: sade
+      generations: 2
+      population_size: 2
+      variant: 2
+    parameters:
+      - key:
+        values:
 
 detector:
   class: pyxel.detectors.ccd.CCD
