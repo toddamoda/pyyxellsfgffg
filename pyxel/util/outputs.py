@@ -3,6 +3,7 @@ import os
 import glob
 from copy import copy
 from shutil import copy2
+import typing as t          # noqa: F401
 import numpy as np
 import pandas as pd
 from PIL import Image
@@ -22,15 +23,17 @@ class Outputs:
                  parametric_plot: dict = None,
                  calibration_plot: dict = None,
                  single_plot: dict = None
+                 # plt_args: dict = None,
                  ):
         """TBW."""
-        self.input_file = None
-        self.champions_file = None
-        self.population_file = None
+        self.input_file = None                      # type: t.Optional[str]
+        self.champions_file = None                  # type: t.Optional[str]
+        self.population_file = None                 # type: t.Optional[str]
 
-        self.parametric_plot = parametric_plot
-        self.calibration_plot = calibration_plot
-        self.single_plot = single_plot
+        self.parametric_plot = parametric_plot      # type: t.Optional[dict]
+        self.calibration_plot = calibration_plot    # type: t.Optional[dict]
+        self.single_plot = single_plot              # type: t.Optional[dict]
+        self.user_plt_args = None                   # type: t.Optional[dict]
 
         self.output_dir = apply_run_number(output_folder + '/run_??')
         if not os.path.exists(self.output_dir):
@@ -53,6 +56,8 @@ class Outputs:
             'size': None, 'cbar_label': None
         }   # type: dict
 
+        self.plt_args = None
+
         self.parameter_values = np.array([])
         self.parameter_keys = []                # type: list
         self.additional_keys = []               # type: list
@@ -60,13 +65,13 @@ class Outputs:
 
     def set_input_file(self, filename: str):
         """TBW."""
-        self.input_file = filename
+        self.input_file = filename              # type: str
         copy2(self.input_file, self.output_dir)
 
     def create_files(self):
         """TBW."""
-        self.champions_file = self.new_file('champions.out')
-        self.population_file = self.new_file('population.out')
+        self.champions_file = self.new_file('champions.out')        # type: str
+        self.population_file = self.new_file('population.out')      # type: str
         return self.champions_file, self.population_file
 
     def new_file(self, filename: str):
@@ -122,37 +127,18 @@ class Outputs:
         plt.close('all')
         plt.figure()
 
-    def get_plotting_arguments(self, plot_type, arg_dict=None):
+    def plot_graph(self, x, y, args: dict = None):
         """TBW."""
-        ax_args = copy(self.default_ax_args)
-        if plot_type == 'hist':
-            plt_args = copy(self.default_hist_args)
-        elif plot_type == 'graph':
-            plt_args = copy(self.default_plot_args)
-        elif plot_type == 'scatter':
-            plt_args = copy(self.default_scatter_args)
-        else:
-            raise ValueError
-        if arg_dict:
-            for key in arg_dict.keys():
-                if key in plt_args.keys():
-                    plt_args[key] = arg_dict[key]
-                elif key in ax_args.keys():
-                    ax_args[key] = arg_dict[key]
-                else:
-                    raise KeyError
-        return plt_args, ax_args
-
-    def plot_graph(self, x, y, arg_dict=None):
-        """TBW."""
-        plt_args, ax_args = self.get_plotting_arguments(plot_type='graph', arg_dict=arg_dict)
+        arg_tpl = self.update_args(plot_type='graph', new_args=args)
+        ax_args, plt_args = self.update_args(plot_type='graph', new_args=self.user_plt_args, def_args=arg_tpl)
         plt.plot(x, y, color=plt_args['color'], marker=plt_args['marker'], linestyle=plt_args['linestyle'])
         update_plot(ax_args)
         plt.draw()
 
-    def plot_histogram(self, data, arg_dict=None):
+    def plot_histogram(self, data, args: dict = None):
         """TBW."""
-        plt_args, ax_args = self.get_plotting_arguments(plot_type='hist', arg_dict=arg_dict)
+        arg_tpl = self.update_args(plot_type='hist', new_args=args)
+        ax_args, plt_args = self.update_args(plot_type='hist', new_args=self.user_plt_args, def_args=arg_tpl)
         if isinstance(data, np.ndarray):
             data = data.flatten()
         plt.hist(x=data,
@@ -162,9 +148,10 @@ class Outputs:
         update_plot(ax_args)
         plt.draw()
 
-    def plot_scatter(self, x, y, color=None, arg_dict=None):
+    def plot_scatter(self, x, y, color=None, args: dict = None):
         """TBW."""
-        plt_args, ax_args = self.get_plotting_arguments(plot_type='scatter', arg_dict=arg_dict)
+        arg_tpl = self.update_args(plot_type='scatter', new_args=args)
+        ax_args, plt_args = self.update_args(plot_type='scatter', new_args=self.user_plt_args, def_args=arg_tpl)
         fig = plt.gcf()
         if color is not None:
             sp = plt.scatter(x, y, c=color, s=plt_args['size'])
@@ -179,8 +166,8 @@ class Outputs:
         """TBW."""
         self.save_to_fits(array=detector.image.array)
         # self.save_to_npy(array=detector.image.array)
-        plt_args = {'bins': 100, 'xlabel': 'ADU', 'ylabel': 'counts', 'title': 'Image histogram'}
-        self.plot_histogram(detector.image.array, arg_dict=plt_args)
+        plt_args = {'bins': 100, 'xlabel': 'ADU', 'ylabel': 'counts', 'title': 'Image histogram'}       # TODO
+        self.plot_histogram(detector.image.array, args=plt_args)
         self.save_plot('histogram_??')
         # self.save_to_bitmap(array=detector.image.array)
         # self.save_to_hdf(data=detector.charges.frame, key='charge')
@@ -214,18 +201,18 @@ class Outputs:
             b = 1
             if isinstance(param_value, float) or isinstance(param_value, int):
                 column = data[:, a]
-                self.plot_graph(generations, column, arg_dict=plt_args1)
+                self.plot_graph(generations, column, args=plt_args1)
             elif isinstance(param_value, np.ndarray):
                 b = len(param_value)
                 column = data[:, a:a + b]
-                self.plot_graph(generations, column, arg_dict=plt_args1)
+                self.plot_graph(generations, column, args=plt_args1)
                 plt.legend(range(b))
             self.save_plot('calibrated_parameter_??')
             a += b
             if 'color' in plt_args1.keys():
                 plt_args1.pop('color')
 
-    def population_plot(self, ):
+    def population_plot(self):
         """TBW."""
         data = np.loadtxt(self.population_file)
         fitnesses = np.log10(data[:, 1])
@@ -238,7 +225,7 @@ class Outputs:
         y = data[:, b]
         plt_args2 = {'xlabel': 'x', 'ylabel': 'y', 'title': 'Population of the last generation', 'size': 8,
                      'cbar_label': 'log(fitness)'}
-        self.plot_scatter(x, y, color=fitnesses, arg_dict=plt_args2)
+        self.plot_scatter(x, y, color=fitnesses, args=plt_args2)
         self.save_plot('population_??')
 
     def calibration_output(self, detector, results: dict):
@@ -247,8 +234,16 @@ class Outputs:
 
         if self.calibration_plot:
             if 'champions_plot' in self.calibration_plot:
+                self.user_plt_args = None
+                if 'plt_args' in self.calibration_plot['champions_plot']:
+                    if 'plt_args' in self.calibration_plot['champions_plot']:
+                        self.user_plt_args = self.calibration_plot['champions_plot']['plt_args']
                 self.champions_plot(results)
             if 'population_plot' in self.calibration_plot:
+                self.user_plt_args = None
+                if self.calibration_plot['population_plot']:
+                    if 'plt_args' in self.calibration_plot['population_plot']:
+                        self.user_plt_args = self.calibration_plot['population_plot']['plt_args']
                 self.population_plot()
 
     def add_parametric_step(self, parametric, processor):
@@ -273,18 +268,59 @@ class Outputs:
         else:
             self.parameter_values = np.vstack((self.parameter_values, row))
 
+    def update_args(self, plot_type: str, new_args: dict = None, def_args: tuple = (None, None)):
+        """TBW."""
+        ax_args, plt_args = def_args[0], def_args[1]
+        if ax_args is None:
+            ax_args = copy(self.default_ax_args)
+        if plt_args is None:
+            if plot_type == 'hist':
+                plt_args = copy(self.default_hist_args)
+            elif plot_type == 'graph':
+                plt_args = copy(self.default_plot_args)
+            elif plot_type == 'scatter':
+                plt_args = copy(self.default_scatter_args)
+            else:
+                raise ValueError
+
+        if new_args:
+            for key in new_args:
+                if key in plt_args.keys():
+                    plt_args[key] = new_args[key]
+                elif key in ax_args.keys():
+                    ax_args[key] = new_args[key]
+                else:
+                    raise KeyError
+
+        return ax_args, plt_args
+
     def parametric_output(self):
         """TBW."""
         self.parameter_keys += self.additional_keys
-        x_key = self.parametric_plot['x']
-        y_key = self.parametric_plot['y']
+        self.user_plt_args = None
+
+        if self.parametric_plot:
+            if 'x' in self.parametric_plot:
+                x_key = self.parametric_plot['x']
+            else:
+                raise KeyError()    # x_key = self.parameter_keys[0]
+            if 'y' in self.parametric_plot:
+                y_key = self.parametric_plot['y']
+            else:
+                raise KeyError()
+            if 'plt_args' in self.parametric_plot:
+                self.user_plt_args = self.parametric_plot['plt_args']
+        else:
+            raise KeyError()
+
         x = self.parameter_values[:, self.parameter_keys.index(x_key)]
         y = self.parameter_values[:, self.parameter_keys.index(y_key)]
+
         par_name = x_key[x_key.rfind('.') + 1:]
         res_name = y_key[y_key.rfind('.') + 1:]
-        plt_args = {'xlabel': par_name, 'ylabel': res_name, 'title': 'Parametric analysis',
-                    'xscale': 'log', 'yscale': 'log'}
-        self.plot_graph(x, y, arg_dict=plt_args)
+        args = {'xlabel': par_name, 'ylabel': res_name}
+
+        self.plot_graph(x, y, args=args)
         self.save_plot('parametric_??')
 
 

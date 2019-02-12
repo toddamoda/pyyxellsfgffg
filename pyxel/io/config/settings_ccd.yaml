@@ -14,10 +14,24 @@ simulation:
     parametric_plot:
       x:  'detector.image.mean'
       y:  'detector.image.std_deviation'
+#      plt_args:
+#        xlabel:
+#        ylabel: 'sigma'
+#        title: 'Parametric analysis'
+#        xscale: 'linear'
+#        yscale: 'log'
+#        grid: true
+#        color: green
 
-#    calibration_plot:
-#      champions_plot:
-#      population_plot:
+    calibration_plot:
+      champions_plot:
+#        plt_args:
+#          xlabel:
+#          ylabel:
+#          title:
+#          xscale: 'linear'
+#          yscale: 'log'
+      population_plot:
 #        columns: [16, 2]
 
 
@@ -29,7 +43,7 @@ simulation:
 #    column_range: [2, 17]
     parameters:
       - key: pipeline.charge_generation.tars.arguments.particle_number
-        values: range(2, 20)
+        values: range(2, 10)
         enabled: true
 #      - key: pipeline.photon_generation.illumination.arguments.level
 #        values: range(0, 200, 50)
@@ -76,22 +90,22 @@ simulation:
         values: _
         logarithmic: false
         boundaries: [1., 10.]
-      - key:  pipeline.charge_transfer.cdm.arguments.tr_p
-        values: [_, _, _, _]
-        logarithmic: true
-        boundaries: [1.e-3, 2.]
-      - key:  pipeline.charge_transfer.cdm.arguments.nt_p
-        values: [_, _, _, _]
-        logarithmic: true
-        boundaries: [1.e-2, 1.e+1]
-      - key:  pipeline.charge_transfer.cdm.arguments.sigma_p
-        values: [_, _, _, _]
-        logarithmic: true
-        boundaries: [1.e-20, 1.e-15]
-      - key:  pipeline.charge_transfer.cdm.arguments.beta_p
-        values: _
-        logarithmic: false
-        boundaries: [0., 1.]
+#      - key:  pipeline.charge_transfer.cdm.arguments.tr_p
+#        values: [_, _, _, _]
+#        logarithmic: true
+#        boundaries: [1.e-3, 2.]
+#      - key:  pipeline.charge_transfer.cdm.arguments.nt_p
+#        values: [_, _, _, _]
+#        logarithmic: true
+#        boundaries: [1.e-2, 1.e+1]
+#      - key:  pipeline.charge_transfer.cdm.arguments.sigma_p
+#        values: [_, _, _, _]
+#        logarithmic: true
+#        boundaries: [1.e-20, 1.e-15]
+#      - key:  pipeline.charge_transfer.cdm.arguments.beta_p
+#        values: _
+#        logarithmic: false
+#        boundaries: [0., 1.]
       - key:  detector.environment.temperature
         values: _
         logarithmic: false
@@ -210,7 +224,7 @@ pipeline:
     -
       name: cdm
       func: pyxel.models.charge_transfer.cdm.CDM.cdm
-      enabled: true
+      enabled: false
       arguments:
        beta_p: 0.1
        beta_s: 0.3
