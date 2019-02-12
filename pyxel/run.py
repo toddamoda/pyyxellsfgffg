@@ -40,7 +40,7 @@ def run(input_filename, random_seed: int = None):
     if simulation.mode == 'single':
         logger.info('Mode: Single')
         processor.pipeline.run_pipeline(processor.detector)
-        out.single_output(detector=processor.detector)
+        out.single_output(processor)
 
     elif simulation.mode == 'calibration' and simulation.calibration:
         logger.info('Mode: Calibration')

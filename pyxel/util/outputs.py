@@ -131,6 +131,10 @@ class Outputs:
         """TBW."""
         arg_tpl = self.update_args(plot_type='graph', new_args=args)
         ax_args, plt_args = self.update_args(plot_type='graph', new_args=self.user_plt_args, def_args=arg_tpl)
+        if isinstance(x, np.ndarray):
+            x = x.flatten()
+        if isinstance(y, np.ndarray):
+            y = y.flatten()
         plt.plot(x, y, color=plt_args['color'], marker=plt_args['marker'], linestyle=plt_args['linestyle'])
         update_plot(ax_args)
         plt.draw()
@@ -162,22 +166,44 @@ class Outputs:
         update_plot(ax_args)
         plt.draw()
 
-    def single_output(self, detector):
+    def single_output(self, processor):
         """TBW."""
-        self.save_to_fits(array=detector.image.array)
-        # self.save_to_npy(array=detector.image.array)
-        plt_args = {'bins': 100, 'xlabel': 'ADU', 'ylabel': 'counts', 'title': 'Image histogram'}       # TODO
-        self.plot_histogram(detector.image.array, args=plt_args)
-        self.save_plot('histogram_??')
-        # self.save_to_bitmap(array=detector.image.array)
-        # self.save_to_hdf(data=detector.charges.frame, key='charge')
-        # self.save_to_csv(dataframe=detector.charges.frame)
+        self.save_to_fits(array=processor.detector.image.array)
+        # self.save_to_npy(array=processor.detector.image.array)                          # todo
+        # self.save_to_bitmap(array=processor.detector.image.array)
+        # self.save_to_hdf(data=processor.detector.charges.frame, key='charge')
+        # self.save_to_csv(dataframe=processor.detector.charges.frame)
+
+        self.user_plt_args = None
+        x = processor.detector.photons.array                     # todo: default plots with plot_args?
+        y = processor.detector.image.array
+        color = None
+        if self.single_plot:
+            if 'plot_args' in self.single_plot:
+                self.user_plt_args = self.single_plot['plot_args']
+            if 'x' in self.single_plot:
+                x = processor.get(self.single_plot['x'])
+            if 'y' in self.single_plot:
+                y = processor.get(self.single_plot['y'])
+            if 'plot_type' in self.single_plot:
+                if self.single_plot['plot_type'] == 'graph':
+                    self.plot_graph(x, y)
+                    fname = 'graph_??'
+                elif self.single_plot['plot_type'] == 'histogram':
+                    self.plot_histogram(y)
+                    fname = 'histogram_??'
+                elif self.single_plot['plot_type'] == 'scatter':
+                    self.plot_scatter(x, y, color)
+                    fname = 'scatter_??'
+                else:
+                    raise KeyError()
+                self.save_plot(fname)
 
     def champions_plot(self, results):
         """TBW."""
         data = np.loadtxt(self.champions_file)
         generations = data[:, 0]
-        plt_args1 = {'xlabel': 'generation', 'linestyle': '-'}
+        plt_args = {'xlabel': 'generation', 'linestyle': '-'}
         title = 'Calibrated parameter: '
         items = list(results.items())
         a = 1
@@ -186,31 +212,31 @@ class Outputs:
             key = item[0]
             param_value = item[1]
             param_name = key[key.rfind('.') + 1:]
-            plt_args1['ylabel'] = param_name
+            plt_args['ylabel'] = param_name
             if param_name == 'fitness':
-                plt_args1['title'] = 'Champion fitness'
-                plt_args1['color'] = 'red'
+                plt_args['title'] = 'Champion fitness'
+                plt_args['color'] = 'red'
             else:
                 if key.rfind('.arguments') == -1:
                     mdn = key[:key.rfind('.' + param_name)]
                 else:
                     mdn = key[:key.rfind('.arguments')]
                 model_name = mdn[mdn.rfind('.') + 1:]
-                plt_args1['title'] = title + model_name + ' / ' + param_name
+                plt_args['title'] = title + model_name + ' / ' + param_name
 
             b = 1
             if isinstance(param_value, float) or isinstance(param_value, int):
                 column = data[:, a]
-                self.plot_graph(generations, column, args=plt_args1)
+                self.plot_graph(generations, column, args=plt_args)
             elif isinstance(param_value, np.ndarray):
                 b = len(param_value)
                 column = data[:, a:a + b]
-                self.plot_graph(generations, column, args=plt_args1)
+                self.plot_graph(generations, column, args=plt_args)
                 plt.legend(range(b))
             self.save_plot('calibrated_parameter_??')
             a += b
-            if 'color' in plt_args1.keys():
-                plt_args1.pop('color')
+            if 'color' in plt_args.keys():
+                plt_args.pop('color')
 
     def population_plot(self):
         """TBW."""
@@ -223,9 +249,9 @@ class Outputs:
                 a, b = col[0], col[1]
         x = data[:, a]
         y = data[:, b]
-        plt_args2 = {'xlabel': 'x', 'ylabel': 'y', 'title': 'Population of the last generation', 'size': 8,
-                     'cbar_label': 'log(fitness)'}
-        self.plot_scatter(x, y, color=fitnesses, args=plt_args2)
+        plt_args = {'xlabel': 'x', 'ylabel': 'y', 'title': 'Population of the last generation', 'size': 8,
+                    'cbar_label': 'log(fitness)'}
+        self.plot_scatter(x, y, color=fitnesses, args=plt_args)
         self.save_plot('population_??')
 
     def calibration_output(self, detector, results: dict):
@@ -235,15 +261,15 @@ class Outputs:
         if self.calibration_plot:
             if 'champions_plot' in self.calibration_plot:
                 self.user_plt_args = None
-                if 'plt_args' in self.calibration_plot['champions_plot']:
-                    if 'plt_args' in self.calibration_plot['champions_plot']:
-                        self.user_plt_args = self.calibration_plot['champions_plot']['plt_args']
+                if 'plot_args' in self.calibration_plot['champions_plot']:
+                    if 'plot_args' in self.calibration_plot['champions_plot']:
+                        self.user_plt_args = self.calibration_plot['champions_plot']['plot_args']
                 self.champions_plot(results)
             if 'population_plot' in self.calibration_plot:
                 self.user_plt_args = None
                 if self.calibration_plot['population_plot']:
-                    if 'plt_args' in self.calibration_plot['population_plot']:
-                        self.user_plt_args = self.calibration_plot['population_plot']['plt_args']
+                    if 'plot_args' in self.calibration_plot['population_plot']:
+                        self.user_plt_args = self.calibration_plot['population_plot']['plot_args']
                 self.population_plot()
 
     def add_parametric_step(self, parametric, processor):
@@ -308,8 +334,8 @@ class Outputs:
                 y_key = self.parametric_plot['y']
             else:
                 raise KeyError()
-            if 'plt_args' in self.parametric_plot:
-                self.user_plt_args = self.parametric_plot['plt_args']
+            if 'plot_args' in self.parametric_plot:
+                self.user_plt_args = self.parametric_plot['plot_args']
         else:
             raise KeyError()
 
