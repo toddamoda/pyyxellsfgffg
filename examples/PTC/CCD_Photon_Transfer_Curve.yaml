@@ -1,8 +1,8 @@
 # ########################################################### #
 # Pyxel detector simulation framework                         #
 #                                                             #
-# Example yaml config to generate a                           #
-# CCD Photon Transfer Curve in parametric analysis mode       #
+# Example yaml configuration file                             #
+# CCD Photon Transfer Curve with parametric analysis mode     #
 # Created by D. Lucsanyi (ESA)                                #
 # ########################################################### #
 
@@ -17,7 +17,7 @@ simulation:
         values: numpy.unique(numpy.logspace(0, 6, 100, dtype=int))
 
   outputs:
-    output_folder:  'outputs'
+    output_folder:  'examples/PTC/outputs'
     parametric_plot:
       x:  'detector.image.mean'
       y:  'detector.image.std_deviation'
@@ -76,13 +76,13 @@ pipeline:
   # photons -> photons
   optics:
 
-  # photons -> charge
+  # photons -> charges
   charge_generation:
     - name: photoelectrons
       func: pyxel.models.charge_generation.photoelectrons.simple_conversion
       enabled: true
 
-  # charge -> charge
+  # charges -> pixels
   charge_collection:
     - name: simple_collection
       func: pyxel.models.charge_collection.collection.simple_collection
@@ -96,10 +96,10 @@ pipeline:
       func: pyxel.models.charge_collection.full_well.simple_full_well
       enabled: true
 
-  # charge -> charge
+  # pixels -> pixels
   charge_transfer:
 
-  # charge -> signal
+  # pixels -> signal
   charge_measurement:
     - name: simple_measurement
       func: pyxel.models.charge_measurement.measurement.simple_measurement

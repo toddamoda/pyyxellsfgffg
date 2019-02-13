@@ -23,8 +23,8 @@ simulation:
     calibration_mode: pipeline  # single_model
     target_data: 'C:/dev/work/cdm/data/better-plato-target-data/'
     target_fit_range: [51, 401]
-    output_type: pixel
-    output_fit_range: [1103, 1453]
+    result_type: pixel
+    result_fit_range: [1103, 1453]
     weighting_func:
     fitness_function:
       func: pyxel.calibration.fitness.sum_of_abs_residuals

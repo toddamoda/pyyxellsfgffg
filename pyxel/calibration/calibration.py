@@ -128,14 +128,14 @@ class Calibration:
         default='pipeline',
         doc=''
     )
-    output_type = pyx.attribute(
+    result_type = pyx.attribute(
         type=str,
         validator=[pyx.validate_type(str),
                    pyx.validate_choices(['image', 'signal', 'pixel'])],
         default='image',
         doc=''
     )
-    output_fit_range = pyx.attribute(
+    result_fit_range = pyx.attribute(
         type=list,
         validator=[pyx.validate_type(list)],
         default=None,
@@ -203,11 +203,11 @@ class Calibration:
             'calibration_mode': self.calibration_mode,
             'generations': self.algorithm.generations,
             'population_size': self.algorithm.population_size,
-            'simulation_output': self.output_type,
+            'simulation_output': self.result_type,
             'fitness_func': self.fitness_function,
             'target_output': self.target_data_path,
             'target_fit_range': self.target_fit_range,
-            'out_fit_range': self.output_fit_range,
+            'out_fit_range': self.result_fit_range,
             'weighting': self.weighting_path,
             'champions_file': output_files[0],
             'population_file': output_files[1]

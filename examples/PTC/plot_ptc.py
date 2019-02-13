@@ -23,10 +23,11 @@ run_dict = {
     'all with FWC':         'run_04'
 }
 
-x = np.load('run_01/x_parametric_01.npy')
-for key, val in run_dict.items():
+folder = 'examples/PTC/outputs/'
+x = np.load(folder + 'run_01/x_parametric_01.npy')
 
-    y = np.load(val + '/y_parametric_01.npy')
+for key, val in run_dict.items():
+    y = np.load(folder + val + '/y_parametric_01.npy')
     if key == 'all with FWC':
         plt.plot(x, y, label=key, marker='.', linestyle='', markersize=6)
     else:

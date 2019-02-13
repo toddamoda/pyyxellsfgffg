@@ -20,8 +20,8 @@ simulation:
 
   calibration:
     calibration_mode:  pipeline
-    output_type: image
-    output_fit_range: [2, 5]
+    result_type: image
+    result_fit_range: [2, 5]
     target_data_path: ['tests/data/cti-data.txt']   # not used
     target_fit_range: [1, 4]
     fitness_function:

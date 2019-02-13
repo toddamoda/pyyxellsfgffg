@@ -200,8 +200,8 @@ target dataset the models or detector behaviour shall reproduce.
     calibration:
       calibration_mode: pipeline                    # single_model
 
-      output_type:      image                       # pixel # signal # image
-      output_fit_range: [0, 20, 0, 30]
+      result_type:      image                       # pixel # signal # image
+      result_fit_range: [0, 20, 0, 30]
 
       target_data_path: [data/target.fits']         #  <*.npy> <*.fits> <ascii>
       target_fit_range: [10, 30, 20, 50]

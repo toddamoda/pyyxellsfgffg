@@ -74,8 +74,8 @@ simulation:
   calibration:
     calibration_mode:  pipeline  #  single_model #
 
-    output_type: pixel # image   # signal
-    output_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50] #
+    result_type: pixel # image   # signal
+    result_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50] #
 
     target_data_path: ['data/results.fits']     #  <*.npy> <*.fits> <ascii>
     target_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50]

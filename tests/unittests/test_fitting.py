@@ -15,11 +15,11 @@ def configure(mf, sim):
         'calibration_mode': sim.calibration.calibration_mode,
         'generations': sim.calibration.algorithm.generations,
         'population_size': sim.calibration.algorithm.population_size,
-        'simulation_output': sim.calibration.output_type,
+        'simulation_output': sim.calibration.result_type,
         'fitness_func': sim.calibration.fitness_function,
         'target_output': sim.calibration.target_data_path,
         'target_fit_range': sim.calibration.target_fit_range,
-        'out_fit_range': sim.calibration.output_fit_range,
+        'out_fit_range': sim.calibration.result_fit_range,
         'weighting': sim.calibration.weighting_path,
         'champions_file': None,
         'population_file': None

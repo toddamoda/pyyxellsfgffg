@@ -84,10 +84,13 @@ class Outputs:
 
     def save_to_bitmap(self, array, filename='image_??'):       # todo: finish, PIL does not work with JPEG !
         """Write array to bitmap PNG image file."""
-        filename = self.output_dir + '/' + filename + '.png'
+        filename = self.output_dir + '/' + filename + '.PNG'
         filename = apply_run_number(filename)
         im = Image.fromarray(array)
-        im.save(filename, "PNG")
+        try:
+            im.save(filename, "PNG")                    # todo: sometimes saving in PNG does not work too
+        except OSError:
+            pass
         # with this, it works: simple_digitization / numpy.uint32
         # with this, it does not work: simple_digitization / numpy.uint16
 
@@ -175,7 +178,7 @@ class Outputs:
     def single_output(self, processor):
         """TBW."""
         self.save_to_fits(array=processor.detector.image.array)
-        self.save_to_bitmap(array=processor.detector.image.array)
+        # self.save_to_bitmap(array=processor.detector.image.array)
         # self.save_to_npy(array=processor.detector.image.array)                          # todo
         # self.save_to_hdf(data=processor.detector.charges.frame, key='charge')
         # self.save_to_csv(dataframe=processor.detector.charges.frame)
