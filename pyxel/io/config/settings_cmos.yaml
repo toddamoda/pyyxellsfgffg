@@ -136,7 +136,7 @@ pipeline:
   charge_collection:
     -
       name: full_well
-      func: pyxel.models.charge_collection.full_well.simple_pixel_full_well
+      func: pyxel.models.charge_collection.full_well.simple_full_well
       enabled: true
 
   # charge -> signal

@@ -43,7 +43,8 @@ class Outputs:
 
         self.default_ax_args = {
             'xlabel': None, 'ylabel': None, 'title': None, 'axis': None, 'grid': False,
-            'xscale': 'linear', 'yscale': 'linear'
+            'xscale': 'linear', 'yscale': 'linear', 'xticks': None, 'yticks': None,
+            'xlim': [None, None], 'ylim': [None, None],
         }   # type: dict
         self.default_plot_args = {
             'color': None, 'marker': '.', 'linestyle': ''
@@ -95,8 +96,7 @@ class Outputs:
         filename = self.output_dir + '/' + filename + '.fits'
         filename = apply_run_number(filename)
         hdu = fits.PrimaryHDU(array)
-        if filename is not None:
-            hdu.writeto(filename, overwrite=False, output_verify='exception')
+        hdu.writeto(filename, overwrite=False, output_verify='exception')
 
     def save_to_hdf(self, data, key='data', filename='store_??'):
         """Write object to HDF5 file."""
@@ -126,6 +126,12 @@ class Outputs:
         plt.savefig(filename)
         plt.close('all')
         plt.figure()
+
+    # def save_plot_data(self, x, y, filename='figure_??'):
+    #     """Save plot data to Numpy binary npy file."""
+    #     filename = self.output_dir + '/' + filename + '.npy'
+    #     filename = apply_run_number(filename)
+    #     np.save(file=filename, arr=np.hstack((x, y)))
 
     def plot_graph(self, x, y, args: dict = None):
         """TBW."""
@@ -169,8 +175,8 @@ class Outputs:
     def single_output(self, processor):
         """TBW."""
         self.save_to_fits(array=processor.detector.image.array)
+        self.save_to_bitmap(array=processor.detector.image.array)
         # self.save_to_npy(array=processor.detector.image.array)                          # todo
-        # self.save_to_bitmap(array=processor.detector.image.array)
         # self.save_to_hdf(data=processor.detector.charges.frame, key='charge')
         # self.save_to_csv(dataframe=processor.detector.charges.frame)
 
@@ -197,6 +203,8 @@ class Outputs:
                     fname = 'scatter_??'
                 else:
                     raise KeyError()
+                self.save_to_npy(x, 'x_'+fname)
+                self.save_to_npy(y, 'y_'+fname)
                 self.save_plot(fname)
 
     def champions_plot(self, results):
@@ -347,6 +355,8 @@ class Outputs:
         args = {'xlabel': par_name, 'ylabel': res_name}
 
         self.plot_graph(x, y, args=args)
+        self.save_to_npy(x, 'x_parametric_??')
+        self.save_to_npy(y, 'y_parametric_??')
         self.save_plot('parametric_??')
 
 
@@ -362,9 +372,15 @@ def update_plot(ax_args):
     plt.ylabel(ax_args['ylabel'])
     plt.xscale(ax_args['xscale'])
     plt.yscale(ax_args['yscale'])
+    plt.xlim(ax_args['xlim'][0], ax_args['xlim'][1])
+    plt.ylim(ax_args['ylim'][0], ax_args['ylim'][1])
     plt.title(ax_args['title'])
     if ax_args['axis']:
         plt.axis(ax_args['axis'])
+    if ax_args['xticks']:
+        plt.xticks(ax_args['xticks'])
+    if ax_args['yticks']:
+        plt.yticks(ax_args['yticks'])
     plt.grid(ax_args['grid'])
 
 

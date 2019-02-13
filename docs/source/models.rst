@@ -176,7 +176,7 @@ Simple charge collection
 Simple full well
 ***************************
 
-.. autofunction:: pyxel.models.charge_collection.full_well.simple_pixel_full_well
+.. autofunction:: pyxel.models.charge_collection.full_well.simple_full_well
 
 Fix pattern noise
 ***************************

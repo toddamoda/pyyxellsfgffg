@@ -14,7 +14,20 @@ simulation:
     parametric_mode: sequential
     parameters:
       - key: pipeline.photon_generation.illumination.arguments.level
-        values: range(0, 50000, 1000)
+        values: numpy.unique(numpy.logspace(0, 6, 100, dtype=int))
+
+  outputs:
+    output_folder:  'outputs'
+    parametric_plot:
+      x:  'detector.image.mean'
+      y:  'detector.image.std_deviation'
+      plot_args:
+        title: 'CCD Photon Transfer Curve'
+        xscale: 'log'
+        yscale: 'log'
+        xlim: [1., 2.e+6]
+        ylim: [1., 3.e+4]
+        grid: true
 
 detector:
   class: pyxel.detectors.ccd.CCD
@@ -38,17 +51,13 @@ detector:
   characteristics:
     class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
     qe: 0.5                 # -
-    eta: 0.5                # e/photon
-    sv: 1.0e-6              # V/e
-    amp: 1.                 # V/V
+    eta: 1.                 # e/photon
+    sv: 1.e-6               # V/e
+    amp: 0.8                # V/V
     a1: 100.                # V/V
     a2: 65536               # DN/V
-    fwc: 10000              # e
-    fwc_serial: 1000000     # e
-    vg: 1.6200e-10          # cm2
-    svg: 1.6200e-10         # cm2
-    t: 9.4722e-04           # s
-    st: 9.4722e-04          # s
+    fwc: 100000             # e
+    fwc_serial: 200000      # e
 
 pipeline:
   class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
@@ -59,7 +68,7 @@ pipeline:
       func: pyxel.models.photon_generation.illumination.illumination
       enabled: true
       arguments:
-          level: 10
+          level: 0
     - name: shot_noise
       func: pyxel.models.photon_generation.shot_noise.shot_noise
       enabled: true
@@ -80,12 +89,13 @@ pipeline:
       enabled: true
     - name: fixed_pattern_noise
       func: pyxel.models.charge_collection.fix_pattern_noise.fix_pattern_noise
-      enabled: false
+      enabled: true
       arguments:
         pix_non_uniformity: data/non_uniformity_array_normal_random_dist.data
     - name: full_well
-      func: pyxel.models.charge_collection.full_well.simple_pixel_full_well
+      func: pyxel.models.charge_collection.full_well.simple_full_well
       enabled: true
+
   # charge -> charge
   charge_transfer:
 
@@ -98,7 +108,7 @@ pipeline:
       func: pyxel.models.charge_measurement.readout_noise.output_node_noise
       enabled: true
       arguments:
-        std_deviation: 0.00006      # Volt ????
+        std_deviation: 1.e-6   # Volt
 
   # signal -> image
   readout_electronics:
