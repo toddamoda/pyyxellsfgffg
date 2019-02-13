@@ -8,7 +8,7 @@ class Environment:
 
     temperature = pyx.attribute(
         type=float,
-        default=0.0,
+        default=273.15,
         converter=float,
         validator=[pyx.validate_type(float),
                    pyx.validate_range(0, 1000)],

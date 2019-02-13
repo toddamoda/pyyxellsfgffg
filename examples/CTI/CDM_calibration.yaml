@@ -67,6 +67,7 @@ detector:
 
   environment:
     class: pyxel.detectors.environment.Environment
+    temperature: 300        # K
 
   characteristics:
     class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
@@ -115,11 +116,10 @@ pipeline:
       func: pyxel.models.charge_generation.charge_injection.charge_blocks
       enabled: true
       arguments:
-        charge_level: 10000
-        columns: [30, 50, 70]
-        number_of_transfers: 80
+        charge_level: 100000
+        columns: [15, 20, 50, 80]
+        profile_length: 90
         number_of_blocks: 3
-        block_start: 5
         block_length: 10
         pause_length: 20
 
@@ -133,20 +133,19 @@ pipeline:
   charge_transfer:
     - name: cdm
       func: pyxel.models.charge_transfer.cdm.CDM.cdm
-      enabled: false
+      enabled: true
       arguments:
-       beta_p: 0.1
-       beta_s: 0.3
-       parallel_cti: true
-       serial_cti: false
-       chg_inj: true
-       para_transfers: 1552
-       tr_p: [0.01]
-       tr_s: [0.01]
-       nt_p: [1.]
-       nt_s: [1.]
-       sigma_p: [1.]
-       sigma_s: [1.]
+        parallel_cti: true
+        serial_cti: true
+        charge_injection: true
+        beta_p: 0.3
+        beta_s: 0.3
+        tr_p: [5.e-3]
+        tr_s: [2.e-3]
+        nt_p: [100.]
+        nt_s: [50.]
+        sigma_p: [1.e-15]
+        sigma_s: [1.e-15]
 
   # pixels -> signal
   charge_measurement:

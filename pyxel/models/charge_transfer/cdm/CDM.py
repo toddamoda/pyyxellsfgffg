@@ -27,74 +27,47 @@ from pyxel.detectors.ccd_characteristics import CCDCharacteristics  # noqa: F401
 # @pyxel.argument(name='', label='', units='', validate=)
 # @pyxel.register(group='charge_transfer', name='cdm', detector='ccd')
 def cdm(detector: CCD,
-        beta_p: float = None, beta_s: float = None,
-        chg_inj: bool = None,
         parallel_cti: bool = None, serial_cti: bool = None,
-        para_transfers: int = None,
+        charge_injection: bool = False,
+        beta_p: float = None, beta_s: float = None,
         tr_p: float = None, tr_s: float = None,
         nt_p: float = None, nt_s: float = None,
-        sigma_p: float = None, sigma_s: float = None,
-        parallel_trap_file: str = None,
-        serial_trap_file: str = None
-        ):
-    """
-    CDM model wrapper.
+        sigma_p: float = None, sigma_s: float = None):
+    """Charge Distortion Model (CDM) model wrapper.
 
     :param detector: Pyxel CCD detector object
-    :param beta_p: electron cloud expansion coefficient (parallel)
-    :param beta_s: electron cloud expansion coefficient (serial)
-    :param parallel_trap_file: ascii file with absolute trap densities (nt),
-        trap capture cross-sections (σ), trap release time constants (τr)
-    :param serial_trap_file: ascii file with absolute trap densities (nt),
-        trap capture cross-sections (σ), trap release time constants (τr)
-
-    Ne - number of electrons in a pixel
-    ne - electron density in the vicinity of the trap
-    Vc - volume of the charge cloud
-
-    nt - trap density
-    sigma - trap capture cross-section
-    tau_r - trap release time constant
-    Pr - the probability that the trap will release the electron into the sample
-    tau_c - capture time constant
-    Pc - capture probability (per vacant trap) as a function of the number of sample electrons Ne
-
-    NT - number of traps in the column,
-    NT = 2*nt*Vg*x  where x is the number of TDI transfers or the column length in pixels.
-    Nc - number of electrons captured by a given trap species during the transit of an integrating signal packet
-    N0 - initial trap occupancy
-    Nr - number of electrons released into the sample during a transit along the column
-
-    fwc: Full Well Capacity in electrons (parallel)
-    sfwc: Full Well Capacity in electrons (serial)
-
-    vg: assumed maximum geometrical volume electrons can occupy within a pixel (parallel)
-    svg: assumed maximum geometrical volume electrons can occupy within a pixel (serial)
-    t: constant TDI period (parallel)
-    st: constant TDI period (serial)
+    :param parallel_cti: switch on CTI in parallel direction (along column)
+    :param serial_cti: switch on CTI in serial direction (along rows)
+    :param charge_injection: set this true in case of charge injection,
+        charge packets goes through all pixels in parallel direction
+    :param beta_p: electron cloud expansion coefficient, parallel
+    :param beta_s: electron cloud expansion coefficient, serial
+    :param tr_p: trap release time constants (τ_r), parallel
+    :param tr_s: trap release time constants (τ_r), serial
+    :param nt_p: absolute trap densities (n_t), parallel
+    :param nt_s: absolute trap densities (n_t), serial
+    :param sigma_p: trap capture cross-sections (σ), parallel
+    :param sigma_s: trap capture cross-sections (σ), serial
     """
+    # Ne - number of electrons in a pixel
+    # ne - electron density in the vicinity of the trap
+    # Vc - volume of the charge cloud
+    # Pr - the probability that the trap will release the electron into the sample
+    # tau_c - capture time constant
+    # Pc - capture probability (per vacant trap) as a function of the number of sample electrons Ne
+    # NT - number of traps in the column,
+    # NT = 2*nt*Vg*x  where x is the number of TDI transfers or the column length in pixels.
+    # Nc - number of electrons captured by a given trap species during the transit of an integrating signal packet
+    # N0 - initial trap occupancy
+    # Nr - number of electrons released into the sample during a transit along the column
+    # vg: assumed maximum geometrical volume electrons can occupy within a pixel (parallel)
+    # svg: assumed maximum geometrical volume electrons can occupy within a pixel (serial)
+    # t: constant TDI period (parallel)
+    # st: constant TDI period (serial)
+
     logger = logging.getLogger('pyxel')
     logger.info('')
     char = cast(CCDCharacteristics, detector.characteristics)  # type: CCDCharacteristics
-
-    # read in the absolute trap density [per cm**3]     # todo: fix this
-    # if parallel_trap_file is not None:
-    #     trapdata = np.loadtxt(parallel_trap_file)
-    #     if trapdata.ndim > 1:
-    #         nt_p = trapdata[:, 0]
-    #         sigma_p = trapdata[:, 1]
-    #         tr_p = trapdata[:, 2]
-    #     else:
-    #         raise ValueError('Trap data can not be read')
-    # read in the absolute trap density [per cm**3]     # todo: fix this
-    # if serial_trap_file is not None:
-    #     trapdata = np.loadtxt(serial_trap_file)
-    #     if trapdata.ndim > 1:
-    #         nt_s = trapdata[:, 0]
-    #         sigma_s = trapdata[:, 1]
-    #         tr_s = trapdata[:, 2]
-    #     else:
-    #         raise ValueError('Trap data can not be read')
 
     if isinstance(tr_p, list):
         tr_p = np.array(tr_p)
@@ -109,53 +82,37 @@ def cdm(detector: CCD,
     if isinstance(sigma_s, list):
         sigma_s = np.array(sigma_s)
 
-    detector.pixels.array = run_cdm(s=detector.pixels.array,   # self.fullframe[dataset],
-                                    beta_p=beta_p, beta_s=beta_s,
+    detector.pixels.array = run_cdm(s=detector.pixels.array,
                                     vg=char.vg, svg=char.svg,
                                     t=char.t, st=char.st,
                                     fwc=char.fwc, sfwc=char.fwc_serial,
                                     vth=detector.e_thermal_velocity,
                                     parallel_cti=parallel_cti, serial_cti=serial_cti,
-                                    charge_injection=chg_inj,
-                                    all_parallel_trans=para_transfers,
-                                    sigma_p=sigma_p, sigma_s=sigma_s,
+                                    charge_injection=charge_injection,
+                                    chg_inj_parallel_transfers=detector.geometry.row,
+                                    beta_p=beta_p, beta_s=beta_s,
                                     tr_p=tr_p, tr_s=tr_s,
-                                    nt_p=nt_p, nt_s=nt_s)
+                                    nt_p=nt_p, nt_s=nt_s,
+                                    sigma_p=sigma_p, sigma_s=sigma_s)
 
 
 @numba.jit
 def run_cdm(s: np.ndarray,
-            # y_start: int,
-            # x_start: int,
-            # ydim: int,
-            # xdim: int,
-            # rdose: float,
-            # dob: float,
-            beta_p: float,
-            beta_s: float,
-            vg: float,
-            svg: float,
-            t: float,
-            st: float,
-            fwc: float,
-            sfwc: float,
+            beta_p: float, beta_s: float,
+            vg: float, svg: float,
+            t: float, st: float,
+            fwc: float, sfwc: float,
             vth: float,
             tr_p: np.ndarray, tr_s: np.ndarray,
             nt_p: np.ndarray, nt_s: np.ndarray,
             sigma_p: np.ndarray, sigma_s: np.ndarray,
             charge_injection: bool = False,
-            all_parallel_trans: int = 0,
+            chg_inj_parallel_transfers: int = 0,
             parallel_cti: bool = True,
-            serial_cti: bool = True,
-            ):
+            serial_cti: bool = True):
     """CDM model.
 
     :param s: np.ndarray
-    # :param y_start:
-    # :param x_start:
-    # :param ydim:
-    # :param xdim:
-    # :param rdose:
     :param dob:
     :param beta_p: electron cloud expansion coefficient (parallel)
     :param beta_s: electron cloud expansion coefficient (serial)
@@ -166,12 +123,8 @@ def run_cdm(s: np.ndarray,
     :param fwc:
     :param sfwc:
     :param vth:
-    # :param parallel_trap_file: ascii file with absolute trap densities (nt),
-    #     trap capture cross-sections (σ), trap release time constants (τr)
-    # :param serial_trap_file: ascii file with absolute trap densities (nt),
-    #     trap capture cross-sections (σ), trap release time constants (τr)
     :param charge_injection:
-    :param all_parallel_trans:
+    :param chg_inj_parallel_transfers:
     :param sigma_p:
     :param sigma_s:
     :param tr_p:
@@ -181,42 +134,13 @@ def run_cdm(s: np.ndarray,
     :param parallel_cti:
     :param serial_cti:
     :return:
-    Ne - number of electrons in a pixel
-    ne - electron density in the vicinity of the trap
-    Vc - volume of the charge cloud
-
-    nt - number of traps per pixel (and not vol density anymore)
-    σ - trap capture cross-section
-    τr - trap release time constant
-    Pr - the probability that the trap will release the electron into the sample
-    τc - capture time constant
-    Pc - capture probability (per vacant trap) as a function of the number of sample electrons Ne
-
-    NT - number of traps in the column,
-        NT = 2*nt*Vg*x  where x is the number of TDI transfers or the column length in pixels.
-    Nc - number of electrons captured by a given trap species during the transit of an integrating signal packet
-    N0 - initial trap occupancy
-    Nr - number of electrons released into the sample during a transit along the column
-
-    fwc: Full Well Capacity in electrons (parallel)
-    sfwc: Full Well Capacity in electrons (serial)
     """
     ydim, xdim = s.shape        # full signal array we want to apply cdm for
 
     kdim_p = len(nt_p)
     kdim_s = len(nt_s)
 
-    # if y_start is None:
-    #     y_start = 0
-    # if x_start is None:
-    #     x_start = 0
-    # if ydim is None:
-    #     ydim = y_total_dim
-    # if xdim is None:
-    #     xdim = x_total_dim
-
-    # s = s + dob                 # diffuse optical background
-    np.clip(s, 0., fwc, s)      # full well capacity
+    # np.clip(s, 0., fwc, s)      # full well capacity
 
     nt_p = nt_p / vg            # parallel trap density (traps / cm**3)
     nt_s = nt_s / svg           # serial trap density (traps / cm**3)
@@ -229,10 +153,6 @@ def run_cdm(s: np.ndarray,
     # nt_p *= rdose             # absolute trap density [per cm**3]
     # nt_s *= rdose             # absolute trap density [per cm**3]
 
-    # if charge_injection:
-    #     y_start = 0
-    #     # in this case ydim is the charge injection profile in function of time (and not in func of pixel pos)
-
     # IMAGING (non-TDI) MODE
     # Parallel direction
     if parallel_cti:
@@ -243,7 +163,7 @@ def run_cdm(s: np.ndarray,
         for i in range(0, ydim):
             # print('i=', i)
             if charge_injection:
-                gamma_p = g_p * all_parallel_trans            # number of all transfers in parallel dir.
+                gamma_p = g_p * chg_inj_parallel_transfers            # number of all transfers in parallel dir.
             else:
                 gamma_p = g_p * i
                 # i -= y_start

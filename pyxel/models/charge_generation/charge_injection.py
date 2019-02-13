@@ -14,9 +14,8 @@ from pyxel.detectors.ccd import CCD
 def charge_blocks(detector: CCD,
                   charge_level: int,
                   columns: t.List[int],
-                  number_of_transfers: int = 0,
+                  profile_length: int = 0,
                   number_of_blocks: int = 1,
-                  block_start: int = 0,
                   block_length: int = 0,
                   pause_length: int = 0):
     """TBW.
@@ -24,9 +23,8 @@ def charge_blocks(detector: CCD,
     :param detector:
     :param charge_level:
     :param columns:
-    :param number_of_transfers:
+    :param profile_length:
     :param number_of_blocks:
-    :param block_start:
     :param block_length:
     :param pause_length:
 
@@ -38,11 +36,11 @@ def charge_blocks(detector: CCD,
     injection_columns = np.array(columns, dtype=float)
     if block_length == 0:
         block_length = geo.row
-    if number_of_transfers == 0:
-        number_of_transfers = geo.row
+    if profile_length == 0:
+        profile_length = geo.row
 
     injected_profile = np.array([])
-    block_start = geo.row - number_of_transfers + block_start
+    block_start = geo.row - profile_length
     for i in range(number_of_blocks):
         block_pos = block_start + i * (block_length + pause_length)
         injected_profile = np.append(injected_profile, np.arange(block_pos, block_pos + block_length))
