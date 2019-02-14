@@ -3,6 +3,7 @@
 https://esa.github.io/pagmo2/index.html
 """
 from copy import deepcopy
+from collections import OrderedDict
 import typing as t   # noqa: F401
 import numpy as np
 from pyxel.calibration.util import list_to_slice, check_ranges, read_data
@@ -74,14 +75,6 @@ class ModelFitting:
 
         self.set_bound()
 
-        self.champions_file = setting['champions_file']         # type: str
-        file1 = open(self.champions_file, 'wb')                 # truncate output file
-        file1.close()
-        if setting['population_file']:
-            self.pop_file = setting['population_file']
-            file2 = open(self.pop_file, 'wb')                   # truncate output file
-            file2.close()
-
         params = 0
         for var in self.variables:
             b = 1
@@ -90,6 +83,8 @@ class ModelFitting:
             params += b
         self.champion_f_list = np.zeros((1, 1))
         self.champion_x_list = np.zeros((1, params))
+        self.champions_file = setting['champions_file']
+        self.pop_file = setting['population_file']
 
         target_list = read_data(setting['target_output'])
         try:
@@ -198,7 +193,6 @@ class ModelFitting:
     def update_processor(self, parameter):
         """TBW.
 
-        # :param processor:
         :param parameter:
         :return:
         """
@@ -213,6 +207,34 @@ class ModelFitting:
                 new_processor.set(var.key, parameter[a:a + b])
             a += b
         return new_processor
+
+    def get_results(self, fitness, parameter):
+        """TBW.
+
+        :param fitness:
+        :param parameter:
+        :return:
+        """
+        parameter = self.update_parameter(parameter)        # todo : duplicated code, see fitness!
+        champion = self.update_processor(parameter)
+        if self.calibration_mode == 'pipeline':
+            champion.pipeline.run_pipeline(champion.detector)
+        # elif self.calibration_mode == 'single_model':
+        #     self.fitted_model.function(champion.detector)               # todo: update
+
+        results = OrderedDict()
+        results['fitness'] = fitness[0]
+        a, b = 0, 0
+        for var in self.variables:
+            if var.values == '_':
+                b = 1
+                results[var.key] = parameter[a]
+            elif isinstance(var.values, list):
+                b = len(var.values)
+                results[var.key] = parameter[a:a + b]
+            a += b
+
+        return champion.detector, results
 
     def population_and_champions(self, parameter, overall_fitness):
         """Get champion (also population) of each generation and write it to output file(s).
@@ -249,19 +271,21 @@ class ModelFitting:
                     self.champion_x_list = np.vstack((self.champion_x_list, self.champion_x_list[-1]))
 
             str_format = '%d' + (len(parameter) + 1) * ' %.6E'
-            with open(self.champions_file, 'ab') as f3:
-                np.savetxt(f3, np.c_[np.array([self.g]),
-                                     self.champion_f_list[self.g],
-                                     self.champion_x_list[self.g, :].reshape(1, len(parameter))],
-                           fmt=str_format)
+
+            if self.champions_file:
+                with open(self.champions_file, 'ab') as file1:
+                    np.savetxt(file1, np.c_[np.array([self.g]),
+                                            self.champion_f_list[self.g],
+                                            self.champion_x_list[self.g, :].reshape(1, len(parameter))],
+                               fmt=str_format)
 
             if self.pop_file:
-                if self.g % 100 == 0 or self.g == self.generations:
-                    str_format = '%d' + (len(parameter) + 1) * ' %.6E'
-                    with open(self.pop_file, 'ab') as f4:
-                        np.savetxt(f4, np.c_[self.g * np.ones(self.fitness_array.shape),
-                                             self.fitness_array,
-                                             self.population], fmt=str_format)
+                if self.g == self.generations:
+                    with open(self.pop_file, 'ab') as file2:
+                        np.savetxt(file2, np.c_[self.g * np.ones(self.fitness_array.shape),
+                                                self.fitness_array,
+                                                self.population],
+                                   fmt=str_format)
 
             self.g += 1
 

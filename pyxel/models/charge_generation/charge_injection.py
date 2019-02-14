@@ -14,8 +14,8 @@ from pyxel.detectors.ccd import CCD
 def charge_blocks(detector: CCD,
                   charge_level: int,
                   columns: t.List[int],
+                  profile_length: int = 0,
                   number_of_blocks: int = 1,
-                  block_start: int = 0,
                   block_length: int = 0,
                   pause_length: int = 0):
     """TBW.
@@ -23,8 +23,8 @@ def charge_blocks(detector: CCD,
     :param detector:
     :param charge_level:
     :param columns:
+    :param profile_length:
     :param number_of_blocks:
-    :param block_start:
     :param block_length:
     :param pause_length:
 
@@ -36,15 +36,19 @@ def charge_blocks(detector: CCD,
     injection_columns = np.array(columns, dtype=float)
     if block_length == 0:
         block_length = geo.row
-    if block_start + number_of_blocks * (block_length + pause_length) > geo.row:
-        raise ValueError('Too many/long charge block(s).')
+    if profile_length == 0:
+        profile_length = geo.row
 
-    init_ver_position = np.array([])
+    injected_profile = np.array([])
+    block_start = geo.row - profile_length
     for i in range(number_of_blocks):
         block_pos = block_start + i * (block_length + pause_length)
-        init_ver_position = np.append(init_ver_position, np.arange(block_pos, block_pos + block_length))
-    init_hor_position = np.tile(injection_columns, number_of_blocks * block_length)
+        injected_profile = np.append(injected_profile, np.arange(block_pos, block_pos + block_length))
+
+    init_ver_position = np.delete(injected_profile, np.where(injected_profile >= geo.row))
+    init_hor_position = np.tile(injection_columns, init_ver_position.size)
     init_ver_position = np.repeat(init_ver_position, injection_columns.size)
+
     init_ver_position *= geo.pixel_vert_size
     init_hor_position *= geo.pixel_horz_size
     size = init_ver_position.size

@@ -5,7 +5,7 @@ simulation:
     parameters:
     - current: null
       enabled: true
-      key: pipeline.photon_generation.photon_level.arguments.level
+      key: pipeline.photon_generation.illumination.arguments.level
       values:
       - 10
       - 20
@@ -68,7 +68,7 @@ pipeline:
     name: fixed_pattern_noise
   - arguments: {}
     enabled: false
-    func: pyxel.models.charge_collection.full_well.simple_pixel_full_well
+    func: pyxel.models.charge_collection.full_well.simple_full_well
     name: full_well
   charge_generation:
   - arguments: {}
@@ -118,7 +118,7 @@ pipeline:
       level: 100
     enabled: true
     func: pyxel.models.photon_generation.illumination.illumination
-    name: photon_level
+    name: illumination
   - arguments: {}
     enabled: true
     func: pyxel.models.photon_generation.shot_noise.shot_noise

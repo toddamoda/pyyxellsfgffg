@@ -17,7 +17,7 @@ class ParametricAnalysis:
                  column_range: t.List[int] = None) -> None:
         """TBW."""
         self.parametric_mode = parametric_mode
-        self.parameters = parameters
+        self._parameters = parameters
         self.file = from_file
         self.data = None
         if column_range:
@@ -25,13 +25,12 @@ class ParametricAnalysis:
 
     def __getstate__(self):
         """TBW."""
-        return {'parametric_mode': self.parametric_mode,
-                'parameters': self.parameters}
+        return {'parametric_mode': self.parametric_mode}
 
     @property
     def enabled_steps(self):
         """TBW."""
-        return [step for step in self.parameters if step.enabled]
+        return [step for step in self._parameters if step.enabled]
 
     def _parallel(self, processor):
         """TBW.
@@ -133,6 +132,7 @@ class Configuration:
     """TBW."""
 
     def __init__(self, mode,
+                 outputs=None,
                  parametric=None,
                  calibration=None
                  ) -> None:
@@ -142,6 +142,11 @@ class Configuration:
         :param parametric:
         :param calibration:
         """
-        self.mode = mode
+        if mode in ['single', 'parametric', 'calibration']:
+            self.mode = mode
+        else:
+            raise ValueError('Non-existing running mode defined for Pyxel in yaml config file.')
+
+        self.outputs = outputs
         self.parametric = parametric
         self.calibration = calibration

@@ -121,6 +121,7 @@ def pyxel_yaml_loader():
     from pyxel.calibration.calibration import Algorithm
     from pyxel.pipelines.model_function import ModelFunction
     from pyxel.pipelines.model_group import ModelGroup
+    from pyxel.util import Outputs
 
     io.ObjectModelLoader.add_class_ref(['detector', 'class'])
     io.ObjectModelLoader.add_class_ref(['detector', None, 'class'])
@@ -130,6 +131,8 @@ def pyxel_yaml_loader():
     io.ObjectModelLoader.add_class(ModelFunction, ['pipeline', None, None])
 
     io.ObjectModelLoader.add_class(Configuration, ['simulation'])
+
+    io.ObjectModelLoader.add_class(Outputs, ['simulation', 'outputs'])
 
     io.ObjectModelLoader.add_class(ParametricAnalysis, ['simulation', 'parametric'])
     io.ObjectModelLoader.add_class(ParameterValues, ['simulation', 'parametric', 'parameters'], is_list=True)

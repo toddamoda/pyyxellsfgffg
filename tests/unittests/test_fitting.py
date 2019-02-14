@@ -15,14 +15,14 @@ def configure(mf, sim):
         'calibration_mode': sim.calibration.calibration_mode,
         'generations': sim.calibration.algorithm.generations,
         'population_size': sim.calibration.algorithm.population_size,
-        'simulation_output': sim.calibration.output_type,
+        'simulation_output': sim.calibration.result_type,
         'fitness_func': sim.calibration.fitness_function,
-        'champions_file': sim.calibration.champions_file,
-        'population_file': sim.calibration.population_file,
         'target_output': sim.calibration.target_data_path,
         'target_fit_range': sim.calibration.target_fit_range,
-        'out_fit_range': sim.calibration.output_fit_range,
-        'weighting': sim.calibration.weighting_path
+        'out_fit_range': sim.calibration.result_fit_range,
+        'weighting': sim.calibration.weighting_path,
+        'champions_file': None,
+        'population_file': None
     }
     mf.configure(settings)
 
@@ -180,7 +180,7 @@ def test_custom_fitness(yaml, simulated_data, target_data, expected_fitness):
                              ('tests/data/calibrate_models.yaml',
                               np.array([1., 0.5, 1.5, -2., -3., 4.5, -4., 1.,
                                         0.5, -3.5, 2., -3., -4., 0.5, 1., 100.]),
-                              5180.350962745482)
+                              148.49813052846002)
                          ])
 def test_fitness(yaml, parameter, expected_fitness):
     """Test"""

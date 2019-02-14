@@ -5,42 +5,77 @@
 
 simulation:
 
-#  mode: single
+  mode: single
 #  mode: parametric
-  mode: calibration
+#  mode: calibration
 
   parametric:
-#    parametric_mode: sequential
+    parametric_mode: sequential
 #    parametric_mode: embedded
-    parametric_mode: parallel
-    from_file: 'outputs/calibration_champions.out'
-    column_range: [2, 17]
+#    parametric_mode: parallel
+#    from_file: 'outputs/calibration_champions.out'
+#    column_range: [2, 17]
     parameters:
-#      - key: pipeline.charge_generation.tars.arguments.particle_number
-#        values: [2, 3]
-#        enabled: true
+      - key: pipeline.charge_generation.tars.arguments.particle_number
+        values: range(2, 10)
+        enabled: true
 #      - key: pipeline.photon_generation.illumination.arguments.level
-#        values: range(10, 13)
+#        values: range(0, 200, 50)
 #        enabled: true
 
-      - key:  detector.characteristics.amp
-        values: _
-      - key:  pipeline.charge_transfer.cdm.arguments.tr_p
-        values: [_, _, _, _]
-      - key:  pipeline.charge_transfer.cdm.arguments.nt_p
-        values: [_, _, _, _]
-      - key:  pipeline.charge_transfer.cdm.arguments.sigma_p
-        values: [_, _, _, _]
-      - key:  pipeline.charge_transfer.cdm.arguments.beta_p
-        values: _
-      - key:  detector.environment.temperature
-        values: _
+#      - key:  detector.characteristics.amp
+#        values: _
+#      - key:  pipeline.charge_transfer.cdm.arguments.tr_p
+#        values: [_, _, _, _]
+#      - key:  pipeline.charge_transfer.cdm.arguments.nt_p
+#        values: [_, _, _, _]
+#      - key:  pipeline.charge_transfer.cdm.arguments.sigma_p
+#        values: [_, _, _, _]
+#      - key:  pipeline.charge_transfer.cdm.arguments.beta_p
+#        values: _
+#      - key:  detector.environment.temperature
+#        values: _
+
+  outputs:
+    output_folder:  'outputs'
+
+#    single_plot:
+#      x: 'detector.photons.array'
+#      y: 'detector.image.array'
+#      plot_type: 'graph'
+##      plot_type: 'histogram'
+##      plot_type: 'scatter'
+#      plot_args:
+##        bins: 100
+#        xlabel: 'photon number'
+#        ylabel: 'image values (ADU)'
+#        yscale: 'log'
+#
+#    parametric_plot:
+#      x:  'detector.image.mean'
+#      y:  'detector.image.std_deviation'
+##      plot_args:
+##        xlabel:
+##        ylabel: 'sigma'
+##        title: 'Parametric analysis'
+##        xscale: 'linear'
+##        yscale: 'log'
+##        grid: true
+##        color: green
+#
+#    calibration_plot:
+#      champions_plot:
+##        plot_args:
+#      population_plot:
+##        columns: [16, 2]
+##        plot_args:
+
 
   calibration:
     calibration_mode:  pipeline  #  single_model #
 
-    output_type: pixel # image   # signal
-    output_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50] #
+    result_type: pixel # image   # signal
+    result_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50] #
 
     target_data_path: ['data/results.fits']     #  <*.npy> <*.fits> <ascii>
     target_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50]
@@ -55,7 +90,7 @@ simulation:
     algorithm:
       type: sade   # sga  # nlopt
 #      nlopt_solver: sbplx  # neldermead
-      generations: 3
+      generations: 5
       population_size: 10
       variant: 2
 
@@ -64,31 +99,26 @@ simulation:
         values: _
         logarithmic: false
         boundaries: [1., 10.]
-      - key:  pipeline.charge_transfer.cdm.arguments.tr_p
-        values: [_, _, _, _]
-        logarithmic: true
-        boundaries: [1.e-3, 2.]
-      - key:  pipeline.charge_transfer.cdm.arguments.nt_p
-        values: [_, _, _, _]
-        logarithmic: true
-        boundaries: [1.e-2, 1.e+1]
-      - key:  pipeline.charge_transfer.cdm.arguments.sigma_p
-        values: [_, _, _, _]
-        logarithmic: true
-        boundaries: [1.e-20, 1.e-15]
-      - key:  pipeline.charge_transfer.cdm.arguments.beta_p
-        values: _
-        logarithmic: false
-        boundaries: [0., 1.]
+#      - key:  pipeline.charge_transfer.cdm.arguments.tr_p
+#        values: [_, _, _, _]
+#        logarithmic: true
+#        boundaries: [1.e-3, 2.]
+#      - key:  pipeline.charge_transfer.cdm.arguments.nt_p
+#        values: [_, _, _, _]
+#        logarithmic: true
+#        boundaries: [1.e-2, 1.e+1]
+#      - key:  pipeline.charge_transfer.cdm.arguments.sigma_p
+#        values: [_, _, _, _]
+#        logarithmic: true
+#        boundaries: [1.e-20, 1.e-15]
+#      - key:  pipeline.charge_transfer.cdm.arguments.beta_p
+#        values: _
+#        logarithmic: false
+#        boundaries: [0., 1.]
       - key:  detector.environment.temperature
         values: _
         logarithmic: false
         boundaries: [100., 200.]
-
-    # results:
-    champions_file: 'outputs/calibration_champions.out'
-    population_file: 'outputs/calibration_populations.out'
-
 
 detector:
   class: pyxel.detectors.ccd.CCD
@@ -137,19 +167,19 @@ pipeline:
   photon_generation:
     - name: load_image
       func: pyxel.models.photon_generation.load_image.load_image
-      enabled: true
+      enabled: false
       arguments:
         image_file: outputs/in.fits # data/01.fits
         fit_image_to_det: false
         convert_to_photons: true
-    - name: illumination #  photon_level
+    - name: illumination
       func: pyxel.models.photon_generation.illumination.illumination
       enabled: true
       arguments:
-          level: 10
+          level: 1000
     - name: shot_noise
       func: pyxel.models.photon_generation.shot_noise.shot_noise
-      enabled: false
+      enabled: true
 
   # photons -> photons
   optics:
@@ -164,13 +194,13 @@ pipeline:
     -
       name: tars
       func: pyxel.models.charge_generation.tars.tars.run_tars
-      enabled: false
+      enabled: true
       arguments:
         simulation_mode: cosmic_ray   # snowflakes
         running_mode: stepsize  # stopping  # plotting  # geant4
         particle_type: proton
         initial_energy: 100.   # MeV
-        particle_number: 1
+        particle_number: 10
         incident_angles:      # rad
         starting_position:    # um
         spectrum_file: 'pyxel/models/charge_generation/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
@@ -191,7 +221,7 @@ pipeline:
         pix_non_uniformity: data/non_uniformity_array_normal_random_dist.data
     -
       name: full_well
-      func: pyxel.models.charge_collection.full_well.simple_pixel_full_well
+      func: pyxel.models.charge_collection.full_well.simple_full_well
       enabled: false
     -
       name: simple_collection
@@ -203,20 +233,19 @@ pipeline:
     -
       name: cdm
       func: pyxel.models.charge_transfer.cdm.CDM.cdm
-      enabled: true
+      enabled: false
       arguments:
-       beta_p: 0.1
-       beta_s: 0.3
-       parallel_cti: true
-       serial_cti: false
-       chg_inj: true
-       para_transfers: 1552
-       tr_p: [0.01]
-       tr_s: [0.01]
-       nt_p: [1.]
-       nt_s: [1.]
-       sigma_p: [1.]
-       sigma_s: [1.]
+        parallel_cti: true
+        serial_cti: true
+        charge_injection: false
+        beta_p: 0.3
+        beta_s: 0.3
+        tr_p: [5.e-3]
+        tr_s: [2.e-3]
+        nt_p: [100.]
+        nt_s: [50.]
+        sigma_p: [1.e-15]
+        sigma_s: [1.e-15]
 
   # charge -> signal
   charge_measurement:
@@ -227,9 +256,9 @@ pipeline:
     -
       name: output_node_noise
       func: pyxel.models.charge_measurement.readout_noise.output_node_noise
-      enabled: false
+      enabled: true
       arguments:
-        std_deviation: 0.0001   # TODO too high
+        std_deviation: 5.e-7   # Volt
 
   # signal -> image
   readout_electronics:
@@ -240,6 +269,10 @@ pipeline:
     -
       name: simple_digitization
       func: pyxel.models.readout_electronics.digitization.simple_digitization
-      enabled: true
+      enabled: false
       arguments:
         data_type: numpy.uint32
+    -
+      name: simple_digitization
+      func: pyxel.models.readout_electronics.digitization.simple_processing
+      enabled: true

@@ -9,8 +9,8 @@ simulation:
 
   calibration:
     calibration_mode:  pipeline
-    output_type: image
-    output_fit_range: [2, 5, 4, 7]
+    result_type: image
+    result_fit_range: [2, 5, 4, 7]
 
     target_data_path: ['tests/data/expected_ccd_pipeline01.fits']     #  <*.npy> <*.fits> <ascii>
     target_fit_range: [1, 4, 5, 8]

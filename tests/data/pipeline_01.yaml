@@ -53,7 +53,7 @@ pipeline:
       enabled: false
       arguments:
     -
-      name: photon_level
+      name: illumination
       func: pyxel.models.photon_generation.illumination.illumination
       enabled: false
       arguments:
@@ -102,7 +102,7 @@ pipeline:
         pix_non_uniformity: data/non_uniformity_array_normal_random_dist.data
     -
       name: full_well
-      func: pyxel.models.charge_collection.full_well.simple_pixel_full_well
+      func: pyxel.models.charge_collection.full_well.simple_full_well
       enabled: false
 
   # charge -> charge

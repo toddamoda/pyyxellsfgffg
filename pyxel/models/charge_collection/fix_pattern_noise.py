@@ -28,4 +28,4 @@ def fix_pattern_noise(detector: Detector,
     pnu = np.loadtxt(pix_non_uniformity)
     pnu = pnu.reshape((geo.row, geo.col))
 
-    detector.pixels.array *= pnu
+    detector.pixels.array = detector.pixels.array.astype(np.float64) * pnu      # TODO: dtype!

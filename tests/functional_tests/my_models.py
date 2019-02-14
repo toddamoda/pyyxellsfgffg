@@ -75,7 +75,7 @@ registry_map = {
             'type': 'ccd',
         },
         {
-            'func': 'pyxel.models.charge_collection.full_well.simple_pixel_full_well',
+            'func': 'pyxel.models.charge_collection.full_well.simple_full_well',
             'name': 'full_well',
         }
     ],

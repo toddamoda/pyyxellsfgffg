@@ -34,7 +34,7 @@ pipeline:
         image_file: data/HorseHead_orig.fits
         convert_to_photons: true
 
-    photon_level:
+    illumination:
       name: pyxel.models.photon_generation.illumination.illumination
       enabled: false
       arguments:

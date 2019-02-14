@@ -5,6 +5,8 @@ import pygmo as pg
 import pyxel as pyx
 from pyxel.calibration.fitting import ModelFitting
 from pyxel.pipelines.model_function import ModelFunction
+from pyxel.pipelines.processor import Processor
+from pyxel.util import Outputs
 
 
 @pyx.detector_class
@@ -52,10 +54,10 @@ class Algorithm:
     eta_c = pyx.attribute(type=float, converter=float, validator=[pyx.validate_type(float)], default=1.0, doc='')
     m = pyx.attribute(type=float, converter=float, validator=[pyx.validate_type(float),
                                                               pyx.validate_range(0, 1)], default=0.02, doc='')
-    param_m = pyx.attribute(type=float, default=1.0, doc='')   # validator=pyx.validate_range(1, 2),
-    param_s = pyx.attribute(type=int, default=2, doc='')  # validator=pyx.validate_range(1, 2),
+    param_m = pyx.attribute(type=float, default=1.0, doc='')            # validator=pyx.validate_range(1, 2),
+    param_s = pyx.attribute(type=int, default=2, doc='')                # validator=pyx.validate_range(1, 2),
     crossover = pyx.attribute(type=str, default='exponential', doc='')  # validator=pyx.validate_choices(),
-    mutation = pyx.attribute(type=str, default='polynomial', doc='')  # validator=pyx.validate_choices(),
+    mutation = pyx.attribute(type=str, default='polynomial', doc='')    # validator=pyx.validate_choices(),
     selection = pyx.attribute(type=str, default='tournament', doc='')   # validator=pyx.validate_choices(),
     # SGA #####
 
@@ -127,14 +129,14 @@ class Calibration:
         default='pipeline',
         doc=''
     )
-    output_type = pyx.attribute(
+    result_type = pyx.attribute(
         type=str,
         validator=[pyx.validate_type(str),
                    pyx.validate_choices(['image', 'signal', 'pixel'])],
         default='image',
         doc=''
     )
-    output_fit_range = pyx.attribute(
+    result_fit_range = pyx.attribute(
         type=list,
         validator=[pyx.validate_type(list)],
         default=None,
@@ -183,28 +185,21 @@ class Calibration:
         default=None,
         doc=''
     )
-    champions_file = pyx.attribute(          # TODO: move to output
-        type=str,
-        # validator=[pyx.validate_type(str)],
-        default='data/calibration_champions.out',
-        doc=''
-    )
-    population_file = pyx.attribute(          # TODO: move to output
-        type=str,
-        # validator=[pyx.validate_type(str)],
-        default=None,
-        doc=''
-    )
 
-    def run_calibration(self, processor):
+    def run_calibration(self, processor: Processor,
+                        output: Outputs = None):
         """TBW.
 
-        :param processor:
+        :param processor: Processor object
+        :param output: Output object
         :return:
         """
         pg.set_global_rng_seed(seed=self.seed)
         logger = logging.getLogger('pyxel')
         logger.info('Seed: %d' % self.seed)
+        output_files = (None, None)
+        if output:
+            output_files = output.create_files()
 
         fitting = ModelFitting(processor, self.parameters)
 
@@ -212,14 +207,14 @@ class Calibration:
             'calibration_mode': self.calibration_mode,
             'generations': self.algorithm.generations,
             'population_size': self.algorithm.population_size,
-            'simulation_output': self.output_type,
+            'simulation_output': self.result_type,
             'fitness_func': self.fitness_function,
-            'champions_file': self.champions_file,
-            'population_file': self.population_file,
             'target_output': self.target_data_path,
             'target_fit_range': self.target_fit_range,
-            'out_fit_range': self.output_fit_range,
-            'weighting': self.weighting_path
+            'out_fit_range': self.result_fit_range,
+            'weighting': self.weighting_path,
+            'champions_file': output_files[0],
+            'population_file': output_files[1]
         }
         fitting.configure(settings)
 
@@ -230,7 +225,6 @@ class Calibration:
         pop = algo.evolve(pop)
 
         champion_f = pop.champion_f
-        champion_x = fitting.update_parameter(pop.champion_x)
-        logger.info('Champion fitness:   %1.5e' % champion_f[0])
-
-        return champion_f, champion_x
+        champion_x = pop.champion_x
+        return fitting.get_results(fitness=champion_f,
+                                   parameter=champion_x)

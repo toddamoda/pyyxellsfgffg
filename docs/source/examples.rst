@@ -3,10 +3,32 @@
 Examples
 ==========
 
-
-A very basic example,
-
-.. literalinclude:: ../../examples/example_pyxel.py
+Basic examples
+--------------------------
 
 
-See :download:`this example script <../../examples/example_pyxel.py>`.
+Parametric analysis
+--------------------------
+
+CCD Photon Transfer Curve
+***************************
+
+
+.. literalinclude:: ../../examples/CCD_Photon_Transfer_Curve.yaml
+
+
+See :download:`this example yaml
+<../../examples/CCD_Photon_Transfer_Curve.yaml>`.
+
+
+TABLE
+
+Readout (output node) noise
+
+Shot noise
+
+Fixed pattern noise
+
+
+Calibration
+--------------------------

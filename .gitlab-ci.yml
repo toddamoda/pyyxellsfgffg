@@ -103,6 +103,7 @@ mypy:
   stage: test
   script:
     - pip install mypy
+    - pip freeze
     - mypy --ignore-missing-imports pyxel
   allow_failure: true
 
@@ -114,6 +115,7 @@ lint:
   script:
     - pip install pytest-pylint pytest-html
     - pip install -r requirements.txt
+    - pip freeze
     - pytest --pylint --color=yes --verbose --pylint-rcfile=pylint.cfg --html=pylint_report.html --self-contained-html -m pylint || echo 1
     - ls
   artifacts:
@@ -131,6 +133,7 @@ flake8:
   stage: test
   script:
     - pip install flake8 flake8-docstrings pep8-naming
+    - pip freeze
     - flake8 pyxel
   allow_failure: false
 
@@ -140,6 +143,7 @@ doc8:
   stage: test
   script:
     - pip install sphinx doc8
+    - pip freeze
     - doc8 docs/source
   allow_failure: false
 
@@ -158,6 +162,7 @@ licenses:
     - pip install scancode-toolkit==2.2.1    # worked  # todo: use latest release when it will be available !
 #    - pip install scancode-toolkit==2.9.2
 #    - pip install scancode-toolkit        # not worked:  EMPTY REPORT
+    - pip freeze
     - scancode --help
 #    - scancode --license --package --copyright --info --email --url . --html-app license_report.html        # latest version
 #    - scancode --license --package --copyright --info --email --url --format html-app . license_report.html   # v2.2.1
@@ -179,6 +184,7 @@ doc:
   script:
     - pip install -r docs/requirements-docs.txt
     - pip install -r requirements.txt
+    - pip freeze
     - export PYTHONPATH=$PWD
     - sphinx-build docs/source docs/html -E -a -j 4
     - python badges.py -doc="passed" -lic="MIT"

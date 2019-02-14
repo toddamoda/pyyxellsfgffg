@@ -10,8 +10,8 @@ simulation:
 
   calibration:
     calibration_mode:  pipeline
-    output_type: image
-    output_fit_range: [0, 2, 0, 2]
+    result_type: image
+    result_fit_range: [0, 2, 0, 2]
 
     target_data_path: ['tests/data/test.fits']     #  <*.npy> <*.fits> <ascii>
     target_fit_range: [0, 2, 0, 2]
@@ -56,9 +56,6 @@ simulation:
         values: _
         logarithmic: false
         boundaries: [100., 300.]
-
-    champions_file: 'data/calibration_champions.out'
-    population_file: 'data/calibration_populations.out'
 
 detector:
   class: pyxel.detectors.ccd.CCD
@@ -107,7 +104,7 @@ pipeline:
         col0: 0
         convert_to_photons: true
     -
-      name: photon_level
+      name: illumination
       func: pyxel.models.photon_generation.illumination.illumination
       enabled: false
       arguments:
@@ -137,18 +134,17 @@ pipeline:
       func: pyxel.models.charge_transfer.cdm.CDM.cdm
       enabled: true
       arguments:
-       beta_p: 0.1
-       beta_s: 0.3
-       parallel_cti: true
-       serial_cti: false
-       chg_inj: true
-       para_transfers: 1552
-       tr_p: [0.01]
-       tr_s: [0.01]
-       nt_p: [1.]
-       nt_s: [1.]
-       sigma_p: [1.]
-       sigma_s: [1.]
+        parallel_cti: true
+        serial_cti: false
+        charge_injection: false
+        beta_p: 0.1
+        beta_s: 0.3
+        tr_p: [0.01]
+        tr_s: [0.01]
+        nt_p: [1.]
+        nt_s: [1.]
+        sigma_p: [1.]
+        sigma_s: [1.]
 
   # charge -> signal
   charge_measurement:
