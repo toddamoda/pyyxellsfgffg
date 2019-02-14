@@ -10,7 +10,6 @@ from PIL import Image
 import astropy.io.fits as fits
 try:
     import matplotlib.pyplot as plt
-    from matplotlib.ticker import MaxNLocator
 except ImportError:
     # raise Warning('Matplotlib cannot be imported')        # todo
     pass
@@ -129,20 +128,10 @@ class Outputs:
         plt.close('all')
         plt.figure()
 
-    # def save_plot_data(self, x, y, filename='figure_??'):
-    #     """Save plot data to Numpy binary npy file."""
-    #     filename = self.output_dir + '/' + filename + '.npy'
-    #     filename = apply_run_number(filename)
-    #     np.save(file=filename, arr=np.hstack((x, y)))
-
     def plot_graph(self, x, y, args: dict = None):
         """TBW."""
         arg_tpl = self.update_args(plot_type='graph', new_args=args)
         ax_args, plt_args = self.update_args(plot_type='graph', new_args=self.user_plt_args, def_args=arg_tpl)
-        if isinstance(x, np.ndarray):
-            x = x.flatten()
-        if isinstance(y, np.ndarray):
-            y = y.flatten()
         plt.plot(x, y, color=plt_args['color'], marker=plt_args['marker'], linestyle=plt_args['linestyle'])
         update_plot(ax_args)
         plt.draw()
@@ -183,7 +172,7 @@ class Outputs:
         # self.save_to_csv(dataframe=processor.detector.charges.frame)
 
         self.user_plt_args = None
-        x = processor.detector.photons.array                     # todo: default plots with plot_args?
+        x = processor.detector.photons.array                    # todo: default plots with plot_args?
         y = processor.detector.image.array
         color = None
         if self.single_plot:
@@ -194,6 +183,11 @@ class Outputs:
             if 'y' in self.single_plot:
                 y = processor.get(self.single_plot['y'])
             if 'plot_type' in self.single_plot:
+                if isinstance(x, np.ndarray):
+                    x = x.flatten()
+                if isinstance(y, np.ndarray):
+                    y = y.flatten()
+
                 if self.single_plot['plot_type'] == 'graph':
                     self.plot_graph(x, y)
                     fname = 'graph_??'
@@ -260,7 +254,7 @@ class Outputs:
         plt_args = {'xlabel': 'calibrated parameter', 'ylabel': 'fitness',
                     'title': 'Population of the last generation',
                     'size': 8, 'cbar_label': 'log(fitness)'}
-        if a or b == 1:
+        if a == 1 or b == 1:
             self.plot_scatter(x, y, args=plt_args)
         else:
             self.plot_scatter(x, y, color=fitnesses, args=plt_args)
@@ -328,7 +322,7 @@ class Outputs:
                 elif key in ax_args.keys():
                     ax_args[key] = new_args[key]
                 else:
-                    raise KeyError
+                    raise KeyError('Not valid plotting key in "plot_args": "%s"' % key)
 
         return ax_args, plt_args
 
@@ -357,6 +351,11 @@ class Outputs:
         par_name = x_key[x_key.rfind('.') + 1:]
         res_name = y_key[y_key.rfind('.') + 1:]
         args = {'xlabel': par_name, 'ylabel': res_name}
+
+        if isinstance(x, np.ndarray):
+            x = x.flatten()
+        if isinstance(y, np.ndarray):
+            y = y.flatten()
 
         self.plot_graph(x, y, args=args)
         self.save_to_npy(x, 'x_parametric_??')

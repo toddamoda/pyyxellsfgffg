@@ -81,7 +81,7 @@ Photon Generation models
 Loading image
 ***************************
 
-.. autofunction:: pyxel.models.photon_generation.load_image.load_image(detector: Detector, image_file: str, row0: int = 0, col0: int = 0, fit_image_to_det: bool = False)
+.. autofunction:: pyxel.models.photon_generation.load_image.load_image(detector: Detector, image_file: str, position: list = None, fit_image_to_det: bool = False)
 
 Simple illumination
 ***************************
