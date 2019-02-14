@@ -10,6 +10,7 @@ from PIL import Image
 import astropy.io.fits as fits
 try:
     import matplotlib.pyplot as plt
+    from matplotlib.ticker import MaxNLocator
 except ImportError:
     # raise Warning('Matplotlib cannot be imported')        # todo
     pass
@@ -211,13 +212,12 @@ class Outputs:
     def champions_plot(self, results):
         """TBW."""
         data = np.loadtxt(self.champions_file)
-        generations = data[:, 0]
-        plt_args = {'xlabel': 'generation', 'linestyle': '-'}
+        generations = data[:, 0].astype(int)
         title = 'Calibrated parameter: '
         items = list(results.items())
         a = 1
         for item in items:
-
+            plt_args = {'xlabel': 'generation', 'linestyle': '-'}
             key = item[0]
             param_value = item[1]
             param_name = key[key.rfind('.') + 1:]
@@ -242,35 +242,38 @@ class Outputs:
                 column = data[:, a:a + b]
                 self.plot_graph(generations, column, args=plt_args)
                 plt.legend(range(b))
+
             self.save_plot('calibrated_parameter_??')
             a += b
-            if 'color' in plt_args.keys():
-                plt_args.pop('color')
 
     def population_plot(self):
         """TBW."""
         data = np.loadtxt(self.population_file)
         fitnesses = np.log10(data[:, 1])
-        a, b = 2, 3
+        a, b = 2, 1                 # 1st parameter and fitness
         if self.calibration_plot['population_plot']:
             if 'columns' in self.calibration_plot['population_plot']:
                 col = self.calibration_plot['population_plot']['columns']
                 a, b = col[0], col[1]
         x = data[:, a]
         y = data[:, b]
-        plt_args = {'xlabel': 'x', 'ylabel': 'y', 'title': 'Population of the last generation', 'size': 8,
-                    'cbar_label': 'log(fitness)'}
-        self.plot_scatter(x, y, color=fitnesses, args=plt_args)
+        plt_args = {'xlabel': 'calibrated parameter', 'ylabel': 'fitness',
+                    'title': 'Population of the last generation',
+                    'size': 8, 'cbar_label': 'log(fitness)'}
+        if a or b == 1:
+            self.plot_scatter(x, y, args=plt_args)
+        else:
+            self.plot_scatter(x, y, color=fitnesses, args=plt_args)
         self.save_plot('population_??')
 
-    def calibration_output(self, detector, results: dict):
+    def calibration_output(self, processor, results: dict):
         """TBW."""
-        self.single_output(detector)
+        self.single_output(processor)
 
         if self.calibration_plot:
             if 'champions_plot' in self.calibration_plot:
                 self.user_plt_args = None
-                if 'plot_args' in self.calibration_plot['champions_plot']:
+                if self.calibration_plot['champions_plot']:
                     if 'plot_args' in self.calibration_plot['champions_plot']:
                         self.user_plt_args = self.calibration_plot['champions_plot']['plot_args']
                 self.champions_plot(results)
