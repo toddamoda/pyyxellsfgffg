@@ -43,7 +43,6 @@ detector:
     svg: 1.6200e-10         # cm2
     t: 9.4722e-04           # s
     st: 9.4722e-04          # s
-#      bias_voltage: 0.0        # V
 
 pipeline:
   class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
@@ -155,18 +154,17 @@ pipeline:
       func: pyxel.models.charge_transfer.cdm.CDM.cdm
       enabled: false
       arguments:
-       beta_p: 0.1
-       beta_s: 0.3
-       parallel_cti: true
-       serial_cti: false
-       chg_inj: false
-       para_transfers: 1552
-       tr_p: [0.01]
-       tr_s: [0.01]
-       nt_p: [1.]
-       nt_s: [1.]
-       sigma_p: [1.]
-       sigma_s: [1.]
+        parallel_cti: true
+        serial_cti: true
+        charge_injection: false
+        beta_p: 0.3
+        beta_s: 0.3
+        tr_p: [5.e-3]
+        tr_s: [2.e-3]
+        nt_p: [100.]
+        nt_s: [50.]
+        sigma_p: [1.e-15]
+        sigma_s: [1.e-15]
 
   # charge -> signal
   charge_measurement:

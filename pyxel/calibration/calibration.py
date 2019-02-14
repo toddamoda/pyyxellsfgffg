@@ -6,6 +6,7 @@ import pyxel as pyx
 from pyxel.calibration.fitting import ModelFitting
 from pyxel.pipelines.model_function import ModelFunction
 from pyxel.pipelines.processor import Processor
+from pyxel.util import Outputs
 
 
 @pyx.detector_class
@@ -53,10 +54,10 @@ class Algorithm:
     eta_c = pyx.attribute(type=float, converter=float, validator=[pyx.validate_type(float)], default=1.0, doc='')
     m = pyx.attribute(type=float, converter=float, validator=[pyx.validate_type(float),
                                                               pyx.validate_range(0, 1)], default=0.02, doc='')
-    param_m = pyx.attribute(type=float, default=1.0, doc='')   # validator=pyx.validate_range(1, 2),
-    param_s = pyx.attribute(type=int, default=2, doc='')  # validator=pyx.validate_range(1, 2),
+    param_m = pyx.attribute(type=float, default=1.0, doc='')            # validator=pyx.validate_range(1, 2),
+    param_s = pyx.attribute(type=int, default=2, doc='')                # validator=pyx.validate_range(1, 2),
     crossover = pyx.attribute(type=str, default='exponential', doc='')  # validator=pyx.validate_choices(),
-    mutation = pyx.attribute(type=str, default='polynomial', doc='')  # validator=pyx.validate_choices(),
+    mutation = pyx.attribute(type=str, default='polynomial', doc='')    # validator=pyx.validate_choices(),
     selection = pyx.attribute(type=str, default='tournament', doc='')   # validator=pyx.validate_choices(),
     # SGA #####
 
@@ -186,16 +187,19 @@ class Calibration:
     )
 
     def run_calibration(self, processor: Processor,
-                        output_files: tuple = (None, None)):
+                        output: Outputs = None):
         """TBW.
 
-        :param processor:
-        :param output_files: tuple
+        :param processor: Processor object
+        :param output: Output object
         :return:
         """
         pg.set_global_rng_seed(seed=self.seed)
         logger = logging.getLogger('pyxel')
         logger.info('Seed: %d' % self.seed)
+        output_files = (None, None)
+        if output:
+            output_files = output.create_files()
 
         fitting = ModelFitting(processor, self.parameters)
 

@@ -22,9 +22,7 @@ class Outputs:
                  output_folder: str = 'outputs',
                  parametric_plot: dict = None,
                  calibration_plot: dict = None,
-                 single_plot: dict = None
-                 # plt_args: dict = None,
-                 ):
+                 single_plot: dict = None):
         """TBW."""
         self.input_file = None                      # type: t.Optional[str]
         self.champions_file = None                  # type: t.Optional[str]
@@ -364,7 +362,7 @@ class Outputs:
 
 
 def show_plots():
-    """Close last empty canvas Show all the previously created figures."""
+    """Close last empty canvas and show all the previously created figures."""
     plt.close()
     plt.show()
 

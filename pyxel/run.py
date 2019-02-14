@@ -35,28 +35,34 @@ def run(input_filename, random_seed: int = None):
     processor = Processor(cfg['detector'],
                           cfg['pipeline'])
     out = simulation.outputs
-    out.set_input_file(input_filename)
+    if out:
+        out.set_input_file(input_filename)
+    else:
+        logger.warning('Output is not defined! No output files will be saved!')
 
     if simulation.mode == 'single':
         logger.info('Mode: Single')
         processor.pipeline.run_pipeline(processor.detector)
-        out.single_output(processor)
+        if out:
+            out.single_output(processor)
 
     elif simulation.mode == 'calibration' and simulation.calibration:
         logger.info('Mode: Calibration')
-        files = out.create_files()
-        detector, results = simulation.calibration.run_calibration(processor, files)
+        detector, results = simulation.calibration.run_calibration(processor, out)
         logger.info('Champion fitness:   %1.5e' % results['fitness'])
-        out.calibration_output(detector=detector, results=results)
+        if out:
+            out.calibration_output(detector=detector, results=results)
 
     elif simulation.mode == 'parametric' and simulation.parametric:
         logger.info('Mode: Parametric')
         configs = simulation.parametric.collect(processor)
         for processor in configs:
             processor.pipeline.run_pipeline(processor.detector)
-            out.add_parametric_step(processor=processor,
-                                    parametric=simulation.parametric)
-        out.parametric_output()
+            if out:
+                out.add_parametric_step(processor=processor,
+                                        parametric=simulation.parametric)
+        if out:
+            out.parametric_output()
     else:
         raise ValueError
 

@@ -39,43 +39,43 @@ simulation:
   outputs:
     output_folder:  'outputs'
 
-    single_plot:
-      x: 'detector.photons.array'
-      y: 'detector.image.array'
-      plot_type: 'graph'
-#      plot_type: 'histogram'
-#      plot_type: 'scatter'
-      plot_args:
-#        bins: 100
-        xlabel: 'photon number'
-        ylabel: 'image values (ADU)'
-        yscale: 'log'
-
-    parametric_plot:
-      x:  'detector.image.mean'
-      y:  'detector.image.std_deviation'
+#    single_plot:
+#      x: 'detector.photons.array'
+#      y: 'detector.image.array'
+#      plot_type: 'graph'
+##      plot_type: 'histogram'
+##      plot_type: 'scatter'
 #      plot_args:
-#        xlabel:
-#        ylabel: 'sigma'
-#        title: 'Parametric analysis'
-#        xscale: 'linear'
+##        bins: 100
+#        xlabel: 'photon number'
+#        ylabel: 'image values (ADU)'
 #        yscale: 'log'
-#        grid: true
-#        color: green
-
-    calibration_plot:
-      champions_plot:
-#        plot_args:
-      population_plot:
-#        columns: [16, 2]
-#        plot_args:
+#
+#    parametric_plot:
+#      x:  'detector.image.mean'
+#      y:  'detector.image.std_deviation'
+##      plot_args:
+##        xlabel:
+##        ylabel: 'sigma'
+##        title: 'Parametric analysis'
+##        xscale: 'linear'
+##        yscale: 'log'
+##        grid: true
+##        color: green
+#
+#    calibration_plot:
+#      champions_plot:
+##        plot_args:
+#      population_plot:
+##        columns: [16, 2]
+##        plot_args:
 
 
   calibration:
     calibration_mode:  pipeline  #  single_model #
 
     result_type: pixel # image   # signal
-    output_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50] #
+    result_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50] #
 
     target_data_path: ['data/results.fits']     #  <*.npy> <*.fits> <ascii>
     target_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50]
@@ -235,18 +235,17 @@ pipeline:
       func: pyxel.models.charge_transfer.cdm.CDM.cdm
       enabled: false
       arguments:
-       beta_p: 0.1
-       beta_s: 0.3
-       parallel_cti: true
-       serial_cti: false
-       chg_inj: true
-       para_transfers: 1552
-       tr_p: [0.01]
-       tr_s: [0.01]
-       nt_p: [1.]
-       nt_s: [1.]
-       sigma_p: [1.]
-       sigma_s: [1.]
+        parallel_cti: true
+        serial_cti: true
+        charge_injection: false
+        beta_p: 0.3
+        beta_s: 0.3
+        tr_p: [5.e-3]
+        tr_s: [2.e-3]
+        nt_p: [100.]
+        nt_s: [50.]
+        sigma_p: [1.e-15]
+        sigma_s: [1.e-15]
 
   # charge -> signal
   charge_measurement:

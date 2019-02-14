@@ -5,7 +5,6 @@ from copy import deepcopy
 import numpy as np
 from esapy_config import get_obj_att, get_value
 from pyxel.parametric.parameter_values import ParameterValues
-from pyxel.util import Outputs
 
 
 class ParametricAnalysis:
@@ -148,10 +147,6 @@ class Configuration:
         else:
             raise ValueError('Non-existing running mode defined for Pyxel in yaml config file.')
 
-        if outputs:
-            self.outputs = outputs
-        else:
-            self.outputs = Outputs()
-
+        self.outputs = outputs
         self.parametric = parametric
         self.calibration = calibration
