@@ -16,24 +16,24 @@ simulation:
     result_fit_range:     [0, 100, 0, 100]
     target_data_path:     ['examples/CTI/input_data/cti_image/image_irradiated.fits']
     target_fit_range:     [0, 100, 0, 100]
-    seed:                 60336
+#    seed:                 7573
     fitness_function:
       func:               pyxel.calibration.fitness.sum_of_abs_residuals
       arguments:
     algorithm:
       type:               sade
-      generations:        50
+      generations:        20
       population_size:    200
       variant:            2
     parameters:
       - key:              pipeline.charge_transfer.cdm.arguments.tr_p
         values:           [_, _]
         logarithmic:      true
-        boundaries:       [1.e-3, 1.e-1]
+        boundaries:       [1.e-4, 1.e-1]
       - key:              pipeline.charge_transfer.cdm.arguments.nt_p
         values:           [_, _]
         logarithmic:      true
-        boundaries:       [1.e+2, 1.e+4]
+        boundaries:       [1.e+1, 1.e+4]
 
   outputs:
     output_folder:        'examples/CTI/output'
@@ -123,9 +123,9 @@ pipeline:
         charge_injection: false
         beta_p: 0.4
         beta_s: 0.
-        tr_p: [0., 0.]      # calibrating this parameter
+        tr_p: [0., 0.]
         tr_s: []
-        nt_p: [0., 0.]      # calibrating this parameter
+        nt_p: [0., 0.]
         nt_s: []
         sigma_p: [1.e-10, 1.e-10]
         sigma_s: []

@@ -27,12 +27,12 @@ from pyxel.detectors.ccd_characteristics import CCDCharacteristics  # noqa: F401
 # @pyxel.argument(name='', label='', units='', validate=)
 # @pyxel.register(group='charge_transfer', name='cdm', detector='ccd')
 def cdm(detector: CCD,
-        parallel_cti: bool = None, serial_cti: bool = None,
-        charge_injection: bool = False,
-        beta_p: float = None, beta_s: float = None,
-        tr_p: float = None, tr_s: float = None,
-        nt_p: float = None, nt_s: float = None,
-        sigma_p: float = None, sigma_s: float = None):
+        parallel_cti: bool, serial_cti: bool,
+        beta_p: float, beta_s: float,
+        tr_p: float, tr_s: float,
+        nt_p: float, nt_s: float,
+        sigma_p: float, sigma_s: float,
+        charge_injection: bool):
     """Charge Distortion Model (CDM) model wrapper.
 
     :param detector: Pyxel CCD detector object
