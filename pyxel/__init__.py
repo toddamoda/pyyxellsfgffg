@@ -55,10 +55,10 @@ def argument(name: str, **kwargs):
     return funcargs.argument(name=name, **kwargs)
 
 
-def logger():
-    """TBW."""
-    log = logging.getLogger('pyxel')
-    log.info('')
+# def logger():     # todo
+#     """TBW."""
+#     log = logging.getLogger('pyxel')
+#     log.info('')
 
 
 # from functools import wraps

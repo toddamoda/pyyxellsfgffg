@@ -1,4 +1,5 @@
 """Pyxel photon generator models: photon shot noise."""
+import logging
 import numpy as np
 import pyxel
 from pyxel.detectors import Detector
@@ -12,7 +13,8 @@ def shot_noise(detector: Detector, random_seed: int = None):
     :param detector: Pyxel Detector object
     :param random_seed: int seed
     """
-    pyxel.logger()
+    log = logging.getLogger('pyxel')
+    log.info('')
     if random_seed:
         np.random.seed(random_seed)
     detector.photons.array = np.random.poisson(lam=detector.photons.array)
