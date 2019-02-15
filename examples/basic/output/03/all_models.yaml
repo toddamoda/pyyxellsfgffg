@@ -64,14 +64,6 @@ pipeline:
       func: pyxel.models.photon_generation.shot_noise.shot_noise
       enabled: true
 
-#    - name: my_model
-#      func: my_model.dummy_func
-#      enabled: true
-#      arguments:
-#        image_file: 'examples/basic/input.fits'
-#        fit_image_to_det: true
-#        convert_to_photons: true
-
   # photons -> photons
   optics:
     - name: optical_psf
@@ -124,21 +116,21 @@ pipeline:
 
   # pixels -> pixels
   charge_transfer:
-    - name: cdm
-      func: pyxel.models.charge_transfer.cdm.CDM.cdm
-      enabled: true
-      arguments:
-        parallel_cti: true
-        serial_cti: false
-        charge_injection: false
-        beta_p: 0.3
-        tr_p: [1.e-2]
-        nt_p: [20.]
-        sigma_p: [1.e-10]
-        beta_s: 0.
-        tr_s: []
-        nt_s: []
-        sigma_s: []
+#    - name: cdm
+#      func: pyxel.models.charge_transfer.cdm.CDM.cdm
+#      enabled: true
+#      arguments:
+#        parallel_cti: true
+#        serial_cti: false
+#        charge_injection: false
+#        beta_p: 0.3
+#        tr_p: [1.e-2]
+#        nt_p: [20.]
+#        sigma_p: [1.e-10]
+#        beta_s: 0.
+#        tr_s: []
+#        nt_s: []
+#        sigma_s: []
 
   # pixels -> signal
   charge_measurement:

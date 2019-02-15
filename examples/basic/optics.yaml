@@ -40,7 +40,7 @@ detector:
     amp: 10.                # V/V
     a1: 100.                # V/V
     a2: 10000               # DN/V
-    fwc: 1000               # e
+    fwc: 1500               # e
     fwc_serial: 3000        # e
     vg: 1.62e-10            # cm^2
     svg: 1.62e-10           # cm^2
@@ -60,17 +60,9 @@ pipeline:
         fit_image_to_det: true
         convert_to_photons: true
 
-    - name: shot_noise
-      func: pyxel.models.photon_generation.shot_noise.shot_noise
-      enabled: true
-
-#    - name: my_model
-#      func: my_model.dummy_func
+#    - name: shot_noise
+#      func: pyxel.models.photon_generation.shot_noise.shot_noise
 #      enabled: true
-#      arguments:
-#        image_file: 'examples/basic/input.fits'
-#        fit_image_to_det: true
-#        convert_to_photons: true
 
   # photons -> photons
   optics:
@@ -79,14 +71,18 @@ pipeline:
       enabled: true
       arguments:
         fov_pixels: 30        # FOV in pixels
-        pixelscale: 0.2       # micron/pixel OR arcsec/pixel
+        pixelscale: 0.1       # micron/pixel OR arcsec/pixel
         wavelength: 2.e-6     # wavelength in microns
         optical_system:
           - item: CircularAperture
-            radius: 1.
+            radius: 2.
           - item: ThinLens
-            radius: 0.8
+            radius: 2.
             nwaves: 1
+#          - item: ZernikeWFE
+#            radius: 0.8
+#            coefficients: [0.1e-6, 3.e-6, -3.e-6, 1.e-6, -7.e-7, 0.4e-6, -2.e-6]
+#            aperture_stop: false
 
     - name: alignment
       func: pyxel.models.optics.alignment.alignment
@@ -106,7 +102,7 @@ pipeline:
         running_mode: stepsize
         particle_type: proton
         initial_energy: 1000.   # MeV
-        particle_number: 20
+        particle_number: 50
         incident_angles:        # rad
         starting_position:      # um
         spectrum_file: 'pyxel/models/charge_generation/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
@@ -133,7 +129,7 @@ pipeline:
         charge_injection: false
         beta_p: 0.3
         tr_p: [1.e-2]
-        nt_p: [20.]
+        nt_p: [10.]
         sigma_p: [1.e-10]
         beta_s: 0.
         tr_s: []

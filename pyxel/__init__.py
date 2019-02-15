@@ -1,6 +1,6 @@
 """Pyxel detector simulation framework."""
 import os
-import logging
+# import logging
 import typing as t
 import esapy_config.checkers as checkers
 import esapy_config.validators as validators

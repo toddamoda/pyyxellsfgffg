@@ -64,14 +64,6 @@ pipeline:
       func: pyxel.models.photon_generation.shot_noise.shot_noise
       enabled: true
 
-#    - name: my_model
-#      func: my_model.dummy_func
-#      enabled: true
-#      arguments:
-#        image_file: 'examples/basic/input.fits'
-#        fit_image_to_det: true
-#        convert_to_photons: true
-
   # photons -> photons
   optics:
     - name: optical_psf

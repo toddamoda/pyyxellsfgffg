@@ -17,15 +17,6 @@ def simple_full_well(detector: Detector):
     fwc = detector.characteristics.fwc
     if fwc is None:
         raise ValueError('Full Well Capacity is not defined')
-
     charge_array = detector.pixels.array
-    mask = charge_array > fwc
-    charge_array[mask] = fwc
-
-
-# def mc_full_well(detector: Detector):
-#     """
-#     Moving charges to random neighbour pixels due to full well which depends on pixel location
-#     :return:
-#     """
-#
+    charge_array[charge_array > fwc] = fwc
+    detector.pixels.array = charge_array
