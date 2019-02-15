@@ -1,14 +1,20 @@
 """Pyxel detector simulation framework."""
 import os
+import logging
 import typing as t
 import esapy_config.checkers as checkers
 import esapy_config.validators as validators
 import esapy_config.funcargs as funcargs
 import esapy_config.config as config
 import esapy_config.io as io
+# from pyxel.detectors.detector import Detector
+# from pyxel.detectors.ccd import CCD
+# from pyxel.detectors.cmos import CMOS
 
 
-__all__ = ['models', 'detectors', 'pipelines',
+__all__ = ['models',
+           # 'detectors', 'pipelines',
+           # 'Detector', 'CCD', 'CMOS',     # todo
            'attribute', 'detector_class',
            'check_type', 'check_path', 'check_range', 'check_choices',
            'validate_choices', 'validate_range', 'validate_type']
@@ -47,6 +53,12 @@ def attribute(doc: t.Optional[str] = None,
 def argument(name: str, **kwargs):
     """TBW."""
     return funcargs.argument(name=name, **kwargs)
+
+
+def logger():
+    """TBW."""
+    log = logging.getLogger('pyxel')
+    log.info('')
 
 
 # from functools import wraps
