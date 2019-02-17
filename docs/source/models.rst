@@ -11,9 +11,9 @@ damage).
 
 Models are Python functions with a Detector object defined as
 their input argument. The model function has to be
-registered in Pyxel model registry and added to the YAML configuration file.
+added to the YAML configuration file.
 Then the function is automatically called by Pyxel inside a loop of its
-model group (level) and the Detector object is passed to it. The model modifies
+model group and the Detector object is passed to it. The model may modifies
 this Detector object which is also used and modified further by the next
 models in the pipeline.
 
