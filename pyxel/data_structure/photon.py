@@ -32,4 +32,12 @@ class Photon(Array):
 
         :param new_array:
         """
-        self._array = new_array
+        if isinstance(new_array, np.ndarray):
+            if new_array.dtype in self.type_list:
+                self._array = new_array
+                self.type = new_array.dtype
+            else:
+                raise TypeError('Type of %s array should be a(n) %s' %
+                                (self.__class__.__name__, self.exp_type.__name__))
+        else:
+            raise TypeError('%s array should be a numpy.ndarray' % self.__class__.__name__)

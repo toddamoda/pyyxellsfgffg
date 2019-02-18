@@ -118,3 +118,6 @@ pipeline:
     - name: simple_processing
       func: pyxel.models.readout_electronics.digitization.simple_processing
       enabled: true
+
+
+

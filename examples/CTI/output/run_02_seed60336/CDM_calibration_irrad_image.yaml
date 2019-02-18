@@ -16,7 +16,6 @@ simulation:
     result_fit_range:     [0, 100, 0, 100]
     target_data_path:     ['examples/CTI/input_data/cti_image/image_irradiated.fits']
     target_fit_range:     [0, 100, 0, 100]
-#    seed:                77534  # 15164  # 7573  # 33231
     fitness_function:
       func:               pyxel.calibration.fitness.sum_of_abs_residuals
       arguments:

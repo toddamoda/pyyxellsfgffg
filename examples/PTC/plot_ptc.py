@@ -16,11 +16,12 @@ ax_args = {
     'ylim': [1., 3.e+4]
 }
 
+last = 'run 4: all noise + FWC'
 run_dict = {
-    'readout noise':        'run_01',
-    'shot noise':           'run_02',
-    'fixed pattern noise':  'run_03',
-    'all with FWC':         'run_04'
+    'run 1: only readout noise':        'run_01',
+    'run 2: only shot noise':           'run_02',
+    'run 3: only fixed pattern noise':  'run_03',
+    last:                               'run_04'
 }
 
 folder = 'examples/PTC/outputs/'
@@ -28,13 +29,13 @@ x = np.load(folder + 'run_01/x_parametric_01.npy')
 
 for key, val in run_dict.items():
     y = np.load(folder + val + '/y_parametric_01.npy')
-    if key == 'all with FWC':
-        plt.plot(x, y, label=key, marker='.', linestyle='', markersize=6)
+    if key == last:
+        plt.plot(x, y, label=key, marker='x', linestyle='', markersize=6)
     else:
         plt.plot(x, y, label=key, marker='.', linestyle='', markersize=4)
     update_plot(ax_args)
     plt.draw()
 
 plt.legend()
-plt.savefig('ptc')
+plt.savefig(folder+'ptc.png')
 plt.show()

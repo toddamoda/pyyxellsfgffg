@@ -6,6 +6,7 @@ import logging
 import numpy as np
 # import pyxel
 from pyxel.detectors.detector import Detector
+import numba
 
 
 # @pyxel.validate
@@ -16,7 +17,7 @@ def simple_collection(detector: Detector):
     logger = logging.getLogger('pyxel')
     logger.info('')
     geo = detector.geometry
-    array = np.zeros((geo.row, geo.col), int)
+    array = np.zeros((geo.row, geo.col))
 
     charge_per_pixel = detector.charges.get_values(quantity='number')
     charge_pos_ver = detector.charges.get_values(quantity='position_ver')
@@ -25,7 +26,11 @@ def simple_collection(detector: Detector):
     pixel_index_ver = np.floor_divide(charge_pos_ver, geo.pixel_vert_size).astype(int)
     pixel_index_hor = np.floor_divide(charge_pos_hor, geo.pixel_horz_size).astype(int)
 
+    detector.pixels.array = df_to_array(array, charge_per_pixel, pixel_index_ver, pixel_index_hor)
+
+
+@numba.jit(nopython=True)
+def df_to_array(array, charge_per_pixel, pixel_index_ver, pixel_index_hor):
     for i, charge_value in enumerate(charge_per_pixel):
         array[pixel_index_ver[i], pixel_index_hor[i]] += charge_value
-
-    detector.pixels.array = array
+    return array
