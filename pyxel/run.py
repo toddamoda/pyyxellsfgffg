@@ -48,10 +48,10 @@ def run(input_filename, random_seed: int = None):
 
     elif simulation.mode == 'calibration' and simulation.calibration:
         logger.info('Mode: Calibration')
-        detector, results = simulation.calibration.run_calibration(processor, out)
+        processor, results = simulation.calibration.run_calibration(processor, out)
         logger.info('Champion fitness:   %1.5e' % results['fitness'])
         if out:
-            out.calibration_output(detector=detector, results=results)
+            out.calibration_output(processor=processor, results=results)
 
     elif simulation.mode == 'parametric' and simulation.parametric:
         logger.info('Mode: Parametric')

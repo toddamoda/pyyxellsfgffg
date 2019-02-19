@@ -1,0 +1,145 @@
+# ########################################################### #
+# Pyxel detector simulation framework                         #
+#                                                             #
+# Example yaml configuration file                             #
+# Calibrate CDM CTI model with target image                   #
+# Created by D. Lucsanyi (ESA)                                #
+# ########################################################### #
+
+simulation:
+
+  mode: calibration
+
+  calibration:
+    calibration_mode:     pipeline
+    result_type:          image
+    result_fit_range:     [0, 100, 0, 100]
+    target_data_path:     ['examples/CTI/input_data/cti_image/image_irradiated.fits']
+    target_fit_range:     [0, 100, 0, 100]
+    fitness_function:
+      func:               pyxel.calibration.fitness.sum_of_abs_residuals
+      arguments:
+    algorithm:
+      type:               sade
+      generations:        50
+      population_size:    200
+      variant:            2
+    parameters:
+      - key:              pipeline.charge_transfer.cdm.arguments.tr_p
+        values:           [_, _]
+        logarithmic:      true
+        boundaries:       [1.e-3, 1.e-1]
+      - key:              pipeline.charge_transfer.cdm.arguments.nt_p
+        values:           [_, _]
+        logarithmic:      true
+        boundaries:       [1.e+2, 1.e+4]
+
+  outputs:
+    output_folder:        'examples/CTI/output'
+    calibration_plot:
+      champions_plot:
+        plot_args:
+          yscale: 'log'
+      population_plot:
+        columns: [2, 4]
+        plot_args:
+          xscale: 'log'
+          yscale: 'log'
+          title: 'trap specie #1'
+          xlabel: 'release time (s)'
+          ylabel: 'density (cm$^{-3}$)'
+
+detector:
+  class: pyxel.detectors.ccd.CCD
+
+  geometry:
+    class: pyxel.detectors.ccd_geometry.CCDGeometry
+
+    row:   100                  # pixels
+    col:   100                  # pixels
+    total_thickness: 40.        # um
+    pixel_vert_size: 10.        # um
+    pixel_horz_size: 10.        # um
+
+  material:
+    class: pyxel.detectors.material.Material
+    material: 'silicon'
+
+  environment:
+    class: pyxel.detectors.environment.Environment
+    temperature: 300        # K
+
+  characteristics:
+    class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
+    qe: 0.5                 # -
+    eta: 1.                 # e/photon
+    sv: 1.0e-6              # V/e
+    amp: 0.8                # V/V
+    a1: 100.                # V/V
+    a2: 65536               # DN/V
+    fwc: 900000             # e
+    fwc_serial: 1000000     # e
+    vg: 1.6200e-10          # cm^2
+    svg: 1.6200e-10         # cm^2
+    t: 9.4722e-04           # s
+    st: 9.4722e-04          # s
+
+pipeline:
+  class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
+
+  # -> photons
+  photon_generation:
+    - name: load_image
+      func: pyxel.models.photon_generation.load_image.load_image
+      enabled: true
+      arguments:
+        image_file: examples/CTI/input_data/cti_image/image_non_irradiated.fits
+        convert_to_photons: true
+
+  # photons -> photons
+  optics:
+
+  # photons -> charges
+  charge_generation:
+    - name: photoelectrons
+      func: pyxel.models.charge_generation.photoelectrons.simple_conversion
+      enabled: true
+
+  # charges -> pixels
+  charge_collection:
+    - name: simple_collection
+      func: pyxel.models.charge_collection.collection.simple_collection
+      enabled: true
+
+  # pixels -> pixels
+  charge_transfer:
+    - name: cdm
+      func: pyxel.models.charge_transfer.cdm.CDM.cdm
+      enabled: true
+      arguments:
+        parallel_cti: true
+        serial_cti: false
+        charge_injection: false
+        beta_p: 0.4
+        beta_s: 0.
+        tr_p: [0., 0.]      # calibrating this parameter
+        tr_s: []
+        nt_p: [0., 0.]       # calibrating this parameter
+        nt_s: []
+        sigma_p: [1.e-10, 1.e-10]
+        sigma_s: []
+
+  # pixels -> signal
+  charge_measurement:
+    - name: simple_measurement
+      func: pyxel.models.charge_measurement.measurement.simple_measurement
+      enabled: true
+
+  # signal -> image
+  readout_electronics:
+    - name: simple_amplifier
+      func: pyxel.models.readout_electronics.amplification.simple_amplifier
+      enabled: true
+    - name: simple_digitization
+      func: pyxel.models.readout_electronics.digitization.simple_processing
+      enabled: true

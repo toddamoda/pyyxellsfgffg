@@ -54,8 +54,7 @@ pipeline:
       arguments:
         image_file: tests/data/image.fits
         fit_image_to_det: true
-        row0: 10
-        col0: 10
+        position: [10, 10]
         convert_to_photons: true
     -
       name: illumination

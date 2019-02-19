@@ -34,6 +34,7 @@ def ktc_bias_noise(detector: CMOS,
     :param wind_x_size:
     :param wind_y_size:
     """
+    logging.getLogger("nghxrg").setLevel(logging.WARNING)
     logger = logging.getLogger('pyxel')
     logger.info('')
     geo = detector.get_geometry()
@@ -86,6 +87,7 @@ def white_read_noise(detector: CMOS,
     :param wind_x_size:
     :param wind_y_size:
     """
+    logging.getLogger("nghxrg").setLevel(logging.WARNING)
     logger = logging.getLogger('pyxel')
     logger.info('')
     geo = detector.get_geometry()
@@ -136,6 +138,7 @@ def acn_noise(detector: CMOS,
     :param wind_x_size:
     :param wind_y_size:
     """
+    logging.getLogger("nghxrg").setLevel(logging.WARNING)
     logger = logging.getLogger('pyxel')
     logger.info('')
     geo = detector.get_geometry()
@@ -186,6 +189,7 @@ def uncorr_pink_noise(detector: CMOS,
     :param wind_x_size:
     :param wind_y_size:
     """
+    logging.getLogger("nghxrg").setLevel(logging.WARNING)
     logger = logging.getLogger('pyxel')
     logger.info('')
     geo = detector.get_geometry()
@@ -236,6 +240,7 @@ def corr_pink_noise(detector: CMOS,
     :param wind_x_size:
     :param wind_y_size:
     """
+    logging.getLogger("nghxrg").setLevel(logging.WARNING)
     logger = logging.getLogger('pyxel')
     logger.info('')
     geo = detector.get_geometry()
@@ -286,6 +291,7 @@ def pca_zero_noise(detector: CMOS,
     :param wind_x_size:
     :param wind_y_size:
     """
+    logging.getLogger("nghxrg").setLevel(logging.WARNING)
     logger = logging.getLogger('pyxel')
     logger.info('')
     geo = detector.get_geometry()

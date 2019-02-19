@@ -180,7 +180,7 @@ def test_custom_fitness(yaml, simulated_data, target_data, expected_fitness):
                              ('tests/data/calibrate_models.yaml',
                               np.array([1., 0.5, 1.5, -2., -3., 4.5, -4., 1.,
                                         0.5, -3.5, 2., -3., -4., 0.5, 1., 100.]),
-                              148.49813052846002)
+                              156.49813052846002)
                          ])
 def test_fitness(yaml, parameter, expected_fitness):
     """Test"""

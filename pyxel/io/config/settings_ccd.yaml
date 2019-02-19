@@ -273,6 +273,6 @@ pipeline:
       arguments:
         data_type: numpy.uint32
     -
-      name: simple_digitization
+      name: simple_processing
       func: pyxel.models.readout_electronics.digitization.simple_processing
       enabled: true

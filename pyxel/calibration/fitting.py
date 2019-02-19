@@ -234,7 +234,7 @@ class ModelFitting:
                 results[var.key] = parameter[a:a + b]
             a += b
 
-        return champion.detector, results
+        return champion, results
 
     def population_and_champions(self, parameter, overall_fitness):
         """Get champion (also population) of each generation and write it to output file(s).

@@ -11,9 +11,9 @@ damage).
 
 Models are Python functions with a Detector object defined as
 their input argument. The model function has to be
-registered in Pyxel model registry and added to the YAML configuration file.
+added to the YAML configuration file.
 Then the function is automatically called by Pyxel inside a loop of its
-model group (level) and the Detector object is passed to it. The model modifies
+model group and the Detector object is passed to it. The model may modifies
 this Detector object which is also used and modified further by the next
 models in the pipeline.
 
@@ -81,7 +81,7 @@ Photon Generation models
 Loading image
 ***************************
 
-.. autofunction:: pyxel.models.photon_generation.load_image.load_image(detector: Detector, image_file: str, row0: int = 0, col0: int = 0, fit_image_to_det: bool = False)
+.. autofunction:: pyxel.models.photon_generation.load_image.load_image(detector: Detector, image_file: str, position: list = None, fit_image_to_det: bool = False)
 
 Simple illumination
 ***************************

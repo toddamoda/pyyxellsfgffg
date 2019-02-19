@@ -57,8 +57,7 @@ pipeline:
       enabled: true
       arguments:
         image_file: tests/data/uniform_1000.fits
-        row0: 0
-        col0: 0
+        position: [0, 0]
         convert_to_photons: true
 
   # photons -> photons
