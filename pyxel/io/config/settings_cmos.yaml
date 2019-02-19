@@ -4,11 +4,8 @@
 ################
 
 simulation:
-###################
+
   mode: single
-#  mode: parametric
-#  mode: calibration
-###################
 
   outputs:
     output_folder:  'outputs'
@@ -23,7 +20,7 @@ detector:
     total_thickness: 10.0         # um
     pixel_vert_size: 10.0         # um
     pixel_horz_size: 10.0         # um
-    n_output: 4
+    n_output: 1
     n_row_overhead: 0
     n_frame_overhead: 0
     reverse_scan_direction: False
@@ -42,7 +39,7 @@ detector:
     qe: 0.5               # -
     eta: 1                # e/photon
     sv: 1.0e-6            # V/e
-    amp: 0.8             # V/V
+    amp: 0.8              # V/V
     a1: 100               # V/V
     a2: 65536             # DN/V
     fwc: 20000            # e
@@ -59,14 +56,16 @@ pipeline:
         image_file:
         fit_image_to_det: false
         convert_to_photons: true
+
     - name: illumination
       func: pyxel.models.photon_generation.illumination.illumination
       enabled: true
       arguments:
-        level: 1000
+        level: 2000
+
     - name: shot_noise
       func: pyxel.models.photon_generation.shot_noise.shot_noise
-      enabled: true
+      enabled: false
 
   # photons -> photons
   optics:
@@ -81,46 +80,61 @@ pipeline:
   charge_collection:
     - name: full_well
       func: pyxel.models.charge_collection.full_well.simple_full_well
+      enabled: false
+
+    - name: simple_collection
+      func: pyxel.models.charge_collection.collection.simple_collection
       enabled: true
 
   # charge -> signal
   charge_measurement:
+    - name: simple_measurement
+      func: pyxel.models.charge_measurement.measurement.simple_measurement
+      enabled: true
+
+  # signal -> signal
+  signal_transfer:
     - name: nghxrg_ktc_bias
       func: pyxel.models.signal_transfer.nghxrg.nghxrg.ktc_bias_noise
       enabled: true
       arguments:
-        ktc_noise: 500.
-        bias_offset: 300.
-        bias_amp: 400.
+        ktc_noise: 50.
+        bias_offset: 30.
+        bias_amp: 40.
     - name: nghxrg_read
       func: pyxel.models.signal_transfer.nghxrg.nghxrg.white_read_noise
       enabled: true
       arguments:
-        rd_noise: 400.
-        ref_pixel_noise_ratio: 80.
-
-  # signal -> signal
-  signal_transfer:
+        rd_noise: 40.
+        ref_pixel_noise_ratio: 8.
     - name: nghxrg_c_pink
       func: pyxel.models.signal_transfer.nghxrg.nghxrg.corr_pink_noise
       enabled: true
       arguments:
-        c_pink: 300.
+        c_pink: 30.
     - name: nghxrg_u_pink
       func: pyxel.models.signal_transfer.nghxrg.nghxrg.uncorr_pink_noise
       enabled: true
       arguments:
-        u_pink: 200.
+        u_pink: 20.
     - name: nghxrg_acn
       func: pyxel.models.signal_transfer.nghxrg.nghxrg.acn_noise
       enabled: true
       arguments:
-        acn: 500.
-
-  # signal -> image
-  readout_electronics:
+        acn: 50.
     - name: nghxrg_pca_zero
       func: pyxel.models.signal_transfer.nghxrg.nghxrg.pca_zero_noise
       enabled: true
       arguments:
-        pca0_amp: 450.
+        pca0_amp: 45.
+
+  # signal -> image
+  readout_electronics:
+    - name: simple_amplifier
+      func: pyxel.models.readout_electronics.amplification.simple_amplifier
+      enabled: true
+
+    - name: simple_processing
+      func: pyxel.models.readout_electronics.digitization.simple_processing
+      enabled: true
+

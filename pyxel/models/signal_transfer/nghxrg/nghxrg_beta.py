@@ -81,7 +81,7 @@ import datetime
 # Have not verified this in Python 3.x (JML):
 import logging
 # import os
-import warnings
+# import warnings
 from os import path
 
 import numpy as np
@@ -91,9 +91,9 @@ from scipy.ndimage.interpolation import zoom
 
 # import matplotlib.pyplot as plt # Handy for debugging
 
-warnings.filterwarnings('ignore')
-# Have not verified this in Python 3.x (JML):
-_log = logging.getLogger('nghxrg')
+# warnings.filterwarnings('ignore')
+# # Have not verified this in Python 3.x (JML):
+# _log = logging.getLogger('nghxrg')
 
 PCA0FILE = path.dirname(path.abspath(__file__)) + '/nirspec_pca0.fits'
 
@@ -187,6 +187,7 @@ class HXRGNoise:
         # make_noise() method.
         #
         # ======================================================================
+        self._log = logging.getLogger('nghxrg')
 
         wind_mode = wind_mode.upper()
         if wind_mode == 'WINDOW':
@@ -305,10 +306,10 @@ class HXRGNoise:
         # Define pinkening filters. F1 and p_filter1 are used to
         # generate ACN. F2 and p_filter2 are used to generate 1/f noise.
         self.alpha = -1     # Hard code for 1/f noise until proven otherwise
-        self.p_filter1 = np.sqrt(self.f1**self.alpha)
-        self.p_filter2 = np.sqrt(self.f2**self.alpha)
-        self.p_filter1[0] = 0.
-        self.p_filter2[0] = 0.
+        self.p_filter1 = np.sqrt(self.f1[1:]**self.alpha)
+        self.p_filter2 = np.sqrt(self.f2[1:]**self.alpha)
+        self.p_filter1 = np.insert(self.p_filter1, 0, 0.)
+        self.p_filter2 = np.insert(self.p_filter2, 0, 0.)
 
         # Initialize pca0. This includes scaling to the correct size,
         # zero offsetting,  and renormalization. We use robust statistics
@@ -386,8 +387,7 @@ class HXRGNoise:
     def message(self, message_text):
         """Print a message to the terminal."""
         if self.verbose is True:
-            print('NG: ' + message_text + ' at DATETIME = ',
-                  datetime.datetime.now().time())
+            self._log.info('NG: ' + message_text)
 
     def pink_noise(self, mode):
         """TBW.
