@@ -77,7 +77,7 @@ which returns result numpy array to be able to add to Pyxel detector signal
 # Should still work under Python 3.x (JML)
 from __future__ import division, print_function
 
-import datetime
+# import datetime
 # Have not verified this in Python 3.x (JML):
 import logging
 # import os
