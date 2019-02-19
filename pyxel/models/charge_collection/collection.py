@@ -31,6 +31,7 @@ def simple_collection(detector: Detector):
 
 @numba.jit(nopython=True)
 def df_to_array(array, charge_per_pixel, pixel_index_ver, pixel_index_hor):
+    """TBW."""
     for i, charge_value in enumerate(charge_per_pixel):
         array[pixel_index_ver[i], pixel_index_hor[i]] += charge_value
     return array
