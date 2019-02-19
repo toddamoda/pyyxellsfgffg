@@ -3,7 +3,7 @@ import logging
 import poppy as op
 import numpy as np
 from scipy import signal
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 # import pyxel
 from pyxel.detectors.detector import Detector
 
@@ -146,3 +146,5 @@ def optical_psf(detector: Detector,
 
     # conv_with_wavefront = signal.convolve2d(detector.photons.array, psf[1][-1].wavefront,
     #                                         mode='same', boundary='fill', fillvalue=0)
+
+    plt.close('all')       # TODO

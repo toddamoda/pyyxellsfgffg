@@ -75,11 +75,11 @@ pipeline:
   optics:
     - name: optical_psf
       func: pyxel.models.optics.poppy.optical_psf
-      enabled: true
+      enabled: false
       arguments:
-        fov_pixels: 30          # FOV in pixels
-        pixelscale: 0.05        # micron/pixel OR arcsec/pixel
-        wavelength: 2.e-6       # wavelength in microns
+        fov_pixels: 30        # FOV in pixels
+        pixelscale: 0.05       # micron/pixel OR arcsec/pixel
+        wavelength: 2.e-6     # wavelength in microns
         optical_system:
           - item: CircularAperture
             radius: 0.5
@@ -96,15 +96,15 @@ pipeline:
 
     - name: tars
       func: pyxel.models.charge_generation.tars.tars.run_tars
-      enabled: true
+      enabled: false
       arguments:
-        simulation_mode: cosmic_ray
+        simulation_mode: cosmic_ray   # snowflakes
         running_mode: stepsize
         particle_type: proton
-        initial_energy: 100.          # MeV
+        initial_energy: 100.   # MeV
         particle_number: 100
-        incident_angles:
-        starting_position:
+        incident_angles:        # rad
+        starting_position:      # um
         spectrum_file: 'pyxel/models/charge_generation/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
         random_seed: 4321
 
@@ -122,7 +122,7 @@ pipeline:
   charge_transfer:
     - name: cdm
       func: pyxel.models.charge_transfer.cdm.CDM.cdm
-      enabled: true
+      enabled: false
       arguments:
         parallel_cti: true
         serial_cti: false
