@@ -73,14 +73,14 @@ then check if the tool ``conda`` is correctly installed:
 
   $ conda info
 
-The second step is to create a new conda environment `pyxel-dev` and to install  
-the dependencies with ``conda`` and ``pip``:
+The second step is to create a new conda environment `pyxel-dev` and
+to install the dependencies with ``conda`` and ``pip``:
 
 .. code-block:: bash
 
   $ cd pyxel
 
-  Create a new conda environment 'pyxel-dev' 
+  Create a new conda environment 'pyxel-dev'
   and install some dependencies from conda with `environment.yml`
   $ conda env create -f environment.yml
 
