@@ -73,7 +73,6 @@ then check if the tool ``conda`` is correctly installed:
 
   $ conda info
 
-
 The second step is to create a new conda environment `pyxel-dev` and to install  
 the dependencies with ``conda`` and ``pip``:
 
@@ -81,7 +80,7 @@ the dependencies with ``conda`` and ``pip``:
 
   $ cd pyxel
 
-  Create conda a new environment 'pyxel-dev' 
+  Create a new conda environment 'pyxel-dev' 
   and install some dependencies from conda with `environment.yml`
   $ conda env create -f environment.yml
 
@@ -102,35 +101,19 @@ Then install ``pyxel`` in the conda environment:
   $ (pyxel-dev) cd pyxel
   $ (pyxel-dev) pip install -e .
 
-Then create a new conda environemnt
+More about the conda environments (only for information):
 
 .. code-block:: bash
 
-    Create a new conda environment 'pyxel-dev'
-    $ conda create --name pyxel-dev
+  Deactivate the environment
+  $ conda deactivate
 
-    Activate this environment 'pyxel-dev'
-    $ conda activate pyxel-dev
+  Remove the conda environment 'pyxel-dev'
+  $ conda remove --name pyxel-dev --all
 
-    Get information from this environment
-    $ conda info --envs
-
-    Install all dependencies
-    $ cd pyxel
-    $ conda 
-
-    Display all conda environments
-    $ conda info --envs
-
-
-
-    Deactivate the environment
-    $ conda deactivate
 
 After these steps, you are ready to run Pyxel, see
 :ref:`here how to run it <running_modes>`.
-
-
 
 
 Using Docker
