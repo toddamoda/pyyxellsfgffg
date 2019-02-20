@@ -88,45 +88,33 @@ pipeline:
 
   # charge -> signal
   charge_measurement:
+    - name: nghxrg
+      func: pyxel.models.signal_transfer.nghxrg.nghxrg.nghxrg
+      enabled: true
+      arguments:
+        noise:
+          - ktc_bias_noise: true
+            ktc_noise: 29.
+            bias_offset: 5000.
+            bias_amp: 500.
+          - white_read_noise: false
+            rd_noise: 40.
+            ref_pixel_noise_ratio: 8.
+          - corr_pink_noise: true
+            c_pink: 30.
+          - uncorr_pink_noise: true
+            u_pink: 20.
+          - acn_noise: true
+            acn: 50.
+          - pca_zero_noise: true
+            pca0_amp: 45.
+
     - name: simple_measurement
       func: pyxel.models.charge_measurement.measurement.simple_measurement
       enabled: true
 
   # signal -> signal
   signal_transfer:
-    - name: nghxrg_ktc_bias
-      func: pyxel.models.signal_transfer.nghxrg.nghxrg.ktc_bias_noise
-      enabled: true
-      arguments:
-        ktc_noise: 50.
-        bias_offset: 30.
-        bias_amp: 40.
-    - name: nghxrg_read
-      func: pyxel.models.signal_transfer.nghxrg.nghxrg.white_read_noise
-      enabled: true
-      arguments:
-        rd_noise: 40.
-        ref_pixel_noise_ratio: 8.
-    - name: nghxrg_c_pink
-      func: pyxel.models.signal_transfer.nghxrg.nghxrg.corr_pink_noise
-      enabled: true
-      arguments:
-        c_pink: 30.
-    - name: nghxrg_u_pink
-      func: pyxel.models.signal_transfer.nghxrg.nghxrg.uncorr_pink_noise
-      enabled: true
-      arguments:
-        u_pink: 20.
-    - name: nghxrg_acn
-      func: pyxel.models.signal_transfer.nghxrg.nghxrg.acn_noise
-      enabled: true
-      arguments:
-        acn: 50.
-    - name: nghxrg_pca_zero
-      func: pyxel.models.signal_transfer.nghxrg.nghxrg.pca_zero_noise
-      enabled: true
-      arguments:
-        pca0_amp: 45.
 
   # signal -> image
   readout_electronics:

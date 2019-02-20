@@ -72,6 +72,11 @@ which returns result numpy array to be able to add to Pyxel detector signal
 - removed STRIPE mode (did not work), use WINDOW instead -> BUG: code doesn't work with different x and y array sizes
 - Integrated into Pyxel detector simulation framework via a wrapper function
 - Version 2.7
+
+20 Feb 2019,  David Lucsanyi, ESA/ESTEC
+- use logging
+- ZeroDivision error fixed
+- Version 2.8
 """
 # Necessary for Python 2.6 and later (JML)
 # Should still work under Python 3.x (JML)
@@ -119,7 +124,7 @@ class HXRGNoise:
     """
 
     # These class variables are common to all HxRG detectors
-    nghxrg_version = 2.7    # Sofware version
+    nghxrg_version = 2.8    # Sofware version
 
     def __init__(self, det_size_x=2048, det_size_y=2048,       # naxis1=2048,  naxis2=2048,
                  cube_z=1, n_out=4,
@@ -547,7 +552,7 @@ class HXRGNoise:
         """
         result = np.zeros((self.naxis3, self.naxis2, self.naxis1), dtype=np.float32)
 
-        if self.naxis3 > 1:
+        if self.naxis3 > 1:     # NOTE: there is no kTc or Bias noise added for first/single frame
             self.message('Generating ktc_bias_noise')
             # If there are no reference pixels,
             # we know that we are dealing with a subarray. In this case,  we do not
@@ -713,7 +718,7 @@ class HXRGNoise:
 
         return result
 
-    def add_pca_zero_noise(self, pca0_amp=0.2):
+    def add_pca_zero_noise(self, pca0_amp=0.2):  # TODO add pca0_file
         """TBW.
 
         Add PCA-zero. The PCA-zero template is modulated by 1/f.
