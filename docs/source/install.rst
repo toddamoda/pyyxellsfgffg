@@ -26,7 +26,7 @@ Requirements
 
 
 From source
---------------------------------
+-----------
 
 First, get access to the `Pyxel GitLab repository <https://gitlab.com/esa/pyxel>`_
 from David Lucsanyi (@david.lucsanyi).
@@ -37,6 +37,11 @@ using ``git``:
 .. code-block:: bash
 
     git clone https://gitlab.com/esa/pyxel.git
+    cd pyxel
+
+
+Installation without Anaconda
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 After cloning the repository, install all the requirements with
 ``pip`` using the ``requirements.txt`` file inside the ``pyxel``
@@ -46,10 +51,66 @@ folder:
 
   pip install -r requirements.txt
 
+Then install locally ``pyxel``:
+
+.. code-block:: bash
+
+  pip install -e .
+
 If a package is not available in any PyPI server for your OS, because
 you are using Conda or Anaconda Python distribution, then you might
 have to download the Conda compatible whl file of some dependencies
 and install it manually with ``conda install``.
+
+
+Installation with Anaconda
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+First install the `Anaconda distribution <https://www.anaconda.com/distribution/>`_
+then check if the tool ``conda`` is correctly installed:
+
+.. code-block:: bash
+
+  $ conda info
+
+The second step is to create a new conda environment `pyxel-dev` and
+to install the dependencies with ``conda`` and ``pip``:
+
+.. code-block:: bash
+
+  $ cd pyxel
+
+  Create a new conda environment 'pyxel-dev'
+  and install some dependencies from conda with `environment.yml`
+  $ conda env create -f environment.yml
+
+  Display all conda environments (only for checking)
+  $ conda info --envs
+
+  Activate the conda environment 'pyxel-dev'
+  $ (pyxel-dev) conda activate pyxel-dev
+
+  Install the other dependencies not installed by conda
+  $ (pyxel-dev) pip install -r requirements.txt
+
+
+Then install ``pyxel`` in the conda environment:
+
+.. code-block:: bash
+
+  $ (pyxel-dev) cd pyxel
+  $ (pyxel-dev) pip install -e .
+
+More about the conda environments (only for information):
+
+.. code-block:: bash
+
+  Deactivate the environment
+  $ conda deactivate
+
+  Remove the conda environment 'pyxel-dev'
+  $ conda remove --name pyxel-dev --all
+
 
 After these steps, you are ready to run Pyxel, see
 :ref:`here how to run it <running_modes>`.
