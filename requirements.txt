@@ -12,9 +12,7 @@ pygmo==2.10
 numba
 tqdm
 matplotlib                  # for plotting, should be optional
-tables                      # for reading/writing HDF5 files, should be optional
-Pillow                      # for reading/writing bitmap files, should be optional
-
+h5py
 
 ########################
 # Models               #
@@ -27,5 +25,3 @@ poppy==0.8.0
 ########################
 
 dependencies/esapy_config-0.7.1-py2.py3-none-any.whl
-# git+https://gitlab.esa.int/sci-fv/esapy_config#egg=esapy-config
-# esapy-config==0.7
