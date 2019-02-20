@@ -1,4 +1,4 @@
-name: pyxel
+name: pyxel-dev
 channels:
   - conda-forge
   - defaults
