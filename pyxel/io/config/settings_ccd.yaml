@@ -6,119 +6,9 @@
 simulation:
 
   mode: single
-#  mode: parametric
-#  mode: calibration
-
-  parametric:
-    parametric_mode: sequential
-#    parametric_mode: embedded
-#    parametric_mode: parallel
-#    from_file: 'outputs/calibration_champions.out'
-#    column_range: [2, 17]
-    parameters:
-      - key: pipeline.charge_generation.tars.arguments.particle_number
-        values: range(2, 10)
-        enabled: true
-#      - key: pipeline.photon_generation.illumination.arguments.level
-#        values: range(0, 200, 50)
-#        enabled: true
-
-#      - key:  detector.characteristics.amp
-#        values: _
-#      - key:  pipeline.charge_transfer.cdm.arguments.tr_p
-#        values: [_, _, _, _]
-#      - key:  pipeline.charge_transfer.cdm.arguments.nt_p
-#        values: [_, _, _, _]
-#      - key:  pipeline.charge_transfer.cdm.arguments.sigma_p
-#        values: [_, _, _, _]
-#      - key:  pipeline.charge_transfer.cdm.arguments.beta_p
-#        values: _
-#      - key:  detector.environment.temperature
-#        values: _
 
   outputs:
     output_folder:  'outputs'
-
-#    single_plot:
-#      x: 'detector.photons.array'
-#      y: 'detector.image.array'
-#      plot_type: 'graph'
-##      plot_type: 'histogram'
-##      plot_type: 'scatter'
-#      plot_args:
-##        bins: 100
-#        xlabel: 'photon number'
-#        ylabel: 'image values (ADU)'
-#        yscale: 'log'
-#
-#    parametric_plot:
-#      x:  'detector.image.mean'
-#      y:  'detector.image.std_deviation'
-##      plot_args:
-##        xlabel:
-##        ylabel: 'sigma'
-##        title: 'Parametric analysis'
-##        xscale: 'linear'
-##        yscale: 'log'
-##        grid: true
-##        color: green
-#
-#    calibration_plot:
-#      champions_plot:
-##        plot_args:
-#      population_plot:
-##        columns: [16, 2]
-##        plot_args:
-
-
-  calibration:
-    calibration_mode:  pipeline  #  single_model #
-
-    result_type: pixel # image   # signal
-    result_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50] #
-
-    target_data_path: ['data/results.fits']     #  <*.npy> <*.fits> <ascii>
-    target_fit_range: [0, 2, 0, 2] #[10, 30, 20, 50]
-#    weighting_path: ['data/results.fits']
-
-    fitness_function:
-#      func: tests.unittests.test_fitting.custom_fitness_func
-      func: pyxel.calibration.fitness.sum_of_abs_residuals
-      arguments:
-
-    seed: 132
-    algorithm:
-      type: sade   # sga  # nlopt
-#      nlopt_solver: sbplx  # neldermead
-      generations: 5
-      population_size: 10
-      variant: 2
-
-    parameters:
-      - key:  detector.characteristics.amp
-        values: _
-        logarithmic: false
-        boundaries: [1., 10.]
-#      - key:  pipeline.charge_transfer.cdm.arguments.tr_p
-#        values: [_, _, _, _]
-#        logarithmic: true
-#        boundaries: [1.e-3, 2.]
-#      - key:  pipeline.charge_transfer.cdm.arguments.nt_p
-#        values: [_, _, _, _]
-#        logarithmic: true
-#        boundaries: [1.e-2, 1.e+1]
-#      - key:  pipeline.charge_transfer.cdm.arguments.sigma_p
-#        values: [_, _, _, _]
-#        logarithmic: true
-#        boundaries: [1.e-20, 1.e-15]
-#      - key:  pipeline.charge_transfer.cdm.arguments.beta_p
-#        values: _
-#        logarithmic: false
-#        boundaries: [0., 1.]
-      - key:  detector.environment.temperature
-        values: _
-        logarithmic: false
-        boundaries: [100., 200.]
 
 detector:
   class: pyxel.detectors.ccd.CCD
@@ -126,11 +16,11 @@ detector:
   geometry:
     class: pyxel.detectors.ccd_geometry.CCDGeometry
 
-    row:   100                   # compulsory
-    col:   100                     # compulsory
-    total_thickness: 40.0          # um
-    pixel_vert_size: 10. #10.0         # um
-    pixel_horz_size: 10. #10.0  #30.   # um
+    row:   100
+    col:   100
+    total_thickness: 40.    # um
+    pixel_vert_size: 10.    # um
+    pixel_horz_size: 10.    # um
 
   material:
     class: pyxel.detectors.material.Material
@@ -140,9 +30,7 @@ detector:
 
   environment:
     class: pyxel.detectors.environment.Environment
-#      temperature: 300                     # K
-#      total_ionising_dose: 0              #
-#      total_non_ionising_dose: 0          #
+    temperature: 300                     # K
 
   characteristics:
     class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
@@ -158,7 +46,6 @@ detector:
     svg: 1.6200e-10         # cm2
     t: 9.4722e-04           # s
     st: 9.4722e-04          # s
-#      bias_voltage: 0.0        # V
 
 pipeline:
   class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
@@ -169,7 +56,7 @@ pipeline:
       func: pyxel.models.photon_generation.load_image.load_image
       enabled: false
       arguments:
-        image_file: outputs/in.fits # data/01.fits
+        image_file: outputs/in.fits
         fit_image_to_det: false
         convert_to_photons: true
     - name: illumination
@@ -186,52 +73,44 @@ pipeline:
 
   # photons -> charge
   charge_generation:
-
-    -
-      name: photoelectrons
+    - name: photoelectrons
       func: pyxel.models.charge_generation.photoelectrons.simple_conversion
       enabled: true
-    -
-      name: tars
+    - name: tars
       func: pyxel.models.charge_generation.tars.tars.run_tars
       enabled: true
       arguments:
-        simulation_mode: cosmic_ray   # snowflakes
-        running_mode: stepsize  # stopping  # plotting  # geant4
+        simulation_mode: cosmic_ray
+        running_mode: stepsize
         particle_type: proton
         initial_energy: 100.   # MeV
         particle_number: 10
         incident_angles:      # rad
         starting_position:    # um
         spectrum_file: 'pyxel/models/charge_generation/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
-    -
-      name: charge_injection
+    - name: charge_injection
       func: pyxel.models.charge_generation.charge_injection.charge_injection
       enabled: false
       arguments:
-        input_data_list: #path
+        input_data_list:
 
   # charge -> charge
   charge_collection:
-    -
-      name: fixed_pattern_noise
+    - name: fixed_pattern_noise
       func: pyxel.models.charge_collection.fix_pattern_noise.fix_pattern_noise
       enabled: false
       arguments:
         pix_non_uniformity: data/non_uniformity_array_normal_random_dist.data
-    -
-      name: full_well
+    - name: full_well
       func: pyxel.models.charge_collection.full_well.simple_full_well
       enabled: false
-    -
-      name: simple_collection
+    - name: simple_collection
       func: pyxel.models.charge_collection.collection.simple_collection
       enabled: true
 
   # charge -> charge
   charge_transfer:
-    -
-      name: cdm
+    - name: cdm
       func: pyxel.models.charge_transfer.cdm.CDM.cdm
       enabled: false
       arguments:
@@ -249,12 +128,10 @@ pipeline:
 
   # charge -> signal
   charge_measurement:
-    -
-      name: simple_measurement
+    - name: simple_measurement
       func: pyxel.models.charge_measurement.measurement.simple_measurement
       enabled: true
-    -
-      name: output_node_noise
+    - name: output_node_noise
       func: pyxel.models.charge_measurement.readout_noise.output_node_noise
       enabled: true
       arguments:
@@ -262,17 +139,14 @@ pipeline:
 
   # signal -> image
   readout_electronics:
-    -
-      name: simple_amplifier
+    - name: simple_amplifier
       func: pyxel.models.readout_electronics.amplification.simple_amplifier
       enabled: true
-    -
-      name: simple_digitization
+    - name: simple_digitization
       func: pyxel.models.readout_electronics.digitization.simple_digitization
       enabled: false
       arguments:
         data_type: numpy.uint32
-    -
-      name: simple_processing
+    - name: simple_processing
       func: pyxel.models.readout_electronics.digitization.simple_processing
       enabled: true

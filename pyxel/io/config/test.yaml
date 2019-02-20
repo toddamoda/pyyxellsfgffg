@@ -6,14 +6,18 @@
 simulation:
   mode: single
 
+  outputs:
+    output_folder:  'outputs'
+
+
 detector:
   class: pyxel.detectors.ccd.CCD
 
   geometry:
     class: pyxel.detectors.ccd_geometry.CCDGeometry
 
-    row:   500                   # compulsory
-    col:   500                   # compulsory
+    row:   500                   #
+    col:   500                   #
     total_thickness: 40.         # um
     pixel_vert_size: 10.         # um
     pixel_horz_size: 10.         # um
@@ -22,19 +26,15 @@ detector:
     class: pyxel.detectors.material.Material
     material: 'silicon'
 
-    n_acceptor: 0.0               # cm-3
-    n_donor: 0.0                  # cm-3
-
   environment:
     class: pyxel.detectors.environment.Environment
-
 
   characteristics:
     class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
     qe: 0.5                 # -
-    eta: 1.                # e/photon
-    sv: 3e-6               # V/e
-    amp: 10.                 # V/V
+    eta: 1.                 # e/photon
+    sv: 3e-6                # V/e
+    amp: 10.                # V/V
     a1: 100.                # V/V
     a2: 10000               # DN/V
     fwc: 1000000            # e
@@ -47,13 +47,13 @@ detector:
 pipeline:
   class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
 
-  # -> photons
+  # photon -> photon
   photon_generation:
     - name: load_image
       func: pyxel.models.photon_generation.load_image.load_image
       enabled: true
       arguments:
-        image_file: data/HorseHead_orig.fits # outputs/200x200px.fits   # outputs/141x123px.fits
+        image_file: data/fits/HorseHead_orig.fits
         fit_image_to_det: true
         convert_to_photons: true
     - name: illumination
@@ -63,27 +63,19 @@ pipeline:
           level: 1111
           option: 'elliptic_hole'
           hole_size: [30, 50]
-    - name: illumination
-      func: pyxel.models.photon_generation.illumination.illumination
-      enabled: false
-      arguments:
-          level: 1111
-          option: 'elliptic_hole'
-          hole_size: [30, 50]
-          hole_center: [500, 500]
     - name: shot_noise
       func: pyxel.models.photon_generation.shot_noise.shot_noise
       enabled: false
 
-  # photons -> photons
+  # photon -> photon
   optics:
     - name: optical_psf
       func: pyxel.models.optics.poppy.optical_psf
-      enabled: false
+      enabled: true
       arguments:
         fov_pixels: 30       # FOV in pixels
         pixelscale: 0.1      # micron/pixel OR arcsec/pixel
-        wavelength: 2.e-6     # wavelength in microns
+        wavelength: 2.e-6    # wavelength in microns
         # fov_arcsec = 10.   # FOV in arcsec, do not use this
         optical_system:
           - item: CircularAperture
@@ -100,7 +92,7 @@ pipeline:
       func: pyxel.models.optics.alignment.alignment
       enabled: true
 
-  # photons -> charge
+  # photon -> charge
   charge_generation:
 
     - name: photoelectrons
@@ -112,16 +104,12 @@ pipeline:
       arguments:
         charge_level: 1230
         columns: [30, 50, 60]
-#        number_of_blocks: 10
-#        block_start: 10
-#        block_length: 20
-#        pause_length: 10
     - name: tars
       func: pyxel.models.charge_generation.tars.tars.run_tars
       enabled: false
       arguments:
-        simulation_mode: cosmic_ray   # snowflakes
-        running_mode: stepsize  # stopping  # plotting  # geant4
+        simulation_mode: cosmic_ray
+        running_mode: stepsize
         particle_type: proton
         initial_energy: 100.   # MeV
         particle_number: 2
@@ -134,7 +122,7 @@ pipeline:
       arguments:
         input_data_list: #path
 
-  # charge -> charge
+  # charge -> pixel
   charge_collection:
     - name: fixed_pattern_noise
       func: pyxel.models.charge_collection.fix_pattern_noise.fix_pattern_noise
@@ -148,7 +136,7 @@ pipeline:
       func: pyxel.models.charge_collection.collection.simple_collection
       enabled: true
 
-  # charge -> charge
+  # pixel -> pixel
   charge_transfer:
     - name: cdm
       func: pyxel.models.charge_transfer.cdm.CDM.cdm
@@ -166,7 +154,7 @@ pipeline:
         sigma_p: [1.e-15]
         sigma_s: [1.e-15]
 
-  # charge -> signal
+  # pixel -> signal
   charge_measurement:
     - name: simple_measurement
       func: pyxel.models.charge_measurement.measurement.simple_measurement
@@ -175,7 +163,7 @@ pipeline:
       func: pyxel.models.charge_measurement.readout_noise.output_node_noise
       enabled: false
       arguments:
-        std_deviation: 0.00001     # TODO
+        std_deviation: 5.e-7
 
   # signal -> image
   readout_electronics:

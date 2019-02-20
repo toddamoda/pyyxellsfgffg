@@ -4,9 +4,6 @@
 """Pyxel wrapper class for NGHXRG - Teledyne HxRG Noise Generator model."""
 
 import logging
-from os import path
-# import typing as t
-# import numpy as np
 # import pyxel
 from pyxel.detectors.cmos import CMOS
 from pyxel.models.signal_transfer.nghxrg.nghxrg_beta import HXRGNoise
@@ -14,7 +11,6 @@ from pyxel.models.signal_transfer.nghxrg.nghxrg_beta import HXRGNoise
 
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
-# @pyxel.register(group='charge_measurement', name='nghxrg_ktc_bias', detector='cmos')
 def nghxrg(detector: CMOS,
            noise: list,
            window_mode: str = 'FULL',
