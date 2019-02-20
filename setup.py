@@ -21,7 +21,7 @@ setup(
         "astropy",
         "pandas",
         "scipy",
-        # "pygmo==2.10",
+        "pygmo==2.10",
         "numba",
         "tqdm",
         "matplotlib",
