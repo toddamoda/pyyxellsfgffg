@@ -89,7 +89,7 @@ pipeline:
   # charge -> signal
   charge_measurement:
     - name: nghxrg
-      func: pyxel.models.signal_transfer.nghxrg.nghxrg.nghxrg
+      func: pyxel.models.charge_measurement.nghxrg.nghxrg.nghxrg
       enabled: true
       arguments:
         noise:
