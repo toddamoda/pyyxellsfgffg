@@ -6,7 +6,7 @@
 import logging
 # import pyxel
 from pyxel.detectors.cmos import CMOS
-from pyxel.models.signal_transfer.nghxrg.nghxrg_beta import HXRGNoise
+from pyxel.models.charge_measurement.nghxrg.nghxrg_beta import HXRGNoise
 
 
 # @pyxel.validate

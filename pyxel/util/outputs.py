@@ -6,7 +6,7 @@ from shutil import copy2
 import typing as t          # noqa: F401
 import numpy as np
 # import pandas as pd
-from PIL import Image
+# from PIL import Image
 import astropy.io.fits as fits
 import h5py as h5
 try:
@@ -89,16 +89,18 @@ class Outputs:
 
     def save_to_bitmap(self, detector, filename='image_??'):       # todo: finish, PIL does not work with JPEG !
         """Write array to bitmap PNG image file."""
-        array = detector.image.array
-        filename = self.output_dir + '/' + filename + '.PNG'
-        filename = apply_run_number(filename)
-        im = Image.fromarray(array)
-        try:
-            im.save(filename, "PNG")                    # todo: sometimes saving in PNG does not work too
-        except OSError:
-            pass
-        # with this, it works: simple_digitization / numpy.uint32
-        # with this, it does not work: simple_digitization / numpy.uint16
+        raise NotImplementedError
+
+    #     array = detector.image.array
+    #     filename = self.output_dir + '/' + filename + '.PNG'
+    #     filename = apply_run_number(filename)
+    #     im = Image.fromarray(array)
+    #     try:
+    #         im.save(filename, "PNG")                    # todo: sometimes saving in PNG does not work too
+    #     except OSError:
+    #         pass
+    #     # with this, it works: simple_digitization / numpy.uint32
+    #     # with this, it does not work: simple_digitization / numpy.uint16
 
     def save_to_fits(self, detector, filename='image_??'):
         """Write array to FITS file."""
@@ -197,7 +199,7 @@ class Outputs:
                         'npy': self.save_to_npy,
                         'csv': self.save_to_csv,
                         'bmp': self.save_to_bitmap}
-        [save_methods[out_format](detector=processor.detector) for out_format in simulation.outputs.output_format]
+        [save_methods[out_format](detector=processor.detector) for out_format in self.output_format]
 
         self.user_plt_args = None
         x = processor.detector.photons.array                    # todo: default plots with plot_args?
