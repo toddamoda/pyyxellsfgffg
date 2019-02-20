@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 import astropy.io.fits as fits
+import h5py
 try:
     import matplotlib.pyplot as plt
 except ImportError:
@@ -99,14 +100,20 @@ class Outputs:
         hdu = fits.PrimaryHDU(array)
         hdu.writeto(filename, overwrite=False, output_verify='exception')
 
-    def save_to_hdf(self, data, key='data', filename='store_??'):
+    def save_to_hdf(self, detector, key='data', filename='store_??'):
         """Write object to HDF5 file."""
         filename = self.output_dir + '/' + filename + '.h5'
         filename = apply_run_number(filename)
-        with pd.HDFStore(filename) as store:
-            store[key] = data
-        # todo: append more objects if needed to the same HDF5 file
-        # todo: save whole detector object to a HDF5 file?
+        h5file = h5.File(filename,'w')
+        detector_grp =
+        for array, name in zip([[detector.Signal._array, 'Signal'],
+                          [detector.Image._array, 'Image'],
+                          [detector.Photon._array, 'Photon'],
+                          [detector.Charge.frame, 'Charge']]):
+
+            h5file.create_dataset(name, np.shape(array))
+            
+        h5file.close()
 
     def save_to_csv(self, dataframe: pd.DataFrame, filename='dataframe_??'):
         """Write pandas Dataframe to CSV file."""
