@@ -9,7 +9,7 @@ simulation:
 
   outputs:
     output_folder:  'outputs'
-    format: [fits, hdf5]
+    output_format: [hdf, fits, npy, csv]
 
 detector:
   class: pyxel.detectors.cmos.CMOS

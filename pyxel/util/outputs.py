@@ -5,7 +5,7 @@ from copy import copy
 from shutil import copy2
 import typing as t          # noqa: F401
 import numpy as np
-import pandas as pd
+# import pandas as pd
 from PIL import Image
 import astropy.io.fits as fits
 import h5py as h5
@@ -20,6 +20,7 @@ class Outputs:
     """TBW."""
 
     def __init__(self,
+                 output_format: None,
                  output_folder: str = 'outputs',
                  parametric_plot: dict = None,
                  calibration_plot: dict = None,
@@ -35,6 +36,11 @@ class Outputs:
         self.user_plt_args = None                   # type: t.Optional[dict]
 
         self.output_dir = apply_run_number(output_folder + '/run_??')
+        if output_format is None:
+            self.output_format = ['fits']
+        else:
+            self.output_format = output_format
+
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
         else:
@@ -81,8 +87,9 @@ class Outputs:
         file.close()
         return filename
 
-    def save_to_bitmap(self, array, filename='image_??'):       # todo: finish, PIL does not work with JPEG !
+    def save_to_bitmap(self, detector, filename='image_??'):       # todo: finish, PIL does not work with JPEG !
         """Write array to bitmap PNG image file."""
+        array = detector.image.array
         filename = self.output_dir + '/' + filename + '.PNG'
         filename = apply_run_number(filename)
         im = Image.fromarray(array)
@@ -93,8 +100,9 @@ class Outputs:
         # with this, it works: simple_digitization / numpy.uint32
         # with this, it does not work: simple_digitization / numpy.uint16
 
-    def save_to_fits(self, array, filename='image_??'):
+    def save_to_fits(self, detector, filename='image_??'):
         """Write array to FITS file."""
+        array = detector.image.array
         filename = self.output_dir + '/' + filename + '.fits'
         filename = apply_run_number(filename)
         hdu = fits.PrimaryHDU(array)
@@ -104,36 +112,37 @@ class Outputs:
         """Write detector object to HDF5 file."""
         filename = self.output_dir + '/' + filename + '.h5'
         filename = apply_run_number(filename)
-        h5file = h5.File(filename,'w')
+        h5file = h5.File(filename, 'w')
         detector_grp = h5file.create_group('detector')
-        for array, name in zip([detector.signal.array, 
-                                detector.image.array, 
-                                detector.photons.array, 
-                                detector.pixels.array, 
+        for array, name in zip([detector.signal.array,
+                                detector.image.array,
+                                detector.photons.array,
+                                detector.pixels.array,
                                 detector.charges.frame],
-                               ['Signal', 
-                                'Image', 
-                                'Photon', 
-                                'Pixels', 
+                               ['Signal',
+                                'Image',
+                                'Photon',
+                                'Pixels',
                                 'Charges']):
 
-            if type(array) == type(np.ndarray):
+            if isinstance(array, np.ndarray):
                 dataset = detector_grp.create_dataset(name, np.shape(array))
                 dataset[:] = array
             else:
                 dataset = detector_grp.create_dataset(name, np.shape(array))
                 dataset[:] = array
-                
         h5file.close()
 
-    def save_to_csv(self, dataframe: pd.DataFrame, filename='dataframe_??'):
+    def save_to_csv(self, detector, filename='dataframe_??'):
         """Write pandas Dataframe to CSV file."""
+        dataframe = detector.charges.frame
         filename = self.output_dir + '/' + filename + '.csv'
         filename = apply_run_number(filename)
         dataframe.to_csv(filename, float_format='%g')
 
-    def save_to_npy(self, array, filename='array_??'):
+    def save_to_npy(self, detector, filename='array_??'):
         """Write array to Numpy binary npy file."""
+        array = detector.image.array
         filename = self.output_dir + '/' + filename + '.npy'
         filename = apply_run_number(filename)
         np.save(file=filename, arr=array)
@@ -181,15 +190,14 @@ class Outputs:
         update_plot(ax_args)
         plt.draw()
 
-    def single_output(self, processor, simulation):
+    def single_output(self, processor):
         """TBW."""
-        save_methods = {'fits':self.save_to_fits(array=processor.detector.image.array), 
-                        'hdf':self.save_to_hdf(detector=processor.detector)}
-        # self.save_to_fits(array=processor.detector.image.array)
-        # self.save_to_bitmap(array=processor.detector.image.array)
-        # self.save_to_npy(array=processor.detector.image.array)                          # todo
-        self.save_to_hdf(detector=processor.detector, key='charge')
-        # self.save_to_csv(dataframe=processor.detector.charges.frame)
+        save_methods = {'fits': self.save_to_fits,
+                        'hdf': self.save_to_hdf,
+                        'npy': self.save_to_npy,
+                        'csv': self.save_to_csv,
+                        'bmp': self.save_to_bitmap}
+        [save_methods[out_format](detector=processor.detector) for out_format in simulation.outputs.output_format]
 
         self.user_plt_args = None
         x = processor.detector.photons.array                    # todo: default plots with plot_args?
