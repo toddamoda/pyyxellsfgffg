@@ -9,6 +9,7 @@ simulation:
 
   outputs:
     output_folder:  'outputs'
+    format: [fits, hdf5]
 
 detector:
   class: pyxel.detectors.cmos.CMOS
@@ -53,7 +54,7 @@ pipeline:
       func: pyxel.models.photon_generation.load_image.load_image
       enabled: false
       arguments:
-        image_file:
+        image_file: 
         fit_image_to_det: false
         convert_to_photons: true
 
@@ -65,7 +66,7 @@ pipeline:
 
     - name: shot_noise
       func: pyxel.models.photon_generation.shot_noise.shot_noise
-      enabled: false
+      enabled: true
 
   # photons -> photons
   optics:

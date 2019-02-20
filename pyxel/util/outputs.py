@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 import astropy.io.fits as fits
-import h5py
+import h5py as h5
 try:
     import matplotlib.pyplot as plt
 except ImportError:
@@ -101,18 +101,29 @@ class Outputs:
         hdu.writeto(filename, overwrite=False, output_verify='exception')
 
     def save_to_hdf(self, detector, key='data', filename='store_??'):
-        """Write object to HDF5 file."""
+        """Write detector object to HDF5 file."""
         filename = self.output_dir + '/' + filename + '.h5'
         filename = apply_run_number(filename)
         h5file = h5.File(filename,'w')
-        detector_grp =
-        for array, name in zip([[detector.Signal._array, 'Signal'],
-                          [detector.Image._array, 'Image'],
-                          [detector.Photon._array, 'Photon'],
-                          [detector.Charge.frame, 'Charge']]):
+        detector_grp = h5file.create_group('detector')
+        for array, name in zip([detector.signal.array, 
+                                detector.image.array, 
+                                detector.photons.array, 
+                                detector.pixels.array, 
+                                detector.charges.frame],
+                               ['Signal', 
+                                'Image', 
+                                'Photon', 
+                                'Pixels', 
+                                'Charges']):
 
-            h5file.create_dataset(name, np.shape(array))
-            
+            if type(array) == type(np.ndarray):
+                dataset = detector_grp.create_dataset(name, np.shape(array))
+                dataset[:] = array
+            else:
+                dataset = detector_grp.create_dataset(name, np.shape(array))
+                dataset[:] = array
+                
         h5file.close()
 
     def save_to_csv(self, dataframe: pd.DataFrame, filename='dataframe_??'):
@@ -170,12 +181,14 @@ class Outputs:
         update_plot(ax_args)
         plt.draw()
 
-    def single_output(self, processor):
+    def single_output(self, processor, simulation):
         """TBW."""
-        self.save_to_fits(array=processor.detector.image.array)
+        save_methods = {'fits':self.save_to_fits(array=processor.detector.image.array), 
+                        'hdf':self.save_to_hdf(detector=processor.detector)}
+        # self.save_to_fits(array=processor.detector.image.array)
         # self.save_to_bitmap(array=processor.detector.image.array)
         # self.save_to_npy(array=processor.detector.image.array)                          # todo
-        # self.save_to_hdf(data=processor.detector.charges.frame, key='charge')
+        self.save_to_hdf(detector=processor.detector, key='charge')
         # self.save_to_csv(dataframe=processor.detector.charges.frame)
 
         self.user_plt_args = None
