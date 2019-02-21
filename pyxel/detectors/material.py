@@ -30,6 +30,21 @@ class Material:
     #     if self.material:
     #         self.set_material(self.material)
 
+    # def init_numpy_array(self, dsf):
+    #     """Create Numpy array storing data temporarily."""
+    #     print(dsf)
+
+    # trap_density_array = pyx.attribute(
+    #     type=str,
+    #     default=None,
+    #     # validator=[pyx.validate_type(str)],
+    #     on_set=init_numpy_array,
+    #     # on_get=init_numpy_array,
+    #     # on_change=init_numpy_array,
+    #     # on_get_update=init_numpy_array,
+    #     doc='Numpy array storing the trap density temporarily'
+    # )
+
     n_acceptor = pyx.attribute(
         type=float,
         default=0.0,

@@ -21,7 +21,6 @@ detector:
 
   geometry:
     class: pyxel.detectors.cmos_geometry.CMOSGeometry
-
     row:   500                   #
     col:   500                   #
     total_thickness: 40.         # um
@@ -31,6 +30,7 @@ detector:
   material:
     class: pyxel.detectors.material.Material
     material: 'silicon'
+#    trap_density_array: 'trap.npy'
 
   environment:
     class: pyxel.detectors.environment.Environment
@@ -58,7 +58,8 @@ pipeline:
       arguments:
           level: 1111
           option: 'elliptic_hole'
-          hole_size: [30, 50]
+          hole_size: [10, 10]
+          hole_center: [0, 0]
     - name: shot_noise
       func: pyxel.models.photon_generation.shot_noise.shot_noise
       enabled: false
