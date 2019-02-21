@@ -8,7 +8,7 @@ simulation:
 
   dynamic:
     t_steps: 2
-    t_start: 0.
+#    t_start: 0.
     t_end: 1.
 
   outputs:
