@@ -229,8 +229,8 @@ class Outputs:
                     fname = 'scatter_??'
                 else:
                     raise KeyError()
-                self.save_to_npy(x, 'x_'+fname)
-                self.save_to_npy(y, 'y_'+fname)
+                # self.save_to_npy(x, 'x_'+fname)
+                # self.save_to_npy(y, 'y_'+fname)
                 self.save_plot(fname)
 
     def champions_plot(self, results):
@@ -388,8 +388,8 @@ class Outputs:
             y = y.flatten()
 
         self.plot_graph(x, y, args=args)
-        self.save_to_npy(x, 'x_parametric_??')
-        self.save_to_npy(y, 'y_parametric_??')
+        # self.save_to_npy(x, 'x_parametric_??')
+        # self.save_to_npy(y, 'y_parametric_??')
         self.save_plot('parametric_??')
 
 
