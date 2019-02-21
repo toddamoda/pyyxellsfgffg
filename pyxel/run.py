@@ -39,6 +39,7 @@ def run(input_filename, random_seed: int = None):
         out.set_input_file(input_filename)
     else:
         logger.warning('Output is not defined! No output files will be saved!')
+    processor.detector.set_output_dir(out.output_dir)
 
     if simulation.mode == 'single':
         logger.info('Mode: Single')
@@ -66,9 +67,11 @@ def run(input_filename, random_seed: int = None):
 
     elif simulation.mode == 'dynamic' and simulation.dynamic:
         logger.info('Mode: Dynamic')
-        for t in np.linspace(simulation.dynamic['t_start'], simulation.dynamic['t_end'],
-                             num=simulation.dynamic['t_steps'], endpoint=True):
-            processor.detector.time = t
+        processor.detector.set_dynamic()
+        if 't_start' not in simulation.dynamic:
+            simulation.dynamic['t_start'] = 0.
+        for processor.detector.time in np.linspace(simulation.dynamic['t_start'], simulation.dynamic['t_end'],
+                                                   num=simulation.dynamic['t_steps'], endpoint=True):
             processor.pipeline.run_pipeline(processor.detector)
             if out:
                 out.single_output(processor)
