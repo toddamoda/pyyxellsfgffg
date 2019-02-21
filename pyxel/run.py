@@ -63,6 +63,17 @@ def run(input_filename, random_seed: int = None):
                                         parametric=simulation.parametric)
         if out:
             out.parametric_output()
+
+    elif simulation.mode == 'dynamic' and simulation.dynamic:
+        logger.info('Mode: Dynamic')
+        for t in np.linspace(simulation.dynamic['t_start'], simulation.dynamic['t_end'],
+                             num=simulation.dynamic['t_steps'], endpoint=True):
+            processor.detector.time = t
+            processor.pipeline.run_pipeline(processor.detector)
+            if out:
+                out.single_output(processor)
+        pass
+
     else:
         raise ValueError
 

@@ -1,0 +1,109 @@
+################
+# Pyxel configuration file for TESTING, EXPERIMENTING
+# David Lucsanyi
+################
+
+simulation:
+  mode: dynamic
+
+  dynamic:
+    t_steps: 2
+    t_start: 0.
+    t_end: 1.
+
+  outputs:
+    output_folder:  'outputs'
+    output_format:
+
+
+detector:
+  class: pyxel.detectors.cmos.CMOS
+
+  geometry:
+    class: pyxel.detectors.cmos_geometry.CMOSGeometry
+
+    row:   500                   #
+    col:   500                   #
+    total_thickness: 40.         # um
+    pixel_vert_size: 10.         # um
+    pixel_horz_size: 10.         # um
+
+  material:
+    class: pyxel.detectors.material.Material
+    material: 'silicon'
+
+  environment:
+    class: pyxel.detectors.environment.Environment
+
+  characteristics:
+    class: pyxel.detectors.cmos_characteristics.CMOSCharacteristics
+    qe: 0.5                 # -
+    eta: 1.                 # e/photon
+    sv: 3e-6                # V/e
+    amp: 10.                # V/V
+    a1: 100.                # V/V
+    a2: 10000               # DN/V
+    fwc: 1000000            # e
+
+
+pipeline:
+  class: pyxel.pipelines.cmos_pipeline.CMOSDetectionPipeline
+
+  # photon -> photon
+  photon_generation:
+
+    - name: illumination
+      func: pyxel.models.photon_generation.illumination.illumination
+      enabled: true
+      arguments:
+          level: 1111
+          option: 'elliptic_hole'
+          hole_size: [30, 50]
+    - name: shot_noise
+      func: pyxel.models.photon_generation.shot_noise.shot_noise
+      enabled: false
+
+  # photon -> photon
+  optics:
+    - name: alignment
+      func: pyxel.models.optics.alignment.alignment
+      enabled: true
+
+  # photon -> charge
+  charge_generation:
+
+    - name: photoelectrons
+      func: pyxel.models.charge_generation.photoelectrons.simple_conversion
+      enabled: true
+
+  # charge -> pixel
+  charge_collection:
+
+    - name: full_well
+      func: pyxel.models.charge_collection.full_well.simple_full_well
+      enabled: false
+    - name: simple_collection
+      func: pyxel.models.charge_collection.collection.simple_collection
+      enabled: true
+
+  # pixel -> signal
+  charge_measurement:
+    - name: simple_measurement
+      func: pyxel.models.charge_measurement.measurement.simple_measurement
+      enabled: true
+    - name: output_node_noise
+      func: pyxel.models.charge_measurement.readout_noise.output_node_noise
+      enabled: false
+      arguments:
+        std_deviation: 5.e-7
+
+  # signal -> image
+  readout_electronics:
+    - name: simple_amplifier
+      func: pyxel.models.readout_electronics.amplification.simple_amplifier
+      enabled: true
+    - name: simple_digitization
+      func: pyxel.models.readout_electronics.digitization.simple_digitization
+      enabled: true
+      arguments:
+        data_type: numpy.uint32

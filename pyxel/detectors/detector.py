@@ -61,6 +61,7 @@ class Detector:
             self.image = image
 
         self.input_image = None
+        self.time = None
 
     def __getstate__(self):
         """TBW.
