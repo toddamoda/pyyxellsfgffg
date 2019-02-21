@@ -260,30 +260,14 @@ The model can simulate noise for HxRG detectors of
 Teledyne Imaging Sensors with and without the SIDECAR ASIC IR array
 controller.
 
-**kTC bias noise**
+.. autofunction:: pyxel.models.charge_measurement.nghxrg.nghxrg.nghxrg
 
-.. autofunction:: pyxel.models.signal_transfer.nghxrg.nghxrg.ktc_bias_noise
-
-**White readout noise**
-
-.. autofunction:: pyxel.models.signal_transfer.nghxrg.nghxrg.white_read_noise
-
-**Alternating column noise (ACN)**
-
-.. autofunction:: pyxel.models.signal_transfer.nghxrg.nghxrg.acn_noise
-
-**Uncorrelated pink noise**
-
-.. autofunction:: pyxel.models.signal_transfer.nghxrg.nghxrg.uncorr_pink_noise
-
-**Correlated pink noise**
-
-.. autofunction:: pyxel.models.signal_transfer.nghxrg.nghxrg.corr_pink_noise
-
-**PCA0 noise**
-
-.. autofunction:: pyxel.models.signal_transfer.nghxrg.nghxrg.pca_zero_noise
-
+* **kTC bias noise**
+* **White readout noise**
+* **Alternating column noise (ACN)**
+* **Uncorrelated pink noise**
+* **Correlated pink noise**
+* **PCA0 noise**
 
 .. _readout_electronics:
 
