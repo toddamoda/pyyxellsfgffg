@@ -1,6 +1,6 @@
 .. _faq:
 
-Frequenty Asked Questions
-*************************
+Frequently Asked Questions
+***************************
 
 TBW
