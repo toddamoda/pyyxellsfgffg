@@ -189,7 +189,7 @@ Charge Transfer models (CCD)
 ---------------------------------
 
 .. important::
-    Only for CCD detectors!
+    This model group is only for CCD detectors!
 
 .. automodule:: pyxel.models.charge_transfer
     :members:
@@ -230,20 +230,6 @@ Output node noise
 
 .. autofunction:: pyxel.models.charge_measurement.readout_noise.output_node_noise
 
-
-.. _signal_transfer:
-
-Signal Transfer models (CMOS)
----------------------------------
-
-.. important::
-    Only for CMOS-based detectors!
-
-.. automodule:: pyxel.models.signal_transfer
-    :members:
-    :undoc-members:
-    :imported-members:
-
 HxRG noise generator
 *******************************
 
@@ -268,6 +254,19 @@ controller.
 * **Uncorrelated pink noise**
 * **Correlated pink noise**
 * **PCA0 noise**
+
+.. _signal_transfer:
+
+Signal Transfer models (CMOS)
+---------------------------------
+
+.. important::
+   This model group is only for CMOS-based detectors!
+
+.. automodule:: pyxel.models.signal_transfer
+    :members:
+    :undoc-members:
+    :imported-members:
 
 .. _readout_electronics:
 
