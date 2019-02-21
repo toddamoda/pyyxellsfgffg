@@ -1,5 +1,5 @@
 # Pyxel input/output data files
-data
+data/
 outputs/
 *.data
 *.fits
@@ -9,13 +9,9 @@ outputs/
 *.jpg
 demo/
 
-
 # Geant4 i/o files
 *.mac
 *.ascii
-
-# temp files
-**/tmp*
 
 # Pycharm, Byte-compiled
 __pycache__/
@@ -35,14 +31,11 @@ docs/html/
 .coverage
 .coverage.
 *.cache
+.mypy_cache/
 .pytest_cache/
 htmlcov/
 pytest_report.html
 pylint_report.html
-assets/
 
 # Jupyter Notebook
 .ipynb_checkpoints
-
-# mypy
-.mypy_cache/
