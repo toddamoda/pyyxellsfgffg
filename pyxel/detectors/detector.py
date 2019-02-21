@@ -79,7 +79,10 @@ class Detector:
             'pixels': self.pixels,
             'signal': self.signal,
             'image': self.image,
-            'input_image': self.input_image
+            'input_image': self.input_image,
+            'time': self.time,
+            '_dynamic': self._dynamic,
+            '_output_dir': self._output_dir
         }
 
     def set_output_dir(self, path: str):
