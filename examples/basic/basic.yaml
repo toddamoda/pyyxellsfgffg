@@ -11,6 +11,7 @@ simulation:
 
   outputs:
     output_folder: 'examples/basic/output'
+    output_format:
     single_plot:
       y: 'detector.image.array'
       plot_type: 'histogram'

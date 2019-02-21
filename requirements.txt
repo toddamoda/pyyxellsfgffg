@@ -6,7 +6,7 @@
 
 numpy
 astropy
-pandas
+pandas>=0.23.0
 scipy
 pygmo==2.10
 numba

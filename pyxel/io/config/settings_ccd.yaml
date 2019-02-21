@@ -9,6 +9,7 @@ simulation:
 
   outputs:
     output_folder:  'outputs'
+    output_format: [fits]
 
 detector:
   class: pyxel.detectors.ccd.CCD
