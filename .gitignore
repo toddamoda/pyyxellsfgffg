@@ -1,20 +1,22 @@
 # Pyxel input/output data files
-data/
-outputs/
+data/*
+outputs/*
 *.data
 *.fits
 *.npy
 *.out
 *.png
 *.jpg
-demo/
+demo/*
+examples/*/
+*.yaml
 
 # Geant4 i/o files
 *.mac
 *.ascii
 
 # Pycharm, Byte-compiled
-__pycache__/
+__pycache__/*
 *.pyc
 .idea/
 
