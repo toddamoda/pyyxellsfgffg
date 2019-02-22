@@ -1,0 +1,113 @@
+# ###############
+### Pyxel configuration file for CCD detectors
+### David Lucsanyi
+# ###############
+
+simulation:
+
+  mode: single
+
+  outputs:
+    output_folder:  'outputs'
+    output_format:  ['txt']
+
+detector:
+  class: pyxel.detectors.ccd.CCD
+
+  geometry:
+    class: pyxel.detectors.ccd_geometry.CCDGeometry
+
+    row:   838                      # compulsory
+    col:   1                        # compulsory
+    total_thickness: 10.0           # um
+    pixel_vert_size: 42.            # um
+    pixel_horz_size: 23.5           # um
+
+  material:
+    class: pyxel.detectors.material.Material
+    material: 'silicon'
+
+  environment:
+    class: pyxel.detectors.environment.Environment
+    temperature: 238                     # K
+
+  characteristics:
+    class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
+    qe:   1.                 # -
+    eta:  1.                # e/photon
+    sv:   1.              # V/e
+    amp:  1.                 # V/V
+    a1:   1.                # V/V
+    a2:   1               # DN/V
+    fwc:  155000            # e
+    fwc_serial: 1000000     # e
+    vg:   9.87e-10          # cm2
+    svg:  1.6200e-10         # cm2
+    t:    141680e-09           # s
+    st:   9.4722e-04          # s
+
+pipeline:
+  class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
+
+  # -> photons
+  photon_generation:
+
+    - name: load_profile
+      func: pyxel.models.photon_generation.load_profile.load_profile
+      enabled: true
+      arguments:
+        txt_file: data/flex/input/input_flex_ds7_ch0_1ke.txt
+        # fit_image_to_det: false
+        convert_to_photons: false
+
+  # photons -> photons
+  optics:
+
+  # photons -> charge
+  charge_generation:
+    - name: photoelectrons
+      func: pyxel.models.charge_generation.photoelectrons.simple_conversion
+      enabled: true
+
+
+  # charge -> charge
+  charge_collection:
+    - name: simple_collection
+      func: pyxel.models.charge_collection.collection.simple_collection
+      enabled: true
+
+  # charge -> charge
+  charge_transfer:
+
+    - name: cdm
+      func: pyxel.models.charge_transfer.cdm.CDM.cdm
+      enabled: true
+      arguments:
+        parallel_cti: true
+        serial_cti: false
+        charge_injection: false
+        beta_p: 0.3
+        beta_s: 0.3
+        tr_p: [.014]
+        tr_s: [2.e-3]
+        nt_p: [100.]
+        nt_s: [50.]
+        sigma_p: [1.e-12]
+        sigma_s: [1.e-12]
+
+  # charge -> signal
+  charge_measurement:
+    - name: simple_measurement
+      func: pyxel.models.charge_measurement.measurement.simple_measurement
+      enabled: true
+
+
+  # signal -> image
+  readout_electronics:
+    - name: simple_amplifier
+      func: pyxel.models.readout_electronics.amplification.simple_amplifier
+      enabled: true
+
+    - name: simple_processing
+      func: pyxel.models.readout_electronics.digitization.simple_processing
+      enabled: true

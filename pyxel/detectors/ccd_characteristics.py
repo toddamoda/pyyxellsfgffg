@@ -5,7 +5,7 @@ from pyxel.detectors.characteristics import Characteristics
 
 @pyx.detector_class
 class CCDCharacteristics(Characteristics):
-    """Characteristical attributes of a CCD detector."""
+    """Characteristic attributes of a CCD detector."""
 
     fwc_serial = pyx.attribute(
         type=int,
@@ -42,3 +42,6 @@ class CCDCharacteristics(Characteristics):
         doc='Serial transfer period',
         metadata={'units': 's'}
     )
+
+
+

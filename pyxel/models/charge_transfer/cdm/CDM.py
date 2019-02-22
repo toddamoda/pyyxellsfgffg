@@ -10,7 +10,9 @@ This is a function to run the upgraded CDM CTI model developed by Alex Short (ES
 :author: David Lucsanyi
 """
 import logging
+from pyxel import check_type
 import numpy as np
+import pyxel as pyx
 try:
     import matplotlib.pyplot as plt
 except ImportError:
@@ -96,7 +98,7 @@ def cdm(detector: CCD,
                                     sigma_p=sigma_p, sigma_s=sigma_s)
 
 
-@numba.jit
+#@numba.jit
 def run_cdm(s: np.ndarray,
             beta_p: float, beta_s: float,
             vg: float, svg: float,
@@ -135,8 +137,8 @@ def run_cdm(s: np.ndarray,
     :param serial_cti:
     :return:
     """
-    ydim, xdim = s.shape        # full signal array we want to apply cdm for
 
+    ydim, xdim = s.shape        # full signal array we want to apply cdm for
     kdim_p = len(nt_p)
     kdim_s = len(nt_s)
 
@@ -320,3 +322,38 @@ def plot_image(data):
     plt.ylabel('y - parallel direction')
     plt.title('CCD image with CTI')
     plt.colorbar()
+
+@pyx.validate
+@pyx.argument(name='fwc_serial', label='serial register pixel full well capacity', validate=check_type(int))
+@pyx.argument(name='svg', label='serial maximum electron cloud volume at full well capacity', validate=check_type(float))
+@pyx.argument(name='t', label='parallel transfer duration', validate=check_type(float))
+@pyx.argument(name='st', label='serial transfer duration', validate=check_type(float))
+def change_ccd_characteristics(detector: CCD,
+                               fwc_serial: int = 0,
+                               svg: float = 0.,
+                               t: float = 0.,
+                               st: float = 0.):
+    """Change the CCD characteristics.
+
+    :param detector: Pyxel Detector object
+    :param fwc_serial: serial register pixel full well capacity
+    :param svg: serial maximum electron cloud volume at full well capacity
+    :param t: parallel transfer duration
+    :param st: serial transfer duration
+
+    """
+    logger = logging.getLogger('pyxel')
+    logger.info('')
+    char = cast(CCDCharacteristics, detector.characteristics)  # type: CCDCharacteristics
+
+    if fwc_serial != 0:
+        char.fwc_serial = fwc_serial
+
+    if svg != 0.:
+        char.svg = svg
+
+    if t != 0.:
+        char.t = t
+
+    if st != 0.:
+        char.st = st

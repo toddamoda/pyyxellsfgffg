@@ -142,6 +142,13 @@ class Outputs:
         filename = apply_run_number(filename)
         dataframe.to_csv(filename, float_format='%g')
 
+    def save_to_txt(self, detector, filename='pixels_??'):
+        """Write pixel array to CSV file."""
+        array = detector.pixels.array
+        filename = self.output_dir + '/' + filename + '.txt'
+        filename = apply_run_number(filename)
+        np.savetxt(filename, array, delimiter='|')
+
     def save_to_npy(self, detector, filename='array_??'):
         """Write array to Numpy binary npy file."""
         array = detector.image.array
@@ -198,6 +205,7 @@ class Outputs:
                         'hdf': self.save_to_hdf,
                         'npy': self.save_to_npy,
                         'csv': self.save_to_csv,
+                        'txt': self.save_to_txt,
                         'bmp': self.save_to_bitmap}
         [save_methods[out_format](detector=processor.detector) for out_format in self.output_format]
 
