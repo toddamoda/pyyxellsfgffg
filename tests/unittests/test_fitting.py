@@ -67,10 +67,11 @@ def test_configure_fits_target(yaml):
     assert mf.sim_fit_range == (slice(2, 5, None), slice(4, 7, None))
     assert mf.targ_fit_range == (slice(1, 4, None), slice(5, 8, None))
     assert mf.sim_output == 'image'
-    expected = np.array([[1362., 1378., 1411.],
-                         [1308., 1309., 1284.],
-                         [1390., 1346., 1218.]])
-    np.testing.assert_array_equal(mf.all_target_data[0], expected)
+    expected = np.array([[3858.44799859, 3836.11204939, 3809.85008514],
+                         [4100.87410744, 4053.26348117, 4018.33656962],
+                         [4233.53215652, 4021.60164244, 3969.79740826]])
+    np.testing.assert_array_equal(np.around(mf.all_target_data[0], decimals=4),
+                                  np.around(expected, decimals=4))
 
 
 @pytest.mark.parametrize('yaml',
@@ -180,7 +181,7 @@ def test_custom_fitness(yaml, simulated_data, target_data, expected_fitness):
                              ('tests/data/calibrate_models.yaml',
                               np.array([1., 0.5, 1.5, -2., -3., 4.5, -4., 1.,
                                         0.5, -3.5, 2., -3., -4., 0.5, 1., 100.]),
-                              156.49813052846002)
+                              88431.18016117143)
                          ])
 def test_fitness(yaml, parameter, expected_fitness):
     """Test"""

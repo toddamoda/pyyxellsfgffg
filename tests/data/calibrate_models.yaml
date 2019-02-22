@@ -10,11 +10,11 @@ simulation:
 
   calibration:
     calibration_mode:  pipeline
-    result_type: image
-    result_fit_range: [0, 2, 0, 2]
+    result_type:      image
+    result_fit_range: [0, 20, 0, 20]
 
-    target_data_path: ['tests/data/test.fits']     #  <*.npy> <*.fits> <ascii>
-    target_fit_range: [0, 2, 0, 2]
+    target_data_path: ['tests/data/calibrate-data.fits']     #  <*.npy> <*.fits> <ascii>
+    target_fit_range: [10, 30, 10, 30]
 
     fitness_function:
       func: pyxel.calibration.fitness.sum_of_abs_residuals
@@ -98,7 +98,7 @@ pipeline:
       func: pyxel.models.photon_generation.load_image.load_image
       enabled: true
       arguments:
-        image_file: tests/data/image.fits
+        image_file: 'tests/data/calibrate-data.fits'
         fit_image_to_det: true
         position: [0, 0]
         convert_to_photons: true
