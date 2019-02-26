@@ -104,7 +104,7 @@ mypy:
   script:
     - pip install mypy
     - pip freeze
-    - mypy --ignore-missing-imports pyxel
+    - mypy pyxel
   allow_failure: true
 
 
@@ -201,14 +201,25 @@ doc:
   allow_failure: false
 
 
-#docker:
-#  stage: build
-#  image: docker:dind
-#  script:
-#    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN gitlab.esa.int:4567
+docker:
+  stage: test   # build
+  image: docker:dind
+  script:
+    - echo $CONTAINER_LATEST_IMAGE
+    - echo $CI_BUILD_TOKEN
+    - echo $gitlab-ci-token
+
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN gitlab.esa.int:4567
+
 #    - docker build --pull -t $CONTAINER_LATEST_IMAGE .
+#    - docker build -t $CONTAINER_LATEST_IMAGE .
+
 #    - docker push $CONTAINER_LATEST_IMAGE
-#  allow_failure: false
+
+    - docker build -t gitlab.esa.int:4567/sci-fv/pyxel-mirror .
+    - docker push gitlab.esa.int:4567/sci-fv/pyxel-mirror
+
+  allow_failure: true
 
 
 # ###########################
