@@ -30,40 +30,16 @@ licenses-latest:
     - scancode --help
     - scancode --examples
     - ls
-    - scancode -clip --json-pp - samples || true
-    - scancode --license --verbose samples/zlib/zlib.h --json licenses.json || true
-#    - scancode --verbose --license --package --copyright --info --email --url --html license.html /builds/sci-fv/pyxel-mirror
+    - ls ..
+#    - scancode --verbose --license --package --copyright --info --email --url --html license.html /builds/sci-fv/pyxel-mirror || true
     - scancode -n 4 --ignore *.fits --verbose --html license.html /builds/sci-fv/pyxel-mirror || true
-#    - scancode --verbose --html license.html /builds/sci-fv/pyxel-mirror
-#  artifacts:
-#    paths:
-#      - license.html
-
-
-## experimental, latest version, it STILL gives an EMPTY html REPORT!
-#licenses-latest:
-#  image: python:2.7  # debian:jessie-slim  #
-#  stage: test  # build
-#  allow_failure: true
-#  script:
-#    - python --version
-#    - pwd
-#    - apt-get --yes install libbz2-1.0 xz-utils zlib1g libxml2-dev libxslt1-dev wget  # python-dev
-#    - wget --quiet --directory-prefix=.. https://github.com/nexB/scancode-toolkit/archive/v2.9.8.tar.gz
-#    - tar --directory=.. -xf ../v2.9.8.tar.gz
-#    - rm ../v2.9.8.tar.gz
-#    - ls
-#    - ls ..
-#    - ./../scancode-toolkit-2.9.8/scancode --help
-##    - ./../scancode-toolkit-2.9.8/scancode --verbose --license --package --copyright --info --email --url --html license_report2.html /builds/sci-fv/pyxel
-#    - ./../scancode-toolkit-2.9.8/scancode -n 4 --ignore *.fits --verbose --html license_report2.html . || echo 0      # latest version, STILL EMPTY REPORT
-##    - ./../scancode-toolkit-2.9.8/scancode --verbose --html license_report2.html /builds/sci-fv/pyxel
-#    - pwd
-#    - ls
-##    - mv license_report2.html ../pyxel-mirror
-#  artifacts:
-#    paths:
-#      - license_report2.html
+#    - scancode --verbose --html license.html /builds/sci-fv/pyxel-mirror || true
+    - scancode --license --copyright --json-pp scancode_result.json /builds/sci-fv/pyxel-mirror || true
+    - scancode --json-pp - --license --package /builds/sci-fv/pyxel-mirror || true
+    - ls
+  artifacts:
+    paths:
+      - license.html
 
 
 # Run pytest + coverage and create html report (pytest_report.html)
@@ -86,12 +62,6 @@ anaconda3:
       - htmlcov
       - pytest_report.html
       - coverage.svg
-#  cache:
-#    key: "$CI_COMMIT_REF_NAME"
-#    paths:
-#      - htmlcov
-#      - pytest_report.html
-#      - coverage.svg
   allow_failure: false
 
 
@@ -143,10 +113,6 @@ lint:
   artifacts:
     paths:
       - pylint_report.html
-#  cache:
-#    key: "$CI_COMMIT_REF_NAME"
-#    paths:
-#      - pylint_report.html
   allow_failure: true
 
 
@@ -216,10 +182,6 @@ doc:
       - docs/html
       - documentation.svg
       - license.svg
-#  cache:
-#    key: "$CI_COMMIT_REF_NAME"
-#    paths:
-#      - docs/html
   allow_failure: false
 
 
@@ -259,11 +221,14 @@ pages:
     - mv pylint_report.html public
     - mv license_report.html public
     - mv license_report_files public
-#    - mv license_report2.html public
     - mv coverage.svg public
     - mv license.svg public
     - mv documentation.svg public
     - ls public
+
+#    - mv license_report2.html public
+    - mv license.html public
+    - mv license_files public
   artifacts:
     paths:
       - public
