@@ -3,8 +3,8 @@ import esapy_config.io as io
 
 
 @pytest.mark.parametrize("yaml_file", [
-    'tests/data/pipeline_parametric.yaml',
-    'tests/data/test_yaml_new.yaml',
+    'tests/data/parametric.yaml',
+    'tests/data/yaml.yaml',
 ])
 def test_yaml_load(yaml_file):
     cfg = io.load(yaml_file)

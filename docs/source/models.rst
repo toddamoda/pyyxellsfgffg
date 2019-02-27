@@ -189,7 +189,7 @@ Charge Transfer models (CCD)
 ---------------------------------
 
 .. important::
-    Only for CCD detectors!
+    This model group is only for CCD detectors!
 
 .. automodule:: pyxel.models.charge_transfer
     :members:
@@ -207,7 +207,7 @@ a generalized version has already been applied in a broader context, for
 example to investigate the impact of radiation damage on the Euclid mission.
 This generalized version has been included and used in Pyxel.
 
-.. autofunction:: pyxel.models.charge_transfer.cdm.CDM.cdm
+.. autofunction:: pyxel.models.charge_transfer.cdm.cdm
 
 
 .. _charge_measurement:
@@ -230,20 +230,6 @@ Output node noise
 
 .. autofunction:: pyxel.models.charge_measurement.readout_noise.output_node_noise
 
-
-.. _signal_transfer:
-
-Signal Transfer models (CMOS)
----------------------------------
-
-.. important::
-    Only for CMOS-based detectors!
-
-.. automodule:: pyxel.models.signal_transfer
-    :members:
-    :undoc-members:
-    :imported-members:
-
 HxRG noise generator
 *******************************
 
@@ -260,30 +246,27 @@ The model can simulate noise for HxRG detectors of
 Teledyne Imaging Sensors with and without the SIDECAR ASIC IR array
 controller.
 
-**kTC bias noise**
+.. autofunction:: pyxel.models.charge_measurement.nghxrg.nghxrg.nghxrg
 
-.. autofunction:: pyxel.models.signal_transfer.nghxrg.nghxrg.ktc_bias_noise
+* **kTC bias noise**
+* **White readout noise**
+* **Alternating column noise (ACN)**
+* **Uncorrelated pink noise**
+* **Correlated pink noise**
+* **PCA0 noise**
 
-**White readout noise**
+.. _signal_transfer:
 
-.. autofunction:: pyxel.models.signal_transfer.nghxrg.nghxrg.white_read_noise
+Signal Transfer models (CMOS)
+---------------------------------
 
-**Alternating column noise (ACN)**
+.. important::
+   This model group is only for CMOS-based detectors!
 
-.. autofunction:: pyxel.models.signal_transfer.nghxrg.nghxrg.acn_noise
-
-**Uncorrelated pink noise**
-
-.. autofunction:: pyxel.models.signal_transfer.nghxrg.nghxrg.uncorr_pink_noise
-
-**Correlated pink noise**
-
-.. autofunction:: pyxel.models.signal_transfer.nghxrg.nghxrg.corr_pink_noise
-
-**PCA0 noise**
-
-.. autofunction:: pyxel.models.signal_transfer.nghxrg.nghxrg.pca_zero_noise
-
+.. automodule:: pyxel.models.signal_transfer
+    :members:
+    :undoc-members:
+    :imported-members:
 
 .. _readout_electronics:
 

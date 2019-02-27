@@ -2,7 +2,7 @@
 # Notes: $CI_COMMIT_REF_NAME => master or branch-xyz
 #
 
-#variables:
+# variables:
 #    PYPI_USER: SECURE
 #    PYPI_PASSWORD: SECURE
 #    CONTAINER_LATEST_IMAGE: gitlab.esa.int:4567/sci-fv/pyxel:latest
@@ -12,36 +12,9 @@ stages:
   - build
   - deploy
 
-
 # ###########################
 # Test Stage
 # ###########################
-
-## experimental, latest version, it STILL gives an EMPTY html REPORT!
-#licenses-latest:
-#  image: python:2.7  # debian:jessie-slim  #
-#  stage: test  # build
-#  allow_failure: true
-#  script:
-#    - python --version
-#    - pwd
-#    - apt-get --yes install libbz2-1.0 xz-utils zlib1g libxml2-dev libxslt1-dev wget  # python-dev
-#    - wget --quiet --directory-prefix=.. https://github.com/nexB/scancode-toolkit/archive/v2.9.8.tar.gz
-#    - tar --directory=.. -xf ../v2.9.8.tar.gz
-#    - rm ../v2.9.8.tar.gz
-#    - ls
-#    - ls ..
-#    - ./../scancode-toolkit-2.9.8/scancode --help
-##    - ./../scancode-toolkit-2.9.8/scancode --verbose --license --package --copyright --info --email --url --html license_report2.html /builds/sci-fv/pyxel
-#    - ./../scancode-toolkit-2.9.8/scancode -n 4 --ignore *.fits --verbose --html license_report2.html . || echo 0      # latest version, STILL EMPTY REPORT
-##    - ./../scancode-toolkit-2.9.8/scancode --verbose --html license_report2.html /builds/sci-fv/pyxel
-#    - pwd
-#    - ls
-##    - mv license_report2.html ../pyxel-mirror
-#  artifacts:
-#    paths:
-#      - license_report2.html
-
 
 # Run pytest + coverage and create html report (pytest_report.html)
 anaconda3:
@@ -63,12 +36,6 @@ anaconda3:
       - htmlcov
       - pytest_report.html
       - coverage.svg
-  cache:
-    key: "$CI_COMMIT_REF_NAME"
-    paths:
-      - htmlcov
-      - pytest_report.html
-      - coverage.svg
   allow_failure: false
 
 
@@ -77,7 +44,6 @@ python37:
   image: python:3.7
   stage: test
   script:
-#    - apt-get install libhdf5-serial-dev   # does not work, installing HDF5 needed by PyTables under python 3.7
     - pip install pytest
     - pip install -r requirements.txt
     - pip freeze
@@ -99,12 +65,12 @@ python36:
 
 # Run mypy
 mypy:
-  image: continuumio/anaconda3
+  image: python:3.6
   stage: test
   script:
     - pip install mypy
     - pip freeze
-    - mypy --ignore-missing-imports pyxel
+    - mypy pyxel
   allow_failure: true
 
 
@@ -116,13 +82,9 @@ lint:
     - pip install pytest-pylint pytest-html
     - pip install -r requirements.txt
     - pip freeze
-    - pytest --pylint --color=yes --verbose --pylint-rcfile=pylint.cfg --html=pylint_report.html --self-contained-html -m pylint || echo 1
+    - pytest --pylint --color=yes --verbose --pylint-rcfile=pylint.cfg --html=pylint_report.html --self-contained-html -m pylint || true
     - ls
   artifacts:
-    paths:
-      - pylint_report.html
-  cache:
-    key: "$CI_COMMIT_REF_NAME"
     paths:
       - pylint_report.html
   allow_failure: true
@@ -152,6 +114,29 @@ doc8:
 # Build stage
 # ###########################
 
+# experimental, latest version
+licenses-latest:
+  image: python:2.7.15
+  stage: build
+  allow_failure: true
+  script:
+    - python --version
+    - pwd
+    - pip install scancode-toolkit
+    - pip freeze
+    - scancode --help
+    - scancode --examples
+    - ls
+    - ls ..
+#    - scancode --verbose --license --package --copyright --info --email --url --html license.html /builds/sci-fv/pyxel-mirror || true
+#    - scancode -n 4 --ignore *.fits --verbose --html license.html /builds/sci-fv/pyxel-mirror || true
+#    - scancode --verbose --html license.html /builds/sci-fv/pyxel-mirror || true
+    - scancode --verbose --ignore "*.fits" --ignore "*.npy" --ignore "*.ascii" --ignore "*.data" --license --copyright --json-pp license.json /builds/sci-fv/pyxel-mirror/pyxel || true
+    - ls
+  artifacts:
+    paths:
+      - license.json
+
 # Scan sourcecode for licenses, copyrights & dependencies
 licenses:
   image: python:2.7.14
@@ -160,17 +145,9 @@ licenses:
   script:
     - pwd
     - pip install scancode-toolkit==2.2.1    # worked  # todo: use latest release when it will be available !
-#    - pip install scancode-toolkit==2.9.2
-#    - pip install scancode-toolkit        # not worked:  EMPTY REPORT
     - pip freeze
     - scancode --help
-#    - scancode --license --package --copyright --info --email --url . --html-app license_report.html        # latest version
-#    - scancode --license --package --copyright --info --email --url --format html-app . license_report.html   # v2.2.1
-#    - scancode --license --package --copyright --info --email --url --format html . license_report.html      # v2.2.1
-#    - scancode -n 4 --ignore *.fits --format json --diag . license_report.json || echo 0      # v2.2.1   worked
-    - scancode -n 4 --ignore *.fits --format html-app --diag . license_report.html || echo 0      # v2.2.1   worked
-#    - scancode -n 4 --ignore *.fits . --html-app license_report.html || echo 0      # latest version, EMPTY REPORT
-#    - scancode . --html-app license_report.html
+    - scancode -n 4 --ignore *.fits --format html-app --diag . license_report.html    # v2.2.1   worked
     - ls
   artifacts:
     paths:
@@ -179,7 +156,7 @@ licenses:
 
 # Generate the Sphinx documentation into 'doc/html'
 doc:
-  image: continuumio/anaconda3
+  image: python:3.6
   stage: build
   script:
     - pip install -r docs/requirements-docs.txt
@@ -194,21 +171,27 @@ doc:
       - docs/html
       - documentation.svg
       - license.svg
-  cache:
-    key: "$CI_COMMIT_REF_NAME"
-    paths:
-      - docs/html
   allow_failure: false
 
 
-#docker:
-#  stage: build
-#  image: docker:dind
-#  script:
-#    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN gitlab.esa.int:4567
+docker:
+  stage: build
+  image: docker:dind
+  script:
+    - echo $CONTAINER_LATEST_IMAGE
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN gitlab.esa.int:4567
+    - docker build -t gitlab.esa.int:4567/sci-fv/pyxel-mirror .
+    - docker push gitlab.esa.int:4567/sci-fv/pyxel-mirror
+#    - docker login -u david.lucsanyi -p $CI_BUILD_TOKEN gitlab.esa.int:4567   # TODO  (personal) key/token needed
+#    - docker tag gitlab.esa.int:4567/sci-fv/pyxel-mirror registry.gitlab.com/esa/pyxel
+#    - docker push registry.gitlab.com/esa/pyxel
+
 #    - docker build --pull -t $CONTAINER_LATEST_IMAGE .
 #    - docker push $CONTAINER_LATEST_IMAGE
-#  allow_failure: false
+#    - docker tag $CONTAINER_LATEST_IMAGE registry.gitlab.com/esa/pyxel
+  allow_failure: true
+  only:
+    - master
 
 
 # ###########################
@@ -225,13 +208,13 @@ pages:
     - mv htmlcov public/coverage
     - mv pytest_report.html public
     - mv pylint_report.html public
-    - mv license_report.html public
-    - mv license_report_files public
-#    - mv license_report2.html public
     - mv coverage.svg public
     - mv license.svg public
     - mv documentation.svg public
     - ls public
+    - mv license_report.html public
+    - mv license_report_files public
+    - mv license.json public
   artifacts:
     paths:
       - public

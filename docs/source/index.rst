@@ -13,6 +13,7 @@ The **pyxel** documentation.
 
    overview.rst
    install.rst
+   running_modes.rst
    examples.rst
 
 .. toctree::
@@ -25,7 +26,6 @@ The **pyxel** documentation.
    data_structure.rst
    yaml.rst
    gui.rst
-   running_modes.rst
 
 .. toctree::
    :caption: Physics Reference

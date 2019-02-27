@@ -96,7 +96,7 @@ def cdm(detector: CCD,
                                     sigma_p=sigma_p, sigma_s=sigma_s)
 
 
-@numba.jit
+@numba.jit(nopython=True, nogil=True)
 def run_cdm(s: np.ndarray,
             beta_p: float, beta_s: float,
             vg: float, svg: float,
@@ -145,10 +145,8 @@ def run_cdm(s: np.ndarray,
     nt_p = nt_p / vg            # parallel trap density (traps / cm**3)
     nt_s = nt_s / svg           # serial trap density (traps / cm**3)
 
-    # no = np.zeros((x_total_dim, kdim_p), float)
-    # sno = np.zeros((y_total_dim, kdim_s), float)
-    no = np.zeros((xdim, kdim_p), float)
-    sno = np.zeros((ydim, kdim_s), float)
+    no = np.zeros((xdim, kdim_p))
+    sno = np.zeros((ydim, kdim_s))
 
     # nt_p *= rdose             # absolute trap density [per cm**3]
     # nt_s *= rdose             # absolute trap density [per cm**3]

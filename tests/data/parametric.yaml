@@ -26,7 +26,7 @@ simulation:
     calibration_mode:  pipeline
     result_type: image
     result_fit_range: [2, 5]
-    target_data_path: ['tests/data/cti-data.txt']   # not used
+    target_data_path: ['tests/data/calibrate-data.txt']   # not used
     target_fit_range: [1, 4]
     fitness_function:
       func: pyxel.calibration.fitness.sum_of_abs_residuals
@@ -138,7 +138,7 @@ pipeline:
     -
       name: cdm
       enabled: false
-      func: pyxel.models.charge_transfer.cdm.CDM.cdm
+      func: pyxel.models.charge_transfer.cdm.cdm
       arguments:
        beta_p: 0.6
        beta_s: 0.6

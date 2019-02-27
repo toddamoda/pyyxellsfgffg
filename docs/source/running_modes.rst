@@ -9,16 +9,14 @@ To run Pyxel on your local computer, simply run it from the command-line:
 
   python pyxel/run.py
          -c pyxel/io/config/input.yaml
-         -o output_folder
-         -s 1234
 
 where
 
 ======  ===============  =======================================  ==========
-``-c``  ``--config``     defines the path of the input YAML file  compulsory
+``-c``  ``--config``     defines the path of the input YAML file  required
 ``-s``  ``--seed``       defines a seed for random number         optional
                          generator
-``-v``  ``--verbosity``  increases the output verbosity           optional
+``-v``  ``--verbosity``  increases the output verbosity (-v/-vv)  optional
 ``-V``  ``--version``    prints the version of Pyxel              optional
 ======  ===============  =======================================  ==========
 

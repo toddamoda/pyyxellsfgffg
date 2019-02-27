@@ -14,11 +14,11 @@ CCD Photon Transfer Curve
 ***************************
 
 
-.. literalinclude:: ../../examples/CCD_Photon_Transfer_Curve.yaml
+.. literalinclude:: ../../examples/PTC/CCD_Photon_Transfer_Curve.yaml
 
 
 See :download:`this example yaml
-<../../examples/CCD_Photon_Transfer_Curve.yaml>`.
+<../../examples/PTC/CCD_Photon_Transfer_Curve.yaml>`.
 
 
 TABLE
