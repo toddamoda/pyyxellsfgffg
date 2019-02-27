@@ -127,32 +127,28 @@ licenses-latest:
     - scancode --help
     - scancode --examples
     - ls
-    - ls ..
-#    - scancode --verbose --license --package --copyright --info --email --url --html license.html /builds/sci-fv/pyxel-mirror || true
-#    - scancode -n 4 --ignore *.fits --verbose --html license.html /builds/sci-fv/pyxel-mirror || true
-#    - scancode --verbose --html license.html /builds/sci-fv/pyxel-mirror || true
-    - scancode --verbose --ignore "*.fits" --ignore "*.npy" --ignore "*.ascii" --ignore "*.data" --license --copyright --json-pp license.json /builds/sci-fv/pyxel-mirror/pyxel || true
+    - scancode -n 4 --verbose --ignore "*.fits" --ignore "*.npy" --ignore "*.ascii" --ignore "*.data" --ignore "*.txt" --ignore "*.cfg" --license --copyright --json-pp license.json /builds/sci-fv/pyxel-mirror/pyxel || true
     - ls
   artifacts:
     paths:
       - license.json
 
 # Scan sourcecode for licenses, copyrights & dependencies
-licenses:
-  image: python:2.7.14
-  stage: build
-  allow_failure: true
-  script:
-    - pwd
-    - pip install scancode-toolkit==2.2.1    # worked  # todo: use latest release when it will be available !
-    - pip freeze
-    - scancode --help
-    - scancode -n 4 --ignore *.fits --format html-app --diag . license_report.html    # v2.2.1   worked
-    - ls
-  artifacts:
-    paths:
-      - license_report_files
-      - license_report.html
+#licenses:
+#  image: python:2.7.14
+#  stage: build
+#  allow_failure: true
+#  script:
+#    - pwd
+#    - pip install scancode-toolkit==2.2.1    # worked
+#    - pip freeze
+#    - scancode --help
+#    - scancode -n 4 --ignore *.fits --ignore *.npy --format html-app --diag . license_report.html    # v2.2.1   worked
+#    - ls
+#  artifacts:
+#    paths:
+#      - license_report_files
+#      - license_report.html
 
 # Generate the Sphinx documentation into 'doc/html'
 doc:
@@ -212,8 +208,6 @@ pages:
     - mv license.svg public
     - mv documentation.svg public
     - ls public
-    - mv license_report.html public
-    - mv license_report_files public
     - mv license.json public
   artifacts:
     paths:
