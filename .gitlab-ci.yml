@@ -16,32 +16,6 @@ stages:
 # Test Stage
 # ###########################
 
-
-# experimental, latest version
-licenses-latest:
-  image: python:2.7.15
-  stage: test  # build
-  allow_failure: true
-  script:
-    - python --version
-    - pwd
-    - pip install scancode-toolkit
-    - pip freeze
-    - scancode --help
-    - scancode --examples
-    - ls
-    - ls ..
-#    - scancode --verbose --license --package --copyright --info --email --url --html license.html /builds/sci-fv/pyxel-mirror || true
-    - scancode -n 4 --ignore *.fits --verbose --html license.html /builds/sci-fv/pyxel-mirror || true
-#    - scancode --verbose --html license.html /builds/sci-fv/pyxel-mirror || true
-    - scancode --license --copyright --json-pp scancode_result.json /builds/sci-fv/pyxel-mirror || true
-    - scancode --json-pp - --license --package /builds/sci-fv/pyxel-mirror || true
-    - ls
-  artifacts:
-    paths:
-      - license.html
-
-
 # Run pytest + coverage and create html report (pytest_report.html)
 anaconda3:
   image: continuumio/anaconda3
@@ -140,6 +114,29 @@ doc8:
 # Build stage
 # ###########################
 
+# experimental, latest version
+licenses-latest:
+  image: python:2.7.15
+  stage: build
+  allow_failure: true
+  script:
+    - python --version
+    - pwd
+    - pip install scancode-toolkit
+    - pip freeze
+    - scancode --help
+    - scancode --examples
+    - ls
+    - ls ..
+#    - scancode --verbose --license --package --copyright --info --email --url --html license.html /builds/sci-fv/pyxel-mirror || true
+#    - scancode -n 4 --ignore *.fits --verbose --html license.html /builds/sci-fv/pyxel-mirror || true
+#    - scancode --verbose --html license.html /builds/sci-fv/pyxel-mirror || true
+    - scancode --verbose --ignore "*.fits" --ignore "*.npy" --ignore "*.ascii" --ignore "*.data" --license --copyright --json-pp license.json /builds/sci-fv/pyxel-mirror/pyxel || true
+    - ls
+  artifacts:
+    paths:
+      - license.json
+
 # Scan sourcecode for licenses, copyrights & dependencies
 licenses:
   image: python:2.7.14
@@ -148,17 +145,9 @@ licenses:
   script:
     - pwd
     - pip install scancode-toolkit==2.2.1    # worked  # todo: use latest release when it will be available !
-#    - pip install scancode-toolkit==2.9.2
-#    - pip install scancode-toolkit        # not worked:  EMPTY REPORT
     - pip freeze
     - scancode --help
-#    - scancode --license --package --copyright --info --email --url . --html-app license_report.html        # latest version
-#    - scancode --license --package --copyright --info --email --url --format html-app . license_report.html   # v2.2.1
-#    - scancode --license --package --copyright --info --email --url --format html . license_report.html      # v2.2.1
-#    - scancode -n 4 --ignore *.fits --format json --diag . license_report.json || echo 0      # v2.2.1   worked
-    - scancode -n 4 --ignore *.fits --format html-app --diag . license_report.html || echo 0      # v2.2.1   worked
-#    - scancode -n 4 --ignore *.fits . --html-app license_report.html || echo 0      # latest version, EMPTY REPORT
-#    - scancode . --html-app license_report.html
+    - scancode -n 4 --ignore *.fits --format html-app --diag . license_report.html    # v2.2.1   worked
     - ls
   artifacts:
     paths:
@@ -201,8 +190,8 @@ docker:
 #    - docker push $CONTAINER_LATEST_IMAGE
 #    - docker tag $CONTAINER_LATEST_IMAGE registry.gitlab.com/esa/pyxel
   allow_failure: true
-#  only:
-#    - master
+  only:
+    - master
 
 
 # ###########################
@@ -219,16 +208,13 @@ pages:
     - mv htmlcov public/coverage
     - mv pytest_report.html public
     - mv pylint_report.html public
-    - mv license_report.html public
-    - mv license_report_files public
     - mv coverage.svg public
     - mv license.svg public
     - mv documentation.svg public
     - ls public
-
-#    - mv license_report2.html public
-    - mv license.html public
-    - mv license_files public
+    - mv license_report.html public
+    - mv license_report_files public
+    - mv license.json public
   artifacts:
     paths:
       - public
