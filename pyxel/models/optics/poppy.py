@@ -31,7 +31,7 @@ def optical_psf(detector: Detector,
         Pixel scale on detector plane (micron/pixel or arcsec/pixel).
         Defines sampling resolution of PSF.
     fov_pixels: int
-        Field Of View on detector plane in pixels.
+        Field Of View on detector plane in pixel.
     optical_system:
         List of optical elements before detector with their specific arguments.
 
@@ -118,23 +118,23 @@ def optical_psf(detector: Detector,
 
     # plt.figure()
     # ax_orig = plt.gca()
-    # ax_orig.imshow(detector.photons.array, cmap='gray')
+    # ax_orig.imshow(detector.photon.array, cmap='gray')
     # ax_orig.set_title('Original')
     # ax_orig.set_axis_off()
 
     # Convolution
-    a = detector.photons.array.shape[0]
-    b = detector.photons.array.shape[1]
+    a = detector.photon.array.shape[0]
+    b = detector.photon.array.shape[1]
     new_shape = (a + 2 * fov_pixels, b + 2 * fov_pixels)
-    array = np.zeros(new_shape, detector.photons.array.dtype)
+    array = np.zeros(new_shape, detector.photon.array.dtype)
     roi = slice(fov_pixels, fov_pixels + a), slice(fov_pixels, fov_pixels + b)
-    array[roi] = detector.photons.array
+    array[roi] = detector.photon.array
 
     array = signal.convolve2d(array,
                               psf[0][0].data,
                               mode='same',
                               boundary='fill', fillvalue=0)
-    detector.photons.new_array(array)
+    detector.photon.new_array(array)
 
     # plt.figure()
     # ax_int = plt.gca()
@@ -144,7 +144,7 @@ def optical_psf(detector: Detector,
 
     # plt.show()
 
-    # conv_with_wavefront = signal.convolve2d(detector.photons.array, psf[1][-1].wavefront,
+    # conv_with_wavefront = signal.convolve2d(detector.photon.array, psf[1][-1].wavefront,
     #                                         mode='same', boundary='fill', fillvalue=0)
 
     plt.close('all')       # TODO

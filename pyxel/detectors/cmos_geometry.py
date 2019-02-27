@@ -19,7 +19,7 @@ class CMOSGeometry(Geometry):
         default=0,
         validator=[pyx.validate_type(int),
                    pyx.validate_range(0, 100)],
-        doc='New row overhead in pixels'
+        doc='New row overhead in pixel'
         # This allows for a short wait at the end of a row before starting the next row.
     )
     n_frame_overhead = pyx.attribute(

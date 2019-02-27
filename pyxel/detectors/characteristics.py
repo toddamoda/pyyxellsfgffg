@@ -73,7 +73,7 @@ class Characteristics:
         converter=float,
         validator=[pyx.validate_type(float),
                    pyx.validate_range(0., 1.)],
-        doc='Half pixel volume charges can occupy',      # TODO should be the full volume and not the half
+        doc='Half pixel volume charge can occupy',      # TODO should be the full volume and not the half
         metadata={'units': 'cm^2'}
     )
     dt = pyx.attribute(

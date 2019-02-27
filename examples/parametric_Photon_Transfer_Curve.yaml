@@ -36,8 +36,8 @@ detector:
   geometry:
     class: pyxel.detectors.ccd_geometry.CCDGeometry
 
-    row:   100                          # pixels
-    col:   100                          # pixels
+    row:   100                          # pixel
+    col:   100                          # pixel
     total_thickness: 10.                # um
     pixel_vert_size: 10.                # um
     pixel_horz_size: 10.                # um
@@ -63,7 +63,7 @@ detector:
 pipeline:
   class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
 
-  # -> photons
+  # -> photon
   photon_generation:
     - name: illumination
       func: pyxel.models.photon_generation.illumination.illumination
@@ -74,16 +74,16 @@ pipeline:
 #      func: pyxel.models.photon_generation.shot_noise.shot_noise
 #      enabled: false
 
-  # photons -> photons
+  # photon -> photon
   optics:
 
-  # photons -> charges
+  # photon -> charge
   charge_generation:
     - name: photoelectrons
       func: pyxel.models.charge_generation.photoelectrons.simple_conversion
       enabled: true
 
-  # charges -> pixels
+  # charge -> pixel
   charge_collection:
     - name: simple_collection
       func: pyxel.models.charge_collection.collection.simple_collection
@@ -97,10 +97,10 @@ pipeline:
       func: pyxel.models.charge_collection.full_well.simple_full_well
       enabled: true
 
-  # pixels -> pixels
+  # pixel -> pixel
   charge_transfer:
 
-  # pixels -> signal
+  # pixel -> signal
   charge_measurement:
     - name: simple_measurement
       func: pyxel.models.charge_measurement.measurement.simple_measurement

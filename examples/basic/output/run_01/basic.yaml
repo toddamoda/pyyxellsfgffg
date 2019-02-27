@@ -26,8 +26,8 @@ detector:
   geometry:
     class: pyxel.detectors.ccd_geometry.CCDGeometry
 
-    row: 1488               # pixels
-    col: 1485               # pixels
+    row: 1488               # pixel
+    col: 1485               # pixel
     total_thickness: 40.    # um
     pixel_vert_size: 10.    # um
     pixel_horz_size: 10.    # um
@@ -58,7 +58,7 @@ detector:
 pipeline:
   class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
 
-  # photons -> photons
+  # photon -> photon
   photon_generation:
     - name: load_image
       func: pyxel.models.photon_generation.load_image.load_image
@@ -71,13 +71,13 @@ pipeline:
       func: pyxel.models.photon_generation.shot_noise.shot_noise
       enabled: false
 
-  # photons -> photons
+  # photon -> photon
   optics:
     - name: optical_psf
       func: pyxel.models.optics.poppy.optical_psf
       enabled: false
       arguments:
-        fov_pixels: 30        # FOV in pixels
+        fov_pixels: 30        # FOV in pixel
         pixelscale: 0.05       # micron/pixel OR arcsec/pixel
         wavelength: 2.e-6     # wavelength in microns
         optical_system:
@@ -88,7 +88,7 @@ pipeline:
       func: pyxel.models.optics.alignment.alignment
       enabled: true
 
-  # photons -> charges
+  # photon -> charge
   charge_generation:
     - name: photoelectrons
       func: pyxel.models.charge_generation.photoelectrons.simple_conversion
@@ -108,7 +108,7 @@ pipeline:
         spectrum_file: 'pyxel/models/charge_generation/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
         random_seed: 4321
 
-  # charges -> pixels
+  # charge -> pixel
   charge_collection:
     - name: simple_collection
       func: pyxel.models.charge_collection.collection.simple_collection
@@ -118,7 +118,7 @@ pipeline:
       func: pyxel.models.charge_collection.full_well.simple_full_well
       enabled: true
 
-  # pixels -> pixels
+  # pixel -> pixel
   charge_transfer:
     - name: cdm
       func: pyxel.models.charge_transfer.cdm.cdm
@@ -136,7 +136,7 @@ pipeline:
         nt_s: []
         sigma_s: []
 
-  # pixels -> signal
+  # pixel -> signal
   charge_measurement:
     - name: simple_measurement
       func: pyxel.models.charge_measurement.measurement.simple_measurement

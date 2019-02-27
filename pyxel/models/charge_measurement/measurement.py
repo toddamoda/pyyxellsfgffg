@@ -21,5 +21,5 @@ def simple_measurement(detector: Detector):
     logger.info('')
     char = detector.characteristics
 
-    array = detector.pixels.array * char.sv
+    array = detector.pixel.array * char.sv
     detector.signal.array = array.astype('float64')

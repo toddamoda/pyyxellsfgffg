@@ -49,7 +49,7 @@ Modification History:
 - Included options for subarray modes (FULL,  WINDOW,  and STRIPE)
     * Keywords wind_x0 and wind_y0 define a subarray position (lower left corner)
     * Selects correct pca0 region for subarray underlay
-    * Adds reference pixels if they exist within subarray window
+    * Adds reference pixel if they exist within subarray window
 - Tie negative values to 0 and anything >=2^16 to 2^16-1
 - Version 2.5
 
@@ -104,7 +104,7 @@ PCA0FILE = path.dirname(path.abspath(__file__)) + '/nirspec_pca0.fits'
 
 
 def white_noise(nstep=None):
-    """Generate white noise for an HxRG including all time steps (actual pixels and overheads).
+    """Generate white noise for an HxRG including all time steps (actual pixel and overheads).
 
     Parameters:
         nstep - Length of vector returned
@@ -147,7 +147,7 @@ class HXRGNoise:
             nfoh        - New frame overhead in rows. This allows for a short
                           wait at the end of a frame before starting the next
                           one.
-            nroh        - New row overhead in pixels. This allows for a short
+            nroh        - New row overhead in pixel. This allows for a short
                           wait at the end of a row before starting the next one.
             pca0_file   - Name of a FITS file that contains PCA-zero
             verbose     - Enable this to provide status reporting
@@ -277,7 +277,7 @@ class HXRGNoise:
         # Configure readout direction
         self.reverse_scan_direction = reverse_scan_direction
 
-        # Compute the number of pixels in the fast-scan direction per output
+        # Compute the number of pixel in the fast-scan direction per output
         self.xsize = self.naxis1 // self.n_out
 
         # Compute the number of time steps per integration,  per output
@@ -286,7 +286,7 @@ class HXRGNoise:
         self.nstep2 = int(2**np.ceil(np.log2(self.nstep)))
 
         # For adding in ACN, it is handy to have masks of the even
-        # and odd pixels on one output neglecting any gaps
+        # and odd pixel on one output neglecting any gaps
         # UNUSED CODE COMMENTED OUT
         # self.m_even = np.zeros((self.naxis3, self.naxis2, self.xsize))
         # self.m_odd = np.zeros_like(self.m_even)
@@ -298,7 +298,7 @@ class HXRGNoise:
         # UNUSED CODE COMMENTED OUT
 
         # Also for adding in ACN,  we need a mask that point to just
-        # the real pixels in ordered vectors of just the even or odd pixels - BUG FIXED HERE (D.L.)
+        # the real pixel in ordered vectors of just the even or odd pixel - BUG FIXED HERE (D.L.)
         self.m_short = np.zeros((self.naxis3, (self.naxis2+self.nfoh)//2, self.xsize+self.nroh))
         self.m_short[:, :self.naxis2//2, :self.xsize] = 1
         # self.m_short = np.reshape(self.m_short,  np.size(self.m_short))
@@ -379,7 +379,7 @@ class HXRGNoise:
             # os.sys.exit()
         self.pca0 = data[y1:y2, x1:x2]
 
-        # How many reference pixels on each border?
+        # How many reference pixel on each border?
         w = self.reference_pixel_border_width   # Easier to work with
         lower = w-y1
         upper = w-(det_size_y-y2)
@@ -454,8 +454,8 @@ class HXRGNoise:
     #                    electrons
     #         pca0_amp - Standard deviation of pca0 in electrons
     #         reference_pixel_noise_ratio - Ratio of the standard deviation of
-    #                                       the reference pixels to the regular
-    #                                       pixels. Reference pixels are usually
+    #                                       the reference pixel to the regular
+    #                                       pixel. Reference pixel are usually
     #                                       a little lower noise.
     #         ktc_noise   - kTC noise in electrons. Set this equal to
     #                       sqrt(k*T*C_pixel)/q_e,  where k is Boltzmann's
@@ -463,7 +463,7 @@ class HXRGNoise:
     #                       pixel capacitance. For an H2RG,  the pixel capacitance
     #                       is typically about 40 fF.
     #         bias_offset - On average,  integrations start here in electrons. Set
-    #                       this so that all pixels are in range.
+    #                       this so that all pixel are in range.
     #         bias_amp    - A multiplicative factor that we multiply PCA-zero by
     #                       to simulate a bias pattern. This is completely
     #                       independent from adding in "picture frame" noise.
@@ -554,7 +554,7 @@ class HXRGNoise:
 
         if self.naxis3 > 1:     # NOTE: there is no kTc or Bias noise added for first/single frame
             self.message('Generating ktc_bias_noise')
-            # If there are no reference pixels,
+            # If there are no reference pixel,
             # we know that we are dealing with a subarray. In this case,  we do not
             # inject any bias pattern for now.
             # if self.reference_pixel_border_width > 0:
@@ -585,7 +585,7 @@ class HXRGNoise:
     def add_white_read_noise(self, rd_noise=5.2, reference_pixel_noise_ratio=0.8):
         """TBW.
 
-        Make white read noise. This is the same for all pixels.
+        Make white read noise. This is the same for all pixel.
 
         :param rd_noise:
         :param reference_pixel_noise_ratio:
@@ -600,7 +600,7 @@ class HXRGNoise:
             for z in np.arange(self.naxis3):
                 here = np.zeros((self.naxis2, self.naxis1))
 
-                # Noisy reference pixels for each side of detector
+                # Noisy reference pixel for each side of detector
                 if w[0] > 0:    # lower
                     here[:w[0], :] = r * rd_noise * np.random.standard_normal((w[0], self.naxis1))
                 if w[1] > 0:    # upper
@@ -610,11 +610,11 @@ class HXRGNoise:
                 if w[3] > 0:    # right
                     here[:, -w[3]:] = r * rd_noise * np.random.standard_normal((self.naxis2, w[3]))
 
-                # Noisy regular pixels
-                if np.sum(w) > 0:   # Ref. pixels exist in frame
+                # Noisy regular pixel
+                if np.sum(w) > 0:   # Ref. pixel exist in frame
                     here[w[0]:self.naxis2-w[1], w[2]:self.naxis1-w[3]] = \
                         rd_noise * np.random.standard_normal((self.naxis2-w[0]-w[1], self.naxis1-w[2]-w[3]))
-                else:   # No Ref. pixels,  so add only regular pixels
+                else:   # No Ref. pixel,  so add only regular pixel
                     here = rd_noise * np.random.standard_normal((self.naxis2, self.naxis1))
 
                 # Add the noise in to the result
@@ -694,16 +694,16 @@ class HXRGNoise:
                 a = acn * self.pink_noise('acn')
                 b = acn * self.pink_noise('acn')
 
-                # Pick out just the real pixels (i.e. ignore the gaps)
+                # Pick out just the real pixel (i.e. ignore the gaps)
                 a = a[np.where(self.m_short == 1)]
                 b = b[np.where(self.m_short == 1)]
 
                 half_ch_pixels = self.naxis1 * self.naxis2 // (2*self.n_out)
                 if len(a) != half_ch_pixels:
-                    ValueError('This should not happen: in ACN noise len(a) != number of half ch pixels')
+                    ValueError('This should not happen: in ACN noise len(a) != number of half ch pixel')
                     # a = np.append(a, np.zeros(halfchpixels-len(a)))
                 if len(b) != half_ch_pixels:
-                    ValueError('This should not happen: in ACN noise len(b) != number of half ch pixels')
+                    ValueError('This should not happen: in ACN noise len(b) != number of half ch pixel')
                     # b = np.append(b, np.zeros(halfchpixels-len(b)))
 
                 # Reformat into an image section. This uses the formula mentioned above.

@@ -44,9 +44,9 @@ def test_init(geometry, environment, characteristics, material):
     assert obj.characteristics is characteristics
     assert obj.material is material
 
-    assert obj.photons is not None
-    assert obj.charges is not None
-    assert obj.pixels is not None
+    assert obj.photon is not None
+    assert obj.charge is not None
+    assert obj.pixel is not None
     assert obj.signal is not None
     assert obj.image is not None
 

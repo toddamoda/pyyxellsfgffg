@@ -91,7 +91,7 @@ detector:
 pipeline:
   class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
 
-  # -> photons
+  # -> photon
   photon_generation:
     -
       name: load_image
@@ -109,10 +109,10 @@ pipeline:
       arguments:
         level:
 
-  # photons -> photons
+  # photon -> photon
   optics:
 
-  # photons -> charge
+  # photon -> charge
   charge_generation:
     -
       name: photoelectrons

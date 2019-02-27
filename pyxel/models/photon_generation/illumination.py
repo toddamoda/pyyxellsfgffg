@@ -8,7 +8,7 @@ from pyxel.detectors.detector import Detector
 
 
 @pyxel.validate
-@pyxel.argument(name='level', label='number of photons', units='', validate=check_type(int))
+@pyxel.argument(name='level', label='number of photon', units='', validate=check_type(int))
 @pyxel.argument(name='option', label='type of illumination', units='',
                 validate=check_choices(['uniform', 'rectangular_hole', 'elliptic_hole']))
 # @pyxel.argument(name='size', label='size of 2d array', units='', validate=check_type(list))
@@ -19,17 +19,17 @@ def illumination(detector: Detector,
                  array_size: t.List[int] = None,
                  hole_size: t.List[int] = None,
                  hole_center: t.List[int] = None):
-    """Generate photons uniformly over the entire array or hole.
+    """Generate photon uniformly over the entire array or hole.
 
     detector: Detector
         Pyxel Detector object.
     level: int
-        Number of photons per pixel.
+        Number of photon per pixel.
     option: str{'uniform', 'elliptic_hole', 'rectangular_hole'}
         A string indicating the type of illumination:
 
         - ``uniform``
-           Uniformly fill the entire array with photons. (Default)
+           Uniformly fill the entire array with photon. (Default)
         - ``elliptic_hole``
            Mask with elliptic hole.
         - ``rectangular_hole``
@@ -46,11 +46,11 @@ def illumination(detector: Detector,
 
     if array_size is None:
         try:
-            shape = detector.photons.array.shape
+            shape = detector.photon.array.shape
         except AttributeError:
             geo = detector.geometry
-            detector.photons.new_array(np.zeros((geo.row, geo.col), dtype=int))
-            shape = detector.photons.array.shape
+            detector.photon.new_array(np.zeros((geo.row, geo.col), dtype=int))
+            shape = detector.photon.array.shape
     else:
         shape = tuple(array_size)
 
@@ -82,8 +82,8 @@ def illumination(detector: Detector,
         raise NotImplementedError
 
     try:
-        detector.photons.array += photon_array
+        detector.photon.array += photon_array
     except TypeError:
-        detector.photons.new_array(photon_array)
+        detector.photon.new_array(photon_array)
     except ValueError:
         raise ValueError('Shapes of arrays do not match')

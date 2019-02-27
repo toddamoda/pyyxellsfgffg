@@ -5,20 +5,16 @@ simulation:
   parametric:
     parametric_mode: sequential
     parameters:
-      -
-        enabled: true
+      - enabled: true
         key: pipeline.photon_generation.illumination.arguments.level
         values: [10, 20, 30]
-      -
-        enabled: true
+      - enabled: true
         key: pipeline.charge_generation.tars.arguments.initial_energy
         values: [100, 200, 300]
-      -
-        enabled: false
+      - enabled: false
         key:
         values:
-      -
-        enabled: false
+      - enabled: false
         key:
         values:
 
@@ -96,7 +92,7 @@ pipeline:
       func: pyxel.models.photon_generation.shot_noise.shot_noise
       enabled: true
 
-  # -> photons
+  # -> photon
   optics:
 
   # -> charge
@@ -146,8 +142,6 @@ pipeline:
        svg: 1.0e-10
        t: 20.48e-3
        st: 5.0e-6
-       parallel_trap_file: pyxel/models/cdm/cdm_euclid_parallel.dat
-       serial_trap_file: pyxel/models/cdm/cdm_euclid_serial.dat
 
   # -> signal
   charge_measurement:

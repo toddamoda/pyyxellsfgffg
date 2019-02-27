@@ -23,9 +23,9 @@ class CMOS(Detector):
                  material: Material,
                  environment: Environment,
                  characteristics: CMOSCharacteristics,
-                 photons: Photon = None,
-                 charges: Charge = None,
-                 pixels: Pixel = None,
+                 photon: Photon = None,
+                 charge: Charge = None,
+                 pixel: Pixel = None,
                  signal: Signal = None,
                  image: Image = None) -> None:
         """TBW.
@@ -34,13 +34,18 @@ class CMOS(Detector):
         :param material:
         :param environment:
         :param characteristics:
+        :param photon:
+        :param charge:
+        :param pixel:
+        :param signal:
+        :param image:
         """
         super().__init__(geometry=geometry,
                          material=material,
                          environment=environment,
                          characteristics=characteristics,
-                         photons=photons,
-                         charges=charges,
-                         pixels=pixels,
+                         photon=photon,
+                         charge=charge,
+                         pixel=pixel,
                          signal=signal,
                          image=image)

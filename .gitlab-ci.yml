@@ -178,8 +178,8 @@ docker:
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN gitlab.esa.int:4567
     - docker build -t gitlab.esa.int:4567/sci-fv/pyxel-mirror .
     - docker push gitlab.esa.int:4567/sci-fv/pyxel-mirror
-#    - docker login -u david.lucsanyi -p $CI_BUILD_TOKEN gitlab.esa.int:4567   # TODO  (personal) key/token needed
-#    - docker tag gitlab.esa.int:4567/sci-fv/pyxel-mirror registry.gitlab.com/esa/pyxel
+#    - docker login -u david.lucsanyi -p $TOKEN gitlab.esa.int:4567   # TODO  (personal) key/token needed
+#    - docker tag gitlab.esa.int:4567/sci-fv/pyxel-mirror:latest registry.gitlab.com/esa/pyxel:latest
 #    - docker push registry.gitlab.com/esa/pyxel
 
 #    - docker build --pull -t $CONTAINER_LATEST_IMAGE .

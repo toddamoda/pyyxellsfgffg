@@ -24,10 +24,10 @@ class CCD(Detector):
                  material: Material,
                  environment: Environment,
                  characteristics: CCDCharacteristics,
-                 charge_injection_profile: t.List = None,
-                 photons: Photon = None,
-                 charges: Charge = None,
-                 pixels: Pixel = None,
+                 # charge_injection_profile: t.List = None,
+                 photon: Photon = None,
+                 charge: Charge = None,
+                 pixel: Pixel = None,
                  signal: Signal = None,
                  image: Image = None) -> None:
         """TBW.
@@ -36,33 +36,39 @@ class CCD(Detector):
         :param material:
         :param environment:
         :param characteristics:
+        # :param charge_injection_profile:
+        :param photon:
+        :param charge:
+        :param pixel:
+        :param signal:
+        :param image:
         """
         super().__init__(geometry=geometry,
                          material=material,
                          environment=environment,
                          characteristics=characteristics,
-                         photons=photons,
-                         charges=charges,
-                         pixels=pixels,
+                         photon=photon,
+                         charge=charge,
+                         pixel=pixel,
                          signal=signal,
                          image=image)
 
-        self._charge_injection_profile = None
-        if charge_injection_profile:
-            self._charge_injection_profile = charge_injection_profile
+        # self._charge_injection_profile = None
+        # if charge_injection_profile:
+        #     self._charge_injection_profile = charge_injection_profile
 
-    @property
-    def charge_injection_profile(self):
-        """TBW.
-
-        :return:
-        """
-        return self._charge_injection_profile
-
-    @charge_injection_profile.setter
-    def charge_injection_profile(self, new_chg_inj_profile):
-        """TBW.
-
-        :param new_chg_inj_profile:
-        """
-        self._charge_injection_profile = new_chg_inj_profile
+    # @property
+    # def charge_injection_profile(self):
+    #     """TBW.
+    #
+    #     :return:
+    #     """
+    #     return self._charge_injection_profile
+    #
+    # @charge_injection_profile.setter
+    # def charge_injection_profile(self, new_chg_inj_profile):
+    #     """TBW.
+    #
+    #     :param new_chg_inj_profile:
+    #     """
+    #     self._charge_injection_profile = new_chg_inj_profile

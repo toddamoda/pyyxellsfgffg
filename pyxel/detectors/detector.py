@@ -25,36 +25,41 @@ class Detector:
                  material: Material,
                  environment: Environment,
                  characteristics: Characteristics,
-                 photons: Photon = None,
-                 charges: Charge = None,
-                 pixels: Pixel = None,
+                 photon: Photon = None,
+                 charge: Charge = None,
+                 pixel: Pixel = None,
                  signal: Signal = None,
                  image: Image = None) -> None:
         """TBW.
 
         :param geometry:
+        :param material:
         :param environment:
         :param characteristics:
+        :param photon:
+        :param charge:
+        :param pixel:
+        :param signal:
+        :param image:
         """
-        self.geometry = geometry                  # type: Geometry
-        self.material = material                  # type: Material
-        self.environment = environment            # type: Environment
-        self.characteristics = characteristics    # type: Characteristics
-        self.header = collections.OrderedDict()   # type: t.Dict[str, object]
+        self.geometry = geometry                   # type: Geometry
+        self.material = material                   # type: Material
+        self.environment = environment             # type: Environment
+        self.characteristics = characteristics     # type: Characteristics
+        self.header = collections.OrderedDict()    # type: t.Dict[str, object]
 
-        self.photons = Photon(self.geometry)        # type: Photon
-        # self.photons = None                           # type: t.Optional[Photon]
-        self.charges = Charge()                     # type: Charge
-        self.pixels = Pixel(self.geometry)          # type: Pixel
-        self.signal = Signal(self.geometry)         # type: Signal
-        self.image = Image(self.geometry)           # type: Image
+        self.photon = Photon(self.geometry)        # type: Photon
+        self.charge = Charge()                     # type: Charge
+        self.pixel = Pixel(self.geometry)          # type: Pixel
+        self.signal = Signal(self.geometry)        # type: Signal
+        self.image = Image(self.geometry)          # type: Image
 
-        if photons:
-            self.photons = photons
-        if charges:
-            self.charges = charges
-        if pixels:
-            self.pixels = pixels
+        if photon:
+            self.photon = photon
+        if charge:
+            self.charge = charge
+        if pixel:
+            self.pixel = pixel
         if signal:
             self.signal = signal
         if image:
@@ -72,9 +77,9 @@ class Detector:
             'material': self.material,
             'environment': self.environment,
             'characteristics': self.characteristics,
-            'photons': self.photons,
-            'charges': self.charges,
-            'pixels': self.pixels,
+            'photon': self.photon,
+            'charge': self.charge,
+            'pixel': self.pixel,
             'signal': self.signal,
             'image': self.image,
             'input_image': self.input_image

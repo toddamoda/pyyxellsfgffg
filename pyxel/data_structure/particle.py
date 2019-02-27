@@ -1,7 +1,7 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-"""Pyxel general particle class to track particles like photons, electrons, holes."""
+"""Pyxel general particle class to track particles like photon, electrons, holes."""
 # import numpy as np
 import pandas as pd
 # from astropy.units import cds

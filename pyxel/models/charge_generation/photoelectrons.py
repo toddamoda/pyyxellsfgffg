@@ -1,7 +1,7 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-"""Simple model to convert photons into photo-electrons inside detector."""
+"""Simple model to convert photon into photo-electrons inside detector."""
 import logging
 import numpy as np
 # import pyxel
@@ -12,7 +12,7 @@ from pyxel.detectors.detector import Detector
 # @pyxel.argument(name='', label='', units='', validate=)
 # @pyxel.register(group='charge_generation', name='photoelectrons')
 def simple_conversion(detector: Detector):
-    """Generate charges from incident photons via photoelectric effect, simple statistical model.
+    """Generate charge from incident photon via photoelectric effect, simple statistical model.
 
     :param detector: Pyxel Detector object
     """
@@ -20,7 +20,7 @@ def simple_conversion(detector: Detector):
     logger.info('')
     geo = detector.geometry
     ch = detector.characteristics
-    ph = detector.photons
+    ph = detector.photon
 
     init_ver_position = np.arange(0.0, geo.row, 1.0) * geo.pixel_vert_size
     init_hor_position = np.arange(0.0, geo.col, 1.0) * geo.pixel_horz_size
@@ -36,22 +36,22 @@ def simple_conversion(detector: Detector):
     init_ver_position += np.random.rand(size) * geo.pixel_vert_size
     init_hor_position += np.random.rand(size) * geo.pixel_horz_size
 
-    detector.charges.add_charge(particle_type='e',
-                                particles_per_cluster=charge_number,
-                                init_energy=[0.] * size,
-                                init_ver_position=init_ver_position,
-                                init_hor_position=init_hor_position,
-                                init_z_position=[0.] * size,
-                                init_ver_velocity=[0.] * size,
-                                init_hor_velocity=[0.] * size,
-                                init_z_velocity=[0.] * size)
+    detector.charge.add_charge(particle_type='e',
+                               particles_per_cluster=charge_number,
+                               init_energy=[0.] * size,
+                               init_ver_position=init_ver_position,
+                               init_hor_position=init_hor_position,
+                               init_z_position=[0.] * size,
+                               init_ver_velocity=[0.] * size,
+                               init_hor_velocity=[0.] * size,
+                               init_z_velocity=[0.] * size)
 
 
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
 # @pyxel.register(group='charge_generation', name='monte_carlo_photoelectrons')
 def monte_carlo_conversion(detector: Detector):
-    """Generate charges from incident photons via photoelectric effect, more exact, stochastic (Monte Carlo) model.
+    """Generate charge from incident photon via photoelectric effect, more exact, stochastic (Monte Carlo) model.
 
     :param detector: Pyxel Detector object
     """

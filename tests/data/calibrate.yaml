@@ -65,13 +65,13 @@ detector:
 pipeline:
   class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
 
-  # -> photons
+  # -> photon
   photon_generation:
 
-  # photons -> photons
+  # photon -> photon
   optics:
 
-  # photons -> charge
+  # photon -> charge
   charge_generation:
 
   # charge -> charge

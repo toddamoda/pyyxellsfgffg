@@ -40,17 +40,17 @@ Authors
 Continuous Integration & Deployment
 -----------------------------------
 
-.. attention::
+.. note::
 
-    Only accessible inside ESA network!
+    The following pages are only accessible inside ESA network.
 
-`PyTest report <http://sci-fv.io.esa.int/pyxel/pytest_report.html>`_
+`PyTest report <http://sci-fv.io.esa.int/pyxel-mirror/pytest_report.html>`_
 
-`PyTest coverage <http://sci-fv.io.esa.int/pyxel/coverage/>`_
+`PyTest coverage <http://sci-fv.io.esa.int/pyxel-mirror/coverage/>`_
 
-`PyLint report <http://sci-fv.io.esa.int/pyxel/pylint_report.html>`_
+`PyLint report <http://sci-fv.io.esa.int/pyxel-mirror/pylint_report.html>`_
 
-`License & copyrights report <http://sci-fv.io.esa.int/pyxel/license_report.html>`_
+`License & copyrights report <http://sci-fv.io.esa.int/pyxel-mirror/license.json>`_
 
 
 .. |date| date::  %A %d %B %Y
