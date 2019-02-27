@@ -29,12 +29,12 @@ licenses-latest:
     - pip freeze
     - scancode --help
     - scancode --examples
-    - scancode -clip --json-pp - samples
-#    - scancode --verbose --license --package --copyright --info --email --url --html license.html /builds/sci-fv/pyxel-mirror
-#    - scancode -n 4 --ignore *.fits --verbose --html license.html . || echo 0      # latest version, STILL EMPTY REPORT
-#    - scancode --verbose --html license.html /builds/sci-fv/pyxel-mirror
     - ls
-#    - mv license.html ../pyxel-mirror
+    - scancode -clip --json-pp - samples || true
+    - scancode --license --verbose samples/zlib/zlib.h --json licenses.json || true
+#    - scancode --verbose --license --package --copyright --info --email --url --html license.html /builds/sci-fv/pyxel-mirror
+    - scancode -n 4 --ignore *.fits --verbose --html license.html /builds/sci-fv/pyxel-mirror || true
+#    - scancode --verbose --html license.html /builds/sci-fv/pyxel-mirror
 #  artifacts:
 #    paths:
 #      - license.html
