@@ -16,7 +16,7 @@ examples/*/
 *.ascii
 
 # Pycharm, Byte-compiled
-__pycache__/*
+*/__pycache__/*
 *.pyc
 .idea/
 
