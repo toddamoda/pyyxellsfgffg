@@ -202,24 +202,23 @@ doc:
 
 
 docker:
-  stage: test   # build
+  stage: build
   image: docker:dind
   script:
     - echo $CONTAINER_LATEST_IMAGE
-    - echo $CI_BUILD_TOKEN
-    - echo $gitlab-ci-token
-
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN gitlab.esa.int:4567
-
-#    - docker build --pull -t $CONTAINER_LATEST_IMAGE .
-#    - docker build -t $CONTAINER_LATEST_IMAGE .
-
-#    - docker push $CONTAINER_LATEST_IMAGE
-
-    - docker build -t gitlab.esa.int:4567/sci-fv/pyxel-mirror .
-    - docker push gitlab.esa.int:4567/sci-fv/pyxel-mirror
-
+#    - docker build -t gitlab.esa.int:4567/sci-fv/pyxel-mirror .
+#    - docker push gitlab.esa.int:4567/sci-fv/pyxel-mirror
+    - docker build --pull -t $CONTAINER_LATEST_IMAGE .
+    - docker push $CONTAINER_LATEST_IMAGE
+    - docker images
+#    - docker tag gitlab.esa.int:4567/sci-fv/pyxel-mirror registry.gitlab.com/esa/pyxel
+    - docker tag $CONTAINER_LATEST_IMAGE registry.gitlab.com/esa/pyxel
+    - docker push registry.gitlab.com/esa/pyxel
   allow_failure: true
+#  only:
+#    - master
+#    - tags
 
 
 # ###########################
