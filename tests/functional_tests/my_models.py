@@ -81,7 +81,7 @@ registry_map = {
     ],
     'charge_transfer': [
         {
-            'func': 'pyxel.models.charge_transfer.cdm.CDM.cdm',
+            'func': 'pyxel.models.charge_transfer.cdm.cdm',
             'type': 'ccd',
         }
     ],

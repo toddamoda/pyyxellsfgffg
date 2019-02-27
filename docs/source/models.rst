@@ -207,7 +207,7 @@ a generalized version has already been applied in a broader context, for
 example to investigate the impact of radiation damage on the Euclid mission.
 This generalized version has been included and used in Pyxel.
 
-.. autofunction:: pyxel.models.charge_transfer.cdm.CDM.cdm
+.. autofunction:: pyxel.models.charge_transfer.cdm.cdm
 
 
 .. _charge_measurement:

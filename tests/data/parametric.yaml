@@ -138,7 +138,7 @@ pipeline:
     -
       name: cdm
       enabled: false
-      func: pyxel.models.charge_transfer.cdm.CDM.cdm
+      func: pyxel.models.charge_transfer.cdm.cdm
       arguments:
        beta_p: 0.6
        beta_s: 0.6

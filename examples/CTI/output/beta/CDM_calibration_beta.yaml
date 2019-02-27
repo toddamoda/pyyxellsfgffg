@@ -103,7 +103,7 @@ pipeline:
   # pixels -> pixels
   charge_transfer:
     - name: cdm
-      func: pyxel.models.charge_transfer.cdm.CDM.cdm
+      func: pyxel.models.charge_transfer.cdm.cdm
       enabled: true
       arguments:
         parallel_cti: true
