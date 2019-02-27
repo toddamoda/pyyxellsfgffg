@@ -164,7 +164,7 @@ class ModelFitting:
         elif self.sim_output == 'signal':
             simulated_data = self.processor.detector.signal.array[self.sim_fit_range]
         elif self.sim_output == 'pixel':
-            simulated_data = self.processor.detector.pixels.array[self.sim_fit_range]
+            simulated_data = self.processor.detector.pixel.array[self.sim_fit_range]
 
         overall_fitness = 0.
         for target_data in self.all_target_data:

@@ -55,12 +55,12 @@ def charge_blocks(detector: CCD,
     init_ver_position += np.random.rand(size) * geo.pixel_vert_size     # random position within pixel
     init_hor_position += np.random.rand(size) * geo.pixel_horz_size     # random position within pixel
 
-    detector.charges.add_charge(particle_type='e',
-                                particles_per_cluster=[charge_level] * size,
-                                init_energy=[0.] * size,
-                                init_ver_position=init_ver_position,
-                                init_hor_position=init_hor_position,
-                                init_z_position=[0.] * size,
-                                init_ver_velocity=[0.] * size,
-                                init_hor_velocity=[0.] * size,
-                                init_z_velocity=[0.] * size)
+    detector.charge.add_charge(particle_type='e',
+                               particles_per_cluster=[charge_level] * size,
+                               init_energy=[0.] * size,
+                               init_ver_position=init_ver_position,
+                               init_hor_position=init_hor_position,
+                               init_z_position=[0.] * size,
+                               init_ver_velocity=[0.] * size,
+                               init_hor_velocity=[0.] * size,
+                               init_z_velocity=[0.] * size)

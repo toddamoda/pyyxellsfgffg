@@ -1,4 +1,4 @@
-"""Pyxel TARS model to generate charges by ionization."""
+"""Pyxel TARS model to generate charge by ionization."""
 
 import logging
 import math
@@ -222,7 +222,7 @@ class TARS:
         self.position_z = None
 
         self.sim_obj = Simulation(detector)
-        self.charge_obj = detector.charges
+        self.charge_obj = detector.charge
         self.log = logging.getLogger(__name__)
 
     def set_simulation_mode(self, sim_mode):

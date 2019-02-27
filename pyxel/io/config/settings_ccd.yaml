@@ -51,7 +51,7 @@ detector:
 pipeline:
   class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
 
-  # -> photons
+  # -> photon
   photon_generation:
     - name: load_image
       func: pyxel.models.photon_generation.load_image.load_image
@@ -69,10 +69,10 @@ pipeline:
       func: pyxel.models.photon_generation.shot_noise.shot_noise
       enabled: true
 
-  # photons -> photons
+  # photon -> photon
   optics:
 
-  # photons -> charge
+  # photon -> charge
   charge_generation:
     - name: photoelectrons
       func: pyxel.models.charge_generation.photoelectrons.simple_conversion
@@ -101,7 +101,7 @@ pipeline:
       func: pyxel.models.charge_collection.fix_pattern_noise.fix_pattern_noise
       enabled: false
       arguments:
-        pix_non_uniformity: data/non_uniformity_array_normal_random_dist.data
+        pix_non_uniformity: data/pixel_non_uniformity.npy
     - name: full_well
       func: pyxel.models.charge_collection.full_well.simple_full_well
       enabled: false

@@ -48,7 +48,7 @@ detector:
 pipeline:
   class: pyxel.pipelines.cmos_pipeline.CMOSDetectionPipeline
 
-  # photons -> photons
+  # photon -> photon
   photon_generation:
     - name: load_image
       func: pyxel.models.photon_generation.load_image.load_image
@@ -68,10 +68,10 @@ pipeline:
       func: pyxel.models.photon_generation.shot_noise.shot_noise
       enabled: true
 
-  # photons -> photons
+  # photon -> photon
   optics:
 
-  # photons -> charge
+  # photon -> charge
   charge_generation:
     - name: photoelectrons
       enabled: true

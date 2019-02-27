@@ -21,7 +21,7 @@ class CCDCharacteristics(Characteristics):
         converter=float,
         validator=[pyx.validate_type(float),
                    pyx.validate_range(0., 1.)],
-        doc='Half pixel volume charges can occupy (serial register)',  # TODO should be the full volume and not the half
+        doc='Half pixel volume charge can occupy (serial register)',  # TODO should be the full volume and not the half
         metadata={'units': 'cm^2'}
     )
     t = pyx.attribute(

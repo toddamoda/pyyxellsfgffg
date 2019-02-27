@@ -34,7 +34,7 @@ class Geometry:
         validator=[pyx.validate_type(float, is_optional=False),
                    pyx.validate_range(0, 1000)],
         metadata={'units': 'um'},
-        doc='Vertical dimension of pixels'
+        doc='Vertical dimension of pixel'
     )
     pixel_horz_size = pyx.attribute(
         type=float,
@@ -42,7 +42,7 @@ class Geometry:
         validator=[pyx.validate_type(float, is_optional=False),
                    pyx.validate_range(0, 1000)],
         metadata={'units': 'um'},
-        doc='Horizontal dimension of pixels'
+        doc='Horizontal dimension of pixel'
     )
 
     @property

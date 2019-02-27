@@ -118,9 +118,9 @@ class Outputs:
         detector_grp = h5file.create_group('detector')
         for array, name in zip([detector.signal.array,
                                 detector.image.array,
-                                detector.photons.array,
-                                detector.pixels.array,
-                                detector.charges.frame],
+                                detector.photon.array,
+                                detector.pixel.array,
+                                detector.charge.frame],
                                ['Signal',
                                 'Image',
                                 'Photon',
@@ -137,7 +137,7 @@ class Outputs:
 
     def save_to_csv(self, detector, filename='dataframe_??'):
         """Write pandas Dataframe to CSV file."""
-        dataframe = detector.charges.frame
+        dataframe = detector.charge.frame
         filename = self.output_dir + '/' + filename + '.csv'
         filename = apply_run_number(filename)
         dataframe.to_csv(filename, float_format='%g')
@@ -202,7 +202,7 @@ class Outputs:
         [save_methods[out_format](detector=processor.detector) for out_format in self.output_format]
 
         self.user_plt_args = None
-        x = processor.detector.photons.array                    # todo: default plots with plot_args?
+        x = processor.detector.photon.array                    # todo: default plots with plot_args?
         y = processor.detector.image.array
         color = None
         if self.single_plot:

@@ -39,7 +39,7 @@ def cdm(detector: CCD,
     :param parallel_cti: switch on CTI in parallel direction (along column)
     :param serial_cti: switch on CTI in serial direction (along rows)
     :param charge_injection: set this true in case of charge injection,
-        charge packets goes through all pixels in parallel direction
+        charge packets goes through all pixel in parallel direction
     :param beta_p: electron cloud expansion coefficient, parallel
     :param beta_s: electron cloud expansion coefficient, serial
     :param tr_p: trap release time constants (τ_r), parallel
@@ -56,7 +56,7 @@ def cdm(detector: CCD,
     # tau_c - capture time constant
     # Pc - capture probability (per vacant trap) as a function of the number of sample electrons Ne
     # NT - number of traps in the column,
-    # NT = 2*nt*Vg*x  where x is the number of TDI transfers or the column length in pixels.
+    # NT = 2*nt*Vg*x  where x is the number of TDI transfers or the column length in pixel.
     # Nc - number of electrons captured by a given trap species during the transit of an integrating signal packet
     # N0 - initial trap occupancy
     # Nr - number of electrons released into the sample during a transit along the column
@@ -82,18 +82,18 @@ def cdm(detector: CCD,
     if isinstance(sigma_s, list):
         sigma_s = np.array(sigma_s)
 
-    detector.pixels.array = run_cdm(s=detector.pixels.array,
-                                    vg=char.vg, svg=char.svg,
-                                    t=char.t, st=char.st,
-                                    fwc=char.fwc, sfwc=char.fwc_serial,
-                                    vth=detector.e_thermal_velocity,
-                                    parallel_cti=parallel_cti, serial_cti=serial_cti,
-                                    charge_injection=charge_injection,
-                                    chg_inj_parallel_transfers=detector.geometry.row,
-                                    beta_p=beta_p, beta_s=beta_s,
-                                    tr_p=tr_p, tr_s=tr_s,
-                                    nt_p=nt_p, nt_s=nt_s,
-                                    sigma_p=sigma_p, sigma_s=sigma_s)
+    detector.pixel.array = run_cdm(s=detector.pixel.array,
+                                   vg=char.vg, svg=char.svg,
+                                   t=char.t, st=char.st,
+                                   fwc=char.fwc, sfwc=char.fwc_serial,
+                                   vth=detector.e_thermal_velocity,
+                                   parallel_cti=parallel_cti, serial_cti=serial_cti,
+                                   charge_injection=charge_injection,
+                                   chg_inj_parallel_transfers=detector.geometry.row,
+                                   beta_p=beta_p, beta_s=beta_s,
+                                   tr_p=tr_p, tr_s=tr_s,
+                                   nt_p=nt_p, nt_s=nt_s,
+                                   sigma_p=sigma_p, sigma_s=sigma_s)
 
 
 @numba.jit(nopython=True, nogil=True)

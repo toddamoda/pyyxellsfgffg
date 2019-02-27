@@ -18,4 +18,4 @@ def new_model(detector: Detector, number: int = None):
     log.info('')
     if number:
         print('number = ', str(number))
-    detector.pixels.array *= np.random.rand()
+    detector.pixel.array *= np.random.rand()

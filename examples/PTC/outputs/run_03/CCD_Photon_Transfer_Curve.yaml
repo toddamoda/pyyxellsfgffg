@@ -35,8 +35,8 @@ detector:
   geometry:
     class: pyxel.detectors.ccd_geometry.CCDGeometry
 
-    row:   100                          # pixels
-    col:   100                          # pixels
+    row:   100                          # pixel
+    col:   100                          # pixel
     total_thickness: 10.                # um
     pixel_vert_size: 10.                # um
     pixel_horz_size: 10.                # um
@@ -62,7 +62,7 @@ detector:
 pipeline:
   class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
 
-  # -> photons
+  # -> photon
   photon_generation:
     - name: illumination
       func: pyxel.models.photon_generation.illumination.illumination
@@ -73,10 +73,10 @@ pipeline:
       func: pyxel.models.photon_generation.shot_noise.shot_noise
       enabled: false
 
-  # photons -> photons
+  # photon -> photon
   optics:
 
-  # photons -> charge
+  # photon -> charge
   charge_generation:
     - name: photoelectrons
       func: pyxel.models.charge_generation.photoelectrons.simple_conversion
@@ -91,7 +91,7 @@ pipeline:
       func: pyxel.models.charge_collection.fix_pattern_noise.fix_pattern_noise
       enabled: true
       arguments:
-        pix_non_uniformity: data/non_uniformity_array_normal_random_dist.data
+        pix_non_uniformity: data/pixel_non_uniformity.npy
     - name: full_well
       func: pyxel.models.charge_collection.full_well.simple_full_well
       enabled: false

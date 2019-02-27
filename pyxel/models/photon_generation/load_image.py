@@ -43,4 +43,4 @@ def load_image(detector: Detector,
         cht = detector.characteristics
         photon_array = photon_array / (cht.qe * cht.eta * cht.sv * cht.amp * cht.a1 * cht.a2)
 
-    detector.photons.new_array(photon_array)
+    detector.photon.new_array(photon_array)
