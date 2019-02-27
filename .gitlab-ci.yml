@@ -208,8 +208,6 @@ pages:
     - mv license.svg public
     - mv documentation.svg public
     - ls public
-    - mv license_report.html public
-    - mv license_report_files public
     - mv license.json public
   artifacts:
     paths:
