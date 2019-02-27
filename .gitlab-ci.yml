@@ -99,7 +99,7 @@ python36:
 
 # Run mypy
 mypy:
-  image: continuumio/anaconda3
+  image: python:3.6  # continuumio/anaconda3
   stage: test
   script:
     - pip install mypy
@@ -179,7 +179,7 @@ licenses:
 
 # Generate the Sphinx documentation into 'doc/html'
 doc:
-  image: continuumio/anaconda3
+  image: python:3.6  # continuumio/anaconda3
   stage: build
   script:
     - pip install -r docs/requirements-docs.txt
@@ -207,18 +207,17 @@ docker:
   script:
     - echo $CONTAINER_LATEST_IMAGE
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN gitlab.esa.int:4567
-#    - docker build -t gitlab.esa.int:4567/sci-fv/pyxel-mirror .
-#    - docker push gitlab.esa.int:4567/sci-fv/pyxel-mirror
-    - docker build --pull -t $CONTAINER_LATEST_IMAGE .
-    - docker push $CONTAINER_LATEST_IMAGE
+    - docker build -t gitlab.esa.int:4567/sci-fv/pyxel-mirror .
+    - docker push gitlab.esa.int:4567/sci-fv/pyxel-mirror
     - docker images
-#    - docker tag gitlab.esa.int:4567/sci-fv/pyxel-mirror registry.gitlab.com/esa/pyxel
-    - docker tag $CONTAINER_LATEST_IMAGE registry.gitlab.com/esa/pyxel
+    - docker tag gitlab.esa.int:4567/sci-fv/pyxel-mirror registry.gitlab.com/esa/pyxel
     - docker push registry.gitlab.com/esa/pyxel
+#    - docker build --pull -t $CONTAINER_LATEST_IMAGE .
+#    - docker push $CONTAINER_LATEST_IMAGE
+#    - docker tag $CONTAINER_LATEST_IMAGE registry.gitlab.com/esa/pyxel
   allow_failure: true
 #  only:
 #    - master
-#    - tags
 
 
 # ###########################
