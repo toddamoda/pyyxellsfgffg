@@ -18,7 +18,6 @@ simulation:
 
   outputs:
     output_folder:  'examples/PTC/outputs'
-    output_format:
     parametric_plot:
       x:  'detector.image.mean'
       y:  'detector.image.std_deviation'

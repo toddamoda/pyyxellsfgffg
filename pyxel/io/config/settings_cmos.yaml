@@ -9,18 +9,23 @@ simulation:
 
   outputs:
     output_folder:  'outputs'
-    output_format: [hdf, fits, npy, csv]
+    save_to_file:
+      - detector.image.array:   [fits, png]
+#      - detector.signal.array:  [npy, txt]
+#      - detector.charge.frame:  [csv]
+#      - detector.photon.array:
+#      - detector:               [hdf]
 
 detector:
   class: pyxel.detectors.cmos.CMOS
 
   geometry:
     class: pyxel.detectors.cmos_geometry.CMOSGeometry
-    row: 150                      # compulsory
-    col: 200                      # compulsory
-    total_thickness: 10.0         # um
-    pixel_vert_size: 10.0         # um
-    pixel_horz_size: 10.0         # um
+    row: 100                      # pixels
+    col: 100                      # pixels
+    total_thickness: 10.         # um
+    pixel_vert_size: 10.         # um
+    pixel_horz_size: 10.         # um
     n_output: 1
     n_row_overhead: 0
     n_frame_overhead: 0
