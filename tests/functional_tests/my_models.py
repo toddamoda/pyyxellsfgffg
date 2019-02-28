@@ -65,7 +65,7 @@ registry_map = {
             'name': 'photoelectrons',
         },
         {
-            'func': 'pyxel.models.tars.tars.run_tars',
+            'func': 'pyxel.models.tars.tars.tars',
             'name': 'tars'
         }
     ],

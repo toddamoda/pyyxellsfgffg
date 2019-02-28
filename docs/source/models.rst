@@ -149,7 +149,7 @@ Geant4 application for each single event. The validation of the latest
 version of the model against cosmic ray signals of the Gaia Basic Angle
 Monitor CCDs is ongoing via Pyxel.
 
-.. autofunction:: pyxel.models.charge_generation.tars.tars.run_tars
+.. autofunction:: pyxel.models.charge_generation.tars.tars.tars
 
 ..
     CCD charge injection

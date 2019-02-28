@@ -5,24 +5,24 @@ from pyxel.pipelines.processor import Processor
 
 
 expected_sequential = [
-    (0, [('level', 10), ('initial_energy', 100)]),
-    (1, [('level', 20), ('initial_energy', 100)]),
-    (2, [('level', 30), ('initial_energy', 100)]),
-    (3, [('level', 100), ('initial_energy', 100)]),
-    (4, [('level', 100), ('initial_energy', 200)]),
-    (5, [('level', 100), ('initial_energy', 300)])
+    (0, [('level', 10), ('initial_energy', 100.)]),
+    (1, [('level', 20), ('initial_energy', 100.)]),
+    (2, [('level', 30), ('initial_energy', 100.)]),
+    (3, [('level', 100), ('initial_energy', 100.)]),
+    (4, [('level', 100), ('initial_energy', 200.)]),
+    (5, [('level', 100), ('initial_energy', 300.)])
 ]
 
 expected_embedded = [
-    (0, [('level', 10), ('initial_energy', 100)]),
-    (1, [('level', 10), ('initial_energy', 200)]),
-    (2, [('level', 10), ('initial_energy', 300)]),
-    (3, [('level', 20), ('initial_energy', 100)]),
-    (4, [('level', 20), ('initial_energy', 200)]),
-    (5, [('level', 20), ('initial_energy', 300)]),
-    (6, [('level', 30), ('initial_energy', 100)]),
-    (7, [('level', 30), ('initial_energy', 200)]),
-    (8, [('level', 30), ('initial_energy', 300)])
+    (0, [('level', 10), ('initial_energy', 100.)]),
+    (1, [('level', 10), ('initial_energy', 200.)]),
+    (2, [('level', 10), ('initial_energy', 300.)]),
+    (3, [('level', 20), ('initial_energy', 100.)]),
+    (4, [('level', 20), ('initial_energy', 200.)]),
+    (5, [('level', 20), ('initial_energy', 300.)]),
+    (6, [('level', 30), ('initial_energy', 100.)]),
+    (7, [('level', 30), ('initial_energy', 200.)]),
+    (8, [('level', 30), ('initial_energy', 300.)])
 ]
 
 

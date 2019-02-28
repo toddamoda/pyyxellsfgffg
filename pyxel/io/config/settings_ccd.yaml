@@ -79,7 +79,7 @@ pipeline:
       func: pyxel.models.charge_generation.photoelectrons.simple_conversion
       enabled: true
     - name: tars
-      func: pyxel.models.charge_generation.tars.tars.run_tars
+      func: pyxel.models.charge_generation.tars.tars.tars
       enabled: true
       arguments:
         simulation_mode: cosmic_ray

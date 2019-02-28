@@ -10,7 +10,7 @@ simulation:
         values: [10, 20, 30]
       - enabled: true
         key: pipeline.charge_generation.tars.arguments.initial_energy
-        values: [100, 200, 300]
+        values: [100., 200., 300.]
       - enabled: false
         key:
         values:
@@ -103,7 +103,7 @@ pipeline:
       func: pyxel.models.charge_generation.photoelectrons.simple_conversion
     -
       name: tars
-      func: pyxel.models.charge_generation.tars.tars.run_tars
+      func: pyxel.models.charge_generation.tars.tars.tars
       enabled: true
       arguments:
         simulation_mode: cosmic_ray   # snowflakes

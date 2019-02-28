@@ -14,18 +14,41 @@ from pyxel.detectors.detector import Detector
 class Simulation:
     """Main class of the program, Simulation contain all the methods to set and run a simulation."""
 
-    def __init__(self, detector: Detector) -> None:
+    def __init__(self, detector: Detector,
+                 simulation_mode,
+                 particle_type,
+                 initial_energy,
+                 starting_position,
+                 incident_angles,
+                 spectrum=None
+                 ) -> None:
         """Initialize the simulation.
 
-        :param Detector detector: Detector object(from CCD/CMSO library) containing all the simulated detector specs
+        :param Detector detector:
         """
         self.detector = detector
-        self.simulation_mode = None
 
-        self.flux_dist = None
+        self.simulation_mode = simulation_mode
+        self.particle_type = particle_type
+
+        if incident_angles is None:
+            self.angle_alpha, self.angle_beta = 'random', 'random'
+        else:
+            self.angle_alpha, self.angle_beta = incident_angles
+
+        if starting_position is None:
+            self.position_ver, self.position_hor, self.position_z = 'random', 'random', 'random'
+        else:
+            self.position_ver, self.position_hor, self.position_z = starting_position
+
         self.spectrum_cdf = None
+        self.initial_energy = None
+        if initial_energy == 0.:
+            self.spectrum_cdf = spectrum
+        else:
+            self.initial_energy = initial_energy
 
-        self.energy_loss_data = None
+        self.energy_loss_data = None            # type: t.Optional[str]
 
         self.elec_number_dist = None
         self.elec_number_cdf = np.zeros((1, 2))
@@ -40,13 +63,6 @@ class Simulation:
 
         self.particle = None
 
-        self.particle_type = None
-        self.initial_energy = None
-        self.position_ver = None
-        self.position_hor = None
-        self.position_z = None
-        self.angle_alpha = None
-        self.angle_beta = None
         self.step_length = 1.0          # fix, all the other data/parameters should be adjusted to this
         self.energy_cut = 1.0e-5        # MeV
 
@@ -72,27 +88,6 @@ class Simulation:
         self.p_energy_lst_per_event = []         # type: t.List[float]
         self.alpha_lst_per_event = []            # type: t.List[float]
         self.beta_lst_per_event = []             # type: t.List[float]
-
-    def parameters(self, sim_mode, part_type, init_energy, pos_ver, pos_hor, pos_z, alpha, beta):
-        """TBW.
-
-        :param sim_mode:
-        :param part_type:
-        :param init_energy:
-        :param pos_ver:
-        :param pos_hor:
-        :param pos_z:
-        :param alpha:
-        :param beta:
-        """
-        self.simulation_mode = sim_mode
-        self.particle_type = part_type
-        self.initial_energy = init_energy
-        self.position_ver = pos_ver
-        self.position_hor = pos_hor
-        self.position_z = pos_z
-        self.angle_alpha = alpha
-        self.angle_beta = beta
 
     def find_smaller_neighbor(self, column, value):
         """TBW.

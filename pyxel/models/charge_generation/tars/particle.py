@@ -13,8 +13,7 @@ class Particle:
                  simulation_mode=None,
                  particle_type=None,
                  input_energy=None, spectrum_cdf=None,
-                 starting_pos_ver=None, starting_pos_hor=None, starting_pos_z=None,
-                 # input_alpha='random', input_beta='random'
+                 starting_pos_ver=None, starting_pos_hor=None, starting_pos_z=None
                  ) -> None:
         """Creation of a particle according to some parameters.
 
@@ -29,54 +28,6 @@ class Particle:
         """
         self.detector = detector
         geo = self.detector.geometry
-
-        # starting_position_vertical = None
-        # starting_position_horizontal = None
-        # starting_position_z = None
-
-        # if starting_pos_ver == 'random':
-        #     starting_position_vertical = geo.vert_dimension * np.random.random()
-        # elif isinstance(starting_pos_ver, int) or isinstance(starting_pos_ver, float):
-        #     starting_position_vertical = starting_pos_ver
-        # if starting_pos_hor == 'random':
-        #     starting_position_horizontal = geo.horz_dimension * np.random.random()
-        # elif isinstance(starting_pos_hor, int) or isinstance(starting_pos_hor, float):
-        #     starting_position_horizontal = starting_pos_hor
-        #
-        # if starting_pos_z == 'random':
-        #     starting_position_z = geo.total_thickness * np.random.random()
-        # elif isinstance(starting_pos_z, int) or isinstance(starting_pos_z, float):
-        #     starting_position_z = starting_pos_z
-        #
-        # self.starting_position = np.array([starting_position_vertical,
-        #                                    starting_position_horizontal,
-        #                                    starting_position_z])
-        # self.position = np.copy(self.starting_position)
-        # self.trajectory = np.copy(self.starting_position)
-
-        # if input_alpha == 'random' and starting_pos_z == 0.:
-        #     alpha = 2 * math.pi * np.random.random()
-        # elif input_alpha == 'random' and starting_pos_z != 0.:
-        #     alpha = 2 * math.pi * np.random.random()
-        # else:
-        #     alpha = input_alpha  # between 0 and 2*pi
-        #
-        # if input_beta == 'random':
-        #     beta = 2. * math.pi * np.random.random()
-        # else:
-        #     beta = input_beta
-        # self.angle = np.array([alpha, beta])
-        #
-        # self.dir_z = -1 * math.sin(alpha)
-        # self.dir_ver = math.cos(alpha) * math.cos(beta)
-        # self.dir_hor = math.cos(alpha) * math.sin(beta)
-
-        # if input_alpha != 'random':
-        #     self.alpha = input_alpha
-        # if input_beta != 'random':
-        #     self.beta = input_beta
-        # # update direction:
-        # self.dir_ver, self.dir_hor, self.dir_z = get_direction_from_angles()
 
         self.track_length = None
 
@@ -105,7 +56,7 @@ class Particle:
         self.position = np.copy(self.starting_position)
         self.trajectory = np.copy(self.starting_position)
 
-        if input_energy == 'random':
+        if input_energy is None:      # random
             self.energy = sampling_distribution(spectrum_cdf)
         elif isinstance(input_energy, int) or isinstance(input_energy, float):
             self.energy = input_energy
@@ -196,41 +147,6 @@ class Particle:
             alpha += np.pi
 
         return alpha, beta
-
-    # def track_length(self):
-    #     """TBW.
-    #
-    #     :return:
-    #     """
-    #     geo = self.detector.geometry
-    #
-    #     norm_vectors = [np.array([0., 0., -1.]),    # top plane (usually particle enters vol. via this)
-    #                     np.array([0., 0., 1.]),     # bottom plane (usually particle leaves vol. via this)
-    #                     np.array([0., 1., 0.]),
-    #                     np.array([-1., 0., 0.]),
-    #                     np.array([0., -1., 0.]),
-    #                     np.array([1., 0., 0.])]
-    #
-    #     points = [np.array([0., 0., 0.]),                       # top plane (usually particle enters vol. via this)
-    #               np.array([0., 0., -1 * geo.total_thickness]), # bottom plane (usually particle leaves vol. via this)
-    #               np.array([0., 0., 0.]),
-    #               np.array([geo.vert_dimension, 0., 0.]),
-    #               np.array([geo.vert_dimension, geo.horz_dimension, 0.]),
-    #               np.array([0., geo.horz_dimension, 0.])]
-    #
-    #     track_length = np.inf
-    #     intersect_points = np.zeros((6, 3))
-    #     dir_array = np.array([self.dir_ver,
-    #                           self.dir_hor,
-    #                           self.dir_z])
-    #     for i in range(6):
-    #         intersect_points[i, :] = find_intersection(n=norm_vectors[i], p0=points[i],
-    #                                                    ls=self.starting_position, lv=dir_array)
-    #         track_length_new = np.linalg.norm(intersect_points[i, :] - self.starting_position)
-    #         if track_length_new < track_length and track_length_new != 0.:
-    #             track_length = track_length_new
-    #
-    #     return track_length
 
     def intersection_correction(self, array: np.ndarray):
         """TBW.
