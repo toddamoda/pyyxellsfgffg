@@ -20,7 +20,7 @@ class Outputs:
     """TBW."""
 
     def __init__(self,
-                 output_format: None,
+                 save_to_file: None,
                  output_folder: str = 'outputs',
                  parametric_plot: dict = None,
                  calibration_plot: dict = None,
@@ -36,10 +36,12 @@ class Outputs:
         self.user_plt_args = None                   # type: t.Optional[dict]
 
         self.output_dir = apply_run_number(output_folder + '/run_??')
-        if output_format is None:
-            self.output_format = ['fits']
-        else:
-            self.output_format = output_format
+
+        # if output_format is None:
+        #     self.output_format = ['fits']
+        # else:
+        #     self.output_format = output_format
+        self.save_to_file = save_to_file
 
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
@@ -87,7 +89,7 @@ class Outputs:
         file.close()
         return filename
 
-    def save_to_bitmap(self, detector, filename='image_??'):       # todo: finish, PIL does not work with JPEG !
+    def save_to_bitmap(self, processor, obj_name: str, filename='image_??'):       # todo: finish
         """Write array to bitmap PNG image file."""
         raise NotImplementedError
 
@@ -102,16 +104,17 @@ class Outputs:
     #     # with this, it works: simple_digitization / numpy.uint32
     #     # with this, it does not work: simple_digitization / numpy.uint16
 
-    def save_to_fits(self, detector, filename='image_??'):
+    def save_to_fits(self, processor, obj_name: str, filename='image_??'):
         """Write array to FITS file."""
-        array = detector.image.array
+        array = processor.get(obj_name)
         filename = self.output_dir + '/' + filename + '.fits'
         filename = apply_run_number(filename)
         hdu = fits.PrimaryHDU(array)
         hdu.writeto(filename, overwrite=False, output_verify='exception')
 
-    def save_to_hdf(self, detector, key='data', filename='store_??'):
+    def save_to_hdf(self, processor, obj_name: str, filename='detector_??'):
         """Write detector object to HDF5 file."""
+        detector = processor.detector
         filename = self.output_dir + '/' + filename + '.h5'
         filename = apply_run_number(filename)
         h5file = h5.File(filename, 'w')
@@ -135,16 +138,16 @@ class Outputs:
                 dataset[:] = array
         h5file.close()
 
-    def save_to_csv(self, detector, filename='dataframe_??'):
+    def save_to_csv(self, processor, obj_name: str, filename='dataframe_??'):
         """Write pandas Dataframe to CSV file."""
-        dataframe = detector.charge.frame
+        dataframe = processor.get(obj_name)
         filename = self.output_dir + '/' + filename + '.csv'
         filename = apply_run_number(filename)
         dataframe.to_csv(filename, float_format='%g')
 
-    def save_to_npy(self, detector, filename='array_??'):
+    def save_to_npy(self, processor, obj_name: str, filename='array_??'):
         """Write array to Numpy binary npy file."""
-        array = detector.image.array
+        array = processor.get(obj_name)
         filename = self.output_dir + '/' + filename + '.npy'
         filename = apply_run_number(filename)
         np.save(file=filename, arr=array)
@@ -199,7 +202,10 @@ class Outputs:
                         'npy': self.save_to_npy,
                         'csv': self.save_to_csv,
                         'bmp': self.save_to_bitmap}
-        [save_methods[out_format](detector=processor.detector) for out_format in self.output_format]
+        for item in self.save_to_file:
+            obj = next(iter(item.keys()))
+            format_list = next(iter(item.values()))
+            [save_methods[out_format](processor=processor, obj_name=obj) for out_format in format_list]
 
         self.user_plt_args = None
         x = processor.detector.photon.array                    # todo: default plots with plot_args?
