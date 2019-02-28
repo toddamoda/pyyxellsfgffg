@@ -20,7 +20,7 @@ class Outputs:
     """TBW."""
 
     def __init__(self,
-                 save_to_file: None,
+                 save_to_file: list = None,
                  output_folder: str = 'outputs',
                  parametric_plot: dict = None,
                  calibration_plot: dict = None,
@@ -37,11 +37,10 @@ class Outputs:
 
         self.output_dir = apply_run_number(output_folder + '/run_??')
 
-        # if output_format is None:
-        #     self.output_format = ['fits']
-        # else:
-        #     self.output_format = output_format
-        self.save_to_file = save_to_file
+        if save_to_file is None:
+            self.save_to_file = [{'detector.image.array': ['fits']}]
+        else:
+            self.save_to_file = save_to_file
 
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
@@ -92,17 +91,6 @@ class Outputs:
     def save_to_bitmap(self, processor, obj_name: str, filename='image_??'):       # todo: finish
         """Write array to bitmap PNG image file."""
         raise NotImplementedError
-
-    #     array = detector.image.array
-    #     filename = self.output_dir + '/' + filename + '.PNG'
-    #     filename = apply_run_number(filename)
-    #     im = Image.fromarray(array)
-    #     try:
-    #         im.save(filename, "PNG")                    # todo: sometimes saving in PNG does not work too
-    #     except OSError:
-    #         pass
-    #     # with this, it works: simple_digitization / numpy.uint32
-    #     # with this, it does not work: simple_digitization / numpy.uint16
 
     def save_to_fits(self, processor, obj_name: str, filename='image_??'):
         """Write array to FITS file."""
@@ -205,7 +193,8 @@ class Outputs:
         for item in self.save_to_file:
             obj = next(iter(item.keys()))
             format_list = next(iter(item.values()))
-            [save_methods[out_format](processor=processor, obj_name=obj) for out_format in format_list]
+            if format_list is not None:
+                [save_methods[out_format](processor=processor, obj_name=obj) for out_format in format_list]
 
         self.user_plt_args = None
         x = processor.detector.photon.array                    # todo: default plots with plot_args?
