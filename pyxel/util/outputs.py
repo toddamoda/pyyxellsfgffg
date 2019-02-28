@@ -88,23 +88,39 @@ class Outputs:
         file.close()
         return filename
 
-    def save_to_bitmap(self, processor, obj_name: str, filename='image_??'):       # todo: finish
+    def save_to_png(self, processor, obj_name: str, filename: str = None):
         """Write array to bitmap PNG image file."""
-        raise NotImplementedError
+        geo = processor.detector.geometry
+        array = processor.get(obj_name)
+        if filename is None:
+            filename = str(obj_name).replace('.', '_')
+        filename = apply_run_number(self.output_dir + '/' + filename + '_??.png')
+        fig = plt.figure()
+        um_to_inch = 3.9370078740157e-5
+        fig.set_size_inches(geo.col * geo.pixel_horz_size * um_to_inch * 100,
+                            geo.row * geo.pixel_vert_size * um_to_inch * 100)
+        ax = plt.Axes(fig, [0., 0., 1., 1.])
+        ax.set_axis_off()
+        fig.add_axes(ax)
+        aspect_ratio = float(geo.pixel_vert_size / geo.pixel_horz_size)
+        plt.imshow(array, cmap='gray', extent=[0, geo.col, 0, geo.row], aspect=aspect_ratio)
+        plt.savefig(filename, dpi=300)
 
-    def save_to_fits(self, processor, obj_name: str, filename='image_??'):
+    def save_to_fits(self, processor, obj_name: str, filename: str = None):
         """Write array to FITS file."""
         array = processor.get(obj_name)
-        filename = self.output_dir + '/' + filename + '.fits'
-        filename = apply_run_number(filename)
+        if filename is None:
+            filename = str(obj_name).replace('.', '_')
+        filename = apply_run_number(self.output_dir + '/' + filename + '_??.fits')
         hdu = fits.PrimaryHDU(array)
         hdu.writeto(filename, overwrite=False, output_verify='exception')
 
-    def save_to_hdf(self, processor, obj_name: str, filename='detector_??'):
+    def save_to_hdf(self, processor, obj_name: str, filename: str = None):
         """Write detector object to HDF5 file."""
         detector = processor.detector
-        filename = self.output_dir + '/' + filename + '.h5'
-        filename = apply_run_number(filename)
+        if filename is None:
+            filename = 'detector'
+        filename = apply_run_number(self.output_dir + '/' + filename + '_??.h5')
         h5file = h5.File(filename, 'w')
         detector_grp = h5file.create_group('detector')
         for array, name in zip([detector.signal.array,
@@ -126,18 +142,31 @@ class Outputs:
                 dataset[:] = array
         h5file.close()
 
-    def save_to_csv(self, processor, obj_name: str, filename='dataframe_??'):
-        """Write pandas Dataframe to CSV file."""
-        dataframe = processor.get(obj_name)
-        filename = self.output_dir + '/' + filename + '.csv'
-        filename = apply_run_number(filename)
-        dataframe.to_csv(filename, float_format='%g')
+    def save_to_txt(self, processor, obj_name: str, filename: str = None):
+        """Write data to txt file."""
+        data = processor.get(obj_name)
+        if filename is None:
+            filename = str(obj_name).replace('.', '_')
+        filename = apply_run_number(self.output_dir + '/' + filename + '_??.txt')
+        np.savetxt(filename, data, delimiter='|')
 
-    def save_to_npy(self, processor, obj_name: str, filename='array_??'):
-        """Write array to Numpy binary npy file."""
+    def save_to_csv(self, processor, obj_name: str, filename: str = None):
+        """Write Pandas Dataframe or Numpy array to a CSV file."""
+        data = processor.get(obj_name)
+        if filename is None:
+            filename = str(obj_name).replace('.', '_')
+        filename = apply_run_number(self.output_dir + '/' + filename + '_??.csv')
+        try:
+            data.to_csv(filename, float_format='%g')
+        except AttributeError:
+            np.savetxt(filename, data, delimiter=',')
+
+    def save_to_npy(self, processor, obj_name: str, filename: str = None):
+        """Write Numpy array to Numpy binary npy file."""
         array = processor.get(obj_name)
-        filename = self.output_dir + '/' + filename + '.npy'
-        filename = apply_run_number(filename)
+        if filename is None:
+            filename = str(obj_name).replace('.', '_')
+        filename = apply_run_number(self.output_dir + '/' + filename + '_??.npy')
         np.save(file=filename, arr=array)
 
     def save_plot(self, filename='figure_??'):
@@ -188,8 +217,9 @@ class Outputs:
         save_methods = {'fits': self.save_to_fits,
                         'hdf': self.save_to_hdf,
                         'npy': self.save_to_npy,
+                        'txt': self.save_to_txt,
                         'csv': self.save_to_csv,
-                        'bmp': self.save_to_bitmap}
+                        'png': self.save_to_png}
         for item in self.save_to_file:
             obj = next(iter(item.keys()))
             format_list = next(iter(item.values()))
