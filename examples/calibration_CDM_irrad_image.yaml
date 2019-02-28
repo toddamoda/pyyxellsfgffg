@@ -37,7 +37,6 @@ simulation:
 
   outputs:
     output_folder:        'examples/CTI/output'
-    output_format:
     calibration_plot:
       champions_plot:
         plot_args:

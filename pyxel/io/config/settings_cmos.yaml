@@ -10,12 +10,11 @@ simulation:
   outputs:
     output_folder:  'outputs'
     save_to_file:
-#      - detector:               [hdf]
       - detector.image.array:   [fits, png]
-#      - detector.signal.array:  [npy]
+#      - detector.signal.array:  [npy, txt]
 #      - detector.charge.frame:  [csv]
 #      - detector.photon.array:
-#      - detector.pixel.array:
+#      - detector:               [hdf]
 
 detector:
   class: pyxel.detectors.cmos.CMOS

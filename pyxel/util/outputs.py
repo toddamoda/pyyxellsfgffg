@@ -5,8 +5,6 @@ from copy import copy
 from shutil import copy2
 import typing as t          # noqa: F401
 import numpy as np
-# import pandas as pd
-# from PIL import Image
 import astropy.io.fits as fits
 import h5py as h5
 try:
