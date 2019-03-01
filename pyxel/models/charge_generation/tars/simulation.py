@@ -18,11 +18,16 @@ class Simulation:
                  particle_type,
                  initial_energy,
                  starting_position,
-                 # incident_angles,
                  spectrum=None) -> None:
         """Initialize the simulation.
 
-        :param Detector detector:
+        :param detector:
+        :param running_mode:
+        :param simulation_mode:
+        :param particle_type:
+        :param initial_energy:
+        :param starting_position:
+        :param spectrum:
         """
         self.detector = detector
         self.simulation_mode = simulation_mode
@@ -32,11 +37,6 @@ class Simulation:
         if running_mode == 'stepsize':
             self.data_library = read_data_library()
         self.energy_cut = 1.0e-5                        # type: float  # in MeV
-
-        # if incident_angles is None:
-        #     self.angle_alpha, self.angle_beta = 'random', 'random'
-        # else:
-        #     self.angle_alpha, self.angle_beta = incident_angles
 
         if starting_position is None:
             self.position_ver, self.position_hor, self.position_z = 'random', 'random', 'random'
@@ -105,7 +105,6 @@ class Simulation:
 
         # # secondary electron spectrum in keV
         # self.kin_energy_dist = load_histogram_data(step_size_file, hist_type='energy', skip_rows=10008, read_rows=200)
-        #
         # cum_sum = np.cumsum(self.kin_energy_dist['counts'])
         # cum_sum /= np.max(cum_sum)
         # self.kin_energy_cdf = np.stack((self.kin_energy_dist['energy'], cum_sum), axis=1)
@@ -146,6 +145,7 @@ class Simulation:
             # particle.energy is in MeV !
             # particle.deposited_energy is in keV !
 
+            current_step_size = None
             if self.running_mode == 'stepsize':
                 current_step_size = sampling_distribution(self.step_cdf)        # um
                 # e_kin_energy = sampling_distribution(self.kin_energy_cdf)     # keV   TODO
@@ -172,6 +172,7 @@ class Simulation:
 
             particle.energy -= particle.deposited_energy * 1e-3     # MeV
 
+            electron_number = None
             if self.running_mode == 'stepsize':
                 # the +1 is the original secondary electron
                 electron_number = int(sampling_distribution(self.elec_number_cdf)) + 1
@@ -199,8 +200,6 @@ class Simulation:
             self.e_num_lst_per_event += [electron_number_per_event]
             self.sec_lst_per_event += [secondary_per_event]
             self.ter_lst_per_event += [tertiary_per_event]
-
-        return False
 
     def event_generation_geant4(self):
         """Generate an event running a geant4 app directly.

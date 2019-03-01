@@ -28,7 +28,6 @@ def tars(detector: Detector,
          initial_energy: float = 0.,        # MeV
          spectrum_file: str =               # MeV
          'pyxel/models/charge_generation/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt',
-         # incident_angles: list = None,      # rad
          starting_position: list = None,    # um
          random_seed: int = None):
     """Simulate charge deposition by cosmic rays.
@@ -40,7 +39,6 @@ def tars(detector: Detector,
     :param particle_number: Number of particles
     :param initial_energy: Kinetic energy of particle in MeV
     :param spectrum_file: path to input spectrum in MeV
-    # :param incident_angles: incident angles: ``[α, β]`` in rad
     :param starting_position: starting position: ``[x, y, z]`` in um
     :param random_seed: seed
     """
@@ -61,9 +59,7 @@ def tars(detector: Detector,
                       particle_type=particle_type,
                       initial_energy=initial_energy,
                       spectrum=spectrum,
-                      starting_position=starting_position
-                      # incident_angles=incident_angles
-                      )
+                      starting_position=starting_position)
 
     # plot_obj = PlottingTARS(tars, save_plots=True, draw_plots=True)
     # plot_obj.plot_flux_spectrum()

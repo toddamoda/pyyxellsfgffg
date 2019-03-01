@@ -42,7 +42,7 @@ class Particle:
         mode_2 = ['radioactive_decay', 'snowflakes']
         if simulation_mode in mode_1:          # cosmic rays coming from OUTSIDE the detector volume
             self.starting_position = self.get_surface_point()
-        elif simulation_mode in mode_2:     # radioactive decay INSIDE the detector volume
+        elif simulation_mode in mode_2:        # radioactive decay INSIDE the detector volume
             self.starting_position = np.array([self.random_det_pt_vert, self.random_det_pt_horz, self.random_det_pt_z])
 
         if starting_pos_ver != 'random':
@@ -115,10 +115,13 @@ class Particle:
             if 0.0 - eps <= intersect_points[i, 0] <= geo.vert_dimension + eps:
                 if 0.0 - eps <= intersect_points[i, 1] <= geo.horz_dimension + eps:
                     if -1 * geo.total_thickness - eps <= intersect_points[i, 2] <= 0.0 + eps:
+
+                        point = intersection_correction(vert_dim=geo.vert_dimension, horz_dim=geo.horz_dimension,
+                                                        thickness=geo.total_thickness, array=intersect_points[i, :])
                         if np.dot(track_direction, intersect_points[i, :] - random_det_point) < 0:
-                            surface_start_point = self.intersection_correction(intersect_points[i, :])
+                            surface_start_point = point
                         else:
-                            surface_end_point = self.intersection_correction(intersect_points[i, :])
+                            surface_end_point = point
 
         self.track_length = np.linalg.norm(surface_end_point - surface_start_point)
 
@@ -147,28 +150,32 @@ class Particle:
 
         return alpha, beta
 
-    def intersection_correction(self, array: np.ndarray):
-        """TBW.
 
-        :param array:
-        :return:
-        """
-        eps = 1E-8
-        geo = self.detector.geometry
-        if abs(array[0] - geo.vert_dimension) < eps:
-            array[0] = geo.vert_dimension
-        if abs(array[0]) < eps:
-            array[0] = 0.
-        if abs(array[1] - geo.horz_dimension) < eps:
-            array[1] = geo.horz_dimension
-        if abs(array[1]) < eps:
-            array[1] = 0.
-        if abs(array[2] + geo.total_thickness) < eps:
-            array[2] = -1 * geo.total_thickness
-        if abs(array[2]) < eps:
-            array[2] = 0.
+def intersection_correction(vert_dim: float, horz_dim: float,
+                            thickness: float, array: np.ndarray):
+    """TBW.
 
-        return array
+    :param vert_dim:
+    :param horz_dim:
+    :param thickness:
+    :param array:
+    :return:
+    """
+    eps = 1E-8
+    if abs(array[0] - vert_dim) < eps:
+        array[0] = vert_dim
+    if abs(array[0]) < eps:
+        array[0] = 0.
+    if abs(array[1] - horz_dim) < eps:
+        array[1] = horz_dim
+    if abs(array[1]) < eps:
+        array[1] = 0.
+    if abs(array[2] + thickness) < eps:
+        array[2] = -1 * thickness
+    if abs(array[2]) < eps:
+        array[2] = 0.
+
+    return array
 
 
 def find_intersection(n, p0, ls, lv):
