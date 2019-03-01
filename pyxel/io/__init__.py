@@ -7,15 +7,15 @@ def pyxel_yaml_loader():
     from pyxel.parametric.parametric import Configuration
     from pyxel.parametric.parametric import ParametricAnalysis
     from pyxel.parametric.parameter_values import ParameterValues
-    
+
     try:
         from pyxel.calibration.calibration import Calibration
         from pyxel.calibration.calibration import Algorithm
-        WITH_CALIBRATION = True
+        WITH_CALIBRATION = True  # noqa: N806
     except ImportError:
         # No calibration
-        WITH_CALIBRATION = False
-    
+        WITH_CALIBRATION = False  # noqa: N806
+
     from pyxel.pipelines.model_function import ModelFunction
     from pyxel.pipelines.model_group import ModelGroup
     from pyxel.util import Outputs
@@ -37,7 +37,7 @@ def pyxel_yaml_loader():
     if WITH_CALIBRATION:
         io.ObjectModelLoader.add_class(Calibration, ['simulation', 'calibration'])
         io.ObjectModelLoader.add_class(Algorithm, ['simulation', 'calibration', 'algorithm'])
-    
+
     io.ObjectModelLoader.add_class(ModelFunction, ['simulation', 'calibration', 'fitness_function'])
     io.ObjectModelLoader.add_class(ParameterValues, ['simulation', 'calibration', 'parameters'], is_list=True)
 
