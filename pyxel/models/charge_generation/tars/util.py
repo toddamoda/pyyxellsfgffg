@@ -1,7 +1,6 @@
 """Pyxel TARS model to generate charge by ionization."""
-
-import bisect
 import math
+from bisect import bisect
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -14,7 +13,7 @@ def sampling_distribution(distribution):
     :param distribution:
     """
     u = np.random.random()
-    # random_value_from_dist = distribution[bisect.bisect(distribution[:, 1], u) - 1, 0]
+    # random_value_from_dist = distribution[bisect(distribution[:, 1], u) - 1, 0]
     random_value_from_dist = get_xvalue_with_interpolation(distribution, u)
 
     return random_value_from_dist
@@ -31,7 +30,7 @@ def get_xvalue_with_interpolation(function_array, y_value):
     elif y_value >= function_array[-1, 1]:
         intpol_x_value = function_array[-1, 0]
     else:
-        y_index_bot = bisect.bisect(function_array[:, 1], y_value) - 1
+        y_index_bot = bisect(function_array[:, 1], y_value) - 1
         y_index_top = y_index_bot + 1
         y_value_bot = function_array[y_index_bot, 1]
         y_value_top = function_array[y_index_top, 1]
@@ -50,7 +49,7 @@ def get_yvalue_with_interpolation(function_array, x_value):
     :param function_array:
     :param x_value:
     """
-    x_index_bot = bisect.bisect(function_array[:, 0], x_value) - 1
+    x_index_bot = bisect(function_array[:, 0], x_value) - 1
     x_index_top = x_index_bot + 1
     x_value_bot = function_array[x_index_bot, 0]
     x_value_top = function_array[x_index_top, 0]
@@ -81,8 +80,7 @@ def read_data(file_name):
     :param file_name:
     :return:
     """
-    data = np.loadtxt(file_name, 'float', '#')
-    return data
+    return np.loadtxt(file_name, 'float', '#')
 
 
 def interpolate_data(data):
@@ -91,8 +89,7 @@ def interpolate_data(data):
     :param data:
     :return:
     """
-    data_function = interpolate.interp1d(data[:, 0], data[:, 1], kind='linear')
-    return data_function
+    return interpolate.interp1d(data[:, 0], data[:, 1], kind='linear')
 
 
 def read_particle_spectrum(file_name, detector_area):
@@ -155,3 +152,60 @@ def create_data_library():
 
     path = Path(__file__).parent.joinpath('data', 'inputs')
     data_library.to_csv(Path(path, 'data_library.csv'), index=False)
+
+
+def find_smaller_neighbor(data_library, column, value):
+    """TBW.
+
+    :return:
+    """
+    sorted_list = sorted(data_library[column].unique())
+    index = bisect(sorted_list, value) - 1
+    if index < 0:
+        index = 0
+    return sorted_list[index]
+
+
+def find_larger_neighbor(data_library, column, value):
+    """TBW.
+
+    :return:
+    """
+    sorted_list = sorted(data_library[column].unique())
+    index = bisect(sorted_list, value)
+    if index > len(sorted_list) - 1:
+        index = len(sorted_list) - 1
+    return sorted_list[index]
+
+
+def find_closest_neighbor(data_library, column, value):
+    """TBW.
+
+    :return:
+    """
+    sorted_list = sorted(data_library[column].unique())
+    index_smaller = bisect(sorted_list, value) - 1
+    index_larger = bisect(sorted_list, value)
+
+    if index_larger >= len(sorted_list):
+        return sorted_list[-1]
+    elif (sorted_list[index_larger]-value) < (value-sorted_list[index_smaller]):
+        return sorted_list[index_larger]
+    else:
+        return sorted_list[index_smaller]
+
+
+def select_stepsize_data(df, p_type, p_energy, p_track_length):
+    """TBW.
+
+    :param p_type: str
+    :param p_energy: float (MeV)
+    :param p_track_length: float (um)
+    :return:
+    """
+    distance = find_larger_neighbor(data_library=df, column='thickness', value=p_track_length)
+    energy = find_closest_neighbor(data_library=df, column='energy', value=p_energy)
+
+    path = Path(__file__).parent.joinpath('data', 'inputs')
+    file = df[(df.type == p_type) & (df.energy == energy) & (df.thickness == distance)].file.values[0]
+    return Path(path, file)

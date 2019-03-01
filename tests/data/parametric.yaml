@@ -111,7 +111,6 @@ pipeline:
         particle_type: proton
         initial_energy: 100.   # MeV
         particle_number: 1
-        incident_angles:      # rad
         starting_position:    # um
         spectrum_file: 'pyxel/models/charge_generation/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
 

@@ -1,40 +1,42 @@
 """Pyxel TARS model to generate charge by ionization."""
-
 import typing as t  # noqa: F401
 import numpy as np
-from bisect import bisect
 import subprocess
 from pathlib import Path
-
-from pyxel.models.charge_generation.tars.particle import Particle
-from pyxel.models.charge_generation.tars.util import sampling_distribution, load_histogram_data, read_data
 from pyxel.detectors.detector import Detector
+from .particle import Particle
+from .util import read_data_library, read_data, load_histogram_data, \
+    sampling_distribution, select_stepsize_data
 
 
 class Simulation:
     """Main class of the program, Simulation contain all the methods to set and run a simulation."""
 
     def __init__(self, detector: Detector,
+                 running_mode,
                  simulation_mode,
                  particle_type,
                  initial_energy,
                  starting_position,
-                 incident_angles,
-                 spectrum=None
-                 ) -> None:
+                 # incident_angles,
+                 spectrum=None) -> None:
         """Initialize the simulation.
 
         :param Detector detector:
         """
         self.detector = detector
-
         self.simulation_mode = simulation_mode
         self.particle_type = particle_type
+        self.running_mode = running_mode                # type: t.Optional[str]
+        self.data_library = None
+        if running_mode == 'stepsize':
+            self.data_library = read_data_library()
+        self.energy_cut = 1.0e-5                        # type: float  # in MeV
 
-        if incident_angles is None:
-            self.angle_alpha, self.angle_beta = 'random', 'random'
-        else:
-            self.angle_alpha, self.angle_beta = incident_angles
+        # if incident_angles is None:
+        #     self.angle_alpha, self.angle_beta = 'random', 'random'
+        # else:
+        #     self.angle_alpha, self.angle_beta = incident_angles
 
         if starting_position is None:
             self.position_ver, self.position_hor, self.position_z = 'random', 'random', 'random'
@@ -48,8 +50,6 @@ class Simulation:
         else:
             self.initial_energy = initial_energy
 
-        self.energy_loss_data = None            # type: t.Optional[str]
-
         self.elec_number_dist = None
         self.elec_number_cdf = np.zeros((1, 2))
         self.step_size_dist = None
@@ -57,23 +57,14 @@ class Simulation:
         self.kin_energy_dist = None
         self.kin_energy_cdf = np.zeros((1, 2))
 
-        self.data_library = None
-
-        self.stopping_power = None
-
-        self.particle = None
-
-        self.step_length = 1.0          # fix, all the other data/parameters should be adjusted to this
-        self.energy_cut = 1.0e-5        # MeV
-
-        self.e_num_lst_per_step = []    # type: t.List[int]
-        self.e_energy_lst = []          # type: t.List[float]
-        self.e_pos0_lst = []            # type: t.List[float]
-        self.e_pos1_lst = []            # type: t.List[float]
-        self.e_pos2_lst = []            # type: t.List[float]
-        self.e_vel0_lst = []            # type: t.List[float]
-        self.e_vel1_lst = []            # type: t.List[float]
-        self.e_vel2_lst = []            # type: t.List[float]
+        self.e_num_lst_per_step = []             # type: t.List[int]
+        self.e_energy_lst = []                   # type: t.List[float]
+        self.e_pos0_lst = []                     # type: t.List[float]
+        self.e_pos1_lst = []                     # type: t.List[float]
+        self.e_pos2_lst = []                     # type: t.List[float]
+        self.e_vel0_lst = []                     # type: t.List[float]
+        self.e_vel1_lst = []                     # type: t.List[float]
+        self.e_vel2_lst = []                     # type: t.List[float]
 
         self.electron_number_from_eloss = []     # type: t.List[int]
         self.secondaries_from_eloss = []         # type: t.List[int]
@@ -88,61 +79,6 @@ class Simulation:
         self.p_energy_lst_per_event = []         # type: t.List[float]
         self.alpha_lst_per_event = []            # type: t.List[float]
         self.beta_lst_per_event = []             # type: t.List[float]
-
-    def find_smaller_neighbor(self, column, value):
-        """TBW.
-
-        :return:
-        """
-        sorted_list = sorted(self.data_library[column].unique())
-        index = bisect(sorted_list, value) - 1
-        if index < 0:
-            index = 0
-        return sorted_list[index]
-
-    def find_larger_neighbor(self, column, value):
-        """TBW.
-
-        :return:
-        """
-        sorted_list = sorted(self.data_library[column].unique())
-        index = bisect(sorted_list, value)
-        if index > len(sorted_list) - 1:
-            index = len(sorted_list) - 1
-        return sorted_list[index]
-
-    def find_closest_neighbor(self, column, value):
-        """TBW.
-
-        :return:
-        """
-        sorted_list = sorted(self.data_library[column].unique())
-        index_smaller = bisect(sorted_list, value) - 1
-        index_larger = bisect(sorted_list, value)
-
-        if index_larger >= len(sorted_list):
-            return sorted_list[-1]
-        elif (sorted_list[index_larger]-value) < (value-sorted_list[index_smaller]):
-            return sorted_list[index_larger]
-        else:
-            return sorted_list[index_smaller]
-
-    def select_stepsize_data(self, p_type, p_energy, p_track_length):
-        """TBW.
-
-        :param p_type: str
-        :param p_energy: float (MeV)
-        :param p_track_length: float (um)
-        :return:
-        """
-        df = self.data_library
-
-        distance = self.find_larger_neighbor('thickness', p_track_length)
-        energy = self.find_closest_neighbor('energy', p_energy)
-
-        path = Path(__file__).parent.joinpath('data', 'inputs')
-        file = df[(df.type == p_type) & (df.energy == energy) & (df.thickness == distance)].file.values[0]
-        return Path(path, file)
 
     def set_stepsize_distribution(self, step_size_file):
         """TBW.
@@ -187,25 +123,21 @@ class Simulation:
         mat = self.detector.material
         ioniz_energy = mat.ionization_energy   # eV
 
-        self.particle = Particle(self.detector,
-                                 self.simulation_mode,
-                                 self.particle_type,
-                                 self.initial_energy, self.spectrum_cdf,
-                                 self.position_ver, self.position_hor, self.position_z
-                                 # self.angle_alpha, self.angle_beta)
-                                 )
-        particle = self.particle
+        particle = Particle(self.detector,
+                            self.simulation_mode,
+                            self.particle_type,
+                            self.initial_energy, self.spectrum_cdf,
+                            self.position_ver, self.position_hor, self.position_z)
+
         self.track_length_lst_per_event += [particle.track_length]
 
-        if self.energy_loss_data == 'stepsize':
-            # data_filename = self.select_stepsize_data(particle.type, particle.energy, particle.track_length)
-            data_filename = self.select_stepsize_data(particle.type, 1000., 40.)
+        if self.running_mode == 'stepsize':
+            # data_filename = select_stepsize_data(df=self.data_library, p_type=particle.type,
+            #                                      p_energy=particle.energy, p_track_length=particle.track_length)
+            data_filename = select_stepsize_data(df=self.data_library, p_type=particle.type,
+                                                 p_energy=1000., p_track_length=40.)                # TODO TODO TODO
             self.set_stepsize_distribution(data_filename)
             # TODO make a stack of stepsize cdfs and do not load them more than once!!!
-        # elif self.energy_loss_data == 'geant4':
-        #     pass
-        elif self.energy_loss_data == 'stopping':
-            raise NotImplementedError  # TODO: implement this
 
         while True:
             if particle.energy <= self.energy_cut:
@@ -214,13 +146,9 @@ class Simulation:
             # particle.energy is in MeV !
             # particle.deposited_energy is in keV !
 
-            if self.energy_loss_data == 'stepsize':
+            if self.running_mode == 'stepsize':
                 current_step_size = sampling_distribution(self.step_cdf)        # um
                 # e_kin_energy = sampling_distribution(self.kin_energy_cdf)     # keV   TODO
-            # elif self.energy_loss_data == 'geant4':
-            #     pass
-            elif self.energy_loss_data == 'stopping':
-                raise NotImplementedError   # TODO: implement this
 
             e_kin_energy = 1.   # TODO
             particle.deposited_energy = e_kin_energy + ioniz_energy * 1e-3  # keV
@@ -244,15 +172,10 @@ class Simulation:
 
             particle.energy -= particle.deposited_energy * 1e-3     # MeV
 
-            if self.energy_loss_data == 'stepsize':
+            if self.running_mode == 'stepsize':
                 # the +1 is the original secondary electron
                 electron_number = int(sampling_distribution(self.elec_number_cdf)) + 1
                 # electron_number = int(e_kin_energy * 1e3 / ioniz_energy) + 1
-            # elif self.energy_loss_data == 'geant4':
-            #     electron_number = electron_number_vector[g4_j]
-            #     g4_j += 1
-            elif self.energy_loss_data == 'stopping':
-                raise NotImplementedError
 
             secondary_per_event += 1
             tertiary_per_event += electron_number - 1
@@ -284,22 +207,18 @@ class Simulation:
 
         :return:
         """
-        # error = None
         electron_number_per_event = 0
         secondary_per_event = 0
         tertiary_per_event = 0
-
         secondaries = 0
         tertiaries = 0
 
-        self.particle = Particle(self.detector,
-                                 self.simulation_mode,
-                                 self.particle_type,
-                                 self.initial_energy, self.spectrum_cdf,
-                                 self.position_ver, self.position_hor, self.position_z
-                                 # self.angle_alpha, self.angle_beta
-                                 )
-        particle = self.particle
+        particle = Particle(self.detector,
+                            self.simulation_mode,
+                            self.particle_type,
+                            self.initial_energy, self.spectrum_cdf,
+                            self.position_ver, self.position_hor, self.position_z)
+
         if particle.track_length < 1.:
             return True
 
@@ -401,9 +320,9 @@ class Simulation:
     #
     #     # particle.energy is in MeV !
     #     # particle.deposited_energy is in keV !
-    #     if self.energy_loss_data == 'let':
+    #     if self.running_mode == 'let':
     #         let_value = sampling_distribution(self.let_cdf)  # keV/um
-    #     elif self.energy_loss_data == 'stopping':
+    #     elif self.running_mode == 'stopping':
     #         stopping_power = get_yvalue_with_interpolation(self.stopping_power, particle.energy)  # MeV*cm2/g
     #         let_value = 0.1 * stopping_power * geo.material_density  # keV/um
     #

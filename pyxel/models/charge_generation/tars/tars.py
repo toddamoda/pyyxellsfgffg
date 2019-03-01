@@ -3,19 +3,15 @@ import logging
 import numpy as np
 import pyxel
 from pyxel.detectors.detector import Detector
-from pyxel.models.charge_generation.tars.simulation import Simulation
-from pyxel.models.charge_generation.tars.util import read_particle_spectrum, read_data_library
-
-
-# from pyxel.models.charge_generation.tars.plotting import PlottingTARS
-# from astropy import units as u
+from .simulation import Simulation
+from .util import read_particle_spectrum
 
 
 @pyxel.validate
 @pyxel.argument(name='simulation_mode', label='', units='',
-                validate=pyxel.check_choices(['cosmic_ray']))      # 'radioactive_decay'
+                validate=pyxel.check_choices(['cosmic_ray']))       # 'radioactive_decay'
 @pyxel.argument(name='running_mode', label='', units='',
-                validate=pyxel.check_choices(['stepsize']))         # 'stopping', 'geant4'
+                validate=pyxel.check_choices(['stepsize']))         # 'geant4', 'landau'
 @pyxel.argument(name='particle_type', label='', units='',
                 validate=pyxel.check_choices(['proton']))           # 'alpha', 'ion'
 @pyxel.argument(name='initial_energy', label='', units='',
@@ -32,19 +28,19 @@ def tars(detector: Detector,
          initial_energy: float = 0.,        # MeV
          spectrum_file: str =               # MeV
          'pyxel/models/charge_generation/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt',
-         incident_angles: list = None,      # rad
+         # incident_angles: list = None,      # rad
          starting_position: list = None,    # um
          random_seed: int = None):
     """Simulate charge deposition by cosmic rays.
 
     :param detector: Pyxel detector object
-    :param running_mode: mode: ``stepsize``                     # ``geant4``
+    :param running_mode: mode: ``stepsize``                     # ``geant4``, ``landau``
     :param simulation_mode: simulation mode: ``cosmic_rays``    # ``radioactive_decay``
     :param particle_type: type of particle: ``proton``          # ``alpha``, ``ion``
     :param particle_number: Number of particles
     :param initial_energy: Kinetic energy of particle in MeV
     :param spectrum_file: path to input spectrum in MeV
-    :param incident_angles: incident angles: ``[α, β]`` in rad
+    # :param incident_angles: incident angles: ``[α, β]`` in rad
     :param starting_position: starting position: ``[x, y, z]`` in um
     :param random_seed: seed
     """
@@ -60,19 +56,14 @@ def tars(detector: Detector,
         spectrum = read_particle_spectrum(spectrum_file, detector_area=area)
 
     tars = Simulation(detector=detector,
+                      running_mode=running_mode,
                       simulation_mode=simulation_mode,
                       particle_type=particle_type,
                       initial_energy=initial_energy,
                       spectrum=spectrum,
-                      starting_position=starting_position,
-                      incident_angles=incident_angles)
-
-    tars.energy_loss_data = running_mode
-    if running_mode == 'stepsize':
-        tars.data_library = read_data_library()
-
-    # elif running_mode == 'stopping':
-    #     tars.stopping_power = read_data(stopping_file)
+                      starting_position=starting_position
+                      # incident_angles=incident_angles
+                      )
 
     # plot_obj = PlottingTARS(tars, save_plots=True, draw_plots=True)
     # plot_obj.plot_flux_spectrum()
@@ -80,11 +71,11 @@ def tars(detector: Detector,
     # plot_obj.show()
 
     for k in range(0, particle_number):
-        err = None
-        if tars.energy_loss_data == 'stepsize':     # TODO
-            err = tars.event_generation()
-        elif tars.energy_loss_data == 'geant4':
-            err = tars.event_generation_geant4()
+        tars.event_generation()
+
+        # if tars.event_generation_geant4():
+        #     k -= 1
+
         # if k % 10 == 0:
         #     np.save(out_path + 'tars-e_num_lst_per_event.npy', tars.e_num_lst_per_event)
         #     np.save(out_path + 'tars-sec_lst_per_event.npy', tars.sec_lst_per_event)
@@ -102,8 +93,6 @@ def tars(detector: Detector,
         #     np.save(out_path + 'tars-all_e_from_eloss.npy', tars.electron_number_from_eloss)
         #     np.save(out_path + 'tars-sec_e_from_eloss.npy', tars.secondaries_from_eloss)
         #     np.save(out_path + 'tars-ter_e_from_eloss.npy', tars.tertiaries_from_eloss)
-        if err:
-            k -= 1
 
     size = len(tars.e_num_lst_per_step)
 

@@ -52,7 +52,7 @@ pipeline:
   photon_generation:
     - name: load_image
       func: pyxel.models.photon_generation.load_image.load_image
-      enabled: true
+      enabled: false
       arguments:
         image_file: data/fits/HorseHead.fits
         fit_image_to_det: true
@@ -91,14 +91,14 @@ pipeline:
 
     - name: alignment
       func: pyxel.models.optics.alignment.alignment
-      enabled: true
+      enabled: false
 
   # photon -> charge
   charge_generation:
 
     - name: photoelectrons
       func: pyxel.models.charge_generation.photoelectrons.simple_conversion
-      enabled: true
+      enabled: false
     - name: charge_injection
       func: pyxel.models.charge_generation.charge_injection.charge_blocks
       enabled: false
@@ -114,7 +114,6 @@ pipeline:
         particle_type: proton
         initial_energy: 100.   # MeV
         particle_number: 20
-        incident_angles:  # rad
         starting_position:   # um
 #        spectrum_file: 'pyxel/models/charge_generation/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
 

@@ -318,7 +318,7 @@ class PlottingTARS:
         plt.ylabel('Counts')
         plt.legend(loc='upper right')
         self.save_and_draw('step_size_histograms')
-    #
+
     # def plot_secondary_spectra(self, normalize: bool=None):
     #     """TBW."""
     #     energies = ['100MeV', '1GeV']

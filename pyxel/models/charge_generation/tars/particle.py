@@ -1,8 +1,7 @@
 """Pyxel TARS model to generate charge by ionization."""
-
 import numpy as np
-from pyxel.models.charge_generation.tars.util import sampling_distribution
 from pyxel.detectors.detector import Detector
+from .util import sampling_distribution
 
 
 class Particle:
