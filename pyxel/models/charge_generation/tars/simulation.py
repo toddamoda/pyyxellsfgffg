@@ -140,7 +140,9 @@ class Simulation:
         distance = self.find_larger_neighbor('thickness', p_track_length)
         energy = self.find_closest_neighbor('energy', p_energy)
 
-        return df[(df.type == p_type) & (df.energy == energy) & (df.thickness == distance)].path.values[0]
+        path = Path(__file__).parent.joinpath('data', 'inputs')
+        file = df[(df.type == p_type) & (df.energy == energy) & (df.thickness == distance)].file.values[0]
+        return Path(path, file)
 
     def set_stepsize_distribution(self, step_size_file):
         """TBW.

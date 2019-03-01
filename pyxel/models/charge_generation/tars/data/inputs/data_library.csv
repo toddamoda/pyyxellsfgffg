@@ -1,0 +1,6 @@
+type,energy,thickness,file
+proton,100.0,40.0,stepsize_proton_100MeV_40um_Si_10k.ascii
+proton,100.0,50.0,stepsize_proton_100MeV_50um_Si_10k.ascii
+proton,100.0,60.0,stepsize_proton_100MeV_60um_Si_10k.ascii
+proton,100.0,70.0,stepsize_proton_100MeV_70um_Si_10k.ascii
+proton,100.0,100.0,stepsize_proton_100MeV_100um_Si_10k.ascii

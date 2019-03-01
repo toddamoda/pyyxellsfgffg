@@ -1,13 +1,12 @@
 """Pyxel TARS model to generate charge by ionization."""
 import logging
-import math
-from pathlib import Path
 import numpy as np
-import pandas as pd
 import pyxel
 from pyxel.detectors.detector import Detector
 from pyxel.models.charge_generation.tars.simulation import Simulation
-from pyxel.models.charge_generation.tars.util import read_data, interpolate_data
+from pyxel.models.charge_generation.tars.util import read_particle_spectrum, read_data_library
+
+
 # from pyxel.models.charge_generation.tars.plotting import PlottingTARS
 # from astropy import units as u
 
@@ -70,7 +69,7 @@ def tars(detector: Detector,
 
     tars.energy_loss_data = running_mode
     if running_mode == 'stepsize':
-        tars.data_library = create_data_library()
+        tars.data_library = read_data_library()
 
     # elif running_mode == 'stopping':
     #     tars.stopping_power = read_data(stopping_file)
@@ -121,59 +120,3 @@ def tars(detector: Detector,
                                tars.e_vel0_lst,
                                tars.e_vel1_lst,
                                tars.e_vel2_lst)
-
-
-def read_particle_spectrum(file_name, detector_area):
-    """Set up the particle specs according to a spectrum.
-
-    :param file_name: path of the file containing the spectrum
-    :param detector_area: area of detector
-    """
-    spectrum = read_data(file_name)                             # nuc/m2*s*sr*MeV
-    spectrum[:, 1] *= 4 * math.pi * 1.0e-4 * detector_area      # nuc/s*MeV     # TODO TODO !
-
-    spectrum_function = interpolate_data(spectrum)
-
-    lin_energy_range = np.arange(np.min(spectrum[:, 0]), np.max(spectrum[:, 0]), 0.01)
-
-    cum_sum = np.cumsum(spectrum_function(lin_energy_range))
-    cum_sum /= np.max(cum_sum)
-    spectrum_cdf = np.stack((lin_energy_range, cum_sum), axis=1)
-
-    return spectrum_cdf
-
-
-def create_data_library():
-    """TBW."""
-    data_library = pd.DataFrame(columns=['type', 'energy', 'thickness', 'path'])
-
-    # mat_list = ['Si']
-
-    type_list = ['proton']                  # , 'ion', 'alpha', 'beta', 'electron', 'gamma', 'x-ray']
-    energy_list = [100.]                    # MeV
-    thick_list = [40., 50., 60., 70., 100.]       # um
-
-    path = Path(__file__).parent.joinpath('data', 'inputs')
-    filename_list = [
-        'stepsize_proton_100MeV_40um_Si_10k.ascii',
-        'stepsize_proton_100MeV_50um_Si_10k.ascii',
-        'stepsize_proton_100MeV_60um_Si_10k.ascii',
-        'stepsize_proton_100MeV_70um_Si_10k.ascii',
-        'stepsize_proton_100MeV_100um_Si_10k.ascii'
-    ]
-
-    i = 0
-    for pt in type_list:
-        for en in energy_list:
-            for th in thick_list:
-                data_dict = {
-                    'type': pt,
-                    'energy': en,
-                    'thickness': th,
-                    'path': str(Path(path, filename_list[i])),
-                    }
-                new_df = pd.DataFrame(data_dict, index=[0])
-                data_library = pd.concat([data_library, new_df], ignore_index=True)
-                i += 1
-
-    return data_library
