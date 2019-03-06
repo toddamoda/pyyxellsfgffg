@@ -30,7 +30,7 @@ detector:
   material:
     class: pyxel.detectors.material.Material
     material: 'silicon'
-#    trap_density_array: 'trap.npy'
+    trap_density: 'data/cmos_trap_density.npy'
 
   environment:
     class: pyxel.detectors.environment.Environment

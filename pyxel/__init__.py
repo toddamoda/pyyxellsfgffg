@@ -28,7 +28,7 @@ __version__ = '0.3'
 
 def detector_class(cls):
     """TBW."""
-    return config.attr_class(maybe_cls=cls)
+    return config.attr_class(maybe_cls=cls, init_set=True)
 
 
 def attribute(doc: t.Optional[str] = None,
