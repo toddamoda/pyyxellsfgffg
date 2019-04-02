@@ -134,7 +134,8 @@ def display_noisepsd(array, nb_output, dimension, noise_name, mode='plot'):
     if mode == 'plot':
         ## Plotting
         fig, ax1 = plt.subplots(1,1,figsize=(8,8))
-        plt.suptitle(noise_name.capitalize()+' Power Spectral Density [PSD]\n\
+        fig.canvas.set_window_title('Power Spectral Density')
+        fig.suptitle(noise_name.capitalize()+' Power Spectral Density [PSD]\n\
         Welch seg. length / Nb pixel output: '+str('{:1.2f}'.format(nperseg/pix_p_output)))#+')\n\
         #File: '+datafile)
         ax1.plot(f_vect,np.mean(Pxx_outputs,axis=0),'.-',ms=3,alpha=0.3,label='PSD outputs',zorder=32)
@@ -148,8 +149,6 @@ def display_noisepsd(array, nb_output, dimension, noise_name, mode='plot'):
             ax.set_ylabel('PSD [e-${}^2$/Hz]')
             ax.legend(fontsize=12)
             ax.grid(True,alpha=.4)
-
-        plt.show()
-
+        plt.savefig('outputs/'+noise_name.capitalize()+'.png')
     
     return f_vect,np.mean(Pxx_outputs,axis=0)
