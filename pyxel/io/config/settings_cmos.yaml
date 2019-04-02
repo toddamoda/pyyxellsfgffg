@@ -26,7 +26,7 @@ detector:
     total_thickness: 10.         # um
     pixel_vert_size: 10.         # um
     pixel_horz_size: 10.         # um
-    n_output: 1
+    n_output: 4
     n_row_overhead: 0
     n_frame_overhead: 0
     reverse_scan_direction: False
