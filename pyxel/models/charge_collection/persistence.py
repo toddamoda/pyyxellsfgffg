@@ -6,7 +6,7 @@
 import logging
 # import pyxel
 from pyxel.detectors.cmos import CMOS
-import numpy as np
+# import numpy as np
 
 
 # @pyxel.validate

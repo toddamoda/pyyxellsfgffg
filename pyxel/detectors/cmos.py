@@ -65,12 +65,14 @@ class CMOS(Detector):
     def is_dynamic(self):
         """Return if detector is dynamic (time dependent) or not.
 
-        By default it is not dynamic."""
+        By default it is not dynamic.
+        """
         return self._dynamic
 
     @property
     def is_non_destructive_readout(self):
         """Return if detector readout mode is destructive or integrating.
 
-        By default it is destructive (non-integrating)."""
+        By default it is destructive (non-integrating).
+        """
         return self._non_destructive
