@@ -83,8 +83,10 @@ def run(input_filename, random_seed: int = None):
         for processor.detector.time in np.linspace(processor.detector.start_time, processor.detector.end_time,
                                                    num=processor.detector.time_steps, endpoint=True):
             logger.info('time = %.2e s' % processor.detector.time)
-            if not processor.detector.is_non_destructive_readout:
-                processor.detector.initialize()
+            if processor.detector.is_non_destructive_readout:
+                processor.detector.initialize(reset_all=False)
+            else:
+                processor.detector.initialize(reset_all=True)
             processor.pipeline.run_pipeline(processor.detector)
             if out:
                 out.single_output(processor)

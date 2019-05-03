@@ -81,12 +81,9 @@ def illumination(detector: Detector,
     else:
         raise NotImplementedError
 
-    if detector.is_dynamic:         # dynamic mode
+    try:
+        detector.photons.array += photon_array
+    except TypeError:
         detector.photons.new_array(photon_array)
-    else:                           # non-dynamic mode
-        try:
-            detector.photons.array += photon_array
-        except TypeError:
-            detector.photons.new_array(photon_array)
-        except ValueError:
-            raise ValueError('Shapes of arrays do not match')
+    except ValueError:
+        raise ValueError('Shapes of arrays do not match')
