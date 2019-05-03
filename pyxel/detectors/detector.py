@@ -42,26 +42,21 @@ class Detector:
         self.characteristics = characteristics      # type: Characteristics
         self.header = collections.OrderedDict()     # type: t.Dict[str, object]
 
-        self.photons = Photon(self.geometry)        # type: Photon
-        self.charges = Charge()                     # type: Charge
-        self.pixels = Pixel(self.geometry)          # type: Pixel
-        self.signal = Signal(self.geometry)         # type: Signal
-        self.image = Image(self.geometry)           # type: Image
+        self.photons = photons                      # type: t.Optional[Photon]
+        self.charges = charges                      # type: t.Optional[Charge]
+        self.pixels = pixels                        # type: t.Optional[Pixel]
+        self.signal = signal                        # type: t.Optional[Signal]
+        self.image = image                          # type: t.Optional[Image]
 
-        if photons:
-            self.photons = photons
-        if charges:
-            self.charges = charges
-        if pixels:
-            self.pixels = pixels
-        if signal:
-            self.signal = signal
-        if image:
-            self.image = image
+        self.initialize()
 
         self.input_image = None
-        self.time = None                            # type: t.Optional[float]
-        self._dynamic = False                       # type: bool
+        # self.start_time = None                      # type: t.Optional[float]
+        # self.end_time = None                        # type: t.Optional[float]
+        # self.time_steps = None                      # type: t.Optional[int]
+        # self.time = None                            # type: t.Optional[float]
+        # self._dynamic = False                       # type: bool
+        # self._destructive = False                   # type: bool
         self._output_dir = None                     # type: t.Optional[str]
 
     def __getstate__(self):
@@ -80,10 +75,19 @@ class Detector:
             'signal': self.signal,
             'image': self.image,
             'input_image': self.input_image,
-            'time': self.time,
-            '_dynamic': self._dynamic,
+            # 'time': self.time,
+            # '_dynamic': self._dynamic,
+            # '_destructive': self._destructive,
             '_output_dir': self._output_dir
         }
+
+    def initialize(self):
+        """TBW."""
+        self.photons = Photon(self.geometry)        # type: Photon
+        self.charges = Charge()                     # type: Charge
+        self.pixels = Pixel(self.geometry)          # type: Pixel
+        self.signal = Signal(self.geometry)         # type: Signal
+        self.image = Image(self.geometry)           # type: Image
 
     def set_output_dir(self, path: str):
         """Set output directory path."""
@@ -94,14 +98,28 @@ class Detector:
         """Output directory path."""
         return self._output_dir
 
-    def set_dynamic(self):
-        """Switch on dynamic (time dependent) mode."""
-        self._dynamic = True
+    # def set_dynamic(self, start_time, end_time, time_steps, readout):
+    #     """Switch on dynamic (time dependent) mode."""
+    #     self._dynamic = True
+    #     self.start_time = start_time                # type: float
+    #     self.end_time = end_time                    # type: float
+    #     self.time_steps = time_steps                # type: int
+    #     # if readout == 'destructive':
+    #     #     self._destructive =                 # type: bool
 
-    @property
-    def is_dynamic(self):
-        """Return if detector is dynamic (time dependent) or not."""
-        return self._dynamic
+    # @property
+    # def is_dynamic(self):
+    #     """Return if detector is dynamic (time dependent) or not.
+    #
+    #     By default it is not dynamic."""
+    #     return self._dynamic
+
+    # @property
+    # def is_destructive(self):
+    #     """Return if detector readout mode is destructive or integrating.
+    #
+    #     By default it is non-destructive (integrating)."""
+    #     return self._destructive
 
     @property
     def e_thermal_velocity(self):

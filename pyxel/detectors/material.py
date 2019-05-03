@@ -38,7 +38,7 @@ class Material:
                 if path.endswith('.npy'):
                     setattr(self, '_' + attr, np.load(path))
 
-    trap_density = pyx.attribute(
+    trapped_charge = pyx.attribute(
         type=str,
         default=None,
         on_change=load_numpy_array,

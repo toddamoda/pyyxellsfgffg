@@ -7,9 +7,10 @@ simulation:
   mode: dynamic
 
   dynamic:
-    t_steps: 3
-    t_start: 0.
-    t_end: 3.
+    non_destructive_readout:  true
+    t_steps: 20
+    t_start: 1.
+    t_end: 10.
 
   outputs:
     output_folder:  'outputs'
@@ -21,8 +22,8 @@ detector:
 
   geometry:
     class: pyxel.detectors.cmos_geometry.CMOSGeometry
-    row:   500                   #
-    col:   500                   #
+    row:   100                   #
+    col:   100                   #
     total_thickness: 40.         # um
     pixel_vert_size: 10.         # um
     pixel_horz_size: 10.         # um
@@ -30,13 +31,14 @@ detector:
   material:
     class: pyxel.detectors.material.Material
     material: 'silicon'
-    trap_density: 'data/cmos_trap_density.npy'
+    trapped_charge: 'data/cmos_trapped_charge.npy'
 
   environment:
     class: pyxel.detectors.environment.Environment
 
   characteristics:
     class: pyxel.detectors.cmos_characteristics.CMOSCharacteristics
+
     qe: 0.5                 # -
     eta: 1.                 # e/photon
     sv: 3e-6                # V/e
@@ -56,10 +58,10 @@ pipeline:
       func: pyxel.models.photon_generation.illumination.illumination
       enabled: true
       arguments:
-          level: 1111
-          option: 'elliptic_hole'
-          hole_size: [10, 10]
-          hole_center: [0, 0]
+        level: 100
+        option: 'elliptic_hole'
+        hole_size: [10, 10]
+        hole_center: [5, 5]
     - name: shot_noise
       func: pyxel.models.photon_generation.shot_noise.shot_noise
       enabled: false
@@ -86,12 +88,15 @@ pipeline:
     - name: simple_collection
       func: pyxel.models.charge_collection.collection.simple_collection
       enabled: true
+
     - name: persistence
       func: pyxel.models.charge_collection.persistence.simple_persistence
       enabled: true
       arguments:
-        trap_density: [5.9e-1,1.7e-1,1.5e-1,1.55e-1,1.3e-2]
-        trap_timeconstant: [1,10,100,1000,10000]
+#        trap_density: [5.9e-1, 1.7e-1, 1.5e-1, 1.55e-1, 1.3e-2]
+#        trap_timeconstant: [1, 10, 100, 1000, 10000]
+        trap_density: [10.]
+        trap_timeconstant: [1.]
 
   # pixel -> signal
   charge_measurement:

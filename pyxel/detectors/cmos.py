@@ -3,6 +3,7 @@
 #   --------------------------------------------------------------------------
 """CMOS detector modeling class."""
 
+import typing as t
 from pyxel.detectors.detector import Detector
 from pyxel.detectors.cmos_geometry import CMOSGeometry
 from pyxel.detectors.material import Material
@@ -44,3 +45,32 @@ class CMOS(Detector):
                          pixels=pixels,
                          signal=signal,
                          image=image)
+
+        self.start_time = None                      # type: t.Optional[float]
+        self.end_time = None                        # type: t.Optional[float]
+        self.time_steps = None                      # type: t.Optional[int]
+        self.time = None                            # type: t.Optional[float]
+        self._dynamic = False                       # type: bool
+        self._non_destructive = False               # type: bool
+
+    def set_dynamic(self, start_time, end_time, time_steps, ndreadout=False):
+        """Switch on dynamic (time dependent) mode."""
+        self._dynamic = True
+        self.start_time = start_time                # type: float
+        self.end_time = end_time                    # type: float
+        self.time_steps = time_steps                # type: int
+        self._non_destructive = ndreadout           # type: bool
+
+    @property
+    def is_dynamic(self):
+        """Return if detector is dynamic (time dependent) or not.
+
+        By default it is not dynamic."""
+        return self._dynamic
+
+    @property
+    def is_non_destructive_readout(self):
+        """Return if detector readout mode is destructive or integrating.
+
+        By default it is destructive (non-integrating)."""
+        return self._non_destructive

@@ -15,6 +15,7 @@ import numpy as np
 import esapy_config.io as io
 import pyxel
 from pyxel.pipelines.processor import Processor
+from pyxel.detectors.cmos import CMOS
 
 
 def run(input_filename, random_seed: int = None):
@@ -66,12 +67,24 @@ def run(input_filename, random_seed: int = None):
             out.parametric_output()
 
     elif simulation.mode == 'dynamic' and simulation.dynamic:
+        if not isinstance(processor.detector, CMOS):
+            raise TypeError('Dynamic mode only works with CMOS detector!')
         logger.info('Mode: Dynamic')
-        processor.detector.set_dynamic()
+
         if 't_start' not in simulation.dynamic:
             simulation.dynamic['t_start'] = 0.
-        for processor.detector.time in np.linspace(simulation.dynamic['t_start'], simulation.dynamic['t_end'],
-                                                   num=simulation.dynamic['t_steps'], endpoint=True):
+        if 'non_destructive_readout' not in simulation.dynamic:
+            simulation.dynamic['non_destructive_readout'] = False
+
+        processor.detector.set_dynamic(start_time=simulation.dynamic['t_start'],
+                                       end_time=simulation.dynamic['t_end'],
+                                       time_steps=simulation.dynamic['t_steps'],
+                                       ndreadout=simulation.dynamic['non_destructive_readout'])
+        for processor.detector.time in np.linspace(processor.detector.start_time, processor.detector.end_time,
+                                                   num=processor.detector.time_steps, endpoint=True):
+            logger.info('time = %.2e s' % processor.detector.time)
+            if not processor.detector.is_non_destructive_readout:
+                processor.detector.initialize()
             processor.pipeline.run_pipeline(processor.detector)
             if out:
                 out.single_output(processor)
