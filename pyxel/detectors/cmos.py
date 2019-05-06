@@ -3,7 +3,6 @@
 #   --------------------------------------------------------------------------
 """CMOS detector modeling class."""
 
-import typing as t
 from pyxel.detectors.detector import Detector
 from pyxel.detectors.cmos_geometry import CMOSGeometry
 from pyxel.detectors.material import Material
