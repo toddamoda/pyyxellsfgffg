@@ -71,8 +71,8 @@ def nghxrg(detector: CMOS,
         try:
             result = ng.format_result(result)
             if window_mode == 'FULL':
-                detector.pixels.array += result
+                detector.pixel.array += result
             elif window_mode == 'WINDOW':
-                detector.pixels.array[wind_y0:wind_y0 + wind_y_size, wind_x0:wind_x0 + wind_x_size] += result
+                detector.pixel.array[wind_y0:wind_y0 + wind_y_size, wind_x0:wind_x0 + wind_x_size] += result
         except TypeError:
             pass

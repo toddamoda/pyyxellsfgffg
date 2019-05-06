@@ -43,7 +43,7 @@ class Charge(Particle):
                    init_ver_velocity,
                    init_hor_velocity,
                    init_z_velocity):
-        """Create new charge or group of charges inside the detector stored in a pandas DataFrame.
+        """Create new charge or group of charge inside the detector stored in a pandas DataFrame.
 
         :param particle_type:
         :param particles_per_cluster:

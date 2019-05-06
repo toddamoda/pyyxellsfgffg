@@ -34,10 +34,10 @@ detector:
 pipeline:
   class: pyxel.pipelines.cmos_pipeline.CMOSDetectionPipeline
 
-  # -> photons
+  # -> photon
   photon_generation: []
 
-  # -> photons
+  # -> photon
   optics: []
 
   # -> charge

@@ -1,4 +1,4 @@
-"""Pyxel TARS model to generate charges by ionization."""
+"""Pyxel TARS model to generate charge by ionization."""
 
 import numpy as np
 try:

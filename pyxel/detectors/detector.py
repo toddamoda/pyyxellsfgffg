@@ -25,16 +25,22 @@ class Detector:
                  material: Material,
                  environment: Environment,
                  characteristics: Characteristics,
-                 photons: Photon = None,
-                 charges: Charge = None,
-                 pixels: Pixel = None,
+                 photon: Photon = None,
+                 charge: Charge = None,
+                 pixel: Pixel = None,
                  signal: Signal = None,
                  image: Image = None) -> None:
         """TBW.
 
         :param geometry:
+        :param material:
         :param environment:
         :param characteristics:
+        :param photon:
+        :param charge:
+        :param pixel:
+        :param signal:
+        :param image:
         """
         self.geometry = geometry                    # type: Geometry
         self.material = material                    # type: Material
@@ -76,9 +82,9 @@ class Detector:
             'material': self.material,
             'environment': self.environment,
             'characteristics': self.characteristics,
-            'photons': self.photons,
-            'charges': self.charges,
-            'pixels': self.pixels,
+            'photon': self.photon,
+            'charge': self.charge,
+            'pixel': self.pixel,
             'signal': self.signal,
             'image': self.image,
             'input_image': self.input_image,

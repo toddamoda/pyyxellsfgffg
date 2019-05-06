@@ -3,8 +3,8 @@ import esapy_config.io as io
 
 
 @pytest.mark.parametrize("yaml_file", [
-    'tests/data/pipeline_parametric.yaml',
-    'tests/data/test_yaml_new.yaml',
+    'tests/data/parametric.yaml',
+    'tests/data/yaml.yaml',
 ])
 def test_yaml_load(yaml_file):
     cfg = io.load(yaml_file)
@@ -18,9 +18,9 @@ def test_yaml_load(yaml_file):
     assert cfg['detector'].environment.__class__.__name__ == 'Environment'
     assert cfg['detector'].material.__class__.__name__ == 'Material'
     assert cfg['detector'].characteristics.__class__.__name__ == 'CCDCharacteristics'
-    assert cfg['detector'].charges.__class__.__name__ == 'Charge'
-    assert cfg['detector'].photons.__class__.__name__ == 'Photon'
-    assert cfg['detector'].pixels.__class__.__name__ == 'Pixel'
+    assert cfg['detector'].charge.__class__.__name__ == 'Charge'
+    assert cfg['detector'].photon.__class__.__name__ == 'Photon'
+    assert cfg['detector'].pixel.__class__.__name__ == 'Pixel'
     assert cfg['detector'].signal.__class__.__name__ == 'Signal'
     assert cfg['detector'].image.__class__.__name__ == 'Image'
     assert cfg['pipeline'].__class__.__name__ == 'CCDDetectionPipeline'

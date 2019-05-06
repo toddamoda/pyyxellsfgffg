@@ -12,18 +12,18 @@ Requirements
 
 * numpy
 * astropy
-* pandas
+* pandas>=0.23.0
 * scipy
-* matplotlib
 * pygmo==2.10
-* poppy==0.8.0
 * numba
 * tqdm
+* matplotlib
+* h5py
+* poppy==0.8.0
 
 **Dependencies provided together with Pyxel:**
 
-* dependencies/esapy_config-0.7-py2.py3-none-any.whl
-
+* dependencies/esapy_config-0.7.1-py2.py3-none-any.whl
 
 From source
 -----------
@@ -62,6 +62,8 @@ you are using Conda or Anaconda Python distribution, then you might
 have to download the Conda compatible whl file of some dependencies
 and install it manually with ``conda install``.
 
+After the installation steps above,
+see :ref:`here how to run Pyxel <running_modes>`.
 
 Installation with Anaconda
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -111,60 +113,59 @@ More about the conda environments (only for information):
   Remove the conda environment 'pyxel-dev'
   $ conda remove --name pyxel-dev --all
 
+After the installation steps above,
+see :ref:`here how to run Pyxel <running_modes>`.
 
-After these steps, you are ready to run Pyxel, see
-:ref:`here how to run it <running_modes>`.
+..
+    Using Docker
+    -------------
 
+    .. attention::
+        Not yet available!
 
-Using Docker
--------------
+    Using Docker, you can just download the Pyxel Docker image and run it without
+    installing Pyxel.
 
-.. attention::
-    Not yet available!
+    How to run a Pyxel container with Docker:
 
-Using Docker, you can just download the Pyxel Docker image and run it without
-installing Pyxel.
+    Login:
 
-How to run a Pyxel container with Docker:
+    .. code-block:: bash
 
-Login:
+      docker login gitlab.esa.int:4567
 
-.. code-block:: bash
+    Pull latest version of the Pyxel Docker image:
 
-  docker login gitlab.esa.int:4567
+    .. code-block:: bash
 
-Pull latest version of the Pyxel Docker image:
+      docker pull gitlab.esa.int:4567/sci-fv/pyxel
 
-.. code-block:: bash
+    Run Pyxel Docker container with GUI:
 
-  docker pull gitlab.esa.int:4567/sci-fv/pyxel
+    .. code-block:: bash
 
-Run Pyxel Docker container with GUI:
+      docker run -p 9999:9999 \
+                 -it gitlab.esa.int:4567/sci-fv/pyxel:latest \
+                 --gui True
 
-.. code-block:: bash
+    Run Pyxel Docker container in batch mode (without GUI):
 
-  docker run -p 9999:9999 \
-             -it gitlab.esa.int:4567/sci-fv/pyxel:latest \
-             --gui True
+    .. code-block:: bash
 
-Run Pyxel Docker container in batch mode (without GUI):
+      docker run -p 9999:9999 \
+                 -v C:\dev\work\docker:/data \
+                 -it gitlab.esa.int:4567/sci-fv/pyxel:latest \
+                 -c /data/settings_ccd.yaml \
+                 -o /data/result.fits
 
-.. code-block:: bash
+    List your running Docker containers:
 
-  docker run -p 9999:9999 \
-             -v C:\dev\work\docker:/data \
-             -it gitlab.esa.int:4567/sci-fv/pyxel:latest \
-             -c /data/settings_ccd.yaml \
-             -o /data/result.fits
+    .. code-block:: bash
 
-List your running Docker containers:
+      docker ps
 
-.. code-block:: bash
+    After running Pyxel container you can access it:
 
-  docker ps
+    .. code-block:: bash
 
-After running Pyxel container you can access it:
-
-.. code-block:: bash
-
-  docker exec -it <CONTAINER_NAME> /bin/bash
+      docker exec -it <CONTAINER_NAME> /bin/bash

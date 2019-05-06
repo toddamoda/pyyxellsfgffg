@@ -22,7 +22,7 @@ simulation:
     calibration_mode:  pipeline
     result_type: image
     result_fit_range: [2, 5]
-    target_data_path: ['tests/data/cti-data.txt']   # not used
+    target_data_path: ['tests/data/calibrate-data.txt']   # not used
     target_fit_range: [1, 4]
     fitness_function:
       func: pyxel.calibration.fitness.sum_of_abs_residuals
@@ -92,7 +92,7 @@ pipeline:
       func: pyxel.models.photon_generation.shot_noise.shot_noise
       enabled: true
 
-  # -> photons
+  # -> photon
   optics:
 
   # -> charge
@@ -110,7 +110,7 @@ pipeline:
       enabled: false
       func: pyxel.models.charge_collection.fix_pattern_noise.fix_pattern_noise
       arguments:
-        pix_non_uniformity: data/non_uniformity_array_normal_random_dist.data
+        pix_non_uniformity: data/pixel_non_uniformity.npy
     -
       name: full_well
       func: pyxel.models.charge_collection.full_well.simple_full_well
@@ -121,7 +121,7 @@ pipeline:
     -
       name: cdm
       enabled: false
-      func: pyxel.models.charge_transfer.cdm.CDM.cdm
+      func: pyxel.models.charge_transfer.cdm.cdm
       arguments:
        beta_p: 0.6
        beta_s: 0.6
@@ -129,8 +129,6 @@ pipeline:
        svg: 1.0e-10
        t: 20.48e-3
        st: 5.0e-6
-       parallel_trap_file: pyxel/models/cdm/cdm_euclid_parallel.dat
-       serial_trap_file: pyxel/models/cdm/cdm_euclid_serial.dat
 
   # -> signal
   charge_measurement:

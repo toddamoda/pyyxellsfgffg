@@ -1,7 +1,7 @@
 #   --------------------------------------------------------------------------
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
-"""Pyxel Photon class to generate and track photons."""
+"""Pyxel Photon class to generate and track photon."""
 import numpy as np
 from astropy.units import cds
 from pyxel.detectors.geometry import Geometry
@@ -11,7 +11,7 @@ cds.enable()
 
 class Photon(Array):
     """
-    Photon class defining and storing information of all photons.
+    Photon class defining and storing information of all photon.
 
     Accepted array types: np.int32, np.int64, np.uint32, np.uint64, np.float16, np.float32, np.float64
     """

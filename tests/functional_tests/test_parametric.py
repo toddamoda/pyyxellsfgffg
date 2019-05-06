@@ -32,7 +32,7 @@ expected_embedded = [
     ('embedded', expected_embedded),
 ])
 def test_pipeline_parametric(mode, expected):
-    input_filename = 'tests/data/pipeline_parametric.yaml'
+    input_filename = 'tests/data/parametric.yaml'
     cfg = io.load(Path(input_filename))
     simulation = cfg.pop('simulation')
     parametric = simulation.parametric

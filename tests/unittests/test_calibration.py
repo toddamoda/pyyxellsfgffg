@@ -33,12 +33,11 @@ def test_set_algo(yaml):
 
 
 @pytest.mark.parametrize('input_data',
-                         ['tests/data/expected_ccd_pipeline01.fits',
-                          'tests/data/data.npy',
-                          'tests/data/cti-data.txt',
-                          ['tests/data/expected_ccd_pipeline01.fits'],
-                          ['tests/data/data.npy'],
-                          ['tests/data/cti-data.txt'],
+                         [
+                          'tests/data/calibrate-data.npy',
+                          'tests/data/calibrate-data.txt',
+                          ['tests/data/calibrate-data.npy'],
+                          ['tests/data/calibrate-data.txt'],
                           # 'tests/data/ascii_input_0.data',
                           'tests/data/ascii_input_1.data',
                           'tests/data/ascii_input_2.data',
