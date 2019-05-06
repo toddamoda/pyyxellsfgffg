@@ -44,4 +44,4 @@ def test_pipeline_parametric(mode, expected):
     assert result == expected
     configs = parametric.collect(processor)
     for config in configs:
-        detector = config.pipeline.run_pipeline(config.detector)
+        config.pipeline.run_pipeline(config.detector)

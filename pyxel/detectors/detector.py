@@ -1,4 +1,4 @@
-"""CCD detector modeling class."""
+"""Detector class."""
 from math import sqrt
 import collections
 import typing as t  # noqa: F401
@@ -18,7 +18,7 @@ from pyxel.detectors.ccd_geometry import CCDGeometry            # noqa: F401
 
 
 class Detector:
-    """The CCD detector class."""
+    """The detector class."""
 
     def __init__(self,
                  geometry: Geometry,
@@ -42,30 +42,35 @@ class Detector:
         :param signal:
         :param image:
         """
-        self.geometry = geometry                   # type: Geometry
-        self.material = material                   # type: Material
-        self.environment = environment             # type: Environment
-        self.characteristics = characteristics     # type: Characteristics
-        self.header = collections.OrderedDict()    # type: t.Dict[str, object]
+        self.geometry = geometry                    # type: Geometry
+        self.material = material                    # type: Material
+        self.environment = environment              # type: Environment
+        self.characteristics = characteristics      # type: Characteristics
+        self.header = collections.OrderedDict()     # type: t.Dict[str, object]
 
-        self.photon = Photon(self.geometry)        # type: Photon
-        self.charge = Charge()                     # type: Charge
-        self.pixel = Pixel(self.geometry)          # type: Pixel
-        self.signal = Signal(self.geometry)        # type: Signal
-        self.image = Image(self.geometry)          # type: Image
-
-        if photon:
-            self.photon = photon
-        if charge:
-            self.charge = charge
-        if pixel:
-            self.pixel = pixel
+        if photons:
+            self.photons = photons
+        else:
+            self.photons = Photon(self.geometry)        # type: Photon
+        if charges:
+            self.charges = charges
+        else:
+            self.charges = Charge()                     # type: Charge
+        if pixels:
+            self.pixels = pixels
+        else:
+            self.pixels = Pixel(self.geometry)          # type: Pixel
         if signal:
             self.signal = signal
+        else:
+            self.signal = Signal(self.geometry)         # type: Signal
         if image:
             self.image = image
+        else:
+            self.image = Image(self.geometry)           # type: Image
 
         self.input_image = None
+        self._output_dir = None                         # type: t.Optional[str]
 
     def __getstate__(self):
         """TBW.
@@ -82,8 +87,27 @@ class Detector:
             'pixel': self.pixel,
             'signal': self.signal,
             'image': self.image,
-            'input_image': self.input_image
+            'input_image': self.input_image,
+            '_output_dir': self._output_dir
         }
+
+    def initialize(self, reset_all=True):
+        """TBW."""
+        self.photons = Photon(self.geometry)            # type: Photon
+        if reset_all:
+            self.charges = Charge()                     # type: Charge
+            self.pixels = Pixel(self.geometry)          # type: Pixel
+            self.signal = Signal(self.geometry)         # type: Signal
+            self.image = Image(self.geometry)           # type: Image
+
+    def set_output_dir(self, path: str):
+        """Set output directory path."""
+        self._output_dir = path
+
+    @property
+    def output_dir(self):
+        """Output directory path."""
+        return self._output_dir
 
     @property
     def e_thermal_velocity(self):

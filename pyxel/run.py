@@ -15,6 +15,7 @@ import numpy as np
 import esapy_config.io as io
 import pyxel
 from pyxel.pipelines.processor import Processor
+from pyxel.detectors.cmos import CMOS
 
 
 def run(input_filename, random_seed: int = None):
@@ -39,6 +40,7 @@ def run(input_filename, random_seed: int = None):
         out.set_input_file(input_filename)
     else:
         logger.warning('Output is not defined! No output files will be saved!')
+    processor.detector.set_output_dir(out.output_dir)
 
     if simulation.mode == 'single':
         logger.info('Mode: Single')
@@ -63,6 +65,33 @@ def run(input_filename, random_seed: int = None):
                                         parametric=simulation.parametric)
         if out:
             out.parametric_output()
+
+    elif simulation.mode == 'dynamic' and simulation.dynamic:
+        if not isinstance(processor.detector, CMOS):
+            raise TypeError('Dynamic mode only works with CMOS detector!')
+        logger.info('Mode: Dynamic')
+
+        if 't_start' not in simulation.dynamic:
+            simulation.dynamic['t_start'] = 0.
+        if 'non_destructive_readout' not in simulation.dynamic:
+            simulation.dynamic['non_destructive_readout'] = False
+
+        processor.detector.set_dynamic(start_time=simulation.dynamic['t_start'],
+                                       end_time=simulation.dynamic['t_end'],
+                                       time_steps=simulation.dynamic['t_steps'],
+                                       ndreadout=simulation.dynamic['non_destructive_readout'])
+        for processor.detector.time in np.linspace(processor.detector.start_time, processor.detector.end_time,
+                                                   num=processor.detector.time_steps, endpoint=True):
+            logger.info('time = %.2e s' % processor.detector.time)
+            if processor.detector.is_non_destructive_readout:
+                processor.detector.initialize(reset_all=False)
+            else:
+                processor.detector.initialize(reset_all=True)
+            processor.pipeline.run_pipeline(processor.detector)
+            if out:
+                out.single_output(processor)
+        pass
+
     else:
         raise ValueError
 
