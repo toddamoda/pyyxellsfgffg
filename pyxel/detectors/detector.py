@@ -42,16 +42,29 @@ class Detector:
         self.characteristics = characteristics      # type: Characteristics
         self.header = collections.OrderedDict()     # type: t.Dict[str, object]
 
-        self.photons = photons                      # type: Photon
-        self.charges = charges                      # type: Charge
-        self.pixels = pixels                        # type: Pixel
-        self.signal = signal                        # type: Signal
-        self.image = image                          # type: Image
-
-        self.initialize(reset_all=True)
+        if photons:
+            self.photons = photons
+        else:
+            self.photons = Photon(self.geometry)        # type: Photon
+        if charges:
+            self.charges = charges
+        else:
+            self.charges = Charge()                     # type: Charge
+        if pixels:
+            self.pixels = pixels
+        else:
+            self.pixels = Pixel(self.geometry)          # type: Pixel
+        if signal:
+            self.signal = signal
+        else:
+            self.signal = Signal(self.geometry)         # type: Signal
+        if image:
+            self.image = image
+        else:
+            self.image = Image(self.geometry)           # type: Image
 
         self.input_image = None
-        self._output_dir = None                     # type: t.Optional[str]
+        self._output_dir = None                         # type: t.Optional[str]
 
     def __getstate__(self):
         """TBW.
@@ -72,7 +85,7 @@ class Detector:
             '_output_dir': self._output_dir
         }
 
-    def initialize(self, reset_all=False):
+    def initialize(self, reset_all=True):
         """TBW."""
         self.photons = Photon(self.geometry)            # type: Photon
         if reset_all:
