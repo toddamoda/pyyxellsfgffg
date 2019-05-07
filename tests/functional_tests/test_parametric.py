@@ -37,7 +37,7 @@ def test_pipeline_parametric(mode, expected):
     simulation = cfg.pop('simulation')
     parametric = simulation.parametric
     parametric.parametric_mode = mode
-    detector = cfg['detector']
+    detector = cfg['ccd_detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)  # type: pyxel.pipelines.processor.Processor
     result = parametric.debug(processor)

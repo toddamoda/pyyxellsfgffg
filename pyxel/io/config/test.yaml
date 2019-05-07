@@ -7,15 +7,12 @@ simulation:
   mode: single
 
   outputs:
-    output_folder:  'outputs'
-    output_format:
+    output_folder:  outputs
+#    output_format:
 
-detector:
-  class: pyxel.detectors.ccd.CCD
+ccd_detector:
 
   geometry:
-    class: pyxel.detectors.ccd_geometry.CCDGeometry
-
     row:   500                   #
     col:   500                   #
     total_thickness: 40.         # um
@@ -23,14 +20,12 @@ detector:
     pixel_horz_size: 10.         # um
 
   material:
-    class: pyxel.detectors.material.Material
-    material: 'silicon'
+    material: silicon
 
   environment:
-    class: pyxel.detectors.environment.Environment
+    temperature: 300.
 
   characteristics:
-    class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
     qe: 0.5                 # -
     eta: 1.                 # e/photon
     sv: 3e-6                # V/e
@@ -38,14 +33,13 @@ detector:
     a1: 100.                # V/V
     a2: 10000               # DN/V
     fwc: 1000000            # e
-    fwc_serial: 1000000     # e
+#    fwc_serial: 1000000     # e
     vg: 1.6200e-10          # cm2
-    svg: 1.6200e-10         # cm2
-    t: 9.4722e-04           # s
-    st: 9.4722e-04          # s
+#    svg: 1.6200e-10         # cm2
+#    t: 9.4722e-04           # s
+#    st: 9.4722e-04          # s
 
 pipeline:
-  class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
 
   # photon -> photon
   photon_generation:
@@ -53,7 +47,7 @@ pipeline:
       func: pyxel.models.photon_generation.load_image.load_image
       enabled: true
       arguments:
-        image_file: data/fits/HorseHead_orig.fits
+        image_file: data/fits/HorseHead.fits
         fit_image_to_det: true
         convert_to_photons: true
     - name: illumination
@@ -71,7 +65,7 @@ pipeline:
   optics:
     - name: optical_psf
       func: pyxel.models.optics.poppy.optical_psf
-      enabled: true
+      enabled: false
       arguments:
         fov_pixels: 30       # FOV in pixel
         pixelscale: 0.1      # micron/pixel OR arcsec/pixel
@@ -115,7 +109,7 @@ pipeline:
         particle_number: 2
         incident_angles:      # rad
         starting_position:    # um
-        spectrum_file: 'pyxel/models/charge_generation/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
+        spectrum_file: pyxel/models/charge_generation/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt
     - name: charge_injection
       func: pyxel.models.charge_generation.charge_injection.charge_injection
       enabled: false

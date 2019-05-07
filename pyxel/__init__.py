@@ -135,10 +135,34 @@ def pyxel_yaml_loader():
     from pyxel.pipelines.model_group import ModelGroup
     from pyxel.util import Outputs
 
-    io.ObjectModelLoader.add_class_ref(['detector', 'class'])
-    io.ObjectModelLoader.add_class_ref(['detector', None, 'class'])
+    # io.ObjectModelLoader.add_class_ref(['detector', 'class'])
+    # io.ObjectModelLoader.add_class_ref(['detector', None, 'class'])
+    # io.ObjectModelLoader.add_class_ref(['pipeline', 'class'])
 
-    io.ObjectModelLoader.add_class_ref(['pipeline', 'class'])
+    from pyxel.detectors import CCD, CMOS, Detector
+    from pyxel.detectors import Geometry, Characteristics, Material, Environment
+    from pyxel.detectors.ccd import CCDGeometry, CCDCharacteristics
+    from pyxel.detectors.cmos import CMOSGeometry, CMOSCharacteristics
+
+    from pyxel.pipelines.pipeline import DetectionPipeline
+
+    io.ObjectModelLoader.add_class(CCD, ['ccd_detector'])  # pyxel.detectors.ccd.CCD
+    io.ObjectModelLoader.add_class(CMOS, ['cmos_detector'])
+    io.ObjectModelLoader.add_class(Detector, ['detector'])
+
+    io.ObjectModelLoader.add_class(CCDGeometry, ['ccd_detector', 'geometry'])
+    io.ObjectModelLoader.add_class(CMOSGeometry, ['cmos_detector', 'geometry'])
+    io.ObjectModelLoader.add_class(Geometry, ['detector', 'geometry'])
+
+    io.ObjectModelLoader.add_class(CCDCharacteristics, ['ccd_detector', 'characteristics'])
+    io.ObjectModelLoader.add_class(CMOSCharacteristics, ['cmos_detector', 'characteristics'])
+    io.ObjectModelLoader.add_class(Characteristics, ['detector', 'characteristics'])
+
+    io.ObjectModelLoader.add_class(Material, [None, 'material'])
+    io.ObjectModelLoader.add_class(Environment, [None, 'environment'])
+
+    io.ObjectModelLoader.add_class(DetectionPipeline, ['pipeline'])
+
     io.ObjectModelLoader.add_class(ModelGroup, ['pipeline', None])
     io.ObjectModelLoader.add_class(ModelFunction, ['pipeline', None, None])
 

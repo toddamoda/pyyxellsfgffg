@@ -13,7 +13,7 @@ from pyxel.data_structure.photon import Photon  # noqa: F401
 from pyxel.data_structure.pixel import Pixel    # noqa: F401
 from pyxel.data_structure.signal import Signal  # noqa: F401
 from pyxel.data_structure.image import Image    # noqa: F401
-import typing as t  # noqa: F401
+# import typing as t  # noqa: F401
 
 
 class CCD(Detector):
@@ -24,7 +24,6 @@ class CCD(Detector):
                  material: Material,
                  environment: Environment,
                  characteristics: CCDCharacteristics,
-                 # charge_injection_profile: t.List = None,
                  photon: Photon = None,
                  charge: Charge = None,
                  pixel: Pixel = None,
@@ -36,7 +35,6 @@ class CCD(Detector):
         :param material:
         :param environment:
         :param characteristics:
-        # :param charge_injection_profile:
         :param photon:
         :param charge:
         :param pixel:

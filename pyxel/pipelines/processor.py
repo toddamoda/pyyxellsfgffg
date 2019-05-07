@@ -3,8 +3,9 @@ import typing as t
 from esapy_config import get_obj_att, eval_entry, get_value
 from pyxel.detectors.ccd import CCD
 from pyxel.detectors.cmos import CMOS
-from pyxel.pipelines.ccd_pipeline import CCDDetectionPipeline
-from pyxel.pipelines.cmos_pipeline import CMOSDetectionPipeline
+from pyxel.pipelines.pipeline import DetectionPipeline
+# from pyxel.pipelines.ccd_pipeline import CCDDetectionPipeline
+# from pyxel.pipelines.cmos_pipeline import CMOSDetectionPipeline
 
 
 class Processor:
@@ -12,7 +13,7 @@ class Processor:
 
     def __init__(self,
                  detector: t.Union[CCD, CMOS],
-                 pipeline: t.Union[CCDDetectionPipeline, CMOSDetectionPipeline]) -> None:
+                 pipeline: DetectionPipeline) -> None:
         """TBW.
 
         :param detector:

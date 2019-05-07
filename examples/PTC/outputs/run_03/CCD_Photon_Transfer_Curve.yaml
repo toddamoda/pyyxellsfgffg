@@ -29,11 +29,9 @@ simulation:
         ylim: [1., 3.e+4]
         grid: true
 
-detector:
-  class: pyxel.detectors.ccd.CCD
+ccd_detector:
 
   geometry:
-    class: pyxel.detectors.ccd_geometry.CCDGeometry
 
     row:   100                          # pixel
     col:   100                          # pixel
@@ -42,14 +40,11 @@ detector:
     pixel_horz_size: 10.                # um
 
   material:
-    class: pyxel.detectors.material.Material
     material: 'silicon'
 
   environment:
-    class: pyxel.detectors.environment.Environment
 
   characteristics:
-    class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
     qe: 0.5                 # -
     eta: 1.                 # e/photon
     sv: 1.e-6               # V/e
@@ -60,7 +55,6 @@ detector:
     fwc_serial: 200000      # e
 
 pipeline:
-  class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
 
   # -> photon
   photon_generation:

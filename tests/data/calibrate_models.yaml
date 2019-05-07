@@ -57,24 +57,21 @@ simulation:
         logarithmic: false
         boundaries: [100., 300.]
 
-detector:
-  class: pyxel.detectors.ccd.CCD
+ccd_detector:
 
   geometry:
-    class: pyxel.detectors.ccd_geometry.CCDGeometry
     row:   100                    # compulsory
     col:   100                    # compulsory
     pixel_vert_size: 10.          # um
     pixel_horz_size: 10.          # um
 
   material:
-    class: pyxel.detectors.material.Material
+    material: silicon
 
   environment:
-    class: pyxel.detectors.environment.Environment
+    temperature: 100
 
   characteristics:
-    class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
     qe: 0.5                 # -
     eta: 0.5                # e/photon
     sv: 1.0e-6              # V/e
@@ -89,7 +86,6 @@ detector:
     st: 9.4722e-04          # s
 
 pipeline:
-  class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
 
   # -> photon
   photon_generation:
