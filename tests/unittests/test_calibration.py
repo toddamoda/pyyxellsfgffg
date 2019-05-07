@@ -1,12 +1,13 @@
 """Unittests for the 'Calibration' class."""
 
+import sys
 import pytest
-import pygmo as pg
 import esapy_config.io as io
 from pyxel.calibration.util import read_data, list_to_slice, check_ranges
 from pyxel.pipelines.processor import Processor
 
 
+@pytest.mark.skipif(sys.platform == "darwin", reason="does not run on osx")
 @pytest.mark.parametrize('yaml',
                          [
                              'tests/data/calibrate.yaml',
@@ -19,6 +20,8 @@ from pyxel.pipelines.processor import Processor
                          ])
 def test_set_algo(yaml):
     """Test """
+    import pygmo as pg
+
     cfg = io.load(yaml)
     simulation = cfg['simulation']
     obj = simulation.calibration.algorithm.get_algorithm()
@@ -106,6 +109,7 @@ def test_check_ranges(targ_range, out_range, row, col):
         check_ranges(targ_range, out_range, row, col)
 
 
+@pytest.mark.skipif(sys.platform == "darwin", reason="does not run on osx")
 @pytest.mark.parametrize('yaml',
                          [
                              'tests/data/calibrate_models.yaml'

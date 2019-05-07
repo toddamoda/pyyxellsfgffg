@@ -1,14 +1,16 @@
 """Unittests for the 'ModelFitting' class."""
+import sys
 import pytest
 import numpy as np
 import esapy_config.io as io
-import pygmo as pg
 from pyxel.calibration.fitting import ModelFitting
 from pyxel.pipelines.processor import Processor
 
 
 def configure(mf, sim):
     """TBW."""
+    import pygmo as pg
+
     pg.set_global_rng_seed(sim.calibration.seed)
     np.random.seed(sim.calibration.seed)
     settings = {
@@ -27,6 +29,7 @@ def configure(mf, sim):
     mf.configure(settings)
 
 
+@pytest.mark.skipif(sys.platform == "darwin", reason="does not run on osx")
 @pytest.mark.parametrize('yaml_file',
                          [
                              'tests/data/calibrate.yaml',
@@ -51,6 +54,7 @@ def test_configure_params(yaml_file):
     assert mf.sim_output == 'image'
 
 
+@pytest.mark.skipif(sys.platform == "darwin", reason="does not run on osx")
 @pytest.mark.parametrize('yaml',
                          [
                              'tests/data/calibrate_fits.yaml',
@@ -74,6 +78,7 @@ def test_configure_fits_target(yaml):
                                   np.around(expected, decimals=4))
 
 
+@pytest.mark.skipif(sys.platform == "darwin", reason="does not run on osx")
 @pytest.mark.parametrize('yaml',
                          [
                              'tests/data/calibrate.yaml',
@@ -99,6 +104,7 @@ def test_boundaries(yaml):
     assert uu == ubd_expected
 
 
+@pytest.mark.skipif(sys.platform == "darwin", reason="does not run on osx")
 @pytest.mark.parametrize('simulated_data, target_data, expected_fitness',
                          [
                              (231, 231, 0.),
@@ -128,6 +134,7 @@ def test_calculate_fitness(simulated_data, target_data, expected_fitness):
     print('fitness: ', fitness)
 
 
+@pytest.mark.skipif(sys.platform == "darwin", reason="does not run on osx")
 @pytest.mark.parametrize('yaml, factor, expected_fitness',
                          [
                              ('tests/data/calibrate_weighting.yaml', 1, 0.),
@@ -153,6 +160,7 @@ def custom_fitness_func(sim, targ):
     return np.sum(targ * 2 - sim / 2 + 1.)
 
 
+@pytest.mark.skipif(sys.platform == "darwin", reason="does not run on osx")
 @pytest.mark.parametrize('yaml, simulated_data, target_data, expected_fitness',
                          [
                              ('tests/data/calibrate_custom_fitness.yaml',
@@ -176,6 +184,7 @@ def test_custom_fitness(yaml, simulated_data, target_data, expected_fitness):
     print('fitness: ', fitness)
 
 
+@pytest.mark.skipif(sys.platform == "darwin", reason="does not run on osx")
 @pytest.mark.parametrize('yaml, parameter, expected_fitness',
                          [
                              ('tests/data/calibrate_models.yaml',
@@ -197,6 +206,7 @@ def test_fitness(yaml, parameter, expected_fitness):
     print('fitness: ', overall_fitness[0])
 
 
+@pytest.mark.skipif(sys.platform == "darwin", reason="does not run on osx")
 @pytest.mark.parametrize('yaml, parameter, expected_array',
                          [
                              ('tests/data/calibrate_models.yaml', np.arange(16.),
@@ -222,6 +232,7 @@ def test_split_and_update(yaml, parameter, expected_array):
     np.testing.assert_array_equal(array, expected_array)
 
 
+@pytest.mark.skipif(sys.platform == "darwin", reason="does not run on osx")
 @pytest.mark.parametrize('yaml, param_array',
                          [
                              ('tests/data/calibrate_models.yaml',
