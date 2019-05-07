@@ -7,6 +7,13 @@
 #    PYPI_PASSWORD: SECURE
 #    CONTAINER_LATEST_IMAGE: gitlab.esa.int:4567/sci-fv/pyxel:latest
 
+before_script:
+  - python -V
+  - pip install tox
+  - export TZ=Europe/Amsterdam
+  - date
+
+
 stages:
   - test
   - build
@@ -44,10 +51,8 @@ python37:
   image: python:3.7
   stage: test
   script:
-    - pip install pytest
-    - pip install -r requirements.txt
-    - pip freeze
-    - pytest --color=yes --full-trace --showlocals --verbose
+    - tox -e py37-pyyaml_3.13
+    - tox -e py37-pyyaml_last
   allow_failure: true
 
 
@@ -56,10 +61,8 @@ python36:
   image: python:3.6
   stage: test
   script:
-    - pip install pytest
-    - pip install -r requirements.txt
-    - pip freeze
-    - pytest --color=yes --full-trace --showlocals --verbose
+    - tox -e py36-pyyaml_3.13
+    - tox -e py36-pyyaml_last
   allow_failure: false
 
 
