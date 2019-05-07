@@ -21,7 +21,7 @@ setup(
         "astropy",
         "pandas",
         "scipy",
-        "pygmo==2.10",
+        "pygmo==2.10;sys_platform!='darwin'",
         "numba",
         "tqdm",
         "matplotlib",
