@@ -84,7 +84,7 @@ def run(input_filename, random_seed: int = None):
                              time_steps=simulation.dynamic['t_steps'],
                              ndreadout=simulation.dynamic['non_destructive_readout'])
         for detector.time in np.linspace(detector.start_time, detector.end_time,
-                                                   num=detector.time_steps, endpoint=True):
+                                         num=detector.time_steps, endpoint=True):
             logger.info('time = %.2e s' % detector.time)
             if detector.is_non_destructive_readout:
                 detector.initialize(reset_all=False)
