@@ -34,7 +34,7 @@ def configure(mf, sim):
 def test_configure_params(yaml_file):
     """Test """
     cfg = io.load(yaml_file)
-    detector = cfg['detector']
+    detector = cfg['ccd_detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']
@@ -58,7 +58,7 @@ def test_configure_params(yaml_file):
 def test_configure_fits_target(yaml):
     """Test """
     cfg = io.load(yaml)
-    detector = cfg['detector']
+    detector = cfg['ccd_detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']
@@ -82,7 +82,7 @@ def test_configure_fits_target(yaml):
 def test_boundaries(yaml):
     """Test """
     cfg = io.load(yaml)
-    detector = cfg['detector']
+    detector = cfg['ccd_detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']
@@ -117,7 +117,7 @@ def test_boundaries(yaml):
 def test_calculate_fitness(simulated_data, target_data, expected_fitness):
     """Test"""
     cfg = io.load('tests/data/calibrate.yaml')
-    detector = cfg['detector']
+    detector = cfg['ccd_detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']
@@ -137,7 +137,7 @@ def test_calculate_fitness(simulated_data, target_data, expected_fitness):
 def test_weighting(yaml, factor, expected_fitness):
     """Test"""
     cfg = io.load(yaml)
-    detector = cfg['detector']
+    detector = cfg['ccd_detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']
@@ -165,7 +165,7 @@ def custom_fitness_func(sim, targ):
 def test_custom_fitness(yaml, simulated_data, target_data, expected_fitness):
     """Test"""
     cfg = io.load(yaml)
-    detector = cfg['detector']
+    detector = cfg['ccd_detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']
@@ -186,7 +186,7 @@ def test_custom_fitness(yaml, simulated_data, target_data, expected_fitness):
 def test_fitness(yaml, parameter, expected_fitness):
     """Test"""
     cfg = io.load(yaml)
-    detector = cfg['detector']
+    detector = cfg['ccd_detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']
@@ -212,7 +212,7 @@ def test_fitness(yaml, parameter, expected_fitness):
 def test_split_and_update(yaml, parameter, expected_array):
     """Test"""
     cfg = io.load(yaml)
-    detector = cfg['detector']
+    detector = cfg['ccd_detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']
@@ -237,7 +237,7 @@ def test_split_and_update(yaml, parameter, expected_array):
 def test_detector_and_model_update(yaml, param_array):
     """Test"""
     cfg = io.load(yaml)
-    detector = cfg['detector']
+    detector = cfg['ccd_detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']

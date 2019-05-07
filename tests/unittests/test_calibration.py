@@ -113,7 +113,7 @@ def test_check_ranges(targ_range, out_range, row, col):
 def test_run_calibration(yaml):
     """Test """
     cfg = io.load(yaml)
-    detector = cfg['detector']
+    detector = cfg['ccd_detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']

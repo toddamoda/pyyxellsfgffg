@@ -36,11 +36,9 @@ simulation:
       - key:
         values:
 
-detector:
-  class: pyxel.detectors.ccd.CCD
+ccd_detector:
 
   geometry:
-    class: pyxel.detectors.ccd_geometry.CCDGeometry
     row: 100                      # compulsory
     col: 100                      # compulsory
     total_thickness: 10.0         # um
@@ -48,19 +46,16 @@ detector:
     pixel_horz_size: 10.0         # um
 
   material:
-    class: pyxel.detectors.material.Material
     material: 'silicon'
     n_acceptor: 0.0               # cm-3
     n_donor: 0.0                  # cm-3
 
   environment:
-    class: pyxel.detectors.environment.Environment
     temperature: 300                    # Kelvin, detector temperature
     total_ionising_dose: 8.0e11         # total ionising dose (IEL)
     total_non_ionising_dose: 8.0e11     # total non-ionising dose (NIEL)
 
   characteristics:
-    class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
     qe: 0.5               # -
     eta: 1                # e/photon
     sv: 1.0e-6            # V/e
@@ -71,7 +66,6 @@ detector:
     fwc_serial: 30000     # e
 
 pipeline:
-  class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
 
   photon_generation:
     -

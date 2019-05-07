@@ -13,15 +13,13 @@ simulation:
     t_end: 10.
 
   outputs:
-    output_folder:  'outputs'
+    output_folder:  outputs
     output_format:
 
 
-detector:
-  class: pyxel.detectors.cmos.CMOS
+cmos_detector:
 
   geometry:
-    class: pyxel.detectors.cmos_geometry.CMOSGeometry
     row:   100                   #
     col:   100                   #
     total_thickness: 40.         # um
@@ -29,16 +27,13 @@ detector:
     pixel_horz_size: 10.         # um
 
   material:
-    class: pyxel.detectors.material.Material
-    material: 'silicon'
-    trapped_charge: 'data/cmos_trapped_charge.npy'
+    material: silicon
+    trapped_charge: data/cmos_trapped_charge.npy
 
   environment:
-    class: pyxel.detectors.environment.Environment
+    temperature: 273.
 
   characteristics:
-    class: pyxel.detectors.cmos_characteristics.CMOSCharacteristics
-
     qe: 0.5                 # -
     eta: 1.                 # e/photon
     sv: 3e-6                # V/e
@@ -49,7 +44,6 @@ detector:
 
 
 pipeline:
-  class: pyxel.pipelines.cmos_pipeline.CMOSDetectionPipeline
 
   # photon -> photon
   photon_generation:
@@ -59,7 +53,7 @@ pipeline:
       enabled: true
       arguments:
         level: 100
-        option: 'elliptic_hole'
+        option: elliptic_hole
         hole_size: [10, 10]
         hole_center: [5, 5]
     - name: shot_noise

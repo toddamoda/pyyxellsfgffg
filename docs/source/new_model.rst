@@ -24,7 +24,6 @@ You should copy the python file including your function in the folder
   # YAML config file with a new model in photon_generation
 
   pipeline:
-    class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
 
     photon_generation:
       - name: illumination

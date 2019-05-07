@@ -33,18 +33,23 @@ def run(input_filename, random_seed: int = None):
 
     cfg = io.load(Path(input_filename))
     simulation = cfg['simulation']
-    processor = Processor(cfg['detector'],
-                          cfg['pipeline'])
+    if 'ccd_detector' in cfg:
+        detector = cfg['ccd_detector']
+    elif 'cmos_detector' in cfg:
+        detector = cfg['cmos_detector']
+    else:
+        detector = cfg['ccd_detector']
+    processor = Processor(detector, cfg['pipeline'])
     out = simulation.outputs
     if out:
         out.set_input_file(input_filename)
     else:
         logger.warning('Output is not defined! No output files will be saved!')
-    processor.detector.set_output_dir(out.output_dir)
+    detector.set_output_dir(out.output_dir)
 
     if simulation.mode == 'single':
         logger.info('Mode: Single')
-        processor.pipeline.run_pipeline(processor.detector)
+        processor.pipeline.run_pipeline(detector)
         if out:
             out.single_output(processor)
 
@@ -58,36 +63,34 @@ def run(input_filename, random_seed: int = None):
     elif simulation.mode == 'parametric' and simulation.parametric:
         logger.info('Mode: Parametric')
         configs = simulation.parametric.collect(processor)
-        for processor in configs:
-            processor.pipeline.run_pipeline(processor.detector)
+        for proc in configs:
+            proc.pipeline.run_pipeline(proc.detector)
             if out:
-                out.add_parametric_step(processor=processor,
+                out.add_parametric_step(processor=proc,
                                         parametric=simulation.parametric)
         if out:
             out.parametric_output()
 
     elif simulation.mode == 'dynamic' and simulation.dynamic:
-        if not isinstance(processor.detector, CMOS):
+        if not isinstance(detector, CMOS):
             raise TypeError('Dynamic mode only works with CMOS detector!')
         logger.info('Mode: Dynamic')
-
         if 't_start' not in simulation.dynamic:
             simulation.dynamic['t_start'] = 0.
         if 'non_destructive_readout' not in simulation.dynamic:
             simulation.dynamic['non_destructive_readout'] = False
-
-        processor.detector.set_dynamic(start_time=simulation.dynamic['t_start'],
-                                       end_time=simulation.dynamic['t_end'],
-                                       time_steps=simulation.dynamic['t_steps'],
-                                       ndreadout=simulation.dynamic['non_destructive_readout'])
-        for processor.detector.time in np.linspace(processor.detector.start_time, processor.detector.end_time,
-                                                   num=processor.detector.time_steps, endpoint=True):
-            logger.info('time = %.2e s' % processor.detector.time)
-            if processor.detector.is_non_destructive_readout:
-                processor.detector.initialize(reset_all=False)
+        detector.set_dynamic(start_time=simulation.dynamic['t_start'],
+                             end_time=simulation.dynamic['t_end'],
+                             time_steps=simulation.dynamic['t_steps'],
+                             ndreadout=simulation.dynamic['non_destructive_readout'])
+        for detector.time in np.linspace(detector.start_time, detector.end_time,
+                                         num=detector.time_steps, endpoint=True):
+            logger.info('time = %.2e s' % detector.time)
+            if detector.is_non_destructive_readout:
+                detector.initialize(reset_all=False)
             else:
-                processor.detector.initialize(reset_all=True)
-            processor.pipeline.run_pipeline(processor.detector)
+                detector.initialize(reset_all=True)
+            processor.pipeline.run_pipeline(detector)
             if out:
                 out.single_output(processor)
         pass

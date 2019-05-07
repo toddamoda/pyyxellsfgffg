@@ -25,16 +25,16 @@ def simple_digitization(detector: Detector,
     logger = logging.getLogger('pyxel')
     logger.info('')
 
-    data_type = locate(data_type)
-    if data_type is None:
+    d_type = locate(data_type)
+    if d_type is None:
         raise TypeError('Can not locate the type defined as `data_type` argument in yaml file.')
     # Gain of the Analog-Digital Converter
     detector.signal.array *= detector.characteristics.a2
     # floor of signal values element-wise (quantization)
     detector.signal.array = np.floor(detector.signal.array)
     # convert floats to other datatype (e.g. 16-bit unsigned integers)
-    detector.signal.array = np.clip(detector.signal.array, a_min=np.iinfo(data_type).min, a_max=np.iinfo(data_type).max)
-    detector.image.array = detector.signal.array.astype(data_type)
+    detector.signal.array = np.clip(detector.signal.array, a_min=np.iinfo(d_type).min, a_max=np.iinfo(d_type).max)
+    detector.image.array = detector.signal.array.astype(d_type)
 
 
 def simple_processing(detector: Detector):

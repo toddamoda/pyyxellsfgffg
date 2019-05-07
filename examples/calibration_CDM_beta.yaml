@@ -37,11 +37,9 @@ simulation:
       champions_plot:
       population_plot:
 
-detector:
-  class: pyxel.detectors.ccd.CCD
+ccd_detector:
 
   geometry:
-    class: pyxel.detectors.ccd_geometry.CCDGeometry
 
     row:   100                  # pixel
     col:   100                  # pixel
@@ -50,15 +48,12 @@ detector:
     pixel_horz_size: 10.        # um
 
   material:
-    class: pyxel.detectors.material.Material
     material: 'silicon'
 
   environment:
-    class: pyxel.detectors.environment.Environment
     temperature: 300        # K
 
   characteristics:
-    class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
     qe: 0.5                 # -
     eta: 1.                 # e/photon
     sv: 1.0e-6              # V/e
@@ -73,7 +68,6 @@ detector:
     st: 9.4722e-04          # s
 
 pipeline:
-  class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
 
   # -> photon
   photon_generation:

@@ -16,23 +16,17 @@ simulation:
 
   calibration:
 
-detector:
-  class: pyxel.detectors.cmos.CMOS
+cmos_detector:
 
   geometry:
-    class: pyxel.detectors.cmos_geometry.CMOSGeometry
 
   material:
-    class: pyxel.detectors.material.Material
 
   environment:
-    class: pyxel.detectors.environment.Environment
 
   characteristics:
-    class: pyxel.detectors.cmos_characteristics.CMOSCharacteristics
 
 pipeline:
-  class: pyxel.pipelines.cmos_pipeline.CMOSDetectionPipeline
 
   # -> photon
   photon_generation: []
