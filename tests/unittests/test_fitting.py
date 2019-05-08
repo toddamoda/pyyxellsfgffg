@@ -1,7 +1,9 @@
 """Unittests for the 'ModelFitting' class."""
-import esapy_config.io as io
-import numpy as np
 import pytest
+import numpy as np
+import esapy_config.io as io
+from pyxel.calibration.fitting import ModelFitting
+from pyxel.pipelines.processor import Processor
 
 try:
     import pygmo as pg
@@ -9,8 +11,6 @@ try:
 except ImportError:
     WITH_PYGMO = False
 
-from pyxel.calibration.fitting import ModelFitting
-from pyxel.pipelines.processor import Processor
 
 
 def configure(mf, sim):

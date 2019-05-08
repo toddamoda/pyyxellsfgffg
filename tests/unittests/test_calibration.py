@@ -1,16 +1,15 @@
 """Unittests for the 'Calibration' class."""
 
-import esapy_config.io as io
 import pytest
+import esapy_config.io as io
+from pyxel.calibration.util import read_data, list_to_slice, check_ranges
+from pyxel.pipelines.processor import Processor
 
 try:
     import pygmo as pg
     WITH_PYGMO = True
 except ImportError:
     WITH_PYGMO = False
-
-from pyxel.calibration.util import check_ranges, list_to_slice, read_data
-from pyxel.pipelines.processor import Processor
 
 
 @pytest.mark.skipif(not WITH_PYGMO, reason="Package 'pygmo' is not installed.")

@@ -19,11 +19,7 @@ __all__ = ['models',
            'check_type', 'check_path', 'check_range', 'check_choices',
            'validate_choices', 'validate_range', 'validate_type']
 
-__appname__ = 'Pyxel'
-__author__ = 'David Lucsanyi'
-__author_email__ = 'david.lucsanyi@esa.int'
 __pkgname__ = 'pyxel'
-__version__ = '0.4c1'
 
 
 def detector_class(cls):
