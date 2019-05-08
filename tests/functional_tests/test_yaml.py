@@ -1,7 +1,14 @@
 import pytest
 import esapy_config.io as io
 
+try:
+    import pygmo as pg
+    WITH_PYGMO = True
+except ImportError:
+    WITH_PYGMO = False
 
+
+@pytest.mark.skipif(not WITH_PYGMO, reason="Package 'pygmo' is not installed.")
 @pytest.mark.parametrize("yaml_file", [
     'tests/data/parametric.yaml',
     'tests/data/yaml.yaml',

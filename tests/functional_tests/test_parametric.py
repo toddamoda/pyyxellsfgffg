@@ -3,6 +3,12 @@ import pytest
 import esapy_config.io as io
 from pyxel.pipelines.processor import Processor
 
+try:
+    import pygmo as pg
+    WITH_PYGMO = True
+except ImportError:
+    WITH_PYGMO = False
+
 
 expected_sequential = [
     (0, [('level', 10), ('initial_energy', 100)]),
@@ -26,6 +32,7 @@ expected_embedded = [
 ]
 
 
+@pytest.mark.skipif(not WITH_PYGMO, reason="Package 'pygmo' is not installed.")
 @pytest.mark.parametrize("mode, expected", [
     # ('single', expected_single),
     ('sequential', expected_sequential),

@@ -22,6 +22,9 @@ pyxel/models/charge_generation/tars/data/*
 *.pyc
 .idea/
 
+# Visual Studio Code
+.vscode/
+
 # Distribution / packaging
 build/
 dist/
@@ -43,3 +46,14 @@ pylint_report.html
 
 # Jupyter Notebook
 .ipynb_checkpoints
+
+# mypy
+.mypy_cache/
+
+# Environments
+.env
+.venv/
+
+# Pipenv
+Pipfile
+Pipfile.lock
