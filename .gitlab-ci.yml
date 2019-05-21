@@ -14,8 +14,6 @@ stages:
 
 
 before_script:
-  - python -V
-  - pip install tox
   - export TZ=Europe/Amsterdam
   - date
 
@@ -52,6 +50,8 @@ python37:
   image: python:3.7
   stage: test
   script:
+    - python -V
+    - pip install tox
     - tox -e py37-extra_no-pyyaml_3.13
     - tox -e py37-extra_no-pyyaml_last
   allow_failure: true
@@ -62,6 +62,8 @@ python36:
   image: python:3.6
   stage: test
   script:
+    - python -V
+    - pip install tox
     - tox -e py36-extra_no-pyyaml_3.13
     - tox -e py36-extra_no-pyyaml_last
   allow_failure: false
@@ -72,6 +74,8 @@ mypy:
   image: python:3
   stage: test
   script:
+    - python -V
+    - pip install tox
     - tox -e mypy
   allow_failure: true
 
@@ -96,6 +100,8 @@ flake8:
   image: python:3
   stage: test
   script:
+    - python -V
+    - pip install tox
     - tox -e flake8
   allow_failure: false
 
@@ -104,6 +110,8 @@ doc8:
   image: python:3
   stage: test
   script:
+    - python -V
+    - pip install tox
     - tox -e doc8
   allow_failure: false
 
@@ -184,8 +192,8 @@ docker:
 #    - docker push $CONTAINER_LATEST_IMAGE
 #    - docker tag $CONTAINER_LATEST_IMAGE registry.gitlab.com/esa/pyxel
   allow_failure: true
-  only:
-    - master
+#  only:
+#    - master
 
 
 # ###########################
