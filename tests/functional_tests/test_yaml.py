@@ -1,5 +1,5 @@
 import pytest
-import esapy_config.io as io
+import pyxel.io as io
 
 try:
     import pygmo as pg

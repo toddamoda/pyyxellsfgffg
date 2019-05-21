@@ -1,7 +1,7 @@
 """Unittests for the 'ModelFitting' class."""
 import pytest
 import numpy as np
-import esapy_config.io as io
+import pyxel.io as io
 from pyxel.calibration.fitting import ModelFitting
 from pyxel.pipelines.processor import Processor
 
