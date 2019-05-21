@@ -192,8 +192,8 @@ docker:
 #    - docker push $CONTAINER_LATEST_IMAGE
 #    - docker tag $CONTAINER_LATEST_IMAGE registry.gitlab.com/esa/pyxel
   allow_failure: true
-#  only:
-#    - master
+  only:
+    - master
 
 
 # ###########################
