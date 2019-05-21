@@ -1,6 +1,6 @@
 from pathlib import Path
 import pytest
-import esapy_config.io as io
+import pyxel.io as io
 from pyxel.pipelines.processor import Processor
 
 try:

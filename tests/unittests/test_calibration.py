@@ -1,7 +1,7 @@
 """Unittests for the 'Calibration' class."""
 
 import pytest
-import esapy_config.io as io
+import pyxel.io as io
 from pyxel.calibration.util import read_data, list_to_slice, check_ranges
 from pyxel.pipelines.processor import Processor
 
