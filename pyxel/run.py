@@ -12,7 +12,7 @@ import logging
 import time
 from pathlib import Path
 import numpy as np
-# import pyxel
+import pyxel
 import pyxel.io as io
 from pyxel.pipelines.processor import Processor
 from pyxel.detectors.cmos import CMOS
@@ -108,9 +108,8 @@ def main():
                                      description=__doc__)
 
     parser.add_argument('-v', '--verbosity', action='count', default=0, help='Increase output verbosity (-v/-vv/-vvv)')
-    # parser.add_argument('-V', '--version', action='version',
-    #                     version='Pyxel, version {version}'.format(version=pyxel.__version__))
-    # TODO: fix  AttributeError: module 'pyxel' has no attribute '__version__'
+    parser.add_argument('-V', '--version', action='version',
+                        version='Pyxel, version {version}'.format(version=pyxel.__version__))
     parser.add_argument('-c', '--config', type=str, required=True, help='Configuration file to load (YAML)')
     parser.add_argument('-s', '--seed', type=int, help='Random seed for the framework')
 
