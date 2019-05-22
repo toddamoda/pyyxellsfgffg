@@ -16,6 +16,9 @@ __all__ = ['models',
 
 __pkgname__ = 'pyxel'
 
+# TODO: Version should be defined here
+# __version__ = '0.4rc1'
+
 
 def detector_class(cls):
     """TBW."""

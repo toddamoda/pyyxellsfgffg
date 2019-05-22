@@ -12,7 +12,7 @@ import logging
 import time
 from pathlib import Path
 import numpy as np
-# import pyxel
+# from pyxel import __version__ as pyxel_version
 import pyxel.io as io
 from pyxel.pipelines.processor import Processor
 from pyxel.detectors.cmos import CMOS
@@ -102,15 +102,26 @@ def run(input_filename, random_seed: int = None):
     logger.info('Running time: %.3f seconds' % (time.time() - start_time))
 
 
+# TODO: Remove this. Get the current version from '__version__' in 'pyxel/__init__.py'
+def get_pyxel_version():
+    """Extract 'pyxel_version' from 'setup.cfg'."""
+    from setuptools.config import read_configuration
+
+    parent_folder = Path(__file__).parent
+    setup_cfg_filename = parent_folder.joinpath('../setup.cfg').resolve(strict=True)
+    metadata = read_configuration(setup_cfg_filename)['metadata']  # type: dict
+
+    return metadata['version']
+
+
 def main():
     """Define the argument parser and run Pyxel."""
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter,
                                      description=__doc__)
 
     parser.add_argument('-v', '--verbosity', action='count', default=0, help='Increase output verbosity (-v/-vv/-vvv)')
-    # parser.add_argument('-V', '--version', action='version',
-    #                     version='Pyxel, version {version}'.format(version=pyxel.__version__))
-    # TODO: fix  AttributeError: module 'pyxel' has no attribute '__version__'
+    parser.add_argument('-V', '--version', action='version',
+                        version='Pyxel, version {version}'.format(version=get_pyxel_version()))
     parser.add_argument('-c', '--config', type=str, required=True, help='Configuration file to load (YAML)')
     parser.add_argument('-s', '--seed', type=int, help='Random seed for the framework')
 
