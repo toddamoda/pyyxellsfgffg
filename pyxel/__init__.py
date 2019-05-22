@@ -15,7 +15,9 @@ __all__ = ['models',
            'validate_choices', 'validate_range', 'validate_type']
 
 __pkgname__ = 'pyxel'
-__version__ = '0.4rc1'
+
+# TODO: Version should be defined here
+# __version__ = '0.4rc1'
 
 
 def detector_class(cls):
