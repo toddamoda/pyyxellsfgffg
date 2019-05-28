@@ -36,6 +36,7 @@ dist/
 
 # Doc
 docs/html/
+blog/html/
 
 # Unit test / coverage reports
 .tox/
