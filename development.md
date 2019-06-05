@@ -54,6 +54,7 @@ Beta testing
 Documentation
 --------------
 https://esa.gitlab.io/pyxel/doc/
+Contribution guideline
 
 Validation
 ----------------

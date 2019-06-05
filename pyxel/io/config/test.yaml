@@ -45,18 +45,19 @@ pipeline:
   photon_generation:
     - name: load_image
       func: pyxel.models.photon_generation.load_image.load_image
-      enabled: true
+      enabled: false
       arguments:
         image_file: data/fits/HorseHead.fits
         fit_image_to_det: true
         convert_to_photons: true
     - name: illumination
       func: pyxel.models.photon_generation.illumination.illumination
-      enabled: false
+      enabled: true
       arguments:
-          level: 1111
+          level: 11111
           option: 'elliptic_hole'
-          hole_size: [30, 50]
+          hole_size: [50, 50]
+          hole_center: [250, 250]
     - name: shot_noise
       func: pyxel.models.photon_generation.shot_noise.shot_noise
       enabled: false
@@ -65,7 +66,7 @@ pipeline:
   optics:
     - name: optical_psf
       func: pyxel.models.optics.poppy.optical_psf
-      enabled: false
+      enabled: true
       arguments:
         fov_pixels: 30       # FOV in pixel
         pixelscale: 0.1      # micron/pixel OR arcsec/pixel
@@ -94,7 +95,7 @@ pipeline:
       enabled: true
     - name: charge_injection
       func: pyxel.models.charge_generation.charge_injection.charge_blocks
-      enabled: true
+      enabled: false
       arguments:
         charge_level: 1230
         columns: [30, 50, 60]
