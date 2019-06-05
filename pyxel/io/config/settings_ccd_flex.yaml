@@ -8,7 +8,7 @@ simulation:
   mode: single
 
   outputs:
-    output_folder:  'outputs'
+    output_folder:  'outputs/simple/flex/'
     output_format:  ['txt']
 
 detector:
@@ -17,7 +17,7 @@ detector:
   geometry:
     class: pyxel.detectors.ccd_geometry.CCDGeometry
 
-    row:   838                      # compulsory
+    row:   579                      # compulsory
     col:   1                        # compulsory
     total_thickness: 10.0           # um
     pixel_vert_size: 42.            # um
@@ -57,7 +57,7 @@ pipeline:
       enabled: true
       arguments:
         txt_file: data/flex/input/input_flex_ds7_ch0_1ke.txt
-        # fit_image_to_det: false
+        fit_image_to_det: true
         convert_to_photons: false
 
   # photons -> photons
@@ -86,14 +86,16 @@ pipeline:
         parallel_cti: true
         serial_cti: false
         charge_injection: false
-        beta_p: 0.3
+        beta_p: 2.923035E-01
         beta_s: 0.3
-        tr_p: [.014]
+        tr_p: [ 1.004007E-01, 3.055956E-04, 1.437827E-03, 2.402600E-01]
         tr_s: [2.e-3]
-        nt_p: [100.]
+        nt_p: [5.738492E+00, 6.311125E+00, 1.962352E+01, 1.952658E-01]
         nt_s: [50.]
-        sigma_p: [1.e-12]
+        sigma_p: [1.134085E-19, 1.174109E-13, 1.803825E-14, 6.166315E-16]
         sigma_s: [1.e-12]
+
+
 
   # charge -> signal
   charge_measurement:

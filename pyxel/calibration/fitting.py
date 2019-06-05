@@ -151,26 +151,51 @@ class ModelFitting:
         :param parameter: 1d np.array
         :return:
         """
-        parameter = self.update_parameter(parameter)
-        self.processor = self.update_processor(parameter)
-        if self.calibration_mode == 'pipeline':
-            self.processor.pipeline.run_pipeline(self.processor.detector)
-        # elif self.calibration_mode == 'single_model':
-        #     self.fitted_model.function(self.processor.detector)               # todo: update
+        # if the target data is a unique image, file
+        if len(self.all_target_data) < 2:
 
-        simulated_data = None
-        if self.sim_output == 'image':
-            simulated_data = self.processor.detector.image.array[self.sim_fit_range]
-        elif self.sim_output == 'signal':
-            simulated_data = self.processor.detector.signal.array[self.sim_fit_range]
-        elif self.sim_output == 'pixel':
-            simulated_data = self.processor.detector.pixels.array[self.sim_fit_range]
+            parameter = self.update_parameter(parameter)
+            self.processor = self.update_processor(parameter)
+            if self.calibration_mode == 'pipeline':
+                self.processor.pipeline.run_pipeline(self.processor.detector)
+            # elif self.calibration_mode == 'single_model':
+            #     self.fitted_model.function(self.processor.detector)               # todo: update
 
-        overall_fitness = 0.
-        for target_data in self.all_target_data:
-            overall_fitness += self.calculate_fitness(simulated_data, target_data)
+            simulated_data = None
+            if self.sim_output == 'image':
+                simulated_data = self.processor.detector.image.array[self.sim_fit_range]
+            elif self.sim_output == 'signal':
+                simulated_data = self.processor.detector.signal.array[self.sim_fit_range]
+            elif self.sim_output == 'pixel':
+                simulated_data = self.processor.detector.pixels.array[self.sim_fit_range]
 
-        self.population_and_champions(parameter, overall_fitness)
+            overall_fitness = 0.
+            for target_data in self.all_target_data:
+                overall_fitness += self.calculate_fitness(simulated_data, target_data)
+
+            self.population_and_champions(parameter, overall_fitness)
+        # in case N (> 1) targets are parsed, N simulations need to be performed
+        else:
+            parameter = self.update_parameter(parameter)
+            self.processor = self.update_processor(parameter)
+            if self.calibration_mode == 'pipeline':
+                self.processor.pipeline.run_pipeline(self.processor.detector)
+            # elif self.calibration_mode == 'single_model':
+            #     self.fitted_model.function(self.processor.detector)               # todo: update
+
+            simulated_data = None
+            if self.sim_output == 'image':
+                simulated_data = self.processor.detector.image.array[self.sim_fit_range]
+            elif self.sim_output == 'signal':
+                simulated_data = self.processor.detector.signal.array[self.sim_fit_range]
+            elif self.sim_output == 'pixel':
+                simulated_data = self.processor.detector.pixels.array[self.sim_fit_range]
+
+            overall_fitness = 0.
+            for target_data in self.all_target_data:
+                overall_fitness += self.calculate_fitness(simulated_data, target_data)
+
+            self.population_and_champions(parameter, overall_fitness)
 
         return [overall_fitness]
 

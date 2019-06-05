@@ -15,7 +15,8 @@ def load_profile(detector: Detector,
                  txt_file: str,
                  fit_image_to_det: bool = False,
                  position: t.Optional[list] = None,                        # TODO Too many arguments
-                 convert_to_photons: bool = False):
+                 convert_to_photons: bool = False,
+                 parallel: bool = True):
     r"""Load FITS file as a numpy array and add to the detector as input image.
 
     :param detector: Pyxel Detector object
@@ -28,7 +29,13 @@ def load_profile(detector: Detector,
     """
     logger = logging.getLogger('pyxel')
     logger.info('')
-    image = np.loadtxt(txt_file)
+    image = np.loadtxt(txt_file, ndmin=2)
+    # todo: make a parallel or serial profile
+    #ydim, xdim = np.shape(image)
+    #if ydim < 1:
+    #    image = np.reshape((1, xdim))
+    #if xdim < 1:
+    #    image = np.reshape((ydim, 1))
 
     if fit_image_to_det:
         if position is None:

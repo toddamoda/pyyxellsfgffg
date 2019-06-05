@@ -9,37 +9,46 @@ simulation:
 
   calibration:
     calibration_mode:     pipeline
-    result_type:          image
-    result_fit_range:     [0, 100, 0, 100]
-    target_data_path:     ['examples/CTI/input_data/cti_image/image_irradiated.fits']
-    target_fit_range:     [0, 100, 0, 100]
+    result_type:          pixel
+    result_fit_range:     [538, 578, 0, 1]
+    target_data_path:     ['data/flex/target/target_flex_ds7_ch0_1ke.txt']
+    target_fit_range:     [538, 578, 0, 1]
     seed:                 60336
     fitness_function:
       func:               pyxel.calibration.fitness.sum_of_abs_residuals
       arguments:
     algorithm:
       type:               sade
-      generations:        50
-      population_size:    200
+      generations:        20
+      population_size:    1000
       variant:            2
     parameters:
+      - key:              pipeline.charge_transfer.cdm.arguments.beta_p
+        values:           _
+        logarithmic:      false
+        boundaries:       [1.e-1, 1.]
       - key:              pipeline.charge_transfer.cdm.arguments.tr_p
-        values:           [_, _]
+        values:           [_, _, _, _]
         logarithmic:      true
-        boundaries:       [1.e-3, 1.e-1]
+        boundaries:       [100.e-6, 1.]
       - key:              pipeline.charge_transfer.cdm.arguments.nt_p
-        values:           [_, _]
+        values:           [_, _, _, _]
         logarithmic:      true
-        boundaries:       [1.e+2, 1.e+4]
+        boundaries:       [1.e-1, 1.e+2]
+      - key:              pipeline.charge_transfer.cdm.arguments.sigma_p
+        values:           [_, _, _, _]
+        logarithmic:      true
+        boundaries:       [1.e-20, 1.e-12]
 
   outputs:
-    output_folder:        'examples/CTI/output'
+    output_folder:        'outputs/cdm_calibration/flex/'
+    output_format:
     calibration_plot:
       champions_plot:
         plot_args:
-          yscale: 'log'git rest
+          yscale: 'log'
       population_plot:
-        columns: [2, 4]
+        columns: [3, 7]
         plot_args:
           xscale: 'log'
           yscale: 'log'
@@ -53,7 +62,7 @@ detector:
   geometry:
     class: pyxel.detectors.ccd_geometry.CCDGeometry
 
-    row:   838                      # compulsory
+    row:   579                      # compulsory
     col:   1                        # compulsory
     total_thickness: 10.0           # um
     pixel_vert_size: 42.            # um
@@ -93,7 +102,7 @@ pipeline:
       enabled: true
       arguments:
         txt_file: data/flex/input/input_flex_ds7_ch0_1ke.txt
-        # fit_image_to_det: false
+        fit_image_to_det: true
         convert_to_photons: false
 
   # photons -> photons
