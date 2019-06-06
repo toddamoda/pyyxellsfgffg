@@ -8,6 +8,7 @@ import typing as t   # noqa: F401
 import numpy as np
 from pyxel.calibration.util import list_to_slice, check_ranges, read_data
 from pyxel.parametric.parameter_values import ParameterValues
+from pyxel.parametric.parametric import ParametricAnalysis
 
 
 class ModelFitting:
@@ -28,6 +29,7 @@ class ModelFitting:
         self.fitness_func = None
         self.sim_output = None              # type: t.Optional[str]
         self.fitted_model = None
+        self.input_arguments = None
 
         self.n = 0
         self.g = 0
@@ -74,6 +76,12 @@ class ModelFitting:
         self.original_processor = deepcopy(self.processor)
 
         self.set_bound()
+
+        if setting['input_arguments']:
+            self.input_arguments = ParametricAnalysis(parametric_mode='sequential',
+                                                      parameters=setting['input_arguments'])
+                                                      # from_file: str = None,
+                                                      # column_range: t.List[int] = )
 
         params = 0
         for var in self.variables:

@@ -7,7 +7,8 @@ class ParameterValues:
     """TBW."""
 
     def __init__(self,
-                 key: str, values,
+                 key: str,
+                 values,
                  enabled: bool = True,
                  current=None,
                  logarithmic: bool = False,
