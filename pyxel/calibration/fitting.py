@@ -29,7 +29,7 @@ class ModelFitting:
         self.fitness_func = None
         self.sim_output = None              # type: t.Optional[str]
         self.fitted_model = None
-        self.input_arguments = None
+        self.input_arguments = None         # type: t.Optional[ParametricAnalysis]
 
         self.n = 0
         self.g = 0
@@ -80,8 +80,6 @@ class ModelFitting:
         if setting['input_arguments']:
             self.input_arguments = ParametricAnalysis(parametric_mode='sequential',
                                                       parameters=setting['input_arguments'])
-                                                      # from_file: str = None,
-                                                      # column_range: t.List[int] = )
 
         params = 0
         for var in self.variables:
