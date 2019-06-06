@@ -11,8 +11,6 @@ try:
 except ImportError:
     WITH_PYGMO = False
 
-
-
 def configure(mf, sim):
     """TBW."""
     pg.set_global_rng_seed(sim.calibration.seed)

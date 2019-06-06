@@ -78,7 +78,8 @@ class ModelFitting:
         self.set_bound()
 
         if setting['input_arguments']:
-            self.input_arguments = ParametricAnalysis(parametric_mode='sequential',
+
+            self.input_arguments = ParametricAnalysis(parametric_mode='sequential',  # TODO : parallel
                                                       parameters=setting['input_arguments'])
 
         params = 0
@@ -158,7 +159,14 @@ class ModelFitting:
         :return:
         """
         parameter = self.update_parameter(parameter)
-        self.processor = self.update_processor(parameter)
+
+        # new_processor = deepcopy(self.original_processor)   # TODO TODO
+        configs = self.input_arguments.collect(self.original_processor)
+        for new_processor in configs:
+
+            pass
+
+        self.processor = self.update_processor(parameter, new_processor)
         if self.calibration_mode == 'pipeline':
             self.processor.pipeline.run_pipeline(self.processor.detector)
         # elif self.calibration_mode == 'single_model':
@@ -196,13 +204,14 @@ class ModelFitting:
             a += b
         return parameter
 
-    def update_processor(self, parameter):
+    def update_processor(self, parameter, new_processor):
         """TBW.
 
         :param parameter:
+        :param new_processor:
         :return:
         """
-        new_processor = deepcopy(self.original_processor)
+        # new_processor = deepcopy(self.original_processor)   # TODO TODO
         a, b = 0, 0
         for var in self.variables:
             if var.values == '_':
@@ -222,7 +231,8 @@ class ModelFitting:
         :return:
         """
         parameter = self.update_parameter(parameter)        # todo : duplicated code, see fitness!
-        champion = self.update_processor(parameter)
+        new_processor = deepcopy(self.original_processor)  # TODO TODO
+        champion = self.update_processor(parameter, new_processor)
         if self.calibration_mode == 'pipeline':
             champion.pipeline.run_pipeline(champion.detector)
         # elif self.calibration_mode == 'single_model':
