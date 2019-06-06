@@ -13,30 +13,45 @@ class DetectionPipeline:
                  optics: ModelGroup = None,
                  charge_generation: ModelGroup = None,
                  charge_collection: ModelGroup = None,
+                 charge_transfer: ModelGroup = None,
                  charge_measurement: ModelGroup = None,
+                 signal_transfer: ModelGroup = None,
                  readout_electronics: ModelGroup = None,
                  _model_groups: t.List[str] = None,                        # TODO
                  doc=None) -> None:
         """TBW.
 
+        :param photon_generation:
         :param optics:
         :param charge_generation:
         :param charge_collection:
+        :param charge_transfer:
         :param charge_measurement:
+        :param signal_transfer:
         :param readout_electronics:
+        :param _model_groups:
         :param doc:
         """
         self._is_running = False
         self.doc = doc
+
         self.photon_generation = photon_generation              # type: t.Optional[ModelGroup]
         self.optics = optics                                    # type: t.Optional[ModelGroup]
         self.charge_generation = charge_generation              # type: t.Optional[ModelGroup]
         self.charge_collection = charge_collection              # type: t.Optional[ModelGroup]
         self.charge_measurement = charge_measurement            # type: t.Optional[ModelGroup]
         self.readout_electronics = readout_electronics          # type: t.Optional[ModelGroup]
+        self.charge_transfer = charge_transfer                  # type: t.Optional[ModelGroup]  # CCD
+        self.signal_transfer = signal_transfer                  # type: t.Optional[ModelGroup]  # CMOS
 
-        self._model_groups = []                                 # type: t.List[str]           # TODO
-        # self._log = logging.getLogger(__name__)
+        self._model_groups = ['photon_generation',
+                              'optics',
+                              'charge_generation',
+                              'charge_collection',
+                              'charge_transfer',
+                              'charge_measurement',
+                              'signal_transfer',
+                              'readout_electronics']            # type: t.List[str]           # TODO
 
     def __getstate__(self):
         """TBW."""
@@ -45,8 +60,11 @@ class DetectionPipeline:
             'optics': self.optics,
             'charge_generation': self.charge_generation,
             'charge_collection': self.charge_collection,
+            'charge_transfer': self.charge_transfer,
             'charge_measurement': self.charge_measurement,
+            'signal_transfer': self.signal_transfer,
             'readout_electronics': self.readout_electronics,
+            '_model_groups': self.model_group_names,              # TODO
         }
 
     @property

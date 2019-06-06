@@ -1,7 +1,13 @@
 """TBW."""
 import logging
 import numpy as np
-import pygmo as pg
+try:
+    import pygmo as pg
+except ImportError:
+    import warnings
+    warnings.warn("Cannot import 'pygmo", RuntimeWarning, stacklevel=2)
+
+
 import pyxel as pyx
 from pyxel.calibration.fitting import ModelFitting
 from pyxel.pipelines.model_function import ModelFunction

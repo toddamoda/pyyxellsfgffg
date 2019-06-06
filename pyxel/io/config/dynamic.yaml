@@ -1,0 +1,115 @@
+################
+# Pyxel configuration file for TESTING, EXPERIMENTING
+# David Lucsanyi
+################
+
+simulation:
+  mode: dynamic
+
+  dynamic:
+    non_destructive_readout:  true
+    t_steps: 20
+    t_start: 1.
+    t_end: 10.
+
+  outputs:
+    output_folder:  outputs
+    output_format:
+
+
+cmos_detector:
+
+  geometry:
+    row:   100                   #
+    col:   100                   #
+    total_thickness: 40.         # um
+    pixel_vert_size: 10.         # um
+    pixel_horz_size: 10.         # um
+
+  material:
+    material: silicon
+    trapped_charge: data/cmos_trapped_charge.npy
+
+  environment:
+    temperature: 273.
+
+  characteristics:
+    qe: 0.5                 # -
+    eta: 1.                 # e/photon
+    sv: 3e-6                # V/e
+    amp: 10.                # V/V
+    a1: 100.                # V/V
+    a2: 10000               # DN/V
+    fwc: 1000000            # e
+
+
+pipeline:
+
+  # photon -> photon
+  photon_generation:
+
+    - name: illumination
+      func: pyxel.models.photon_generation.illumination.illumination
+      enabled: true
+      arguments:
+        level: 100
+        option: elliptic_hole
+        hole_size: [10, 10]
+        hole_center: [5, 5]
+    - name: shot_noise
+      func: pyxel.models.photon_generation.shot_noise.shot_noise
+      enabled: false
+
+  # photon -> photon
+  optics:
+    - name: alignment
+      func: pyxel.models.optics.alignment.alignment
+      enabled: true
+
+  # photon -> charge
+  charge_generation:
+
+    - name: photoelectrons
+      func: pyxel.models.charge_generation.photoelectrons.simple_conversion
+      enabled: true
+
+  # charge -> pixel
+  charge_collection:
+
+    - name: full_well
+      func: pyxel.models.charge_collection.full_well.simple_full_well
+      enabled: false
+    - name: simple_collection
+      func: pyxel.models.charge_collection.collection.simple_collection
+      enabled: true
+
+    - name: persistence
+      func: pyxel.models.charge_collection.persistence.simple_persistence
+      enabled: true
+      arguments:
+#        trap_density: [5.9e-1, 1.7e-1, 1.5e-1, 1.55e-1, 1.3e-2]
+#        trap_timeconstant: [1, 10, 100, 1000, 10000]
+        trap_density: [10.]
+        trap_timeconstant: [1.]
+
+  # pixel -> signal
+  charge_measurement:
+    - name: simple_measurement
+      func: pyxel.models.charge_measurement.measurement.simple_measurement
+      enabled: true
+    - name: output_node_noise
+      func: pyxel.models.charge_measurement.readout_noise.output_node_noise
+      enabled: false
+      arguments:
+        std_deviation: 5.e-7
+
+  # signal -> image
+  readout_electronics:
+    - name: simple_amplifier
+      func: pyxel.models.readout_electronics.amplification.simple_amplifier
+      enabled: true
+    - name: simple_digitization
+      func: pyxel.models.readout_electronics.digitization.simple_digitization
+      enabled: true
+      arguments:
+        data_type: numpy.uint32

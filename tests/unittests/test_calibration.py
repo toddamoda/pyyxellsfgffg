@@ -1,12 +1,18 @@
 """Unittests for the 'Calibration' class."""
 
 import pytest
-import pygmo as pg
-import esapy_config.io as io
+import pyxel.io as io
 from pyxel.calibration.util import read_data, list_to_slice, check_ranges
 from pyxel.pipelines.processor import Processor
 
+try:
+    import pygmo as pg
+    WITH_PYGMO = True
+except ImportError:
+    WITH_PYGMO = False
 
+
+@pytest.mark.skipif(not WITH_PYGMO, reason="Package 'pygmo' is not installed.")
 @pytest.mark.parametrize('yaml',
                          [
                              'tests/data/calibrate.yaml',
@@ -106,6 +112,7 @@ def test_check_ranges(targ_range, out_range, row, col):
         check_ranges(targ_range, out_range, row, col)
 
 
+@pytest.mark.skipif(not WITH_PYGMO, reason="Package 'pygmo' is not installed.")
 @pytest.mark.parametrize('yaml',
                          [
                              'tests/data/calibrate_models.yaml'
@@ -113,7 +120,7 @@ def test_check_ranges(targ_range, out_range, row, col):
 def test_run_calibration(yaml):
     """Test """
     cfg = io.load(yaml)
-    detector = cfg['detector']
+    detector = cfg['ccd_detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']

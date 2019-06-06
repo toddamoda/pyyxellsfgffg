@@ -1,10 +1,16 @@
 """Unittests for the 'ModelFitting' class."""
 import pytest
 import numpy as np
-import esapy_config.io as io
-import pygmo as pg
+import pyxel.io as io
 from pyxel.calibration.fitting import ModelFitting
 from pyxel.pipelines.processor import Processor
+
+try:
+    import pygmo as pg
+    WITH_PYGMO = True
+except ImportError:
+    WITH_PYGMO = False
+
 
 
 def configure(mf, sim):
@@ -27,6 +33,7 @@ def configure(mf, sim):
     mf.configure(settings)
 
 
+@pytest.mark.skipif(not WITH_PYGMO, reason="Package 'pygmo' is not installed.")
 @pytest.mark.parametrize('yaml_file',
                          [
                              'tests/data/calibrate.yaml',
@@ -34,7 +41,7 @@ def configure(mf, sim):
 def test_configure_params(yaml_file):
     """Test """
     cfg = io.load(yaml_file)
-    detector = cfg['detector']
+    detector = cfg['ccd_detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']
@@ -51,6 +58,7 @@ def test_configure_params(yaml_file):
     assert mf.sim_output == 'image'
 
 
+@pytest.mark.skipif(not WITH_PYGMO, reason="Package 'pygmo' is not installed.")
 @pytest.mark.parametrize('yaml',
                          [
                              'tests/data/calibrate_fits.yaml',
@@ -58,7 +66,7 @@ def test_configure_params(yaml_file):
 def test_configure_fits_target(yaml):
     """Test """
     cfg = io.load(yaml)
-    detector = cfg['detector']
+    detector = cfg['ccd_detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']
@@ -74,6 +82,7 @@ def test_configure_fits_target(yaml):
                                   np.around(expected, decimals=4))
 
 
+@pytest.mark.skipif(not WITH_PYGMO, reason="Package 'pygmo' is not installed.")
 @pytest.mark.parametrize('yaml',
                          [
                              'tests/data/calibrate.yaml',
@@ -82,7 +91,7 @@ def test_configure_fits_target(yaml):
 def test_boundaries(yaml):
     """Test """
     cfg = io.load(yaml)
-    detector = cfg['detector']
+    detector = cfg['ccd_detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']
@@ -99,6 +108,7 @@ def test_boundaries(yaml):
     assert uu == ubd_expected
 
 
+@pytest.mark.skipif(not WITH_PYGMO, reason="Package 'pygmo' is not installed.")
 @pytest.mark.parametrize('simulated_data, target_data, expected_fitness',
                          [
                              (231, 231, 0.),
@@ -117,7 +127,7 @@ def test_boundaries(yaml):
 def test_calculate_fitness(simulated_data, target_data, expected_fitness):
     """Test"""
     cfg = io.load('tests/data/calibrate.yaml')
-    detector = cfg['detector']
+    detector = cfg['ccd_detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']
@@ -128,6 +138,7 @@ def test_calculate_fitness(simulated_data, target_data, expected_fitness):
     print('fitness: ', fitness)
 
 
+@pytest.mark.skipif(not WITH_PYGMO, reason="Package 'pygmo' is not installed.")
 @pytest.mark.parametrize('yaml, factor, expected_fitness',
                          [
                              ('tests/data/calibrate_weighting.yaml', 1, 0.),
@@ -137,7 +148,7 @@ def test_calculate_fitness(simulated_data, target_data, expected_fitness):
 def test_weighting(yaml, factor, expected_fitness):
     """Test"""
     cfg = io.load(yaml)
-    detector = cfg['detector']
+    detector = cfg['ccd_detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']
@@ -153,6 +164,7 @@ def custom_fitness_func(sim, targ):
     return np.sum(targ * 2 - sim / 2 + 1.)
 
 
+@pytest.mark.skipif(not WITH_PYGMO, reason="Package 'pygmo' is not installed.")
 @pytest.mark.parametrize('yaml, simulated_data, target_data, expected_fitness',
                          [
                              ('tests/data/calibrate_custom_fitness.yaml',
@@ -165,7 +177,7 @@ def custom_fitness_func(sim, targ):
 def test_custom_fitness(yaml, simulated_data, target_data, expected_fitness):
     """Test"""
     cfg = io.load(yaml)
-    detector = cfg['detector']
+    detector = cfg['ccd_detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']
@@ -176,6 +188,7 @@ def test_custom_fitness(yaml, simulated_data, target_data, expected_fitness):
     print('fitness: ', fitness)
 
 
+@pytest.mark.skipif(not WITH_PYGMO, reason="Package 'pygmo' is not installed.")
 @pytest.mark.parametrize('yaml, parameter, expected_fitness',
                          [
                              ('tests/data/calibrate_models.yaml',
@@ -186,7 +199,7 @@ def test_custom_fitness(yaml, simulated_data, target_data, expected_fitness):
 def test_fitness(yaml, parameter, expected_fitness):
     """Test"""
     cfg = io.load(yaml)
-    detector = cfg['detector']
+    detector = cfg['ccd_detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']
@@ -197,6 +210,7 @@ def test_fitness(yaml, parameter, expected_fitness):
     print('fitness: ', overall_fitness[0])
 
 
+@pytest.mark.skipif(not WITH_PYGMO, reason="Package 'pygmo' is not installed.")
 @pytest.mark.parametrize('yaml, parameter, expected_array',
                          [
                              ('tests/data/calibrate_models.yaml', np.arange(16.),
@@ -212,7 +226,7 @@ def test_fitness(yaml, parameter, expected_fitness):
 def test_split_and_update(yaml, parameter, expected_array):
     """Test"""
     cfg = io.load(yaml)
-    detector = cfg['detector']
+    detector = cfg['ccd_detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']
@@ -222,6 +236,7 @@ def test_split_and_update(yaml, parameter, expected_array):
     np.testing.assert_array_equal(array, expected_array)
 
 
+@pytest.mark.skipif(not WITH_PYGMO, reason="Package 'pygmo' is not installed.")
 @pytest.mark.parametrize('yaml, param_array',
                          [
                              ('tests/data/calibrate_models.yaml',
@@ -237,7 +252,7 @@ def test_split_and_update(yaml, parameter, expected_array):
 def test_detector_and_model_update(yaml, param_array):
     """Test"""
     cfg = io.load(yaml)
-    detector = cfg['detector']
+    detector = cfg['ccd_detector']
     pipeline = cfg['pipeline']
     processor = Processor(detector, pipeline)
     simulation = cfg['simulation']

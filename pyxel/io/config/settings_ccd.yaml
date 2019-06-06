@@ -8,16 +8,12 @@ simulation:
   mode: single
 
   outputs:
-    output_folder:  'outputs'
-    save_to_file:
-      - detector.image.array:   [fits, png]
+    output_folder:  outputs
+    output_format:
 
-detector:
-  class: pyxel.detectors.ccd.CCD
+ccd_detector:
 
   geometry:
-    class: pyxel.detectors.ccd_geometry.CCDGeometry
-
     row:   100
     col:   100
     total_thickness: 40.    # um
@@ -25,17 +21,14 @@ detector:
     pixel_horz_size: 10.    # um
 
   material:
-    class: pyxel.detectors.material.Material
-    material: 'silicon'
+    material: silicon
     n_acceptor: 0.0               # cm-3
     n_donor: 0.0                  # cm-3
 
   environment:
-    class: pyxel.detectors.environment.Environment
     temperature: 300                     # K
 
   characteristics:
-    class: pyxel.detectors.ccd_characteristics.CCDCharacteristics
     qe: 0.5                 # -
     eta: 0.5                # e/photon
     sv: 1.0e-6              # V/e
@@ -50,7 +43,6 @@ detector:
     st: 9.4722e-04          # s
 
 pipeline:
-  class: pyxel.pipelines.ccd_pipeline.CCDDetectionPipeline
 
   # -> photon
   photon_generation:
@@ -89,7 +81,7 @@ pipeline:
         particle_number: 10
         incident_angles:      # rad
         starting_position:    # um
-        spectrum_file: 'pyxel/models/charge_generation/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt'
+        spectrum_file: pyxel/models/charge_generation/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt
     - name: charge_injection
       func: pyxel.models.charge_generation.charge_injection.charge_injection
       enabled: false

@@ -134,7 +134,8 @@ class Configuration:
     def __init__(self, mode,
                  outputs=None,
                  parametric=None,
-                 calibration=None
+                 calibration=None,
+                 dynamic=None
                  ) -> None:
         """TBW.
 
@@ -142,7 +143,7 @@ class Configuration:
         :param parametric:
         :param calibration:
         """
-        if mode in ['single', 'parametric', 'calibration']:
+        if mode in ['single', 'parametric', 'calibration', 'dynamic']:
             self.mode = mode
         else:
             raise ValueError('Non-existing running mode defined for Pyxel in yaml config file.')
@@ -150,3 +151,4 @@ class Configuration:
         self.outputs = outputs
         self.parametric = parametric
         self.calibration = calibration
+        self.dynamic = dynamic

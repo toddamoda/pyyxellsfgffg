@@ -49,3 +49,35 @@ class CMOS(Detector):
                          pixel=pixel,
                          signal=signal,
                          image=image)
+
+        self.start_time = 0.                        # type: float
+        self.end_time = 0.                          # type: float
+        self.time_steps = 0                         # type: int
+        self.time = 0.                              # type: float
+
+        self._dynamic = False                       # type: bool
+        self._non_destructive = False               # type: bool
+
+    def set_dynamic(self, start_time: float, end_time: float, time_steps: int, ndreadout=False):
+        """Switch on dynamic (time dependent) mode."""
+        self._dynamic = True                        # type: bool
+        self.start_time = start_time                # type: float
+        self.end_time = end_time                    # type: float
+        self.time_steps = time_steps                # type: int
+        self._non_destructive = ndreadout           # type: bool
+
+    @property
+    def is_dynamic(self):
+        """Return if detector is dynamic (time dependent) or not.
+
+        By default it is not dynamic.
+        """
+        return self._dynamic
+
+    @property
+    def is_non_destructive_readout(self):
+        """Return if detector readout mode is destructive or integrating.
+
+        By default it is destructive (non-integrating).
+        """
+        return self._non_destructive

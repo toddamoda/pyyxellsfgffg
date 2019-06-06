@@ -12,6 +12,12 @@ stages:
   - build
   - deploy
 
+
+before_script:
+  - export TZ=Europe/Amsterdam
+  - date
+
+
 # ###########################
 # Test Stage
 # ###########################
@@ -44,10 +50,10 @@ python37:
   image: python:3.7
   stage: test
   script:
-    - pip install pytest
-    - pip install -r requirements.txt
-    - pip freeze
-    - pytest --color=yes --full-trace --showlocals --verbose
+    - python -V
+    - pip install tox
+    - tox -e py37-extra_no-pyyaml_3.13
+    - tox -e py37-extra_no-pyyaml_last
   allow_failure: true
 
 
@@ -56,27 +62,27 @@ python36:
   image: python:3.6
   stage: test
   script:
-    - pip install pytest
-    - pip install -r requirements.txt
-    - pip freeze
-    - pytest --color=yes --full-trace --showlocals --verbose
+    - python -V
+    - pip install tox
+    - tox -e py36-extra_no-pyyaml_3.13
+    - tox -e py36-extra_no-pyyaml_last
   allow_failure: false
 
 
 # Run mypy
 mypy:
-  image: python:3.6
+  image: python:3
   stage: test
   script:
-    - pip install mypy
-    - pip freeze
-    - mypy pyxel
+    - python -V
+    - pip install tox
+    - tox -e mypy
   allow_failure: true
 
 
 # Run pylint (with pytest) and generate HTML report
 lint:
-  image: python:3.6
+  image: python:3
   stage: test
   script:
     - pip install pytest-pylint pytest-html
@@ -91,22 +97,22 @@ lint:
 
 
 flake8:
-  image: python:3.6
+  image: python:3
   stage: test
   script:
-    - pip install flake8 flake8-docstrings pep8-naming
-    - pip freeze
-    - flake8 pyxel
+    - python -V
+    - pip install tox
+    - tox -e flake8
   allow_failure: false
 
 
 doc8:
-  image: python:3.6
+  image: python:3
   stage: test
   script:
-    - pip install sphinx doc8
-    - pip freeze
-    - doc8 docs/source
+    - python -V
+    - pip install tox
+    - tox -e doc8
   allow_failure: false
 
 

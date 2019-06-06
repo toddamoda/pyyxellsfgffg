@@ -1,4 +1,5 @@
 """Geometry class for detector."""
+import numpy as np
 import pyxel as pyx
 
 # Universal global constants
@@ -29,6 +30,21 @@ class Material:
     #     """Setting material."""
     #     if self.material:
     #         self.set_material(self.material)
+
+    def load_numpy_array(self, attr=None, path=None):
+        """Create Numpy array storing data temporarily."""
+        if isinstance(path, str):
+            if pyx.check_path(path):
+                if path.endswith('.npy'):
+                    setattr(self, '_' + attr, np.load(path))
+
+    trapped_charge = pyx.attribute(
+        type=str,
+        default=None,
+        on_change=load_numpy_array,
+        # validator=[(pyx.validate_type(str) or pyx.validate_type(np.ndarray))], <<< this does not work
+        doc='Numpy array storing the trap density temporarily'
+    )
 
     n_acceptor = pyx.attribute(
         type=float,

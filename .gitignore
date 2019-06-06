@@ -14,11 +14,16 @@ examples/*/
 # Geant4 i/o files
 *.mac
 *.ascii
+*.csv
+pyxel/models/charge_generation/tars/data/*
 
 # Pycharm, Byte-compiled
 */__pycache__/*
 *.pyc
 .idea/
+
+# Visual Studio Code
+.vscode/
 
 # Distribution / packaging
 build/
@@ -41,3 +46,14 @@ pylint_report.html
 
 # Jupyter Notebook
 .ipynb_checkpoints
+
+# mypy
+.mypy_cache/
+
+# Environments
+.env
+.venv/
+
+# Pipenv
+Pipfile
+Pipfile.lock

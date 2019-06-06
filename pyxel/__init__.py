@@ -1,15 +1,10 @@
 """Pyxel detector simulation framework."""
 import os
-# import logging
 import typing as t
 import esapy_config.checkers as checkers
 import esapy_config.validators as validators
 import esapy_config.funcargs as funcargs
 import esapy_config.config as config
-import esapy_config.io as io
-# from pyxel.detectors.detector import Detector
-# from pyxel.detectors.ccd import CCD
-# from pyxel.detectors.cmos import CMOS
 
 
 __all__ = ['models',
@@ -19,16 +14,15 @@ __all__ = ['models',
            'check_type', 'check_path', 'check_range', 'check_choices',
            'validate_choices', 'validate_range', 'validate_type']
 
-__appname__ = 'Pyxel'
-__author__ = 'David Lucsanyi'
-__author_email__ = 'david.lucsanyi@esa.int'
 __pkgname__ = 'pyxel'
-__version__ = '0.3'
+
+# TODO: Version should be defined here
+# __version__ = '0.4rc1'
 
 
 def detector_class(cls):
     """TBW."""
-    return config.attr_class(maybe_cls=cls)
+    return config.attr_class(maybe_cls=cls, init_set=True)
 
 
 def attribute(doc: t.Optional[str] = None,
@@ -122,37 +116,3 @@ def validate_type(att_type, is_optional: bool = False):
     """TBW."""
     return validators.validate_type(att_type=att_type,
                                     is_optional=is_optional)
-
-
-def pyxel_yaml_loader():
-    """TBW."""
-    from pyxel.parametric.parametric import Configuration
-    from pyxel.parametric.parametric import ParametricAnalysis
-    from pyxel.parametric.parameter_values import ParameterValues
-    from pyxel.calibration.calibration import Calibration
-    from pyxel.calibration.calibration import Algorithm
-    from pyxel.pipelines.model_function import ModelFunction
-    from pyxel.pipelines.model_group import ModelGroup
-    from pyxel.util import Outputs
-
-    io.ObjectModelLoader.add_class_ref(['detector', 'class'])
-    io.ObjectModelLoader.add_class_ref(['detector', None, 'class'])
-
-    io.ObjectModelLoader.add_class_ref(['pipeline', 'class'])
-    io.ObjectModelLoader.add_class(ModelGroup, ['pipeline', None])
-    io.ObjectModelLoader.add_class(ModelFunction, ['pipeline', None, None])
-
-    io.ObjectModelLoader.add_class(Configuration, ['simulation'])
-
-    io.ObjectModelLoader.add_class(Outputs, ['simulation', 'outputs'])
-
-    io.ObjectModelLoader.add_class(ParametricAnalysis, ['simulation', 'parametric'])
-    io.ObjectModelLoader.add_class(ParameterValues, ['simulation', 'parametric', 'parameters'], is_list=True)
-
-    io.ObjectModelLoader.add_class(Calibration, ['simulation', 'calibration'])
-    io.ObjectModelLoader.add_class(Algorithm, ['simulation', 'calibration', 'algorithm'])
-    io.ObjectModelLoader.add_class(ModelFunction, ['simulation', 'calibration', 'fitness_function'])
-    io.ObjectModelLoader.add_class(ParameterValues, ['simulation', 'calibration', 'parameters'], is_list=True)
-
-
-pyxel_yaml_loader()
