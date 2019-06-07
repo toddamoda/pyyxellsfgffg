@@ -81,19 +81,19 @@ def run(input_filename, random_seed: int = None):
             simulation.dynamic['non_destructive_readout'] = False
         detector.set_dynamic(start_time=simulation.dynamic['t_start'],
                              end_time=simulation.dynamic['t_end'],
-                             time_steps=simulation.dynamic['t_steps'],
+                             steps=simulation.dynamic['steps'],
                              ndreadout=simulation.dynamic['non_destructive_readout'])
-        for detector.time in np.linspace(detector.start_time, detector.end_time,
-                                         num=detector.time_steps, endpoint=True):
+        all_time_steps, detector.last_time_step = np.linspace(detector.start_time, detector.end_time,
+                                                              retstep=True, num=detector.steps, endpoint=True)
+        for detector.time in all_time_steps[1:]:
             logger.info('time = %.2e s' % detector.time)
             if detector.is_non_destructive_readout:
                 detector.initialize(reset_all=False)
             else:
                 detector.initialize(reset_all=True)
             processor.pipeline.run_pipeline(detector)
-            if out:
+            if out and detector.read_out:
                 out.single_output(processor)
-        pass
 
     else:
         raise ValueError

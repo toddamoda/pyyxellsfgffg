@@ -8,18 +8,12 @@ simulation:
 
   dynamic:
     non_destructive_readout:  true
-    t_steps: 5
-    t_start: 1.
+    steps: 21
+    t_start: 0.
     t_end: 10.
 
   outputs:
-    output_folder:  'outputs'
-    save_to_file:
-      - detector.image.array:   [fits]
-#      - detector.signal.array:  [npy, txt]
-      - detector.charge.frame:  [csv]
-#      - detector.photon.array:
-#      - detector:               [hdf]
+    output_folder:  outputs
 
 
 cmos_detector:
@@ -133,3 +127,10 @@ pipeline:
       enabled: true
       arguments:
         data_type: numpy.uint32
+
+    - name: non_destructive_readout
+      func: pyxel.models.readout_electronics.cmos_readout_modes.non_destructive_readout
+      enabled: true
+      arguments:
+        mode: CDS   # uncorrelated  # Fowler-N
+        fowler_samples: 1
