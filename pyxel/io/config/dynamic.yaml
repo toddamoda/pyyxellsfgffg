@@ -14,7 +14,6 @@ simulation:
 
   outputs:
     output_folder:  outputs
-    output_format:
 
 
 cmos_detector:
