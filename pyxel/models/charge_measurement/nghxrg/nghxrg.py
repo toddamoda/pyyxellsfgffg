@@ -131,6 +131,7 @@ def display_noisepsd(array, nb_output, dimension, noise_name, mode='plot'):
         # output_data = data_corr[:,int(i*(nbcols_p_channel)):
         #                         int((i+1)*(nbcols_p_channel))].flatten()
 
+        print(output_data, read_freq, nperseg)
         # Add periodogram to the previously initialized array
         f_vect, pxx_outputs[i] = signal.welch(output_data,
                                               read_freq,
