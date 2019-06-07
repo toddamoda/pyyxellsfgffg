@@ -19,12 +19,12 @@ simulation:
 cmos_detector:
 
   geometry:
-    row: 100                      # pixels
-    col: 100                      # pixels
+    row: 2048                      # pixels
+    col: 2048                      # pixels
     total_thickness: 10.         # um
     pixel_vert_size: 10.         # um
     pixel_horz_size: 10.         # um
-    n_output: 4
+    n_output: 42
     n_row_overhead: 0
     n_frame_overhead: 0
     reverse_scan_direction: False
@@ -53,7 +53,7 @@ pipeline:
       func: pyxel.models.photon_generation.load_image.load_image
       enabled: false
       arguments:
-        image_file: 
+        image_file:
         fit_image_to_det: false
         convert_to_photons: true
 
@@ -88,26 +88,26 @@ pipeline:
 
   # charge -> signal
   charge_measurement:
-    - name: nghxrg
-      func: pyxel.models.charge_measurement.nghxrg.nghxrg.nghxrg
-      enabled: true
-      arguments:
-        noise:
-          - ktc_bias_noise: true
-            ktc_noise: 29.
-            bias_offset: 5000.
-            bias_amp: 500.
-          - white_read_noise: false
-            rd_noise: 40.
-            ref_pixel_noise_ratio: 8.
-          - corr_pink_noise: true
-            c_pink: 30.
-          - uncorr_pink_noise: true
-            u_pink: 20.
-          - acn_noise: true
-            acn: 50.
-          - pca_zero_noise: true
-            pca0_amp: 45.
+    # - name: nghxrg
+    #   func: pyxel.models.charge_measurement.nghxrg.nghxrg.nghxrg
+    #   enabled: true
+    #   arguments:
+    #     noise:
+    #       - ktc_bias_noise: true
+    #         ktc_noise: 29.
+    #         bias_offset: 5000.
+    #         bias_amp: 500.
+    #       - white_read_noise: false
+    #         rd_noise: 40.
+#            ref_pixel_noise_ratio: 8.
+#          - corr_pink_noise: true
+#            c_pink: 30.
+#          - uncorr_pink_noise: true
+#            u_pink: 20.
+#          - acn_noise: true
+#            acn: 50.
+#          - pca_zero_noise: true
+#            pca0_amp: 45.
 
     - name: simple_measurement
       func: pyxel.models.charge_measurement.measurement.simple_measurement

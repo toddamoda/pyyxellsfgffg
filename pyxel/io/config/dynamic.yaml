@@ -30,7 +30,7 @@ cmos_detector:
     trapped_charge: data/cmos_trapped_charge.npy
 
   environment:
-    temperature: 273.
+    temperature: 200.
 
   characteristics:
     qe: 0.5                 # -
@@ -40,6 +40,16 @@ cmos_detector:
     a1: 100.                # V/V
     a2: 10000               # DN/V
     fwc: 1000000            # e
+    # Adding new characteristics gives a detector.characteristics as None
+    # bug in photoelectrons.py where ch.qe doesn't exist with a NoneType object...
+    # Solution need to change cmos_characteristics.py to include those variable
+    # and their range
+    cutoff: 2.5                  # um
+    vbiaspower: 3.350        # V
+    dsub: 0.500              # V
+    vreset: 0.250            # V
+    biasgate: 2.300          # V
+    preampref: 1.700         # V Reference voltage for the preamp [VRefMain for ASIC]
 
 
 pipeline:
@@ -71,6 +81,11 @@ pipeline:
     - name: photoelectrons
       func: pyxel.models.charge_generation.photoelectrons.simple_conversion
       enabled: true
+
+    - name: darkcurrent
+      enabled: true
+      func: pyxel.models.charge_generation.darkcurrent.darkcurrent_rule07
+      
 
   # charge -> pixel
   charge_collection:
