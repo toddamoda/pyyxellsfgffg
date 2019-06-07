@@ -8,8 +8,8 @@ simulation:
 
   dynamic:
     non_destructive_readout:  true
-    t_steps: 20
-    t_start: 1.
+    steps: 21
+    t_start: 0.
     t_end: 10.
 
   outputs:
@@ -112,3 +112,10 @@ pipeline:
       enabled: true
       arguments:
         data_type: numpy.uint32
+
+    - name: non_destructive_readout
+      func: pyxel.models.readout_electronics.cmos_readout_modes.non_destructive_readout
+      enabled: true
+      arguments:
+        mode: CDS   # uncorrelated  # Fowler-N
+        fowler_samples: 1

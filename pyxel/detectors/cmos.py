@@ -59,6 +59,8 @@ class CMOS(Detector):
         self._dynamic = False                       # type: bool
         self._non_destructive = False               # type: bool
 
+        self.read_out = True                        # type: bool
+
     def set_dynamic(self, start_time: float, end_time: float, steps: int, ndreadout=False):
         """Switch on dynamic (time dependent) mode."""
         self._dynamic = True                        # type: bool
