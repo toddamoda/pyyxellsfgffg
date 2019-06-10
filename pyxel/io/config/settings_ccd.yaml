@@ -14,8 +14,8 @@ simulation:
 ccd_detector:
 
   geometry:
-    row:   100
-    col:   100
+    row:   1024
+    col:   1024
     total_thickness: 40.    # um
     pixel_vert_size: 10.    # um
     pixel_horz_size: 10.    # um
