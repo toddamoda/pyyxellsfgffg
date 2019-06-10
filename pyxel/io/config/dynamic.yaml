@@ -8,8 +8,9 @@ simulation:
 
   dynamic:
     non_destructive_readout:  true
-    steps: 21
-    t_start: 0.
+    steps: 10
+    t_step: 2.1
+#    t_start: 0.
     t_end: 10.
 
   outputs:

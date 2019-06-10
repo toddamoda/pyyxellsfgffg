@@ -75,17 +75,27 @@ def run(input_filename, random_seed: int = None):
         if not isinstance(detector, CMOS):
             raise TypeError('Dynamic mode only works with CMOS detector!')
         logger.info('Mode: Dynamic')
-        if 't_start' not in simulation.dynamic:
-            simulation.dynamic['t_start'] = 0.
+        # if 't_start' not in simulation.dynamic:
+        #     simulation.dynamic['t_start'] = 0.
         if 'non_destructive_readout' not in simulation.dynamic:
             simulation.dynamic['non_destructive_readout'] = False
-        detector.set_dynamic(start_time=simulation.dynamic['t_start'],
-                             end_time=simulation.dynamic['t_end'],
+
+        all_time_steps = []
+        # if 'steps' in simulation.dynamic and 't_end' in simulation.dynamic:
+        #     pass
+        #     # all_time_steps, detector.last_time_step = np.linspace(detector.start_time, detector.end_time, retstep=True,
+        #     #                                                       num=detector.steps, endpoint=True)
+        if 't_step' in simulation.dynamic and 'steps' in simulation.dynamic:
+            simulation.dynamic['t_end'] = simulation.dynamic['steps'] * simulation.dynamic['t_step']
+            all_time_steps = np.arange(simulation.dynamic['t_step'],
+                                       simulation.dynamic['t_end'],
+                                       simulation.dynamic['t_step'])
+        detector.set_dynamic(end_time=simulation.dynamic['t_end'],
                              steps=simulation.dynamic['steps'],
+                             time_step=simulation.dynamic['t_step'],
                              ndreadout=simulation.dynamic['non_destructive_readout'])
-        all_time_steps, detector.last_time_step = np.linspace(detector.start_time, detector.end_time,
-                                                              retstep=True, num=detector.steps, endpoint=True)
-        for detector.time in all_time_steps[1:]:
+
+        for detector.time in all_time_steps:
             logger.info('time = %.2e s' % detector.time)
             if detector.is_non_destructive_readout:
                 detector.initialize(reset_all=False)
