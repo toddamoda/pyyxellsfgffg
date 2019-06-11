@@ -191,7 +191,7 @@ blog:
   # stage: build
   stage: dummy
   script:
-    - export HUGO_ARCHIVE="hugo_${HUGO_VERSION_Linux}-64bit.tar.gz"
+    - export HUGO_ARCHIVE="hugo_${HUGO_VERSION}_Linux-64bit.tar.gz"
     - export HUGO_CACHE="${CI_PROJECT_DIR}/.cache"
     - export HUGO_ARCHIVE_FULL="${HUGO_CACHE}/${HUGO_ARCHIVE}"
     - export HUGO_URL="https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_ARCHIVE}"
