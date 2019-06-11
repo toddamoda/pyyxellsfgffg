@@ -198,6 +198,8 @@ blog:
 
     - export
 
+    - ls
+
     # Download HUGO
     - test -e $HUGO_ARCHIVE_FULL || wget -P $HUGO_CACHE $HUGO_URL
     
