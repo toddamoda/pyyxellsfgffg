@@ -7,6 +7,11 @@
 #    PYPI_PASSWORD: SECURE
 #    CONTAINER_LATEST_IMAGE: gitlab.esa.int:4567/sci-fv/pyxel:latest
 
+variables:
+  # Change pip's cache directory to be inside the project directory.
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache"
+
+
 stages:
   - test
   - build
@@ -17,6 +22,10 @@ before_script:
   - export TZ=Europe/Amsterdam
   - date
 
+# Use for temporary storage for project dependencies(e.g. pypi packages...)
+cache:
+  paths:
+    - .cache/
 
 # ###########################
 # Test Stage
