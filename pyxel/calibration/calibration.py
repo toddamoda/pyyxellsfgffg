@@ -150,7 +150,7 @@ class Calibration:
     )
     result_input_arguments = pyx.attribute(
         type=list,
-        validator=[pyx.validate_type(list)],
+        # validator=[pyx.validate_type(list)],
         default=None,
         doc=''
     )

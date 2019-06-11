@@ -256,7 +256,7 @@ def test_detector_and_model_update(yaml, param_array):
     simulation = cfg['simulation']
     mf = ModelFitting(processor, simulation.calibration.parameters)
     configure(mf, simulation)
-    mf.processor = mf.update_processor(param_array)
+    mf.processor = mf.update_processor(param_array)  # TODO FIX
     attributes = [
         mf.processor.detector.characteristics.amp,
         mf.processor.pipeline.charge_transfer.models[0].arguments['tr_p'],

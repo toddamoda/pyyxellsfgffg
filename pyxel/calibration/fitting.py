@@ -77,7 +77,7 @@ class ModelFitting:
 
         self.set_bound()
 
-        if setting['input_arguments']:
+        if 'input_arguments' in setting and setting['input_arguments']:
 
             self.input_arguments = ParametricAnalysis(parametric_mode='sequential',  # TODO : parallel
                                                       parameters=setting['input_arguments'])
@@ -160,11 +160,13 @@ class ModelFitting:
         """
         parameter = self.update_parameter(parameter)
 
-        # new_processor = deepcopy(self.original_processor)   # TODO TODO
-        configs = self.input_arguments.collect(self.original_processor)
-        for new_processor in configs:
-
-            pass
+        new_processor = None
+        if self.input_arguments is None:
+            new_processor = deepcopy(self.original_processor)
+        else:
+            configs = self.input_arguments.collect(self.original_processor)     # TODO RELOCATE FROM HERE TO CONFIGURE() MAYBE??
+            for new_processor in configs:
+                pass
 
         self.processor = self.update_processor(parameter, new_processor)
         if self.calibration_mode == 'pipeline':
