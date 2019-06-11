@@ -205,6 +205,11 @@ blog:
     # Install HUGO
     - tar -xf $HUGO_ARCHIVE_FULL -C /bin
 
+    - echo $CWD
+    - ls 
+    - ls pyxel
+    - ls blog
+
     # Generate HTML pages
     - cd pyxel
     - hugo --source blog --destination html
