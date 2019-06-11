@@ -10,6 +10,7 @@
 variables:
   # Change pip's cache directory to be inside the project directory.
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache"
+  HUGO_VERSION: "0.55.6"
 
 
 stages:
@@ -183,6 +184,34 @@ doc:
       - documentation.svg
       - license.svg
   allow_failure: false
+
+blog:
+  image: jojomi/hugo
+  stage: build
+  script:
+    - export HUGO_ARCHIVE="hugo_$HUGO_VERSION_Linux-64bit.tar.gz"
+    - export HUGO_CACHE="$CI_PROJECT_DIR/.cache"
+    - export HUGO_ARCHIVE_FULL="$HUGO_CACHE/$HUGO_ARCHIVE"
+    - export HUGO_URL="https://github.com/gohugoio/hugo/releases/download/v$HUGO_VERSION/$HUGO_ARCHIVE"
+
+    - export
+    - ls $HUGO_CACHE  
+
+    # Download HUGO
+    - test -e $HUGO_ARCHIVE_FULL || wget -P $HUGO_CACHE $HUGO_URL
+    
+    # Install HUGO
+    - tar -xf $HUGO_ARCHIVE_FULL -C /bin
+
+    # Generate HTML pages
+    - cd pyxel
+    - hugo --source blog --destination html
+
+    - ls blog/html
+  artifacts:
+    paths:
+       - blog/html
+
 
 
 docker:
