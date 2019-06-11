@@ -197,7 +197,6 @@ blog:
     - export HUGO_URL="https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_ARCHIVE}"
 
     - export
-    - ls $HUGO_CACHE  
 
     # Download HUGO
     - test -e $HUGO_ARCHIVE_FULL || wget -P $HUGO_CACHE $HUGO_URL
