@@ -14,7 +14,6 @@ variables:
 
 
 stages:
-  - dummy
   - test
   - build
   - deploy
@@ -188,8 +187,7 @@ doc:
 
 blog:
   image: alpine
-  # stage: build
-  stage: dummy
+  stage: build
   script:
     - export HUGO_ARCHIVE="hugo_${HUGO_VERSION}_Linux-64bit.tar.gz"
     - export HUGO_CACHE="${CI_PROJECT_DIR}/.cache"
@@ -207,7 +205,6 @@ blog:
     - tar -xf $HUGO_ARCHIVE_FULL -C /bin
 
     # Generate HTML pages
-    - ls
     - hugo --source blog --destination html
 
     - ls blog/html
@@ -248,6 +245,7 @@ pages:
   script:
     - mkdir public
     - mv docs/html public/doc
+    - mv blog/html public
     - mv htmlcov public/coverage
     - mv pytest_report.html public
     - mv pylint_report.html public
