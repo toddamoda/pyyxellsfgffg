@@ -257,4 +257,6 @@ pages:
   artifacts:
     paths:
       - public
+  only:
+    - master
   allow_failure: false
