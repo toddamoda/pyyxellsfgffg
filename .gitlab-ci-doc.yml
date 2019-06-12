@@ -4,6 +4,7 @@ stages:
   - build
   - deploy
 
+
 # ###########################
 # Build stage
 # ###########################
@@ -29,6 +30,37 @@ doc:
     - master
 
 
+blog:
+  image: alpine
+  stage: build
+  script:
+    - export HUGO_VERSION="0.55.6"
+    - export HUGO_ARCHIVE="hugo_${HUGO_VERSION}_Linux-64bit.tar.gz"
+    # - export HUGO_CACHE="${CI_PROJECT_DIR}/.cache"
+    - export HUGO_CACHE="/tmp"
+    - export HUGO_ARCHIVE_FULL="${HUGO_CACHE}/${HUGO_ARCHIVE}"
+    - export HUGO_URL="https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_ARCHIVE}"
+
+    - export
+
+    - ls
+
+    # Download HUGO
+    - test -e $HUGO_ARCHIVE_FULL || wget -P $HUGO_CACHE $HUGO_URL
+    # -  wget -P $HUGO_CACHE $HUGO_URL
+
+    # Install HUGO
+    - tar -xf $HUGO_ARCHIVE_FULL -C /bin
+
+    # Generate HTML pages
+    - hugo --source blog --destination html
+
+    - ls blog/html
+  artifacts:
+    paths:
+       - blog/html
+
+
 # ###########################
 # Deploy Stage
 # ###########################
@@ -40,6 +72,7 @@ pages:
   script:
     - mkdir public
     - mv docs/html public/doc
+    - mv blog/html/* public
     - mv license.svg public
     - mv documentation.svg public
     - ls public

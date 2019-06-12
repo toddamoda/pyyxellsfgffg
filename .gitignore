@@ -22,6 +22,9 @@ pyxel/models/charge_generation/tars/data/*
 *.pyc
 .idea/
 
+# OSX
+.DS_Store
+
 # Visual Studio Code
 .vscode/
 
@@ -29,9 +32,11 @@ pyxel/models/charge_generation/tars/data/*
 build/
 dist/
 *.egg-info/
+.eggs
 
 # Doc
 docs/html/
+blog/html/
 
 # Unit test / coverage reports
 .tox/

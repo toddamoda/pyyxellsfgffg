@@ -7,6 +7,11 @@
 #    PYPI_PASSWORD: SECURE
 #    CONTAINER_LATEST_IMAGE: gitlab.esa.int:4567/sci-fv/pyxel:latest
 
+variables:
+  # Change pip's cache directory to be inside the project directory.
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache"
+
+
 stages:
   - test
   - build
@@ -17,6 +22,10 @@ before_script:
   - export TZ=Europe/Amsterdam
   - date
 
+# Use for temporary storage for project dependencies(e.g. pypi packages...)
+cache:
+  paths:
+    - .cache/
 
 # ###########################
 # Test Stage
@@ -175,6 +184,39 @@ doc:
       - license.svg
   allow_failure: false
 
+blog:
+  image: alpine
+  stage: build
+  script:
+    - export HUGO_VERSION="0.55.6"
+    - export HUGO_ARCHIVE="hugo_${HUGO_VERSION}_Linux-64bit.tar.gz"
+    - export HUGO_CACHE="${CI_PROJECT_DIR}/.cache"
+    - export HUGO_ARCHIVE_FULL="${HUGO_CACHE}/${HUGO_ARCHIVE}"
+    - export HUGO_URL="https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_ARCHIVE}"
+
+    - export
+
+    - ls
+    - ls blog
+    - ls blog/themes
+    - ls blog/themes/*
+
+    # Download HUGO
+    - test -e $HUGO_ARCHIVE_FULL || wget -P $HUGO_CACHE $HUGO_URL
+    # -  wget -P $HUGO_CACHE $HUGO_URL
+    
+    # Install HUGO
+    - tar -xf $HUGO_ARCHIVE_FULL -C /bin
+
+    # Generate HTML pages
+    - hugo --source blog --destination html
+
+    - ls blog/html
+  artifacts:
+    paths:
+       - blog/html
+
+
 
 docker:
   stage: build
@@ -207,6 +249,8 @@ pages:
   script:
     - mkdir public
     - mv docs/html public/doc
+    - mv blog/html/* public
+    #- mv blog/html public/blog
     - mv htmlcov public/coverage
     - mv pytest_report.html public
     - mv pylint_report.html public
@@ -218,4 +262,6 @@ pages:
   artifacts:
     paths:
       - public
+  # only:
+    # - master
   allow_failure: false
