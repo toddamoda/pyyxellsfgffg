@@ -23,9 +23,9 @@ class ParametricAnalysis:
         if column_range:
             self.columns = slice(column_range[0], column_range[1])
 
-    def __getstate__(self):
-        """TBW."""
-        return {'parametric_mode': self.parametric_mode}
+    # def __getstate__(self):
+    #     """TBW."""
+    #     return {'parametric_mode': self.parametric_mode}
 
     @property
     def enabled_steps(self):

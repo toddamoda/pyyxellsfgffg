@@ -11,8 +11,6 @@ try:
 except ImportError:
     WITH_PYGMO = False
 
-
-
 def configure(mf, sim):
     """TBW."""
     pg.set_global_rng_seed(sim.calibration.seed)
@@ -258,7 +256,7 @@ def test_detector_and_model_update(yaml, param_array):
     simulation = cfg['simulation']
     mf = ModelFitting(processor, simulation.calibration.parameters)
     configure(mf, simulation)
-    mf.processor = mf.update_processor(param_array)
+    mf.processor = mf.update_processor(param_array, processor)
     attributes = [
         mf.processor.detector.characteristics.amp,
         mf.processor.pipeline.charge_transfer.models[0].arguments['tr_p'],

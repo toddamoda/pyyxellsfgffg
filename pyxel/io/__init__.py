@@ -19,6 +19,8 @@ def pyxel_yaml_loader():
         io.ObjectModelLoader.add_class(Algorithm, ['simulation', 'calibration', 'algorithm'])
         io.ObjectModelLoader.add_class(ModelFunction, ['simulation', 'calibration', 'fitness_function'])
         io.ObjectModelLoader.add_class(ParameterValues, ['simulation', 'calibration', 'parameters'], is_list=True)
+        io.ObjectModelLoader.add_class(ParameterValues, ['simulation', 'calibration', 'result_input_arguments'],
+                                       is_list=True)
         # WITH_CALIBRATION = True  # noqa: N806
     except ImportError:
         # WITH_CALIBRATION = False  # noqa: N806

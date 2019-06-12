@@ -148,6 +148,12 @@ class Calibration:
         default=None,
         doc=''
     )
+    result_input_arguments = pyx.attribute(
+        type=list,
+        # validator=[pyx.validate_type(list)],
+        default=None,
+        doc=''
+    )
     target_data_path = pyx.attribute(
         type=list,
         validator=[pyx.validate_type(list)],
@@ -218,6 +224,7 @@ class Calibration:
             'target_output': self.target_data_path,
             'target_fit_range': self.target_fit_range,
             'out_fit_range': self.result_fit_range,
+            'input_arguments': self.result_input_arguments,
             'weighting': self.weighting_path,
             'champions_file': output_files[0],
             'population_file': output_files[1]

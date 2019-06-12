@@ -2,12 +2,14 @@
 
 https://esa.github.io/pagmo2/index.html
 """
+import logging
 from copy import deepcopy
 from collections import OrderedDict
 import typing as t   # noqa: F401
 import numpy as np
 from pyxel.calibration.util import list_to_slice, check_ranges, read_data
 from pyxel.parametric.parameter_values import ParameterValues
+from pyxel.pipelines.processor import Processor
 
 
 class ModelFitting:
@@ -15,11 +17,13 @@ class ModelFitting:
 
     def __init__(self, processor, variables: t.List[ParameterValues]):
         """TBW."""
-        self.processor = processor
-        self.variables = variables
+        # self.logger = logging.getLogger('pyxel')
+
+        self.processor = processor          # type: Processor
+        self.variables = variables          # type: t.List[ParameterValues]
 
         self.calibration_mode = None        # type: t.Optional[str]
-        self.original_processor = None
+        self.original_processor = None      # type: t.Optional[Processor]
         self.generations = None             # type: t.Optional[int]
         self.pop = None                     # type: t.Optional[int]
 
@@ -28,6 +32,7 @@ class ModelFitting:
         self.fitness_func = None
         self.sim_output = None              # type: t.Optional[str]
         self.fitted_model = None
+        self.param_processor_list = []      # type: t.List[Processor]
 
         self.n = 0
         self.g = 0
@@ -62,6 +67,8 @@ class ModelFitting:
         :param setting: dict
         :return:
         """
+        logger = logging.getLogger('pyxel')
+
         self.calibration_mode = setting['calibration_mode']     # type: str
         self.sim_output = setting['simulation_output']          # type: str
         self.fitness_func = setting['fitness_func']
@@ -71,9 +78,26 @@ class ModelFitting:
         # if self.calibration_mode == 'single_model':           # TODO update
         #     self.single_model_calibration()
 
-        self.original_processor = deepcopy(self.processor)
-
         self.set_bound()
+
+        self.original_processor = deepcopy(self.processor)      # type: Processor
+        if 'input_arguments' in setting and setting['input_arguments']:
+
+            max_val, min_val = 0, 1000
+            for arg in setting['input_arguments']:
+                min_val = min(min_val, len(arg.values))
+                max_val = max(max_val, len(arg.values))
+            if min_val != max_val:
+                logger.warning('The "result_input_arguments" value lists have different lengths! '
+                               'Some values will be ignored.')
+            for i in range(min_val):
+                new_processor = deepcopy(self.processor)
+                for step in setting['input_arguments']:
+                    step.current = step.values[i]
+                    new_processor.set(step.key, step.current)
+                self.param_processor_list += [new_processor]
+        else:
+            self.param_processor_list = [deepcopy(self.processor)]
 
         params = 0
         for var in self.variables:
@@ -152,22 +176,25 @@ class ModelFitting:
         :return:
         """
         parameter = self.update_parameter(parameter)
-        self.processor = self.update_processor(parameter)
-        if self.calibration_mode == 'pipeline':
-            self.processor.pipeline.run_pipeline(self.processor.detector)
-        # elif self.calibration_mode == 'single_model':
-        #     self.fitted_model.function(self.processor.detector)               # todo: update
-
-        simulated_data = None
-        if self.sim_output == 'image':
-            simulated_data = self.processor.detector.image.array[self.sim_fit_range]
-        elif self.sim_output == 'signal':
-            simulated_data = self.processor.detector.signal.array[self.sim_fit_range]
-        elif self.sim_output == 'pixel':
-            simulated_data = self.processor.detector.pixel.array[self.sim_fit_range]
+        processor_list = deepcopy(self.param_processor_list)
 
         overall_fitness = 0.
-        for target_data in self.all_target_data:
+        for processor, target_data in zip(processor_list, self.all_target_data):
+
+            processor = self.update_processor(parameter, processor)
+            if self.calibration_mode == 'pipeline':
+                processor.pipeline.run_pipeline(processor.detector)
+            # elif self.calibration_mode == 'single_model':
+            #     self.fitted_model.function(processor.detector)               # todo: update
+
+            simulated_data = None
+            if self.sim_output == 'image':
+                simulated_data = processor.detector.image.array[self.sim_fit_range]
+            elif self.sim_output == 'signal':
+                simulated_data = processor.detector.signal.array[self.sim_fit_range]
+            elif self.sim_output == 'pixel':
+                simulated_data = processor.detector.pixel.array[self.sim_fit_range]
+
             overall_fitness += self.calculate_fitness(simulated_data, target_data)
 
         self.population_and_champions(parameter, overall_fitness)
@@ -190,13 +217,13 @@ class ModelFitting:
             a += b
         return parameter
 
-    def update_processor(self, parameter):
+    def update_processor(self, parameter, new_processor):
         """TBW.
 
         :param parameter:
+        :param new_processor:
         :return:
         """
-        new_processor = deepcopy(self.original_processor)
         a, b = 0, 0
         for var in self.variables:
             if var.values == '_':
@@ -216,7 +243,8 @@ class ModelFitting:
         :return:
         """
         parameter = self.update_parameter(parameter)        # todo : duplicated code, see fitness!
-        champion = self.update_processor(parameter)
+        new_processor = deepcopy(self.original_processor)  # TODO TODO
+        champion = self.update_processor(parameter, new_processor)
         if self.calibration_mode == 'pipeline':
             champion.pipeline.run_pipeline(champion.detector)
         # elif self.calibration_mode == 'single_model':
