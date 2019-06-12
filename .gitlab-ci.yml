@@ -245,7 +245,8 @@ pages:
   script:
     - mkdir public
     - mv docs/html public/doc
-    - mv blog/html/* public
+    #- mv blog/html/* public
+    - mv blog/html public/blog
     - mv htmlcov public/coverage
     - mv pytest_report.html public
     - mv pylint_report.html public
