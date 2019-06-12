@@ -59,7 +59,8 @@ blog:
   artifacts:
     paths:
        - blog/html
-
+  only:
+    - master
 
 # ###########################
 # Deploy Stage
