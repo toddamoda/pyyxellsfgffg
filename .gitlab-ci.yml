@@ -197,6 +197,9 @@ blog:
     - export
 
     - ls
+    - ls blog
+    - ls blog/themes
+    - ls blog/themes/*
 
     # Download HUGO
     - test -e $HUGO_ARCHIVE_FULL || wget -P $HUGO_CACHE $HUGO_URL
