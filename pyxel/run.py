@@ -12,10 +12,10 @@ import logging
 import time
 from pathlib import Path
 import numpy as np
-# from pyxel import __version__ as pyxel_version
 import pyxel.io as io
 from pyxel.pipelines.processor import Processor
-from pyxel.detectors.cmos import CMOS
+from pyxel.detectors.ccd import CCD
+# from pyxel import __version__ as pyxel_version
 
 
 def run(input_filename, random_seed: int = None):
@@ -72,28 +72,22 @@ def run(input_filename, random_seed: int = None):
             out.parametric_output()
 
     elif simulation.mode == 'dynamic' and simulation.dynamic:
-        if not isinstance(detector, CMOS):
-            raise TypeError('Dynamic mode only works with CMOS detector!')
         logger.info('Mode: Dynamic')
-        if 't_start' not in simulation.dynamic:
-            simulation.dynamic['t_start'] = 0.
-        if 'non_destructive_readout' not in simulation.dynamic:
+        if 'non_destructive_readout' not in simulation.dynamic or isinstance(detector, CCD):
             simulation.dynamic['non_destructive_readout'] = False
-        detector.set_dynamic(start_time=simulation.dynamic['t_start'],
-                             end_time=simulation.dynamic['t_end'],
-                             time_steps=simulation.dynamic['t_steps'],
-                             ndreadout=simulation.dynamic['non_destructive_readout'])
-        for detector.time in np.linspace(detector.start_time, detector.end_time,
-                                         num=detector.time_steps, endpoint=True):
-            logger.info('time = %.2e s' % detector.time)
+        if 't_step' in simulation.dynamic and 'steps' in simulation.dynamic:
+            detector.set_dynamic(steps=simulation.dynamic['steps'],
+                                 time_step=simulation.dynamic['t_step'],
+                                 ndreadout=simulation.dynamic['non_destructive_readout'])
+        while detector.elapse_time():
+            logger.info('time = %.3f s' % detector.time)
             if detector.is_non_destructive_readout:
                 detector.initialize(reset_all=False)
             else:
                 detector.initialize(reset_all=True)
             processor.pipeline.run_pipeline(detector)
-            if out:
+            if out and detector.read_out:
                 out.single_output(processor)
-        pass
 
     else:
         raise ValueError
@@ -132,7 +126,7 @@ def main():
     opts = parser.parse_args()
 
     logging_level = [logging.ERROR, logging.WARNING, logging.INFO, logging.DEBUG][min(opts.verbosity, 3)]
-    log_format = '%(asctime)s - %(name)s - %(funcName)20s \t %(message)s'
+    log_format = '%(asctime)s - %(name)s - %(funcName)30s \t %(message)s'
     logging.basicConfig(level=logging_level, format=log_format, datefmt='%d-%m-%Y %H:%M:%S')
 
     if opts.config:

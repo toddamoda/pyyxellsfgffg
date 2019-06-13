@@ -11,7 +11,6 @@ import numba
 
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
-# @pyxel.register(group='charge_collection', name='simple_collection')
 def simple_collection(detector: Detector):
     """Associate charge with the closest pixel."""
     logger = logging.getLogger('pyxel')

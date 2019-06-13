@@ -29,7 +29,7 @@ def nghxrg(detector: CMOS,
     logging.getLogger("nghxrg").setLevel(logging.WARNING)
     logger = logging.getLogger('pyxel')
     logger.info('')
-    geo = detector.get_geometry()
+    geo = detector.geometry
     number_of_fits = 1
     ng = HXRGNoise(n_out=geo.n_output,
                    nroh=geo.n_row_overhead,
@@ -131,6 +131,7 @@ def display_noisepsd(array, nb_output, dimension, noise_name, mode='plot'):
         # output_data = data_corr[:,int(i*(nbcols_p_channel)):
         #                         int((i+1)*(nbcols_p_channel))].flatten()
 
+        # print(output_data, read_freq, nperseg)
         # Add periodogram to the previously initialized array
         f_vect, pxx_outputs[i] = signal.welch(output_data,
                                               read_freq,
