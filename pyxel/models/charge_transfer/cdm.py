@@ -17,7 +17,6 @@ except ImportError:
     # raise Warning('Matplotlib cannot be imported')
     pass
 import numba
-from typing import cast
 # import pyxel
 from pyxel.detectors.ccd import CCD
 from pyxel.detectors.ccd_characteristics import CCDCharacteristics  # noqa: F401
@@ -67,7 +66,7 @@ def cdm(detector: CCD,
 
     logger = logging.getLogger('pyxel')
     logger.info('')
-    char = cast(CCDCharacteristics, detector.characteristics)  # type: CCDCharacteristics
+    char = detector.characteristics
 
     if isinstance(tr_p, list):
         tr_p = np.array(tr_p)
