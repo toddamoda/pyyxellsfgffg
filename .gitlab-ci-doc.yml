@@ -11,7 +11,7 @@ stages:
 
 # Generate the Sphinx documentation into 'doc/html'
 doc:
-  image: python:3.6  # continuumio/anaconda3
+  image: python:3.6
   stage: build
   script:
     - pip install -r docs/requirements-docs.txt
@@ -27,8 +27,8 @@ doc:
       - documentation.svg
       - license.svg
   allow_failure: false
-  only:
-    - master
+#  only:
+#    - master
 
 
 blog:
@@ -50,7 +50,6 @@ blog:
     - tar -xf $HUGO_ARCHIVE_FULL -C /bin
     # Generate HTML pages
     - hugo --source blog --destination html
-
     - ls blog/html
   artifacts:
     paths:
@@ -77,5 +76,5 @@ pages:
     paths:
       - public
   allow_failure: false
-  only:
-    - master
+#  only:
+#    - master
