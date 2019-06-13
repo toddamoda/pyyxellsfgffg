@@ -13,7 +13,6 @@ from pyxel.data_structure.photon import Photon  # noqa: F401
 from pyxel.data_structure.pixel import Pixel    # noqa: F401
 from pyxel.data_structure.signal import Signal  # noqa: F401
 from pyxel.data_structure.image import Image    # noqa: F401
-# import typing as t  # noqa: F401
 
 
 class CCD(Detector):
@@ -50,23 +49,3 @@ class CCD(Detector):
                          pixel=pixel,
                          signal=signal,
                          image=image)
-
-        # self._charge_injection_profile = None
-        # if charge_injection_profile:
-        #     self._charge_injection_profile = charge_injection_profile
-
-    # @property
-    # def charge_injection_profile(self):
-    #     """TBW.
-    #
-    #     :return:
-    #     """
-    #     return self._charge_injection_profile
-    #
-    # @charge_injection_profile.setter
-    # def charge_injection_profile(self, new_chg_inj_profile):
-    #     """TBW.
-    #
-    #     :param new_chg_inj_profile:
-    #     """
-    #     self._charge_injection_profile = new_chg_inj_profile

@@ -12,10 +12,10 @@ import logging
 import time
 from pathlib import Path
 import numpy as np
-# from pyxel import __version__ as pyxel_version
 import pyxel.io as io
 from pyxel.pipelines.processor import Processor
-from pyxel.detectors.cmos import CMOS
+from pyxel.detectors.ccd import CCD
+# from pyxel import __version__ as pyxel_version
 
 
 def run(input_filename, random_seed: int = None):
@@ -72,31 +72,15 @@ def run(input_filename, random_seed: int = None):
             out.parametric_output()
 
     elif simulation.mode == 'dynamic' and simulation.dynamic:
-        if not isinstance(detector, CMOS):
-            raise TypeError('Dynamic mode only works with CMOS detector!')
         logger.info('Mode: Dynamic')
-        # if 't_start' not in simulation.dynamic:
-        #     simulation.dynamic['t_start'] = 0.
-        if 'non_destructive_readout' not in simulation.dynamic:
+        if 'non_destructive_readout' not in simulation.dynamic or isinstance(detector, CCD):
             simulation.dynamic['non_destructive_readout'] = False
-
-        all_time_steps = []
-        # if 'steps' in simulation.dynamic and 't_end' in simulation.dynamic:
-        #     pass
-        #     # all_time_steps, detector.last_time_step = np.linspace(detector.start_time, detector.end_time, retstep=True,
-        #     #                                                       num=detector.steps, endpoint=True)
         if 't_step' in simulation.dynamic and 'steps' in simulation.dynamic:
-            simulation.dynamic['t_end'] = simulation.dynamic['steps'] * simulation.dynamic['t_step']
-            all_time_steps = np.arange(simulation.dynamic['t_step'],
-                                       simulation.dynamic['t_end'],
-                                       simulation.dynamic['t_step'])
-        detector.set_dynamic(end_time=simulation.dynamic['t_end'],
-                             steps=simulation.dynamic['steps'],
-                             time_step=simulation.dynamic['t_step'],
-                             ndreadout=simulation.dynamic['non_destructive_readout'])
-
-        for detector.time in all_time_steps:
-            logger.info('time = %.2e s' % detector.time)
+            detector.set_dynamic(steps=simulation.dynamic['steps'],
+                                 time_step=simulation.dynamic['t_step'],
+                                 ndreadout=simulation.dynamic['non_destructive_readout'])
+        while detector.elapse_time():
+            logger.info('time = %.3f s' % detector.time)
             if detector.is_non_destructive_readout:
                 detector.initialize(reset_all=False)
             else:
@@ -142,7 +126,7 @@ def main():
     opts = parser.parse_args()
 
     logging_level = [logging.ERROR, logging.WARNING, logging.INFO, logging.DEBUG][min(opts.verbosity, 3)]
-    log_format = '%(asctime)s - %(name)s - %(funcName)20s \t %(message)s'
+    log_format = '%(asctime)s - %(name)s - %(funcName)30s \t %(message)s'
     logging.basicConfig(level=logging_level, format=log_format, datefmt='%d-%m-%Y %H:%M:%S')
 
     if opts.config:

@@ -8,15 +8,14 @@ simulation:
 
   dynamic:
     non_destructive_readout:  true
-    steps: 10
+    steps: 6
     t_step: 2.1
-#    t_start: 0.
-    t_end: 10.
 
   outputs:
     output_folder:  outputs
 
 
+#ccd_detector:
 cmos_detector:
 
   geometry:
@@ -133,5 +132,5 @@ pipeline:
       func: pyxel.models.readout_electronics.cmos_readout_modes.non_destructive_readout
       enabled: true
       arguments:
-        mode: CDS   # uncorrelated  # Fowler-N
-        fowler_samples: 1
+        mode: UTR  # Fowler-N  # CDS   # uncorrelated
+        fowler_samples: 2

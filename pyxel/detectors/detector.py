@@ -2,6 +2,7 @@
 from math import sqrt
 import collections
 import typing as t  # noqa: F401
+import numpy as np
 
 # from astropy import units as u
 from pyxel.detectors.geometry import Geometry
@@ -72,24 +73,36 @@ class Detector:
         self.input_image = None
         self._output_dir = None                         # type: t.Optional[str]
 
-    def __getstate__(self):
-        """TBW.
+        self.start_time = 0.                            # type: float
+        self.end_time = 0.                              # type: float
+        self.steps = 0                                  # type: int
+        self.time_step = 0.                             # type: float
+        # self.time = 0.                                  # type: float
+        self._time = 0.                                  # type: float
+        self._all_time_steps = None
 
-        :return:
-        """
-        return {
-            'geometry': self.geometry,
-            'material': self.material,
-            'environment': self.environment,
-            'characteristics': self.characteristics,
-            'photon': self.photon,
-            'charge': self.charge,
-            'pixel': self.pixel,
-            'signal': self.signal,
-            'image': self.image,
-            'input_image': self.input_image,
-            '_output_dir': self._output_dir
-        }
+        self._dynamic = False                           # type: bool
+        self._non_destructive = False                   # type: bool
+        self.read_out = True                            # type: bool
+
+    # def __getstate__(self):
+    #     """TBW.
+    #
+    #     :return:
+    #     """
+    #     return {
+    #         'geometry': self.geometry,
+    #         'material': self.material,
+    #         'environment': self.environment,
+    #         'characteristics': self.characteristics,
+    #         'photon': self.photon,
+    #         'charge': self.charge,
+    #         'pixel': self.pixel,
+    #         'signal': self.signal,
+    #         'image': self.image,
+    #         'input_image': self.input_image,
+    #         '_output_dir': self._output_dir
+    #     }
 
     def initialize(self, reset_all=True):
         """TBW."""
@@ -109,14 +122,31 @@ class Detector:
         """Output directory path."""
         return self._output_dir
 
-    @property
-    def e_thermal_velocity(self):
-        """TBW.
+    def set_dynamic(self, time_step: float, steps: int, ndreadout: bool = False):
+        """Switch on dynamic (time dependent) mode."""
+        self._dynamic = True                            # type: bool
+        self.time_step = time_step                      # type: float
+        self.steps = steps                              # type: int
+        self._non_destructive = ndreadout               # type: bool
+        self.end_time = self.time_step * self.steps     # type: float
+        self._all_time_steps = np.nditer(np.round(np.linspace(self.time_step, self.end_time,
+                                                              self.steps, endpoint=True), decimals=10))
 
-        :return:
+    @property
+    def is_dynamic(self):
+        """Return if detector is dynamic (time dependent) or not.
+
+        By default it is not dynamic.
         """
-        k_boltzmann = 1.38064852e-23  # J/K
-        return sqrt(3 * k_boltzmann * self.environment.temperature / self.material.e_effective_mass)
+        return self._dynamic
+
+    @property
+    def is_non_destructive_readout(self):
+        """Return if detector readout mode is destructive or integrating.
+
+        By default it is destructive (non-integrating).
+        """
+        return self._non_destructive
 
     def get_geometry(self):
         """TBW."""
@@ -126,3 +156,25 @@ class Detector:
             return t.cast(CCDGeometry, self.geometry)
         elif isinstance(self.geometry, Geometry):
             return t.cast(Geometry, self.geometry)
+
+    @property
+    def e_thermal_velocity(self):
+        """TBW.
+
+        :return:
+        """
+        k_boltzmann = 1.38064852e-23  # J/K
+        return sqrt(3 * k_boltzmann * self.environment.temperature / self.material.e_effective_mass)
+
+    @property
+    def time(self):     # TODO
+        """TBW."""
+        return self._time
+
+    def elapse_time(self):
+        """TBW."""
+        try:
+            self._time = float(next(self._all_time_steps))
+        except StopIteration:
+            self._time = None
+        return self._time
