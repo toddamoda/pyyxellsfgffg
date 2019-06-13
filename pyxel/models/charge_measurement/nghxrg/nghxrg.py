@@ -29,7 +29,7 @@ def nghxrg(detector: CMOS,
     logging.getLogger("nghxrg").setLevel(logging.WARNING)
     logger = logging.getLogger('pyxel')
     logger.info('')
-    geo = detector.get_geometry()
+    geo = detector.geometry
     number_of_fits = 1
     ng = HXRGNoise(n_out=geo.n_output,
                    nroh=geo.n_row_overhead,

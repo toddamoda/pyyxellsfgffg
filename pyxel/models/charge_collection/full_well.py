@@ -9,7 +9,6 @@ from pyxel.detectors.detector import Detector
 
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
-# @pyxel.register(group='charge_collection', name='full_well')
 def simple_full_well(detector: Detector):
     """Limiting the amount of charge in pixel due to full well capacity."""
     logger = logging.getLogger('pyxel')

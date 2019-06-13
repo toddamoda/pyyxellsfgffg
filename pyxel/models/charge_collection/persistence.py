@@ -11,7 +11,6 @@ from pyxel.detectors.cmos import CMOS
 
 # @pyxel.validate
 # @pyxel.argument(name='', label='', units='', validate=)
-# @pyxel.register(group='charge_collection', name='full_well')
 def simple_persistence(detector: CMOS,
                        trap_timeconstant: list,
                        trap_density: list):

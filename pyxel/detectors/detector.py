@@ -9,13 +9,15 @@ from pyxel.detectors.geometry import Geometry
 from pyxel.detectors.material import Material
 from pyxel.detectors.environment import Environment
 from pyxel.detectors.characteristics import Characteristics
-from pyxel.data_structure.charge import Charge                  # noqa: F401
-from pyxel.data_structure.photon import Photon                  # noqa: F401
-from pyxel.data_structure.pixel import Pixel                    # noqa: F401
-from pyxel.data_structure.signal import Signal                  # noqa: F401
-from pyxel.data_structure.image import Image                    # noqa: F401
-from pyxel.detectors.cmos_geometry import CMOSGeometry          # noqa: F401
-from pyxel.detectors.ccd_geometry import CCDGeometry            # noqa: F401
+from pyxel.data_structure.charge import Charge                          # noqa: F401
+from pyxel.data_structure.photon import Photon                          # noqa: F401
+from pyxel.data_structure.pixel import Pixel                            # noqa: F401
+from pyxel.data_structure.signal import Signal                          # noqa: F401
+from pyxel.data_structure.image import Image                            # noqa: F401
+from pyxel.detectors.cmos_geometry import CMOSGeometry                  # noqa: F401
+from pyxel.detectors.ccd_geometry import CCDGeometry                    # noqa: F401
+from pyxel.detectors.cmos_characteristics import CMOSCharacteristics    # noqa: F401
+from pyxel.detectors.ccd_characteristics import CCDCharacteristics      # noqa: F401
 
 
 class Detector:
@@ -43,10 +45,10 @@ class Detector:
         :param signal:
         :param image:
         """
-        self.geometry = geometry                    # type: Geometry
+        self._geometry = geometry                   # type: Geometry
+        self._characteristics = characteristics     # type: Characteristics
         self.material = material                    # type: Material
         self.environment = environment              # type: Environment
-        self.characteristics = characteristics      # type: Characteristics
         self.header = collections.OrderedDict()     # type: t.Dict[str, object]
 
         if photon:
@@ -77,7 +79,6 @@ class Detector:
         self.end_time = 0.                              # type: float
         self.steps = 0                                  # type: int
         self.time_step = 0.                             # type: float
-        # self.time = 0.                                  # type: float
         self._time = 0.                                  # type: float
         self._all_time_steps = None
 
@@ -148,14 +149,25 @@ class Detector:
         """
         return self._non_destructive
 
-    def get_geometry(self):
+    @property
+    def geometry(self):
         """TBW."""
-        if isinstance(self.geometry, CMOSGeometry):
-            return t.cast(CMOSGeometry, self.geometry)
-        elif isinstance(self.geometry, CCDGeometry):
-            return t.cast(CCDGeometry, self.geometry)
-        elif isinstance(self.geometry, Geometry):
-            return t.cast(Geometry, self.geometry)
+        if isinstance(self._geometry, CMOSGeometry):
+            return t.cast(CMOSGeometry, self._geometry)
+        elif isinstance(self._geometry, CCDGeometry):
+            return t.cast(CCDGeometry, self._geometry)
+        elif isinstance(self._geometry, Geometry):
+            return t.cast(Geometry, self._geometry)
+
+    @property
+    def characteristics(self):
+        """TBW."""
+        if isinstance(self._characteristics, CMOSCharacteristics):
+            return t.cast(CMOSCharacteristics, self._characteristics)
+        elif isinstance(self._characteristics, CCDCharacteristics):
+            return t.cast(CCDCharacteristics, self._characteristics)
+        elif isinstance(self._characteristics, Characteristics):
+            return t.cast(Characteristics, self._characteristics)
 
     @property
     def e_thermal_velocity(self):

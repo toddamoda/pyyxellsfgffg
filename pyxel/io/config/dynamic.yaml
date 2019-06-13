@@ -84,7 +84,7 @@ pipeline:
 
     - name: darkcurrent
       enabled: true
-      func: pyxel.models.charge_generation.darkcurrent.darkcurrent_rule07
+      func: pyxel.models.charge_generation.dark_current.dark_current_rule07
       
 
   # charge -> pixel

@@ -4,14 +4,13 @@
 """Simple model to generate charges due to dark current process."""
 import logging
 import numpy as np
-# import pyxel
+import pyxel
 from pyxel.detectors.cmos import CMOS
 
 
-# @pyxel.validate
-# @pyxel.argument(name='', label='', units='', validate=)
-# @pyxel.register(group='charge_generation', name='photoelectrons')
-def darkcurrent_rule07(detector: CMOS):
+@pyxel.validate
+@pyxel.argument(name='detector', label='', units='', validate=pyxel.check_type(CMOS))
+def dark_current_rule07(detector: CMOS):
     """Generate charge from dark current process.
 
     :param detector: Pyxel Detector object
@@ -20,39 +19,35 @@ def darkcurrent_rule07(detector: CMOS):
     logger = logging.getLogger('pyxel')
     logger.info('')
 
-    pitch = 18  # 18 um pitch
-    amp_to_eps = 6.242e18  # conversion factor amperes to electro per second
+    amp_to_eps = 6.242e+18  # conversion factor amperes to electron per second
+    cm2_to_um2 = 1e+8
 
+    pitch = 18              # um
     # Rule 07 empirical model parameters
-    j0 = 8367.000019  # A/cm**2
+    j0 = 8367.000019        # A/cm**2
     c = -1.162972237
-    q = 1.602176624e-19  # Elementary charge (Coulomb)
-    k = 1.38064852e-23  # Boltzmann constant (m2 kg s-2 K-1)
-    amp_to_eps = 6.242e18  # conversion factor amperes to electron per second
-    cm2_to_um2 = 1e8
+    q = 1.602176624e-19     # Elementary charge (Coulomb)
+    k = 1.38064852e-23      # Boltzmann constant (m2 kg s-2 K-1)
 
-    def le(lambda_cutoff: float):
+    def lambda_e(lambda_cutoff: float):
         """Compute lambda_e.
 
         :param lambda_cutoff: (int) Cut-off wavelength of the detector
         """
-        lambda_scale = 0.200847413  # um
+        lambda_scale = 0.200847413      # um
         lambda_threshold = 4.635136423  # um
         pwr = 0.544071282
-
         if lambda_cutoff < lambda_threshold:
             le = lambda_cutoff / (1-((lambda_scale/lambda_cutoff)-(lambda_scale/lambda_threshold))**pwr)
         else:
             le = lambda_cutoff
-
         return le
 
     geo = detector.geometry
     ch = detector.characteristics
-    # ph = detector.photon
     temperature = detector.environment.temperature
     cutoff = ch.cutoff
-    conversion_factor = amp_to_eps*1./cm2_to_um2
+    conversion_factor = amp_to_eps * 1. / cm2_to_um2
 
     init_ver_position = np.arange(0.0, geo.row, 1.0) * geo.pixel_vert_size
     init_hor_position = np.arange(0.0, geo.col, 1.0) * geo.pixel_horz_size
@@ -60,8 +55,8 @@ def darkcurrent_rule07(detector: CMOS):
     init_hor_position = np.tile(init_hor_position, geo.row)
 
     # Rule07
-    j = j0*np.exp(c*(1.24*q/k)*1./(le(cutoff)*temperature))
-    dark = j*conversion_factor*pitch
+    j = j0 * np.exp(c * (1.24 * q / k) * 1. / (lambda_e(cutoff) * temperature))
+    dark = j * conversion_factor * pitch
     # print(dark)
     # The number of charges generated using rule07 empiric law
     charge_number = np.random.poisson(dark, size=(detector.geometry.row,
