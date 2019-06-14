@@ -167,16 +167,12 @@ licenses-latest:
 
 # Generate the Sphinx documentation into 'doc/html'
 doc:
-  image: python:3.6
+  image: python:3
   stage: build
   script:
-    - pip install -r docs/requirements-docs.txt
-    - pip install -r requirements.txt
-    - pip freeze
-    - export PYTHONPATH=$PWD
-    - sphinx-build docs/source docs/html -E -a -j 4
+    - pip install tox
+    - tox -e docs
     - python badges.py -doc="passed" -lic="MIT"
-    - ls
   artifacts:
     paths:
       - docs/html
@@ -244,7 +240,7 @@ docker:
 
 # Create the pages
 pages:
-  image: python:3.6
+  image: python:3
   stage: deploy
   script:
     - mkdir public

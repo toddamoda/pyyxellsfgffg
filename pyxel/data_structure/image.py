@@ -2,10 +2,16 @@
 #   Copyright 2018 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
 """Pyxel Image class."""
+from typing import TYPE_CHECKING
+
 import numpy as np
 from astropy.units import cds
-from pyxel.detectors.geometry import Geometry
+
 from pyxel.data_structure.array import Array
+
+if TYPE_CHECKING:
+    from pyxel.detectors.geometry import Geometry
+
 cds.enable()
 
 
@@ -16,7 +22,7 @@ class Image(Array):
     Accepted array types: np.uint16, np.uint32, np.uint64
     """
 
-    def __init__(self, geo: Geometry) -> None:
+    def __init__(self, geo: "Geometry") -> None:
         """TBW.
 
         :param geo:
