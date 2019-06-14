@@ -30,19 +30,64 @@ Author:
 
 menu:
   main:
-    -
-      name: News
+    - name: News
       url:
-      weigth: 1
-    -
-      name: About
-      url: page/about/
-      weight: 2
-    -
-      name: Documentation
+
+
+    - name: About
+      identifier: about
+    - name: Introduction
+      parent: about
+      url: page/introduction/
+    - name: Examples
+      parent: about
+      url: page/examples/
+    - name: Models
+      parent: about
+      url: page/models/
+    - name: Quickstart
+      parent: about
+      url: page/quickstart/
+    - name: Tutorials
+      parent: about
+      url: page/tutorials/
+
+
+    - name: Community
+      identifier: community
+    - name: Users & Developers
+      parent: community
+      url: page/community/
+#      weigth: -2
+    - name: Forum
+      parent: community
+      url:                # TODO
+#      weigth: -3
+    - name: Mailing list
+      parent: community
+      url:                # TODO
+#      weigth: -1
+    - name: F.A.Q.
+      parent: community
+      url: page/faq/
+#      weigth: -1
+
+
+    - name: Documentation
       url: doc
-      weight: 3
-    -
-      name: Download
-      url: tags
-      weigth: 4
+
+
+    - name: Download
+      identifier: download
+    - name: Releases
+      parent: download
+      url: page/releases/
+    - name: Repository
+      parent: download
+      url: http://gitlab.com/esa/pyxel
+    - name: Docker
+      parent: download
+      url: page/docker/
+#    - name: Issues
+#      parent: download
+#      url: http://gitlab.com/esa/pyxel/issues

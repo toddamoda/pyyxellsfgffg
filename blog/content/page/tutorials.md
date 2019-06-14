@@ -1,8 +1,6 @@
 ---
-title: About Pyxel
+title: Tutorials
 subtitle: 
 comments: false
 ---
-
-# History
 
