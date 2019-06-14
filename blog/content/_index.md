@@ -1,2 +1,10 @@
-## Front Page Content
-`beautifulhugo` supports content on your front page. Edit `/content/_index.md` to change what appears here. Delete `/content/_index.md` if you don't want any content here.
+
+
+### IR and Visible space astronomy missions of ESA
+
+![IR_and_Visible_space_astronomy_missions_of_ESA](img/missions.png "IR and Visible space astronomy missions of ESA")
+
+
+### Pyxel images
+
+![Models_of_Pyxel](img/models.png "Models of Pyxel")

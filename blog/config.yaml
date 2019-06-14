@@ -1,19 +1,20 @@
 baseURL: "https://esa.gitlab.io/pyxel/"
 languageCode: "en-us"
 
-title: "PyXEL"
+title: "Pyxel"
 description: "description"
 theme: "beautifulhugo"
+lastmod: "2019-06-14"
 
 Params:
-  subtitle: "a subtitle"
+  subtitle: "A general simulation framework in Python for astronomical imaging detectors"
   logo: img/pyxel-logo.png  # Expecting square dimensions
-  # favicon: img/favicon.ico
+  # favicon: img/favicon.ico    # todo
   commit: false
   rss: true
   comments: true
-  readingTime: true
-  wordCount: true
+  readingTime: false
+  wordCount: false
   useHLJS: true
   socialShare: true
   delayDisqus: true
@@ -21,27 +22,27 @@ Params:
 
 Author:
   name: David Lucsanyi
-  website: yourwebsite.com
+#  website: yourwebsite.com
   email: david.lucsanyi@esa.int
   gitlab: esa/pyxel
-  # twitter: username
+#  linkedin: "david-lucsanyi"    # todo: not working with chrome
+#  twitter: username
 
 menu:
   main:
     -
-      name: Blog
-      url: ""
-      weigth: 2
+      name: News
+      url:
+      weigth: 1
     -
       name: About
       url: page/about/
+      weight: 2
+    -
+      name: Documentation
+      url: doc
       weight: 3
     -
-      name: Docs
-      title: Docs
-      url: doc
-      weight: 1
-    -
-      name: Tags
+      name: Download
       url: tags
-      weigth: 3
+      weigth: 4

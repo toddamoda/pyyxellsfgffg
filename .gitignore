@@ -34,9 +34,10 @@ dist/
 *.egg-info/
 .eggs
 
-# Doc
+# Doc, webpage
 docs/html/
 blog/html/
+blog/public/
 
 # Unit test / coverage reports
 .tox/
