@@ -27,8 +27,8 @@ doc:
       - documentation.svg
       - license.svg
   allow_failure: false
-#  only:
-#    - master
+  only:
+    - master
 
 
 blog:
@@ -54,8 +54,8 @@ blog:
   artifacts:
     paths:
        - blog/html
-#  only:
-#    - master
+  only:
+    - master
 
 # ###########################
 # Deploy Stage
@@ -76,5 +76,5 @@ pages:
     paths:
       - public
   allow_failure: false
-#  only:
-#    - master
+  only:
+    - master
