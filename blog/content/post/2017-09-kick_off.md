@@ -1,10 +1,7 @@
 ---
 title: "Pyxel Kick-Off"
-publishdate: 2019-01-02T15:04:05-07:00
-# date: 2006-01-02T15:04:05-07:00
-# lastmod: 2006-01-02T15:04:05-07:00
+publishdate: 2017-09-01T15:04:05-07:00
 draft: false
-
 # tags: ['Getting started']
 ---
 
