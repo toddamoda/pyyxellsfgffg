@@ -11,6 +11,6 @@ for such a general, collaborative, model sharing framework.
 
 <table cellspacing="0" cellpadding="0" style="width:100%">
   <tr>
-    <td><img src="img/esa-logo.bmp" height="200"></td>
+    <td><img src="/img/esa-logo.bmp" height="200"></td>
   </tr>
 </table>

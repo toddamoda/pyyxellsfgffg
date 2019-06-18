@@ -1,6 +1,6 @@
-#baseURL: "https://esa.gitlab.io/pyxel/"
 baseURL: "https://esa.gitlab.io/pyxel/"
 languageCode: "en-us"
+relativeURLs: true
 
 title: "Pyxel"
 description: "description"
@@ -33,62 +33,72 @@ menu:
   main:
     - name: News
       url:
-
+      weight: 10
 
     - name: About
       identifier: about
+      weight: 20
     - name: Introduction
       parent: about
       url: page/introduction/
-    - name: Examples
-      parent: about
-      url: page/examples/
-    - name: Models
-      parent: about
-      url: page/models/
+      weight: 1
     - name: Quickstart
       parent: about
       url: page/quickstart/
+      weight: 2
+    - name: Examples
+      parent: about
+      url: page/examples/
+      weight: 3
     - name: Tutorials
       parent: about
       url: page/tutorials/
-
+      weight: 4
+    - name: Models
+      parent: about
+      url: page/models/
+      weight: 5
 
     - name: Community
       identifier: community
+      weight: 30
     - name: Users & Developers
       parent: community
       url: page/community/
-#      weigth: -2
+      weight: 1
     - name: Forum
       parent: community
       url:                # TODO
-#      weigth: -3
+      weight: 2
     - name: Mailing list
       parent: community
       url:                # TODO
-#      weigth: -1
+      weight: 3
     - name: F.A.Q.
       parent: community
       url: page/faq/
-#      weigth: -1
-
+      weight: 4
 
     - name: Documentation
       url: doc
-
+      weight: 40
 
     - name: Download
       identifier: download
+      weight: 50
     - name: Releases
       parent: download
       url: page/releases/
-    - name: Repository
-      parent: download
-      url: http://gitlab.com/esa/pyxel
+      weight: 1
     - name: Docker
       parent: download
       url: page/docker/
+      weight: 2
+    - name: Repository
+      parent: download
+      url: http://gitlab.com/esa/pyxel
+      weight: 3
 #    - name: Issues
 #      parent: download
 #      url: http://gitlab.com/esa/pyxel/issues
+#      weight: 4

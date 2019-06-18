@@ -12,4 +12,4 @@ LS8: Python in Astronomy session
 https://eas.unige.ch/EWASS2019/session.jsp?id=LS8    
 
 
-![EWASS](img/ewass.png "EWASS")
+![EWASS](/img/ewass.png "EWASS")
