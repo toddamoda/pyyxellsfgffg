@@ -1,5 +1,7 @@
 ---
-title: Download Pyxel
+title: Releases
 subtitle: 
 comments: false
 ---
+
+

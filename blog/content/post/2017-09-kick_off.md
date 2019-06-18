@@ -5,5 +5,6 @@ draft: false
 # tags: ['Getting started']
 ---
 
-Development of Pyxel has been started at European Space Agency (ESA) by the Payload Validation team of Future Science Missions. 
-Potential users & user needs at ESA have been collected, as well as software requirements have been defined.
+Development of Pyxel has been started at European Space Agency (ESA) by the Payload Validation team of 
+Future Science Missions department. Potential users & user needs at ESA have been collected,
+as well as software requirements have been defined.

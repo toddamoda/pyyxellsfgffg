@@ -3,13 +3,13 @@ languageCode: "en-us"
 relativeURLs: true
 
 title: "Pyxel"
-description: "description"
+description: "simulation framework"
 theme: "beautifulhugo"
 lastmod: "2019-06-18"
 
 Params:
-  subtitle: "A general simulation framework in Python for astronomical imaging detectors"
-  logo: img/pyxel-logo.png  # Expecting square dimensions
+  subtitle: "A general simulation framework in Python for astronomical and Earth observation imaging detectors"
+  logo: img/pyxel-logo.png  # Expecting square dimensions   # todo: larger logo
   # favicon: img/favicon.ico    # todo
   commit: false
   rss: true
@@ -41,18 +41,22 @@ menu:
       parent: about
       url: ../page/introduction/
       weight: 1
-    - name: Quickstart
+    - name: Features
       parent: about
-      url: ../page/quickstart/
+      url: ../page/features/
       weight: 2
-    - name: Examples
+    - name: Pipeline
       parent: about
-      url: ../page/examples/
+      url: ../page/pipeline/
       weight: 3
     - name: Models
       parent: about
       url: ../page/models/
       weight: 4
+    - name: Examples
+      parent: about
+      url: ../page/examples/
+      weight: 5
 
     - name: Community
       identifier: community
