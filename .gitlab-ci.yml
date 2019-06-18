@@ -182,8 +182,7 @@ doc:
 
 blog:
   image: alpine
-  stage: test
-#  stage: build
+  stage: build
   script:
     - export HUGO_VERSION="0.55.6"
     - export HUGO_ARCHIVE="hugo_${HUGO_VERSION}_Linux-64bit.tar.gz"
@@ -203,8 +202,8 @@ blog:
     - ls blog/themes/*
 
     # Download HUGO
-    - test -e $HUGO_ARCHIVE_FULL || wget -P $HUGO_CACHE $HUGO_URL
-    # -  wget -P $HUGO_CACHE $HUGO_URL
+#    - test -e $HUGO_ARCHIVE_FULL || wget -P $HUGO_CACHE $HUGO_URL
+    - wget -P $HUGO_CACHE $HUGO_URL
     
     # Install HUGO
     - tar -xf $HUGO_ARCHIVE_FULL -C /bin
