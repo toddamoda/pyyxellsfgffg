@@ -1,6 +1,6 @@
 ---
 title: "Pyxel Kick-Off"
-publishdate: 2017-09-01T15:04:05-07:00
+date: 2017-09-01T15:04:05-07:00
 draft: false
 # tags: ['Getting started']
 ---

@@ -5,7 +5,9 @@ draft: true
 ---
 
 Pyxel will be presented at the **European Week of Astronomy and Space Science**
-(during LS8: Python in Astronomy session) on 24 June (Monday) in Lyon by Thibaut Prod'homme (ESA).
+on 24 June (Monday) in Lyon by Thibaut Prod'homme (ESA). 
+
+LS8: Python in Astronomy session
    
 https://eas.unige.ch/EWASS2019/session.jsp?id=LS8    
 
