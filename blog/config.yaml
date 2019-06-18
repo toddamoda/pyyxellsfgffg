@@ -1,19 +1,21 @@
 baseURL: "https://esa.gitlab.io/pyxel/"
 languageCode: "en-us"
+relativeURLs: true
 
-title: "PyXEL"
-description: "description"
+title: "Pyxel"
+description: "simulation framework"
 theme: "beautifulhugo"
+lastmod: "2019-06-18"
 
 Params:
-  subtitle: "a subtitle"
-  logo: img/pyxel-logo.png  # Expecting square dimensions
-  # favicon: img/favicon.ico
+  subtitle: "A general simulation framework in Python for astronomical and Earth observation imaging detectors"
+  logo: img/pyxel-logo.png  # Expecting square dimensions   # todo: larger logo
+  # favicon: img/favicon.ico    # todo
   commit: false
   rss: true
   comments: true
-  readingTime: true
-  wordCount: true
+  readingTime: false
+  wordCount: false
   useHLJS: true
   socialShare: true
   delayDisqus: true
@@ -21,27 +23,85 @@ Params:
 
 Author:
   name: David Lucsanyi
-  website: yourwebsite.com
-  email: david.lucsanyi@esa.int
+  website: http://sci.esa.int/pyxel
+  email: pyxel@esa.int
   gitlab: esa/pyxel
-  # twitter: username
+
 
 menu:
   main:
-    -
-      name: Blog
-      url: ""
-      weigth: 2
-    -
-      name: About
-      url: page/about/
-      weight: 3
-    -
-      name: Docs
-      title: Docs
-      url: doc
+    - name: News
+      url: ..
+      weight: 10
+
+    - name: About
+      identifier: about
+      weight: 20
+    - name: Introduction
+      parent: about
+      url: ../page/introduction/
       weight: 1
-    -
-      name: Tags
-      url: tags
-      weigth: 3
+    - name: Features
+      parent: about
+      url: ../page/features/
+      weight: 2
+    - name: Pipeline
+      parent: about
+      url: ../page/pipeline/
+      weight: 3
+    - name: Models
+      parent: about
+      url: ../page/models/
+      weight: 4
+    - name: Examples
+      parent: about
+      url: ../page/examples/
+      weight: 5
+
+    - name: Community
+      identifier: community
+      weight: 30
+    - name: Users
+      parent: community
+      url: ../page/community/
+      weight: 1
+    - name: Developers
+      parent: community
+      url: ../page/community/
+      weight: 2
+    - name: Forum
+      parent: community
+      url:                # TODO
+      weight: 3
+    - name: Mailing list
+      parent: community
+      url:                # TODO
+      weight: 4
+    - name: F.A.Q.
+      parent: community
+      url: ../page/faq/
+      weight: 5
+
+    - name: Documentation
+      url: ../doc
+      weight: 40
+
+    - name: Download
+      identifier: download
+      weight: 50
+    - name: Releases
+      parent: download
+      url: ../page/releases/
+      weight: 1
+    - name: Docker
+      parent: download
+      url: ../page/docker/
+      weight: 2
+    - name: Repository
+      parent: download
+      url: http://gitlab.com/esa/pyxel
+      weight: 3
+#    - name: Issues
+#      parent: download
+#      url: http://gitlab.com/esa/pyxel/issues
+#      weight: 4

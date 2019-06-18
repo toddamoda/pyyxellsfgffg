@@ -190,6 +190,10 @@ blog:
     - export HUGO_ARCHIVE_FULL="${HUGO_CACHE}/${HUGO_ARCHIVE}"
     - export HUGO_URL="https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_ARCHIVE}"
 
+    - echo $HUGO_ARCHIVE_FULL
+    - echo $HUGO_CACHE
+    - echo $HUGO_URL
+
     - export
 
     - ls
@@ -198,8 +202,8 @@ blog:
     - ls blog/themes/*
 
     # Download HUGO
-    - test -e $HUGO_ARCHIVE_FULL || wget -P $HUGO_CACHE $HUGO_URL
-    # -  wget -P $HUGO_CACHE $HUGO_URL
+#    - test -e $HUGO_ARCHIVE_FULL || wget -P $HUGO_CACHE $HUGO_URL
+    - wget -P $HUGO_CACHE $HUGO_URL
     
     # Install HUGO
     - tar -xf $HUGO_ARCHIVE_FULL -C /bin
