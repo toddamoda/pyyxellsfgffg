@@ -1,5 +1,5 @@
 ---
-title: "SPIE presentation and paper"
+title: "SPIE paper and presentation"
 date: 2018-06-08T15:04:05-07:00
 draft: false
 # tags: ['Getting started']

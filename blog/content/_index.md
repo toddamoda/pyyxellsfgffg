@@ -1,3 +1,3 @@
 
 
-![Models_of_Pyxel](img/models.png "Models of Pyxel")
+![Models_of_Pyxel](/img/models.png "Models of Pyxel")

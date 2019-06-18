@@ -1,15 +1,12 @@
 ---
 title: "Presentation on EWASS conference"
 date: 2019-06-17T17:20:41+02:00
-draft: true
+draft: false
 ---
 
 Pyxel will be presented at the **European Week of Astronomy and Space Science**
 on 24 June (Monday) in Lyon by Thibaut Prod'homme (ESA). 
-
-LS8: Python in Astronomy session
-   
-https://eas.unige.ch/EWASS2019/session.jsp?id=LS8    
-
+You can find the Pyxel talk in *LS8 "Python in Astronomy"* session of the program:    
+http://ewass.kuoni-congress.info/2019/programme
 
 ![EWASS](/img/ewass.png "EWASS")
