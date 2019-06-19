@@ -4,43 +4,68 @@ subtitle:
 comments: false
 ---
 
-# POPPY
+# Models in Pyxel
+
+This is not an exhaustive list of Pyxel models!
+ 
+## POPPY
 
 POPPY (Physical Optics Propagation in PYthon)[^1] simulates physical optical propagation including diffraction. 
 It implements a flexible framework for modeling Fraunhofer and Fresnel diffraction and point spread function formation, 
-particularly in the context of astronomical telescopes. POPPY was developed as part of a simulation package for JWST, 
-but is broadly applicable to many kinds of imaging simulations.
+particularly in the context of astronomical telescopes.
 
-* Developed by: STScI
+* Developed by: Marshall Perrin et al., STScI
 * Developed for: James Webb Space Telescope
-* Doc: https://poppy-optics.readthedocs.io/en/stable
+* https://poppy-optics.readthedocs.io/en/stable
 
-# CosmiX 
+<center>
+{{< figure src="/img/poppy.png" caption="POPPY (Physical Optics Propagation in PYthon), Credit: STScI" >}}
+</center>
 
-CosmiX[^2] model simulates charge deposition by cosmic rays. It is under development.
+## CosmiX
 
-* Developed by: ESA
+CosmiX[^2] simulates charge deposition by cosmic rays. It is still under development.
+
+* Developed by: David Lucsanyi, ESA
 * Developed for: general
 
-# CDM 
+<center>
+{{< figure src="/img/cosmix.png" caption="CosmiX cosmic ray model" width="600px" >}}
+</center>
 
-Charge Distortion Model[^3]
+## CDM 
 
+CDM (Charge Distortion Model)[^3] simulates Charge Transfer Inefficiency in radiation damaged CCD detectors.
 
-* Developed by: ESA
+* Developed by: Alexander Short, ESA
 * Developed for: Gaia mission
 
-# ngHxRG 
+<center>
+{{< figure src="/img/cdm.png" caption="CDM (Charge Distortion Model)" width="500px" >}}
+</center>
 
-HxRG Noise Generator[^4]
+## ngHxRG 
 
+HxRG Noise Generator[^4] simulates readout noises specifically for HxRG type hybrid HgCdTe detectors.
 
-* Developed by: NASA
+* Developed by: Bernard J. Rauscher, NASA
 * Developed for: James Webb Space Telescope
-* Doc: 
 
-    
-[^1]: M. D. Perrin et al.: "Simulating point spread functions for the James Webb Space Telescope with WebbPSF", Space Telescopes and Instrumentation 2012, SPIE Proc., Vol. 8442, pp. 11. (2012).    
-[^2]: RADECS paper ...    
-[^3]: A. Short et al.: "An analytical model of radiation-induced Charge Transfer Inefficiency for CCD detectors", Monthly Notices of the Royal Astronomical Society 430(4), 3078{3085 (2013).    
-[^4]: B. J. Rauscher: "Teledyne H1RG, H2RG, and H4RG Noise Generator", Publications of the Astronomical Society of the Pacific 127(957), 1144 (2015).    
+<center>
+{{< figure src="/img/nghxrg.png" caption="ngHxRG Noise Generator" >}}
+</center>
+
+# Models to be added...
+
+* arctic (Algorithm foR CTI Correction)
+  * https://github.com/ocordes/arctic
+* GalSim (modular galaxy image simulation toolkit)
+  * https://github.com/GalSim-developers/GalSim
+* Allpix<sup>2</sup> (pixel detector simulation framework)
+  * https://project-allpix-squared.web.cern.ch
+
+
+[^1]: M. D. Perrin et al.: *"Simulating point spread functions for the James Webb Space Telescope with WebbPSF"*, Space Telescopes and Instrumentation 2012, SPIE Proc., Vol. 8442, pp. 11. (2012).
+[^2]: D. Lucsanyi, T. Prod'homme: *"Simulating charge deposition by cosmic rays inside astronomical imaging detectors"*, Session E: Photonics, Optoelectronics & Sensors, RADECS conference 2019.
+[^3]: A. Short et al.: *"An analytical model of radiation-induced Charge Transfer Inefficiency for CCD detectors"*, Monthly Notices of the Royal Astronomical Society 430(4), 3078{3085 (2013).
+[^4]: B. J. Rauscher: *"Teledyne H1RG, H2RG, and H4RG Noise Generator"*, Publications of the Astronomical Society of the Pacific 127(957), 1144 (2015).    
