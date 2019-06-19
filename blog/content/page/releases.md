@@ -10,8 +10,7 @@ comments: false
 
 <br>
 <img src="/img/pyxel-email.png" width="300px">
-<br>
 
-### We are looking forward to your feedback! 
+**We are looking forward to your feedback!** 
 
 </center>
