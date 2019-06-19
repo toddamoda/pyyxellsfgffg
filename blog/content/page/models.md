@@ -6,7 +6,7 @@ comments: false
 
 # Models in Pyxel
 
-This is not an exhaustive list of Pyxel models: 
+This is not an exhaustive list of Pyxel models!
  
 ## POPPY
 

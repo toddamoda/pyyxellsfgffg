@@ -26,7 +26,7 @@ based on target dataset(s), finding the (global or local) minimum of the fitness
 - **Exmaple:** Finding the density and release time of charge traps of a Charge Transfer Inefficiency model 
 
 <center>
-{{< figure src="/img/cdm_fitting.png" caption="Final population of model parameters fitted to target data" width="500px" >}}
+{{< figure src="/img/cdm_fitting.png" caption="Final population of model parameters fitted to target measurement data using an evolutionary algorithm" width="500px" >}}
 </center>
 
 # Dynamic, Time-dependent Readout
@@ -38,9 +38,27 @@ detector object or flux of incident photons
 - **Use cases:** Running time-dependent models, Non-destructive readout 
 - **Exmaple:** Persistence model, Dark Current model, Fowler-N sampling, Up-The-Ramp sampling
 
+<center>
+{{< figure src="/img/fowler-n-sampling.png" caption="Fowler-N sampling of CMOS sensor signal" width="400px" >}}
+</center>
+
+
 # User-friendly configuration file
 
 - Pyxel needs only one YAML configuration file as an input
 - Structured, easy-to-read and understand
+- 3 main parts: `simulation`, `detector`, `pipeline`  
 
+<center>
+{{< figure src="/img/yaml.png" caption="Structured YAML configuration file of Pyxel" width="400px" >}}
+</center>
 
+# Graphical User Interface 
+
+- Web-based GUI (html), which can displayed and used via a web browser 
+- The GUI is automatically generated based on the Pyxel YAML configuration file
+- **Under development, but coming soon!**
+
+<center>
+{{< figure src="/img/pyxel-gui.png" caption="Web-based Graphical User Interface of Pyxel" width="600px" >}}
+</center>
