@@ -4,9 +4,6 @@ subtitle:
 comments: false
 ---
 
-![IR_and_Visible_space_astronomy_missions_of_ESA](/img/missions.png)*Infrared and Visible space astronomy missions of ESA*
-
-
 **Pyxel is a novel, end-to-end simulation framework in Python for imaging detectors.**
 
 It was designed to host and combine existing and new models, i.e. codes simulating instrument effects such as 
@@ -22,13 +19,17 @@ Pyxel is an easy-to-use, easy-to-contribute and multi-purpose tool supporting in
 during all phases, for example to generate synthetic data, support data processing and analysis, 
 estimate performance, investigate problem sources or trade between different technologies.
 
-It is developed at the European Space Agency in collaboration with the European Southern Observatory (ESO), 
+It is developed at the European Space Agency (ESA) in collaboration with the European Southern Observatory (ESO), 
 and will be released soon as a fully open-source software. Our goal is to establish a worldwide collaboration 
 based on Pyxel to share simulation resources, initiate and facilitate the knowledge transfer within the 
 instrumentation community of Space Astronomy, Ground-based Astronomy and Earth observation.
 
+<br>
+<center>
+{{< figure src="/img/missions.png" caption="In-orbit and future space astronomy missions of ESA in the visible and infrared domains" >}}
+</center>
 
-### TL;DR
+### In short
 
 - A novel end-to-end detector simulation framework 
 - For all type of imaging detectors (including CCD, CMOS-based sensors)
@@ -37,4 +38,5 @@ instrumentation community of Space Astronomy, Ground-based Astronomy and Earth o
 - Implemented in Python, based on popular, open-source Python packages
 - Cross-platform, multi-purpose framework with wide range of potential applications
 - Users can add new simulation models easily and quickly
+- The European Southern Observatory has already joined the growing Pyxel collaboration
 

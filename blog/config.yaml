@@ -41,17 +41,17 @@ menu:
       parent: about
       url: ../page/introduction/
       weight: 1
-    - name: Features
-      parent: about
-      url: ../page/features/
-      weight: 2
-    - name: Pipeline
+    - name: How it works
       parent: about
       url: ../page/pipeline/
-      weight: 3
+      weight: 2
     - name: Models
       parent: about
       url: ../page/models/
+      weight: 3
+    - name: Features
+      parent: about
+      url: ../page/features/
       weight: 4
     - name: Examples
       parent: about
@@ -71,11 +71,11 @@ menu:
       weight: 2
     - name: Forum
       parent: community
-      url:                # TODO
+      url: ..              # TODO
       weight: 3
     - name: Mailing list
       parent: community
-      url:                # TODO
+      url: ..               # TODO
       weight: 4
     - name: F.A.Q.
       parent: community
