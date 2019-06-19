@@ -5,7 +5,7 @@ relativeURLs: true
 title: "Pyxel"
 description: "simulation framework"
 theme: "beautifulhugo"
-lastmod: "2019-06-18"
+lastmod: "2019-06-19"
 
 Params:
   subtitle: "A general simulation framework in Python for astronomical and Earth observation imaging detectors"
@@ -45,18 +45,18 @@ menu:
       parent: about
       url: ../page/pipeline/
       weight: 2
-    - name: Models
-      parent: about
-      url: ../page/models/
-      weight: 3
     - name: Features
       parent: about
       url: ../page/features/
-      weight: 4
-    - name: Examples
+      weight: 3
+    - name: Models
       parent: about
-      url: ../page/examples/
-      weight: 5
+      url: ../page/models/
+      weight: 4
+#    - name: Examples
+#      parent: about
+#      url: ../page/examples/
+#      weight: 5
 
     - name: Community
       identifier: community
@@ -69,18 +69,18 @@ menu:
       parent: community
       url: ../page/community/
       weight: 2
-    - name: Forum
-      parent: community
-      url: ..              # TODO
-      weight: 3
-    - name: Mailing list
-      parent: community
-      url: ..               # TODO
-      weight: 4
-    - name: F.A.Q.
-      parent: community
-      url: ../page/faq/
-      weight: 5
+#    - name: Forum
+#      parent: community
+#      url: ..              # TODO
+#      weight: 3
+#    - name: Mailing list
+#      parent: community
+#      url: ..               # TODO
+#      weight: 4
+#    - name: F.A.Q.
+#      parent: community
+#      url: ../page/faq/
+#      weight: 5
 
     - name: Documentation
       url: ../doc
@@ -89,14 +89,14 @@ menu:
     - name: Download
       identifier: download
       weight: 50
-    - name: Releases
+    - name: Beta release
       parent: download
       url: ../page/releases/
       weight: 1
-    - name: Docker
-      parent: download
-      url: ../page/docker/
-      weight: 2
+#    - name: Docker
+#      parent: download
+#      url: ../page/docker/
+#      weight: 2
     - name: Repository
       parent: download
       url: http://gitlab.com/esa/pyxel
