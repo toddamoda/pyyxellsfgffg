@@ -156,7 +156,7 @@ def run_cdm(s: np.ndarray,
             if charge_injection:
                 gamma_p = g_p * chg_inj_parallel_transfers            # number of all transfers in parallel dir.
             else:
-                gamma_p = g_p * (i+1)
+                gamma_p = g_p * i      # TODO: (i+1) ?????????????
             for k in range(kdim_p):
                 for j in numba.prange(0, xdim):
                     nc = 0.
@@ -178,7 +178,7 @@ def run_cdm(s: np.ndarray,
         alpha_s = st * sigma_s * vth * sfwc ** beta_s / (2. * svg)      # type: np.ndarray
         g_s = 2. * nt_s * svg / sfwc ** beta_s
         for j in range(0, xdim):
-            gamma_s = g_s * (j+1)
+            gamma_s = g_s * j           # TODO: (j+1) ?????????????
             for k in range(kdim_s):
                 for i in numba.prange(0, ydim):
                     nc = 0.
