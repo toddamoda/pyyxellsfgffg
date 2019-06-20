@@ -11,15 +11,14 @@ This is a function to run the upgraded CDM CTI model developed by Alex Short (ES
 """
 import logging
 import numpy as np
+import numba
 try:
     import matplotlib.pyplot as plt
 except ImportError:
     # raise Warning('Matplotlib cannot be imported')
     pass
-import numba
 # import pyxel
 from pyxel.detectors.ccd import CCD
-from pyxel.detectors.ccd_characteristics import CCDCharacteristics  # noqa: F401
 
 
 # @pyxel.validate
@@ -38,7 +37,7 @@ def cdm(detector: CCD,
     :param parallel_cti: switch on CTI in parallel direction (along column)
     :param serial_cti: switch on CTI in serial direction (along rows)
     :param charge_injection: set this true in case of charge injection,
-        charge packets goes through all pixel in parallel direction
+        charge packets goes through all pixels in parallel direction
     :param beta_p: electron cloud expansion coefficient, parallel
     :param beta_s: electron cloud expansion coefficient, serial
     :param tr_p: trap release time constants (τ_r), parallel
@@ -55,7 +54,7 @@ def cdm(detector: CCD,
     # tau_c - capture time constant
     # Pc - capture probability (per vacant trap) as a function of the number of sample electrons Ne
     # NT - number of traps in the column,
-    # NT = 2*nt*Vg*x  where x is the number of TDI transfers or the column length in pixel.
+    # NT = 2*nt*Vg*x  where x is the number of TDI transfers or the column length in pixels.
     # Nc - number of electrons captured by a given trap species during the transit of an integrating signal packet
     # N0 - initial trap occupancy
     # Nr - number of electrons released into the sample during a transit along the column
@@ -95,7 +94,7 @@ def cdm(detector: CCD,
                                    sigma_p=sigma_p, sigma_s=sigma_s)
 
 
-@numba.jit(nopython=True, nogil=True)
+@numba.jit(nopython=True, nogil=True, parallel=True)
 def run_cdm(s: np.ndarray,
             beta_p: float, beta_s: float,
             vg: float, svg: float,
@@ -155,7 +154,7 @@ def run_cdm(s: np.ndarray,
     if parallel_cti:
         # print('adding parallel CTI')
         alpha_p = t * sigma_p * vth * fwc ** beta_p / (2. * vg)     # type: np.ndarray
-        g_p = 2. * nt_p * vg / fwc ** beta_p
+        g_p = 2. * nt_p * vg / fwc ** beta_p                        # type: np.ndarray
         # for i in range(y_start, y_start+ydim):
         for i in range(0, ydim):
             # print('i=', i)
@@ -166,7 +165,7 @@ def run_cdm(s: np.ndarray,
                 # i -= y_start
             for k in range(kdim_p):
                 # for j in range(x_start, x_start+xdim):
-                for j in range(0, xdim):
+                for j in numba.prange(0, xdim):
                     nc = 0.
                     if s[i, j] > 0.01:
                         nc = max((gamma_p[k] * s[i, j] ** beta_p - no[j, k]) /
@@ -190,7 +189,7 @@ def run_cdm(s: np.ndarray,
         for j in range(0, xdim):
             # print('j=', j)
             gamma_s = g_s * j
-            for k in range(kdim_s):
+            for k in numba.prange(kdim_s):
                 # if tr_s[k] < t:
                 # for i in range(y_start, y_start+ydim):
                 for i in range(0, ydim):
