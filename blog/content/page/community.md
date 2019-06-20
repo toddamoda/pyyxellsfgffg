@@ -14,7 +14,7 @@ contribute to and expand the framework by adding their own codes, models
 * It is very general and flexible, therefore anyone can use it, even for different applications
 
 <center>
-{{< figure src="/img/users.png" alt="The Pyxel Community" width="500px" >}}
+{{< figure src="/img/pyxel-community.png" alt="The Pyxel Community" width="500px" >}}
 </center>
 
 # Main developers
