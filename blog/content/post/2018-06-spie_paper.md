@@ -5,7 +5,7 @@ draft: false
 # tags: ['Getting started']
 ---
 
-Pyxel paper has been presented at **SPIE Astronomical Telescopes & Instrumentation** conference
+**Pyxel** paper has been presented at *SPIE Astronomical Telescopes & Instrumentation* conference
 in Austin, Texas and published in SPIE Proceedings:    
 https://doi.org/10.1117/12.2314047
 
