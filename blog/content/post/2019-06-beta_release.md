@@ -7,7 +7,7 @@ draft: false
 **Pyxel Beta version has been released!** 
 
 A presentation was given by David Lucsanyi at ESA/ESTEC, demonstrated 
-the features and potential applications of Pyxel. From now on, users can start to use and test the software providing
+the features and potential applications of **Pyxel**. From now on, users can start to use and test the software providing
 valuable feedback to the developers.
 
 <img src="/img/pyxel-beta-release.png" alt="Pyxel Beta release">
