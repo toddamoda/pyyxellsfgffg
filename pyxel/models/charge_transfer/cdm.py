@@ -143,15 +143,13 @@ def run_cdm(s: np.ndarray,
     nt_p = nt_p / vg            # parallel trap density (traps / cm**3)
     nt_s = nt_s / svg           # serial trap density (traps / cm**3)
 
-    no = np.zeros((xdim, kdim_p))
-    sno = np.zeros((ydim, kdim_s))
-
     # nt_p *= rdose             # absolute trap density [per cm**3]
     # nt_s *= rdose             # absolute trap density [per cm**3]
 
     # IMAGING (non-TDI) MODE
     # Parallel direction
     if parallel_cti:
+        no = np.zeros((xdim, kdim_p))
         # print('adding parallel CTI')
         alpha_p = t * sigma_p * vth * fwc ** beta_p / (2. * vg)     # type: np.ndarray
         g_p = 2. * nt_p * vg / fwc ** beta_p                        # type: np.ndarray
@@ -161,7 +159,7 @@ def run_cdm(s: np.ndarray,
             if charge_injection:
                 gamma_p = g_p * chg_inj_parallel_transfers            # number of all transfers in parallel dir.
             else:
-                gamma_p = g_p * i
+                gamma_p = g_p * (i+1)
                 # i -= y_start
             for k in range(kdim_p):
                 # for j in range(x_start, x_start+xdim):
@@ -182,17 +180,18 @@ def run_cdm(s: np.ndarray,
     # IMAGING (non-TDI) MODE
     # Serial direction
     if serial_cti:
+        sno = np.zeros((ydim, kdim_s))
         # print('adding serial CTI')
         alpha_s = st * sigma_s * vth * sfwc ** beta_s / (2. * svg)      # type: np.ndarray
         g_s = 2. * nt_s * svg / sfwc ** beta_s
         # for j in range(x_start, x_start+xdim):
         for j in range(0, xdim):
             # print('j=', j)
-            gamma_s = g_s * j
-            for k in numba.prange(kdim_s):
+            gamma_s = g_s * (j+1)
+            for k in range(kdim_s):
                 # if tr_s[k] < t:
                 # for i in range(y_start, y_start+ydim):
-                for i in range(0, ydim):
+                for i in numba.prange(0, ydim):
                     nc = 0.
                     if s[i, j] > 0.01:
                         nc = max((gamma_s[k] * s[i, j] ** beta_s - sno[i, k]) /
