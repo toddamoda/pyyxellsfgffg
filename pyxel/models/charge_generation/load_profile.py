@@ -11,11 +11,15 @@ from pyxel.detectors.detector import Detector
 @pyxel.validate
 @pyxel.argument(name='txt_file', label='file path', units='', validate=pyxel.check_path)
 def charge_profile(detector: Detector,
-                   txt_file: str):
+                   txt_file: str,
+                   fit_profile_to_det: bool,
+                   position: list):
     """Load charge profile from txt file for detector, mostly for but not limited to CCDs.
 
     :param detector: Pyxel Detector object
     :param txt_file: file path
+    :param fit_profile_to_det: bool
+    :param position: list
     """
     logger = logging.getLogger('pyxel')
     logger.info('')
@@ -27,6 +31,11 @@ def charge_profile(detector: Detector,
     init_hor_position = np.tile(init_hor_position, geo.row)
 
     charge_from_file = np.loadtxt(txt_file, ndmin=2)
+    if fit_profile_to_det:
+        if position is None:
+            position = [0, 0]
+        charge_from_file = charge_from_file[slice(position[0], position[0]+geo.row),
+                                            slice(position[1], position[1]+geo.col)]
     charge_number = charge_from_file.flatten()
     where_non_zero = np.where(charge_number > 0.)
     charge_number = charge_number[where_non_zero]
