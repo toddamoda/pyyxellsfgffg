@@ -33,7 +33,7 @@ contribute to and expand the framework by adding their own codes, models
 
 <br>
 <center>
-{{< figure src="/img/pyxel-team.jpg" caption="The core developer team at ESA/ESTEC" width="400px" >}}
+{{< figure src="/img/pyxel-team.jpg" caption="The core of the developer team at ESA/ESTEC" width="400px" >}}
 </center>
 
 # Pyxel Collaboration 
@@ -52,4 +52,6 @@ laboratory or mission data.
 
 <center>
 ## Join the Pyxel Collaboration!
+<br>
+<img src="/img/pyxel-email.png" width="300px">
 </center>
