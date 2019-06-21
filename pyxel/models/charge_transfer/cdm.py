@@ -11,15 +11,14 @@ This is a function to run the upgraded CDM CTI model developed by Alex Short (ES
 """
 import logging
 import numpy as np
+import numba
 try:
     import matplotlib.pyplot as plt
 except ImportError:
     # raise Warning('Matplotlib cannot be imported')
     pass
-import numba
 # import pyxel
 from pyxel.detectors.ccd import CCD
-from pyxel.detectors.ccd_characteristics import CCDCharacteristics  # noqa: F401
 
 
 # @pyxel.validate
@@ -38,7 +37,7 @@ def cdm(detector: CCD,
     :param parallel_cti: switch on CTI in parallel direction (along column)
     :param serial_cti: switch on CTI in serial direction (along rows)
     :param charge_injection: set this true in case of charge injection,
-        charge packets goes through all pixel in parallel direction
+        charge packets goes through all pixels in parallel direction
     :param beta_p: electron cloud expansion coefficient, parallel
     :param beta_s: electron cloud expansion coefficient, serial
     :param tr_p: trap release time constants (τ_r), parallel
@@ -55,7 +54,7 @@ def cdm(detector: CCD,
     # tau_c - capture time constant
     # Pc - capture probability (per vacant trap) as a function of the number of sample electrons Ne
     # NT - number of traps in the column,
-    # NT = 2*nt*Vg*x  where x is the number of TDI transfers or the column length in pixel.
+    # NT = 2*nt*Vg*x  where x is the number of TDI transfers or the column length in pixels.
     # Nc - number of electrons captured by a given trap species during the transit of an integrating signal packet
     # N0 - initial trap occupancy
     # Nr - number of electrons released into the sample during a transit along the column
@@ -95,7 +94,7 @@ def cdm(detector: CCD,
                                    sigma_p=sigma_p, sigma_s=sigma_s)
 
 
-@numba.jit(nopython=True, nogil=True)
+@numba.jit(nopython=True, nogil=True, parallel=True)
 def run_cdm(s: np.ndarray,
             beta_p: float, beta_s: float,
             vg: float, svg: float,
@@ -144,36 +143,28 @@ def run_cdm(s: np.ndarray,
     nt_p = nt_p / vg            # parallel trap density (traps / cm**3)
     nt_s = nt_s / svg           # serial trap density (traps / cm**3)
 
-    no = np.zeros((xdim, kdim_p))
-    sno = np.zeros((ydim, kdim_s))
-
     # nt_p *= rdose             # absolute trap density [per cm**3]
     # nt_s *= rdose             # absolute trap density [per cm**3]
 
     # IMAGING (non-TDI) MODE
     # Parallel direction
     if parallel_cti:
-        # print('adding parallel CTI')
+        no = np.zeros((xdim, kdim_p))
         alpha_p = t * sigma_p * vth * fwc ** beta_p / (2. * vg)     # type: np.ndarray
-        g_p = 2. * nt_p * vg / fwc ** beta_p
-        # for i in range(y_start, y_start+ydim):
+        g_p = 2. * nt_p * vg / fwc ** beta_p                        # type: np.ndarray
         for i in range(0, ydim):
-            # print('i=', i)
             if charge_injection:
                 gamma_p = g_p * chg_inj_parallel_transfers            # number of all transfers in parallel dir.
             else:
-                gamma_p = g_p * i
-                # i -= y_start
+                gamma_p = g_p * i      # TODO: (i+1) ?????????????
             for k in range(kdim_p):
-                # for j in range(x_start, x_start+xdim):
-                for j in range(0, xdim):
+                for j in numba.prange(0, xdim):
                     nc = 0.
                     if s[i, j] > 0.01:
                         nc = max((gamma_p[k] * s[i, j] ** beta_p - no[j, k]) /
                                  (gamma_p[k] * s[i, j] ** (beta_p - 1.) + 1.) *
                                  (1. - np.exp(-1 * alpha_p[k] * s[i, j] ** (1. - beta_p))), 0.)
                         no[j, k] += nc
-
                     nr = no[j, k] * (1. - np.exp(-t/tr_p[k]))
                     s[i, j] += -1 * nc + nr
                     no[j, k] -= nr
@@ -183,24 +174,19 @@ def run_cdm(s: np.ndarray,
     # IMAGING (non-TDI) MODE
     # Serial direction
     if serial_cti:
-        # print('adding serial CTI')
+        sno = np.zeros((ydim, kdim_s))
         alpha_s = st * sigma_s * vth * sfwc ** beta_s / (2. * svg)      # type: np.ndarray
         g_s = 2. * nt_s * svg / sfwc ** beta_s
-        # for j in range(x_start, x_start+xdim):
         for j in range(0, xdim):
-            # print('j=', j)
-            gamma_s = g_s * j
+            gamma_s = g_s * j           # TODO: (j+1) ?????????????
             for k in range(kdim_s):
-                # if tr_s[k] < t:
-                # for i in range(y_start, y_start+ydim):
-                for i in range(0, ydim):
+                for i in numba.prange(0, ydim):
                     nc = 0.
                     if s[i, j] > 0.01:
                         nc = max((gamma_s[k] * s[i, j] ** beta_s - sno[i, k]) /
                                  (gamma_s[k] * s[i, j] ** (beta_s - 1.) + 1.) *
                                  (1. - np.exp(-1 * alpha_s[k] * s[i, j] ** (1. - beta_s))), 0.)
                         sno[i, k] += nc
-
                     nr = sno[i, k] * (1. - np.exp(-st/tr_s[k]))
                     s[i, j] += -1 * nc + nr
                     sno[i, k] -= nr
@@ -317,3 +303,106 @@ def plot_image(data):
     plt.ylabel('y - parallel direction')
     plt.title('CCD image with CTI')
     plt.colorbar()
+
+
+# @numba.jit(nopython=True, nogil=True, parallel=True)
+def optimized_cdm(s: np.ndarray, beta_p: float, beta_s: float,
+                  vg: float, svg: float, t: float, st: float,
+                  fwc: float, sfwc: float, vth: float,
+                  tr_p: np.ndarray, tr_s: np.ndarray,
+                  nt_p: np.ndarray, nt_s: np.ndarray,
+                  sigma_p: np.ndarray, sigma_s: np.ndarray,
+                  charge_injection: bool = False, chg_inj_parallel_transfers: int = 0,
+                  parallel_cti: bool = True, serial_cti: bool = True):
+    """CDM model.
+
+    Done by Patricia Liebing. Not yet test or compared to the original 'run_cdm' function.
+
+    :param s: np.ndarray
+    :param dob:
+    :param beta_p: electron cloud expansion coefficient (parallel)
+    :param beta_s: electron cloud expansion coefficient (serial)
+    :param vg: assumed maximum geometrical volume electrons can occupy within
+               a pixel (parallel)
+    :param svg: assumed maximum geometrical volume electrons can occupy within
+                a pixel (serial)
+    :param t: constant TDI period (parallel)
+    :param st: constant TDI period (serial)
+    :param fwc:
+    :param sfwc:
+    :param vth:
+    :param charge_injection:
+    :param chg_inj_parallel_transfers:
+    :param sigma_p:
+    :param sigma_s:
+    :param tr_p:
+    :param tr_s:
+    :param nt_p: number of traps per electron cloud (and not pixel!)
+                 in parallel direction
+    :param nt_s: number of traps per electron cloud (and not pixel!)
+                 in serial direction
+    :param parallel_cti:
+    :param serial_cti:
+    :return:
+    """
+    ydim, xdim = s.shape  # full signal array we want to apply cdm for
+
+    kdim_p = len(nt_p)
+    kdim_s = len(nt_s)
+
+    # np.clip(s, 0., fwc, s)      # full well capacity
+
+    nt_p = nt_p / vg  # parallel trap density (traps / cm**3)
+    nt_s = nt_s / svg  # serial trap density (traps / cm**3)
+
+    # nt_p *= rdose             # absolute trap density [per cm**3]
+    # nt_s *= rdose             # absolute trap density [per cm**3]
+
+    # IMAGING (non-TDI) MODE
+    # Parallel direction
+    if parallel_cti:
+        no = np.zeros((xdim, kdim_p))
+        alpha_p = t * sigma_p * vth * fwc ** beta_p / (2.0 * vg)        # type: np.ndarray
+        g_p = 2.0 * nt_p * vg / fwc ** beta_p                           # type: np.ndarray
+        for i in range(0, ydim):
+            if charge_injection:
+                gamma_p = (g_p * chg_inj_parallel_transfers)            # number of all transfers in parallel dir.
+            else:
+                gamma_p = g_p * (i + 1)
+            for k in range(kdim_p):
+                nc = np.zeros(xdim)
+                nctest = np.zeros(xdim)
+                sclm = s[i, :]
+                idx = np.where(sclm > 0.01)
+                nok = no[:, k]
+                nc[idx] += (gamma_p[k] * sclm[idx] ** beta_p - nok[idx]) / (
+                        gamma_p[k] * sclm[idx] ** (beta_p - 1.0) + 1.0) * (
+                        1.0 - np.exp(-1 * alpha_p[k] * sclm[idx] ** (1.0 - beta_p)))
+                no[:, k] += np.fmax(nctest, nc)
+                nr = no[:, k] * (1.0 - np.exp(-t / tr_p[k]))
+                s[i, :] += -1 * nc + nr
+                no[:, k] -= nr
+
+    # IMAGING (non-TDI) MODE
+    # Serial direction
+    if serial_cti:
+        sno = np.zeros((ydim, kdim_s))
+        alpha_s = st * sigma_s * vth * sfwc ** beta_s / (2.0 * svg)     # type: np.ndarray
+        g_s = 2.0 * nt_s * svg / sfwc ** beta_s                         # type: np.ndarray
+        for j in range(0, xdim):
+            gamma_s = g_s * (j + 1)
+            for k in range(kdim_s):
+                ncs = np.zeros(ydim)
+                ncstest = np.zeros(ydim)
+                srow = s[:, j]
+                idxs = np.where(srow > 0.01)
+                snok = sno[:, k]
+                ncs[idxs] += (gamma_s[k] * srow[idxs] ** beta_s - snok[idxs]) / (
+                        gamma_s[k] * srow[idxs] ** (beta_s - 1.0) + 1.0) * (
+                        1.0 - np.exp(-1 * alpha_s[k] * srow[idxs] ** (1.0 - beta_s)))
+                sno[:, k] += np.fmax(ncstest, ncs)
+                nrs = sno[:, k] * (1.0 - np.exp(-st / tr_s[k]))
+                s[:, j] += -1 * ncs + nrs
+                sno[:, k] -= nrs
+
+    return s
