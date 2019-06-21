@@ -5,7 +5,7 @@ Pyxel detector simulation framework
 [![coverage report](http://sci-fv.io.esa.int/pyxel-mirror/coverage.svg)](http://sci-fv.io.esa.int/pyxel-mirror/coverage)
 [![License](https://esa.gitlab.io/pyxel/license.svg)](https://gitlab.com/esa/pyxel/blob/master/LICENSE)
 [![docs](https://esa.gitlab.io/pyxel/documentation.svg)](https://esa.gitlab.io/pyxel/doc)
-[![gitter](https://badges.gitter.im/pyxel-framework/community.svg)](https://gitter.im/pyxel-framework/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![gitter](https://badges.gitter.im/pyxel-framework/community.svg)](https://gitter.im/pyxel-framework/community)
 
 Pyxel is a general detector simulation framework.
 An easy-to-use framework that can simulate a variety of imaging detector
