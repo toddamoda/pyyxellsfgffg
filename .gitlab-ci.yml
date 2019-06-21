@@ -180,63 +180,24 @@ doc:
       - license.svg
   allow_failure: false
 
-blog:
-  image: alpine
-  stage: build
-  script:
-    - export HUGO_VERSION="0.55.6"
-    - export HUGO_ARCHIVE="hugo_${HUGO_VERSION}_Linux-64bit.tar.gz"
-    - export HUGO_CACHE="${CI_PROJECT_DIR}/.cache"
-    - export HUGO_ARCHIVE_FULL="${HUGO_CACHE}/${HUGO_ARCHIVE}"
-    - export HUGO_URL="https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_ARCHIVE}"
-
-    - echo $HUGO_ARCHIVE_FULL
-    - echo $HUGO_CACHE
-    - echo $HUGO_URL
-
-    - export
-
-    - ls
-    - ls blog
-    - ls blog/themes
-    - ls blog/themes/*
-
-    # Download HUGO
-#    - test -e $HUGO_ARCHIVE_FULL || wget -P $HUGO_CACHE $HUGO_URL
-    - wget -P $HUGO_CACHE $HUGO_URL
-    
-    # Install HUGO
-    - tar -xf $HUGO_ARCHIVE_FULL -C /bin
-
-    # Generate HTML pages
-    - hugo --source blog --destination html
-
-    - ls blog/html
-  artifacts:
-    paths:
-       - blog/html
-
-
-
-docker:
-  stage: build
-  image: docker:dind
-  script:
-    - echo $CONTAINER_LATEST_IMAGE
-    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN gitlab.esa.int:4567
-    - docker build -t gitlab.esa.int:4567/sci-fv/pyxel-mirror .
-    - docker push gitlab.esa.int:4567/sci-fv/pyxel-mirror
-#    - docker login -u david.lucsanyi -p $TOKEN gitlab.esa.int:4567   # TODO  (personal) key/token needed
-#    - docker tag gitlab.esa.int:4567/sci-fv/pyxel-mirror:latest registry.gitlab.com/esa/pyxel:latest
-#    - docker push registry.gitlab.com/esa/pyxel
-
-#    - docker build --pull -t $CONTAINER_LATEST_IMAGE .
-#    - docker push $CONTAINER_LATEST_IMAGE
-#    - docker tag $CONTAINER_LATEST_IMAGE registry.gitlab.com/esa/pyxel
-  allow_failure: true
-  only:
-    - master
-
+#docker:
+#  stage: build
+#  image: docker:dind
+#  script:
+#    - echo $CONTAINER_LATEST_IMAGE
+#    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN gitlab.esa.int:4567
+#    - docker build -t gitlab.esa.int:4567/sci-fv/pyxel-mirror .
+#    - docker push gitlab.esa.int:4567/sci-fv/pyxel-mirror
+##    - docker login -u david.lucsanyi -p $TOKEN gitlab.esa.int:4567   # TODO  (personal) key/token needed
+##    - docker tag gitlab.esa.int:4567/sci-fv/pyxel-mirror:latest registry.gitlab.com/esa/pyxel:latest
+##    - docker push registry.gitlab.com/esa/pyxel
+#
+##    - docker build --pull -t $CONTAINER_LATEST_IMAGE .
+##    - docker push $CONTAINER_LATEST_IMAGE
+##    - docker tag $CONTAINER_LATEST_IMAGE registry.gitlab.com/esa/pyxel
+#  allow_failure: true
+#  only:
+#    - master
 
 # ###########################
 # Deploy Stage
@@ -249,8 +210,6 @@ pages:
   script:
     - mkdir public
     - mv docs/html public/doc
-    - mv blog/html/* public
-    #- mv blog/html public/blog
     - mv htmlcov public/coverage
     - mv pytest_report.html public
     - mv pylint_report.html public
