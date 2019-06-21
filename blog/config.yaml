@@ -9,8 +9,8 @@ lastmod: "2019-06-19"
 
 Params:
   subtitle: "A general simulation framework in Python for astronomical and Earth observation imaging detectors"
-  logo: img/pyxel-logo.png  # Expecting square dimensions   # todo: larger logo
-  # favicon: img/favicon.ico    # todo
+  logo: img/pyxel-logo.png  # Expecting square dimensions
+  favicon: img/pyxel-logo.png
   commit: false
   rss: true
   comments: true
@@ -81,6 +81,10 @@ menu:
 #      parent: community
 #      url: ../page/faq/
 #      weight: 5
+    - name: Links
+      parent: community
+      url: ../page/links/
+      weight: 6
 
     - name: Documentation
       url: ../doc
