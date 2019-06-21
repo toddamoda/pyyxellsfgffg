@@ -7,7 +7,7 @@ comments: false
 ### Pyxel
 * <a href="http://sci.esa.int/pyxel" target="_blank">Pyxel ESA website</a>
 * <a href="https://gitlab.com/esa/pyxel" target="_blank">Pyxel GitLab repository</a>
-* <a href="" target="_blank">Pyxel Forum</a>
+* <a href="https://gitter.im/pyxel-framework/community" target="_blank">Pyxel Forum</a>
 * <a href="" target="_blank">Pyxel Mailing list</a>
 
 ### Tools & Models

@@ -69,10 +69,10 @@ menu:
       parent: community
       url: ../page/community/
       weight: 2
-#    - name: Forum
-#      parent: community
-#      url: ..              # TODO
-#      weight: 3
+    - name: Forum
+      parent: community
+      url: https://gitter.im/pyxel-framework/community
+      weight: 3
 #    - name: Mailing list
 #      parent: community
 #      url: ..               # TODO

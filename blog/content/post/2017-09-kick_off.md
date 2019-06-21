@@ -6,5 +6,5 @@ draft: false
 ---
 
 Development of **Pyxel** has been started at European Space Agency (ESA) by the [Payload Validation team of 
-Future Science Missions department](http://sci.esa.int/future-missions-department/59657-payload-validation-section/). Potential users & user needs at ESA have been collected,
-as well as software requirements have been defined.
+Future Science Missions department](http://sci.esa.int/future-missions-department/59657-payload-validation-section/). 
+Potential users & user needs at ESA have been collected, as well as software requirements have been defined.
