@@ -8,7 +8,6 @@ comments: false
 * <a href="http://sci.esa.int/pyxel" target="_blank">Pyxel ESA website</a>
 * <a href="https://gitlab.com/esa/pyxel" target="_blank">Pyxel GitLab repository</a>
 * <a href="https://gitter.im/pyxel-framework/community" target="_blank">Pyxel Forum</a>
-* <a href="" target="_blank">Pyxel Mailing list</a>
 
 ### Tools & Models
 * <a href="https://esa.github.io/pagmo2" target="_blank">Pagmo/Pygmo</a> parallel optimization library 
