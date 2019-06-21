@@ -1,16 +1,16 @@
 baseURL: "https://esa.gitlab.io/pyxel/"
 languageCode: "en-us"
 relativeURLs: true
-
 title: "Pyxel"
 description: "simulation framework"
 theme: "beautifulhugo"
-lastmod: "2019-06-19"
+lastmod: "2019-06-20"
+googleAnalytics: UA-142543987-1
 
 Params:
   subtitle: "A general simulation framework in Python for astronomical and Earth observation imaging detectors"
-  logo: img/pyxel-logo.png  # Expecting square dimensions   # todo: larger logo
-  # favicon: img/favicon.ico    # todo
+  logo: img/pyxel-logo.png  # Expecting square dimensions
+  favicon: img/pyxel-logo.png
   commit: false
   rss: true
   comments: true
@@ -69,10 +69,10 @@ menu:
       parent: community
       url: ../page/community/
       weight: 2
-#    - name: Forum
-#      parent: community
-#      url: ..              # TODO
-#      weight: 3
+    - name: Forum
+      parent: community
+      url: https://gitter.im/pyxel-framework/community
+      weight: 3
 #    - name: Mailing list
 #      parent: community
 #      url: ..               # TODO
@@ -81,6 +81,10 @@ menu:
 #      parent: community
 #      url: ../page/faq/
 #      weight: 5
+    - name: Links
+      parent: community
+      url: ../page/links/
+      weight: 6
 
     - name: Documentation
       url: ../doc

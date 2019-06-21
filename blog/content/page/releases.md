@@ -6,11 +6,14 @@ comments: false
 
 <center>
 
-## If you want to try Pyxel, just send us an email!
+### Do you want to try Pyxel?
+
+### Send us an email!    
 
 <br>
-<img src="/img/pyxel-email.png" width="300px">
+<img src="/img/pyxel-email.png" width="300px"> 
+<br>
 
-**We are looking forward to your feedback!** 
+### First release is coming soon...
 
 </center>

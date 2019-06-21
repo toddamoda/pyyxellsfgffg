@@ -4,19 +4,18 @@ subtitle:
 comments: false
 ---
 
-# Models in Pyxel
-
 This is not an exhaustive list of Pyxel models!
  
 ## POPPY
 
-POPPY (Physical Optics Propagation in PYthon)[^1] simulates physical optical propagation including diffraction. 
+POPPY (**P**hysical **O**ptics **P**ropagation in **Py**thon)[^1] simulates physical optical propagation including diffraction. 
 It implements a flexible framework for modeling Fraunhofer and Fresnel diffraction and point spread function formation, 
 particularly in the context of astronomical telescopes.
 
 * Developed by: Marshall Perrin et al., STScI
 * Developed for: James Webb Space Telescope
 * https://poppy-optics.readthedocs.io/en/stable
+* https://github.com/spacetelescope/poppy
 
 <center>
 {{< figure src="/img/poppy.png" caption="POPPY (Physical Optics Propagation in PYthon), Credit: STScI" >}}
@@ -35,7 +34,7 @@ CosmiX[^2] simulates charge deposition by cosmic rays. It is still under develop
 
 ## CDM 
 
-CDM (Charge Distortion Model)[^3] simulates Charge Transfer Inefficiency in radiation damaged CCD detectors.
+CDM (**C**harge **D**istortion **M**odel)[^3] simulates Charge Transfer Inefficiency in radiation damaged CCD detectors.
 
 * Developed by: Alexander Short, ESA
 * Developed for: Gaia mission
@@ -50,6 +49,7 @@ HxRG Noise Generator[^4] simulates readout noises specifically for HxRG type hyb
 
 * Developed by: Bernard J. Rauscher, NASA
 * Developed for: James Webb Space Telescope
+* https://jwst.nasa.gov/publications.html
 
 <center>
 {{< figure src="/img/nghxrg.png" caption="ngHxRG Noise Generator" >}}
@@ -57,12 +57,10 @@ HxRG Noise Generator[^4] simulates readout noises specifically for HxRG type hyb
 
 # Models to be added...
 
-* arctic (Algorithm foR CTI Correction)
-  * https://github.com/ocordes/arctic
-* GalSim (modular galaxy image simulation toolkit)
-  * https://github.com/GalSim-developers/GalSim
-* Allpix<sup>2</sup> (pixel detector simulation framework)
-  * https://project-allpix-squared.web.cern.ch
+* ARCTIC (**A**lgorithm fo**R** **CTI** **C**orrection), https://github.com/ocordes/arctic
+* GalSim (modular galaxy image simulation toolkit), http://galsim-developers.github.io/GalSim/
+* Allpix<sup>2</sup> (CERN pixel particle detector simulation framework), https://project-allpix-squared.web.cern.ch
+* SimCADO (atmospheric effects for ground-based astronomy), https://simcado.readthedocs.io/en/latest/index.html
 
 
 [^1]: M. D. Perrin et al.: *"Simulating point spread functions for the James Webb Space Telescope with WebbPSF"*, Space Telescopes and Instrumentation 2012, SPIE Proc., Vol. 8442, pp. 11. (2012).

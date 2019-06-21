@@ -44,8 +44,8 @@ blog:
     - export
     - ls
     # Download HUGO
-    - test -e $HUGO_ARCHIVE_FULL || wget -P $HUGO_CACHE $HUGO_URL
-    # -  wget -P $HUGO_CACHE $HUGO_URL
+    # - test -e $HUGO_ARCHIVE_FULL || wget -P $HUGO_CACHE $HUGO_URL
+    -  wget -P $HUGO_CACHE $HUGO_URL
     # Install HUGO
     - tar -xf $HUGO_ARCHIVE_FULL -C /bin
     # Generate HTML pages
