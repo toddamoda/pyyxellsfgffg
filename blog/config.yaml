@@ -1,11 +1,11 @@
 baseURL: "https://esa.gitlab.io/pyxel/"
 languageCode: "en-us"
 relativeURLs: true
-
 title: "Pyxel"
 description: "simulation framework"
 theme: "beautifulhugo"
-lastmod: "2019-06-19"
+lastmod: "2019-06-20"
+googleAnalytics: UA-142543987-1
 
 Params:
   subtitle: "A general simulation framework in Python for astronomical and Earth observation imaging detectors"

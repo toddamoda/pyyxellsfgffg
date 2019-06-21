@@ -22,15 +22,15 @@ class ModelFitting:
         self.processor = processor          # type: Processor
         self.variables = variables          # type: t.List[ParameterValues]
 
-        self.calibration_mode = None        # type: t.Optional[str]
+        self.calibration_mode = None
         self.original_processor = None      # type: t.Optional[Processor]
-        self.generations = None             # type: t.Optional[int]
-        self.pop = None                     # type: t.Optional[int]
+        self.generations = None
+        self.pop = None
 
         self.all_target_data = []           # type: t.List[t.List[t.Any]]
-        self.weighting = None               # type: t.Optional[t.List[float]]
+        self.weighting = None
         self.fitness_func = None
-        self.sim_output = None              # type: t.Optional[str]
+        self.sim_output = None
         self.fitted_model = None
         self.param_processor_list = []      # type: t.List[Processor]
 
