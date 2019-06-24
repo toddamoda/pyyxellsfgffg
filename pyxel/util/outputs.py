@@ -27,13 +27,12 @@ class Outputs:
         self.input_file = None                      # type: t.Optional[str]
         self.champions_file = None                  # type: t.Optional[str]
         self.population_file = None                 # type: t.Optional[str]
-
         self.parametric_plot = parametric_plot      # type: t.Optional[dict]
         self.calibration_plot = calibration_plot    # type: t.Optional[dict]
         self.single_plot = single_plot              # type: t.Optional[dict]
         self.user_plt_args = None                   # type: t.Optional[dict]
 
-        self.output_dir = apply_run_number(output_folder + '/run_??')
+        self.output_dir = apply_run_number(output_folder + '/run_??')   # type: str
 
         if save_to_file is None:
             self.save_to_file = [{'detector.image.array': ['fits']}]
@@ -61,22 +60,21 @@ class Outputs:
             'size': None, 'cbar_label': None
         }   # type: dict
 
-        self.plt_args = None
-
-        self.parameter_values = np.array([])
+        self.plt_args = None                    # type: t.Optional[dict]
+        self.parameter_values = np.array([])    # type: np.array
         self.parameter_keys = []                # type: list
         self.additional_keys = []               # type: list
         plt.figure()
 
     def set_input_file(self, filename: str):
         """TBW."""
-        self.input_file = filename              # type: str
+        self.input_file = filename
         copy2(self.input_file, self.output_dir)
 
     def create_files(self):
         """TBW."""
-        self.champions_file = self.new_file('champions.out')        # type: str
-        self.population_file = self.new_file('population.out')      # type: str
+        self.champions_file = self.new_file('champions.out')
+        self.population_file = self.new_file('population.out')
         return self.champions_file, self.population_file
 
     def new_file(self, filename: str):

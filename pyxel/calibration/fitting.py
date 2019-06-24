@@ -22,16 +22,16 @@ class ModelFitting:
         self.processor = processor          # type: Processor
         self.variables = variables          # type: t.List[ParameterValues]
 
-        self.calibration_mode = None
+        self.calibration_mode = None        # type: t.Optional[str]
         self.original_processor = None      # type: t.Optional[Processor]
-        self.generations = None
-        self.pop = None
+        self.generations = None             # type: t.Optional[int]
+        self.pop = None                     # type: t.Optional[int]
 
         self.all_target_data = []           # type: t.List[t.List[t.Any]]
-        self.weighting = None
+        self.weighting = None               # type: t.Optional[t.List[np.ndarray]]
         self.fitness_func = None
-        self.sim_output = None
-        self.fitted_model = None
+        self.sim_output = None              # type: t.Optional[str]
+        # self.fitted_model = None            # type: t.Optional['ModelFunction']
         self.param_processor_list = []      # type: t.List[Processor]
 
         self.n = 0
@@ -69,18 +69,18 @@ class ModelFitting:
         """
         logger = logging.getLogger('pyxel')
 
-        self.calibration_mode = setting['calibration_mode']     # type: str
-        self.sim_output = setting['simulation_output']          # type: str
+        self.calibration_mode = setting['calibration_mode']
+        self.sim_output = setting['simulation_output']
         self.fitness_func = setting['fitness_func']
-        self.pop = setting['population_size']                   # type: int
-        self.generations = setting['generations']               # type: int
+        self.pop = setting['population_size']
+        self.generations = setting['generations']
 
         # if self.calibration_mode == 'single_model':           # TODO update
         #     self.single_model_calibration()
 
         self.set_bound()
 
-        self.original_processor = deepcopy(self.processor)      # type: Processor
+        self.original_processor = deepcopy(self.processor)
         if 'input_arguments' in setting and setting['input_arguments']:
 
             max_val, min_val = 0, 1000

@@ -54,23 +54,23 @@ class Detector:
         if photon:
             self.photon = photon
         else:
-            self.photon = Photon(self.geometry)        # type: Photon
+            self.photon = Photon(self.geometry)
         if charge:
             self.charge = charge
         else:
-            self.charge = Charge()                     # type: Charge
+            self.charge = Charge()
         if pixel:
             self.pixel = pixel
         else:
-            self.pixel = Pixel(self.geometry)          # type: Pixel
+            self.pixel = Pixel(self.geometry)
         if signal:
             self.signal = signal
         else:
-            self.signal = Signal(self.geometry)         # type: Signal
+            self.signal = Signal(self.geometry)
         if image:
             self.image = image
         else:
-            self.image = Image(self.geometry)           # type: Image
+            self.image = Image(self.geometry)
 
         self.input_image = None
         self._output_dir = None                         # type: t.Optional[str]
@@ -79,31 +79,11 @@ class Detector:
         self.end_time = 0.                              # type: float
         self.steps = 0                                  # type: int
         self.time_step = 0.                             # type: float
-        self._time = 0.                                  # type: float
-        self._all_time_steps = None
-
+        self._time = 0.                                 # type: float
         self._dynamic = False                           # type: bool
         self._non_destructive = False                   # type: bool
         self.read_out = True                            # type: bool
-
-    # def __getstate__(self):
-    #     """TBW.
-    #
-    #     :return:
-    #     """
-    #     return {
-    #         'geometry': self.geometry,
-    #         'material': self.material,
-    #         'environment': self.environment,
-    #         'characteristics': self.characteristics,
-    #         'photon': self.photon,
-    #         'charge': self.charge,
-    #         'pixel': self.pixel,
-    #         'signal': self.signal,
-    #         'image': self.image,
-    #         'input_image': self.input_image,
-    #         '_output_dir': self._output_dir
-    #     }
+        self._all_time_steps = None
 
     def initialize(self, reset_all=True):
         """TBW."""
@@ -125,11 +105,11 @@ class Detector:
 
     def set_dynamic(self, time_step: float, steps: int, ndreadout: bool = False):
         """Switch on dynamic (time dependent) mode."""
-        self._dynamic = True                            # type: bool
-        self.time_step = time_step                      # type: float
-        self.steps = steps                              # type: int
-        self._non_destructive = ndreadout               # type: bool
-        self.end_time = self.time_step * self.steps     # type: float
+        self._dynamic = True
+        self.time_step = time_step
+        self.steps = steps
+        self._non_destructive = ndreadout
+        self.end_time = self.time_step * self.steps
         self._all_time_steps = np.nditer(np.round(np.linspace(self.time_step, self.end_time,
                                                               self.steps, endpoint=True), decimals=10))
 
