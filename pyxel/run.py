@@ -15,7 +15,7 @@ import numpy as np
 import pyxel.io as io
 from pyxel.pipelines.processor import Processor
 from pyxel.detectors.ccd import CCD
-# from pyxel import __version__ as pyxel_version
+from pyxel import __version__ as pyxel_gitversion
 
 
 def run(input_filename, random_seed: int = None):

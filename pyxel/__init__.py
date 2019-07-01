@@ -5,7 +5,7 @@ import esapy_config.checkers as checkers
 import esapy_config.validators as validators
 import esapy_config.funcargs as funcargs
 import esapy_config.config as config
-
+import subprocess
 
 __all__ = ['models',
            # 'detectors', 'pipelines',
@@ -17,7 +17,9 @@ __all__ = ['models',
 __pkgname__ = 'pyxel'
 
 # TODO: Version should be defined here
-# __version__ = '0.4rc1'
+__version__ = subprocess.check_output(["git",
+                                       "describe",
+                                       "--long"]).strip().decode()
 
 
 def detector_class(cls):
