@@ -9,6 +9,7 @@ in MCT, diffusion, cross-talk etc.) on a given image.
 """
 import argparse
 import logging
+import sys
 import time
 from pathlib import Path
 import numpy as np
@@ -133,6 +134,10 @@ def main():
                         level=logging_level,
                         format=log_format,
                         datefmt='%d-%m-%Y %H:%M:%S')
+    # If user wants the log in stdout AND in file, use the three lines below
+    stream_stdout = logging.StreamHandler(sys.stdout)
+    stream_stdout.setFormatter(logging.Formatter(log_format))
+    logging.getLogger().addHandler(stream_stdout)
 
     if opts.config:
         run(input_filename=opts.config, random_seed=opts.seed)   # output_directory=opts.output,
