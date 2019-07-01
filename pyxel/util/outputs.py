@@ -71,6 +71,12 @@ class Outputs:
         self.input_file = filename
         copy2(self.input_file, self.output_dir)
 
+    def save_log_file(self):
+        """moving log file to the output directory of the simulation
+        """
+        log_file = glob.glob('./*log-simu.log')[0]
+        os.rename(log_file, self.output_dir+'/'+os.path.basename(log_file))
+
     def create_files(self):
         """TBW."""
         self.champions_file = self.new_file('champions.out')

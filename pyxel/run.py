@@ -94,7 +94,9 @@ def run(input_filename, random_seed: int = None):
 
     logger.info('Pipeline completed.')
     logger.info('Running time: %.3f seconds' % (time.time() - start_time))
-
+    # Closing the logger in order to be able to move the file in the output dir
+    logging.shutdown()
+    out.save_log_file()
 
 # TODO: Remove this. Get the current version from '__version__' in 'pyxel/__init__.py'
 def get_pyxel_version():
@@ -127,7 +129,10 @@ def main():
 
     logging_level = [logging.ERROR, logging.WARNING, logging.INFO, logging.DEBUG][min(opts.verbosity, 3)]
     log_format = '%(asctime)s - %(name)s - %(funcName)30s \t %(message)s'
-    logging.basicConfig(level=logging_level, format=log_format, datefmt='%d-%m-%Y %H:%M:%S')
+    logging.basicConfig(filename=time.strftime('%Y%m%d_%H%M%S')+'_log-simu.log',
+                        level=logging_level,
+                        format=log_format,
+                        datefmt='%d-%m-%Y %H:%M:%S')
 
     if opts.config:
         run(input_filename=opts.config, random_seed=opts.seed)   # output_directory=opts.output,

@@ -1,0 +1,14 @@
+01-07-2019 15:30:21 - pyxel -                            run 	 Pipeline started.
+01-07-2019 15:30:22 - pyxel -                            run 	 Mode: Single
+01-07-2019 15:30:22 - pyxel -                   illumination 	 
+01-07-2019 15:30:22 - pyxel -                     shot_noise 	 
+01-07-2019 15:30:22 - pyxel -              simple_conversion 	 
+01-07-2019 15:30:23 - pyxel -                       run_tars 	 
+01-07-2019 15:30:24 - pyxel -              simple_collection 	 
+01-07-2019 15:30:25 - pyxel -                            cdm 	 
+01-07-2019 15:30:28 - pyxel -             simple_measurement 	 
+01-07-2019 15:30:28 - pyxel -              output_node_noise 	 
+01-07-2019 15:30:28 - pyxel -               simple_amplifier 	 
+01-07-2019 15:30:28 - pyxel -              simple_processing 	 
+01-07-2019 15:30:29 - pyxel -                            run 	 Pipeline completed.
+01-07-2019 15:30:29 - pyxel -                            run 	 Running time: 7.077 seconds
