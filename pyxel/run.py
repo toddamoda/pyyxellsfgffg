@@ -26,6 +26,7 @@ def run(input_filename, random_seed: int = None):
     :return:
     """
     logger = logging.getLogger('pyxel')
+    logger.info('Pyxel v'+pyxel_gitversion)
     logger.info('Pipeline started.')
     start_time = time.time()
     if random_seed:

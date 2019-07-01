@@ -8,7 +8,6 @@ import numpy as np
 import astropy.io.fits as fits
 import h5py as h5
 import time
-import yaml
 from pyxel import __version__ as pyxel_gitversion
 
 try:
@@ -85,7 +84,6 @@ class Outputs:
         :return: append pyxel version to last line of file
         """
         new_name = time.strftime("%Y%m%d_%H%M%S")+'_settings-simu.yaml'
-        print(filename)
         os.rename(self.output_dir+'/'+os.path.basename(filename),
                   self.output_dir+'/'+new_name)
         with open(self.output_dir+'/'+new_name, 'a') as file:
@@ -139,6 +137,8 @@ class Outputs:
             filename = 'detector'
         filename = apply_run_number(self.output_dir + '/' + filename + '_??.h5')
         h5file = h5.File(filename, 'w')
+        h5file.attrs['pyxel-version'] = pyxel_gitversion
+
         detector_grp = h5file.create_group('detector')
         for array, name in zip([detector.signal.array,
                                 detector.image.array,
