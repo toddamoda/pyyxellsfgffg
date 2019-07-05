@@ -7,6 +7,7 @@ import typing as t          # noqa: F401
 import numpy as np
 import astropy.io.fits as fits
 import h5py as h5
+from time import strftime
 try:
     import matplotlib.pyplot as plt
 except ImportError:
@@ -32,7 +33,7 @@ class Outputs:
         self.single_plot = single_plot              # type: t.Optional[dict]
         self.user_plt_args = None                   # type: t.Optional[dict]
 
-        self.output_dir = apply_run_number(output_folder + '/run_??')   # type: str
+        self.output_dir = output_folder + '/run_' + strftime("%Y%m%d_%H%M%S")  # type: str
 
         if save_to_file is None:
             self.save_to_file = [{'detector.image.array': ['fits']}]
