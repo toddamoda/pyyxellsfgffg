@@ -98,15 +98,13 @@ class Outputs:
             filename = str(obj_name).replace('.', '_')
         filename = apply_run_number(self.output_dir + '/' + filename + '_??.png')
         fig = plt.figure()
-        um_to_inch = 3.9370078740157e-5
-        fig.set_size_inches(geo.col * geo.pixel_horz_size * um_to_inch * 100,
-                            geo.row * geo.pixel_vert_size * um_to_inch * 100)
+        dpi = 300
+        fig.set_size_inches(min(geo.col/dpi, 10.), min(geo.row/dpi, 10.))
         ax = plt.Axes(fig, [0., 0., 1., 1.])
         ax.set_axis_off()
         fig.add_axes(ax)
-        aspect_ratio = float(geo.pixel_vert_size / geo.pixel_horz_size)
-        plt.imshow(array, cmap='gray', extent=[0, geo.col, 0, geo.row], aspect=aspect_ratio)
-        plt.savefig(filename, dpi=300)
+        plt.imshow(array, cmap='gray', extent=[0, geo.col, 0, geo.row])
+        plt.savefig(filename, dpi=dpi)
 
     def save_to_fits(self, processor, obj_name: str, filename: str = None):
         """Write array to FITS file."""
