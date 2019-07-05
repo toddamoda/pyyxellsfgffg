@@ -1,5 +1,5 @@
 #   --------------------------------------------------------------------------
-#   Copyright 2018 SCI-FIV, ESA (European Space Agency)
+#   Copyright 2019 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
 """Pyxel Image class."""
 from typing import TYPE_CHECKING
