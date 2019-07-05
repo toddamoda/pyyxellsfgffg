@@ -7,6 +7,9 @@ import typing as t          # noqa: F401
 import numpy as np
 import astropy.io.fits as fits
 import h5py as h5
+import time
+from pyxel import __version__ as pyxel_gitversion
+
 try:
     import matplotlib.pyplot as plt
 except ImportError:
@@ -69,7 +72,22 @@ class Outputs:
     def set_input_file(self, filename: str):
         """TBW."""
         self.input_file = filename
+        # time.strftime("%Y-%m-%d_%H-%M-%S")
         copy2(self.input_file, self.output_dir)
+        self.save_input_file(glob.glob(self.output_dir+'/*.yaml')[0],
+                             pyxel_gitversion)
+
+    def save_input_file(self, filename: str, git_version):
+        """Save pyxel version in the copied yaml file
+
+        :param: filename (str) the path+name of the file
+        :return: append pyxel version to last line of file
+        """
+        new_name = time.strftime("%Y%m%d_%H%M%S")+'_settings-simu.yaml'
+        os.rename(self.output_dir+'/'+os.path.basename(filename),
+                  self.output_dir+'/'+new_name)
+        with open(self.output_dir+'/'+new_name, 'a') as file:
+            file.write('version: '+git_version)
 
     def save_log_file(self):
         """Move log file to the output directory of the simulation."""
@@ -114,6 +132,7 @@ class Outputs:
             filename = str(obj_name).replace('.', '_')
         filename = apply_run_number(self.output_dir + '/' + filename + '_??.fits')
         hdu = fits.PrimaryHDU(array)
+        hdu.header['PYXEL_V'] = pyxel_gitversion
         hdu.writeto(filename, overwrite=False, output_verify='exception')
 
     def save_to_hdf(self, processor, obj_name: str, filename: str = None):
@@ -123,6 +142,8 @@ class Outputs:
             filename = 'detector'
         filename = apply_run_number(self.output_dir + '/' + filename + '_??.h5')
         h5file = h5.File(filename, 'w')
+        h5file.attrs['pyxel-version'] = pyxel_gitversion
+
         detector_grp = h5file.create_group('detector')
         for array, name in zip([detector.signal.array,
                                 detector.image.array,
