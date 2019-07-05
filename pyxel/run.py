@@ -1,11 +1,11 @@
 #   --------------------------------------------------------------------------
-#   Copyright 2018 SCI-FIV, ESA (European Space Agency)
+#   Copyright 2019 SCI-FIV, ESA (European Space Agency)
 #   --------------------------------------------------------------------------
 """Pyxel detector simulation framework.
 
 Pyxel is a detector simulation framework, that can simulate a variety of
-detector effects (e.g., cosmics, radiation-induced CTI  in CCDs, persistency
-in MCT, diffusion, cross-talk etc.) on a given image.
+detector effects (e.g., cosmic rays, radiation-induced CTI in CCDs, persistence
+in MCT, charge diffusion, crosshatches, noises, crosstalk etc.) on a given image.
 """
 import argparse
 import logging
@@ -123,7 +123,6 @@ def main():
     parser.add_argument('-c', '--config', type=str, required=True, help='Configuration file to load (YAML)')
     parser.add_argument('-s', '--seed', type=int, help='Random seed for the framework')
 
-    # parser.add_argument('-o', '--output', type=str, default='outputs', help='Path for output folder')
     # parser.add_argument('-g', '--gui', default=False, type=bool, help='run Graphical User Interface')
     # parser.add_argument('-p', '--port', default=9999, type=int, help='The port to run the web server on')
 
@@ -141,7 +140,7 @@ def main():
     logging.getLogger().addHandler(stream_stdout)
 
     if opts.config:
-        run(input_filename=opts.config, random_seed=opts.seed)   # output_directory=opts.output,
+        run(input_filename=opts.config, random_seed=opts.seed)
     else:
         print('Define a YAML configuration file!')
 
