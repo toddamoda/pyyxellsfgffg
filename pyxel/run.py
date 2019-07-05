@@ -41,11 +41,9 @@ def run(input_filename, random_seed: int = None):
     else:
         detector = cfg['ccd_detector']
     processor = Processor(detector, cfg['pipeline'])
+
     out = simulation.outputs
-    if out:
-        out.set_input_file(input_filename)
-    else:
-        logger.warning('Output is not defined! No output files will be saved!')
+    out.set_input_file(input_filename)
     detector.set_output_dir(out.output_dir)
 
     if simulation.mode == 'single':

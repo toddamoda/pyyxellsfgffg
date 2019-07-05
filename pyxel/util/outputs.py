@@ -19,8 +19,8 @@ class Outputs:
     """TBW."""
 
     def __init__(self,
+                 output_folder: str,
                  save_to_file: list = None,
-                 output_folder: str = 'outputs',
                  parametric_plot: dict = None,
                  calibration_plot: dict = None,
                  single_plot: dict = None):
