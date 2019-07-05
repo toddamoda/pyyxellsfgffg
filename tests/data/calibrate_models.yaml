@@ -7,6 +7,7 @@ simulation:
 ###################
   mode: calibration
 ###################
+  outputs:
 
   calibration:
     calibration_mode:  pipeline
