@@ -9,6 +9,7 @@ in MCT, diffusion, cross-talk etc.) on a given image.
 """
 import argparse
 import logging
+import sys
 import time
 from pathlib import Path
 import numpy as np
@@ -94,6 +95,9 @@ def run(input_filename, random_seed: int = None):
 
     logger.info('Pipeline completed.')
     logger.info('Running time: %.3f seconds' % (time.time() - start_time))
+    # Closing the logger in order to be able to move the file in the output dir
+    logging.shutdown()
+    out.save_log_file()
 
 
 # TODO: Remove this. Get the current version from '__version__' in 'pyxel/__init__.py'
@@ -127,7 +131,14 @@ def main():
 
     logging_level = [logging.ERROR, logging.WARNING, logging.INFO, logging.DEBUG][min(opts.verbosity, 3)]
     log_format = '%(asctime)s - %(name)s - %(funcName)30s \t %(message)s'
-    logging.basicConfig(level=logging_level, format=log_format, datefmt='%d-%m-%Y %H:%M:%S')
+    logging.basicConfig(filename='pyxel.log',
+                        level=logging_level,
+                        format=log_format,
+                        datefmt='%d-%m-%Y %H:%M:%S')
+    # If user wants the log in stdout AND in file, use the three lines below
+    stream_stdout = logging.StreamHandler(sys.stdout)
+    stream_stdout.setFormatter(logging.Formatter(log_format))
+    logging.getLogger().addHandler(stream_stdout)
 
     if opts.config:
         run(input_filename=opts.config, random_seed=opts.seed)   # output_directory=opts.output,
