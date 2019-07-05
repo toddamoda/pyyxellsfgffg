@@ -12,8 +12,8 @@ from pyxel.detectors.detector import Detector
 @pyxel.argument(name='txt_file', label='file path', units='', validate=pyxel.check_path)
 def charge_profile(detector: Detector,
                    txt_file: str,
-                   fit_profile_to_det: bool,
-                   position: list):
+                   fit_profile_to_det: bool = False,
+                   position: list = None):
     """Load charge profile from txt file for detector, mostly for but not limited to CCDs.
 
     :param detector: Pyxel Detector object
