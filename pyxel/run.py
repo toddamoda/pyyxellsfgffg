@@ -99,6 +99,7 @@ def run(input_filename, random_seed: int = None):
     logging.shutdown()
     out.save_log_file()
 
+
 # TODO: Remove this. Get the current version from '__version__' in 'pyxel/__init__.py'
 def get_pyxel_version():
     """Extract 'pyxel_version' from 'setup.cfg'."""
@@ -130,7 +131,7 @@ def main():
 
     logging_level = [logging.ERROR, logging.WARNING, logging.INFO, logging.DEBUG][min(opts.verbosity, 3)]
     log_format = '%(asctime)s - %(name)s - %(funcName)30s \t %(message)s'
-    logging.basicConfig(filename=time.strftime('%Y%m%d_%H%M%S')+'_log-simu.log',
+    logging.basicConfig(filename='pyxel.log',
                         level=logging_level,
                         format=log_format,
                         datefmt='%d-%m-%Y %H:%M:%S')
