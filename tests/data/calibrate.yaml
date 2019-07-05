@@ -7,6 +7,8 @@ simulation:
   mode: calibration
 ###################
 
+  outputs:
+
   calibration:
     calibration_mode:  pipeline
     result_type: image

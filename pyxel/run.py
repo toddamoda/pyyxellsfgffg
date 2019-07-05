@@ -43,8 +43,9 @@ def run(input_filename, random_seed: int = None):
     processor = Processor(detector, cfg['pipeline'])
 
     out = simulation.outputs
-    out.set_input_file(input_filename)
-    detector.set_output_dir(out.output_dir)
+    if out:
+        out.set_input_file(input_filename)
+        detector.set_output_dir(out.output_dir)
 
     if simulation.mode == 'single':
         logger.info('Mode: Single')
@@ -95,7 +96,8 @@ def run(input_filename, random_seed: int = None):
     logger.info('Running time: %.3f seconds' % (time.time() - start_time))
     # Closing the logger in order to be able to move the file in the output dir
     logging.shutdown()
-    out.save_log_file()
+    if out:
+        out.save_log_file()
 
 
 # TODO: Remove this. Get the current version from '__version__' in 'pyxel/__init__.py'

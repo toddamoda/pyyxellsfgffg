@@ -1,6 +1,7 @@
 
 simulation:
   mode: single
+  outputs:
 
   parametric:
     parametric_mode: sequential
