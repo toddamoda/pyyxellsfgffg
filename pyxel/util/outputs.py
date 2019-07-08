@@ -78,7 +78,7 @@ class Outputs:
                              pyxel_gitversion)
 
     def save_input_file(self, filename: str, git_version):
-        """Save pyxel version in the copied yaml file
+        """Save pyxel version in the copied yaml file.
 
         :param: filename (str) the path+name of the file
         :return: append pyxel version to last line of file
