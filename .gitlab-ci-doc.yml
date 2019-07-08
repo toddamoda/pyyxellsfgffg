@@ -27,8 +27,8 @@ doc:
       - documentation.svg
       - license.svg
   allow_failure: false
-#  only:
-#    - master
+  only:
+    - master
 
 website:
   image: alpine
@@ -40,8 +40,8 @@ website:
   artifacts:
     paths:
        - html
-#  only:
-#    - master
+  only:
+    - master
 
 # ###########################
 # Deploy Stage
@@ -62,5 +62,5 @@ pages:
     paths:
       - public
   allow_failure: false
-#  only:
-#    - master
+  only:
+    - master
