@@ -7,9 +7,8 @@ import typing as t          # noqa: F401
 import numpy as np
 import astropy.io.fits as fits
 import h5py as h5
-import time
-from pyxel import __version__ as pyxel_gitversion
-
+from time import strftime
+from pyxel import __version__ as version
 try:
     import matplotlib.pyplot as plt
 except ImportError:
@@ -21,8 +20,8 @@ class Outputs:
     """TBW."""
 
     def __init__(self,
+                 output_folder: str,
                  save_to_file: list = None,
-                 output_folder: str = 'outputs',
                  parametric_plot: dict = None,
                  calibration_plot: dict = None,
                  single_plot: dict = None):
@@ -35,7 +34,7 @@ class Outputs:
         self.single_plot = single_plot              # type: t.Optional[dict]
         self.user_plt_args = None                   # type: t.Optional[dict]
 
-        self.output_dir = apply_run_number(output_folder + '/run_??')   # type: str
+        self.output_dir = output_folder + '/run_' + strftime("%Y%m%d_%H%M%S")  # type: str
 
         if save_to_file is None:
             self.save_to_file = [{'detector.image.array': ['fits']}]
@@ -72,22 +71,17 @@ class Outputs:
     def set_input_file(self, filename: str):
         """TBW."""
         self.input_file = filename
-        # time.strftime("%Y-%m-%d_%H-%M-%S")
         copy2(self.input_file, self.output_dir)
-        self.save_input_file(glob.glob(self.output_dir+'/*.yaml')[0],
-                             pyxel_gitversion)
+        copied_input_file = glob.glob(self.output_dir + '/*.yaml')[0]
+        with open(copied_input_file, 'a') as file:
+            file.write("\n#########")
+            file.write("\n# Pyxel version: " + str(version))
+            file.write("\n#########")
 
-    def save_input_file(self, filename: str, git_version):
-        """Save pyxel version in the copied yaml file.
-
-        :param: filename (str) the path+name of the file
-        :return: append pyxel version to last line of file
-        """
-        new_name = time.strftime("%Y%m%d_%H%M%S")+'_settings-simu.yaml'
-        os.rename(self.output_dir+'/'+os.path.basename(filename),
-                  self.output_dir+'/'+new_name)
-        with open(self.output_dir+'/'+new_name, 'a') as file:
-            file.write('version: '+git_version)
+    def save_log_file(self):
+        """Move log file to the output directory of the simulation."""
+        log_file = glob.glob('./pyxel.log')[0]
+        os.rename(log_file, self.output_dir + '/' + os.path.basename(log_file))
 
     def create_files(self):
         """TBW."""
@@ -110,15 +104,13 @@ class Outputs:
             filename = str(obj_name).replace('.', '_')
         filename = apply_run_number(self.output_dir + '/' + filename + '_??.png')
         fig = plt.figure()
-        um_to_inch = 3.9370078740157e-5
-        fig.set_size_inches(geo.col * geo.pixel_horz_size * um_to_inch * 100,
-                            geo.row * geo.pixel_vert_size * um_to_inch * 100)
+        dpi = 300
+        fig.set_size_inches(min(geo.col/dpi, 10.), min(geo.row/dpi, 10.))
         ax = plt.Axes(fig, [0., 0., 1., 1.])
         ax.set_axis_off()
         fig.add_axes(ax)
-        aspect_ratio = float(geo.pixel_vert_size / geo.pixel_horz_size)
-        plt.imshow(array, cmap='gray', extent=[0, geo.col, 0, geo.row], aspect=aspect_ratio)
-        plt.savefig(filename, dpi=300)
+        plt.imshow(array, cmap='gray', extent=[0, geo.col, 0, geo.row])
+        plt.savefig(filename, dpi=dpi)
 
     def save_to_fits(self, processor, obj_name: str, filename: str = None):
         """Write array to FITS file."""
@@ -127,7 +119,7 @@ class Outputs:
             filename = str(obj_name).replace('.', '_')
         filename = apply_run_number(self.output_dir + '/' + filename + '_??.fits')
         hdu = fits.PrimaryHDU(array)
-        hdu.header['PYXEL_V'] = pyxel_gitversion
+        hdu.header['PYXEL_V'] = str(version)
         hdu.writeto(filename, overwrite=False, output_verify='exception')
 
     def save_to_hdf(self, processor, obj_name: str, filename: str = None):
@@ -137,7 +129,7 @@ class Outputs:
             filename = 'detector'
         filename = apply_run_number(self.output_dir + '/' + filename + '_??.h5')
         h5file = h5.File(filename, 'w')
-        h5file.attrs['pyxel-version'] = pyxel_gitversion
+        h5file.attrs['pyxel-version'] = str(version)
 
         detector_grp = h5file.create_group('detector')
         for array, name in zip([detector.signal.array,

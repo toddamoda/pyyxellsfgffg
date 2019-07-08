@@ -5,16 +5,16 @@
 
 simulation:
   mode: single
-
   outputs:
-    output_folder:  outputs
-
+    output_folder: outputs
+#    save_to_file:
+#      - detector.image.array:   [fits, png]
 
 ccd_detector:
 
   geometry:
-    row:   500                   #
-    col:   500                   #
+    row:   100                   #
+    col:   100                   #
     total_thickness: 40.         # um
     pixel_vert_size: 10.         # um
     pixel_horz_size: 10.         # um
@@ -31,7 +31,7 @@ ccd_detector:
     sv: 3e-6                # V/e
     amp: 10.                # V/V
     a1: 100.                # V/V
-    a2: 10000               # DN/V
+    a2: 100                 # DN/V
     fwc: 1000000            # e
     fwc_serial: 1000000     # e
     vg: 1.6200e-10          # cm2
@@ -55,7 +55,7 @@ pipeline:
       enabled: true
       arguments:
           level: 111111
-          option: 'elliptic_hole'
+          option: elliptic_hole
           hole_size: [20, 10]
           hole_center: [250, 250]
     - name: shot_noise
@@ -151,9 +151,9 @@ pipeline:
       enabled: true
     - name: output_node_noise
       func: pyxel.models.charge_measurement.readout_noise.output_node_noise
-      enabled: false
+      enabled: true
       arguments:
-        std_deviation: 5.e-7
+        std_deviation: 5.e-5
 
   # signal -> image
   readout_electronics:

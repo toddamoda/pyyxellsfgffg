@@ -10,6 +10,7 @@ outputs/*
 demo/*
 examples/*/
 *.yaml
+*.log
 
 # Geant4 i/o files
 *.mac
