@@ -11,8 +11,8 @@ from pyxel.detectors.geometry import Geometry  # noqa: F401
 # from astropy import units as u
 
 
-# @pyxel.validate
-# @pyxel.argument(name='', label='', units='', validate=)
+# @validators.validate
+# @config.argument(name='', label='', units='', validate=)
 def fix_pattern_noise(detector: Detector,
                       pixel_non_uniformity=None):
     """Add fix pattern noise caused by pixel non-uniformity during charge collection.

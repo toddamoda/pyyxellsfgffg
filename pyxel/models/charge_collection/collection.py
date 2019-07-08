@@ -4,13 +4,12 @@
 """Pyxel charge collection model."""
 import logging
 import numpy as np
-# import pyxel
 from pyxel.detectors.detector import Detector
 import numba
 
 
-# @pyxel.validate
-# @pyxel.argument(name='', label='', units='', validate=)
+# @validators.validate
+# @config.argument(name='', label='', units='', validate=)
 def simple_collection(detector: Detector):
     """Associate charge with the closest pixel."""
     logger = logging.getLogger('pyxel')

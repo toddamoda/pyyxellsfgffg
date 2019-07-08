@@ -3,12 +3,11 @@
 #   --------------------------------------------------------------------------
 """Pyxel full well models."""
 import logging
-# import pyxel
 from pyxel.detectors.detector import Detector
 
 
-# @pyxel.validate
-# @pyxel.argument(name='', label='', units='', validate=)
+# @validators.validate
+# @config.argument(name='', label='', units='', validate=)
 def simple_full_well(detector: Detector):
     """Limiting the amount of charge in pixel due to full well capacity."""
     logger = logging.getLogger('pyxel')

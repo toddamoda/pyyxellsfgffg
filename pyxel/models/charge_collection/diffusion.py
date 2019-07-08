@@ -8,14 +8,12 @@
 # from astropy import units as u
 # from scipy.special import erf
 # from astropy.units import cds
-# import pyxel
 # from pyxel.detectors.ccd import CCD
 # cds.enable()
 
 
-# # @pyxel.validate
-# # @pyxel.argument(name='', label='', units='', validate=)
-# # @pyxel.register(group='charge_collection')
+# # @validators.validate
+# # @config.argument(name='', label='', units='', validate=)
 # def diffusion(detector: CCD):
 #     """Diffusing electrons with some random charge transport."""
 #     logger = logging.getLogger('pyxel')

@@ -13,8 +13,8 @@ from ...util.checkers import check_type, check_choices
 @config.argument(name='level', label='number of photon', units='', validate=check_type(int))
 @config.argument(name='option', label='type of illumination', units='',
                  validate=check_choices(['uniform', 'rectangular_hole', 'elliptic_hole']))
-# @pyxel.argument(name='size', label='size of 2d array', units='', validate=check_type(list))
-# @pyxel.argument(name='hole_size', label='size of hole', units='', validate=check_type(list))
+# @config.argument(name='size', label='size of 2d array', units='', validate=check_type(list))
+# @config.argument(name='hole_size', label='size of hole', units='', validate=check_type(list))
 def illumination(detector: Detector,
                  level: int,
                  option: str = 'uniform',
