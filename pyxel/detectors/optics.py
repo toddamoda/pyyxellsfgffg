@@ -1,7 +1,7 @@
 """TBW."""
-import pyxel as pyx
+from ..util import config
 
 
-@pyx.detector_class
+@config.detector_class
 class Optics:
     """Optical attributes of the detector and its optical system."""

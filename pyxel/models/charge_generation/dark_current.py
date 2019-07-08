@@ -3,13 +3,15 @@
 #   --------------------------------------------------------------------------
 """Simple model to generate charges due to dark current process."""
 import logging
+
 import numpy as np
-import pyxel
+
 from pyxel.detectors.cmos import CMOS
+from ...util import validators, config, checkers
 
 
-@pyxel.validate
-@pyxel.argument(name='detector', label='', units='', validate=pyxel.check_type(CMOS))
+@validators.validate
+@config.argument(name='detector', label='', units='', validate=checkers.check_type(CMOS))
 def dark_current_rule07(detector: CMOS):
     """Generate charge from dark current process.
 

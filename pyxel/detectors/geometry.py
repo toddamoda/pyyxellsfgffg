@@ -1,46 +1,46 @@
 """Geometry class for detector."""
-import pyxel as pyx
+from ..util import config, validators
 
 
-@pyx.detector_class
+@config.detector_class
 class Geometry:
     """Geometrical attributes of the detector."""
 
-    row = pyx.attribute(
+    row = config.attribute(
         type=int,
         default=0,
-        validator=[pyx.validate_type(int, is_optional=False),
-                   pyx.validate_range(0, 10000)],
+        validator=[validators.validate_type(int, is_optional=False),
+                   validators.validate_range(0, 10000)],
         doc='Number of pixel rows'
     )
-    col = pyx.attribute(
+    col = config.attribute(
         type=int,
         default=0,
-        validator=[pyx.validate_type(int, is_optional=False),
-                   pyx.validate_range(0, 10000)],
+        validator=[validators.validate_type(int, is_optional=False),
+                   validators.validate_range(0, 10000)],
         doc='Number of pixel columns'
     )
-    total_thickness = pyx.attribute(
+    total_thickness = config.attribute(
         type=float,
         default=0.0,
-        validator=[pyx.validate_type(float, is_optional=True),
-                   pyx.validate_range(0, 10000)],
+        validator=[validators.validate_type(float, is_optional=True),
+                   validators.validate_range(0, 10000)],
         metadata={'units': 'um'},
         doc='Thickness of detector'
     )
-    pixel_vert_size = pyx.attribute(
+    pixel_vert_size = config.attribute(
         type=float,
         default=0.0,
-        validator=[pyx.validate_type(float, is_optional=False),
-                   pyx.validate_range(0, 1000)],
+        validator=[validators.validate_type(float, is_optional=False),
+                   validators.validate_range(0, 1000)],
         metadata={'units': 'um'},
         doc='Vertical dimension of pixel'
     )
-    pixel_horz_size = pyx.attribute(
+    pixel_horz_size = config.attribute(
         type=float,
         default=0.0,
-        validator=[pyx.validate_type(float, is_optional=False),
-                   pyx.validate_range(0, 1000)],
+        validator=[validators.validate_type(float, is_optional=False),
+                   validators.validate_range(0, 1000)],
         metadata={'units': 'um'},
         doc='Horizontal dimension of pixel'
     )
