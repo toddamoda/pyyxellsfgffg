@@ -1,12 +1,14 @@
 """Pyxel photon generator models: photon shot noise."""
 import logging
+
 import numpy as np
-import pyxel
+
 from pyxel.detectors import Detector
+from ...util import validators, config, checkers
 
 
-@pyxel.validate
-@pyxel.argument(name='seed', label='random seed', units='', validate=pyxel.check_type(int))
+@validators.validate
+@config.argument(name='seed', label='random seed', units='', validate=checkers.check_type(int))
 def shot_noise(detector: Detector, random_seed: int = None):
     """Add shot noise to the number of photon per pixel.
 

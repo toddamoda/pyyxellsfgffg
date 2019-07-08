@@ -1,12 +1,13 @@
 """Geometry class for detector."""
 import numpy as np
-import pyxel as pyx
+
+from ..util import config, checkers, validators
 
 # Universal global constants
 M_ELECTRON = 9.10938356e-31    # kg     # TODO put these global constants to a data file
 
 
-@pyx.detector_class
+@config.detector_class
 class Material:
     """Material attributes of the detector."""
 
@@ -34,11 +35,11 @@ class Material:
     def load_numpy_array(self, attr=None, path=None):
         """Create Numpy array storing data temporarily."""
         if isinstance(path, str):
-            if pyx.check_path(path):
+            if checkers.check_path(path):
                 if path.endswith('.npy'):
                     setattr(self, '_' + attr, np.load(path))
 
-    trapped_charge = pyx.attribute(
+    trapped_charge = config.attribute(
         type=str,
         default=None,
         on_change=load_numpy_array,
@@ -46,69 +47,69 @@ class Material:
         doc='Numpy array storing the trap density temporarily'
     )
 
-    n_acceptor = pyx.attribute(
+    n_acceptor = config.attribute(
         type=float,
         default=0.0,
         converter=float,
-        validator=[pyx.validate_type(float),
-                   pyx.validate_range(0., 1000.)],
+        validator=[validators.validate_type(float),
+                   validators.validate_range(0., 1000.)],
         metadata={'units': 'cm-3'},
         doc='Density of acceptors in the lattice'
     )
-    n_donor = pyx.attribute(
+    n_donor = config.attribute(
         type=float,
         default=0.0,
         converter=float,
-        validator=[pyx.validate_type(float),
-                   pyx.validate_range(0., 1000.)],
+        validator=[validators.validate_type(float),
+                   validators.validate_range(0., 1000.)],
         metadata={'units': 'cm-3'},
         doc='Density of donors in the lattice'
     )
-    material = pyx.attribute(
+    material = config.attribute(
         type=str,
         default='silicon',
-        validator=[pyx.validate_type(str),
-                   pyx.validate_choices(['silicon', 'hxrg'])],
+        validator=[validators.validate_type(str),
+                   validators.validate_choices(['silicon', 'hxrg'])],
         # on_set=set_material,
         doc='Semiconductor material of the detector'
     )
-    material_density = pyx.attribute(       # todo: set automatically depending on the material
+    material_density = config.attribute(       # todo: set automatically depending on the material
         # init=False,
         type=float,
         default=2.328,                      # Silicon
         converter=float,
-        validator=[pyx.validate_type(float),
-                   pyx.validate_range(0., 10000.)],
+        validator=[validators.validate_type(float),
+                   validators.validate_range(0., 10000.)],
         metadata={'units': 'g/cm3'},
         doc='Material density'
     )
-    ionization_energy = pyx.attribute(       # todo: set automatically depending on the material
+    ionization_energy = config.attribute(       # todo: set automatically depending on the material
         # init=False,
         type=float,
         default=3.6,                        # Silicon
         converter=float,
-        validator=[pyx.validate_type(float),
-                   pyx.validate_range(0., 100.)],
+        validator=[validators.validate_type(float),
+                   validators.validate_range(0., 100.)],
         metadata={'units': 'eV'},
         doc='Mean ionization energy of the semiconductor lattice'
     )
-    band_gap = pyx.attribute(       # todo: set automatically depending on the material
+    band_gap = config.attribute(       # todo: set automatically depending on the material
         # init=False,
         type=float,
         default=1.12,                       # Silicon
         converter=float,
-        validator=[pyx.validate_type(float),
-                   pyx.validate_range(0., 10.)],
+        validator=[validators.validate_type(float),
+                   validators.validate_range(0., 10.)],
         metadata={'units': 'eV'},
         doc='Band gap of the semiconductor lattice'
     )
-    e_effective_mass = pyx.attribute(       # todo: set automatically depending on the material
+    e_effective_mass = config.attribute(       # todo: set automatically depending on the material
         # init=False,
         type=float,
         default=0.5 * M_ELECTRON,           # Silicon
         converter=float,
-        validator=[pyx.validate_type(float),
-                   pyx.validate_range(0., 1.e-10)],
+        validator=[validators.validate_type(float),
+                   validators.validate_range(0., 1.e-10)],
         metadata={'units': 'kg'},
         doc='Electron effective mass in the semiconductor lattice'
     )

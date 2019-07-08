@@ -1,84 +1,90 @@
 """TBW."""
 import logging
+
 import numpy as np
+
 try:
     import pygmo as pg
 except ImportError:
     import warnings
     warnings.warn("Cannot import 'pygmo", RuntimeWarning, stacklevel=2)
 
-
-import pyxel as pyx
+from ..util import validators, config
 from pyxel.calibration.fitting import ModelFitting
 from pyxel.pipelines.model_function import ModelFunction
 from pyxel.pipelines.processor import Processor
 from pyxel.util import Outputs
 
 
-@pyx.detector_class
+@config.detector_class
 class Algorithm:
     """TBW.
 
     :return:
     """
 
-    type = pyx.attribute(
+    type = config.attribute(
         type=str,
-        validator=[pyx.validate_type(str),
-                   pyx.validate_choices(['sade', 'sga', 'nlopt'])],
+        validator=[validators.validate_type(str),
+                   validators.validate_choices(['sade', 'sga', 'nlopt'])],
         default='sade',
         doc=''
     )
-    generations = pyx.attribute(
+    generations = config.attribute(
         type=int,
-        validator=[pyx.validate_type(int),
-                   pyx.validate_range(1, 100000)],
+        validator=[validators.validate_type(int),
+                   validators.validate_range(1, 100000)],
         default=1,
         doc=''
     )
-    population_size = pyx.attribute(
+    population_size = config.attribute(
         type=int,
-        validator=[pyx.validate_type(int),
-                   pyx.validate_range(1, 100000)],
+        validator=[validators.validate_type(int),
+                   validators.validate_range(1, 100000)],
         default=1,
         doc=''
     )
 
     # SADE #####
-    variant = pyx.attribute(type=int, validator=[pyx.validate_type(int),
-                                                 pyx.validate_range(1, 18)], default=2, doc='')
-    variant_adptv = pyx.attribute(type=int, validator=[pyx.validate_type(int),
-                                                       pyx.validate_range(1, 2)], default=1, doc='')
-    ftol = pyx.attribute(type=float, default=1e-06, doc='')  # validator=pyx.validate_range(),
-    xtol = pyx.attribute(type=float, default=1e-06, doc='')  # validator=pyx.validate_range(),
-    memory = pyx.attribute(type=bool, default=False, doc='')
+    variant = config.attribute(type=int, validator=[validators.validate_type(int),
+                                                    validators.validate_range(1, 18)], default=2, doc='')
+    variant_adptv = config.attribute(type=int, validator=[validators.validate_type(int),
+                                                          validators.validate_range(1, 2)], default=1, doc='')
+    ftol = config.attribute(type=float, default=1e-06, doc='')  # validator=validators.validate_range(),
+    xtol = config.attribute(type=float, default=1e-06, doc='')  # validator=validators.validate_range(),
+    memory = config.attribute(type=bool, default=False, doc='')
     # SADE #####
 
     # SGA #####
-    cr = pyx.attribute(type=float, converter=float, validator=[pyx.validate_type(float),
-                                                               pyx.validate_range(0, 1)], default=0.9, doc='')
-    eta_c = pyx.attribute(type=float, converter=float, validator=[pyx.validate_type(float)], default=1.0, doc='')
-    m = pyx.attribute(type=float, converter=float, validator=[pyx.validate_type(float),
-                                                              pyx.validate_range(0, 1)], default=0.02, doc='')
-    param_m = pyx.attribute(type=float, default=1.0, doc='')            # validator=pyx.validate_range(1, 2),
-    param_s = pyx.attribute(type=int, default=2, doc='')                # validator=pyx.validate_range(1, 2),
-    crossover = pyx.attribute(type=str, default='exponential', doc='')  # validator=pyx.validate_choices(),
-    mutation = pyx.attribute(type=str, default='polynomial', doc='')    # validator=pyx.validate_choices(),
-    selection = pyx.attribute(type=str, default='tournament', doc='')   # validator=pyx.validate_choices(),
+    cr = config.attribute(type=float, converter=float, validator=[validators.validate_type(float),
+                                                                  validators.validate_range(0, 1)], default=0.9, doc='')
+    eta_c = config.attribute(type=float, converter=float,
+                             validator=[validators.validate_type(float)], default=1.0, doc='')
+    m = config.attribute(type=float, converter=float, validator=[validators.validate_type(float),
+                                                                 validators.validate_range(0, 1)], default=0.02, doc='')
+    param_m = config.attribute(type=float, default=1.0, doc='')            # validator=validators.validate_range(1, 2),
+    param_s = config.attribute(type=int, default=2, doc='')                # validator=validators.validate_range(1, 2),
+    crossover = config.attribute(type=str, default='exponential', doc='')  # validator=validators.validate_choices(),
+    mutation = config.attribute(type=str, default='polynomial', doc='')    # validator=validators.validate_choices(),
+    selection = config.attribute(type=str, default='tournament', doc='')   # validator=validators.validate_choices(),
     # SGA #####
 
     # NLOPT #####
-    nlopt_solver = pyx.attribute(type=str, default='neldermead', doc='')    # validator=pyx.validate_choices(),  todo
-    maxtime = pyx.attribute(type=int, default=0, doc='')                     # validator=pyx.validate_range(),  todo
-    maxeval = pyx.attribute(type=int, default=0, doc='')
-    xtol_rel = pyx.attribute(type=float, default=1.e-8, doc='')
-    xtol_abs = pyx.attribute(type=float, default=0., doc='')
-    ftol_rel = pyx.attribute(type=float, default=0., doc='')
-    ftol_abs = pyx.attribute(type=float, default=0., doc='')
-    stopval = pyx.attribute(type=float, default=float('-inf'), doc='')
-    local_optimizer = pyx.attribute(type=None, default=None, doc='')          # validator=pyx.validate_choices(),  todo
-    replacement = pyx.attribute(type=str, default='best', doc='')
-    nlopt_selection = pyx.attribute(type=str, default='best', doc='')         # todo: "selection" - same name as in SGA
+    nlopt_solver = config.attribute(type=str, default='neldermead',
+                                    doc='')    # validator=validators.validate_choices(),  todo
+    maxtime = config.attribute(type=int, default=0,
+                               doc='')                     # validator=validators.validate_range(),  todo
+    maxeval = config.attribute(type=int, default=0, doc='')
+    xtol_rel = config.attribute(type=float, default=1.e-8, doc='')
+    xtol_abs = config.attribute(type=float, default=0., doc='')
+    ftol_rel = config.attribute(type=float, default=0., doc='')
+    ftol_abs = config.attribute(type=float, default=0., doc='')
+    stopval = config.attribute(type=float, default=float('-inf'), doc='')
+    local_optimizer = config.attribute(type=None, default=None,
+                                       doc='')          # validator=validators.validate_choices(),  todo
+    replacement = config.attribute(type=str, default='best', doc='')
+    nlopt_selection = config.attribute(type=str, default='best',
+                                       doc='')         # todo: "selection" - same name as in SGA
     # NLOPT #####
 
     def get_algorithm(self):
@@ -121,79 +127,79 @@ class Algorithm:
         return opt_algorithm
 
 
-@pyx.detector_class
+@config.detector_class
 class Calibration:
     """TBW.
 
     :return:
     """
 
-    calibration_mode = pyx.attribute(
+    calibration_mode = config.attribute(
         type=str,
-        validator=[pyx.validate_type(str),
-                   pyx.validate_choices(['pipeline', 'single_model'])],
+        validator=[validators.validate_type(str),
+                   validators.validate_choices(['pipeline', 'single_model'])],
         default='pipeline',
         doc=''
     )
-    result_type = pyx.attribute(
+    result_type = config.attribute(
         type=str,
-        validator=[pyx.validate_type(str),
-                   pyx.validate_choices(['image', 'signal', 'pixel'])],
+        validator=[validators.validate_type(str),
+                   validators.validate_choices(['image', 'signal', 'pixel'])],
         default='image',
         doc=''
     )
-    result_fit_range = pyx.attribute(
+    result_fit_range = config.attribute(
         type=list,
-        validator=[pyx.validate_type(list)],
+        validator=[validators.validate_type(list)],
         default=None,
         doc=''
     )
-    result_input_arguments = pyx.attribute(
+    result_input_arguments = config.attribute(
         type=list,
-        # validator=[pyx.validate_type(list)],
+        # validator=[validators.validate_type(list)],
         default=None,
         doc=''
     )
-    target_data_path = pyx.attribute(
+    target_data_path = config.attribute(
         type=list,
-        validator=[pyx.validate_type(list)],
+        validator=[validators.validate_type(list)],
         default=None,
         doc=''
     )
-    target_fit_range = pyx.attribute(
+    target_fit_range = config.attribute(
         type=list,
-        validator=[pyx.validate_type(list)],
+        validator=[validators.validate_type(list)],
         default=None,
         doc=''
     )
-    fitness_function = pyx.attribute(
+    fitness_function = config.attribute(
         type=ModelFunction,
-        validator=[pyx.validate_type(ModelFunction)],
+        validator=[validators.validate_type(ModelFunction)],
         default='',
         doc=''
     )
-    algorithm = pyx.attribute(
+    algorithm = config.attribute(
         type=Algorithm,
-        validator=[pyx.validate_type(Algorithm)],
+        validator=[validators.validate_type(Algorithm)],
         default='',
         doc=''
     )
-    parameters = pyx.attribute(
+    parameters = config.attribute(
         type=list,
-        validator=[pyx.validate_type(list)],
+        validator=[validators.validate_type(list)],
         default='',
         doc=''
     )
-    seed = pyx.attribute(
+    seed = config.attribute(
         type=int,
-        validator=[pyx.validate_type(int),
-                   pyx.validate_range(0, 100000)],
+        validator=[validators.validate_type(int),
+                   validators.validate_range(0, 100000)],
         default=np.random.randint(0, 100000),
         doc=''
     )
-    weighting_path = pyx.attribute(
+    weighting_path = config.attribute(
         type=list,
-        # validator=[pyx.validate_type(list)],  # todo
+        # validator=[validators.validate_type(list)],  # todo
         default=None,
         doc=''
     )

@@ -5,12 +5,11 @@
 import logging
 import typing as t
 import numpy as np
-# import pyxel
 from pyxel.detectors.ccd import CCD
 
 
-# @pyxel.validate
-# @pyxel.argument(name='', label='', units='', validate=)
+# @validators.validate
+# @config.argument(name='', label='', units='', validate=)
 def charge_blocks(detector: CCD,
                   charge_level: int,
                   columns: t.List[int],

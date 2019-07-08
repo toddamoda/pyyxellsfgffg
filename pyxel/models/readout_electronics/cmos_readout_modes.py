@@ -3,15 +3,16 @@
 #   --------------------------------------------------------------------------
 """Non-Destructive Readout modes for CMOS-based detectors."""
 import logging
-import pyxel
+
 from pyxel.detectors.cmos import CMOS
-from pyxel import check_choices, check_type
+from pyxel.util.checkers import check_choices, check_type
+from ...util import validators, config
 
 
-@pyxel.validate
-@pyxel.argument(name='mode', label='', units='', validate=check_choices(['uncorrelated', 'CDS', 'Fowler-N', 'UTR']))
-@pyxel.argument(name='fowler_samples', label='', units='', validate=check_type(int))
-@pyxel.argument(name='detector', label='', units='', validate=check_type(CMOS))        # TODO this should be automatic
+@validators.validate
+@config.argument(name='mode', label='', units='', validate=check_choices(['uncorrelated', 'CDS', 'Fowler-N', 'UTR']))
+@config.argument(name='fowler_samples', label='', units='', validate=check_type(int))
+@config.argument(name='detector', label='', units='', validate=check_type(CMOS))        # TODO this should be automatic
 def non_destructive_readout(detector: CMOS,
                             mode: str,
                             fowler_samples: int = 1):

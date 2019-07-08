@@ -17,13 +17,11 @@ try:
 except ImportError:
     # raise Warning('Matplotlib cannot be imported')
     pass
-# import pyxel
 from pyxel.detectors.ccd import CCD
 
 
-# @pyxel.validate
-# @pyxel.argument(name='', label='', units='', validate=)
-# @pyxel.register(group='charge_transfer', name='cdm', detector='ccd')
+# @validators.validate
+# @config.argument(name='', label='', units='', validate=)
 def cdm(detector: CCD,
         parallel_cti: bool, serial_cti: bool,
         beta_p: float, beta_s: float,

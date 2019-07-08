@@ -7,7 +7,6 @@ import typing as t   # noqa: F401
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-# import pyxel
 from pyxel.detectors.detector import Detector
 from pyxel.models.charge_generation.tars.simulation import Simulation
 from pyxel.models.charge_generation.tars.util import read_data, interpolate_data  # , load_histogram_data
@@ -16,9 +15,8 @@ from pyxel.models.charge_generation.tars.plotting import PlottingTARS
 # from astropy import units as u
 
 
-# @pyxel.validate
-# @pyxel.argument(name='', label='', units='', validate=)
-# @pyxel.register(group='charge_generation', name='tars')
+# @validators.validate
+# @config.argument(name='', label='', units='', validate=)
 def run_tars(detector: Detector,
              simulation_mode: str = None,
              running_mode: str = None,

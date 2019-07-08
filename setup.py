@@ -7,6 +7,4 @@ https://github.com/pypa/sampleproject
 
 from setuptools import setup
 
-setup(
-    package_data={"": ["*.glade", "*.ui", "*.acf"]},  # TODO: move this to 'setup.cfg'
-)
+setup()

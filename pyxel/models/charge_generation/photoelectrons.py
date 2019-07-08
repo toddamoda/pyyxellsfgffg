@@ -4,13 +4,11 @@
 """Simple model to convert photon into photo-electrons inside detector."""
 import logging
 import numpy as np
-# import pyxel
 from pyxel.detectors.detector import Detector
 
 
-# @pyxel.validate
-# @pyxel.argument(name='', label='', units='', validate=)
-# @pyxel.register(group='charge_generation', name='photoelectrons')
+# @validators.validate
+# @config.argument(name='', label='', units='', validate=)
 def simple_conversion(detector: Detector):
     """Generate charge from incident photon via photoelectric effect, simple statistical model.
 
@@ -47,9 +45,8 @@ def simple_conversion(detector: Detector):
                                init_z_velocity=[0.] * size)
 
 
-# @pyxel.validate
-# @pyxel.argument(name='', label='', units='', validate=)
-# @pyxel.register(group='charge_generation', name='monte_carlo_photoelectrons')
+# @validators.validate
+# @config.argument(name='', label='', units='', validate=)
 def monte_carlo_conversion(detector: Detector):
     """Generate charge from incident photon via photoelectric effect, more exact, stochastic (Monte Carlo) model.
 
