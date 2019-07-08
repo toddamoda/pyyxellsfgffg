@@ -1,5 +1,6 @@
 [flake8]
 exclude =
     tests
+    pyxel/_version.py
     
 max-line-length=120
