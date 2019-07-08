@@ -8,6 +8,7 @@ import numpy as np
 import astropy.io.fits as fits
 import h5py as h5
 from time import strftime
+from pyxel import __version__ as version
 try:
     import matplotlib.pyplot as plt
 except ImportError:
@@ -71,6 +72,11 @@ class Outputs:
         """TBW."""
         self.input_file = filename
         copy2(self.input_file, self.output_dir)
+        copied_input_file = glob.glob(self.output_dir + '/*.yaml')[0]
+        with open(copied_input_file, 'a') as file:
+            file.write("\n#########")
+            file.write("\n# Pyxel version: " + str(version))
+            file.write("\n#########")
 
     def save_log_file(self):
         """Move log file to the output directory of the simulation."""
@@ -113,6 +119,7 @@ class Outputs:
             filename = str(obj_name).replace('.', '_')
         filename = apply_run_number(self.output_dir + '/' + filename + '_??.fits')
         hdu = fits.PrimaryHDU(array)
+        hdu.header['PYXEL_V'] = str(version)
         hdu.writeto(filename, overwrite=False, output_verify='exception')
 
     def save_to_hdf(self, processor, obj_name: str, filename: str = None):
@@ -122,6 +129,8 @@ class Outputs:
             filename = 'detector'
         filename = apply_run_number(self.output_dir + '/' + filename + '_??.h5')
         h5file = h5.File(filename, 'w')
+        h5file.attrs['pyxel-version'] = str(version)
+
         detector_grp = h5file.create_group('detector')
         for array, name in zip([detector.signal.array,
                                 detector.image.array,

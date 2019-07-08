@@ -16,7 +16,7 @@ import numpy as np
 import pyxel.io as io
 from pyxel.pipelines.processor import Processor
 from pyxel.detectors.ccd import CCD
-# from pyxel import __version__ as pyxel_version
+from pyxel import __version__ as version
 
 
 def run(input_filename, random_seed: int = None):
@@ -27,6 +27,7 @@ def run(input_filename, random_seed: int = None):
     :return:
     """
     logger = logging.getLogger('pyxel')
+    logger.info('Pyxel version ' + version)
     logger.info('Pipeline started.')
     start_time = time.time()
     if random_seed:

@@ -8,8 +8,13 @@ simulation:
   mode: single
 
   outputs:
-    output_folder:  outputs
-
+    output_folder:  'outputs'
+    save_to_file:
+      - detector.image.array:   [hdf, fits]
+#      - detector.signal.array:  [npy, txt]
+#      - detector.charge.frame:  [csv]
+#      - detector.photon.array:
+#      - detector:               [hdf]
 
 ccd_detector:
 

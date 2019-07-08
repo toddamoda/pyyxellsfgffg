@@ -5,6 +5,7 @@ import esapy_config.checkers as checkers
 import esapy_config.validators as validators
 import esapy_config.funcargs as funcargs
 import esapy_config.config as config
+from ._version import get_versions
 
 
 __all__ = ['models',
@@ -14,10 +15,9 @@ __all__ = ['models',
            'check_type', 'check_path', 'check_range', 'check_choices',
            'validate_choices', 'validate_range', 'validate_type']
 
-__pkgname__ = 'pyxel'
 
-# TODO: Version should be defined here
-# __version__ = '0.4rc1'
+__version__ = get_versions()['version']
+del get_versions
 
 
 def detector_class(cls):
