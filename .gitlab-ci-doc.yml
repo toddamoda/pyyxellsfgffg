@@ -27,8 +27,8 @@ doc:
       - documentation.svg
       - license.svg
   allow_failure: false
-  only:
-    - master
+#  only:
+#    - master
 
 website:
   image: alpine
