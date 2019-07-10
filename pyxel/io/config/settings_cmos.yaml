@@ -99,13 +99,14 @@ pipeline:
       enabled: true
       arguments:
         pca0_file: pyxel/models/charge_measurement/nghxrg/nirspec_pca0.fits
-        window_position: [10, 10]
-        window_size: [50, 50]
+#        window_position: [10, 10]
+#        window_size: [50, 50]
+        plot_psd: false
         noise:
           - ktc_bias_noise: true
             ktc_noise: 29.
-            bias_offset: 5000.
-            bias_amp: 500.
+            bias_offset: 100.
+            bias_amp: 50.
           - white_read_noise: true
             rd_noise: 40.
             ref_pixel_noise_ratio: 8.

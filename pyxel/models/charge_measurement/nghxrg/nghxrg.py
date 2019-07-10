@@ -13,9 +13,9 @@ from pyxel.models.charge_measurement.nghxrg.nghxrg_beta import HXRGNoise
 def nghxrg(detector: CMOS,
            noise: list,
            pca0_file: str = None,
-           # window_mode: str = 'FULL',
            window_position: list = None,
-           window_size: list = None):
+           window_size: list = None,
+           plot_psd: bool = True):
     """TBW.
 
     :param detector: Pyxel Detector object
@@ -23,6 +23,7 @@ def nghxrg(detector: CMOS,
     :param pca0_file:
     :param window_position: [x0 (columns), y0 (rows)]
     :param window_size: [x (columns), y (rows)]
+    :param plot_psd:
     """
     logging.getLogger("nghxrg").setLevel(logging.WARNING)
     logger = logging.getLogger('pyxel')
@@ -87,9 +88,10 @@ def nghxrg(detector: CMOS,
         try:
             result = ng.format_result(result)
             if result.any():
-                # display_noisepsd(result, noise_name=noise_name,       # TODO plot only if needed
-                #                  nb_output=geo.n_output, dimension=(geo.col, geo.row),
-                #                  path=detector.output_dir, step=step)
+                if plot_psd:
+                    display_noisepsd(result, noise_name=noise_name,
+                                     nb_output=geo.n_output, dimension=(geo.col, geo.row),
+                                     path=detector.output_dir, step=step)
                 if window_mode == 'FULL':
                     detector.pixel.array += result
                 elif window_mode == 'WINDOW':
@@ -145,9 +147,7 @@ def display_noisepsd(array, nb_output, dimension, noise_name, path, step, mode='
 
         # print(output_data, read_freq, nperseg)
         # Add periodogram to the previously initialized array
-        f_vect, pxx_outputs[i] = signal.welch(output_data,
-                                              read_freq,
-                                              nperseg=nperseg)
+        f_vect, pxx_outputs[i] = signal.welch(output_data, read_freq, nperseg=nperseg)
 
     # For the detector
     # detector_data = data_corr.flatten()
@@ -171,5 +171,6 @@ def display_noisepsd(array, nb_output, dimension, noise_name, path, step, mode='
             ax.set_ylabel('PSD [e-${}^2$/Hz]')
             ax.grid(True, alpha=.4)
         plt.savefig(path + '/nghxrg_' + noise_name + '_' + str(step) + '.png', dpi=300)
+        plt.close()
 
     return f_vect, np.mean(pxx_outputs, axis=0)
