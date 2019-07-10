@@ -24,8 +24,8 @@ ccd_detector:
 
   geometry:
 
-    row: 1488               # pixel
-    col: 1485               # pixel
+    row: 450               # pixel
+    col: 450               # pixel
     total_thickness: 40.    # um
     pixel_vert_size: 10.    # um
     pixel_horz_size: 10.    # um
@@ -42,7 +42,7 @@ ccd_detector:
     sv:   3.e-6             # V/e
     amp:  10.               # V/V
     a1:   100.              # V/V
-    a2:   10000             # DN/V
+    a2:   3000              # DN/V
     fwc:  2000              # e
     fwc_serial: 10000       # e
     vg:   1.62e-10          # cm^2
@@ -59,6 +59,7 @@ pipeline:
       enabled: true
       arguments:
         image_file: 'examples/basic/Pleiades_HST.fits'
+        fit_image_to_det: true
         convert_to_photons: true
 
     - name: shot_noise
@@ -72,7 +73,7 @@ pipeline:
       enabled: true
       arguments:
         fov_pixels: 30          # FOV in pixel
-        pixelscale: 0.05        # micron/pixel OR arcsec/pixel
+        pixelscale: 0.1        # micron/pixel OR arcsec/pixel
         wavelength: 2.e-6       # wavelength in microns
         optical_system:
           - item: CircularAperture

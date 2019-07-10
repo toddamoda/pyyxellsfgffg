@@ -100,7 +100,7 @@ from scipy.ndimage.interpolation import zoom
 # # Have not verified this in Python 3.x (JML):
 # _log = logging.getLogger('nghxrg')
 
-PCA0FILE = path.dirname(path.abspath(__file__)) + '/nirspec_pca0.fits'
+# PCA0FILE = path.dirname(path.abspath(__file__)) + '/nirspec_pca0.fits'
 
 
 def white_noise(nstep=None):
@@ -126,22 +126,23 @@ class HXRGNoise:
     # These class variables are common to all HxRG detectors
     nghxrg_version = 2.8    # Sofware version
 
-    def __init__(self, det_size_x=2048, det_size_y=2048,       # naxis1=2048,  naxis2=2048,
-                 cube_z=1, n_out=4,
-                 nroh=0, nfoh=0,
-                 pca0_file=PCA0FILE,
-                 reverse_scan_direction=False,
-                 reference_pixel_border_width=4,
-                 wind_mode='FULL',
-                 wind_x_size=0, wind_y_size=0,
-                 wind_x0=0, wind_y0=0,
-                 verbose=False):
+    def __init__(self,
+                 det_size_x, det_size_y,
+                 time_step,
+                 n_out, nroh, nfoh,
+                 reverse_scan_direction,
+                 reference_pixel_border_width,
+                 wind_mode,
+                 wind_x_size, wind_y_size,
+                 wind_x0, wind_y0,
+                 verbose,
+                 pca0_file=None):
         """Simulate Teledyne HxRG+SIDECAR ASIC system noise.
 
         Parameters:
             naxis1      - X-dimension of the FITS cube
             naxis2      - Y-dimension of the FITS cube
-            naxis3      - Z-dimension of the FITS cube
+            time_step   - Z-dimension of the FITS cube, number of frame in series over time
                           (number of up-the-ramp samples)
             n_out       - Number of detector outputs
             nfoh        - New frame overhead in rows. This allows for a short
@@ -168,7 +169,7 @@ class HXRGNoise:
 
         :param det_size_x:
         :param det_size_y:
-        :param cube_z:
+        :param time_step:
         :param n_out:
         :param nroh:
         :param nfoh:
@@ -211,13 +212,14 @@ class HXRGNoise:
             # _log.warning('%s not a valid window readout mode! Returning...' % inst_params['wind_mode'])  # ERROR WTF
             # os.sys.exit()
 
-        self.naxis3 = cube_z
+        self.naxis3 = 1             # always use only one frame (2d array)
+        self.time_step = time_step  # number of frame over time
         self.n_out = n_out
         # self.dt = dt
         self.nroh = nroh
         self.nfoh = nfoh
         self.reference_pixel_border_width = reference_pixel_border_width
-        self.pca0_file = pca0_file
+        # self.pca0_file = pca0_file
 
         # Default clocking pattern is JWST NIRSpec
         # if naxis1 is None:
@@ -248,20 +250,6 @@ class HXRGNoise:
                 # _log.warning('NAXIS2 %s greater than det_size_y %s! Returning...' % (self.naxis1, det_size_y))
                 # os.sys.exit()
 
-        # Initialize PCA-zero file and make sure that it exists and is a file
-        # self.pca0_file = os.getenv('NGHXRG_HOME')+'/nirspec_pca0.fits' if \
-        # if pca0_file is None:
-        #     self.pca0_file = NGHXRG_HOME + '/nirspec_pca0.fits'
-
-        if path.isfile(self.pca0_file) is False:
-            print('There was an error finding pca0_file! Check to be')
-            print('sure that the NGHXRG_HOME shell environment')
-            print('variable is set correctly and that the')
-            print('$NGHXRG_HOME/ directory contains the desired PCA0')
-            print('file. The default is nirspec_pca0.fits.')
-            raise ValueError()
-            # os.sys.exit()
-
         # ======================================================================
 
         # Configure Subarray (JML)
@@ -270,6 +258,31 @@ class HXRGNoise:
         self.det_size_y = det_size_y
         self.wind_x0 = wind_x0
         self.wind_y0 = wind_y0
+
+        # Select region of pca0 associated with window position
+        if self.wind_mode == 'WINDOW':
+            x1 = self.wind_x0
+            y1 = self.wind_y0
+        # elif self.wind_mode == 'STRIPE':
+        #     x1 = 0
+        #     y1 = self.wind_y0
+        else:
+            x1 = 0
+            y1 = 0
+
+        # print(y1, self.naxis2) This appears to be a stub
+        x2 = x1 + self.naxis1
+        y2 = y1 + self.naxis2
+
+        # How many reference pixel on each border?
+        w = self.reference_pixel_border_width  # Easier to work with
+        lower = w - y1
+        upper = w - (self.det_size_y - y2)
+        left = w - x1
+        right = w - (self.det_size_x - x2)
+        ref_all = np.array([lower, upper, left, right])
+        ref_all[ref_all < 0] = 0
+        self.ref_all = ref_all
 
         # Configure status reporting
         self.verbose = verbose
@@ -281,7 +294,7 @@ class HXRGNoise:
         self.xsize = self.naxis1 // self.n_out
 
         # Compute the number of time steps per integration,  per output
-        self.nstep = (self.xsize+self.nroh) * (self.naxis2+self.nfoh) * self.naxis3
+        self.nstep = (self.xsize+self.nroh) * (self.naxis2+self.nfoh) * self.time_step
         # Pad nsteps to a power of 2,  which is much faster (JML)
         self.nstep2 = int(2**np.ceil(np.log2(self.nstep)))
 
@@ -316,78 +329,69 @@ class HXRGNoise:
         self.p_filter1 = np.insert(self.p_filter1, 0, 0.)
         self.p_filter2 = np.insert(self.p_filter2, 0, 0.)
 
-        # Initialize pca0. This includes scaling to the correct size,
-        # zero offsetting,  and renormalization. We use robust statistics
-        # because pca0 is real data
-        hdu = fits.open(self.pca0_file)
-        nx_pca0 = hdu[0].header['naxis1']
-        ny_pca0 = hdu[0].header['naxis2']
+        if pca0_file is not None:
+            # Initialize PCA-zero file and make sure that it exists and is a file
+            # self.pca0_file = os.getenv('NGHXRG_HOME')+'/nirspec_pca0.fits' if \
+            # if pca0_file is None:
+            #     self.pca0_file = NGHXRG_HOME + '/nirspec_pca0.fits'
 
-        zoom_factor = 0
-        # Do this slightly differently,  taking into account the
-        # different types of readout modes (JML)
-        # if (nx_pca0 != self.naxis1 or naxis2 != self.naxis2):
-        #    zoom_factor = self.naxis1 / nx_pca0
-        #    self.pca0 = zoom(hdu[0].data,  zoom_factor,  order=1,  mode='wrap')
-        # else:
-        #    self.pca0 = hdu[0].data
-        # self.pca0 -= np.median(self.pca0) # Zero offset
-        # self.pca0 /= (1.4826*mad(self.pca0)) # Renormalize
+            if path.isfile(pca0_file) is False:
+                print('There was an error finding pca0_file! Check to be')
+                print('sure that the NGHXRG_HOME shell environment')
+                print('variable is set correctly and that the')
+                print('$NGHXRG_HOME/ directory contains the desired PCA0')
+                print('file. The default is nirspec_pca0.fits.')
+                raise ValueError()
+                # os.sys.exit()
 
-        data = hdu[0].data
-        # Make sure the real PCA image is correctly scaled to size of fake data (JML)
-        # Depends if we're FULL, STRIPE or WINDOW
-        if wind_mode == 'FULL':
-            scale1 = self.naxis1 / nx_pca0
-            scale2 = self.naxis2 / ny_pca0
-            zoom_factor = np.max([scale1, scale2])
-        # if wind_mode == 'STRIPE':
-        #     zoom_factor = self.naxis1 / nx_pca0
-        if wind_mode == 'WINDOW':
-            # Scale based on det_size_x
-            scale1 = self.det_size_x / nx_pca0
-            scale2 = self.det_size_y / ny_pca0
-            zoom_factor = np.max([scale1, scale2])
+            # Initialize pca0. This includes scaling to the correct size,
+            # zero offsetting,  and renormalization. We use robust statistics
+            # because pca0 is real data
+            hdu = fits.open(pca0_file)
+            nx_pca0 = hdu[0].header['naxis1']
+            ny_pca0 = hdu[0].header['naxis2']
 
-        # Resize PCA0 data
-        if zoom_factor != 1:
-            data = zoom(data, zoom_factor, order=1, mode='wrap')
+            zoom_factor = 0
+            # Do this slightly differently,  taking into account the
+            # different types of readout modes (JML)
+            # if (nx_pca0 != self.naxis1 or naxis2 != self.naxis2):
+            #    zoom_factor = self.naxis1 / nx_pca0
+            #    self.pca0 = zoom(hdu[0].data,  zoom_factor,  order=1,  mode='wrap')
+            # else:
+            #    self.pca0 = hdu[0].data
+            # self.pca0 -= np.median(self.pca0) # Zero offset
+            # self.pca0 /= (1.4826*mad(self.pca0)) # Renormalize
 
-        data -= np.median(data)     # Zero offset
-        data /= (1.4826*mad(data))  # Renormalize
+            data = hdu[0].data
+            # Make sure the real PCA image is correctly scaled to size of fake data (JML)
+            # Depends if we're FULL, STRIPE or WINDOW
+            if wind_mode == 'FULL':
+                scale1 = self.naxis1 / nx_pca0
+                scale2 = self.naxis2 / ny_pca0
+                zoom_factor = np.max([scale1, scale2])
+            # if wind_mode == 'STRIPE':
+            #     zoom_factor = self.naxis1 / nx_pca0
+            if wind_mode == 'WINDOW':
+                # Scale based on det_size_x
+                scale1 = self.det_size_x / nx_pca0
+                scale2 = self.det_size_y / ny_pca0
+                zoom_factor = np.max([scale1, scale2])
 
-        # Select region of pca0 associated with window position
-        if self.wind_mode == 'WINDOW':
-            x1 = self.wind_x0
-            y1 = self.wind_y0
-        # elif self.wind_mode == 'STRIPE':
-        #     x1 = 0
-        #     y1 = self.wind_y0
-        else:
-            x1 = 0
-            y1 = 0
+            # Resize PCA0 data
+            if zoom_factor != 1:
+                data = zoom(data, zoom_factor, order=1, mode='wrap')
 
-        # print(y1, self.naxis2) This appears to be a stub
-        x2 = x1 + self.naxis1
-        y2 = y1 + self.naxis2
-        # Make sure x2 and y2 are valid
-        if x2 > data.shape[0] or y2 > data.shape[1]:
-            raise ValueError()
-            # _log.warning('Specified window size does not fit within detector array!')
-            # _log.warning('X indices: [%s, %s]; Y indices: [%s, %s]; XY Size: [%s,  %s]' %
-            #              (x1, x2, y1, y2, data.shape[0], data.shape[1]))
-            # os.sys.exit()
-        self.pca0 = data[y1:y2, x1:x2]
+            data -= np.median(data)     # Zero offset
+            data /= (1.4826 * mad(data))  # Renormalize
 
-        # How many reference pixel on each border?
-        w = self.reference_pixel_border_width   # Easier to work with
-        lower = w-y1
-        upper = w-(det_size_y-y2)
-        left = w-x1
-        right = w-(det_size_x-x2)
-        ref_all = np.array([lower, upper, left, right])
-        ref_all[ref_all < 0] = 0
-        self.ref_all = ref_all
+            # Make sure x2 and y2 are valid
+            if x2 > data.shape[0] or y2 > data.shape[1]:
+                raise ValueError()
+                # _log.warning('Specified window size does not fit within detector array!')
+                # _log.warning('X indices: [%s, %s]; Y indices: [%s, %s]; XY Size: [%s,  %s]' %
+                #              (x1, x2, y1, y2, data.shape[0], data.shape[1]))
+                # os.sys.exit()
+            self.pca0 = data[y1:y2, x1:x2]
 
     def message(self, message_text):
         """Print a message to the terminal."""
@@ -552,7 +556,7 @@ class HXRGNoise:
         """
         result = np.zeros((self.naxis3, self.naxis2, self.naxis1), dtype=np.float32)
 
-        if self.naxis3 > 1:     # NOTE: there is no kTc or Bias noise added for first/single frame
+        if self.time_step > 1:     # NOTE: there is no kTc or Bias noise added for first/single frame
             self.message('Generating ktc_bias_noise')
             # If there are no reference pixel,
             # we know that we are dealing with a subarray. In this case,  we do not
@@ -634,8 +638,9 @@ class HXRGNoise:
         if c_pink > 0:
             self.message('Adding c_pink noise')
             tt = c_pink * self.pink_noise('pink')   # tt is a temp. variable
-            tt = np.reshape(tt, (self.naxis3, self.naxis2+self.nfoh,
-                                 self.xsize+self.nroh))[:, :self.naxis2, :self.xsize]
+            tt = np.reshape(tt, (self.time_step, self.naxis2 + self.nfoh,
+                                 self.xsize + self.nroh))[:, :self.naxis2, :self.xsize]
+            tt = tt[-1, :, :]
             for op in np.arange(self.n_out):
                 wind_x0 = op * self.xsize
                 x1 = wind_x0 + self.xsize
@@ -669,8 +674,9 @@ class HXRGNoise:
                 wind_x0 = op * self.xsize
                 x1 = wind_x0 + self.xsize
                 tt = u_pink * self.pink_noise('pink')
-                tt = np.reshape(tt, (self.naxis3, self.naxis2+self.nfoh,
+                tt = np.reshape(tt, (self.time_step, self.naxis2+self.nfoh,
                                      self.xsize+self.nroh))[:, :self.naxis2, :self.xsize]
+                tt = tt[-1, :, :]
                 result[:, :, wind_x0:x1] += tt
 
         return result
@@ -698,7 +704,7 @@ class HXRGNoise:
                 a = a[np.where(self.m_short == 1)]
                 b = b[np.where(self.m_short == 1)]
 
-                half_ch_pixels = self.naxis1 * self.naxis2 // (2*self.n_out)
+                half_ch_pixels = self.naxis1 * self.naxis2 // (2 * self.n_out)
                 if len(a) != half_ch_pixels:
                     ValueError('This should not happen: in ACN noise len(a) != number of half ch pixel')
                     # a = np.append(a, np.zeros(halfchpixels-len(a)))
@@ -731,12 +737,13 @@ class HXRGNoise:
         if pca0_amp > 0:
             self.message('Adding PCA-zero "picture frame" noise')
             gamma = self.pink_noise(mode='pink')
-            zoom_factor = self.naxis2 * self.naxis3 / np.size(gamma)
+            zoom_factor = self.naxis2 * self.time_step / np.size(gamma)
             gamma = zoom(gamma, zoom_factor, order=1, mode='mirror')
-            gamma = np.reshape(gamma, (self.naxis3, self.naxis2))
-            for z in np.arange(self.naxis3):
-                for y in np.arange(self.naxis2):
-                    result[z, y, :] += pca0_amp * self.pca0[y, :] * gamma[z, y]
+            gamma = np.reshape(gamma, (self.time_step, self.naxis2))
+            gamma = gamma[-1, :]
+            # for z in np.arange(self.naxis3):
+            for y in np.arange(self.naxis2):
+                result[0, y, :] += pca0_amp * self.pca0[y, :] * gamma[y]
 
         return result
 
