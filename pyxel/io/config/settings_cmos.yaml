@@ -5,26 +5,32 @@
 
 simulation:
 
-  mode: single
+#  mode: single
+
+  mode: dynamic
+  dynamic:
+    non_destructive_readout:  true
+    steps: 6
+    t_step: 2.1
 
   outputs:
     output_folder:  outputs
     save_to_file:
       - detector.image.array:   [fits, png]
-#      - detector.signal.array:  [npy, txt]
-#      - detector.charge.frame:  [csv]
+      - detector.signal.array:  [npy, txt]
+      - detector.charge.frame:  [csv]
 #      - detector.photon.array:
-#      - detector:               [hdf]
+      - detector:               [hdf]
 
 cmos_detector:
 
   geometry:
-    row: 2048                      # pixels
-    col: 2048                      # pixels
+    row: 100                      # pixels
+    col: 100                      # pixels
     total_thickness: 10.         # um
     pixel_vert_size: 10.         # um
     pixel_horz_size: 10.         # um
-    n_output: 42
+    n_output: 1
     n_row_overhead: 0
     n_frame_overhead: 0
     reverse_scan_direction: False
@@ -51,10 +57,10 @@ pipeline:
   photon_generation:
     - name: load_image
       func: pyxel.models.photon_generation.load_image.load_image
-      enabled: false
+      enabled: true
       arguments:
-        image_file:
-        fit_image_to_det: false
+        image_file: data/fits/Pleiades_HST.fits
+        fit_image_to_det: true
         convert_to_photons: true
 
     - name: illumination
@@ -65,7 +71,7 @@ pipeline:
 
     - name: shot_noise
       func: pyxel.models.photon_generation.shot_noise.shot_noise
-      enabled: true
+      enabled: false
 
   # photon -> photon
   optics:
@@ -88,26 +94,29 @@ pipeline:
 
   # charge -> signal
   charge_measurement:
-    # - name: nghxrg
-    #   func: pyxel.models.charge_measurement.nghxrg.nghxrg.nghxrg
-    #   enabled: true
-    #   arguments:
-    #     noise:
-    #       - ktc_bias_noise: true
-    #         ktc_noise: 29.
-    #         bias_offset: 5000.
-    #         bias_amp: 500.
-    #       - white_read_noise: false
-    #         rd_noise: 40.
-#            ref_pixel_noise_ratio: 8.
-#          - corr_pink_noise: true
-#            c_pink: 30.
-#          - uncorr_pink_noise: true
-#            u_pink: 20.
-#          - acn_noise: true
-#            acn: 50.
-#          - pca_zero_noise: true
-#            pca0_amp: 45.
+    - name: nghxrg
+      func: pyxel.models.charge_measurement.nghxrg.nghxrg.nghxrg
+      enabled: true
+      arguments:
+        pca0_file: pyxel/models/charge_measurement/nghxrg/nirspec_pca0.fits
+        window_position: [10, 10]
+        window_size: [50, 50]
+        noise:
+          - ktc_bias_noise: true
+            ktc_noise: 29.
+            bias_offset: 5000.
+            bias_amp: 500.
+          - white_read_noise: true
+            rd_noise: 40.
+            ref_pixel_noise_ratio: 8.
+          - corr_pink_noise: true
+            c_pink: 30.
+          - uncorr_pink_noise: true
+            u_pink: 20.
+          - acn_noise: true
+            acn: 50.
+          - pca_zero_noise: true
+            pca0_amp: 45.
 
     - name: simple_measurement
       func: pyxel.models.charge_measurement.measurement.simple_measurement

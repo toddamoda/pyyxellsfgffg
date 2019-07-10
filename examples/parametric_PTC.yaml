@@ -1,8 +1,8 @@
 # ########################################################### #
 # Pyxel detector simulation framework                         #
 #                                                             #
-# Example yaml config to generate a                           #
-# CCD Photon Transfer Curve in parametric analysis mode       #
+# Example yaml configuration file                             #
+# CCD Photon Transfer Curve with parametric analysis mode     #
 # Created by D. Lucsanyi (ESA)                                #
 # ########################################################### #
 
@@ -17,7 +17,7 @@ simulation:
         values: numpy.unique(numpy.logspace(0, 6, 100, dtype=int))
 
   outputs:
-    output_folder:  'outputs'
+    output_folder:  'examples/PTC/output'
     parametric_plot:
       x:  'detector.image.mean'
       y:  'detector.image.std_deviation'
@@ -65,7 +65,7 @@ pipeline:
           level: 0
     - name: shot_noise
       func: pyxel.models.photon_generation.shot_noise.shot_noise
-      enabled: false
+      enabled: true
 
   # photon -> photon
   optics:
@@ -76,24 +76,24 @@ pipeline:
       func: pyxel.models.charge_generation.photoelectrons.simple_conversion
       enabled: true
 
-  # charge -> charge
+  # charge -> pixel
   charge_collection:
     - name: simple_collection
       func: pyxel.models.charge_collection.collection.simple_collection
       enabled: true
     - name: fixed_pattern_noise
       func: pyxel.models.charge_collection.fix_pattern_noise.fix_pattern_noise
-      enabled: false
+      enabled: true
       arguments:
-        pix_non_uniformity: data/pixel_non_uniformity.npy
+#        pix_non_uniformity: data/pixel_non_uniformity.npy
     - name: full_well
       func: pyxel.models.charge_collection.full_well.simple_full_well
-      enabled: false
+      enabled: true
 
-  # charge -> charge
+  # pixel -> pixel
   charge_transfer:
 
-  # charge -> signal
+  # pixel -> signal
   charge_measurement:
     - name: simple_measurement
       func: pyxel.models.charge_measurement.measurement.simple_measurement
@@ -112,3 +112,6 @@ pipeline:
     - name: simple_processing
       func: pyxel.models.readout_electronics.digitization.simple_processing
       enabled: true
+
+
+
