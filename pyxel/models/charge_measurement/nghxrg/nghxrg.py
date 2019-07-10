@@ -4,6 +4,7 @@
 """Pyxel wrapper class for NGHXRG - Teledyne HxRG Noise Generator model."""
 
 import logging
+import typing as t
 from pyxel.detectors.cmos import CMOS
 from pyxel.models.charge_measurement.nghxrg.nghxrg_beta import HXRGNoise
 
@@ -13,8 +14,8 @@ from pyxel.models.charge_measurement.nghxrg.nghxrg_beta import HXRGNoise
 def nghxrg(detector: CMOS,
            noise: list,
            pca0_file: str = None,
-           window_position: list = None,
-           window_size: list = None,
+           window_position: t.Optional[t.List[int]] = None,
+           window_size: t.Optional[t.List[int]] = None,
            plot_psd: bool = True):
     """TBW.
 
@@ -33,10 +34,10 @@ def nghxrg(detector: CMOS,
     if detector.is_dynamic:
         step = int(detector.time / detector.time_step)
     if window_position is None:
-        window_position = 0, 0
+        window_position = [0, 0]
     if window_size is None:
-        window_size = geo.col, geo.row
-    if window_position == (0, 0) and window_size == (geo.col, geo.row):
+        window_size = [geo.col, geo.row]
+    if window_position == [0, 0] and window_size == [geo.col, geo.row]:
         window_mode = 'FULL'
     else:
         window_mode = 'WINDOW'
