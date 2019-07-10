@@ -14,11 +14,11 @@ CCD Photon Transfer Curve
 ***************************
 
 
-.. literalinclude:: ../../examples/parametric_Photon_Transfer_Curve.yaml
+.. literalinclude:: ../../examples/parametric_PTC.yaml
 
 
 See :download:`this example yaml
-<../../examples/parametric_Photon_Transfer_Curve.yaml>`.
+<../../examples/parametric_PTC.yaml>`.
 
 
 TABLE
