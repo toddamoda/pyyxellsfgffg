@@ -4,16 +4,18 @@
 """Readout electronics model."""
 import logging
 from pydoc import locate
+
 import numpy as np
-import pyxel
+
 from pyxel.detectors.detector import Detector
 # from astropy import units as u
+from ...util import config, checkers, validators
 
 
-@pyxel.validate
-@pyxel.argument(name='data_type', label='type of output data array', units='ADU',
-                validate=pyxel.check_choices(['numpy.uint16', 'numpy.uint32', 'numpy.uint64',
-                                              'numpy.int32', 'numpy.int64']))
+@validators.validate
+@config.argument(name='data_type', label='type of output data array', units='ADU',
+                 validate=checkers.check_choices(['numpy.uint16', 'numpy.uint32', 'numpy.uint64',
+                                                  'numpy.int32', 'numpy.int64']))
 def simple_digitization(detector: Detector,
                         data_type: str = 'numpy.uint16'):
     """Digitize signal array mimicking readout electronics.

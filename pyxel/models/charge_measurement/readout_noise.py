@@ -4,15 +4,14 @@
 """Readout noise model."""
 import logging
 import numpy as np
-# import pyxel
 from pyxel.detectors.detector import Detector
 
 # from astropy import units as u
 
 
-# @pyxel.validate
-# @pyxel.argument(name='', label='', units='', validate=)
-# @pyxel.register(group='charge_measurement', name='output_node_noise', detector='ccd')
+# @validators.validate
+# @config.argument(name='', label='', units='', validate=)
+
 def output_node_noise(detector: Detector,
                       std_deviation: float,
                       random_seed: int = None):

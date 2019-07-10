@@ -4,13 +4,12 @@
 #   --------------------------------------------------------------------------
 """Pyxel persistence model."""
 import logging
-# import pyxel
 from pyxel.detectors.cmos import CMOS
 # import numpy as np
 
 
-# @pyxel.validate
-# @pyxel.argument(name='', label='', units='', validate=)
+# @validators.validate
+# @config.argument(name='', label='', units='', validate=)
 def simple_persistence(detector: CMOS,
                        trap_timeconstant: list,
                        trap_density: list):

@@ -3,13 +3,12 @@
 #   --------------------------------------------------------------------------
 """Charge readout model."""
 import logging
-# import pyxel
 from pyxel.detectors.detector import Detector
 # from astropy import units as u
 
 
-# @pyxel.validate
-# @pyxel.argument(name='', label='', units='', validate=)
+# @validators.validate
+# @config.argument(name='', label='', units='', validate=)
 def simple_measurement(detector: Detector):
     """Create signal array from pixel array.
 

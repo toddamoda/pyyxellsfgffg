@@ -3,13 +3,15 @@
 #   --------------------------------------------------------------------------
 """Simple model to load charge profiles."""
 import logging
+
 import numpy as np
-import pyxel
+
 from pyxel.detectors.detector import Detector
+from ...util import validators, checkers, config
 
 
-@pyxel.validate
-@pyxel.argument(name='txt_file', label='file path', units='', validate=pyxel.check_path)
+@validators.validate
+@config.argument(name='txt_file', label='file path', units='', validate=checkers.check_path)
 def charge_profile(detector: Detector,
                    txt_file: str,
                    fit_profile_to_det: bool = False,
