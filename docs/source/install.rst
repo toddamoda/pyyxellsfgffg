@@ -47,9 +47,9 @@ with Pyxel using ``pip``:
   $ cd pyxel
   $ python3 -m pip install --user dependencies/esapy_config-0.7.1-py2.py3-none-any.whl
 
-Then install ``pyxel`` using ``pip``. Choose from the 4 different options below:
+Then install ``pyxel`` using ``pip``. Choose one from the 4 different options below:
 
-    * To install ``pyxel`` and all the optional dependencies:
+    * To install ``pyxel`` and all the optional dependencies (recommended):
 
     .. code-block:: bash
 
