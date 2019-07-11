@@ -6,42 +6,31 @@ Installation
 Requirements
 -------------
 
-* ``python >= 3.6``
+* ``python (version 3.6 or higher)``
 
 **Dependencies available on official PyPI server:**
 
 * ``numpy``
 * ``astropy``
-* ``pandas>=0.23.0``
+* ``pandas (version 0.23.0 or higher)``
 * ``scipy``
-* ``pygmo==2.10``
 * ``numba``
 * ``tqdm``
 * ``matplotlib``
 * ``h5py``
-* ``poppy==0.8.0``
+* ``pygmo (version 2.10), optional``
+* ``poppy (version 0.8.0), optional``
 
 **Dependencies provided together with Pyxel:**
 
-* dependencies/esapy_config-0.7.1-py2.py3-none-any.whl
-
-Pip
----
-
-TBW.
+* ``dependencies/esapy_config-0.7.1-py2.py3-none-any.whl``
 
 
-Anaconda
---------
-
-TBW.
-
-
-From source
------------
+Install from source
+-------------------
 
 First, get access to the `Pyxel GitLab repository <https://gitlab.com/esa/pyxel>`_
-from David Lucsanyi (@david.lucsanyi).
+from maintainers (pyxel at esa dot int).
 
 If you can access it, then clone the GitLab repository to your computer
 using ``git``:
@@ -49,45 +38,40 @@ using ``git``:
 .. code-block:: bash
 
     $ git clone https://gitlab.com/esa/pyxel.git
-    $ cd pyxel
 
-
-After cloning the repository, install all the requirements with
-``pip`` using the ``requirements.txt`` file inside the ``pyxel``
-folder:
+After cloning the repository, install the dependency provided together
+with Pyxel using ``pip``:
 
 .. code-block:: bash
 
-  $ pip install -r requirements.txt
+  $ cd pyxel
+  $ python3 -m pip install --user dependencies/esapy_config-0.7.1-py2.py3-none-any.whl
 
-Then install locally ``pyxel``:
+Then install ``pyxel`` using ``pip``. Choose from the 4 different options below:
 
-.. code-block:: bash
+    * To install ``pyxel`` and all the optional dependencies:
 
-  $ pip install -e .
+    .. code-block:: bash
 
+      $ python3 -m pip install --user -e ".[all]"
 
-To install ``pyxel`` with all its optional dependencies:
+    * To install ``pyxel`` and the optional dependencies for *calibration mode* (``pygmo``):
 
-.. code-block:: bash
+    .. code-block:: bash
 
-  $ pip install -e ".[all]"
+      $ python3 -m pip install --user -e ".[calibration]"
 
+    * To install ``pyxel`` and the optional models (``poppy``):
 
-To install ``pyxel`` with its optional dependencies for 'simulation':
+    .. code-block:: bash
 
-.. code-block:: bash
+      $ python3 -m pip install --user -e ".[model]"
 
-  $ pip install -e ".[simulation]"
+    * To install ``pyxel`` without any optional dependency:
 
+    .. code-block:: bash
 
-To install ``pyxel`` with its optional dependencies for 'modelling':
-
-.. code-block:: bash
-
-  $ pip install -e ".[model]"
-
-
+      $ python3 -m pip install --user -e .
 
 .. note::
   If a package is not available in any PyPI server for your OS, because
@@ -95,61 +79,82 @@ To install ``pyxel`` with its optional dependencies for 'modelling':
   have to download the Conda compatible whl file of some dependencies
   and install it manually with ``conda install``.
 
-After the installation steps above,
-see :ref:`here how to run Pyxel <running_modes>`.
-
-Installation with Anaconda
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-First install the `Anaconda distribution <https://www.anaconda.com/distribution/>`_
-then check if the tool ``conda`` is correctly installed:
-
-.. code-block:: bash
-
-  $ conda info
-
-The second step is to create a new conda environment `pyxel-dev` and
-to install the dependencies with ``conda`` and ``pip``:
-
-.. code-block:: bash
-
-  $ cd pyxel
-
-  Create a new conda environment 'pyxel-dev'
-  and install some dependencies from conda with `environment.yml`
-  $ conda env create -f environment.yml
-
-  Display all conda environments (only for checking)
-  $ conda info --envs
-
-  Activate the conda environment 'pyxel-dev'
-  $ (pyxel-dev) conda activate pyxel-dev
-
-  Install the other dependencies not installed by conda
-  $ (pyxel-dev) pip install -r requirements.txt
-
-
-Then install ``pyxel`` in the conda environment:
-
-.. code-block:: bash
-
-  $ (pyxel-dev) cd pyxel
-  $ (pyxel-dev) pip install -e .
-
-More about the conda environments (only for information):
-
-.. code-block:: bash
-
-  Deactivate the environment
-  $ conda deactivate
-
-  Remove the conda environment 'pyxel-dev'
-  $ conda remove --name pyxel-dev --all
+  If you use OSX, then you can only install ``pygmo`` with Conda.
 
 After the installation steps above,
 see :ref:`here how to run Pyxel <running_modes>`.
+
+
+Install from PyPi
+-----------------
+
+TBW.
+
+
+Install with Anaconda
+---------------------
+
+TBW.
+
+
+Using Docker
+-------------
+
+TBW.
 
 ..
+    Installation with Anaconda
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    First install the `Anaconda distribution <https://www.anaconda.com/distribution/>`_
+    then check if the tool ``conda`` is correctly installed:
+
+    .. code-block:: bash
+
+      $ conda info
+
+    The second step is to create a new conda environment `pyxel-dev` and
+    to install the dependencies with ``conda`` and ``pip``:
+
+    .. code-block:: bash
+
+      $ cd pyxel
+
+      Create a new conda environment 'pyxel-dev'
+      and install some dependencies from conda with `environment.yml`
+      $ conda env create -f environment.yml
+
+      Display all conda environments (only for checking)
+      $ conda info --envs
+
+      Activate the conda environment 'pyxel-dev'
+      $ (pyxel-dev) conda activate pyxel-dev
+
+      Install the other dependencies not installed by conda
+      $ (pyxel-dev) pip install -r requirements.txt
+
+
+    Then install ``pyxel`` in the conda environment:
+
+    .. code-block:: bash
+
+      $ (pyxel-dev) cd pyxel
+      $ (pyxel-dev) pip install -e .
+
+    More about the conda environments (only for information):
+
+    .. code-block:: bash
+
+      Deactivate the environment
+      $ conda deactivate
+
+      Remove the conda environment 'pyxel-dev'
+      $ conda remove --name pyxel-dev --all
+
+    After the installation steps above,
+    see :ref:`here how to run Pyxel <running_modes>`.
+
+
     Using Docker
     -------------
 
