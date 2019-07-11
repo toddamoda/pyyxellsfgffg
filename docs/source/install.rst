@@ -1,29 +1,41 @@
 .. _install:
 
 Installation
-==============
+============
 
 Requirements
 -------------
 
-* python >= 3.6
+* ``python >= 3.6``
 
 **Dependencies available on official PyPI server:**
 
-* numpy
-* astropy
-* pandas>=0.23.0
-* scipy
-* pygmo==2.10
-* numba
-* tqdm
-* matplotlib
-* h5py
-* poppy==0.8.0
+* ``numpy``
+* ``astropy``
+* ``pandas>=0.23.0``
+* ``scipy``
+* ``pygmo==2.10``
+* ``numba``
+* ``tqdm``
+* ``matplotlib``
+* ``h5py``
+* ``poppy==0.8.0``
 
 **Dependencies provided together with Pyxel:**
 
 * dependencies/esapy_config-0.7.1-py2.py3-none-any.whl
+
+Pip
+---
+
+TBW.
+
+
+Anaconda
+--------
+
+TBW.
+
 
 From source
 -----------
@@ -36,12 +48,9 @@ using ``git``:
 
 .. code-block:: bash
 
-    git clone https://gitlab.com/esa/pyxel.git
-    cd pyxel
+    $ git clone https://gitlab.com/esa/pyxel.git
+    $ cd pyxel
 
-
-Installation without Anaconda
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 After cloning the repository, install all the requirements with
 ``pip`` using the ``requirements.txt`` file inside the ``pyxel``
@@ -49,18 +58,42 @@ folder:
 
 .. code-block:: bash
 
-  pip install -r requirements.txt
+  $ pip install -r requirements.txt
 
 Then install locally ``pyxel``:
 
 .. code-block:: bash
 
-  pip install -e .
+  $ pip install -e .
 
-If a package is not available in any PyPI server for your OS, because
-you are using Conda or Anaconda Python distribution, then you might
-have to download the Conda compatible whl file of some dependencies
-and install it manually with ``conda install``.
+
+To install ``pyxel`` with all its optional dependencies:
+
+.. code-block:: bash
+
+  $ pip install -e ".[all]"
+
+
+To install ``pyxel`` with its optional dependencies for 'simulation':
+
+.. code-block:: bash
+
+  $ pip install -e ".[simulation]"
+
+
+To install ``pyxel`` with its optional dependencies for 'modelling':
+
+.. code-block:: bash
+
+  $ pip install -e ".[model]"
+
+
+
+.. note::
+  If a package is not available in any PyPI server for your OS, because
+  you are using Conda or Anaconda Python distribution, then you might
+  have to download the Conda compatible whl file of some dependencies
+  and install it manually with ``conda install``.
 
 After the installation steps above,
 see :ref:`here how to run Pyxel <running_modes>`.
