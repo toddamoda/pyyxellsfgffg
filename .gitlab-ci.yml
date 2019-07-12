@@ -134,15 +134,12 @@ badges:
   script:
     - tail -n 1 coverage.out > cov_total.out
     - PERCENT=$(awk '{printf "%.2f", ($2-$3)/$2*100}' cov_total.out)
-    - python badges.py -cov=$PERCENT -lic="MIT"
+    - python badges.py -cov=$PERCENT
     - ls
   artifacts:
     paths:
-      - license.svg
       - coverage.svg
   allow_failure: false
-  only:
-      - master
 
 # Scan sourcecode for licenses, copyrights & dependencies
 # experimental, latest version
@@ -228,8 +225,8 @@ pages:
     - mv htmlcov public/coverage
     - mv pytest_report.html public
     - mv pylint_report.html public
-    - mv coverage.svg public || true
-    - mv license.svg public || true
+    - mv coverage.svg public
+    - mv license.svg public
     - mv documentation.svg public
     - mv license.json public
     - ls public

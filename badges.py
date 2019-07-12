@@ -40,17 +40,17 @@ def badges():
                   opts.documentation + '-' + colour + '.svg'
         subprocess.run(process, shell=True)
 
-    if opts.license:
-        colour = 'green'
-        process = 'wget -O license.svg https://img.shields.io/badge/license-' + \
-                  opts.license + '-' + colour + '.svg'
-        subprocess.run(process, shell=True)
+    # if opts.license:
+    #     colour = 'green'
+    #     process = 'wget -O license.svg https://img.shields.io/badge/license-' + \
+    #               opts.license + '-' + colour + '.svg'
+    #     subprocess.run(process, shell=True)
 
-    if opts.chat:
-        colour = 'green'
-        process = 'wget -O chat.svg https://img.shields.io/badge/chat-' + \
-                  opts.chat + '-' + colour + '.svg'
-        subprocess.run(process, shell=True)
+    # if opts.chat:
+    #     colour = 'green'
+    #     process = 'wget -O chat.svg https://img.shields.io/badge/chat-' + \
+    #               opts.chat + '-' + colour + '.svg'
+    #     subprocess.run(process, shell=True)
 
 
 if __name__ == '__main__':
