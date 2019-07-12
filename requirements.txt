@@ -1,26 +1,6 @@
 # Pyxel requirements
 
 ########################
-# Core packages        #
-########################
-
-numpy
-astropy
-pandas>=0.23.0
-scipy
-pygmo==2.10;sys_platform!="darwin"
-numba
-tqdm
-matplotlib                  # for plotting, should be optional
-h5py
-
-########################
-# Models               #
-########################
-
-poppy==0.8.0
-
-########################
 # ESA libraries        #
 ########################
 
