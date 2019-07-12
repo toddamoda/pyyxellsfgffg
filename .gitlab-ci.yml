@@ -43,30 +43,24 @@ anaconda3:
     - export PYTHONPATH=$PWD
     - pytest --cov=pyxel --cov-report= --cov-report=html --html=pytest_report.html --self-contained-html --color=yes --full-trace --showlocals --verbose
     - coverage report > coverage.out
-    - tail -n 1 coverage.out > cov_total.out
-    - PERCENT=$(awk '{printf "%.2f", ($2-$3)/$2*100}' cov_total.out)
-    - python badges.py -cov=$PERCENT
-    - ls
   artifacts:
     paths:
       - htmlcov
       - pytest_report.html
-      - coverage.svg
+      - coverage.out
   allow_failure: false
 
 
 # Run pytest for Python 3.7
-python37:
-  image: python:3.7
+python373:
+  image: python:3.7.3   # todo: should be 3.7, but tox or pytest or python3.7.4 causes segmentation fault
   stage: test
   script:
     - python -V
     - pip install tox
-#    - tox -e py37-extra_no-pyyaml_3.13
-#    - tox -e py37-extra_no-pyyaml_last
     - tox -e py37-extra_all-pyyaml_3.13
     - tox -e py37-extra_all-pyyaml_last
-  allow_failure: true
+  allow_failure: false
 
 
 # Run pytest for Python 3.6
@@ -76,8 +70,6 @@ python36:
   script:
     - python -V
     - pip install tox
-#    - tox -e py36-extra_no-pyyaml_3.13
-#    - tox -e py36-extra_no-pyyaml_last
     - tox -e py36-extra_all-pyyaml_3.13
     - tox -e py36-extra_all-pyyaml_last
   allow_failure: false
@@ -135,6 +127,24 @@ doc8:
 # Build stage
 # ###########################
 
+# create badges
+badges:
+  image: python:3
+  stage: build
+  script:
+    - tail -n 1 coverage.out > cov_total.out
+    - PERCENT=$(awk '{printf "%.2f", ($2-$3)/$2*100}' cov_total.out)
+    - python badges.py -cov=$PERCENT -lic="MIT"
+    - ls
+  artifacts:
+    paths:
+      - license.svg
+      - coverage.svg
+  allow_failure: false
+  only:
+      - master
+
+# Scan sourcecode for licenses, copyrights & dependencies
 # experimental, latest version
 licenses-latest:
   image: python:2.7.15
@@ -178,12 +188,11 @@ doc:
   script:
     - pip install tox
     - tox -e docs
-    - python badges.py -doc="passed" -lic="MIT"
+    - python badges.py -doc="passed"
   artifacts:
     paths:
       - docs/html
       - documentation.svg
-      - license.svg
   allow_failure: false
 
 #docker:
@@ -219,14 +228,12 @@ pages:
     - mv htmlcov public/coverage
     - mv pytest_report.html public
     - mv pylint_report.html public
-    - mv coverage.svg public
-    - mv license.svg public
+    - mv coverage.svg public || true
+    - mv license.svg public || true
     - mv documentation.svg public
-    - ls public
     - mv license.json public
+    - ls public
   artifacts:
     paths:
       - public
-  # only:
-    # - master
   allow_failure: false
