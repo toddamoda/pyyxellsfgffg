@@ -38,6 +38,7 @@ anaconda3:
   script:
     - pip install pytest pytest-cov pytest-html
     - pip install -r requirements.txt
+    - pip install -e ".[all]"
     - pip freeze
     - export PYTHONPATH=$PWD
     - pytest --cov=pyxel --cov-report= --cov-report=html --html=pytest_report.html --self-contained-html --color=yes --full-trace --showlocals --verbose
@@ -61,8 +62,10 @@ python37:
   script:
     - python -V
     - pip install tox
-    - tox -e py37-extra_no-pyyaml_3.13
-    - tox -e py37-extra_no-pyyaml_last
+#    - tox -e py37-extra_no-pyyaml_3.13
+#    - tox -e py37-extra_no-pyyaml_last
+    - tox -e py37-extra_all-pyyaml_3.13
+    - tox -e py37-extra_all-pyyaml_last
   allow_failure: true
 
 
@@ -73,8 +76,10 @@ python36:
   script:
     - python -V
     - pip install tox
-    - tox -e py36-extra_no-pyyaml_3.13
-    - tox -e py36-extra_no-pyyaml_last
+#    - tox -e py36-extra_no-pyyaml_3.13
+#    - tox -e py36-extra_no-pyyaml_last
+    - tox -e py36-extra_all-pyyaml_3.13
+    - tox -e py36-extra_all-pyyaml_last
   allow_failure: false
 
 
@@ -96,6 +101,7 @@ lint:
   script:
     - pip install pytest-pylint pytest-html
     - pip install -r requirements.txt
+    - pip install -e ".[all]"
     - pip freeze
     - pytest --pylint --color=yes --verbose --pylint-rcfile=pylint.cfg --html=pylint_report.html --self-contained-html -m pylint || true
     - ls

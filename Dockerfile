@@ -8,6 +8,7 @@ ENV PYTHONPATH /app
 COPY ./requirements.txt requirements.txt
 COPY ./dependencies dependencies
 RUN pip install -r requirements.txt --upgrade
+# RUN pip install -e ".[all]"
 
 # Copy project files
 COPY . /app
