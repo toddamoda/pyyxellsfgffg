@@ -3,31 +3,100 @@
 Installation
 ============
 
+You can install ``pyxel`` with ``pip`` (not yet) or by installing from source.
+
+The recommended installation method is `pip <https://pip.pypa.io/en/stable/>`_-installing
+into a `virtualenv <https://hynek.me/articles/virtualenv-lives/>`_.
+
+
 Requirements
 -------------
 
-* ``python (version 3.6 or higher)``
+* ``python >=3.6``
 
 **Dependencies available on official PyPI server:**
 
 * ``numpy``
 * ``astropy``
-* ``pandas (version 0.23.0 or higher)``
+* ``pandas>=0.23.0``
 * ``scipy``
 * ``numba``
 * ``tqdm``
 * ``matplotlib``
 * ``h5py``
-* ``pygmo (version 2.10), optional``
-* ``poppy (version 0.8.0), optional``
+* ``pygmo>=2.10 [optional]``
+* ``poppy>=0.8.0 [optional]``
 
 **Dependencies provided together with Pyxel:**
 
-* ``dependencies/esapy_config-0.7.1-py2.py3-none-any.whl``
+* ``dependencies/esapy_config-*.whl``
+
+
+Before you begin
+----------------
+
+Python
+~~~~~~
+
+Before you got any further, make sure you've got Python 3.6 or newer available
+from your command line.
+
+You can check this by simply running:
+
+.. code-block:: bash
+
+  $ python3 --version
+  Python 3.7.2
+
+  or
+
+  $ python3.7 --version
+  Python 3.7.2
+
+
+On Windows, you can also try:
+
+.. code-block:: bash
+
+ $ py -3 --version
+ Python 3.7.2
+
+ or
+
+ $ py -3.7 --version
+ Python 3.7.2
+
+.. note::
+
+  Do not use command ``python``, you should use a command like ``pythonX.Y``.
+  For example, to start Python 3.6, you use the command ``python3.6``.
+
+
+Pip
+~~~
+
+Furthermore, you'll need to make sure pip is installed with a recent version.
+You can check this by running:
+
+.. code-block:: bash
+
+  $ python3.7 -m pip --version
+  pip 19.1.1
+
+.. note::
+
+  Do not use command ``pip`` but ``python -m pip``.
+  For example, to start ``pip`` for Python 3.6, you use the command ``python3.6 -m pip``.
+
+You can find more information about installing packages
+at this `link <https://packaging.python.org/installing/>`_.
 
 
 Install from source
 -------------------
+
+Get source code
+~~~~~~~~~~~~~~~
 
 First, get access to the `Pyxel GitLab repository <https://gitlab.com/esa/pyxel>`_
 from maintainers (pyxel at esa dot int).
@@ -39,47 +108,92 @@ using ``git``:
 
     $ git clone https://gitlab.com/esa/pyxel.git
 
+
+Install requirements
+~~~~~~~~~~~~~~~~~~~~
+
 After cloning the repository, install the dependency provided together
 with Pyxel using ``pip``:
+
 
 .. code-block:: bash
 
   $ cd pyxel
-  $ python3 -m pip install --user dependencies/esapy_config-0.7.1-py2.py3-none-any.whl
+  $ python3.6 -m pip install -r requirements.txt
 
-Then install ``pyxel`` using ``pip``. Choose one from the 4 different options below:
+.. note::
+  This command installs all packages that cannot be found in ``pypi.org``.
+  This step will disappear for future versions of ``pyxel``.
+
+.. important::
+  To prevent breaking any system-wide packages (ie packages installed for all users)
+  or to avoid using command ``$ sudo pip ...`` you can do a `user installation <https://pip.pypa.io/en/stable/user_guide/#user-installs>`_.
+
+  With the command: ``$ python3.6 -m pip install --user -r requirements.txt``
+
+
+Install Pyxel
+~~~~~~~~~~~~~
+
+To install ``pyxel`` use ``pip`` locally, choose one from
+the 4 different options below:
+
+
+.. code-block:: bash
+
+  $ python3.6 -m pip install -e ".[all]"            # Install everything (recommended)
+  $ python3.6 -m pip install -e ".[calibration]"    # Install dependencies for 'calibration mode' (pygmo)
+  $ python3.6 -m pip install -e ".[model]"          # Install dependencies for optional models (poppy)
+  $ python3.6 -m pip install -e .                   # Install without any optional dependencies
+
+
+..
+  To install ``pyxel`` use ``pip`` locally, choose one from the 4 different options below:
 
     * To install ``pyxel`` and all the optional dependencies (recommended):
 
     .. code-block:: bash
 
-      $ python3 -m pip install --user -e ".[all]"
+      $ python3.6 -m pip install -e ".[all]"
 
     * To install ``pyxel`` and the optional dependencies for *calibration mode* (``pygmo``):
 
     .. code-block:: bash
 
-      $ python3 -m pip install --user -e ".[calibration]"
+      $ python3.6 -m pip install -e ".[calibration]"
 
     * To install ``pyxel`` and the optional models (``poppy``):
 
     .. code-block:: bash
 
-      $ python3 -m pip install --user -e ".[model]"
+      $ python3.6 -m pip install -e ".[model]"
 
     * To install ``pyxel`` without any optional dependency:
 
     .. code-block:: bash
 
-      $ python3 -m pip install --user -e .
+      $ python3.6 -m pip install -e .
 
-.. note::
-  If a package is not available in any PyPI server for your OS, because
-  you are using Conda or Anaconda Python distribution, then you might
-  have to download the Conda compatible whl file of some dependencies
-  and install it manually with ``conda install``.
 
-  If you use OSX, then you can only install ``pygmo`` with Conda.
+.. important::
+  To prevent breaking any system-wide packages (ie packages installed for all users)
+  or to avoid using command ``$ sudo pip ...`` you can do a `user installation <https://pip.pypa.io/en/stable/user_guide/#user-installs>`_.
+  Whenvever you see the command ``$ python3.6 -m pip install ...`` then replace it
+  by the command ``$ python3.6 -m pip install --user ...``.
+
+  If ``pyxel`` is not available in your shell after installation, you will need to add
+  the `user base <https://docs.python.org/3/library/site.html#site.USER_BASE>`_'s binary
+  directory to your PATH.
+
+  On Linux and MacOS the user base binary directory is typically ``~/.local``.
+  You'll need to add ``~/.local/bin`` to your PATH.
+  On Windows the user base binary directory is typically
+  ``C:\Users\Username\AppData\Roaming\Python36\site-packages``.
+  You will need to set your PATH to include
+  ``C:\Users\Username\AppData\Roaming\Python36\Scripts``.
+  you can find the user base directory by running
+  ``python3.6 -m site --user-base`` and adding ``bin`` to the end.
+
 
 After the installation steps above,
 see :ref:`here how to run Pyxel <running_modes>`.
@@ -91,10 +205,23 @@ Install from PyPi
 TBW.
 
 
+To upgrade ``pyxel`` to the latest version:
+
+TBW.
+
+
 Install with Anaconda
 ---------------------
 
 TBW.
+
+.. note::
+  If a package is not available in any PyPI server for your OS, because
+  you are using Conda or Anaconda Python distribution, then you might
+  have to download the Conda compatible whl file of some dependencies
+  and install it manually with ``conda install``.
+
+  If you use OSX, then you can only install ``pygmo`` with Conda.
 
 
 Using Docker
