@@ -226,7 +226,6 @@ pages:
     - mv pytest_report.html public
     - mv pylint_report.html public
     - mv coverage.svg public
-    - mv license.svg public
     - mv documentation.svg public
     - mv license.json public
     - ls public
