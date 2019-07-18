@@ -1,8 +1,7 @@
 Pyxel detector simulation framework
 ===================================
 
-[![pipeline status](https://gitlab.esa.int/sci-fv/pyxel-mirror/badges/master/build.svg)](https://gitlab.esa.int/sci-fv/pyxel-mirror/pipelines)
-[![coverage report](http://sci-fv.io.esa.int/pyxel-mirror/coverage.svg)](http://sci-fv.io.esa.int/pyxel-mirror/coverage)
+[![pipeline status](https://gitlab.com/esa/pyxel/badges/master/pipeline.svg)](https://gitlab.esa.int/sci-fv/pyxel-mirror/pipelines)
 [![License](https://esa.gitlab.io/pyxel/license.svg)](https://gitlab.com/esa/pyxel/blob/master/LICENSE)
 [![docs](https://esa.gitlab.io/pyxel/documentation.svg)](https://esa.gitlab.io/pyxel/doc)
 [![gitter](https://badges.gitter.im/pyxel-framework/community.svg)](https://gitter.im/pyxel-framework/community)
@@ -42,8 +41,9 @@ made by CCD or CMOS-based detectors.
 
 The following pages are only accessible inside ESA network.
 
+[GitLab CI/CD pipelines](https://gitlab.esa.int/sci-fv/pyxel-mirror/pipelines)
 
-[PyTest report](http://sci-fv.io.esa.int/pyxel-mirror/pytest_report.html>)
+[PyTest report](http://sci-fv.io.esa.int/pyxel-mirror/pytest_report.html)
 
 [PyTest coverage](http://sci-fv.io.esa.int/pyxel-mirror/coverage/)
 
