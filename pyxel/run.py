@@ -13,6 +13,7 @@ import sys
 import time
 from pathlib import Path
 import numpy as np
+from dask import delayed
 import pyxel.io as io
 from pyxel.pipelines.processor import Processor
 from pyxel.detectors.ccd import CCD
@@ -64,13 +65,35 @@ def run(input_filename, random_seed: int = None):
     elif simulation.mode == 'parametric' and simulation.parametric:
         logger.info('Mode: Parametric')
         configs = simulation.parametric.collect(processor)
+
+        def pipeline(proc):
+            return proc.pipeline.run_pipeline(proc.detector)
+
+        def postproc_func(det):
+            return det.image.mean
+
+        import matplotlib.pyplot as plt
+        def plotting_func(vmi_list):
+            print(vmi_list)
+            plt.plot(vmi_list)
+            # return
+
+        # result = None
+        result_list = []
         for proc in configs:
-            proc.pipeline.run_pipeline(proc.detector)
-            if out:
-                out.add_parametric_step(processor=proc,
-                                        parametric=simulation.parametric)
-        if out:
-            out.parametric_output()
+            result = delayed(pipeline)(proc)
+            result_list += [delayed(postproc_func)(result)]
+
+        plotting = delayed(plotting_func)(result_list)
+        output = plotting.compute(scheduler='threading', num_workers=1)
+        plt.show()
+
+            # if out:
+            #     out.add_parametric_step(processor=proc,
+            #                             parametric=simulation.parametric)
+        # if out:
+        #     out.parametric_output()
+        pass
 
     elif simulation.mode == 'dynamic' and simulation.dynamic:
         logger.info('Mode: Dynamic')
