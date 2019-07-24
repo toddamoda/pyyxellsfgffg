@@ -10,15 +10,15 @@ simulation:
    parametric_mode: sequential
    parameters:
      - key: pipeline.photon_generation.illumination.arguments.level
-       values: numpy.unique(numpy.logspace(0, 6, 10, dtype=int))
-     - key: detector.characteristics.amp
-       values: numpy.unique(numpy.linspace(0, 100, 10, dtype=float))
+       values: numpy.unique(numpy.logspace(3, 6, 10, dtype=int))
+     - key: detector.characteristics.sv
+       values: numpy.unique(numpy.linspace(1.e-6, 1.e-3, 10, dtype=float))
 
  outputs:
-   output_folder:  'examples/PTC/output'
+   output_folder:  'outputs'
    parametric_plot:
      x:  'detector.image.mean'
-     y:  'detector.image.std_deviation'
+     y:  'detector.image.mean'
      plot_args:
        title: 'CCD Photon Transfer Curve'
        xscale: 'log'
@@ -71,10 +71,10 @@ pipeline:
       func: pyxel.models.photon_generation.illumination.illumination
       enabled: true
       arguments:
-          level: 111111
+          level: 1111
           option: elliptic_hole
           hole_size: [20, 10]
-          hole_center: [250, 250]
+          hole_center: [50, 50]
     - name: shot_noise
       func: pyxel.models.photon_generation.shot_noise.shot_noise
       enabled: false

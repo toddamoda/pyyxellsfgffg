@@ -64,3 +64,6 @@ pylint_report.html
 # Pipenv
 Pipfile
 Pipfile.lock
+
+# Dask
+dask-worker-space/
