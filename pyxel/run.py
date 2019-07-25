@@ -41,7 +41,7 @@ def run(input_filename, random_seed: int = None):
     elif 'cmos_detector' in cfg:
         detector = cfg['cmos_detector']
     else:
-        detector = cfg['ccd_detector']
+        raise KeyError('Detector is not defined in YAML config. file!')
     processor = Processor(detector, cfg['pipeline'])
 
     out = simulation.outputs
@@ -51,7 +51,7 @@ def run(input_filename, random_seed: int = None):
 
     if simulation.mode == 'single':
         logger.info('Mode: Single')
-        processor.pipeline.run_pipeline(detector)
+        processor.run_pipeline()
         if out:
             out.single_output(processor)
 
@@ -64,32 +64,26 @@ def run(input_filename, random_seed: int = None):
 
     elif simulation.mode == 'parametric' and simulation.parametric:
         logger.info('Mode: Parametric')
-        distributed.Client()                   # Dasbboard available on http://127.0.0.1:8787
+
+        # client = distributed.Client()
+        client = distributed.Client(n_workers=1, processes=False, threads_per_worker=1)
+        logger.info(client)
+        # use as few processes (and workers?) as possible with as many threads_per_worker as possible
+        # Dasbboard available on http://127.0.0.1:8787
+
         configs = simulation.parametric.collect(processor)
-
-        def pipeline(current_processor):
-            return current_processor.pipeline.run_pipeline(current_processor.detector)
-
-        def postproc_func(det):
-            return det.image.mean
-
-        import matplotlib.pyplot as plt
-
-        def plotting_func(vmi_list):
-            print(vmi_list)
-            plt.plot(vmi_list)
-            plt.show()
-
         result_list = []
         for proc in configs:
-            result = delayed(pipeline)(proc)
-            result_2 = delayed(postproc_func)(result)
-            result_list.append(result_2)
+            result_proc = delayed(proc.run_pipeline)()
+            result_x = delayed(out.postproc_func)(proc=result_proc, param=simulation.parametric)
+            result_list.append(result_x)
 
-        plotting = delayed(plotting_func)(result_list)
+        # todo: if we don't want to plot just run and all and get output images
+        plotting = delayed(out.plotting_func)(result_list)
         plotting.compute()
 
-        pass
+        from matplotlib.pyplot import show
+        show()
 
     elif simulation.mode == 'dynamic' and simulation.dynamic:
         logger.info('Mode: Dynamic')
@@ -105,7 +99,7 @@ def run(input_filename, random_seed: int = None):
                 detector.initialize(reset_all=False)
             else:
                 detector.initialize(reset_all=True)
-            processor.pipeline.run_pipeline(detector)
+            processor.run_pipeline()
             if out and detector.read_out:
                 out.single_output(processor)
 
@@ -149,7 +143,7 @@ def main():
     opts = parser.parse_args()
 
     logging_level = [logging.ERROR, logging.WARNING, logging.INFO, logging.DEBUG][min(opts.verbosity, 3)]
-    log_format = '%(asctime)s - %(name)s - %(funcName)30s \t %(message)s'
+    log_format = '%(asctime)s - %(name)s - %(threadName)30s - %(funcName)30s \t %(message)s'
     logging.basicConfig(filename='pyxel.log',
                         level=logging_level,
                         format=log_format,

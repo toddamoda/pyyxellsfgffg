@@ -3,8 +3,6 @@ from math import sqrt
 import collections
 import typing as t  # noqa: F401
 import numpy as np
-
-# from astropy import units as u
 from pyxel.detectors.geometry import Geometry
 from pyxel.detectors.material import Material
 from pyxel.detectors.environment import Environment

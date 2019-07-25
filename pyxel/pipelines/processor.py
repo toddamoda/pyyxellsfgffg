@@ -4,8 +4,6 @@ from esapy_config import get_obj_att, eval_entry, get_value
 from pyxel.detectors.ccd import CCD
 from pyxel.detectors.cmos import CMOS
 from pyxel.pipelines.pipeline import DetectionPipeline
-# from pyxel.pipelines.ccd_pipeline import CCDDetectionPipeline
-# from pyxel.pipelines.cmos_pipeline import CMOSDetectionPipeline
 
 
 class Processor:
@@ -74,3 +72,19 @@ class Processor:
             obj[att] = value
         else:
             setattr(obj, att, value)
+
+    def run_pipeline(self, abort_before: str = None):
+        """TBW.
+
+        :param abort_before: str, model name, the pipeline should be aborted before this
+        :return:
+        """
+        self.pipeline._is_running = True
+        for group_name in self.pipeline.model_group_names:
+            models_grp = getattr(self.pipeline, group_name)
+            if models_grp:
+                abort_flag = models_grp.run(self.detector, self.pipeline, abort_model=abort_before)
+                if abort_flag:
+                    break
+        self.pipeline._is_running = False
+        return self
