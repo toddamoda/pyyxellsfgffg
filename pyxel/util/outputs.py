@@ -65,7 +65,7 @@ class Outputs:
         self.plt_args = None                    # type: t.Optional[dict]
         # self.parameter_values = np.array([])    # type: np.array
         self.parameter_keys = []                # type: list
-        self.additional_keys = []               # type: list
+        # self.additional_keys = []               # type: list
         plt.figure()
 
     def set_input_file(self, filename: str):
@@ -342,51 +342,56 @@ class Outputs:
                         self.user_plt_args = self.calibration_plot['population_plot']['plot_args']
                 self.population_plot()
 
-    def postproc_func(self, proc, param):
+    def params_func(self, param):
         """TBW."""
-        # self.single_output(processor.detector)
-
-        row = np.array([])
         for var in param.enabled_steps:
-            row = np.append(row, proc.get(var.key))
             if var.key not in self.parameter_keys:
                 self.parameter_keys += [var.key]
-
-        additional_params = [self.parametric_plot['x'], self.parametric_plot['y']]
-        for key in additional_params:
+        for key in [self.parametric_plot['x'], self.parametric_plot['y']]:
             if key is not None and key not in self.parameter_keys:
-                row = np.append(row, proc.get(key))
-                if key not in self.additional_keys:
-                    self.additional_keys += [key]
+                self.parameter_keys += [key]
 
+    def extract_func(self, proc):
+        """TBW."""
+        # self.single_output(processor.detector)    # TODO: extract other things (optional)
+        row = np.array([])
+        for key in self.parameter_keys:
+            row = np.append(row, proc.get(key))
         return row
 
-    def plotting_func(self, vmi_list):
+    def merge_func(self, result_list):
         """TBW."""
-        print(vmi_list)
-        plt.plot(vmi_list)
+        result_array = np.array(result_list)
+        np.save(file=apply_run_number(self.output_dir + '/' + 'parametric_??.npy'), arr=result_array)
+        return result_array
 
-    # def add_parametric_step(self, parametric, processor):
-    #     """TBW."""
-    #     # self.single_output(processor.detector)
-    #
-    #     row = np.array([])
-    #     for var in parametric.enabled_steps:
-    #         row = np.append(row, processor.get(var.key))
-    #         if var.key not in self.parameter_keys:
-    #             self.parameter_keys += [var.key]
-    #
-    #     additional_params = [self.parametric_plot['x'], self.parametric_plot['y']]
-    #     for key in additional_params:
-    #         if key is not None and key not in self.parameter_keys:
-    #             row = np.append(row, processor.get(key))
-    #             if key not in self.additional_keys:
-    #                 self.additional_keys += [key]
-    #
-    #     if self.parameter_values.size == 0:
-    #         self.parameter_values = row
-    #     else:
-    #         self.parameter_values = np.vstack((self.parameter_values, row))
+    def plotting_func(self, result_array):
+        """TBW."""
+        self.user_plt_args = None
+        if self.parametric_plot:
+            if 'x' in self.parametric_plot:
+                x_key = self.parametric_plot['x']
+            else:
+                raise KeyError()    # x_key = self.parameter_keys[0]
+            if 'y' in self.parametric_plot:
+                y_key = self.parametric_plot['y']
+            else:
+                raise KeyError()
+            if 'plot_args' in self.parametric_plot:
+                self.user_plt_args = self.parametric_plot['plot_args']
+        else:
+            raise KeyError()
+        x = result_array[:, self.parameter_keys.index(x_key)]
+        y = result_array[:, self.parameter_keys.index(y_key)]
+        par_name = x_key[x_key[:x_key[:x_key.rfind('.')].rfind('.')].rfind('.')+1:]
+        res_name = y_key[y_key[:y_key[:y_key.rfind('.')].rfind('.')].rfind('.')+1:]
+        args = {'xlabel': par_name, 'ylabel': res_name}
+        if isinstance(x, np.ndarray):
+            x = x.flatten()
+        if isinstance(y, np.ndarray):
+            y = y.flatten()
+        self.plot_graph(x, y, args=args)
+        self.save_plot('parametric_??')
 
     def update_args(self, plot_type: str, new_args: dict = None, def_args: tuple = (None, None)):
         """TBW."""
@@ -413,42 +418,6 @@ class Outputs:
                     raise KeyError('Not valid plotting key in "plot_args": "%s"' % key)
 
         return ax_args, plt_args
-
-    # def parametric_output(self):
-    #     """TBW."""
-    #     self.parameter_keys += self.additional_keys
-    #     self.user_plt_args = None
-    #
-    #     if self.parametric_plot:
-    #         if 'x' in self.parametric_plot:
-    #             x_key = self.parametric_plot['x']
-    #         else:
-    #             raise KeyError()    # x_key = self.parameter_keys[0]
-    #         if 'y' in self.parametric_plot:
-    #             y_key = self.parametric_plot['y']
-    #         else:
-    #             raise KeyError()
-    #         if 'plot_args' in self.parametric_plot:
-    #             self.user_plt_args = self.parametric_plot['plot_args']
-    #     else:
-    #         raise KeyError()
-    #
-    #     x = self.parameter_values[:, self.parameter_keys.index(x_key)]
-    #     y = self.parameter_values[:, self.parameter_keys.index(y_key)]
-    #
-    #     par_name = x_key[x_key.rfind('.') + 1:]
-    #     res_name = y_key[y_key.rfind('.') + 1:]
-    #     args = {'xlabel': par_name, 'ylabel': res_name}
-    #
-    #     if isinstance(x, np.ndarray):
-    #         x = x.flatten()
-    #     if isinstance(y, np.ndarray):
-    #         y = y.flatten()
-    #
-    #     self.plot_graph(x, y, args=args)
-    #     # self.save_to_npy(x, 'x_parametric_??')
-    #     # self.save_to_npy(y, 'y_parametric_??')
-    #     self.save_plot('parametric_??')
 
 
 def show_plots():

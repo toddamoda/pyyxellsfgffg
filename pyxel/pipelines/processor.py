@@ -20,13 +20,6 @@ class Processor:
         self.detector = detector
         self.pipeline = pipeline
 
-    def __getstate__(self):
-        """TBW."""
-        return {
-            'detector': self.detector,
-            'pipeline': self.pipeline,
-        }
-
     def has(self, key):
         """TBW.
 

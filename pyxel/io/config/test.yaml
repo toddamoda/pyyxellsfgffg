@@ -4,28 +4,33 @@
 ################
 
 simulation:
- mode: single
-# mode: parametric
+# mode: single
+ mode: parametric
 
-# parametric:
+ parametric:
 #   parametric_mode: embedded
-#   parameters:
-#     - key: pipeline.photon_generation.illumination.arguments.level
-#       values: numpy.unique(numpy.logspace(3, 6, 10, dtype=int))
-#     - key: detector.characteristics.sv
-#       values: numpy.unique(numpy.linspace(1.e-6, 1.e-3, 10, dtype=float))
+   parametric_mode: sequential
+   parameters:
+     - key: pipeline.photon_generation.illumination.arguments.level
+       values: numpy.unique(numpy.logspace(3, 6, 10, dtype=int))
+     - key: detector.characteristics.sv
+       values: numpy.unique(numpy.linspace(1.e-6, 1.e-3, 10, dtype=float))
 
  outputs:
    output_folder:  'outputs'
-   parametric_plot:
+
+    # todo: define here output parameters, values to save in npy file
+
+   parametric_plot: # todo: define here just plotting
      x:  'detector.characteristics.sv'
-     y:  'detector.image.mean'
+     y:  'pipeline.photon_generation.illumination.arguments.level'
+#     y:  'detector.image.mean'
      plot_args:
-       title: 'CCD Photon Transfer Curve'
-       xscale: 'log'
+       title: 'Curve'
+#       xscale: 'log'
        yscale: 'log'
-       xlim: [1., 2.e+6]
-       ylim: [1., 3.e+4]
+#       xlim: [1., 2.e+6]
+#       ylim: [1., 3.e+4]
        grid: true
 
 ccd_detector:

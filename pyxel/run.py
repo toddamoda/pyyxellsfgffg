@@ -73,17 +73,15 @@ def run(input_filename, random_seed: int = None):
 
         configs = simulation.parametric.collect(processor)
         result_list = []
+        out.params_func(simulation.parametric)
         for proc in configs:
             result_proc = delayed(proc.run_pipeline)()
-            result_x = delayed(out.postproc_func)(proc=result_proc, param=simulation.parametric)
-            result_list.append(result_x)
+            result_val = delayed(out.extract_func)(proc=result_proc)
+            result_list.append(result_val)
+        array = delayed(out.merge_func)(result_list)
+        result_array = array.compute()
 
-        # todo: if we don't want to plot just run and all and get output images
-        plotting = delayed(out.plotting_func)(result_list)
-        plotting.compute()
-
-        from matplotlib.pyplot import show
-        show()
+        out.plotting_func(result_array)     # todo: this should be optional
 
     elif simulation.mode == 'dynamic' and simulation.dynamic:
         logger.info('Mode: Dynamic')
