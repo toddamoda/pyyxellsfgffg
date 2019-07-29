@@ -17,6 +17,7 @@ from dask import delayed, distributed
 import pyxel.io as io
 from pyxel.pipelines.processor import Processor
 from pyxel.detectors.ccd import CCD
+from pyxel.util import LogFilter
 from pyxel import __version__ as version
 
 
@@ -28,6 +29,7 @@ def run(input_filename, random_seed: int = None):
     :return:
     """
     logger = logging.getLogger('pyxel')
+    logger.addFilter(LogFilter())
     logger.info('Pyxel version ' + version)
     logger.info('Pipeline started.')
     start_time = time.time()
@@ -65,9 +67,11 @@ def run(input_filename, random_seed: int = None):
     elif simulation.mode == 'parametric' and simulation.parametric:
         logger.info('Mode: Parametric')
 
-        # client = distributed.Client()
-        client = distributed.Client(n_workers=1, processes=False, threads_per_worker=1)
+        # client = distributed.Client(processes=True)
+        # client = distributed.Client(n_workers=4, processes=False, threads_per_worker=4)
+        client = distributed.Client(processes=False)
         logger.info(client)
+
         # use as few processes (and workers?) as possible with as many threads_per_worker as possible
         # Dasbboard available on http://127.0.0.1:8787
 
@@ -81,7 +85,7 @@ def run(input_filename, random_seed: int = None):
         array = delayed(out.merge_func)(result_list)
         result_array = array.compute()
 
-        out.plotting_func(result_array)     # todo: this should be optional
+        out.plotting_func(result_array)     # todo: this should be optional and called from Outputs
 
     elif simulation.mode == 'dynamic' and simulation.dynamic:
         logger.info('Mode: Dynamic')
