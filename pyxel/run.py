@@ -71,7 +71,6 @@ def run(input_filename, random_seed: int = None):
         # client = distributed.Client(n_workers=4, processes=False, threads_per_worker=4)
         client = distributed.Client(processes=False)
         logger.info(client)
-
         # use as few processes (and workers?) as possible with as many threads_per_worker as possible
         # Dasbboard available on http://127.0.0.1:8787
 
@@ -83,9 +82,9 @@ def run(input_filename, random_seed: int = None):
             result_val = delayed(out.extract_func)(proc=result_proc)
             result_list.append(result_val)
         array = delayed(out.merge_func)(result_list)
-        result_array = array.compute()
-
-        out.plotting_func(result_array)     # todo: this should be optional and called from Outputs
+        plot_array = array.compute()
+        if out.parametric_plot is not None:
+            out.plotting_func(plot_array)
 
     elif simulation.mode == 'dynamic' and simulation.dynamic:
         logger.info('Mode: Dynamic')

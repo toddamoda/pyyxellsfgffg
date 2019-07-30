@@ -19,21 +19,23 @@ simulation:
  outputs:
    output_folder:  'outputs'
 
-   save_data_to_file:    # ONLY IN SINGLE MODE
+   save_data_to_file:         # ONLY IN SINGLE MODE
      - detector.image.array:   [fits]
      - detector.signal.array:  [npy, txt]
      - detector.charge.frame:  [csv]
      - detector:               [hdf]
 
-   save_parameter_to_file:  # ONLY IN PARAMETRIC MODE
-#     - pipeline.photon_generation.illumination.arguments.level: []
-     - detector.image.mean: []
-     - detector.image.std_deviation: []
+   save_parameter_to_file:    # ONLY IN PARAMETRIC MODE
+     file_format:              [txt, npy, csv]
+     parameter:
+       - detector.image.mean
+       - detector.image.std_deviation
+       - pipeline.photon_generation.illumination.arguments.level
 
-   parametric_plot: # todo: define here just plotting
+   parametric_plot:
 #     x:  'detector.characteristics.sv'
-     x:  'pipeline.photon_generation.illumination.arguments.level'
-#     x:  'detector.image.mean'
+##     x:  'pipeline.photon_generation.illumination.arguments.level'
+     x:  'detector.image.mean'
      y:  'detector.image.std_deviation'
      plot_args:
        title: 'Curve'

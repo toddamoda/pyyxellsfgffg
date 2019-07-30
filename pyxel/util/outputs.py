@@ -22,30 +22,24 @@ class Outputs:
     def __init__(self,
                  output_folder: str,
                  save_data_to_file: list = None,
-                 save_parameter_to_file: list = None,
+                 save_parameter_to_file: dict = None,
                  parametric_plot: dict = None,
                  calibration_plot: dict = None,
                  single_plot: dict = None):
         """TBW."""
-        self.input_file = None                      # type: t.Optional[str]
-        self.champions_file = None                  # type: t.Optional[str]
-        self.population_file = None                 # type: t.Optional[str]
-        self.parametric_plot = parametric_plot      # type: t.Optional[dict]
-        self.calibration_plot = calibration_plot    # type: t.Optional[dict]
-        self.single_plot = single_plot              # type: t.Optional[dict]
-        self.user_plt_args = None                   # type: t.Optional[dict]
-
+        self.input_file = None                                                  # type: t.Optional[str]
+        self.champions_file = None                                              # type: t.Optional[str]
+        self.population_file = None                                             # type: t.Optional[str]
+        self.parametric_plot = parametric_plot                                  # type: t.Optional[dict]
+        self.calibration_plot = calibration_plot                                # type: t.Optional[dict]
+        self.single_plot = single_plot                                          # type: t.Optional[dict]
+        self.user_plt_args = None                                               # type: t.Optional[dict]
+        self.save_parameter_to_file = save_parameter_to_file                    # type: t.Optional[dict]
         self.output_dir = output_folder + '/run_' + strftime("%Y%m%d_%H%M%S")   # type: str
-
         if save_data_to_file is None:
-            self.save_data_to_file = [{'detector.image.array': ['fits']}]       # type: t.List
+            self.save_data_to_file = [{'detector.image.array': ['fits']}]       # type: list
         else:
             self.save_data_to_file = save_data_to_file
-
-        if save_parameter_to_file is None:
-            self.save_parameter_to_file = []                                    # type: t.List
-        else:
-            self.save_parameter_to_file = save_parameter_to_file
 
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
@@ -153,7 +147,8 @@ class Outputs:
         """Write data to txt file."""
         name = str(name).replace('.', '_')
         filename = apply_run_number(self.output_dir + '/' + name + '_??.txt')
-        np.savetxt(filename, data, delimiter='|')
+        np.savetxt(filename, data, delimiter=' | ')
+        return filename
 
     def save_to_csv(self, data, name: str):
         """Write Pandas Dataframe or Numpy array to a CSV file."""
@@ -163,12 +158,14 @@ class Outputs:
             data.to_csv(filename, float_format='%g')
         except AttributeError:
             np.savetxt(filename, data, delimiter=',')
+        return filename
 
     def save_to_npy(self, data, name: str):
         """Write Numpy array to Numpy binary npy file."""
         name = str(name).replace('.', '_')
         filename = apply_run_number(self.output_dir + '/' + name + '_??.npy')
         np.save(file=filename, arr=data)
+        return filename
 
     def save_plot(self, filename='figure_??'):
         """Save plot figure in PNG format, close figure and create new canvas for next plot."""
@@ -338,38 +335,43 @@ class Outputs:
         for var in param.enabled_steps:
             if var.key not in self.parameter_keys:
                 self.parameter_keys += [var.key]
-
-        for item in self.save_parameter_to_file:
-            par = next(iter(item.keys()))
-            if par is not None and par not in self.parameter_keys:
-                self.parameter_keys += [par]
-
-        for key in [self.parametric_plot['x'], self.parametric_plot['y']]:
-            if key is not None and key not in self.parameter_keys:
-                self.parameter_keys += [key]
+        if self.save_parameter_to_file:
+            for par in self.save_parameter_to_file['parameter']:
+                # par = next(iter(item.keys()))
+                if par is not None and par not in self.parameter_keys:
+                    self.parameter_keys += [par]
 
     def extract_func(self, proc):
         """TBW."""
         # self.single_output(processor.detector)    # TODO: extract other things (optional)
-        row = np.array([])
+        res_row = np.array([])
         for key in self.parameter_keys:
-            row = np.append(row, proc.get(key))
-        return row
+            res_row = np.append(res_row, proc.get(key))
+        plt_row = np.array([])
+        if self.parametric_plot:
+            for key in [self.parametric_plot['x'], self.parametric_plot['y']]:
+                if key is not None:
+                    plt_row = np.append(plt_row, proc.get(key))
+        return {'result': res_row, 'plot': plt_row}
 
     def merge_func(self, result_list):
         """TBW."""
-        result_array = np.array(result_list)
-        # np.save(file=apply_run_number(self.output_dir + '/' + 'parametric_??.npy'), arr=result_array)
+        result_array = np.array([k['result'] for k in result_list])
+        save_methods = {'npy': self.save_to_npy,
+                        'txt': self.save_to_txt,
+                        'csv': self.save_to_csv}
+        if self.save_parameter_to_file:
+            for out_format in self.save_parameter_to_file['file_format']:
+                file = save_methods[out_format](data=result_array, name='parameters')
+                if file.endswith('.txt') or file.endswith('.csv'):
+                    with open(file, 'r+') as f:
+                        content = f.read()
+                        f.seek(0, 0)
+                        f.write('#' + '\n' + content)
+        plot_array = np.array([k['plot'] for k in result_list])
+        return plot_array
 
-        # for item in self.save_parameter_to_file:
-        #     obj = next(iter(item.keys()))
-        #     format_list = next(iter(item.values()))
-        #     if format_list is not None:
-        #         [save_methods[out_format](processor=processor, obj_name=obj) for out_format in format_list]
-
-        return result_array
-
-    def plotting_func(self, result_array):
+    def plotting_func(self, plot_array):
         """TBW."""
         self.user_plt_args = None
         if self.parametric_plot:
@@ -385,8 +387,8 @@ class Outputs:
                 self.user_plt_args = self.parametric_plot['plot_args']
         else:
             raise KeyError()
-        x = result_array[:, self.parameter_keys.index(x_key)]
-        y = result_array[:, self.parameter_keys.index(y_key)]
+        x = plot_array[:, 0]
+        y = plot_array[:, 1]
         par_name = x_key[x_key[:x_key[:x_key.rfind('.')].rfind('.')].rfind('.')+1:]
         res_name = y_key[y_key[:y_key[:y_key.rfind('.')].rfind('.')].rfind('.')+1:]
         args = {'xlabel': par_name, 'ylabel': res_name}
