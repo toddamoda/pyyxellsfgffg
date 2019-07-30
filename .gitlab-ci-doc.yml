@@ -5,7 +5,6 @@ stages:
   - build
   - deploy
 
-
 # ###########################
 # Test stage
 # ###########################
@@ -20,6 +19,8 @@ pytest:
     - pytest --cov=pyxel --cov-report=
     - coverage report
   allow_failure: false
+  only:
+    - master
 
 # ###########################
 # Build stage
