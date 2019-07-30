@@ -1,9 +1,26 @@
 # Gitlab CI/CD pipeline to generate documentation
 
 stages:
+  - test
   - build
   - deploy
 
+
+# ###########################
+# Test stage
+# ###########################
+
+pytest:
+  image: python:3.6
+  stage: test
+  script:
+    - pip install pytest pytest-cov
+    - pip install -r requirements.txt
+    - pip install -e ".[all]"
+    - pytest --cov=pyxel --cov-report=
+#  artifacts:
+#    paths:
+  allow_failure: true
 
 # ###########################
 # Build stage
