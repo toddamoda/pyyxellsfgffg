@@ -63,9 +63,7 @@ class Outputs:
         }   # type: dict
 
         self.plt_args = None                    # type: t.Optional[dict]
-        # self.parameter_values = np.array([])    # type: np.array
         self.parameter_keys = []                # type: list
-        # self.additional_keys = []               # type: list
         plt.figure()
 
     def set_input_file(self, filename: str):
@@ -109,6 +107,7 @@ class Outputs:
         fig.add_axes(ax)
         plt.imshow(data, cmap='gray', extent=[0, col, 0, row])
         plt.savefig(filename, dpi=dpi)
+        return filename
 
     def save_to_fits(self, data, name: str):
         """Write array to FITS file."""
@@ -117,6 +116,7 @@ class Outputs:
         hdu = fits.PrimaryHDU(data)
         hdu.header['PYXEL_V'] = str(version)
         hdu.writeto(filename, overwrite=False, output_verify='exception')
+        return filename
 
     def save_to_hdf(self, data, name: str):
         """Write detector object to HDF5 file."""
@@ -142,12 +142,13 @@ class Outputs:
                 detector_grp = h5file.create_group('data')
                 dataset = detector_grp.create_dataset(name, np.shape(data))
                 dataset[:] = data
+        return filename
 
     def save_to_txt(self, data, name: str):
         """Write data to txt file."""
         name = str(name).replace('.', '_')
         filename = apply_run_number(self.output_dir + '/' + name + '_??.txt')
-        np.savetxt(filename, data, delimiter=' | ')
+        np.savetxt(filename, data, delimiter=' | ', fmt='%.8e')
         return filename
 
     def save_to_csv(self, data, name: str):
@@ -157,7 +158,7 @@ class Outputs:
         try:
             data.to_csv(filename, float_format='%g')
         except AttributeError:
-            np.savetxt(filename, data, delimiter=',')
+            np.savetxt(filename, data, delimiter=',', fmt='%.8e')
         return filename
 
     def save_to_npy(self, data, name: str):
@@ -296,7 +297,7 @@ class Outputs:
         """TBW."""
         data = np.loadtxt(self.population_file)
         fitnesses = np.log10(data[:, 1])
-        a, b = 2, 1                 # 1st parameter and fitness
+        a, b = 2, 1                             # 1st parameter and fitness
         if self.calibration_plot['population_plot']:
             if 'columns' in self.calibration_plot['population_plot']:
                 col = self.calibration_plot['population_plot']['columns']
@@ -336,10 +337,10 @@ class Outputs:
             if var.key not in self.parameter_keys:
                 self.parameter_keys += [var.key]
         if self.save_parameter_to_file:
-            for par in self.save_parameter_to_file['parameter']:
-                # par = next(iter(item.keys()))
-                if par is not None and par not in self.parameter_keys:
-                    self.parameter_keys += [par]
+            if self.save_parameter_to_file['parameter']:
+                for par in self.save_parameter_to_file['parameter']:
+                    if par is not None and par not in self.parameter_keys:
+                        self.parameter_keys += [par]
 
     def extract_func(self, proc):
         """TBW."""
@@ -367,7 +368,7 @@ class Outputs:
                     with open(file, 'r+') as f:
                         content = f.read()
                         f.seek(0, 0)
-                        f.write('#' + '\n' + content)
+                        f.write('# ' + ''.join([pp + ' // ' for pp in self.parameter_keys]) + '\n' + content)
         plot_array = np.array([k['plot'] for k in result_list])
         return plot_array
 
