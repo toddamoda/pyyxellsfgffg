@@ -33,9 +33,11 @@ cache:
 
 # Run pytest + coverage and create html report (pytest_report.html)
 anaconda3:
-  image: continuumio/anaconda3
+  image: continuumio/anaconda3:latest
   stage: test
   script:
+    - conda info
+    - which -a pip
     - pip install pytest pytest-cov pytest-html
     - pip install -r requirements.txt
     - pip install -e ".[all]"

@@ -4,15 +4,16 @@
 ################
 
 simulation:
-# mode: single
- mode: parametric
+ mode: single
+# mode: parametric
 
  parametric:
+#   parametric_mode: parallel
 #   parametric_mode: embedded
    parametric_mode: sequential
    parameters:
-#     - key: pipeline.photon_generation.illumination.arguments.level
-#       values: numpy.unique(numpy.logspace(3, 6, 10, dtype=int))
+     - key: pipeline.photon_generation.illumination.arguments.level
+       values: numpy.unique(numpy.logspace(3, 6, 10, dtype=int))
      - key: detector.characteristics.sv
        values: numpy.unique(numpy.linspace(1.e-6, 1.e-3, 10, dtype=float))
 
