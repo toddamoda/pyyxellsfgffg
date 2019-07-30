@@ -36,14 +36,28 @@ anaconda3:
   image: continuumio/anaconda3:latest
   stage: test
   script:
-#    - which -a pip
-#    - which -a conda
+    - pwd
+    - ls
     - python -V
-    - pip install pytest pytest-cov pytest-html
+    - python3 -V
+    - which python3
+    - pip install pytest
     - pip install -r requirements.txt
     - pip install -e ".[all]"
     - pip freeze
-    - export PYTHONPATH=$PWD
+    - export PYTHONPATH=$PWD  # todo ?
+    - pytest
+  allow_failure: true
+
+
+# Run pytest + coverage and create html report (pytest_report.html)
+pytest-cov:
+  image: python:3
+  stage: test
+  script:
+    - pip install pytest pytest-cov pytest-html
+    - pip install -r requirements.txt
+    - pip install -e ".[all]"
     - pytest --cov=pyxel --cov-report= --cov-report=html --html=pytest_report.html --self-contained-html --color=yes --full-trace --showlocals --verbose
     - coverage report > coverage.out
   artifacts:
@@ -130,19 +144,19 @@ doc8:
 # Build stage
 # ###########################
 
-# create badges
-badges:
-  image: python:3
-  stage: build
-  script:
-    - tail -n 1 coverage.out > cov_total.out
-    - PERCENT=$(awk '{printf "%.2f", ($2-$3)/$2*100}' cov_total.out)
-    - python badges.py -cov=$PERCENT
-    - ls
-  artifacts:
-    paths:
-      - coverage.svg
-  allow_failure: false
+## create badges
+#badges:
+#  image: python:3
+#  stage: build
+#  script:
+#    - tail -n 1 coverage.out > cov_total.out
+#    - PERCENT=$(awk '{printf "%.2f", ($2-$3)/$2*100}' cov_total.out)
+#    - python badges.py -cov=$PERCENT
+#    - ls
+#  artifacts:
+#    paths:
+#      - coverage.svg
+#  allow_failure: false
 
 # Scan sourcecode for licenses, copyrights & dependencies
 # experimental, latest version
