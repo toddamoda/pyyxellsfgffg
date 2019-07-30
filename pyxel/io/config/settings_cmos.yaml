@@ -5,17 +5,17 @@
 
 simulation:
 
-#  mode: single
+  mode: single
 
-  mode: dynamic
-  dynamic:
-    non_destructive_readout:  true
-    steps: 6
-    t_step: 2.1
+#  mode: dynamic
+#  dynamic:
+#    non_destructive_readout:  true
+#    steps: 6
+#    t_step: 2.1
 
   outputs:
     output_folder:  outputs
-    save_to_file:
+    save_data_to_file:
       - detector.image.array:   [fits, png]
       - detector.signal.array:  [npy, txt]
       - detector.charge.frame:  [csv]
@@ -25,7 +25,7 @@ simulation:
 cmos_detector:
 
   geometry:
-    row: 100                      # pixels
+    row: 102                      # pixels
     col: 100                      # pixels
     total_thickness: 10.         # um
     pixel_vert_size: 10.         # um

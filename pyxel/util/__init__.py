@@ -8,7 +8,7 @@ from pyxel.util.outputs import Outputs, apply_run_number
 
 __all__ = ['convert_to_int', 'round_convert_to_int',
            'PipelineAborted',
-           'Outputs',
+           'Outputs', 'LogFilter',
            'apply_run_number']
 
 
