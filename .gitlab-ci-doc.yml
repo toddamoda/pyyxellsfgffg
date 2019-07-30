@@ -18,9 +18,8 @@ pytest:
     - pip install -r requirements.txt
     - pip install -e ".[all]"
     - pytest --cov=pyxel --cov-report=
-#  artifacts:
-#    paths:
-  allow_failure: true
+    - coverage report
+  allow_failure: false
 
 # ###########################
 # Build stage
