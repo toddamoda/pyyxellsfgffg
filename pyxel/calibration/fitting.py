@@ -137,7 +137,7 @@ class ModelFitting:
     #     #     raise ValueError('Select a pipeline model and not a detector attribute!')
     #
     #     self.fitted_model = self.processor.pipeline.get_model(self.model_name_list[0])
-    #     self.processor.pipeline.run_pipeline(self.processor.detector, abort_before=self.model_name_list[0])
+    #     self.processor.run_pipeline(abort_before=self.model_name_list[0])
 
     def set_bound(self):
         """TBW."""
@@ -183,7 +183,8 @@ class ModelFitting:
 
             processor = self.update_processor(parameter, processor)
             if self.calibration_mode == 'pipeline':
-                processor.pipeline.run_pipeline(processor.detector)
+                # processor.pipeline.run_pipeline(processor.detector)
+                processor.run_pipeline()
             # elif self.calibration_mode == 'single_model':
             #     self.fitted_model.function(processor.detector)               # todo: update
 
@@ -246,7 +247,8 @@ class ModelFitting:
         new_processor = deepcopy(self.original_processor)  # TODO TODO
         champion = self.update_processor(parameter, new_processor)
         if self.calibration_mode == 'pipeline':
-            champion.pipeline.run_pipeline(champion.detector)
+            # champion.pipeline.run_pipeline(champion.detector)
+            champion.run_pipeline()
         # elif self.calibration_mode == 'single_model':
         #     self.fitted_model.function(champion.detector)               # todo: update
 

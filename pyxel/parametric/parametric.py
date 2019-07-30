@@ -23,10 +23,6 @@ class ParametricAnalysis:
         if column_range:
             self.columns = slice(column_range[0], column_range[1])
 
-    # def __getstate__(self):
-    #     """TBW."""
-    #     return {'parametric_mode': self.parametric_mode}
-
     @property
     def enabled_steps(self):
         """TBW."""
@@ -65,7 +61,7 @@ class ParametricAnalysis:
         for step in self.enabled_steps:
             key = step.key
             for value in step:
-                step.current = value
+                # step.current = value
                 new_proc = deepcopy(processor)
                 new_proc.set(key, value)
                 yield new_proc
@@ -81,9 +77,9 @@ class ParametricAnalysis:
         for params in itertools.product(*all_steps):
             new_proc = deepcopy(processor)
             for key, value in zip(keys, params):
-                for step in all_steps:
-                    if step.key == key:
-                        step.current = value
+                # for step in all_steps:
+                #     if step.key == key:
+                #         step.current = value
                 new_proc.set(key=key, value=value)
             yield new_proc
 

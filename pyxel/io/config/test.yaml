@@ -4,11 +4,47 @@
 ################
 
 simulation:
-  mode: single
-  outputs:
-    output_folder: outputs
-#    save_to_file:
-#      - detector.image.array:   [fits, png]
+ mode: single
+# mode: parametric
+
+ parametric:
+#   parametric_mode: parallel
+#   parametric_mode: embedded
+   parametric_mode: sequential
+   parameters:
+     - key: pipeline.photon_generation.illumination.arguments.level
+       values: numpy.unique(numpy.logspace(3, 6, 10, dtype=int))
+     - key: detector.characteristics.sv
+       values: numpy.unique(numpy.linspace(1.e-6, 1.e-3, 10, dtype=float))
+
+ outputs:
+   output_folder:  'outputs'
+
+   save_data_to_file:         # ONLY IN SINGLE MODE
+     - detector.image.array:   [fits]
+     - detector.signal.array:  [npy, txt]
+     - detector.charge.frame:  [csv]
+     - detector:               [hdf]
+
+   save_parameter_to_file:    # ONLY IN PARAMETRIC MODE
+     file_format:              [txt, npy, csv]
+     parameter:
+       - detector.image.mean
+       - detector.image.std_deviation
+       - pipeline.photon_generation.illumination.arguments.level
+
+   parametric_plot:
+#     x:  'detector.characteristics.sv'
+##     x:  'pipeline.photon_generation.illumination.arguments.level'
+     x:  'detector.image.mean'
+     y:  'detector.image.std_deviation'
+     plot_args:
+       title: 'Curve'
+       xscale: 'log'
+       yscale: 'log'
+#       xlim: [1., 2.e+6]
+#       ylim: [1., 3.e+4]
+       grid: true
 
 ccd_detector:
 
@@ -54,13 +90,13 @@ pipeline:
       func: pyxel.models.photon_generation.illumination.illumination
       enabled: true
       arguments:
-          level: 111111
+          level: 1111
           option: elliptic_hole
           hole_size: [20, 10]
-          hole_center: [250, 250]
+          hole_center: [50, 50]
     - name: shot_noise
       func: pyxel.models.photon_generation.shot_noise.shot_noise
-      enabled: false
+      enabled: true
 
   # photon -> photon
   optics:
@@ -85,7 +121,7 @@ pipeline:
 
     - name: alignment
       func: pyxel.models.optics.alignment.alignment
-      enabled: true
+      enabled: false
 
   # photon -> charge
   charge_generation:
@@ -116,9 +152,9 @@ pipeline:
   charge_collection:
     - name: fixed_pattern_noise
       func: pyxel.models.charge_collection.fix_pattern_noise.fix_pattern_noise
-      enabled: false
+      enabled: true
       arguments:
-        pix_non_uniformity: data/pixel_non_uniformity.npy
+        pixel_non_uniformity: data/pixel_non_uniformity.npy
     - name: full_well
       func: pyxel.models.charge_collection.full_well.simple_full_well
       enabled: false
@@ -128,21 +164,21 @@ pipeline:
 
   # pixel -> pixel
   charge_transfer:
-    - name: cdm
-      func: pyxel.models.charge_transfer.cdm.cdm
-      enabled: true
-      arguments:
-        parallel_cti: true
-        serial_cti: true
-        charge_injection: false
-        beta_p: 0.3
-        beta_s: 0.3
-        tr_p: [5.e-2]
-        tr_s: [2.e-2]
-        nt_p: [100.]
-        nt_s: [50.]
-        sigma_p: [1.e-15]
-        sigma_s: [1.e-15]
+#    - name: cdm
+#      func: pyxel.models.charge_transfer.cdm.cdm
+#      enabled: true
+#      arguments:
+#        parallel_cti: true
+#        serial_cti: true
+#        charge_injection: false
+#        beta_p: 0.3
+#        beta_s: 0.3
+#        tr_p: [5.e-2]
+#        tr_s: [2.e-2]
+#        nt_p: [100.]
+#        nt_s: [50.]
+#        sigma_p: [1.e-15]
+#        sigma_s: [1.e-15]
 
   # pixel -> signal
   charge_measurement:

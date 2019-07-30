@@ -13,9 +13,11 @@ import sys
 import time
 from pathlib import Path
 import numpy as np
+from dask import delayed, distributed
 import pyxel.io as io
 from pyxel.pipelines.processor import Processor
 from pyxel.detectors.ccd import CCD
+from pyxel.util import LogFilter
 from pyxel import __version__ as version
 
 
@@ -27,6 +29,7 @@ def run(input_filename, random_seed: int = None):
     :return:
     """
     logger = logging.getLogger('pyxel')
+    logger.addFilter(LogFilter())
     logger.info('Pyxel version ' + version)
     logger.info('Pipeline started.')
     start_time = time.time()
@@ -40,7 +43,7 @@ def run(input_filename, random_seed: int = None):
     elif 'cmos_detector' in cfg:
         detector = cfg['cmos_detector']
     else:
-        detector = cfg['ccd_detector']
+        raise KeyError('Detector is not defined in YAML config. file!')
     processor = Processor(detector, cfg['pipeline'])
 
     out = simulation.outputs
@@ -50,7 +53,7 @@ def run(input_filename, random_seed: int = None):
 
     if simulation.mode == 'single':
         logger.info('Mode: Single')
-        processor.pipeline.run_pipeline(detector)
+        processor.run_pipeline()
         if out:
             out.single_output(processor)
 
@@ -63,14 +66,25 @@ def run(input_filename, random_seed: int = None):
 
     elif simulation.mode == 'parametric' and simulation.parametric:
         logger.info('Mode: Parametric')
+
+        # client = distributed.Client(processes=True)
+        # client = distributed.Client(n_workers=4, processes=False, threads_per_worker=4)
+        client = distributed.Client(processes=False)
+        logger.info(client)
+        # use as few processes (and workers?) as possible with as many threads_per_worker as possible
+        # Dasbboard available on http://127.0.0.1:8787
+
         configs = simulation.parametric.collect(processor)
+        result_list = []
+        out.params_func(simulation.parametric)
         for proc in configs:
-            proc.pipeline.run_pipeline(proc.detector)
-            if out:
-                out.add_parametric_step(processor=proc,
-                                        parametric=simulation.parametric)
-        if out:
-            out.parametric_output()
+            result_proc = delayed(proc.run_pipeline)()
+            result_val = delayed(out.extract_func)(proc=result_proc)
+            result_list.append(result_val)
+        array = delayed(out.merge_func)(result_list)
+        plot_array = array.compute()
+        if out.parametric_plot is not None:
+            out.plotting_func(plot_array)
 
     elif simulation.mode == 'dynamic' and simulation.dynamic:
         logger.info('Mode: Dynamic')
@@ -86,7 +100,7 @@ def run(input_filename, random_seed: int = None):
                 detector.initialize(reset_all=False)
             else:
                 detector.initialize(reset_all=True)
-            processor.pipeline.run_pipeline(detector)
+            processor.run_pipeline()
             if out and detector.read_out:
                 out.single_output(processor)
 
@@ -130,7 +144,7 @@ def main():
     opts = parser.parse_args()
 
     logging_level = [logging.ERROR, logging.WARNING, logging.INFO, logging.DEBUG][min(opts.verbosity, 3)]
-    log_format = '%(asctime)s - %(name)s - %(funcName)30s \t %(message)s'
+    log_format = '%(asctime)s - %(name)s - %(threadName)30s - %(funcName)30s \t %(message)s'
     logging.basicConfig(filename='pyxel.log',
                         level=logging_level,
                         format=log_format,
