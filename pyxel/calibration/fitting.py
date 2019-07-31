@@ -301,8 +301,8 @@ class ModelFitting:
                     self.champion_x_list = np.vstack((self.champion_x_list, self.champion_x_list[-1]))
 
             self.add_to_champ_file(parameter)
-            if not self.use_archi:
-                self.add_to_pop_file(parameter)
+            # if not self.use_archi:
+            self.add_to_pop_file(parameter)
 
             self.g += 1
 
@@ -322,12 +322,13 @@ class ModelFitting:
         """TBW."""
         str_format = '%d' + (len(parameter) + 1) * ' %.6E'
         if self.pop_file:
-            if self.g == self.generations:
-                with open(self.pop_file, 'ab') as file2:
-                    np.savetxt(file2,
-                               np.c_[self.g * np.ones(self.fitness_array.shape),
-                                     self.fitness_array, self.population],
-                               fmt=str_format)
+            # if self.g == self.generations:
+                # with open(self.pop_file, 'ab') as file2:
+            with open(self.pop_file, 'wb') as file2:
+                np.savetxt(file2,
+                           np.c_[self.g * np.ones(self.fitness_array.shape),
+                                 self.fitness_array, self.population],
+                           fmt=str_format)
 
     # def least_squares(self, simulated_data, dataset=None):
     #     """TBW.

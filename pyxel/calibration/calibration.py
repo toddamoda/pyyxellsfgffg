@@ -216,20 +216,21 @@ class Calibration:
         logger = logging.getLogger('pyxel')
         logger.info('Seed: %d' % self.seed)
 
-        islands = 1
-
-        if islands <= 1:    # default
-            use_archi = False
-        else:
-            use_archi = True
+        use_archi = False
+        # islands = 1
+        #
+        # if islands <= 1:    # default
+        #     use_archi = False
+        # else:
+        #     use_archi = True
 
         # island_type = pg.mp_island()
         # island_type = pg.ipyparallel_island()  # not tested yet
 
         output_pop_file = None
         output_champ_file = output.create_champion_file()
-        if not use_archi:
-            output_pop_file = output.create_population_file()
+        # if not use_archi:
+        output_pop_file = output.create_population_file()
 
         fitting = ModelFitting(processor, self.parameters)
 
