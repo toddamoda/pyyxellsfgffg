@@ -51,6 +51,7 @@ class ModelFitting:
         self.sim_fit_range = None
         self.targ_fit_range = None
 
+        self.use_archi = False
         # self.normalization = False
         # self.target_data_norm = []
 
@@ -68,7 +69,7 @@ class ModelFitting:
         :return:
         """
         logger = logging.getLogger('pyxel')
-
+        self.use_archi = setting['use_archi']
         self.calibration_mode = setting['calibration_mode']
         self.sim_output = setting['simulation_output']
         self.fitness_func = setting['fitness_func']
@@ -247,7 +248,6 @@ class ModelFitting:
         new_processor = deepcopy(self.original_processor)  # TODO TODO
         champion = self.update_processor(parameter, new_processor)
         if self.calibration_mode == 'pipeline':
-            # champion.pipeline.run_pipeline(champion.detector)
             champion.run_pipeline()
         # elif self.calibration_mode == 'single_model':
         #     self.fitted_model.function(champion.detector)               # todo: update
@@ -300,26 +300,34 @@ class ModelFitting:
                     self.champion_f_list = np.vstack((self.champion_f_list, self.champion_f_list[-1]))
                     self.champion_x_list = np.vstack((self.champion_x_list, self.champion_x_list[-1]))
 
-            str_format = '%d' + (len(parameter) + 1) * ' %.6E'
-
-            if self.champions_file:
-                with open(self.champions_file, 'ab') as file1:
-                    np.savetxt(file1, np.c_[np.array([self.g]),
-                                            self.champion_f_list[self.g],
-                                            self.champion_x_list[self.g, :].reshape(1, len(parameter))],
-                               fmt=str_format)
-
-            if self.pop_file:
-                if self.g == self.generations:
-                    with open(self.pop_file, 'ab') as file2:
-                        np.savetxt(file2, np.c_[self.g * np.ones(self.fitness_array.shape),
-                                                self.fitness_array,
-                                                self.population],
-                                   fmt=str_format)
+            self.add_to_champ_file(parameter)
+            if not self.use_archi:
+                self.add_to_pop_file(parameter)
 
             self.g += 1
 
         self.n += 1
+
+    def add_to_champ_file(self, parameter):
+        """TBW."""
+        str_format = '%d' + (len(parameter) + 1) * ' %.6E'
+        if self.champions_file:
+            with open(self.champions_file, 'ab') as file1:
+                np.savetxt(file1,
+                           np.c_[np.array([self.g]), self.champion_f_list[self.g],
+                                 self.champion_x_list[self.g, :].reshape(1, len(parameter))],
+                           fmt=str_format)
+
+    def add_to_pop_file(self, parameter):
+        """TBW."""
+        str_format = '%d' + (len(parameter) + 1) * ' %.6E'
+        if self.pop_file:
+            if self.g == self.generations:
+                with open(self.pop_file, 'ab') as file2:
+                    np.savetxt(file2,
+                               np.c_[self.g * np.ones(self.fitness_array.shape),
+                                     self.fitness_array, self.population],
+                               fmt=str_format)
 
     # def least_squares(self, simulated_data, dataset=None):
     #     """TBW.

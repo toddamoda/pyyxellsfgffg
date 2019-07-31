@@ -215,9 +215,21 @@ class Calibration:
         pg.set_global_rng_seed(seed=self.seed)
         logger = logging.getLogger('pyxel')
         logger.info('Seed: %d' % self.seed)
-        output_files = (None, None)
-        if output:
-            output_files = output.create_files()
+
+        islands = 1
+
+        if islands <= 1:    # default
+            use_archi = False
+        else:
+            use_archi = True
+
+        # island_type = pg.mp_island()
+        # island_type = pg.ipyparallel_island()  # not tested yet
+
+        output_pop_file = None
+        output_champ_file = output.create_champion_file()
+        if not use_archi:
+            output_pop_file = output.create_population_file()
 
         fitting = ModelFitting(processor, self.parameters)
 
@@ -232,18 +244,31 @@ class Calibration:
             'out_fit_range': self.result_fit_range,
             'input_arguments': self.result_input_arguments,
             'weighting': self.weighting_path,
-            'champions_file': output_files[0],
-            'population_file': output_files[1]
+            'champions_file': output_champ_file,
+            'population_file': output_pop_file,
+            'use_archi': use_archi
         }
         fitting.configure(settings)
 
         prob = pg.problem(fitting)
         opt_algorithm = self.algorithm.get_algorithm()
         algo = pg.algorithm(opt_algorithm)
-        pop = pg.population(prob, size=self.algorithm.population_size)
-        pop = algo.evolve(pop)
 
-        champion_f = pop.champion_f
-        champion_x = pop.champion_x
-        return fitting.get_results(fitness=champion_f,
-                                   parameter=champion_x)
+        if use_archi:
+            archi = pg.archipelago(n=islands, algo=algo, prob=prob,
+                                   pop_size=self.algorithm.population_size, udi=pg.mp_island())           # TODO TODO TODO !!!!!!!!!!!!!!!!!!!!!!!!!!
+            archi.evolve()
+            # print(archi)
+            archi.wait_check()
+            champion_f = archi.get_champions_f()
+            champion_x = archi.get_champions_x()
+        else:
+            pop = pg.population(prob, size=self.algorithm.population_size)
+            pop = algo.evolve(pop)
+            champion_f = [pop.champion_f]
+            champion_x = [pop.champion_x]
+
+        res = []
+        for f, x in zip(champion_f, champion_x):
+            res += [fitting.get_results(fitness=f, parameter=x)]
+        return res

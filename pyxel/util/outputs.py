@@ -81,11 +81,15 @@ class Outputs:
         log_file = glob.glob('./pyxel.log')[0]
         os.rename(log_file, self.output_dir + '/' + os.path.basename(log_file))
 
-    def create_files(self):
+    def create_champion_file(self):
         """TBW."""
         self.champions_file = self.new_file('champions.out')
+        return self.champions_file
+
+    def create_population_file(self):
+        """TBW."""
         self.population_file = self.new_file('population.out')
-        return self.champions_file, self.population_file
+        return self.population_file
 
     def new_file(self, filename: str):
         """TBW."""
