@@ -17,8 +17,6 @@ class ModelFitting:
 
     def __init__(self, processor, variables: t.List[ParameterValues]):
         """TBW."""
-        # self.logger = logging.getLogger('pyxel')
-
         self.processor = processor          # type: Processor
         self.variables = variables          # type: t.List[ParameterValues]
 
@@ -184,7 +182,6 @@ class ModelFitting:
 
             processor = self.update_processor(parameter, processor)
             if self.calibration_mode == 'pipeline':
-                # processor.pipeline.run_pipeline(processor.detector)
                 processor.run_pipeline()
             # elif self.calibration_mode == 'single_model':
             #     self.fitted_model.function(processor.detector)               # todo: update
@@ -244,16 +241,18 @@ class ModelFitting:
         :param parameter:
         :return:
         """
-        parameter = self.update_parameter(parameter)        # todo : duplicated code, see fitness!
-        new_processor = deepcopy(self.original_processor)  # TODO TODO
-        champion = self.update_processor(parameter, new_processor)
-        if self.calibration_mode == 'pipeline':
-            champion.run_pipeline()
-        # elif self.calibration_mode == 'single_model':
-        #     self.fitted_model.function(champion.detector)               # todo: update
+        parameter = self.update_parameter(parameter)
+        champion_list = deepcopy(self.param_processor_list)
+        for processor, target_data in zip(champion_list, self.all_target_data):
+            processor = self.update_processor(parameter, processor)
+            if self.calibration_mode == 'pipeline':
+                processor.run_pipeline()
 
         results = OrderedDict()
         results['fitness'] = fitness[0]
+        logger = logging.getLogger('pyxel')
+        logger.info('Champion fitness:   %1.5e' % results['fitness'])
+
         a, b = 0, 0
         for var in self.variables:
             if var.values == '_':
@@ -264,7 +263,7 @@ class ModelFitting:
                 results[var.key] = parameter[a:a + b]
             a += b
 
-        return champion, results
+        return champion_list, results
 
     def population_and_champions(self, parameter, overall_fitness):
         """Get champion (also population) of each generation and write it to output file(s).
@@ -322,8 +321,6 @@ class ModelFitting:
         """TBW."""
         str_format = '%d' + (len(parameter) + 1) * ' %.6E'
         if self.pop_file:
-            # if self.g == self.generations:
-                # with open(self.pop_file, 'ab') as file2:
             with open(self.pop_file, 'wb') as file2:
                 np.savetxt(file2,
                            np.c_[self.g * np.ones(self.fitness_array.shape),

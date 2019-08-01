@@ -1,14 +1,11 @@
 """TBW."""
 import logging
-
 import numpy as np
-
 try:
     import pygmo as pg
 except ImportError:
     import warnings
     warnings.warn("Cannot import 'pygmo", RuntimeWarning, stacklevel=2)
-
 from ..util import validators, config
 from pyxel.calibration.fitting import ModelFitting
 from pyxel.pipelines.model_function import ModelFunction
@@ -204,8 +201,7 @@ class Calibration:
         doc=''
     )
 
-    def run_calibration(self, processor: Processor,
-                        output: Outputs = None):
+    def run_calibration(self, processor: Processor, output: Outputs):
         """TBW.
 
         :param processor: Processor object
@@ -217,7 +213,7 @@ class Calibration:
         logger.info('Seed: %d' % self.seed)
 
         use_archi = False
-        # islands = 1
+        islands = 1
         #
         # if islands <= 1:    # default
         #     use_archi = False
@@ -227,7 +223,7 @@ class Calibration:
         # island_type = pg.mp_island()
         # island_type = pg.ipyparallel_island()  # not tested yet
 
-        output_pop_file = None
+        # output_pop_file = None
         output_champ_file = output.create_champion_file()
         # if not use_archi:
         output_pop_file = output.create_population_file()
@@ -257,7 +253,7 @@ class Calibration:
 
         if use_archi:
             archi = pg.archipelago(n=islands, algo=algo, prob=prob,
-                                   pop_size=self.algorithm.population_size, udi=pg.mp_island())           # TODO TODO TODO !!!!!!!!!!!!!!!!!!!!!!!!!!
+                                   pop_size=self.algorithm.population_size, udi=pg.mp_island())
             archi.evolve()
             # print(archi)
             archi.wait_check()
@@ -269,7 +265,7 @@ class Calibration:
             champion_f = [pop.champion_f]
             champion_x = [pop.champion_x]
 
-        res = []
+        res = []                                    # type: list
         for f, x in zip(champion_f, champion_x):
             res += [fitting.get_results(fitness=f, parameter=x)]
         return res

@@ -3,11 +3,9 @@
 #   --------------------------------------------------------------------------
 """Simple model to load charge profiles."""
 import logging
-
 import numpy as np
-
 from pyxel.detectors.detector import Detector
-from ...util import validators, checkers, config
+from pyxel.util import validators, checkers, config
 
 
 @validators.validate
@@ -15,30 +13,39 @@ from ...util import validators, checkers, config
 def charge_profile(detector: Detector,
                    txt_file: str,
                    fit_profile_to_det: bool = False,
-                   position: list = None):
+                   profile_position: list = None):
     """Load charge profile from txt file for detector, mostly for but not limited to CCDs.
 
     :param detector: Pyxel Detector object
     :param txt_file: file path
     :param fit_profile_to_det: bool
-    :param position: list
+    :param profile_position: list
     """
     logger = logging.getLogger('pyxel')
     logger.info('')
     geo = detector.geometry
 
+    # Positions of all pixels in detector imaging area
     init_ver_position = np.arange(0.0, geo.row, 1.0) * geo.pixel_vert_size
     init_hor_position = np.arange(0.0, geo.col, 1.0) * geo.pixel_horz_size
     init_ver_position = np.repeat(init_ver_position, geo.col)
     init_hor_position = np.tile(init_hor_position, geo.row)
+    # All pixels has zero charge by default
+    detector_charge = np.zeros((geo.row, geo.col))
 
+    # Load 2d charge profile (which can be smaller or larger in dimensions than detector imaging area)
     charge_from_file = np.loadtxt(txt_file, ndmin=2)
     if fit_profile_to_det:
-        if position is None:
-            position = [0, 0]
-        charge_from_file = charge_from_file[slice(position[0], position[0]+geo.row),
-                                            slice(position[1], position[1]+geo.col)]
-    charge_number = charge_from_file.flatten()
+        # Crop 2d charge profile, so it is not larger in dimensions than detector imaging area)
+        charge_from_file = charge_from_file[slice(0, geo.row), slice(0, geo.col)]
+
+    profile_rows, profile_cols = charge_from_file.shape
+    if profile_position is None:
+        profile_position = [0, 0]
+    detector_charge[slice(profile_position[0], profile_position[0] + profile_rows),
+                    slice(profile_position[1], profile_position[1] + profile_cols)] = charge_from_file
+
+    charge_number = detector_charge.flatten()
     where_non_zero = np.where(charge_number > 0.)
     charge_number = charge_number[where_non_zero]
     init_ver_position = init_ver_position[where_non_zero]

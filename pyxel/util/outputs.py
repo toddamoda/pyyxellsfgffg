@@ -317,9 +317,10 @@ class Outputs:
             self.plot_scatter(x, y, color=fitnesses, args=plt_args)
         self.save_plot('population_??')
 
-    def calibration_output(self, processor, results: dict):
+    def calibration_output(self, processor_list, results: dict):
         """TBW."""
-        self.single_output(processor)
+        for processor in processor_list:
+            self.single_output(processor)
 
         if self.calibration_plot:
             if 'champions_plot' in self.calibration_plot:
