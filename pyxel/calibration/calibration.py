@@ -201,7 +201,7 @@ class Calibration:
         doc=''
     )
 
-    def run_calibration(self, processor: Processor, output: Outputs):
+    def run_calibration(self, processor: Processor, output: Outputs = None):
         """TBW.
 
         :param processor: Processor object
@@ -223,10 +223,11 @@ class Calibration:
         # island_type = pg.mp_island()
         # island_type = pg.ipyparallel_island()  # not tested yet
 
-        # output_pop_file = None
-        output_champ_file = output.create_champion_file()
-        # if not use_archi:
-        output_pop_file = output.create_population_file()
+        output_champ_file, output_pop_file = None, None
+        if output:
+            output_champ_file = output.create_champion_file()
+            # if not use_archi:
+            output_pop_file = output.create_population_file()
 
         fitting = ModelFitting(processor, self.parameters)
 
