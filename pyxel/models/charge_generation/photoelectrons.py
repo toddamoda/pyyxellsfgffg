@@ -7,8 +7,6 @@ import numpy as np
 from pyxel.detectors.detector import Detector
 
 
-# @validators.validate
-# @config.argument(name='', label='', units='', validate=)
 def simple_conversion(detector: Detector):
     """Generate charge from incident photon via photoelectric effect, simple statistical model.
 
@@ -25,7 +23,11 @@ def simple_conversion(detector: Detector):
     init_ver_position = np.repeat(init_ver_position, geo.col)
     init_hor_position = np.tile(init_hor_position, geo.row)
 
-    charge_number = ph.array.flatten() * ch.qe * ch.eta         # the average charge numbers per pixel
+    detector_charge = np.zeros((geo.row, geo.col))      # all pixels has zero charge by default
+    photon_rows, photon_cols = ph.array.shape
+    detector_charge[slice(0, photon_rows), slice(0, photon_cols)] = ph.array * ch.qe * ch.eta
+    charge_number = detector_charge.flatten()           # the average charge numbers per pixel
+
     where_non_zero = np.where(charge_number > 0.)
     charge_number = charge_number[where_non_zero]
     init_ver_position = init_ver_position[where_non_zero]
