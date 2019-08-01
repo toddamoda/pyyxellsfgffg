@@ -26,8 +26,7 @@ def configure(mf, sim):
         'target_fit_range': sim.calibration.target_fit_range,
         'out_fit_range': sim.calibration.result_fit_range,
         'weighting': sim.calibration.weighting_path,
-        'champions_file': None,
-        'population_file': None,
+        'file_path': None,
         'use_archi': False
     }
     mf.configure(settings)

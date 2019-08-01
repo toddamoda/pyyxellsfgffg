@@ -3,6 +3,8 @@
 https://esa.github.io/pagmo2/index.html
 """
 import logging
+from glob import glob
+import os
 from copy import deepcopy
 from collections import OrderedDict
 import typing as t   # noqa: F401
@@ -35,8 +37,8 @@ class ModelFitting:
         self.n = 0
         self.g = 0
 
-        self.champions_file = ''            # type: str
-        self.pop_file = ''                  # type: str
+        self.file_path = ''                 # type: str
+        self.use_archi = False              # type: bool
 
         self.fitness_array = None
         self.population = None
@@ -49,7 +51,6 @@ class ModelFitting:
         self.sim_fit_range = None
         self.targ_fit_range = None
 
-        self.use_archi = False
         # self.normalization = False
         # self.target_data_norm = []
 
@@ -106,8 +107,7 @@ class ModelFitting:
             params += b
         self.champion_f_list = np.zeros((1, 1))
         self.champion_x_list = np.zeros((1, params))
-        self.champions_file = setting['champions_file']
-        self.pop_file = setting['population_file']
+        self.file_path = setting['file_path']
 
         target_list = read_data(setting['target_output'])
         try:
@@ -174,6 +174,9 @@ class ModelFitting:
         :param parameter: 1d np.array
         :return:
         """
+        logger = logging.getLogger('pyxel')
+        prev_log_level = logger.getEffectiveLevel()
+
         parameter = self.update_parameter(parameter)
         processor_list = deepcopy(self.param_processor_list)
 
@@ -181,10 +184,13 @@ class ModelFitting:
         for processor, target_data in zip(processor_list, self.all_target_data):
 
             processor = self.update_processor(parameter, processor)
+
+            logger.setLevel(logging.WARNING)
             if self.calibration_mode == 'pipeline':
                 processor.run_pipeline()
             # elif self.calibration_mode == 'single_model':
             #     self.fitted_model.function(processor.detector)               # todo: update
+            logger.setLevel(prev_log_level)
 
             simulated_data = None
             if self.sim_output == 'image':
@@ -263,6 +269,15 @@ class ModelFitting:
                 results[var.key] = parameter[a:a + b]
             a += b
 
+        if self.file_path:
+            output_champion_files = glob(self.file_path + '/champions_id_*.out')
+            for ii, chfile in enumerate(output_champion_files):
+                os.rename(chfile, self.file_path + '/champions_id' + str(ii) + '.out')
+                aw = chfile[chfile.rfind('champions_id_'):chfile.rfind('.out')]
+                fid = aw.split('_')[-1]
+                popfile = glob(self.file_path + '/population_id_' + str(fid) + '.out')[0]
+                os.rename(popfile, self.file_path + '/population_id' + str(ii) + '.out')
+
         return champion_list, results
 
     def population_and_champions(self, parameter, overall_fitness):
@@ -272,9 +287,6 @@ class ModelFitting:
         :param overall_fitness: list
         :return:
         """
-        # if self.champion_file is None:
-        #     self.champion_file = 'champion_id' + str(id(self)) + '.out'
-
         if self.n % self.pop == 0:
             self.fitness_array = np.array([overall_fitness])
             self.population = parameter
@@ -299,9 +311,12 @@ class ModelFitting:
                     self.champion_f_list = np.vstack((self.champion_f_list, self.champion_f_list[-1]))
                     self.champion_x_list = np.vstack((self.champion_x_list, self.champion_x_list[-1]))
 
-            self.add_to_champ_file(parameter)
-            # if not self.use_archi:
-            self.add_to_pop_file(parameter)
+            # TODO: should we keep and write to file the population(s) which had the champion inside?
+            # because usually this is not the last population currently we save to file!
+
+            if self.file_path and self.g > 0:
+                self.add_to_champ_file(parameter)
+                self.add_to_pop_file(parameter)
 
             self.g += 1
 
@@ -309,23 +324,23 @@ class ModelFitting:
 
     def add_to_champ_file(self, parameter):
         """TBW."""
+        champions_file = self.file_path + '/champions_id_' + str(id(self)) + '.out'
         str_format = '%d' + (len(parameter) + 1) * ' %.6E'
-        if self.champions_file:
-            with open(self.champions_file, 'ab') as file1:
-                np.savetxt(file1,
-                           np.c_[np.array([self.g]), self.champion_f_list[self.g],
-                                 self.champion_x_list[self.g, :].reshape(1, len(parameter))],
-                           fmt=str_format)
+        with open(champions_file, 'ab') as file1:
+            np.savetxt(file1,
+                       np.c_[np.array([self.g]), self.champion_f_list[self.g],
+                             self.champion_x_list[self.g, :].reshape(1, len(parameter))],
+                       fmt=str_format)
 
     def add_to_pop_file(self, parameter):
         """TBW."""
+        pop_file = self.file_path + '/population_id_' + str(id(self)) + '.out'
         str_format = '%d' + (len(parameter) + 1) * ' %.6E'
-        if self.pop_file:
-            with open(self.pop_file, 'wb') as file2:
-                np.savetxt(file2,
-                           np.c_[self.g * np.ones(self.fitness_array.shape),
-                                 self.fitness_array, self.population],
-                           fmt=str_format)
+        with open(pop_file, 'wb') as file2:
+            np.savetxt(file2,
+                       np.c_[self.g * np.ones(self.fitness_array.shape),
+                             self.fitness_array, self.population],
+                       fmt=str_format)
 
     # def least_squares(self, simulated_data, dataset=None):
     #     """TBW.

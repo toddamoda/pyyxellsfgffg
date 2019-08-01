@@ -1,6 +1,6 @@
 """Utility functions for creating outputs."""
 import os
-import glob
+from glob import glob
 from copy import copy
 from shutil import copy2
 import typing as t          # noqa: F401
@@ -70,7 +70,7 @@ class Outputs:
         """TBW."""
         self.input_file = filename
         copy2(self.input_file, self.output_dir)
-        copied_input_file = glob.glob(self.output_dir + '/*.yaml')[0]
+        copied_input_file = glob(self.output_dir + '/*.yaml')[0]
         with open(copied_input_file, 'a') as file:
             file.write("\n#########")
             file.write("\n# Pyxel version: " + str(version))
@@ -78,18 +78,18 @@ class Outputs:
 
     def save_log_file(self):
         """Move log file to the output directory of the simulation."""
-        log_file = glob.glob('./pyxel.log')[0]
+        log_file = glob('./pyxel.log')[0]
         os.rename(log_file, self.output_dir + '/' + os.path.basename(log_file))
 
-    def create_champion_file(self):
-        """TBW."""
-        self.champions_file = self.new_file('champions.out')
-        return self.champions_file
-
-    def create_population_file(self):
-        """TBW."""
-        self.population_file = self.new_file('population.out')
-        return self.population_file
+    # def create_champion_file(self):
+    #     """TBW."""
+    #     # self.champions_file =
+    #     return self.new_file('')
+    #
+    # def create_population_file(self):
+    #     """TBW."""
+    #     self.population_file = self.new_file('population.out')
+    #     return self.population_file
 
     def new_file(self, filename: str):
         """TBW."""
@@ -482,7 +482,7 @@ def apply_run_number(path):
     """
     path_str = str(path)
     if '?' in path_str:
-        dir_list = sorted(glob.glob(path_str))
+        dir_list = sorted(glob(path_str))
         p_0 = path_str.find('?')
         p_1 = path_str.rfind('?')
         template = path_str[p_0: p_1 + 1]

@@ -10,7 +10,6 @@ from ..util import validators, config
 from pyxel.calibration.fitting import ModelFitting
 from pyxel.pipelines.model_function import ModelFunction
 from pyxel.pipelines.processor import Processor
-from pyxel.util import Outputs
 
 
 @config.detector_class
@@ -194,6 +193,13 @@ class Calibration:
         default=np.random.randint(0, 100000),
         doc=''
     )
+    islands = config.attribute(
+        type=int,
+        validator=[validators.validate_type(int),
+                   validators.validate_range(0, 100)],
+        default=0,
+        doc=''
+    )
     weighting_path = config.attribute(
         type=list,
         # validator=[validators.validate_type(list)],  # todo
@@ -201,33 +207,21 @@ class Calibration:
         doc=''
     )
 
-    def run_calibration(self, processor: Processor, output: Outputs = None):
+    def run_calibration(self, processor: Processor, output_dir: str = None):
         """TBW.
 
         :param processor: Processor object
-        :param output: Output object
+        :param output_dir: Output object
         :return:
         """
         pg.set_global_rng_seed(seed=self.seed)
         logger = logging.getLogger('pyxel')
         logger.info('Seed: %d' % self.seed)
 
-        use_archi = False
-        islands = 1
-        #
-        # if islands <= 1:    # default
-        #     use_archi = False
-        # else:
-        #     use_archi = True
-
-        # island_type = pg.mp_island()
-        # island_type = pg.ipyparallel_island()  # not tested yet
-
-        output_champ_file, output_pop_file = None, None
-        if output:
-            output_champ_file = output.create_champion_file()
-            # if not use_archi:
-            output_pop_file = output.create_population_file()
+        if self.islands <= 1:    # default
+            use_archi = False
+        else:
+            use_archi = True
 
         fitting = ModelFitting(processor, self.parameters)
 
@@ -242,8 +236,7 @@ class Calibration:
             'out_fit_range': self.result_fit_range,
             'input_arguments': self.result_input_arguments,
             'weighting': self.weighting_path,
-            'champions_file': output_champ_file,
-            'population_file': output_pop_file,
+            'file_path': output_dir,
             'use_archi': use_archi
         }
         fitting.configure(settings)
@@ -253,7 +246,7 @@ class Calibration:
         algo = pg.algorithm(opt_algorithm)
 
         if use_archi:
-            archi = pg.archipelago(n=islands, algo=algo, prob=prob,
+            archi = pg.archipelago(n=self.islands, algo=algo, prob=prob,
                                    pop_size=self.algorithm.population_size, udi=pg.mp_island())
             archi.evolve()
             # print(archi)
@@ -267,6 +260,7 @@ class Calibration:
             champion_x = [pop.champion_x]
 
         res = []                                    # type: list
+        logger.info('Calibration ended.')
         for f, x in zip(champion_f, champion_x):
             res += [fitting.get_results(fitness=f, parameter=x)]
         return res
