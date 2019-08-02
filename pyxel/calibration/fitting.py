@@ -38,7 +38,6 @@ class ModelFitting:
         self.g = 0
 
         self.file_path = ''                 # type: str
-        self.use_archi = False              # type: bool
 
         self.fitness_array = None
         self.population = None
@@ -68,7 +67,6 @@ class ModelFitting:
         :return:
         """
         logger = logging.getLogger('pyxel')
-        self.use_archi = setting['use_archi']
         self.calibration_mode = setting['calibration_mode']
         self.sim_output = setting['simulation_output']
         self.fitness_func = setting['fitness_func']

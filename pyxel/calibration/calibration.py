@@ -218,11 +218,6 @@ class Calibration:
         logger = logging.getLogger('pyxel')
         logger.info('Seed: %d' % self.seed)
 
-        if self.islands <= 1:    # default
-            use_archi = False
-        else:
-            use_archi = True
-
         fitting = ModelFitting(processor, self.parameters)
 
         settings = {
@@ -236,8 +231,7 @@ class Calibration:
             'out_fit_range': self.result_fit_range,
             'input_arguments': self.result_input_arguments,
             'weighting': self.weighting_path,
-            'file_path': output_dir,
-            'use_archi': use_archi
+            'file_path': output_dir
         }
         fitting.configure(settings)
 
@@ -245,7 +239,7 @@ class Calibration:
         opt_algorithm = self.algorithm.get_algorithm()
         algo = pg.algorithm(opt_algorithm)
 
-        if use_archi:
+        if self.islands > 1:  # default
             archi = pg.archipelago(n=self.islands, algo=algo, prob=prob,
                                    pop_size=self.algorithm.population_size, udi=pg.mp_island())
             archi.evolve()
