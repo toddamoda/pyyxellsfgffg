@@ -28,8 +28,6 @@ class Outputs:
                  single_plot: dict = None):
         """TBW."""
         self.input_file = None                                                  # type: t.Optional[str]
-        self.champions_file = None                                              # type: t.Optional[str]
-        self.population_file = None                                             # type: t.Optional[str]
         self.parametric_plot = parametric_plot                                  # type: t.Optional[dict]
         self.calibration_plot = calibration_plot                                # type: t.Optional[dict]
         self.single_plot = single_plot                                          # type: t.Optional[dict]
@@ -50,6 +48,7 @@ class Outputs:
             'xlabel': None, 'ylabel': None, 'title': None, 'axis': None, 'grid': False,
             'xscale': 'linear', 'yscale': 'linear', 'xticks': None, 'yticks': None,
             'xlim': [None, None], 'ylim': [None, None],
+            'sci_x': False, 'sci_y': False
         }   # type: dict
         self.default_plot_args = {
             'color': None, 'marker': '.', 'linestyle': ''
@@ -80,16 +79,6 @@ class Outputs:
         """Move log file to the output directory of the simulation."""
         log_file = glob('./pyxel.log')[0]
         os.rename(log_file, self.output_dir + '/' + os.path.basename(log_file))
-
-    # def create_champion_file(self):
-    #     """TBW."""
-    #     # self.champions_file =
-    #     return self.new_file('')
-    #
-    # def create_population_file(self):
-    #     """TBW."""
-    #     self.population_file = self.new_file('population.out')
-    #     return self.population_file
 
     def new_file(self, filename: str):
         """TBW."""
@@ -260,15 +249,15 @@ class Outputs:
                     raise KeyError()
                 self.save_plot(fname)
 
-    def champions_plot(self, results):
+    def champions_plot(self, results, champions_file, island_id):
         """TBW."""
-        data = np.loadtxt(self.champions_file)
+        data = np.loadtxt(champions_file)
         generations = data[:, 0].astype(int)
         title = 'Calibrated parameter: '
         items = list(results.items())
         a = 1
         for item in items:
-            plt_args = {'xlabel': 'generation', 'linestyle': '-'}
+            plt_args = {'xlabel': 'generation', 'linestyle': '-', 'sci_y': True}
             key = item[0]
             param_value = item[1]
             param_name = key[key.rfind('.') + 1:]
@@ -276,6 +265,7 @@ class Outputs:
             if param_name == 'fitness':
                 plt_args['title'] = 'Champion fitness'
                 plt_args['color'] = 'red'
+                plt_args['ylabel'] = 'fitness'
             else:
                 if key.rfind('.arguments') == -1:
                     mdn = key[:key.rfind('.' + param_name)]
@@ -283,6 +273,7 @@ class Outputs:
                     mdn = key[:key.rfind('.arguments')]
                 model_name = mdn[mdn.rfind('.') + 1:]
                 plt_args['title'] = title + model_name + ' / ' + param_name
+                plt_args['ylabel'] = param_name
 
             b = 1
             if isinstance(param_value, float) or isinstance(param_value, int):
@@ -294,12 +285,12 @@ class Outputs:
                 self.plot_graph(generations, column, args=plt_args)
                 plt.legend(range(b))
 
-            self.save_plot('calibrated_parameter_??')
+            self.save_plot('calibrated_' + str(param_name) + '_id' + str(island_id))
             a += b
 
-    def population_plot(self):
+    def population_plot(self, population_file, island_id):
         """TBW."""
-        data = np.loadtxt(self.population_file)
+        data = np.loadtxt(population_file)
         fitnesses = np.log10(data[:, 1])
         a, b = 2, 1                             # 1st parameter and fitness
         if self.calibration_plot['population_plot']:
@@ -312,29 +303,35 @@ class Outputs:
                     'title': 'Population of the last generation',
                     'size': 8, 'cbar_label': 'log(fitness)'}
         if a == 1 or b == 1:
+            plt_args['sci_y'] = True
             self.plot_scatter(x, y, args=plt_args)
         else:
             self.plot_scatter(x, y, color=fitnesses, args=plt_args)
-        self.save_plot('population_??')
+        self.save_plot('population_id' + str(island_id))
 
-    def calibration_output(self, processor_list, results: dict):
+    def calibration_outputs(self, processor_list):
         """TBW."""
         for processor in processor_list:
             self.single_output(processor)
 
+    def calibration_plots(self, results: dict):
+        """TBW."""
         if self.calibration_plot:
             if 'champions_plot' in self.calibration_plot:
                 self.user_plt_args = None
                 if self.calibration_plot['champions_plot']:
                     if 'plot_args' in self.calibration_plot['champions_plot']:
                         self.user_plt_args = self.calibration_plot['champions_plot']['plot_args']
-                self.champions_plot(results)
+                for iid, file_ch in enumerate(glob(self.output_dir + '/champions_id*.out')):
+                    self.champions_plot(results, file_ch, iid)
+
             if 'population_plot' in self.calibration_plot:
                 self.user_plt_args = None
                 if self.calibration_plot['population_plot']:
                     if 'plot_args' in self.calibration_plot['population_plot']:
                         self.user_plt_args = self.calibration_plot['population_plot']['plot_args']
-                self.population_plot()
+                for iid, file_pop in enumerate(glob(self.output_dir + '/population_id*.out')):
+                    self.population_plot(file_pop, iid)
 
     def params_func(self, param):
         """TBW."""
@@ -454,6 +451,10 @@ def update_plot(ax_args):
     if ax_args['yticks']:
         plt.yticks(ax_args['yticks'])
     plt.grid(ax_args['grid'])
+    if ax_args['sci_x']:
+        plt.ticklabel_format(style='sci', axis='x', scilimits=(0, 0))
+    if ax_args['sci_y']:
+        plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
 
 
 def update_fits_header(header, key, value):

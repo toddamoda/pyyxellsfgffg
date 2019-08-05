@@ -243,7 +243,7 @@ class Calibration:
             archi = pg.archipelago(n=self.islands, algo=algo, prob=prob,
                                    pop_size=self.algorithm.population_size, udi=pg.mp_island())
             archi.evolve()
-            # print(archi)
+            logger.info(archi)
             archi.wait_check()
             champion_f = archi.get_champions_f()
             champion_x = archi.get_champions_x()
@@ -254,7 +254,8 @@ class Calibration:
             champion_x = [pop.champion_x]
 
         res = []                                    # type: list
-        logger.info('Calibration ended.')
         for f, x in zip(champion_f, champion_x):
-            res += [fitting.get_results(fitness=f, parameter=x)]
+            res += [fitting.get_results(overall_fitness=f, parameter=x)]
+
+        logger.info('Calibration ended.')
         return res

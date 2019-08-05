@@ -238,10 +238,10 @@ class ModelFitting:
             a += b
         return new_processor
 
-    def get_results(self, fitness, parameter):
+    def get_results(self, overall_fitness, parameter):
         """TBW.
 
-        :param fitness:
+        :param overall_fitness:
         :param parameter:
         :return:
         """
@@ -253,7 +253,7 @@ class ModelFitting:
                 processor.run_pipeline()
 
         results = OrderedDict()
-        results['fitness'] = fitness[0]
+        results['fitness'] = overall_fitness[0]
         logger = logging.getLogger('pyxel')
         logger.info('Champion fitness:   %1.5e' % results['fitness'])
 
