@@ -20,12 +20,6 @@ def charge_blocks(detector: CCD,
     :param charge_level:
     :param block_start:
     :param block_end:
-    # :param columns:
-    # :param profile_length:
-    # :param number_of_blocks:
-    # :param block_length:
-    # :param pause_length:
-
     :return:
     """
     logger = logging.getLogger('pyxel')

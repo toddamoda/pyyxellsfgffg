@@ -82,11 +82,8 @@ pipeline:
       enabled: true
       arguments:
         charge_level: 100000
-        columns: [20, 50, 80]
-        profile_length: 90
-        number_of_blocks: 3
-        block_length: 10
-        pause_length: 20
+        block_start: 70
+        block_end: 80
 
   # charge -> pixel
   charge_collection:
