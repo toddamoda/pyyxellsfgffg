@@ -25,40 +25,31 @@ def charge_profile(detector: Detector,
     logger.info('')
     geo = detector.geometry
 
-    # Positions of all pixels in detector imaging area
-    init_ver_position = np.arange(0.0, geo.row, 1.0) * geo.pixel_vert_size
-    init_hor_position = np.arange(0.0, geo.col, 1.0) * geo.pixel_horz_size
-    init_ver_position = np.repeat(init_ver_position, geo.col)
-    init_hor_position = np.tile(init_hor_position, geo.row)
     # All pixels has zero charge by default
     detector_charge = np.zeros((geo.row, geo.col))
-
     # Load 2d charge profile (which can be smaller or larger in dimensions than detector imaging area)
     charge_from_file = np.loadtxt(txt_file, ndmin=2)
     if fit_profile_to_det:
         # Crop 2d charge profile, so it is not larger in dimensions than detector imaging area)
         charge_from_file = charge_from_file[slice(0, geo.row), slice(0, geo.col)]
-
     profile_rows, profile_cols = charge_from_file.shape
     if profile_position is None:
         profile_position = [0, 0]
     detector_charge[slice(profile_position[0], profile_position[0] + profile_rows),
                     slice(profile_position[1], profile_position[1] + profile_cols)] = charge_from_file
-
     charge_number = detector_charge.flatten()
     where_non_zero = np.where(charge_number > 0.)
     charge_number = charge_number[where_non_zero]
-    init_ver_position = init_ver_position[where_non_zero]
-    init_hor_position = init_hor_position[where_non_zero]
     size = charge_number.size
-    init_ver_position += np.random.rand(size) * geo.pixel_vert_size
-    init_hor_position += np.random.rand(size) * geo.pixel_horz_size
+
+    init_ver_pix_position = geo.vertical_pixel_center_pos_list()[where_non_zero]
+    init_hor_pix_position = geo.horizontal_pixel_center_pos_list()[where_non_zero]
 
     detector.charge.add_charge(particle_type='e',
                                particles_per_cluster=charge_number,
                                init_energy=[0.] * size,
-                               init_ver_position=init_ver_position,
-                               init_hor_position=init_hor_position,
+                               init_ver_position=init_ver_pix_position,
+                               init_hor_position=init_hor_pix_position,
                                init_z_position=[0.] * size,
                                init_ver_velocity=[0.] * size,
                                init_hor_velocity=[0.] * size,

@@ -1,4 +1,5 @@
 """Geometry class for detector."""
+import numpy as np
 from ..util import config, validators
 
 
@@ -60,3 +61,15 @@ class Geometry:
         :return: vertical dimension
         """
         return self.pixel_vert_size * self.row
+
+    def vertical_pixel_center_pos_list(self):
+        """Generate horizontal position list of all pixel centers in detector imaging area."""
+        init_ver_position = np.arange(0., self.row, 1.) * self.pixel_vert_size
+        init_ver_position += self.pixel_vert_size / 2.
+        return np.repeat(init_ver_position, self.col)
+
+    def horizontal_pixel_center_pos_list(self):
+        """Generate horizontal position list of all pixel centers in detector imaging area."""
+        init_hor_position = np.arange(0., self.col, 1.) * self.pixel_horz_size
+        init_hor_position += self.pixel_horz_size / 2.
+        return np.tile(init_hor_position, self.row)

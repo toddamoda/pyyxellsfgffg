@@ -3,11 +3,9 @@
 #   --------------------------------------------------------------------------
 """Simple model to generate charges due to dark current process."""
 import logging
-
 import numpy as np
-
 from pyxel.detectors.cmos import CMOS
-from ...util import validators, config, checkers
+from pyxel.util import validators, config, checkers
 
 
 @validators.validate
@@ -20,11 +18,15 @@ def dark_current_rule07(detector: CMOS):
     """
     logger = logging.getLogger('pyxel')
     logger.info('')
+    geo = detector.geometry
+    temperature = detector.environment.temperature
+    cutoff = detector.characteristics.cutoff
 
-    amp_to_eps = 6.242e+18  # conversion factor amperes to electron per second
-    cm2_to_um2 = 1e+8
+    amp_to_eps = 6.242e+18  # conversion factor from Ampere to Electrons per second
+    um2_to_cm2 = 1.e-8
+    conversion_factor = amp_to_eps * um2_to_cm2
 
-    pitch = 18              # um
+    # pitch = 18              # um
     # Rule 07 empirical model parameters
     j0 = 8367.000019        # A/cm**2
     c = -1.162972237
@@ -45,40 +47,25 @@ def dark_current_rule07(detector: CMOS):
             le = lambda_cutoff
         return le
 
-    geo = detector.geometry
-    ch = detector.characteristics
-    temperature = detector.environment.temperature
-    cutoff = ch.cutoff
-    conversion_factor = amp_to_eps * 1. / cm2_to_um2
-
-    init_ver_position = np.arange(0.0, geo.row, 1.0) * geo.pixel_vert_size
-    init_hor_position = np.arange(0.0, geo.col, 1.0) * geo.pixel_horz_size
-    init_ver_position = np.repeat(init_ver_position, geo.col)
-    init_hor_position = np.tile(init_hor_position, geo.row)
-
     # Rule07
     j = j0 * np.exp(c * (1.24 * q / k) * 1. / (lambda_e(cutoff) * temperature))
-    dark = j * conversion_factor * pitch
-    # print(dark)
-    # The number of charges generated using rule07 empiric law
-    charge_number = np.random.poisson(dark, size=(detector.geometry.row,
-                                                  detector.geometry.col))
+    dark = j * conversion_factor * geo.pixel_horz_size * geo.pixel_vert_size
+    # The number of charge generated with Poisson distribution using rule07 empiric law for lambda
+    charge_number = np.random.poisson(dark, size=(geo.row, geo.col))
 
     charge_number = charge_number.flatten()
     where_non_zero = np.where(charge_number > 0.)
-    # print(np.shape(where_non_zero))
     charge_number = charge_number[where_non_zero]
-    init_ver_position = init_ver_position[where_non_zero]
-    init_hor_position = init_hor_position[where_non_zero]
     size = charge_number.size
-    init_ver_position += np.random.rand(size) * geo.pixel_vert_size
-    init_hor_position += np.random.rand(size) * geo.pixel_horz_size
+
+    init_ver_pix_position = geo.vertical_pixel_center_pos_list()[where_non_zero]
+    init_hor_pix_position = geo.horizontal_pixel_center_pos_list()[where_non_zero]
 
     detector.charge.add_charge(particle_type='e',
                                particles_per_cluster=charge_number,
                                init_energy=[0.] * size,
-                               init_ver_position=init_ver_position,
-                               init_hor_position=init_hor_position,
+                               init_ver_position=init_ver_pix_position,
+                               init_hor_position=init_hor_pix_position,
                                init_z_position=[0.] * size,
                                init_ver_velocity=[0.] * size,
                                init_hor_velocity=[0.] * size,
