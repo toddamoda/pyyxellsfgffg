@@ -6,6 +6,7 @@ import logging
 from glob import glob
 import os
 from copy import deepcopy
+from dask import delayed, distributed
 from collections import OrderedDict
 import typing as t   # noqa: F401
 import numpy as np
@@ -153,6 +154,84 @@ class ModelFitting:
                 raise ValueError('Character "_" (or a list of it) should be used to '
                                  'indicate variables need to be calibrated')
 
+    def get_simulated_data(self, processor):
+        """TBW."""
+        simulated_data = None
+        if self.sim_output == 'image':
+            simulated_data = processor.detector.image.array[self.sim_fit_range]
+        elif self.sim_output == 'signal':
+            simulated_data = processor.detector.signal.array[self.sim_fit_range]
+        elif self.sim_output == 'pixel':
+            simulated_data = processor.detector.pixel.array[self.sim_fit_range]
+        return simulated_data
+
+    def bfe_func(self, fitness_list):
+        """TBW."""
+        return [f[0] for f in fitness_list]
+
+    def batch_fitness(self, dvs):
+        """Batch Fitness Evaluation."""
+        print('batch_fitness() called with dvs = ', dvs)
+        fvs = []
+
+        # for d in dvs:
+        #     d = [d]
+        #     fvs += self.fitness(d)
+        # print('batch_fitness() fvs = ', fvs)
+
+        client = distributed.Client(processes=False)
+        print(client)
+
+        # bf = []
+        # for d in dvs:
+        #     d = [d]
+        #     a = delayed(self.fitness_parallel)(d)
+        #     bf.append(a)
+        #
+        # c = delayed(self.bfe_func)(bf)
+        # e = c.compute()
+        # print(e)
+
+        logger = logging.getLogger('pyxel')
+        prev_log_level = logger.getEffectiveLevel()
+        logger.setLevel(logging.WARNING)
+
+        result_list = []
+
+        for d in dvs:
+            d = [d]
+
+            parameter = self.update_parameter(d)
+            processor_list = deepcopy(self.param_processor_list)
+
+            overall_fitness = 0.
+            for processor, target_data in zip(processor_list, self.all_target_data):
+
+                processor = self.update_processor(parameter, processor)
+
+                result_proc = None
+                if self.calibration_mode == 'pipeline':
+                    result_proc = processor.run_pipeline()
+                    # result_proc = delayed(processor.run_pipeline())()
+
+                simulated_data = self.get_simulated_data(result_proc)
+                # simulated_data = delayed(self.get_simulated_data)(result_proc)
+
+                overall_fitness += self.calculate_fitness(simulated_data, target_data)
+                # fitness = delayed(self.calculate_fitness)(simulated_data, target_data)
+                # TODO result_list.append()
+
+            fvs += [overall_fitness]  # overall fitness per individual for the full population
+
+        # TODO c = delayed(self.bfe_func)(bf)
+
+        # TODO e = c.compute()
+
+        # self.population_and_champions(parameter, overall_fitness)     # TODO reimplement this for batch mode
+
+        logger.setLevel(prev_log_level)
+        return fvs
+
     def calculate_fitness(self, simulated_data, target_data):
         """TBW.
 
@@ -184,19 +263,14 @@ class ModelFitting:
             processor = self.update_processor(parameter, processor)
 
             logger.setLevel(logging.WARNING)
+            result_proc = None
             if self.calibration_mode == 'pipeline':
-                processor.run_pipeline()
+                result_proc = processor.run_pipeline()
             # elif self.calibration_mode == 'single_model':
             #     self.fitted_model.function(processor.detector)               # todo: update
             logger.setLevel(prev_log_level)
 
-            simulated_data = None
-            if self.sim_output == 'image':
-                simulated_data = processor.detector.image.array[self.sim_fit_range]
-            elif self.sim_output == 'signal':
-                simulated_data = processor.detector.signal.array[self.sim_fit_range]
-            elif self.sim_output == 'pixel':
-                simulated_data = processor.detector.pixel.array[self.sim_fit_range]
+            simulated_data = self.get_simulated_data(result_proc)
 
             overall_fitness += self.calculate_fitness(simulated_data, target_data)
 

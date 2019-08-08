@@ -239,16 +239,34 @@ class Calibration:
         opt_algorithm = self.algorithm.get_algorithm()
         algo = pg.algorithm(opt_algorithm)
 
+        try:
+            bfe = pg.bfe(udbfe=pg.member_bfe())
+        except AttributeError:
+            bfe = None
+
+        # TODO REMOVE THESE
+        # bfe = None
+        self.islands = 1
+        # self.algorithm.population_size = 2
+        # TODO REMOVE THESE
+
         if self.islands > 1:  # default
-            archi = pg.archipelago(n=self.islands, algo=algo, prob=prob,
-                                   pop_size=self.algorithm.population_size, udi=pg.mp_island())
+            try:
+                archi = pg.archipelago(n=self.islands, algo=algo, prob=prob, b=bfe,
+                                       pop_size=self.algorithm.population_size, udi=pg.mp_island())
+            except KeyError:
+                archi = pg.archipelago(n=self.islands, algo=algo, prob=prob,
+                                       pop_size=self.algorithm.population_size, udi=pg.mp_island())
             archi.evolve()
             logger.info(archi)
             archi.wait_check()
             champion_f = archi.get_champions_f()
             champion_x = archi.get_champions_x()
         else:
-            pop = pg.population(prob, size=self.algorithm.population_size)
+            try:
+                pop = pg.population(prob=prob, size=self.algorithm.population_size, b=bfe)
+            except TypeError:
+                pop = pg.population(prob=prob, size=self.algorithm.population_size)
             pop = algo.evolve(pop)
             champion_f = [pop.champion_f]
             champion_x = [pop.champion_x]
