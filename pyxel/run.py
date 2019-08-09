@@ -59,10 +59,12 @@ def run(input_filename, random_seed: int = None):
 
     elif simulation.mode == 'calibration' and simulation.calibration:
         logger.info('Mode: Calibration')
+        # client = distributed.Client(processes=False, n_workers=1, threads_per_worker=4)  # TODO: finish this
+        # logger.info(client)
         results = simulation.calibration.run_calibration(processor, out.output_dir)
         if out:
             for item in results:
-                out.calibration_outputs(processor_list=item[0])       # TODO: finish this
+                out.calibration_outputs(processor_list=item[0])
             out.calibration_plots(results[0][1])
 
     elif simulation.mode == 'parametric' and simulation.parametric:

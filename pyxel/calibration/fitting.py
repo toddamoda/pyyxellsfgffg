@@ -2,11 +2,12 @@
 
 https://esa.github.io/pagmo2/index.html
 """
+import os
 import logging
 from glob import glob
-import os
+from operator import add
 from copy import deepcopy
-from dask import delayed, distributed
+from dask import delayed
 from collections import OrderedDict
 import typing as t   # noqa: F401
 import numpy as np
@@ -165,72 +166,33 @@ class ModelFitting:
             simulated_data = processor.detector.pixel.array[self.sim_fit_range]
         return simulated_data
 
-    def bfe_func(self, fitness_list):
-        """TBW."""
-        return [f[0] for f in fitness_list]
-
-    def batch_fitness(self, dvs):
+    def batch_fitness(self, population_parameter_vector):
         """Batch Fitness Evaluation."""
-        print('batch_fitness() called with dvs = ', dvs)
-        fvs = []
-
-        # for d in dvs:
-        #     d = [d]
-        #     fvs += self.fitness(d)
-        # print('batch_fitness() fvs = ', fvs)
-
-        client = distributed.Client(processes=False)
-        print(client)
-
-        # bf = []
-        # for d in dvs:
-        #     d = [d]
-        #     a = delayed(self.fitness_parallel)(d)
-        #     bf.append(a)
-        #
-        # c = delayed(self.bfe_func)(bf)
-        # e = c.compute()
-        # print(e)
-
         logger = logging.getLogger('pyxel')
-        prev_log_level = logger.getEffectiveLevel()
-        logger.setLevel(logging.WARNING)
-
-        result_list = []
-
-        for d in dvs:
-            d = [d]
-
-            parameter = self.update_parameter(d)
-            processor_list = deepcopy(self.param_processor_list)
-
+        logger.info('batch_fitness() called with %s ' % population_parameter_vector)
+        fitness_vector = []
+        for parameter in population_parameter_vector:
             overall_fitness = 0.
+            parameter = self.update_parameter([parameter])
+            processor_list = deepcopy(self.param_processor_list)
             for processor, target_data in zip(processor_list, self.all_target_data):
+                # processor = self.update_processor(parameter, processor)
+                processor = delayed(self.update_processor)(parameter, processor)
+                # result_proc = processor.run_pipeline()
+                result_proc = delayed(processor.run_pipeline)()
+                # simulated_data = self.get_simulated_data(result_proc)
+                simulated_data = delayed(self.get_simulated_data)(result_proc)
+                # fitness = self.calculate_fitness(simulated_data, target_data)
+                fitness = delayed(self.calculate_fitness)(simulated_data, target_data)
+                # overall_fitness = add(overall_fitness, fitness)
+                overall_fitness = delayed(add)(overall_fitness, fitness)
+            fitness_vector.append(overall_fitness)  # overall fitness per individual for the full population
+        # fitness_vector = self.merge(fitness_vector)
+        fitness_vector = delayed(merge_fitness)(fitness_vector)
+        # population_fitness_vector = fitness_vector
+        population_fitness_vector = fitness_vector.compute()
 
-                processor = self.update_processor(parameter, processor)
-
-                result_proc = None
-                if self.calibration_mode == 'pipeline':
-                    result_proc = processor.run_pipeline()
-                    # result_proc = delayed(processor.run_pipeline())()
-
-                simulated_data = self.get_simulated_data(result_proc)
-                # simulated_data = delayed(self.get_simulated_data)(result_proc)
-
-                overall_fitness += self.calculate_fitness(simulated_data, target_data)
-                # fitness = delayed(self.calculate_fitness)(simulated_data, target_data)
-                # TODO result_list.append()
-
-            fvs += [overall_fitness]  # overall fitness per individual for the full population
-
-        # TODO c = delayed(self.bfe_func)(bf)
-
-        # TODO e = c.compute()
-
-        # self.population_and_champions(parameter, overall_fitness)     # TODO reimplement this for batch mode
-
-        logger.setLevel(prev_log_level)
-        return fvs
+        return population_fitness_vector
 
     def calculate_fitness(self, simulated_data, target_data):
         """TBW.
@@ -274,7 +236,14 @@ class ModelFitting:
 
             overall_fitness += self.calculate_fitness(simulated_data, target_data)
 
-        self.population_and_champions(parameter, overall_fitness)
+        self.save_population(parameter, overall_fitness)
+
+        if (self.n + 1) % self.pop == 0:
+            logger.info('%d. generation' % self.g)
+            self.champion_to_file(parameter)
+            self.g += 1
+
+        self.n += 1
 
         return [overall_fitness]
 
@@ -352,8 +321,35 @@ class ModelFitting:
 
         return champion_list, results
 
-    def population_and_champions(self, parameter, overall_fitness):
-        """Get champion (also population) of each generation and write it to output file(s).
+    def champion_to_file(self, parameter):
+        """Get champion of each generation and write it to output files together with last population.
+
+        :return:
+        """
+        best_index = np.argmin(self.fitness_array)
+
+        if self.g == 0:
+            self.champion_f_list[self.g] = self.fitness_array[best_index]
+            self.champion_x_list[self.g] = self.population[best_index, :]
+        else:
+            best_champ_index = np.argmin(self.champion_f_list)
+
+            if self.fitness_array[best_index] <= self.champion_f_list[best_champ_index]:
+                self.champion_f_list = np.vstack((self.champion_f_list, self.fitness_array[best_index]))
+                self.champion_x_list = np.vstack((self.champion_x_list, self.population[best_index]))
+            else:
+                self.champion_f_list = np.vstack((self.champion_f_list, self.champion_f_list[-1]))
+                self.champion_x_list = np.vstack((self.champion_x_list, self.champion_x_list[-1]))
+
+        # TODO: should we keep and write to file the population(s) which had the champion inside?
+        # because usually this is not the last population currently we save to file!
+
+        if self.file_path and self.g > 0:
+            self.add_to_champ_file(parameter)
+            self.add_to_pop_file(parameter)
+
+    def save_population(self, parameter, overall_fitness):
+        """Save population of each generation to get champions.
 
         :param parameter: 1d np.array
         :param overall_fitness: list
@@ -366,33 +362,33 @@ class ModelFitting:
             self.fitness_array = np.vstack((self.fitness_array, np.array([overall_fitness])))
             self.population = np.vstack((self.population, parameter))
 
-        if (self.n + 1) % self.pop == 0:
-
-            best_index = np.argmin(self.fitness_array)
-
-            if self.g == 0:
-                self.champion_f_list[self.g] = self.fitness_array[best_index]
-                self.champion_x_list[self.g] = self.population[best_index, :]
-            else:
-                best_champ_index = np.argmin(self.champion_f_list)
-
-                if self.fitness_array[best_index] <= self.champion_f_list[best_champ_index]:
-                    self.champion_f_list = np.vstack((self.champion_f_list, self.fitness_array[best_index]))
-                    self.champion_x_list = np.vstack((self.champion_x_list, self.population[best_index]))
-                else:
-                    self.champion_f_list = np.vstack((self.champion_f_list, self.champion_f_list[-1]))
-                    self.champion_x_list = np.vstack((self.champion_x_list, self.champion_x_list[-1]))
-
-            # TODO: should we keep and write to file the population(s) which had the champion inside?
-            # because usually this is not the last population currently we save to file!
-
-            if self.file_path and self.g > 0:
-                self.add_to_champ_file(parameter)
-                self.add_to_pop_file(parameter)
-
-            self.g += 1
-
-        self.n += 1
+        # if (self.n + 1) % self.pop == 0:
+        #     #
+        #     best_index = np.argmin(self.fitness_array)
+        #
+        #     if self.g == 0:
+        #         self.champion_f_list[self.g] = self.fitness_array[best_index]
+        #         self.champion_x_list[self.g] = self.population[best_index, :]
+        #     else:
+        #         best_champ_index = np.argmin(self.champion_f_list)
+        #
+        #         if self.fitness_array[best_index] <= self.champion_f_list[best_champ_index]:
+        #             self.champion_f_list = np.vstack((self.champion_f_list, self.fitness_array[best_index]))
+        #             self.champion_x_list = np.vstack((self.champion_x_list, self.population[best_index]))
+        #         else:
+        #             self.champion_f_list = np.vstack((self.champion_f_list, self.champion_f_list[-1]))
+        #             self.champion_x_list = np.vstack((self.champion_x_list, self.champion_x_list[-1]))
+        #
+        #     # TODO: should we keep and write to file the population(s) which had the champion inside?
+        #     # because usually this is not the last population currently we save to file!
+        #
+        #     if self.file_path and self.g > 0:
+        #         self.add_to_champ_file(parameter)
+        #         self.add_to_pop_file(parameter)
+        #
+        #     self.g += 1
+        #
+        # self.n += 1
 
     def add_to_champ_file(self, parameter):
         """TBW."""
@@ -457,3 +453,8 @@ class ModelFitting:
     #     :return:
     #     """
     #     return array / np.average(self.target_data[dataset][self.targ_fit_range])
+
+
+def merge_fitness(f):
+    """TBW."""
+    return f
