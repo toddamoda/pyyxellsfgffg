@@ -34,10 +34,10 @@ class Outputs:
         self.user_plt_args = None                                               # type: t.Optional[dict]
         self.save_parameter_to_file = save_parameter_to_file                    # type: t.Optional[dict]
         self.output_dir = output_folder + '/run_' + strftime("%Y%m%d_%H%M%S")   # type: str
-        if save_data_to_file is None:
-            self.save_data_to_file = [{'detector.image.array': ['fits']}]       # type: list
-        else:
-            self.save_data_to_file = save_data_to_file
+        # if save_data_to_file is None:
+        #     self.save_data_to_file = [{'detector.image.array': ['fits']}]       # type: list
+        # else:
+        self.save_data_to_file = save_data_to_file                              # type: t.Optional[list]
 
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
@@ -206,6 +206,9 @@ class Outputs:
 
     def single_output(self, processor):
         """TBW."""
+        if self.save_data_to_file is None:
+            self.save_data_to_file = [{'detector.image.array': ['fits']}]
+
         save_methods = {'fits': self.save_to_fits,
                         'hdf': self.save_to_hdf,
                         'npy': self.save_to_npy,
@@ -290,7 +293,7 @@ class Outputs:
             self.save_plot('calibrated_' + str(param_name) + '_id' + str(island_id))
             a += b
 
-    def population_plot(self, population_file, island_id):
+    def population_plot(self, results, population_file, island_id):
         """TBW."""
         data = np.loadtxt(population_file)
         fitnesses = np.log10(data[:, 1])
@@ -301,9 +304,22 @@ class Outputs:
                 a, b = col[0], col[1]
         x = data[:, a]
         y = data[:, b]
-        plt_args = {'xlabel': 'calibrated parameter', 'ylabel': 'fitness',
-                    'title': 'Population of the last generation',
+
+        plt_args = {'title': 'Population of the last generation',
                     'size': 8, 'cbar_label': 'log(fitness)'}
+        if b == 0:
+            plt_args['ylabel'] = 'generation'
+        elif b == 1:
+            plt_args['ylabel'] = 'fitness'
+        else:
+            plt_args['ylabel'] = 'champions file column #' + str(b)
+        if a == 0:
+            plt_args['xlabel'] = 'generation'
+        elif a == 1:
+            plt_args['xlabel'] = 'fitness'
+        else:
+            plt_args['xlabel'] = 'champions file column #' + str(a)
+
         if a == 1 or b == 1:
             plt_args['sci_y'] = True
             self.plot_scatter(x, y, args=plt_args)
@@ -313,8 +329,9 @@ class Outputs:
 
     def calibration_outputs(self, processor_list):
         """TBW."""
-        for processor in processor_list:
-            self.single_output(processor)
+        if self.save_data_to_file is not None:
+            for processor in processor_list:
+                self.single_output(processor)
 
     def calibration_plots(self, results: dict):
         """TBW."""
@@ -333,7 +350,7 @@ class Outputs:
                     if 'plot_args' in self.calibration_plot['population_plot']:
                         self.user_plt_args = self.calibration_plot['population_plot']['plot_args']
                 for iid, file_pop in enumerate(glob(self.output_dir + '/population_id*.out')):
-                    self.population_plot(file_pop, iid)
+                    self.population_plot(results, file_pop, iid)
 
     def fitting_plot(self, target_data, simulated_data, data_i):
         """TBW."""
