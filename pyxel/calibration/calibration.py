@@ -6,7 +6,6 @@ try:
 except ImportError:
     import warnings
     warnings.warn("Cannot import 'pygmo", RuntimeWarning, stacklevel=2)
-# from dask.distributed import Client
 from ..util import validators, config
 from pyxel.calibration.fitting import ModelFitting
 from pyxel.pipelines.model_function import ModelFunction
@@ -244,14 +243,20 @@ class Calibration:
         #     bfe = pg.bfe(udbfe=pg.member_bfe())
         # except AttributeError:
         #     bfe = None
+        #
+        # try:
+        #     archi = pg.archipelago(n=self.islands, algo=algo, prob=prob, b=bfe,
+        #                            pop_size=self.algorithm.population_size, udi=pg.mp_island())
+        # except KeyError:
+        #     archi = pg.archipelago(n=self.islands, algo=algo, prob=prob,
+        #                            pop_size=self.algorithm.population_size, udi=pg.mp_island())
+        #
+        # try:
+        #     pop = pg.population(prob=prob, size=self.algorithm.population_size, b=bfe)
+        # except TypeError:
+        #     pop = pg.population(prob=prob, size=self.algorithm.population_size)
 
         if self.islands > 1:  # default
-            # try:
-            #     archi = pg.archipelago(n=self.islands, algo=algo, prob=prob, b=bfe,
-            #                            pop_size=self.algorithm.population_size, udi=pg.mp_island())
-            # except KeyError:
-            #     archi = pg.archipelago(n=self.islands, algo=algo, prob=prob,
-            #                            pop_size=self.algorithm.population_size, udi=pg.mp_island())
             archi = pg.archipelago(n=self.islands, algo=algo, prob=prob,
                                    pop_size=self.algorithm.population_size, udi=pg.mp_island())
             archi.evolve()
@@ -260,16 +265,15 @@ class Calibration:
             champion_f = archi.get_champions_f()
             champion_x = archi.get_champions_x()
         else:
-            # try:
-            #     pop = pg.population(prob=prob, size=self.algorithm.population_size, b=bfe)
-            # except TypeError:
-            #     pop = pg.population(prob=prob, size=self.algorithm.population_size)
             pop = pg.population(prob=prob, size=self.algorithm.population_size)
             pop = algo.evolve(pop)
             champion_f = [pop.champion_f]
             champion_x = [pop.champion_x]
 
         res = []                                    # type: list
+
+        fitting.file_matching_renaming()
+
         for f, x in zip(champion_f, champion_x):
             res += [fitting.get_results(overall_fitness=f, parameter=x)]
 

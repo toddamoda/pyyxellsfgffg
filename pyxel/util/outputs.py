@@ -266,6 +266,8 @@ class Outputs:
                 plt_args['title'] = 'Champion fitness'
                 plt_args['color'] = 'red'
                 plt_args['ylabel'] = 'fitness'
+            elif param_name == 'island':
+                continue
             else:
                 if key.rfind('.arguments') == -1:
                     mdn = key[:key.rfind('.' + param_name)]

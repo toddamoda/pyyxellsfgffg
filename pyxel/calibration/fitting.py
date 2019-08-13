@@ -52,6 +52,8 @@ class ModelFitting:
         self.sim_fit_range = None
         self.targ_fit_range = None
 
+        self.match = {}                     # type: dict
+
         # self.normalization = False
         # self.target_data_norm = []
 
@@ -167,7 +169,9 @@ class ModelFitting:
         return simulated_data
 
     def batch_fitness(self, population_parameter_vector):
-        """Batch Fitness Evaluation."""
+        """Batch Fitness Evaluation.
+
+        PYGMO BFE IS STILL NOT FULLY IMPLEMENTED, THEREFORE THIS FUNC CAN NOT BE USED YET."""
         logger = logging.getLogger('pyxel')
         logger.info('batch_fitness() called with %s ' % population_parameter_vector)
         fitness_vector = []
@@ -281,6 +285,23 @@ class ModelFitting:
             a += b
         return new_processor
 
+    def file_matching_renaming(self):
+        """TBW."""
+        if self.file_path:
+            output_champion_files = glob(self.file_path + '/champions_id_*.out')
+            for ii, chfile in enumerate(output_champion_files):
+                lastline = None
+                for lastline in open(chfile):
+                    pass
+                lastline = lastline.replace('\n', '')
+                lastline = lastline.split(' ')[1:]
+                self.match[ii] = lastline
+                os.rename(chfile, self.file_path + '/champions_id' + str(ii) + '.out')
+                aw = chfile[chfile.rfind('champions_id_'):chfile.rfind('.out')]
+                fid = aw.split('_')[-1]
+                popfile = glob(self.file_path + '/population_id_' + str(fid) + '.out')[0]
+                os.rename(popfile, self.file_path + '/population_id' + str(ii) + '.out')
+
     def get_results(self, overall_fitness, parameter):
         """TBW.
 
@@ -288,17 +309,47 @@ class ModelFitting:
         :param parameter:
         :return:
         """
-        parameter = self.update_parameter(parameter)
-        champion_list = deepcopy(self.param_processor_list)
-        for processor, target_data in zip(champion_list, self.all_target_data):
-            processor = self.update_processor(parameter, processor)
-            if self.calibration_mode == 'pipeline':
-                processor.run_pipeline()
-
+        logger = logging.getLogger('pyxel')
         results = OrderedDict()
         results['fitness'] = overall_fitness[0]
-        logger = logging.getLogger('pyxel')
-        logger.info('Champion fitness:   %1.5e' % results['fitness'])
+
+        import matplotlib.pyplot as plt
+        plt.figure()
+
+        parameter = self.update_parameter(parameter)
+        champion_list = deepcopy(self.param_processor_list)
+
+        s = np.c_[overall_fitness, parameter.reshape(1, len(parameter))]
+        np.set_printoptions(formatter={'float': '{: .6E}'.format}, suppress=False)
+        sss = np.array2string(s, separator='', suppress_small=False)
+        sss = sss.replace('\n', '').replace('   ', ' ').replace('  ', ' ').replace('[[ ', '').replace(']]', '')
+        sss = sss.split(' ')
+        island = -1
+        for k, v in self.match.items():
+            if sss == v:
+                island = k
+                break
+        if island == -1:
+            raise RuntimeError()
+        results['island'] = island
+        logger.info('Post-processing island %d, champion fitness: %1.5e' % (island, overall_fitness[0]))
+
+        ii = 0
+        of = 0
+        for processor, target_data in zip(champion_list, self.all_target_data):
+            processor = self.update_processor(parameter, processor)
+            result_proc = None
+            if self.calibration_mode == 'pipeline':
+                result_proc = processor.run_pipeline()
+            simulated_data = self.get_simulated_data(result_proc)
+            of += self.calculate_fitness(simulated_data, target_data)
+            plt.plot(target_data, '.-', label='target data #' + str(ii))
+            plt.plot(simulated_data, '.-', label='simulated (' + self.sim_output + ') data #' + str(ii))
+            ii += 1
+        plt.legend()
+        plt.title('Target and Simulated (' + self.sim_output + ') data, island ' + str(island))
+        plt.savefig(self.file_path + '/fitted_datasets_id' + str(island) + '.png')
+        # plt.show()
 
         a, b = 0, 0
         for var in self.variables:
@@ -309,15 +360,6 @@ class ModelFitting:
                 b = len(var.values)
                 results[var.key] = parameter[a:a + b]
             a += b
-
-        if self.file_path:
-            output_champion_files = glob(self.file_path + '/champions_id_*.out')
-            for ii, chfile in enumerate(output_champion_files):
-                os.rename(chfile, self.file_path + '/champions_id' + str(ii) + '.out')
-                aw = chfile[chfile.rfind('champions_id_'):chfile.rfind('.out')]
-                fid = aw.split('_')[-1]
-                popfile = glob(self.file_path + '/population_id_' + str(fid) + '.out')[0]
-                os.rename(popfile, self.file_path + '/population_id' + str(ii) + '.out')
 
         return champion_list, results
 
@@ -334,7 +376,7 @@ class ModelFitting:
         else:
             best_champ_index = np.argmin(self.champion_f_list)
 
-            if self.fitness_array[best_index] <= self.champion_f_list[best_champ_index]:
+            if self.fitness_array[best_index] < self.champion_f_list[best_champ_index]:
                 self.champion_f_list = np.vstack((self.champion_f_list, self.fitness_array[best_index]))
                 self.champion_x_list = np.vstack((self.champion_x_list, self.population[best_index]))
             else:
@@ -361,34 +403,6 @@ class ModelFitting:
         else:
             self.fitness_array = np.vstack((self.fitness_array, np.array([overall_fitness])))
             self.population = np.vstack((self.population, parameter))
-
-        # if (self.n + 1) % self.pop == 0:
-        #     #
-        #     best_index = np.argmin(self.fitness_array)
-        #
-        #     if self.g == 0:
-        #         self.champion_f_list[self.g] = self.fitness_array[best_index]
-        #         self.champion_x_list[self.g] = self.population[best_index, :]
-        #     else:
-        #         best_champ_index = np.argmin(self.champion_f_list)
-        #
-        #         if self.fitness_array[best_index] <= self.champion_f_list[best_champ_index]:
-        #             self.champion_f_list = np.vstack((self.champion_f_list, self.fitness_array[best_index]))
-        #             self.champion_x_list = np.vstack((self.champion_x_list, self.population[best_index]))
-        #         else:
-        #             self.champion_f_list = np.vstack((self.champion_f_list, self.champion_f_list[-1]))
-        #             self.champion_x_list = np.vstack((self.champion_x_list, self.champion_x_list[-1]))
-        #
-        #     # TODO: should we keep and write to file the population(s) which had the champion inside?
-        #     # because usually this is not the last population currently we save to file!
-        #
-        #     if self.file_path and self.g > 0:
-        #         self.add_to_champ_file(parameter)
-        #         self.add_to_pop_file(parameter)
-        #
-        #     self.g += 1
-        #
-        # self.n += 1
 
     def add_to_champ_file(self, parameter):
         """TBW."""
