@@ -6,6 +6,7 @@ try:
 except ImportError:
     import warnings
     warnings.warn("Cannot import 'pygmo", RuntimeWarning, stacklevel=2)
+from ..util.outputs import Outputs
 from ..util import validators, config
 from pyxel.calibration.fitting import ModelFitting
 from pyxel.pipelines.model_function import ModelFunction
@@ -130,6 +131,8 @@ class Calibration:
     :return:
     """
 
+    output_dir = None
+    fitting = None          # type: ModelFitting
     calibration_mode = config.attribute(
         type=str,
         validator=[validators.validate_type(str),
@@ -218,7 +221,8 @@ class Calibration:
         logger = logging.getLogger('pyxel')
         logger.info('Seed: %d' % self.seed)
 
-        fitting = ModelFitting(processor, self.parameters)
+        self.output_dir = output_dir
+        self.fitting = ModelFitting(processor, self.parameters)
 
         settings = {
             'calibration_mode': self.calibration_mode,
@@ -233,9 +237,9 @@ class Calibration:
             'weighting': self.weighting_path,
             'file_path': output_dir
         }
-        fitting.configure(settings)
+        self.fitting.configure(settings)
 
-        prob = pg.problem(fitting)
+        prob = pg.problem(self.fitting)
         opt_algorithm = self.algorithm.get_algorithm()
         algo = pg.algorithm(opt_algorithm)
 
@@ -270,12 +274,27 @@ class Calibration:
             champion_f = [pop.champion_f]
             champion_x = [pop.champion_x]
 
-        res = []                                    # type: list
-
-        fitting.file_matching_renaming()
-
+        self.fitting.file_matching_renaming()
+        res = []  # type: list
         for f, x in zip(champion_f, champion_x):
-            res += [fitting.get_results(overall_fitness=f, parameter=x)]
+            res += [self.fitting.get_results(overall_fitness=f, parameter=x)]
 
         logger.info('Calibration ended.')
         return res
+
+    def post_processing(self, calib_results: list, output: Outputs):
+        """TBW."""
+        for item in calib_results:
+            proc_list = item[0]
+            result_dict = item[1]
+
+            output.calibration_outputs(processor_list=proc_list)
+
+            ii = 0
+            for processor, target_data in zip(proc_list, self.fitting.all_target_data):
+                simulated_data = self.fitting.get_simulated_data(processor)
+                output.fitting_plot(target_data=target_data, simulated_data=simulated_data, data_i=ii)
+                ii += 1
+            output.fitting_plot_close(result_type=self.result_type, island=result_dict['island'])
+
+        output.calibration_plots(calib_results[0][1])

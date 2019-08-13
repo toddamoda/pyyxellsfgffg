@@ -61,9 +61,7 @@ def run(input_filename, random_seed: int = None):
         logger.info('Mode: Calibration')
         results = simulation.calibration.run_calibration(processor, out.output_dir)
         if out:
-            for item in results:
-                out.calibration_outputs(processor_list=item[0])
-            out.calibration_plots(results[0][1])
+            simulation.calibration.post_processing(calib_results=results, output=out)
 
     elif simulation.mode == 'parametric' and simulation.parametric:
         logger.info('Mode: Parametric')

@@ -285,7 +285,7 @@ class Outputs:
                 b = len(param_value)
                 column = data[:, a:a + b]
                 self.plot_graph(generations, column, args=plt_args)
-                plt.legend(range(b))
+                plt.legend(['index ' + str(i) for i in range(b)])
 
             self.save_plot('calibrated_' + str(param_name) + '_id' + str(island_id))
             a += b
@@ -334,6 +334,29 @@ class Outputs:
                         self.user_plt_args = self.calibration_plot['population_plot']['plot_args']
                 for iid, file_pop in enumerate(glob(self.output_dir + '/population_id*.out')):
                     self.population_plot(file_pop, iid)
+
+    def fitting_plot(self, target_data, simulated_data, data_i):
+        """TBW."""
+        if self.calibration_plot:
+            if 'fitting_plot' in self.calibration_plot:
+                plt.plot(target_data, '.-', label='target data #' + str(data_i))
+                plt.plot(simulated_data, '.-', label='simulated data #' + str(data_i))
+                plt.draw()
+
+    def fitting_plot_close(self, result_type, island):
+        """TBW."""
+        if self.calibration_plot:
+            if 'fitting_plot' in self.calibration_plot:
+                self.user_plt_args = None
+                if self.calibration_plot['fitting_plot']:
+                    if 'plot_args' in self.calibration_plot['fitting_plot']:
+                        self.user_plt_args = self.calibration_plot['fitting_plot']['plot_args']
+                args = {'title': 'Target and Simulated (' + result_type + ') data, island ' + str(island)}
+                arg_tpl = self.update_args(plot_type='graph', new_args=args)
+                ax_args, plt_args = self.update_args(plot_type='graph', new_args=self.user_plt_args, def_args=arg_tpl)
+                update_plot(ax_args)
+                plt.legend()
+                self.save_plot(filename='fitted_datasets_id' + str(island))
 
     def params_func(self, param):
         """TBW."""

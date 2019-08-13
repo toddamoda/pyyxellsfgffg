@@ -171,7 +171,8 @@ class ModelFitting:
     def batch_fitness(self, population_parameter_vector):
         """Batch Fitness Evaluation.
 
-        PYGMO BFE IS STILL NOT FULLY IMPLEMENTED, THEREFORE THIS FUNC CAN NOT BE USED YET."""
+        PYGMO BFE IS STILL NOT FULLY IMPLEMENTED, THEREFORE THIS FUNC CAN NOT BE USED YET.
+        """
         logger = logging.getLogger('pyxel')
         logger.info('batch_fitness() called with %s ' % population_parameter_vector)
         fitness_vector = []
@@ -313,43 +314,31 @@ class ModelFitting:
         results = OrderedDict()
         results['fitness'] = overall_fitness[0]
 
-        import matplotlib.pyplot as plt
-        plt.figure()
-
         parameter = self.update_parameter(parameter)
-        champion_list = deepcopy(self.param_processor_list)
 
-        s = np.c_[overall_fitness, parameter.reshape(1, len(parameter))]
-        np.set_printoptions(formatter={'float': '{: .6E}'.format}, suppress=False)
-        sss = np.array2string(s, separator='', suppress_small=False)
-        sss = sss.replace('\n', '').replace('   ', ' ').replace('  ', ' ').replace('[[ ', '').replace(']]', '')
-        sss = sss.split(' ')
-        island = -1
-        for k, v in self.match.items():
-            if sss == v:
-                island = k
-                break
-        if island == -1:
-            raise RuntimeError()
+        if self.file_path:
+            s = np.c_[overall_fitness, parameter.reshape(1, len(parameter))]
+            np.set_printoptions(formatter={'float': '{: .6E}'.format}, suppress=False)
+            sss = np.array2string(s, separator='', suppress_small=False)
+            sss = sss.replace('\n', '').replace('   ', ' ').replace('  ', ' ').replace('[[ ', '').replace(']]', '')
+            sss = sss.split(' ')
+            island = -1
+            for k, v in self.match.items():
+                if sss == v:
+                    island = k
+                    break
+            if island == -1:
+                raise RuntimeError()
+        else:
+            island = 0
         results['island'] = island
         logger.info('Post-processing island %d, champion fitness: %1.5e' % (island, overall_fitness[0]))
 
-        ii = 0
-        of = 0
+        champion_list = deepcopy(self.param_processor_list)
         for processor, target_data in zip(champion_list, self.all_target_data):
             processor = self.update_processor(parameter, processor)
-            result_proc = None
             if self.calibration_mode == 'pipeline':
-                result_proc = processor.run_pipeline()
-            simulated_data = self.get_simulated_data(result_proc)
-            of += self.calculate_fitness(simulated_data, target_data)
-            plt.plot(target_data, '.-', label='target data #' + str(ii))
-            plt.plot(simulated_data, '.-', label='simulated (' + self.sim_output + ') data #' + str(ii))
-            ii += 1
-        plt.legend()
-        plt.title('Target and Simulated (' + self.sim_output + ') data, island ' + str(island))
-        plt.savefig(self.file_path + '/fitted_datasets_id' + str(island) + '.png')
-        # plt.show()
+                processor.run_pipeline()
 
         a, b = 0, 0
         for var in self.variables:
