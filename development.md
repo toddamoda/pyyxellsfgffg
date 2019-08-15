@@ -24,7 +24,7 @@ Models
 ---------
 
 * New models:
-  * HxRG models: SAR ADC, Full Well, Dark current, noises - by Benoit Serra (ESO)  `ongoing`
+  * HxRG models: SAR ADC, Full Well, Dark current, noises - by Benoit Serra  `ongoing`
   * CERN Allpix-Squared framework to simulate charge diffusion
   * GalSim to generate images of astronomical objects (low priority)
   * Simple models: general CCD charge transfer model, Full Well, Non-linearity, PRNU, Photoelectric, Diffusion, Charge Injection, RTG, SEE, ADC, Quantization, Electric fields inside pixels, crosstalk
@@ -42,8 +42,7 @@ User Interfaces
 ------------------
 
 * Design and implement a Terminal User Interface (low priority)
-* Design and implement a Graphical User Interface with Hans Smit (ESA) (low priority)
-* Multi-user web interface (internal to ESA), Kubernetes (low priority)
+* Design and implement a Graphical User Interface with Hans Smit (low priority)
 
 Beta testing 
 --------------

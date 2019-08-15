@@ -1,6 +1,3 @@
-#   --------------------------------------------------------------------------
-#   Copyright 2019 SCI-FIV, ESA (European Space Agency)
-#   --------------------------------------------------------------------------
 """Simple model to load charge profiles."""
 import logging
 import numpy as np

@@ -1,6 +1,3 @@
-#   --------------------------------------------------------------------------
-#   Copyright 2019 SCI-FIV, ESA (European Space Agency)
-#   --------------------------------------------------------------------------
 """CMOS detector modeling class."""
 
 from pyxel.detectors.detector import Detector

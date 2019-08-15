@@ -1,6 +1,4 @@
-#   --------------------------------------------------------------------------
-#   Copyright 2019 SCI-FIV, ESA (European Space Agency)
-#   --------------------------------------------------------------------------
+
 """Pyxel full well models."""
 import logging
 from pyxel.detectors.detector import Detector

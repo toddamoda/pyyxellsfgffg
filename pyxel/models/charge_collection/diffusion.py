@@ -1,6 +1,3 @@
-#   --------------------------------------------------------------------------
-#   Copyright 2019 SCI-FIV, ESA (European Space Agency)
-#   --------------------------------------------------------------------------
 """Pyxel charge diffusion and collection model extracted from TARS."""
 # import logging
 # from math import sqrt, log
