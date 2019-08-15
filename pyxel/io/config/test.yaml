@@ -7,44 +7,44 @@ simulation:
  mode: single
 # mode: parametric
 
- parametric:
-#   parametric_mode: parallel
-#   parametric_mode: embedded
-   parametric_mode: sequential
-   parameters:
-     - key: pipeline.photon_generation.illumination.arguments.level
-       values: numpy.unique(numpy.logspace(3, 6, 10, dtype=int))
-     - key: detector.characteristics.sv
-       values: numpy.unique(numpy.linspace(1.e-6, 1.e-3, 10, dtype=float))
+# parametric:
+##   parametric_mode: parallel
+##   parametric_mode: embedded
+#   parametric_mode: sequential
+#   parameters:
+#     - key: pipeline.photon_generation.illumination.arguments.level
+#       values: numpy.unique(numpy.logspace(3, 6, 10, dtype=int))
+#     - key: detector.characteristics.sv
+#       values: numpy.unique(numpy.linspace(1.e-6, 1.e-3, 10, dtype=float))
 
  outputs:
    output_folder:  'outputs'
 
    save_data_to_file:         # ONLY IN SINGLE MODE
      - detector.image.array:   [fits]
-     - detector.signal.array:  [npy, txt]
-     - detector.charge.frame:  [csv]
-     - detector:               [hdf]
+#     - detector.signal.array:  [npy, txt]
+#     - detector.charge.frame:  [csv]
+#     - detector:               [hdf]
 
-   save_parameter_to_file:    # ONLY IN PARAMETRIC MODE
-     file_format:              [txt, npy, csv]
-     parameter:
-       - detector.image.mean
-       - detector.image.std_deviation
-       - pipeline.photon_generation.illumination.arguments.level
-
-   parametric_plot:
-#     x:  'detector.characteristics.sv'
-##     x:  'pipeline.photon_generation.illumination.arguments.level'
-     x:  'detector.image.mean'
-     y:  'detector.image.std_deviation'
-     plot_args:
-       title: 'Curve'
-       xscale: 'log'
-       yscale: 'log'
-#       xlim: [1., 2.e+6]
-#       ylim: [1., 3.e+4]
-       grid: true
+#   save_parameter_to_file:    # ONLY IN PARAMETRIC MODE
+#     file_format:              [txt, npy, csv]
+#     parameter:
+#       - detector.image.mean
+#       - detector.image.std_deviation
+#       - pipeline.photon_generation.illumination.arguments.level
+#
+#   parametric_plot:
+##     x:  'detector.characteristics.sv'
+###     x:  'pipeline.photon_generation.illumination.arguments.level'
+#     x:  'detector.image.mean'
+#     y:  'detector.image.std_deviation'
+#     plot_args:
+#       title: 'Curve'
+#       xscale: 'log'
+#       yscale: 'log'
+##       xlim: [1., 2.e+6]
+##       ylim: [1., 3.e+4]
+#       grid: true
 
 ccd_detector:
 
@@ -69,11 +69,6 @@ ccd_detector:
     a1: 100.                # V/V
     a2: 100                 # DN/V
     fwc: 1000000            # e
-    fwc_serial: 1000000     # e
-    vg: 1.6200e-10          # cm2
-    svg: 1.6200e-10         # cm2
-    t: 9.4722e-04           # s
-    st: 9.4722e-04          # s
 
 pipeline:
 
@@ -96,7 +91,7 @@ pipeline:
           hole_center: [50, 50]
     - name: shot_noise
       func: pyxel.models.photon_generation.shot_noise.shot_noise
-      enabled: true
+      enabled: false
 
   # photon -> photon
   optics:
@@ -128,31 +123,52 @@ pipeline:
 
     - name: photoelectrons
       func: pyxel.models.charge_generation.photoelectrons.simple_conversion
-      enabled: true
-    - name: charge_injection
-      func: pyxel.models.charge_generation.charge_injection.charge_blocks
       enabled: false
+
+    - name: darkcurrent
+      func: pyxel.models.charge_generation.dark_current.dark_current_rule07
+      enabled: false
+
+    - name: charge_profile
+      func: pyxel.models.charge_generation.load_profile.charge_profile
+      enabled: false
+      arguments:
+        txt_file: data/flex_calib/flex_input/input_flex_ds7_ch0_1ke.txt
+        fit_profile_to_det: true
+
+    - name: charge_blocks
+      func: pyxel.models.charge_generation.charge_injection.charge_blocks
+      enabled: true
       arguments:
         charge_level: 1230
-        columns: [30, 50, 60]
-    - name: tars
-      func: pyxel.models.charge_generation.tars.tars.run_tars
-      enabled: false
+        block_start: 10
+        block_end: 20
+    - name: charge_blocks
+      func: pyxel.models.charge_generation.charge_injection.charge_blocks
+      enabled: true
       arguments:
-        simulation_mode: cosmic_ray
-        running_mode: stepsize
-        particle_type: proton
-        initial_energy: 100.   # MeV
-        particle_number: 2
-        incident_angles:      # rad
-        starting_position:    # um
-        spectrum_file: pyxel/models/charge_generation/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt
+        charge_level: 560
+        block_start: 40
+        block_end: 60
+
+#    - name: tars
+#      func: pyxel.models.charge_generation.tars.tars.run_tars
+#      enabled: false
+#      arguments:
+#        simulation_mode: cosmic_ray
+#        running_mode: stepsize
+#        particle_type: proton
+#        initial_energy: 100.   # MeV
+#        particle_number: 2
+#        incident_angles:      # rad
+#        starting_position:    # um
+#        spectrum_file: pyxel/models/charge_generation/tars/data/inputs/proton_L2_solarMax_11mm_Shielding.txt
 
   # charge -> pixel
   charge_collection:
     - name: fixed_pattern_noise
       func: pyxel.models.charge_collection.fix_pattern_noise.fix_pattern_noise
-      enabled: true
+      enabled: false
       arguments:
         pixel_non_uniformity: data/pixel_non_uniformity.npy
     - name: full_well
@@ -187,7 +203,7 @@ pipeline:
       enabled: true
     - name: output_node_noise
       func: pyxel.models.charge_measurement.readout_noise.output_node_noise
-      enabled: true
+      enabled: false
       arguments:
         std_deviation: 5.e-5
 

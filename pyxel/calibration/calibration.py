@@ -1,19 +1,16 @@
 """TBW."""
 import logging
-
 import numpy as np
-
 try:
     import pygmo as pg
 except ImportError:
     import warnings
     warnings.warn("Cannot import 'pygmo", RuntimeWarning, stacklevel=2)
-
+from ..util.outputs import Outputs
 from ..util import validators, config
 from pyxel.calibration.fitting import ModelFitting
 from pyxel.pipelines.model_function import ModelFunction
 from pyxel.pipelines.processor import Processor
-from pyxel.util import Outputs
 
 
 @config.detector_class
@@ -134,6 +131,8 @@ class Calibration:
     :return:
     """
 
+    output_dir = None
+    fitting = None          # type: ModelFitting
     calibration_mode = config.attribute(
         type=str,
         validator=[validators.validate_type(str),
@@ -197,6 +196,13 @@ class Calibration:
         default=np.random.randint(0, 100000),
         doc=''
     )
+    islands = config.attribute(
+        type=int,
+        validator=[validators.validate_type(int),
+                   validators.validate_range(0, 100)],
+        default=0,
+        doc=''
+    )
     weighting_path = config.attribute(
         type=list,
         # validator=[validators.validate_type(list)],  # todo
@@ -204,22 +210,19 @@ class Calibration:
         doc=''
     )
 
-    def run_calibration(self, processor: Processor,
-                        output: Outputs = None):
+    def run_calibration(self, processor: Processor, output_dir: str = None):
         """TBW.
 
         :param processor: Processor object
-        :param output: Output object
+        :param output_dir: Output object
         :return:
         """
         pg.set_global_rng_seed(seed=self.seed)
         logger = logging.getLogger('pyxel')
         logger.info('Seed: %d' % self.seed)
-        output_files = (None, None)
-        if output:
-            output_files = output.create_files()
 
-        fitting = ModelFitting(processor, self.parameters)
+        self.output_dir = output_dir
+        self.fitting = ModelFitting(processor, self.parameters)
 
         settings = {
             'calibration_mode': self.calibration_mode,
@@ -232,18 +235,66 @@ class Calibration:
             'out_fit_range': self.result_fit_range,
             'input_arguments': self.result_input_arguments,
             'weighting': self.weighting_path,
-            'champions_file': output_files[0],
-            'population_file': output_files[1]
+            'file_path': output_dir
         }
-        fitting.configure(settings)
+        self.fitting.configure(settings)
 
-        prob = pg.problem(fitting)
+        prob = pg.problem(self.fitting)
         opt_algorithm = self.algorithm.get_algorithm()
         algo = pg.algorithm(opt_algorithm)
-        pop = pg.population(prob, size=self.algorithm.population_size)
-        pop = algo.evolve(pop)
 
-        champion_f = pop.champion_f
-        champion_x = pop.champion_x
-        return fitting.get_results(fitness=champion_f,
-                                   parameter=champion_x)
+        # try:
+        #     bfe = pg.bfe(udbfe=pg.member_bfe())
+        # except AttributeError:
+        #     bfe = None
+        #
+        # try:
+        #     archi = pg.archipelago(n=self.islands, algo=algo, prob=prob, b=bfe,
+        #                            pop_size=self.algorithm.population_size, udi=pg.mp_island())
+        # except KeyError:
+        #     archi = pg.archipelago(n=self.islands, algo=algo, prob=prob,
+        #                            pop_size=self.algorithm.population_size, udi=pg.mp_island())
+        #
+        # try:
+        #     pop = pg.population(prob=prob, size=self.algorithm.population_size, b=bfe)
+        # except TypeError:
+        #     pop = pg.population(prob=prob, size=self.algorithm.population_size)
+
+        if self.islands > 1:  # default
+            archi = pg.archipelago(n=self.islands, algo=algo, prob=prob,
+                                   pop_size=self.algorithm.population_size, udi=pg.mp_island())
+            archi.evolve()
+            logger.info(archi)
+            archi.wait_check()
+            champion_f = archi.get_champions_f()
+            champion_x = archi.get_champions_x()
+        else:
+            pop = pg.population(prob=prob, size=self.algorithm.population_size)
+            pop = algo.evolve(pop)
+            champion_f = [pop.champion_f]
+            champion_x = [pop.champion_x]
+
+        self.fitting.file_matching_renaming()
+        res = []  # type: list
+        for f, x in zip(champion_f, champion_x):
+            res += [self.fitting.get_results(overall_fitness=f, parameter=x)]
+
+        logger.info('Calibration ended.')
+        return res
+
+    def post_processing(self, calib_results: list, output: Outputs):
+        """TBW."""
+        for item in calib_results:
+            proc_list = item[0]
+            result_dict = item[1]
+
+            output.calibration_outputs(processor_list=proc_list)
+
+            ii = 0
+            for processor, target_data in zip(proc_list, self.fitting.all_target_data):
+                simulated_data = self.fitting.get_simulated_data(processor)
+                output.fitting_plot(target_data=target_data, simulated_data=simulated_data, data_i=ii)
+                ii += 1
+            output.fitting_plot_close(result_type=self.result_type, island=result_dict['island'])
+
+        output.calibration_plots(calib_results[0][1])

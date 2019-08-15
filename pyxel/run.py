@@ -1,6 +1,3 @@
-#   --------------------------------------------------------------------------
-#   Copyright 2019 SCI-FIV, ESA (European Space Agency)
-#   --------------------------------------------------------------------------
 """Pyxel detector simulation framework.
 
 Pyxel is a detector simulation framework, that can simulate a variety of
@@ -59,10 +56,9 @@ def run(input_filename, random_seed: int = None):
 
     elif simulation.mode == 'calibration' and simulation.calibration:
         logger.info('Mode: Calibration')
-        processor, results = simulation.calibration.run_calibration(processor, out)
-        logger.info('Champion fitness:   %1.5e' % results['fitness'])
+        results = simulation.calibration.run_calibration(processor, out.output_dir)
         if out:
-            out.calibration_output(processor=processor, results=results)
+            simulation.calibration.post_processing(calib_results=results, output=out)
 
     elif simulation.mode == 'parametric' and simulation.parametric:
         logger.info('Mode: Parametric')

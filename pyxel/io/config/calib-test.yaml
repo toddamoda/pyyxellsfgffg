@@ -10,39 +10,68 @@ simulation:
 
   mode: calibration
 
+#  mode: parametric
+#  parametric:
+#    parametric_mode: sequential
+#    parameters:
+#      - key: detector.characteristics.sv
+#        values: numpy.unique(numpy.linspace(1.e-6, 1.e-3, 10, dtype=float))
+
   calibration:
     calibration_mode:     pipeline
-    result_type:          image
-    result_fit_range:     [0, 100, 0, 100]
-    target_data_path:     ['examples/CTI/input_data/cti_noisy/data.fits']
-    target_fit_range:     [0, 100, 0, 100]
-    seed:                 10711
+    result_type:          pixel
+    result_fit_range:     [537, 835, 0, 1]
+    result_input_arguments:
+      - key: pipeline.charge_generation.charge_profile.arguments.txt_file
+        values: [data/flex_calib/flex_input/input_flex_ds7_ch0_1ke.txt,
+                 data/flex_calib/flex_input/input_flex_ds7_ch0_3ke.txt,
+                 data/flex_calib/flex_input/input_flex_ds7_ch0_7ke.txt]
+
+    target_data_path:    ['data/flex_calib/flex_target_data/target_flex_ds7_ch0_1ke.txt',
+                          'data/flex_calib/flex_target_data/target_flex_ds7_ch0_3ke.txt',
+                          'data/flex_calib/flex_target_data/target_flex_ds7_ch0_7ke.txt']
+    target_fit_range:     [537, 835, 0, 1]
+
+    seed:                 22222
+    islands:              3
     fitness_function:
       func:               pyxel.calibration.fitness.sum_of_abs_residuals
       arguments:
     algorithm:
       type:               sade
-      generations:        30
-      population_size:    30
+      generations:        50
+      population_size:    200
       variant:            2
     parameters:
       - key:              pipeline.charge_transfer.cdm.arguments.beta_p
         values:           _
         logarithmic:      false
-        boundaries:       [0., 1.]
+        boundaries:       [0.1, 0.9]
+      - key:              pipeline.charge_transfer.cdm.arguments.tr_p
+        values:           [_, _, _]
+        logarithmic:      true
+        boundaries:       [1.e-5, 1.e-1]
+      - key:              pipeline.charge_transfer.cdm.arguments.nt_p
+        values:           [_, _, _]
+        logarithmic:      true
+        boundaries:       [1.e-3, 1.e+1]
 
   outputs:
-    output_folder:        'examples/CTI/output'
+    output_folder:        'outputs'
+#    save_data_to_file:
+#      - detector.image.array:   [fits]
     calibration_plot:
       champions_plot:
       population_plot:
+        columns: [3, 5]
+      fitting_plot:
 
 ccd_detector:
 
   geometry:
 
-    row:   100                  # pixel
-    col:   100                  # pixel
+    row:   835                  # pixel
+    col:   1                    # pixel
     total_thickness: 40.        # um
     pixel_vert_size: 10.        # um
     pixel_horz_size: 10.        # um
@@ -77,13 +106,12 @@ pipeline:
 
   # photon -> charge
   charge_generation:
-    - name: charge_injection
-      func: pyxel.models.charge_generation.charge_injection.charge_blocks
+    - name: charge_profile
+      func: pyxel.models.charge_generation.load_profile.charge_profile
       enabled: true
       arguments:
-        charge_level: 100000
-        block_start: 70
-        block_end: 80
+        txt_file: _ # Changing this via Calibration module!
+        fit_profile_to_det: true
 
   # charge -> pixel
   charge_collection:
@@ -98,9 +126,9 @@ pipeline:
       enabled: true
       arguments:
         parallel_cti: true
-        serial_cti: true
+        serial_cti: false
         charge_injection: true
-        beta_p: 0.                    # calibrating this parameter
+        beta_p: 0.3                    # calibrating this parameter
         beta_s: 0.3
         tr_p: [5.e-3]
         tr_s: [2.e-3]
@@ -121,11 +149,5 @@ pipeline:
       func: pyxel.models.readout_electronics.amplification.simple_amplifier
       enabled: true
     - name: simple_digitization
-      func: pyxel.models.readout_electronics.digitization.simple_digitization
+      func: pyxel.models.readout_electronics.digitization.simple_processing
       enabled: true
-      arguments:
-        data_type: numpy.uint32
-
-
-
-

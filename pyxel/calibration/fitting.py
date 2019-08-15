@@ -2,8 +2,12 @@
 
 https://esa.github.io/pagmo2/index.html
 """
+import os
 import logging
+from glob import glob
+from operator import add
 from copy import deepcopy
+from dask import delayed
 from collections import OrderedDict
 import typing as t   # noqa: F401
 import numpy as np
@@ -17,8 +21,6 @@ class ModelFitting:
 
     def __init__(self, processor, variables: t.List[ParameterValues]):
         """TBW."""
-        # self.logger = logging.getLogger('pyxel')
-
         self.processor = processor          # type: Processor
         self.variables = variables          # type: t.List[ParameterValues]
 
@@ -37,8 +39,7 @@ class ModelFitting:
         self.n = 0
         self.g = 0
 
-        self.champions_file = ''            # type: str
-        self.pop_file = ''                  # type: str
+        self.file_path = ''                 # type: str
 
         self.fitness_array = None
         self.population = None
@@ -50,6 +51,8 @@ class ModelFitting:
 
         self.sim_fit_range = None
         self.targ_fit_range = None
+
+        self.match = {}                     # type: dict
 
         # self.normalization = False
         # self.target_data_norm = []
@@ -68,7 +71,6 @@ class ModelFitting:
         :return:
         """
         logger = logging.getLogger('pyxel')
-
         self.calibration_mode = setting['calibration_mode']
         self.sim_output = setting['simulation_output']
         self.fitness_func = setting['fitness_func']
@@ -107,8 +109,7 @@ class ModelFitting:
             params += b
         self.champion_f_list = np.zeros((1, 1))
         self.champion_x_list = np.zeros((1, params))
-        self.champions_file = setting['champions_file']
-        self.pop_file = setting['population_file']
+        self.file_path = setting['file_path']
 
         target_list = read_data(setting['target_output'])
         try:
@@ -156,6 +157,48 @@ class ModelFitting:
                 raise ValueError('Character "_" (or a list of it) should be used to '
                                  'indicate variables need to be calibrated')
 
+    def get_simulated_data(self, processor):
+        """TBW."""
+        simulated_data = None
+        if self.sim_output == 'image':
+            simulated_data = processor.detector.image.array[self.sim_fit_range]
+        elif self.sim_output == 'signal':
+            simulated_data = processor.detector.signal.array[self.sim_fit_range]
+        elif self.sim_output == 'pixel':
+            simulated_data = processor.detector.pixel.array[self.sim_fit_range]
+        return simulated_data
+
+    def batch_fitness(self, population_parameter_vector):
+        """Batch Fitness Evaluation.
+
+        PYGMO BFE IS STILL NOT FULLY IMPLEMENTED, THEREFORE THIS FUNC CAN NOT BE USED YET.
+        """
+        logger = logging.getLogger('pyxel')
+        logger.info('batch_fitness() called with %s ' % population_parameter_vector)
+        fitness_vector = []
+        for parameter in population_parameter_vector:
+            overall_fitness = 0.
+            parameter = self.update_parameter([parameter])
+            processor_list = deepcopy(self.param_processor_list)
+            for processor, target_data in zip(processor_list, self.all_target_data):
+                # processor = self.update_processor(parameter, processor)
+                processor = delayed(self.update_processor)(parameter, processor)
+                # result_proc = processor.run_pipeline()
+                result_proc = delayed(processor.run_pipeline)()
+                # simulated_data = self.get_simulated_data(result_proc)
+                simulated_data = delayed(self.get_simulated_data)(result_proc)
+                # fitness = self.calculate_fitness(simulated_data, target_data)
+                fitness = delayed(self.calculate_fitness)(simulated_data, target_data)
+                # overall_fitness = add(overall_fitness, fitness)
+                overall_fitness = delayed(add)(overall_fitness, fitness)
+            fitness_vector.append(overall_fitness)  # overall fitness per individual for the full population
+        # fitness_vector = self.merge(fitness_vector)
+        fitness_vector = delayed(merge_fitness)(fitness_vector)
+        # population_fitness_vector = fitness_vector
+        population_fitness_vector = fitness_vector.compute()
+
+        return population_fitness_vector
+
     def calculate_fitness(self, simulated_data, target_data):
         """TBW.
 
@@ -175,6 +218,9 @@ class ModelFitting:
         :param parameter: 1d np.array
         :return:
         """
+        logger = logging.getLogger('pyxel')
+        prev_log_level = logger.getEffectiveLevel()
+
         parameter = self.update_parameter(parameter)
         processor_list = deepcopy(self.param_processor_list)
 
@@ -182,23 +228,27 @@ class ModelFitting:
         for processor, target_data in zip(processor_list, self.all_target_data):
 
             processor = self.update_processor(parameter, processor)
+
+            logger.setLevel(logging.WARNING)
+            result_proc = None
             if self.calibration_mode == 'pipeline':
-                # processor.pipeline.run_pipeline(processor.detector)
-                processor.run_pipeline()
+                result_proc = processor.run_pipeline()
             # elif self.calibration_mode == 'single_model':
             #     self.fitted_model.function(processor.detector)               # todo: update
+            logger.setLevel(prev_log_level)
 
-            simulated_data = None
-            if self.sim_output == 'image':
-                simulated_data = processor.detector.image.array[self.sim_fit_range]
-            elif self.sim_output == 'signal':
-                simulated_data = processor.detector.signal.array[self.sim_fit_range]
-            elif self.sim_output == 'pixel':
-                simulated_data = processor.detector.pixel.array[self.sim_fit_range]
+            simulated_data = self.get_simulated_data(result_proc)
 
             overall_fitness += self.calculate_fitness(simulated_data, target_data)
 
-        self.population_and_champions(parameter, overall_fitness)
+        self.save_population(parameter, overall_fitness)
+
+        if (self.n + 1) % self.pop == 0:
+            logger.info('%d. generation' % self.g)
+            self.champion_to_file(parameter)
+            self.g += 1
+
+        self.n += 1
 
         return [overall_fitness]
 
@@ -236,24 +286,60 @@ class ModelFitting:
             a += b
         return new_processor
 
-    def get_results(self, fitness, parameter):
+    def file_matching_renaming(self):
+        """TBW."""
+        if self.file_path:
+            output_champion_files = glob(self.file_path + '/champions_id_*.out')
+            for ii, chfile in enumerate(output_champion_files):
+                lastline = None
+                for lastline in open(chfile):
+                    pass
+                lastline = lastline.replace('\n', '')
+                lastline = lastline.split(' ')[1:]
+                self.match[ii] = lastline
+                os.rename(chfile, self.file_path + '/champions_id' + str(ii) + '.out')
+                aw = chfile[chfile.rfind('champions_id_'):chfile.rfind('.out')]
+                fid = aw.split('_')[-1]
+                popfile = glob(self.file_path + '/population_id_' + str(fid) + '.out')[0]
+                os.rename(popfile, self.file_path + '/population_id' + str(ii) + '.out')
+
+    def get_results(self, overall_fitness, parameter):
         """TBW.
 
-        :param fitness:
+        :param overall_fitness:
         :param parameter:
         :return:
         """
-        parameter = self.update_parameter(parameter)        # todo : duplicated code, see fitness!
-        new_processor = deepcopy(self.original_processor)  # TODO TODO
-        champion = self.update_processor(parameter, new_processor)
-        if self.calibration_mode == 'pipeline':
-            # champion.pipeline.run_pipeline(champion.detector)
-            champion.run_pipeline()
-        # elif self.calibration_mode == 'single_model':
-        #     self.fitted_model.function(champion.detector)               # todo: update
-
+        logger = logging.getLogger('pyxel')
         results = OrderedDict()
-        results['fitness'] = fitness[0]
+        results['fitness'] = overall_fitness[0]
+
+        parameter = self.update_parameter(parameter)
+
+        if self.file_path:
+            s = np.c_[overall_fitness, parameter.reshape(1, len(parameter))]
+            np.set_printoptions(formatter={'float': '{: .6E}'.format}, suppress=False)
+            sss = np.array2string(s, separator='', suppress_small=False)
+            sss = sss.replace('\n', '').replace('   ', ' ').replace('  ', ' ').replace('[[ ', '').replace(']]', '')
+            sss = sss.split(' ')
+            island = -1
+            for k, v in self.match.items():
+                if sss == v:
+                    island = k
+                    break
+            if island == -1:
+                raise RuntimeError()
+        else:
+            island = 0
+        results['island'] = island
+        logger.info('Post-processing island %d, champion fitness: %1.5e' % (island, overall_fitness[0]))
+
+        champion_list = deepcopy(self.param_processor_list)
+        for processor, target_data in zip(champion_list, self.all_target_data):
+            processor = self.update_processor(parameter, processor)
+            if self.calibration_mode == 'pipeline':
+                processor.run_pipeline()
+
         a, b = 0, 0
         for var in self.variables:
             if var.values == '_':
@@ -264,18 +350,42 @@ class ModelFitting:
                 results[var.key] = parameter[a:a + b]
             a += b
 
-        return champion, results
+        return champion_list, results
 
-    def population_and_champions(self, parameter, overall_fitness):
-        """Get champion (also population) of each generation and write it to output file(s).
+    def champion_to_file(self, parameter):
+        """Get champion of each generation and write it to output files together with last population.
+
+        :return:
+        """
+        best_index = np.argmin(self.fitness_array)
+
+        if self.g == 0:
+            self.champion_f_list[self.g] = self.fitness_array[best_index]
+            self.champion_x_list[self.g] = self.population[best_index, :]
+        else:
+            best_champ_index = np.argmin(self.champion_f_list)
+
+            if self.fitness_array[best_index] < self.champion_f_list[best_champ_index]:
+                self.champion_f_list = np.vstack((self.champion_f_list, self.fitness_array[best_index]))
+                self.champion_x_list = np.vstack((self.champion_x_list, self.population[best_index]))
+            else:
+                self.champion_f_list = np.vstack((self.champion_f_list, self.champion_f_list[-1]))
+                self.champion_x_list = np.vstack((self.champion_x_list, self.champion_x_list[-1]))
+
+        # TODO: should we keep and write to file the population(s) which had the champion inside?
+        # because usually this is not the last population currently we save to file!
+
+        if self.file_path and self.g > 0:
+            self.add_to_champ_file(parameter)
+            self.add_to_pop_file(parameter)
+
+    def save_population(self, parameter, overall_fitness):
+        """Save population of each generation to get champions.
 
         :param parameter: 1d np.array
         :param overall_fitness: list
         :return:
         """
-        # if self.champion_file is None:
-        #     self.champion_file = 'champion_id' + str(id(self)) + '.out'
-
         if self.n % self.pop == 0:
             self.fitness_array = np.array([overall_fitness])
             self.population = parameter
@@ -283,43 +393,25 @@ class ModelFitting:
             self.fitness_array = np.vstack((self.fitness_array, np.array([overall_fitness])))
             self.population = np.vstack((self.population, parameter))
 
-        if (self.n + 1) % self.pop == 0:
+    def add_to_champ_file(self, parameter):
+        """TBW."""
+        champions_file = self.file_path + '/champions_id_' + str(id(self)) + '.out'
+        str_format = '%d' + (len(parameter) + 1) * ' %.6E'
+        with open(champions_file, 'ab') as file1:
+            np.savetxt(file1,
+                       np.c_[np.array([self.g]), self.champion_f_list[self.g],
+                             self.champion_x_list[self.g, :].reshape(1, len(parameter))],
+                       fmt=str_format)
 
-            best_index = np.argmin(self.fitness_array)
-
-            if self.g == 0:
-                self.champion_f_list[self.g] = self.fitness_array[best_index]
-                self.champion_x_list[self.g] = self.population[best_index, :]
-            else:
-                best_champ_index = np.argmin(self.champion_f_list)
-
-                if self.fitness_array[best_index] <= self.champion_f_list[best_champ_index]:
-                    self.champion_f_list = np.vstack((self.champion_f_list, self.fitness_array[best_index]))
-                    self.champion_x_list = np.vstack((self.champion_x_list, self.population[best_index]))
-                else:
-                    self.champion_f_list = np.vstack((self.champion_f_list, self.champion_f_list[-1]))
-                    self.champion_x_list = np.vstack((self.champion_x_list, self.champion_x_list[-1]))
-
-            str_format = '%d' + (len(parameter) + 1) * ' %.6E'
-
-            if self.champions_file:
-                with open(self.champions_file, 'ab') as file1:
-                    np.savetxt(file1, np.c_[np.array([self.g]),
-                                            self.champion_f_list[self.g],
-                                            self.champion_x_list[self.g, :].reshape(1, len(parameter))],
-                               fmt=str_format)
-
-            if self.pop_file:
-                if self.g == self.generations:
-                    with open(self.pop_file, 'ab') as file2:
-                        np.savetxt(file2, np.c_[self.g * np.ones(self.fitness_array.shape),
-                                                self.fitness_array,
-                                                self.population],
-                                   fmt=str_format)
-
-            self.g += 1
-
-        self.n += 1
+    def add_to_pop_file(self, parameter):
+        """TBW."""
+        pop_file = self.file_path + '/population_id_' + str(id(self)) + '.out'
+        str_format = '%d' + (len(parameter) + 1) * ' %.6E'
+        with open(pop_file, 'wb') as file2:
+            np.savetxt(file2,
+                       np.c_[self.g * np.ones(self.fitness_array.shape),
+                             self.fitness_array, self.population],
+                       fmt=str_format)
 
     # def least_squares(self, simulated_data, dataset=None):
     #     """TBW.
@@ -364,3 +456,8 @@ class ModelFitting:
     #     :return:
     #     """
     #     return array / np.average(self.target_data[dataset][self.targ_fit_range])
+
+
+def merge_fitness(f):
+    """TBW."""
+    return f

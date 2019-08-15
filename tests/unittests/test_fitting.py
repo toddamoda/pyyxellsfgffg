@@ -11,6 +11,7 @@ try:
 except ImportError:
     WITH_PYGMO = False
 
+
 def configure(mf, sim):
     """TBW."""
     pg.set_global_rng_seed(sim.calibration.seed)
@@ -25,8 +26,7 @@ def configure(mf, sim):
         'target_fit_range': sim.calibration.target_fit_range,
         'out_fit_range': sim.calibration.result_fit_range,
         'weighting': sim.calibration.weighting_path,
-        'champions_file': None,
-        'population_file': None
+        'file_path': None
     }
     mf.configure(settings)
 

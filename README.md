@@ -26,8 +26,6 @@ made by CCD or CMOS-based detectors.
 
 ## Continuous Integration & Deployment
 
-The following pages are only accessible inside ESA network.
-
 [GitLab CI/CD pipelines](https://gitlab.esa.int/sci-fv/pyxel-mirror/pipelines)
 
 [PyTest report](http://sci-fv.io.esa.int/pyxel-mirror/pytest_report.html)
@@ -37,7 +35,3 @@ The following pages are only accessible inside ESA network.
 [PyLint report](http://sci-fv.io.esa.int/pyxel-mirror/pylint_report.html)
 
 [License & copyrights report](http://sci-fv.io.esa.int/pyxel-mirror/license.json)
-
-
-
-Copyright (c) 2019 - European Space Agency
