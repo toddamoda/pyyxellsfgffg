@@ -19,7 +19,7 @@ from pyxel.detectors import Detector
 
 
 @numba.njit
-def bf_convolve(a: np.ndarray, kernel: np.ndarray) -> np.ndarray:
+def bf_convolve(a: np.ndarray, kernel: np.ndarray, border: str) -> np.ndarray:
     """Convolve the input array with the kernel of shift coefficients.
 
     Parameters
@@ -35,18 +35,35 @@ def bf_convolve(a: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     rows = a.shape[0]
     cols = a.shape[1]
 
+    if border == "right":
+        xrange = range(cols - 1)
+        yrange = range(rows)
+    elif border == "left":
+        xrange = range(1, cols)
+        yrange = range(rows)
+    elif border == "top":
+        xrange = range(cols)
+        yrange = range(1, rows)
+    elif border == "bottom":
+        xrange = range(cols)
+        yrange = range(rows - 1)
+    else:
+        raise ValueError("Unknown border.")
+
     result = np.zeros(a.shape)
 
-    for i in range(rows):
-        for j in range(cols):
+    for i in yrange:
+        for j in xrange:
             array_slice_y = slice(max(0, i - k), min(rows, i + k + 1))
             array_slice_x = slice(max(0, j - k), min(rows, j + k + 1))
             kernel_slice_y = slice(max(0, k - i), min(2 * k + 1, k + rows - i))
             kernel_slice_x = slice(max(0, k - j), min(2 * k + 1, k + cols - j))
 
-            out[array_slice_y, array_slice_x] += np.multiply(
-                kernel[kernel_slice_y, kernel_slice_x],
-                a[array_slice_y, array_slice_x],
+            result[i, j] += np.sum(
+                np.multiply(
+                    kernel[kernel_slice_y, kernel_slice_x],
+                    a[array_slice_y, array_slice_x],
+                )
             )
 
     return result
@@ -85,12 +102,14 @@ def bf_antilogus(
     avg_top = border_avg(ch, border="top")
     avg_bottom = border_avg(ch, border="bottom")
 
-    charge += (
-        avg_right * bf_convolve(ch, a_R)
-        + avg_left * bf_convolve(ch, a_L)
-        + avg_top * bf_convolve(ch, a_T)
-        + avg_bottom * bf_convolve(ch, a_B)
-    )
+    result = (
+        avg_right * bf_convolve(ch, a_R, border="right")
+        + avg_left * bf_convolve(ch, a_L, border="left")
+        + avg_top * bf_convolve(ch, a_T, border="top")
+        + avg_bottom * bf_convolve(ch, a_B, border="bottom")
+    ).astype(np.int32)
+
+    charge += result
 
     return charge
 
@@ -105,16 +124,17 @@ def border_avg(a: np.ndarray, border: str) -> np.ndarray:
 
     Returns
     -------
-    out: ndarray
+    result: ndarray
     """
+    result = np.zeros(a.shape)
     if border == "right":
-        result = (a + np.concatenate((a[:, 1:], np.zeros((a.shape[0], 1))), axis=1)) / 2
+        result[:, :-1] += (a[:, :-1] + a[:, 1:]) / 2
     elif border == "left":
-        result = (a + np.concatenate((np.zeros((a.shape[0], 1)), a[:, :-1]), axis=1)) / 2
+        result[:, 1:] += (a[:, 1:] + a[:, :-1]) / 2
     elif border == "top":
-        result = (a + np.concatenate((np.zeros((1, a.shape[1])), a[:-1]), axis=0)) / 2
+        result[1:, :] += (a[1:, :] + a[:-1, :]) / 2
     elif border == "bottom":
-        result = (a + np.concatenate((a[1:], np.zeros((1, a.shape[1]))), axis=0)) / 2
+        result[:-1, :] += (a[:-1, :] + a[1:, :]) / 2
     else:
         raise ValueError("Unknown border.")
     return result
@@ -141,8 +161,10 @@ def calc_a_r(a: np.ndarray) -> np.ndarray:
     top_half = np.concatenate((-np.flip(a, axis=1), a), axis=1)
     zeros = np.zeros((n, 1))
     top_half_zeros = np.concatenate((zeros, top_half), axis=1)
-    out = np.concatenate((top_half_zeros, np.flip(top_half_zeros, axis=0)[1:]), axis=0)
-    return out
+    result = np.concatenate(
+        (top_half_zeros, np.flip(top_half_zeros, axis=0)[1:]), axis=0
+    )
+    return result
 
 
 def calc_a_l(a: np.ndarray) -> np.ndarray:
@@ -180,10 +202,10 @@ def calc_a_t(a: np.ndarray) -> np.ndarray:
     right_half = np.concatenate((a, -np.flip(a, axis=0)), axis=0)
     zeros = np.zeros((1, m))
     right_half_zeros = np.concatenate((right_half, zeros), axis=0)
-    out = np.concatenate(
+    result = np.concatenate(
         (np.flip(right_half_zeros, axis=1)[:, :-1], right_half_zeros), axis=1
     )
-    return out
+    return result
 
 
 def calc_a_b(a: np.ndarray) -> np.ndarray:
@@ -238,8 +260,8 @@ def brighter_fatter(
     a_R_input = get_matrix(right_coeff)  # type: np.ndarray
     a_T_input = get_matrix(top_coeff)  # type: np.ndarray
 
-    if a_R_input.shape != a_R_input.T.shape:
-        raise ValueError("Input input shape does not match.")
+    if a_R_input.shape != a_T_input.T.shape:
+        raise ValueError("Input shape does not match.")
 
     a_R = calc_a_r(a_R_input)
     a_L = calc_a_l(a_R_input)
@@ -253,22 +275,24 @@ if __name__ == "__main__":
 
     import time
 
-    a_R_input = np.array([[0.02, 0.01], [0.05, 0.03], [0.1, 0.05]])
-    a_T_input = np.array([[0.05, 0.03, 0.01], [0.1, 0.05, 0.02]])
+    a_R_input = np.array([[0.0004, 0.0002], [0.0006, 0.0004], [0.001, 0.0008]])
+    a_T_input = np.array([[0.0005, 0.0003, 0.0001], [0.0009, 0.0007, 0.0003]])
 
     a_R = calc_a_r(a_R_input)
     a_L = calc_a_l(a_R_input)
     a_T = calc_a_t(a_T_input)
     a_B = calc_a_b(a_T_input)
 
-    array = np.ones((512, 512))
+    array = np.ones((512, 512), dtype=np.int32) * 100
+    array[10,10] = 200
     start = time.time()
     out = bf_antilogus(charge=array, a_R=a_R, a_L=a_L, a_T=a_T, a_B=a_B)
     end = time.time()
     print("Elapsed (before compilation) = %s" % (end - start))
 
-    #array = np.ones((512, 512))
-    #start = time.time()
-    #out = bf_antilogus(charge=array, a_R=a_R, a_L=a_L, a_T=a_T, a_B=a_B)
-    #end = time.time()
-    #print("Elapsed (after compilation) = %s" % (end - start))
+    array = np.ones((512, 512), dtype=np.int32) * 100
+    array[10, 10] = 200
+    start = time.time()
+    out = bf_antilogus(charge=array, a_R=a_R, a_L=a_L, a_T=a_T, a_B=a_B)
+    end = time.time()
+    print("Elapsed (after compilation) = %s" % (end - start))
