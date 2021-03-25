@@ -9,3 +9,4 @@
 
 # flake8: noqa
 from .cdm import cdm
+from .arctic import arctic
