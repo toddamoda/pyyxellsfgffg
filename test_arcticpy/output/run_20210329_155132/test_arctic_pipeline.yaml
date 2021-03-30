@@ -1,0 +1,144 @@
+# ########################################################### #
+# Pyxel detector simulation framework                         #
+#                                                             #
+# Example yaml configuration file                             #
+# Single run combining different detector effect models       #
+# Created by D. Lucsanyi (ESA)                                #
+# ########################################################### #
+
+
+single:
+
+  outputs:
+    output_folder: "output"
+    single_plot:
+      y: "detector.image.array"
+      plot_type: "histogram"
+      plot_args:
+        bins: 200
+        xlabel: "ADU"
+        yscale: "log"
+        title: "image histogram"
+    save_data_to_file:
+      - detector.image.array:   [fits]
+
+ccd_detector:
+
+  geometry:
+
+    row: 100                # pixel
+    col: 100                # pixel
+    total_thickness: 40.    # um
+    pixel_vert_size: 10.    # um
+    pixel_horz_size: 10.    # um
+
+  material:
+    material: 'silicon'
+
+  environment:
+    temperature: 300        # K
+
+  characteristics:
+    qe:   1.                # -
+    eta:  1.                # e/photon
+    sv:   3.e-6             # V/e
+    amp:  10.               # V/V
+    a1:   100.              # V/V
+    a2:   3000              # DN/V
+    fwc:  2000              # e
+    fwc_serial: 10000       # e
+    vg:   1.62e-10          # cm^2
+    svg:  1.62e-10          # cm^2
+    t:    9.4722e-04        # s
+    st:   9.4722e-04        # s
+
+pipeline:
+  # photon -> photon
+  photon_generation:
+    - name: load_image
+      func: pyxel.models.photon_generation.load_image
+      enabled: true
+      arguments:
+        image_file: calibrate-data.fits
+        fit_image_to_det: true
+        convert_to_photons: true
+
+    - name: shot_noise
+      func: pyxel.models.photon_generation.shot_noise
+      enabled: true
+
+  # photon -> photon
+  optics:
+    - name: optical_psf
+      func: pyxel.models.optics.optical_psf
+      enabled: true
+      arguments:
+        fov_arcsec: 5 # FOV in arcseconds
+        pixelscale: 0.01 #arcsec/pixel
+        wavelength: 0.6e-6 # wavelength in meters
+        optical_system:
+          - item: CircularAperture
+            radius: 2.0
+
+    - name: alignment
+      func: pyxel.models.optics.alignment
+      enabled: true
+
+  # photon -> charge
+  charge_generation:
+    - name: photoelectrons
+      func: pyxel.models.charge_generation.simple_conversion
+      enabled: true
+
+    - name: tars
+      func: pyxel.models.charge_generation.run_tars
+      enabled: true
+      arguments:
+        simulation_mode: cosmic_ray
+        running_mode: stepsize
+        particle_type: proton
+        initial_energy: 100. # MeV
+        particle_number: 100
+        incident_angles:
+        starting_position:
+        spectrum_file: "proton_L2_solarMax_11mm_Shielding.txt"
+        random_seed: 4321
+
+  # charge -> pixel
+  charge_collection:
+    - name: simple_collection
+      func: pyxel.models.charge_collection.simple_collection
+      enabled: true
+
+    - name: full_well
+      func: pyxel.models.charge_collection.simple_full_well
+      enabled: true
+
+  # pixel -> pixel
+  charge_transfer:
+    - name: arctic
+      func: pyxel.models.charge_transfer.arctic
+      enabled: true
+      arguments:
+        well_fill_power: 0.8
+        density: 3.141
+        release_timescale: 1.1234
+
+  # pixel -> signal
+  charge_measurement:
+    - name: simple_measurement
+      func: pyxel.models.charge_measurement.simple_measurement
+      enabled: true
+
+  # signal -> image
+  readout_electronics:
+    - name: simple_amplifier
+      func: pyxel.models.readout_electronics.simple_amplifier
+      enabled: true
+    - name: simple_digitization
+      func: pyxel.models.readout_electronics.simple_processing
+      enabled: true
+
+#########
+# Pyxel version: 0+untagged.1774.gccf9cd0
+#########
