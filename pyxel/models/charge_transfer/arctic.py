@@ -8,7 +8,12 @@ More information:
 https://pypi.org/project/arcticpy/
 """
 
-import arcticpy.arcticpy as ac
+
+from arcticpy import main as ac
+from arcticpy import ccd as accd
+from arcticpy.roe import ROE
+from arcticpy import traps as trp
+import arcticpy as ac
 from pyxel.detectors import CCD
 import numpy as np
 import typing as t
@@ -25,9 +30,11 @@ def arctic(detector: CCD,
     image = detector.pixel.array
     image = image.astype(float)
     # image = ac.acs.FrameACS.from_fits(file_path=detector.pixel.array, quadrant_letter=quadrant_letter)
-    ccd = ac.CCD(well_fill_power=well_fill_power, full_well_depth=char.fwc)
-    roe = ac.ROE()
-    trap = ac.Trap(density=-density, release_timescale=release_timescale)
+    ccd = accd.CCD(well_fill_power=well_fill_power, full_well_depth=char.fwc)
+    roe = ROE()
+    #ccd = ac.CCD(well_fill_power=well_fill_power, full_well_depth=char.fwc)
+    #roe = ac.ROE()
+    trap = trp.Trap(density=-density, release_timescale=release_timescale)
     image_cti_added = ac.add_cti(
         image=image,
         parallel_traps=[trap],
@@ -36,3 +43,4 @@ def arctic(detector: CCD,
     )
     return image_cti_added
 
+#Try to work out the imports better for the afternoon - struggling to get this stupid thing to imprt the things I want it to!!!!!!!!

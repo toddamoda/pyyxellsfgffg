@@ -59,7 +59,7 @@ pipeline:
       func: pyxel.models.photon_generation.load_image
       enabled: true
       arguments:
-        image_file: calibrate-data.fits
+        image_file: Pleiades_HST.fits
         fit_image_to_det: true
         convert_to_photons: true
 
