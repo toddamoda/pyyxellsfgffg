@@ -1,9 +1,9 @@
- # ########################################################### #
+# ########################################################### #
 # Pyxel detector simulation framework                         #
 #                                                             #
 # Example yaml configuration file                             #
 # Single run combining different detector effect models       #
-# Created by D. Lucsanyi (ESA)                                #
+#                                                             #
 # ########################################################### #
 
 
@@ -45,7 +45,7 @@ ccd_detector:
     amp:  10.               # V/V
     a1:   100.              # V/V
     a2:   3000              # DN/V
-    fwc:  2000              # e
+    fwc:  100000              # e
     fwc_serial: 10000       # e
     vg:   1.62e-10          # cm^2
     svg:  1.62e-10          # cm^2
@@ -55,17 +55,15 @@ ccd_detector:
 pipeline:
   # photon -> photon
   photon_generation:
-    - name: load_image
-      func: pyxel.models.photon_generation.load_image
+    - name: illumination
+      func: pyxel.models.photon_generation.illumination
       enabled: true
       arguments:
-        image_file: Pleiades_HST.fits
-        fit_image_to_det: true
-        convert_to_photons: true
-
+          level: 0
     - name: shot_noise
       func: pyxel.models.photon_generation.shot_noise
       enabled: true
+
 
   # photon -> photon
   optics:
@@ -121,7 +119,7 @@ pipeline:
       enabled: true
       arguments:
         well_fill_power: 0.8
-        density: 3.141
+        density: 0.8
         release_timescale: 1.1234
 
   # pixel -> signal
