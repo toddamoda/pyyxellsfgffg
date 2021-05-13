@@ -18,7 +18,7 @@ single:
         bins: 200
         xlabel: "ADU"
         yscale: "log"
-        title: "image histogram"
+        title: "arctic_100"
     save_data_to_file:
       - detector.image.array:   [fits]
 
@@ -27,7 +27,7 @@ ccd_detector:
   geometry:
 
     row: 100                # pixel
-    col: 100                # pixel
+    col: 10                 # pixel
     total_thickness: 40.    # um
     pixel_vert_size: 10.    # um
     pixel_horz_size: 10.    # um
@@ -45,7 +45,7 @@ ccd_detector:
     amp:  10.               # V/V
     a1:   100.              # V/V
     a2:   3000              # DN/V
-    fwc:  100000              # e
+    fwc:  100000            # e
     fwc_serial: 10000       # e
     vg:   1.62e-10          # cm^2
     svg:  1.62e-10          # cm^2
@@ -55,52 +55,34 @@ ccd_detector:
 pipeline:
   # photon -> photon
   photon_generation:
-    - name: illumination
-      func: pyxel.models.photon_generation.illumination
+  #  - name: load_image
+  #    func: pyxel.models.photon_generation.load_image
+  #    enabled: true
+  #    arguments:
+  #      image_file: jc0a01h8q_raw.fits
+  #      position: [460,860]
+  #      fit_image_to_det: true
+  #      convert_to_photons: true
+  
+    - name: stripe_pattern
+      func: pyxel.models.photon_generation.stripe_pattern
       enabled: true
-      arguments:
-          level: 0
-    - name: shot_noise
-      func: pyxel.models.photon_generation.shot_noise
-      enabled: true
-
+      arguments: 
+          period: 50
+          level: 100
+          startwith: 1
+    
+  #  - name: shot_noise
+  #    func: pyxel.models.photon_generation.shot_noise
+  #    enabled: true        
 
   # photon -> photon
-  optics:
-    - name: optical_psf
-      func: pyxel.models.optics.optical_psf
-      enabled: true
-      arguments:
-        fov_arcsec: 5 # FOV in arcseconds
-        pixelscale: 0.01 #arcsec/pixel
-        wavelength: 0.6e-6 # wavelength in meters
-        optical_system:
-          - item: CircularAperture
-            radius: 2.0
-
-    - name: alignment
-      func: pyxel.models.optics.alignment
-      enabled: true
 
   # photon -> charge
   charge_generation:
     - name: photoelectrons
       func: pyxel.models.charge_generation.simple_conversion
       enabled: true
-
-    - name: tars
-      func: pyxel.models.charge_generation.run_tars
-      enabled: true
-      arguments:
-        simulation_mode: cosmic_ray
-        running_mode: stepsize
-        particle_type: proton
-        initial_energy: 100. # MeV
-        particle_number: 100
-        incident_angles:
-        starting_position:
-        spectrum_file: "proton_L2_solarMax_11mm_Shielding.txt"
-        random_seed: 4321
 
   # charge -> pixel
   charge_collection:
@@ -119,8 +101,9 @@ pipeline:
       enabled: true
       arguments:
         well_fill_power: 0.8
-        density: 0.8
-        release_timescale: 1.1234
+        density: 100
+        release_timescale: 1.2
+        express: 10
 
   # pixel -> signal
   charge_measurement:

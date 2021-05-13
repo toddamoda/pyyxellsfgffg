@@ -19,7 +19,9 @@ import typing as t
 def arctic(detector: CCD,
            well_fill_power: float,
            density: float,
-           release_timescale: t.Sequence[float]) -> np.ndarray:
+           release_timescale: t.Sequence[float],
+           express=0
+           ) -> np.ndarray:
     char = detector.characteristics
     image = detector.pixel.array
     image = image.astype(float)
@@ -31,6 +33,7 @@ def arctic(detector: CCD,
         parallel_traps=[trap],
         parallel_ccd=ccd,
         parallel_roe=roe,
+        parallel_express=express
     )
+    detector.pixel.array = s
     return s
-
