@@ -225,7 +225,9 @@ def display_array(data: np.ndarray, axes: t.List[plt.axes], **kwargs: str) -> No
     -------
     None
     """
-    im = axes[0].imshow(data)
+    mini = np.nanpercentile(data, 1)
+    maxi = np.nanpercentile(data, 99)
+    im = axes[0].imshow(data, vmin=mini, vmax=maxi)
     axes[0].get_xaxis().set_visible(False)
     axes[0].get_yaxis().set_visible(False)
     divider = make_axes_locatable(axes[0])
@@ -234,7 +236,11 @@ def display_array(data: np.ndarray, axes: t.List[plt.axes], **kwargs: str) -> No
     plt.colorbar(im, cax=cax1)
     cax1.yaxis.set_label_position("left")
     cax1.yaxis.set_ticks_position("left")
-    axes[1].hist(data.flatten(), bins=50, **kwargs)
+    if (mini == maxi):
+        bins = 50
+    else:
+        bins = np.arange(mini, maxi, (maxi-mini)/50)
+    axes[1].hist(data.flatten(), bins=bins, **kwargs)
     plt.setp(axes[1].xaxis.get_majorticklabels(), rotation=45)
     axes[1].legend(fontsize=12)
     axes[1].grid(True, alpha=0.5)
@@ -272,7 +278,7 @@ def display_array(data: np.ndarray, axes: t.List[plt.axes], **kwargs: str) -> No
 # These method are used to display the detector memory
 
 
-def display_persist(persist_dict: dict) -> None:
+def display_persist(persist_dict: dict, vmin=1, vmax=99) -> None:
     """Plot all trapped charges using the memory dict.
 
     Parameters

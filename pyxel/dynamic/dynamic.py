@@ -72,12 +72,14 @@ class Dynamic:
         #    dynamic.non_destructive_readout = False
 
         detector = processor.detector
-
+        
         detector.set_dynamic(
             steps=self._steps,
             time_step=self._t_step,
             ndreadout=self._non_destructive_readout,
         )
+        # The detector should be reset before exposure
+        detector.initialize(reset_all=True)
 
         # prepare lists for to-be-merged datasets
         list_datasets = []
