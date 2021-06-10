@@ -1,15 +1,113 @@
-#   --------------------------------------------------------------------------
-#   Copyright 2019 SCI-FIV, ESA (European Space Agency)
-#   Written by B. Serra
-#   --------------------------------------------------------------------------
-"""Pyxel persistence model."""
-import logging
+#  Copyright (c) YOUR COPYRIGHT HERE
 
+"""
+persistence module for the PyXel simulation.
+
+This module is used in charge_collection
+
+-------------------------------------------------------------------------------
+
++--------------+----------------------------------+---------------------------+
+| Author       | Name                             | Creation                  |
++--------------+----------------------------------+---------------------------+
+| You          | charge_collection                | 05/20/2021                |
++--------------+----------------------------------+---------------------------+
+
++-----------------+-------------------------------------+---------------------+
+| Contributor     | Name                                | Creation            |
++-----------------+-------------------------------------+---------------------+
+| Name            | filename                            | -                   |
++-----------------+-------------------------------------+---------------------+
+
+This module can be found in pyxel/models/charge_collection/persistence.py
+
+Algorithm
+=========
+
+The persistence model take as input the total number of detrapped charges
+(persistence map with a 10000 seconds soak at more than the FWC) and a map
+which is the previous one divided by full well capacity. This gives the total
+amount of trap per charge.
+
+At each iteration of the pipeline, the model will first check if there is a 
+'persistence' entry in the memore of the detector and if not will create it 
+(happens only at the first iteration).
+Then, it will compute the amount of trapped charges in this iteration, add it
+to the memory of the detector and then will remove this amount from the pixel array.
+
+Default parameter
+=================
+
+The defaults parameter are the one derived from the characterization of the ENG grade
+detector for MOONS (H4RG).
+
++----------------+-------------+
+| Time constants | Proportions |
++================+=============+
+| 1              | 0.307       |
++----------------+-------------+
+| 10             | 0.175       |
++----------------+-------------+
+| 100            | 0.188       |
++----------------+-------------+
+| 1000           | 0.136       |
++----------------+-------------+
+| 10000          | 0.194       |
++----------------+-------------+
+
+Code example
+============
+
+.. code-block:: python
+
+    # To access the memory of the detector with the persistence map
+    
+    detector._memory['persistence']
+
+    # This dictionnary consist of 5 entries (one per time constant)
+    
+.. literalinclude:: pyxel/models/charge_collection/persistence.py
+    :language: python
+    :linenos:
+    :lines: 84-87
+
+Model reference in the YAML config file
+=======================================
+
+.. code-block:: yaml
+
+    pipeline:
+
+      # Persistence model based on MOONS detector (H4RG) measurements
+      - name: persistence
+        func: pyxel.models.charge_collection.persistence.current_persistence
+        enabled: true
+        arguments:
+          trap_timeconstants: [1, 10, 100, 1000, 10000]
+          trap_densities: data/fits/20210408121614_20210128_ENG20370_AUTOCHAR-Persistence_FitTrapDensityMap.fits
+          trap_max: data/fits/20210408093114_20210128_ENG20370_AUTOCHAR-Persistence_FitMaximumTrapMap.fits
+          trap_proportions: [0.307, 0.175, 0.188, 0.136, 0.194]
+
+Useful links
+============
+
+Persistence paper from S. Tulloch
+https://arxiv.org/abs/1908.06469
+
+ReadTheDocs documentation
+https://sphinx-rtd-theme.readthedocs.io/en/latest/index.html
+
+.. todo::
+
+   - Add temperature dependency
+   - Add default -flat?- trap maps
+
+"""
+
+import logging
 import numpy as np
 from astropy.io import fits
-
 from pyxel.detectors import CMOS
-
 
 # @validators.validate
 # @config.argument(name='', label='', units='', validate=)
@@ -53,18 +151,12 @@ def current_persistence(
     # otherwise I need to define a default trap density map
     
     # Extract trap density / full well
-    trap_densities = fits.open(trap_densities)[0].data[0:450, 0:450]
+    trap_densities = fits.open(trap_densities)[0].data[:detector.geometry.row, :detector.geometry.col]
     trap_densities[np.where(trap_densities<0)] = 0
-    # Print the median of the max amount of traps
-    #print (np.nanmedian(trap_densities))
     
     # Extract the max amount of trap by long soak
-    trap_max = fits.open(trap_max)[0].data[0:450, 0:450]
+    trap_max = fits.open(trap_max)[0].data[:detector.geometry.row, :detector.geometry.col]
     trap_max[np.where(trap_max<0)] = 0
-    
-    # Print the median of the max amount of traps
-    #print (np.nanmedian(trap_max))
-    #print (np.nanmedian(detector.pixel.array))
     
     # If there is no entry for persistence in the memory of the detector
     # create one
@@ -92,7 +184,7 @@ def current_persistence(
         
         # Time for reading a frame
         #delta_t = (detector.geometry.row * detector.geometry.col)/detector.characteristics.readout_freq
-        delta_t = 1.41
+        delta_t = detector.time_step
         
         # Computer trapped charge for this increament of time
         # Time factor is the integration time divided by the time constant (1, 10, 100, 1000, 10000)
@@ -108,9 +200,7 @@ def current_persistence(
         # Compute trapped charges
         trapped_charges = trapped_charges + \
                           time_factor * (max_charges * detector.pixel.array * np.exp(-time_factor) - trapped_charges)
-        #print ('-----')
-        #print ('Time constant', trap_timeconstant)
-        #print ('Trapped charges', trapped_charges)
+
         # When the amount of trapped charges is superior to the maximum of available traps, set to max 
         trapped_charges[np.where(trapped_charges>fw_trap)] = max_charges[np.where(trapped_charges>fw_trap)]
         # Can't have a negative amount of charges trapped
