@@ -160,16 +160,16 @@ def current_persistence(
     # otherwise I need to define a default trap density map
 
     # Extract trap density / full well
-    trap_densities = fits.open(trap_densities)[0].data[
+    trap_densities_2d = fits.open(trap_densities)[0].data[
         : detector.geometry.row, : detector.geometry.col
-    ]
-    trap_densities[np.where(trap_densities < 0)] = 0
+    ]  # type: np.ndarray
+    trap_densities_2d[np.where(trap_densities_2d < 0)] = 0
 
     # Extract the max amount of trap by long soak
-    trap_max = fits.open(trap_max)[0].data[
+    trap_max_2d = fits.open(trap_max)[0].data[
         : detector.geometry.row, : detector.geometry.col
     ]
-    trap_max[np.where(trap_max < 0)] = 0
+    trap_max_2d[np.where(trap_max_2d < 0)] = 0
 
     # If there is no entry for persistence in the memory of the detector
     # create one
@@ -206,10 +206,10 @@ def current_persistence(
         time_factor = delta_t / trap_timeconstant
 
         # Amount of charges trapped per unit of full well
-        max_charges = trap_densities * trap_proportion
+        max_charges = trap_densities_2d * trap_proportion
 
         # Maximum of amount of charges trapped
-        fw_trap = trap_max * trap_proportion
+        fw_trap = trap_max_2d * trap_proportion
 
         diff = time_factor * (
             max_charges * detector.pixel.array * np.exp(-time_factor) - trapped_charges
