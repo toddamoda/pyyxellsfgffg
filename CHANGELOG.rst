@@ -32,7 +32,8 @@ Others
   (See `!216 <https://gitlab.com/esa/pyxel/-/merge_requests/216>`_).
 * Add compatibility to Mypy 0.900.
   (See `!223 <https://gitlab.com/esa/pyxel/-/merge_requests/223>`_).
-
+* Persistence model updated in charge_collection/persistence.py
+  (See `!224 <https://gitlab.com/esa/pyxel/-/merge_requests/224>`_).
 
 version 0.9.1 / 2021-05-17
 --------------------------
