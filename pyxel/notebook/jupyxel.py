@@ -236,10 +236,10 @@ def display_array(data: np.ndarray, axes: t.List[plt.axes], **kwargs: str) -> No
     plt.colorbar(im, cax=cax1)
     cax1.yaxis.set_label_position("left")
     cax1.yaxis.set_ticks_position("left")
-    if (mini == maxi):
+    if mini == maxi:
         bins = 50
     else:
-        bins = np.arange(mini, maxi, (maxi-mini)/50)
+        bins = np.arange(mini, maxi, (maxi - mini) / 50)
     axes[1].hist(data.flatten(), bins=bins, **kwargs)
     plt.setp(axes[1].xaxis.get_majorticklabels(), rotation=45)
     axes[1].legend(fontsize=12)

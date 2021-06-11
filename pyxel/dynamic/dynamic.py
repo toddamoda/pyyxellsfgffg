@@ -72,7 +72,7 @@ class Dynamic:
         #    dynamic.non_destructive_readout = False
 
         detector = processor.detector
-        
+
         detector.set_dynamic(
             steps=self._steps,
             time_step=self._t_step,
