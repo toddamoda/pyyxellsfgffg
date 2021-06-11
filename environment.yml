@@ -79,3 +79,7 @@ dependencies:
 # Pip packages
   - pip:
     - poppy>=0.9
+    # Development
+    - types-requests
+    - types-PyYAML
+    - types-pkg_resources

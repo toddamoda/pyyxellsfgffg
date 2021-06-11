@@ -30,6 +30,8 @@ Others
 
 * Fix circular import in parametric.py.
   (See `!216 <https://gitlab.com/esa/pyxel/-/merge_requests/216>`_).
+* Add compatibility to Mypy 0.900.
+  (See `!223 <https://gitlab.com/esa/pyxel/-/merge_requests/223>`_).
 
 
 version 0.9.1 / 2021-05-17
