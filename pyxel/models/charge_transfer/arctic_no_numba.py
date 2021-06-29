@@ -7,6 +7,7 @@
 
 
 import typing as t
+from copy import deepcopy
 
 import numpy as np
 from numba import njit
@@ -479,11 +480,15 @@ class ROE:
             # Create a new matrix for the full number of transfers
             n_pixels += 1
             express_matrix_2d = np.flipud(
-                np.identity(n_pixels + offset, dtype=self.express_matrix_dtype)
+                np.identity(
+                    n_pixels + offset,
+                    # dtype=self.express_matrix_dtype,
+                    dtype=np.float64,
+                )
             )
             # Insert the original transfers into the new matrix at appropriate places
-            n_nonzero = np.sum(express_matrix_small_2d > 0, axis=1)
-            express_matrix_2d[n_nonzero, 1:] += express_matrix_small_2d
+            n_nonzero_1d = np.sum(express_matrix_small_2d > 0, axis=1)
+            express_matrix_2d[n_nonzero_1d, 1:] += express_matrix_small_2d
 
         # When to monitor traps
         monitor_traps_matrix_2d = express_matrix_2d > 0
@@ -758,8 +763,105 @@ class Trap:
             self.capture_rate = 1 / self.capture_timescale
 
 
+class TrapManager:
+    def __init__(self, traps: t.Sequence[Trap], max_n_transfers: int):
+        """
+        The manager for potentially multiple trap species that are able to use
+        watermarks in the same way as each other.
+
+        Parameters
+        ----------
+        traps : Trap or [Trap]
+            A list of one or more trap species. Species listed together must be
+            able to share watermarks - i.e. they must be similarly distributed
+            throughout the pixel volume, and all their states must be stored
+            either by occupancy or by time since filling.
+            e.g. [bulk_trap_slow,bulk_trap_fast]
+
+        max_n_transfers : int
+            The number of pixels containing traps that charge will be expected
+            to move. This determines the maximum number of possible capture/
+            release events that could create new watermark levels, and is used
+            to initialise the watermark array to be only as large as needed, for
+            efficiency.
+
+        Attributes
+        ----------
+        watermarks : np.ndarray
+            Array of watermark fractional volumes and fill fractions to describe
+            the trap states. Lists each (active) watermark fractional volume and
+            the corresponding fill fractions of each trap species. Inactive
+            elements are set to 0.
+
+            [[volume, fill, fill, ...],
+             [volume, fill, fill, ...],
+             ...                       ]
+
+        n_traps_per_pixel : np.ndarray
+            The densities of all the trap species.
+
+        capture_rates, emission_rates, total_rates : np.ndarray
+            The rates of capture, emission, and their sum for all the traps.
+
+        """
+        # if not isinstance(traps, list):
+        #     traps = [traps]
+
+        self.traps = deepcopy(traps)  # type: t.Sequence[Trap]
+        self._max_n_transfers = max_n_transfers  # type: int
+
+        # Set up the watermark array
+        self.watermarks_2d = np.zeros(
+            (
+                # This +1 is to ensure there is always at least one zero, even
+                # if all transfers create a new watermark. The zero is used to
+                # find the highest used watermark
+                1 + self.max_n_transfers * self.n_watermarks_per_transfer,
+                # This +1 is to make space for the volume column
+                1 + self.n_trap_species,
+            ),
+            dtype=np.float64,
+        )  # type: np.ndarray
+
+        # Trap rates
+        self.capture_rates_1d = np.array([trap.capture_rate for trap in traps])
+        self.emission_rates_1d = np.array([trap.emission_rate for trap in traps])
+        self.total_rates_1d = self.capture_rates_1d + self.emission_rates_1d
+
+        # Are they surface traps?
+        self.surface = np.array([trap.surface for trap in traps], dtype=np.bool_)
+
+        # Construct a function that describes the fraction of traps that are
+        # exposed by a charge cloud containing n_electrons. This must be
+        # fractional (rather than the absolute number of traps) because it can
+        # be shared between trap species that have different trap densities.
+        if self.traps[0].distribution_within_pixel() == None:
+
+            def _fraction_of_traps_exposed_from_n_electrons(
+                self, n_electrons, ccd_filling_function, surface=self.surface[0]
+            ):
+                return ccd_filling_function(n_electrons)
+
+        else:
+
+            def _fraction_of_traps_exposed_from_n_electrons(
+                self, n_electrons, ccd_filling_function
+            ):
+                fraction_of_traps = 0
+                #
+                # RJM: RESERVED FOR SURFACE TRAPS OR SPECIES WITH NONUNIFORM DENSITY WITHIN A PIXEL
+                #
+                return fraction_of_traps
+
+        self._fraction_of_traps_exposed_from_n_electrons = (
+            _fraction_of_traps_exposed_from_n_electrons
+        )
+
+
 class AllTrapManager:
-    def __init__(self, traps, max_n_transfers, ccd):
+    def __init__(
+        self, traps: t.Sequence[t.Sequence[Trap]], max_n_transfers: int, ccd: CCD
+    ):
         """
         A list (of a list) of trap managers.
 
@@ -815,34 +917,40 @@ class AllTrapManager:
 
         # Parse inputs
         # If only a single trap species is supplied, still make sure it is a list
-        if not isinstance(traps, list):
-            traps = [traps]
-        if not isinstance(traps[0], list):
-            traps = [traps]
+        # if not isinstance(traps, list):
+        #     traps = [traps]
+        # if not isinstance(traps[0], list):
+        #     traps = [traps]
+        traps = traps  # type: t.Sequence[t.Sequence[Trap]]
 
         # Replicate trap managers to keep track of traps in different phases separately
-        self.data = []
+        # self.data = []
         for phase in range(ccd.n_phases):
 
             # Set up list of traps in a single phase of the CCD
             trap_managers_this_phase = []
-            for trap_group in traps:
+
+            for trap_group in traps:  # type: t.Sequence[Trap]
                 # Use a non-default trap manager if required for the input trap species
-                if isinstance(
-                    trap_group[0],
-                    (TrapLifetimeContinuumAbstract, TrapLogNormalLifetimeContinuum),
-                ):
-                    trap_manager = TrapManagerTrackTime(
-                        traps=trap_group, max_n_transfers=max_n_transfers
-                    )
-                elif isinstance(trap_group[0], TrapInstantCapture):
-                    trap_manager = TrapManagerInstantCapture(
-                        traps=trap_group, max_n_transfers=max_n_transfers
-                    )
-                else:
-                    trap_manager = TrapManager(
-                        traps=trap_group, max_n_transfers=max_n_transfers
-                    )
+                # if isinstance(
+                #     trap_group[0],
+                #     (TrapLifetimeContinuumAbstract, TrapLogNormalLifetimeContinuum),
+                # ):
+                #     trap_manager = TrapManagerTrackTime(
+                #         traps=trap_group, max_n_transfers=max_n_transfers
+                #     )
+                # elif isinstance(trap_group[0], TrapInstantCapture):
+                #     trap_manager = TrapManagerInstantCapture(
+                #         traps=trap_group, max_n_transfers=max_n_transfers
+                #     )
+                # else:
+                #     trap_manager = TrapManager(
+                #         traps=trap_group, max_n_transfers=max_n_transfers
+                #     )
+                trap_manager = TrapManager(
+                    traps=trap_group, max_n_transfers=max_n_transfers
+                )
+
                 trap_manager.n_traps_per_pixel *= ccd.fraction_of_traps_per_phase[phase]
                 trap_managers_this_phase.append(trap_manager)
 
@@ -899,7 +1007,7 @@ def _clock_charge_in_one_direction(
     image: np.ndarray,
     roe: ROE,
     ccd: CCD,
-    traps: t.Sequence[Trap],
+    traps: t.Sequence[t.Sequence[Trap]],
     express: int,
     offset: int,
     window_row_range: t.Tuple[int, int],
@@ -1015,10 +1123,10 @@ def _clock_charge_in_one_direction(
     # Decide in advance which steps need to be evaluated and which can be skipped
     phases_with_traps = [
         i for i, frac in enumerate(ccd.fraction_of_traps_per_phase) if frac > 0
-    ]
+    ]  # type: t.Sequence[int
     steps_with_nonzero_dwell_time = [
         i for i, time in enumerate(roe.dwell_times) if time > 0
-    ]
+    ]  # type: t.Sequence[int]
 
     # Set up the set of trap managers to monitor the occupancy of all trap species
     # if isinstance(roe, ROETrapPumping):
@@ -1029,7 +1137,9 @@ def _clock_charge_in_one_direction(
     #     max_n_transfers = n_express_pass * len(steps_with_nonzero_dwell_time)
     # else:
     #     max_n_transfers = n_rows_to_process * len(steps_with_nonzero_dwell_time)
-    max_n_transfers = n_rows_to_process * len(steps_with_nonzero_dwell_time)
+    max_n_transfers = n_rows_to_process * len(
+        steps_with_nonzero_dwell_time
+    )  # type: int
 
     trap_managers = AllTrapManager(
         traps=traps, max_n_transfers=max_n_transfers, ccd=ccd
@@ -1138,7 +1248,7 @@ def add_cti(
     image_2d: np.ndarray,
     parallel_ccd: CCD,
     parallel_roe: ROE,
-    parallel_traps: t.Optional[t.Sequence[Trap]] = None,
+    parallel_traps: t.Sequence[t.Sequence[Trap]],
     parallel_express: int = 0,
     parallel_offset: int = 0,
     parallel_window_range: t.Optional[t.Tuple[int, int]] = None,
@@ -1375,7 +1485,7 @@ def arctic_no_numba(
 
     s = add_cti(
         image_2d=image_2d,
-        parallel_traps=[trap],
+        parallel_traps=[[trap]],
         parallel_ccd=ccd,
         parallel_roe=parallel_roe,
         parallel_express=express,
