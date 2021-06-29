@@ -432,7 +432,7 @@ class ROE:
         self.clock_sequence = (
             self._generate_clock_sequence()
         )  # type: t.Sequence[t.Sequence[ROEPhase]]
-        self.pixels_accessed_during_clocking = (
+        self.pixels_accessed_during_clocking_1d = (
             self._generate_pixels_accessed_during_clocking()
         )  # type: np.ndarray
 
@@ -766,8 +766,8 @@ class ROE:
         represents all the 'low' phases.
         """
 
-        n_steps = self.n_steps
-        n_phases = self.n_phases
+        n_steps = self.n_steps  # type: int
+        n_phases = self.n_phases  # type: int
         integration_step = 0  # type: int
 
         clock_sequence = []  # type: t.List[t.List[ROEPhase]]
@@ -794,7 +794,6 @@ class ROE:
             else:
                 split_release_phase = None
 
-            # Calculate and store the information for each phase
             for phase in range(n_phases):
 
                 # Where to capture from?
@@ -2121,8 +2120,8 @@ def _clock_charge_in_one_direction(
 
     # Temporarily expand image, if charge released from traps ever migrates to
     # a different charge packet, at any time during the clocking sequence
-    n_rows_zero_padding = max(roe.pixels_accessed_during_clocking) - min(
-        roe.pixels_accessed_during_clocking
+    n_rows_zero_padding = max(roe.pixels_accessed_during_clocking_1d) - min(
+        roe.pixels_accessed_during_clocking_1d
     )  # type: int
     zero_padding_2d = np.zeros(
         (n_rows_zero_padding, image_2d.shape[1]), dtype=image_2d.dtype
