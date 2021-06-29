@@ -306,36 +306,36 @@ class ROEPhase:
         )  # type: np.ndarray
 
 
-class ROEAbstract:
-    def __init__(
-        self,
-        dwell_times: np.ndarray,
-        # express_matrix_dtype
-    ):
-        """
-        Bare core methods that are shared by all types of ROE.
-
-        Parameters
-        ----------
-        dwell_times : float or [float]
-            The time between steps in the clocking sequence, in the same units
-            as the trap capture/release timescales. This can be a single float
-            for single-step clocking, or a list for multi-step clocking; the
-            number of steps in the clocking sequence is inferred from the length
-            of this list. The default value, [1], produces instantaneous
-            transfer between adjacent pixels, with no intermediate phases.
-
-        express_matrix_dtype : type (int or float)
-            Old versions of this algorithm assumed (unnecessarily) that all
-            express multipliers must be integers. If
-            force_release_away_from_readout is True (no effect if False), then
-            it's slightly more efficient if this requirement is dropped, but the
-            option to force it is included for backwards compatability.
-        """
-        # Parse inputs
-        self.force_release_away_from_readout = None
-        self.dwell_times = dwell_times  # type: np.ndarray
-        # self.express_matrix_dtype = express_matrix_dtype
+# class ROEAbstract:
+#     def __init__(
+#         self,
+#         dwell_times: np.ndarray,
+#         # express_matrix_dtype
+#     ):
+#         """
+#         Bare core methods that are shared by all types of ROE.
+#
+#         Parameters
+#         ----------
+#         dwell_times : float or [float]
+#             The time between steps in the clocking sequence, in the same units
+#             as the trap capture/release timescales. This can be a single float
+#             for single-step clocking, or a list for multi-step clocking; the
+#             number of steps in the clocking sequence is inferred from the length
+#             of this list. The default value, [1], produces instantaneous
+#             transfer between adjacent pixels, with no intermediate phases.
+#
+#         express_matrix_dtype : type (int or float)
+#             Old versions of this algorithm assumed (unnecessarily) that all
+#             express multipliers must be integers. If
+#             force_release_away_from_readout is True (no effect if False), then
+#             it's slightly more efficient if this requirement is dropped, but the
+#             option to force it is included for backwards compatability.
+#         """
+#         # Parse inputs
+#         self.force_release_away_from_readout = None
+#         self.dwell_times = dwell_times  # type: np.ndarray
+#         # self.express_matrix_dtype = express_matrix_dtype
 
 
 class ROE:
