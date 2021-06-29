@@ -6,6 +6,7 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 
+import os
 import typing as t
 from copy import deepcopy
 
@@ -13,6 +14,18 @@ import numpy as np
 from numba import njit
 
 from pyxel.detectors import CCD as PyxelCCD
+
+NUMBA_DISABLE_JIT = bool(int(os.environ.get("NUMBA_DISABLE_JIT", 0)))  # type: bool
+
+
+def set_min_max(value, min, max):
+    """ Fix a value between a minimum and maximum. """
+    if value < min:
+        return min
+    elif max < value:
+        return max
+    else:
+        return value
 
 
 @njit
@@ -25,6 +38,15 @@ def my_cumsum_axis0(data_2d: np.ndarray) -> np.ndarray:
         other_data[idx] = other_data[idx] + other_data[idx - 1]
 
     return other_data
+
+
+# watermarks_2d = np.roll(watermarks_2d, 1, axis=0)
+
+
+def my_roll_axis0(a: np.ndarray, shift: int) -> np.ndarray:
+    # Equivalent to np.roll(a, shift, axis=0)
+    _, num_x = a.shape
+    return np.roll(a, shift * num_x)
 
 
 class CCD:
@@ -116,6 +138,83 @@ class CCD:
         self.well_notch_depth = well_notch_depth  # type: np.ndarray
         self.well_bloom_level = well_bloom_level  # type: np.ndarray
 
+    def well_filling_function(self, phase=0):
+        """Return a self-contained function describing the well-filling model.
+
+        The returned function calculates the fractional volume of charge cloud
+        in a pixel (and phase) from the number of electrons in the cloud, which
+        is used to calculate the proportion of traps that are reached by the
+        cloud and can capture charge from it.
+
+        By default, it is assumed that the traps are uniformly distributed
+        throughout the volume, but that assumption can be relaxed by adjusting
+        this function to reflect the net number of traps seen as a function of
+        charge cloud size. An example would be for surface traps, which are
+        responsible for blooming (which is asymmetric and happens during
+        readout, unlike bleeding) and are preset only at the top of a pixel.
+
+        This function embodies the core assumption of a volume-driven CTI
+        model like ArCTIC: that traps are either exposed (and have a
+        constant capture timescale, which may be zero for instant capture),
+        or unexposed and therefore unavailable. This behaviour differs from
+        a density-driven CTI model, in which traps may capture an electron
+        anywhere in a pixel, but at varying capture probability. There is
+        considerable evidence that CCDs in the Hubble Space Telescope are
+        primarily volume-driven; a software algorithm to mimic such behaviour
+        also runs much faster.
+
+        Parameters
+        ----------
+        phase : int
+            The phase of the pixel. Multiple phases may optionally have
+            different CCD parameters.
+
+        Returns
+        -------
+        well_filling_function : func
+            A self-contained function describing the well-filling model for this
+            phase.
+        """
+
+        def cloud_fractional_volume_from_n_electrons(n_electrons: float, surface=False):
+            """Calculate the fractional volume of charge cloud.
+
+            Parameters
+            ----------
+            n_electrons : float
+                The number of electrons in a charge cloud.
+
+            surface : bool
+                #
+                # RJM: RESERVED FOR SURFACE TRAPS
+                #
+
+            Returns
+            -------
+            volume : float
+                The fraction of traps of this species exposed.
+            """
+            if n_electrons == 0:
+                return 0
+
+            assert surface is False
+
+            if surface:
+                empty = self.blooming_level[phase]
+                beta = 1
+            else:
+                empty = self.well_notch_depth[phase]  # type: float
+                beta = self.well_fill_power[phase]  # type: float
+            well_range = self.full_well_depth[phase] - empty  # type: float
+
+            volume = (
+                set_min_max(value=(n_electrons - empty) / well_range, min=0.0, max=1.0)
+            ) ** beta
+
+            return volume
+
+        return cloud_fractional_volume_from_n_electrons
+
 
 class ROEPhase:
     def __init__(
@@ -147,9 +246,11 @@ class ROEPhase:
         assert release_fraction_to_pixel.ndim == 1
 
         # Make sure the arrays are arrays
-        self.is_high = is_high
-        self.capture_from_which_pixels = capture_from_which_pixels
-        self.release_to_which_pixels = release_to_which_pixels
+        self.is_high = is_high  # type: bool
+        self.capture_from_which_pixels_1d = (
+            capture_from_which_pixels
+        )  # type: np.ndarray
+        self.release_to_which_pixels_1d = release_to_which_pixels  # type: np.ndarray
 
         # self.capture_from_which_pixels = np.array(
         #     [capture_from_which_pixels], dtype=np.int64
@@ -157,7 +258,9 @@ class ROEPhase:
         # self.release_to_which_pixels = np.array(
         #     [release_to_which_pixels], dtype=np.int64
         # ).flatten()
-        self.release_fraction_to_pixel = release_fraction_to_pixel
+        self.release_fraction_to_pixel_1d = (
+            release_fraction_to_pixel
+        )  # type: np.ndarray
 
 
 class ROEAbstract:
@@ -704,8 +807,8 @@ class ROE:
                 referred_to_pixels = np.concatenate(
                     (
                         referred_to_pixels,
-                        self.clock_sequence[step][phase].capture_from_which_pixels,
-                        self.clock_sequence[step][phase].release_to_which_pixels,
+                        self.clock_sequence[step][phase].capture_from_which_pixels_1d,
+                        self.clock_sequence[step][phase].release_to_which_pixels_1d,
                     )
                 )
 
@@ -750,17 +853,25 @@ class Trap:
         """
 
         self.density = float(density)
-        self.release_timescale = release_timescale
-        self.capture_timescale = capture_timescale
-        self.surface = surface
+        self.release_timescale = release_timescale  # type: float
+        self.capture_timescale = capture_timescale  # type: float
+        self.surface = surface  # type: bool
 
         # Rates
-        self.emission_rate = 1 / self.release_timescale
+        self.emission_rate = 1 / self.release_timescale  # type: float
 
         if self.capture_timescale == 0:
-            self.capture_rate = np.inf
+            self.capture_rate = np.inf  # type: float
         else:
             self.capture_rate = 1 / self.capture_timescale
+
+    def distribution_within_pixel(self, fractional_volume=0):
+        if self.surface:
+            #
+            # RJM: RESERVED FOR SURFACE TRAPS OR SPECIES WITH NONUNIFORM DENSITY WITHIN A PIXEL
+            #
+            pass
+        return None
 
 
 class TrapManager:
@@ -808,7 +919,7 @@ class TrapManager:
         #     traps = [traps]
 
         self.traps = deepcopy(traps)  # type: t.Sequence[Trap]
-        self._max_n_transfers = max_n_transfers  # type: int
+        self.max_n_transfers = max_n_transfers  # type: int
 
         # Set up the watermark array
         self.watermarks_2d = np.zeros(
@@ -831,31 +942,786 @@ class TrapManager:
         # Are they surface traps?
         self.surface = np.array([trap.surface for trap in traps], dtype=np.bool_)
 
+        self.trap_densities_1d = np.array(
+            [trap.density for trap in self.traps], dtype=np.float64
+        )
+
         # Construct a function that describes the fraction of traps that are
         # exposed by a charge cloud containing n_electrons. This must be
         # fractional (rather than the absolute number of traps) because it can
         # be shared between trap species that have different trap densities.
-        if self.traps[0].distribution_within_pixel() == None:
+        # if self.traps[0].distribution_within_pixel() == None:
+        #
+        #     def _fraction_of_traps_exposed_from_n_electrons(
+        #         self, n_electrons, ccd_filling_function, surface=self.surface[0]
+        #     ):
+        #         return ccd_filling_function(n_electrons)
+        #
+        # else:
+        #
+        #     def _fraction_of_traps_exposed_from_n_electrons(
+        #         self, n_electrons, ccd_filling_function
+        #     ):
+        #         fraction_of_traps = 0
+        #         #
+        #         # RJM: RESERVED FOR SURFACE TRAPS OR SPECIES WITH NONUNIFORM DENSITY WITHIN A PIXEL
+        #         #
+        #         return fraction_of_traps
+        #
+        # self._fraction_of_traps_exposed_from_n_electrons = (
+        #     _fraction_of_traps_exposed_from_n_electrons
+        # )
 
-            def _fraction_of_traps_exposed_from_n_electrons(
-                self, n_electrons, ccd_filling_function, surface=self.surface[0]
-            ):
-                return ccd_filling_function(n_electrons)
+    def fraction_of_traps_exposed_from_n_electrons(
+        self, n_electrons: float, ccd_filling_function: t.Callable
+    ):
+        """ Calculate the proportion of traps reached by a charge cloud. """
+        return ccd_filling_function(n_electrons)
+
+    @property
+    def n_watermarks_per_transfer(self) -> int:
+        """Each transfer can create up to 2 new watermark levels (at the other
+        extreme, a transfer can remove all watermarks bar one)
+        """
+        return 2
+
+    @property
+    def n_trap_species(self) -> int:
+        """ Total number of trap species within this trap manager """
+        return len(self.traps)
+
+    @property
+    def n_traps_per_pixel(self) -> np.ndarray:
+        """ Number of traps of each species, in each pixel """
+        return self.trap_densities_1d
+
+    @n_traps_per_pixel.setter
+    def n_traps_per_pixel(self, values_1d: np.ndarray) -> None:
+        assert values_1d.shape == self.trap_densities_1d.shape
+
+        self.trap_densities_1d = values_1d
+
+    @property
+    def filled_watermark_value(self):
+        """The value for a full watermark level, here 1 because we are
+        monitoring the fill fraction.
+        """
+        return 1
+
+    def n_trapped_electrons_from_watermarks(self, watermarks_2d: np.ndarray) -> float:
+        """Sum the total number of electrons currently held in traps.
+
+        Parameters
+        ----------
+        watermarks_2d : np.ndarray
+            The watermarks. See
+            initial_watermarks_from_n_pixels_and_total_traps().
+        """
+        return np.sum(
+            (watermarks_2d[:, 0] * watermarks_2d[:, 1:].T).T * self.n_traps_per_pixel
+        )
+
+    def empty_all_traps(self) -> None:
+        """ Reset the trap watermarks for the next run of release and capture. """
+        self.watermarks_2d.fill(0.0)
+
+    def fill_probabilities_from_dwell_time(
+        self, dwell_time: float
+    ) -> t.Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """The probabilities of being full after release and/or capture.
+
+        See Lindegren (1998) section 3.2.
+
+        Parameters
+        ----------
+        dwell_time : float
+            The time spent in this pixel or phase, in the same units as the
+            trap timescales.
+
+        Returns
+        -------
+        fill_probabilities_from_empty : float
+            The fraction of traps that were empty that become full.
+
+        fill_probabilities_from_full : float
+            The fraction of traps that were full that stay full.
+
+        fill_probabilities_from_release : float
+            The fraction of traps that were full that stay full after release.
+        """
+        # Common factor for capture and release probabilities
+        exponential_factor = (
+            1 - np.exp(-self.total_rates_1d * dwell_time)
+        ) / self.total_rates_1d
+
+        # New fill fraction for empty traps (Eqn. 20)
+        # Ignore unnecessary warning from instant capture
+        # with warnings.catch_warnings():
+        #     warnings.filterwarnings(
+        #         "ignore", message="invalid value encountered in multiply"
+        #     )
+        #     fill_probabilities_from_empty_1d = self.capture_rates_1d * exponential_factor
+        fill_probabilities_from_empty_1d = self.capture_rates_1d * exponential_factor
+
+        # Fix for instant capture
+        fill_probabilities_from_empty_1d[np.isnan(fill_probabilities_from_empty_1d)] = 1
+
+        # New fill fraction for filled traps (Eqn. 21)
+        fill_probabilities_from_full_1d = (
+            1 - self.emission_rates_1d * exponential_factor
+        )
+
+        # New fill fraction from only release
+        fill_probabilities_from_release_1d = np.exp(
+            -self.emission_rates_1d * dwell_time
+        )
+
+        return (
+            fill_probabilities_from_empty_1d,
+            fill_probabilities_from_full_1d,
+            fill_probabilities_from_release_1d,
+        )
+
+    def watermark_index_above_cloud_from_cloud_fractional_volume(
+        self,
+        cloud_fractional_volume: float,
+        watermarks_2d: np.ndarray,
+        max_watermark_index: int,
+    ) -> int:
+        """Return the index of the first watermark above the cloud.
+
+        Parameters
+        ----------
+        cloud_fractional_volume : float
+            The fractional volume of the electron cloud in the pixel.
+
+        watermarks_2d : np.ndarray
+            The initial watermarks. See
+            initial_watermarks_from_n_pixels_and_total_traps().
+
+        max_watermark_index : int
+            The index of the highest existing watermark.
+
+        Returns
+        -------
+        watermark_index_above_cloud : int
+            The index of the first watermark above the cloud.
+        """
+        if np.sum(watermarks_2d[:, 0]) < cloud_fractional_volume:
+            return max_watermark_index + 1
+
+        elif cloud_fractional_volume == 0:
+            return -1
 
         else:
+            return np.argmax(cloud_fractional_volume <= np.cumsum(watermarks_2d[:, 0]))
 
-            def _fraction_of_traps_exposed_from_n_electrons(
-                self, n_electrons, ccd_filling_function
-            ):
-                fraction_of_traps = 0
-                #
-                # RJM: RESERVED FOR SURFACE TRAPS OR SPECIES WITH NONUNIFORM DENSITY WITHIN A PIXEL
-                #
-                return fraction_of_traps
+    def updated_watermarks_from_capture_not_enough(
+        self,
+        watermarks_2d: np.ndarray,
+        watermarks_initial_2d: np.ndarray,
+        enough: float,
+    ) -> np.ndarray:
+        """
+        Tweak trap watermarks for capturing electrons when not enough are
+        available to fill every trap below the cloud fractional volume (rare!).
 
-        self._fraction_of_traps_exposed_from_n_electrons = (
-            _fraction_of_traps_exposed_from_n_electrons
+        Parameters
+        ----------
+        watermarks_2d : np.ndarray
+            The current watermarks after attempted capture. See
+            initial_watermarks_from_n_pixels_and_total_traps().
+
+        watermarks_initial_2d : np.ndarray
+            The initial watermarks before capture, but with updated fractional
+            volumes to match the current watermarks.
+
+        enough : float
+            The ratio of available electrons to traps up to this fractional
+            volume.
+
+        Returns
+        -------
+        watermarks : np.ndarray
+            The updated watermarks. See
+            initial_watermarks_from_n_pixels_and_total_traps().
+        """
+
+        # Limit the increase to the `enough` fraction of the original
+        watermarks_2d[:, 1:] = (
+            enough * watermarks_2d[:, 1:] + (1 - enough) * watermarks_initial_2d[:, 1:]
         )
+
+        return watermarks_2d
+
+    def _n_electrons_released_and_captured__first_capture(
+        self,
+        n_free_electrons: float,
+        cloud_fractional_volume: float,
+        watermarks_initial_2d: np.ndarray,
+        fill_probabilities_from_empty_1d: np.ndarray,
+        express_multiplier: float,
+    ) -> float:
+        """For n_electrons_released_and_captured(), for the first capture.
+
+        Make the new watermark then can return immediately.
+        """
+
+        # Update the watermark volume, duplicated for the initial watermarks
+        self.watermarks_2d[0, 0] = cloud_fractional_volume
+        watermarks_initial_2d[0, 0] = self.watermarks_2d[0, 0]
+
+        # Update the fill fractions
+        self.watermarks_2d[0, 1:] = fill_probabilities_from_empty_1d
+
+        # Final number of electrons in traps
+        n_trapped_electrons_final = self.n_trapped_electrons_from_watermarks(
+            watermarks_2d=self.watermarks_2d
+        )  # type: float
+
+        # Not enough available electrons to capture
+        if n_trapped_electrons_final == 0.0:
+            return 0.0
+
+        enough = n_free_electrons / n_trapped_electrons_final  # type: float
+        if enough < 1.0:
+            # For watermark fill fractions that increased, tweak them such that
+            # the resulting increase instead matches the available electrons
+            self.watermarks_2d = self.updated_watermarks_from_capture_not_enough(
+                watermarks_2d=self.watermarks_2d,
+                watermarks_initial_2d=watermarks_initial_2d,
+                enough=enough,
+            )
+
+            # Final number of electrons in traps
+            n_trapped_electrons_final = self.n_trapped_electrons_from_watermarks(
+                watermarks_2d=self.watermarks_2d
+            )
+
+        return -n_trapped_electrons_final
+
+    def update_watermark_volumes_for_cloud_below_highest(
+        self,
+        watermarks_2d: np.ndarray,
+        cloud_fractional_volume: float,
+        watermark_index_above_cloud: int,
+    ) -> np.ndarray:
+        """Update the trap watermarks for a cloud below the highest watermark.
+
+        Parameters
+        ----------
+        watermarks_2d : np.ndarray
+            The initial watermarks. See
+            initial_watermarks_from_n_pixels_and_total_traps().
+
+        cloud_fractional_volume : float
+            The fractional volume of the electron cloud in the pixel.
+
+        watermark_index_above_cloud : int
+            The index of the first watermark above the cloud.
+
+        Returns
+        -------
+        watermarks : np.ndarray
+            The updated watermarks. See
+            initial_watermarks_from_n_pixels_and_total_traps().
+        """
+        # The volume and cumulative volume of the watermark around the cloud volume
+        watermark_fractional_volume = watermarks_2d[watermark_index_above_cloud, 0]
+        cumulative_watermark_fractional_volume = np.sum(
+            watermarks_2d[: watermark_index_above_cloud + 1, 0]
+        )
+
+        # Move one new empty watermark to the start of the list
+        watermarks_2d = my_roll_axis0(watermarks_2d, 1)
+
+        # Re-set the relevant watermarks near the start of the list
+        if watermark_index_above_cloud == 0:
+            watermarks_2d[0] = watermarks_2d[1]
+        else:
+            watermarks_2d[: watermark_index_above_cloud + 1] = watermarks_2d[
+                1 : watermark_index_above_cloud + 2
+            ]
+
+        # Update the new split watermarks' volumes
+        old_fractional_volume = watermark_fractional_volume
+        watermarks_2d[watermark_index_above_cloud, 0] = cloud_fractional_volume - (
+            cumulative_watermark_fractional_volume - watermark_fractional_volume
+        )
+        watermarks_2d[watermark_index_above_cloud + 1, 0] = (
+            old_fractional_volume - watermarks_2d[watermark_index_above_cloud, 0]
+        )
+
+        return watermarks_2d
+
+    def _n_electrons_released_and_captured__cloud_below_watermarks(
+        self,
+        n_free_electrons: float,
+        cloud_fractional_volume: float,
+        watermarks_initial_2d: np.ndarray,
+        watermark_index_above_cloud: int,
+        max_watermark_index: int,
+        fill_probabilities_from_release_1d: np.ndarray,
+        n_trapped_electrons_initial: float,
+        ccd_filling_function: t.Callable,
+    ) -> t.Tuple[float, np.ndarray, float, int, int]:
+        """For n_electrons_released_and_captured(), for capture from a cloud
+            below the existing watermarks.
+
+        Create a new watermark at the cloud fractional volume then release
+        electrons from watermarks above the cloud.
+        """
+        # Create the new watermark at the cloud fractional volume
+        if cloud_fractional_volume > 0.0 and cloud_fractional_volume not in np.cumsum(
+            self.watermarks_2d[:, 0]
+        ):
+            # Update the watermark volumes, duplicated for the initial watermarks
+            self.watermarks_2d = self.update_watermark_volumes_for_cloud_below_highest(
+                watermarks_2d=self.watermarks_2d,
+                cloud_fractional_volume=cloud_fractional_volume,
+                watermark_index_above_cloud=watermark_index_above_cloud,
+            )
+            watermarks_initial_2d = (
+                self.update_watermark_volumes_for_cloud_below_highest(
+                    watermarks_2d=watermarks_initial_2d,
+                    cloud_fractional_volume=cloud_fractional_volume,
+                    watermark_index_above_cloud=watermark_index_above_cloud,
+                )
+            )
+
+            # Increment the index now that an extra watermark has been set
+            max_watermark_index += 1
+
+        # Release electrons from existing watermark levels above the cloud
+        # Update the fill fractions
+        self.watermarks_2d[
+            watermark_index_above_cloud + 1 : max_watermark_index + 1, 1:
+        ] *= fill_probabilities_from_release_1d
+
+        # Current numbers of electrons temporarily in traps and now available
+        n_trapped_electrons_tmp = self.n_trapped_electrons_from_watermarks(
+            watermarks_2d=self.watermarks_2d
+        )  # type: float
+        n_free_electrons += (
+            n_trapped_electrons_initial - n_trapped_electrons_tmp
+        )  # type: float
+
+        # Re-calculate the fractional volume of the electron cloud
+        cloud_fractional_volume = self.fraction_of_traps_exposed_from_n_electrons(
+            n_electrons=n_free_electrons, ccd_filling_function=ccd_filling_function
+        )  # type: float
+        watermark_index_above_cloud = (
+            self.watermark_index_above_cloud_from_cloud_fractional_volume(
+                cloud_fractional_volume=cloud_fractional_volume,
+                watermarks_2d=self.watermarks_2d,
+                max_watermark_index=max_watermark_index,
+            )
+        )  # type: int
+
+        # Update the watermark volumes, duplicated for the initial watermarks
+        if cloud_fractional_volume > 0.0 and cloud_fractional_volume not in np.cumsum(
+            self.watermarks_2d[:, 0]
+        ):
+            self.watermarks = self.update_watermark_volumes_for_cloud_below_highest(
+                watermarks_2d=self.watermarks_2d,
+                cloud_fractional_volume=cloud_fractional_volume,
+                watermark_index_above_cloud=watermark_index_above_cloud,
+            )
+            watermarks_initial_2d = (
+                self.update_watermark_volumes_for_cloud_below_highest(
+                    watermarks_2d=watermarks_initial_2d,
+                    cloud_fractional_volume=cloud_fractional_volume,
+                    watermark_index_above_cloud=watermark_index_above_cloud,
+                )
+            )
+
+            # Increment the index now that an extra watermark has been set
+            max_watermark_index += 1
+
+        return (
+            n_free_electrons,
+            watermarks_initial_2d,
+            cloud_fractional_volume,
+            watermark_index_above_cloud,
+            max_watermark_index,
+        )
+
+    def collapse_redundant_watermarks_with_copy(
+        self, watermarks_2d: np.ndarray, watermarks_copy_2d: np.ndarray
+    ) -> t.Tuple[np.ndarray, np.ndarray]:
+        """
+        Collapse any redundant watermarks that are completely full.
+
+        Parameters
+        ----------
+        watermarks_2d : np.ndarray
+            The current watermarks. See
+            initial_watermarks_from_n_pixels_and_total_traps().
+
+        watermarks_copy_2d : np.ndarray
+            A copy of the watermarks array that should be edited in the same way
+            as watermarks.
+
+        Returns
+        -------
+        watermarks : np.ndarray
+            The updated watermarks. See
+            initial_watermarks_from_n_pixels_and_total_traps().
+
+        watermarks_copy : np.ndarray
+            The updated watermarks copy, if it was provided.
+        """
+
+        # Number of trap species
+        num_traps = len(watermarks_2d[0, 1:])  # type: int
+
+        # Find the first watermark that is not completely filled for all traps
+        watermark_index_not_filled = min(
+            [
+                np.argmax(watermarks_2d[:, 1 + i_trap] != self.filled_watermark_value)
+                for i_trap in range(num_traps)
+            ]
+        )  # type: int
+
+        # Skip if none or only one are completely filled
+        if watermark_index_not_filled <= 1:
+            # if watermarks_copy_2d is not None:
+            #     return watermarks_2d, watermarks_copy_2d
+            # else:
+            #     return watermarks_2d
+            return watermarks_2d, watermarks_copy_2d
+
+        # Total fractional volume of filled watermarks
+        fractional_volume_filled = np.sum(
+            watermarks_2d[:watermark_index_not_filled, 0]
+        )  # type: float
+
+        # Combined fill values
+        # if watermarks_copy_2d is not None:
+        #     # Multiple trap species
+        #     if 1 < num_traps:
+        #         axis = 1
+        #     else:
+        #         axis = None
+        #     copy_fill_values = np.sum(
+        #         watermarks_copy_2d[:watermark_index_not_filled, 0]
+        #         * watermarks_copy_2d[:watermark_index_not_filled, 1:].T,
+        #         axis=axis,
+        #     ) / np.sum(watermarks_copy_2d[:watermark_index_not_filled, 0])
+
+        # Multiple trap species
+        assert num_traps == 1
+        # if 1 < num_traps:
+        #     axis = 1
+        # else:
+        #     axis = None
+        axis = None
+
+        copy_fill_values = np.sum(
+            watermarks_copy_2d[:watermark_index_not_filled, 0]
+            * watermarks_copy_2d[:watermark_index_not_filled, 1:].T,
+            axis=axis,
+        ) / np.sum(
+            watermarks_copy_2d[:watermark_index_not_filled, 0]
+        )  # type: float
+
+        # Remove the no-longer-needed overwritten watermarks
+        watermarks_2d[:watermark_index_not_filled, :] = 0.0
+        # if watermarks_copy_2d is not None:
+        #     watermarks_copy_2d[:watermark_index_not_filled, :] = 0
+        watermarks_copy_2d[:watermark_index_not_filled, :] = 0.0
+
+        # Move the no-longer-needed watermarks to the end of the list
+        watermarks_2d = my_roll_axis0(watermarks_2d, 1 - watermark_index_not_filled)
+        # if watermarks_copy_2d is not None:
+        #     watermarks_copy_2d = np.roll(
+        #         watermarks_copy_2d, 1 - watermark_index_not_filled, axis=0
+        #     )
+        watermarks_copy_2d = my_roll_axis0(
+            watermarks_copy_2d, 1 - watermark_index_not_filled
+        )
+
+        # Edit the new first watermark
+        watermarks_2d[0, 0] = fractional_volume_filled
+        watermarks_2d[0, 1:] = self.filled_watermark_value
+        # if watermarks_copy_2d is not None:
+        #     watermarks_copy_2d[0, 0] = fractional_volume_filled
+        #     watermarks_copy_2d[0, 1:] = copy_fill_values
+        watermarks_copy_2d[0, 0] = fractional_volume_filled
+        watermarks_copy_2d[0, 1:] = copy_fill_values
+
+        # if watermarks_copy_2d is not None:
+        #     return watermarks_2d, watermarks_copy_2d
+        # else:
+        #     return watermarks_2d
+        return watermarks_2d, watermarks_copy_2d
+
+    def collapse_redundant_watermarks_without_copy(
+        self, watermarks_2d: np.ndarray
+    ) -> np.ndarray:
+        """
+        Collapse any redundant watermarks that are completely full.
+
+        Parameters
+        ----------
+        watermarks_2d : np.ndarray
+            The current watermarks. See
+            initial_watermarks_from_n_pixels_and_total_traps().
+
+        watermarks_copy_2d : np.ndarray
+            A copy of the watermarks array that should be edited in the same way
+            as watermarks.
+
+        Returns
+        -------
+        watermarks : np.ndarray
+            The updated watermarks. See
+            initial_watermarks_from_n_pixels_and_total_traps().
+
+        watermarks_copy : np.ndarray
+            The updated watermarks copy, if it was provided.
+        """
+
+        # Number of trap species
+        num_traps = len(watermarks_2d[0, 1:])  # type: int
+
+        # Find the first watermark that is not completely filled for all traps
+        watermark_index_not_filled = min(
+            [
+                np.argmax(watermarks_2d[:, 1 + i_trap] != self.filled_watermark_value)
+                for i_trap in range(num_traps)
+            ]
+        )  # type: int
+
+        # Skip if none or only one are completely filled
+        if watermark_index_not_filled <= 1:
+            # if watermarks_copy_2d is not None:
+            #     return watermarks_2d, watermarks_copy_2d
+            # else:
+            #     return watermarks_2d
+            return watermarks_2d
+
+        # Total fractional volume of filled watermarks
+        fractional_volume_filled = np.sum(
+            watermarks_2d[:watermark_index_not_filled, 0]
+        )  # type: float
+
+        # Combined fill values
+        # if watermarks_copy_2d is not None:
+        #     # Multiple trap species
+        #     if 1 < num_traps:
+        #         axis = 1
+        #     else:
+        #         axis = None
+        #     copy_fill_values = np.sum(
+        #         watermarks_copy_2d[:watermark_index_not_filled, 0]
+        #         * watermarks_copy_2d[:watermark_index_not_filled, 1:].T,
+        #         axis=axis,
+        #     ) / np.sum(watermarks_copy_2d[:watermark_index_not_filled, 0])
+
+        # Remove the no-longer-needed overwritten watermarks
+        watermarks_2d[:watermark_index_not_filled, :] = 0.0
+        # if watermarks_copy_2d is not None:
+        #     watermarks_copy_2d[:watermark_index_not_filled, :] = 0
+
+        # Move the no-longer-needed watermarks to the end of the list
+        watermarks_2d = my_roll_axis0(watermarks_2d, 1 - watermark_index_not_filled)
+        # if watermarks_copy_2d is not None:
+        #     watermarks_copy_2d = np.roll(
+        #         watermarks_copy_2d, 1 - watermark_index_not_filled, axis=0
+        #     )
+
+        # Edit the new first watermark
+        watermarks_2d[0, 0] = fractional_volume_filled
+        watermarks_2d[0, 1:] = self.filled_watermark_value
+        # if watermarks_copy_2d is not None:
+        #     watermarks_copy_2d[0, 0] = fractional_volume_filled
+        #     watermarks_copy_2d[0, 1:] = copy_fill_values
+
+        # if watermarks_copy_2d is not None:
+        #     return watermarks_2d, watermarks_copy_2d
+        # else:
+        #     return watermarks_2d
+        return watermarks_2d
+
+    def n_electrons_released_and_captured(
+        self,
+        n_free_electrons: float,
+        ccd_filling_function: t.Callable,
+        dwell_time: float = 1.0,
+        express_multiplier: float = 1.0,
+    ) -> float:
+        """Release and capture electrons and update the trap watermarks.
+
+        See Lindegren (1998) section 3.2.
+
+        Parameters
+        ----------
+        n_free_electrons : float
+            The number of available electrons for trapping.
+
+        ccd_filling_function : func
+            A (self-contained) function describing the well-filling model,
+            returning the fractional volume of charge cloud in a pixel from
+            the number of electrons in the cloud.
+
+        dwell_time : float
+            The time spent in this pixel or phase, in the same units as the
+            trap timescales.
+
+        express_multiplier : int
+            (Not currently used.)
+
+            The number of times this transfer is to be replicated as part of the
+            express algorithm, passed here to make sure that too many electrons
+            are not removed if the multiplier is too high, to avoid ending up
+            with negative charge in the image.
+
+        Returns
+        -------
+        net_n_electrons_released : float
+            The net number of released (if +ve) and captured (if -ve) electrons.
+
+        Updates
+        -------
+        watermarks : np.ndarray
+            The updated watermarks. See
+            initial_watermarks_from_n_pixels_and_total_traps().
+        """
+        # Initial watermarks and number of electrons in traps
+        watermarks_initial_2d = deepcopy(self.watermarks_2d)  # type: np.ndarray
+        n_trapped_electrons_initial = self.n_trapped_electrons_from_watermarks(
+            watermarks_2d=self.watermarks_2d
+        )  # type: float
+
+        # Probabilities of being full after release and/or capture
+        (
+            fill_probabilities_from_empty_1d,
+            fill_probabilities_from_full_1d,
+            fill_probabilities_from_release_1d,
+        ) = self.fill_probabilities_from_dwell_time(dwell_time=dwell_time)
+
+        # Find the highest active watermark
+        max_watermark_index = np.argmax(self.watermarks_2d[:, 0] == 0) - 1  # type: int
+
+        # The fractional volume the electron cloud reaches in the pixel well
+        cloud_fractional_volume = self.fraction_of_traps_exposed_from_n_electrons(
+            n_electrons=n_free_electrons,
+            ccd_filling_function=ccd_filling_function,
+        )  # type: float
+
+        # Find the first watermark above the cloud
+        watermark_index_above_cloud = (
+            self.watermark_index_above_cloud_from_cloud_fractional_volume(
+                cloud_fractional_volume=cloud_fractional_volume,
+                watermarks_2d=self.watermarks_2d,
+                max_watermark_index=max_watermark_index,
+            )
+        )  # type: int
+
+        # Proceed with capture depending on the volume of the cloud compared
+        # with the existing watermark levels:
+
+        # First capture (no existing watermarks)
+        if max_watermark_index == -1 and n_free_electrons > 0.0:
+            # Make the new watermark then can return immediately
+            n_trapped_electrons_final = (
+                self._n_electrons_released_and_captured__first_capture(
+                    n_free_electrons=n_free_electrons,
+                    cloud_fractional_volume=cloud_fractional_volume,
+                    watermarks_initial_2d=watermarks_initial_2d,
+                    fill_probabilities_from_empty_1d=fill_probabilities_from_empty_1d,
+                    express_multiplier=express_multiplier,
+                )
+            )  # type: float
+
+            return n_trapped_electrons_final
+
+        # Cloud fractional volume below existing watermarks (or 0)
+        elif (
+            watermark_index_above_cloud <= max_watermark_index
+            or max_watermark_index == -1
+        ):
+            # Create a new watermark at the cloud fractional volume then release
+            # electrons from watermarks above the cloud
+            (
+                n_free_electrons,
+                watermarks_initial_2d,
+                cloud_fractional_volume,
+                watermark_index_above_cloud,
+                max_watermark_index,
+            ) = self._n_electrons_released_and_captured__cloud_below_watermarks(
+                n_free_electrons=n_free_electrons,
+                cloud_fractional_volume=cloud_fractional_volume,
+                watermarks_initial_2d=watermarks_initial_2d,
+                watermark_index_above_cloud=watermark_index_above_cloud,
+                max_watermark_index=max_watermark_index,
+                fill_probabilities_from_release_1d=fill_probabilities_from_release_1d,
+                n_trapped_electrons_initial=n_trapped_electrons_initial,
+                ccd_filling_function=ccd_filling_function,
+            )
+
+        # Cloud fractional volume above existing watermarks
+        else:
+            # Initialise the new watermark, duplicated for the initial watermarks
+            self.watermarks_2d[
+                watermark_index_above_cloud, 0
+            ] = cloud_fractional_volume - np.sum(self.watermarks_2d[:, 0])
+            watermarks_initial_2d[watermark_index_above_cloud, 0] = self.watermarks_2d[
+                watermark_index_above_cloud, 0
+            ]
+
+        # Continue with capture having prepared the new watermark at the cloud
+        # and released from any watermarks above the cloud
+
+        # Release and capture electrons all the way to watermarks below the cloud
+        fill_fractions_old = self.watermarks_2d[: watermark_index_above_cloud + 1, 1:]
+        self.watermarks_2d[: watermark_index_above_cloud + 1, 1:] = (
+            fill_fractions_old * fill_probabilities_from_full_1d
+            + (1 - fill_fractions_old) * fill_probabilities_from_empty_1d
+        )
+
+        # Collapse any redundant watermarks that are completely full
+        (
+            self.watermarks_2d,
+            watermarks_initial_2d,
+        ) = self.collapse_redundant_watermarks_with_copy(
+            watermarks_2d=self.watermarks_2d, watermarks_copy_2d=watermarks_initial_2d
+        )
+
+        # Final number of electrons in traps
+        n_trapped_electrons_final = self.n_trapped_electrons_from_watermarks(
+            watermarks_2d=self.watermarks_2d
+        )  # type: float
+
+        # Prevent division by zero errors
+        if n_trapped_electrons_final == n_trapped_electrons_initial:
+            return 0.0
+
+        # Not enough available electrons to capture
+        enough = n_free_electrons / (
+            n_trapped_electrons_final - n_trapped_electrons_initial
+        )
+        if 0 < enough < 1:
+            # For watermark fill fractions that increased, tweak them such that
+            # the resulting increase instead matches the available electrons
+            self.watermarks_2d = self.updated_watermarks_from_capture_not_enough(
+                watermarks_2d=self.watermarks_2d,
+                watermarks_initial_2d=watermarks_initial_2d,
+                enough=enough,
+            )
+
+            # Final number of electrons in traps
+            n_trapped_electrons_final = self.n_trapped_electrons_from_watermarks(
+                watermarks_2d=self.watermarks_2d
+            )
+
+        # Collapse any redundant watermarks that are completely full
+        self.watermarks_2d = self.collapse_redundant_watermarks_without_copy(
+            watermarks_2d=self.watermarks_2d
+        )
+
+        return n_trapped_electrons_initial - n_trapped_electrons_final
 
 
 class AllTrapManager:
@@ -924,11 +1790,11 @@ class AllTrapManager:
         traps = traps  # type: t.Sequence[t.Sequence[Trap]]
 
         # Replicate trap managers to keep track of traps in different phases separately
-        # self.data = []
+        self.data = []  # type: t.List[t.List[TrapManager]]
         for phase in range(ccd.n_phases):
 
             # Set up list of traps in a single phase of the CCD
-            trap_managers_this_phase = []
+            trap_managers_this_phase = []  # type: t.List[TrapManager]
 
             for trap_group in traps:  # type: t.Sequence[Trap]
                 # Use a non-default trap manager if required for the input trap species
@@ -951,76 +1817,87 @@ class AllTrapManager:
                     traps=trap_group, max_n_transfers=max_n_transfers
                 )
 
-                trap_manager.n_traps_per_pixel *= ccd.fraction_of_traps_per_phase[phase]
+                trap_manager.n_traps_per_pixel = (
+                    trap_manager.n_traps_per_pixel
+                    * ccd.fraction_of_traps_per_phase[phase]
+                )
                 trap_managers_this_phase.append(trap_manager)
 
             self.data.append(trap_managers_this_phase)
 
         # Initialise the empty trap state for future reference
-        self._saved_data = None
-        self._n_electrons_trapped_in_save = 0.0
-        self._n_electrons_trapped_previously = 0.0
+        self._saved_data = None  # type: t.Optional[t.Sequence[t.Sequence[Trap]]]
+        self._n_electrons_trapped_in_save = 0.0  # type: float
+        self._n_electrons_trapped_previously = 0.0  # type: float
 
-    # @property
-    # def n_electrons_trapped_currently(self):
-    #     """ The number of electrons in traps that are currently being actively monitored. """
-    #     n_electrons_trapped_currently = 0
+    # def __len__(self) -> int:
+    #     return len(self.data)
     #
-    #     for trap_manager_phase in self.data:
-    #         for trap_manager in trap_manager_phase:
-    #             n_electrons_trapped_currently += trap_manager.n_trapped_electrons_from_watermarks(
-    #                 trap_manager.watermarks
-    #             )
-    #
-    #     return n_electrons_trapped_currently
-    #
-    # def empty_all_traps(self):
-    #     """ Set all trap occupancies to zero """
-    #     for trap_manager_phase in self.data:
-    #         for trap_manager_group in trap_manager_phase:
-    #             trap_manager_group.empty_all_traps()
-    #
-    # def save(self):
-    #     """ Save trap occupancy levels for future reference """
-    #     # This stores far more than necessary. But extracting only the watermark
-    #     # arrays requires overhead.
-    #     self._saved_data = deepcopy(self.data)
-    #     self._n_electrons_trapped_in_save = self.n_electrons_trapped_currently
-    #
-    # def restore(self):
-    #     """ Restore trap occupancy levels """
-    #     # Book keeping, of how many electrons have ended up where.
-    #     # About to forget about those currently in traps, so add them to previous total.
-    #     # About to recall the ones in save back to current account, so remove them
-    #     # from the savings.
-    #     self._n_electrons_trapped_previously += (
-    #             self.n_electrons_trapped_currently - self._n_electrons_trapped_in_save
-    #     )
-    #     # Overwrite the current trap state
-    #     if self._saved_data is None:
-    #         self.empty_all_traps()
-    #     else:
-    #         self.data = deepcopy(self._saved_data)
+    # def __getitem__(self, item: int) -> t.Sequence[TrapManager]:
+    #     return self.data[item]
+
+    @property
+    def n_electrons_trapped_currently(self) -> float:
+        """ The number of electrons in traps that are currently being actively monitored. """
+        n_electrons_trapped_currently = 0.0  # type: float
+
+        for trap_manager_phase in self.data:  # type: t.Sequence[TrapManager]
+            for trap_manager in trap_manager_phase:  # type: TrapManager
+                n_electrons_trapped_currently += (
+                    trap_manager.n_trapped_electrons_from_watermarks(
+                        trap_manager.watermarks_2d
+                    )
+                )
+
+        return n_electrons_trapped_currently
+
+    def empty_all_traps(self) -> None:
+        """ Set all trap occupancies to zero """
+        for trap_manager_phase in self.data:  # type: t.Sequence[TrapManager]
+            for trap_manager_group in trap_manager_phase:  # type: TrapManager
+                trap_manager_group.empty_all_traps()
+
+    def save(self):
+        """ Save trap occupancy levels for future reference """
+        # This stores far more than necessary. But extracting only the watermark
+        # arrays requires overhead.
+        self._saved_data = deepcopy(self.data)
+        self._n_electrons_trapped_in_save = self.n_electrons_trapped_currently
+
+    def restore(self) -> None:
+        """ Restore trap occupancy levels """
+        # Book keeping, of how many electrons have ended up where.
+        # About to forget about those currently in traps, so add them to previous total.
+        # About to recall the ones in save back to current account, so remove them
+        # from the savings.
+        self._n_electrons_trapped_previously += (
+            self.n_electrons_trapped_currently - self._n_electrons_trapped_in_save
+        )
+        # Overwrite the current trap state
+        if self._saved_data is None:
+            self.empty_all_traps()
+        else:
+            self.data = deepcopy(self._saved_data)
 
 
 def _clock_charge_in_one_direction(
-    image: np.ndarray,
+    image_2d: np.ndarray,
     roe: ROE,
     ccd: CCD,
     traps: t.Sequence[t.Sequence[Trap]],
     express: int,
     offset: int,
-    window_row_range: t.Tuple[int, int],
-    window_column_range: t.Tuple[int, int],
-    time_window_range: t.Tuple[int, int],
-):
+    window_row_interval: t.Tuple[int, int],
+    window_column_interval: t.Tuple[int, int],
+    time_window_interval: t.Tuple[int, int],
+) -> np.ndarray:
     """
     Add CTI trails to an image by trapping, releasing, and moving electrons
     along their independent columns.
 
     Parameters
     ----------
-    image : [[float]]
+    image_2d : [[float]]
         The input array of pixel values, assumed to be in units of electrons.
 
         The first dimension is the "row" index, the second is the "column"
@@ -1075,17 +1952,17 @@ def _clock_charge_in_one_direction(
         The number of (e.g. prescan) pixels separating the supplied image from
         the readout register.
 
-    window_row_range : range
+    window_row_interval : range
         The subset of row pixels to model, to save time when only a specific
         region of the image is of interest. Defaults to range(0, n_pixels) for
         the full image.
 
-    window_column_range : range
+    window_column_interval : range
         The subset of column pixels to model, to save time when only a specific
         region of the image is of interest. Defaults to range(0, n_columns) for
         the full image.
 
-    time_window_range : range
+    time_window_interval : range
         The subset of transfers to implement. Defaults to range(0, n_pixels) for
         the full image. e.g. range(0, n_pixels/3) to do only the first third of
         the pixel-to-pixel transfers.
@@ -1107,10 +1984,10 @@ def _clock_charge_in_one_direction(
         express_matrix_2d,
         monitor_traps_matrix_2d,
     ) = roe.express_matrix_and_monitor_traps_matrix_from_pixels_and_express(
-        pixels=window_row_range,
+        pixels=window_row_interval,
         express=express,
         offset=offset,
-        time_window_range=time_window_range,
+        time_window_range=time_window_interval,
     )
     # ; and whether the trap occupancy states must be saved for the next express
     # pass rather than being reset (usually at the end of each express pass)
@@ -1123,7 +2000,7 @@ def _clock_charge_in_one_direction(
     # Decide in advance which steps need to be evaluated and which can be skipped
     phases_with_traps = [
         i for i, frac in enumerate(ccd.fraction_of_traps_per_phase) if frac > 0
-    ]  # type: t.Sequence[int
+    ]  # type: t.Sequence[int]
     steps_with_nonzero_dwell_time = [
         i for i, time in enumerate(roe.dwell_times) if time > 0
     ]  # type: t.Sequence[int]
@@ -1149,9 +2026,14 @@ def _clock_charge_in_one_direction(
     # a different charge packet, at any time during the clocking sequence
     n_rows_zero_padding = max(roe.pixels_accessed_during_clocking) - min(
         roe.pixels_accessed_during_clocking
+    )  # type: int
+    zero_padding_2d = np.zeros(
+        (n_rows_zero_padding, image_2d.shape[1]), dtype=image_2d.dtype
     )
-    zero_padding = np.zeros((n_rows_zero_padding, image.shape[1]), dtype=image.dtype)
-    image = np.concatenate((image, zero_padding), axis=0)
+    image_2d = np.concatenate((image_2d, zero_padding_2d), axis=0)
+
+    window_column_range = range(window_column_interval[0], window_column_interval[1])
+    window_row_range = range(window_row_interval[0], window_row_interval[1])
 
     # Read out one column of pixels through the (column of) traps
     for column_index in window_column_range:
@@ -1164,7 +2046,9 @@ def _clock_charge_in_one_direction(
 
             # Each pixel
             for row_index in range(len(window_row_range)):
-                express_multiplier = express_matrix_2d[express_index, row_index]
+                express_multiplier = express_matrix_2d[
+                    express_index, row_index
+                ]  # type: float
                 # Skip this step if not needed to be evaluated (may need to
                 # monitor the traps and update their occupancies even if
                 # express_mulitplier is 0, e.g. for a time window)
@@ -1175,22 +2059,27 @@ def _clock_charge_in_one_direction(
 
                     for phase in phases_with_traps:
                         # Information about the potentials in this phase
-                        roe_phase = roe.clock_sequence[clocking_step][phase]
+                        roe_phase = roe.clock_sequence[clocking_step][
+                            phase
+                        ]  # type: ROEPhase
 
                         # Select the relevant pixel (and phase) for the initial charge
-                        row_index_read = (
+                        row_index_read_1d = int(
                             window_row_range[row_index]
-                            + roe_phase.capture_from_which_pixels
-                        )
+                            + roe_phase.capture_from_which_pixels_1d
+                        )  # type: int
 
                         # Initial charge (0 if this phase's potential is not high)
                         n_free_electrons = (
-                            image[row_index_read, column_index] * roe_phase.is_high
-                        )
+                            image_2d[row_index_read_1d, column_index]
+                            * roe_phase.is_high
+                        )  # type: float
 
                         # Allow electrons to be released from and captured by traps
-                        n_electrons_released_and_captured = 0
-                        for trap_manager in trap_managers[phase]:
+                        n_electrons_released_and_captured = 0.0  # type: float
+                        for trap_manager in trap_managers.data[
+                            phase
+                        ]:  # type: TrapManager
                             n_electrons_released_and_captured += (
                                 trap_manager.n_electrons_released_and_captured(
                                     n_free_electrons=n_free_electrons,
@@ -1203,29 +2092,29 @@ def _clock_charge_in_one_direction(
                             )
 
                         # Skip updating the image if only monitoring the traps
-                        if express_multiplier == 0:
+                        if express_multiplier == 0.0:
                             continue
 
                         # Select the relevant pixel (and phase(s)) for the returned charge
-                        row_index_write = (
+                        row_index_write_1d = (
                             window_row_range[row_index]
-                            + roe_phase.release_to_which_pixels
-                        )
+                            + roe_phase.release_to_which_pixels_1d
+                        )  # type: np.ndarray
 
                         # Return the electrons back to the relevant charge
                         # cloud, or a fraction if they are being returned to
                         # multiple phases
-                        image[row_index_write, column_index] += (
+                        image_2d[row_index_write_1d, column_index] += (
                             n_electrons_released_and_captured
-                            * roe_phase.release_fraction_to_pixel
+                            * roe_phase.release_fraction_to_pixel_1d
                             * express_multiplier
                         )
 
                         # Make sure image counts don't go negative, as could
                         # otherwise happen with a too-large express_multiplier
-                        for row_index_single in row_index_write:
-                            if image[row_index_single, column_index] < 0:
-                                image[row_index_single, column_index] = 0
+                        for row_index_single in row_index_write_1d:
+                            if image_2d[row_index_single, column_index] < 0.0:
+                                image_2d[row_index_single, column_index] = 0.0
 
                 # Save the trap occupancy states for the next express pass
                 if save_trap_states_matrix_2d[express_index, row_index]:
@@ -1239,9 +2128,9 @@ def _clock_charge_in_one_direction(
 
     # Unexpand the image to its original dimensions
     if n_rows_zero_padding > 0:
-        image = image[0:-n_rows_zero_padding, :]
+        image_2d = image_2d[0:-n_rows_zero_padding, :]
 
-    return image
+    return image_2d
 
 
 def add_cti(
@@ -1384,7 +2273,7 @@ def add_cti(
 
         # Set the "columns" window in the rotated image for serial clocking
         # serial_window_column_range = parallel_window_range
-        serial_window_range_start, serial_window_range_stop = (
+        serial_window_column_range_start, serial_window_column_range_stop = (
             parallel_window_range_start,
             parallel_window_range_stop,
         )
@@ -1412,15 +2301,21 @@ def add_cti(
     if parallel_traps is not None:
         # Transfer charge in parallel direction
         image_add_cti_2d = _clock_charge_in_one_direction(
-            image=image_add_cti_2d,
+            image_2d=image_add_cti_2d,
             ccd=parallel_ccd,
             roe=parallel_roe,
             traps=parallel_traps,
             express=parallel_express,
             offset=parallel_offset,
-            window_row_range=(parallel_window_range_start, parallel_window_range_stop),
-            window_column_range=(serial_window_range_start, serial_window_range_stop),
-            time_window_range=(time_window_range_start, time_window_range_stop),
+            window_row_interval=(
+                parallel_window_range_start,
+                parallel_window_range_stop,
+            ),
+            window_column_interval=(
+                serial_window_range_start,
+                serial_window_range_stop,
+            ),
+            time_window_interval=(time_window_range_start, time_window_range_stop),
         )
 
     # Serial clocking
