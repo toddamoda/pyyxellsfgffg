@@ -18,6 +18,7 @@ from pyxel.detectors import CCD as PyxelCCD
 NUMBA_DISABLE_JIT = bool(int(os.environ.get("NUMBA_DISABLE_JIT", 0)))  # type: bool
 
 
+@njit
 def set_min_max(value: float, min: float, max: float) -> float:
     """Fix a value between a minimum and maximum."""
     if value < min:
@@ -40,9 +41,7 @@ def my_cumsum_axis0(data_2d: np.ndarray) -> np.ndarray:
     return other_data
 
 
-# watermarks_2d = np.roll(watermarks_2d, 1, axis=0)
-
-
+@njit
 def my_roll_axis0(a: np.ndarray, shift: int) -> np.ndarray:
     # Equivalent to np.roll(a, shift, axis=0)
     _, num_x = a.shape
@@ -464,10 +463,17 @@ class ROE:
             express_matrix_2d = (
                 my_cumsum_axis0(express_matrix_2d) - time_window_range_start
             )
-            express_matrix_2d[express_matrix_2d < 0] = 0
-            express_matrix_2d[
-                express_matrix_2d > window_express_span
-            ] = window_express_span
+
+            # express_matrix_2d[express_matrix_2d < 0] = 0
+            # express_matrix_2d[
+            #     express_matrix_2d > window_express_span
+            # ] = window_express_span
+            express_matrix_2d = np.where(express_matrix_2d < 0, 0, express_matrix_2d)
+            express_matrix_2d = np.where(
+                express_matrix_2d > window_express_span,
+                window_express_span,
+                express_matrix_2d,
+            )
 
             # Undo the cumulative sum
             express_matrix_2d[1:] -= express_matrix_2d[:-1].copy()
@@ -594,7 +600,7 @@ class ROE:
 
         # Initialise an array with enough pixels to contain the supposed image,
         # including offset
-        express_matrix_2d = np.ndarray(
+        express_matrix_2d = np.empty(
             (express, n_pixels + offset),
             # dtype=self.express_matrix_dtype
             dtype=np.float64,
@@ -614,8 +620,12 @@ class ROE:
             express_matrix_2d[express_index] -= express_index * max_multiplier
 
         # Truncate all values to between 0 and max_multiplier
-        express_matrix_2d[express_matrix_2d < 0] = 0
-        express_matrix_2d[express_matrix_2d > max_multiplier] = max_multiplier
+        # express_matrix_2d[express_matrix_2d < 0] = 0
+        # express_matrix_2d[express_matrix_2d > max_multiplier] = max_multiplier
+        express_matrix_2d = np.where(express_matrix_2d < 0, 0, express_matrix_2d)
+        express_matrix_2d = np.where(
+            express_matrix_2d > max_multiplier, max_multiplier, 0
+        )
 
         # Add an extra (first) transfer for every pixel, the effect of which
         # will only ever be counted once, because it is physically different
@@ -629,7 +639,6 @@ class ROE:
                 np.identity(
                     n_pixels + offset,
                     # dtype=self.express_matrix_dtype,
-                    dtype=np.float64,
                 )
             )
             # Insert the original transfers into the new matrix at appropriate places
@@ -790,9 +799,9 @@ class ROE:
             if (n_phases % 2) == 0:
                 split_release_phase = (
                     high_phase + n_phases // 2
-                ) % n_phases  # type: t.Optional[int]
+                ) % n_phases  # type: int
             else:
-                split_release_phase = None
+                split_release_phase = -1
 
             for phase in range(n_phases):
 
@@ -824,13 +833,12 @@ class ROE:
 
                 # Compile results
                 roe_phases.append(
+                    # Remove keyword arguments because of Numba.
                     ROEPhase(
-                        is_high=phase == high_phase,
-                        capture_from_which_pixels=np.array(
-                            [capture_from_which_pixels], dtype=np.int64
-                        ),
-                        release_to_which_pixels=release_to_which_pixels_1d,
-                        release_fraction_to_pixel=release_fraction_to_pixel_1d,
+                        phase == high_phase,
+                        np.array([capture_from_which_pixels], dtype=np.int64),
+                        release_to_which_pixels_1d,
+                        release_fraction_to_pixel_1d,
                     )
                 )
             clock_sequence.append(roe_phases)
@@ -843,18 +851,18 @@ class ROE:
         accessed during the clocking sequence, i.e. p-1, p or p+1 in the diagram
         above.
         """
-        referred_to_pixels = [0]
+        referred_to_pixels_1d = np.array([0], dtype=np.int64)
         for step in range(self.n_steps):
             for phase in range(self.n_phases):
-                referred_to_pixels = np.concatenate(
+                referred_to_pixels_1d = np.concatenate(
                     (
-                        referred_to_pixels,
+                        referred_to_pixels_1d,
                         self.clock_sequence[step][phase].capture_from_which_pixels_1d,
                         self.clock_sequence[step][phase].release_to_which_pixels_1d,
                     )
                 )
 
-        return np.unique(referred_to_pixels)
+        return np.unique(referred_to_pixels_1d)
 
 
 #
@@ -1048,6 +1056,25 @@ class TrapManager:
         #     _fraction_of_traps_exposed_from_n_electrons
         # )
 
+    # TODO: New method not yet validated
+    def copy(self) -> "TrapManager":
+        # Create new traps
+        traps_copied = Traps(
+            density_1d=self.trap_densities_1d,
+            release_timescale_1d=np.zeros_like(
+                self.trap_densities_1d, dtype=np.float64
+            ),
+            capture_timescale_1d=self.capture_rates_1d,
+            surface_1d=self.surface_1d,
+        )
+
+        trap_manager_copied = TrapManager(
+            traps=traps_copied, max_n_transfers=self.max_n_transfers
+        )
+        trap_manager_copied.watermarks_2d = self.watermarks_2d.copy()
+
+        return trap_manager_copied
+
     def fraction_of_traps_exposed_from_n_electrons(
         self,
         n_electrons: float,
@@ -1056,7 +1083,8 @@ class TrapManager:
         phase: int,
     ):
         """Calculate the proportion of traps reached by a charge cloud."""
-        return ccd.my_well_filling_function(phase=phase, n_electrons=n_electrons)
+        # Do not use keyword arguments (because of Numba)
+        return ccd.my_well_filling_function(phase, n_electrons)
 
     @property
     def n_watermarks_per_transfer(self) -> int:
@@ -1410,7 +1438,7 @@ class TrapManager:
         if cloud_fractional_volume > 0.0 and cloud_fractional_volume not in np.cumsum(
             self.watermarks_2d[:, 0]
         ):
-            self.watermarks = self.update_watermark_volumes_for_cloud_below_highest(
+            self.watermarks_2d = self.update_watermark_volumes_for_cloud_below_highest(
                 watermarks_2d=self.watermarks_2d,
                 cloud_fractional_volume=cloud_fractional_volume,
                 watermark_index_above_cloud=watermark_index_above_cloud,
@@ -1683,7 +1711,7 @@ class TrapManager:
             initial_watermarks_from_n_pixels_and_total_traps().
         """
         # Initial watermarks and number of electrons in traps
-        watermarks_initial_2d = deepcopy(self.watermarks_2d)  # type: np.ndarray
+        watermarks_initial_2d = self.watermarks_2d.copy()  # type: np.ndarray
         n_trapped_electrons_initial = self.n_trapped_electrons_from_watermarks(
             watermarks_2d=self.watermarks_2d
         )  # type: float
@@ -1891,7 +1919,8 @@ class AllTrapManager:
         # traps = traps  # type: t.Sequence[t.Sequence[Trap]]
 
         # Replicate trap managers to keep track of traps in different phases separately
-        self.data = []  # type: t.List[t.List[TrapManager]]
+        data = []  # type: t.List[t.List[TrapManager]]
+
         for phase in range(ccd.n_phases):
 
             # Set up list of traps in a single phase of the CCD
@@ -1914,10 +1943,9 @@ class AllTrapManager:
                 #     trap_manager = TrapManager(
                 #         traps=trap_group, max_n_transfers=max_n_transfers
                 #     )
-                trap_manager = TrapManager(
-                    traps=trap_group,
-                    max_n_transfers=max_n_transfers,
-                )
+
+                # Removed keyword arguments because of Numba
+                trap_manager = TrapManager(trap_group, max_n_transfers)
 
                 trap_manager.n_traps_per_pixel = (
                     trap_manager.n_traps_per_pixel
@@ -1925,7 +1953,9 @@ class AllTrapManager:
                 )
                 trap_managers_this_phase.append(trap_manager)
 
-            self.data.append(trap_managers_this_phase)
+            data.append(trap_managers_this_phase)
+
+        self.data = data
 
         # Initialise the empty trap state for future reference
         self._saved_data = None  # type: t.Optional[t.List[t.List[TrapManager]]]
@@ -2076,19 +2106,21 @@ def _clock_charge_in_one_direction(
     # effect of each pixel-to-pixel transfer can be multiplied for the express
     # algorithm; and whether the traps must be monitored (usually whenever
     # express matrix > 0, unless using a time window)
+    # Remove keyword arguments because of Numba
     (
         express_matrix_2d,
         monitor_traps_matrix_2d,
     ) = roe.express_matrix_and_monitor_traps_matrix_from_pixels_and_express(
-        pixels=window_row_interval,
-        express=express,
-        offset=offset,
-        time_window_range=time_window_interval,
+        window_row_interval,
+        express,
+        offset,
+        time_window_interval,
     )
     # ; and whether the trap occupancy states must be saved for the next express
     # pass rather than being reset (usually at the end of each express pass)
+    # Remove keyword arguments because of Numba
     save_trap_states_matrix_2d = roe.save_trap_states_matrix_from_express_matrix(
-        express_matrix_2d=express_matrix_2d
+        express_matrix_2d
     )  # type: np.ndarray
 
     n_express_pass, n_rows_to_process = express_matrix_2d.shape
@@ -2176,16 +2208,19 @@ def _clock_charge_in_one_direction(
                         for trap_manager in trap_managers.data[
                             phase
                         ]:  # type: TrapManager
-                            n_electrons_released_and_captured += trap_manager.n_electrons_released_and_captured(
-                                n_free_electrons=n_free_electrons,
-                                dwell_time=roe.dwell_times[clocking_step],
-                                ccd=ccd,
-                                phase=phase,
+                            # Remove keyword arguments because of Numba
+                            value = trap_manager.n_electrons_released_and_captured(
+                                n_free_electrons,
+                                ccd,
+                                phase,
                                 # ccd_filling_function=ccd.well_filling_function(
                                 #     phase=phase
                                 # ),
-                                express_multiplier=express_multiplier,
+                                roe.dwell_times[clocking_step],
+                                express_multiplier,
                             )
+
+                            n_electrons_released_and_captured += value
 
                         # Skip updating the image if only monitoring the traps
                         if express_multiplier == 0.0:
