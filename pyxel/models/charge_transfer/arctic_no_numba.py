@@ -18,8 +18,8 @@ from pyxel.detectors import CCD as PyxelCCD
 NUMBA_DISABLE_JIT = bool(int(os.environ.get("NUMBA_DISABLE_JIT", 0)))  # type: bool
 
 
-def set_min_max(value, min, max):
-    """ Fix a value between a minimum and maximum. """
+def set_min_max(value: float, min: float, max: float) -> float:
+    """Fix a value between a minimum and maximum."""
     if value < min:
         return min
     elif max < value:
@@ -138,82 +138,125 @@ class CCD:
         self.well_notch_depth = well_notch_depth  # type: np.ndarray
         self.well_bloom_level = well_bloom_level  # type: np.ndarray
 
-    def well_filling_function(self, phase=0):
-        """Return a self-contained function describing the well-filling model.
+    # def well_filling_function(self, phase:int=0) -> t.Callable[[float], float]:
+    #     """Return a self-contained function describing the well-filling model.
+    #
+    #     The returned function calculates the fractional volume of charge cloud
+    #     in a pixel (and phase) from the number of electrons in the cloud, which
+    #     is used to calculate the proportion of traps that are reached by the
+    #     cloud and can capture charge from it.
+    #
+    #     By default, it is assumed that the traps are uniformly distributed
+    #     throughout the volume, but that assumption can be relaxed by adjusting
+    #     this function to reflect the net number of traps seen as a function of
+    #     charge cloud size. An example would be for surface traps, which are
+    #     responsible for blooming (which is asymmetric and happens during
+    #     readout, unlike bleeding) and are preset only at the top of a pixel.
+    #
+    #     This function embodies the core assumption of a volume-driven CTI
+    #     model like ArCTIC: that traps are either exposed (and have a
+    #     constant capture timescale, which may be zero for instant capture),
+    #     or unexposed and therefore unavailable. This behaviour differs from
+    #     a density-driven CTI model, in which traps may capture an electron
+    #     anywhere in a pixel, but at varying capture probability. There is
+    #     considerable evidence that CCDs in the Hubble Space Telescope are
+    #     primarily volume-driven; a software algorithm to mimic such behaviour
+    #     also runs much faster.
+    #
+    #     Parameters
+    #     ----------
+    #     phase : int
+    #         The phase of the pixel. Multiple phases may optionally have
+    #         different CCD parameters.
+    #
+    #     Returns
+    #     -------
+    #     well_filling_function : func
+    #         A self-contained function describing the well-filling model for this
+    #         phase.
+    #     """
+    #
+    #     def cloud_fractional_volume_from_n_electrons(n_electrons: float, surface:bool=False)->float:
+    #         """Calculate the fractional volume of charge cloud.
+    #
+    #         Parameters
+    #         ----------
+    #         n_electrons : float
+    #             The number of electrons in a charge cloud.
+    #
+    #         surface : bool
+    #             #
+    #             # RJM: RESERVED FOR SURFACE TRAPS
+    #             #
+    #
+    #         Returns
+    #         -------
+    #         volume : float
+    #             The fraction of traps of this species exposed.
+    #         """
+    #         if n_electrons == 0:
+    #             return 0
+    #
+    #         assert surface is False
+    #         # if surface:
+    #         #     empty = self.blooming_level[phase]
+    #         #     beta = 1
+    #         #
+    #         # else:
+    #         #     empty = self.well_notch_depth[phase]  # type: float
+    #         #     beta = self.well_fill_power[phase]  # type: float
+    #         empty = self.well_notch_depth[phase]  # type: float
+    #         beta = self.well_fill_power[phase]  # type: float
+    #
+    #         well_range = self.full_well_depth[phase] - empty  # type: float
+    #
+    #         volume = (
+    #             set_min_max(value=(n_electrons - empty) / well_range, min=0.0, max=1.0)
+    #         ) ** beta
+    #
+    #         return volume
+    #
+    #     return cloud_fractional_volume_from_n_electrons
 
-        The returned function calculates the fractional volume of charge cloud
-        in a pixel (and phase) from the number of electrons in the cloud, which
-        is used to calculate the proportion of traps that are reached by the
-        cloud and can capture charge from it.
-
-        By default, it is assumed that the traps are uniformly distributed
-        throughout the volume, but that assumption can be relaxed by adjusting
-        this function to reflect the net number of traps seen as a function of
-        charge cloud size. An example would be for surface traps, which are
-        responsible for blooming (which is asymmetric and happens during
-        readout, unlike bleeding) and are preset only at the top of a pixel.
-
-        This function embodies the core assumption of a volume-driven CTI
-        model like ArCTIC: that traps are either exposed (and have a
-        constant capture timescale, which may be zero for instant capture),
-        or unexposed and therefore unavailable. This behaviour differs from
-        a density-driven CTI model, in which traps may capture an electron
-        anywhere in a pixel, but at varying capture probability. There is
-        considerable evidence that CCDs in the Hubble Space Telescope are
-        primarily volume-driven; a software algorithm to mimic such behaviour
-        also runs much faster.
+    def my_well_filling_function(self, phase: int, n_electrons: float) -> float:
+        """Calculate the fractional volume of charge cloud.
 
         Parameters
         ----------
-        phase : int
-            The phase of the pixel. Multiple phases may optionally have
-            different CCD parameters.
+        n_electrons : float
+            The number of electrons in a charge cloud.
+
+        surface : bool
+            #
+            # RJM: RESERVED FOR SURFACE TRAPS
+            #
 
         Returns
         -------
-        well_filling_function : func
-            A self-contained function describing the well-filling model for this
-            phase.
+        volume : float
+            The fraction of traps of this species exposed.
         """
+        if n_electrons == 0:
+            return 0
 
-        def cloud_fractional_volume_from_n_electrons(n_electrons: float, surface=False):
-            """Calculate the fractional volume of charge cloud.
+        # assert surface is False
+        # if surface:
+        #     empty = self.blooming_level[phase]
+        #     beta = 1
+        #
+        # else:
+        #     empty = self.well_notch_depth[phase]  # type: float
+        #     beta = self.well_fill_power[phase]  # type: float
+        empty = self.well_notch_depth[phase]  # type: float
+        beta = self.well_fill_power[phase]  # type: float
 
-            Parameters
-            ----------
-            n_electrons : float
-                The number of electrons in a charge cloud.
+        well_range = self.full_well_depth[phase] - empty  # type: float
 
-            surface : bool
-                #
-                # RJM: RESERVED FOR SURFACE TRAPS
-                #
+        volume = (
+            set_min_max(value=(n_electrons - empty) / well_range, min=0.0, max=1.0)
+        ) ** beta
 
-            Returns
-            -------
-            volume : float
-                The fraction of traps of this species exposed.
-            """
-            if n_electrons == 0:
-                return 0
-
-            assert surface is False
-
-            if surface:
-                empty = self.blooming_level[phase]
-                beta = 1
-            else:
-                empty = self.well_notch_depth[phase]  # type: float
-                beta = self.well_fill_power[phase]  # type: float
-            well_range = self.full_well_depth[phase] - empty  # type: float
-
-            volume = (
-                set_min_max(value=(n_electrons - empty) / well_range, min=0.0, max=1.0)
-            ) ** beta
-
-            return volume
-
-        return cloud_fractional_volume_from_n_electrons
+        return volume
 
 
 class ROEPhase:
@@ -973,10 +1016,14 @@ class TrapManager:
         # )
 
     def fraction_of_traps_exposed_from_n_electrons(
-        self, n_electrons: float, ccd_filling_function: t.Callable
+        self,
+        n_electrons: float,
+        # ccd_filling_function: t.Callable
+        ccd: CCD,
+        phase: int,
     ):
-        """ Calculate the proportion of traps reached by a charge cloud. """
-        return ccd_filling_function(n_electrons)
+        """Calculate the proportion of traps reached by a charge cloud."""
+        return ccd.my_well_filling_function(phase=phase, n_electrons=n_electrons)
 
     @property
     def n_watermarks_per_transfer(self) -> int:
@@ -987,12 +1034,12 @@ class TrapManager:
 
     @property
     def n_trap_species(self) -> int:
-        """ Total number of trap species within this trap manager """
+        """Total number of trap species within this trap manager"""
         return len(self.traps)
 
     @property
     def n_traps_per_pixel(self) -> np.ndarray:
-        """ Number of traps of each species, in each pixel """
+        """Number of traps of each species, in each pixel"""
         return self.trap_densities_1d
 
     @n_traps_per_pixel.setter
@@ -1022,7 +1069,7 @@ class TrapManager:
         )
 
     def empty_all_traps(self) -> None:
-        """ Reset the trap watermarks for the next run of release and capture. """
+        """Reset the trap watermarks for the next run of release and capture."""
         self.watermarks_2d.fill(0.0)
 
     def fill_probabilities_from_dwell_time(
@@ -1114,7 +1161,11 @@ class TrapManager:
             return -1
 
         else:
-            return np.argmax(cloud_fractional_volume <= np.cumsum(watermarks_2d[:, 0]))
+            result = np.argmax(
+                cloud_fractional_volume <= np.cumsum(watermarks_2d[:, 0])
+            )
+
+            return result
 
     def updated_watermarks_from_capture_not_enough(
         self,
@@ -1263,7 +1314,9 @@ class TrapManager:
         max_watermark_index: int,
         fill_probabilities_from_release_1d: np.ndarray,
         n_trapped_electrons_initial: float,
-        ccd_filling_function: t.Callable,
+        # ccd_filling_function: t.Callable,
+        ccd: CCD,
+        phase: int,
     ) -> t.Tuple[float, np.ndarray, float, int, int]:
         """For n_electrons_released_and_captured(), for capture from a cloud
             below the existing watermarks.
@@ -1302,21 +1355,23 @@ class TrapManager:
         n_trapped_electrons_tmp = self.n_trapped_electrons_from_watermarks(
             watermarks_2d=self.watermarks_2d
         )  # type: float
-        n_free_electrons += (
-            n_trapped_electrons_initial - n_trapped_electrons_tmp
-        )  # type: float
+        n_free_electrons += n_trapped_electrons_initial - n_trapped_electrons_tmp
 
         # Re-calculate the fractional volume of the electron cloud
         cloud_fractional_volume = self.fraction_of_traps_exposed_from_n_electrons(
-            n_electrons=n_free_electrons, ccd_filling_function=ccd_filling_function
-        )  # type: float
+            n_electrons=n_free_electrons,
+            # ccd_filling_function=ccd_filling_function
+            ccd=ccd,
+            phase=phase,
+        )
+
         watermark_index_above_cloud = (
             self.watermark_index_above_cloud_from_cloud_fractional_volume(
                 cloud_fractional_volume=cloud_fractional_volume,
                 watermarks_2d=self.watermarks_2d,
                 max_watermark_index=max_watermark_index,
             )
-        )  # type: int
+        )
 
         # Update the watermark volumes, duplicated for the initial watermarks
         if cloud_fractional_volume > 0.0 and cloud_fractional_volume not in np.cumsum(
@@ -1415,12 +1470,16 @@ class TrapManager:
         #     axis = 1
         # else:
         #     axis = None
-        axis = None
-
+        # copy_fill_values = np.sum(
+        #     watermarks_copy_2d[:watermark_index_not_filled, 0]
+        #     * watermarks_copy_2d[:watermark_index_not_filled, 1:].T,
+        #     axis=axis,
+        # ) / np.sum(
+        #     watermarks_copy_2d[:watermark_index_not_filled, 0]
+        # )  # type: float
         copy_fill_values = np.sum(
             watermarks_copy_2d[:watermark_index_not_filled, 0]
             * watermarks_copy_2d[:watermark_index_not_filled, 1:].T,
-            axis=axis,
         ) / np.sum(
             watermarks_copy_2d[:watermark_index_not_filled, 0]
         )  # type: float
@@ -1547,7 +1606,9 @@ class TrapManager:
     def n_electrons_released_and_captured(
         self,
         n_free_electrons: float,
-        ccd_filling_function: t.Callable,
+        # ccd_filling_function: t.Callable,
+        ccd: CCD,
+        phase: int,
         dwell_time: float = 1.0,
         express_multiplier: float = 1.0,
     ) -> float:
@@ -1607,7 +1668,9 @@ class TrapManager:
         # The fractional volume the electron cloud reaches in the pixel well
         cloud_fractional_volume = self.fraction_of_traps_exposed_from_n_electrons(
             n_electrons=n_free_electrons,
-            ccd_filling_function=ccd_filling_function,
+            ccd=ccd,
+            phase=phase
+            # ccd_filling_function=ccd_filling_function,
         )  # type: float
 
         # Find the first watermark above the cloud
@@ -1658,7 +1721,9 @@ class TrapManager:
                 max_watermark_index=max_watermark_index,
                 fill_probabilities_from_release_1d=fill_probabilities_from_release_1d,
                 n_trapped_electrons_initial=n_trapped_electrons_initial,
-                ccd_filling_function=ccd_filling_function,
+                # ccd_filling_function=ccd_filling_function,
+                ccd=ccd,
+                phase=phase,
             )
 
         # Cloud fractional volume above existing watermarks
@@ -1692,7 +1757,7 @@ class TrapManager:
         # Final number of electrons in traps
         n_trapped_electrons_final = self.n_trapped_electrons_from_watermarks(
             watermarks_2d=self.watermarks_2d
-        )  # type: float
+        )
 
         # Prevent division by zero errors
         if n_trapped_electrons_final == n_trapped_electrons_initial:
@@ -1787,7 +1852,7 @@ class AllTrapManager:
         #     traps = [traps]
         # if not isinstance(traps[0], list):
         #     traps = [traps]
-        traps = traps  # type: t.Sequence[t.Sequence[Trap]]
+        # traps = traps  # type: t.Sequence[t.Sequence[Trap]]
 
         # Replicate trap managers to keep track of traps in different phases separately
         self.data = []  # type: t.List[t.List[TrapManager]]
@@ -1826,19 +1891,13 @@ class AllTrapManager:
             self.data.append(trap_managers_this_phase)
 
         # Initialise the empty trap state for future reference
-        self._saved_data = None  # type: t.Optional[t.Sequence[t.Sequence[Trap]]]
+        self._saved_data = None  # type: t.Optional[t.List[t.List[TrapManager]]]
         self._n_electrons_trapped_in_save = 0.0  # type: float
         self._n_electrons_trapped_previously = 0.0  # type: float
 
-    # def __len__(self) -> int:
-    #     return len(self.data)
-    #
-    # def __getitem__(self, item: int) -> t.Sequence[TrapManager]:
-    #     return self.data[item]
-
     @property
     def n_electrons_trapped_currently(self) -> float:
-        """ The number of electrons in traps that are currently being actively monitored. """
+        """The number of electrons in traps that are currently being actively monitored."""
         n_electrons_trapped_currently = 0.0  # type: float
 
         for trap_manager_phase in self.data:  # type: t.Sequence[TrapManager]
@@ -1852,20 +1911,20 @@ class AllTrapManager:
         return n_electrons_trapped_currently
 
     def empty_all_traps(self) -> None:
-        """ Set all trap occupancies to zero """
+        """Set all trap occupancies to zero"""
         for trap_manager_phase in self.data:  # type: t.Sequence[TrapManager]
             for trap_manager_group in trap_manager_phase:  # type: TrapManager
                 trap_manager_group.empty_all_traps()
 
     def save(self):
-        """ Save trap occupancy levels for future reference """
+        """Save trap occupancy levels for future reference"""
         # This stores far more than necessary. But extracting only the watermark
         # arrays requires overhead.
         self._saved_data = deepcopy(self.data)
         self._n_electrons_trapped_in_save = self.n_electrons_trapped_currently
 
     def restore(self) -> None:
-        """ Restore trap occupancy levels """
+        """Restore trap occupancy levels"""
         # Book keeping, of how many electrons have ended up where.
         # About to forget about those currently in traps, so add them to previous total.
         # About to recall the ones in save back to current account, so remove them
@@ -2080,15 +2139,15 @@ def _clock_charge_in_one_direction(
                         for trap_manager in trap_managers.data[
                             phase
                         ]:  # type: TrapManager
-                            n_electrons_released_and_captured += (
-                                trap_manager.n_electrons_released_and_captured(
-                                    n_free_electrons=n_free_electrons,
-                                    dwell_time=roe.dwell_times[clocking_step],
-                                    ccd_filling_function=ccd.well_filling_function(
-                                        phase=phase
-                                    ),
-                                    express_multiplier=express_multiplier,
-                                )
+                            n_electrons_released_and_captured += trap_manager.n_electrons_released_and_captured(
+                                n_free_electrons=n_free_electrons,
+                                dwell_time=roe.dwell_times[clocking_step],
+                                ccd=ccd,
+                                phase=phase,
+                                # ccd_filling_function=ccd.well_filling_function(
+                                #     phase=phase
+                                # ),
+                                express_multiplier=express_multiplier,
                             )
 
                         # Skip updating the image if only monitoring the traps
@@ -2374,8 +2433,8 @@ def arctic_no_numba(
         well_bloom_level=np.array([char.fwc], dtype=np.float64),
     )
 
-    parallel_roe = ROE(dwell_times=np.array([1.0], dtype=np.float))
-    # serial_roe = ROE(dwell_times=np.array([1.0], dtype=np.float))
+    parallel_roe = ROE(dwell_times=np.array([1.0], dtype=np.float64))
+    # serial_roe = ROE(dwell_times=np.array([1.0], dtype=np.float64))
     trap = Trap(density=density, release_timescale=release_timescale)
 
     s = add_cti(
