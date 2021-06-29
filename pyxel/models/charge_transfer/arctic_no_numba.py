@@ -858,67 +858,96 @@ class ROE:
         return np.unique(referred_to_pixels)
 
 
-class Trap:
+#
+# class Trap:
+#     def __init__(
+#         self,
+#         density:float=0.13,
+#         release_timescale:float=0.25,
+#         capture_timescale:float=0,
+#         surface:bool=False,
+#     ):
+#         """The parameters for a single trap species.
+#
+#         Controls the density of traps and the timescales/probabilities of
+#         capture and release, along with utilities for the watermarking tracking
+#         of trap states and the calculation of capture and release.
+#
+#         Parameters
+#         ----------
+#         density : float
+#             The density of the trap species in a pixel.
+#
+#         release_timescale : float
+#             The release timescale of the trap, in the same units as the time
+#             spent in each pixel or phase (Clocker sequence).
+#
+#         capture_timescale : float
+#             The capture timescale of the trap. Default 0 for instant capture.
+#
+#         surface : bool
+#             #
+#             # RJM: RESERVED FOR SURFACE TRAPS
+#             #
+#
+#         Attributes
+#         ----------
+#         capture_rate, emission_rate : float
+#             The capture and emission rates (Lindegren (1998) section 3.2).
+#         """
+#
+#         self.density = float(density)
+#         self.release_timescale = release_timescale  # type: float
+#         self.capture_timescale = capture_timescale  # type: float
+#         self.surface = surface  # type: bool
+#
+#         # Rates
+#         self.emission_rate = 1 / self.release_timescale  # type: float
+#
+#         if self.capture_timescale == 0:
+#             self.capture_rate = np.inf  # type: float
+#         else:
+#             self.capture_rate = 1 / self.capture_timescale
+
+# def distribution_within_pixel(self, fractional_volume=0):
+#     if self.surface:
+#         #
+#         # RJM: RESERVED FOR SURFACE TRAPS OR SPECIES WITH NONUNIFORM DENSITY WITHIN A PIXEL
+#         #
+#         pass
+#     return None
+
+# TODO: This is new
+class Traps:
     def __init__(
         self,
-        density=0.13,
-        release_timescale=0.25,
-        capture_timescale=0,
-        surface=False,
+        density_1d: np.ndarray,
+        release_timescale_1d: np.ndarray,
+        capture_timescale_1d: np.ndarray,
+        surface_1d: np.ndarray,
     ):
-        """The parameters for a single trap species.
+        assert density_1d.ndim == 1
+        assert (
+            density_1d.shape
+            == release_timescale_1d.shape
+            == capture_timescale_1d.shape
+            == surface_1d.shape
+        )
 
-        Controls the density of traps and the timescales/probabilities of
-        capture and release, along with utilities for the watermarking tracking
-        of trap states and the calculation of capture and release.
+        self.n_trap_species = len(density_1d)
 
-        Parameters
-        ----------
-        density : float
-            The density of the trap species in a pixel.
-
-        release_timescale : float
-            The release timescale of the trap, in the same units as the time
-            spent in each pixel or phase (Clocker sequence).
-
-        capture_timescale : float
-            The capture timescale of the trap. Default 0 for instant capture.
-
-        surface : bool
-            #
-            # RJM: RESERVED FOR SURFACE TRAPS
-            #
-
-        Attributes
-        ----------
-        capture_rate, emission_rate : float
-            The capture and emission rates (Lindegren (1998) section 3.2).
-        """
-
-        self.density = float(density)
-        self.release_timescale = release_timescale  # type: float
-        self.capture_timescale = capture_timescale  # type: float
-        self.surface = surface  # type: bool
+        self.density_1d = density_1d  # type: np.ndarray
+        self.release_timescale_1d = release_timescale_1d  # type: np.ndarray
+        self.capture_timescale_1d = capture_timescale_1d  # type: np.ndarray
+        self.surface_1d = surface_1d  # type: np.ndarray
 
         # Rates
-        self.emission_rate = 1 / self.release_timescale  # type: float
-
-        if self.capture_timescale == 0:
-            self.capture_rate = np.inf  # type: float
-        else:
-            self.capture_rate = 1 / self.capture_timescale
-
-    def distribution_within_pixel(self, fractional_volume=0):
-        if self.surface:
-            #
-            # RJM: RESERVED FOR SURFACE TRAPS OR SPECIES WITH NONUNIFORM DENSITY WITHIN A PIXEL
-            #
-            pass
-        return None
+        self.emission_rate_1d = 1.0 / self.release_timescale_1d  # type: np.ndarray
+        self.capture_rate_1d = 1.0 / self.capture_timescale_1d  # type: np.ndarray
 
 
 class TrapManager:
-    def __init__(self, traps: t.Sequence[Trap], max_n_transfers: int):
+    def __init__(self, traps: Traps, max_n_transfers: int):
         """
         The manager for potentially multiple trap species that are able to use
         watermarks in the same way as each other.
@@ -961,7 +990,8 @@ class TrapManager:
         # if not isinstance(traps, list):
         #     traps = [traps]
 
-        self.traps = deepcopy(traps)  # type: t.Sequence[Trap]
+        self._n_trap_species = traps.n_trap_species  # type: int
+        # self.traps = traps.copy()  # type: Traps
         self.max_n_transfers = max_n_transfers  # type: int
 
         # Set up the watermark array
@@ -978,16 +1008,20 @@ class TrapManager:
         )  # type: np.ndarray
 
         # Trap rates
-        self.capture_rates_1d = np.array([trap.capture_rate for trap in traps])
-        self.emission_rates_1d = np.array([trap.emission_rate for trap in traps])
+        # self.capture_rates_1d = np.array([trap.capture_rate for trap in traps])
+        # self.emission_rates_1d = np.array([trap.emission_rate for trap in traps])
+        self.capture_rates_1d = traps.capture_rate_1d.copy()  # type: np.ndarray
+        self.emission_rates_1d = traps.emission_rate_1d.copy()  # type: np.ndarray
         self.total_rates_1d = self.capture_rates_1d + self.emission_rates_1d
 
         # Are they surface traps?
-        self.surface = np.array([trap.surface for trap in traps], dtype=np.bool_)
+        # self.surface_1d = np.array([trap.surface_1d for trap in traps], dtype=np.bool_)
+        self.surface_1d = traps.surface_1d.copy()  # type: np.ndarray
 
-        self.trap_densities_1d = np.array(
-            [trap.density for trap in self.traps], dtype=np.float64
-        )
+        # self.trap_densities_1d = np.array(
+        #     [trap.density for trap in self.traps], dtype=np.float64
+        # )
+        self.trap_densities_1d = traps.density_1d.copy()  # type: np.ndarray
 
         # Construct a function that describes the fraction of traps that are
         # exposed by a charge cloud containing n_electrons. This must be
@@ -1035,7 +1069,7 @@ class TrapManager:
     @property
     def n_trap_species(self) -> int:
         """Total number of trap species within this trap manager"""
-        return len(self.traps)
+        return self._n_trap_species
 
     @property
     def n_traps_per_pixel(self) -> np.ndarray:
@@ -1791,7 +1825,10 @@ class TrapManager:
 
 class AllTrapManager:
     def __init__(
-        self, traps: t.Sequence[t.Sequence[Trap]], max_n_transfers: int, ccd: CCD
+        self,
+        traps: t.Sequence[Traps],
+        max_n_transfers: int,
+        ccd: CCD,
     ):
         """
         A list (of a list) of trap managers.
@@ -1861,7 +1898,7 @@ class AllTrapManager:
             # Set up list of traps in a single phase of the CCD
             trap_managers_this_phase = []  # type: t.List[TrapManager]
 
-            for trap_group in traps:  # type: t.Sequence[Trap]
+            for trap_group in traps:  # type: Traps
                 # Use a non-default trap manager if required for the input trap species
                 # if isinstance(
                 #     trap_group[0],
@@ -1879,7 +1916,8 @@ class AllTrapManager:
                 #         traps=trap_group, max_n_transfers=max_n_transfers
                 #     )
                 trap_manager = TrapManager(
-                    traps=trap_group, max_n_transfers=max_n_transfers
+                    traps=trap_group,
+                    max_n_transfers=max_n_transfers,
                 )
 
                 trap_manager.n_traps_per_pixel = (
@@ -1943,7 +1981,7 @@ def _clock_charge_in_one_direction(
     image_2d: np.ndarray,
     roe: ROE,
     ccd: CCD,
-    traps: t.Sequence[t.Sequence[Trap]],
+    traps: t.Sequence[Traps],
     express: int,
     offset: int,
     window_row_interval: t.Tuple[int, int],
@@ -2196,7 +2234,7 @@ def add_cti(
     image_2d: np.ndarray,
     parallel_ccd: CCD,
     parallel_roe: ROE,
-    parallel_traps: t.Sequence[t.Sequence[Trap]],
+    parallel_traps: t.Sequence[Traps],
     parallel_express: int = 0,
     parallel_offset: int = 0,
     parallel_window_range: t.Optional[t.Tuple[int, int]] = None,
@@ -2435,11 +2473,18 @@ def arctic_no_numba(
 
     parallel_roe = ROE(dwell_times=np.array([1.0], dtype=np.float64))
     # serial_roe = ROE(dwell_times=np.array([1.0], dtype=np.float64))
-    trap = Trap(density=density, release_timescale=release_timescale)
+    # trap = Trap(density=density, release_timescale=release_timescale)
+
+    traps = Traps(
+        density_1d=np.array([density], dtype=np.float64),
+        release_timescale_1d=np.array([release_timescale], dtype=np.float64),
+        capture_timescale_1d=np.array([0.0], dtype=np.float64),
+        surface_1d=np.array([False], dtype=np.bool_),
+    )
 
     s = add_cti(
         image_2d=image_2d,
-        parallel_traps=[[trap]],
+        parallel_traps=[traps],
         parallel_ccd=ccd,
         parallel_roe=parallel_roe,
         parallel_express=express,
