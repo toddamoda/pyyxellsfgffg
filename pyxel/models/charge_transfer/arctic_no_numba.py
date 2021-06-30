@@ -2228,12 +2228,14 @@ def _clock_charge_in_one_direction(
     n_express_pass, n_rows_to_process = express_matrix_2d.shape
 
     # Decide in advance which steps need to be evaluated and which can be skipped
-    phases_with_traps = [
-        i for i, frac in enumerate(ccd.fraction_of_traps_per_phase) if frac > 0
-    ]  # type: t.Sequence[int]
-    steps_with_nonzero_dwell_time = [
-        i for i, time in enumerate(roe.dwell_times) if time > 0
-    ]  # type: t.Sequence[int]
+    # phases_with_traps_1d = [
+    #     i for i, frac in enumerate(ccd.fraction_of_traps_per_phase) if frac > 0
+    # ]  # type: t.Sequence[int]
+    # steps_with_nonzero_dwell_time_1d = [
+    #     i for i, time in enumerate(roe.dwell_times) if time > 0
+    # ]  # type: t.Sequence[int]
+    phases_with_traps_1d = np.argwhere(ccd.fraction_of_traps_per_phase > 0).flatten()
+    steps_with_nonzero_dwell_time_1d = np.argwhere(roe.dwell_times > 0).flatten()
 
     # Set up the set of trap managers to monitor the occupancy of all trap species
     # if isinstance(roe, ROETrapPumping):
@@ -2245,7 +2247,7 @@ def _clock_charge_in_one_direction(
     # else:
     #     max_n_transfers = n_rows_to_process * len(steps_with_nonzero_dwell_time)
     max_n_transfers = n_rows_to_process * len(
-        steps_with_nonzero_dwell_time
+        steps_with_nonzero_dwell_time_1d
     )  # type: int
 
     trap_managers = AllTrapManager(
@@ -2257,8 +2259,11 @@ def _clock_charge_in_one_direction(
     n_rows_zero_padding = max(roe.pixels_accessed_during_clocking_1d) - min(
         roe.pixels_accessed_during_clocking_1d
     )  # type: int
+    # zero_padding_2d = np.zeros(
+    #     (n_rows_zero_padding, image_2d.shape[1]), dtype=image_2d.dtype
+    # )
     zero_padding_2d = np.zeros(
-        (n_rows_zero_padding, image_2d.shape[1]), dtype=image_2d.dtype
+        (n_rows_zero_padding, image_2d.shape[1]), dtype=np.float64
     )
     image_2d = np.concatenate((image_2d, zero_padding_2d), axis=0)
 
@@ -2285,9 +2290,9 @@ def _clock_charge_in_one_direction(
                 if not monitor_traps_matrix_2d[express_index, row_index]:
                     continue
 
-                for clocking_step in steps_with_nonzero_dwell_time:
+                for clocking_step in steps_with_nonzero_dwell_time_1d:
 
-                    for phase in phases_with_traps:
+                    for phase in phases_with_traps_1d:
                         # Information about the potentials in this phase
                         roe_phase = roe.clock_sequence[clocking_step][
                             phase
