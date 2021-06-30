@@ -1866,6 +1866,13 @@ class TrapManagerPhases:
 
         self.traps_managers = data  # type: t.Sequence[TrapManager]
 
+    def copy(self) -> "TrapManagerPhases":
+        copied_data = []  # type: t.List[TrapManager]
+        for trap_manager in self.traps_managers:  # type: TrapManager
+            copied_data.append(trap_manager.copy())
+
+        return copied_data
+
 
 class AllTrapManager:
     def __init__(
@@ -1987,7 +1994,9 @@ class AllTrapManager:
         self.trap_manager_phases = data  # type: t.Sequence[TrapManagerPhases]
 
         # Initialise the empty trap state for future reference
-        self._saved_data = None  # type: t.Optional[t.List[TrapManagerPhases]]
+        self._saved_trap_manager_phases = (
+            None
+        )  # type: t.Optional[t.List[TrapManagerPhases]]
         self._n_electrons_trapped_in_save = 0.0  # type: float
         self._n_electrons_trapped_previously = 0.0  # type: float
 
@@ -2028,6 +2037,16 @@ class AllTrapManager:
             ) in trap_manager_phase.traps_managers:  # type: TrapManager
                 trap_manager_group.empty_all_traps()
 
+    # TODO: Create a staticmethod
+    def copy_trap_manager_phases(
+        self, trap_manager_phases: t.Sequence[TrapManagerPhases]
+    ) -> t.Sequence[TrapManagerPhases]:
+        data = []  # type: t.List[TrapManagerPhases]
+        for trap_manager_phase in trap_manager_phases:  # type: TrapManagerPhases
+            data.append(trap_manager_phase.copy())
+
+        return data
+
     def save(self):
         """Save trap occupancy levels for future reference"""
         # This stores far more than necessary. But extracting only the watermark
@@ -2035,9 +2054,9 @@ class AllTrapManager:
 
         # self._saved_data = deepcopy(self.data)
         # self._n_electrons_trapped_in_save = self.n_electrons_trapped_currently
-        raise NotImplementedError
-
-        self._saved_data = deepcopy(self.data)
+        self._saved_trap_manager_phases = self.copy_trap_manager_phases(
+            self.trap_manager_phases
+        )
         self._n_electrons_trapped_in_save = self.n_electrons_trapped_currently
 
     def restore(self):
@@ -2056,16 +2075,16 @@ class AllTrapManager:
         # else:
         #     self.data = deepcopy(self._saved_data)
 
-        raise NotImplementedError
-
         self._n_electrons_trapped_previously += (
             self.n_electrons_trapped_currently - self._n_electrons_trapped_in_save
         )
         # Overwrite the current trap state
-        if self._saved_data is None:
+        if self._saved_trap_manager_phases is None:
             self.empty_all_traps()
         else:
-            self.data = deepcopy(self._saved_data)
+            self.trap_manager_phases = self.copy_trap_manager_phases(
+                self._saved_trap_manager_phases
+            )
 
 
 def _clock_charge_in_one_direction(
