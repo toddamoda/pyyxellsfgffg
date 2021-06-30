@@ -1850,10 +1850,27 @@ class TrapManager:
         return n_trapped_electrons_initial - n_trapped_electrons_final
 
 
+class TrapManagerPhases:
+    def __init__(self, traps: Traps, max_n_transfer: int, ccd: CCD):
+
+        data = []  # type: t.List[TrapManager]
+        for phase in range(ccd.n_phases):
+
+            trap_manager = TrapManager(traps, max_n_transfer)
+
+            trap_manager.n_traps_per_pixel = (
+                trap_manager.n_traps_per_pixel * ccd.fraction_of_traps_per_phase[phase]
+            )
+
+            data.append(trap_manager)
+
+        self.traps_managers = data  # type: t.Sequence[TrapManager]
+
+
 class AllTrapManager:
     def __init__(
         self,
-        traps: t.Sequence[Traps],
+        traps_lst: t.Sequence[Traps],
         max_n_transfers: int,
         ccd: CCD,
     ):
@@ -1909,66 +1926,89 @@ class AllTrapManager:
         restore()
             Recall trap occupancy levels.
         """
+        # # Parse inputs
+        # # If only a single trap species is supplied, still make sure it is a list
+        # # if not isinstance(traps, list):
+        # #     traps = [traps]
+        # # if not isinstance(traps[0], list):
+        # #     traps = [traps]
+        # # traps = traps  # type: t.Sequence[t.Sequence[Trap]]
+        #
+        # # Replicate trap managers to keep track of traps in different phases separately
+        # data = []  # type: t.List[t.List[TrapManager]]
+        #
+        # for phase in range(ccd.n_phases):
+        #
+        #     # Set up list of traps in a single phase of the CCD
+        #     trap_managers_this_phase = []  # type: t.List[TrapManager]
+        #
+        #     for trap_group in traps:  # type: Traps
+        #         # Use a non-default trap manager if required for the input trap species
+        #         # if isinstance(
+        #         #     trap_group[0],
+        #         #     (TrapLifetimeContinuumAbstract, TrapLogNormalLifetimeContinuum),
+        #         # ):
+        #         #     trap_manager = TrapManagerTrackTime(
+        #         #         traps=trap_group, max_n_transfers=max_n_transfers
+        #         #     )
+        #         # elif isinstance(trap_group[0], TrapInstantCapture):
+        #         #     trap_manager = TrapManagerInstantCapture(
+        #         #         traps=trap_group, max_n_transfers=max_n_transfers
+        #         #     )
+        #         # else:
+        #         #     trap_manager = TrapManager(
+        #         #         traps=trap_group, max_n_transfers=max_n_transfers
+        #         #     )
+        #
+        #         # Removed keyword arguments because of Numba
+        #         trap_manager = TrapManager(trap_group, max_n_transfers)
+        #
+        #         trap_manager.n_traps_per_pixel = (
+        #             trap_manager.n_traps_per_pixel
+        #             * ccd.fraction_of_traps_per_phase[phase]
+        #         )
+        #         trap_managers_this_phase.append(trap_manager)
+        #
+        #     data.append(trap_managers_this_phase)
+        #
+        # self.data = data
+        #
+        # # Initialise the empty trap state for future reference
+        # self._saved_data = None  # type: t.Optional[t.List[t.List[TrapManager]]]
+        # self._n_electrons_trapped_in_save = 0.0  # type: float
+        # self._n_electrons_trapped_previously = 0.0  # type: float
 
-        # Parse inputs
-        # If only a single trap species is supplied, still make sure it is a list
-        # if not isinstance(traps, list):
-        #     traps = [traps]
-        # if not isinstance(traps[0], list):
-        #     traps = [traps]
-        # traps = traps  # type: t.Sequence[t.Sequence[Trap]]
+        data = []  # type: t.List[TrapManagerPhases]
 
-        # Replicate trap managers to keep track of traps in different phases separately
-        data = []  # type: t.List[t.List[TrapManager]]
+        for traps in traps_lst:  # type: Traps
+            trap_manager_phases = TrapManagerPhases(traps, max_n_transfers, ccd)
+            data.append(trap_manager_phases)
 
-        for phase in range(ccd.n_phases):
-
-            # Set up list of traps in a single phase of the CCD
-            trap_managers_this_phase = []  # type: t.List[TrapManager]
-
-            for trap_group in traps:  # type: Traps
-                # Use a non-default trap manager if required for the input trap species
-                # if isinstance(
-                #     trap_group[0],
-                #     (TrapLifetimeContinuumAbstract, TrapLogNormalLifetimeContinuum),
-                # ):
-                #     trap_manager = TrapManagerTrackTime(
-                #         traps=trap_group, max_n_transfers=max_n_transfers
-                #     )
-                # elif isinstance(trap_group[0], TrapInstantCapture):
-                #     trap_manager = TrapManagerInstantCapture(
-                #         traps=trap_group, max_n_transfers=max_n_transfers
-                #     )
-                # else:
-                #     trap_manager = TrapManager(
-                #         traps=trap_group, max_n_transfers=max_n_transfers
-                #     )
-
-                # Removed keyword arguments because of Numba
-                trap_manager = TrapManager(trap_group, max_n_transfers)
-
-                trap_manager.n_traps_per_pixel = (
-                    trap_manager.n_traps_per_pixel
-                    * ccd.fraction_of_traps_per_phase[phase]
-                )
-                trap_managers_this_phase.append(trap_manager)
-
-            data.append(trap_managers_this_phase)
-
-        self.data = data
+        self.trap_manager_phases = data  # type: t.Sequence[TrapManagerPhases]
 
         # Initialise the empty trap state for future reference
-        self._saved_data = None  # type: t.Optional[t.List[t.List[TrapManager]]]
+        self._saved_data = None  # type: t.Optional[t.List[TrapManagerPhases]]
         self._n_electrons_trapped_in_save = 0.0  # type: float
         self._n_electrons_trapped_previously = 0.0  # type: float
 
     @property
-    def n_electrons_trapped_currently(self) -> float:
+    def n_electrons_trapped_currently(self):
         """The number of electrons in traps that are currently being actively monitored."""
+        # n_electrons_trapped_currently = 0.0  # type: float
+        #
+        # for trap_manager_phase in self.data:  # type: t.Sequence[TrapManager]
+        #     for trap_manager in trap_manager_phase:  # type: TrapManager
+        #         n_electrons_trapped_currently += (
+        #             trap_manager.n_trapped_electrons_from_watermarks(
+        #                 trap_manager.watermarks_2d
+        #             )
+        #         )
+        #
+        # return n_electrons_trapped_currently
         n_electrons_trapped_currently = 0.0  # type: float
 
-        for trap_manager_phase in self.data:  # type: t.Sequence[TrapManager]
-            for trap_manager in trap_manager_phase:  # type: TrapManager
+        for trap_manager_phase in self.trap_manager_phases:  # type: TrapManagerPhases
+            for trap_manager in trap_manager_phase.traps_managers:  # type: TrapManager
                 n_electrons_trapped_currently += (
                     trap_manager.n_trapped_electrons_from_watermarks(
                         trap_manager.watermarks_2d
@@ -1977,25 +2017,47 @@ class AllTrapManager:
 
         return n_electrons_trapped_currently
 
-    def empty_all_traps(self) -> None:
+    def empty_all_traps(self):
         """Set all trap occupancies to zero"""
-        for trap_manager_phase in self.data:  # type: t.Sequence[TrapManager]
-            for trap_manager_group in trap_manager_phase:  # type: TrapManager
+        # for trap_manager_phase in self.data:  # type: t.Sequence[TrapManager]
+        #     for trap_manager_group in trap_manager_phase:  # type: TrapManager
+        #         trap_manager_group.empty_all_traps()
+        for trap_manager_phase in self.trap_manager_phases:  # type: TrapManagerPhases
+            for (
+                trap_manager_group
+            ) in trap_manager_phase.traps_managers:  # type: TrapManager
                 trap_manager_group.empty_all_traps()
 
     def save(self):
         """Save trap occupancy levels for future reference"""
         # This stores far more than necessary. But extracting only the watermark
         # arrays requires overhead.
+
+        # self._saved_data = deepcopy(self.data)
+        # self._n_electrons_trapped_in_save = self.n_electrons_trapped_currently
+        raise NotImplementedError
+
         self._saved_data = deepcopy(self.data)
         self._n_electrons_trapped_in_save = self.n_electrons_trapped_currently
 
-    def restore(self) -> None:
+    def restore(self):
         """Restore trap occupancy levels"""
         # Book keeping, of how many electrons have ended up where.
         # About to forget about those currently in traps, so add them to previous total.
         # About to recall the ones in save back to current account, so remove them
         # from the savings.
+
+        # self._n_electrons_trapped_previously += (
+        #     self.n_electrons_trapped_currently - self._n_electrons_trapped_in_save
+        # )
+        # # Overwrite the current trap state
+        # if self._saved_data is None:
+        #     self.empty_all_traps()
+        # else:
+        #     self.data = deepcopy(self._saved_data)
+
+        raise NotImplementedError
+
         self._n_electrons_trapped_previously += (
             self.n_electrons_trapped_currently - self._n_electrons_trapped_in_save
         )
@@ -2147,7 +2209,7 @@ def _clock_charge_in_one_direction(
     )  # type: int
 
     trap_managers = AllTrapManager(
-        traps=traps, max_n_transfers=max_n_transfers, ccd=ccd
+        traps_lst=traps, max_n_transfers=max_n_transfers, ccd=ccd
     )
 
     # Temporarily expand image, if charge released from traps ever migrates to
@@ -2205,9 +2267,32 @@ def _clock_charge_in_one_direction(
 
                         # Allow electrons to be released from and captured by traps
                         n_electrons_released_and_captured = 0.0  # type: float
-                        for trap_manager in trap_managers.data[
-                            phase
-                        ]:  # type: TrapManager
+                        # for trap_manager in trap_managers.data[
+                        #     phase
+                        # ]:  # type: TrapManager
+                        #
+                        #     # Remove keyword arguments because of Numba
+                        #     value = trap_manager.n_electrons_released_and_captured(
+                        #         n_free_electrons,
+                        #         ccd,
+                        #         phase,
+                        #         # ccd_filling_function=ccd.well_filling_function(
+                        #         #     phase=phase
+                        #         # ),
+                        #         roe.dwell_times[clocking_step],
+                        #         express_multiplier,
+                        #     )
+                        #
+                        #     n_electrons_released_and_captured += value
+                        for (
+                            trap_manager_phase
+                        ) in (
+                            trap_managers.trap_manager_phases
+                        ):  # type: TrapManagerPhases
+                            trap_manager = trap_manager_phase.traps_managers[
+                                phase
+                            ]  # type: TrapManager
+
                             # Remove keyword arguments because of Numba
                             value = trap_manager.n_electrons_released_and_captured(
                                 n_free_electrons,
