@@ -1059,18 +1059,16 @@ class TrapManager:
     # TODO: New method not yet validated
     def copy(self) -> "TrapManager":
         # Create new traps
+        # Remove keyword arguments because of Numba
         traps_copied = Traps(
-            density_1d=self.trap_densities_1d,
-            release_timescale_1d=np.zeros_like(
-                self.trap_densities_1d, dtype=np.float64
-            ),
-            capture_timescale_1d=self.capture_rates_1d,
-            surface_1d=self.surface_1d,
+            self.trap_densities_1d,
+            np.zeros_like(self.trap_densities_1d, dtype=np.float64),
+            self.capture_rates_1d,
+            self.surface_1d,
         )
 
-        trap_manager_copied = TrapManager(
-            traps=traps_copied, max_n_transfers=self.max_n_transfers
-        )
+        # Remove keyword arguments because of Numba
+        trap_manager_copied = TrapManager(traps_copied, self.max_n_transfers)
         trap_manager_copied.watermarks_2d = self.watermarks_2d.copy()
 
         return trap_manager_copied
