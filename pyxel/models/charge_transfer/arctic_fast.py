@@ -481,9 +481,13 @@ def numba_update_watermark_volumes_for_cloud_below_highest(
 
     # Update the new split watermarks' volumes
     old_fractional_volume = watermark_fractional_volume
-    watermarks[watermark_index_above_cloud, 0] = cloud_fractional_volume - (
+    value = cloud_fractional_volume - (
         cumulative_watermark_fractional_volume - watermark_fractional_volume
-    )
+    )  # type: np.ndarray
+
+    assert value.shape == (1,)
+    watermarks[watermark_index_above_cloud, 0] = value[0]
+
     watermarks[watermark_index_above_cloud + 1, 0] = (
         old_fractional_volume - watermarks[watermark_index_above_cloud, 0]
     )
@@ -791,7 +795,7 @@ def clock_charge_in_one_direction(
                         # Select the relevant pixel (and phase) for the initial charge
                         row_index_read = (
                             window_row_range[row_index]
-                            + roe_phase.capture_from_which_pixel
+                            + roe_phase.capture_from_which_pixels
                         )
 
                         # Initial charge (0 if this phase's potential is not high)
