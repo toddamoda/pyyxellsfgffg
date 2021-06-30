@@ -1851,27 +1851,47 @@ class TrapManager:
 
 
 class TrapManagerPhases:
-    def __init__(self, traps: Traps, max_n_transfer: int, ccd: CCD):
+    # def __init__(self, traps: Traps, max_n_transfer: int, ccd: CCD):
+    #
+    #     data = []  # type: t.List[TrapManager]
+    #     for phase in range(ccd.n_phases):
+    #
+    #         trap_manager = TrapManager(traps, max_n_transfer)
+    #
+    #         trap_manager.n_traps_per_pixel = (
+    #             trap_manager.n_traps_per_pixel * ccd.fraction_of_traps_per_phase[phase]
+    #         )
+    #
+    #         data.append(trap_manager)
+    #
+    #     self.traps_managers = data  # type: t.Sequence[TrapManager]
 
-        data = []  # type: t.List[TrapManager]
-        for phase in range(ccd.n_phases):
-
-            trap_manager = TrapManager(traps, max_n_transfer)
-
-            trap_manager.n_traps_per_pixel = (
-                trap_manager.n_traps_per_pixel * ccd.fraction_of_traps_per_phase[phase]
-            )
-
-            data.append(trap_manager)
-
-        self.traps_managers = data  # type: t.Sequence[TrapManager]
+    def __init__(self, trap_manager_phases: t.Sequence[TrapManager]):
+        self.traps_managers = trap_manager_phases  # type: t.Sequence[TrapManager]
 
     def copy(self) -> "TrapManagerPhases":
         copied_data = []  # type: t.List[TrapManager]
         for trap_manager in self.traps_managers:  # type: TrapManager
             copied_data.append(trap_manager.copy())
 
-        return copied_data
+        return TrapManagerPhases(copied_data)
+
+
+def build_trap_manager_phases(
+    traps: Traps, max_n_transfer: int, ccd: CCD
+) -> TrapManagerPhases:
+
+    data = []  # type: t.List[TrapManager]
+    for phase in range(ccd.n_phases):
+        trap_manager = TrapManager(traps, max_n_transfer)
+
+        trap_manager.n_traps_per_pixel = (
+            trap_manager.n_traps_per_pixel * ccd.fraction_of_traps_per_phase[phase]
+        )
+
+        data.append(trap_manager)
+
+    return TrapManagerPhases(data)
 
 
 class AllTrapManager:
@@ -1988,7 +2008,10 @@ class AllTrapManager:
         data = []  # type: t.List[TrapManagerPhases]
 
         for traps in traps_lst:  # type: Traps
-            trap_manager_phases = TrapManagerPhases(traps, max_n_transfers, ccd)
+            # trap_manager_phases = TrapManagerPhases(traps, max_n_transfers, ccd)
+            trap_manager_phases = build_trap_manager_phases(
+                traps, max_n_transfers, ccd
+            )  # type: TrapManagerPhases
             data.append(trap_manager_phases)
 
         self.trap_manager_phases = data  # type: t.Sequence[TrapManagerPhases]
