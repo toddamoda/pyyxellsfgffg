@@ -1062,7 +1062,7 @@ class TrapManager:
         # Remove keyword arguments because of Numba
         traps_copied = Traps(
             self.trap_densities_1d,
-            np.zeros_like(self.trap_densities_1d, dtype=np.float64),
+            1.0 / self.emission_rates_1d,
             self.capture_rates_1d,
             self.surface_1d,
         )
@@ -2075,9 +2075,17 @@ class AllTrapManager:
 
         # self._saved_data = deepcopy(self.data)
         # self._n_electrons_trapped_in_save = self.n_electrons_trapped_currently
-        self._saved_trap_manager_phases = self.copy_trap_manager_phases(
-            self.trap_manager_phases
-        )
+        # self._saved_trap_manager_phases = self.copy_trap_manager_phases(
+        #     self.trap_manager_phases
+        # )
+
+        # TODO: Refactor this ?
+        data = []  # type: t.List[TrapManagerPhases]
+        for trap_manager_phase in self.trap_manager_phases:  # type: TrapManagerPhases
+            data.append(trap_manager_phase.copy())
+
+        self._saved_trap_manager_phases = data
+
         self._n_electrons_trapped_in_save = self.n_electrons_trapped_currently
 
     def restore(self):
@@ -2250,9 +2258,7 @@ def _clock_charge_in_one_direction(
         steps_with_nonzero_dwell_time_1d
     )  # type: int
 
-    trap_managers = AllTrapManager(
-        traps_lst=traps, max_n_transfers=max_n_transfers, ccd=ccd
-    )
+    trap_managers = AllTrapManager(traps, max_n_transfers, ccd)
 
     # Temporarily expand image, if charge released from traps ever migrates to
     # a different charge packet, at any time during the clocking sequence
@@ -2290,6 +2296,8 @@ def _clock_charge_in_one_direction(
                 if not monitor_traps_matrix_2d[express_index, row_index]:
                     continue
 
+                window_row_range_idx = window_row_interval[0] + row_index
+
                 for clocking_step in steps_with_nonzero_dwell_time_1d:
 
                     for phase in phases_with_traps_1d:
@@ -2299,9 +2307,13 @@ def _clock_charge_in_one_direction(
                         ]  # type: ROEPhase
 
                         # Select the relevant pixel (and phase) for the initial charge
-                        row_index_read_1d = int(
-                            window_row_range[row_index]
-                            + roe_phase.capture_from_which_pixels_1d
+                        # row_index_read_1d = int(
+                        #     window_row_range[row_index]
+                        #     + roe_phase.capture_from_which_pixels_1d
+                        # )  # type: int
+                        assert roe_phase.capture_from_which_pixels_1d.shape == (1,)
+                        row_index_read_1d = window_row_range_idx + int(
+                            roe_phase.capture_from_which_pixels_1d[0]
                         )  # type: int
 
                         # Initial charge (0 if this phase's potential is not high)
@@ -2357,9 +2369,12 @@ def _clock_charge_in_one_direction(
                             continue
 
                         # Select the relevant pixel (and phase(s)) for the returned charge
+                        # row_index_write_1d = (
+                        #     window_row_range[row_index]
+                        #     + roe_phase.release_to_which_pixels_1d
+                        # )  # type: np.ndarray
                         row_index_write_1d = (
-                            window_row_range[row_index]
-                            + roe_phase.release_to_which_pixels_1d
+                            window_row_range_idx + roe_phase.release_to_which_pixels_1d
                         )  # type: np.ndarray
 
                         # Return the electrons back to the relevant charge
@@ -2646,9 +2661,12 @@ def arctic_no_numba(
         surface_1d=np.array([False], dtype=np.bool_),
     )
 
+    traps_lst = []
+    traps_lst.append(traps)
+
     s = add_cti(
         image_2d=image_2d,
-        parallel_traps=[traps],
+        parallel_traps=traps_lst,
         parallel_ccd=ccd,
         parallel_roe=parallel_roe,
         parallel_express=express,
