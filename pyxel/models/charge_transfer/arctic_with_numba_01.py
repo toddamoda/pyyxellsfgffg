@@ -961,7 +961,7 @@ def add_cti(
     return image_add_cti
 
 
-def arctic_fast(
+def arctic_with_numba(
     detector: CCD,
     well_fill_power: float,
     density: float,
