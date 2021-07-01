@@ -1,0 +1,121 @@
+# ########################################################### #
+# Pyxel detector simulation framework                         #
+#                                                             #
+# Example yaml configuration file                             #
+# Single run combining different detector effect models       #
+#                                                             #
+# ########################################################### #
+
+
+single:
+
+  outputs:
+    output_folder: "output"
+#    single_plot:
+#      y: "detector.image.array"
+#      plot_type: "histogram"
+#      plot_args:
+#        bins: 200
+#        xlabel: "ADU"
+#        yscale: "log"
+#        title: "arctic_100"
+    save_data_to_file:
+      - detector.image.array:   [fits]
+
+ccd_detector:
+
+  geometry:
+
+    row: 100                # pixel
+    col: 10                 # pixel
+    total_thickness: 40.    # um
+    pixel_vert_size: 10.    # um
+    pixel_horz_size: 10.    # um
+
+  material:
+    material: 'silicon'
+
+  environment:
+    temperature: 300        # K
+
+  characteristics:
+    qe:   1.                # -
+    eta:  1.                # e/photon
+    sv:   3.e-6             # V/e
+    amp:  10.               # V/V
+    a1:   100.              # V/V
+    a2:   3000              # DN/V
+    fwc:  100000            # e
+    fwc_serial: 10000       # e
+    vg:   1.62e-10          # cm^2
+    svg:  1.62e-10          # cm^2
+    t:    9.4722e-04        # s
+    st:   9.4722e-04        # s
+
+pipeline:
+  # photon -> photon
+  photon_generation:
+  #  - name: load_image
+  #    func: pyxel.models.photon_generation.load_image
+  #    enabled: true
+  #    arguments:
+  #      image_file: jc0a01h8q_raw.fits
+  #      position: [460,860]
+  #      fit_image_to_det: true
+  #      convert_to_photons: true
+
+    - name: stripe_pattern
+      func: pyxel.models.photon_generation.stripe_pattern
+      enabled: true
+      arguments:
+          period: 50
+          level: 100
+          startwith: 1
+
+  #  - name: shot_noise
+  #    func: pyxel.models.photon_generation.shot_noise
+  #    enabled: true
+
+  # photon -> photon
+
+  # photon -> charge
+  charge_generation:
+    - name: photoelectrons
+      func: pyxel.models.charge_generation.simple_conversion
+      enabled: true
+
+  # charge -> pixel
+  charge_collection:
+    - name: simple_collection
+      func: pyxel.models.charge_collection.simple_collection
+      enabled: true
+
+    - name: full_well
+      func: pyxel.models.charge_collection.simple_full_well
+      enabled: true
+
+  # pixel -> pixel
+  charge_transfer:
+    - name: arctic
+      func: pyxel.models.charge_transfer.arctic_no_numba.arctic_no_numba
+      enabled: true
+      arguments:
+        well_fill_power: 0.8
+        density: 100
+        release_timescale: 1.2
+        express: 10
+
+  # pixel -> signal
+  charge_measurement:
+    - name: simple_measurement
+      func: pyxel.models.charge_measurement.simple_measurement
+      enabled: true
+
+  # signal -> image
+  readout_electronics:
+    - name: simple_amplifier
+      func: pyxel.models.readout_electronics.simple_amplifier
+      enabled: true
+    - name: simple_digitization
+      func: pyxel.models.readout_electronics.simple_processing
+      enabled: true
