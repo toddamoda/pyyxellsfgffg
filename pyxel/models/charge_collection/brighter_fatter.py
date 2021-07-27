@@ -19,7 +19,7 @@ from pyxel.detectors import Detector
 
 
 @numba.njit
-def bf_convolve(a: np.ndarray, kernel: np.ndarray, border: str) -> np.ndarray:
+def bf_convolve(array: np.ndarray, kernel: np.ndarray, border: str) -> np.ndarray:
     """Convolve the input array with the kernel of shift coefficients.
 
     Parameters
@@ -32,8 +32,8 @@ def bf_convolve(a: np.ndarray, kernel: np.ndarray, border: str) -> np.ndarray:
     result: ndarray
     """
     k = kernel.shape[0] // 2
-    rows = a.shape[0]
-    cols = a.shape[1]
+    rows = array.shape[0]
+    cols = array.shape[1]
 
     if border == "right":
         xrange = range(cols - 1)
@@ -50,7 +50,7 @@ def bf_convolve(a: np.ndarray, kernel: np.ndarray, border: str) -> np.ndarray:
     else:
         raise ValueError("Unknown border.")
 
-    result = np.zeros(a.shape)
+    result = np.zeros(array.shape)
 
     for i in yrange:
         for j in xrange:
@@ -61,8 +61,8 @@ def bf_convolve(a: np.ndarray, kernel: np.ndarray, border: str) -> np.ndarray:
 
             result[i, j] += np.sum(
                 np.multiply(
-                    kernel[kernel_slice_y, kernel_slice_x],
-                    a[array_slice_y, array_slice_x],
+                    kernel[kernel_slice_y, kernel_slice_x ],
+                    array[array_slice_y, array_slice_x],
                 )
             )
 
@@ -97,16 +97,16 @@ def bf_antilogus(
     """
     ch = charge.copy()
 
-    avg_right = border_avg(ch, border="right")
-    avg_left = border_avg(ch, border="left")
-    avg_top = border_avg(ch, border="top")
-    avg_bottom = border_avg(ch, border="bottom")
+    avg_right = border_avg(array=ch, border="right")
+    avg_left = border_avg(array=ch, border="left")
+    avg_top = border_avg(array=ch, border="top")
+    avg_bottom = border_avg(array=ch, border="bottom")
 
     result = (
-        avg_right * bf_convolve(ch, a_R, border="right")
-        + avg_left * bf_convolve(ch, a_L, border="left")
-        + avg_top * bf_convolve(ch, a_T, border="top")
-        + avg_bottom * bf_convolve(ch, a_B, border="bottom")
+        avg_right * bf_convolve(array=ch, kernel=a_R, border="right")
+        + avg_left * bf_convolve(array=ch, kernel=a_L, border="left")
+        + avg_top * bf_convolve(array=ch, kernel=a_T, border="top")
+        + avg_bottom * bf_convolve(array=ch, kernel=a_B, border="bottom")
     ).astype(np.int32)
 
     charge += result
@@ -114,7 +114,7 @@ def bf_antilogus(
     return charge
 
 
-def border_avg(a: np.ndarray, border: str) -> np.ndarray:
+def border_avg(array: np.ndarray, border: str) -> np.ndarray:
     """Calculate average charge on the pixel borders.
 
     Parameters
@@ -126,15 +126,15 @@ def border_avg(a: np.ndarray, border: str) -> np.ndarray:
     -------
     result: ndarray
     """
-    result = np.zeros(a.shape)
+    result = np.zeros(array.shape)
     if border == "right":
-        result[:, :-1] += (a[:, :-1] + a[:, 1:]) / 2
+        result[:, :-1] += (array[:, :-1] + array[:, 1:]) / 2
     elif border == "left":
-        result[:, 1:] += (a[:, 1:] + a[:, :-1]) / 2
+        result[:, 1:] += (array[:, 1:] + array[:, :-1]) / 2
     elif border == "top":
-        result[1:, :] += (a[1:, :] + a[:-1, :]) / 2
+        result[1:, :] += (array[1:, :] + array[:-1, :]) / 2
     elif border == "bottom":
-        result[:-1, :] += (a[:-1, :] + a[1:, :]) / 2
+        result[:-1, :] += (array[:-1, :] + array[1:, :]) / 2
     else:
         raise ValueError("Unknown border.")
     return result
