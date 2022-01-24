@@ -6,6 +6,10 @@ Phasing models
 
 .. currentmodule:: pyxel.models.phasing
 
+Phasing models deal with the photo-generated phase pulses in the input probe signal of an MKID-array; i.e. with a :py:class:`~pyxel.data_structure.Phase` array, inside the :py:class:`~pyxel.detectors.Detector` object. Essentially, the starting point of each phase pulse indicates the arrival time of the photon that generated it---assuming that the pulse itself does not overlap with other pulses. Moreover, the height of the pulse provides information about the photon's energy---actually, fitting the pulse’s profile is a more robust approximation. The initial :py:class:`~pyxel.data_structure.Phase` array builds upon a :py:class:`~pyxel.data_structure.Charge` array tailored for superconducting photo-detectors---once their underlying physics is fully implemented.
+
+More information can be found on the website :cite:p:`Mazin`.
+
 Pulse processing
 ================
 
