@@ -50,4 +50,4 @@ NumPy array handling functions, models can also modify properties of photons,
 charges, etc., like position, kinetic energy, number of electrons per charge packet,
 signal amplitude, etc.
 
-.. [#] Which is going to be a :py:class:`~pyxel.data_structure.Phase` class and replace the various charge-related models of the semiconducting photo-detectors, in the case of MKIDs---once their underlying physics is fully implemented.
+.. [#] Which is going to be a :py:class:`~pyxel.data_structure.Phase` class, in the case of MKIDs, and connect to charge-related models tailored for superconducting photo-detectors---once their underlying physics is fully implemented.

@@ -18,7 +18,7 @@ def convert_to_phase(
     responsivity: float,
     scaling_factor: float = 2.5e2,
 ) -> np.ndarray:
-    """Convert an array of charge into phase.
+    """Convert an array of charge into an array of phases.
 
     Parameters
     ----------
@@ -48,7 +48,9 @@ def pulse_processing(
     responsivity: float,
     scaling_factor: float = 2.5e2,
 ) -> None:
-    """TBW.
+    """Phase-pulse processor.
+
+    This model is derived from :cite:p:`Dodkins`; more information can be found on the website :cite:p:`Mazin`.
 
     Parameters
     ----------

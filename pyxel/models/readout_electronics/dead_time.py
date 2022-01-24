@@ -5,7 +5,7 @@
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
 
-"""TBW."""
+"""Dead-time filtering model."""
 
 import astropy.constants as const
 import astropy.units as u
@@ -15,7 +15,7 @@ from pyxel.detectors import MKID
 
 
 def apply_dead_time_filter(phase_2d: np.ndarray, maximum_count: float) -> np.ndarray:
-    """Apply dead time filter.
+    """Apply the dead-time filter.
 
     Parameters
     ----------
