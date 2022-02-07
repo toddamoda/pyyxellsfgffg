@@ -17,7 +17,7 @@ Pulse processing
 
 This model only applies to the :py:class:`~pyxel.detectors.MKID` detector.
 
-When a photon impinges upon an MKID, it generates a phase pulse in its input probe signal, on top of the background phase-height noise (from two-level-system states and amplifier noise :cite:p:`Dodkins`). Each MKID has a phase-height responsivity :math:`r = \frac{\lambda}{\phi}`; where :math:`\lambda` is the wavelength associated with the photons under study and :math:`\phi` is the mean phase height.
+When a photon impinges upon an MKID, it generates a phase pulse in its input probe signal, on top of the background phase-height noise (from two-level-system states and amplifier noise). Each MKID has a phase-height responsivity :math:`r = \frac{\lambda}{\phi}`; where :math:`\lambda` is the wavelength associated with the photons under study and :math:`\phi` is the mean phase height.
 
 This model is derived from :cite:p:`Dodkins`; more information can be found on the website :cite:p:`Mazin`.
 
