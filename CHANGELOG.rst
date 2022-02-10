@@ -9,6 +9,8 @@ Documentation
 ~~~~~~~~~~~~~
 * Add pyxel brief history to documentation.
   (See `!429 <https://gitlab.com/esa/pyxel/-/merge_requests/429>`_).
+* Add documentation for MKID detector.
+  (See `!387 <https://gitlab.com/esa/pyxel/-/merge_requests/387>`_).
 
 
 version 1.0.0-rc.6 / 2022-02-09
