@@ -164,55 +164,6 @@ class Charge:
 
         return pd.DataFrame(new_charges)
 
-    def convert_df_to_array(self):
-        """Convert charge dataframe to an array.
-
-        Charge in the detector volume is collected and assigned to the nearest pixel.
-        """
-        # Late import to speedup start-up time
-        import numba
-
-        @numba.jit(nopython=True)
-        def df_to_array(
-            array: np.ndarray,
-            charge_per_pixel: list,
-            pixel_index_ver: list,
-            pixel_index_hor: list,
-        ) -> np.ndarray:
-            """Assign charge in dataframe to nearest pixel.
-
-            Parameters
-            ----------
-            array: ndarray
-            charge_per_pixel: list
-            pixel_index_ver: list
-            pixel_index_hor:list
-
-            Returns
-            -------
-            ndarray
-            """
-            for i, charge_value in enumerate(charge_per_pixel):
-                array[pixel_index_ver[i], pixel_index_hor[i]] += charge_value
-            return array
-
-        array = np.zeros((self._geo.row, self._geo.col))
-
-        charge_per_pixel = self.get_frame_values(quantity="number")
-        charge_pos_ver = self.get_frame_values(quantity="position_ver")
-        charge_pos_hor = self.get_frame_values(quantity="position_hor")
-
-        pixel_index_ver = np.floor_divide(
-            charge_pos_ver, self._geo.pixel_vert_size
-        ).astype(int)
-        pixel_index_hor = np.floor_divide(
-            charge_pos_hor, self._geo.pixel_horz_size
-        ).astype(int)
-
-        # Changing = to += since charge dataframe is reset, the pixel array need to be
-        # incremented, we can't do the whole operation on each iteration
-        return df_to_array(array, charge_per_pixel, pixel_index_ver, pixel_index_hor)
-
     @staticmethod
     def convert_array_to_df(
         array: np.ndarray,
@@ -369,7 +320,10 @@ class Charge:
     def array(self) -> np.ndarray:
         """Get charge in a numpy array."""
         if not self._frame.empty:
-            self._array = self.convert_df_to_array()
+            raise ValueError(
+                """Charge data frame not empty. Use detector.charge.frame or detector.pixel.array 
+                in case charge has been collected"""
+            )
         return self._array
 
     def __array__(self, dtype: t.Optional[np.dtype] = None):
