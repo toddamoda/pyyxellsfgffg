@@ -5,10 +5,76 @@
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
 
-# TODO: Create a simple kernel convolution diffusion model
-
-
 """Pyxel charge diffusion and collection model extracted from TARS."""
+from pyxel.detectors import Detector
+import numpy as np
+import numba
+import pandas
+import typing as t
+
+
+def janesick_diffusion_spread(self, cluster) -> float:
+    """TBW."""
+    # Initial cloud diameter:
+    c_init = 0.0171 * (cluster.energy.value ** 1.75)
+
+    # 10 keV deposited by an X-ray photon resultsParticle a 1 um diameter charge (e-h) cloud
+    # CCD Advances For X - Ray Scientific Measurements In 1985,
+    # James Janesick et al.
+    # deltaE != cluster.number / u.electron * self.detector.ionization_energy / (1000 * u.eV)
+    # deltaE == kin. energy of an electron
+    # By analogy with high - energy electron beam interaction with silicon, one can approximate the
+    # energy / depth relationship as R = k * E**n , where k and n are numerical constants
+    # for the material and R is the penetration depth.
+
+    x_backside = self.detector.total_thickness      # um  # boundary of the detector backside
+    x_ff = self.detector.field_free_zone            # um # boundary of the field-free region near backside
+    x_p = self.detector.depletion_zone              # um # boundary of the depletion region near detector channel
+
+    # z position of charge generation event relative to the backside (>= 0)
+    x_a = x_backside + cluster.initial_position[2]
+
+    n_acceptor = 1e15 * u.cm ** (-3)
+
+    c_field_free = 0.0
+    # c_field = 0.0
+
+    if x_a == 0:
+        raise ValueError
+
+    # Cloud diameter after passing through a thin field-free region:
+    if 0 < x_a < x_ff:
+        c_field_free = 2 * x_ff * (1 - (x_a / x_ff) ** 2) ** 0.5
+
+    # Cloud diameter after passing through the field region:
+    # if x_ff <= x_a < x_ff + x_p:
+    c_field = (-2 * (5.1e-6 * (1e15 / n_acceptor.value) ** 0.5) ** 2 * np.log((x_a - x_ff) / x_p)) ** 0.5
+    c_field_max = 1.85e-5 * (1e15 / n_acceptor.value) ** 0.5
+    c_field = max(c_field, c_field_max)
+
+    # Charges already created inside CCD channel, not needed to diffuse them
+    if x_ff + x_p <= x_a:
+        c_field = 0.0
+
+    # Final cloud diameter: (um)
+    c_diameter = np.sqrt(c_init ** 2 + c_field_free ** 2 + c_field ** 2) ** 0.5 * u.um
+
+    return c_diameter
+
+
+def compute_diffused_array():
+    spread = 5.
+
+
+
+def diffuse_and_collect(detector: Detector) -> None:
+
+    diffused_array=np.zeros((10,10))
+
+    detector.pixel = diffuse
+
+
+
 # import logging
 # from math import sqrt, log
 # import numpy as np
