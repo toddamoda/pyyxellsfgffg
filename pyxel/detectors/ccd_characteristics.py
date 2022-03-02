@@ -20,8 +20,6 @@ class CCDCharacteristics(Characteristics):
         Sensitivity of charge readout. Unit: V/e-
     pre_amplification: float
         Gain of pre-amplifier. Unit: V/V
-    adc_gain: float
-        Gain of the Analog-Digital Converter. Unit: ADU/V
     full_well_capacity: float
         Full well capacity. Unit: e-
     """
