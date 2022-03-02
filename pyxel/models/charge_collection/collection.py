@@ -63,7 +63,9 @@ def simple_collection(detector: Detector) -> None:
         pixel_index_ver = np.floor_divide(charge_pos_ver, pixel_vert_size).astype(int)
         pixel_index_hor = np.floor_divide(charge_pos_hor, pixel_horz_size).astype(int)
 
-        final_array = df_to_array(array, charge_per_pixel, pixel_index_ver, pixel_index_hor)
+        final_array = df_to_array(
+            array, charge_per_pixel, pixel_index_ver, pixel_index_hor
+        )
 
     else:
         final_array = detector.charge.array

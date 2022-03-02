@@ -11,12 +11,21 @@ import numpy as np
 import numba
 import pandas
 import typing as t
+import math
 
 
-def janesick_diffusion_spread(self, cluster) -> float:
+@numba.njit
+def janesick_diffusion_spread(
+    initial_position: float,
+    energy: float,
+    field_free_zone: float,
+    total_thickness: float,
+    depletion_zone: float,
+    n_acceptor=1.0e15,
+) -> float:
     """TBW."""
     # Initial cloud diameter:
-    c_init = 0.0171 * (cluster.energy.value ** 1.75)
+    c_init = 0.0171 * (energy ** 1.75)
 
     # 10 keV deposited by an X-ray photon resultsParticle a 1 um diameter charge (e-h) cloud
     # CCD Advances For X - Ray Scientific Measurements In 1985,
@@ -27,14 +36,12 @@ def janesick_diffusion_spread(self, cluster) -> float:
     # energy / depth relationship as R = k * E**n , where k and n are numerical constants
     # for the material and R is the penetration depth.
 
-    x_backside = self.detector.total_thickness      # um  # boundary of the detector backside
-    x_ff = self.detector.field_free_zone            # um # boundary of the field-free region near backside
-    x_p = self.detector.depletion_zone              # um # boundary of the depletion region near detector channel
+    x_backside = total_thickness  # um  # boundary of the detector backside
+    x_ff = field_free_zone  # um # boundary of the field-free region near backside
+    x_p = depletion_zone  # um # boundary of the depletion region near detector channel
 
     # z position of charge generation event relative to the backside (>= 0)
-    x_a = x_backside + cluster.initial_position[2]
-
-    n_acceptor = 1e15 * u.cm ** (-3)
+    x_a = x_backside + initial_position[2]
 
     c_field_free = 0.0
     # c_field = 0.0
@@ -48,7 +55,11 @@ def janesick_diffusion_spread(self, cluster) -> float:
 
     # Cloud diameter after passing through the field region:
     # if x_ff <= x_a < x_ff + x_p:
-    c_field = (-2 * (5.1e-6 * (1e15 / n_acceptor.value) ** 0.5) ** 2 * np.log((x_a - x_ff) / x_p)) ** 0.5
+    c_field = (
+        -2
+        * (5.1e-6 * (1e15 / n_acceptor.value) ** 0.5) ** 2
+        * np.log((x_a - x_ff) / x_p)
+    ) ** 0.5
     c_field_max = 1.85e-5 * (1e15 / n_acceptor.value) ** 0.5
     c_field = max(c_field, c_field_max)
 
@@ -57,22 +68,160 @@ def janesick_diffusion_spread(self, cluster) -> float:
         c_field = 0.0
 
     # Final cloud diameter: (um)
-    c_diameter = np.sqrt(c_init ** 2 + c_field_free ** 2 + c_field ** 2) ** 0.5 * u.um
+    c_diameter = np.sqrt(c_init ** 2 + c_field_free ** 2 + c_field ** 2) ** 0.5
 
     return c_diameter
 
 
-def compute_diffused_array():
-    spread = 5.
+@numba.njit
+def gauss_fraction(
+    sigma: float,
+    total_volume: float,
+    x_0: float,
+    y_0: float,
+    a: float,
+    b: float,
+    c: float,
+    d: float,
+) -> float:
+    """Compute volume under a symmetrical 2D gaussian distribution for given borders a,b,c,d in cartesian space.
+
+    Parameters
+    ----------
+    sigma: float
+        Spread of the distribution
+    total_volume: float
+        Total volume.
+    x_0: float
+        Center of the distribution (x coordinate).
+    y_0: float
+        Center of the distribution (y coordinate).
+    a: float
+    b: float
+    c: float
+    d: float
+
+    Returns
+    -------
+    out: float
+    """
+    out = (
+        (total_volume / 4)
+        * (
+            math.erf((x_0 - a) / (math.sqrt(2) * sigma))
+            + math.erf((b - x_0) / (math.sqrt(2) * sigma))
+        )
+        * (
+            math.erf((y_0 - c) / (math.sqrt(2) * sigma))
+            + math.erf((d - y_0) / (math.sqrt(2) * sigma))
+        )
+    )
+    return out
 
 
+@numba.njit
+def compute_diffused_array(
+    cluster_x_positions: np.ndarray,
+    cluster_y_positions: np.ndarray,
+    cluster_z_positions: np.ndarray,
+    charge_number: np.ndarray,
+    pixel_vert_size: float,
+    pixel_horz_size: float,
+    rows: int,
+    cols: int,
+    field_free_zone: float,
+    depletion_zone: float,
+    total_thickness: float,
+    n_acceptor: float = 1.0e15,
+    sigma_factor: float = 3.0,
+):
+    array = np.zeros((rows, cols))
 
-def diffuse_and_collect(detector: Detector) -> None:
+    x_dim = cols * pixel_horz_size
+    y_dim = rows * pixel_vert_size
 
-    diffused_array=np.zeros((10,10))
+    for i, number in enumerate(charge_number):
 
-    detector.pixel = diffuse
+        # compute_spread from cluster_z_position
+        spread = janesick_diffusion_spread(
+            initial_position=cluster_z_positions[i],
+            energy=0.0,
+            field_free_zone=field_free_zone,
+            depletion_zone=depletion_zone,
+            total_thickness=total_thickness,
+            n_acceptor=n_acceptor,
+        )
 
+        x_0 = cluster_x_positions[i]
+        y_0 = cluster_y_positions[i]
+
+        for n in range(rows):
+            for m in range(cols):
+
+                pixel_center_y = pixel_vert_size / 2 + n * pixel_vert_size
+                pixel_center_x = pixel_horz_size / 2 + m * pixel_horz_size
+
+                pixel_start_x = m * pixel_horz_size
+                pixel_end_x = (m + 1) * pixel_horz_size
+
+                pixel_start_y = n * pixel_vert_size
+                pixel_end_y = (n + 1) * pixel_vert_size
+
+                if (pixel_center_x - x_0) ** 2 + (pixel_center_y - y_0) ** 2 <= (
+                    sigma_factor * spread
+                ) ** 2:
+                    array[n, m] += gauss_fraction(
+                        sigma=spread,
+                        total_volume=number,
+                        x_0=x_0,
+                        y_0=y_0,
+                        a=pixel_start_x,
+                        b=pixel_end_x,
+                        c=pixel_start_y,
+                        d=pixel_end_y,
+                    )
+    return array
+
+
+def diffuse_and_collect_janesick(
+    detector: Detector,
+    field_free_zone: float,
+    depletion_zone: float,
+    n_acceptor: float = 1.0e15,
+    sigma_factor: float = 3.0,
+) -> None:
+
+    if not detector.charge.frame_empty():
+
+        row, col = (detector.geometry.row, detector.geometry.col)
+        pixel_vert_size = detector.geometry.pixel_vert_size
+        pixel_horz_size = detector.geometry.pixel_horz_size
+
+        charge_per_pixel = detector.charge.get_frame_values(quantity="number")
+        charge_pos_ver = detector.charge.get_frame_values(quantity="position_ver")
+        charge_pos_hor = detector.charge.get_frame_values(quantity="position_hor")
+        charge_pos_z = detector.charge.get_frame_values(quantity="position_z")
+
+        final_array = compute_diffused_array(
+            cluster_x_positions=charge_pos_hor,
+            cluster_y_positions=charge_pos_ver,
+            cluster_z_positions=charge_pos_z,
+            charge_number=charge_per_pixel,
+            pixel_vert_size=pixel_vert_size,
+            pixel_horz_size=pixel_horz_size,
+            rows=row,
+            cols=col,
+            field_free_zone=field_free_zone,
+            depletion_zone=depletion_zone,
+            total_thickness=detector.geometry.total_thickness,
+            n_acceptor=n_acceptor,
+            sigma_factor=sigma_factor,
+        )
+
+    else:
+        raise ValueError
+
+    detector.pixel.array += final_array
 
 
 # import logging
