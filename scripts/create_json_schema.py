@@ -339,6 +339,7 @@ def generate_detectors() -> t.Iterator[str]:
 
     yield ""
     yield ""
+    yield "@schema(title='CCD')"
     yield "@dataclass"
     yield "class CCD(Detector):"
     yield "    geometry: CCDGeometry"
@@ -346,6 +347,7 @@ def generate_detectors() -> t.Iterator[str]:
 
     yield ""
     yield ""
+    yield "@schema(title='CMOS')"
     yield "@dataclass"
     yield "class CMOS(Detector):"
     yield "    geometry: CMOSGeometry"
@@ -353,6 +355,7 @@ def generate_detectors() -> t.Iterator[str]:
 
     yield ""
     yield ""
+    yield "@schema(title='MKID')"
     yield "@dataclass"
     yield "class MKID(Detector):"
     yield "    geometry: MKIDGeometry"
@@ -393,6 +396,7 @@ def generate_detectors() -> t.Iterator[str]:
     yield "    non_destructive: bool = False"
     yield ""
     yield ""
+    yield "@schema(title='Exposure')"
     yield "@dataclass"
     yield "class Exposure:"
     yield "    outputs: ExposureOutputs"
@@ -425,7 +429,9 @@ def generate_detectors() -> t.Iterator[str]:
     yield "    boundaries: typing.Optional[typing.Tuple[float, float]] = None"
     yield "    enabled: bool = True"
     yield "    logarithmic: bool = False"
-
+    yield ""
+    yield ""
+    yield "@schema(title='Observation')"
     yield "@dataclass"
     yield "class Observation:"
     yield "    outputs: ObservationOutputs"
@@ -483,6 +489,7 @@ def generate_detectors() -> t.Iterator[str]:
     yield "    # nlopt_selection: str = ('best',)"
     yield ""
     yield ""
+    yield "@schema(title='Calibration')"
     yield "@dataclass"
     yield "class Calibration:"
     yield "    outputs: CalibrationOutputs"
@@ -517,14 +524,11 @@ def generate_detectors() -> t.Iterator[str]:
     yield "    pipeline: DetailedDetectionPipeline"
     yield ""
     yield "    # Running modes"
-    yield "    exposure: typing.Optional[Exposure] = None"
-    yield "    observation: typing.Optional[Observation] = None"
-    yield "    calibration: typing.Optional[Calibration] = None"
+    yield "    mode: typing.Union[Exposure, Observation, Calibration]"
     yield ""
     yield "    # Detectors"
-    yield "    ccd_detector: typing.Optional[CCD] = None"
-    yield "    cmos_detector: typing.Optional[CMOS] = None"
-    yield "    mkid_detector: typing.Optional[MKID] = None"
+    yield "    detector: typing.Union[CCD, CMOS, MKID]"
+
 
 
 def generate_all_models() -> t.Iterator[str]:
