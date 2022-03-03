@@ -145,26 +145,31 @@ def generate_model(
 
     yield "@schema(title='Parameters')"
     yield "@dataclass"
-    yield f"class {model_name}Arguments(Arguments):"
+    yield f"class {model_name}Arguments:"
 
     dct = {key: value for key, value in doc.parameters.items() if key != "detector"}
 
-    for name, param in dct.items():
-        title = name
+    all_defaults = all(
+        [isinstance(el, ParamDefault) for el in dct.values()]
+    )  # type: bool
 
-        yield f"    {name}: {param.annotation} = field("
-        if isinstance(param, ParamDefault):
-            yield f"        default={param.default!r},"
-        yield "        metadata=schema("
-        yield f"            title={title!r},"
+    if dct:
+        for name, param in dct.items():
+            title = name
 
-        yield "            description=("
-        for line in param.description.split("\n"):
-            yield f"                {line!r}"
-        yield "            ),"
+            yield f"    {name}: {param.annotation} = field("
+            if isinstance(param, ParamDefault):
+                yield f"        default={param.default!r},"
+            yield "        metadata=schema("
+            yield f"            title={title!r},"
 
-        yield "        )"
-        yield "    )"
+            yield "            description=("
+            for line in param.description.split("\n"):
+                yield f"                {line!r}"
+            yield "            ),"
+
+            yield "        )"
+            yield "    )"
     else:
         yield "    pass"
 
@@ -175,9 +180,13 @@ def generate_model(
     yield f"    description={doc.description!r},"
     yield ")"
     yield "@dataclass"
-    yield f"class {model_name}(ModelFunction):"
+    yield f"class {model_name}:"
     yield "    name: str"
-    yield f"    arguments: {model_name}Arguments"
+
+    if all_defaults:
+        yield f"    arguments: {model_name}Arguments = field(default_factory={model_name}Arguments)"
+    else:
+        yield f"    arguments: {model_name}Arguments"
     yield f"    func: typing.Literal[{func_fullname!r}] = {func_fullname!r}"
     yield "    enabled: bool = True"
     yield ""
@@ -240,44 +249,26 @@ def generate_group(model_groups_info: t.Sequence[ModelGroupInfo]) -> t.Iterator[
                 model_name=info.model_class_name,
             )
 
+    yield "#"
+    yield "# Detection pipeline"
+    yield "#"
+    yield "@dataclass"
+    yield "class DetailedDetectionPipeline(DetectionPipeline):"
+
     for info in model_groups_info:
         group_name = info.name
         group_name_title = capitalize_title(group_name)
         group_class_name = info.class_name
 
         models_info = get_model_info(group_name)  # type: t.Sequence[ModelInfo]
+        models_class_names = [info.model_class_name for info in models_info]
 
-        all_model_class_names = ", ".join(
-            [info.model_class_name for info in models_info]
-        )
-        yield "#"
-        yield f"# ModelGroup: {group_name_title}"
-        yield "#"
-        yield f"@schema(title={group_name_title!r})"
-        yield "@dataclass"
-        yield f"class {group_class_name}(ModelGroup):"
-        yield "    models: typing.Sequence["
-        if len(models_info) == 1:
-            yield f"        {all_model_class_names}"
-        elif len(models_info) > 1:
-            yield f"        typing.Union["
-            yield f"            {all_model_class_names}"
-            yield f"        ]"
-        else:
-            yield f"        ModelFunction"
-
-        yield "    ]"
-        yield f"    name: typing.Literal[{group_name!r}] = {group_name!r}"
-        yield ""
-        yield ""
-
-    yield "#"
-    yield "# Detection pipeline"
-    yield "#"
-    yield "@dataclass"
-    yield "class DetailedDetectionPipeline(DetectionPipeline):"
-    for info in model_groups_info:
-        yield f"    {info.name}: {info.class_name}"
+        all_model_class_names = ", ".join([*models_class_names, "ModelFunction"])
+        yield f"    {group_name}: typing.Sequence["
+        yield "        typing.Union["
+        yield f"            {all_model_class_names}"
+        yield "        ]"
+        yield f"    ] = field(default_factory=list, metadata=schema(title={group_name_title!r}))"
 
 
 def get_model_group_info() -> t.Sequence[ModelGroupInfo]:
@@ -577,15 +568,15 @@ def generate_all_models() -> t.Iterator[str]:
     yield ""
     yield "@dataclass"
     yield "class DetectionPipeline:"
-    yield "    photon_generation: ModelGroup"
-    yield "    optics: ModelGroup"
-    yield "    phasing: ModelGroup"
-    yield "    charge_generation: ModelGroup"
-    yield "    charge_collection: ModelGroup"
-    yield "    charge_measurement: ModelGroup"
-    yield "    readout_electronics: ModelGroup"
-    yield "    charge_transfer: ModelGroup"
-    yield "    signal_transfer: ModelGroup"
+    yield "    photon_generation: typing.Optional[typing.Sequence[ModelFunction]] = None"
+    yield "    optics: typing.Optional[typing.Sequence[ModelFunction]] = None"
+    yield "    phasing: typing.Optional[typing.Sequence[ModelFunction]] = None"
+    yield "    charge_generation: typing.Optional[typing.Sequence[ModelFunction]] = None"
+    yield "    charge_collection: typing.Optional[typing.Sequence[ModelFunction]] = None"
+    yield "    charge_measurement: typing.Optional[typing.Sequence[ModelFunction]] = None"
+    yield "    readout_electronics: typing.Optional[typing.Sequence[ModelFunction]] = None"
+    yield "    charge_transfer: typing.Optional[typing.Sequence[ModelFunction]] = None"
+    yield "    signal_transfer: typing.Optional[typing.Sequence[ModelFunction]] = None"
     yield ""
     yield ""
 
@@ -594,10 +585,10 @@ def generate_all_models() -> t.Iterator[str]:
 
     yield ""
     yield ""
-    yield "from apischema.json_schema import deserialization_schema"
+    yield "from apischema.json_schema import JsonSchemaVersion, deserialization_schema"
     yield "import json"
     yield ""
-    yield "print(json.dumps(deserialization_schema(Configuration)))"
+    yield "print(json.dumps(deserialization_schema(Configuration, version=JsonSchemaVersion.DRAFT_7)))"
     yield ""
 
 
