@@ -62,7 +62,9 @@ class Klass:
 
 
 def get_documentation(func: t.Callable) -> FuncDocumentation:
+    assert func.__doc__
     doc = NumpyDocString(inspect.cleandoc(func.__doc__))
+
     signature = inspect.signature(func)  # type: inspect.Signature
 
     parameters = {}
@@ -82,7 +84,7 @@ def get_documentation(func: t.Callable) -> FuncDocumentation:
                 description=description,
                 annotation=annotation.replace("NoneType", "None"),
                 default=parameter.default,
-            )
+            )  # type: t.Union[ParamDefault, Param]
         else:
             param = Param(description=description, annotation=annotation)
 
@@ -145,7 +147,7 @@ def generate_model(
 
     yield "@schema(title='Parameters')"
     yield "@dataclass"
-    yield f"class {model_name}Arguments:"
+    yield f"class {model_name}Arguments(typing.Mapping[str, typing.Any]):"
 
     dct = {key: value for key, value in doc.parameters.items() if key != "detector"}
 
@@ -170,8 +172,20 @@ def generate_model(
 
             yield "        )"
             yield "    )"
-    else:
-        yield "    pass"
+    # else:
+    #     yield "    pass"
+
+    yield "    def __iter__(self) -> typing.Iterator[str]:"
+    yield f"        return iter({tuple(dct)!r})"
+
+    yield "    def __getitem__(self, item: typing.Any) -> typing.Any:"
+    yield "        if item in tuple(self):"
+    yield "            return getattr(self, item)"
+    yield "        else:"
+    yield "            raise KeyError"
+
+    yield "    def __len__(self) -> int:"
+    yield f"        return {len(dct)}"
 
     yield ""
     yield ""
@@ -228,12 +242,12 @@ def capitalize_title(name: str) -> str:
 
 def generate_group(model_groups_info: t.Sequence[ModelGroupInfo]) -> t.Iterator[str]:
 
-    for info in model_groups_info:
-        group_name = info.name
+    for group_info in model_groups_info:
+        group_name = group_info.name
 
         models_info = get_model_info(group_name)  # type: t.Sequence[ModelInfo]
 
-        for info in models_info:
+        for info in models_info:  # type: ModelInfo
 
             group_name_title = capitalize_title(group_name)
             model_title = capitalize_title(info.model_name)
@@ -255,15 +269,15 @@ def generate_group(model_groups_info: t.Sequence[ModelGroupInfo]) -> t.Iterator[
     yield "@dataclass"
     yield "class DetailedDetectionPipeline(DetectionPipeline):"
 
-    for info in model_groups_info:
-        group_name = info.name
+    for group_info in model_groups_info:
+        group_name = group_info.name
         group_name_title = capitalize_title(group_name)
-        group_class_name = info.class_name
 
-        models_info = get_model_info(group_name)  # type: t.Sequence[ModelInfo]
+        models_info = get_model_info(group_name)
         models_class_names = [info.model_class_name for info in models_info]
 
         all_model_class_names = ", ".join([*models_class_names, "ModelFunction"])
+
         yield f"    {group_name}: typing.Sequence["
         yield "        typing.Union["
         yield f"            {all_model_class_names}"
@@ -322,7 +336,7 @@ def generate_detectors() -> t.Iterator[str]:
         ccd_geometry: {geometry},
         cmos_geometry: {geometry},
         mkid_geometry: {geometry},
-        environment: {},
+        environment: set(),
         # detector: {environment},
         # ccd: {ccd_geometry, ccd_characteristics},
         # cmos: {cmos_geometry, cmos_characteristics},
@@ -373,7 +387,7 @@ def generate_detectors() -> t.Iterator[str]:
     yield ""
     yield "@dataclass"
     yield "class Outputs:"
-    yield "    output_folder: typing.Union[str, pathlib.Path]"
+    yield "    output_folder: pathlib.Path"
     yield "    save_data_to_file: typing.Optional["
     yield "        typing.Sequence[typing.Mapping[ValidName, typing.Sequence[ValidFormat]]]"
     yield "    ] = None"
@@ -400,7 +414,7 @@ def generate_detectors() -> t.Iterator[str]:
     yield "@dataclass"
     yield "class Exposure:"
     yield "    outputs: ExposureOutputs"
-    yield "    readout: Readout"
+    yield "    readout: Readout = field(default_factory=Readout)"
     yield "    result_type: typing.Literal['image', 'signal', 'pixel', 'all'] = 'all'"
     yield "    pipeline_seed: typing.Optional[int] = None"
     yield ""
@@ -519,16 +533,35 @@ def generate_detectors() -> t.Iterator[str]:
     yield "    weights: typing.Optional[typing.Sequence[float]] = None"
     yield ""
     yield ""
+
+    # Create wrappers for the detectors
+    detector_classes = ["CCD", "CMOS", "MKID"]  # type: t.Sequence[str]
+    for klass_name in detector_classes:
+        yield f"@schema(title='{klass_name}')"
+        yield "@dataclass"
+        yield f"class Wrapper{klass_name}:"
+        yield f"    {klass_name.lower()}: {klass_name}"
+        yield ""
+        yield ""
+
+    # Create wrappers for the modes
+    mode_classes = ["Exposure", "Observation", "Calibration"]  # type: t.Sequence[str]
+    for klass_name in mode_classes:
+        yield f"@schema(title='{klass_name}')"
+        yield "@dataclass"
+        yield f"class Wrapper{klass_name}:"
+        yield f"    {klass_name.lower()}: {klass_name}"
+        yield ""
+        yield ""
+
+    wrapper_detector_classes = [f"Wrapper{el}" for el in detector_classes]
+    wrapper_mode_classes = [f"Wrapper{el}" for el in mode_classes]
+
     yield "@dataclass"
     yield "class Configuration:"
     yield "    pipeline: DetailedDetectionPipeline"
-    yield ""
-    yield "    # Running modes"
-    yield "    mode: typing.Union[Exposure, Observation, Calibration]"
-    yield ""
-    yield "    # Detectors"
-    yield "    detector: typing.Union[CCD, CMOS, MKID]"
-
+    yield f"    mode: typing.Union[{', '.join(wrapper_mode_classes)}]"
+    yield f"    detector: typing.Union[{', '.join(wrapper_detector_classes)}]"
 
 
 def generate_all_models() -> t.Iterator[str]:
@@ -559,8 +592,8 @@ def generate_all_models() -> t.Iterator[str]:
     yield "@dataclass"
     yield "class ModelFunction:"
     yield "    name: str"
-    yield "    arguments: typing.Optional[typing.Mapping[str, typing.Any]]"
-    yield "    func: str"
+    yield "    func: str = field(metadata=schema(pattern='^(?!pyxel\\.models\\.)'))"
+    yield "    arguments: typing.Mapping[str, typing.Any] = field(default_factory=dict)"
     yield "    enabled: bool = True"
     yield ""
     yield ""
@@ -572,15 +605,15 @@ def generate_all_models() -> t.Iterator[str]:
     yield ""
     yield "@dataclass"
     yield "class DetectionPipeline:"
-    yield "    photon_generation: typing.Optional[typing.Sequence[ModelFunction]] = None"
-    yield "    optics: typing.Optional[typing.Sequence[ModelFunction]] = None"
-    yield "    phasing: typing.Optional[typing.Sequence[ModelFunction]] = None"
-    yield "    charge_generation: typing.Optional[typing.Sequence[ModelFunction]] = None"
-    yield "    charge_collection: typing.Optional[typing.Sequence[ModelFunction]] = None"
-    yield "    charge_measurement: typing.Optional[typing.Sequence[ModelFunction]] = None"
-    yield "    readout_electronics: typing.Optional[typing.Sequence[ModelFunction]] = None"
-    yield "    charge_transfer: typing.Optional[typing.Sequence[ModelFunction]] = None"
-    yield "    signal_transfer: typing.Optional[typing.Sequence[ModelFunction]] = None"
+    yield "    photon_generation: typing.Sequence[ModelFunction] = field(default_factory=list)"
+    yield "    optics: typing.Sequence[ModelFunction] = field(default_factory=list)"
+    yield "    phasing: typing.Sequence[ModelFunction] = field(default_factory=list)"
+    yield "    charge_generation: typing.Sequence[ModelFunction] = field(default_factory=list)"
+    yield "    charge_collection: typing.Sequence[ModelFunction] = field(default_factory=list)"
+    yield "    charge_measurement: typing.Sequence[ModelFunction] = field(default_factory=list)"
+    yield "    readout_electronics: typing.Sequence[ModelFunction] = field(default_factory=list)"
+    yield "    charge_transfer: typing.Sequence[ModelFunction] = field(default_factory=list)"
+    yield "    signal_transfer: typing.Sequence[ModelFunction] = field(default_factory=list)"
     yield ""
     yield ""
 
@@ -589,10 +622,11 @@ def generate_all_models() -> t.Iterator[str]:
 
     yield ""
     yield ""
-    yield "from apischema.json_schema import JsonSchemaVersion, deserialization_schema"
-    yield "import json"
+    yield "if __name__ == '__main__':"
+    yield "    from apischema.json_schema import JsonSchemaVersion, deserialization_schema"
+    yield "    import json"
     yield ""
-    yield "print(json.dumps(deserialization_schema(Configuration, version=JsonSchemaVersion.DRAFT_7)))"
+    yield "    print(json.dumps(deserialization_schema(Configuration, version=JsonSchemaVersion.DRAFT_7)))"
     yield ""
 
 
