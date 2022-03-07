@@ -1,0 +1,3619 @@
+{
+  "type": "object",
+  "properties": {
+    "pipeline": {
+      "type": "object",
+      "properties": {
+        "photon_generation": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "level": {
+                        "type": "number",
+                        "title": "level",
+                        "description": "Flux of photon per pixel."
+                      },
+                      "option": {
+                        "type": "string",
+                        "enum": [
+                          "uniform",
+                          "rectangular_hole",
+                          "elliptic_hole"
+                        ],
+                        "title": "option",
+                        "description": "A string indicating the type of illumination: - ``uniform`` Uniformlyfill the entire array with photon. (Default) - ``elliptic`` Mask withelliptic object. - ``rectangular`` Mask with rectangular object.",
+                        "default": "uniform"
+                      },
+                      "object_size": {
+                        "type": [
+                          "array",
+                          "null"
+                        ],
+                        "items": {
+                          "type": "integer"
+                        },
+                        "title": "object_size",
+                        "description": "List or tuple of length 2, integers defining the diameters of theelliptic or rectangular object in vertical and horizontal directions.",
+                        "default": null
+                      },
+                      "object_center": {
+                        "type": [
+                          "array",
+                          "null"
+                        ],
+                        "items": {
+                          "type": "integer"
+                        },
+                        "title": "object_center",
+                        "description": "List or tuple of length 2, two integers (row and column number),defining the coordinates of the center of the elliptic or rectangularobject.",
+                        "default": null
+                      },
+                      "time_scale": {
+                        "type": "number",
+                        "title": "time_scale",
+                        "description": "Time scale of the photon flux, default is 1 second. 0.001 would be ms.",
+                        "default": 1.0
+                      }
+                    },
+                    "required": [
+                      "level"
+                    ],
+                    "additionalProperties": false,
+                    "title": "Parameters"
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.photon_generation.illumination",
+                    "default": "pyxel.models.photon_generation.illumination"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "arguments"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'illumination'",
+                "description": "Generate photon uniformly over the entire array or over an elliptic orrectangular object."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "image_file": {
+                        "type": "string",
+                        "title": "image_file",
+                        "description": "Path to image file."
+                      },
+                      "position": {
+                        "type": "array",
+                        "prefixItems": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "integer"
+                          }
+                        ],
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "title": "position",
+                        "description": "Indices of starting row and column, used when fitting image todetector.",
+                        "default": [
+                          0,
+                          0
+                        ],
+                        "additionalItems": false,
+                        "items": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "integer"
+                          }
+                        ]
+                      },
+                      "align": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "enum": [
+                          "center",
+                          "top_left",
+                          "top_right",
+                          "bottom_left",
+                          "bottom_right"
+                        ],
+                        "title": "align",
+                        "description": "Keyword to align the image to detector. Can be any from: (\"center\",\"top_left\", \"top_right\", \"bottom_left\", \"bottom_right\")"
+                      },
+                      "convert_to_photons": {
+                        "type": "boolean",
+                        "title": "convert_to_photons",
+                        "description": "If ``True``, the model converts the values of loaded image array fromADU to photon numbers for each pixel using the Photon TransferFunction: :math:`PTF = quantum\\_efficiency \\cdotcharge\\_to\\_voltage\\_conversion \\cdot pre\\_amplification \\cdotadc\\_factor`.",
+                        "default": false
+                      },
+                      "multiplier": {
+                        "type": "number",
+                        "title": "multiplier",
+                        "description": "Multiply photon array level with a custom number.",
+                        "default": 1.0
+                      },
+                      "time_scale": {
+                        "type": "number",
+                        "title": "time_scale",
+                        "description": "Time scale of the photon flux, default is 1 second. 0.001 would be ms.",
+                        "default": 1.0
+                      },
+                      "bit_resolution": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ],
+                        "title": "bit_resolution",
+                        "description": "Bit resolution of the loaded image.",
+                        "default": null
+                      }
+                    },
+                    "required": [
+                      "image_file"
+                    ],
+                    "additionalProperties": false,
+                    "title": "Parameters"
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.photon_generation.load_image",
+                    "default": "pyxel.models.photon_generation.load_image"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "arguments"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'load_image'",
+                "description": "Load FITS file as a numpy array and add to the detector as inputimage."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "poisson",
+                          "normal"
+                        ],
+                        "title": "type",
+                        "description": "Choose either 'poisson' or 'normal'. Default is Poisson noise.",
+                        "default": "poisson"
+                      },
+                      "seed": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ],
+                        "title": "seed",
+                        "description": "Random seed.",
+                        "default": null
+                      }
+                    },
+                    "additionalProperties": false,
+                    "title": "Parameters",
+                    "default": {
+                      "type": "poisson",
+                      "seed": null
+                    }
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.photon_generation.shot_noise",
+                    "default": "pyxel.models.photon_generation.shot_noise"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'shot_noise'",
+                "description": "Add shot noise to the flux of photon per pixel. It can be eitherPoisson noise or Gaussian."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "period": {
+                        "type": "integer",
+                        "title": "period",
+                        "description": "Period of the periodic pattern in pixels.",
+                        "default": 10
+                      },
+                      "level": {
+                        "type": "number",
+                        "title": "level",
+                        "description": "Amplitude of the periodic pattern.",
+                        "default": 1.0
+                      },
+                      "angle": {
+                        "type": "integer",
+                        "title": "angle",
+                        "description": "Angle of the pattern in degrees.",
+                        "default": 0
+                      },
+                      "startwith": {
+                        "type": "integer",
+                        "title": "startwith",
+                        "description": "1 to start with high level or 0 for 0.",
+                        "default": 0
+                      },
+                      "time_scale": {
+                        "type": "number",
+                        "title": "time_scale",
+                        "description": "Time scale of the photon flux, default is 1 second. 0.001 would be ms.",
+                        "default": 1.0
+                      }
+                    },
+                    "additionalProperties": false,
+                    "title": "Parameters",
+                    "default": {
+                      "period": 10,
+                      "level": 1.0,
+                      "angle": 0,
+                      "startwith": 0,
+                      "time_scale": 1.0
+                    }
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.photon_generation.stripe_pattern",
+                    "default": "pyxel.models.photon_generation.stripe_pattern"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'stripe_pattern'",
+                "description": "Stripe pattern model."
+              },
+              {
+                "$ref": "#/definitions/ModelFunction"
+              }
+            ]
+          },
+          "title": "Photon Generation"
+        },
+        "optics": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "wavelength": {
+                        "type": "number",
+                        "title": "wavelength",
+                        "description": "Wavelength of incoming light in meters."
+                      },
+                      "fov_arcsec": {
+                        "type": "number",
+                        "title": "fov_arcsec",
+                        "description": "Field Of View on detector plane in arcsec."
+                      },
+                      "pixelscale": {
+                        "type": "number",
+                        "title": "pixelscale",
+                        "description": "Pixel scale on detector plane (arcsec/pixel). Defines samplingresolution of :term:`PSF`."
+                      },
+                      "optical_system": {
+                        "type": "array",
+                        "items": {
+                          "type": "object"
+                        },
+                        "title": "optical_system",
+                        "description": "List of optical elements before detector with their specificarguments."
+                      }
+                    },
+                    "required": [
+                      "wavelength",
+                      "fov_arcsec",
+                      "pixelscale",
+                      "optical_system"
+                    ],
+                    "additionalProperties": false,
+                    "title": "Parameters"
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.optics.optical_psf",
+                    "default": "pyxel.models.optics.optical_psf"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "arguments"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'optical_psf'",
+                "description": "Model function for poppy optics model: convolve photon array with psf."
+              },
+              {
+                "$ref": "#/definitions/ModelFunction"
+              }
+            ]
+          },
+          "title": "Optics",
+          "default": []
+        },
+        "phasing": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "wavelength": {
+                        "type": "number",
+                        "title": "wavelength",
+                        "description": "Wavelength."
+                      },
+                      "responsivity": {
+                        "type": "number",
+                        "title": "responsivity",
+                        "description": "Responsivity of the pixel."
+                      },
+                      "scaling_factor": {
+                        "type": "number",
+                        "title": "scaling_factor",
+                        "description": "Scaling factor taking into account the missing pieces ofsuperconducting physics, as well as the resonator quality factor, thebias power, the quasi-particle losses, etc.",
+                        "default": 250.0
+                      }
+                    },
+                    "required": [
+                      "wavelength",
+                      "responsivity"
+                    ],
+                    "additionalProperties": false,
+                    "title": "Parameters"
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.phasing.pulse_processing",
+                    "default": "pyxel.models.phasing.pulse_processing"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "arguments"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'pulse_processing'",
+                "description": "TBW."
+              },
+              {
+                "$ref": "#/definitions/ModelFunction"
+              }
+            ]
+          },
+          "title": "Phasing",
+          "default": []
+        },
+        "charge_generation": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "charge_level": {
+                        "type": "number",
+                        "title": "charge_level",
+                        "description": "Value of charges."
+                      },
+                      "block_start": {
+                        "type": "integer",
+                        "title": "block_start",
+                        "description": "Starting row of the injected charge.",
+                        "default": 0
+                      },
+                      "block_end": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ],
+                        "title": "block_end",
+                        "description": "Ending row for the injected charge.",
+                        "default": null
+                      }
+                    },
+                    "required": [
+                      "charge_level"
+                    ],
+                    "additionalProperties": false,
+                    "title": "Parameters"
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.charge_generation.charge_blocks",
+                    "default": "pyxel.models.charge_generation.charge_blocks"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "arguments"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'charge_blocks'",
+                "description": "Inject a block of charge into the :term:`CCD` detector."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "filename": {
+                        "type": [
+                          "string",
+                          "string"
+                        ],
+                        "title": "filename",
+                        "description": "File path."
+                      },
+                      "position": {
+                        "type": "array",
+                        "prefixItems": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "integer"
+                          }
+                        ],
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "title": "position",
+                        "description": "Indices of starting row and column, used when fitting :term:`QE` mapto detector.",
+                        "default": [
+                          0,
+                          0
+                        ],
+                        "additionalItems": false,
+                        "items": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "integer"
+                          }
+                        ]
+                      },
+                      "align": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "enum": [
+                          "center",
+                          "top_left",
+                          "top_right",
+                          "bottom_left",
+                          "bottom_right"
+                        ],
+                        "title": "align",
+                        "description": "Keyword to align the :term:`QE` map to detector. Can be any from:(\"center\", \"top_left\", \"top_right\", \"bottom_left\", \"bottom_right\")"
+                      }
+                    },
+                    "required": [
+                      "filename"
+                    ],
+                    "additionalProperties": false,
+                    "title": "Parameters"
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.charge_generation.conversion_with_qe_map",
+                    "default": "pyxel.models.charge_generation.conversion_with_qe_map"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "arguments"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'conversion_with_qe_map'",
+                "description": "Generate charge from incident photon via photoelectric effect, simplemodel with custom :term:`QE` map."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "simulation_mode": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "enum": [
+                          "cosmic_ray",
+                          "cosmics",
+                          "radioactive_decay",
+                          "snowflakes"
+                        ],
+                        "title": "simulation_mode",
+                        "description": "Simulation mode: ``cosmic_rays``, ``radioactive_decay``."
+                      },
+                      "running_mode": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "enum": [
+                          "stopping",
+                          "stepsize",
+                          "geant4",
+                          "plotting"
+                        ],
+                        "title": "running_mode",
+                        "description": "Mode: ``stopping``, ``stepsize``, ``geant4``, ``plotting``."
+                      },
+                      "particle_type": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "enum": [
+                          "proton",
+                          "alpha",
+                          "ion"
+                        ],
+                        "title": "particle_type",
+                        "description": "Type of particle: ``proton``, ``alpha``, ``ion``."
+                      },
+                      "initial_energy": {
+                        "anyOf": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "string",
+                            "const": "random"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "title": "initial_energy",
+                        "description": "Kinetic energy of particle, set `random` for random."
+                      },
+                      "particles_per_second": {
+                        "type": [
+                          "number",
+                          "null"
+                        ],
+                        "title": "particles_per_second",
+                        "description": "Number of particles per second.",
+                        "default": null
+                      },
+                      "incident_angles": {
+                        "type": [
+                          "array",
+                          "null"
+                        ],
+                        "prefixItems": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "string"
+                          }
+                        ],
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "title": "incident_angles",
+                        "description": "Incident angles: ``(\u03b1, \u03b2)``.",
+                        "default": null,
+                        "additionalItems": false,
+                        "items": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "string"
+                          }
+                        ]
+                      },
+                      "starting_position": {
+                        "type": [
+                          "array",
+                          "null"
+                        ],
+                        "prefixItems": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "string"
+                          }
+                        ],
+                        "minItems": 3,
+                        "maxItems": 3,
+                        "title": "starting_position",
+                        "description": "Starting position: ``(x, y, z)``.",
+                        "default": null,
+                        "additionalItems": false,
+                        "items": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "string"
+                          }
+                        ]
+                      },
+                      "spectrum_file": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "title": "spectrum_file",
+                        "description": "Path to input spectrum",
+                        "default": null
+                      },
+                      "seed": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ],
+                        "title": "seed",
+                        "description": "Random seed.",
+                        "default": null
+                      },
+                      "ionization_energy": {
+                        "type": "number",
+                        "title": "ionization_energy",
+                        "description": "Mean ionization energy of the semiconductor lattice.",
+                        "default": 3.6
+                      },
+                      "progressbar": {
+                        "type": "boolean",
+                        "title": "progressbar",
+                        "description": "Progressbar.",
+                        "default": true
+                      }
+                    },
+                    "additionalProperties": false,
+                    "title": "Parameters"
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.charge_generation.cosmix",
+                    "default": "pyxel.models.charge_generation.cosmix"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'cosmix'",
+                "description": "Apply CosmiX model."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "dark_rate": {
+                        "type": "number",
+                        "title": "dark_rate",
+                        "description": "Dark current, in electrons/pixel/second, which is the waymanufacturers typically report it."
+                      },
+                      "seed": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ],
+                        "title": "seed",
+                        "default": null
+                      }
+                    },
+                    "required": [
+                      "dark_rate"
+                    ],
+                    "additionalProperties": false,
+                    "title": "Parameters"
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.charge_generation.dark_current",
+                    "default": "pyxel.models.charge_generation.dark_current"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "arguments"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'dark_current'",
+                "description": "Simulate dark current in a detector."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "cutoff_wavelength": {
+                        "type": "number",
+                        "title": "cutoff_wavelength",
+                        "description": "Cutoff wavelength. Unit: um",
+                        "default": 2.5
+                      },
+                      "seed": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ],
+                        "title": "seed",
+                        "default": null
+                      }
+                    },
+                    "additionalProperties": false,
+                    "title": "Parameters",
+                    "default": {
+                      "cutoff_wavelength": 2.5,
+                      "seed": null
+                    }
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.charge_generation.dark_current_rule07",
+                    "default": "pyxel.models.charge_generation.dark_current_rule07"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'dark_current_rule07'",
+                "description": "Generate charge from dark current process."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "filename": {
+                        "type": [
+                          "string",
+                          "string"
+                        ],
+                        "title": "filename",
+                        "description": "File path."
+                      },
+                      "position": {
+                        "type": "array",
+                        "prefixItems": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "integer"
+                          }
+                        ],
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "title": "position",
+                        "description": "Indices of starting row and column, used when fitting charge todetector.",
+                        "default": [
+                          0,
+                          0
+                        ],
+                        "additionalItems": false,
+                        "items": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "integer"
+                          }
+                        ]
+                      },
+                      "align": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "enum": [
+                          "center",
+                          "top_left",
+                          "top_right",
+                          "bottom_left",
+                          "bottom_right"
+                        ],
+                        "title": "align",
+                        "description": "Keyword to align the charge to detector. Can be any from: (\"center\",\"top_left\", \"top_right\", \"bottom_left\", \"bottom_right\")"
+                      },
+                      "time_scale": {
+                        "type": "number",
+                        "title": "time_scale",
+                        "description": "Time scale of the input charge, default is 1 second. 0.001 would bems.",
+                        "default": 1.0
+                      }
+                    },
+                    "required": [
+                      "filename"
+                    ],
+                    "additionalProperties": false,
+                    "title": "Parameters"
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.charge_generation.load_charge",
+                    "default": "pyxel.models.charge_generation.load_charge"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "arguments"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'load_charge'",
+                "description": "Load charge from txt file for detector, mostly for but not limited to:term:`CCDs<CCD>`."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "quantum_efficiency": {
+                        "type": [
+                          "number",
+                          "null"
+                        ],
+                        "title": "quantum_efficiency",
+                        "description": "Quantum efficiency.",
+                        "default": null
+                      }
+                    },
+                    "additionalProperties": false,
+                    "title": "Parameters",
+                    "default": {
+                      "quantum_efficiency": null
+                    }
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.charge_generation.simple_conversion",
+                    "default": "pyxel.models.charge_generation.simple_conversion"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'simple_conversion'",
+                "description": "Generate charge from incident photon via photoelectric effect, simplemodel."
+              },
+              {
+                "$ref": "#/definitions/ModelFunction"
+              }
+            ]
+          },
+          "title": "Charge Generation"
+        },
+        "charge_collection": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "filename": {
+                        "type": [
+                          "string",
+                          "string"
+                        ],
+                        "title": "filename",
+                        "description": "Path to a file with an array or an image."
+                      },
+                      "position": {
+                        "type": "array",
+                        "prefixItems": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "integer"
+                          }
+                        ],
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "title": "position",
+                        "description": "Indices of starting row and column, used when fitting noise todetector.",
+                        "default": [
+                          0,
+                          0
+                        ],
+                        "additionalItems": false,
+                        "items": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "integer"
+                          }
+                        ]
+                      },
+                      "align": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "enum": [
+                          "center",
+                          "top_left",
+                          "top_right",
+                          "bottom_left",
+                          "bottom_right"
+                        ],
+                        "title": "align",
+                        "description": "Keyword to align the noise to detector. Can be any from: (\"center\",\"top_left\", \"top_right\", \"bottom_left\", \"bottom_right\")"
+                      }
+                    },
+                    "required": [
+                      "filename"
+                    ],
+                    "additionalProperties": false,
+                    "title": "Parameters"
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.charge_collection.fix_pattern_noise",
+                    "default": "pyxel.models.charge_collection.fix_pattern_noise"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "arguments"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'fix_pattern_noise'",
+                "description": "Add fix pattern noise caused by pixel non-uniformity during chargecollection."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "trap_time_constants": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "title": "trap_time_constants",
+                        "description": "A list of trap time constants."
+                      },
+                      "trap_proportions": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "title": "trap_proportions",
+                        "description": "A list of trap proportions."
+                      },
+                      "trap_densities_filename": {
+                        "type": [
+                          "string",
+                          "string"
+                        ],
+                        "title": "trap_densities_filename",
+                        "description": "Path to densities file."
+                      },
+                      "trap_capacities_filename": {
+                        "type": [
+                          "string",
+                          "string",
+                          "null"
+                        ],
+                        "title": "trap_capacities_filename",
+                        "description": "Path to capacities file.",
+                        "default": null
+                      },
+                      "trap_densities_position": {
+                        "type": "array",
+                        "prefixItems": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "integer"
+                          }
+                        ],
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "title": "trap_densities_position",
+                        "description": "Indices of starting row and column, used when fitting densities todetector.",
+                        "default": [
+                          0,
+                          0
+                        ],
+                        "additionalItems": false,
+                        "items": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "integer"
+                          }
+                        ]
+                      },
+                      "trap_densities_align": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "enum": [
+                          "center",
+                          "top_left",
+                          "top_right",
+                          "bottom_left",
+                          "bottom_right"
+                        ],
+                        "title": "trap_densities_align",
+                        "description": "Keyword to align the densities to detector. Can be any from:(\"center\", \"top_left\", \"top_right\", \"bottom_left\", \"bottom_right\")"
+                      },
+                      "trap_capacities_position": {
+                        "type": "array",
+                        "prefixItems": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "integer"
+                          }
+                        ],
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "title": "trap_capacities_position",
+                        "description": "Indices of starting row and column, used when fitting capacities todetector.",
+                        "default": [
+                          0,
+                          0
+                        ],
+                        "additionalItems": false,
+                        "items": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "integer"
+                          }
+                        ]
+                      },
+                      "trap_capacities_align": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "enum": [
+                          "center",
+                          "top_left",
+                          "top_right",
+                          "bottom_left",
+                          "bottom_right"
+                        ],
+                        "title": "trap_capacities_align",
+                        "description": "Keyword to align the capacities to detector. Can be any from:(\"center\", \"top_left\", \"top_right\", \"bottom_left\", \"bottom_right\")"
+                      }
+                    },
+                    "required": [
+                      "trap_time_constants",
+                      "trap_proportions",
+                      "trap_densities_filename"
+                    ],
+                    "additionalProperties": false,
+                    "title": "Parameters"
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.charge_collection.persistence",
+                    "default": "pyxel.models.charge_collection.persistence"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "arguments"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'persistence'",
+                "description": "Apply persistence model."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "title": "Parameters",
+                    "default": {}
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.charge_collection.simple_collection",
+                    "default": "pyxel.models.charge_collection.simple_collection"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'simple_collection'",
+                "description": "Associate charge with the closest pixel."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "fwc": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ],
+                        "title": "fwc",
+                        "default": null
+                      }
+                    },
+                    "additionalProperties": false,
+                    "title": "Parameters",
+                    "default": {
+                      "fwc": null
+                    }
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.charge_collection.simple_full_well",
+                    "default": "pyxel.models.charge_collection.simple_full_well"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'simple_full_well'",
+                "description": "Limit the amount of charge in pixel due to full well capacity."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "coupling": {
+                        "type": "number",
+                        "title": "coupling"
+                      },
+                      "diagonal_coupling": {
+                        "type": "number",
+                        "title": "diagonal_coupling",
+                        "default": 0.0
+                      },
+                      "anisotropic_coupling": {
+                        "type": "number",
+                        "title": "anisotropic_coupling",
+                        "default": 0.0
+                      }
+                    },
+                    "required": [
+                      "coupling"
+                    ],
+                    "additionalProperties": false,
+                    "title": "Parameters"
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.charge_collection.simple_ipc",
+                    "default": "pyxel.models.charge_collection.simple_ipc"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "arguments"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'simple_ipc'",
+                "description": "Convolve pixel array with the IPC kernel."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "trap_time_constants": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "title": "trap_time_constants",
+                        "description": "List of trap time constants."
+                      },
+                      "trap_densities": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "title": "trap_densities",
+                        "description": "List of trap densities."
+                      },
+                      "trap_capacities": {
+                        "type": [
+                          "array",
+                          "null"
+                        ],
+                        "items": {
+                          "type": "number"
+                        },
+                        "title": "trap_capacities",
+                        "description": "List of trap capacities.",
+                        "default": null
+                      }
+                    },
+                    "required": [
+                      "trap_time_constants",
+                      "trap_densities"
+                    ],
+                    "additionalProperties": false,
+                    "title": "Parameters"
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.charge_collection.simple_persistence",
+                    "default": "pyxel.models.charge_collection.simple_persistence"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "arguments"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'simple_persistence'",
+                "description": "Apply simple persistence model."
+              },
+              {
+                "$ref": "#/definitions/ModelFunction"
+              }
+            ]
+          },
+          "title": "Charge Collection"
+        },
+        "charge_measurement": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "noise": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "number"
+                            }
+                          }
+                        },
+                        "title": "noise"
+                      },
+                      "window_position": {
+                        "type": [
+                          "array",
+                          "null"
+                        ],
+                        "prefixItems": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "integer"
+                          }
+                        ],
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "title": "window_position",
+                        "description": "[x0 (columns), y0 (rows)].",
+                        "default": null,
+                        "additionalItems": false,
+                        "items": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "integer"
+                          }
+                        ]
+                      },
+                      "window_size": {
+                        "type": [
+                          "array",
+                          "null"
+                        ],
+                        "prefixItems": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "integer"
+                          }
+                        ],
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "title": "window_size",
+                        "description": "[x (columns), y (rows)].",
+                        "default": null,
+                        "additionalItems": false,
+                        "items": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "integer"
+                          }
+                        ]
+                      },
+                      "seed": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ],
+                        "title": "seed",
+                        "default": null
+                      },
+                      "n_output": {
+                        "type": "integer",
+                        "title": "n_output",
+                        "description": "Number of detector outputs.",
+                        "default": 1
+                      },
+                      "n_row_overhead": {
+                        "type": "integer",
+                        "title": "n_row_overhead",
+                        "description": "New row overhead in pixel. This allows for a short wait at the end ofa row before starting the next row.",
+                        "default": 0
+                      },
+                      "n_frame_overhead": {
+                        "type": "integer",
+                        "title": "n_frame_overhead",
+                        "description": "New frame overhead in rows. This allows for a short wait at the end ofa frame before starting the next frame.",
+                        "default": 0
+                      },
+                      "reverse_scan_direction": {
+                        "type": "boolean",
+                        "title": "reverse_scan_direction",
+                        "description": "Set this True to reverse the fast scanner readout directions. Thiscapability was added to support Teledyne\u2019s programmable fast scanreadout directions. The default setting (False) corresponds to whatHxRG detectors default to upon power up.",
+                        "default": false
+                      },
+                      "reference_pixel_border_width": {
+                        "type": "integer",
+                        "title": "reference_pixel_border_width",
+                        "description": "Width of reference pixel border around image area.",
+                        "default": 4
+                      }
+                    },
+                    "required": [
+                      "noise"
+                    ],
+                    "additionalProperties": false,
+                    "title": "Parameters"
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.charge_measurement.nghxrg",
+                    "default": "pyxel.models.charge_measurement.nghxrg"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "arguments"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'nghxrg'",
+                "description": "Generate fourier noise power spectrum on HXRG detector."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "coefficients": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "title": "coefficients",
+                        "description": "Coefficient of the polynomial function."
+                      }
+                    },
+                    "required": [
+                      "coefficients"
+                    ],
+                    "additionalProperties": false,
+                    "title": "Parameters"
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.charge_measurement.output_node_linearity_poly",
+                    "default": "pyxel.models.charge_measurement.output_node_linearity_poly"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "arguments"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'output_node_linearity_poly'",
+                "description": "Add non-linearity to signal array to simulate the non-linearity of theoutput node circuit."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "std_deviation": {
+                        "type": "number",
+                        "title": "std_deviation",
+                        "description": "Standard deviation. Unit: V"
+                      },
+                      "seed": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ],
+                        "title": "seed",
+                        "description": "Random seed.",
+                        "default": null
+                      }
+                    },
+                    "required": [
+                      "std_deviation"
+                    ],
+                    "additionalProperties": false,
+                    "title": "Parameters"
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.charge_measurement.output_node_noise",
+                    "default": "pyxel.models.charge_measurement.output_node_noise"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "arguments"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'output_node_noise'",
+                "description": "Add noise to signal array of detector output node using normal randomdistribution."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "readout_noise": {
+                        "type": "number",
+                        "title": "readout_noise",
+                        "description": "Mean readout noise for the array in units of electrons. Unit: electron"
+                      },
+                      "readout_noise_std": {
+                        "type": "number",
+                        "title": "readout_noise_std",
+                        "description": "Readout noise standard deviation in units of electrons. Unit: electron"
+                      },
+                      "seed": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ],
+                        "title": "seed",
+                        "description": "Random seed.",
+                        "default": null
+                      }
+                    },
+                    "required": [
+                      "readout_noise",
+                      "readout_noise_std"
+                    ],
+                    "additionalProperties": false,
+                    "title": "Parameters"
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.charge_measurement.output_node_noise_cmos",
+                    "default": "pyxel.models.charge_measurement.output_node_noise_cmos"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "arguments"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'output_node_noise_cmos'",
+                "description": "Output node noise model for :term:`CMOS` detectors where readout isstatistically independent for each pixel."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "gain": {
+                        "type": [
+                          "number",
+                          "null"
+                        ],
+                        "title": "gain",
+                        "description": "Gain to apply. By default, this is the sensitivity of charge readout.Unit: V/e-",
+                        "default": null
+                      }
+                    },
+                    "additionalProperties": false,
+                    "title": "Parameters",
+                    "default": {
+                      "gain": null
+                    }
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.charge_measurement.simple_measurement",
+                    "default": "pyxel.models.charge_measurement.simple_measurement"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'simple_measurement'",
+                "description": "Convert the pixel array into signal array."
+              },
+              {
+                "$ref": "#/definitions/ModelFunction"
+              }
+            ]
+          },
+          "title": "Charge Measurement",
+          "default": []
+        },
+        "readout_electronics": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "coupling_matrix": {
+                        "type": [
+                          "string",
+                          "string",
+                          "array"
+                        ],
+                        "title": "coupling_matrix"
+                      },
+                      "channel_matrix": {
+                        "type": "array",
+                        "title": "channel_matrix"
+                      },
+                      "readout_directions": {
+                        "type": "array",
+                        "title": "readout_directions"
+                      }
+                    },
+                    "required": [
+                      "coupling_matrix",
+                      "channel_matrix",
+                      "readout_directions"
+                    ],
+                    "additionalProperties": false,
+                    "title": "Parameters"
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.readout_electronics.ac_crosstalk",
+                    "default": "pyxel.models.readout_electronics.ac_crosstalk"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "arguments"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'ac_crosstalk'",
+                "description": "Apply AC crosstalk signal to detector signal."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "coupling_matrix": {
+                        "type": [
+                          "string",
+                          "string",
+                          "array"
+                        ],
+                        "title": "coupling_matrix"
+                      },
+                      "channel_matrix": {
+                        "type": "array",
+                        "title": "channel_matrix"
+                      },
+                      "readout_directions": {
+                        "type": "array",
+                        "title": "readout_directions"
+                      }
+                    },
+                    "required": [
+                      "coupling_matrix",
+                      "channel_matrix",
+                      "readout_directions"
+                    ],
+                    "additionalProperties": false,
+                    "title": "Parameters"
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.readout_electronics.dc_crosstalk",
+                    "default": "pyxel.models.readout_electronics.dc_crosstalk"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "arguments"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'dc_crosstalk'",
+                "description": "Apply DC crosstalk signal to detector signal."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "tau_0": {
+                        "type": "number",
+                        "title": "tau_0",
+                        "description": "Material dependent characteristic time for the electron-phononcoupling. Unit: s",
+                        "default": 4.4e-07
+                      },
+                      "n_0": {
+                        "type": "number",
+                        "title": "n_0",
+                        "description": "Material dependent single spin density of states at the Fermi-level.Unit: um^-3 eV^-1",
+                        "default": 17200000000.0
+                      },
+                      "t_c": {
+                        "type": "number",
+                        "title": "t_c",
+                        "description": "Material dependent critical temperature. Unit: K",
+                        "default": 1.26
+                      },
+                      "v": {
+                        "type": "number",
+                        "title": "v",
+                        "description": "Superconducting volume. Unit: um^3",
+                        "default": 30.0
+                      },
+                      "t_op": {
+                        "type": "number",
+                        "title": "t_op",
+                        "description": "Temperature. Unit: K",
+                        "default": 0.3
+                      },
+                      "tau_pb": {
+                        "type": "number",
+                        "title": "tau_pb",
+                        "description": "Phonon pair-breaking time. Unit: s",
+                        "default": 2.8e-10
+                      },
+                      "tau_esc": {
+                        "type": "number",
+                        "title": "tau_esc",
+                        "description": "Phonon escape time. Unit: s",
+                        "default": 1.4e-10
+                      },
+                      "tau_sat": {
+                        "type": "number",
+                        "title": "tau_sat",
+                        "description": "Saturation time. Unit: s",
+                        "default": 0.001
+                      }
+                    },
+                    "additionalProperties": false,
+                    "title": "Parameters",
+                    "default": {
+                      "tau_0": 4.4e-07,
+                      "n_0": 17200000000.0,
+                      "t_c": 1.26,
+                      "v": 30.0,
+                      "t_op": 0.3,
+                      "tau_pb": 2.8e-10,
+                      "tau_esc": 1.4e-10,
+                      "tau_sat": 0.001
+                    }
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.readout_electronics.dead_time_filter",
+                    "default": "pyxel.models.readout_electronics.dead_time_filter"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'dead_time_filter'",
+                "description": "Dead time filter."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "title": "Parameters",
+                    "default": {}
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.readout_electronics.sar_adc",
+                    "default": "pyxel.models.readout_electronics.sar_adc"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'sar_adc'",
+                "description": "Digitize signal array using :term:`SAR` (Successive ApproximationRegister) :term:`ADC` logic."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "data_type": {
+                        "type": "string",
+                        "enum": [
+                          "uint16",
+                          "uint32",
+                          "uint64",
+                          "uint"
+                        ],
+                        "title": "data_type",
+                        "description": "The desired data-type for the Image array. The data-type must be anunsigned integer. Valid values: 'uint16', 'uint32', 'uint64', 'uint'Invalid values: 'int16', 'int32', 'int64', 'int', 'float'...",
+                        "default": "uint32"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "title": "Parameters",
+                    "default": {
+                      "data_type": "uint32"
+                    }
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.readout_electronics.simple_adc",
+                    "default": "pyxel.models.readout_electronics.simple_adc"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'simple_adc'",
+                "description": "Apply simple Analog to Digital conversion."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "title": "Parameters",
+                    "default": {}
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.readout_electronics.simple_amplifier",
+                    "default": "pyxel.models.readout_electronics.simple_amplifier"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'simple_amplifier'",
+                "description": "Amplify signal using gain from the output amplifier and the signalprocessor."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "phase_conversion": {
+                        "type": "number",
+                        "title": "phase_conversion",
+                        "description": "Phase conversion factor",
+                        "default": 1.0
+                      }
+                    },
+                    "additionalProperties": false,
+                    "title": "Parameters",
+                    "default": {
+                      "phase_conversion": 1.0
+                    }
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.readout_electronics.simple_phase_conversion",
+                    "default": "pyxel.models.readout_electronics.simple_phase_conversion"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'simple_phase_conversion'",
+                "description": "Create an image array from phase array."
+              },
+              {
+                "$ref": "#/definitions/ModelFunction"
+              }
+            ]
+          },
+          "title": "Readout Electronics",
+          "default": []
+        },
+        "charge_transfer": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "well_fill_power": {
+                        "type": "number",
+                        "title": "well_fill_power"
+                      },
+                      "trap_densities": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "title": "trap_densities",
+                        "description": "A 1D arrays of all trap species densities for serial clocking."
+                      },
+                      "trap_release_timescales": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "title": "trap_release_timescales",
+                        "description": "A 1D arrays of all trap release timescales for serial clocking."
+                      },
+                      "express": {
+                        "type": "integer",
+                        "title": "express",
+                        "description": "As described in more detail in :cite:p:`2014:massey` section 2.1.5,the effects of each individual pixel-to-pixel transfer can be verysimilar, so multiple transfers can be computed at once for efficiency.The ``express`` input sets the number of times the transfers arecalculated.      * ``express = 1`` is the fastest and least accurate.* ``express = 2`` means the transfers are re-computed half-way throughreadout.     * ``express = N`` where ``N`` is the total number ofpixels.  Default ``express = 0`` is a convenient input for automatic``express = N``.",
+                        "default": 0
+                      }
+                    },
+                    "required": [
+                      "well_fill_power",
+                      "trap_densities",
+                      "trap_release_timescales"
+                    ],
+                    "additionalProperties": false,
+                    "title": "Parameters"
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.charge_transfer.arctic_add",
+                    "default": "pyxel.models.charge_transfer.arctic_add"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "arguments"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'arctic_add'",
+                "description": "Add :term:`CTI` trails to an image by trapping, releasing and movingelectrons."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "well_fill_power": {
+                        "type": "number",
+                        "title": "well_fill_power"
+                      },
+                      "instant_traps": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "number"
+                          }
+                        },
+                        "title": "instant_traps",
+                        "description": "A sequence of all trap species for parallel clocking."
+                      },
+                      "num_iterations": {
+                        "type": "integer",
+                        "title": "num_iterations",
+                        "description": "Number of iterations for the forward modelling. More iterationsprovide higher accuracy at the cost of longer runtime. In practice,just 1 to 3 iterations are usually sufficient."
+                      },
+                      "express": {
+                        "type": "integer",
+                        "title": "express",
+                        "description": "As described in more detail in :cite:p:`2014:massey` section 2.1.5,the effects of each individual pixel-to-pixel transfer can be verysimilar, so multiple transfers can be computed at once for efficiency.The ``express`` input sets the number of times the transfers arecalculated.      * ``express = 1`` is the fastest and least accurate.* ``express = 2`` means the transfers are re-computed half-way throughreadout.     * ``express = N`` where ``N`` is the total number ofpixels.  Default ``express = 0`` is a convenient input for automatic``express = N``.",
+                        "default": 0
+                      }
+                    },
+                    "required": [
+                      "well_fill_power",
+                      "instant_traps",
+                      "num_iterations"
+                    ],
+                    "additionalProperties": false,
+                    "title": "Parameters"
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.charge_transfer.arctic_remove",
+                    "default": "pyxel.models.charge_transfer.arctic_remove"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "arguments"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'arctic_remove'",
+                "description": "Remove :term:`CTI` trails from an image by first modelling theaddition of :term:`CTI`."
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "direction": {
+                        "type": "string",
+                        "enum": [
+                          "parallel",
+                          "serial"
+                        ],
+                        "title": "direction",
+                        "description": "Set ``\"parallel\"`` for :term:`CTI` in parallel direction or``\"serial\"`` for :term:`CTI` in serial register."
+                      },
+                      "beta": {
+                        "type": "number",
+                        "title": "beta",
+                        "description": "Electron cloud expansion coefficient :math:`\\beta`."
+                      },
+                      "trap_release_times": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "title": "trap_release_times",
+                        "description": "Trap release time constants :math:`\\tau_r`. Unit: :math:`s`."
+                      },
+                      "trap_densities": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "title": "trap_densities",
+                        "description": "Absolute trap densities :math:`n_t`. Unit: :math:`cm^{-3}`."
+                      },
+                      "sigma": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "title": "sigma",
+                        "description": "Trap capture cross section :math:`\\sigma`. Unit: :math:`cm^2`."
+                      },
+                      "full_well_capacity": {
+                        "type": [
+                          "number",
+                          "null"
+                        ],
+                        "title": "full_well_capacity",
+                        "description": "Full well capacity :math:`FWC`. Unit: :math:`e^-`.",
+                        "default": null
+                      },
+                      "max_electron_volume": {
+                        "type": "number",
+                        "title": "max_electron_volume",
+                        "description": "Maximum geometrical volume :math:`V_g` that electrons can occupywithin a pixel. Unit: :math:`cm^3`.",
+                        "default": 0.0
+                      },
+                      "transfer_period": {
+                        "type": "number",
+                        "title": "transfer_period",
+                        "description": "Transfer period :math:`t` (TDI period). Unit: :math:`s`.",
+                        "default": 0.0
+                      },
+                      "charge_injection": {
+                        "type": "boolean",
+                        "title": "charge_injection",
+                        "description": "Enable charge injection (only used in ``\"parallel\"`` mode).",
+                        "default": false
+                      },
+                      "electron_effective_mass": {
+                        "type": "number",
+                        "title": "electron_effective_mass",
+                        "description": "Electron effective mass in the semiconductor lattice. Unit: 1 electronmass",
+                        "default": 0.5
+                      }
+                    },
+                    "required": [
+                      "direction",
+                      "beta",
+                      "trap_release_times",
+                      "trap_densities",
+                      "sigma"
+                    ],
+                    "additionalProperties": false,
+                    "title": "Parameters"
+                  },
+                  "func": {
+                    "type": "string",
+                    "const": "pyxel.models.charge_transfer.cdm",
+                    "default": "pyxel.models.charge_transfer.cdm"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "arguments"
+                ],
+                "additionalProperties": false,
+                "title": "Model 'cdm'",
+                "description": "Charge Distortion Model (CDM) model wrapper."
+              },
+              {
+                "$ref": "#/definitions/ModelFunction"
+              }
+            ]
+          },
+          "title": "Charge Transfer",
+          "default": []
+        },
+        "signal_transfer": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ModelFunction"
+          },
+          "title": "Signal Transfer",
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "exposure": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "outputs": {
+          "type": "object",
+          "properties": {
+            "output_folder": {
+              "type": "string"
+            },
+            "save_data_to_file": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "fits",
+                      "hdf",
+                      "npy",
+                      "txt",
+                      "csv",
+                      "png"
+                    ]
+                  }
+                }
+              },
+              "default": null
+            },
+            "save_exposure_data": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "default": null
+            }
+          },
+          "required": [
+            "output_folder"
+          ],
+          "additionalProperties": false
+        },
+        "readout": {
+          "default": {
+            "times": null,
+            "times_from_file": null,
+            "start_time": 0.0,
+            "non_destructive": false
+          },
+          "allOf": [
+            {
+              "$ref": "#/definitions/Readout"
+            }
+          ]
+        },
+        "result_type": {
+          "type": "string",
+          "enum": [
+            "image",
+            "signal",
+            "pixel",
+            "all"
+          ],
+          "default": "all"
+        },
+        "pipeline_seed": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "outputs"
+      ],
+      "additionalProperties": false,
+      "title": "Exposure",
+      "default": null
+    },
+    "observation": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "outputs": {
+          "type": "object",
+          "properties": {
+            "output_folder": {
+              "type": "string"
+            },
+            "save_data_to_file": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "fits",
+                      "hdf",
+                      "npy",
+                      "txt",
+                      "csv",
+                      "png"
+                    ]
+                  }
+                }
+              },
+              "default": null
+            },
+            "save_observation_data": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "default": null
+            }
+          },
+          "required": [
+            "output_folder"
+          ],
+          "additionalProperties": false
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ParameterValues"
+          }
+        },
+        "readout": {
+          "$ref": "#/definitions/Readout"
+        },
+        "mode": {
+          "type": "string",
+          "default": "product"
+        },
+        "from_file": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "column_range": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2,
+          "default": null,
+          "additionalItems": false,
+          "items": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ]
+        },
+        "with_dask": {
+          "type": "boolean",
+          "default": false
+        },
+        "result_type": {
+          "type": "string",
+          "enum": [
+            "image",
+            "signal",
+            "pixel",
+            "all"
+          ],
+          "default": "all"
+        },
+        "pipeline_seed": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "outputs",
+        "parameters",
+        "readout"
+      ],
+      "additionalProperties": false,
+      "title": "Observation"
+    },
+    "calibration": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "outputs": {
+          "type": "object",
+          "properties": {
+            "output_folder": {
+              "type": "string"
+            },
+            "save_data_to_file": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "fits",
+                      "hdf",
+                      "npy",
+                      "txt",
+                      "csv",
+                      "png"
+                    ]
+                  }
+                }
+              },
+              "default": null
+            },
+            "save_calibration_data": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "default": null
+            }
+          },
+          "required": [
+            "output_folder"
+          ],
+          "additionalProperties": false
+        },
+        "readout": {
+          "default": {
+            "times": null,
+            "times_from_file": null,
+            "start_time": 0.0,
+            "non_destructive": false
+          },
+          "allOf": [
+            {
+              "$ref": "#/definitions/Readout"
+            }
+          ]
+        },
+        "output_dir": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "pipeline",
+            "single_model"
+          ],
+          "default": "pipeline"
+        },
+        "result_type": {
+          "type": "string",
+          "enum": [
+            "image",
+            "signal",
+            "pixel"
+          ],
+          "default": "image"
+        },
+        "result_fit_range": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "integer"
+          },
+          "default": null
+        },
+        "result_input_arguments": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/ParameterValues"
+          }
+        },
+        "target_data_path": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "default": null
+        },
+        "target_fit_range": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "integer"
+          },
+          "default": null
+        },
+        "fitness_function": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ModelFunction"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "algorithm": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "sade",
+                "sga",
+                "nlopt"
+              ],
+              "default": "sade"
+            },
+            "generations": {
+              "type": "integer",
+              "default": 1
+            },
+            "population_size": {
+              "type": "integer",
+              "default": 1
+            },
+            "variant": {
+              "type": "integer",
+              "default": 2
+            },
+            "variant_adptv": {
+              "type": "integer",
+              "default": 1
+            },
+            "ftol": {
+              "type": "number",
+              "default": 1e-06
+            },
+            "xtol": {
+              "type": "number",
+              "default": 1e-06
+            },
+            "memory": {
+              "type": "boolean",
+              "default": false
+            },
+            "cr": {
+              "type": "number",
+              "default": 0.9
+            },
+            "eta_c": {
+              "type": "number",
+              "default": 1.0
+            },
+            "m": {
+              "type": "number",
+              "default": 0.02
+            },
+            "param_m": {
+              "type": "number",
+              "default": 1.0
+            },
+            "param_s": {
+              "type": "integer",
+              "default": 2
+            },
+            "crossover": {
+              "type": "string",
+              "enum": [
+                "single",
+                "exponential",
+                "binominal",
+                "sbx"
+              ],
+              "default": "exponential"
+            },
+            "mutation": {
+              "type": "string",
+              "enum": [
+                "uniform",
+                "gaussian",
+                "polynomial"
+              ],
+              "default": "polynomial"
+            },
+            "selection": {
+              "type": "string",
+              "enum": [
+                "tournament",
+                "truncated"
+              ],
+              "default": "tournament"
+            },
+            "nlopt_solver": {
+              "type": "string",
+              "enum": [
+                "cobyla",
+                "bobyqa",
+                "newuoa",
+                "newuoa_bound",
+                "praxis",
+                "neldermead",
+                "sbplx",
+                "mma",
+                "ccsaq",
+                "slsqp",
+                "lbfgs",
+                "tnewton_precond_restart",
+                "tnewton_precond",
+                "tnewton_restart",
+                "tnewton",
+                "var2",
+                "var1",
+                "auglag",
+                "auglag_eq"
+              ],
+              "default": "neldermead"
+            },
+            "maxtime": {
+              "type": "integer",
+              "default": 0
+            },
+            "maxeval": {
+              "type": "integer",
+              "default": 0
+            },
+            "xtol_rel": {
+              "type": "number",
+              "default": 1e-08
+            },
+            "xtol_abs": {
+              "type": "number",
+              "default": 0.0
+            },
+            "ftol_rel": {
+              "type": "number",
+              "default": 0.0
+            },
+            "ftol_abs": {
+              "type": "number",
+              "default": 0.0
+            },
+            "stopval": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "default": null
+            },
+            "replacement": {
+              "type": "string",
+              "enum": [
+                "best",
+                "worst",
+                "random"
+              ],
+              "default": "best"
+            },
+            "nlopt_selection": {
+              "type": "string",
+              "enum": [
+                "best",
+                "worst",
+                "random"
+              ],
+              "default": "best"
+            }
+          },
+          "additionalProperties": false,
+          "default": null
+        },
+        "parameters": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/ParameterValues"
+          }
+        },
+        "pygmo_seed": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "default": null
+        },
+        "pipeline_seed": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "default": null
+        },
+        "num_islands": {
+          "type": "integer",
+          "default": 1
+        },
+        "num_evolutions": {
+          "type": "integer",
+          "default": 1
+        },
+        "num_best_decisions": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "default": null
+        },
+        "topology": {
+          "type": "string",
+          "enum": [
+            "unconnected",
+            "ring",
+            "fully_connected"
+          ],
+          "default": "unconnected"
+        },
+        "type_islands": {
+          "type": "string",
+          "enum": [
+            "multiprocessing",
+            "multithreading",
+            "ipyparallel"
+          ],
+          "default": "multiprocessing"
+        },
+        "weights_from_file": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "default": null
+        },
+        "weights": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "number"
+          },
+          "default": null
+        }
+      },
+      "required": [
+        "outputs"
+      ],
+      "additionalProperties": false,
+      "title": "Calibration"
+    },
+    "ccd_detector": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "environment": {
+          "$ref": "#/definitions/Environment"
+        },
+        "geometry": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "type": "integer",
+              "title": "row",
+              "description": "Number of pixel rows."
+            },
+            "col": {
+              "type": "integer",
+              "title": "col",
+              "description": "Number of pixel columns."
+            },
+            "total_thickness": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "title": "total_thickness",
+              "description": "Thickness of detector. Unit: um",
+              "default": null
+            },
+            "pixel_vert_size": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "title": "pixel_vert_size",
+              "description": "Vertical dimension of pixel. Unit: um",
+              "default": null
+            },
+            "pixel_horz_size": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "title": "pixel_horz_size",
+              "description": "Horizontal dimension of pixel. Unit: um",
+              "default": null
+            }
+          },
+          "required": [
+            "row",
+            "col"
+          ],
+          "additionalProperties": false
+        },
+        "characteristics": {
+          "type": "object",
+          "properties": {
+            "quantum_efficiency": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "title": "quantum_efficiency",
+              "description": "Quantum efficiency.",
+              "default": null
+            },
+            "charge_to_volt_conversion": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "title": "charge_to_volt_conversion",
+              "description": "Sensitivity of charge readout. Unit: V/e-",
+              "default": null
+            },
+            "pre_amplification": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "title": "pre_amplification",
+              "description": "Gain of pre-amplifier. Unit: V/V",
+              "default": null
+            },
+            "full_well_capacity": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "title": "full_well_capacity",
+              "description": "Full well capacity. Unit: e-",
+              "default": null
+            },
+            "adc_voltage_range": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "minItems": 2,
+              "maxItems": 2,
+              "title": "adc_voltage_range",
+              "description": "ADC voltage range. Unit: V",
+              "default": null,
+              "additionalItems": false,
+              "items": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "adc_bit_resolution": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "title": "adc_bit_resolution",
+              "description": "ADC bit resolution.",
+              "default": null
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "environment",
+        "geometry",
+        "characteristics"
+      ],
+      "additionalProperties": false,
+      "title": "CCD",
+      "default": null
+    },
+    "cmos_detector": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "environment": {
+          "$ref": "#/definitions/Environment"
+        },
+        "geometry": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "type": "integer",
+              "title": "row",
+              "description": "Number of pixel rows."
+            },
+            "col": {
+              "type": "integer",
+              "title": "col",
+              "description": "Number of pixel columns."
+            },
+            "total_thickness": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "title": "total_thickness",
+              "description": "Thickness of detector. Unit: um",
+              "default": null
+            },
+            "pixel_vert_size": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "title": "pixel_vert_size",
+              "description": "Vertical dimension of pixel. Unit: um",
+              "default": null
+            },
+            "pixel_horz_size": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "title": "pixel_horz_size",
+              "description": "Horizontal dimension of pixel. Unit: um",
+              "default": null
+            }
+          },
+          "required": [
+            "row",
+            "col"
+          ],
+          "additionalProperties": false
+        },
+        "characteristics": {
+          "type": "object",
+          "properties": {
+            "quantum_efficiency": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "title": "quantum_efficiency",
+              "description": "Quantum efficiency.",
+              "default": null
+            },
+            "charge_to_volt_conversion": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "title": "charge_to_volt_conversion",
+              "description": "Sensitivity of charge readout. Unit: V/e-",
+              "default": null
+            },
+            "pre_amplification": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "title": "pre_amplification",
+              "description": "Gain of pre-amplifier. Unit: V/V",
+              "default": null
+            },
+            "full_well_capacity": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "title": "full_well_capacity",
+              "description": "Full well capacity. Unit: e-",
+              "default": null
+            },
+            "adc_voltage_range": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "minItems": 2,
+              "maxItems": 2,
+              "title": "adc_voltage_range",
+              "description": "ADC voltage range. Unit: V",
+              "default": null,
+              "additionalItems": false,
+              "items": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "adc_bit_resolution": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "title": "adc_bit_resolution",
+              "description": "ADC bit resolution.",
+              "default": null
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "environment",
+        "geometry",
+        "characteristics"
+      ],
+      "additionalProperties": false,
+      "title": "CMOS",
+      "default": null
+    },
+    "mkid_detector": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "environment": {
+          "$ref": "#/definitions/Environment"
+        },
+        "geometry": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "type": "integer",
+              "title": "row",
+              "description": "Number of pixel rows."
+            },
+            "col": {
+              "type": "integer",
+              "title": "col",
+              "description": "Number of pixel columns."
+            },
+            "total_thickness": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "title": "total_thickness",
+              "description": "Thickness of detector. Unit: um",
+              "default": null
+            },
+            "pixel_vert_size": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "title": "pixel_vert_size",
+              "description": "Vertical dimension of pixel. Unit: um",
+              "default": null
+            },
+            "pixel_horz_size": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "title": "pixel_horz_size",
+              "description": "Horizontal dimension of pixel. Unit: um",
+              "default": null
+            }
+          },
+          "required": [
+            "row",
+            "col"
+          ],
+          "additionalProperties": false
+        },
+        "characteristics": {
+          "type": "object",
+          "properties": {
+            "quantum_efficiency": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "title": "quantum_efficiency",
+              "description": "Quantum efficiency.",
+              "default": null
+            },
+            "charge_to_volt_conversion": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "title": "charge_to_volt_conversion",
+              "description": "Sensitivity of charge readout. Unit: V/e-",
+              "default": null
+            },
+            "pre_amplification": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "title": "pre_amplification",
+              "description": "Gain of pre-amplifier. Unit: V/V",
+              "default": null
+            },
+            "full_well_capacity": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "title": "full_well_capacity",
+              "description": "Full well capacity. Unit: e-",
+              "default": null
+            },
+            "adc_voltage_range": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "minItems": 2,
+              "maxItems": 2,
+              "title": "adc_voltage_range",
+              "description": "ADC voltage range. Unit: V",
+              "default": null,
+              "additionalItems": false,
+              "items": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "adc_bit_resolution": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "title": "adc_bit_resolution",
+              "description": "ADC bit resolution.",
+              "default": null
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "environment",
+        "geometry",
+        "characteristics"
+      ],
+      "additionalProperties": false,
+      "title": "MKID",
+      "default": null
+    }
+  },
+  "required": [
+    "pipeline"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "ModelFunction": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "func": {
+          "type": "string",
+          "pattern": "^(?!pyxel\\.models\\.)"
+        },
+        "arguments": {
+          "type": "object",
+          "default": {}
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "required": [
+        "name",
+        "func"
+      ],
+      "additionalProperties": false
+    },
+    "Readout": {
+      "type": "object",
+      "properties": {
+        "times": {
+          "type": [
+            "array",
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "times_from_file": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "start_time": {
+          "type": "number",
+          "default": 0.0
+        },
+        "non_destructive": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "ParameterValues": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "values": {
+          "anyOf": [
+            {
+              "type": "string",
+              "const": "_"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "const": "_"
+              }
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": [
+                  "number"
+                ]
+              }
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "boundaries": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2,
+          "default": null,
+          "additionalItems": false,
+          "items": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "logarithmic": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "key",
+        "values"
+      ],
+      "additionalProperties": false
+    },
+    "Environment": {
+      "type": "object",
+      "properties": {
+        "temperature": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "title": "temperature",
+          "description": "Temperature of the detector. Unit: K",
+          "default": null
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
