@@ -50,21 +50,26 @@ class Algorithm:
         m: float = 0.02,
         param_m: float = 1.0,
         param_s: int = 2,
-        crossover: str = "exponential",
-        mutation: str = "polynomial",
-        selection: str = "tournament",
+        crossover: Literal['single', 'exponential', 'binominal', 'sbx'] = "exponential",
+        mutation: Literal['uniform', 'gaussian', 'polynomial'] = "polynomial",
+        selection: Literal['tournament', 'truncated'] = "tournament",
         # NLOPT #####
-        nlopt_solver: str = "neldermead",
+        nlopt_solver: Literal[
+            "cobyla", "bobyqa", "newuoa", "newuoa_bound", "praxis", "neldermead",
+            "sbplx", "mma", "ccsaq", "slsqp", "lbfgs", "tnewton_precond_restart",
+            "tnewton_precond", "tnewton_restart", "tnewton", "var2", "var1", "auglag",
+            "auglag_eq"
+        ] = "neldermead",
         maxtime: int = 0,
         maxeval: int = 0,
         xtol_rel: float = 1.0e-8,
         xtol_abs: float = 0.0,
         ftol_rel: float = 0.0,
         ftol_abs: float = 0.0,
-        stopval: float = -math.inf,
+        stopval: t.Optional[float] = None,
         local_optimizer: t.Optional["pg.nlopt"] = None,
-        replacement: str = "best",
-        nlopt_selection: str = "best",
+        replacement: Literal['best', 'worst', 'random'] = "best",
+        nlopt_selection: Literal['best', 'worst', 'random'] = "best",
     ):
         if generations not in range(1, 100001):
             raise ValueError("'generations' must be between 1 and 100000.")
@@ -113,7 +118,7 @@ class Algorithm:
         self._xtol_abs = xtol_abs
         self._ftol_rel = ftol_rel
         self._ftol_abs = ftol_abs
-        self._stopval = stopval
+        self._stopval = -math.inf if stopval is None else stopval  # type: float
         self._local_optimizer = local_optimizer  # type: t.Optional[pg.nlopt]
         self._replacement = replacement
         self._nlopt_selection = nlopt_selection
