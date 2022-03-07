@@ -4,7 +4,7 @@ import typing as t
 from dataclasses import dataclass
 from graphlib import TopologicalSorter
 from pathlib import Path
-
+import textwrap
 from boltons.strutils import under2camel
 from numpydoc.docscrape import NumpyDocString
 from tqdm.auto import tqdm
@@ -123,10 +123,16 @@ def generate_class(klass: Klass) -> t.Iterator[str]:
                 yield f"        default={param.default!r},"
             yield "        metadata=schema("
             yield f"            title={title!r},"
-            yield "            description=("
-            for line in param.description.split("\n"):
-                yield f"                    {line!r}"
-            yield "                ),"
+
+            description_lst = textwrap.wrap(param.description)  # type: t.Sequence[str]
+            if len(description_lst) == 1:
+                yield f"            description={description_lst[0]!r}"
+            elif len(description_lst) > 1:
+                yield "            description=("
+                for line in description_lst:
+                    yield f"                    {line!r}"
+                yield "                )"
+
             yield "        )"
             yield "    )"
     else:
@@ -165,10 +171,14 @@ def generate_model(
             yield "        metadata=schema("
             yield f"            title={title!r},"
 
-            yield "            description=("
-            for line in param.description.split("\n"):
-                yield f"                {line!r}"
-            yield "            ),"
+            description_lst = textwrap.wrap(param.description)  # type: t.Sequence[str]
+            if len(description_lst) == 1:
+                yield f"            description={description_lst[0]!r}"
+            elif len(description_lst) > 1:
+                yield "            description=("
+                for line in description_lst:
+                    yield f"                    {line!r}"
+                yield "                )"
 
             yield "        )"
             yield "    )"
@@ -191,7 +201,16 @@ def generate_model(
     yield ""
     yield "@schema("
     yield f"    title=\"Model '{func_name}'\","
-    yield f"    description={doc.description!r},"
+
+    description_lst = textwrap.wrap(doc.description)  # type: t.Sequence[str]
+    if len(description_lst) == 1:
+        yield f"    description={description_lst[0]!r}"
+    elif len(description_lst) > 1:
+        yield "    description=("
+        for line in description_lst:
+            yield f"        {line!r}"
+        yield "    )"
+
     yield ")"
     yield "@dataclass"
     yield f"class {model_name}:"
@@ -630,6 +649,8 @@ def generate_all_models() -> t.Iterator[str]:
     yield ""
 
 
-with Path("auto_generated.py").open("w") as fh:
-    for line in tqdm(generate_all_models()):
-        fh.write(f"{line}\n")
+if __name__ == "__main__":
+    # Create an auto generated file
+    with Path("auto_generated.py").open("w") as fh:
+        for line in tqdm(generate_all_models()):
+            fh.write(f"{line}\n")
