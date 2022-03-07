@@ -2,11 +2,12 @@
 
 import importlib
 import inspect
+import textwrap
 import typing as t
 from dataclasses import dataclass
 from graphlib import TopologicalSorter
 from pathlib import Path
-import textwrap
+
 from boltons.strutils import under2camel
 from numpydoc.docscrape import NumpyDocString
 from tqdm.auto import tqdm
@@ -661,21 +662,20 @@ def generate_all_models() -> t.Iterator[str]:
     yield ""
     yield "if __name__ == '__main__':"
     yield "    import json"
-    yield '    from pathlib import Path'
-    yield ''
+    yield "    from pathlib import Path"
+    yield ""
     yield "    from apischema.json_schema import JsonSchemaVersion, deserialization_schema"
     yield "    dct_schema = deserialization_schema("
     yield "        Configuration, version=JsonSchemaVersion.DRAFT_7"
     yield "    )"
-    yield ''
+    yield ""
     yield "    print(json.dumps(dct_schema))"
-    yield ''
+    yield ""
     yield "    schema_filename = Path(__file__).parent / '../static/pyxel_schema.json'"
     yield "    full_filename = schema_filename.resolve()"
-    yield ''
+    yield ""
     yield "    with full_filename.open('w') as fh:"
     yield "        json.dump(obj=dct_schema, fp=fh, indent=2)"
-
 
 
 if __name__ == "__main__":

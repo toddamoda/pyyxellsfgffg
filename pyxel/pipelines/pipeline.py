@@ -109,34 +109,42 @@ class DetectionPipeline:
     def photon_generation(self) -> t.Optional[ModelGroup]:
         """Get group 'photon generation'."""
         return self._photon_generation
+
     @property
     def optics(self) -> t.Optional[ModelGroup]:
         """Get group 'optics'."""
         return self._optics
+
     @property
     def phasing(self) -> t.Optional[ModelGroup]:
         """Get group 'phasing'."""
         return self._phasing
+
     @property
     def charge_generation(self) -> t.Optional[ModelGroup]:
         """Get group 'charge generation'."""
         return self._charge_generation
+
     @property
     def charge_collection(self) -> t.Optional[ModelGroup]:
         """Get group 'charge collection'."""
         return self._charge_collection
+
     @property
     def charge_transfer(self) -> t.Optional[ModelGroup]:
         """Get group 'charge transfer'."""
         return self._charge_transfer
+
     @property
     def charge_measurement(self) -> t.Optional[ModelGroup]:
         """Get group 'charge measurement'."""
         return self._charge_measurement
+
     @property
     def signal_transfer(self) -> t.Optional[ModelGroup]:
         """Get group 'signal transfer'."""
         return self._signal_transfer
+
     @property
     def readout_electronics(self) -> t.Optional[ModelGroup]:
         """Get group 'readout electronics'."""
