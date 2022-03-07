@@ -1,3 +1,5 @@
+"""Create JSON Schema."""
+
 import importlib
 import inspect
 import typing as t
