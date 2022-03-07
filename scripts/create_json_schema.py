@@ -202,7 +202,7 @@ def generate_model(
     yield "@schema("
     yield f"    title=\"Model '{func_name}'\","
 
-    description_lst = textwrap.wrap(doc.description)  # type: t.Sequence[str]
+    description_lst = textwrap.wrap(doc.description)
     if len(description_lst) == 1:
         yield f"    description={description_lst[0]!r}"
     elif len(description_lst) > 1:
@@ -556,20 +556,20 @@ def generate_detectors() -> t.Iterator[str]:
     # Create wrappers for the detectors
     detector_classes = ["CCD", "CMOS", "MKID"]  # type: t.Sequence[str]
     for klass_name in detector_classes:
-        yield f"@schema(title='{klass_name}')"
-        yield "@dataclass"
-        yield f"class Wrapper{klass_name}:"
-        yield f"    {klass_name.lower()}: {klass_name}"
+        yield f"#@schema(title='{klass_name}')"
+        yield "#@dataclass"
+        yield f"#class Wrapper{klass_name}:"
+        yield f"#    {klass_name.lower()}: {klass_name}"
         yield ""
         yield ""
 
     # Create wrappers for the modes
     mode_classes = ["Exposure", "Observation", "Calibration"]  # type: t.Sequence[str]
     for klass_name in mode_classes:
-        yield f"@schema(title='{klass_name}')"
-        yield "@dataclass"
-        yield f"class Wrapper{klass_name}:"
-        yield f"    {klass_name.lower()}: {klass_name}"
+        yield f"#@schema(title='{klass_name}')"
+        yield "#@dataclass"
+        yield f"#class Wrapper{klass_name}:"
+        yield f"#    {klass_name.lower()}: {klass_name}"
         yield ""
         yield ""
 
@@ -579,8 +579,18 @@ def generate_detectors() -> t.Iterator[str]:
     yield "@dataclass"
     yield "class Configuration:"
     yield "    pipeline: DetailedDetectionPipeline"
-    yield f"    mode: typing.Union[{', '.join(wrapper_mode_classes)}]"
-    yield f"    detector: typing.Union[{', '.join(wrapper_detector_classes)}]"
+    yield f"    # mode: typing.Union[{', '.join(wrapper_mode_classes)}]"
+    yield f"    # detector: typing.Union[{', '.join(wrapper_detector_classes)}]"
+
+    yield ""
+    yield "    # Running modes"
+    for klass_name in mode_classes:
+        yield f"    {klass_name.lower()}: typing.Optional[{klass_name}] = field(default=None, metadata=schema(title={klass_name!r}))"
+
+    yield ""
+    yield "    # Detectors"
+    for klass_name in detector_classes:
+        yield f"    {klass_name.lower()}_detector: typing.Optional[{klass_name}] = field(default=None, metadata=schema(title={klass_name!r}))"
 
 
 def generate_all_models() -> t.Iterator[str]:
