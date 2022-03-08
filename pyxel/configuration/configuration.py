@@ -476,26 +476,6 @@ def to_model_function(dct: dict) -> ModelFunction:
     return ModelFunction(**dct)
 
 
-def to_model_group(
-    models_list: t.Optional[t.Sequence[dict]], name: str
-) -> t.Optional[ModelGroup]:
-    """Create a ModelGroup class from a dictionary.
-
-    Parameters
-    ----------
-    models_list
-    name
-
-    Returns
-    -------
-    ModelGroup
-    """
-    if models_list is None:
-        return None
-    models = [to_model_function(model_dict) for model_dict in models_list]
-    return ModelGroup(models=models, name=name)
-
-
 def to_pipeline(dct: dict) -> DetectionPipeline:
     """Create a DetectionPipeline class from a dictionary.
 
@@ -508,13 +488,14 @@ def to_pipeline(dct: dict) -> DetectionPipeline:
     DetectionPipeline
     """
     for model_group_name in dct.keys():
-        dct.update(
-            {
-                model_group_name: to_model_group(
-                    models_list=dct[model_group_name], name=model_group_name
-                )
-            }
-        )
+        models_list = dct[model_group_name]  # type: t.Optional[t.Sequence[dict]]
+
+        if models_list is None:
+            models = None  # type: t.Optional[t.Sequence[ModelFunction]]
+        else:
+            models = [to_model_function(model_dict) for model_dict in models_list]
+
+        dct.update({model_group_name: models})
     return DetectionPipeline(**dct)
 
 
