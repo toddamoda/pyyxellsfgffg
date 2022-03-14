@@ -56,9 +56,7 @@ class Calibration:
         outputs: "CalibrationOutputs",
         readout: "Readout",
         output_dir: t.Optional[Path] = None,
-        fitting: t.Optional[
-            ModelFitting
-        ] = None,  # Note: 'fitting' is set in '.run_calibration'
+        fitting: t.Optional[ModelFitting] = None,
         mode: Literal["pipeline", "single_model"] = "pipeline",
         result_type: Literal["image", "signal", "pixel"] = "image",
         result_fit_range: t.Optional[t.Sequence[int]] = None,
