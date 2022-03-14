@@ -50,41 +50,21 @@ class Algorithm:
         m: float = 0.02,
         param_m: float = 1.0,
         param_s: int = 2,
-        crossover: Literal["single", "exponential", "binominal", "sbx"] = "exponential",
-        mutation: Literal["uniform", "gaussian", "polynomial"] = "polynomial",
-        selection: Literal["tournament", "truncated"] = "tournament",
+        crossover: str = "exponential",
+        mutation: str = "polynomial",
+        selection: str = "tournament",
         # NLOPT #####
-        nlopt_solver: Literal[
-            "cobyla",
-            "bobyqa",
-            "newuoa",
-            "newuoa_bound",
-            "praxis",
-            "neldermead",
-            "sbplx",
-            "mma",
-            "ccsaq",
-            "slsqp",
-            "lbfgs",
-            "tnewton_precond_restart",
-            "tnewton_precond",
-            "tnewton_restart",
-            "tnewton",
-            "var2",
-            "var1",
-            "auglag",
-            "auglag_eq",
-        ] = "neldermead",
+        nlopt_solver: str = "neldermead",
         maxtime: int = 0,
         maxeval: int = 0,
         xtol_rel: float = 1.0e-8,
         xtol_abs: float = 0.0,
         ftol_rel: float = 0.0,
         ftol_abs: float = 0.0,
-        stopval: t.Optional[float] = None,
+        stopval: float = -math.inf,
         local_optimizer: t.Optional["pg.nlopt"] = None,
-        replacement: Literal["best", "worst", "random"] = "best",
-        nlopt_selection: Literal["best", "worst", "random"] = "best",
+        replacement: str = "best",
+        nlopt_selection: str = "best",
     ):
         if generations not in range(1, 100001):
             raise ValueError("'generations' must be between 1 and 100000.")
@@ -133,7 +113,7 @@ class Algorithm:
         self._xtol_abs = xtol_abs
         self._ftol_rel = ftol_rel
         self._ftol_abs = ftol_abs
-        self._stopval = -math.inf if stopval is None else stopval  # type: float
+        self._stopval = stopval
         self._local_optimizer = local_optimizer  # type: t.Optional[pg.nlopt]
         self._replacement = replacement
         self._nlopt_selection = nlopt_selection
@@ -291,34 +271,32 @@ class Algorithm:
         self._param_s = value
 
     @property
-    def crossover(self) -> Literal["single", "exponential", "binominal", "sbx"]:
+    def crossover(self) -> str:
         """TBW."""
         return self._crossover
 
     @crossover.setter
-    def crossover(
-        self, value: Literal["single", "exponential", "binominal", "sbx"]
-    ) -> None:
+    def crossover(self, value: str) -> None:
         """TBW."""
         self._crossover = value
 
     @property
-    def mutation(self) -> Literal["uniform", "gaussian", "polynomial"]:
+    def mutation(self) -> str:
         """TBW."""
         return self._mutation
 
     @mutation.setter
-    def mutation(self, value: Literal["uniform", "gaussian", "polynomial"]) -> None:
+    def mutation(self, value: str) -> None:
         """TBW."""
         self._mutation = value
 
     @property
-    def selection(self) -> Literal["tournament", "truncated"]:
+    def selection(self) -> str:
         """TBW."""
         return self._selection
 
     @selection.setter
-    def selection(self, value: Literal["tournament", "truncated"]) -> None:
+    def selection(self, value: str) -> None:
         """TBW."""
         self._selection = value
 
@@ -326,57 +304,12 @@ class Algorithm:
 
     # NLOPT #####
     @property
-    def nlopt_solver(
-        self,
-    ) -> Literal[
-        "cobyla",
-        "bobyqa",
-        "newuoa",
-        "newuoa_bound",
-        "praxis",
-        "neldermead",
-        "sbplx",
-        "mma",
-        "ccsaq",
-        "slsqp",
-        "lbfgs",
-        "tnewton_precond_restart",
-        "tnewton_precond",
-        "tnewton_restart",
-        "tnewton",
-        "var2",
-        "var1",
-        "auglag",
-        "auglag_eq",
-    ]:
+    def nlopt_solver(self) -> str:
         """TBW."""
         return self._nlopt_solver
 
     @nlopt_solver.setter
-    def nlopt_solver(
-        self,
-        value: Literal[
-            "cobyla",
-            "bobyqa",
-            "newuoa",
-            "newuoa_bound",
-            "praxis",
-            "neldermead",
-            "sbplx",
-            "mma",
-            "ccsaq",
-            "slsqp",
-            "lbfgs",
-            "tnewton_precond_restart",
-            "tnewton_precond",
-            "tnewton_restart",
-            "tnewton",
-            "var2",
-            "var1",
-            "auglag",
-            "auglag_eq",
-        ],
-    ) -> None:
+    def nlopt_solver(self, value: str) -> None:
         """TBW."""
         self._nlopt_solver = value
 
@@ -461,22 +394,22 @@ class Algorithm:
         self._local_optimizer = value
 
     @property
-    def replacement(self) -> Literal["best", "worst", "random"]:
+    def replacement(self) -> str:
         """TBW."""
         return self._replacement
 
     @replacement.setter
-    def replacement(self, value: Literal["best", "worst", "random"]) -> None:
+    def replacement(self, value: str) -> None:
         """TBW."""
         self._replacement = value
 
     @property
-    def nlopt_selection(self) -> Literal["best", "worst", "random"]:
+    def nlopt_selection(self) -> str:
         """TBW."""
         return self._nlopt_selection
 
     @nlopt_selection.setter
-    def nlopt_selection(self, value: Literal["best", "worst", "random"]) -> None:
+    def nlopt_selection(self, value: str) -> None:
         """TBW."""
         self._nlopt_selection = value
 

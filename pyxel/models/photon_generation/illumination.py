@@ -185,8 +185,6 @@ def illumination(
 ) -> None:
     """Generate photon uniformly over the entire array or over an elliptic or rectangular object.
 
-    Parameters
-    ----------
     detector: Detector
         Pyxel Detector object.
     level: float
