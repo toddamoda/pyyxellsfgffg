@@ -400,8 +400,7 @@ class ModelFitting(ProblemSingleObjective):
 
         except Exception:
             logging.exception(
-                "Catch an exception in 'fitness' for ModelFitting: %r. exc: %r",
-                self,
+                "Catch an exception in 'fitness' for ModelFitting: %r.", self
             )
             raise
 

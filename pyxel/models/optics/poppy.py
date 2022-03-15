@@ -422,7 +422,7 @@ def optical_psf(
     wavelength: float,
     fov_arcsec: float,
     pixelscale: float,
-    optical_system: t.Sequence[t.Mapping],
+    optical_system: t.Sequence[t.Mapping[str, t.Any]],
 ) -> None:
     """Model function for poppy optics model: convolve photon array with psf.
 
