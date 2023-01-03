@@ -11,34 +11,34 @@ upstream	https://gitlab.com/esa/pyxel.git (push)
 
 1. Write a release summary: ~50 words describing the high level features. This will be used in the release emails, GitLab release notes, blog, etc.
 
-2. Ensure your master branch is synced to upstream:
+1. Ensure your master branch is synced to upstream:
 
    ```fish
    $ git switch master
    $ git pull upstream master
    ```
 
-3. Create a branch 'new_release{X}.{Y}' from 'master' for the new release.
+1. Create a branch 'new_release{X}.{Y}' from 'master' for the new release.
 
    ```fish
    $ git checkout -b new_release{X}.{Y}
    ```
 
-4. Open a merge request linked to the new release branch with the release summary and changes.
+1. Open a merge request linked to the new release branch with the release summary and changes.
 
-5. Update release notes in `CHANGELOG.md` in the branch and add release summary at the top.
+1. Update release notes in `CHANGELOG.md` in the branch and add release summary at the top.
 
-6. Create a new file `continuous_integration/pyxel-{X}.{Y}-environment.yaml` with updated links
+1. Create a new file `continuous_integration/pyxel-{X}.{Y}-environment.yaml` with updated links
 
-7. Update version `{X}.{Y}` in files: `docs/source/tutorials/overview.rst`
+1. Update version `{X}.{Y}` in files: `docs/source/tutorials/overview.rst`
 
-8. After merging, again ensure your master branch is synced to upstream:
+1. After merging, again ensure your master branch is synced to upstream:
 
    ```fish
    $ git pull upstream master
    ```
 
-9. If you have any doubts, run the full test suite one final time !
+1. If you have any doubts, run the full test suite one final time !
 
    ```fish
    $ pytest
@@ -48,7 +48,7 @@ upstream	https://gitlab.com/esa/pyxel.git (push)
    $ tox
    ```
 
-10. Tag the release from https://gitlab.com/esa/pyxel/-/tags with the following actions:
+1. Tag the release from https://gitlab.com/esa/pyxel/-/tags with the following actions:
 
    a. Click the button 'new_tag'
 
@@ -60,14 +60,14 @@ upstream	https://gitlab.com/esa/pyxel.git (push)
 
    e. In the field 'Release notes', enter the content of `CHANGELOG.md` only for this release.
 
-11. Push your changes to master:
+1. Push your changes to master:
    ```fish
    $ git push upstream master
    $ git push upstream --tags
    ```
    :interrobang: This could be done directly inside Gitlab
 
-12. Create a new 'wheel' package for the new release:
+1. Create a new 'wheel' package for the new release:
     ```fish
     # Remove previous build(s)
     $ rm -rf dist
@@ -77,8 +77,8 @@ upstream	https://gitlab.com/esa/pyxel.git (push)
     $ ls dist
     ``` 
 
-13. Send the new release 'pyxel-sim' to the Python Package Index (PyPI) repository with
-    the following commands:
+1. Send the new release 'pyxel-sim' to the Python Package Index (PyPI) repository with
+   the following commands:
        ```fish
        # Send the package to https://test.pypi.org (only for testing)
        $ tox -e release -- --repository testpypi
@@ -87,8 +87,8 @@ upstream	https://gitlab.com/esa/pyxel.git (push)
        $ tox -e release
        ```
    
-14. Send the new release 'pyxel-sim' to the Conda forge channel (after sending the 
-    package to PyPi)
+1. Send the new release 'pyxel-sim' to the Conda forge channel (after sending the 
+   package to PyPi)
    
     1. Create a new recipe based on the current version of `pyxel-sim` from the PyPi
        repository.
@@ -128,7 +128,7 @@ upstream	https://gitlab.com/esa/pyxel.git (push)
        6. Propose the change as a pull request to branch 'master' in https://github.com/conda-forge/pyxel-sim-feedstock
        7. Once the recSubmit a pull request to Conda Forge
 
-15. Add a section for the next release {X:Y+1} to `CHANGELOG.md`
+1. Add a section for the next release {X:Y+1} to `CHANGELOG.md`
 
      ```fish
      ## UNRELEASED
@@ -142,13 +142,13 @@ upstream	https://gitlab.com/esa/pyxel.git (push)
      ### Others
      ```
 
-16. Commit you changes and push to master again:
+1. Commit you changes and push to master again:
      ```fish
      $ git commit -am "New Changelog section"
      $ git push upstream master
      ```
 
-17. Issue the release on GitLab.
+1. Issue the release on GitLab.
     Click on https://gitlab.com/esa/pyxel/-/releases . Type in the version number and paste the release summary in the notes.
 
-18. Issue the release announcement to the mailing list pyxel-dev@googlegroups.com and to the Pyxel blog.
+1. Issue the release announcement to the mailing list pyxel-dev@googlegroups.com and to the Pyxel blog.
