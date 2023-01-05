@@ -129,7 +129,9 @@ Values outside of detector shape will be cropped.
 Read more about placement in the documentation of function :py:func:`~pyxel.util.fit_into_array`.
 If the user provides a value for the ``fixed_pattern_noise_factor`` instead of a filename,
 the model will use a simple calculation of the PRNU. In the simple calculation the ``fixed_pattern_noise_factor``
-will be multiplied with the quantum_efficiency, given by the detector characteristics, and applied to the pixel array through a lognormal distribution.
+will be multiplied with the quantum_efficiency, given by the detector characteristics, and applied to the pixel array
+through a lognormal distribution. The ``fixed_pattern_noise_factor`` is typically between 0.01 and 0.02 for a given sensor,
+but varies from one sensor to another :cite:p:`Konnik:noises`.
 
 
 Basic example of the configuration file:
@@ -141,6 +143,7 @@ Basic example of the configuration file:
       enabled: true
       arguments:
           filename: "noise.fits"
+          #fixed_pattern_noise_factor: 0.01
 
 .. autofunction:: fixed_pattern_noise
 

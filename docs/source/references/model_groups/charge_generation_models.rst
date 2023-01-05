@@ -317,8 +317,9 @@ and :math:`t_{exp}` exposure time.
 
 To use the model,
 user has to provide arguments ``figure_of_merit`` in :math:`nA/cm^2` (:math:`D_{FM}`),
-``band_gap`` in :math:`eV`, ``band_gap_room_temperature`` in :math:`eV`,
-``spatial_noise_factor`` (:math:`D_N`) and ``temporal_noise``.
+``band_gap`` in :math:`eV`, ``band_gap_room_temperature`` in :math:`eV`, ``spatial_noise_factor`` (:math:`D_N`)
+and ``temporal_noise``.
+The ``spatial_noise_factor`` is typically between 0.1 and 0.4 for CCD and CMOS sensors :cite:p:`Konnik:noises`.
 Parameter ``temperature`` in :math:`K` is taken from detector :py:class:`~pyxel.detectors.Environment`.
 If arguments ``band_gap`` and ``band_gap_room_temperature`` are not provided,
 the model will use the Varshni empirical formula with parameters for Silicon by default:
@@ -339,7 +340,7 @@ Example of the configuration file:
         figure_of_merit: 1.  # nA/cm^2
         band_gap: 1.2  # eV, optional
         band_gap_room_temperature: 1.2  # eV, optional
-        spatial_noise_factor: 0.01
+        spatial_noise_factor: 0.1
         temporal_noise: false
 
 .. autofunction:: pyxel.models.charge_generation.dark_current
@@ -369,7 +370,7 @@ Example of the configuration file:
       enabled: true
       arguments:
         cutoff_wavelength: 2.5
-        spatial_noise_factor: 0.01
+        spatial_noise_factor: 0.1
         temporal_noise: true
 
 .. note:: This model is specific for the :term:`MCT` and :term:`CMOS` detector.
