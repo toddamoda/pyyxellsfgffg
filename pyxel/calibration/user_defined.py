@@ -175,14 +175,15 @@ class DaskIsland:
         algo_pickable = AlgoSerializable(algo)
 
         # Run 'algo.evolve' with `Dask`
-        new_delayed_pop: Delayed = delayed(algo_pickable.evolve, nout=2)(pop)
+        delayed_pop: Delayed = delayed(pop)
+        delayed_result: Delayed = delayed(algo_pickable.evolve, nout=2)(delayed_pop)
 
         new_algo: pg.algo
         new_pop: pg.population
         (
             new_algo,
             new_pop,
-        ) = new_delayed_pop.compute()
+        ) = delayed_result.compute()
 
         return new_algo, new_pop
 
