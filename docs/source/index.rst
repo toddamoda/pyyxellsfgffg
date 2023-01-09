@@ -148,7 +148,7 @@ to look for certain things:
    about/citation.rst
    about/contributors.rst
    about/license.rst
-   about/faq.rst
+   about/FAQ.md
    about/acronyms.rst
    about/acknowledgements.rst
    about/bibliography.rst

@@ -10,3 +10,4 @@ sphinx-inline-tabs
 myst-nb
 sphinx-copybutton
 importlib-metadata ; python_version<'3.8'
+faqtory
