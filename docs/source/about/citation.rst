@@ -19,8 +19,23 @@ For citation purposes, you can use the following BibTex entries:
 
 Pyxel 1.0: an open source Python framework for detector and end-to-end instrument simulation
 --------------------------------------------------------------------------------------------
+From Journal of Astronomical Telescopes, Instruments, and Systems Vol. 8 · No. 4 | October 2022::
 
-From SPIE Astronomical Telescopes + Instrumentation 2022::
+    @article{10.1117/1.JATIS.8.4.048002,
+        author = {Matej Arko and Thibaut Prod’homme and Frederic Lemmel and Benoit Serra and Elizabeth M. George and Bradley Kelman and Thibault Pichon and Enrico Biancalani and James Gilbert},
+        title = {{Pyxel 1.0: an open source Python framework for detector and end-to-end instrument simulation}},
+        volume = {8},
+        journal = {Journal of Astronomical Telescopes, Instruments, and Systems},
+        number = {4},
+        publisher = {SPIE},
+        pages = {048002},
+        keywords = {detector simulation, instrument simulation, imaging sensors, modelling, Python, charge-coupled device, complementary metal oxide semiconductor, calibration, Device simulation, Data modeling, Equipment, Calibration, Capacitance, Instrument modeling, Diodes, Mathematical optimization, Detector development, Sensor calibration},
+        year = {2022},
+        doi = {10.1117/1.JATIS.8.4.048002},
+        URL = {https://doi.org/10.1117/1.JATIS.8.4.048002}
+    }
+
+From SPIE Astronomical Telescopes + Instrumentation | August 2022::
 
     @inproceedings{10.1117/12.2629241,
         author = {Matej Arko and Thibaut Prod'homme and Fr{\'e}d{\'e}ric Lemmel and Benoit Serra and Elizabeth George and Bradley Kelman and Thibault Pichon and Enrico Biancalani and James Gilbert},
