@@ -7,7 +7,7 @@ Pyxel detector simulation framework
 [![docs](https://esa.gitlab.io/pyxel/documentation.svg)](https://esa.gitlab.io/pyxel/doc)
 [![gitter](https://badges.gitter.im/pyxel-framework/community.svg)](https://gitter.im/pyxel-framework/community)
 [![Google Group](https://img.shields.io/badge/Google%20Group-Pyxel%20Detector%20Framework-blue.svg)](https://groups.google.com/g/pyxel-detector-framework)
-[![doi](https://zenodo.org/badge/DOI/10.1117/12.2314047.svg)](https://doi.org/10.1117/12.2314047)
+[![doi](https://zenodo.org/badge/DOI/10.1117/12.2314047.svg)](https://doi.org/10.1117/1.JATIS.8.4.048002)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![PyPI version](https://badge.fury.io/py/pyxel-sim.svg)](https://badge.fury.io/py/pyxel-sim)
 [![conda](https://img.shields.io/conda/vn/conda-forge/pyxel-sim.svg)](https://anaconda.org/conda-forge/pyxel-sim)
@@ -59,6 +59,9 @@ Example notebooks of Pyxel can be found in a separate public repository [Pyxel D
 Most development discussion is taking place on GitLab in this repo.
 Further, the *Pyxel* [mailing list](https://groups.google.com/g/pyxel-detector-framework) can also be used for specialized discussions or design issues, and a [Gitter channel](https://gitter.im/pyxel-framework/community) is available for quick development related questions.
 
+## Citing Pyxel
+
+If you use *Pyxel*, please cite the paper we published in [SPIE Digital Library](https://www.spiedigitallibrary.org/journals/Journal-of-Astronomical-Telescopes-Instruments-and-Systems/volume-8/issue-04/048002/Pyxel-10--an-open-source-Python-framework-for-detector/10.1117/1.JATIS.8.4.048002.full?SSO=1).
 
 ## Contributing to *Pyxel*
 
