@@ -5,6 +5,8 @@
 ### Core
 
 ### Documentation
+* Add Pyxel paper in documentation + Gitlab page.
+  (See [!589](https://gitlab.com/esa/pyxel/-/merge_requests/589)).
 
 ### Models
 * Cannot reload a 'detector' from model 'pyxel.load_detector'.
