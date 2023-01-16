@@ -60,6 +60,10 @@ Most development discussion is taking place on GitLab in this repo.
 Further, the *Pyxel* [mailing list](https://groups.google.com/g/pyxel-detector-framework) can also be used for specialized discussions or design issues, and a [Gitter channel](https://gitter.im/pyxel-framework/community) is available for quick development related questions.
 
 
+## Citing Pyxel
+
+If you use *Pyxel*, please cite the paper we published in [SPIE Digital Library](https://www.spiedigitallibrary.org/journals/Journal-of-Astronomical-Telescopes-Instruments-and-Systems/volume-8/issue-04/048002/Pyxel-10--an-open-source-Python-framework-for-detector/10.1117/1.JATIS.8.4.048002.full?SSO=1).
+
 ## Contributing to *Pyxel*
 
 All contributions, bug reports, bug fixes, documentation improvements, enhancements and ideas are welcome.
