@@ -7,6 +7,8 @@
 ### Documentation
 * Add Pyxel paper in documentation + Gitlab page.
   (See [!589](https://gitlab.com/esa/pyxel/-/merge_requests/589)).
+* Added citation segment in README.md.
+ (See [!591](https://gitlab.com/esa/pyxel/-/merge_requests/591)).
 
 ### Models
 * Cannot reload a 'detector' from model 'pyxel.load_detector'.
