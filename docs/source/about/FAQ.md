@@ -1,11 +1,30 @@
 
 # Frequently Asked Questions
 - [How to install Pyxel?](#how-to-install-pyxel)
+- [What is the easiest way to get the signal to noise ratio from the detector data buckets?](#what-is-the-easiest-way-to-get-the-signal-to-noise-ratio-from-the-detector-data-buckets)
 
 <a name="how-to-install-pyxel"></a>
 ## How to install Pyxel?
 
 Look at the [Installation Guide](https://esa.gitlab.io/pyxel/doc/stable/tutorials/install.html)
+
+<a name="what-is-the-easiest-way-to-get-the-signal-to-noise-ratio-from-the-detector-data-buckets"></a>
+## What is the easiest way to get the signal to noise ratio from the detector data buckets?
+
+The easiest way is like this:
+<pre><code>signal = result.signal.mean()
+noise = result.signal.var()
+snr = signal / noise
+snr
+</code></pre>
+So your snr is an array with each exposure time in exposure mode 
+(ndarray when using observation mode) with the result of the simulation, e.g. in exposure mode:
+<pre><code>result = pyxel.exposure_mode(
+exposure=exposure,
+detector=detector, 
+pipeline=pipeline
+)
+</code></pre>
 
 <hr>
 
