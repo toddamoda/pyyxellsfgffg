@@ -83,6 +83,39 @@ def output_node_linearity_poly(
     detector.signal.array = signal_non_linear
 
 
+def bfe_poly(
+    detector: Detector,
+    coefficients: Sequence[float],
+) -> None:
+    """Add non-linearity to signal array to simulate the non-linearity of the output node circuit.
+
+    The non-linearity is simulated by a polynomial function. The user specifies the polynomial coefficients.
+
+    detector Signal unit: Volt
+
+    Parameters
+    ----------
+    detector : Detector
+        Pyxel Detector object.
+    coefficients : list of float
+        Coefficient of the polynomial function.
+    """
+    if len(coefficients) == 0:
+        raise ValueError("Length of coefficient list should be more than 0.")
+
+    signal_mean_array = detector.signal.array.astype("float64")
+    signal_non_linear = compute_poly_linearity(
+        array_2d=signal_mean_array, coefficients=coefficients
+    )
+
+    if np.any(signal_non_linear < 0):
+        raise ValueError(
+            "Signal array contains negative values after applying non-linearity model!"
+        )
+
+    detector.signal.array = signal_non_linear
+
+
 def compute_simple_physical_non_linearity(
     array_2d: np.ndarray,
     temperature: float,  # Detector operating temperature
