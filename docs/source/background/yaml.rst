@@ -83,15 +83,13 @@ Pipeline
 --------
 
 It contains the model functions grouped into model groups
-(*photon_generation*, *optics*, *charge_generation*, etc.).
+(*photon_collection*, *charge_generation*, etc.).
 For details, see :ref:`pipeline`.
 
 The order of model levels and models are important,
 as the execution order is defined here!
 
-* **photon_generation**
-
-* **optics**
+* **photon_collection**
 
 * **charge_generation**
 
@@ -117,21 +115,18 @@ arguments of the model functions have to be listed inside the
     pipeline:
 
       # -> photon
-      photon_generation:
+      photon_collection:
 
         - name: illumination
-          func: pyxel.models.photon_generation.illumination
+          func: pyxel.models.photon_collection.illumination
           enabled: true
           arguments:
               level: 100.
               time_scale: 1.
 
         - name: shot_noise
-          func: pyxel.models.photon_generation.shot_noise
+          func: pyxel.models.photon_collection.shot_noise
           enabled: true
-
-      # photon -> photon
-      optics:
 
       # photon -> charge
       charge_generation:

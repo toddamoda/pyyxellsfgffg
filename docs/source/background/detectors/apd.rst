@@ -9,14 +9,12 @@ API reference: :py:class:`~pyxel.detectors.APD`
 Available models
 ================
 
-* Photon generation
-    * :ref:`photon_generation_create_store_detector`
+* Photon collection
+    * :ref:`photon_collection_create_store_detector`
     * :ref:`Load image`
     * :ref:`Simple illumination`
     * :ref:`Stripe pattern`
     * :ref:`Shot noise`
-* Optics
-    * :ref:`optical_create_store_detector`
     * :ref:`Physical Optics Propagation in PYthon (POPPY)`
     * :ref:`Load PSF`
 * Charge generation

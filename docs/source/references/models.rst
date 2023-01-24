@@ -6,8 +6,7 @@ Models
 
 .. toctree::
 
-   model_groups/photon_generation_models.rst
-   model_groups/optical_models.rst
+   model_groups/photon_collection_models.rst
    model_groups/charge_generation_models.rst
    model_groups/charge_collection_models.rst
    model_groups/phasing_models.rst

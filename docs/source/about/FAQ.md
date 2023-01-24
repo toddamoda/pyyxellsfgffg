@@ -49,7 +49,7 @@ A simple pipeline example of a configuration yaml file in exposure mode can be f
 
 Yes, with the model 'load_image' in the photon generation model group it is possible to load photons directly from a file.
 You can set the argument 'convert_to_photons' to false, and it will use your input array without converting it via PTF.
-See [here](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/photon_generation_models.html#load-image) for more details.
+See [here](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/photon_collection_models.html#load-image) for more details.
 
 <a name="is-there-any-way-use-pyxel-to-produce-a-bias-or-dark-image-without-including-any-image-file"></a>
 ## Is there any way use Pyxel to produce a bias or dark image without including any image file?

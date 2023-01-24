@@ -121,7 +121,7 @@ class ModelFunction:
     Examples
     --------
     >>> model_func = ModelFunction(
-    ...     func="pyxel.models.photon_generation.illumination",
+    ...     func="pyxel.models.photon_collection.illumination",
     ...     name="illumination",
     ...     arguments={"level": 1, "option": "foo"},
     ... )
