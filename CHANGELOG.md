@@ -54,6 +54,8 @@ pipeline:
 * Update FAQ.
  (See [!592](https://gitlab.com/esa/pyxel/-/merge_requests/592)
  and [!593](https://gitlab.com/esa/pyxel/-/merge_requests/593)).
+* Add documentation about ModelGroup 'Photon Collection'.
+  (See [!598](https://gitlab.com/esa/pyxel/-/merge_requests/598)).
 
 ### Models
 * Cannot reload a 'detector' from model 'pyxel.load_detector'.
