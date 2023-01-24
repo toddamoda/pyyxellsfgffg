@@ -140,7 +140,7 @@ Basic example of YAML configuration model:
 .. code-block:: yaml
 
     - name: load_charge
-      func: pyxel.models.photon_generation.load_charge
+      func: pyxel.models.charge_generation.load_charge
       enabled: true
       arguments:
         charge_file: data/charge.npy

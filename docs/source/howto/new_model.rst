@@ -17,7 +17,7 @@ Model function
 A model function is a function that takes in the :py:class:`~pyxel.detectors.Detector` object as one of the arguments
 and edits the data stored in it. To add it to Pyxel, you have to copy the script containing your function,
 let's say ``my_script.py``, into the corresponding model group folder in Pyxel.
-For example if our function edits the photon array, the script ``my_script.py`` should go into ``pyxel/models/optics``.
+For example if our function edits the photon array, the script ``my_script.py`` should go into ``pyxel/models/photon_collection``.
 A model function that multiplies the photon array with the input argument would look like this:
 
 .. code-block:: python
@@ -45,13 +45,13 @@ providing the input arguments for the function.
 
 .. code-block:: yaml
 
-  # YAML config file with a new model in photon_generation
+  # YAML config file with a new model in photon_collection
 
   pipeline:
 
-    optics:
+    photon_collection:
       - name: some_other_model
-        func: pyxel.models.optics.some_other_model
+        func: pyxel.models.photon_collection.some_other_model
         enabled: true
         arguments:
           wavelength: 650
@@ -59,7 +59,7 @@ providing the input arguments for the function.
 
       #######################################################################
       - name: my_model                                                      #
-        func: pyxel.models.optics.my_script.my_model_function               #
+        func: pyxel.models.photon_collection.my_script.my_model_function    #
         enabled: true                                                       #
         arguments:                                                          #
           arg:  124                                                         #
@@ -67,8 +67,8 @@ providing the input arguments for the function.
 
 
 .. tip::
-    If we import ``my_model_function`` in the ``pyxel/models/optics/__init__.py``,
-    then the path to the model is shorter: ``func: pyxel.models.photon_generation.my_model_function``.
+    If we import ``my_model_function`` in the ``pyxel/models/photon_collection/__init__.py``,
+    then the path to the model is shorter: ``func: pyxel.models.photon_collection.my_model_function``.
 
 
 Model wrapper
@@ -87,10 +87,10 @@ It is possible to create a new model from an already prepared template with the 
 
 .. code-block:: bash
 
-    $ pyxel create-model photon_generation/new_model
+    $ pyxel create-model photon_collection/new_model
 
 This will create a new python script ``new_model.py`` with a template model function
-in folder ``pyxel/models/photon_generation``. All you have to do is edit your model function
+in folder ``pyxel/models/photon_collection``. All you have to do is edit your model function
 and the docstring and then copy the ``YAML`` configuration section from the docstring into the desired configuration file.
 Don't forget to import your model function in the ``__init__.py`` file of the appropriate model group for faster access.
 

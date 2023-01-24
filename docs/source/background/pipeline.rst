@@ -10,8 +10,8 @@ It is an instance of :py:class:`~pyxel.pipelines.DetectionPipeline` class.
 
 Inside the pipeline the :ref:`models <models_explanation>` are grouped into different
 levels per detector type imitating the working principle of the detector, for example
-in case of a :term:`CCD` the model levels are :ref:`photon generation <photon_generation>`,
-:ref:`optics <optical>`, :ref:`charge <charge_transfer>`, :ref:`generation <charge_generation>`,
+in case of a :term:`CCD` the model levels are :ref:`photon collection <photon_collection>`,
+:ref:`charge <charge_transfer>`, :ref:`generation <charge_generation>`,
 :ref:`charge collection <charge_collection>`, :ref:`charge transfer <charge_transfer>`,
 :ref:`charge measurement <charge_measurement>` and :ref:`readout electronics <readout_electronics>`
 in this order.

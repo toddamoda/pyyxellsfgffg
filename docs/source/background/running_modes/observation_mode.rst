@@ -43,7 +43,7 @@ Sequential
       - key:      pipeline.charge_generation.cosmix.arguments.particles_per_second
         values:   [1, 2, 3]
         enabled:  true
-      - key:      pipeline.photon_generation.illumination.arguments.level
+      - key:      pipeline.photon_collection.illumination.arguments.level
         values:   range(0, 300, 100)
         enabled:  true
 
@@ -70,7 +70,7 @@ Product
       - key:      pipeline.charge_generation.cosmix.arguments.particles_per_second
         values:   [1, 2, 3]
         enabled:  true
-      - key:      pipeline.photon_generation.illumination.arguments.level
+      - key:      pipeline.photon_collection.illumination.arguments.level
         values:   range(0, 300, 100)
         enabled:  true
 
@@ -137,7 +137,7 @@ as well as ``logs`` and ``parameters`` in NetCDF format.
   observation:
 
     parameters:
-      - key:      pipeline.photon_generation.illumination.arguments.level
+      - key:      pipeline.photon_collection.illumination.arguments.level
         values:   range(0, 300, 100)
         enabled:  true
 
