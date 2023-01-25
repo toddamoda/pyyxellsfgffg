@@ -354,7 +354,7 @@ Dark current rule07
 
 With this model you can add dark current to :py:class:`~pyxel.data_structure.Charge` following the
 model described in :cite:p:`Tennant2008MBEHT`.
-This model is only valid for :term:`MCT` hybridised array (:term:`MCT` + :term:`CMOS`).
+This model is only valid for :term:`MCT` hybridised array (:term:`MCT`).
 The model has one extra argument: ``cut-off wavelength``, and also takes some values from :py:class:`~pyxel.detectors.Detector` object,
 to be precise: ``temperature``, ``pixel size`` (assuming it is square),
 and ``time step`` since last read-out.
@@ -373,7 +373,7 @@ Example of the configuration file:
         spatial_noise_factor: 0.1
         temporal_noise: true
 
-.. note:: This model is specific for the :term:`MCT` and :term:`CMOS` detector.
+.. note:: This model is specific for the :term:`MCT` detector.
 
 .. autofunction:: pyxel.models.charge_generation.dark_current_rule07    
 
