@@ -24,7 +24,7 @@ At the end, the pipeline returns the :py:class:`~pyxel.detectors.Detector` objec
 as an output ready to generate output files from results.
 
 .. image:: _static/pipeline.png
-    :scale: 50%
+    :scale: 70%
     :alt: ccd_pipeline
     :align: center
 
@@ -79,7 +79,7 @@ or locally (on pixel level or only for a specific detector area).
     :alt: models
     :align: center
 
-Most of the model groups work for :term:`CCD` :term:`CMOS`, :term:`MKID` and :term:`APD` detectors,
+Most of the model groups work for :term:`CCD`, :term:`CMOS`, :term:`MKID` and :term:`APD` detectors,
 which are imitating the physical working principles of imaging detectors. They were
 grouped according to which physics data storing objects are modified by them. Note that 3 out of the 9 groups are
 specific to a single detector type.
