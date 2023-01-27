@@ -10,13 +10,13 @@ It is an instance of :py:class:`~pyxel.pipelines.DetectionPipeline` class.
 
 Inside the pipeline the :ref:`models <models_explanation>` are grouped into different
 levels per detector type imitating the working principle of the detector, for example
-in case of a :term:`CCD` the model levels are :ref:`photon collection <photon_collection>`,
+in case of a :term:`CCD` the model groups are :ref:`photon collection <photon_collection>`,
 :ref:`charge <charge_transfer>`, :ref:`generation <charge_generation>`,
 :ref:`charge collection <charge_collection>`, :ref:`charge transfer <charge_transfer>`,
-:ref:`charge measurement <charge_measurement>` and :ref:`readout electronics <readout_electronics>`
+:ref:`charge measurement <charge_measurement>`, :ref:`readout electronics <readout_electronics>` and :ref:`data processing <data_processing>`
 in this order.
 
-Each level is based on a
+Each group is based on a
 for loop, looping over all the included and selected models in a predefined
 order, which can be changed by the user. All the models in a pipeline, get
 and modify the same :py:class:`~pyxel.detectors.Detector` object one after another.
@@ -53,15 +53,16 @@ also used and modified further by the next models in the pipeline.
 Model groups
 ------------
 
-Models are grouped into multiple model levels per detector type according to
+Models are grouped into multiple model groups per detector type according to
 which object of the :py:class:`~pyxel.detectors.Detector` object is used or modified by
-the models. These levels correspond roughly to the detector fundamental
+the models. These groups correspond roughly to the detector fundamental
 functions.
 
-Models in Pyxel makes changes and storing there data in data structure
-classes (:py:class:`~pyxel.data_structure.Photon`, :py:class:`~pyxel.data_structure.Charge`,
+Models in Pyxel makes changes and storing the data in data bucktes (:py:class:`~pyxel.data_structure.Photon`, :py:class:`~pyxel.data_structure.Charge`,
+:py:class:`~pyxel.data_structure.Phase`,
 :py:class:`~pyxel.data_structure.Pixel`, :py:class:`~pyxel.data_structure.Signal` or
-:py:class:`~pyxel.data_structure.Image` class).
+:py:class:`~pyxel.data_structure.Image`,
+:py:class:`~pyxel.data_structure.Data` class).
 For details, see the :ref:`Data Structure <data_structure>` page.
 
 Models could also modify any detector attributes (like Quantum Efficiency,
@@ -78,9 +79,9 @@ or locally (on pixel level or only for a specific detector area).
     :alt: models
     :align: center
 
-All the model levels for :term:`CCD` and :term:`CMOS` detectors,
+Most of the model groups work for :term:`CCD` :term:`CMOS`, :term:`MKID` and :term:`APD` detectors,
 which are imitating the physical working principles of imaging detectors. They were
-grouped according to which physics data storing objects are modified by them. Note that 2 out of the 8 levels are
+grouped according to which physics data storing objects are modified by them. Note that 3 out of the 9 groups are
 specific to a single detector type.
 
 Model functions
