@@ -18,6 +18,7 @@ class DetectionPipeline:
 
     # Define the order of steps in the pipeline.
     MODEL_GROUPS: Tuple[str, ...] = (
+        "scene_generation",
         "photon_collection",
         "photon_generation",  # Deprecated. It will be removed in version 2.0
         "optics",  # Deprecated. It will be removed in version 2.0
@@ -34,6 +35,7 @@ class DetectionPipeline:
     # TODO: develop a ModelGroupList class ? See #333
     def __init__(
         self,  # TODO: Too many instance attributes
+        scene_generation: Optional[Sequence[ModelFunction]] = None,
         photon_collection: Optional[Sequence[ModelFunction]] = None,
         photon_generation: Optional[Sequence[ModelFunction]] = None,  # Deprecated
         optics: Optional[Sequence[ModelFunction]] = None,  # Deprecated
@@ -49,6 +51,12 @@ class DetectionPipeline:
     ):
         self._is_running = False
         self.doc = doc
+
+        self._scene_generation: Optional[ModelGroup] = (
+            ModelGroup(scene_generation, name="scene_generation")
+            if scene_generation
+            else None
+        )
 
         self._photon_collection: Optional[ModelGroup] = (
             ModelGroup(photon_collection, name="photon_collection")
@@ -121,6 +129,11 @@ class DetectionPipeline:
             models_grp: Optional[ModelGroup] = getattr(self, model)
             if models_grp:
                 yield from models_grp
+
+    @property
+    def scene_generation(self) -> Optional[ModelGroup]:
+        """Get group 'scene generation'."""
+        return self._scene_generation
 
     @property
     def photon_collection(self) -> Optional[ModelGroup]:
