@@ -71,6 +71,8 @@ pipeline:
   new ModelGroup 'Photon Collection'. All models in 'Photon Generation' and 'Optics' are 
   obsolete/deprecated and will be removed in version 2.0.
   (See [!597](https://gitlab.com/esa/pyxel/-/merge_requests/597)).
+* Add new ModelGroup 'Scene Generation'.
+  (See [!600](https://gitlab.com/esa/pyxel/-/merge_requests/600)).
 
 ### Others
 * Remove `CCDCharacteristics`, `CMOSCharacteristics` and `MKIDCharacteristics`.
