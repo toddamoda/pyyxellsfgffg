@@ -1300,6 +1300,27 @@
             "null"
           ]
         },
+        "scene_generation": {
+          "default": null,
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/ModelLoadDetector"
+              },
+              {
+                "$ref": "#/definitions/ModelSaveDetector"
+              },
+              {
+                "$ref": "#/definitions/ModelFunction"
+              }
+            ]
+          },
+          "title": "Scene Generation",
+          "type": [
+            "array",
+            "null"
+          ]
+        },
         "signal_transfer": {
           "default": null,
           "items": {
