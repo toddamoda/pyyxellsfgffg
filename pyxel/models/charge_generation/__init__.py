@@ -19,4 +19,4 @@ from .apd_gain import apd_gain
 from .charge_deposition import charge_deposition
 from .charge_deposition import charge_deposition_in_mct
 from .wavelength_qe import apply_qe_curve, conversion_with_3d_qe_map
-from .brighter_fatter_effect import brighter_fatter
+from .brighter_fatter_effect import brighter_fatter, simple_bfe
