@@ -26,35 +26,29 @@ from pyxel.detectors import Detector
 
 
 def simple_bfe(
-    detector: Detector,
-    a,
-    b,
-    c,
-    alpha: float,
-    beta: float,
-    normalize_kernel: bool = True,
+    detector: Detector, coefficients: Sequence[float], normalize_kernel: bool = True
 ) -> None:
     """Get BFE for photon array and convolve the photon array with the BFE.
-    coefficients: Sequence[float]
-        Parameters
-        ----------
-        detector : Detector
-            Pyxel Detector object.
-        coefficients : list of float
-            Coefficient of the polynomial function.
-        normalize_kernel : bool
-            Normalize kernel.
+
+    Parameters
+    ----------
+    detector : Detector
+        Pyxel Detector object.
+    coefficients : list of float
+        Coefficient of the polynomial function.
+    normalize_kernel : bool
+        Normalize kernel.
     """
-    # a = coefficients[0]
-    # b = coefficients[1]
-    # c = coefficients[2]
+    a = coefficients[0]
+    b = coefficients[1]
+    c = coefficients[2]
 
     signal = detector.photon.array
 
     mean = np.mean(detector.photon.array)
-    theta = a + b * signal + c * signal**2
+    sigma = a + b * signal + c * signal**2
 
-    theta_fwc = (
+    sigma_fwc = (
         a
         + b * detector.characteristics.full_well_capacity
         + c * detector.characteristics.full_well_capacity**2
@@ -66,23 +60,19 @@ def simple_bfe(
     # norm = (1 / np.max(sigma_max)) * sigma
     # std = np.sqrt(np.mean(norm))
     ###
-    # norm_sigma = 1 + (sigma / sigma_fwc)
-    norm_sigma = alpha + beta * ((1 / np.max(theta_fwc)) * theta)
-    # 0.27 * (1.2+(1 / np.max(theta_fwc)) * theta)
-    # 3 # alpha + beta*(
-    # 2a # alpha * (beta +
-    std = np.mean(norm_sigma)  # just for now in pyxel
+    norm_sigma = (1 / np.max(sigma_fwc)) * sigma
+    std = np.sqrt(np.mean(norm_sigma))
     # sigma_array = polynomial_function(signal)
-    kernel = Gaussian2DKernel(x_stddev=std, x_size=9)  # , y_size=3)
-    # n1_list = []
-    # n2_list = []
-    # center = kernel.array[1][1]
-    # n1 = kernel.array[0][1]
-    # n2 = kernel.array[0][0]
-    # fraction1 = n1 / center
-    # n1_list.append(fraction1)
-    # fraction2 = n2 / center
-    # n2_list.append(fraction2)
+    kernel = Gaussian2DKernel(x_stddev=std, x_size=3)  # , y_size=3)
+    n1_list = []
+    n2_list = []
+    center = kernel.array[1][1]
+    n1 = kernel.array[0][1]
+    n2 = kernel.array[0][0]
+    fraction1 = n1 / center
+    n1_list.append(fraction1)
+    fraction2 = n2 / center
+    n2_list.append(fraction2)
     conv = convolve_fft(
         signal,
         kernel=kernel,
