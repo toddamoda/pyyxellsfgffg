@@ -32,12 +32,18 @@ After:
 ```yaml
 pipeline:
   photon_collection:
+# ^^^^^^^^^^^^^^^^^
+#     modified
     - name: shot_noise
       func: pyxel.models.photon_collection.shot_noise
+#           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^~~~~~~~~~~~
+#                             modified
       enabled: true
 
     - name: optical_psf
       func: pyxel.models.photon_collection.optical_psf
+#           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^~~~~~~~~~~~~
+#                             modified
       enabled: true
       arguments:
         fov_arcsec: 5 # FOV in arcseconds
