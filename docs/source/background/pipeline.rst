@@ -16,6 +16,15 @@ in case of a :term:`CCD` the model groups are :ref:`photon collection <photon_co
 :ref:`charge measurement <charge_measurement>`, :ref:`readout electronics <readout_electronics>` and :ref:`data processing <data_processing>`
 in this order.
 
+.. deprecated:: 1.7
+
+    The models groups **photon generation** and **optics** have been deprecated and
+    will be removed for version 2.0.
+
+    All models from **photon generation** and **optics** are moved to the new
+    model group :ref:`photon collection <photon_collection>`.
+
+
 Each group is based on a
 for loop, looping over all the included and selected models in a predefined
 order, which can be changed by the user. All the models in a pipeline, get

@@ -4,6 +4,14 @@
 Models
 ======
 
+.. deprecated:: 1.7
+
+    The models groups **photon generation** and **optics** have been deprecated and
+    will be removed for version 2.0.
+
+    All models from **photon generation** and **optics** are moved to the new
+    model group :ref:`photon collection <photon_collection>`.
+
 .. toctree::
 
    model_groups/photon_collection_models.rst
