@@ -75,6 +75,8 @@ pipeline:
   (See [!597](https://gitlab.com/esa/pyxel/-/merge_requests/597)).
 * Add new ModelGroup 'Scene Generation'.
   (See [!600](https://gitlab.com/esa/pyxel/-/merge_requests/600)).
+* Add new decorator 'deprecated' to deprecate old models.
+  (See [!604](https://gitlab.com/esa/pyxel/-/merge_requests/604)).
 
 ### Others
 * Remove `CCDCharacteristics`, `CMOSCharacteristics` and `MKIDCharacteristics`.
