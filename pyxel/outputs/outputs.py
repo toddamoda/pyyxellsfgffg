@@ -64,13 +64,14 @@ class Outputs:
     def __init__(
         self,
         output_folder: Union[str, Path],
+        custom_dir_name: Optional[str] = "",
         save_data_to_file: Optional[
             Sequence[Mapping[ValidName, Sequence[ValidFormat]]]
         ] = None,
     ):
         self._log = logging.getLogger(__name__)
 
-        self.output_dir: Path = create_output_directory(output_folder)
+        self.output_dir: Path = create_output_directory(output_folder, custom_dir_name)
 
         # TODO: Not related to a plot. Use by 'single' and 'parametric' modes.
         self.save_data_to_file: Optional[
@@ -473,11 +474,12 @@ def save_log_file(output_dir: Path) -> None:
     log_file.rename(new_log_filename)
 
 
-def create_output_directory(output_folder: Union[str, Path]) -> Path:
+def create_output_directory(output_folder: Union[str, Path], custom_dir_name: [str]) -> Path:
     """Create output directory in the output folder.
 
     Parameters
     ----------
+    custom_dir_name
     output_folder: str or Path
 
     Returns
@@ -490,11 +492,18 @@ def create_output_directory(output_folder: Union[str, Path]) -> Path:
 
     while True:
         try:
-            output_dir: Path = (
-                Path(output_folder)
-                .joinpath("run_" + strftime("%Y%m%d_%H%M%S") + add)
-                .resolve()
-            )
+            if custom_dir_name == "":
+                output_dir: Path = (
+                    Path(output_folder)
+                    .joinpath("run_" + strftime("%Y%m%d_%H%M%S") + add)
+                    .resolve()
+                )
+            else:
+                output_dir: Path = (
+                    Path(output_folder)
+                    .joinpath(custom_dir_name + add)
+                    .resolve()
+                )
 
             output_dir.mkdir(parents=True, exist_ok=False)
 
