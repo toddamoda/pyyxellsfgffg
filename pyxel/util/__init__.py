@@ -12,7 +12,7 @@ import logging
 
 import numpy as np
 
-from typing import Optional
+from typing import Optional, Callable
 
 # flake8: noqa
 from .memory import get_size, memory_usage_details
@@ -29,6 +29,7 @@ __all__ = [
     "LogFilter",
     "load_cropped_and_aligned_image",
     "set_random_seed",
+    "deprecated",
 ]
 
 
@@ -78,3 +79,38 @@ class LogFilter(logging.Filter):
             return True
 
         return False
+
+
+def deprecated(msg: str) -> Callable:
+    """Deprecate a function.
+
+    This decorator is based on (future ?) PEP 702.
+
+    Examples
+    --------
+    >>> deprecated("Use 'new_function'")
+    >>> def old_function(a, b):
+    ...     return a + b
+    ...
+
+    >>> old_function.__deprecated__
+    'Use new_function'
+    >>> old_function(1, 2)
+    DeprecationWarning: Use 'new_function'
+      old_function(1, 2)
+    """
+
+    def _decorator(func: Callable) -> Callable:
+        import warnings
+        from functools import wraps
+
+        @wraps(func)
+        def _wrapper(*args, **kwargs):
+            warnings.warn(msg, DeprecationWarning, stacklevel=2)
+            return func(*args, **kwargs)
+
+        # Add a new attribute '__deprecated__' to retrieve the error message (e.g. in 'ModelFunction')
+        _wrapper.__deprecated__ = msg  # type: ignore
+        return _wrapper
+
+    return _decorator

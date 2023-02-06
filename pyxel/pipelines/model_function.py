@@ -7,6 +7,7 @@
 
 """TBW."""
 import inspect
+import warnings
 from typing import TYPE_CHECKING, Any, Callable, Dict, MutableMapping, Optional
 
 from pyxel.evaluator import evaluate_reference
@@ -161,6 +162,11 @@ class ModelFunction:
             raise AttributeError("Cannot pass a class to ModelFunction.")
 
         self._func: Callable = evaluate_reference(func)
+        if hasattr(self._func, "__deprecated__"):
+            # This will be visible by the user
+            msg = self._func.__deprecated__
+            warnings.warn(msg, FutureWarning, stacklevel=2)
+
         self._name = name
         self.enabled: bool = enabled
 
@@ -168,6 +174,7 @@ class ModelFunction:
             arguments = {}
 
         self._arguments = Arguments(arguments)
+
         # self.group = None               # TODO
 
     def __repr__(self) -> str:
