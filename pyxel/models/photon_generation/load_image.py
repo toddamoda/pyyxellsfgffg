@@ -6,13 +6,16 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 """Pyxel photon generator models."""
-import warnings
 from typing import Literal, Optional, Tuple
 
 from pyxel.detectors import Detector
-from pyxel.util import load_cropped_and_aligned_image
+from pyxel.util import deprecated, load_cropped_and_aligned_image
 
 
+@deprecated(
+    "Model 'pyxel.models.photon_generation.load_image' is deprecated and will be removed in version 2. "
+    "Use model 'pyxel.models.photon_collection.load_image' instead."
+)
 def load_image(
     detector: Detector,
     image_file: str,
@@ -49,13 +52,6 @@ def load_image(
     bit_resolution : int
         Bit resolution of the loaded image.
     """
-    warnings.warn(
-        "Model 'photon_generation.load_image' is deprecated "
-        "and will be removed in version 2. "
-        "Use model 'photon_collection.load_image'",
-        DeprecationWarning,
-    )
-
     shape = (detector.geometry.row, detector.geometry.col)
     position_y, position_x = position
 

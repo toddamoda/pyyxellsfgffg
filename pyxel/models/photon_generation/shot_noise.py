@@ -6,13 +6,12 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 """Pyxel photon generator models: photon shot noise."""
-import warnings
 from typing import Literal, Optional
 
 import numpy as np
 
 from pyxel.detectors import Detector
-from pyxel.util import set_random_seed
+from pyxel.util import deprecated, set_random_seed
 
 
 def compute_poisson_noise(array: np.ndarray) -> np.ndarray:
@@ -74,6 +73,10 @@ def compute_noise(array: np.ndarray, type: str = "poisson") -> np.ndarray:
         raise ValueError("Invalid noise type!")
 
 
+@deprecated(
+    "Model 'pyxel.models.photon_generation.shot_noise' is deprecated and will be removed in version 2. "
+    "Use model 'pyxel.models.photon_collection.shot_noise' instead."
+)
 def shot_noise(
     detector: Detector,
     type: Literal["poisson", "normal"] = "poisson",
@@ -90,13 +93,6 @@ def shot_noise(
     seed : int, optional
         Random seed.
     """
-    warnings.warn(
-        "Model 'photon_generation.shot_noise' is deprecated "
-        "and will be removed in version 2. "
-        "Use model 'photon_collection.shot_noise'",
-        DeprecationWarning,
-    )
-
     with set_random_seed(seed):
         noise_array = compute_noise(array=detector.photon.array, type=type)
 

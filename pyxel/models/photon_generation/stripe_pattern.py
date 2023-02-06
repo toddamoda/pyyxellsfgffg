@@ -7,11 +7,12 @@
 #
 #
 """Stripe pattern illumination model."""
-import warnings
 from typing import TYPE_CHECKING, List
 
 import numpy as np
 import skimage.transform as tr
+
+from pyxel.util import deprecated
 
 if TYPE_CHECKING:
     from pyxel.detectors import Detector
@@ -106,6 +107,10 @@ def compute_pattern(
     return out
 
 
+@deprecated(
+    "Model 'pyxel.models.photon_generation.stripe_pattern' is deprecated and will be removed in version 2. "
+    "Use model 'pyxel.models.photon_collection.stripe_pattern' instead."
+)
 def stripe_pattern(
     detector: "Detector",
     period: int = 10,
@@ -131,13 +136,6 @@ def stripe_pattern(
     time_scale : float
         Time scale of the photon flux, default is 1 second. 0.001 would be ms.
     """
-    warnings.warn(
-        "Model 'photon_generation.stripe_pattern' is deprecated "
-        "and will be removed in version 2. "
-        "Use model 'photon_collection.stripe_pattern'",
-        DeprecationWarning,
-    )
-
     photon_array = compute_pattern(
         detector_shape=(detector.geometry.row, detector.geometry.col),
         period=period,

@@ -7,6 +7,15 @@
 
 """TBW."""
 
+import warnings
+
+warnings.warn(
+    "Group 'optics' is deprecated "
+    "and will be removed in version 2.0. "
+    "Use group 'photon_collection' instead.",
+    DeprecationWarning,
+)
+
 # flake8: noqa
 from .poppy import optical_psf
 from .point_spread_function import load_psf

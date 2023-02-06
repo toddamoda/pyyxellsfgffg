@@ -8,7 +8,6 @@
 """Poppy model."""
 
 import logging
-import warnings
 from dataclasses import dataclass
 from typing import Any, Mapping, Sequence, Tuple, Union
 
@@ -17,6 +16,7 @@ from astropy.convolution import convolve_fft
 from astropy.io import fits
 
 from pyxel.detectors import Detector
+from pyxel.util import deprecated
 
 try:
     import poppy as op
@@ -421,6 +421,10 @@ def apply_convolution(data_2d: np.ndarray, kernel_2d: np.ndarray) -> np.ndarray:
     return array_2d
 
 
+@deprecated(
+    "Model 'pyxel.models.optics.optical_psf' is deprecated and will be removed in version 2. "
+    "Use model 'pyxel.models.photon_collection.optical_psf' instead."
+)
 def optical_psf(
     detector: Detector,
     wavelength: float,
@@ -444,13 +448,6 @@ def optical_psf(
     optical_system : list of dict
         List of optical elements before detector with their specific arguments.
     """
-    warnings.warn(
-        "Model 'optics.optical_psf' is deprecated "
-        "and will be removed in version 2. "
-        "Use model 'optics.optical_psf'",
-        DeprecationWarning,
-    )
-
     logging.getLogger("poppy").setLevel(
         logging.WARNING
     )  # TODO: Fix this. See issue #81

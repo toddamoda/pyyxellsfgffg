@@ -7,7 +7,6 @@
 #
 #
 """Model for loading PSF from file."""
-import warnings
 from pathlib import Path
 from typing import Union
 
@@ -16,6 +15,7 @@ from astropy.convolution import convolve_fft
 
 from pyxel.detectors import Detector
 from pyxel.inputs import load_image
+from pyxel.util import deprecated
 
 
 def apply_psf(
@@ -50,6 +50,10 @@ def apply_psf(
     return array_2d
 
 
+@deprecated(
+    "Model 'pyxel.models.optics.load_psf' is deprecated and will be removed in version 2. "
+    "Use model 'pyxel.models.photon_collection.stripe_pattern' instead."
+)
 def load_psf(
     detector: Detector, filename: Union[str, Path], normalize_kernel: bool = True
 ) -> None:
@@ -64,13 +68,6 @@ def load_psf(
     normalize_kernel : bool
         Normalize kernel.
     """
-    warnings.warn(
-        "Model 'optics.point_spread_function' is deprecated "
-        "and will be removed in version 2. "
-        "Use model 'optics.point_spread_function'",
-        DeprecationWarning,
-    )
-
     psf = load_image(filename)
 
     detector.photon.array = apply_psf(

@@ -7,6 +7,15 @@
 
 """TBW."""
 
+import warnings
+
+warnings.warn(
+    "Group 'photon_generation' is deprecated "
+    "and will be removed in version 2.0. "
+    "Use group 'photon_collection' instead.",
+    DeprecationWarning,
+)
+
 # flake8: noqa
 from .illumination import illumination
 from .load_image import load_image

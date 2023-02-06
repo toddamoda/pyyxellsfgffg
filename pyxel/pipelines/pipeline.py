@@ -64,12 +64,14 @@ class DetectionPipeline:
             else None
         )
 
+        # Deprecated
         self._photon_generation: Optional[ModelGroup] = (
             ModelGroup(photon_generation, name="photon_generation")
             if photon_generation
             else None
         )
 
+        # Deprecated
         self._optics: Optional[ModelGroup] = (
             ModelGroup(optics, name="optics") if optics else None
         )
@@ -146,8 +148,9 @@ class DetectionPipeline:
         warnings.warn(
             "Group 'photon_generation' is deprecated "
             "and will be removed in version 2.0. "
-            "Use group 'photon_collection'.",
+            "Use group 'photon_collection' instead.",
             DeprecationWarning,
+            stacklevel=2,
         )
         return self._photon_generation
 
@@ -157,8 +160,9 @@ class DetectionPipeline:
         warnings.warn(
             "Group 'optics' is deprecated "
             "and will be removed in version 2.0. "
-            "Use group 'photon_collection'.",
+            "Use group 'photon_collection' instead.",
             DeprecationWarning,
+            stacklevel=2,
         )
         return self._optics
 
