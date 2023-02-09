@@ -371,9 +371,6 @@ experts. If something in the docs doesn't make sense to you, updating the
 relevant section after you figure it out is a great way to ensure it will help
 the next person.
 
-.. contents:: Documentation:
-   :local:
-
 
 About the *Pyxel* documentation
 -------------------------------
@@ -484,9 +481,6 @@ To view the documentation locally, you can also run:
 
 Contributing to the code base
 =============================
-
-.. contents:: Code Base:
-   :local:
 
 Code standards
 --------------
@@ -741,10 +735,10 @@ like:
 
 .. code-block:: fish
 
-    origin  git@gitlab.com:yourname/pyxel.git (fetch)
-    origin  git@gitlab.com:yourname/pyxel.git (push)
-    upstream        git://gitlab.com/pydata/pyxel.git (fetch)
-    upstream        git://gitlab.com/pydata/pyxel.git (push)
+    origin    https://gitlab.com/your-user-name/pyxel.git (fetch)
+    origin    https://gitlab.com/your-user-name/pyxel.git (push)
+    upstream  https://gitlab.com/esa/pyxel.git (fetch)
+    upstream  https://gitlab.com/esa/pyxel.git (push)
 
 Now your code is on GitLab, but it is not yet a part of the *Pyxel* project.
 For that to happen, a merge request needs to be submitted on GitLab.
