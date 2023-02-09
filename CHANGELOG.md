@@ -1,10 +1,14 @@
 # Changelog
 
-## UNRELEASED
+## 1.7 / 2023-02-09
 
 This release brings a number of bugfixes and documentation improvements.
 
-Add a new model group 'Photon Collection' to replace the groups 'Photon Generation' and 'Optics'.
+The first peer-reviewed paper of Pyxel was published in the 
+[Journal of Astronomical Telescops, Instruments, and Systems](https://doi.org/10.1117/1.JATIS.8.4.048002) 
+and Pyxel has now an entry in the [Astrophysics Source Code Library](https://ascl.net/2301.002).
+
+A new model group 'Photon Collection' was added to replace the groups 'Photon Generation' and 'Optics'.
 All models from 'Photon Generation' and 'Optics' are copied into 'Photon Collection'.
 The current models from 'Photon Generation' and 'Optics' are obsolete/deprecated and 
 **will be removed** in version 2.0.
@@ -51,6 +55,8 @@ pipeline:
 ```
 
 ### Core
+* Remove python37.
+  (See [!594](https://gitlab.com/esa/pyxel/-/merge_requests/594)).
 
 ### Documentation
 * Add Pyxel paper in documentation + Gitlab page.
@@ -81,8 +87,6 @@ pipeline:
 ### Others
 * Remove `CCDCharacteristics`, `CMOSCharacteristics` and `MKIDCharacteristics`.
   (See [!590](https://gitlab.com/esa/pyxel/-/merge_requests/590)).
-* Remove python37.
-  (See [!594](https://gitlab.com/esa/pyxel/-/merge_requests/594)).
 * Simplification when using 'group models' when generating a JSON Schema file.
   (See [!596](https://gitlab.com/esa/pyxel/-/merge_requests/596)).
 * Create a 'tox' environment to check if the JSON schema is unchanged.
