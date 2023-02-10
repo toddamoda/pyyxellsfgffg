@@ -93,7 +93,7 @@ GitLab release notes, blog, etc.
     $ ls dist
     ``` 
 
-13. Send the new release 'pyxel-sim' to the Python Package Index (PyPI) repository with
+13. Checkout the tag (if not already in the tag branch) and send the new release 'pyxel-sim' to the Python Package Index (PyPI) repository with
     the following commands:
        ```fish
        # Send the package to https://test.pypi.org (only for testing)
