@@ -34,19 +34,19 @@ GitLab release notes, blog, etc.
    $ git pull upstream master
    ```
 
-3. Create a branch 'new_release{X}.{Y}' from 'master' for the new release.
+3. Create a branch 'new_release{X}.{Y}.{Z}' from 'master' for the new release.
 
    ```fish
-   $ git checkout -b new_release{X}.{Y}
+   $ git checkout -b new_release{X}.{Y}.{Z}
    ```
 
 4. Open a merge request linked to the new release branch with the release summary and changes.
 
 5. Update release notes in `CHANGELOG.md` in the branch and add release summary at the top.
 
-6. Create a new file `continuous_integration/pyxel-{X}.{Y}-environment.yaml` with updated links
+6. Create a new file `continuous_integration/pyxel-{X}.{Y}.{Z}-environment.yaml` with updated links
 
-7. Update version `{X}.{Y}` in files: `docs/source/tutorials/overview.rst`
+7. Update version `{X}.{Y}.{Z}` in files: `docs/source/tutorials/overview.rst`
 
 8. After merging, again ensure your master branch is synced to upstream:
 
@@ -68,11 +68,11 @@ GitLab release notes, blog, etc.
 
    a. Click the button 'new_tag'
 
-   b. In the field 'Tag name', enter `{X.Y}`
+   b. In the field 'Tag name', enter `{X.Y.Z}`
 
    c. In the field 'Create from', choose `master` (this is the default value)
 
-   d. In the field 'Message', enter `{X.Y}`
+   d. In the field 'Message', enter `{X.Y.Z}`
 
    e. In the field 'Release notes', enter the content of `CHANGELOG.md` only for this release.
 
@@ -83,7 +83,12 @@ GitLab release notes, blog, etc.
    ```
    :interrobang: This could be done directly inside Gitlab
 
-12. Create a new 'wheel' package for the new release:
+12. Checkout the tag `{X.Y.Z}`:
+   ```fish
+    $ git checkout {X.Y.Z}
+   ```
+
+13. Create a new 'wheel' package for the new release:
     ```fish
     # Remove previous build(s)
     $ rm -rf dist
@@ -91,9 +96,9 @@ GitLab release notes, blog, etc.
     # Create a wheel and a source package
     $ tox -e build
     $ ls dist
-    ``` 
-
-13. Checkout the tag (if not already in the tag branch) and send the new release 'pyxel-sim' to the Python Package Index (PyPI) repository with
+    ```
+    
+14. Send the new release 'pyxel-sim' to the Python Package Index (PyPI) repository with
     the following commands:
        ```fish
        # Send the package to https://test.pypi.org (only for testing)
@@ -102,8 +107,7 @@ GitLab release notes, blog, etc.
        # Send the package to https://pypi.org
        $ tox -e release
        ```
-   
-14. Send the new release 'pyxel-sim' to the Conda forge channel (after sending the 
+15. Send the new release 'pyxel-sim' to the Conda forge channel on GitHub (after sending the 
     package to PyPi)
    
     1. Create a new recipe based on the current version of `pyxel-sim` from the PyPi
