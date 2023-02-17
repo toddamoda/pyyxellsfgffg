@@ -501,7 +501,7 @@ def create_output_directory(output_folder: Union[str, Path], custom_dir_name: [s
             else:
                 output_dir: Path = (
                     Path(output_folder)
-                    .joinpath(custom_dir_name + add)
+                    .joinpath(custom_dir_name + strftime("%Y%m%d_%H%M%S") + add)
                     .resolve()
                 )
 
