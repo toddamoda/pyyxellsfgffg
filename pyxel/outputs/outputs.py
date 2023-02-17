@@ -506,7 +506,9 @@ def create_output_directory(
                 )
             else:
                 output_dir: Path = (
-                    Path(output_folder).joinpath(custom_dir_name + add).resolve()
+                    Path(output_folder)
+                    .joinpath(custom_dir_name + strftime("%Y%m%d_%H%M%S") + add)
+                    .resolve()
                 )
 
             output_dir.mkdir(parents=True, exist_ok=False)
