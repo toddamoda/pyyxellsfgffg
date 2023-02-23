@@ -333,13 +333,8 @@ class Observation:
                 parameter_dict.update({key: value})
             yield indices, parameter_dict
 
-    def _parameter_it(self) -> Iterator:
-        """Return the method for generating parameters based on parametric mode.
-
-        Returns
-        -------
-        callable
-        """
+    def _parameter_it(self) -> Iterator[Tuple]:
+        """Return the method for generating parameters based on parametric mode."""
         if self.parameter_mode == ParameterMode.Product:
             yield from self._product_parameters()
 
@@ -367,11 +362,10 @@ class Observation:
         parameter_dict: dict
         """
 
-        parameter_it: Iterator = self._parameter_it()
-
-        for index, parameter_dict in parameter_it:
+        for index, parameter_dict in self._parameter_it():
             new_processor = create_new_processor(
-                processor=processor, parameter_dict=parameter_dict
+                processor=processor,
+                parameter_dict=parameter_dict,
             )
             yield new_processor, index, parameter_dict
 
@@ -537,7 +531,7 @@ class Observation:
 
             lst = [
                 (index, parameter_dict, n)
-                for n, (index, parameter_dict) in enumerate(self._parameter_it()())
+                for n, (index, parameter_dict) in enumerate(self._parameter_it())
             ]
 
             if self.with_dask:
@@ -617,7 +611,7 @@ class Observation:
             )
             lst = [
                 (index, parameter_dict, n)
-                for n, (index, parameter_dict) in enumerate(self._parameter_it()())
+                for n, (index, parameter_dict) in enumerate(self._parameter_it())
             ]
 
             if self.with_dask:
@@ -692,7 +686,7 @@ class Observation:
                 int,
             ] = [
                 (index, parameter_dict, n)
-                for n, (index, parameter_dict) in enumerate(self._parameter_it()())
+                for n, (index, parameter_dict) in enumerate(self._parameter_it())
             ]
 
             if self.with_dask:
