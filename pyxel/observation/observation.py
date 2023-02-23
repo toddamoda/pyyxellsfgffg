@@ -803,20 +803,21 @@ class Observation:
             return final_dataset
 
         elif self.parameter_mode == ParameterMode.Custom:
-            raise NotImplementedError
 
             apply_pipeline = partial(
-                self._apply_exposure_pipeline_custom,
+                self._apply_exposure_pipeline_custom_new,
+                dimension_names=dim_names,
                 x=x,
                 y=y,
                 processor=processor,
                 times=times,
+                types=types,
             )
 
             params_it = self._custom_parameters()
 
             lst = [
-                (index, parameter_dict, n)
+                ParameterItem(index=index, parameters=parameter_dict, run_index=n)
                 for n, (index, parameter_dict) in enumerate(params_it)
             ]
 
@@ -825,30 +826,12 @@ class Observation:
             else:
                 dataset_list = list(map(apply_pipeline, tqdm(lst)))
 
-            # prepare lists for to-be-merged datasets
-            logs = []
-
-            for index, parameter_dict, _ in lst:
-                # log parameters for this pipeline
-                log = log_parameters(processor_id=index, parameter_dict=parameter_dict)
-                logs.append(log)
-
-            # merging/combining the outputs
-            final_ds = xr.combine_by_coords(dataset_list)
-            final_log = xr.combine_by_coords(logs)
-
             # See issue #276
-            if not isinstance(final_ds, xr.Dataset):
-                raise TypeError("Expecting 'Dataset'.")
-            if not isinstance(final_log, xr.Dataset):
+            final_dataset = xr.combine_by_coords(dataset_list)
+            if not isinstance(final_dataset, xr.Dataset):
                 raise TypeError("Expecting 'Dataset'.")
 
-            final_parameters = final_log  # parameter dataset same as logs
-
-            result = ObservationResult(
-                dataset=final_ds, parameters=final_parameters, logs=final_log
-            )
-            return result
+            return final_dataset
 
         else:
             raise ValueError("Parametric mode not specified.")
@@ -956,6 +939,7 @@ class Observation:
 
         return ds
 
+    # TODO: This function will be deprecated
     def _apply_exposure_pipeline_custom(
         self,
         index_and_parameter: Tuple[
@@ -995,6 +979,53 @@ class Observation:
         ds = _add_custom_parameters(
             ds=ds,
             index=index,
+        )
+        ds.attrs.update({"running mode": "Observation - Custom"})
+
+        return ds
+
+    def _apply_exposure_pipeline_custom_new(
+        self,
+        param_item: ParameterItem,
+        dimension_names: Mapping[str, str],
+        processor: "Processor",
+        x: range,
+        y: range,
+        times: np.ndarray,
+        types: Mapping[str, ParameterType],
+    ):
+
+        new_processor = create_new_processor(
+            processor=processor,
+            parameter_dict=param_item.parameters,
+        )
+
+        # run the pipeline
+        _ = run_exposure_pipeline(
+            processor=new_processor,
+            readout=self.readout,
+            result_type=self.result_type,
+            pipeline_seed=self.pipeline_seed,
+        )
+
+        _ = self.outputs.save_to_file(
+            processor=new_processor,
+            run_number=param_item.run_index,
+        )
+
+        ds: xr.Dataset = new_processor.result_to_dataset(
+            x=x,
+            y=y,
+            times=times,
+            result_type=self.result_type,
+        )
+
+        # Can also be done outside dask in a loop
+        ds = _add_custom_parameters_new(
+            ds=ds,
+            parameter_dict=param_item.parameters,
+            dimension_names=dimension_names,
+            types=types,
         )
         ds.attrs.update({"running mode": "Observation - Custom"})
 
@@ -1090,7 +1121,7 @@ class Observation:
         )
 
         # Can also be done outside dask in a loop
-        ds = _add_sequential_parameters_new(
+        ds = _add_custom_parameters_new(
             ds=ds,
             parameter_dict=param_item.parameters,
             dimension_names=dimension_names,
@@ -1229,6 +1260,7 @@ def parameter_to_dataset(
     return parameter_ds
 
 
+# TODO: This function will be deprecated
 def _add_custom_parameters(ds: "xr.Dataset", index: int) -> "xr.Dataset":
     """Add coordinate "index" to the dataset.
 
@@ -1244,6 +1276,60 @@ def _add_custom_parameters(ds: "xr.Dataset", index: int) -> "xr.Dataset":
 
     ds = ds.assign_coords({"id": index})
     ds = ds.expand_dims(dim="id")
+
+    return ds
+
+
+def _add_custom_parameters_new(
+    ds: "xr.Dataset",
+    parameter_dict: Mapping[
+        str,
+        Union[
+            str,
+            Number,
+            np.ndarray,
+            List[Union[str, Number, np.ndarray]],
+        ],
+    ],
+    dimension_names: Mapping[str, str],
+    types: Mapping[str, ParameterType],
+) -> "xr.Dataset":
+    """Add coordinate "index" to the dataset.
+
+    Parameters
+    ----------
+    ds: Dataset
+    index: int
+
+    Returns
+    -------
+    Dataset
+    """
+    import pandas as pd
+
+    arrays: List[Any] = []
+    names: List[str] = []
+
+    for coordinate_name in parameter_dict:
+        names.append(dimension_names[coordinate_name])
+
+        param_value = parameter_dict[coordinate_name]
+
+        if types[coordinate_name] == ParameterType.Simple:
+            arrays.append([param_value])
+
+        elif types[coordinate_name] == ParameterType.Multi:
+            if isinstance(param_value, Iterable) and not isinstance(param_value, str):
+                tuples: Tuple = to_tuples(param_value)
+                arrays.append([tuples])
+            else:
+                arrays.append([param_value])
+
+        else:
+            raise NotImplementedError
+
+    indexes = pd.MultiIndex.from_arrays(arrays=arrays, names=names)
+    ds = ds.expand_dims(dim="id").assign_coords({"id": indexes})
 
     return ds
 
@@ -1285,62 +1371,6 @@ def _add_sequential_parameters(
     elif types[coordinate_name] == ParameterType.Multi:
         ds = ds.assign_coords({short_name: index})
         ds = ds.expand_dims(dim=short_name)
-
-    return ds
-
-
-def _add_sequential_parameters_new(
-    ds: "xr.Dataset",
-    parameter_dict: Mapping[
-        str,
-        Union[
-            str,
-            Number,
-            np.ndarray,
-            List[Union[str, Number, np.ndarray]],
-        ],
-    ],
-    dimension_names: Mapping[str, str],
-    types: Mapping[str, ParameterType],
-) -> "xr.Dataset":
-    """Add true coordinates or index to sequential mode dataset.
-
-    Parameters
-    ----------
-    ds: Dataset
-    parameter_dict: dict
-    dimension_names
-    types: dict
-
-    Returns
-    -------
-    Dataset
-    """
-    import pandas as pd
-
-    arrays: List[Any] = []
-    names: List[str] = []
-
-    for coordinate_name in parameter_dict:
-        names.append(dimension_names[coordinate_name])
-
-        param_value = parameter_dict[coordinate_name]
-
-        if types[coordinate_name] == ParameterType.Simple:
-            arrays.append([param_value])
-
-        elif types[coordinate_name] == ParameterType.Multi:
-            assert isinstance(param_value, Iterable) and not isinstance(
-                param_value, str
-            )
-            tuples: Tuple = to_tuples(param_value)
-            arrays.append([tuples])
-
-        else:
-            raise NotImplementedError
-
-    indexes = pd.MultiIndex.from_arrays(arrays=arrays, names=names)
-    ds = ds.expand_dims(dim="id").assign_coords({"id": indexes})
 
     return ds
 
@@ -1390,7 +1420,7 @@ def _add_product_parameters(
 def to_tuples(data: Iterable) -> Tuple:
     lst: List = []
     for el in data:
-        if isinstance(el, (Sequence, np.ndarray)) and not isinstance(el, str):
+        if isinstance(el, Iterable) and not isinstance(el, str):
             lst.append(to_tuples(el))
         else:
             lst.append(el)
@@ -1437,13 +1467,13 @@ def _add_product_parameters_new(
         elif types[coordinate_name] == ParameterType.Multi:
             import pandas as pd
 
-            assert isinstance(param_value, Iterable) and not isinstance(
-                param_value, str
-            )
-            tuples: Tuple = to_tuples(param_value)
+            if isinstance(param_value, Iterable) and not isinstance(param_value, str):
+                arrays: Iterable = [to_tuples(param_value)]
+            else:
+                arrays = [param_value]
 
             indexes = pd.MultiIndex.from_arrays(
-                arrays=[[tuples]],
+                arrays=[arrays],
                 names=[short_name],
             )
             ds = ds.expand_dims(dim=f"{short_name}_id")
