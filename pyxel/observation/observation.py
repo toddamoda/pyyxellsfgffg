@@ -17,7 +17,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
-    Generator,
     Iterator,
     List,
     Literal,
@@ -354,7 +353,7 @@ class Observation:
 
     def _processors_it(
         self, processor: "Processor"
-    ) -> Generator[Tuple["Processor", Union[int, Tuple[int]], Dict], None, None]:
+    ) -> Iterator[Tuple["Processor", Union[int, Tuple[int]], Dict]]:
         """Generate processors with different product parameters.
 
         Parameters
@@ -472,7 +471,7 @@ class Observation:
                     "do not use '_' character in 'values' field"
                 )
 
-    def run_observation(self, processor: "Processor") -> ObservationResult:
+    def run_observation(self, processor: "Processor") -> "xr.Dataset":
         """Run the observation pipelines.
 
         Parameters
