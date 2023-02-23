@@ -305,15 +305,14 @@ def calibration_mode(
 
 
 def _run_observation_mode(
-    observation: Observation, detector: Detector, pipeline: DetectionPipeline
+    observation: Observation,
+    detector: Detector,
+    pipeline: DetectionPipeline,
 ) -> "xr.Dataset":
     logging.info("Mode: Observation")
 
     observation_outputs: ObservationOutputs = observation.outputs
     detector.set_output_dir(observation_outputs.output_dir)  # TODO: Remove this
-
-    # TODO: This should be done during initializing of object `Configuration`
-    # parametric_outputs.params_func(parametric)
 
     processor = Processor(detector=detector, pipeline=pipeline)
 
@@ -323,8 +322,7 @@ def _run_observation_mode(
     #     observation_outputs.save_observation_datasets(
     #         result=result, mode=observation.parameter_mode
     #     )
-    #
-    # return result
+
     return ds
 
 

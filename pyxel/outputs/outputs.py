@@ -357,7 +357,7 @@ class Outputs:
                 format_list: Sequence[ValidFormat]
                 obj, format_list = first_item
 
-                data: np.ndarray = processor.get(obj)
+                data: np.ndarray = np.array(processor.get(obj))
 
                 if prefix:
                     name: str = f"{prefix}_{obj}"
