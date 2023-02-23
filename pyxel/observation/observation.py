@@ -19,6 +19,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
+    Iterable,
     Iterator,
     List,
     Literal,
@@ -32,7 +33,7 @@ from typing import (
 
 import dask.bag as db
 import numpy as np
-import pandas
+import pandas as pd
 import toolz
 from tqdm.auto import tqdm
 
@@ -1329,6 +1330,9 @@ def _add_sequential_parameters_new(
             arrays.append([param_value])
 
         elif types[coordinate_name] == ParameterType.Multi:
+            assert isinstance(param_value, Iterable) and not isinstance(
+                param_value, str
+            )
             tuples: Tuple = to_tuples(param_value)
             arrays.append([tuples])
 
@@ -1383,7 +1387,7 @@ def _add_product_parameters(
     return ds
 
 
-def to_tuples(data: Sequence) -> Tuple:
+def to_tuples(data: Iterable) -> Tuple:
     lst: List = []
     for el in data:
         if isinstance(el, (Sequence, np.ndarray)) and not isinstance(el, str):
@@ -1433,6 +1437,9 @@ def _add_product_parameters_new(
         elif types[coordinate_name] == ParameterType.Multi:
             import pandas as pd
 
+            assert isinstance(param_value, Iterable) and not isinstance(
+                param_value, str
+            )
             tuples: Tuple = to_tuples(param_value)
 
             indexes = pd.MultiIndex.from_arrays(

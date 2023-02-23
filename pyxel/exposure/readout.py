@@ -8,7 +8,7 @@
 #
 """TBW."""
 
-from typing import Any, Iterator, Optional, Sequence, Tuple, Union
+from typing import Iterator, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
