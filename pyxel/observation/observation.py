@@ -10,6 +10,7 @@ import itertools
 import logging
 from collections import Counter
 from copy import deepcopy
+from dataclasses import dataclass
 from enum import Enum
 from functools import partial
 from numbers import Number
@@ -59,6 +60,13 @@ class ObservationResult(NamedTuple):
     dataset: Union["xr.Dataset", Dict[str, "xr.Dataset"]]
     parameters: "xr.Dataset"
     logs: "xr.Dataset"
+
+
+@dataclass(frozen=True)
+class ParameterItem:
+    index: int
+    parameters: Mapping[str, Any]
+    run_index: int
 
 
 def _get_short_name_with_model(name: str) -> str:
@@ -678,17 +686,8 @@ class Observation:
 
             params_it: Iterator = self._product_parameters()
 
-            lst: Tuple[
-                Tuple[int, ...],
-                Mapping[
-                    str,
-                    Union[
-                        str, Number, np.ndarray, List[Union[str, Number, np.ndarray]]
-                    ],
-                ],
-                int,
-            ] = [
-                (index, parameter_dict, n)
+            lst: Sequence[ParameterItem] = [
+                ParameterItem(index=index, parameters=parameter_dict, run_index=n)
                 for n, (index, parameter_dict) in enumerate(params_it)
             ]
 
@@ -720,7 +719,7 @@ class Observation:
             params_it = self._sequential_parameters()
 
             lst = [
-                (index, parameter_dict, n)
+                ParameterItem(index=index, parameters=parameter_dict, run_index=n)
                 for n, (index, parameter_dict) in enumerate(params_it)
             ]
 
@@ -791,6 +790,8 @@ class Observation:
             return result
 
         elif self.parameter_mode == ParameterMode.Custom:
+            raise NotImplementedError
+
             apply_pipeline = partial(
                 self._apply_exposure_pipeline_custom,
                 x=x,
@@ -896,14 +897,7 @@ class Observation:
 
     def _apply_exposure_pipeline_product_new(
         self,
-        index_and_parameter: Tuple[
-            Tuple[int, ...],
-            Mapping[
-                str,
-                Union[str, Number, np.ndarray, List[Union[str, Number, np.ndarray]]],
-            ],
-            int,
-        ],
+        param_item: ParameterItem,
         dimension_names: Mapping[str, str],
         processor: "Processor",
         x: range,
@@ -912,10 +906,9 @@ class Observation:
         types: Mapping[str, ParameterType],
     ) -> "xr.Dataset":
 
-        index, parameter_dict, n = index_and_parameter
-
         new_processor = create_new_processor(
-            processor=processor, parameter_dict=parameter_dict
+            processor=processor,
+            parameter_dict=param_item.parameters,
         )
 
         # run the pipeline
@@ -926,7 +919,10 @@ class Observation:
             pipeline_seed=self.pipeline_seed,
         )
 
-        _ = self.outputs.save_to_file(processor=new_processor, run_number=n)
+        _ = self.outputs.save_to_file(
+            processor=new_processor,
+            run_number=param_item.run_index,
+        )
 
         ds: xr.Dataset = new_processor.result_to_dataset(
             x=x,
@@ -938,7 +934,7 @@ class Observation:
         # Can also be done outside dask in a loop
         ds = _add_product_parameters_new(
             ds=ds,
-            parameter_dict=parameter_dict,
+            parameter_dict=param_item.parameters,
             dimension_names=dimension_names,
             types=types,
         )
@@ -1274,7 +1270,7 @@ def _add_product_parameters(
 
 
 def to_tuples(data: Sequence) -> Tuple:
-    lst = []
+    lst: List = []
     for el in data:
         if isinstance(el, Sequence) and not isinstance(el, str):
             lst.append(to_tuples(el))
