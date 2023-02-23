@@ -93,7 +93,7 @@ class Readout:
         self._set_steps()
 
     @property
-    def times(self) -> Any:
+    def times(self) -> np.ndarray:
         """Get readout times."""
         return self._times
 

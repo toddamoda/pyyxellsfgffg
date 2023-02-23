@@ -304,6 +304,53 @@ def calibration_mode(
     return result
 
 
+def _run_observation_mode(
+    observation: Observation, detector: Detector, pipeline: DetectionPipeline
+) -> "xr.Dataset":
+    logging.info("Mode: Observation")
+
+    observation_outputs: ObservationOutputs = observation.outputs
+    detector.set_output_dir(observation_outputs.output_dir)  # TODO: Remove this
+
+    # TODO: This should be done during initializing of object `Configuration`
+    # parametric_outputs.params_func(parametric)
+
+    processor = Processor(detector=detector, pipeline=pipeline)
+
+    ds = observation.run_observation_new(processor=processor)
+
+    # if observation_outputs.save_observation_data:
+    #     observation_outputs.save_observation_datasets(
+    #         result=result, mode=observation.parameter_mode
+    #     )
+    #
+    # return result
+    return ds
+
+
+def run_mode(
+    mode: Union[Exposure, Observation, "Calibration"],
+    detector: Detector,
+    pipeline: DetectionPipeline,
+) -> "xr.Dataset":
+    from pyxel.calibration import Calibration
+
+    if isinstance(mode, Exposure):
+        ds = exposure_mode(exposure=mode, detector=detector, pipeline=pipeline)
+
+    elif isinstance(mode, Observation):
+        ds = _run_observation_mode(
+            observation=mode,
+            detector=detector,
+            pipeline=pipeline,
+        )
+
+    elif isinstance(mode, Calibration):
+        raise NotImplementedError
+
+    return ds
+
+
 def output_directory(configuration: Configuration) -> Path:
     """Return the output directory from the configuration.
 
@@ -377,8 +424,8 @@ def run(input_filename: Union[str, Path], random_seed: Optional[int] = None) -> 
         )
 
     elif isinstance(running_mode, Observation):
-        observation_mode(
-            observation=running_mode,
+        run_mode(
+            mode=running_mode,
             detector=detector,
             pipeline=pipeline,
         )

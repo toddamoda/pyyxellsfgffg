@@ -77,6 +77,7 @@ def _get_final_short_name(name: str, param_type: ParameterType) -> str:
         raise NotImplementedError
 
 
+# TODO: This function will be deprecated
 def _get_short_dimension_names(types: Mapping[str, ParameterType]) -> Mapping[str, str]:
     # Create potential names for the dimensions
     potential_dim_names: Dict[str, str] = {}
@@ -104,6 +105,41 @@ def _get_short_dimension_names(types: Mapping[str, ParameterType]) -> Mapping[st
                 dim_names[param_name] = _get_final_short_name(
                     name=new_short_name, param_type=param_type
                 )
+
+            else:
+                dim_names[param_name] = short_name
+
+        return dim_names
+
+    return potential_dim_names
+
+
+# TODO: Add unit tests
+def _get_short_dimension_names_new(
+    types: Mapping[str, ParameterType]
+) -> Mapping[str, str]:
+    # Create potential names for the dimensions
+    potential_dim_names: Dict[str, str] = {}
+    for param_name, param_type in types.items():
+        short_name: str = short(param_name)
+
+        potential_dim_names[param_name] = short_name
+
+    # Find possible duplicates
+    count_dim_names: Mapping[str, int] = Counter(potential_dim_names.values())
+
+    duplicate_dim_names: Sequence[str] = [
+        name for name, freq in count_dim_names.items() if freq > 1
+    ]
+
+    if duplicate_dim_names:
+        dim_names: Dict[str, str] = {}
+        for param_name, param_type in types.items():
+            short_name = potential_dim_names[param_name]
+
+            if short_name in duplicate_dim_names:
+                new_short_name: str = _get_short_name_with_model(param_name)
+                dim_names[param_name] = new_short_name
 
             else:
                 dim_names[param_name] = short_name
@@ -174,12 +210,7 @@ class Observation:
 
     @property
     def enabled_steps(self) -> Sequence[ParameterValues]:
-        """Return a list of enabled ParameterValues.
-
-        Returns
-        -------
-        out: list
-        """
+        """Return a list of enabled ParameterValues."""
         out = [step for step in self._parameters if step.enabled]
         return out
 
@@ -277,7 +308,7 @@ class Observation:
 
         Returns
         -------
-        out: iterator
+        iterator
         """
         step_ranges = [range(len(step)) for step in self.enabled_steps]
         out = itertools.product(*step_ranges)
@@ -350,7 +381,7 @@ class Observation:
 
         Returns
         -------
-        self.parameter_types: dict
+        dict
         """
         for step in self.enabled_steps:
             self.parameter_types.update({step.key: step.type})
@@ -450,7 +481,7 @@ class Observation:
 
         Returns
         -------
-        result: Result
+        Result
         """
         # Late import to speedup start-up time
         import xarray as xr
@@ -486,31 +517,79 @@ class Observation:
             else:
                 dataset_list = list(map(apply_pipeline, tqdm(lst)))
 
-            # prepare lists for to-be-merged datasets
-            parameters: List[List[xr.Dataset]] = [
-                [] for _ in range(len(self.enabled_steps))
+            # See issue #276
+            final_dataset = xr.combine_by_coords(dataset_list)
+            if not isinstance(final_dataset, xr.Dataset):
+                raise TypeError("Expecting 'Dataset'.")
+
+            return final_dataset
+
+        elif self.parameter_mode == ParameterMode.Sequential:
+
+            apply_pipeline = partial(
+                self._apply_exposure_pipeline_sequential,
+                dimension_names=dim_names,
+                x=x,
+                y=y,
+                processor=processor,
+                times=times,
+                types=types,
+            )
+
+            lst = [
+                (index, parameter_dict, n)
+                for n, (index, parameter_dict) in enumerate(self._parameter_it()())
             ]
+
+            if self.with_dask:
+                dataset_list = db.from_sequence(lst).map(apply_pipeline).compute()
+            else:
+                dataset_list = list(map(apply_pipeline, tqdm(lst)))
+
+            # prepare lists/dictionaries for to-be-merged datasets
+            parameters = [[] for _ in range(len(self.enabled_steps))]
             logs = []
 
-            for processor_id, (indices, parameter_dict, _) in enumerate(lst):
+            # overflow to next parameter step counter
+            step_counter = -1
+
+            for processor_id, (index, parameter_dict, _) in enumerate(lst):
                 # log parameters for this pipeline
+                # TODO: somehow refactor logger so that default parameters
+                #  from other steps are also logged in sequential mode
                 log = log_parameters(
                     processor_id=processor_id, parameter_dict=parameter_dict
                 )
                 logs.append(log)
 
-                # save parameters with appropriate product mode indices
-                for i, coordinate in enumerate(parameter_dict):
-                    parameter_ds = parameter_to_dataset(
-                        parameter_dict=parameter_dict,
-                        dimension_names=dim_names,
-                        index=indices[i],
-                        coordinate_name=coordinate,
-                    )
-                    parameters[i].append(parameter_ds)
+                # Figure out current coordinate
+                coordinate = str(list(parameter_dict)[0])
+                # Check for overflow to next parameter
+                if index == 0:
+                    step_counter += 1
+
+                # save sequential parameter with appropriate index
+                parameter_ds = parameter_to_dataset(
+                    parameter_dict=parameter_dict,
+                    dimension_names=dim_names,
+                    index=index,
+                    coordinate_name=coordinate,
+                )
+                parameters[step_counter].append(parameter_ds)
 
             # merging/combining the outputs
-            final_parameters_list: List[xr.Dataset] = []
+            # See issue #276
+            final_logs = xr.combine_by_coords(logs)
+            if not isinstance(final_logs, xr.Dataset):
+                raise TypeError("Expecting 'Dataset'.")
+
+            final_datasets = compute_final_sequential_dataset(
+                list_of_index_and_parameter=lst,
+                list_of_datasets=dataset_list,
+                dimension_names=dim_names,
+            )
+
+            final_parameters_list = []
             for p in parameters:
                 # See issue #276
                 new_dataset = xr.combine_by_coords(p)
@@ -521,23 +600,114 @@ class Observation:
 
             final_parameters_merged = xr.merge(final_parameters_list)
 
+            result = ObservationResult(
+                dataset=final_datasets,
+                parameters=final_parameters_merged,
+                logs=final_logs,
+            )
+            return result
+
+        elif self.parameter_mode == ParameterMode.Custom:
+
+            apply_pipeline = partial(
+                self._apply_exposure_pipeline_custom,
+                x=x,
+                y=y,
+                processor=processor,
+                times=times,
+            )
+            lst = [
+                (index, parameter_dict, n)
+                for n, (index, parameter_dict) in enumerate(self._parameter_it()())
+            ]
+
+            if self.with_dask:
+                dataset_list = db.from_sequence(lst).map(apply_pipeline).compute()
+            else:
+                dataset_list = list(map(apply_pipeline, tqdm(lst)))
+
+            # prepare lists for to-be-merged datasets
+            logs = []
+
+            for index, parameter_dict, _ in lst:
+                # log parameters for this pipeline
+                log = log_parameters(processor_id=index, parameter_dict=parameter_dict)
+                logs.append(log)
+
+            # merging/combining the outputs
+            final_ds = xr.combine_by_coords(dataset_list)
+            final_log = xr.combine_by_coords(logs)
+
             # See issue #276
-            final_logs = xr.combine_by_coords(logs)
-            if not isinstance(final_logs, xr.Dataset):
+            if not isinstance(final_ds, xr.Dataset):
                 raise TypeError("Expecting 'Dataset'.")
+            if not isinstance(final_log, xr.Dataset):
+                raise TypeError("Expecting 'Dataset'.")
+
+            final_parameters = final_log  # parameter dataset same as logs
+
+            result = ObservationResult(
+                dataset=final_ds, parameters=final_parameters, logs=final_log
+            )
+            return result
+
+        else:
+            raise ValueError("Parametric mode not specified.")
+
+    def run_observation_new(self, processor: "Processor") -> "xr.Dataset":
+        """Run the observation pipelines."""
+        # Late import to speedup start-up time
+        import xarray as xr
+
+        # validation
+        self.validate_steps(processor)
+
+        types: Mapping[str, ParameterType] = self._get_parameter_types()
+
+        dim_names: Mapping[str, str] = _get_short_dimension_names_new(types)
+
+        y = range(processor.detector.geometry.row)
+        x = range(processor.detector.geometry.col)
+        times = self.readout.times
+
+        if self.parameter_mode == ParameterMode.Product:
+
+            apply_pipeline = partial(
+                self._apply_exposure_pipeline_product_new,
+                dimension_names=dim_names,
+                x=x,
+                y=y,
+                processor=processor,
+                times=times,
+                types=types,
+            )
+
+            lst: Tuple[
+                Tuple[int, ...],
+                Mapping[
+                    str,
+                    Union[
+                        str, Number, np.ndarray, List[Union[str, Number, np.ndarray]]
+                    ],
+                ],
+                int,
+            ] = [
+                (index, parameter_dict, n)
+                for n, (index, parameter_dict) in enumerate(self._parameter_it()())
+            ]
+
+            if self.with_dask:
+                dataset_bag: db.Bag = db.from_sequence(lst).map(apply_pipeline)
+                dataset_list: Sequence[xr.Dataset] = dataset_bag.compute()
+            else:
+                dataset_list = [apply_pipeline(el) for el in tqdm(lst)]
 
             # See issue #276
             final_dataset = xr.combine_by_coords(dataset_list)
             if not isinstance(final_dataset, xr.Dataset):
                 raise TypeError("Expecting 'Dataset'.")
 
-            result = ObservationResult(
-                dataset=final_dataset,
-                parameters=final_parameters_merged,
-                logs=final_logs,
-            )
-
-            return result
+            return final_dataset
 
         elif self.parameter_mode == ParameterMode.Sequential:
             apply_pipeline = partial(
@@ -667,6 +837,7 @@ class Observation:
         else:
             raise ValueError("Parametric mode not specified.")
 
+    # TODO: This function will be deprecated
     def _apply_exposure_pipeline_product(
         self,
         index_and_parameter: Tuple[
@@ -683,7 +854,8 @@ class Observation:
         y: range,
         times: np.ndarray,
         types: Mapping[str, ParameterType],
-    ):
+    ) -> "xr.Dataset":
+
         index, parameter_dict, n = index_and_parameter
 
         new_processor = create_new_processor(
@@ -713,6 +885,59 @@ class Observation:
             parameter_dict=parameter_dict,
             dimension_names=dimension_names,
             indices=index,
+            types=types,
+        )
+
+        ds.attrs.update({"running mode": "Observation - Product"})
+
+        return ds
+
+    def _apply_exposure_pipeline_product_new(
+        self,
+        index_and_parameter: Tuple[
+            Tuple[int, ...],
+            Mapping[
+                str,
+                Union[str, Number, np.ndarray, List[Union[str, Number, np.ndarray]]],
+            ],
+            int,
+        ],
+        dimension_names: Mapping[str, str],
+        processor: "Processor",
+        x: range,
+        y: range,
+        times: np.ndarray,
+        types: Mapping[str, ParameterType],
+    ) -> "xr.Dataset":
+
+        index, parameter_dict, n = index_and_parameter
+
+        new_processor = create_new_processor(
+            processor=processor, parameter_dict=parameter_dict
+        )
+
+        # run the pipeline
+        _ = run_exposure_pipeline(
+            processor=new_processor,
+            readout=self.readout,
+            result_type=self.result_type,
+            pipeline_seed=self.pipeline_seed,
+        )
+
+        _ = self.outputs.save_to_file(processor=new_processor, run_number=n)
+
+        ds: xr.Dataset = new_processor.result_to_dataset(
+            x=x,
+            y=y,
+            times=times,
+            result_type=self.result_type,
+        )
+
+        # Can also be done outside dask in a loop
+        ds = _add_product_parameters_new(
+            ds=ds,
+            parameter_dict=parameter_dict,
+            dimension_names=dimension_names,
             types=types,
         )
 
@@ -856,7 +1081,7 @@ def create_new_processor(
 
     Returns
     -------
-    new_processor: Processor
+    Processor
     """
 
     new_processor = deepcopy(processor)
@@ -868,31 +1093,13 @@ def create_new_processor(
 
 
 def _id(s: str) -> str:
-    """Add _id to the end of a string.
-
-    Parameters
-    ----------
-    s: str
-
-    Returns
-    -------
-    out: str
-    """
+    """Add _id to the end of a string."""
     out = s + "_id"
     return out
 
 
 def short(s: str) -> str:
-    """Split string with . and return the last element.
-
-    Parameters
-    ----------
-    s: str
-
-    Returns
-    -------
-    out: str
-    """
+    """Split string with . and return the last element."""
     out = s.split(".")[-1]
     return out
 
@@ -907,7 +1114,7 @@ def log_parameters(processor_id: int, parameter_dict: dict) -> "xr.Dataset":
 
     Returns
     -------
-    out: Dataset
+    Dataset
     """
     # Late import to speedup start-up time
     import xarray as xr
@@ -938,7 +1145,7 @@ def parameter_to_dataset(
 
     Returns
     -------
-    parameter_ds: Dataset
+    Dataset
     """
     # Late import to speedup start-up time
     import xarray as xr
@@ -964,7 +1171,7 @@ def parameter_to_dataset(
 
 
 def _add_custom_parameters(ds: "xr.Dataset", index: int) -> "xr.Dataset":
-    """Add coordinate coordinate "index" to the dataset.
+    """Add coordinate "index" to the dataset.
 
     Parameters
     ----------
@@ -973,7 +1180,7 @@ def _add_custom_parameters(ds: "xr.Dataset", index: int) -> "xr.Dataset":
 
     Returns
     -------
-    ds: Dataset
+    Dataset
     """
 
     ds = ds.assign_coords({"id": index})
@@ -1005,7 +1212,7 @@ def _add_sequential_parameters(
 
     Returns
     -------
-    ds: Dataset
+    Dataset
     """
 
     #  assigning the right coordinates based on type
@@ -1022,6 +1229,7 @@ def _add_sequential_parameters(
     return ds
 
 
+# TODO: This function will be deprecated
 def _add_product_parameters(
     ds: "xr.Dataset",
     parameter_dict: Mapping[
@@ -1042,7 +1250,7 @@ def _add_product_parameters(
 
     Returns
     -------
-    ds: Dataset
+    Dataset
     """
     # TODO: Implement for coordinate 'multi'
     for i, (coordinate_name, param_value) in enumerate(parameter_dict.items()):
@@ -1056,6 +1264,71 @@ def _add_product_parameters(
         elif types[coordinate_name] == ParameterType.Multi:
             ds = ds.assign_coords({short_name: indices[i]})
             ds = ds.expand_dims(dim=short_name)
+
+        else:
+            raise NotImplementedError
+
+    return ds
+
+
+def to_tuples(data: Sequence) -> Tuple:
+    lst = []
+    for el in data:
+        if isinstance(el, Sequence) and not isinstance(el, str):
+            lst.append(to_tuples(el))
+        else:
+            lst.append(el)
+
+    return tuple(lst)
+
+
+def _add_product_parameters_new(
+    ds: "xr.Dataset",
+    parameter_dict: Mapping[
+        str,
+        Union[
+            str,
+            Number,
+            np.ndarray,
+            List[Union[str, Number, np.ndarray]],
+        ],
+    ],
+    dimension_names: Mapping[str, str],
+    types: Mapping[str, ParameterType],
+) -> "xr.Dataset":
+    """Add true coordinates or index to product mode dataset.
+
+    Parameters
+    ----------
+    ds: Dataset
+    parameter_dict: dict
+    types: dict
+
+    Returns
+    -------
+    Dataset
+    """
+    # TODO: Implement for coordinate 'multi'
+    for i, (coordinate_name, param_value) in enumerate(parameter_dict.items()):
+
+        short_name: str = dimension_names[coordinate_name]
+
+        #  assigning the right coordinates based on type
+        if types[coordinate_name] == ParameterType.Simple:
+            ds = ds.assign_coords(coords={short_name: param_value})
+            ds = ds.expand_dims(dim=short_name)
+
+        elif types[coordinate_name] == ParameterType.Multi:
+            import pandas as pd
+
+            tuples = to_tuples(param_value)
+
+            indexes = pd.MultiIndex.from_arrays(
+                arrays=[[tuples]],
+                names=[short_name],
+            )
+            ds = ds.expand_dims(dim=f"{short_name}_id")
+            ds = ds.assign_coords({f"{short_name}_id": indexes})
 
         else:
             raise NotImplementedError
@@ -1078,7 +1351,7 @@ def compute_final_sequential_dataset(
 
     Returns
     -------
-    final_datasets: dict
+    dict
     """
     # Late import to speedup start-up time
     import xarray as xr
