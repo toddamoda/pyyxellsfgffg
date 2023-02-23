@@ -4,8 +4,8 @@
 #  is part of this Pyxel package. No part of the package, including
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
-#
-#
+
+
 """Simple Inter Pixel Capacitance model: https://iopscience.iop.org/article/10.1088/1538-3873/128/967/095001/pdf."""
 
 import numpy as np
