@@ -333,6 +333,7 @@ class Observation:
                 parameter_dict.update({key: value})
             yield indices, parameter_dict
 
+    # TODO: This function will be deprecated
     def _parameter_it(self) -> Iterator[Tuple]:
         """Return the method for generating parameters based on parametric mode."""
         if self.parameter_mode == ParameterMode.Product:
@@ -675,6 +676,8 @@ class Observation:
                 types=types,
             )
 
+            params_it: Iterator = self._product_parameters()
+
             lst: Tuple[
                 Tuple[int, ...],
                 Mapping[
@@ -686,7 +689,7 @@ class Observation:
                 int,
             ] = [
                 (index, parameter_dict, n)
-                for n, (index, parameter_dict) in enumerate(self._parameter_it())
+                for n, (index, parameter_dict) in enumerate(params_it)
             ]
 
             if self.with_dask:
@@ -712,10 +715,13 @@ class Observation:
                 times=times,
                 types=types,
             )
+            # step: ParameterValues
+            # for step in self.enabled_steps:
+            params_it = self._sequential_parameters()
 
             lst = [
                 (index, parameter_dict, n)
-                for n, (index, parameter_dict) in enumerate(self._parameter_it())
+                for n, (index, parameter_dict) in enumerate(params_it)
             ]
 
             if self.with_dask:
@@ -792,9 +798,12 @@ class Observation:
                 processor=processor,
                 times=times,
             )
+
+            params_it: Iterator = self._custom_parameters()
+
             lst = [
                 (index, parameter_dict, n)
-                for n, (index, parameter_dict) in enumerate(self._parameter_it())
+                for n, (index, parameter_dict) in enumerate(params_it)
             ]
 
             if self.with_dask:
