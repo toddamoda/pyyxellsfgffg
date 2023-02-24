@@ -318,9 +318,11 @@ def _run_calibration_mode(
 
     processor = Processor(detector=detector, pipeline=pipeline)
 
-    _ = calibration.run_calibration_new(
+    ds = calibration.run_calibration_new(
         processor=processor, output_dir=calibration_outputs.output_dir
     )
+
+    return ds
 
 
 def _run_observation_mode(

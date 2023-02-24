@@ -130,7 +130,7 @@ def _get_short_dimension_names_new(
 ) -> Mapping[str, str]:
     # Create potential names for the dimensions
     potential_dim_names: Dict[str, str] = {}
-    for param_name, param_type in types.items():
+    for param_name in types:
         short_name: str = short(param_name)
 
         potential_dim_names[param_name] = short_name
@@ -144,7 +144,7 @@ def _get_short_dimension_names_new(
 
     if duplicate_dim_names:
         dim_names: Dict[str, str] = {}
-        for param_name, param_type in types.items():
+        for param_name in types:
             short_name = potential_dim_names[param_name]
 
             if short_name in duplicate_dim_names:
@@ -571,7 +571,6 @@ class Observation:
             return result
 
         elif self.parameter_mode == ParameterMode.Sequential:
-
             apply_pipeline = partial(
                 self._apply_exposure_pipeline_sequential,
                 dimension_names=dim_names,
@@ -654,7 +653,6 @@ class Observation:
             return result
 
         elif self.parameter_mode == ParameterMode.Custom:
-
             apply_pipeline = partial(
                 self._apply_exposure_pipeline_custom,
                 x=x,
@@ -717,7 +715,6 @@ class Observation:
         times = self.readout.times
 
         if self.parameter_mode == ParameterMode.Product:
-
             apply_pipeline = partial(
                 self._apply_exposure_pipeline_product_new,
                 dimension_names=dim_names,
@@ -803,7 +800,6 @@ class Observation:
             return final_dataset
 
         elif self.parameter_mode == ParameterMode.Custom:
-
             apply_pipeline = partial(
                 self._apply_exposure_pipeline_custom_new,
                 dimension_names=dim_names,
@@ -854,7 +850,6 @@ class Observation:
         times: np.ndarray,
         types: Mapping[str, ParameterType],
     ) -> "xr.Dataset":
-
         index, parameter_dict, n = index_and_parameter
 
         new_processor = create_new_processor(
@@ -901,7 +896,6 @@ class Observation:
         times: np.ndarray,
         types: Mapping[str, ParameterType],
     ) -> "xr.Dataset":
-
         new_processor = create_new_processor(
             processor=processor,
             parameter_dict=param_item.parameters,
@@ -994,7 +988,6 @@ class Observation:
         times: np.ndarray,
         types: Mapping[str, ParameterType],
     ):
-
         new_processor = create_new_processor(
             processor=processor,
             parameter_dict=param_item.parameters,
@@ -1456,7 +1449,6 @@ def _add_product_parameters_new(
     """
     # TODO: Implement for coordinate 'multi'
     for coordinate_name, param_value in parameter_dict.items():
-
         short_name: str = dimension_names[coordinate_name]
 
         #  assigning the right coordinates based on type
