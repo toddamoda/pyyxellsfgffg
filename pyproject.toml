@@ -38,7 +38,7 @@ dependencies = [
     "numpy>=1.21",
     "pandas",
     "scipy",
-    "xarray>=0.19",
+    "xarray>=2022.06",
 
     # Plotting
     "matplotlib>=3.1",
