@@ -312,6 +312,7 @@ class Calibration:
         """TBW."""
         self._weights = value
 
+    # TODO: This function will be deprecated
     def run_calibration(
         self,
         processor: Processor,
@@ -395,6 +396,105 @@ class Calibration:
 
         self._log.info("Calibration ended.")
         return ds, df_processors, df_all_logs
+
+    def run_calibration_new(
+        self,
+        processor: Processor,
+        output_dir: Path,
+        with_progress_bar: bool = True,
+    ) -> "xr.Dataset":
+        """Run calibration pipeline."""
+        try:
+            import pygmo as pg
+        except ImportError as exc:
+            raise ImportError(
+                "Missing optional package 'pygmo'.\n"
+                "Please install it with 'pip install pyxel-sim[calibration]' "
+                "or 'pip install pyxel-sim[all]'"
+            ) from exc
+
+        pg.set_global_rng_seed(seed=self.pygmo_seed)
+        self._log.info("Pygmo seed: %d", self.pygmo_seed)
+
+        fitting = ModelFitting(
+            processor=processor,
+            variables=self.parameters,
+            readout=self.readout,
+            calibration_mode=CalibrationMode(self.calibration_mode),
+            simulation_output=ResultType(self.result_type),
+            generations=self.algorithm.generations,
+            population_size=self.algorithm.population_size,
+            fitness_func=self.fitness_function,
+            file_path=output_dir,
+        )
+
+        fitting.configure(
+            target_output=self.target_data_path,
+            target_fit_range=self.target_fit_range,
+            out_fit_range=self.result_fit_range,
+            input_arguments=self.result_input_arguments,
+            weights=self.weights,
+            weights_from_file=self.weights_from_file,
+        )
+
+        if self.num_islands <= 1:
+            raise NotImplementedError("Not implemented for 1 island.")
+
+        # Create an archipelago
+        user_defined_island = DaskIsland()
+        user_defined_bfe = DaskBFE()
+
+        if self.topology == "unconnected":
+            topo = pg.unconnected()
+        elif self.topology == "ring":
+            topo = pg.ring()
+        elif self.topology == "fully_connected":
+            topo = pg.fully_connected()
+        else:
+            raise NotImplementedError(f"topology {self.topology!r}")
+
+        # Create a new archipelago
+        # This operation takes some time ...
+        my_archipelago = MyArchipelago(
+            num_islands=self.num_islands,
+            udi=user_defined_island,
+            algorithm=self.algorithm,
+            problem=fitting,
+            pop_size=self.algorithm.population_size,
+            bfe=user_defined_bfe,
+            topology=topo,
+            pygmo_seed=self.pygmo_seed,
+            with_bar=with_progress_bar,
+        )
+
+        # Run several evolutions in the archipelago
+        ds, df_processors, df_all_logs = my_archipelago.run_evolve(
+            readout=self.readout,
+            num_evolutions=self._num_evolutions,
+            num_best_decisions=self._num_best_decisions,
+        )
+
+        ds.attrs["topology"] = self.topology
+        ds.attrs["result_type"] = str(fitting.sim_output)
+
+        ds_best_fitness_per_gen = (
+            df_all_logs.rename(
+                columns={
+                    "id_island": "island",
+                    "id_evolution": "evolution",
+                    "best_fitness": "best_fitness_per_gen",
+                }
+            )
+            .set_index(["evolution", "island", "num_generations"])[
+                ["best_fitness_per_gen"]
+            ]
+            .to_xarray()
+        )
+
+        new_ds = ds.merge(ds_best_fitness_per_gen)
+
+        self._log.info("Calibration ended.")
+        return new_ds
 
     def post_processing(
         self,

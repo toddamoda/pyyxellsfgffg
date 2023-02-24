@@ -96,6 +96,7 @@ def exposure_mode(
     return result
 
 
+# TODO: This function will be deprecated
 def observation_mode(
     observation: "Observation",
     detector: Detector,
@@ -155,6 +156,7 @@ def observation_mode(
     return result
 
 
+# TODO: This function will be deprecated
 def calibration_mode(
     calibration: "Calibration",
     detector: Detector,
@@ -304,6 +306,23 @@ def calibration_mode(
     return result
 
 
+def _run_calibration_mode(
+    calibration: "Calibration",
+    detector: Detector,
+    pipeline: "DetectionPipeline",
+) -> "xr.Dataset":
+    logging.info("Mode: Calibration")
+
+    calibration_outputs: CalibrationOutputs = calibration.outputs
+    detector.set_output_dir(calibration_outputs.output_dir)  # TODO: Remove this
+
+    processor = Processor(detector=detector, pipeline=pipeline)
+
+    _ = calibration.run_calibration_new(
+        processor=processor, output_dir=calibration_outputs.output_dir
+    )
+
+
 def _run_observation_mode(
     observation: Observation,
     detector: Detector,
@@ -318,7 +337,8 @@ def _run_observation_mode(
 
     ds = observation.run_observation_new(processor=processor)
 
-    # if observation_outputs.save_observation_data:
+    if observation_outputs.save_observation_data:
+        raise NotImplementedError
     #     observation_outputs.save_observation_datasets(
     #         result=result, mode=observation.parameter_mode
     #     )
@@ -344,7 +364,14 @@ def run_mode(
         )
 
     elif isinstance(mode, Calibration):
-        raise NotImplementedError
+        ds = _run_calibration_mode(
+            calibration=mode,
+            detector=detector,
+            pipeline=pipeline,
+        )
+
+    else:
+        raise NotImplementedError("Please provide a valid simulation mode !")
 
     return ds
 
@@ -407,32 +434,10 @@ def run(input_filename: Union[str, Path], random_seed: Optional[int] = None) -> 
     detector: Union[CCD, CMOS, MKID, APD] = configuration.detector
     running_mode: Union[Exposure, Observation, Calibration] = configuration.running_mode
 
-    if isinstance(running_mode, Exposure):
-        exposure_mode(
-            exposure=running_mode,
-            detector=detector,
-            pipeline=pipeline,
-        )
-
-    elif isinstance(running_mode, Calibration):
-        _ = calibration_mode(
-            calibration=running_mode,
-            detector=detector,
-            pipeline=pipeline,
-        )
-
-    elif isinstance(running_mode, Observation):
-        run_mode(
-            mode=running_mode,
-            detector=detector,
-            pipeline=pipeline,
-        )
-
-    else:
-        raise NotImplementedError("Please provide a valid simulation mode !")
+    _ = run_mode(mode=running_mode, detector=detector, pipeline=pipeline)
 
     logging.info("Pipeline completed.")
-    logging.info("Running time: %.3f seconds" % (time.time() - start_time))
+    logging.info("Running time: %.3f seconds", (time.time() - start_time))
     # Closing the logger in order to be able to move the file in the output dir
     logging.shutdown()
     outputs.save_log_file(output_dir)
