@@ -53,8 +53,14 @@ def simple_bfe(
         + b * detector.characteristics.full_well_capacity
         + c * detector.characteristics.full_well_capacity**2
     )
+    ###
+    # signal_max = np.max(signal)
+    # sigma_max = a + b * signal_max + c * signal_max ** 2
+    # norm = (1 / np.max(sigma_max)) * sigma
+    # std = np.sqrt(np.mean(norm))
+    ###
     norm_sigma = (1 / np.max(sigma_fwc)) * sigma
-    std = np.mean(norm_sigma)
+    std = np.sqrt(np.mean(norm_sigma))
     # sigma_array = polynomial_function(signal)
     kernel = Gaussian2DKernel(x_stddev=std, x_size=3)  # , y_size=3)
     conv = convolve_fft(
