@@ -53,6 +53,7 @@ def simple_bfe(
         + b * detector.characteristics.full_well_capacity
         + c * detector.characteristics.full_well_capacity**2
     )
+
     ###
     # signal_max = np.max(signal)
     # sigma_max = a + b * signal_max + c * signal_max ** 2
@@ -63,6 +64,15 @@ def simple_bfe(
     std = np.sqrt(np.mean(norm_sigma))
     # sigma_array = polynomial_function(signal)
     kernel = Gaussian2DKernel(x_stddev=std, x_size=3)  # , y_size=3)
+    n1_list = []
+    n2_list = []
+    center = kernel.array[1][1]
+    n1 = kernel.array[0][1]
+    n2 = kernel.array[0][0]
+    fraction1 = n1 / center
+    n1_list.append(fraction1)
+    fraction2 = n2 / center
+    n2_list.append(fraction2)
     conv = convolve_fft(
         signal,
         kernel=kernel,
@@ -72,6 +82,7 @@ def simple_bfe(
     )
 
     detector.photon.array = conv
+    return n1_list, n2_list
 
 
 @numba.njit(fastmath=False)
