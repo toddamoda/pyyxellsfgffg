@@ -33,12 +33,13 @@ class ResultType(Enum):
     Image = "image"
     Signal = "signal"
     Pixel = "pixel"
+    Photon = "photon"
     All = "all"
 
 
 def result_keys(
     result_type: ResultType = ResultType.All,
-) -> Sequence[Literal["image", "signal", "pixel"]]:
+) -> Sequence[Literal["image", "signal", "pixel", "photon"]]:
     """Return result keys based on result type.
 
     Parameters
@@ -55,8 +56,10 @@ def result_keys(
         return ["signal"]
     elif result_type == ResultType.Pixel:
         return ["pixel"]
+    elif result_type == ResultType.Photon:
+        return ["photon"]
     elif result_type == ResultType.All:
-        return ["image", "signal", "pixel"]
+        return ["image", "signal", "pixel", "photon"]
     else:
         raise ValueError("Result type unknown.")
 
@@ -248,7 +251,7 @@ class Processor:
 
         lst: List[xr.DataArray] = []
 
-        key: Literal["image", "signal", "pixel"]
+        key: Literal["image", "signal", "pixel", "photon"]
         for key in result_keys(result_type):
 
             if key == "image":
@@ -260,8 +263,12 @@ class Processor:
             elif key == "pixel":
                 standard_name = "Pixel"
                 unit = "electron"
+            elif key == "photon":
+                standard_name = "Photon"
+                unit = "ph"
             else:
-                raise NotImplementedError
+                standard_name = key
+                unit = ""
 
             da = xr.DataArray(
                 self.result[key],
