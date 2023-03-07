@@ -82,7 +82,7 @@ def simple_bfe(
     )
 
     detector.photon.array = conv
-    return n1_list, n2_list
+    # return n1_list, n2_list
 
 
 @numba.njit(fastmath=False)
