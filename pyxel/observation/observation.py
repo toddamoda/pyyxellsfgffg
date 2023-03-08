@@ -67,6 +67,8 @@ class ObservationResult(NamedTuple):
 
 @dataclass(frozen=True)
 class ParameterItem:
+    """Internal Parameter Item."""
+
     index: int
     parameters: Mapping[str, Any]
     run_index: int
@@ -454,10 +456,10 @@ class Observation:
             #     We may want to consider an API for this.
             # Proposed API:
             # value = operator.attrgetter(step.key)(processor)
-            if "pipeline." in step.key:
-                model_name: str = step.key[: step.key.find(".arguments")]
+            if "pipeline." in key:
+                model_name: str = key[: key.find(".arguments")]
                 model_enabled: str = model_name + ".enabled"
-                if not processor.has(model_enabled):
+                if not processor.get(model_enabled):
                     raise ValueError(
                         f"The '{model_name}' model referenced in Observation configuration "
                         f"has not been enabled in yaml config!"
