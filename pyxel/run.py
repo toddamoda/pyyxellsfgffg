@@ -32,6 +32,7 @@ if TYPE_CHECKING:
     from pyxel.outputs import CalibrationOutputs, ExposureOutputs, ObservationOutputs
 
 
+# TODO: This function will be deprecated (see #563)
 def exposure_mode(
     exposure: "Exposure",
     detector: Detector,
@@ -96,7 +97,7 @@ def exposure_mode(
     return result
 
 
-# TODO: This function will be deprecated
+# TODO: This function will be deprecated (see #563)
 def observation_mode(
     observation: "Observation",
     detector: Detector,
@@ -156,7 +157,7 @@ def observation_mode(
     return result
 
 
-# TODO: This function will be deprecated
+# TODO: This function will be deprecated (see #563)
 def calibration_mode(
     calibration: "Calibration",
     detector: Detector,
@@ -353,6 +354,54 @@ def run_mode(
     detector: Detector,
     pipeline: DetectionPipeline,
 ) -> "xr.Dataset":
+    """Run a pipeline.
+
+    Parameters
+    ----------
+    mode : Exposure, Observation or Calibration
+        Mode to execute.
+    detector : Detector
+        This object is the container for all the data used for the models.
+    pipeline : DetectionPipeline
+        This is the core algorithm of Pyxel. This pipeline contains all the models to run.
+
+    Returns
+    -------
+    Dataset
+        Multi-dimensional result.
+
+    Raises
+    ------
+    ValueError
+        Raised if the ``mode`` is not valid.
+
+    Examples
+    --------
+    Load a configuration file
+
+    >>> import pyxel
+    >>> config = pyxel.load("configuration.yaml")
+    >>> config
+
+     Run a pipeline
+
+    >>> data = pyxel.run_mode(
+    ...     mode=config.exposure,
+    ...     detector=config.detector,
+    ...     pipeline=config.pipeline,
+    ... )
+    >>> data
+    <xarray.Dataset>
+    Dimensions:       (readout_time: 1, y: 450, x: 450)
+    Coordinates:
+      * readout_time  (readout_time) int64 1
+      * y             (y) int64 0 1 2 3 4 5 6 7 ... 442 443 444 445 446 447 448 449
+      * x             (x) int64 0 1 2 3 4 5 6 7 ... 442 443 444 445 446 447 448 449
+    Data variables:
+        image         (readout_time, y, x) uint16 9475 9089 8912 ... 9226 9584 10079
+        signal        (readout_time, y, x) float64 3.159 3.03 2.971 ... 3.195 3.36
+        pixel         (readout_time, y, x) float64 1.053e+03 1.01e+03 ... 1.12e+03
+    """
     from pyxel.calibration import Calibration
 
     if isinstance(mode, Exposure):
@@ -373,7 +422,7 @@ def run_mode(
         )
 
     else:
-        raise NotImplementedError("Please provide a valid simulation mode !")
+        raise ValueError("Please provide a valid simulation mode !")
 
     return ds
 

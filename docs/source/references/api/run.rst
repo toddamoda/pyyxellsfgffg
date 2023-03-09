@@ -5,6 +5,8 @@ Run
 ===
 .. currentmodule:: pyxel
 
+.. autofunction:: run_mode
+
 .. autofunction:: exposure_mode
 
 .. autofunction:: observation_mode

@@ -312,7 +312,7 @@ class Calibration:
         """TBW."""
         self._weights = value
 
-    # TODO: This function will be deprecated
+    # TODO: This function will be deprecated (see #563)
     def run_calibration(
         self,
         processor: Processor,

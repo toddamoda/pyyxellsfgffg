@@ -61,7 +61,7 @@ class ObservationOutputs(Outputs):
             Sequence[Mapping[str, Sequence[str]]]
         ] = save_observation_data
 
-    # TODO: This function will be deprecated
+    # TODO: This function will be deprecated (see #563)
     def save_observation_datasets(
         self, result: "ObservationResult", mode: "ParameterMode"
     ) -> None:

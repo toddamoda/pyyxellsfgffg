@@ -89,7 +89,7 @@ def _get_final_short_name(name: str, param_type: ParameterType) -> str:
         raise NotImplementedError
 
 
-# TODO: This function will be deprecated
+# TODO: This function will be deprecated (see #563)
 def _get_short_dimension_names(types: Mapping[str, ParameterType]) -> Mapping[str, str]:
     # Create potential names for the dimensions
     potential_dim_names: Dict[str, str] = {}
@@ -346,7 +346,7 @@ class Observation:
                 parameter_dict.update({key: value})
             yield indices, parameter_dict
 
-    # TODO: This function will be deprecated
+    # TODO: This function will be deprecated (see #563)
     def _parameter_it(self) -> Iterator[Tuple]:
         """Return the method for generating parameters based on parametric mode."""
         if self.parameter_mode == ParameterMode.Product:
@@ -834,7 +834,7 @@ class Observation:
         else:
             raise ValueError("Parametric mode not specified.")
 
-    # TODO: This function will be deprecated
+    # TODO: This function will be deprecated (see #563)
     def _apply_exposure_pipeline_product(
         self,
         index_and_parameter: Tuple[
@@ -935,7 +935,7 @@ class Observation:
 
         return ds
 
-    # TODO: This function will be deprecated
+    # TODO: This function will be deprecated (see #563)
     def _apply_exposure_pipeline_custom(
         self,
         index_and_parameter: Tuple[
@@ -1026,7 +1026,7 @@ class Observation:
 
         return ds
 
-    # TODO: This function will be deprecated
+    # TODO: This function will be deprecated (see #563)
     def _apply_exposure_pipeline_sequential(
         self,
         index_and_parameter: Tuple[
@@ -1255,7 +1255,7 @@ def parameter_to_dataset(
     return parameter_ds
 
 
-# TODO: This function will be deprecated
+# TODO: This function will be deprecated (see #563)
 def _add_custom_parameters(ds: "xr.Dataset", index: int) -> "xr.Dataset":
     """Add coordinate "index" to the dataset.
 
@@ -1329,7 +1329,7 @@ def _add_custom_parameters_new(
     return ds
 
 
-# TODO: This function will be deprecated
+# TODO: This function will be deprecated (see #563)
 def _add_sequential_parameters(
     ds: "xr.Dataset",
     parameter_dict: Mapping[
@@ -1370,7 +1370,7 @@ def _add_sequential_parameters(
     return ds
 
 
-# TODO: This function will be deprecated
+# TODO: This function will be deprecated (see #563)
 def _add_product_parameters(
     ds: "xr.Dataset",
     parameter_dict: Mapping[
