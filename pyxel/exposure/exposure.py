@@ -16,13 +16,13 @@ import numpy as np
 from tqdm.auto import tqdm
 
 from pyxel.exposure import Readout
-from pyxel.pipelines import ResultType, result_keys
+from pyxel.pipelines import Processor, ResultType, result_keys
+from pyxel.util import set_random_seed
 
 if TYPE_CHECKING:
     import xarray as xr
 
     from pyxel.outputs import CalibrationOutputs, ExposureOutputs, ObservationOutputs
-    from pyxel.pipelines import Processor
 
 
 class Exposure:
@@ -64,7 +64,7 @@ class Exposure:
         """TBW."""
         self._pipeline_seed = value
 
-    def run_exposure(self, processor: "Processor") -> "xr.Dataset":
+    def run_exposure(self, processor: Processor) -> "xr.Dataset":
         """Run an observation pipeline.
 
         Parameters
@@ -103,15 +103,15 @@ class Exposure:
 
 
 def run_exposure_pipeline(
-    processor: "Processor",
+    processor: Processor,
     readout: "Readout",
-    outputs: Optional[
-        Union["CalibrationOutputs", "ObservationOutputs", "ExposureOutputs"]
+    outputs: Union[
+        "CalibrationOutputs", "ObservationOutputs", "ExposureOutputs", None
     ] = None,
     progressbar: bool = False,
     result_type: ResultType = ResultType.All,
     pipeline_seed: Optional[int] = None,
-) -> "Processor":
+) -> Processor:
     """Run standalone exposure pipeline.
 
     Parameters
@@ -133,66 +133,67 @@ def run_exposure_pipeline(
     # if isinstance(detector, CCD):
     #    dynamic.non_destructive_readout = False
 
-    np.random.seed(seed=pipeline_seed)
+    with set_random_seed(seed=pipeline_seed):
+        num_steps = readout._num_steps
+        ndreadout = readout.non_destructive
+        times_linear = readout._times_linear
+        start_time = readout._start_time
+        end_time = readout._times[-1]
+        time_step_it = readout.time_step_it()
 
-    num_steps = readout._num_steps
-    ndreadout = readout.non_destructive
-    times_linear = readout._times_linear
-    start_time = readout._start_time
-    end_time = readout._times[-1]
-    time_step_it = readout.time_step_it()
+        detector = processor.detector
 
-    detector = processor.detector
-
-    detector.set_readout(
-        num_steps=num_steps,
-        ndreadout=ndreadout,
-        times_linear=times_linear,
-        start_time=start_time,
-        end_time=end_time,
-    )
-    # The detector should be reset before exposure
-    detector.empty()
-
-    if progressbar:
-        pbar = tqdm(total=num_steps, desc="Observation time: ")
-
-    keys = result_keys(result_type)
-
-    unstacked_result: Mapping[str, list] = {key: [] for key in keys}
-
-    i: int
-    time: float
-    step: float
-    for i, (time, step) in enumerate(time_step_it):
-        detector.time = time
-        detector.time_step = step
-
-        logging.info("time = %.3f s", time)
-
-        if detector.non_destructive_readout:
-            empty_all = False
-        else:
-            empty_all = True
-
-        detector.empty(empty_all)
-
-        processor.run_pipeline()
-        detector.pipeline_count = i
-
-        if outputs and detector.read_out:
-            outputs.save_to_file(processor)
-
-        for key in keys:
-            unstacked_result[key].append(np.array(operator.attrgetter(key)(detector)))
+        detector.set_readout(
+            num_steps=num_steps,
+            ndreadout=ndreadout,
+            times_linear=times_linear,
+            start_time=start_time,
+            end_time=end_time,
+        )
+        # The detector should be reset before exposure
+        detector.empty()
 
         if progressbar:
-            pbar.update(1)
+            pbar = tqdm(total=num_steps, desc="Observation time: ")
 
-    # TODO: Refactor '.result'. See #524
-    processor.result = {key: np.stack(unstacked_result[key]) for key in keys}
+        keys = result_keys(result_type)
 
-    if progressbar:
-        pbar.close()
+        unstacked_result: Mapping[str, list] = {key: [] for key in keys}
+
+        i: int
+        time: float
+        step: float
+        for i, (time, step) in enumerate(time_step_it):
+            detector.time = time
+            detector.time_step = step
+
+            logging.info("time = %.3f s", time)
+
+            if detector.non_destructive_readout:
+                empty_all = False
+            else:
+                empty_all = True
+
+            detector.empty(empty_all)
+
+            processor.run_pipeline()
+            detector.pipeline_count = i
+
+            if outputs and detector.read_out:
+                outputs.save_to_file(processor)
+
+            for key in keys:
+                unstacked_result[key].append(
+                    np.array(operator.attrgetter(key)(detector))
+                )
+
+            if progressbar:
+                pbar.update(1)
+
+        # TODO: Refactor '.result'. See #524
+        processor.result = {key: np.stack(unstacked_result[key]) for key in keys}
+
+        if progressbar:
+            pbar.close()
 
     return processor
