@@ -320,7 +320,8 @@ def _run_calibration_mode(
     processor = Processor(detector=detector, pipeline=pipeline)
 
     ds = calibration.run_calibration_new(
-        processor=processor, output_dir=calibration_outputs.output_dir
+        processor=processor,
+        output_dir=calibration_outputs.output_dir,
     )
 
     return ds

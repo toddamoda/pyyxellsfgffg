@@ -52,7 +52,8 @@ class ExposureOutputs(Outputs):
         save_exposure_data: Optional[Sequence[Mapping[str, Sequence[str]]]] = None,
     ):
         super().__init__(
-            output_folder=output_folder, save_data_to_file=save_data_to_file
+            output_folder=output_folder,
+            save_data_to_file=save_data_to_file,
         )
 
         self.save_exposure_data: Optional[

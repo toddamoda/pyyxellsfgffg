@@ -35,6 +35,7 @@ import dask.bag as db
 import numpy as np
 import pandas as pd
 import toolz
+from numpy.typing import ArrayLike
 from tqdm.auto import tqdm
 
 from pyxel.exposure import Readout, run_exposure_pipeline
@@ -69,7 +70,8 @@ class ObservationResult(NamedTuple):
 class ParameterItem:
     """Internal Parameter Item."""
 
-    index: int
+    # TODO: Merge 'index' and 'parameters'
+    index: Tuple[int, ...]
     parameters: Mapping[str, Any]
     run_index: int
 
@@ -927,6 +929,7 @@ class Observation:
         ds = _add_product_parameters_new(
             ds=ds,
             parameter_dict=param_item.parameters,
+            indexes=param_item.index,
             dimension_names=dimension_names,
             types=types,
         )
@@ -954,7 +957,8 @@ class Observation:
         index, parameter_dict, n = index_and_parameter
 
         new_processor = create_new_processor(
-            processor=processor, parameter_dict=parameter_dict
+            processor=processor,
+            parameter_dict=parameter_dict,
         )
 
         # run the pipeline
@@ -1019,6 +1023,7 @@ class Observation:
         ds = _add_custom_parameters_new(
             ds=ds,
             parameter_dict=param_item.parameters,
+            index=param_item.index,
             dimension_names=dimension_names,
             types=types,
         )
@@ -1047,7 +1052,8 @@ class Observation:
         index, parameter_dict, n = index_and_parameter
 
         new_processor = create_new_processor(
-            processor=processor, parameter_dict=parameter_dict
+            processor=processor,
+            parameter_dict=parameter_dict,
         )
 
         coordinate = str(list(parameter_dict)[0])
@@ -1119,6 +1125,7 @@ class Observation:
         ds = _add_custom_parameters_new(
             ds=ds,
             parameter_dict=param_item.parameters,
+            index=param_item.index,
             dimension_names=dimension_names,
             types=types,
         )
@@ -1277,15 +1284,8 @@ def _add_custom_parameters(ds: "xr.Dataset", index: int) -> "xr.Dataset":
 
 def _add_custom_parameters_new(
     ds: "xr.Dataset",
-    parameter_dict: Mapping[
-        str,
-        Union[
-            str,
-            Number,
-            np.ndarray,
-            List[Union[str, Number, np.ndarray]],
-        ],
-    ],
+    parameter_dict: Mapping[str, Union[str, Number, ArrayLike]],
+    index: int,
     dimension_names: Mapping[str, str],
     types: Mapping[str, ParameterType],
 ) -> "xr.Dataset":
@@ -1301,30 +1301,24 @@ def _add_custom_parameters_new(
     Dataset
     """
     import pandas as pd
+    import xarray as xr
 
-    arrays: List[Any] = []
-    names: List[str] = []
+    ds = ds.expand_dims({"id": [index]})
 
-    for coordinate_name in parameter_dict:
-        names.append(dimension_names[coordinate_name])
+    for coordinate_name, param_value in parameter_dict.items():
+        short_name: str = dimension_names[coordinate_name]
 
-        param_value = parameter_dict[coordinate_name]
-
+        #  assigning the right coordinates based on type
         if types[coordinate_name] == ParameterType.Simple:
-            arrays.append([param_value])
+            ds = ds.assign_coords({short_name: ("id", pd.Index([param_value]))})
 
         elif types[coordinate_name] == ParameterType.Multi:
-            if isinstance(param_value, Iterable) and not isinstance(param_value, str):
-                tuples: Tuple = to_tuples(param_value)
-                arrays.append([tuples])
-            else:
-                arrays.append([param_value])
+            data = np.array(param_value)
+            data_array = xr.DataArray(data).expand_dims({"id": [index]})
+            ds = ds.assign_coords({short_name: data_array})
 
         else:
             raise NotImplementedError
-
-    indexes = pd.MultiIndex.from_arrays(arrays=arrays, names=names)
-    ds = ds.expand_dims(dim="id").assign_coords({"id": indexes})
 
     return ds
 
@@ -1346,8 +1340,8 @@ def _add_sequential_parameters(
     ----------
     ds: Dataset
     parameter_dict: dict
-    index: int
     dimension_names
+    index: int
     coordinate_name: str
     types: dict
 
@@ -1425,15 +1419,8 @@ def to_tuples(data: Iterable) -> Tuple:
 
 def _add_product_parameters_new(
     ds: "xr.Dataset",
-    parameter_dict: Mapping[
-        str,
-        Union[
-            str,
-            Number,
-            np.ndarray,
-            List[Union[str, Number, np.ndarray]],
-        ],
-    ],
+    parameter_dict: Mapping[str, Union[str, Number, ArrayLike]],
+    indexes: Tuple[int, ...],
     dimension_names: Mapping[str, str],
     types: Mapping[str, ParameterType],
 ) -> "xr.Dataset":
@@ -1449,8 +1436,10 @@ def _add_product_parameters_new(
     -------
     Dataset
     """
-    # TODO: Implement for coordinate 'multi'
-    for coordinate_name, param_value in parameter_dict.items():
+    import xarray as xr
+
+    # TODO: join 'indexes' and 'parameter_dict'
+    for index, (coordinate_name, param_value) in zip(indexes, parameter_dict.items()):
         short_name: str = dimension_names[coordinate_name]
 
         #  assigning the right coordinates based on type
@@ -1458,13 +1447,19 @@ def _add_product_parameters_new(
             ds = ds.expand_dims(dim={short_name: [param_value]})
 
         elif types[coordinate_name] == ParameterType.Multi:
-            import pandas as pd
-
-            ds = ds.expand_dims(dim={short_name: pd.Index([param_value], dtype=object)})
+            data = np.array(param_value)
+            data_array = xr.DataArray(data).expand_dims(
+                dim={f"{short_name}_id": [index]}
+            )
+            ds = ds.expand_dims({f"{short_name}_id": [index]}).assign_coords(
+                {short_name: data_array}
+            )
 
         else:
             raise NotImplementedError
 
+    # new_ds = ds.expand_dims(new_dimensions)
+    # return new_ds
     return ds
 
 
