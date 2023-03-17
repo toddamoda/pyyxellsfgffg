@@ -1455,23 +1455,12 @@ def _add_product_parameters_new(
 
         #  assigning the right coordinates based on type
         if types[coordinate_name] == ParameterType.Simple:
-            ds = ds.assign_coords(coords={short_name: param_value})
-            ds = ds.expand_dims(dim=short_name)
+            ds = ds.expand_dims(dim={short_name: [param_value]})
 
         elif types[coordinate_name] == ParameterType.Multi:
             import pandas as pd
 
-            if isinstance(param_value, Iterable) and not isinstance(param_value, str):
-                arrays: Iterable = [to_tuples(param_value)]
-            else:
-                arrays = [param_value]
-
-            indexes = pd.MultiIndex.from_arrays(
-                arrays=[arrays],
-                names=[short_name],
-            )
-            ds = ds.expand_dims(dim=f"{short_name}_id")
-            ds = ds.assign_coords({f"{short_name}_id": indexes})
+            ds = ds.expand_dims(dim={short_name: pd.Index([param_value], dtype=object)})
 
         else:
             raise NotImplementedError
