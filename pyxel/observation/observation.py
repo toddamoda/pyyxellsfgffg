@@ -76,6 +76,16 @@ class ParameterItem:
     run_index: int
 
 
+@dataclass(frozen=True)
+class CustomParameterItem:
+    """Internal Parameter Item."""
+
+    # TODO: Merge 'index' and 'parameters'
+    index: int
+    parameters: Mapping[str, Any]
+    run_index: int
+
+
 def _get_short_name_with_model(name: str) -> str:
     _, _, model_name, _, param_name = name.split(".")
 
@@ -773,8 +783,8 @@ class Observation:
             params_it = self._sequential_parameters()
 
             if sys.version_info >= (3, 9):
-                lst = [
-                    ParameterItem(
+                lst_sequence = [
+                    CustomParameterItem(
                         index=index,
                         parameters=params_defaults | parameter_dict,
                         run_index=n,
@@ -782,8 +792,8 @@ class Observation:
                     for n, (index, parameter_dict) in enumerate(params_it)
                 ]
             else:
-                lst = [
-                    ParameterItem(
+                lst_sequence = [
+                    CustomParameterItem(
                         index=index,
                         parameters={**params_defaults, **parameter_dict},
                         run_index=n,
@@ -792,9 +802,11 @@ class Observation:
                 ]
 
             if self.with_dask:
-                dataset_list = db.from_sequence(lst).map(apply_pipeline).compute()
+                dataset_list = (
+                    db.from_sequence(lst_sequence).map(apply_pipeline).compute()
+                )
             else:
-                dataset_list = list(map(apply_pipeline, tqdm(lst)))
+                dataset_list = list(map(apply_pipeline, tqdm(lst_sequence)))
 
             # See issue #276
             final_dataset = xr.combine_by_coords(dataset_list)
@@ -816,15 +828,17 @@ class Observation:
 
             params_it = self._custom_parameters()
 
-            lst = [
-                ParameterItem(index=index, parameters=parameter_dict, run_index=n)
+            lst_custom = [
+                CustomParameterItem(index=index, parameters=parameter_dict, run_index=n)
                 for n, (index, parameter_dict) in enumerate(params_it)
             ]
 
             if self.with_dask:
-                dataset_list = db.from_sequence(lst).map(apply_pipeline).compute()
+                dataset_list = (
+                    db.from_sequence(lst_custom).map(apply_pipeline).compute()
+                )
             else:
-                dataset_list = list(map(apply_pipeline, tqdm(lst)))
+                dataset_list = list(map(apply_pipeline, tqdm(lst_custom)))
 
             # See issue #276
             final_dataset = xr.combine_by_coords(dataset_list)
@@ -986,7 +1000,7 @@ class Observation:
 
     def _apply_exposure_pipeline_custom_new(
         self,
-        param_item: ParameterItem,
+        param_item: CustomParameterItem,
         dimension_names: Mapping[str, str],
         processor: "Processor",
         x: range,
@@ -1088,7 +1102,7 @@ class Observation:
 
     def _apply_exposure_pipeline_sequential_new(
         self,
-        param_item: ParameterItem,
+        param_item: CustomParameterItem,
         dimension_names: Mapping[str, str],
         processor: "Processor",
         x: range,
