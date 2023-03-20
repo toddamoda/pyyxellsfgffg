@@ -373,7 +373,7 @@ def run_mode(
 
     Raises
     ------
-    ValueError
+    TypeError
         Raised if the ``mode`` is not valid.
 
     Examples
@@ -423,7 +423,7 @@ def run_mode(
         )
 
     else:
-        raise ValueError("Please provide a valid simulation mode !")
+        raise TypeError("Please provide a valid simulation mode !")
 
     return ds
 
