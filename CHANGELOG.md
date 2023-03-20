@@ -78,6 +78,8 @@ parameters:
   (See [!624](https://gitlab.com/esa/pyxel/-/merge_requests/624)).
 * Add new function 'pyxel.run_mode'.
   (See [!623](https://gitlab.com/esa/pyxel/-/merge_requests/623)).
+* Fix warning message in Calibration.
+  (See [!625](https://gitlab.com/esa/pyxel/-/merge_requests/625)).
 
 ### Documentation
 * Use 'Sphinx 5' and 'Sphinx Book Theme 1'.
