@@ -15,9 +15,13 @@ This release brings a number of bugfixes and documentation improvements.
 
 The minimum version of one dependency was changed:
 
-  | Package   | Old   | New        |
-  | --------- |-------| ---------- |
-  | numpy     | 1.20  | **1.21**   |
+  | Package | Old   | New         |
+  |---------|-------|-------------| 
+  | numpy   | 1.20  | **1.21**    |
+  | xarray  | 0.19  | **2022.06** |
+
+A new function `pyxel.run_mode` has been added and will replace `pyxel.exposure_mode`, `pyxel.observation_mode`
+and `pyxel.calibration_mode` functions.
 
 In the calibration configuration files, it is now possible to add different boundaries for values defined as a list.
 
@@ -72,6 +76,8 @@ parameters:
   (See [!516](https://gitlab.com/esa/pyxel/-/merge_requests/516)).
 * Improve Calibration Dataset output.
   (See [!624](https://gitlab.com/esa/pyxel/-/merge_requests/624)).
+* Add new function 'pyxel.run_mode'.
+  (See [!623](https://gitlab.com/esa/pyxel/-/merge_requests/623)).
 
 ### Documentation
 * Use 'Sphinx 5' and 'Sphinx Book Theme 1'.
