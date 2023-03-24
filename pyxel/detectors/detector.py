@@ -19,7 +19,6 @@ from pyxel.data_structure import (
     Persistence,
     Photon,
     Pixel,
-    ProcessedData,
     Scene,
     Signal,
     SimplePersistence,
@@ -29,6 +28,7 @@ from pyxel.util.memory import get_size, memory_usage_details
 
 if TYPE_CHECKING:
     import xarray as xr
+    from datatree import DataTree
 
 
 __all__ = ["Detector"]
@@ -49,7 +49,7 @@ class Detector:
         self._pixel: Optional[Pixel] = None
         self._signal: Optional[Signal] = None
         self._image: Optional[Image] = None
-        self._processed_data: Optional[ProcessedData] = None
+        self._processed_data: Optional["DataTree"] = None
 
         # This will be the memory of the detector where trapped charges will be saved
         self._memory: Dict = {}
@@ -71,7 +71,14 @@ class Detector:
             and self._pixel == other._pixel
             and self._signal == other._signal
             and self._image == other._image
-            and self._processed_data == other._processed_data
+            and (
+                (self._processed_data is None and other._processed_data is None)
+                or (
+                    self._processed_data is not None
+                    and other._processed_data is not None
+                    and self._processed_data.equals(other._processed_data)
+                )
+            )
         )
 
     @property
@@ -140,7 +147,7 @@ class Detector:
         return self._image
 
     @property
-    def processed_data(self) -> ProcessedData:
+    def processed_data(self) -> "DataTree":
         """TBW."""
         if not self._processed_data:
             raise RuntimeError("'processed_data' not initialized.")
@@ -183,6 +190,8 @@ class Detector:
 
     def reset(self) -> None:
         """TBW."""
+        from datatree import DataTree
+
         self._photon = Photon(geo=self.geometry)
         self._scene = None
         self._charge = Charge(geo=self.geometry)
@@ -190,16 +199,10 @@ class Detector:
         self._signal = Signal(geo=self.geometry)
         self._image = Image(geo=self.geometry)
 
-        if self._processed_data is None:
-            self._processed_data = ProcessedData()
+        self._processed_data = DataTree()
 
     def empty(self, empty_all: bool = True) -> None:
-        """Empty the data in the detector.
-
-        Returns
-        -------
-        None
-        """
+        """Empty the data in the detector."""
         if self._photon:
             self.photon.array *= 0
 

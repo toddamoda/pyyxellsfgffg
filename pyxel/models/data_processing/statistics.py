@@ -9,6 +9,7 @@
 from typing import Literal, Sequence, Union
 
 import xarray as xr
+from datatree import DataTree
 
 from pyxel.detectors import Detector
 
@@ -51,4 +52,4 @@ def compute_statistics(
     dataset["max"] = max_array
     dataset["count"] = count
 
-    detector.processed_data.append(dataset)
+    detector.processed_data["statistics"] = DataTree(dataset)
