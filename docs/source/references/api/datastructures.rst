@@ -53,10 +53,3 @@ Data structures
     :undoc-members:
     :show-inheritance:
     :exclude-members:
-
-.. autoclass:: ProcessedData
-    :members:
-    :inherited-members:
-    :undoc-members:
-    :show-inheritance:
-    :exclude-members:
