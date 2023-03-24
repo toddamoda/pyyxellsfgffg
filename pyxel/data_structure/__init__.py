@@ -17,4 +17,3 @@ from .charge import Charge
 from .image import Image
 from .phase import Phase
 from .persistence import Persistence, SimplePersistence
-from .processed_data import ProcessedData
