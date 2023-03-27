@@ -150,7 +150,7 @@ class Detector:
     @property
     def processed_data(self) -> "DataTree":
         """TBW."""
-        if not self._processed_data:
+        if self._processed_data is None:
             raise RuntimeError("'processed_data' not initialized.")
 
         return self._processed_data
