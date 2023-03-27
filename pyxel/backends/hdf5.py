@@ -15,6 +15,7 @@ from typing import Any, Iterator, Mapping, Optional, Union
 import h5py as h5
 import numpy as np
 import pandas as pd
+import xarray as xr
 
 from pyxel import __version__
 
@@ -71,6 +72,17 @@ def _store(
 
             if attributes is not None and key in attributes:
                 dataset.attrs.update(attributes[key])
+
+        elif isinstance(value, xr.Dataset):
+            if not value:
+                # Do nothing
+                pass
+            else:
+                # _store(h5file, name)
+                # value.dims
+                # value.coords
+                # value.variables
+                raise NotImplementedError
 
         elif isinstance(value, dict):
             new_group = h5file.create_group(name=new_name)

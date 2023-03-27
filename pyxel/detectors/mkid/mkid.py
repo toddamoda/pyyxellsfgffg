@@ -134,10 +134,7 @@ class MKID(Detector):
                 "processed_data": (
                     None
                     if self._processed_data is None
-                    else {
-                        key: value.to_dict()
-                        for key, value in self._processed_data.to_dict().items()
-                    }
+                    else self._processed_data.to_dict()
                 ),
                 "charge": (
                     None
