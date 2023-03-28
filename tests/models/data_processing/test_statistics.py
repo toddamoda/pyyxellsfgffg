@@ -6,6 +6,8 @@
 #   the terms contained in the file ‘LICENCE.txt’.
 
 import pytest
+import xarray as xr
+from datatree import DataTree
 
 from pyxel.detectors import (
     CCD,
@@ -39,6 +41,18 @@ def test_statistics(ccd_10x10: CCD):
     """Test input parameters for function 'statistics'."""
     detector = ccd_10x10
     compute_statistics(detector=detector)
-    dataset = detector.processed_data.data
+
+    data = detector.processed_data
+    assert isinstance(data, DataTree)
+
+    data_statistics = data["/statistics"]
+    assert isinstance(data_statistics, DataTree)
+
+    assert "time" in data_statistics.coords
+    assert list(data_statistics.coords["time"]) == [0.0]
+
+    dataset = data_statistics.to_dataset()
+    assert isinstance(dataset, xr.Dataset)
+
     assert "time" in dataset.coords
-    assert list(dataset.coords["time"].values) == [0.0]
+    assert list(dataset.coords["time"]) == [0.0]
