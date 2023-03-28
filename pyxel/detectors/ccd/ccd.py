@@ -7,7 +7,8 @@
 
 """CCD detector modeling class."""
 
-from typing import TYPE_CHECKING, Mapping, Optional
+from collections.abc import Mapping
+from typing import TYPE_CHECKING, Optional
 
 from pyxel.detectors import Detector
 

@@ -12,10 +12,11 @@ https://esa.github.io/pagmo2/index.html
 import copy
 import logging
 import math
+from collections.abc import Sequence
 from copy import deepcopy
 from numbers import Number
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List, Literal, Optional, Sequence, Tuple, Union
+from typing import TYPE_CHECKING, Literal, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -68,12 +69,12 @@ class ModelFitting(ProblemSingleObjective):
         self.pop: int = population_size
         self.readout: Readout = readout
 
-        self.all_target_data: List[np.ndarray] = []
+        self.all_target_data: list[np.ndarray] = []
         self.weighting: Optional[np.ndarray] = None
         self.weighting_from_file: Optional[Sequence[np.ndarray]] = None
         self.fitness_func: FittingCallable = fitness_func
         self.sim_output: ResultType = simulation_output
-        self.param_processor_list: List[Processor] = []
+        self.param_processor_list: list[Processor] = []
 
         self.file_path: Path = file_path
         self.pipeline_seed: Optional[int] = pipeline_seed
@@ -83,22 +84,22 @@ class ModelFitting(ProblemSingleObjective):
         self.champion_f_list: Optional[np.ndarray] = None
         self.champion_x_list: Optional[np.ndarray] = None
 
-        self.lbd: List[float] = []  # lower boundary
-        self.ubd: List[float] = []  # upper boundary
+        self.lbd: list[float] = []  # lower boundary
+        self.ubd: list[float] = []  # upper boundary
 
-        self.sim_fit_range: Tuple[slice, slice, slice] = (
+        self.sim_fit_range: tuple[slice, slice, slice] = (
             slice(None),
             slice(None),
             slice(None),
         )
-        self.targ_fit_range: Union[Tuple[slice, slice], Tuple[slice, slice, slice]] = (
+        self.targ_fit_range: Union[tuple[slice, slice], tuple[slice, slice, slice]] = (
             slice(None),
             slice(None),
         )
 
-        self.match: Dict[int, List[str]] = {}
+        self.match: dict[int, list[str]] = {}
 
-    def get_bounds(self) -> Tuple[Sequence[float], Sequence[float]]:
+    def get_bounds(self) -> tuple[Sequence[float], Sequence[float]]:
         """Get the box bounds of the problem (lower_boundary, upper_boundary).
 
         It also implicitly defines the dimension of the problem.

@@ -8,7 +8,7 @@
 """Simple model to load charge profiles."""
 
 from pathlib import Path
-from typing import Literal, Optional, Tuple, Union
+from typing import Literal, Optional, Union
 
 import numpy as np
 
@@ -19,7 +19,7 @@ from pyxel.util import load_cropped_and_aligned_image
 def load_charge(
     detector: Detector,
     filename: Union[str, Path],
-    position: Tuple[int, int] = (0, 0),
+    position: tuple[int, int] = (0, 0),
     align: Optional[
         Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"]
     ] = None,

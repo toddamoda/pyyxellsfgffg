@@ -8,8 +8,8 @@
 #
 """Persistence classes."""
 
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Sequence, Tuple
 
 import numpy as np
 
@@ -30,7 +30,7 @@ class Persistence:
         self,
         trap_time_constants: Sequence[float],
         trap_proportions: Sequence[float],
-        geometry: Tuple[int, int],
+        geometry: tuple[int, int],
     ):
         traps: Sequence[Trap] = [
             Trap(
@@ -101,7 +101,7 @@ class SimplePersistence:
         self,
         trap_time_constants: Sequence[float],
         trap_densities: Sequence[float],
-        geometry: Tuple[int, int],
+        geometry: tuple[int, int],
     ):
         traps: Sequence[SimpleTrap] = [
             SimpleTrap(

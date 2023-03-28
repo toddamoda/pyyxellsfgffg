@@ -12,7 +12,7 @@ import math
 
 # noqa: F401
 from pathlib import Path
-from typing import Literal, Optional, Tuple, Union
+from typing import Literal, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -41,8 +41,8 @@ def cosmix(
     particle_type: Optional[Literal["proton", "alpha", "ion"]] = None,
     initial_energy: Optional[Union[int, float, Literal["random"]]] = None,
     particles_per_second: Optional[float] = None,
-    incident_angles: Optional[Tuple[str, str]] = None,
-    starting_position: Optional[Tuple[str, str, str]] = None,
+    incident_angles: Optional[tuple[str, str]] = None,
+    starting_position: Optional[tuple[str, str, str]] = None,
     # step_size_file: str = None,
     # stopping_file: str = None,
     spectrum_file: Optional[str] = None,
@@ -214,13 +214,13 @@ class Cosmix:
         self.particle_number = number
 
     # TODO: Is it still used ?
-    def set_incident_angles(self, angles: Tuple[str, str]) -> None:
+    def set_incident_angles(self, angles: tuple[str, str]) -> None:
         alpha, beta = angles
         self.angle_alpha = alpha
         self.angle_beta = beta
 
     # TODO: Is it still used ?
-    def set_starting_position(self, start_position: Tuple[str, str, str]) -> None:
+    def set_starting_position(self, start_position: tuple[str, str, str]) -> None:
         position_vertical, position_horizontal, position_z = start_position
         self.position_ver = position_vertical
         self.position_hor = position_horizontal

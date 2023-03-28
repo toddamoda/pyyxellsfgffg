@@ -11,7 +11,7 @@
 from enum import Enum
 from functools import lru_cache
 from pathlib import Path
-from typing import Literal, Optional, Tuple, Union
+from typing import Literal, Optional, Union
 
 import numpy as np
 
@@ -34,7 +34,7 @@ def _set_relative_position(
     output_x: int,
     output_y: int,
     alignment: Alignment,
-) -> Tuple[int, int]:
+) -> tuple[int, int]:
     """Calculate relative position of (0, 0) pixels for two different array shapes based on desired alignment.
 
     Parameters
@@ -65,8 +65,8 @@ def _set_relative_position(
 
 def fit_into_array(
     array: np.ndarray,
-    output_shape: Tuple[int, ...],
-    relative_position: Tuple[int, int] = (0, 0),
+    output_shape: tuple[int, ...],
+    relative_position: tuple[int, int] = (0, 0),
     align: Optional[
         Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"]
     ] = None,
@@ -151,7 +151,7 @@ def fit_into_array(
 
 @lru_cache(maxsize=128)  # One must add parameter 'maxsize' for Python 3.7
 def load_cropped_and_aligned_image(
-    shape: Tuple[int, ...],
+    shape: tuple[int, ...],
     filename: Union[str, Path],
     position_x: int = 0,
     position_y: int = 0,

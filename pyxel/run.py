@@ -9,8 +9,9 @@
 import logging
 import sys
 import time
+from collections.abc import Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, Sequence, Tuple, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 import click
 import dask
@@ -163,7 +164,7 @@ def calibration_mode(
     detector: Detector,
     pipeline: "DetectionPipeline",
     compute_and_save: bool = True,
-) -> Tuple["xr.Dataset", pd.DataFrame, pd.DataFrame, Sequence]:
+) -> tuple["xr.Dataset", pd.DataFrame, pd.DataFrame, Sequence]:
     """Run a 'calibration' pipeline.
 
     For more information, see :ref:`calibration_mode`.

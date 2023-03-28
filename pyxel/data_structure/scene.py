@@ -7,7 +7,8 @@
 
 """Pyxel Scene class to track multi-wavelength photon."""
 
-from typing import TYPE_CHECKING, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import numpy as np

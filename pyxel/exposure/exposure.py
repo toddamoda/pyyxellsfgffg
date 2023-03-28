@@ -10,7 +10,8 @@
 
 import logging
 import operator
-from typing import TYPE_CHECKING, Literal, Mapping, Optional, Union
+from collections.abc import Mapping
+from typing import TYPE_CHECKING, Literal, Optional, Union
 
 import numpy as np
 from tqdm.auto import tqdm

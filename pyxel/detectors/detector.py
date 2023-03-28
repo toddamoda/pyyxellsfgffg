@@ -7,8 +7,9 @@
 
 """Detector class."""
 import collections
+from collections.abc import Mapping
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, Mapping, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 import numpy as np
 
@@ -41,7 +42,7 @@ class Detector:
     def __init__(self, environment: Optional[Environment] = None):
         self.environment: Environment = environment or Environment()
 
-        self.header: Dict[str, object] = collections.OrderedDict()
+        self.header: dict[str, object] = collections.OrderedDict()
 
         self._photon: Optional[Photon] = None
         self._scene: Optional[Scene] = None
@@ -52,7 +53,7 @@ class Detector:
         self._processed_data: Optional[ProcessedData] = None
 
         # This will be the memory of the detector where trapped charges will be saved
-        self._memory: Dict = {}
+        self._memory: dict = {}
         self._persistence: Optional[Union[Persistence, SimplePersistence]] = None
 
         self.input_image: Optional[np.ndarray] = None

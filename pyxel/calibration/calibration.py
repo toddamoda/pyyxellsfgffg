@@ -7,17 +7,9 @@
 
 """TBW."""
 import logging
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Literal,
-    Mapping,
-    Optional,
-    Sequence,
-    Tuple,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Literal, Optional, Union
 
 import numpy as np
 from dask.delayed import Delayed
@@ -318,7 +310,7 @@ class Calibration:
         processor: Processor,
         output_dir: Path,
         with_progress_bar: bool = True,
-    ) -> Tuple["xr.Dataset", "pd.DataFrame", "pd.DataFrame"]:
+    ) -> tuple["xr.Dataset", "pd.DataFrame", "pd.DataFrame"]:
         """Run calibration pipeline."""
         try:
             import pygmo as pg

@@ -35,8 +35,9 @@ t: constant TDI period (parallel)
 st: constant TDI period (serial)
 """
 
+from collections.abc import Sequence
 from enum import Enum
-from typing import Literal, Optional, Sequence
+from typing import Literal, Optional
 
 import astropy.constants as const
 import numba

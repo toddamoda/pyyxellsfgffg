@@ -7,7 +7,8 @@
 
 """Tools for jupyter notebook visualization."""
 
-from typing import TYPE_CHECKING, Any, Dict, Sequence, Union
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, Union
 
 import numpy as np
 
@@ -158,7 +159,7 @@ def display_detector(detector: "Detector") -> "Layout":
         hv.extension("bokeh")
 
     # Container for detector data, leave out where there is none.
-    det: Dict[str, np.ndarray] = {}
+    det: dict[str, np.ndarray] = {}
     if detector.input_image is not None:
         det["Input"] = detector.input_image
     if detector._photon is not None:

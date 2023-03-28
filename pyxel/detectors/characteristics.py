@@ -7,7 +7,8 @@
 
 """TBW."""
 
-from typing import Iterable, Mapping, Optional, Tuple
+from collections.abc import Iterable, Mapping
+from typing import Optional
 
 import numpy as np
 from toolz import dicttoolz
@@ -41,7 +42,7 @@ class Characteristics:
         pre_amplification: Optional[float] = None,  # unit: V/V
         full_well_capacity: Optional[float] = None,  # unit: electron
         adc_bit_resolution: Optional[int] = None,
-        adc_voltage_range: Optional[Tuple[float, float]] = None,  # unit: V
+        adc_voltage_range: Optional[tuple[float, float]] = None,  # unit: V
     ):
         if quantum_efficiency and not (0.0 <= quantum_efficiency <= 1.0):
             raise ValueError("'quantum_efficiency' must be between 0.0 and 1.0.")
@@ -151,7 +152,7 @@ class Characteristics:
         self._adc_bit_resolution = value
 
     @property
-    def adc_voltage_range(self) -> Tuple[float, float]:
+    def adc_voltage_range(self) -> tuple[float, float]:
         """Get voltage range of the Analog-Digital Converter."""
         if self._adc_voltage_range:
             return self._adc_voltage_range
@@ -161,7 +162,7 @@ class Characteristics:
             )
 
     @adc_voltage_range.setter
-    def adc_voltage_range(self, value: Tuple[float, float]) -> None:
+    def adc_voltage_range(self, value: tuple[float, float]) -> None:
         """Set voltage range of the Analog-Digital Converter."""
         self._adc_voltage_range = value
 
@@ -226,7 +227,7 @@ class Characteristics:
         new_dct: Mapping = dicttoolz.dissoc(dct, "adc_voltage_range")
 
         if param is None:
-            adc_voltage_range: Optional[Tuple[float, float]] = None
+            adc_voltage_range: Optional[tuple[float, float]] = None
         else:
             adc_voltage_min, adc_voltage_max = tuple(param)
             adc_voltage_range = adc_voltage_min, adc_voltage_max

@@ -29,7 +29,8 @@ current status, in Image Sensing Technologies: Materials, Devices, Systems, and 
 """
 
 import math
-from typing import Mapping, Optional, Tuple
+from collections.abc import Mapping
+from typing import Optional
 
 import numpy as np
 from toolz import dicttoolz
@@ -66,7 +67,7 @@ class APDCharacteristics:
         quantum_efficiency: Optional[float] = None,  # unit: NA
         full_well_capacity: Optional[float] = None,  # unit: electron
         adc_bit_resolution: Optional[int] = None,
-        adc_voltage_range: Optional[Tuple[float, float]] = None,  # unit: V
+        adc_voltage_range: Optional[tuple[float, float]] = None,  # unit: V
         avalanche_gain: Optional[float] = None,  # unit: electron/electron
         pixel_reset_voltage: Optional[float] = None,  # unit: V
         common_voltage: Optional[float] = None,  # unit: V
@@ -242,7 +243,7 @@ class APDCharacteristics:
         self._adc_bit_resolution = value
 
     @property
-    def adc_voltage_range(self) -> Tuple[float, float]:
+    def adc_voltage_range(self) -> tuple[float, float]:
         """Get voltage range of the Analog-Digital Converter."""
         if self._adc_voltage_range:
             return self._adc_voltage_range
@@ -252,7 +253,7 @@ class APDCharacteristics:
             )
 
     @adc_voltage_range.setter
-    def adc_voltage_range(self, value: Tuple[float, float]) -> None:
+    def adc_voltage_range(self, value: tuple[float, float]) -> None:
         """Set voltage range of the Analog-Digital Converter."""
         self._adc_voltage_range = value
 

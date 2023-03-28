@@ -7,7 +7,7 @@
 
 """Models to generate charge due to dark current process."""
 import warnings
-from typing import Optional, Tuple
+from typing import Optional
 
 import numpy as np
 from astropy import constants as const
@@ -117,7 +117,7 @@ def average_dark_current(
 
 
 def compute_dark_current(
-    shape: Tuple[int, int],
+    shape: tuple[int, int],
     time_step: float,
     temperature: float,
     pixel_area: float,
@@ -325,7 +325,7 @@ def simple_dark_current(
 def calculate_dark_current_saphira(
     temperature: float,
     avalanche_gain: float,
-    shape: Tuple[int, int],
+    shape: tuple[int, int],
     exposure_time: float,
 ) -> np.ndarray:
     """Simulate dark current in a Saphira :term:`APD`.

@@ -7,18 +7,10 @@
 
 """Sub-package to create 'archipelagos'."""
 import logging
+from collections.abc import Mapping, Sequence
 from concurrent.futures.thread import ThreadPoolExecutor
 from timeit import default_timer as timer
-from typing import (
-    TYPE_CHECKING,
-    Callable,
-    List,
-    Mapping,
-    Optional,
-    Sequence,
-    Tuple,
-    Union,
-)
+from typing import TYPE_CHECKING, Callable, Optional, Union
 
 import dask.array as da
 import numpy as np
@@ -82,7 +74,7 @@ class ArchipelagoLogs:
 
     def _from_archi(self, archi: "pg.archipelago") -> pd.DataFrame:
         """Get logging information from an archipelago."""
-        lst: List[pd.DataFrame] = []
+        lst: list[pd.DataFrame] = []
 
         for id_island, island in enumerate(archi):
             # Extract the Pygmo algorithm from an island
@@ -127,7 +119,7 @@ def extract_data_3d(
     readout_times: np.ndarray,
 ) -> xr.Dataset:
     """Extract 'photon', 'charge', 'pixel', 'signal' and 'image' arrays from several delayed dynamic results."""
-    lst: List[xr.Dataset] = []
+    lst: list[xr.Dataset] = []
     for _, row in df_results.iterrows():
         island: int = row["island"]
         id_processor: int = row["id_processor"]
@@ -302,7 +294,7 @@ class MyArchipelago:
         readout: "Readout",
         num_evolutions: int = 1,
         num_best_decisions: Optional[int] = None,
-    ) -> Tuple[xr.Dataset, pd.DataFrame, pd.DataFrame]:
+    ) -> tuple[xr.Dataset, pd.DataFrame, pd.DataFrame]:
         """Run evolution(s) several time.
 
         Parameters
@@ -332,7 +324,7 @@ class MyArchipelago:
             unit=" generations",
             disable=not self.with_bar,
         ) as progress:
-            champions_lst: List[xr.Dataset] = []
+            champions_lst: list[xr.Dataset] = []
             # Run an evolution im the archipelago several times
             for id_evolution in range(num_evolutions):
                 # If the evolution on this archipelago was already run before, then

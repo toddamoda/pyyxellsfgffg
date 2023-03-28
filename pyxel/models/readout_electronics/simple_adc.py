@@ -8,7 +8,7 @@
 
 """Simple ADC model functions."""
 
-from typing import Literal, Tuple
+from typing import Literal
 
 import numpy as np
 
@@ -16,7 +16,7 @@ from pyxel.detectors import Detector
 
 
 def apply_simple_adc(
-    signal: np.ndarray, bit_resolution: int, voltage_range: Tuple[float, float]
+    signal: np.ndarray, bit_resolution: int, voltage_range: tuple[float, float]
 ) -> np.ndarray:
     """Apply digitization.
 

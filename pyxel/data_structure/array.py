@@ -7,7 +7,7 @@
 
 """Pyxel Array class."""
 
-from typing import TYPE_CHECKING, Optional, Tuple, Type, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 import numpy as np
 
@@ -25,8 +25,8 @@ if TYPE_CHECKING:
 class Array:
     """Array class."""
 
-    EXP_TYPE: Union[Type, np.dtype] = type(None)
-    TYPE_LIST: Tuple[np.dtype, ...] = ()
+    EXP_TYPE: Union[type, np.dtype] = type(None)
+    TYPE_LIST: tuple[np.dtype, ...] = ()
     NAME: str = ""
     UNIT: str = ""
 
@@ -82,7 +82,7 @@ class Array:
         return np.asarray(self._array, dtype=dtype)
 
     @property
-    def shape(self) -> Tuple[int, int]:
+    def shape(self) -> tuple[int, int]:
         """Return array shape."""
         num_cols, num_rows = self._array.shape
         return num_cols, num_rows

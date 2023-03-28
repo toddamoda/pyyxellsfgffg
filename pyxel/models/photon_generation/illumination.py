@@ -6,7 +6,8 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 """Pyxel photon generator models."""
-from typing import Literal, Optional, Sequence, Tuple
+from collections.abc import Sequence
+from typing import Literal, Optional
 
 import numpy as np
 
@@ -15,7 +16,7 @@ from pyxel.util import deprecated
 
 
 def rectangular(
-    shape: Tuple[int, int],
+    shape: tuple[int, int],
     level: float,
     object_size: Optional[Sequence[int]] = None,
     object_center: Optional[Sequence[int]] = None,
@@ -67,7 +68,7 @@ def rectangular(
 
 
 def elliptic(
-    shape: Tuple[int, int],
+    shape: tuple[int, int],
     level: float,
     object_size: Optional[Sequence[int]] = None,
     object_center: Optional[Sequence[int]] = None,
@@ -119,7 +120,7 @@ def elliptic(
 
 
 def calculate_illumination(
-    shape: Tuple[int, int],
+    shape: tuple[int, int],
     level: float,
     option: Literal["uniform", "rectangular", "elliptic"] = "uniform",
     object_size: Optional[Sequence[int]] = None,

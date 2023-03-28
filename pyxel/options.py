@@ -7,8 +7,9 @@
 
 """Subpackage to define options in Pyxel."""
 
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Mapping, Optional, Union
+from typing import Any, Optional, Union
 
 import attrs
 

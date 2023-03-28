@@ -8,7 +8,7 @@
 """Subpackage containing user defined Island and Batch Fitness evaluator using Dask."""
 
 import logging
-from typing import TYPE_CHECKING, Optional, Tuple
+from typing import TYPE_CHECKING, Optional
 
 import numpy as np
 from dask import array as da
@@ -151,7 +151,7 @@ class DaskIsland:
 
     def run_evolve(
         self, algo: "pg.algorithm", pop: "pg.population"
-    ) -> Tuple["pg.algorithm", "pg.population"]:
+    ) -> tuple["pg.algorithm", "pg.population"]:
         """Run 'evolve' method from the input `algorithm` to evolve the input `population`.
 
         Once the evolution is finished, it will return the algorithm used for the
