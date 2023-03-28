@@ -65,7 +65,15 @@ class Characteristics:
         self._charge_to_volt_conversion = charge_to_volt_conversion
         self._pre_amplification = pre_amplification
         self._full_well_capacity = full_well_capacity
-        self._adc_voltage_range = adc_voltage_range
+
+        if adc_voltage_range is None:
+            volt_range: Optional[Tuple[float, float]] = None
+        else:
+            # Force 'volt_range' to be a tuple of 2 elements
+            start_volt, end_volt = adc_voltage_range
+            volt_range = (start_volt, end_volt)
+
+        self._adc_voltage_range = volt_range
         self._adc_bit_resolution = adc_bit_resolution
 
         self._numbytes = 0
