@@ -47,7 +47,7 @@ class Parameters:
     ],
 )
 def test_vertical_pixel_center_pos(
-    geometry_cls: Type[Geometry], parameters: Parameters, exp_values: np.ndarray
+    geometry_cls: type[Geometry], parameters: Parameters, exp_values: np.ndarray
 ):
     """Test method '.vertical_pixel_center_pos_list'."""
     # Create the geometry object
@@ -87,7 +87,7 @@ def test_vertical_pixel_center_pos(
     ],
 )
 def test_horizontal_pixel_center_pos(
-    geometry_cls: Type[Geometry], parameters: Parameters, exp_values: np.ndarray
+    geometry_cls: type[Geometry], parameters: Parameters, exp_values: np.ndarray
 ):
     """Test method '.horizontal_pixel_center_pos_list'."""
     # Create the geometry object

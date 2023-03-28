@@ -12,7 +12,8 @@ import os
 import platform
 import struct
 import sys
-from typing import Any, Dict, Mapping, Optional, Tuple
+from collections.abc import Mapping
+from typing import Any, Optional
 
 from ._version import get_versions
 
@@ -93,7 +94,7 @@ def show_versions():
     """
     system_info: Mapping[str, Any] = get_system_info()
 
-    dependencies_lst: Tuple[str, ...] = (
+    dependencies_lst: tuple[str, ...] = (
         "pyxel",
         # required
         "astropy",
@@ -143,7 +144,7 @@ def show_versions():
         "sphinx",
     )
 
-    dependencies: Dict[str, Optional[str]] = {}
+    dependencies: dict[str, Optional[str]] = {}
 
     for module_name in dependencies_lst:
         try:

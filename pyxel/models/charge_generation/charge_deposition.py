@@ -7,8 +7,9 @@
 
 """Simple models to simulate charge deposition by ionizing particles (e.g. cosmic rays)."""
 
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Literal, Optional, Sequence, Union
+from typing import Literal, Optional, Union
 
 import numpy as np
 import pandas as pd

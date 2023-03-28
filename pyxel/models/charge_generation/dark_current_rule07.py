@@ -7,7 +7,7 @@
 
 """Simple models to generate charge due to dark current process."""
 import warnings
-from typing import Optional, Tuple
+from typing import Optional
 
 import numpy as np
 
@@ -83,7 +83,7 @@ def average_dark_current_rule07(
 
 
 def compute_mct_dark_rule07(
-    shape: Tuple[int, int],
+    shape: tuple[int, int],
     pitch: float,
     time_step: float,
     temperature: float,

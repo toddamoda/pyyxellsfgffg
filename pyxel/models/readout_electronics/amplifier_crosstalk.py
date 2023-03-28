@@ -7,8 +7,9 @@
 
 """Amplifier crosstalk model: https://arxiv.org/abs/1808.00790."""
 
+from collections.abc import Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, List, Sequence, Tuple, Union
+from typing import TYPE_CHECKING, Any, Union
 
 import numba
 import numpy as np
@@ -50,7 +51,7 @@ def flip_array(array: np.ndarray, direction: int) -> np.ndarray:
 @numba.njit
 def get_channel_slices(
     shape: tuple, channel_matrix: np.ndarray
-) -> List[List[Tuple[Any, Any]]]:
+) -> list[list[tuple[Any, Any]]]:
     """Get pairs of slices that correspond to the given channel matrix in numerical order of channels.
 
     Parameters
@@ -131,7 +132,7 @@ def crosstalk_signal_ac(
     """
     amp_number = channel_matrix.size  # number of amplifiers
 
-    slices: List[List[Tuple[Any, Any]]] = get_channel_slices(
+    slices: list[list[tuple[Any, Any]]] = get_channel_slices(
         shape=array.shape, channel_matrix=channel_matrix
     )
 
@@ -181,7 +182,7 @@ def crosstalk_signal_dc(
     """
     amp_number = channel_matrix.size  # number of amplifiers
 
-    slices: List[List[Tuple[Any, Any]]] = get_channel_slices(
+    slices: list[list[tuple[Any, Any]]] = get_channel_slices(
         shape=array.shape, channel_matrix=channel_matrix
     )
 

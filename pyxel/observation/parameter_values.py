@@ -8,9 +8,10 @@
 """TBW."""
 
 from collections import abc
+from collections.abc import Iterator, Sequence
 from enum import Enum
 from numbers import Number
-from typing import Iterator, Literal, Optional, Sequence, Tuple, Union
+from typing import Literal, Optional, Union
 
 import numpy as np
 from numpy.typing import NDArray
@@ -41,8 +42,8 @@ class ParameterValues:
             Sequence[str],
         ],
         boundaries: Union[
-            Tuple[float, float],
-            Sequence[Tuple[float, float]],
+            tuple[float, float],
+            Sequence[tuple[float, float]],
             None,
         ] = None,
         enabled: bool = True,

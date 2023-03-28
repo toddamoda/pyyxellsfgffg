@@ -71,7 +71,7 @@ def test_load_image(
     ccd_10x10: CCD,
     valid_data2d: str,
     image_file: str,
-    position: Tuple[int, int],
+    position: tuple[int, int],
     align: Optional[
         Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"]
     ],
@@ -114,7 +114,7 @@ def test_load_image_with_invalid_params(
     ccd_10x10: CCD,
     valid_data2d: str,
     image_file: str,
-    position: Tuple[int, int],
+    position: tuple[int, int],
     align: Optional[
         Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"]
     ],

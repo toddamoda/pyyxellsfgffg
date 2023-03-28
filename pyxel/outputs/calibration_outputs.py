@@ -8,18 +8,9 @@
 
 """TBW."""
 
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    List,
-    Mapping,
-    Optional,
-    Protocol,
-    Sequence,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Optional, Protocol, Union
 
 import pandas as pd
 from dask.delayed import Delayed, delayed
@@ -77,7 +68,7 @@ class CalibrationOutputs(Outputs):
 
     def save_processors(self, processors: pd.DataFrame) -> Sequence[Delayed]:
         """TBW."""
-        lst: List[Delayed] = []
+        lst: list[Delayed] = []
 
         if self.save_data_to_file:
             for _, series in processors.iterrows():
@@ -106,7 +97,7 @@ class CalibrationOutputs(Outputs):
         logs: DataFrame
         """
 
-        save_methods: Dict[str, SaveToFile] = {"nc": self.save_to_netcdf}
+        save_methods: dict[str, SaveToFile] = {"nc": self.save_to_netcdf}
 
         if self.save_calibration_data is not None:
             dct: Mapping[str, Sequence[str]]

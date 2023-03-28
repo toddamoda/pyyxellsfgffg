@@ -7,7 +7,8 @@
 
 """Subpackage containing ``typing.Protocol`` definition."""
 
-from typing import TYPE_CHECKING, Protocol, Sequence, Tuple
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Protocol
 
 import numpy as np
 
@@ -22,7 +23,7 @@ class IslandProtocol(Protocol):
 
     def run_evolve(
         self, algo: "pg.algorithm", pop: "pg.population"
-    ) -> Tuple["pg.algorithm", "pg.population"]:
+    ) -> tuple["pg.algorithm", "pg.population"]:
         """Run 'evolve' method."""
         ...
 
@@ -43,7 +44,7 @@ class ProblemSingleObjective(Protocol):
         """
         ...
 
-    def get_bounds(self) -> Tuple[Sequence[float], Sequence[float]]:
+    def get_bounds(self) -> tuple[Sequence[float], Sequence[float]]:
         """Get the box bounds of the problem (lower_boundary, upper_boundary).
 
         It also implicitly defines the dimension of the problem.

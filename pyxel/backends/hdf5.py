@@ -8,9 +8,10 @@
 """TBW."""
 
 from collections import abc
+from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Iterator, Mapping, Optional, Union
+from typing import Any, Optional, Union
 
 import h5py as h5
 import numpy as np

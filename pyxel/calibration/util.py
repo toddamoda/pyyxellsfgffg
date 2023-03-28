@@ -7,9 +7,10 @@
 
 """TBW."""
 
+from collections.abc import Sequence
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, NamedTuple, Optional, Sequence, Tuple, Union
+from typing import TYPE_CHECKING, NamedTuple, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -130,7 +131,7 @@ def read_data(filenames: Sequence[Path]) -> Sequence[np.ndarray]:
 # TODO: Refactor and add more unit tests. See #327
 def list_to_slice(
     input_list: Optional[Sequence[int]] = None,
-) -> Union[Tuple[slice, slice], Tuple[slice, slice, slice]]:
+) -> Union[tuple[slice, slice], tuple[slice, slice, slice]]:
     """TBW.
 
     :return:
@@ -155,7 +156,7 @@ def list_to_slice(
 # TODO: Refactor and add more unit tests. See #327
 def list_to_3d_slice(
     input_list: Optional[Sequence[int]] = None,
-) -> Tuple[slice, slice, slice]:
+) -> tuple[slice, slice, slice]:
     """TBW.
 
     :return:

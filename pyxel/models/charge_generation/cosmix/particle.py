@@ -7,7 +7,7 @@
 
 """Pyxel CosmiX model to generate charge by ionization."""
 
-from typing import List, Literal, Optional, Tuple, Union
+from typing import Literal, Optional, Union
 
 import numpy as np
 
@@ -159,7 +159,7 @@ class Particle:
     def get_surface_point(self) -> np.ndarray:
         geo = self.detector.geometry
 
-        norm_vectors: List[np.ndarray] = [
+        norm_vectors: list[np.ndarray] = [
             np.array(
                 [0.0, 0.0, -1.0]
             ),  # top plane (usually particle enters vol. via this)
@@ -172,7 +172,7 @@ class Particle:
             np.array([1.0, 0.0, 0.0]),
         ]
 
-        points: List[np.ndarray] = [
+        points: list[np.ndarray] = [
             np.array(
                 [0.0, 0.0, 0.0]
             ),  # top plane (usually particle enters vol. via this)
@@ -240,7 +240,7 @@ class Particle:
 
         return surface_start_point
 
-    def get_angles(self) -> Tuple[float, float]:
+    def get_angles(self) -> tuple[float, float]:
         beta = np.arccos(
             np.dot(np.array([1.0, 0.0]), np.array([self.dir_ver, self.dir_hor]))
         )
@@ -333,7 +333,7 @@ def find_intersection(
         return p
 
 
-def isotropic_direction() -> Tuple[float, float, float]:
+def isotropic_direction() -> tuple[float, float, float]:
     u = 2 * np.random.random() - 1
     r = np.sqrt(1 - u**2)
     kszi = np.random.random()
@@ -342,7 +342,7 @@ def isotropic_direction() -> Tuple[float, float, float]:
     return u, v, w
 
 
-def non_isotropic_direction(n: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def non_isotropic_direction(n: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     alpha = 2 * np.pi * np.random.random(n)
     beta = 2 * np.pi * np.random.random(n)
     x = np.cos(alpha) * np.sin(beta)

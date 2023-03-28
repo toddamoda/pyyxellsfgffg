@@ -8,28 +8,14 @@
 """Parametric mode class and helper functions."""
 import itertools
 import logging
-import sys
 from collections import Counter
+from collections.abc import Iterable, Iterator, Mapping, Sequence
 from copy import deepcopy
 from dataclasses import dataclass
 from enum import Enum
 from functools import partial
 from numbers import Number
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    Literal,
-    Mapping,
-    NamedTuple,
-    Optional,
-    Sequence,
-    Tuple,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple, Optional, Tuple, Union
 
 import dask.bag as db
 import numpy as np
@@ -61,7 +47,7 @@ class ParameterMode(Enum):
 class ObservationResult(NamedTuple):
     """Result class for observation class."""
 
-    dataset: Union["xr.Dataset", Dict[str, "xr.Dataset"]]
+    dataset: Union["xr.Dataset", dict[str, "xr.Dataset"]]
     parameters: "xr.Dataset"
     logs: "xr.Dataset"
 
@@ -71,7 +57,7 @@ class ParameterItem:
     """Internal Parameter Item."""
 
     # TODO: Merge 'index' and 'parameters'
-    index: Tuple[int, ...]
+    index: tuple[int, ...]
     parameters: Mapping[str, Any]
     run_index: int
 
@@ -104,7 +90,7 @@ def _get_final_short_name(name: str, param_type: ParameterType) -> str:
 # TODO: This function will be deprecated (see #563)
 def _get_short_dimension_names(types: Mapping[str, ParameterType]) -> Mapping[str, str]:
     # Create potential names for the dimensions
-    potential_dim_names: Dict[str, str] = {}
+    potential_dim_names: dict[str, str] = {}
     for param_name, param_type in types.items():
         short_name: str = short(param_name)
 
@@ -120,7 +106,7 @@ def _get_short_dimension_names(types: Mapping[str, ParameterType]) -> Mapping[st
     ]
 
     if duplicate_dim_names:
-        dim_names: Dict[str, str] = {}
+        dim_names: dict[str, str] = {}
         for param_name, param_type in types.items():
             short_name = potential_dim_names[param_name]
 
@@ -143,7 +129,7 @@ def _get_short_dimension_names_new(
     types: Mapping[str, ParameterType]
 ) -> Mapping[str, str]:
     # Create potential names for the dimensions
-    potential_dim_names: Dict[str, str] = {}
+    potential_dim_names: dict[str, str] = {}
     for param_name in types:
         short_name: str = short(param_name)
 
@@ -157,7 +143,7 @@ def _get_short_dimension_names_new(
     ]
 
     if duplicate_dim_names:
-        dim_names: Dict[str, str] = {}
+        dim_names: dict[str, str] = {}
         for param_name in types:
             short_name = potential_dim_names[param_name]
 
@@ -183,7 +169,7 @@ class Observation:
         readout: Optional[Readout] = None,
         mode: Literal["product", "sequential", "custom"] = "product",
         from_file: Optional[str] = None,  # Note: Only For 'custom' mode
-        column_range: Optional[Tuple[int, int]] = None,  # Note: Only For 'custom' mode
+        column_range: Optional[tuple[int, int]] = None,  # Note: Only For 'custom' mode
         with_dask: bool = False,
         result_type: Literal["image", "signal", "pixel", "all"] = "all",
         pipeline_seed: Optional[int] = None,
@@ -201,7 +187,7 @@ class Observation:
         )
 
         self.with_dask = with_dask
-        self.parameter_types: Dict[str, ParameterType] = {}
+        self.parameter_types: dict[str, ParameterType] = {}
         self._result_type = ResultType(result_type)
         self._pipeline_seed = pipeline_seed
 
@@ -255,9 +241,9 @@ class Observation:
     def _custom_parameters(
         self,
     ) -> Iterator[
-        Tuple[
+        tuple[
             int,
-            Dict[str, Union[Number, str, Sequence[Union[Number, str]]]],
+            dict[str, Union[Number, str, Sequence[Union[Number, str]]]],
         ]
     ]:
         """Generate custom mode parameters based on input file.
@@ -276,7 +262,7 @@ class Observation:
             row: Sequence[Union[Number, str]] = row_serie.to_list()
 
             i: int = 0
-            parameter_dict: Dict[
+            parameter_dict: dict[
                 str, Union[Number, str, Sequence[Union[Number, str]]]
             ] = {}
             for step in self.enabled_steps:
@@ -312,7 +298,7 @@ class Observation:
 
             yield index, parameter_dict
 
-    def _sequential_parameters(self) -> Iterator[Tuple[int, dict]]:
+    def _sequential_parameters(self) -> Iterator[tuple[int, dict]]:
         """Generate sequential mode parameters.
 
         Yields
@@ -340,7 +326,7 @@ class Observation:
 
     def _product_parameters(
         self,
-    ) -> Iterator[Tuple[Tuple, Dict[str, Any]]]:
+    ) -> Iterator[tuple[tuple, dict[str, Any]]]:
         """Generate product mode parameters.
 
         Yields
@@ -359,7 +345,7 @@ class Observation:
             yield indices, parameter_dict
 
     # TODO: This function will be deprecated (see #563)
-    def _parameter_it(self) -> Iterator[Tuple]:
+    def _parameter_it(self) -> Iterator[tuple]:
         """Return the method for generating parameters based on parametric mode."""
         if self.parameter_mode == ParameterMode.Product:
             yield from self._product_parameters()
@@ -374,7 +360,7 @@ class Observation:
 
     def _processors_it(
         self, processor: "Processor"
-    ) -> Iterator[Tuple["Processor", Union[int, Tuple[int]], Dict]]:
+    ) -> Iterator[tuple["Processor", Union[int, tuple[int]], dict]]:
         """Generate processors with different product parameters.
 
         Parameters
@@ -403,7 +389,7 @@ class Observation:
 
     def run_debug_mode(
         self, processor: "Processor"
-    ) -> Tuple[List["Processor"], "xr.Dataset"]:
+    ) -> tuple[list["Processor"], "xr.Dataset"]:
         """Run observation pipelines in debug mode and return list of processors and parameter logs.
 
         Parameters
@@ -419,7 +405,7 @@ class Observation:
         import xarray as xr
 
         processors = []
-        logs: List[xr.Dataset] = []
+        logs: list[xr.Dataset] = []
 
         for processor_id, (proc, _index, parameter_dict) in enumerate(
             tqdm(self._processors_it(processor))
@@ -532,7 +518,7 @@ class Observation:
                 dataset_list = list(map(apply_pipeline, tqdm(lst)))
 
             # prepare lists for to-be-merged datasets
-            parameters: List[List[xr.Dataset]] = [
+            parameters: list[list[xr.Dataset]] = [
                 [] for _ in range(len(self.enabled_steps))
             ]
             logs = []
@@ -555,7 +541,7 @@ class Observation:
                     parameters[i].append(parameter_ds)
 
             # merging/combining the outputs
-            final_parameters_list: List[xr.Dataset] = []
+            final_parameters_list: list[xr.Dataset] = []
             for p in parameters:
                 # See issue #276
                 new_dataset = xr.combine_by_coords(p)
@@ -782,24 +768,14 @@ class Observation:
 
             params_it = self._sequential_parameters()
 
-            if sys.version_info >= (3, 9):
-                lst_sequence = [
-                    CustomParameterItem(
-                        index=index,
-                        parameters=params_defaults | parameter_dict,
-                        run_index=n,
-                    )
-                    for n, (index, parameter_dict) in enumerate(params_it)
-                ]
-            else:
-                lst_sequence = [
-                    CustomParameterItem(
-                        index=index,
-                        parameters={**params_defaults, **parameter_dict},
-                        run_index=n,
-                    )
-                    for n, (index, parameter_dict) in enumerate(params_it)
-                ]
+            lst_sequence = [
+                CustomParameterItem(
+                    index=index,
+                    parameters=params_defaults | parameter_dict,
+                    run_index=n,
+                )
+                for n, (index, parameter_dict) in enumerate(params_it)
+            ]
 
             if self.with_dask:
                 dataset_list = (
@@ -853,11 +829,11 @@ class Observation:
     # TODO: This function will be deprecated (see #563)
     def _apply_exposure_pipeline_product(
         self,
-        index_and_parameter: Tuple[
-            Tuple[int, ...],
+        index_and_parameter: tuple[
+            tuple[int, ...],
             Mapping[
                 str,
-                Union[str, Number, np.ndarray, List[Union[str, Number, np.ndarray]]],
+                Union[str, Number, np.ndarray, list[Union[str, Number, np.ndarray]]],
             ],
             int,
         ],
@@ -955,11 +931,11 @@ class Observation:
     # TODO: This function will be deprecated (see #563)
     def _apply_exposure_pipeline_custom(
         self,
-        index_and_parameter: Tuple[
+        index_and_parameter: tuple[
             int,
             Mapping[
                 str,
-                Union[str, Number, np.ndarray, List[Union[str, Number, np.ndarray]]],
+                Union[str, Number, np.ndarray, list[Union[str, Number, np.ndarray]]],
             ],
             int,
         ],
@@ -1048,11 +1024,11 @@ class Observation:
     # TODO: This function will be deprecated (see #563)
     def _apply_exposure_pipeline_sequential(
         self,
-        index_and_parameter: Tuple[
+        index_and_parameter: tuple[
             int,
             Mapping[
                 str,
-                Union[str, Number, np.ndarray, List[Union[str, Number, np.ndarray]]],
+                Union[str, Number, np.ndarray, list[Union[str, Number, np.ndarray]]],
             ],
             int,
         ],
@@ -1175,7 +1151,7 @@ class Observation:
 def create_new_processor(
     processor: "Processor",
     parameter_dict: Mapping[
-        str, Union[str, Number, np.ndarray, List[Union[str, Number, np.ndarray]]]
+        str, Union[str, Number, np.ndarray, list[Union[str, Number, np.ndarray]]]
     ],
 ) -> "Processor":
     """Create a copy of processor and set new attributes from a dictionary before returning it.
@@ -1341,7 +1317,7 @@ def _add_custom_parameters_new(
 def _add_sequential_parameters(
     ds: "xr.Dataset",
     parameter_dict: Mapping[
-        str, Union[str, Number, np.ndarray, List[Union[str, Number, np.ndarray]]]
+        str, Union[str, Number, np.ndarray, list[Union[str, Number, np.ndarray]]]
     ],
     dimension_names: Mapping[str, str],
     index: int,
@@ -1382,10 +1358,10 @@ def _add_sequential_parameters(
 def _add_product_parameters(
     ds: "xr.Dataset",
     parameter_dict: Mapping[
-        str, Union[str, Number, np.ndarray, List[Union[str, Number, np.ndarray]]]
+        str, Union[str, Number, np.ndarray, list[Union[str, Number, np.ndarray]]]
     ],
     dimension_names: Mapping[str, str],
-    indices: Tuple[int, ...],
+    indices: tuple[int, ...],
     types: Mapping[str, ParameterType],
 ) -> "xr.Dataset":
     """Add true coordinates or index to product mode dataset.
@@ -1420,8 +1396,8 @@ def _add_product_parameters(
     return ds
 
 
-def to_tuples(data: Iterable) -> Tuple:
-    lst: List = []
+def to_tuples(data: Iterable) -> tuple:
+    lst: list = []
     for el in data:
         if isinstance(el, Iterable) and not isinstance(el, str):
             lst.append(to_tuples(el))
@@ -1434,7 +1410,7 @@ def to_tuples(data: Iterable) -> Tuple:
 def _add_product_parameters_new(
     ds: "xr.Dataset",
     parameter_dict: Mapping[str, Union[str, Number, ArrayLike]],
-    indexes: Tuple[int, ...],
+    indexes: tuple[int, ...],
     dimension_names: Mapping[str, str],
     types: Mapping[str, ParameterType],
 ) -> "xr.Dataset":
@@ -1481,7 +1457,7 @@ def compute_final_sequential_dataset(
     list_of_index_and_parameter: list,
     list_of_datasets: list,
     dimension_names: Mapping[str, str],
-) -> Dict[str, "xr.Dataset"]:
+) -> dict[str, "xr.Dataset"]:
     """Return a dictionary of result datasets where keys are different parameters.
 
     Parameters
@@ -1497,7 +1473,7 @@ def compute_final_sequential_dataset(
     # Late import to speedup start-up time
     import xarray as xr
 
-    final_dict: Dict[str, List[xr.Dataset]] = {}
+    final_dict: dict[str, list[xr.Dataset]] = {}
 
     for _, parameter_dict, n in list_of_index_and_parameter:
         coordinate = str(list(parameter_dict)[0])
@@ -1509,7 +1485,7 @@ def compute_final_sequential_dataset(
         else:
             final_dict[coordinate_short].append(list_of_datasets[n])
 
-    final_datasets: Dict[str, xr.Dataset] = {}
+    final_datasets: dict[str, xr.Dataset] = {}
     for key, value in final_dict.items():
         ds = xr.combine_by_coords(value)
         # see issue #276

@@ -8,7 +8,7 @@
 """Fix pattern noise model."""
 
 from pathlib import Path
-from typing import Literal, Optional, Tuple, Union
+from typing import Literal, Optional, Union
 
 import numpy as np
 
@@ -19,7 +19,7 @@ from pyxel.util import load_cropped_and_aligned_image, set_random_seed
 def fpn_from_file(
     geometry: Geometry,
     filename: Union[Path, str],
-    position: Tuple[int, int] = (0, 0),
+    position: tuple[int, int] = (0, 0),
     align: Optional[
         Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"]
     ] = None,
@@ -68,7 +68,7 @@ def fpn_from_file(
 
 
 def compute_simple_prnu(
-    shape: Tuple[int, int],
+    shape: tuple[int, int],
     quantum_efficiency: float,
     fixed_pattern_noise_factor: float,
 ) -> np.ndarray:
@@ -99,7 +99,7 @@ def compute_simple_prnu(
 def fixed_pattern_noise(
     detector: Detector,
     filename: Union[Path, str, None] = None,
-    position: Tuple[int, int] = (0, 0),
+    position: tuple[int, int] = (0, 0),
     align: Optional[
         Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"]
     ] = None,

@@ -7,9 +7,10 @@
 
 """Module to read/write ASDF files."""
 
+from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, Iterator, Mapping, Sequence, Union
+from typing import TYPE_CHECKING, Any, Union
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -53,7 +54,7 @@ def from_asdf(filename: Union[str, Path]) -> Iterator[Mapping[str, Any]]:
             "or 'pip install pyxel-sim[all]'"
         ) from exc
 
-    dct: Dict[str, Any] = {}
+    dct: dict[str, Any] = {}
 
     with asdf.open(filename, copy_arrays=True) as af:
         # TODO: Use a JSON schema to validate 'dct'

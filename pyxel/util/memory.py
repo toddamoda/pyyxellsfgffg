@@ -8,7 +8,7 @@
 
 """Object memory consumption utilities."""
 
-from typing import Any, List
+from typing import Any
 
 import numpy as np
 from pympler.asizeof import asizeof
@@ -51,7 +51,7 @@ def print_human_readable_memory(usage: dict) -> None:
 
 def memory_usage_details(
     obj: Any,
-    *attr_kw: List[str],
+    *attr_kw: list[str],
     print_result: bool = True,
     human_readable: bool = True,
 ) -> dict:

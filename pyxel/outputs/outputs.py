@@ -8,21 +8,11 @@
 """Classes for creating outputs."""
 import logging
 import re
+from collections.abc import Mapping, Sequence
 from glob import glob
 from pathlib import Path
 from time import strftime
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    List,
-    Literal,
-    Mapping,
-    Optional,
-    Protocol,
-    Sequence,
-    Tuple,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Literal, Optional, Protocol, Union
 
 import h5py as h5
 import numpy as np
@@ -367,14 +357,14 @@ class Outputs:
             "jpeg": self.save_to_jpeg,
         }
 
-        filenames: List[Path] = []
+        filenames: list[Path] = []
 
         dct: Mapping[ValidName, Sequence[ValidFormat]]
         if self.save_data_to_file:
             for dct in self.save_data_to_file:
                 # TODO: Why looking at first entry ? Check this !
                 # Get first entry of `dict` 'item'
-                first_item: Tuple[ValidName, Sequence[ValidFormat]]
+                first_item: tuple[ValidName, Sequence[ValidFormat]]
                 first_item, *_ = dct.items()
 
                 obj: ValidName
@@ -474,7 +464,7 @@ def apply_run_number(template_filename: Path, run_number: Optional[int] = None) 
         else:
             path_str_for_glob = template_str.replace("?", "*")
             dir_list = glob(path_str_for_glob)
-            num_list: List[int] = sorted(get_number(d) for d in dir_list)
+            num_list: list[int] = sorted(get_number(d) for d in dir_list)
             if num_list:
                 next_num = num_list[-1] + 1
             else:

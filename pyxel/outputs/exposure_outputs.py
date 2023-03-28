@@ -8,17 +8,9 @@
 
 """Single outputs."""
 
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Mapping,
-    Optional,
-    Protocol,
-    Sequence,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Optional, Protocol, Union
 
 from pyxel.outputs import Outputs, ValidFormat, ValidName
 
@@ -78,7 +70,7 @@ class ExposureOutputs(Outputs):
         dataset: Dataset
         """
 
-        save_methods: Dict[str, SaveToFile] = {"nc": self.save_to_netcdf}
+        save_methods: dict[str, SaveToFile] = {"nc": self.save_to_netcdf}
 
         if self.save_exposure_data is not None:
             dct: Mapping[str, Sequence[str]]

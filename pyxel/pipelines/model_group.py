@@ -7,8 +7,9 @@
 
 """TBW."""
 import logging
+from collections.abc import Iterator, Mapping, Sequence
 from copy import deepcopy
-from typing import TYPE_CHECKING, Iterator, List, Mapping, Optional, Sequence
+from typing import TYPE_CHECKING, Optional
 
 from pyxel import util
 from pyxel.pipelines import ModelFunction
@@ -32,7 +33,7 @@ class ModelGroup:
     def __repr__(self):
         cls_name: str = self.__class__.__name__
 
-        all_models: List[str] = [model.name for model in self.models if model.name]
+        all_models: list[str] = [model.name for model in self.models if model.name]
 
         return f"{cls_name}<name={self._name!r}, models={all_models!r}>"
 

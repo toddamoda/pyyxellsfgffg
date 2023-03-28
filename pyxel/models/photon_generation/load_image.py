@@ -6,7 +6,7 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 """Pyxel photon generator models."""
-from typing import Literal, Optional, Tuple
+from typing import Literal, Optional
 
 from pyxel.detectors import Detector
 from pyxel.util import deprecated, load_cropped_and_aligned_image
@@ -19,7 +19,7 @@ from pyxel.util import deprecated, load_cropped_and_aligned_image
 def load_image(
     detector: Detector,
     image_file: str,
-    position: Tuple[int, int] = (0, 0),
+    position: tuple[int, int] = (0, 0),
     align: Optional[
         Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"]
     ] = None,

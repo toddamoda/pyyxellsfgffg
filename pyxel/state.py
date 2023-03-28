@@ -6,13 +6,14 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 """TBW."""
-from typing import Any, Dict, Mapping, Optional, Sequence, Tuple, Type
+from collections.abc import Mapping, Sequence
+from typing import Any, Optional
 
 __all__ = ["get_obj_att", "get_obj_by_type", "get_value", "get_state_ids", "copy_state"]
 
 
 # TODO: Remove this function ? See issue #230.
-def get_obj_by_type(obj: Any, key: str, obj_type: Optional[Type] = None) -> Any:
+def get_obj_by_type(obj: Any, key: str, obj_type: Optional[type] = None) -> Any:
     """Get the object associated with the class type following the key chain.
 
     :param obj:
@@ -27,7 +28,7 @@ def get_obj_by_type(obj: Any, key: str, obj_type: Optional[Type] = None) -> Any:
 
 
 # TODO: Remove this function ? See issue #230.
-def get_obj_att(obj: Any, key: str, obj_type: Optional[Type] = None) -> Tuple[Any, str]:
+def get_obj_att(obj: Any, key: str, obj_type: Optional[type] = None) -> tuple[Any, str]:
     """Get the object associated with the key.
 
     Example::
@@ -107,7 +108,7 @@ def get_state(obj: Any) -> Mapping[str, Any]:
 def get_state_ids(
     obj: Any,
     parent_key_list: Optional[Sequence[str]] = None,
-    result: Optional[Dict[str, Any]] = None,
+    result: Optional[dict[str, Any]] = None,
 ) -> Any:
     """Retrieve a flat dictionary of the object attribute hierarchy.
 

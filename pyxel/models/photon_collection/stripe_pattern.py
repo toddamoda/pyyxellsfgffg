@@ -8,7 +8,7 @@
 
 """Stripe pattern illumination model."""
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 import numpy as np
 import skimage.transform as tr
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from pyxel.detectors import Detector
 
 
-def square_signal(n: int, lw: int, start_with: int = 0) -> List[int]:
+def square_signal(n: int, lw: int, start_with: int = 0) -> list[int]:
     """Compute a 1D periodic square signal.
 
     Parameters
@@ -36,8 +36,8 @@ def square_signal(n: int, lw: int, start_with: int = 0) -> List[int]:
     """
     if lw > n // 2:
         raise ValueError("Line too wide.")
-    start: List[int] = [start_with] * lw
-    second: List[int] = [1 - start_with] * lw
+    start: list[int] = [start_with] * lw
+    second: list[int] = [1 - start_with] * lw
     pair = start + second
     num = n // len(pair)
     out = pair * num
@@ -87,8 +87,8 @@ def compute_pattern(
     sx = slice(n // 2 - y // 2, n // 2 + y // 2)
     sy = slice(m // 2 - x // 2, m // 2 + x // 2)
 
-    signal_lst: List[int] = square_signal(n=n, lw=period // 2, start_with=start_with)
-    new_signal_lst: List[int] = signal_lst + ([1] * (n - len(signal_lst)))
+    signal_lst: list[int] = square_signal(n=n, lw=period // 2, start_with=start_with)
+    new_signal_lst: list[int] = signal_lst + ([1] * (n - len(signal_lst)))
     signal = np.array(new_signal_lst)[::-1]
 
     out = np.ones((n, m))

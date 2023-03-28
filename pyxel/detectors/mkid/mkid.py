@@ -14,7 +14,8 @@
 
 """:term:`MKID`-array detector modeling class."""
 
-from typing import TYPE_CHECKING, Mapping, Optional
+from collections.abc import Mapping
+from typing import TYPE_CHECKING, Optional
 
 from pyxel.data_structure import Phase
 from pyxel.detectors import Detector
