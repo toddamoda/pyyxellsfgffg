@@ -76,8 +76,9 @@ TO DO:
 
 """
 
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Literal, Optional, Sequence, Tuple, Union
+from typing import Literal, Optional, Union
 
 import numba
 import numpy as np
@@ -162,7 +163,7 @@ def compute_simple_persistence(
     trap_time_constants: np.ndarray,
     delta_t: float,
     trap_capacities: Optional[np.ndarray] = None,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Compute simple persistence.
 
     Parameters
@@ -230,11 +231,11 @@ def persistence(
     trap_proportions: Sequence[float],
     trap_densities_filename: Union[Path, str],
     trap_capacities_filename: Optional[Union[Path, str]] = None,
-    trap_densities_position: Tuple[int, int] = (0, 0),
+    trap_densities_position: tuple[int, int] = (0, 0),
     trap_densities_align: Optional[
         Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"]
     ] = None,
-    trap_capacities_position: Tuple[int, int] = (0, 0),
+    trap_capacities_position: tuple[int, int] = (0, 0),
     trap_capacities_align: Optional[
         Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"]
     ] = None,
@@ -349,7 +350,7 @@ def compute_persistence(
     trap_densities_2d: np.ndarray,
     delta_t: float,
     trap_capacities_2d: Optional[np.ndarray] = None,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Compute persistence.
 
     Parameters
@@ -422,7 +423,7 @@ def clip_trapped_charge(
     available_traps: np.ndarray,
     pixel_diff: np.ndarray,
     trap_capacities: Optional[np.ndarray] = None,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Clip trapped charge between arrays of max and min value.
 
     Parameters

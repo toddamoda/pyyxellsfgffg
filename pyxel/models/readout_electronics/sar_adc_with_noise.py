@@ -7,8 +7,6 @@
 
 """:term:`SAR` :term:`ADC` model with noise."""
 
-from typing import Tuple
-
 import numpy as np
 
 from pyxel.detectors import Detector
@@ -75,8 +73,8 @@ def apply_sar_adc_with_noise(
 # TODO: documentation, range volt - only max is used
 def sar_adc_with_noise(
     detector: Detector,
-    strengths: Tuple[float, ...],
-    noises: Tuple[float, ...],
+    strengths: tuple[float, ...],
+    noises: tuple[float, ...],
 ) -> None:
     r"""Digitize signal array using :term:`SAR` (Successive Approximation Register) :term:`ADC` logic with noise.
 

@@ -8,7 +8,8 @@
 """TBW."""
 
 import warnings
-from typing import Iterable, Optional, Sequence, Tuple
+from collections.abc import Iterable, Sequence
+from typing import Optional
 
 from pyxel.pipelines import ModelFunction, ModelGroup
 
@@ -17,7 +18,7 @@ class DetectionPipeline:
     """TBW."""
 
     # Define the order of steps in the pipeline.
-    MODEL_GROUPS: Tuple[str, ...] = (
+    MODEL_GROUPS: tuple[str, ...] = (
         "scene_generation",
         "photon_collection",
         "photon_generation",  # Deprecated. It will be removed in version 2.0
@@ -207,7 +208,7 @@ class DetectionPipeline:
         return self._data_processing
 
     @property
-    def model_group_names(self) -> Tuple[str, ...]:
+    def model_group_names(self) -> tuple[str, ...]:
         """TBW."""
         return self.MODEL_GROUPS
 

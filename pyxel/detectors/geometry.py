@@ -7,7 +7,8 @@
 
 """Geometry class for detector."""
 
-from typing import Mapping, Optional, Tuple
+from collections.abc import Mapping
+from typing import Optional
 
 import numpy as np
 
@@ -141,7 +142,7 @@ class Geometry:
         self._col = value
 
     @property
-    def shape(self) -> Tuple[int, int]:
+    def shape(self) -> tuple[int, int]:
         """Return detector shape."""
         return self.row, self.col
 

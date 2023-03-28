@@ -8,10 +8,11 @@
 """Subpackage to load images and tables."""
 
 import csv
+from collections.abc import Sequence
 from contextlib import suppress
 from io import BytesIO, StringIO
 from pathlib import Path
-from typing import TYPE_CHECKING, Sequence, Union
+from typing import TYPE_CHECKING, Union
 
 import fsspec
 import numpy as np

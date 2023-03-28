@@ -6,10 +6,11 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 """Configuration loader."""
 
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from shutil import copy2
-from typing import IO, TYPE_CHECKING, Any, Dict, Iterator, Optional, Sequence, Union
+from typing import IO, TYPE_CHECKING, Any, Optional, Union
 
 import yaml
 
@@ -606,7 +607,7 @@ def _build_configuration(dct: dict) -> Configuration:
         keys = ", ".join(map(repr, keys_detectors))
         raise ValueError(f"Expecting only one detector: {keys}")
 
-    running_mode: Dict[str, Union[Exposure, Observation, "Calibration"]] = {}
+    running_mode: dict[str, Union[Exposure, Observation, "Calibration"]] = {}
     if "exposure" in dct:
         running_mode["exposure"] = to_exposure(dct["exposure"])
     elif "observation" in dct:
@@ -616,7 +617,7 @@ def _build_configuration(dct: dict) -> Configuration:
     else:
         raise ValueError("No mode configuration provided.")
 
-    detector: Dict[str, Union[CCD, CMOS, MKID, APD]] = {}
+    detector: dict[str, Union[CCD, CMOS, MKID, APD]] = {}
     if "ccd_detector" in dct:
         detector["ccd_detector"] = to_ccd(dct["ccd_detector"])
     elif "cmos_detector" in dct:

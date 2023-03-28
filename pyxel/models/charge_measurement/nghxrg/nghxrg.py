@@ -8,8 +8,9 @@
 """Pyxel wrapper class for NGHXRG - Teledyne HxRG Noise Generator model."""
 
 import logging
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import List, Literal, Mapping, Optional, Sequence, Tuple, Union
+from typing import Literal, Optional, Union
 
 import numpy as np
 
@@ -79,9 +80,9 @@ NoiseType = Union[
 def compute_nghxrg(
     pixel_2d: np.ndarray,
     noise: Sequence[NoiseType],
-    detector_shape: Tuple[int, int],
-    window_pos: Tuple[int, int],
-    window_size: Tuple[int, int],
+    detector_shape: tuple[int, int],
+    window_pos: tuple[int, int],
+    window_size: tuple[int, int],
     num_outputs: int,
     time_step: int,
     num_rows_overhead: int,
@@ -201,8 +202,8 @@ def nghxrg(
             Mapping[str, float],
         ]
     ],
-    window_position: Optional[Tuple[int, int]] = None,
-    window_size: Optional[Tuple[int, int]] = None,
+    window_position: Optional[tuple[int, int]] = None,
+    window_size: Optional[tuple[int, int]] = None,
     n_output: int = 1,
     n_row_overhead: int = 0,
     n_frame_overhead: int = 0,
@@ -251,7 +252,7 @@ def nghxrg(
         raise ValueError("'reference_pixel_border_width' must be between 0 and 32.")
 
     # Converter
-    params: List[NoiseType] = []
+    params: list[NoiseType] = []
     for item in noise:
         if "ktc_bias_noise" in item:
             sub_item: Mapping[str, float] = item["ktc_bias_noise"]

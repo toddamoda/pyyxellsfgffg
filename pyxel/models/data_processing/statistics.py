@@ -6,7 +6,8 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 """Simple model to compute basic statistics."""
-from typing import Literal, Sequence, Union
+from collections.abc import Sequence
+from typing import Literal, Union
 
 import xarray as xr
 

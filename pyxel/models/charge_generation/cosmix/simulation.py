@@ -9,8 +9,9 @@
 
 import subprocess
 from bisect import bisect
+from collections.abc import Sequence
 from pathlib import Path
-from typing import List, Literal, Optional, Sequence, Union
+from typing import Literal, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -75,28 +76,28 @@ class Simulation:
         self.energy_cut = 1.0e-5  # MeV
         self.ionization_energy = 3.6
 
-        self.e_num_lst_per_step: List[int] = []
-        self.e_energy_lst: List[float] = []
-        self.e_pos0_lst: List[float] = []
-        self.e_pos1_lst: List[float] = []
-        self.e_pos2_lst: List[float] = []
+        self.e_num_lst_per_step: list[int] = []
+        self.e_energy_lst: list[float] = []
+        self.e_pos0_lst: list[float] = []
+        self.e_pos1_lst: list[float] = []
+        self.e_pos2_lst: list[float] = []
         self.e_vel0_lst: np.ndarray = np.array([])
         self.e_vel1_lst: np.ndarray = np.array([])
         self.e_vel2_lst: np.ndarray = np.array([])
 
-        self.electron_number_from_eloss: List[int] = []
-        self.secondaries_from_eloss: List[int] = []
-        self.tertiaries_from_eloss: List[int] = []
+        self.electron_number_from_eloss: list[int] = []
+        self.secondaries_from_eloss: list[int] = []
+        self.tertiaries_from_eloss: list[int] = []
 
-        self.track_length_lst_per_event: List[float] = []
-        self.e_num_lst_per_event: List[int] = []
-        self.sec_lst_per_event: List[int] = []
-        self.ter_lst_per_event: List[int] = []
-        self.edep_per_step: List[float] = []
-        self.total_edep_per_particle: List[float] = []
-        self.p_energy_lst_per_event: List[float] = []
-        self.alpha_lst_per_event: List[float] = []
-        self.beta_lst_per_event: List[float] = []
+        self.track_length_lst_per_event: list[float] = []
+        self.e_num_lst_per_event: list[int] = []
+        self.sec_lst_per_event: list[int] = []
+        self.ter_lst_per_event: list[int] = []
+        self.edep_per_step: list[float] = []
+        self.total_edep_per_particle: list[float] = []
+        self.p_energy_lst_per_event: list[float] = []
+        self.alpha_lst_per_event: list[float] = []
+        self.beta_lst_per_event: list[float] = []
 
     def parameters(
         self,
@@ -416,10 +417,10 @@ class Simulation:
         if g4data.shape == (
             3,
         ):  # alternative running mode, only all electron number without proton step size data
-            electron_number_vector: Union[List, np.ndarray] = [g4data[0].astype(int)]
+            electron_number_vector: Union[list, np.ndarray] = [g4data[0].astype(int)]
             secondaries = g4data[1].astype(int)
             tertiaries = g4data[2].astype(int)
-            step_size_vector: Union[List, np.ndarray] = [0]
+            step_size_vector: Union[list, np.ndarray] = [0]
         elif g4data.shape == (0,):
             step_size_vector = []  # um
             electron_number_vector = []

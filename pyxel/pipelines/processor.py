@@ -8,19 +8,11 @@
 """TBW."""
 import logging
 import operator
+from collections.abc import Sequence
 from copy import deepcopy
 from enum import Enum
 from numbers import Number
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    List,
-    Literal,
-    Optional,
-    Sequence,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Callable, Literal, Optional, Union
 
 import numpy as np
 
@@ -142,7 +134,7 @@ class Processor:
     def set(
         self,
         key: str,
-        value: Union[str, Number, np.ndarray, List[Union[str, Number, np.ndarray]]],
+        value: Union[str, Number, np.ndarray, list[Union[str, Number, np.ndarray]]],
         convert_value: bool = True,
     ) -> None:
         """TBW.
@@ -157,7 +149,7 @@ class Processor:
             # TODO: Refactor this
             # convert the string based value to a number
             if isinstance(value, list):
-                new_value_lst: List[Union[str, Number, np.ndarray]] = []
+                new_value_lst: list[Union[str, Number, np.ndarray]] = []
 
                 val: Union[str, Number, np.ndarray]
                 for val in value:
@@ -165,7 +157,7 @@ class Processor:
                     new_value_lst.append(new_val)
 
                 new_value: Union[
-                    str, Number, np.ndarray, List[Union[str, Number, np.ndarray]]
+                    str, Number, np.ndarray, list[Union[str, Number, np.ndarray]]
                 ] = new_value_lst
 
             else:
@@ -256,7 +248,7 @@ class Processor:
             attrs={"units": "s", "standard_name": "Readout time"},
         )
 
-        lst: List[xr.DataArray] = []
+        lst: list[xr.DataArray] = []
 
         key: Literal["photon", "charge", "pixel", "signal", "image"]
         for key in result_keys(result_type):

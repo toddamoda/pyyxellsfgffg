@@ -8,8 +8,9 @@
 """Poppy model."""
 
 import logging
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import Any, Mapping, Sequence, Tuple, Union
+from typing import Any, Union
 
 import numpy as np
 from astropy.convolution import convolve_fft
@@ -337,7 +338,7 @@ def calc_psf(
     fov_arcsec: float,
     pixelscale: float,
     optical_parameters: Sequence[OpticalParameter],
-) -> Tuple[Sequence[fits.hdu.image.PrimaryHDU], Sequence["op.Wavefront"]]:
+) -> tuple[Sequence[fits.hdu.image.PrimaryHDU], Sequence["op.Wavefront"]]:
     """Calculate the point spread function for the given optical system.
 
     Parameters

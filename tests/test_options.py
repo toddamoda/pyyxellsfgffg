@@ -52,7 +52,7 @@ def test_global():
     ],
 )
 def test_with_wrong_inputs(
-    dct: dict, exp_error: Type[TypeError], exp_msg: Optional[str]
+    dct: dict, exp_error: type[TypeError], exp_msg: Optional[str]
 ):
     """Test with a bad input."""
     with pytest.raises(exp_error, match=exp_msg):

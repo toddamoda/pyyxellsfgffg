@@ -7,7 +7,8 @@
 
 """Pyxel Charge class to generate electrons or holes inside detector."""
 
-from typing import TYPE_CHECKING, Literal, Mapping, Optional, Sequence, Tuple, Union
+from collections.abc import Mapping, Sequence
+from typing import TYPE_CHECKING, Literal, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -36,7 +37,7 @@ class Charge:
         self._geo = geo
         self.nextid: int = 0
 
-        self.columns: Tuple[str, ...] = (
+        self.columns: tuple[str, ...] = (
             "charge",
             "number",
             "init_energy",

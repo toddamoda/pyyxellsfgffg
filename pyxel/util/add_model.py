@@ -14,7 +14,6 @@ import shutil
 import sys
 import time
 from pathlib import Path
-from typing import Tuple
 
 
 def create_model(newmodel: str) -> None:
@@ -94,7 +93,7 @@ def create_model(newmodel: str) -> None:
         raise
 
 
-def get_name_and_location(newmodel: str) -> Tuple[str, str]:
+def get_name_and_location(newmodel: str) -> tuple[str, str]:
     """Get name and location of new model from string modeltype/modelname.
 
     Parameters

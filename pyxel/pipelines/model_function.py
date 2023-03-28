@@ -8,7 +8,8 @@
 """TBW."""
 import inspect
 import warnings
-from typing import TYPE_CHECKING, Any, Callable, Dict, MutableMapping, Optional
+from collections.abc import MutableMapping
+from typing import TYPE_CHECKING, Any, Callable, Optional
 
 from pyxel.evaluator import evaluate_reference
 
@@ -54,8 +55,8 @@ class Arguments(MutableMapping):
     AttributeError: 'No argument named three !'
     """
 
-    def __init__(self, input_arguments: Dict[str, Any]):
-        self._arguments: Dict[str, Any] = input_arguments
+    def __init__(self, input_arguments: dict[str, Any]):
+        self._arguments: dict[str, Any] = input_arguments
 
     def __setitem__(self, key, value):
         if key not in self._arguments:

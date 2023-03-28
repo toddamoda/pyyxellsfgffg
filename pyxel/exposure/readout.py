@@ -8,7 +8,8 @@
 #
 """TBW."""
 
-from typing import Iterator, Optional, Sequence, Tuple, Union
+from collections.abc import Iterator, Sequence
+from typing import Optional, Union
 
 import numpy as np
 
@@ -75,7 +76,7 @@ class Readout:
         self._times_linear = bool(np.all(self._steps == self._steps[0]))
         self._num_steps = len(self._times)
 
-    def time_step_it(self) -> Iterator[Tuple[float, float]]:
+    def time_step_it(self) -> Iterator[tuple[float, float]]:
         """TBW."""
         return zip(self._times, self._steps)
 
@@ -135,7 +136,7 @@ class Readout:
 
 def calculate_steps(
     times: np.ndarray, start_time: float
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Calculate time differences for a given array and start time.
 
     Parameters

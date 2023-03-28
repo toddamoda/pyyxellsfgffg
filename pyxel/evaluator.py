@@ -9,8 +9,9 @@
 import importlib
 from ast import literal_eval
 from collections import abc
+from collections.abc import Sequence
 from numbers import Number
-from typing import Callable, Sequence, Union
+from typing import Callable, Union
 
 import numpy as np
 

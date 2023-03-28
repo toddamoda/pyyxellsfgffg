@@ -5,7 +5,7 @@
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
 
-from typing import Mapping, Sequence
+from collections.abc import Mapping, Sequence
 
 import pytest
 

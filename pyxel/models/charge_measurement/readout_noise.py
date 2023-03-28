@@ -7,7 +7,7 @@
 
 """Readout noise model."""
 
-from typing import Optional, Tuple
+from typing import Optional
 
 import numpy as np
 
@@ -142,7 +142,7 @@ def output_node_noise_cmos(
 def compute_readout_noise_saphira(
     roic_readout_noise: float,
     avalanche_gain: float,
-    shape: Tuple[int, int],
+    shape: tuple[int, int],
     controller_noise: float = 0.0,
 ) -> np.ndarray:
     """Compute Saphira specific readout noise.

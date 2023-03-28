@@ -8,7 +8,7 @@
 #
 """Reset noise models."""
 
-from typing import Optional, Tuple
+from typing import Optional
 
 import astropy.constants as const
 import numpy as np
@@ -18,7 +18,7 @@ from pyxel.util import set_random_seed
 
 
 def compute_ktc_noise(
-    temperature: float, capacitance: float, shape: Tuple[int, int]
+    temperature: float, capacitance: float, shape: tuple[int, int]
 ) -> np.ndarray:
     """Compute KTC noise array.
 

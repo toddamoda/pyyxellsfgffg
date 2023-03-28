@@ -7,7 +7,7 @@
 
 """Pyxel charge injection functions for CCDs."""
 
-from typing import Optional, Tuple
+from typing import Optional
 
 import numpy as np
 
@@ -15,7 +15,7 @@ from pyxel.detectors import CCD
 
 
 def compute_charge_blocks(
-    output_shape: Tuple[int, int],
+    output_shape: tuple[int, int],
     charge_level: float,
     block_start: int = 0,
     block_end: Optional[int] = None,

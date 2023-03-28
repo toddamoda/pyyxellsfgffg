@@ -8,7 +8,7 @@
 """Simple model to convert photon into photo-electrons inside detector."""
 
 from pathlib import Path
-from typing import Literal, Optional, Tuple, Union
+from typing import Literal, Optional, Union
 
 import numpy as np
 
@@ -78,7 +78,7 @@ def simple_conversion(
 def conversion_with_qe_map(
     detector: Detector,
     filename: Union[str, Path],
-    position: Tuple[int, int] = (0, 0),
+    position: tuple[int, int] = (0, 0),
     align: Optional[
         Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"]
     ] = None,

@@ -9,7 +9,7 @@
 
 from contextlib import suppress
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -582,7 +582,7 @@ class PlottingCosmix:
         data3: Optional[np.ndarray] = None,
         title: str = "",
         hist_bins: int = 500,
-        hist_range: Tuple[int, int] = (0, 15000),
+        hist_range: tuple[int, int] = (0, 15000),
         normalize: bool = False,
     ) -> None:
         labels = [
