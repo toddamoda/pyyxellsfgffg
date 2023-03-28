@@ -60,19 +60,20 @@ def simple_bfe(
     # norm = (1 / np.max(sigma_max)) * sigma
     # std = np.sqrt(np.mean(norm))
     ###
-    norm_sigma = (1 / np.max(sigma_fwc)) * sigma
-    std = np.sqrt(np.mean(norm_sigma))
+    norm_sigma = 1 + (sigma / sigma_fwc)
+    # (1 / np.max(sigma_fwc)) * sigma
+    std = np.mean(norm_sigma)
     # sigma_array = polynomial_function(signal)
-    kernel = Gaussian2DKernel(x_stddev=std, x_size=3)  # , y_size=3)
-    n1_list = []
-    n2_list = []
-    center = kernel.array[1][1]
-    n1 = kernel.array[0][1]
-    n2 = kernel.array[0][0]
-    fraction1 = n1 / center
-    n1_list.append(fraction1)
-    fraction2 = n2 / center
-    n2_list.append(fraction2)
+    kernel = Gaussian2DKernel(x_stddev=std, x_size=9)  # , y_size=3)
+    # n1_list = []
+    # n2_list = []
+    # center = kernel.array[1][1]
+    # n1 = kernel.array[0][1]
+    # n2 = kernel.array[0][0]
+    # fraction1 = n1 / center
+    # n1_list.append(fraction1)
+    # fraction2 = n2 / center
+    # n2_list.append(fraction2)
     conv = convolve_fft(
         signal,
         kernel=kernel,
