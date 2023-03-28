@@ -46,13 +46,6 @@ workflow:
 # Test Stage
 # ###########################
 
-# Run pytest for Python 3.8 without anaconda
-python38:
-  image: python:3.8
-  stage: test
-  script:
-    - tox -e py38-extra_all
-
 # Run pytest for Python 3.9 without anaconda
 python39:
   image: python:3.9
@@ -138,7 +131,7 @@ license_scanning:
 
 # Run pytest + coverage
 coverage:
-  image: python:3.8
+  image: python:3.9
   stage: build
   needs: []
   script:
