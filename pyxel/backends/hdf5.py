@@ -32,7 +32,9 @@ ATTRIBUTES: Mapping[str, Mapping[str, str]] = {
 def _store(
     h5file: h5.File,
     name: str,
-    dct: Mapping[str, Union[int, float, pd.DataFrame, pd.Series, np.ndarray, dict]],
+    dct: Mapping[
+        str, Union[int, float, pd.DataFrame, pd.Series, xr.Dataset, np.ndarray, dict]
+    ],
     attributes: Optional[Mapping[str, Mapping[str, str]]] = None,
 ) -> None:
     """Write data into a new HDF5 group.
@@ -69,21 +71,17 @@ def _store(
             _store(h5file, name=new_name, dct=value.to_dict(orient="series"))
 
         elif isinstance(value, (pd.Series, np.ndarray, abc.Sequence)):
-            dataset = h5file.create_dataset(name=new_name, data=np.asarray(value))
+            dataset = h5file.create_dataset(name=new_name, data=value)
 
             if attributes is not None and key in attributes:
                 dataset.attrs.update(attributes[key])
 
         elif isinstance(value, xr.Dataset):
-            if not value:
+            if value:
+                _store(h5file, name=new_name, dct=value.to_dict())
+            else:
                 # Do nothing
                 pass
-            else:
-                # _store(h5file, name)
-                # value.dims
-                # value.coords
-                # value.variables
-                raise NotImplementedError
 
         elif isinstance(value, dict):
             new_group = h5file.create_group(name=new_name)
@@ -119,7 +117,7 @@ def to_hdf5(filename: Union[str, Path], dct: Mapping[str, Any]) -> None:
 
 def _load(
     h5file: h5.File, name: str
-) -> Union[None, int, float, Mapping[str, Any], np.ndarray, pd.DataFrame]:
+) -> Union[None, int, float, str, Mapping[str, Any], np.ndarray, pd.DataFrame]:
     """Write data from a HDF5 group.
 
     Parameters
@@ -150,9 +148,12 @@ def _load(
 
     elif isinstance(dataset, h5.Dataset):
         if dataset.ndim == 0:
-            value = np.array(dataset)
+            value = np.array(dataset, dtype=dataset.dtype)
 
-            if np.isnan(value):
+            if dataset.dtype == np.dtype(object):
+                value_converted = value.astype(str)
+                return str(value_converted)
+            elif np.isnan(value):
                 return None
             elif np.issubdtype(dataset.dtype, np.integer):
                 return int(value)
@@ -161,7 +162,10 @@ def _load(
             else:
                 raise TypeError
         else:
-            return np.array(dataset)
+            if dataset.dtype == np.dtype(object):
+                return np.array(dataset, dtype=str)
+            else:
+                return np.array(dataset)
     else:
         raise NotImplementedError
 
