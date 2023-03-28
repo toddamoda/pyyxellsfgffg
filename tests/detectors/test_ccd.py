@@ -150,7 +150,15 @@ def comparison(dct, other_dct):
     assert (
         set(dct["data"])
         == set(other_dct["data"])
-        == {"photon", "scene", "pixel", "signal", "image", "charge", "processed_data"}
+        == {
+            "photon",
+            "scene",
+            "pixel",
+            "signal",
+            "image",
+            "charge",
+            "processed_data",
+        }
     )
     np.testing.assert_equal(dct["data"]["photon"], other_dct["data"]["photon"])
     np.testing.assert_equal(dct["data"]["pixel"], other_dct["data"]["pixel"])
@@ -228,12 +236,7 @@ def comparison(dct, other_dct):
                             dtype=float,
                         ),
                     },
-                    "processed_data": {
-                        "coords": {},
-                        "attrs": {},
-                        "dims": {},
-                        "data_vars": {},
-                    },
+                    "processed_data": {},
                 },
             },
             id="Default parameters",
@@ -305,12 +308,7 @@ def comparison(dct, other_dct):
                             dtype=float,
                         ),
                     },
-                    "processed_data": {
-                        "coords": {},
-                        "attrs": {},
-                        "dims": {},
-                        "data_vars": {},
-                    },
+                    "processed_data": {},
                 },
             },
             id="CCD fully defined",
@@ -407,7 +405,7 @@ def test_to_and_from_dict_with_arrays_no_frame(valid_ccd: CCD, klass):
                     dtype=float,
                 ),
             },
-            "processed_data": {"coords": {}, "attrs": {}, "dims": {}, "data_vars": {}},
+            "processed_data": {},
         },
     }
 
