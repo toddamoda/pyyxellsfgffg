@@ -22,7 +22,7 @@ An easy-to-use framework that can simulate a variety of imaging detector
 effects combined on images (e.g. radiation and optical effects, noises)
 made by CCD or CMOS-based detectors.
 
-*Pyxel* is tested on Python 3.8+.
+*Pyxel* is tested on Python 3.9+.
 
 If you'd like to contribute to *Pyxel* you're most welcome.
 Please read [the little guide](https://esa.gitlab.io/pyxel/doc/stable/references/contributing.html) to get you started.
