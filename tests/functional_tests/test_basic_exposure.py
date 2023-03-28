@@ -16,10 +16,8 @@ from pyxel.detectors import Detector
 
 def test_basic_exposure_hdf5(tmp_path: Path):
     """Functional test with a basic Exposure mode."""
-    config_filename: str = "data/basic_exposure.yaml"
-
-    current_folder = Path(__file__).parent
-    config_full_filename = current_folder / config_filename
+    config_filename: str = "tests/functional_tests/data/basic_exposure.yaml"
+    config_full_filename = Path(config_filename).resolve()
     assert config_full_filename.exists()
 
     # Read configuration file
@@ -58,10 +56,8 @@ def test_basic_exposure_hdf5(tmp_path: Path):
 
 def test_basic_exposure_asdf(tmp_path: Path):
     """Functional test with a basic Exposure mode."""
-    config_filename: str = "data/basic_exposure.yaml"
-
-    current_folder = Path(__file__).parent
-    config_full_filename = current_folder / config_filename
+    config_filename: str = "tests/functional_tests/data/basic_exposure.yaml"
+    config_full_filename = Path(config_filename).resolve()
     assert config_full_filename.exists()
 
     # Read configuration file
