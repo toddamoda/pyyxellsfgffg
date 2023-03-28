@@ -67,7 +67,7 @@ class Characteristics:
         self._full_well_capacity = full_well_capacity
 
         if adc_voltage_range is None:
-            volt_range: Optional[Tuple[float, float]] = None
+            volt_range: Optional[tuple[float, float]] = None
         else:
             # Force 'volt_range' to be a tuple of 2 elements
             start_volt, end_volt = adc_voltage_range
