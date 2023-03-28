@@ -723,6 +723,7 @@ def generate_all_models() -> Iterator[str]:
     yield "######################################"
     yield ""
 
+    yield "import collections"
     yield "import json"
     yield "import pathlib"
     yield "import sys"
