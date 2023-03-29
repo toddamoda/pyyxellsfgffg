@@ -55,8 +55,12 @@ class ObservationOutputs(Outputs):
         save_observation_data: Optional[Sequence[Mapping[str, Sequence[str]]]] = None,
     ):
         super().__init__(
+<<<<<<< HEAD
             output_folder=output_folder,
             save_data_to_file=save_data_to_file,
+=======
+            output_folder=output_folder, save_data_to_file=save_data_to_file, custom_dir_name=custom_dir_name
+>>>>>>> 909e84fbbba5bae757dcb4d4e17cb289f66fbde5
         )
 
         self.save_observation_data: Optional[
