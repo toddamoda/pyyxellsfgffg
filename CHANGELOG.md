@@ -11,6 +11,14 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 
 ## UNRELEASED
 
+### Breaking changes
+
+Support for Python 3.8 has been dropped.
+
+  | Package | Old   | New         |
+  |---------|-------|-------------|
+  | Python  | 3.8+  | **3.9+**    |
+
 ### Core
 
 ### Documentation
@@ -18,6 +26,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 ### Models
 
 ### Others
+* Remove support to Python 3.8.
+  (See [!633](https://gitlab.com/esa/pyxel/-/merge_requests/633)).
 
 
 ## 1.8 / 2023-03-30
