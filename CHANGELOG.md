@@ -13,13 +13,6 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 
 This release brings a number of bugfixes and documentation improvements.
 
-The minimum version of one dependency was changed:
-
-  | Package | Old   | New         |
-  |---------|-------|-------------| 
-  | numpy   | 1.20  | **1.21**    |
-  | xarray  | 0.19  | **2022.06** |
-
 A new function `pyxel.run_mode` has been added and will replace `pyxel.exposure_mode`, `pyxel.observation_mode`
 and `pyxel.calibration_mode` functions. This function `pyxel.run_mode` always returns an Xarray `Dataset`
 
@@ -63,6 +56,16 @@ parameters:
       - [1.e-5, 1.e+5]
 ```
 
+### Breaking changes
+
+Support for Python 3.8 has been dropped and the minimum version of some dependencies were changed:
+
+  | Package | Old   | New         |
+  |---------|-------|-------------|
+  | Python  | 3.8+  | **3.9+**    |
+  | numpy   | 1.20  | **1.21**    |
+  | xarray  | 0.19  | **2022.06** |
+
 
 ### Core
 * Multiple boundary conditions for calibration mode.
@@ -101,6 +104,8 @@ parameters:
   (See [!616](https://gitlab.com/esa/pyxel/-/merge_requests/616)).
 * Add compatibility to Pandas 2.0.
   (See [!627](https://gitlab.com/esa/pyxel/-/merge_requests/627)).
+* Remove support to Python 3.8.
+  (See [!633](https://gitlab.com/esa/pyxel/-/merge_requests/633)).
 
  
 ## 1.7 / 2023-02-09
