@@ -66,6 +66,9 @@ Support for Python 3.8 has been dropped and the minimum version of some dependen
   | numpy   | 1.20  | **1.21**    |
   | xarray  | 0.19  | **2022.06** |
 
+The `ProcessedData` bucket in `Detector` has been removed and 
+has been replaced by `xarray.DataTree` (see [!631](https://gitlab.com/esa/pyxel/-/merge_requests/631))
+
 
 ### Core
 * Multiple boundary conditions for calibration mode.
@@ -88,6 +91,8 @@ Support for Python 3.8 has been dropped and the minimum version of some dependen
   (See [!629](https://gitlab.com/esa/pyxel/-/merge_requests/629)).
 * Add photon and charge buckets also to calibration mode.
   (See [!632](https://gitlab.com/esa/pyxel/-/merge_requests/632)).
+* Use `xarray.DataTree` to replace `ProcessedData` bucket.
+  (See [!631](https://gitlab.com/esa/pyxel/-/merge_requests/631)).
 
 ### Documentation
 * Use 'Sphinx 5' and 'Sphinx Book Theme 1'.
