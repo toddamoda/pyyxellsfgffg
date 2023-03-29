@@ -39,7 +39,7 @@ dependencies = [
     "pandas",
     "scipy",
     "xarray>=2022.06",
-
+    "sep",
     # Plotting
     "matplotlib>=3.1",
     "seaborn",
@@ -164,6 +164,7 @@ module = [
     "IPython.*",
     "scipy.*",
     "scopesim.*",
+    "sep.*",
     "toolz.*",
     "tqdm.*",
     "xarray.*",
