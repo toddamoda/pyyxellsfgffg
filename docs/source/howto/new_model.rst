@@ -113,7 +113,6 @@ So instead of this:
 
     # impure function
     def my_model(detector: Detector, arg: int) -> None:
-
         input_array = detector.pixel.array
         # do computations with array
         output_array = arg * input_array
@@ -127,7 +126,6 @@ Do this:
 
     # pure function
     def compute_model_effect(input_array: numpy.ndarray, arg: int) -> np.ndarray:
-
         # do computations with array
         output_array = arg * input_array
 
@@ -136,7 +134,6 @@ Do this:
 
     # impure function
     def my_model(detector: Detector, arg: int) -> None:
-
         input_array = detector.pixel.array  # type: np.ndarray
 
         output_array = compute_model_effect(input_array=input_array, arg=arg)
