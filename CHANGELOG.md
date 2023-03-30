@@ -9,19 +9,25 @@ Minor releases include updated stdlib stubs from typeshed.
 
 Pyxel doesn't use SemVer anymore, since most minor releases have at least minor backward incompatible changes.
 
-## UNRELEASED
+## 1.8 / 2023-03-30
 
 This release brings a number of bugfixes and documentation improvements.
 
-The minimum version of one dependency was changed:
-
-  | Package | Old   | New         |
-  |---------|-------|-------------| 
-  | numpy   | 1.20  | **1.21**    |
-  | xarray  | 0.19  | **2022.06** |
-
 A new function `pyxel.run_mode` has been added and will replace `pyxel.exposure_mode`, `pyxel.observation_mode`
 and `pyxel.calibration_mode` functions. This function `pyxel.run_mode` always returns an Xarray `Dataset`
+
+A new parameter `custom_dir_name` has been added to customize the name of the output folder.
+
+Example of a configuration file: 
+```yaml
+exposure:   # This is also valid for 'observation:' and 'calibration:'
+  outputs:
+    output_folder: output
+    custom_dir_name: custom    # <= NEW
+    save_data_to_file:
+```
+In this example, a new output folder `output/custom_...` will be created.
+
 
 In the calibration configuration files, it is now possible to add different boundaries for values defined as a list.
 
@@ -63,6 +69,14 @@ parameters:
       - [1.e-5, 1.e+5]
 ```
 
+### Breaking changes
+
+The minimum versions of some dependencies were changed:
+
+  | Package | Old   | New         |
+  |---------|-------|-------------| 
+  | numpy   | 1.20  | **1.21**    |
+  | xarray  | 0.19  | **2022.06** |
 
 ### Core
 * Multiple boundary conditions for calibration mode.
