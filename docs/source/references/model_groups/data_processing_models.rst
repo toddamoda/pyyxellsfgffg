@@ -61,7 +61,7 @@ Accepted file formats are ``.h5``, ``.hdf5``, ``.hdf`` and ``.asdf``.
 .. _statistics:
 
 Statistics
-===========================
+==========
 
 The model :ref:`statistics` can be used to do simple statistics computations.
 The calculated statistics can then be accessed via ``detector.processed_data.data``.
@@ -75,4 +75,19 @@ The calculated statistics can then be accessed via ``detector.processed_data.dat
       enabled: true
 
 
+.. _extract_roi_to_xarray:
 
+Extract ROI
+===========
+
+Extract the roi data converts it to xarray dataset and saves the information to the final result.
+
+.. code-block:: yaml
+
+    data_processing:
+      - name: extract_roi_to_xarray
+        func: pyxel.models.data_processing.extract_roi_to_xarray
+        arguments:
+          thresh: 80
+          minarea: 5
+        enabled: true

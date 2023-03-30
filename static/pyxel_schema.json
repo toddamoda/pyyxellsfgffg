@@ -1118,6 +1118,9 @@
                 "$ref": "#/definitions/ModelDataProcessingComputeStatistics"
               },
               {
+                "$ref": "#/definitions/ModelDataProcessingExtractRoiToXarray"
+              },
+              {
                 "$ref": "#/definitions/ModelLoadDetector"
               },
               {
@@ -4097,6 +4100,52 @@
         "name"
       ],
       "title": "Model 'compute_statistics'",
+      "type": "object"
+    },
+    "ModelDataProcessingExtractRoiToXarray": {
+      "additionalProperties": false,
+      "description": "Extract the roi data converts it to xarray dataset and saves theinformation to the final result.",
+      "properties": {
+        "arguments": {
+          "additionalProperties": false,
+          "default": {
+            "minarea": 5,
+            "thresh": 50
+          },
+          "properties": {
+            "minarea": {
+              "default": 5,
+              "description": "minimum area of elements required that are above the threshold for theextractor to extract information",
+              "title": "minarea",
+              "type": "integer"
+            },
+            "thresh": {
+              "default": 50,
+              "description": "threshold above which information from the image array is extracted",
+              "title": "thresh",
+              "type": "integer"
+            }
+          },
+          "title": "Parameters",
+          "type": "object"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "func": {
+          "const": "pyxel.models.data_processing.extract_roi_to_xarray",
+          "default": "pyxel.models.data_processing.extract_roi_to_xarray",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Model 'extract_roi_to_xarray'",
       "type": "object"
     },
     "ModelFunction": {
