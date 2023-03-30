@@ -164,7 +164,8 @@ GitLab release notes, blog, etc.
 
 16. Update version `{X}.{Y}.{Z}` in the following files in repository https://gitlab.com/esa/pyxel-data:    
     - `.binder/environment.yml` (https://gitlab.com/esa/pyxel-data/-/blob/master/.binder/environment.yml)
-    - `README.md` (https://gitlab.com/esa/pyxel-data/-/blob/master/README.md) 
+    - `README.md` (https://gitlab.com/esa/pyxel-data/-/blob/master/README.md)
+    - `.gitlab-ci.yml` (https://gitlab.com/esa/pyxel-data/-/blob/master/.gitlab-ci.yml)
 
 
 17. Commit you changes and push to master again:
