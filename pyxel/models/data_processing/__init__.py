@@ -9,13 +9,4 @@
 
 # flake8: noqa
 from .statistics import compute_statistics
-from .source_extractor import (
-    show_detector,
-    get_background,
-    get_background_image,
-    get_background_data,
-    subtract_background,
-    extract_roi,
-    plot_roi,
-    extract_roi_to_xarray,
-)
+from .source_extractor import extract_roi_to_xarray

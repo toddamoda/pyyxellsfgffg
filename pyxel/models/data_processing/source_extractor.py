@@ -5,7 +5,7 @@
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
 
-"""Wrapper to create simple graphs using the source extractor package"""
+"""Wrapper to create simple graphs using the source extractor package."""
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -18,10 +18,10 @@ from pyxel.detectors import Detector
 
 
 def show_detector(image_2d: np.ndarray, vmin=0, vmax=100) -> None:
-    """Takes in the detector object and shows the array values as an image to the user.
+    """Take in the detector object and shows the array values as an image to the user.
 
     Parameters
-    -----------
+    ----------
     image_2d
         2D image array .
     """
@@ -37,23 +37,22 @@ def show_detector(image_2d: np.ndarray, vmin=0, vmax=100) -> None:
 
 
 def get_background(image_2d: np.ndarray):
-    """Gets the background of an image using the SEP library.
+    """Get the background of an image using the SEP library.
 
     Parameters
-    -----------
+    ----------
     image_2d
-        2d image array."""
+        2d image array.
+    """
 
     return sep.Background(image_2d)
 
 
-def get_background_image(
-    image_2d: np.ndarray,
-):
-    """Gets the background of an image and converts it to a 2D-array of the same shape of the original input image.
+def get_background_image(image_2d: np.ndarray):
+    """Get the background of an image and converts it to a 2D-array of the same shape of the original input image.
 
     Parameters
-    -----------
+    ----------
     image_2d
         2D image array .
     """
@@ -61,14 +60,11 @@ def get_background_image(
     return bkg.back()
 
 
-def get_background_data(
-    image_2d: np.ndarray,
-):
-    """Gets the background rms array [0],
-    the global average rms [1] and the global average background value [2]
+def get_background_data(image_2d: np.ndarray):
+    """Get the background rms array [0], the global average rms [1] and the global average background value [2].
 
     Parameters
-    -----------
+    ----------
     image_2d
         2D image array .
     """
@@ -76,13 +72,11 @@ def get_background_data(
     return bkg.rms(), bkg.globalrms, bkg.globalback
 
 
-def subtract_background(
-    image_2d: np.ndarray,
-):
-    """Returns a background subtracted numpy array
+def subtract_background(image_2d: np.ndarray):
+    """Return a background subtracted numpy array.
 
     Parameters
-    -----------
+    ----------
     image_2d
         2D image array .
     """
@@ -90,32 +84,31 @@ def subtract_background(
     return image_2d - bkg
 
 
-def extract_roi(image_2d: np.ndarray, thresh: int, minarea: int = 5, name="pixel"):
-    """Returns a structured numpy array that gives information on the roi found based on the threshold and minea given
+def extract_roi(
+    image_2d: np.ndarray, thresh: int, minarea: int = 5, name: str = "pixel"
+):
+    """Return a structured numpy array that gives information on the roi found based on the threshold and minea given.
 
     Parameters
-    -----------
-    image_2d: np.ndarray
+    ----------
+    image_2d : np.ndarray
         2D image array
-    thresh: int
+    thresh : int
         signal level above which signifies a region of interest
-    minarea: int
+    minarea : int
         minimum area of elements required that are above the threshold for the extractor to extract information
     """
     return sep.extract(image_2d, thresh=thresh, segmentation_map=True, minarea=minarea)
 
 
-def plot_roi(
-    data: np.ndarray,
-    roi,
-):
-    """Plots the input data on a graph and overlays ellipses over the roi's found by the extract function
+def plot_roi(data: np.ndarray, roi) -> None:
+    """Plot the input data on a graph and overlays ellipses over the roi's found by the extract function.
 
     Parameters
-    -----------
-    data: np.ndarray
+    ----------
+    data : np.ndarray
         2D image array
-    roi: np.ndarray / xarray.Dataset
+    roi : np.ndarray / xarray.Dataset
         structured numpy array or xarray dataset of extracted data
     """
     fig, ax = plt.subplots()
@@ -143,16 +136,20 @@ def plot_roi(
     plt.colorbar(im)
 
 
-def extract_roi_to_xarray(detector: Detector, thresh=50, minarea=5):
-    """Extracts the roi data converts it to xarray dataset and saves the information to the final result
+def extract_roi_to_xarray(
+    detector: Detector,
+    thresh: int = 50,
+    minarea: int = 5,
+) -> None:
+    """Extract the roi data converts it to xarray dataset and saves the information to the final result.
 
     Parameters
-    -----------
-    detector : CCD
-        Pyxel :term:`CCD` Detector object.
-    thresh: int
+    ----------
+    detector : Detector
+        Pyxel Detector object.
+    thresh : int
         threshold above which information from the image array is extracted
-    minarea: int
+    minarea : int
         minimum area of elements required that are above the threshold for the extractor to extract information
     """
     data_2d = detector.pixel.array
