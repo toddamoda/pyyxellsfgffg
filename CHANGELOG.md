@@ -11,6 +11,11 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 
 ## UNRELEASED
 
+This release brings a number of bugfixes and documentation improvements.
+
+`Detector` contains a new bucket `data` which contains a `xarray.DataTree` 
+(see [!631](https://gitlab.com/esa/pyxel/-/merge_requests/631))
+
 ### Breaking changes
 
 Support for Python 3.8 has been dropped.
@@ -20,6 +25,8 @@ Support for Python 3.8 has been dropped.
   | Python  | 3.8+  | **3.9+**    |
 
 ### Core
+* Use `xarray.DataTree` for a new `Detector.data` bucket.
+  (See [!631](https://gitlab.com/esa/pyxel/-/merge_requests/631)).
 
 ### Documentation
 
