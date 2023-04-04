@@ -30,11 +30,11 @@ def test_basic_exposure(tmp_path: Path):
     detector = cfg.detector
     assert isinstance(detector, Detector)
 
-    # detector_filename_before = tmp_path / "before_detector.hdf5"
-    # assert not detector_filename_before.exists()
-    #
-    # detector.to_hdf5(detector_filename_before)
-    # assert detector_filename_before.exists()
+    detector_filename_before = tmp_path / "before_detector.hdf5"
+    assert not detector_filename_before.exists()
+
+    detector.to_hdf5(detector_filename_before)
+    assert detector_filename_before.exists()
 
     # Execute 'cfg'
     ds = pyxel.run_mode(
@@ -51,8 +51,6 @@ def test_basic_exposure(tmp_path: Path):
     detector.to_hdf5(detector_filename)
     assert detector_filename.exists()
 
-
-if __name__ == "__main__":
-    from tempfile import mkdtemp
-
-    test_basic_exposure(Path(mkdtemp(dir="/tmp")))
+    # Load to a new 'detector' object from '.hdf5' file
+    new_detector = Detector.from_hdf5(detector_filename)
+    assert detector == new_detector
