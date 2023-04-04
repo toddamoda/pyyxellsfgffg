@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, Any, Union
 
 if TYPE_CHECKING:
     import pandas as pd
+    import xarray as xr
 
 
 def to_asdf(filename: Union[str, Path], dct: Mapping[str, Any]) -> None:
@@ -35,6 +36,14 @@ def to_asdf(filename: Union[str, Path], dct: Mapping[str, Any]) -> None:
     frame_dct: Mapping[str, Sequence[float]] = df.to_dict(orient="list")
 
     dct["data"]["charge"]["frame"] = frame_dct
+
+    # Convert 'Dataset(s)' into a 'dict(s)'
+    data: Mapping[str, xr.Dataset] = dct["data"]["data"]
+    dct_data: Mapping[str, Mapping] = {
+        key: value.to_dict() for key, value in data.items()
+    }
+
+    dct["data"]["data"] = dct_data
 
     with asdf.AsdfFile(dct) as af:
         af.write_to(filename)
