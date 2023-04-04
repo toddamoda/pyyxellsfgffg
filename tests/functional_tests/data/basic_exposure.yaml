@@ -1,0 +1,120 @@
+# ########################################################### #
+# Pyxel detector simulation framework                         #
+#                                                             #
+# Example YAML configuration file                             #
+# Exposure mode combining different detector effect models    #
+# ########################################################### #
+
+
+# yaml-language-server: $schema=https://esa.gitlab.io/pyxel/doc/latest/pyxel_schema.json
+exposure:
+
+  pipeline_seed: 1234
+
+  readout:
+    times: [0.1, 0.5, 0.7]
+    non_destructive:  false
+
+  outputs:
+    output_folder: "output"
+    save_data_to_file:
+      - detector.image.array:   ['fits', 'jpg']
+      - detector.pixel.array: ['npy']
+    save_exposure_data:
+      - dataset: ['nc']
+
+ccd_detector:
+
+  geometry:
+
+    row: 4                # pixel
+    col: 3                # pixel
+    total_thickness: 40.    # um
+    pixel_vert_size: 10.    # um
+    pixel_horz_size: 10.    # um
+
+  environment:
+    temperature: 300        # K
+
+  characteristics:
+    quantum_efficiency: 1.                 # -
+    charge_to_volt_conversion: 1.0e-6      # V/e
+    pre_amplification: 10                # V/V
+    adc_voltage_range: [0., 5.]
+    adc_bit_resolution: 16
+    full_well_capacity: 100000               # e
+
+pipeline:
+  # -> photon
+  photon_collection:
+    - name: illumination
+      func: pyxel.models.photon_collection.illumination
+      enabled: true
+      arguments:
+        level: 100.
+
+    - name: shot_noise
+      func: pyxel.models.photon_collection.shot_noise
+      enabled: false
+
+    - name: optical_psf
+      func: pyxel.models.photon_collection.optical_psf
+      enabled: true
+      arguments:
+        fov_arcsec: 5 # FOV in arcseconds
+        pixelscale: 0.01 #arcsec/pixel
+        wavelength: 0.6e-6 # wavelength in meters
+        optical_system:
+          - item: CircularAperture
+            radius: 3.0
+
+  # photon -> charge
+  charge_generation:
+    - name: photoelectrons
+      func: pyxel.models.charge_generation.simple_conversion
+      enabled: true
+
+  # charge -> pixel
+  charge_collection:
+    - name: simple_collection
+      func: pyxel.models.charge_collection.simple_collection
+      enabled: true
+
+    - name: full_well
+      func: pyxel.models.charge_collection.simple_full_well
+      enabled: false
+
+  # pixel -> pixel
+  charge_transfer:
+
+  # pixel -> signal
+  charge_measurement:
+    - name: dc_offset
+      func: pyxel.models.charge_measurement.dc_offset
+      enabled: false
+      arguments:
+        offset: 0.1
+
+    - name: simple_measurement
+      func: pyxel.models.charge_measurement.simple_measurement
+      enabled: true
+
+    - name: output_noise
+      func: pyxel.models.charge_measurement.output_node_noise
+      enabled: true
+      arguments:
+        std_deviation: 0.001
+
+  # signal -> image
+  readout_electronics:
+    - name: simple_amplifier
+      func: pyxel.models.readout_electronics.simple_amplifier
+      enabled: true
+    - name: simple_adc
+      func: pyxel.models.readout_electronics.simple_adc
+      enabled: true
+
+  data_processing:
+    - name: compute_statistics
+      func: pyxel.models.data_processing.compute_statistics
+      enabled: true

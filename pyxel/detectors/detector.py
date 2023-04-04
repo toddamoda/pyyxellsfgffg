@@ -51,9 +51,7 @@ class Detector:
         self._pixel: Optional[Pixel] = None
         self._signal: Optional[Signal] = None
         self._image: Optional[Image] = None
-        self._processed_data: Optional[
-            ProcessedData
-        ] = None  # TODO: This will be deprecated
+        self._processed_data: Optional[ProcessedData] = None
         self._data: Optional["DataTree"] = None
 
         # This will be the memory of the detector where trapped charges will be saved

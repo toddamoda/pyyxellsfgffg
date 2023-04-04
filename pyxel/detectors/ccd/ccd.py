@@ -74,14 +74,7 @@ class CCD(Detector):
                     if self._processed_data is None
                     else self._processed_data.data.to_dict()
                 ),
-                "data": (
-                    None
-                    if self._data is None
-                    else {
-                        key: value.to_dict()
-                        for key, value in self._data.to_dict().items()
-                    }
-                ),
+                "data": (None if self._data is None else self._data.to_dict()),
                 "charge": (
                     None
                     if self._charge is None
