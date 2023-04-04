@@ -62,7 +62,7 @@ def simple_bfe(
     ###
     norm_sigma = 1 + (sigma / sigma_fwc)
     # (1 / np.max(sigma_fwc)) * sigma
-    std = np.mean(norm_sigma)
+    std = np.mean(norm_sigma)  # just for now in pyxel
     # sigma_array = polynomial_function(signal)
     kernel = Gaussian2DKernel(x_stddev=std, x_size=9)  # , y_size=3)
     # n1_list = []
