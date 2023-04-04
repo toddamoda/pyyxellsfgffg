@@ -1,17 +1,19 @@
 """Pyxel photon generator models."""
 import os
-from typing import Literal, Optional, Sequence, Tuple
+from typing import Tuple
 
 import numpy as np
 import pandas as pd
-import scipy.constants as cst
+
+# import scipy.constants as cst
 from astropy import units as u
 from astropy.io import ascii, fits
+from astropy.units import Quantity
 from scipy.integrate import cumtrapz
 
 
 # ---------------------------------------------------------------------------------------------
-def read_star_flux_from_file(filename):
+def read_star_flux_from_file(filename: str) -> Tuple[np.ndarray, np.ndarray]:
     """
     Read star flux file.
     TODO: Read the unit from the text file
@@ -54,13 +56,18 @@ def read_star_flux_from_file(filename):
         wavelength = wavelength * u.micron
         flux = flux * u.photon / u.s / u.m / u.m / u.micron
     else:
-        message("ERROR while convering, extension not readable", BOOL_verbose)
+        print("ERROR while convering, extension not readable", BOOL_verbose)
 
     return wavelength, flux
 
 
 # ---------------------------------------------------------------------------------------------
-def convert_flux(wavelength, flux, telescope_diameter_m1, telescope_diameter_m2):
+def convert_flux(
+    wavelength: np.ndarray,
+    flux: np.ndarray,
+    telescope_diameter_m1: float,
+    telescope_diameter_m2: float,
+) -> np.ndarray:
     """
     Convert the flux of the target in ph/s/µm
 
@@ -100,7 +107,7 @@ def convert_flux(wavelength, flux, telescope_diameter_m1, telescope_diameter_m2)
 
 
 # ---------------------------------------------------------------------------------------------
-def compute_bandwidth(psf_wavelength):
+def compute_bandwidth(psf_wavelength) -> Tuple[Quantity, Quantity]:
     """
     Computes the bandwidth for non even distributed values
     First we put the poles, each pole is at the center of the previous wave and the next wave.
@@ -120,7 +127,9 @@ def compute_bandwidth(psf_wavelength):
 
 
 # ---------------------------------------------------------------------------------------------
-def integrate_flux(wavelength, flux, psf_wavelength):
+def integrate_flux(
+    wavelength: Quantity, flux: Quantity, psf_wavelength: Quantity
+) -> Quantity:
     """
     Integrate flux on each bin around the psf.
     The trick is to integrate first, and interpolate after (and not vice-versa).
@@ -138,14 +147,18 @@ def integrate_flux(wavelength, flux, psf_wavelength):
     bandwidth, all_poles = compute_bandwidth(
         psf_wavelength
     )  # Mettre les paramètres de la fonction
+
     cum_sum = cumtrapz(flux.value, wavelength.value, initial=0.0)  # Cumulative count
+
     # self.wavelength has to quantity: value and units
     cum_sum_interp = np.interp(
         all_poles, wavelength, cum_sum
     )  # interpolate over psf wavelength
+
     flux_int = (
         cum_sum_interp[1:] - cum_sum_interp[:-1]
     )  # Compute flux over psf spectral bin
+
     flux_int = flux_int * flux.unit * wavelength.unit
     flux = np.copy(flux_int)  # Update flux matrix
 
@@ -153,24 +166,27 @@ def integrate_flux(wavelength, flux, psf_wavelength):
 
 
 # ------------------------------------------------------------------------------
-def multiply_by_transmission(psf, transmission_dict):
-    """The goal of this function is to take into account the flux of the incident star"""
-    for t in transmission_dict.keys():
-        if "M" in t:
-            f = interpolate.interp1d(
-                transmission_dict[t]["wavelength"],
-                transmission_dict[t]["reflectivity_eol"],
-            )
-        else:
-            f = interpolate.interp1d(
-                transmission_dict[t]["wavelength"],
-                transmission_dict[t]["transmission_eol"],
-            )
-        flux = np.copy(flux) * f(psf.psf_wavelength)
+# def multiply_by_transmission(psf, transmission_dict: Mapping[str, Any]) -> None:
+#     """The goal of this function is to take into account the flux of the incident star"""
+#     for t in transmission_dict.keys():
+#         if "M" in t:
+#             f = interpolate.interp1d(
+#                 transmission_dict[t]["wavelength"],
+#                 transmission_dict[t]["reflectivity_eol"],
+#             )
+#         else:
+#             f = interpolate.interp1d(
+#                 transmission_dict[t]["wavelength"],
+#                 transmission_dict[t]["transmission_eol"],
+#             )
+#         flux = np.copy(flux) * f(psf.psf_wavelength)
+#
 
 
 # ---------------------------------------------------------------------------------------------
-def read_psf_from_fits_file(filename):
+def read_psf_from_fits_file(
+    filename: str,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     Read psf files depending on simulation and instrument parameters
 
@@ -208,8 +224,14 @@ def read_psf_from_fits_file(filename):
 
 # ---------------------------------------------------------------------------------------------
 def project_psfs(
-    psf_datacube, line_psf_pos, col_psf_pos, flux, row, col, expend_factor
-):
+    psf_datacube: np.ndarray,
+    line_psf_pos: Quantity,
+    col_psf_pos,
+    flux,
+    row,
+    col,
+    expend_factor: float,
+) -> Quantity:
     """
     Project each psf on a (n_line_final * self.zoom, n_col_final * self.zoom) pixel image
     n_line_final, n_col_final = corresponds to window size. It varies with the channel
@@ -278,7 +300,7 @@ def project_psfs(
 
 
 # ---------------------------------------------------------------------------------------------
-def rebin_2d(data, expend_factor):
+def rebin_2d(data: np.ndarray, expend_factor: float) -> np.ndarray:
     """
     rebin as idl
     Each pixel of the returned image is the sum of zy by zx pixels of the input image.
