@@ -10,22 +10,26 @@
 import functools
 import importlib
 import inspect
+import sys
 import textwrap
 from collections import defaultdict
 from collections.abc import Callable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from graphlib import TopologicalSorter
 from pathlib import Path
-from typing import Any, Union, get_args, get_origin
+from typing import Any, Type, Union, get_args, get_origin
 
 import click
 from boltons.strutils import under2camel
-from numpydoc.docscrape import NumpyDocString
+from numpydoc import docscrape
 from toolz import dicttoolz
 from tqdm.auto import tqdm
 
 from pyxel import __version__
 from pyxel.pipelines import DetectionPipeline
+
+if sys.version_info < (3, 10):
+    raise RuntimeError("This script is only compatible with Python 3.10+")
 
 
 @dataclass
@@ -82,11 +86,35 @@ def get_annotation(annotation) -> str:
     return annotation
 
 
+def get_annotations(func: Callable) -> Mapping[str, type]:
+    if inspect.isclass(func):
+        signatures_before: Mapping[str, type] = inspect.get_annotations(func.__init__)
+    else:
+        signatures_before = inspect.get_annotations(func)
+
+    signatures_after: Mapping[str, type] = {}
+
+    import collections
+    import typing
+
+    locals = {"typing": typing, "collections": collections}
+
+    key: str
+    value: type
+    for key, current_type in signatures_before.items():
+        new_type: str = str(current_type).replace("pathlib.Path", "str")
+        signatures_after[key] = eval(new_type, locals)
+
+    return signatures_after
+
+
 def get_documentation(func: Callable) -> FuncDocumentation:
     assert func.__doc__
-    doc = NumpyDocString(inspect.cleandoc(func.__doc__))
+    doc: Mapping = docscrape.NumpyDocString(inspect.cleandoc(func.__doc__))
 
     signature: inspect.Signature = inspect.signature(func)
+
+    annotations: Mapping[str, type] = get_annotations(func)
 
     parameters = {}
 
@@ -95,6 +123,8 @@ def get_documentation(func: Callable) -> FuncDocumentation:
         all_signature_params: set[str] = set(signature.parameters)
         all_doc_params: set[str] = {doc_param.name for doc_param in doc["Parameters"]}
 
+        # Sanity checks
+        doc_param: str
         for doc_param in all_doc_params:
             if ":" in doc_param:
                 raise RuntimeError(
@@ -107,6 +137,7 @@ def get_documentation(func: Callable) -> FuncDocumentation:
                 f"Missing key(s) in the signature: {', '.join(missing_params)} for function {func=}."
             )
 
+        params: docscrape.Parameter
         for params in doc["Parameters"]:
             name, *_ = params.name.split(":")
             description = "\n".join(params.desc)
@@ -118,7 +149,9 @@ def get_documentation(func: Callable) -> FuncDocumentation:
 
             parameter: inspect.Parameter = signature.parameters[name]
 
-            annotation: str = get_annotation(parameter.annotation)
+            # annotation: str = get_annotation(parameter.annotation)
+            annotation: str = str(annotations[name])
+            assert "NoneType" not in annotation
 
             if parameter.default != inspect.Parameter.empty:
                 param: ParamDefault | Param = ParamDefault(
@@ -167,7 +200,7 @@ def get_doc_from_klass(klass: Klass) -> FuncDocumentation:
 def generate_class(klass: Klass) -> Iterator[str]:
     assert isinstance(klass, Klass)
 
-    doc = get_doc_from_klass(klass)
+    doc: FuncDocumentation = get_doc_from_klass(klass)
     klass_description_lst: Sequence[str] = textwrap.wrap(doc.description)
 
     yield "@schema("
@@ -192,6 +225,8 @@ def generate_class(klass: Klass) -> Iterator[str]:
         yield f"class {klass.cls.__name__}({klass.base_cls.__name__}):"
 
     if doc.parameters:
+        name: str
+        param: Param | ParamDefault
         for name, param in doc.parameters.items():
             title = name
 
