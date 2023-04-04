@@ -74,6 +74,14 @@ class CCD(Detector):
                     if self._processed_data is None
                     else self._processed_data.data.to_dict()
                 ),
+                "data": (
+                    None
+                    if self._data is None
+                    else {
+                        key: value.to_dict()
+                        for key, value in self._data.to_dict().items()
+                    }
+                ),
                 "charge": (
                     None
                     if self._charge is None
@@ -94,6 +102,7 @@ class CCD(Detector):
         # TODO: This is a simplistic implementation. Improve this.
         import numpy as np
         import xarray as xr
+        from datatree import DataTree
 
         from pyxel.data_structure import Scene
         from pyxel.detectors import CCDGeometry, Characteristics, Environment
@@ -132,6 +141,13 @@ class CCD(Detector):
             detector.image.array = np.asarray(data["image"])
         if "processed_data" in data:
             detector.processed_data._data = xr.Dataset.from_dict(data["processed_data"])
+        if "data" in data:
+            detector._data = DataTree.from_dict(
+                {
+                    key: xr.Dataset.from_dict(value)
+                    for key, value in data["data"].items()
+                }
+            )
         if "charge" in data and data["charge"] is not None:
             charge_dct = data["charge"]
             detector.charge._array = np.asarray(charge_dct["array"])

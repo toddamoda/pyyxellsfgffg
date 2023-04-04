@@ -11,7 +11,7 @@ from typing import Union
 import xarray as xr
 
 
-class ProcessedData:
+class Data:
     """Create a `ProcessedData` container.
 
     Examples

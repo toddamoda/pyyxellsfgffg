@@ -30,6 +30,7 @@ from pyxel.util.memory import get_size, memory_usage_details
 
 if TYPE_CHECKING:
     import xarray as xr
+    from datatree import DataTree
 
 
 __all__ = ["Detector"]
@@ -50,7 +51,10 @@ class Detector:
         self._pixel: Optional[Pixel] = None
         self._signal: Optional[Signal] = None
         self._image: Optional[Image] = None
-        self._processed_data: Optional[ProcessedData] = None
+        self._processed_data: Optional[
+            ProcessedData
+        ] = None  # TODO: This will be deprecated
+        self._data: Optional["DataTree"] = None
 
         # This will be the memory of the detector where trapped charges will be saved
         self._memory: dict = {}
@@ -73,6 +77,14 @@ class Detector:
             and self._signal == other._signal
             and self._image == other._image
             and self._processed_data == other._processed_data
+            and (
+                (self._data is None and other._data is None)
+                or (
+                    self._data is not None
+                    and other._data is not None
+                    and self._data.equals(other._data)
+                )
+            )
         )
 
     @property
@@ -140,6 +152,7 @@ class Detector:
 
         return self._image
 
+    # TODO: This will be deprecated
     @property
     def processed_data(self) -> ProcessedData:
         """TBW."""
@@ -147,6 +160,14 @@ class Detector:
             raise RuntimeError("'processed_data' not initialized.")
 
         return self._processed_data
+
+    @property
+    def data(self) -> "DataTree":
+        """TBW."""
+        if not self._data:
+            raise RuntimeError("'data' not initialized.")
+
+        return self._data
 
     def to_xarray(self) -> "xr.Dataset":
         """Create a new ``Dataset`` from all data containers.
@@ -184,6 +205,8 @@ class Detector:
 
     def reset(self) -> None:
         """TBW."""
+        from datatree import DataTree
+
         self._photon = Photon(geo=self.geometry)
         self._scene = None
         self._charge = Charge(geo=self.geometry)
@@ -194,13 +217,10 @@ class Detector:
         if self._processed_data is None:
             self._processed_data = ProcessedData()
 
-    def empty(self, empty_all: bool = True) -> None:
-        """Empty the data in the detector.
+        self._data = DataTree()
 
-        Returns
-        -------
-        None
-        """
+    def empty(self, empty_all: bool = True) -> None:
+        """Empty the data in the detector."""
         if self._photon:
             self.photon.array *= 0
 
