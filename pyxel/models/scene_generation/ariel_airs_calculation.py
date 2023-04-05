@@ -1,6 +1,5 @@
 """Pyxel photon generator models."""
 import os
-from typing import Tuple
 
 import numpy as np
 import pandas as pd
@@ -36,6 +35,7 @@ def read_star_flux_from_file(
     flux: type array 1D
         Flux of the target considered, in  ph/s/m2/µm.
     """
+    BOOL_verbose = True
     extension = os.path.splitext(filename)[1]
     if extension == ".txt":
         wavelength, flux = np.loadtxt(filename).T
@@ -120,7 +120,7 @@ def compute_bandwidth(
     psf_wavelength,
 ) -> tuple[Quantity, Quantity]:
     """
-    Compute the bandwidth for non even distributed values.
+    Computes the bandwidth for non even distributed values
     First we put the poles, each pole is at the center of the previous wave and the next wave.
     We add the first pole and the last pole using symmetry. We get nw+1 poles
 
@@ -241,6 +241,7 @@ def read_psf_from_fits_file(
     col_pos_psf : ndarray
         1D array, y position of the PSF at each wavelength.
     """
+    BOOL_verbose = True
     hdu = fits.open(filename)  # Open fits
     psf_datacube, table = hdu[0].data, hdu[1].data
     line_psf_pos = (table["x_centers"]).astype(
