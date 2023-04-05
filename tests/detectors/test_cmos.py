@@ -144,9 +144,18 @@ def comparison(dct, other_dct):
     assert dct["properties"] == other_dct["properties"]
 
     assert (
-        set(dct["data"])
-        == set(other_dct["data"])
-        == {"photon", "scene", "pixel", "signal", "image", "charge", "processed_data"}
+        sorted(dct["data"])
+        == sorted(other_dct["data"])
+        == [
+            "charge",
+            "data",
+            "image",
+            "photon",
+            "pixel",
+            "processed_data",
+            "scene",
+            "signal",
+        ]
     )
     np.testing.assert_equal(dct["data"]["photon"], other_dct["data"]["photon"])
     np.testing.assert_equal(dct["data"]["pixel"], other_dct["data"]["pixel"])
@@ -154,9 +163,9 @@ def comparison(dct, other_dct):
     np.testing.assert_equal(dct["data"]["image"], other_dct["data"]["image"])
 
     assert (
-        set(dct["data"]["charge"])
-        == set(other_dct["data"]["charge"])
-        == {"array", "frame"}
+        sorted(dct["data"]["charge"])
+        == sorted(other_dct["data"]["charge"])
+        == ["array", "frame"]
     )
     np.testing.assert_equal(
         dct["data"]["charge"]["array"], other_dct["data"]["charge"]["array"]
@@ -225,6 +234,7 @@ def comparison(dct, other_dct):
                         ),
                     },
                     "data": {},
+                    "processed_data": {},
                 },
             },
             id="Default parameters",
@@ -297,6 +307,7 @@ def comparison(dct, other_dct):
                         ),
                     },
                     "data": {},
+                    "processed_data": {},
                 },
             },
             id="CMOS fully defined",

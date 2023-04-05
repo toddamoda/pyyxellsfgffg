@@ -125,6 +125,7 @@ def show_versions():
         "typing-extensions",
         "yaml",
         "xarray",
+        "datatree",
         "xlrd",
         "openpyxl",
         "netcdf4",
