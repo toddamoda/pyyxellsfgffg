@@ -14,7 +14,8 @@ from scipy.integrate import cumtrapz
 
 # ---------------------------------------------------------------------------------------------
 def read_star_flux_from_file(
-    filename: str, verbose: bool = True
+    filename: str,
+    verbose: bool = True,
 ) -> tuple[np.ndarray, np.ndarray]:
     """
     Read star flux file.
@@ -28,6 +29,10 @@ def read_star_flux_from_file(
                 Wavelength associated with the flux of the star
         flux: type array 1D
                 Flux of the target considered, in  ph/s/m2/µm
+
+    Parameters
+    ----------
+    verbose : bool
     """
     extension = os.path.splitext(filename)[1]
     if extension == ".txt":
@@ -92,26 +97,28 @@ def convert_flux(
 
     """
     if verbose:
-        print("Incident photon flux is being converted into ph/s/um")
+        print("Incident photon flux is being converted into ph/s/um.")
     # use of astropy code
     flux.to(
         u.photon / u.m**2 / u.micron / u.s,
         equivalencies=u.spectral_density(wavelength),
     )
 
-    diameter = (
+    diameter_m2 = (
         telescope_diameter_m2 * u.meter
     )  # TODO: define a class to describe the optic of the telescope ?
-    Diameter = telescope_diameter_m1 * u.meter
-    collecting_area = np.pi * diameter * Diameter / 4
+    diameter_m1 = telescope_diameter_m1 * u.meter
+    collecting_area = np.pi * diameter_m1 * diameter_m2 / 4
     conv_flux = np.copy(flux) * collecting_area
     return conv_flux
 
 
 # ---------------------------------------------------------------------------------------------
-def compute_bandwidth(psf_wavelength) -> tuple[Quantity, Quantity]:
+def compute_bandwidth(
+    psf_wavelength,
+) -> tuple[Quantity, Quantity]:
     """
-    Computes the bandwidth for non even distributed values
+    Compute the bandwidth for non even distributed values
     First we put the poles, each pole is at the center of the previous wave and the next wave.
     We add the first pole and the last pole using symmetry. We get nw+1 poles
 
@@ -309,7 +316,7 @@ def rebin_2d(
     data: np.ndarray, expend_factor: float, verbose: bool = True
 ) -> np.ndarray:
     """
-    rebin as idl
+    Rebin as idl.
     Each pixel of the returned image is the sum of zy by zx pixels of the input image.
 
     Parameters :   data: numpy.array of 2 dimensions (image), ny, nx
