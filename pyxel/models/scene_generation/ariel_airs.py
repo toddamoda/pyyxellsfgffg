@@ -22,16 +22,16 @@ def wavelength_dependence_airs(
     target_filename: str = "target_flux_SED_00005.dat",
     time_scale: float = 1.0,
 ) -> None:
-    """Generate the photon over the array according to a specific dispersion pattern (ARIEL-AIRS)
+    """Generate the photon over the array according to a specific dispersion pattern (ARIEL-AIRS).
 
     Parameters
     ----------
     detector : Detector
         Pyxel Detector object.
     psf_filename: string
-        The location and the filename where the PSFs are located
+        The location and the filename where the PSFs are located.
     target_filename: string
-        The location and the filename of the target file used in the simulation
+        The location and the filename of the target file used in the simulation.
     """
     # Extract information from the PSF
     psf_datacube, psf_wavelength, line_psf_pos, col_psf_pos = read_psf_from_fits_file(

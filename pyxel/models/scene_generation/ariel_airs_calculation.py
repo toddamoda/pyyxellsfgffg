@@ -1,5 +1,6 @@
 """Pyxel photon generator models."""
 import os
+from typing import Tuple
 
 import numpy as np
 import pandas as pd
@@ -8,30 +9,32 @@ import pandas as pd
 from astropy import units as u
 from astropy.io import ascii, fits
 from astropy.units import Quantity
+from numpy import ndarray
 from scipy.integrate import cumtrapz
 
 
 # ---------------------------------------------------------------------------------------------
 def read_star_flux_from_file(
     filename: str,
-    verbose: bool = True,
+    verbose: bool = False,
 ) -> tuple[np.ndarray, np.ndarray]:
     """
     Read star flux file.
-    TODO: Read the unit from the text file
-
-    :param:
-        filename type string,
-                name of the target file. Different extension can be considered
-    :return:
-        wavelength: type array 1D
-                Wavelength associated with the flux of the star
-        flux: type array 1D
-                Flux of the target considered, in  ph/s/m2/µm
+    # TODO: Read the unit from the text file.
 
     Parameters
     ----------
+    filename: type string,
+        Name of the target file. Different extension can be considered.
     verbose : bool
+        If True information is displayed. Default False.
+
+    Returns
+    -------
+    wavelength: type array 1D
+        Wavelength associated with the flux of the star.
+    flux: type array 1D
+        Flux of the target considered, in  ph/s/m2/µm.
     """
     extension = os.path.splitext(filename)[1]
     if extension == ".txt":
@@ -72,28 +75,28 @@ def convert_flux(
     flux: np.ndarray,
     telescope_diameter_m1: float,
     telescope_diameter_m2: float,
-    verbose: bool = True,
+    verbose: bool = False,
 ) -> np.ndarray:
     """
-    Convert the flux of the target in ph/s/µm
+    Convert the flux of the target in ph/s/µm.
 
     Parameters
     ----------
-    verbose: bool
     wavelength: 1D array
-        Wavelength sampling of the considered target
+        Wavelength sampling of the considered target.
     flux: 1D array
-        Flux of the target considered in ph/s/m2/µm
+        Flux of the target considered in ph/s/m2/µm.
     telescope_diameter_m1: float
-        Diameter of the M1 mirror of the TA
+        Diameter of the M1 mirror of the TA.
     telescope_diameter_m2: float
-        Diameter of the M2 mirror of the TA
+        Diameter of the M2 mirror of the TA.
+    verbose : bool
+        If True information is displayed. Default False.
 
     Returns
     --------
     conv_flux: 1D array
-        Flux of the target considered in ph/s/µm
-
+        Flux of the target considered in ph/s/µm.
     """
     if verbose:
         print("Incident photon flux is being converted into ph/s/um.")
@@ -117,13 +120,21 @@ def compute_bandwidth(
     psf_wavelength,
 ) -> tuple[Quantity, Quantity]:
     """
-    Compute the bandwidth for non even distributed values
+    Compute the bandwidth for non even distributed values.
     First we put the poles, each pole is at the center of the previous wave and the next wave.
     We add the first pole and the last pole using symmetry. We get nw+1 poles
 
-    :param psf:   PSF object
-    :return:        bandwidth (usually in microns) and the pole wavelengths
-    :rtype:         type quantity array,dimension nw
+    Parameters
+    ----------
+    psf_wavelength:
+       PSF object.
+
+    Returns
+    -------
+    bandwidth : quantity array
+        Bandwidth. Usually in microns.
+    all_poles : quantity array
+        Pole wavelengths. Dimension: nw
     """
     poles = (psf_wavelength[1:] + psf_wavelength[:-1]) / 2
     first_pole = psf_wavelength[0] - (psf_wavelength[1] - psf_wavelength[0]) / 2
@@ -136,21 +147,30 @@ def compute_bandwidth(
 
 # ---------------------------------------------------------------------------------------------
 def integrate_flux(
-    wavelength: Quantity, flux: Quantity, psf_wavelength: Quantity, verbose: bool = True
+    wavelength: Quantity,
+    flux: Quantity,
+    psf_wavelength: Quantity,
+    verbose: bool = False,
 ) -> Quantity:
     """
-    Integrate flux on each bin around the psf.
-    The trick is to integrate first, and interpolate after (and not vice-versa).
+     Integrate flux on each bin around the psf.
+     The trick is to integrate first, and interpolate after (and not vice-versa).
 
-    :param flux:        type quantity array, unit ph/s/m2/micron dimension big_n
-    :param  wavelength:   type quantity array, unit usually micron, dimension small_n
-
-    :return: flux integrated in photon/s
-    :rtype: type quantity array, dimension nw
-
-    Parameters
-    ----------
+     Parameters
+     ----------
+     wavelength : quantity array
+         Wavelength. Unit: usually micron. Dimension: small_n.
+     flux : quantity array
+         Flux. Unit: ph/s/m2/micron. Dimension: big_n.
+     psf_wavelength : quantity array
+         Point Spead Function per wavelength.
     verbose : bool
+         If True information is displayed. Default False.
+
+     Returns
+     -------
+     flux : quantity array
+         Flux. UNit: photon/s. Dimension: nw.
     """
     if verbose:
         print("Integrate flux on each bin around the psf...")
@@ -197,17 +217,29 @@ def integrate_flux(
 # ---------------------------------------------------------------------------------------------
 def read_psf_from_fits_file(
     filename: str,
-    verbose: bool = True,
+    verbose: bool = False,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
-    Read psf files depending on simulation and instrument parameters
+    Read psf files depending on simulation and instrument parameters.
 
-    :param:     filename : type string, name of the .fits file
-                verbose : type bool, if True information are displayed. Default False
+    Parameters
+    ----------
+    filename : str
+        Name of the .fits file.
+    verbose : bool
+        If True information is displayed. Default False.
 
-    :return:    cube : (3D array) PSF for each wavelength saved as (360,360) array, one for each wavelength
-                waves (1D array) wavelength in um
-                line_pos_psf, col_pos_psf : 1D array, position of the PSF at each wavelength
+    Returns
+    -------
+    psf_datacube : ndarray
+        3D array, PSF for each wavelength saved as array, one for each wavelength
+        waves (1D array) wavelength. Unit: um.
+    psf_wavelength : ndarray
+        1D array, wavelengths. Unit: um.
+    line_pos_psf : ndarray
+        1D array, x position of the PSF at each wavelength.
+    col_pos_psf : ndarray
+        1D array, y position of the PSF at each wavelength.
     """
     hdu = fits.open(filename)  # Open fits
     psf_datacube, table = hdu[0].data, hdu[1].data
@@ -242,7 +274,7 @@ def project_psfs(
     row,
     col,
     expend_factor: float,
-) -> Quantity:
+) -> tuple[ndarray, ndarray]:
     """
     Project each psf on a (n_line_final * self.zoom, n_col_final * self.zoom) pixel image
     n_line_final, n_col_final = corresponds to window size. It varies with the channel
@@ -312,28 +344,42 @@ def project_psfs(
 
 # ---------------------------------------------------------------------------------------------
 def rebin_2d(
-    data: np.ndarray, expend_factor: float, verbose: bool = True
+    data: np.ndarray,
+    expand_factor: float,
+    verbose: bool = False,
 ) -> np.ndarray:
     """
     Rebin as idl.
     Each pixel of the returned image is the sum of zy by zx pixels of the input image.
 
-    Parameters :   data: numpy.array of 2 dimensions (image), ny, nx
-                   expend_factor: tuple of 2 integers, zy, zx
-                   beware ny must be a multiple of zy, and nx multiple of zx
-    verbose: bool, displays the final shape
-
-    Return :       result: numpy array shrunk, dimension ny/zy, nx/zx
-
-    Example :      a = np.arange(48).reshape((6,8))
-                   rebin2d( a, [2,2])
-
-    HISTORY:       Rene Gastaud, 13 January 2016
+    Based on:       Rene Gastaud, 13 January 2016
     https://codedump.io/share/P3pB13TPwDI3/1/resize-with-averaging-or-rebin-a-numpy-2d-array
     2017-11-17 : RG and Alan O'Brien  compatibility with python 3 bug452
+
+    Parameters
+    ----------
+    data : ndarray
+        Data with 2 dimensions (image): ny, nx.
+    expand_factor : tuple
+        Expansion factor is a tuple of 2 integers: zy, zx.
+    verbose : bool
+        If True information is displayed. Default False.
+
+    Returns
+    -------
+    result : ndarray
+        Shrunk in dimension ny/zy, nx/zx.
+
+
+    Example
+    -------
+    a = np.arange(48).reshape((6,8))
+               rebin2d( a, [2,2])
+
+
     """
 
-    zoom = [expend_factor, expend_factor]  # In case asymmetrical zoom is used
+    zoom = [expand_factor, expand_factor]  # In case asymmetrical zoom is used
     final_shape = (
         int(data.shape[0] // zoom[0]),
         zoom[0],
