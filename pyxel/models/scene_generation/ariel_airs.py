@@ -62,7 +62,8 @@ def wavelength_dependence_airs(
     )  # The flux is now sample similarly to the PSF
 
     # The Flux can be multiplied here by the optical elements
-    # multiply_by_transmission(psf, transmission_dict) #TODO add class to take into account the transmission of the instrument
+    # multiply_by_transmission(psf, transmission_dict)
+    # #TODO add class to take into account the transmission of the instrument
     # Project the PSF onto the Focal Plane, to get the detector image
     row, col = 130, 64  # Could be replaced
     expend_factor = 18  # Expend factor used
@@ -86,7 +87,7 @@ def wavelength_dependence_airs(
         except ValueError as ex:
             raise ValueError("Shapes of arrays do not match") from ex
 
-    ##### PLOT, to be deleted when implemented in Pyxel
+    # PLOT, to be deleted when implemented in Pyxel
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(target_wavelength, target_flux)
