@@ -2,7 +2,7 @@
 Get Help
 ========
 
-We welcome usage questions and bug reports from all usres, even those who are new to
+We welcome usage questions and bug reports from all users, even those who are new to
 using the project.
 There are a few things you can do to improve the likelihood of quickly getting a
 good answer.

@@ -25,7 +25,7 @@ are all the information and data related to the physical properties of the simul
 falling in either of the following categories:
 :py:class:`~pyxel.detectors.Geometry`, :py:class:`~pyxel.detectors.Characteristics`,
 and :py:class:`~pyxel.detectors.Environment`, as shown in the figure.
-Those are all the properties that are used by more than one model.
+These are all the properties used by more than one model.
 They do not change during a pipeline run and can vary depending on the detector used.
 Another category of detector properties, ``Material``, was temporarily removed in version
 1.0 due to non-use. Additionally, since version 1.0, properties were given user-friendly names with whole words

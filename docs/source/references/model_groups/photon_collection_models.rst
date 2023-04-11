@@ -170,7 +170,7 @@ By default (no arguments provided), the model uses the Poisson distribution (``n
 User can also set the argument  ``type`` to ``"normal"`` for normal distribution (``numpy.random.normal``).
 As known, for large photon counts :math:`N` the Poisson distribution approaches the normal distribution
 with standard deviation :math:`\sqrt{N}`, which is fixed in the model.
-It is also possible to set the seed of the random generator with the argument ```seed``.
+It is also possible to set the seed of the random generator with the argument ``seed``.
 
 Example of the configuration file:
 

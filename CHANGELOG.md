@@ -30,6 +30,12 @@ Support for Python 3.8 has been dropped.
 
 ### Documentation
 
+* The general documentation has been reviewed and minor fixes made such as:
+  spelling mistakes, typos in markup, grammatical issues, dead hyperlinks,
+  and wording simplification.
+  (see [!579](https://gitlab.com/esa/pyxel/-/merge_requests/579))
+
+
 ### Models
 
 ### Others

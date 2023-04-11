@@ -69,10 +69,10 @@ Simple photoconversion
 With this model you can create and add charge to :py:class:`~pyxel.detectors.Detector` via photoelectric effect
 by converting photons in charge.
 Binomial sampling of incoming Poisson distributed photons is used in the conversion by default,
-with probability :term:`QE`. It can be turned off by setting the argument ``binomial_sampling`` to ```False``.
+with probability :term:`QE`. It can be turned off by setting the argument ``binomial_sampling`` to ``False``.
 User can provide an optional quantum efficiency (``qe``) parameter.
 If not provided, quantum efficiency from detector :py:class:`~pyxel.detectors.Characteristics` is used.
-It is also possible to set the seed of the random generator with the argument ```seed``.
+It is also possible to set the seed of the random generator with the argument ``seed``.
 
 Basic example of YAML configuration model:
 
@@ -82,7 +82,7 @@ Basic example of YAML configuration model:
       func: pyxel.models.charge_generation.simple_conversion
       enabled: true
       arguments:
-        qe: 0.8  # optional
+        quantum_efficiency: 0.8  # optional
 
 .. autofunction:: simple_conversion
 
@@ -98,7 +98,7 @@ Conversion with custom QE map
 With this model you can create and add charge to :py:class:`~pyxel.detectors.Detector` via photoelectric effect
 by converting photons in charge.
 Binomial sampling of incoming Poisson distributed photons is used in the conversion by default,
-with probability :term:`QE`. It can be turned off by setting the argument ``binomial_sampling`` to ```False``.
+with probability :term:`QE`. It can be turned off by setting the argument ``binomial_sampling`` to ``False``.
 Besides that, user can input a custom quantum efficiency map by providing a ``filename`` of the :term:`QE` map.
 Accepted file formats for :term:`QE` map are ``.npy``, ``.fits``, ``.txt``, ``.data``, ``.jpg``, ``.jpeg``, ``.bmp``,
 ``.png`` and ``.tiff``. Use argument ``position`` to set the offset from (0,0) pixel

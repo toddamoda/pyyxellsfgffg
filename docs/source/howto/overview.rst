@@ -15,8 +15,10 @@ They are composed of the following **goal-oriented** series of steps:
 
     If you are a beginner, you should have a look at the tutorials.
 
-    A how-to guide is an answer to a question that only a user with some
-    experience could even formulate and it offers a get-it-done information.
+    A *how-to* guide answers questions to common scenarios using a practical
+    approach based on best practices. It offers a *get-it-done* procedure that
+    can easily be adapted to fit one's needs.
+
 
 * Working in the local development environment
 * :doc:`new_model`

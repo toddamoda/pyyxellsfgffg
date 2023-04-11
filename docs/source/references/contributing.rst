@@ -15,7 +15,7 @@ Contributing to Pyxel
 
 Pyxel is built with modularity and flexibility in mind and makes use of
 the GitLab infrastructure for version control and to support collaborative
-development. Therefore it shall be easy for its user & developer
+development. This makes it easier for its user & developer
 community to directly contribute and expand the framework capabilities by
 adding their own models, codes simulating physical processes and effects of
 detectors.
@@ -30,8 +30,9 @@ Pyxel conversation happens in the following places:
 #. `Gitter chat <https://gitter.im/pyxel-framework/community>`_: for real-time discussion
 
 For usage questions and bug reports we strongly prefer the use of GitLab issues
-over gitter chat. GitLab are more easily searchable by future users and so is
-more efficient for everyone's time.
+over gitter chat.
+One of the main reasons for this is that GitLab issues are more easily searchable.
+This makes it more efficient for users to locate existing issues.
 Gitter chat is generally reserved for community discussion.
 
 All contributions, bug reports, bug fixes, documentation improvements,
@@ -69,7 +70,7 @@ and/or fixed.
 
 Bug reports must:
 
-1. Include a short, self-contained python snipper reproducing the problem.
+1. Include a short, self-contained python snippet reproducing the problem.
    You can format the code nicely by using `GitLab Flavored Markdown
    <https://docs.gitlab.com/ee/user/markdown.html#gitlab-flavored-markdown-gfm>`_::
 
@@ -88,10 +89,10 @@ use the built in function:
 
     In [2]: pyxel.show_versions()
 
-#. Explain why the current behavior is wrong/not desired and what you expect
+3. Explain why the current behavior is wrong/not desired and what you expect
    instead.
 
-The issue will be show up to the *Pyxel* community and be open to
+The issue will be visible to the *Pyxel* community and be open to
 comments/ideas from others.
 
 .. _contributing.gitlab:
@@ -378,7 +379,7 @@ About the *Pyxel* documentation
 The documentation is written in **reStructuredText**, which is almost like
 writing in plain English, and built using `Sphinx <http://sphinx.pocoo.org/>`__.
 The Sphinx Documentation has an excellent `introduction to reST
-<http://sphinx.pocoo.org/rest.html>`__. Review the Sphinx docs to perform more
+<https://sphinx-intro-tutorial.readthedocs.io/en/latest/rst_intro.html>`__. Review the Sphinx docs to perform more
 complex changes to the documentation as well.
 
 Some other important things to know about the docs:
@@ -394,7 +395,7 @@ Some other important things to know about the docs:
 - The docstrings follow the **Numpy Docstring Standard**, which is used widely
   in the Scientific Python community. This standard specifies the format of
   the different sections of the docstring. See `this document
-  <https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt>`_
+  <https://numpydoc.readthedocs.io/en/latest/format.html>`_
   for a detailed explanation, or look at some of the existing functions to
   extend it in a similar manner.
 
@@ -567,18 +568,20 @@ Testing With Continuous Integration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Continuous Integration (CI) automatically integrate code changes from multiple stakeholders
-in a single software project. It allows developers to to frequently contribute code changes
+in a single software project. It allows developers to frequently contribute code changes
 to a central repository where builds and tests are then executed.
 Automated tools are used to verify the correctness of new code before the integration.
 The version control system in Git is also supported by other checks such as automated code
-Quality tests, syntax style checking tools and more (see `GitLab CI <https://about.gitlab.com/features/continuous-integration/>`_).
+quality tests, syntax style checking tools and more (see `GitLab CI <https://about.gitlab.com/features/continuous-integration/>`_).
 For example, the CI tool `tox <https://tox.wiki/en/latest/>`_ aims to automate and
-standardize testing in Python. tox is a generic virtual environment management and
-test command line tool you can use for checking your package builds and installs correctly
-under different environments (such as different Python implementations, versions or
-installation dependencies), running your tests in each of the environments with the
-test tool of choice, acting as a frontend to continuous integration servers
-and merging CI and shell-based testing.
+standardize testing in Python. It (*tox*) is a generic virtual environment management and
+test command line tool you can use for:
+
+* checking your package builds and installs correctly under different environments (such
+  as different Python implementations, versions or installation dependencies),
+* running your tests in each of the environments with the test tool of choice,
+* acting as a frontend to continuous integration servers and merging CI and shell-based
+  testing.
 
 .. _contributing.test-driven-development-code-writing:
 
@@ -590,7 +593,7 @@ Test-driven development/code writing
 This development process "relies on the repetition of a very short development
 cycle: first the developer writes an (initially failing) automated test case
 that defines a desired improvement or new function, then produces the minimum
-amount of code to pass that test." So, before actually writing any code, you
+amount of code to pass that test. So, before actually writing any code, you
 should write your tests.  Often the test can be taken from the original GitLab
 issue. However, it is always worth considering additional use cases and writing
 corresponding tests.

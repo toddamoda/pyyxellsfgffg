@@ -62,7 +62,7 @@ All the steps use the Pyxel's JSON Schema with a `YAML` configuration are summar
 ### Install the YAML Language extension
 
 The first step is to install the [YAML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml) 
-from Red Hat in VS Code directly in the Extension Manager of VSCode (see the following picture)
+from Red Hat in VS Code directly in the Extension Manager of VSCode (see the following screenshot)
 
 ![vscode_yaml_extension](_static/vscode_yaml_extension.jpg)
 
