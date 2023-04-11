@@ -194,6 +194,7 @@ def compute_dark_current(
             " will result in inf values. Enable a FWC model to ensure a physical limit.",
             RuntimeWarning,
         )
+    warnings.simplefilter("once", RuntimeWarning)
 
     return dark_current_2d
 
