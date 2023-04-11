@@ -195,6 +195,7 @@ def compute_dark_current(
             RuntimeWarning,
             stacklevel=2,
         )
+    warnings.simplefilter("once", RuntimeWarning)
 
     return dark_current_2d
 
