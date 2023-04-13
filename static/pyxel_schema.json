@@ -1121,6 +1121,9 @@
                 "$ref": "#/definitions/ModelDataProcessingExtractRoiToXarray"
               },
               {
+                "$ref": "#/definitions/ModelDataProcessingMeanVariance"
+              },
+              {
                 "$ref": "#/definitions/ModelLoadDetector"
               },
               {
@@ -4146,6 +4149,59 @@
         "name"
       ],
       "title": "Model 'extract_roi_to_xarray'",
+      "type": "object"
+    },
+    "ModelDataProcessingMeanVariance": {
+      "additionalProperties": false,
+      "description": "Compute mean-variance and store it in '.data' bucket.",
+      "properties": {
+        "arguments": {
+          "additionalProperties": false,
+          "default": {
+            "data_structure": "image",
+            "name": null
+          },
+          "properties": {
+            "data_structure": {
+              "default": "image",
+              "enum": [
+                "pixel",
+                "photon",
+                "image",
+                "signal"
+              ],
+              "title": "data_structure",
+              "type": "string"
+            },
+            "name": {
+              "default": null,
+              "title": "name",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "title": "Parameters",
+          "type": "object"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "func": {
+          "const": "pyxel.models.data_processing.mean_variance",
+          "default": "pyxel.models.data_processing.mean_variance",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Model 'mean_variance'",
       "type": "object"
     },
     "ModelFunction": {

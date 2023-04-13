@@ -139,6 +139,7 @@ class Array:
         num_rows, num_cols = self.shape
         return xr.DataArray(
             self.array,
+            name=self.NAME.lower(),
             dims=["y", "x"],
             coords={"y": range(num_rows), "x": range(num_cols)},
             attrs={"units": self.UNIT, "long_name": self.NAME},

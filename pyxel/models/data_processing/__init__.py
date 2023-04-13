@@ -10,3 +10,4 @@
 # flake8: noqa
 from .statistics import compute_statistics
 from .source_extractor import extract_roi_to_xarray
+from .mean_variance import mean_variance

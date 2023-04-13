@@ -167,6 +167,7 @@ def run_exposure_pipeline(
         for i, (time, step) in enumerate(time_step_it):
             detector.time = time
             detector.time_step = step
+            detector.pipeline_count = i
 
             logging.info("time = %.3f s", time)
 
@@ -178,7 +179,6 @@ def run_exposure_pipeline(
             detector.empty(empty_all)
 
             processor.run_pipeline()
-            detector.pipeline_count = i
 
             if outputs and detector.read_out:
                 outputs.save_to_file(processor)
