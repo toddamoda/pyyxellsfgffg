@@ -5,6 +5,7 @@
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
 
+"""Model to compute Mean-Variance."""
 from typing import Literal, Optional, Union
 
 import xarray as xr
