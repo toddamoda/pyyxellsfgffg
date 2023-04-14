@@ -36,6 +36,8 @@ Support for Python 3.8 has been dropped.
 
 
 ### Models
+* New data processing model 'mean-variance'.
+  (See [!645](https://gitlab.com/esa/pyxel/-/merge_requests/645)).
 
 ### Others
 * Remove support to Python 3.8.
