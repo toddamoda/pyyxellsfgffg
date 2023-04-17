@@ -1115,13 +1115,13 @@
           "items": {
             "anyOf": [
               {
-                "$ref": "#/definitions/ModelDataProcessingComputeStatistics"
-              },
-              {
                 "$ref": "#/definitions/ModelDataProcessingExtractRoiToXarray"
               },
               {
                 "$ref": "#/definitions/ModelDataProcessingMeanVariance"
+              },
+              {
+                "$ref": "#/definitions/ModelDataProcessingStatistics"
               },
               {
                 "$ref": "#/definitions/ModelLoadDetector"
@@ -2153,8 +2153,8 @@
               ],
               "title": "energy_spectrum_sampling",
               "type": [
-                "null",
-                "string"
+                "string",
+                "null"
               ]
             },
             "energy_spread": {
@@ -2183,8 +2183,8 @@
               ],
               "title": "particle_direction",
               "type": [
-                "null",
-                "string"
+                "string",
+                "null"
               ]
             },
             "seed": {
@@ -2290,8 +2290,8 @@
               ],
               "title": "energy_spectrum_sampling",
               "type": [
-                "null",
-                "string"
+                "string",
+                "null"
               ]
             },
             "energy_spread": {
@@ -2314,8 +2314,8 @@
               ],
               "title": "particle_direction",
               "type": [
-                "null",
-                "string"
+                "string",
+                "null"
               ]
             },
             "seed": {
@@ -4037,74 +4037,6 @@
       "title": "Model 'cdm'",
       "type": "object"
     },
-    "ModelDataProcessingComputeStatistics": {
-      "additionalProperties": false,
-      "description": "Compute basic statistics.",
-      "properties": {
-        "arguments": {
-          "additionalProperties": false,
-          "default": {
-            "data_structure": "pixel",
-            "dimensions": [
-              "x",
-              "y"
-            ]
-          },
-          "properties": {
-            "data_structure": {
-              "default": "pixel",
-              "description": "Keyword to choose data structure. Can be any from: (\"pixel\", \"photon\",\"image\", \"signal\")",
-              "enum": [
-                "pixel",
-                "photon",
-                "image",
-                "signal"
-              ],
-              "title": "data_structure",
-              "type": "string"
-            },
-            "dimensions": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                }
-              ],
-              "default": [
-                "x",
-                "y"
-              ],
-              "description": "Dimensions.",
-              "title": "dimensions"
-            }
-          },
-          "title": "Parameters",
-          "type": "object"
-        },
-        "enabled": {
-          "default": true,
-          "type": "boolean"
-        },
-        "func": {
-          "const": "pyxel.models.data_processing.compute_statistics",
-          "default": "pyxel.models.data_processing.compute_statistics",
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "name"
-      ],
-      "title": "Model 'compute_statistics'",
-      "type": "object"
-    },
     "ModelDataProcessingExtractRoiToXarray": {
       "additionalProperties": false,
       "description": "Extract the roi data converts it to xarray dataset and saves theinformation to the final result.",
@@ -4202,6 +4134,52 @@
         "name"
       ],
       "title": "Model 'mean_variance'",
+      "type": "object"
+    },
+    "ModelDataProcessingStatistics": {
+      "additionalProperties": false,
+      "description": "Compute basic statistics.",
+      "properties": {
+        "arguments": {
+          "additionalProperties": false,
+          "default": {
+            "data_structure": "all"
+          },
+          "properties": {
+            "data_structure": {
+              "default": "all",
+              "description": "Keyword to choose data structure. Can be any from: (\"pixel\", \"photon\",\"image\", \"signal\") Dimensions.",
+              "enum": [
+                "pixel",
+                "photon",
+                "signal",
+                "image",
+                "all"
+              ],
+              "title": "data_structure",
+              "type": "string"
+            }
+          },
+          "title": "Parameters",
+          "type": "object"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "func": {
+          "const": "pyxel.models.data_processing.statistics",
+          "default": "pyxel.models.data_processing.statistics",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Model 'statistics'",
       "type": "object"
     },
     "ModelFunction": {
