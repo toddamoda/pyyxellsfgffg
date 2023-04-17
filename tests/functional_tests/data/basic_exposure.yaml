@@ -115,6 +115,6 @@ pipeline:
       enabled: true
 
   data_processing:
-    - name: compute_statistics
-      func: pyxel.models.data_processing.compute_statistics
+    - name: statistics
+      func: pyxel.models.data_processing.statistics
       enabled: true

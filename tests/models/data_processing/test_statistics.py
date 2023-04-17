@@ -16,7 +16,7 @@ from pyxel.detectors import (
     Environment,
     ReadoutProperties,
 )
-from pyxel.models.data_processing import compute_statistics
+from pyxel.models.data_processing import statistics
 
 
 @pytest.fixture
@@ -40,7 +40,7 @@ def ccd_10x10() -> CCD:
 def test_statistics(ccd_10x10: CCD):
     """Test input parameters for function 'statistics'."""
     detector = ccd_10x10
-    compute_statistics(detector=detector)
+    statistics(detector=detector)
 
     data = detector.data
     assert isinstance(data, DataTree)
