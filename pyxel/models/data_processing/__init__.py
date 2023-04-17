@@ -8,6 +8,6 @@
 """Subpackage with all models related to the 'DataProcessing' model group."""
 
 # flake8: noqa
-from .statistics import compute_statistics
+from .statistics import statistics
 from .source_extractor import extract_roi_to_xarray
 from .mean_variance import mean_variance

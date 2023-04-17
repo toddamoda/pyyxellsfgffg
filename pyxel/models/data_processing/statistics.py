@@ -7,18 +7,57 @@
 
 """Simple model to compute basic statistics."""
 from collections.abc import Sequence
-from typing import Literal, Union
+from typing import Literal, Optional, Union
 
 import xarray as xr
 from datatree import DataTree
 
+from pyxel.data_structure import Image, Photon, Pixel, Signal
 from pyxel.detectors import Detector
 
 
 def compute_statistics(
+    data_array: xr.DataArray,
+    dimensions: Union[str, Sequence[str]] = ("x", "y"),
+) -> xr.DataArray:
+    """Compute basic statistics.= into a Dataarray.
+
+    Parameters
+    ----------
+    data_array : DataArray
+
+    Returns
+    -------
+    DataArray
+    """
+
+    var = data_array.var(dim=dimensions)
+    mean = data_array.mean(dim=dimensions)
+    min_array = data_array.min(dim=dimensions)
+    max_array = data_array.max(dim=dimensions)
+    count = data_array.count(dim=dimensions)
+
+    statistics: xr.DataArray = count.expand_dims(
+        var=[var], mean=[mean], min_array=[min_array], max_array=[max_array]
+    )  # ,count=[count])
+    #
+    # dataset = xr.Dataset().assign_coords(time=absolute_time)
+    # dataset["var"] = var
+    # dataset["mean"] = mean
+    # dataset["min"] = min_array
+    # dataset["max"] = max_array
+    # dataset["count"] = count
+
+    return statistics
+
+    # detector.processed_data.append(dataset)
+    # detector.data["/statistics"] = DataTree(dataset)
+
+
+def statistics(
     detector: Detector,
     data_structure: Literal["pixel", "photon", "image", "signal"] = "pixel",
-    dimensions: Union[str, Sequence[str]] = ("x", "y"),
+    name: Optional[str] = None,
 ) -> None:
     """Compute basic statistics.
 
@@ -32,26 +71,36 @@ def compute_statistics(
     dimensions : str or Sequence of str
         Dimensions.
     """
-    data_2d: xr.DataArray = getattr(detector, data_structure).to_xarray()
-    var = data_2d.var(dim=dimensions)
-    mean = data_2d.mean(dim=dimensions)
-    min_array = data_2d.min(dim=dimensions)
-    max_array = data_2d.max(dim=dimensions)
-    count = data_2d.count(dim=dimensions)
+    if name is None:
+        name = data_structure
 
-    # Get current absolute time
-    absolute_time = xr.DataArray(
-        [detector.absolute_time],
-        dims=["time"],
-        attrs={"units": "s"},
-    )
+    # Extract data from 'detector'
+    data_bucket: Union[Pixel, Photon, Image, Signal] = getattr(detector, data_structure)
+    data_array: xr.DataArray = data_bucket.to_xarray()
 
-    dataset = xr.Dataset().assign_coords(time=absolute_time)
-    dataset["var"] = var
-    dataset["mean"] = mean
-    dataset["min"] = min_array
-    dataset["max"] = max_array
-    dataset["count"] = count
+    # Get statistics data
+    statistics: xr.DataArray = compute_statistics(data_array)
 
-    detector.processed_data.append(dataset)
-    detector.data["/statistics"] = DataTree(dataset)
+    parent: str = "/statistics"
+    parent_partial: str = f"{parent}/partial"
+    key: str = f"{parent}/{name}"
+    key_partial: str = f"{parent_partial}/{name}"
+
+    try:
+        _ = detector.data[key_partial]
+    except KeyError:
+        has_key_partial = False
+    else:
+        has_key_partial = True
+
+    if not has_key_partial:
+        data_tree: DataTree = DataTree(statistics)
+    else:
+        # Concatenate data
+        data_tree = detector.data[key_partial].combine_first(statistics)  # type: ignore
+
+    if detector.pipeline_count == (detector.num_steps - 1):
+        detector.data[parent_partial].orphan()
+        detector.data[key] = data_tree.sortby("mean")
+    else:
+        detector.data[key_partial] = data_tree
