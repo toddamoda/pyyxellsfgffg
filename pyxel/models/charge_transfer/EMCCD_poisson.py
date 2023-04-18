@@ -127,29 +127,6 @@ def pCICpdf( image_cube: np.ndarray, singleStageProbability: int,
 
 
 
-def sCICpdf( image_cube: np.ndarray, stageCount:  int, singleStageProbability: int ) -> np.ndarray:
-    """
-    Probability density function of EM output serial CIC events.
-    """
-    sum = 0
-    for k in np.arange(1, stageCount+1):
-        gain = calcEMgain( singleStageProbability, k)
-        sum += np.exp( -image_cube/gain ) / gain * np.heaviside(image_cube, 0)
-    return sum
-
-
-
-def sCICpdf2(image_cube: np.ndarray, stageCount:  int, singleStageProbability: int, threshold: int ) -> np.ndarray:
-    """
-    Probability density function of EM output serial CIC events.
-    """
-    sum = 0
-    for i in np.arange(1, stageCount+1):
-        gain = calcEMgain( singleStageProbability, i)
-        sum += np.random.exponential(1/gain , np.shape(image_cube)) * np.heaviside(image_cube, 0)
-    return sum
-
-
 def multiplication_register_cccp( 
         image_cube: np.ndarray,
         singleStageProbability: int,
