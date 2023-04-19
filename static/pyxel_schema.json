@@ -4148,7 +4148,7 @@
           "properties": {
             "data_structure": {
               "default": "all",
-              "description": "Keyword to choose data structure. Can be any from: (\"pixel\", \"photon\", \"signal\", \"image\", \"all\"). Default is \"all\" and computes the statisticson \"pixel\", \"photon\", \"signal\" and \"image\".",
+              "description": "Keyword to choose data structure. Can be any from: (\"pixel\", \"photon\", \"signal\", \"image\", \"all\"). Default is \"all\" and computes the statistics on \"pixel\", \"photon\", \"signal\" and \"image\".",
               "enum": [
                 "pixel",
                 "photon",
