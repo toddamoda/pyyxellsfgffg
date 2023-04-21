@@ -213,3 +213,152 @@ class MKID(Detector):
             detector.charge._frame = new_frame[previous_frame.columns]
 
         return detector
+
+
+"""
+.......... From https://github.com/sahderooij/
+"""
+
+
+class Superconductor(object):
+    '''General class for superconductor material properties.
+    Free electron model is assumed.'''
+
+    def __init__(self, name, Tc, TD, N0, rhon, kF,  t0, tpb, cT, cL, rho):
+        self.name = name
+        self.kbTc = Tc * const.Boltzmann / const.e * 1e6  # critical Temperature in µeV
+        self.kbTD = TD * const.Boltzmann / const.e * 1e6  # Debye Energy in µeV
+        self.N0 = N0  # Electronic DoS at Fermi Surface [µeV^-1 µm^-3]
+        self.rhon = rhon  # normal state resistivity [µOhmcm] (!)
+        self.kF = kF  # Fermi wave number [µm^-1]
+        self.t0 = t0  # electron-phonon interaction time [µs]
+        self.tpb = tpb  # phonon pair-breaking time [µs]
+        self.cT = cT # transverse speed of sound
+        self.cL = cL # longitudinal speed of sound
+        self.rho = rho/const.e*1e-12 # mass density give in kg/m^3, returns in µeV/(µm/µs)**2 µm^-3
+        
+    @property
+    def mstar(self):
+        '''effective electron mass in µeV/(µm/µs)^2'''
+        return 2 * (const.hbar*1e12/const.e)**2 * self.N0 * np.pi**2/self.kF
+        
+    @property
+    def vF(self):
+        '''Fermi velocity in µm/µs'''
+        return const.hbar*1e12/const.e * self.kF / self.mstar
+    
+    @property
+    def EF(self):
+        '''Fermi energy in µeV'''
+        return (const.hbar*1e12/const.e)**2 * self.kF**2 / (2*self.mstar)
+    
+    @property
+    def l_e(self):
+        '''electron mean free path in µm'''
+        return (3*np.pi**2 * (const.hbar *1e12 / const.e) /
+                (self.kF**2 * (self.rhon * 1e10 / const.e) * const.e**2))
+
+    @property
+    def lbd0(self):
+        """London penetration depth (i.e. at T = 0 K) in µm. 
+        This only holds when Mattis-Bardeen can be used 
+        (i.e. dirty limit or extreme anomalous limit)"""
+        return np.sqrt(
+            const.hbar * 1e12 / const.e
+            * self.rhon * 1e4
+            / (const.mu_0 * 1e6
+               * self.D0
+               * np.pi)
+        )
+
+    @property
+    def Vsc(self):
+        """Calculates the superconducting coupling strength in BSC-theory 
+        from the BSC relation 2D=3.52kbTc."""
+
+        def integrand1(E, D):
+            return 1 / np.sqrt(E ** 2 - D ** 2)
+
+        return 1 / (
+            integrate.quad(integrand1, self.D0, self.kbTD,
+                           args=(self.D0,))[0] * self.N0
+        )
+
+    @property
+    def Ddata(self):
+        """To speed up the calculation for Delta, an interpolation of generated values is used.
+        Ddata_{SC}_{Tc}.npy contains this data, where a new one is needed 
+        for each superconductor (SC) and crictical temperature (Tc).
+        This function returns the Ddata array."""
+
+        Ddataloc = os.path.dirname(__file__) + "/Ddata/"
+        if self.name != "":
+            Tc = str(
+                np.around(self.kbTc / (const.Boltzmann / const.e * 1e6), 3)
+            ).replace(".", "_")
+            try:
+                Ddata = np.load(Ddataloc + f"Ddata_{self.name}_{Tc}.npy")
+            except FileNotFoundError:
+                Ddata = None
+        else:
+            Ddata = None
+        return Ddata
+
+    @property
+    def D0(self):
+        """BSC relation"""
+        return 1.76 * self.kbTc
+
+    @property
+    def xi0(self):
+        """BSC Coherence length at T = 0 K (in [µm])"""
+        return const.hbar * 1e12 / const.e * self.vF / (np.pi * self.D0)
+    
+    @property
+    def xi_DL(self):
+        '''Dirty limit coherence length'''
+        if self.xi0/self.l_e > 10:  
+            return np.sqrt(self.xi0 * self.l_e)
+        else:
+            warnings.warn(f'Not in dirty limit xi0={self.xi0}, l={self.l}')
+
+    @property
+    def jc(self):
+        """Critical current density, in A/µm^2, from Romijn1982"""
+        return .75*np.sqrt(
+            self.N0 * self.D0**3 /
+            (self.rhon * 1e-2 / const.e * const.hbar * 1e12 / const.e)
+                           )
+    
+    @property
+    def D(self):
+        '''Diffusion constant in µm^2/µs'''
+        return 1/(2 * (self.rhon * 1e10 / const.e) * const.e**2 * self.N0)
+    
+    @property
+    def lbd_eph(self):
+        '''Electron-phonon coupling constant, (with BSC relation 2D=3.52kbTc)'''
+        return (self.N0 * self.Vsc)
+        
+    @property
+    def rhoM(self):
+        '''The Mott resisitivty in µOhm cm'''
+        return 3 * np.pi**2 * const.hbar / (const.e**2 * self.kF * 1e6) * 1e8
+    
+    @property
+    def cs(self):
+        '''effective 3D speed of sound'''
+        return (3/(2/self.cT**3 + 1/self.cL**3))**(1/3)
+
+
+Al = Superconductor('Al', 
+                     Tc=1.2,
+                     rhon=0.9,
+                     TD=433,
+                     N0=1.72e4,
+                     kF=1.75e4,
+                     t0=0.44, 
+                     tpb=0.28e-3,
+                     cL=6.65e3,
+                     cT=3.26e3,
+                     rho=2.5e3)
