@@ -134,7 +134,7 @@ def set_modelstate(processor: "Processor", model_name: str, state: bool = True) 
 
 
 # ----------------------------------------------------------------------------------------------
-# These method are used to display the detector object (all of the array Photon, pixel, signal and image)
+# These method are used to display the detector object (all of the array Photon, pixel, signal, phase [for MKIDs] and image)
 
 
 def display_detector(detector: "Detector") -> "Layout":
@@ -170,6 +170,8 @@ def display_detector(detector: "Detector") -> "Layout":
         det["Pixel [e-]"] = detector.pixel.array
     if detector._signal is not None:
         det["Signal [V]"] = detector.signal.array
+    if detector._phase is not None:
+        det["Phase [rad] (MKIDs)"] = detector.phase.array
     if detector._image is not None:
         det["Image [ADU]"] = detector.image.array
 
