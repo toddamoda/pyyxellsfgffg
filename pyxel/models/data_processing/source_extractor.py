@@ -152,12 +152,15 @@ def plot_roi(
 
 def extract_roi_to_xarray(
         detector: Detector,
+        name: str = 'pixel',
         thresh=50,
         minarea=5):
     """Extracts the roi data converts it to xarray dataset and saves the information to the final result
 
     Parameters
     -----------
+    name: String
+        Type of detector array the user wants to use - can be pixel, charge, image, signal or photon array
     detector : CCD
         Pyxel :term:`CCD` Detector object.
     thresh: int
@@ -165,7 +168,19 @@ def extract_roi_to_xarray(
     minarea: int
         minimum area of elements required that are above the threshold for the extractor to extract information
     """
-    data_2d = detector.pixel.array
+    if name == 'pixel':
+        data_2d = detector.pixel.array
+    if name == 'charge':
+        data_2d = detector.pixel.array
+    if name == 'image':
+        data_2d = detector.pixel.array
+    if name == 'signal':
+        data_2d = detector.pixel.array
+    if name == 'photon':
+        data_2d = detector.pixel.array
+    else:
+        raise TypeError("Incorrect image type. Try 'pixel', 'charge', 'image', 'signal' or 'photon'.")
+
     objects, segmap = sep.extract(
         data_2d, thresh=thresh, minarea=minarea, segmentation_map=True
     )
