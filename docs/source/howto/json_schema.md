@@ -30,7 +30,8 @@ The first step is to add the Pyxel's JSON Schema into PyCharm.
 You have to open the 'Preferences' (for MacOS) or 'Settings' (for Windows/Linux) and select
 ```Languages & Frameworks >> Schemas for DTDs >> JSON Schema Mappings```.
 Then you add ``https://esa.gitlab.io/pyxel/pyxel_schema.json`` in field ``Schema file`` or URL and 
-select ``JSON Schema version 7`` in field ``Schema version`` (see following picture)
+select ``JSON Schema version 7`` in field ``Schema version`` (see following picture). 
+Then simply select the mapping for a file, file pattern or directory accordingly.
 ![](_static/pycharm_mappings.jpg)
 
 ### Associate to the Pyxel's JSON Schema
