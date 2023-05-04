@@ -669,6 +669,7 @@ To run performance test(s)/benchmark(s), check the
 To visualize the performance test(s)/benchmark(s), see
 `benchmarks <https://esa.gitlab.io/pyxel/benchmarks/>`_.
 
+.. _contributing.yourchanges:
 Contributing your changes to *Pyxel*
 ====================================
 
@@ -784,8 +785,9 @@ release. To submit a merge request:
 
     Create a new merge request.
 
-4. Write a description of your changes in the ``Discussion`` tab
-5. Click ``Create Merge Request``.
+4. Write a description of your changes in the ``Discussion`` tab and select the :ref:`"Merge request" <contributing.mergechecklist` template
+to check if you have fulfilled all requirements on the checklist.
+5. Click ``Create Merge Request`` and select the Merge request
 
 This request then goes to the repository maintainers, and they will review
 the code. If you need to make more changes, you can make them in your branch,
@@ -828,7 +830,7 @@ The branch will still exist on GitLab, so to delete it there do:
 
     $ git push origin --delete shiny-new-feature
 
-
+.. _contributing.mergechecklist:
 Merge Request checklist
 -----------------------
 
@@ -838,6 +840,7 @@ Merge Request checklist
   This is not strictly necessary, but this may be easier than waiting for CI
   to catch a mistake.
   See :ref:`"Contributing to the documentation" <contributing.documentation>`.
+- **Update the JSON Schema of Pyxel** by typing ``tox -e json_schema``.
 - **Test your code**.
 
     - Write new tests if needed. See :ref:`"Test-driven development/code
