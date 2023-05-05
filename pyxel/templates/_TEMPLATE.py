@@ -104,7 +104,7 @@ https://sphinx-rtd-theme.readthedocs.io/en/latest/index.html
 
 
 # One or the other
-from pyxel.detectors import CCD, CMOS
+from pyxel.detectors import CCD
 
 
 def model(detector: CCD, arg1: str, arg2: bool = True, arg3: int = 42) -> None:

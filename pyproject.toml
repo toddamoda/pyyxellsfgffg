@@ -228,9 +228,9 @@ ignore = [
 ]
 
 [tool.flake8]
-ignore = [
-     "TRY301",   # Abstract `raise` to an inner function
-]
+    extend-ignore = """
+        TRY301,
+    """
 
 select = [
     "A",        # flake8-builtins

@@ -670,6 +670,7 @@ To visualize the performance test(s)/benchmark(s), see
 `benchmarks <https://esa.gitlab.io/pyxel/benchmarks/>`_.
 
 .. _contributing.yourchanges:
+
 Contributing your changes to *Pyxel*
 ====================================
 
@@ -785,7 +786,7 @@ release. To submit a merge request:
 
     Create a new merge request.
 
-4. Write a description of your changes in the ``Discussion`` tab and select the :ref:`"Merge request" <contributing.mergechecklist` template
+4. Write a description of your changes in the ``Discussion`` tab and select the :ref:`"Merge request" <contributing.mergechecklist>` template
 to check if you have fulfilled all requirements on the checklist.
 5. Click ``Create Merge Request`` and select the Merge request
 
@@ -831,6 +832,7 @@ The branch will still exist on GitLab, so to delete it there do:
     $ git push origin --delete shiny-new-feature
 
 .. _contributing.mergechecklist:
+
 Merge Request checklist
 -----------------------
 
