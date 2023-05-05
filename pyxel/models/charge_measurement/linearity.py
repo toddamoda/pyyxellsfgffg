@@ -10,6 +10,7 @@
 from collections.abc import Sequence
 
 import numpy as np
+import os
 from astropy import constants as const
 
 from pyxel.detectors import CMOS, Detector
@@ -368,6 +369,7 @@ def compute_physical_non_linearity_with_saturation(
     signal_array_2d: np.ndarray,
     photon_array_2d: np.ndarray,
     time_step: float,
+    step_number: int,
     temperature: float,
     cutoff: float,
     n_donor: float,
@@ -391,6 +393,8 @@ def compute_physical_non_linearity_with_saturation(
         Input photon array.
     time_step
         Time step. Unit: s.
+    step_number : int
+        Step number.
     temperature : float
         Temperature. Unit: K.
     cutoff : float
@@ -443,7 +447,7 @@ def compute_physical_non_linearity_with_saturation(
     phi_implant = phi_implant * 1e-6  # in m
     d_implant = d_implant * 1e-6  # in m
 
-    if signal_array_2d[3, 3] == 0:
+    if step_number == 0:
         signal_array_2d = v_reset * np.ones((row, col))
 
     # detector.signal.array should be expressed in unit of mV. It is the bias at the gate of the pixel SFD ????
@@ -457,7 +461,7 @@ def compute_physical_non_linearity_with_saturation(
         n_donor=n_donor,
         x_cd=x_cd,
         temperature=temperature,
-        photonic_current=np.ravel(photon_array_2d) / time_step,
+        photonic_current=np.ravel(photon_array_2d)/time_step,
         fixed_capacitance=fixed_capacitance,
         sat_current=saturation_current,
         n=ideality_factor,
@@ -521,10 +525,18 @@ def physical_non_linearity_with_saturation(
     if not isinstance(detector, CMOS):
         raise TypeError("Expecting a 'CMOS' detector object.")
 
+    temp_dir = os.getcwd()
+    temp_fname = '/temporary.txt'
+    if detector.pipeline_count == 0:
+        signal_array_2d = detector.signal.array
+    else:
+        signal_array_2d = np.loadtxt(temp_dir + temp_fname)
+
     signal_non_linear = compute_physical_non_linearity_with_saturation(
-        signal_array_2d=detector.signal.array,
+        signal_array_2d=signal_array_2d,
         photon_array_2d=detector.photon.array,
         time_step=detector.time_step,
+        step_number=detector.pipeline_count,
         temperature=detector.environment.temperature,
         cutoff=cutoff,
         n_donor=n_donor,
@@ -538,5 +550,8 @@ def physical_non_linearity_with_saturation(
         fixed_capacitance=fixed_capacitance,
         euler_points=euler_points,
     )
+
+    # Update temporary file
+    np.savetxt(temp_dir + temp_fname, signal_non_linear)
 
     detector.signal.array = signal_non_linear
