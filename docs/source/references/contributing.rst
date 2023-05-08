@@ -787,9 +787,8 @@ release. To submit a merge request:
     Create a new merge request.
 
 4. Write a description of your changes in the ``Discussion`` tab.
-
-5. Click ``Create Merge Request`` and check if you have fulfilled all requirements from the
-in the :ref:`"Merge request checklist" <contributing.mergechecklist>`.
+5. Click ``Create Merge Request`` and check if you have fulfilled all requirements
+from the :ref:`"Merge request checklist" <contributing.mergechecklist>`.
 
 This request then goes to the repository maintainers, and they will review
 the code. If you need to make more changes, you can make them in your branch,
