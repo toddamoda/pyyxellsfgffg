@@ -2145,17 +2145,14 @@
               "title": "energy_spectrum"
             },
             "energy_spectrum_sampling": {
+              "default": "log",
               "description": "\"log\" or None: the energy spectrum is sampled in log space \"linear\" :the energy spectrum is sampled in linear space",
               "enum": [
                 "linear",
-                "log",
-                null
+                "log"
               ],
               "title": "energy_spectrum_sampling",
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": "string"
             },
             "energy_spread": {
               "default": 0.1,
@@ -2175,17 +2172,14 @@
               "type": "number"
             },
             "particle_direction": {
+              "default": "isotropic",
               "description": "\"isotropic\" : particles are coming from all directions (outside of thesensor) \"orthogonal\" : particles are coming from the top of the sensor(thickness = 0) and orthogonal to its surface",
               "enum": [
                 "isotropic",
-                "orthogonal",
-                null
+                "orthogonal"
               ],
               "title": "particle_direction",
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": "string"
             },
             "seed": {
               "default": null,
@@ -2282,17 +2276,14 @@
               "title": "energy_spectrum"
             },
             "energy_spectrum_sampling": {
-              "description": "\"log\" or None: the energy spectrum is sampled in log space \"linear\" :the energy spectrum is sampled in linear space",
+              "default": "log",
+              "description": "\"log\" : the energy spectrum is sampled in log space \"linear\" : theenergy spectrum is sampled in linear space",
               "enum": [
                 "linear",
-                "log",
-                null
+                "log"
               ],
               "title": "energy_spectrum_sampling",
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": "string"
             },
             "energy_spread": {
               "default": 0.1,
@@ -2306,17 +2297,14 @@
               "type": "number"
             },
             "particle_direction": {
+              "default": "isotropic",
               "description": "\"isotropic\" : particles are coming from all directions (outside of thesensor) \"orthogonal\" : particles are coming from the top of the sensor(thickness = 0) and orthogonal to its surface",
               "enum": [
                 "isotropic",
-                "orthogonal",
-                null
+                "orthogonal"
               ],
               "title": "particle_direction",
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": "string"
             },
             "seed": {
               "default": null,
