@@ -126,13 +126,13 @@ def charge_deposition_in_mct(
         with mean and spread defined above
         note that the energy spectrum is assumed to be a txt file with two columns [energy, flux]
         with the energy in MeV
-    energy_spectrum_sampling : str
-        "log" or None: the energy spectrum is sampled in log space
+    energy_spectrum_sampling : str. Default: 'log'
+        "log" : the energy spectrum is sampled in log space
         "linear" : the energy spectrum is sampled in linear space
     cutoff_wavelength : float
         the longest wavelength in micrometer at which the QE reaches 50% of its maximum,
         used to compute the bandgap energy, and the corresponding fraction of cadmium
-    particle_direction : str
+    particle_direction : str. Default: 'isotropic'
         "isotropic" : particles are coming from all directions (outside of the sensor)
         "orthogonal" : particles are coming from the top of the sensor (thickness = 0) and orthogonal to its surface
     stopping_power_curve : str
@@ -242,8 +242,8 @@ def simulate_charge_deposition(
         with mean and spread defined above
         note that the energy spectrum is assumed to be a txt file with two columns [energy, flux]
         with the energy in MeV
-    energy_spectrum_sampling : str
-        "log" or None: the energy spectrum is sampled in log space
+    energy_spectrum_sampling : str. Default: 'log'
+        "log" : the energy spectrum is sampled in log space
         "linear" : the energy spectrum is sampled in linear space
     ehpair_creation : float
         the energy required to generate a electron-hole pair in eV
