@@ -26,12 +26,10 @@ def charge_deposition(
     energy_mean: float = 1.0,
     energy_spread: float = 0.1,
     energy_spectrum: Union[str, Path, None] = None,
-    energy_spectrum_sampling: Optional[Literal["linear", "log", None]] = "log",
+    energy_spectrum_sampling: Literal["linear", "log"] = "log",
     ehpair_creation: float = 3.65,
     material_density: float = 2.3290,
-    particle_direction: Optional[
-        Literal["isotropic", "orthogonal", None]
-    ] = "isotropic",
+    particle_direction: Literal["isotropic", "orthogonal"] = "isotropic",
     stopping_power_curve: Union[str, Path, None] = None,
     seed: Optional[int] = None,
 ) -> None:
@@ -102,11 +100,9 @@ def charge_deposition_in_mct(
     energy_mean: float = 1.0,
     energy_spread: float = 0.1,
     energy_spectrum: Union[str, Path, None] = None,
-    energy_spectrum_sampling: Optional[Literal["linear", "log", None]] = "log",
+    energy_spectrum_sampling: Literal["linear", "log"] = "log",
     cutoff_wavelength: float = 2.5,
-    particle_direction: Optional[
-        Literal["isotropic", "orthogonal", None]
-    ] = "isotropic",
+    particle_direction: Literal["isotropic", "orthogonal"] = "isotropic",
     stopping_power_curve: Union[str, Path, None] = None,
     seed: Optional[int] = None,
 ) -> None:
@@ -214,10 +210,10 @@ def simulate_charge_deposition(
     energy_mean: float = 1.0,
     energy_spread: float = 0.1,
     energy_spectrum: Union[str, Path, None] = None,
-    energy_spectrum_sampling: Optional[Literal["linear", "log"]] = "log",
+    energy_spectrum_sampling: Literal["linear", "log"] = "log",
     ehpair_creation: float = 3.65,
     material_density: float = 2.3290,
-    particle_direction: Optional[Literal["isotropic", "orthogonal"]] = "isotropic",
+    particle_direction: Literal["isotropic", "orthogonal"] = "isotropic",
     stopping_power_curve: Union[str, Path, None] = None,
 ) -> list:
     """Simulate charge deposition of incident ionizing particles inside a detector.
