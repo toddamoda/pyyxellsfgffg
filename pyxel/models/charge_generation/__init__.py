@@ -17,4 +17,4 @@ from .dark_current import dark_current, simple_dark_current, dark_current_saphir
 from .apd_gain import apd_gain
 from .charge_deposition import charge_deposition
 from .charge_deposition import charge_deposition_in_mct
-from .brighter_fatter_effect import brighter_fatter, simple_bfe
+from .brighter_fatter_effect import get_bfe, simple_bfe
