@@ -39,6 +39,8 @@ Support for Python 3.8 has been dropped and support for Python 3.11 has been add
   (see [!579](https://gitlab.com/esa/pyxel/-/merge_requests/579))
 * Fix documentation for 'JSON Schema'.
   (see [!648](https://gitlab.com/esa/pyxel/-/merge_requests/648))
+* Fix typing information for model 'charge_generation / charge_deposition'.
+  (see [!652](https://gitlab.com/esa/pyxel/-/merge_requests/652))
 
 ### Models
 * New data processing model 'mean-variance'.
