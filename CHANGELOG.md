@@ -61,6 +61,8 @@ Support for Python 3.8 has been dropped and support for Python 3.11 has been add
   (See [!650](https://gitlab.com/esa/pyxel/-/merge_requests/650)).
 * Add compatibility to Python 3.11.
   (See [!651](https://gitlab.com/esa/pyxel/-/merge_requests/651)).
+* Move and update 'requirements-dev.txt'.
+  (See [!654](https://gitlab.com/esa/pyxel/-/merge_requests/654)).
 
 
 ## 1.8 / 2023-03-30
