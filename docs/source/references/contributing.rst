@@ -307,7 +307,7 @@ these instructions:
     $ . ~/virtualenvs/pyxel-dev/bin/activate
 
     # Install the build dependencies
-    $ python -m pip install -r requirements-dev.txt
+    $ python -m pip install -r continuous_integration/requirements-dev.txt
 
     # Build and install Pyxel
     $ python -m pip install -e .
@@ -321,7 +321,7 @@ built version:
    $ python
    >>> import pyxel
    >>> pyxel.__version__
-   '0.5+0.gcae5a0b'
+   '1.8+88.g5e2e17dc'
 
 
 Creating a branch
