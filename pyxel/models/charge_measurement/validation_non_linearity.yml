@@ -1,0 +1,104 @@
+# ########################################################### #
+# Pyxel detector simulation framework                         #
+#                                                             #
+# Example yaml configuration file                             #
+# Dynamic mode                                                #
+# ########################################################### #
+
+exposure:
+
+  readout:
+    non_destructive:  true
+    times: 'numpy.arange(5.2,600,5.2)'
+
+  outputs:
+    output_folder: 'output'
+
+cmos_detector:
+
+  geometry:
+
+    row: 130              # pixel
+    col: 64               # pixel
+    total_thickness: 10.    # um
+    pixel_vert_size: 18.    # um
+    pixel_horz_size: 18.    # um
+
+  environment:
+    temperature: 42        # K
+    
+  characteristics:
+    quantum_efficiency: 1.                # -
+    charge_to_volt_conversion: 4.75e-6      # V/e
+    pre_amplification: 1.                   # V/V
+    adc_bit_resolution: 16
+    adc_voltage_range: [0., 5.]  # From 78.125uV/DN
+    full_well_capacity: 750000             # e
+    
+pipeline:
+
+  # photon -> photon
+  photon_collection:
+            
+    - name: illumination
+      func: pyxel.models.photon_collection.illumination
+      enabled: true
+      arguments:
+          level: 300
+          option: "uniform"
+
+    - name: shot_noise
+      func: pyxel.models.photon_collection.shot_noise
+      enabled: true
+
+  # photon -> charge
+  charge_generation:
+    - name: photoelectrons
+      func: pyxel.models.charge_generation.simple_conversion
+      enabled: true
+
+    - name: dark_current
+      func: pyxel.models.charge_generation.simple_dark_current
+      enabled: true
+      arguments:
+        dark_rate: 0.2
+
+  # charge -> pixel
+  charge_collection:
+  
+    - name: simple_collection
+      func: pyxel.models.charge_collection.simple_collection
+      enabled: true
+
+  # pixel -> signal
+  charge_measurement:
+  
+    - name: simple_measurement
+      func: pyxel.models.charge_measurement.simple_measurement
+      enabled: false
+
+    - name: compute_physical_non_linearity_with_saturation
+      func: pyxel.models.charge_measurement.linearity.physical_non_linearity_with_saturation
+      enabled: true
+      arguments:
+        cutoff: 8.0
+        n_donor: 1.0e+15
+        n_acceptor: 1.0e+18
+        phi_implant: 10.
+        d_implant: 2.
+        saturation_current: 0.1
+        ideality_factor: 1.2
+        v_reset: 0.150
+        d_sub: 0.4
+        fixed_capacitance: 1.162e-14
+        euler_points: 100
+
+  # signal -> image
+  readout_electronics:
+    - name: simple_amplifier
+      func: pyxel.models.readout_electronics.simple_amplifier
+      enabled: true
+      
+    - name: simple_adc
+      func: pyxel.models.readout_electronics.simple_adc
+      enabled: true
