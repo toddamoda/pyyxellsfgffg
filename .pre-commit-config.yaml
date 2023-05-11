@@ -8,6 +8,7 @@
 # (Optional) Run against all files
 #   $ pre-commit run --all-files
 
+exclude: pyxel/models/phasing/mkid_models
 repos:
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.3.1

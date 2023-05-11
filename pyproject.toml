@@ -141,6 +141,10 @@ warn_unused_ignores = false
 check_untyped_defs = true
 # no_implicit_reexport = true
 
+#exclude = [
+#    "/models/phasing/mkid_models",
+#]
+
 [[tool.mypy.overrides]]
 module = [
     "pyxel._version",
@@ -174,6 +178,7 @@ module = [
     "bokeh.*",
     "jinja2.*",
     "click.*",
+    "pyxel.models.phasing.mkid_models.*",
 ]
 ignore_errors=  true
 ignore_missing_imports = true
@@ -241,7 +246,11 @@ select = [
     "TRY",      # Tryceratops
 ]
 
-exclude = ["_TEMPLATE.py", "_version.py"]
+exclude = [
+    "_TEMPLATE.py",
+    "_version.py",
+    "pyxel/models/phasing/mkid_models"
+]
 
 [tool.ruff.pydocstyle]
 convention = "numpy"
