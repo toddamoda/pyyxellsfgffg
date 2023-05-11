@@ -168,6 +168,8 @@ def display_detector(detector: "Detector") -> "pn.Tabs":
         det["Pixel [e-]"] = detector.pixel.array
     if detector._signal is not None:
         det["Signal [V]"] = detector.signal.array
+    if detector._phase is not None:
+        det["Phase [rad] (MKIDs)"] = detector.phase.array
     if detector._image is not None:
         det["Image [ADU]"] = detector.image.array
 
