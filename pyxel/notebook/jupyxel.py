@@ -145,14 +145,15 @@ def display_detector(detector: "Detector") -> "Layout":
     detector: Detector
     hist: bool
 
-    Returnsimport pandas as pd
-
+    Returns
     -------
     hv.Layout
         A Holoviews object.
     """
     # Late import to speedup start-up time
     import holoviews as hv
+
+    from pyxel.detectors import MKID
 
     # Apply an extension to Holoviews (if needed)
     if not hv.Store.renderers:
@@ -170,7 +171,7 @@ def display_detector(detector: "Detector") -> "Layout":
         det["Pixel [e-]"] = detector.pixel.array
     if detector._signal is not None:
         det["Signal [V]"] = detector.signal.array
-    if detector._phase is not None:
+    if isinstance(detector, MKID) and detector._phase is not None:
         det["Phase [rad] (MKIDs)"] = detector.phase.array
     if detector._image is not None:
         det["Image [ADU]"] = detector.image.array
