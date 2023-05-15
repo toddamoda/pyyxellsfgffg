@@ -20,8 +20,10 @@ from pyxel.calibration import (
     CalibrationMode,
     DaskBFE,
     DaskIsland,
+    FitRange3D,
     Island,
     MyArchipelago,
+    to_fit_range,
 )
 from pyxel.calibration.fitting import ModelFitting
 from pyxel.calibration.fitting_datatree import ModelFittingDataTree
@@ -438,21 +440,21 @@ class Calibration:
         pg.set_global_rng_seed(seed=self.pygmo_seed)
         self._log.info("Pygmo seed: %d", self.pygmo_seed)
 
-        # TODO: Merge 'ModelFittingDataTree.__init__' and '.configure'
+        target_fit_range = to_fit_range(self.target_fit_range)
+        result_fit_range = FitRange3D.from_sequence(self.result_fit_range)
+
         fitting: ModelFittingDataTree = ModelFittingDataTree(
             processor=processor,
             variables=self.parameters,
             readout=self.readout,
-            calibration_mode=CalibrationMode(self.calibration_mode),
             simulation_output=ResultType(self.result_type),
             generations=self.algorithm.generations,
             population_size=self.algorithm.population_size,
             fitness_func=self.fitness_function,
             file_path=output_dir,
-            # New
             target_output=self.target_data_path,
-            target_fit_range=self.target_fit_range,
-            out_fit_range=self.result_fit_range,
+            target_fit_range=target_fit_range,
+            out_fit_range=result_fit_range,
             input_arguments=self.result_input_arguments,
             weights=self.weights,
             weights_from_file=self.weights_from_file,
@@ -491,6 +493,8 @@ class Calibration:
         # Run several evolutions in the archipelago
         data_tree: "DataTree" = archipelago.run_evolve(
             readout=self.readout,
+            num_rows=processor.detector.geometry.row,
+            num_cols=processor.detector.geometry.col,
             num_evolutions=self._num_evolutions,
             num_best_decisions=self._num_best_decisions,
         )
@@ -502,7 +506,7 @@ class Calibration:
         return data_tree
 
     # TODO: This function will be deprecated (see #563)
-    def post_processing(
+    def _post_processing(
         self,
         ds: "xr.Dataset",
         df_processors: "pd.DataFrame",

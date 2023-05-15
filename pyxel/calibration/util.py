@@ -7,7 +7,8 @@
 
 """TBW."""
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, NamedTuple, Optional, Union
@@ -30,6 +31,10 @@ __all__ = [
     "read_data",
     "read_datacubes",
     "list_to_3d_slice",
+    "FitRange2D",
+    "FitRange3D",
+    "to_fit_range",
+    "check_fit_ranges",
 ]
 
 
@@ -244,3 +249,207 @@ def check_ranges(
                 # TODO: Refactor and add more unit tests. See #328
                 if not (0 <= target_fit_range[i] <= readout_times):
                     raise ValueError("Value of target fit range is wrong")
+
+
+@dataclass
+class FitRange2D:
+    """Represent a 2D range or slice with a row range and a column range.
+
+    Parameters
+    ----------
+    row : slice
+        Range of rows in the 2D range
+    col : slice
+        Range of columns in the 2D range
+
+    Examples
+    --------
+    >>> range2d = FitRange2D(row=slice(0, 5), col=slice(2, 7))
+    >>> row_slice, col_slice = range2d.to_slices()
+    >>> row_slice
+    slice(0, 5)
+    >>> col_slice
+    slice(2,7)
+
+    >>> Range2D.from_sequence([0, 5, 2, 7])
+    FitRange2D(slice(0, 5),slice(2,7))
+    """
+
+    row: slice
+    col: slice
+
+    @classmethod
+    def from_sequence(cls, data: Sequence[Optional[int]]) -> "FitRange2D":
+        if not data:
+            data = [None] * 4
+
+        if len(data) != 4:
+            raise ValueError("Fitting range should have 4 values")
+
+        y_start, y_stop, x_start, x_stop = data
+        return cls(row=slice(y_start, y_stop), col=slice(x_start, x_stop))
+
+    def to_dict(self) -> Mapping[str, slice]:
+        return {"y": self.row, "x": self.col}
+
+    def to_slices(self) -> tuple[slice, slice]:
+        return self.row, self.col
+
+    def check(self, rows: int, cols: int):
+        if not self.row.stop <= rows:
+            raise ValueError("Value of target fit range is wrong")
+
+        if not self.col.stop <= cols:
+            raise ValueError("Value of target fit range is wrong")
+
+
+@dataclass
+class FitRange3D:
+    """Represent a 3D range or slice with a time range, row range and a column range.
+
+    Parameters
+    ----------
+    time : FitSlice
+         Range of time in the 3D range
+    row : FitSlice
+        Range of rows in the 3D range
+    col : FitSlice
+        Range of columns in the 3D range
+
+    Examples
+    --------
+    >>> range3d = FitRange3D(time=slice(0, 10), row=slice(0, 5), col=slice(2, 7))
+    >>> time_slice, row_slice, col_slice = range3d.to_slices()
+    >>> time_slice
+    slice(0, 10)
+    >>> row_slice
+    slice(0, 5)
+    >>> col_slice
+    slice(2,7)
+
+    >>> FitRange3D.from_sequence([0, 10, 0, 5, 2, 7])
+    FitRange3D(time=slice(0,10), row=slice(0, 5), col=slice(2,7))
+    """
+
+    time: slice
+    row: slice
+    col: slice
+
+    @classmethod
+    def from_sequence(cls, data: Sequence[Optional[int]]) -> "FitRange3D":
+        if not data:
+            data = [None] * 6
+
+        if len(data) == 4:
+            data = [None, None, *data]
+
+        if len(data) != 6:
+            raise ValueError("Fitting range should have 6 values")
+
+        time_start, time_stop, y_start, y_stop, x_start, x_stop = data
+        return cls(
+            time=slice(time_start, time_stop),
+            row=slice(y_start, y_stop),
+            col=slice(x_start, x_stop),
+        )
+
+    def to_dict(self) -> Mapping[str, slice]:
+        return {"readout_time": self.time, "y": self.row, "x": self.col}
+
+    def to_slices(self) -> tuple[slice, slice, slice]:
+        return self.time, self.row, self.col
+
+    def check(self, rows: int, cols: int, readout_times: Optional[int] = None):
+        if not self.row.stop <= rows:
+            raise ValueError("Value of target fit range is wrong")
+
+        if not self.col.stop <= cols:
+            raise ValueError("Value of target fit range is wrong")
+
+        if readout_times is None:
+            raise ValueError("Target data is not a 3 dimensional array")
+
+        if not self.time.stop <= readout_times:
+            raise ValueError("Value of target fit range is wrong")
+
+
+def to_fit_range(
+    input_list: Optional[Sequence[int]] = None,
+) -> Union[FitRange2D, FitRange3D]:
+    if not input_list:
+        return FitRange2D(row=slice(None), col=slice(None))
+
+    elif len(input_list) == 4:
+        return FitRange2D.from_sequence(input_list)
+
+    elif len(input_list) == 6:
+        return FitRange3D.from_sequence(input_list)
+
+    else:
+        raise ValueError("Fitting range should have 4 or 6 values")
+
+
+def _check_out_fit_ranges(
+    target_fit_range: Union[FitRange2D, FitRange3D],
+    out_fit_range: Union[FitRange2D, FitRange3D],
+):
+    if (
+        isinstance(target_fit_range, FitRange3D)
+        and isinstance(out_fit_range, FitRange3D)
+        and target_fit_range.time.stop != out_fit_range.time.stop
+    ):
+        raise ValueError(
+            "Fitting ranges have different lengths in dimension 'readout time'"
+        )
+
+    if target_fit_range.row.stop != out_fit_range.row.stop:
+        raise ValueError("Fitting ranges have different lengths in dimension 'y'")
+
+    if target_fit_range.col.stop != out_fit_range.col.stop:
+        raise ValueError("Fitting ranges have different lengths in dimension 'x'")
+
+
+# TODO: Refactor and add more unit tests. See #328
+def check_fit_ranges(
+    target_fit_range: Union[FitRange2D, FitRange3D, None],
+    out_fit_range: Union[FitRange2D, FitRange3D, None],
+    rows: int,
+    cols: int,
+    readout_times: Optional[int] = None,
+) -> None:
+    """Check if ``target_fit_range`` and ``out_fit_range`` are valid.
+
+    This functions checks if ``target_fit_range`` is valid for the specified ``rows`` and ``columns``
+    and if ``out_fit_range`` is compatible with ``target_fit_range``.
+
+    Parameters
+    ----------
+    target_fit_range : FitRange2D, FitRange3D. Optional
+        A target range to check if it's valid or not.
+    out_fit_range : FitRange2D, FitRange3D. Optional
+        An output range to check whether it's compatible with the target fit range.
+    rows : int
+        Number of rows.
+    cols : int
+        Number of columns
+    readout_times : int, Optional
+        Number of readout times. This parameter is only used if the target fit range is
+        a 3D range.
+
+    Raises
+    ------
+    ValueError
+        If ``target_fit_range`` is not valid or not compatible with ``out_fit_range``.
+    """
+    if not target_fit_range:
+        return
+
+    if out_fit_range:
+        _check_out_fit_ranges(
+            target_fit_range=target_fit_range, out_fit_range=out_fit_range
+        )
+
+    if isinstance(target_fit_range, FitRange2D):
+        target_fit_range.check(rows=rows, cols=cols)
+    else:
+        target_fit_range.check(rows=rows, cols=cols, readout_times=readout_times)

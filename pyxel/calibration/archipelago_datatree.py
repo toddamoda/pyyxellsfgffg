@@ -212,6 +212,8 @@ class ArchipelagoDataTree:
     def run_evolve(
         self,
         readout: "Readout",
+        num_rows: int,
+        num_cols: int,
         num_evolutions: int = 1,
         num_best_decisions: Optional[int] = None,
     ) -> DataTree:
@@ -284,21 +286,21 @@ class ArchipelagoDataTree:
 
         slice_times, slice_rows, slice_cols = self.problem.sim_fit_range.to_slices()
 
-        geometry = self.problem.processor.detector.geometry
+        # geometry = self.problem._detector.geometry
         no_times = len(readout.times)
 
         # Extract simulated 'image', 'signal' and 'pixel' from the processors
         all_simulated_full: xr.Dataset = extract_data_3d(
             df_results=df_results,
-            rows=geometry.row,
-            cols=geometry.col,
+            rows=num_rows,
+            cols=num_cols,
             times=no_times,
             readout_times=readout.times,
         )
 
         # Get the target data
         all_data_fit_range = all_simulated_full.sel(
-            y=slice_rows, x=slice_cols, readout_time=slice_times
+            indexers=self.problem.sim_fit_range.to_dict()
         )
         if readout.time_domain_simulation:
             all_data_fit_range["target"] = xr.DataArray(
