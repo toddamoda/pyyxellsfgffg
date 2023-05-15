@@ -400,6 +400,8 @@ class ModelFitting(ProblemSingleObjective):
                 elif self.weighting_from_file is not None:
                     weighting = self.weighting_from_file[i]
 
+                # TODO: Create a multi-objective problem and use
+                #       pygmo.decompose to convert it into a single-objective problem
                 overall_fitness += self.calculate_fitness(
                     simulated_data=simulated_data,
                     target_data=target_data,

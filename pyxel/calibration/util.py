@@ -42,11 +42,12 @@ class CalibrationResult(NamedTuple):
     filenames: Sequence
 
 
+# TODO: 'SingleModel' is never used. Remove this class ?
 class CalibrationMode(Enum):
-    """TBW."""
+    """Enumeration for different modes of Calibration."""
 
     Pipeline = "pipeline"
-    SingleModel = "single_model"
+    SingleModel = "single_model"  # TODO: This is never used
 
 
 class Island(Enum):
@@ -58,17 +59,7 @@ class Island(Enum):
 
 
 def read_single_data(filename: Path) -> np.ndarray:
-    """Read a numpy array from a FITS or NPY file.
-
-    Parameters
-    ----------
-    filename : Path
-
-    Returns
-    -------
-    array
-        TBW.
-    """
+    """Read a numpy array from a FITS or NPY file."""
     # Late import to avoid circular import
 
     data = load_image(filename)
@@ -81,17 +72,7 @@ def read_single_data(filename: Path) -> np.ndarray:
 
 
 def read_single_datacube(filename: Path) -> np.ndarray:
-    """Read a numpy array from a FITS or NPY file.
-
-    Parameters
-    ----------
-    filename : Path
-
-    Returns
-    -------
-    array
-        TBW.
-    """
+    """Read a numpy data cube array from a FITS or NPY file."""
 
     data = load_datacube(filename)
 
@@ -103,11 +84,7 @@ def read_single_datacube(filename: Path) -> np.ndarray:
 
 
 def read_datacubes(filenames: Sequence[Path]) -> Sequence[np.ndarray]:
-    """Read numpy array(s) from several FITS or NPY files.
-
-    :param filenames:
-    :return:
-    """
+    """Read numpy array(s) from several FITS or NPY files."""
     output: Sequence[np.ndarray] = [
         read_single_datacube(Path(filename)) for filename in filenames
     ]
@@ -116,11 +93,7 @@ def read_datacubes(filenames: Sequence[Path]) -> Sequence[np.ndarray]:
 
 
 def read_data(filenames: Sequence[Path]) -> Sequence[np.ndarray]:
-    """Read numpy array(s) from several FITS or NPY files.
-
-    :param filenames:
-    :return:
-    """
+    """Read numpy array(s) from several FITS or NPY files."""
     output: Sequence[np.ndarray] = [
         read_single_data(Path(filename)) for filename in filenames
     ]
