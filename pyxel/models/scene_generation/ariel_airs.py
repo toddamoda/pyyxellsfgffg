@@ -5,8 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from pyxel.detectors import Detector
-
-from .ariel_airs_calculation import (
+from pyxel.models.scene_generation.ariel_airs_calculation import (
     convert_flux,
     integrate_flux,
     project_psfs,
@@ -17,9 +16,9 @@ from .ariel_airs_calculation import (
 
 # ------------------------------------------------------
 def wavelength_dependence_airs(
-    detector: Optional[Detector] = None,
-    psf_filename: str = "CH1_big_cube_PSFs.fits",
-    target_filename: str = "target_flux_SED_00005.dat",
+    detector: Detector,
+    psf_filename: str,
+    target_filename: str,
     time_scale: float = 1.0,
 ) -> None:
     """Generate the photon over the array according to a specific dispersion pattern (ARIEL-AIRS).
@@ -66,7 +65,7 @@ def wavelength_dependence_airs(
     # #TODO add class to take into account the transmission of the instrument
     # Project the PSF onto the Focal Plane, to get the detector image
     row, col = 130, 64  # Could be replaced
-    expend_factor = 18  # Expend factor used
+    expand_factor = 18  # Expend factor used
     photon_incident, photo_electron_generated = project_psfs(
         psf_datacube=psf_datacube,
         line_psf_pos=line_psf_pos,
@@ -74,50 +73,48 @@ def wavelength_dependence_airs(
         flux=integrated_flux,
         row=row,
         col=col,
-        expend_factor=expend_factor,
+        expand_factor=expand_factor,
     )
     # Add the result to the photon array structure
     time_step = 1.0
 
-    if detector:
-        photon_array = photo_electron_generated * (time_step / time_scale)
+    photon_array = photo_electron_generated * (time_step / time_scale)
+    assert photon_array.unit == "electron"
+    detector.photon.array += np.array(photon_array)
 
-        try:
-            detector.photon.array += photon_array
-        except ValueError as ex:
-            raise ValueError("Shapes of arrays do not match") from ex
+    # except ValueError as ex:
+    #     raise ValueError("Shapes of arrays do not match") from ex
 
     # PLOT, to be deleted when implemented in Pyxel
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.plot(target_wavelength, target_flux)
-    ax.set_xlabel("target_wavelength")
-    ax.set_ylabel("target_flux")
+    # fig = plt.figure()
+    # ax = fig.add_subplot(111)
+    # ax.plot(target_wavelength, target_flux)
+    # ax.set_xlabel("target_wavelength")
+    # ax.set_ylabel("target_flux")
+    #
+    # fig = plt.figure()
+    # ax = fig.add_subplot(111)
+    # ax.plot(psf_wavelength, integrated_flux)
+    # ax.set_xlabel("psf_wavelength")
+    # ax.set_ylabel("integrated_flux")
+    #
+    # print(np.shape(photo_electron_generated))
+    # fig = plt.figure()
+    # ax = fig.add_subplot(111)
+    # ax.imshow(photo_electron_generated)
+    # ax.set_title("photo_electron_generated")
+    # ax.set_xlabel("Pixels")
+    # ax.set_ylabel("Pixels")
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.plot(psf_wavelength, integrated_flux)
-    ax.set_xlabel("psf_wavelength")
-    ax.set_ylabel("integrated_flux")
 
-    print(np.shape(photo_electron_generated))
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.imshow(photo_electron_generated)
-    ax.set_title("photo_electron_generated")
-    ax.set_xlabel("Pixels")
-    ax.set_ylabel("Pixels")
-
-
-# ---------------------------------------------------------------------------------------------
-if __name__ == "__main__":
-    psf_filename = "CH1_big_cube_PSFs.fits"
-    target_filename = "Noodles_ch1/SED_004.dat"
-
-    wavelength_dependence_airs(
-        time_scale=1.0,
-        psf_filename=psf_filename,
-        target_filename=target_filename,
-    )
-
-    plt.show()
+# if __name__ == "__main__":
+#     psf_filename = "CH1_big_cube_PSFs.fits"
+#     target_filename = "Noodles_ch1/SED_004.dat"
+#
+#     wavelength_dependence_airs(
+#         time_scale=1.0,
+#         psf_filename=psf_filename,
+#         target_filename=target_filename,
+#     )
+#
+#     plt.show()

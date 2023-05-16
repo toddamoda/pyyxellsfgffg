@@ -1,4 +1,5 @@
 """Pyxel photon generator models."""
+import logging
 import os
 
 import numpy as np
@@ -12,21 +13,17 @@ from numpy import ndarray
 from scipy.integrate import cumtrapz
 
 
-# ---------------------------------------------------------------------------------------------
 def read_star_flux_from_file(
     filename: str,
-    verbose: bool = False,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """
-    Read star flux file.
+    """Read star flux file.
+
     # TODO: Read the unit from the text file.
 
     Parameters
     ----------
     filename: type string,
         Name of the target file. Different extension can be considered.
-    verbose : bool
-        If True information is displayed. Default False.
 
     Returns
     -------
@@ -35,12 +32,13 @@ def read_star_flux_from_file(
     flux: type array 1D
         Flux of the target considered, in  ph/s/m2/µm.
     """
-    BOOL_verbose = True
     extension = os.path.splitext(filename)[1]
     if extension == ".txt":
         wavelength, flux = np.loadtxt(filename).T
-        wavelength = wavelength * u.micron  # set appropriate unit here um
-        flux = flux * u.photon / u.s / u.m / u.m / u.micron  # set appropriate units
+        # set appropriate unit here um
+        wavelength = wavelength * u.micron
+        # set appropriate units
+        flux = flux * u.photon / u.s / u.m / u.m / u.micron
 
     elif extension == ".ecsv":
         data = ascii.read(filename)
@@ -64,18 +62,16 @@ def read_star_flux_from_file(
         wavelength = wavelength * u.micron
         flux = flux * u.photon / u.s / u.m / u.m / u.micron
     else:
-        print("ERROR while converting, extension not readable", verbose)
+        logging.debug("ERROR while converting, extension not readable")
 
     return wavelength, flux
 
 
-# ---------------------------------------------------------------------------------------------
 def convert_flux(
     wavelength: np.ndarray,
-    flux: np.ndarray,
+    flux: Quantity,
     telescope_diameter_m1: float,
     telescope_diameter_m2: float,
-    verbose: bool = False,
 ) -> np.ndarray:
     """
     Convert the flux of the target in ph/s/µm.
@@ -90,16 +86,14 @@ def convert_flux(
         Diameter of the M1 mirror of the TA.
     telescope_diameter_m2: float
         Diameter of the M2 mirror of the TA.
-    verbose : bool
-        If True information is displayed. Default False.
 
     Returns
     --------
     conv_flux: 1D array
         Flux of the target considered in ph/s/µm.
     """
-    if verbose:
-        print("Incident photon flux is being converted into ph/s/um.")
+
+    logging.debug("Incident photon flux is being converted into ph/s/um.")
     # use of astropy code
     flux.to(
         u.photon / u.m**2 / u.micron / u.s,
@@ -150,8 +144,7 @@ def integrate_flux(
     wavelength: Quantity,
     flux: Quantity,
     psf_wavelength: Quantity,
-    verbose: bool = False,
-) -> Quantity:
+) -> np.ndarray:
     """
      Integrate flux on each bin around the psf.
      The trick is to integrate first, and interpolate after (and not vice-versa).
@@ -172,26 +165,25 @@ def integrate_flux(
      flux : quantity array
          Flux. UNit: photon/s. Dimension: nw.
     """
-    if verbose:
-        print("Integrate flux on each bin around the psf...")
 
-    bandwidth, all_poles = compute_bandwidth(
-        psf_wavelength
-    )  # Set the parameters of the function
+    logging.debug("Integrate flux on each bin around the psf...")
 
-    cum_sum = cumtrapz(flux.value, wavelength.value, initial=0.0)  # Cumulative count
+    # Set the parameters of the function
+    bandwidth, all_poles = compute_bandwidth(psf_wavelength)
+
+    # Cumulative count
+    cum_sum = cumtrapz(flux.value, wavelength.value, initial=0.0)
 
     # self.wavelength has to quantity: value and units
-    cum_sum_interp = np.interp(
-        all_poles, wavelength, cum_sum
-    )  # interpolate over psf wavelength
+    # interpolate over psf wavelength
+    cum_sum_interp = np.interp(all_poles, wavelength, cum_sum)
 
-    flux_int = (
-        cum_sum_interp[1:] - cum_sum_interp[:-1]
-    )  # Compute flux over psf spectral bin
+    # Compute flux over psf spectral bin
+    flux_int = cum_sum_interp[1:] - cum_sum_interp[:-1]
 
+    # Update flux matrix
     flux_int = flux_int * flux.unit * wavelength.unit
-    flux = np.copy(flux_int)  # Update flux matrix
+    flux = np.copy(flux_int)
 
     return flux
 
@@ -217,7 +209,6 @@ def integrate_flux(
 # ---------------------------------------------------------------------------------------------
 def read_psf_from_fits_file(
     filename: str,
-    verbose: bool = False,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     Read psf files depending on simulation and instrument parameters.
@@ -226,8 +217,6 @@ def read_psf_from_fits_file(
     ----------
     filename : str
         Name of the .fits file.
-    verbose : bool
-        If True information is displayed. Default False.
 
     Returns
     -------
@@ -241,27 +230,31 @@ def read_psf_from_fits_file(
     col_pos_psf : ndarray
         1D array, y position of the PSF at each wavelength.
     """
-    BOOL_verbose = True
-    hdu = fits.open(filename)  # Open fits
-    psf_datacube, table = hdu[0].data, hdu[1].data
-    line_psf_pos = (table["x_centers"]).astype(
-        int
-    )  # Position of the PSF on AIRS window along line
-    col_psf_pos = (table["y_centers"]).astype(
-        int
-    )  # Position of the PSF on AIRS window along col
-    psf_wavelength = table["waves"] * u.micron  # Wavelength
-    hdu.close()  # Close fits
-    if verbose:
-        print(
-            "PSF Datacube", psf_datacube.shape, psf_datacube.min(), psf_datacube.max()
-        )
-        print(
-            "PSF Wavelength",
-            psf_wavelength.shape,
-            psf_wavelength.min(),
-            psf_wavelength.max(),
-        )
+    # Open fits
+    with fits.open(filename) as hdu:
+        psf_datacube, table = hdu[0].data, hdu[1].data
+
+        # Position of the PSF on AIRS window along line
+        line_psf_pos = (table["x_centers"]).astype(int)
+
+        # Position of the PSF on AIRS window along col
+        col_psf_pos = (table["y_centers"]).astype(int)
+
+        # Wavelength
+        psf_wavelength = table["waves"] * u.micron
+
+    logging.debug(
+        "PSF Datacube %r %r %r",
+        psf_datacube.shape,
+        psf_datacube.min(),
+        psf_datacube.max(),
+    )
+    logging.debug(
+        "PSF Wavelength %r %r %r",
+        psf_wavelength.shape,
+        psf_wavelength.min(),
+        psf_wavelength.max(),
+    )
 
     return psf_datacube, psf_wavelength, line_psf_pos, col_psf_pos
 
@@ -274,26 +267,43 @@ def project_psfs(
     flux,
     row,
     col,
-    expend_factor: float,
+    expand_factor: float,
 ) -> tuple[ndarray, ndarray]:
     """
     Project each psf on a (n_line_final * self.zoom, n_col_final * self.zoom) pixel image
-    n_line_final, n_col_final = corresponds to window size. It varies with the channel
+    n_line_final, n_col_final = corresponds to window size. It varies with the channel.
 
-    :param psfs:          type numpy array, dimension (nw, n_line, n_col)
-    :param flux:          type quantity array, unit electron/s dimension big_n
-    :param col_center:    type numpy array, column position of the center of PSF along AIRS window
-    :param line_center:   type numpy array, line position of the center of the PSF along AIRS window
+    Parameters
+    ----------
 
-    :return:            type quantity array,dimension ny, nx, spectral image in e-/s. Shape = detector shape
+    psf_datacube : numpy array
+        Dimension (nw, n_line, n_col).
+    line_psf_pos : numpy array
+        Line position of the center of the PSF along AIRS window.
+    col_psf_pos : numpy array
+        Column position of the center of PSF along AIRS window.
+    flux : Quantity
+        Unit electron/s dimension big_n.
+    row :
+
+    col :
+
+    expand_factor :
+
+    Returns
+    -------
+    result : Quantity
+        Dimension ny, nx, spectral image in e-/s. Shape = detector shape
+
+
     """
     nw, n_line, n_col = psf_datacube.shape  # Extract shape of the PSF
     half_size_col, half_size_line = n_col // 2, n_line // 2  # Half size of the PSF
 
     # photon_incident = np.zeros((detector.geometry.row * expend_factor, detector.geometry.col * expend_factor))
     # photoelectron_generated = np.zeros((detector.geometry.row * expend_factor, detector.geometry.col * expend_factor))
-    photon_incident = np.zeros((row * expend_factor, col * expend_factor))
-    photoelectron_generated = np.zeros((row * expend_factor, col * expend_factor))
+    photon_incident = np.zeros((row * expand_factor, col * expand_factor))
+    photoelectron_generated = np.zeros((row * expand_factor, col * expand_factor))
 
     col_win_middle, line_win_middle = int(col_psf_pos.mean()), int(line_psf_pos.mean())
 
@@ -302,21 +312,21 @@ def project_psfs(
         line1 = (
             line_psf_pos[i]
             - line_win_middle
-            + row * expend_factor // 2
+            + row * expand_factor // 2
             - half_size_line
         )
         line2 = (
             line_psf_pos[i]
             - line_win_middle
-            + row * expend_factor // 2
+            + row * expand_factor // 2
             + half_size_line
         )
         # Resize along col dimension
         col1 = (
-            col_psf_pos[i] - col_win_middle + col * expend_factor // 2 - half_size_col
+            col_psf_pos[i] - col_win_middle + col * expand_factor // 2 - half_size_col
         )
         col2 = (
-            col_psf_pos[i] - col_win_middle + col * expend_factor // 2 + half_size_col
+            col_psf_pos[i] - col_win_middle + col * expand_factor // 2 + half_size_col
         )
         # Derive the amount of photon incident on the detector
         photon_incident[line1:line2, col1:col2] = (
@@ -338,16 +348,17 @@ def project_psfs(
         photoelectron_generated * u.electron
     )  # This is the amount of photons incident on the detector
 
-    return rebin_2d(photon_incident, expend_factor), rebin_2d(
-        photoelectron_generated, expend_factor
+    result = rebin_2d(photon_incident, expand_factor), rebin_2d(
+        photoelectron_generated, expand_factor
     )
+
+    return result
 
 
 # ---------------------------------------------------------------------------------------------
 def rebin_2d(
     data: np.ndarray,
     expand_factor: float,
-    verbose: bool = False,
 ) -> np.ndarray:
     """
     Rebin as idl.
@@ -363,8 +374,6 @@ def rebin_2d(
         Data with 2 dimensions (image): ny, nx.
     expand_factor : tuple
         Expansion factor is a tuple of 2 integers: zy, zx.
-    verbose : bool
-        If True information is displayed. Default False.
 
     Returns
     -------
@@ -380,14 +389,16 @@ def rebin_2d(
 
     """
 
-    zoom = [expand_factor, expand_factor]  # In case asymmetrical zoom is used
+    # In case asymmetrical zoom is used
+    zoom = [expand_factor, expand_factor]
+
     final_shape = (
         int(data.shape[0] // zoom[0]),
         zoom[0],
         int(data.shape[1] // zoom[1]),
         zoom[1],
     )
-    if verbose:
-        print("final_shape ", final_shape)
+    logging.debug("final_shape ", final_shape)
     result = data.reshape(final_shape).sum(3).sum(1)
+
     return result
