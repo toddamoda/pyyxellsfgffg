@@ -1,4 +1,5 @@
 """Pyxel photon generator models."""
+# Add Licence from CEA/ TPichon
 
 # import matplotlib.pyplot as plt
 import numpy as np
@@ -13,7 +14,6 @@ from pyxel.models.scene_generation.ariel_airs_calculation import (
 )
 
 
-# ------------------------------------------------------
 def wavelength_dependence_airs(
     detector: Detector,
     psf_filename: str,
@@ -93,40 +93,3 @@ def wavelength_dependence_airs(
     assert photon_array.unit == "electron"
 
     detector.photon.array += np.array(photon_array)
-
-    # except ValueError as ex:
-    #     raise ValueError("Shapes of arrays do not match") from ex
-
-    # PLOT, to be deleted when implemented in Pyxel
-    # fig = plt.figure()
-    # ax = fig.add_subplot(111)
-    # ax.plot(target_wavelength, target_flux)
-    # ax.set_xlabel("target_wavelength")
-    # ax.set_ylabel("target_flux")
-    #
-    # fig = plt.figure()
-    # ax = fig.add_subplot(111)
-    # ax.plot(psf_wavelength, integrated_flux)
-    # ax.set_xlabel("psf_wavelength")
-    # ax.set_ylabel("integrated_flux")
-    #
-    # print(np.shape(photo_electron_generated))
-    # fig = plt.figure()
-    # ax = fig.add_subplot(111)
-    # ax.imshow(photo_electron_generated)
-    # ax.set_title("photo_electron_generated")
-    # ax.set_xlabel("Pixels")
-    # ax.set_ylabel("Pixels")
-
-
-# if __name__ == "__main__":
-#     psf_filename = "CH1_big_cube_PSFs.fits"
-#     target_filename = "Noodles_ch1/SED_004.dat"
-#
-#     wavelength_dependence_airs(
-#         time_scale=1.0,
-#         psf_filename=psf_filename,
-#         target_filename=target_filename,
-#     )
-#
-#     plt.show()
