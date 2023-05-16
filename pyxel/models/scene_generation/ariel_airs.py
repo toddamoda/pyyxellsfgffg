@@ -1,7 +1,6 @@
 """Pyxel photon generator models."""
-from typing import Optional
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 
 from pyxel.detectors import Detector
@@ -19,6 +18,9 @@ def wavelength_dependence_airs(
     detector: Detector,
     psf_filename: str,
     target_filename: str,
+    telescope_diameter_m1: float,
+    telescope_diameter_m2: float,
+    expand_factor: float,
     time_scale: float = 1.0,
 ) -> None:
     """Generate the photon over the array according to a specific dispersion pattern (ARIEL-AIRS).
@@ -31,6 +33,14 @@ def wavelength_dependence_airs(
         The location and the filename where the PSFs are located.
     target_filename: string
         The location and the filename of the target file used in the simulation.
+    telescope_diameter_m1 : float
+        Diameter of the M1 mirror of the TA in m.
+    telescope_diameter_m2 : float
+        Diameter of the M2 mirror of the TA in m.
+    expand_factor : float
+        Expansion factor used.
+    time_scale : float
+        Time scale in seconds.
     """
     # Extract information from the PSF
     psf_datacube, psf_wavelength, line_psf_pos, col_psf_pos = read_psf_from_fits_file(
@@ -44,10 +54,10 @@ def wavelength_dependence_airs(
     target_wavelength, target_flux = read_star_flux_from_file(filename=target_filename)
 
     # convert the flux by multiplying by the area of the detector
-    telescope_diameter_m1, telescope_diameter_m2 = (
-        1.1,
-        0.7,
-    )  # in m, TODO to be replaced by Telescope Class ?
+    # telescope_diameter_m1, telescope_diameter_m2 = (
+    #     1.1,
+    #     0.7,
+    # )  # in m, TODO to be replaced by Telescope Class ?
 
     target_conv_flux = convert_flux(
         wavelength=target_wavelength,
@@ -64,22 +74,24 @@ def wavelength_dependence_airs(
     # multiply_by_transmission(psf, transmission_dict)
     # #TODO add class to take into account the transmission of the instrument
     # Project the PSF onto the Focal Plane, to get the detector image
-    row, col = 130, 64  # Could be replaced
-    expand_factor = 18  # Expend factor used
+
+    # row, col = 130, 64  # Could be replaced
+    # Expend factor used: expand_factor = 18
     photon_incident, photo_electron_generated = project_psfs(
-        psf_datacube=psf_datacube,
-        line_psf_pos=line_psf_pos,
+        psf_datacube_3d=psf_datacube,
+        line_psf_pos_1d=line_psf_pos,
         col_psf_pos=col_psf_pos,
         flux=integrated_flux,
-        row=row,
-        col=col,
+        row=detector.geometry.row,
+        col=detector.geometry.col,
         expand_factor=expand_factor,
     )
     # Add the result to the photon array structure
-    time_step = 1.0
+    time_step = 1.0  # ?
 
     photon_array = photo_electron_generated * (time_step / time_scale)
     assert photon_array.unit == "electron"
+
     detector.photon.array += np.array(photon_array)
 
     # except ValueError as ex:

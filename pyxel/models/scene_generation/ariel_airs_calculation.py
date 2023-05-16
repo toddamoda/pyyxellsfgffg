@@ -73,8 +73,7 @@ def convert_flux(
     telescope_diameter_m1: float,
     telescope_diameter_m2: float,
 ) -> np.ndarray:
-    """
-    Convert the flux of the target in ph/s/µm.
+    """Convert the flux of the target in ph/s/µm.
 
     Parameters
     ----------
@@ -83,12 +82,12 @@ def convert_flux(
     flux: 1D array
         Flux of the target considered in ph/s/m2/µm.
     telescope_diameter_m1: float
-        Diameter of the M1 mirror of the TA.
+        Diameter of the M1 mirror of the TA in m.
     telescope_diameter_m2: float
-        Diameter of the M2 mirror of the TA.
+        Diameter of the M2 mirror of the TA in m.
 
     Returns
-    --------
+    -------
     conv_flux: 1D array
         Flux of the target considered in ph/s/µm.
     """
@@ -106,21 +105,21 @@ def convert_flux(
     diameter_m1 = telescope_diameter_m1 * u.meter
     collecting_area = np.pi * diameter_m1 * diameter_m2 / 4
     conv_flux = np.copy(flux) * collecting_area
+
     return conv_flux
 
 
-# ---------------------------------------------------------------------------------------------
 def compute_bandwidth(
-    psf_wavelength,
+    psf_wavelength: Quantity,
 ) -> tuple[Quantity, Quantity]:
-    """
-    Computes the bandwidth for non even distributed values
+    """Compute the bandwidth for non-even distributed values.
+
     First we put the poles, each pole is at the center of the previous wave and the next wave.
     We add the first pole and the last pole using symmetry. We get nw+1 poles
 
     Parameters
     ----------
-    psf_wavelength:
+    psf_wavelength : Quantity
        PSF object.
 
     Returns
@@ -139,31 +138,28 @@ def compute_bandwidth(
     return bandwidth, all_poles
 
 
-# ---------------------------------------------------------------------------------------------
 def integrate_flux(
     wavelength: Quantity,
     flux: Quantity,
     psf_wavelength: Quantity,
 ) -> np.ndarray:
-    """
-     Integrate flux on each bin around the psf.
-     The trick is to integrate first, and interpolate after (and not vice-versa).
+    """Integrate flux on each bin around the psf.
 
-     Parameters
-     ----------
-     wavelength : quantity array
-         Wavelength. Unit: usually micron. Dimension: small_n.
-     flux : quantity array
-         Flux. Unit: ph/s/m2/micron. Dimension: big_n.
-     psf_wavelength : quantity array
-         Point Spead Function per wavelength.
-    verbose : bool
-         If True information is displayed. Default False.
+    The trick is to integrate first, and interpolate after (and not vice-versa).
 
-     Returns
-     -------
-     flux : quantity array
-         Flux. UNit: photon/s. Dimension: nw.
+    Parameters
+    ----------
+    wavelength : quantity array
+        Wavelength. Unit: usually micron. Dimension: small_n.
+    flux : quantity array
+        Flux. Unit: ph/s/m2/micron. Dimension: big_n.
+    psf_wavelength : quantity array
+        Point Spead Function per wavelength.
+
+    Returns
+    -------
+    flux : quantity array
+        Flux. UNit: photon/s. Dimension: nw.
     """
 
     logging.debug("Integrate flux on each bin around the psf...")
@@ -188,7 +184,6 @@ def integrate_flux(
     return flux
 
 
-# ------------------------------------------------------------------------------
 # def multiply_by_transmission(psf, transmission_dict: Mapping[str, Any]) -> None:
 #     """The goal of this function is to take into account the flux of the incident star"""
 #     for t in transmission_dict.keys():
@@ -206,7 +201,6 @@ def integrate_flux(
 #
 
 
-# ---------------------------------------------------------------------------------------------
 def read_psf_from_fits_file(
     filename: str,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
@@ -259,26 +253,24 @@ def read_psf_from_fits_file(
     return psf_datacube, psf_wavelength, line_psf_pos, col_psf_pos
 
 
-# ---------------------------------------------------------------------------------------------
 def project_psfs(
-    psf_datacube: np.ndarray,
-    line_psf_pos: Quantity,
+    psf_datacube_3d: np.ndarray,
+    line_psf_pos_1d: Quantity,
     col_psf_pos,
-    flux,
-    row,
-    col,
+    flux: Quantity,
+    row: int,
+    col: int,
     expand_factor: float,
 ) -> tuple[ndarray, ndarray]:
-    """
-    Project each psf on a (n_line_final * self.zoom, n_col_final * self.zoom) pixel image
+    """Project each psf on a (n_line_final * self.zoom, n_col_final * self.zoom) pixel image.
+
     n_line_final, n_col_final = corresponds to window size. It varies with the channel.
 
     Parameters
     ----------
-
-    psf_datacube : numpy array
+    psf_datacube_3d : numpy array
         Dimension (nw, n_line, n_col).
-    line_psf_pos : numpy array
+    line_psf_pos_1d : numpy array
         Line position of the center of the PSF along AIRS window.
     col_psf_pos : numpy array
         Column position of the center of PSF along AIRS window.
@@ -293,11 +285,10 @@ def project_psfs(
     Returns
     -------
     result : Quantity
-        Dimension ny, nx, spectral image in e-/s. Shape = detector shape
-
+        Dimension ny, nx, spectral image in e-/s. Shape = detector shape.
 
     """
-    nw, n_line, n_col = psf_datacube.shape  # Extract shape of the PSF
+    nw, n_line, n_col = psf_datacube_3d.shape  # Extract shape of the PSF
     half_size_col, half_size_line = n_col // 2, n_line // 2  # Half size of the PSF
 
     # photon_incident = np.zeros((detector.geometry.row * expend_factor, detector.geometry.col * expend_factor))
@@ -305,18 +296,20 @@ def project_psfs(
     photon_incident = np.zeros((row * expand_factor, col * expand_factor))
     photoelectron_generated = np.zeros((row * expand_factor, col * expand_factor))
 
-    col_win_middle, line_win_middle = int(col_psf_pos.mean()), int(line_psf_pos.mean())
+    col_win_middle, line_win_middle = int(col_psf_pos.mean()), int(
+        line_psf_pos_1d.mean()
+    )
 
     for i in np.arange(nw):  # Loop over the wavelength
         # Resize along line dimension
         line1 = (
-            line_psf_pos[i]
+            line_psf_pos_1d[i]
             - line_win_middle
             + row * expand_factor // 2
             - half_size_line
         )
         line2 = (
-            line_psf_pos[i]
+            line_psf_pos_1d[i]
             - line_win_middle
             + row * expand_factor // 2
             + half_size_line
@@ -331,37 +324,34 @@ def project_psfs(
         # Derive the amount of photon incident on the detector
         photon_incident[line1:line2, col1:col2] = (
             photon_incident[line1:line2, col1:col2]
-            + psf_datacube[i, :, :] * flux[i].value
+            + psf_datacube_3d[i, :, :] * flux[i].value
         )
 
         # TODO: Here take into account the QE map of the detector, and its dependence with wavelength
         # QE of the detector has to be sampled with the same resolution as the PSF is sampled
         qe = 0.65
+        # qe_detector[i]
         photoelectron_generated[line1:line2, col1:col2] = (
             photon_incident[line1:line2, col1:col2].copy() * qe
-        )  # qe_detector[i]
+        )
 
-    photon_incident = (
-        photon_incident * flux.unit
-    )  # This is the amount of photons incident on the detector
-    photoelectron_generated = (
-        photoelectron_generated * u.electron
-    )  # This is the amount of photons incident on the detector
+    # This is the amount of photons incident on the detector
+    photon_incident = photon_incident * flux.unit
 
-    result = rebin_2d(photon_incident, expand_factor), rebin_2d(
-        photoelectron_generated, expand_factor
+    # This is the amount of photons incident on the detector
+    photoelectron_generated = photoelectron_generated * u.electron
+
+    return (rebin_2d(photon_incident, expand_factor)), (
+        rebin_2d(photoelectron_generated, expand_factor)
     )
 
-    return result
 
-
-# ---------------------------------------------------------------------------------------------
 def rebin_2d(
     data: np.ndarray,
     expand_factor: float,
 ) -> np.ndarray:
-    """
-    Rebin as idl.
+    """Rebin as idl.
+
     Each pixel of the returned image is the sum of zy by zx pixels of the input image.
 
     Based on:       Rene Gastaud, 13 January 2016
@@ -385,7 +375,6 @@ def rebin_2d(
     -------
     a = np.arange(48).reshape((6,8))
                rebin2d( a, [2,2])
-
 
     """
 

@@ -5,4 +5,4 @@
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
 
-from .ariel_airs import wavelength_dependence_airs
+from pyxel.models.scene_generation.ariel_airs import wavelength_dependence_airs
