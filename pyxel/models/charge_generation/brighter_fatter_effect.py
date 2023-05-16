@@ -7,7 +7,7 @@
 #
 #
 """Model for brighter-fatter-effect."""
-from typing import Sequence
+from collections.abc import Sequence
 
 import numba
 import numpy
@@ -28,7 +28,7 @@ def get_gaussian_kernel(size, sigma):
 
 
 def simple_bfe(
-    detector: Detector, coefficients: Sequence[float], normalize_kernel: bool = True
+    detector: Detector, a, b, c, alpha, beta, normalize_kernel: bool = True
 ) -> None:
     """Get BFE for photon array and convolve the photon array with the BFE.
 
@@ -41,16 +41,16 @@ def simple_bfe(
     normalize_kernel : bool
         Normalize kernel.
     """
-    a = coefficients[0]
-    b = coefficients[1]
-    c = coefficients[2]
+    # a = coefficients[0]
+    # b = coefficients[1]
+    # c = coefficients[2]
 
     signal = detector.photon.array
 
     mean = np.mean(detector.photon.array)
-    sigma = a + b * signal + c * signal**2
+    theta = a + b * signal + c * signal**2
 
-    sigma_fwc = (
+    theta_fwc = (
         a
         + b * detector.characteristics.full_well_capacity
         + c * detector.characteristics.full_well_capacity**2
@@ -62,7 +62,7 @@ def simple_bfe(
     # norm = (1 / np.max(sigma_max)) * sigma
     # std = np.sqrt(np.mean(norm))
     ###
-    norm_sigma = 1 + (sigma / sigma_fwc)
+    norm_sigma = alpha + beta * ((1 / theta_fwc) * theta)
     # (1 / np.max(sigma_fwc)) * sigma
     std = np.mean(norm_sigma)  # just for now in pyxel
     # sigma_array = polynomial_function(signal)
@@ -98,7 +98,6 @@ def bfe(
     alpha: float,
     beta: float,
 ) -> numpy.ndarray:
-
     new_data_2d = np.zeros_like(data_2d)
     num_y, num_x = new_data_2d.shape
 
@@ -159,7 +158,6 @@ def get_bfe(
     alpha: float,
     beta: float,
 ) -> None:
-
     data_2d = detector.photon.array
     conv = bfe(
         data_2d=data_2d,
