@@ -20,7 +20,7 @@ def wavelength_dependence_airs(
     target_filename: str,
     telescope_diameter_m1: float,
     telescope_diameter_m2: float,
-    expand_factor: float,
+    expand_factor: int,
     time_scale: float = 1.0,
 ) -> None:
     """Generate the photon over the array according to a specific dispersion pattern (ARIEL-AIRS).
@@ -29,19 +29,25 @@ def wavelength_dependence_airs(
     ----------
     detector : Detector
         Pyxel Detector object.
-    psf_filename: string
+    psf_filename : string
         The location and the filename where the PSFs are located.
-    target_filename: string
+    target_filename : string
         The location and the filename of the target file used in the simulation.
     telescope_diameter_m1 : float
         Diameter of the M1 mirror of the TA in m.
     telescope_diameter_m2 : float
         Diameter of the M2 mirror of the TA in m.
-    expand_factor : float
+    expand_factor : int
         Expansion factor used.
     time_scale : float
         Time scale in seconds.
     """
+    if not isinstance(expand_factor, int):
+        raise TypeError("Expecting a 'int' type for 'expand_factor'.")
+
+    if expand_factor <= 0:
+        raise ValueError("Expecting a positive value for 'expand_factor'.")
+
     # Extract information from the PSF
     psf_datacube, psf_wavelength, line_psf_pos, col_psf_pos = read_psf_from_fits_file(
         filename=psf_filename

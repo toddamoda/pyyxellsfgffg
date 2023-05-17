@@ -7,4 +7,5 @@
 
 """TBW."""
 
-# from pyxel.models.scene_generation.ariel_airs import wavelength_dependence_airs
+# flake8: noqa
+from .ariel_airs import wavelength_dependence_airs
