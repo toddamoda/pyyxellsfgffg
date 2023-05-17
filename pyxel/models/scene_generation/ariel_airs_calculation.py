@@ -9,7 +9,6 @@ import pandas as pd
 from astropy import units as u
 from astropy.io import ascii, fits
 from astropy.units import Quantity
-from numpy import ndarray
 from scipy.integrate import cumtrapz
 
 
@@ -260,8 +259,8 @@ def project_psfs(
     flux: Quantity,
     row: int,
     col: int,
-    expand_factor: float,
-) -> tuple[ndarray, ndarray]:
+    expand_factor: int,
+) -> tuple[Quantity, Quantity]:
     """Project each psf on a (n_line_final * self.zoom, n_col_final * self.zoom) pixel image.
 
     n_line_final, n_col_final = corresponds to window size. It varies with the channel.
@@ -284,7 +283,7 @@ def project_psfs(
 
     Returns
     -------
-    result : Quantity
+    result : Quantity, Quantity
         Dimension ny, nx, spectral image in e-/s. Shape = detector shape.
 
     """
@@ -348,7 +347,7 @@ def project_psfs(
 
 def rebin_2d(
     data: np.ndarray,
-    expand_factor: float,
+    expand_factor: int,
 ) -> np.ndarray:
     """Rebin as idl.
 
