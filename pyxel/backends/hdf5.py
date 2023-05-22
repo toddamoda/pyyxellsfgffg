@@ -51,6 +51,8 @@ def _store(
         Attributes to store.
     """
     for key, value in dct.items():
+        key = key.removeprefix("/")
+
         new_name = f"{name}/{key}"
 
         if isinstance(value, (int, float)) or value is None:

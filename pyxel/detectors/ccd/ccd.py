@@ -74,7 +74,12 @@ class CCD(Detector):
                     if self._processed_data is None
                     else self._processed_data.data.to_dict()
                 ),
-                "data": None if self._data is None else self._data.to_dict(),
+                "data": None
+                if self._data is None
+                else {
+                    key.replace("/", "#"): value
+                    for key, value in self._data.to_dict().items()
+                },
                 "charge": (
                     None
                     if self._charge is None
@@ -137,7 +142,7 @@ class CCD(Detector):
         if "data" in data:
             detector._data = DataTree.from_dict(
                 {
-                    key: xr.Dataset.from_dict(value)
+                    key.replace("#", "/"): xr.Dataset.from_dict(value)
                     for key, value in data["data"].items()
                 }
             )

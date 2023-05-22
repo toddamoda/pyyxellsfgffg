@@ -16,6 +16,7 @@ make it apparent that there's nothing to do.
    - [ ] Update documentation [**references/models**](https://esa.gitlab.io/pyxel/doc/stable/references/models.html)
    - [ ] Update documentation [**background/detectors/CCD**](https://esa.gitlab.io/pyxel/doc/stable/background/detectors/ccd.html)
    - [ ] Update documentation [**background/detectors/CMOS**](https://esa.gitlab.io/pyxel/doc/stable/background/detectors/cmos.html)
+   - [ ] Update the JSON Schema of Pyxel by typing ``tox -e json_schema``.
    - ...
  - [ ] Documentation `.rst` files is written using [semantic newlines](https://sembr.org)
  - [ ] User visible changes (including notable bug fixes and possible deprecations) are 

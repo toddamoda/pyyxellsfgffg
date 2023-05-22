@@ -23,7 +23,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
-#    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.11",
     "Topic :: Scientific/Engineering :: Astronomy",
     "Topic :: Scientific/Engineering :: Image Processing",
     "Topic :: Scientific/Engineering :: Physics",
@@ -83,7 +83,7 @@ tracker = "https://gitlab.com/esa/pyxel/issues"
 
 [project.optional-dependencies]
 calibration = [ "pygmo>=2.16.1" ]
-model = [ "poppy>=1.0.2" ]
+model = [ "poppy>=1.1.0" ]
 io = [ "asdf" ]
 all = [
     "pyxel-sim[calibration]",
@@ -199,7 +199,7 @@ exclude_dirs = ["pyxel/_version.py"]
 
 [tool.codespell]
 ignore-words-list = "acn,sade,te"
-skip = "pyxel/_version.py"
+skip = "pyxel/_version.py,*.fits"
 
 [tool.coverage.report]
 exclude_lines = [
@@ -226,6 +226,7 @@ ignore = [
     "TRY003",   # Avoid specifying long messages outside the exception class
     "TRY301",   # Abstract `raise` to an inner function
 ]
+
 select = [
     "A",        # flake8-builtins
     "B",        # flake8-bugbear

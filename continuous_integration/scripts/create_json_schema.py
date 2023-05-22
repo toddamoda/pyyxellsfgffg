@@ -669,7 +669,7 @@ def generate_detectors() -> Iterator[str]:
     yield ""
 
     # Create wrappers for the detectors
-    detector_classes: Sequence[str] = ("CCD", "CMOS", "MKID", "APD")
+    # detector_classes: Sequence[str] = ("CCD", "CMOS", "MKID", "APD")
     # for klass_name in detector_classes:
     #     yield f"#@schema(title='{klass_name}')"
     #     yield "#@dataclass"
@@ -704,7 +704,8 @@ def generate_detectors() -> Iterator[str]:
 
     yield ""
     yield "    # Detectors"
-    for klass_name in detector_classes:
+    for detector_klass in registered_detectors:
+        klass_name: str = detector_klass.__name__
         yield f"    {klass_name.lower()}_detector: Optional[{klass_name}] = field(default=None, metadata=schema(title={klass_name!r}))"
 
 

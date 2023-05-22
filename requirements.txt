@@ -1,2 +1,0 @@
-# Pyxel requirements
--e .[all]

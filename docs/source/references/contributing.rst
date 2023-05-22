@@ -307,7 +307,7 @@ these instructions:
     $ . ~/virtualenvs/pyxel-dev/bin/activate
 
     # Install the build dependencies
-    $ python -m pip install -r requirements-dev.txt
+    $ python -m pip install -r continuous_integration/requirements-dev.txt
 
     # Build and install Pyxel
     $ python -m pip install -e .
@@ -321,7 +321,7 @@ built version:
    $ python
    >>> import pyxel
    >>> pyxel.__version__
-   '0.5+0.gcae5a0b'
+   '1.8+88.g5e2e17dc'
 
 
 Creating a branch
@@ -669,6 +669,8 @@ To run performance test(s)/benchmark(s), check the
 To visualize the performance test(s)/benchmark(s), see
 `benchmarks <https://esa.gitlab.io/pyxel/benchmarks/>`_.
 
+.. _contributing.yourchanges:
+
 Contributing your changes to *Pyxel*
 ====================================
 
@@ -784,8 +786,8 @@ release. To submit a merge request:
 
     Create a new merge request.
 
-4. Write a description of your changes in the ``Discussion`` tab
-5. Click ``Create Merge Request``.
+4. Write a description of your changes in the ``Discussion`` tab.
+5. Click ``Create Merge Request`` and check if you have fulfilled all requirements from the :ref:`"Merge request checklist" <contributing.mergechecklist>`.
 
 This request then goes to the repository maintainers, and they will review
 the code. If you need to make more changes, you can make them in your branch,
@@ -828,6 +830,7 @@ The branch will still exist on GitLab, so to delete it there do:
 
     $ git push origin --delete shiny-new-feature
 
+.. _contributing.mergechecklist:
 
 Merge Request checklist
 -----------------------

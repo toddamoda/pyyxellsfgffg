@@ -20,9 +20,10 @@
 name: pyxel-dev
 channels:
   - conda-forge
+  - numba
 dependencies:
 # Python
-  - python
+  - python=3.11
   - pip
 # Scientific computing
   - numba
@@ -88,5 +89,5 @@ dependencies:
 # Pip packages
   - pip:
 #    - --no-deps
-    - poppy>=1.0.2
+    - poppy>=1.1.0
 

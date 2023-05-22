@@ -1,3 +1,4 @@
+
 # Frequently Asked Questions
 - [How to contact the developers of Pyxel?](#how-to-contact-the-developers-of-pyxel)
 - [How to install Pyxel?](#how-to-install-pyxel)
@@ -46,11 +47,11 @@ A simple pipeline example of a configuration yaml file in exposure mode can be f
 <a name="is-there-a-way-to-add-photons-to-a-detector-directly-from-a-file-containing-photons-or-pixel-instead-of-converting-from-image-in-adu-to-photons-via-the-ptf"></a>
 ## Is there a way to add photons to a Detector directly from a file containing photons or pixel instead of converting from image in ADU to photons via the PTF?
 
-Yes, with the model 'load_image' in the photon generation model group it is possible to load photons directly from a file.
-You can set the argument 'convert_to_photons' to false, and it will use your input array without converting it via PTF.
+Yes, with the model `load_image` in the photon generation model group it is possible to load photons directly from a file.
+You can set the argument `convert_to_photons` to `false`, and it will use your input array without converting it via PTF.
 See [here](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/photon_collection_models.html#load-image) for more details.
 
-<a name="is-there-any-way-use-pyxel-to-produce-a-bias-or-dark-image-without-including-any-image-file"></a>
+<a name="is-there-any-way-to-use-pyxel-to-produce-a-bias-or-dark-image-without-including-any-image-file"></a>
 ## Is there any way to use Pyxel to produce a bias or dark image without including any image file?
 
 Without the models in the pipeline, Pyxel will still run, but will generate nothing, so just zero arrays. 
@@ -95,9 +96,9 @@ The snr is an array with each exposure time in exposure mode
 (ndarray when using observation mode) with the result of the simulation, e.g. in exposure mode:
 ```python
 result = pyxel.exposure_mode(
-exposure=exposure,
-detector=detector, 
-pipeline=pipeline
+    exposure=exposure,
+    detector=detector, 
+    pipeline=pipeline,
 )
 ```
 
@@ -113,7 +114,7 @@ There are a couple of models that are required in the pipeline to get an image i
 One have to make use of simple models in the pipeline that the conversion **photon->charge->pixel->signal->image** is happening.
 
 Example: 
-If you have only the model "load_image" in your pipeline and make use of the function "pyxel.display_detector(detector)" 
+If you have only the model `load_image` in your pipeline and make use of the function `pyxel.display_detector(detector)`
 you will retrieve the plot with photon, but the plots showing pixel or image are blank, because no conversion is taking place in the pipeline.
 
 A simple pipeline example of a configuration yaml file in exposure mode can be found here: 

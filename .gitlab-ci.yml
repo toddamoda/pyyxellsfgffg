@@ -15,6 +15,7 @@ variables:
 
 stages:
   - test
+  - static analysis
   - build
   - deploy
 
@@ -60,53 +61,53 @@ python310:
   script:
     - tox -e py310-extra_all
 
-## Run pytest for Python 3.11 without anaconda
-#python311:
-#  image: python:3.11
-#  stage: test
-#  script:
-#    - tox -e py311-extra_all
+# Run pytest for Python 3.11 without anaconda
+python311:
+  image: python:3.11
+  stage: test
+  script:
+    - tox -e py311-extra_all
 
 # Run mypy
 mypy:
-  image: python:3.9
-  stage: test
+  image: python:3.11
+  stage: static analysis
   script:
     - tox -e mypy
 
 flake8:
-  image: python:3
-  stage: test
+  image: python:3.11
+  stage: static analysis
   script:
     - tox -e flake8
 
 ruff:
-  image: python:3
-  stage: test
+  image: python:3.11
+  stage: static analysis
   script:
     - tox -e ruff
 
 pydocstyle:
-  image: python:3
-  stage: test
+  image: python:3.11
+  stage: static analysis
   script:
     - tox -e pydocstyle
 
 doc8:
-  image: python:3
-  stage: test
+  image: python:3.11
+  stage: static analysis
   script:
     - tox -e doc8
 
 codespell:
-  image: python:3
-  stage: test
+  image: python:3.11
+  stage: static analysis
   script:
     - tox -e codespell
 
 check_json_schema:
-  image: python:3.10
-  stage: test
+  image: python:3.11
+  stage: static analysis
   script:
     - tox -e check_json_schema
 
@@ -131,7 +132,7 @@ license_scanning:
 
 # Run pytest + coverage
 coverage:
-  image: python:3.9
+  image: python:3.11
   stage: build
   needs: []
   script:
@@ -157,7 +158,7 @@ coverage:
 
 # Generate the Sphinx documentation into 'doc/html'
 doc:
-  image: python:3.9
+  image: python:3.11
   stage: build
   needs: []
   script:
@@ -172,7 +173,7 @@ doc:
 #    - if: '$CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_COMMIT_TAG != "" && $FORCE_GITLAB_CI'
 
 doc_development:
-  image: python:3.9
+  image: python:3.11
   stage: build
   needs: []
   rules:
@@ -190,7 +191,7 @@ doc_development:
     name: development
 
 doc_production:
-  image: python:3.9
+  image: python:3.11
   stage: build
   needs: []
   rules:
@@ -208,7 +209,7 @@ doc_production:
 
 # Create wheel file
 build:
-  image: python:3.9
+  image: python:3.11
   stage: build
   needs: []
   environment: build

@@ -340,7 +340,7 @@ def calibration_mode(
     #     row=geometry.row,
     #     col=geometry.col,
     # )
-    filenames = calibration.post_processing(
+    filenames = calibration._post_processing(
         ds=ds_results, df_processors=df_processors, output=calibration_outputs
     )
 

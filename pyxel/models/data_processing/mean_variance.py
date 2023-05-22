@@ -75,24 +75,59 @@ def mean_variance(
 
     Parameters
     ----------
-    detector
-    data_structure
-    name
+    detector : Detector
+    data_structure : 'pixel', 'photon', 'image' or 'signal'
+        Data bucket to use for the linear regression.
+    name : str, optional
+        Name to use for the result.
 
     Examples
     --------
-    >>> detector = CCD(...)
-    >>> mean_variance(detector=detector)
+    >>> import pyxel
+    >>> config = pyxel.load("exposure_mode.yaml")
 
-    >>> detector.data
-    DataTree('None', parent=None)
-    └── DataTree('mean_variance')
-        └── DataTree('image')
-                Dimensions:   (mean: 54)
-                Coordinates:
-                  * mean      (mean) float64 209.1 417.8 626.3 ... 5.006e+04 5.111e+04 5.215e+04
-                Data variables:
-                    variance  (mean) float64 44.28 85.17 126.3 ... 1.022e+04 1.031e+04 1.051e+04
+    Run exposure mode with 'data_processing/mean_variance' model
+
+    >>> data_tree = pyxel.run_mode(
+    ...     mode=config.exposure,
+    ...     detector=config.detector,
+    ...     pipeline=config.pipeline,
+    ... )
+
+    Get results
+
+    >>> data_tree["/data/mean_variance"]
+    DataTree('mean_variance', parent="data")
+    └── DataTree('image')
+            Dimensions:   (mean: 19)
+            Coordinates:
+              * mean      (mean) float64 5.723e+03 1.144e+04 ... 5.238e+04 5.238e+04
+            Data variables:
+                variance  (mean) float64 3.238e+06 1.294e+07 2.91e+07 ... 4.03e+05 3.778e+05
+
+    >>> mean_variance = data_tree["/data/mean_variance/image/variance"]
+    >>> mean_variance
+    <xarray.DataArray 'variance' (mean: 19)>
+    array([ 3238372.98476575, 12940428.69349581, 29101219.32832065,
+           51711636.17586413, 68442386.58453502, 73522594.46113221,
+           70591532.43505114, 54799694.83319437, 36351341.15700997,
+           19577907.89405003,  7877859.3907925 ,  2284048.60403896,
+             839388.11541348,   605169.50892288,   527554.54598688,
+             474694.21759011,   434408.74359875,   402970.36722454,
+             377784.5672024 ])
+    Coordinates:
+      * mean     (mean) float64 5.723e+03 1.144e+04 ... 5.238e+04 5.238e+04
+    Attributes:
+        units:    adu^2
+
+    Display mean-variance plot
+
+    >>> mean_variance.plot()
+
+    .. figure:: _static/mean_variance_plot.png
+        :scale: 70%
+        :alt: Mean-Variance plot
+        :align: center
     """
     if name is None:
         name = data_structure

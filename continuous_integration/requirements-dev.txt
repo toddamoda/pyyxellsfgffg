@@ -1,0 +1,23 @@
+# Pyxel additional requirements for developers
+#
+# 1. Create a new virtual environment
+#   $ cd pyxel
+#   $ python -m venv .venv --prompt venv-pyxel-dev
+#
+# 2. Activate the virtual environment
+#   $ source .venv/bin/activate     # For Linux/MacOS
+#   $ .venv/Scripts/activate        # For Windows
+#
+# 3. Install Pyxel with extra packages
+#   (venv-pyxel-dev) $ pip install -r continuous_integration/requirements-dev.txt
+#   (venv-pyxel-dev) $ pip install -e .
+
+tox
+pre-commit
+
+# For Pytest
+pytest
+pytest-httpserver
+freezegun
+jsonschema
+pytest-cov

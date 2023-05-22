@@ -215,7 +215,7 @@ Pyxel has the following **mandatory** dependencies:
 Additionally, Pyxel has the following **optional** dependencies:
 
 * `pygmo <https://esa.github.io/pygmo2/>`_, version 2.16.1 or later
-* `poppy <https://poppy-optics.readthedocs.io/>`_, version 0.8 or later
+* `poppy <https://poppy-optics.readthedocs.io/>`_, version 1.0.2 or later
 
 .. note::
     Optional package `poppy <https://poppy-optics.readthedocs.io/>`_ is not available

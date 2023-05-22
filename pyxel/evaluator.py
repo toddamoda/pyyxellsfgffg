@@ -71,7 +71,7 @@ def eval_range(values: Union[str, Sequence]) -> Sequence:
             # JSON does not accept numpy.int* or numpy.float* types.
             if values_array.dtype == float:
                 values_lst: list = [float(value) for value in values_array]
-            elif values_array.dtype == int:
+            elif values_array.dtype in (int, np.int64):
                 values_lst = [int(value) for value in values_array]
             else:
                 raise NotImplementedError(

@@ -1,5 +1,5 @@
 ---
-title: Is there any way use Pyxel to produce a bias or dark image without including any image file?
+title: Is there any way to use Pyxel to produce a bias or dark image without including any image file?
 ---
 
 Without the models in the pipeline, Pyxel will still run, but will generate nothing, so just zero arrays. 

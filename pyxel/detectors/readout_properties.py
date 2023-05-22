@@ -107,7 +107,7 @@ class ReadoutProperties:
         self._read_out = value
 
     @property
-    def pipeline_count(self) -> float:
+    def pipeline_count(self) -> int:
         """TBW."""
         return self._pipeline_count
 

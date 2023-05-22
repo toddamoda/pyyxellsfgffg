@@ -7,7 +7,13 @@ Data Processing models
 .. currentmodule:: pyxel.models.data_processing
 
 Data processing models are used to process data.
-TBW.
+Result retrieved with run_mode() will show DataTree structure containing two groups:
+
+``Bucket`` group, containing the Photon, Charge, Pixel, Signal and Image.
+
+``Data`` group, containing processed data for each data processing model used in the YAML configuration file.
+
+Processed data from models in the used in the YAML configuration file can be also accessed directly via ``detector.data``.
 
 
 Create and Store a detector
@@ -63,17 +69,21 @@ Accepted file formats are ``.h5``, ``.hdf5``, ``.hdf`` and ``.asdf``.
 Statistics
 ==========
 
-The model :ref:`statistics` can be used to do simple statistics computations.
-The calculated statistics can then be accessed via ``detector.processed_data.data``.
+The model :ref:`statistics` can be used to do simple statistics computations,
+giving the ``var``, ``mean``, ``min``, ``max`` and ``count`` of the data buckets
+photon, pixel, signal and image of the detector.
+The calculated statistics can then be accessed via ``detector.data.statistics``.
 
 
 .. code-block:: yaml
 
     data_processing:
-    - name: compute_statistics
-      func: pyxel.models.data_processing.compute_statistics
+    - name: statistics
+      func: pyxel.models.data_processing.statistics
       enabled: true
 
+
+.. autofunction:: statistics
 
 .. _extract_roi_to_xarray:
 
@@ -91,3 +101,39 @@ Extract the roi data converts it to xarray dataset and saves the information to 
           thresh: 80
           minarea: 5
         enabled: true
+
+.. autofunction:: extract_roi_to_xarray
+
+
+Mean-variance
+=============
+
+Compute a mean-variance 1D array that shows relationship between the mean signal of a detector and its variance.
+
+.. code-block:: yaml
+
+  data_processing:
+    - name: mean_variance
+      func: pyxel.models.data_processing.mean_variance
+      enabled: true
+      arguments:
+        data_structure: image
+
+.. autofunction:: mean_variance
+
+
+Linear regression
+=================
+
+Compute a linear regression along readout time.
+
+.. code-block:: yaml
+
+  data_processing:
+    - name: linear_regression
+      func: pyxel.models.data_processing.linear_regression
+      enabled: true
+      arguments:
+        data_structure: image
+
+.. autofunction:: linear_regression

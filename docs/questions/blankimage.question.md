@@ -9,7 +9,7 @@ There are a couple of models that are required in the pipeline to get an image i
 One have to make use of simple models in the pipeline that the conversion **photon->charge->pixel->signal->image** is happening.
 
 Example: 
-If you have only the model "load_image" in your pipeline and make use of the function "pyxel.display_detector(detector)" 
+If you have only the model `load_image` in your pipeline and make use of the function `pyxel.display_detector(detector)`
 you will retrieve the plot with photon, but the plots showing pixel or image are blank, because no conversion is taking place in the pipeline.
 
 A simple pipeline example of a configuration yaml file in exposure mode can be found here: 

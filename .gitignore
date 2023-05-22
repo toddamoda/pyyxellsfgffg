@@ -43,12 +43,15 @@ blog/public/
 .coverage.
 *.cache
 .pytest_cache/
+.ruff_cache
 htmlcov/
 pytest_report.html
 pylint_report.html
 
 # Jupyter Notebook
 .ipynb_checkpoints
+docs/jupyter_execute/howto/*.ipynb
+docs/source/howto/*.h5
 
 # mypy
 .mypy_cache/
@@ -63,6 +66,7 @@ Pipfile.lock
 
 # Dask
 dask-worker-space/
+dask-scratch-space/
 *.lock
 *.dirlock
 
