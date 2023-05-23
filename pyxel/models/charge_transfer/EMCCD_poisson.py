@@ -32,27 +32,7 @@ def multiplication_register(
         total_gain=total_gain,
         gain_elements=gain_elements,
     ).astype(float)
-
-
-def multiplication_register_CIC(
-        detector: CCD,
-        singleStageProbability: int,
-        stageCount: int,
-        threshold: int
-) -> np.ndarray:
-    """Calculate total gain of image with EMCCD multiplication register.
-
-    Takes in CCD detector along with the gain and the total elements of the EMCCD
-    multiplication register.
-    """
-
-    detector.pixel.array = multiplication_register_cccp(
-        image_cube = detector.pixel.array,
-        singleStageProbability = singleStageProbability,
-        stageCount = stageCount,
-        threshold = threshold
-    ).astype(float)
-
+    
 
 @numba.njit
 def poisson_register(lam, image_cube_pix, gain_elements):
@@ -103,36 +83,3 @@ def multiplication_register_poisson(
                 )
 
     return new_image_cube
-
-
-def calcEMgain( singleStageProbability: int, 
-                stageCount: int ) -> np.ndarray:
-    """
-    Calculates EM gain given single stage electron avalanche probability
-    and total stage count.
-    """
-    return ( 1 + singleStageProbability)**(stageCount)
-
-
-
-def pCICpdf( image_cube: np.ndarray, singleStageProbability: int, 
-                stageCount:int, threshold: int) -> np.ndarray:
-    """
-    Probability density function of EM output parallel CIC events. Threshold value to be specified by user.
-    """
-    arr = np.random.exponential(1/calcEMgain(singleStageProbability,stageCount) , np.shape(image_cube))
-    arr[arr < threshold ] = 0
-    arr[arr > threshold ] = 1
-    return arr
-
-
-
-def multiplication_register_cccp( 
-        image_cube: np.ndarray,
-        singleStageProbability: int,
-        stageCount: int,
-        threshold: int
-) -> np.ndarray:
-    
-    new_image = multiplication_register_poisson(image_cube+pCICpdf(image_cube,singleStageProbability,stageCount,threshold), calcEMgain(singleStageProbability,stageCount),1)
-    return   new_image     
