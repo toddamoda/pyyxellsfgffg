@@ -19,7 +19,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Literal, Optional, Union
 
 import numpy as np
-import numpy.typing as npt
 import pandas as pd
 import xarray as xr
 from dask.delayed import delayed
@@ -295,35 +294,61 @@ class ModelFittingDataTree(ProblemSingleObjective):
         """Extract 2D data from a processor."""
         import xarray as xr
 
-        if self.sim_output not in ("image", "signal", "pixel"):
+        if self.sim_output in ("image", "signal", "pixel"):
+            simulated_data = data[f"bucket/{self.sim_output}"]
+        elif self.sim_output.startswith("data"):
+            simulated_data = data[self.sim_output]
+        else:
             raise NotImplementedError(
                 f"Simulation mode: {self.sim_output!r} not implemented"
             )
 
-        simulated_data = data[f"bucket/{self.sim_output}"]
         if not isinstance(simulated_data, xr.DataArray):
             raise TypeError("Expected a 'DataArray'")
 
-        assert self.sim_fit_range is not None
-        simulated_data = simulated_data.sel(indexers=self.sim_fit_range.to_dict())
+        if self.sim_fit_range is not None:
+            simulated_data = simulated_data.sel(indexers=self.sim_fit_range.to_dict())
 
         return simulated_data
 
     def _calculate_fitness(
         self,
-        simulated_data: npt.ArrayLike,
-        target_data: np.ndarray,
+        simulated_data: "xr.DataArray",
+        target_data: "xr.DataArray",
         weighting: Optional[np.ndarray] = None,
     ) -> float:
+        if self.sim_output.startswith("data"):
+            simulated_df: pd.DataFrame = simulated_data.to_pandas()
+            simulated_no_interp: np.ndarray = simulated_df.reset_index().to_numpy()
+            target_no_interp: np.ndarray = target_data.to_numpy()
+
+            assert simulated_no_interp.ndim == 2
+            assert target_no_interp.ndim == 2
+
+            x_simulated = simulated_no_interp[:, 0]
+            x_target = target_no_interp[:, 0]
+            x_all = np.sort(np.concatenate([x_simulated, x_target]))
+
+            y_simulated = simulated_no_interp[:, 1]
+            y_target = target_no_interp[:, 1]
+
+            simulated_2d = np.interp(x=x_all, xp=x_simulated, fp=y_simulated)
+            target_2d = np.interp(x=x_all, xp=x_target, fp=y_target)
+        else:
+            simulated_2d = np.array(simulated_data, dtype=float)
+            target_2d = np.array(target_data, dtype=float)
+
         if weighting is not None:
             factor = weighting
         else:
-            factor = np.ones_like(target_data)
+            factor = np.ones_like(target_2d)
+
+        weighting_2d = np.array(factor, dtype=float)
 
         fitness: float = self.fitness_func(
-            simulated=np.array(simulated_data, dtype=float),
-            target=np.array(target_data, dtype=float),
-            weighting=np.array(factor, dtype=float),
+            simulated=simulated_2d,
+            target=target_2d,
+            weighting=weighting_2d,
         )
 
         return fitness
