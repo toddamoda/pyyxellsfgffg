@@ -74,6 +74,7 @@ def result_keys(result_type: ResultId) -> Sequence[ResultId]:
             ResultId("pixel"),
             ResultId("signal"),
             ResultId("image"),
+            ResultId("data"),
         ]
     else:
         return [ResultId(result_type)]

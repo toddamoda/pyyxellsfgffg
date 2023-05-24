@@ -287,7 +287,7 @@ def run_pipeline(
         detector.empty()
 
         if progressbar:
-            pbar = tqdm(total=num_steps, desc="Observation time: ")
+            pbar = tqdm(total=num_steps, desc="Readout time: ")
 
         keys: Sequence[ResultId] = result_keys(result_type)
 

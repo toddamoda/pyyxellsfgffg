@@ -286,9 +286,6 @@ class ArchipelagoDataTree:
             parameters=last_champions["champion_parameters"],
         )
 
-        assert self.problem.sim_fit_range is not None
-        slice_times, slice_rows, slice_cols = self.problem.sim_fit_range.to_slices()
-
         no_times = len(readout.times)
 
         # Extract simulated 'image', 'signal' and 'pixel' from the processors
@@ -301,34 +298,41 @@ class ArchipelagoDataTree:
         )
 
         # Get the target data
-        assert self.problem.sim_fit_range is not None
-        sim_fit_range_dct: dict[str, slice] = dict(self.problem.sim_fit_range.to_dict())
-        if time_value := sim_fit_range_dct.get("time"):  # TODO: Fix this
-            sim_fit_range_dct["readout_time"] = time_value
-            del sim_fit_range_dct["time"]
+        if self.problem.sim_fit_range is not None:
+            slice_times, slice_rows, slice_cols = self.problem.sim_fit_range.to_slices()
 
-        all_data_fit_range = all_simulated_full.sel(indexers=sim_fit_range_dct)
-        if readout.time_domain_simulation:
-            all_data_fit_range["target"] = xr.DataArray(
-                self.problem.all_target_data,
-                dims=["id_processor", "readout_time", "y", "x"],
-                coords={
-                    "id_processor": range(len(self.problem.all_target_data)),
-                    "readout_time": slice_to_range(slice_times),
-                    "y": slice_to_range(slice_rows),
-                    "x": slice_to_range(slice_cols),
-                },
+            sim_fit_range_dct: dict[str, slice] = dict(
+                self.problem.sim_fit_range.to_dict()
             )
+            if time_value := sim_fit_range_dct.get("time"):  # TODO: Fix this
+                sim_fit_range_dct["readout_time"] = time_value
+                del sim_fit_range_dct["time"]
+
+            all_data_fit_range = all_simulated_full.sel(indexers=sim_fit_range_dct)
+            if readout.time_domain_simulation:
+                all_data_fit_range["target"] = xr.DataArray(
+                    self.problem.all_target_data,
+                    dims=["id_processor", "readout_time", "y", "x"],
+                    coords={
+                        "id_processor": range(len(self.problem.all_target_data)),
+                        "readout_time": slice_to_range(slice_times),
+                        "y": slice_to_range(slice_rows),
+                        "x": slice_to_range(slice_cols),
+                    },
+                )
+            else:
+                all_data_fit_range["target"] = xr.DataArray(
+                    self.problem.all_target_data,
+                    dims=["id_processor", "y", "x"],
+                    coords={
+                        "id_processor": range(len(self.problem.all_target_data)),
+                        "y": slice_to_range(slice_rows),
+                        "x": slice_to_range(slice_cols),
+                    },
+                )
         else:
-            all_data_fit_range["target"] = xr.DataArray(
-                self.problem.all_target_data,
-                dims=["id_processor", "y", "x"],
-                coords={
-                    "id_processor": range(len(self.problem.all_target_data)),
-                    "y": slice_to_range(slice_rows),
-                    "x": slice_to_range(slice_cols),
-                },
-            )
+            all_data_fit_range = all_simulated_full
+            all_data_fit_range["target"] = self.problem.all_target_data
 
         ds: xr.Dataset = xr.merge([champions, all_data_fit_range])
 
