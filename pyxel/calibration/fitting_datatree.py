@@ -36,7 +36,7 @@ from pyxel.calibration import (
 )
 from pyxel.exposure import run_pipeline
 from pyxel.observation import ParameterValues
-from pyxel.pipelines import Processor, ResultType
+from pyxel.pipelines import Processor, ResultId
 
 if TYPE_CHECKING:
     from datatree import DataTree
@@ -86,7 +86,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
         processor: Processor,
         variables: Sequence[ParameterValues],
         readout: "Readout",
-        simulation_output: ResultType,
+        simulation_output: ResultId,
         generations: int,
         population_size: int,
         fitness_func: FittingCallable,
@@ -108,7 +108,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
         self.weighting: Optional[np.ndarray] = None
         self.weighting_from_file: Optional[Sequence[np.ndarray]] = None
         self.fitness_func: FittingCallable = fitness_func
-        self.sim_output: ResultType = simulation_output
+        self.sim_output: ResultId = simulation_output
 
         self.file_path: Path = file_path
         self.pipeline_seed: Optional[int] = pipeline_seed
@@ -282,19 +282,12 @@ class ModelFittingDataTree(ProblemSingleObjective):
         """Extract 2D data from a processor."""
         import xarray as xr
 
-        if self.sim_output == ResultType.Image:
-            simulated_data = data["bucket/image"]
-
-        elif self.sim_output == ResultType.Signal:
-            simulated_data = data["bucket/signal"]
-
-        elif self.sim_output == ResultType.Pixel:
-            simulated_data = data["bucket/pixel"]
-        else:
+        if self.sim_output not in ("image", "signal", "pixel"):
             raise NotImplementedError(
                 f"Simulation mode: {self.sim_output!r} not implemented"
             )
 
+        simulated_data = data[f"bucket/{self.sim_output}"]
         if not isinstance(simulated_data, xr.DataArray):
             raise TypeError("Expected a 'DataArray'")
 
