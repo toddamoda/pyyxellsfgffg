@@ -25,7 +25,6 @@ from .util import (
     to_fit_range,
     check_fit_ranges,
 )
-from ..pipelines.processor import ResultType
 from .archipelago import MyArchipelago
 from .archipelago_datatree import ArchipelagoDataTree
 from .calibration import Calibration, CalibrationMode

@@ -35,7 +35,7 @@ from pyxel.calibration import (
 )
 from pyxel.exposure import run_exposure_pipeline
 from pyxel.observation import ParameterValues
-from pyxel.pipelines import Processor, ResultType
+from pyxel.pipelines import Processor, ResultId
 
 if TYPE_CHECKING:
     import xarray as xr
@@ -53,7 +53,7 @@ class ModelFitting(ProblemSingleObjective):
         variables: Sequence[ParameterValues],
         readout: "Readout",
         calibration_mode: CalibrationMode,
-        simulation_output: ResultType,
+        simulation_output: ResultId,
         generations: int,
         population_size: int,
         fitness_func: FittingCallable,
@@ -73,7 +73,7 @@ class ModelFitting(ProblemSingleObjective):
         self.weighting: Optional[np.ndarray] = None
         self.weighting_from_file: Optional[Sequence[np.ndarray]] = None
         self.fitness_func: FittingCallable = fitness_func
-        self.sim_output: ResultType = simulation_output
+        self.sim_output: ResultId = simulation_output
         self.param_processor_list: list[Processor] = []
 
         self.file_path: Path = file_path
@@ -294,17 +294,14 @@ class ModelFitting(ProblemSingleObjective):
 
     def get_simulated_data(self, processor: Processor) -> np.ndarray:
         """Extract 2D data from a processor."""
-        if self.sim_output == ResultType.Image:
-            simulated_data: np.ndarray = processor.result["image"][self.sim_fit_range]
-
-        elif self.sim_output == ResultType.Signal:
-            simulated_data = processor.result["signal"][self.sim_fit_range]
-        elif self.sim_output == ResultType.Pixel:
-            simulated_data = processor.result["pixel"][self.sim_fit_range]
-        else:
+        if self.sim_output not in ("image", "signal", "pixel"):
             raise NotImplementedError(
                 f"Simulation mode: {self.sim_output!r} not implemented"
             )
+
+        simulated_data: np.ndarray = processor.result[self.sim_output][
+            self.sim_fit_range
+        ]
 
         return simulated_data
 

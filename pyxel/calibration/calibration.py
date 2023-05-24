@@ -29,7 +29,7 @@ from pyxel.calibration.fitting import ModelFitting
 from pyxel.calibration.fitting_datatree import ModelFittingDataTree
 from pyxel.exposure import Readout
 from pyxel.observation import ParameterValues
-from pyxel.pipelines import FitnessFunction, Processor, ResultType
+from pyxel.pipelines import FitnessFunction, Processor, ResultId, get_result_id
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -93,7 +93,7 @@ class Calibration:
 
         self._calibration_mode = CalibrationMode(mode)
 
-        self._result_type: ResultType = ResultType(result_type)
+        self._result_type: ResultId = get_result_id(result_type)
 
         self._result_fit_range: Sequence[int] = result_fit_range or []
 
@@ -143,12 +143,12 @@ class Calibration:
         self._calibration_mode = value
 
     @property
-    def result_type(self) -> ResultType:
+    def result_type(self) -> ResultId:
         """TBW."""
         return self._result_type
 
     @result_type.setter
-    def result_type(self, value: ResultType) -> None:
+    def result_type(self, value: ResultId) -> None:
         """TBW."""
         self._result_type = value
 
@@ -338,7 +338,7 @@ class Calibration:
             variables=self.parameters,
             readout=self.readout,
             calibration_mode=CalibrationMode(self.calibration_mode),
-            simulation_output=ResultType(self.result_type),
+            simulation_output=self.result_type,
             generations=self.algorithm.generations,
             population_size=self.algorithm.population_size,
             fitness_func=self.fitness_function,
@@ -447,7 +447,7 @@ class Calibration:
             processor=processor,
             variables=self.parameters,
             readout=self.readout,
-            simulation_output=ResultType(self.result_type),
+            simulation_output=self.result_type,
             generations=self.algorithm.generations,
             population_size=self.algorithm.population_size,
             fitness_func=self.fitness_function,
