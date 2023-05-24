@@ -460,9 +460,6 @@ class Calibration:
             weights_from_file=self.weights_from_file,
         )
 
-        if self.num_islands <= 1:
-            raise NotImplementedError("Not implemented for 1 island.")
-
         # Create an archipelago
         user_defined_island = DaskIsland()
         user_defined_bfe = DaskBFE()
