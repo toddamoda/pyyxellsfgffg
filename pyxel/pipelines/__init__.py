@@ -11,4 +11,4 @@
 from .model_function import ModelFunction, Arguments, FitnessFunction
 from .model_group import ModelGroup
 from .pipeline import DetectionPipeline
-from .processor import Processor, ResultType, result_keys
+from .processor import Processor, ResultId, get_result_id, result_keys

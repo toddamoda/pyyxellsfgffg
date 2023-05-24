@@ -35,7 +35,7 @@ from tqdm.auto import tqdm
 
 from pyxel.exposure import Readout, run_exposure_pipeline, run_pipeline
 from pyxel.observation.parameter_values import ParameterType, ParameterValues
-from pyxel.pipelines import ResultType
+from pyxel.pipelines import ResultId, get_result_id
 from pyxel.state import get_obj_att, get_value
 
 if TYPE_CHECKING:
@@ -181,7 +181,7 @@ class Observation:
         from_file: Optional[str] = None,  # Note: Only For 'custom' mode
         column_range: Optional[tuple[int, int]] = None,  # Note: Only For 'custom' mode
         with_dask: bool = False,
-        result_type: Literal["image", "signal", "pixel", "all"] = "all",
+        result_type: str = "all",
         pipeline_seed: Optional[int] = None,
     ):
         self.outputs = outputs
@@ -198,7 +198,7 @@ class Observation:
 
         self.with_dask = with_dask
         self.parameter_types: dict[str, ParameterType] = {}
-        self._result_type = ResultType(result_type)
+        self._result_type: ResultId = get_result_id(result_type)
         self._pipeline_seed = pipeline_seed
 
         if self.parameter_mode == ParameterMode.Custom:
@@ -209,12 +209,12 @@ class Observation:
         return f"{cls_name}<mode={self.parameter_mode!s}>"
 
     @property
-    def result_type(self) -> ResultType:
+    def result_type(self) -> ResultId:
         """TBW."""
         return self._result_type
 
     @result_type.setter
-    def result_type(self, value: ResultType) -> None:
+    def result_type(self, value: ResultId) -> None:
         """TBW."""
         self._result_type = value
 
