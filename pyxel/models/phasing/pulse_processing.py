@@ -16,7 +16,7 @@ from pyxel.detectors import MKID
 
 
 def convert_to_phase(
-    array: np.ndarray,
+    array_2d: np.ndarray,
     wavelength: float,
     responsivity: float,
     scaling_factor: float = 2.5e2,
@@ -25,7 +25,7 @@ def convert_to_phase(
 
     Parameters
     ----------
-    array : ndarray
+    array_2d : ndarray
     wavelength : float
     responsivity : float
     scaling_factor : float
@@ -56,32 +56,32 @@ def convert_to_phase(
     ak = 0.0268  # Kinetic inductance fraction
     beta = 2  # = 2 in the thin-film limit (= 1 in the bulk) [CHECK FUNCTION BELOW]
     Qc = 2e4  # Coupling quality factor
-    SCvol = sclib.Vol(SC=sclib.Al, d=0.05, V=15.0)
-    SC = SCvol.SC
+    SCvol: sclib.Vol = sclib.Vol(SC=sclib.Al, d=0.05, V=15.0)
+    SC: sclib.Superconductor = SCvol.SC
     # d = SCvol.d  # Film thickness [µm]
-    V = SCvol.V  # Superconductor's volume [µm]
+    V: float = SCvol.V  # Superconductor's volume [µm]
 
     # kbTc = Tc * const.Boltzmann / const.e * 1e6  # Critical temperature [µeV]
     # kbTD = TD * const.Boltzmann / const.e * 1e6  # Debye's energy [µeV]
     # D0 = 1.76 * kbTc  # BSC relation for the energy gap at
-    D_0 = sctheory.D(kbT, SC)
+    D_0: float = sctheory.D(kbT, SC)
     hwread: float = sctheory.hwread(
         hw0=hw0, kbT0=kbT0, ak=ak, kbT=kbT, D=D_0, SCvol=SCvol
     )  # Gives the read frequency such that it is equal to the resonance frequency
 
     s_0: tuple[float, float] = sctheory.cinduct(hw=hwread, D=D_0, kbT=kbT)
-    Qi_0 = 2 * s_0[1] / (ak * beta * s_0[0])
-    Q = Qi_0 * Qc / (Qi_0 + Qc)
+    Qi_0: float = 2 * s_0[1] / (ak * beta * s_0[0])
+    Q: float = Qi_0 * Qc / (Qi_0 + Qc)
 
-    row_of_pixels, column_of_pixels = array.shape
+    row_of_pixels, column_of_pixels = array_2d.shape
     linearised_DeltaA = np.zeros((row_of_pixels, column_of_pixels))
     linearised_theta = np.zeros((row_of_pixels, column_of_pixels))
 
     for row_idx in range(row_of_pixels):
         for col_idx in range(column_of_pixels):
-            Nqp = array[row_idx, col_idx]
+            Nqp: float = array_2d[row_idx, col_idx]
 
-            kbTeff = sctheory.kbTeff(nqp=Nqp / V, SC=SC)
+            kbTeff = sctheory.kbTeff(nqp_value=Nqp / V, SC=SC)
             D = sctheory.D(kbTeff, SC)  # Energy gap
             s1, s2 = sctheory.cinduct(hw=hwread, D=D, kbT=kbTeff)
 
@@ -119,7 +119,7 @@ def pulse_processing(
         raise TypeError("Expecting a MKID object for the detector.")
 
     detector.phase.array = convert_to_phase(
-        array=detector.charge.array,
+        array_2d=detector.charge.array,
         wavelength=wavelength,
         responsivity=responsivity,
         scaling_factor=scaling_factor,
