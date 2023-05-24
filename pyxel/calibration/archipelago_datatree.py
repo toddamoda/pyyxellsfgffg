@@ -286,6 +286,7 @@ class ArchipelagoDataTree:
             parameters=last_champions["champion_parameters"],
         )
 
+        assert self.problem.sim_fit_range is not None
         slice_times, slice_rows, slice_cols = self.problem.sim_fit_range.to_slices()
 
         no_times = len(readout.times)
@@ -300,6 +301,7 @@ class ArchipelagoDataTree:
         )
 
         # Get the target data
+        assert self.problem.sim_fit_range is not None
         sim_fit_range_dct: dict[str, slice] = dict(self.problem.sim_fit_range.to_dict())
         if time_value := sim_fit_range_dct.get("time"):  # TODO: Fix this
             sim_fit_range_dct["readout_time"] = time_value
