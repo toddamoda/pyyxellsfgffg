@@ -199,7 +199,8 @@ addopts = [
 
 [tool.pydocstyle]
 convention = "numpy"
-match = "(?!_version).*.py"
+match = "(?!_version).*\\.py"
+match_dir = "/[^pyxel\\/models\\/phasing\\/mkid\\_models].*"
 add_ignore = "D202,D105,D102,D103"
 
 [tool.doc8]
@@ -210,7 +211,7 @@ exclude_dirs = ["pyxel/_version.py"]
 
 [tool.codespell]
 ignore-words-list = "acn,sade,te"
-skip = "pyxel/_version.py,*.fits"
+skip = "pyxel/_version.py,*.fits,pyxel/models/phasing/mkid_models/*"
 
 [tool.coverage.report]
 exclude_lines = [
