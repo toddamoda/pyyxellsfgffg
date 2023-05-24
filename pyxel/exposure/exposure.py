@@ -185,7 +185,7 @@ def run_exposure_pipeline(
         detector.empty()
 
         if progressbar:
-            pbar = tqdm(total=num_steps, desc="Observation time: ")
+            pbar = tqdm(total=num_steps, desc="Readout time: ")
 
         keys = result_keys(result_type)
 
