@@ -3,6 +3,8 @@ exclude =
     tests
     pyxel/_version.py
     pyxel/templates/_TEMPLATE.py
+    pyxel/models/phasing/mkid_models
+    pyxel/models/phasing/pulse_processing.py
     .ipynb_checkpoints
 #max_complexity=10
 max-line-length=120
