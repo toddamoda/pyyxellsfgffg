@@ -44,6 +44,7 @@ dependencies:
 # Jupyter notebook
   - ipywidgets>=7.5
   - jupyterlab
+  - ipympl              # Interactive Matplotlib in Jupyter
 # Input/Output
   - astropy>=4.3
   - fsspec>=2021
