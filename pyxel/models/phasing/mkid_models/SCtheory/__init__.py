@@ -32,7 +32,7 @@ import scipy.constants as const
 from scipy.optimize import minimize_scalar as minisc
 import warnings
 
-import SCtheory.tau, SCtheory.noise
+# import SCtheory.tau, SCtheory.noise
 
 
 def f(E, kbT):
@@ -137,23 +137,23 @@ def nqp(kbT, D, SC):
             return result
 
 
-def kbTeff(nqp, SC):
+def kbTeff(nqp_value, SC):
     """Calculates the effective temperature (in µeV) at a certain
    quasiparticle density."""
     Ddata = SC.Ddata
     if Ddata is not None:
         kbTspl = interpolate.splrep(Ddata[2, :], Ddata[0, :],
                                     s=0, k=1)
-        return interpolate.splev(nqp, kbTspl)
+        return interpolate.splev(nqp_value, kbTspl)
     else:
-        def minfunc(kbT, nqp, SC):
+        def minfunc(kbT, nqp_value, SC):
             Dt = D(kbT, SC)
-            return np.abs(nqp(kbT, Dt, SC) - nqp)
+            return np.abs(nqp(kbT, Dt, SC) - nqp_value)
 
         res = minisc(
             minfunc,
             bounds=(0, 0.9 * SC.kbTc),
-            args=(nqp, SC),
+            args=(nqp_value, SC),
             method="bounded",
             options={"xatol": 1e-15},
         )
