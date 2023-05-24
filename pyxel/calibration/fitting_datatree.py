@@ -12,9 +12,8 @@ https://esa.github.io/pagmo2/index.html
 import copy
 import logging
 import math
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 from copy import deepcopy
-from dataclasses import dataclass
 from numbers import Number
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal, Optional, Union
@@ -22,14 +21,16 @@ from typing import TYPE_CHECKING, Literal, Optional, Union
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
+import xarray as xr
 from dask.delayed import delayed
 from numpy.typing import NDArray
 
 from pyxel.calibration import (
-    CalibrationMode,
+    FitRange2D,
+    FitRange3D,
     FittingCallable,
     ProblemSingleObjective,
-    check_ranges,
+    check_fit_ranges,
     read_data,
     read_datacubes,
 )
@@ -38,129 +39,43 @@ from pyxel.observation import ParameterValues
 from pyxel.pipelines import Processor, ResultType
 
 if TYPE_CHECKING:
-    import xarray as xr
     from datatree import DataTree
     from numpy.typing import ArrayLike
 
     from pyxel.exposure import Readout
 
 
-@dataclass
-class FitRange2D:
-    """Represent a 2D range or slice with a row range and a column range.
+def build_processors(
+    processor: Processor,
+    arguments: Sequence[ParameterValues],
+) -> Sequence[Processor]:
+    max_val, min_val = 0, 1000
+    for arg in arguments:
+        min_val = min(min_val, len(arg.values))
+        max_val = max(max_val, len(arg.values))
 
-    Parameters
-    ----------
-    row : slice
-        Range of rows in the 2D range
-    col : slice
-        Range of columns in the 2D range
-
-    Examples
-    --------
-    >>> range2d = FitRange2D(row=slice(0, 5), col=slice(2, 7))
-    >>> row_slice, col_slice = range2d.to_slices()
-    >>> row_slice
-    slice(0, 5)
-    >>> col_slice
-    slice(2,7)
-
-    >>> Range2D.from_sequence([0, 5, 2, 7])
-    FitRange2D(slice(0, 5),slice(2,7))
-    """
-
-    row: slice
-    col: slice
-
-    @classmethod
-    def from_sequence(cls, data: Sequence[Optional[int]]) -> "FitRange2D":
-        if not data:
-            data = [None] * 4
-
-        if len(data) != 4:
-            raise ValueError("Fitting range should have 4 values")
-
-        y_start, y_stop, x_start, x_stop = data
-        return cls(row=slice(y_start, y_stop), col=slice(x_start, x_stop))
-
-    def to_dict(self) -> Mapping[str, slice]:
-        return {"y": self.row, "x": self.col}
-
-    def to_slices(self) -> tuple[slice, slice]:
-        return self.row, self.col
-
-
-@dataclass
-class FitRange3D:
-    """Represent a 3D range or slice with a time range, row range and a column range.
-
-    Parameters
-    ----------
-    time : FitSlice
-         Range of time in the 3D range
-    row : FitSlice
-        Range of rows in the 3D range
-    col : FitSlice
-        Range of columns in the 3D range
-
-    Examples
-    --------
-    >>> range3d = FitRange3D(time=slice(0, 10), row=slice(0, 5), col=slice(2, 7))
-    >>> time_slice, row_slice, col_slice = range3d.to_slices()
-    >>> time_slice
-    slice(0, 10)
-    >>> row_slice
-    slice(0, 5)
-    >>> col_slice
-    slice(2,7)
-
-    >>> FitRange3D.from_sequence([0, 10, 0, 5, 2, 7])
-    FitRange3D(time=slice(0,10), row=slice(0, 5), col=slice(2,7))
-    """
-
-    time: slice
-    row: slice
-    col: slice
-
-    @classmethod
-    def from_sequence(cls, data: Sequence[Optional[int]]) -> "FitRange3D":
-        if not data:
-            data = [None] * 6
-
-        if len(data) == 4:
-            data = [None, None, *data]
-
-        if len(data) != 6:
-            raise ValueError("Fitting range should have 6 values")
-
-        time_start, time_stop, y_start, y_stop, x_start, x_stop = data
-        return cls(
-            time=slice(time_start, time_stop),
-            row=slice(y_start, y_stop),
-            col=slice(x_start, x_stop),
+    if min_val != max_val:
+        logging.warning(
+            'The "result_input_arguments" value lists have different lengths! '
+            "Some values will be ignored."
         )
 
-    def to_dict(self) -> Mapping[str, slice]:
-        return {"time": self.time, "y": self.row, "x": self.col}
+    processors: list[Processor] = []
+    for i in range(min_val):
+        new_processor: Processor = deepcopy(processor)
 
-    def to_slices(self) -> tuple[slice, slice, slice]:
-        return self.time, self.row, self.col
+        step: ParameterValues
+        for step in arguments:
+            assert step.values != "_"
 
+            value: Union[Literal["_"], str, Number] = step.values[i]
 
-def list_to_fit_range(
-    input_list: Optional[Sequence[int]] = None,
-) -> Union[FitRange2D, FitRange3D]:
-    if not input_list:
-        return FitRange2D(row=slice(None), col=slice(None))
+            step.current = value
+            new_processor.set(key=step.key, value=step.current)
 
-    elif len(input_list) == 4:
-        return FitRange2D.from_sequence(input_list)
+        processors.append(new_processor)
 
-    elif len(input_list) == 6:
-        return FitRange3D.from_sequence(input_list)
-
-    else:
-        raise ValueError("Fitting range should have 4 or 6 values")
+    return processors
 
 
 class ModelFittingDataTree(ProblemSingleObjective):
@@ -171,105 +86,74 @@ class ModelFittingDataTree(ProblemSingleObjective):
         processor: Processor,
         variables: Sequence[ParameterValues],
         readout: "Readout",
-        calibration_mode: CalibrationMode,
         simulation_output: ResultType,
         generations: int,
         population_size: int,
         fitness_func: FittingCallable,
         file_path: Path,
-        target_fit_range: Sequence[int],
-        out_fit_range: Sequence[int],
+        target_fit_range: Union[FitRange2D, FitRange3D],
+        out_fit_range: FitRange3D,
         target_output: Sequence[Path],
         input_arguments: Optional[Sequence[ParameterValues]] = None,
         weights: Optional[Sequence[float]] = None,
         weights_from_file: Optional[Sequence[Path]] = None,
         pipeline_seed: Optional[int] = None,
     ):
-        self.processor: Processor = processor
-        self.variables: Sequence[ParameterValues] = variables
+        self._variables: Sequence[ParameterValues] = variables
 
-        self.calibration_mode: CalibrationMode = calibration_mode
-        # self.original_processor: Optional[Processor] = None
         self.generations: int = generations
         self.pop: int = population_size
         self.readout: Readout = readout
 
-        self.all_target_data: list[np.ndarray] = []
         self.weighting: Optional[np.ndarray] = None
         self.weighting_from_file: Optional[Sequence[np.ndarray]] = None
         self.fitness_func: FittingCallable = fitness_func
         self.sim_output: ResultType = simulation_output
-        self.param_processor_list: list[Processor] = []
 
         self.file_path: Path = file_path
         self.pipeline_seed: Optional[int] = pipeline_seed
 
-        self.fitness_array: Optional[np.ndarray] = None
-        self.population: Optional[np.ndarray] = None
-        # self.champion_f_list: Optional[np.ndarray] = None
-        # self.champion_x_list: Optional[np.ndarray] = None
+        lower_boundaries, upper_boundaries = self._set_bound()
+        self._lower_boundaries: Sequence[float] = lower_boundaries
+        self._upper_boundaries: Sequence[float] = upper_boundaries
 
-        self.lbd: list[float] = []  # lower boundary
-        self.ubd: list[float] = []  # upper boundary
-
-        # self.sim_fit_range: Union[FitRange2D, FitRange3D, None] = None
-        # self.targ_fit_range: Union[FitRange2D, FitRange3D, None] = None
-
-        self.match: dict[int, list[str]] = {}
-
-        # if self.calibration_mode == 'single_model':           # TODO update
-        #     self.single_model_calibration()
-
-        self.set_bound()
-
-        self.original_processor: Processor = deepcopy(self.processor)
-
-        if input_arguments:
-            max_val, min_val = 0, 1000
-            for arg in input_arguments:
-                min_val = min(min_val, len(arg.values))
-                max_val = max(max_val, len(arg.values))
-            if min_val != max_val:
-                logging.warning(
-                    'The "result_input_arguments" value lists have different lengths! '
-                    "Some values will be ignored."
-                )
-            for i in range(min_val):
-                new_processor: Processor = deepcopy(self.processor)
-
-                step: ParameterValues
-                for step in input_arguments:
-                    assert step.values != "_"
-
-                    value: Union[Literal["_"], str, Number] = step.values[i]
-
-                    step.current = value
-                    new_processor.set(key=step.key, value=step.current)
-                self.param_processor_list += [new_processor]
+        if not input_arguments:
+            processors: Sequence[Processor] = [deepcopy(processor)]
         else:
-            self.param_processor_list = [deepcopy(self.processor)]
+            processors = build_processors(
+                processor=processor,
+                arguments=input_arguments,
+            )
+        self.param_processor_list: Sequence[Processor] = processors
 
-        params: int = 0
+        num_parameters: int = 0
 
         var: ParameterValues
-        for var in self.variables:
+        for var in self._variables:
             if isinstance(var.values, list):
                 b = len(var.values)
             else:
                 b = 1
 
-            params += b
+            num_parameters += b
         self.champion_f_list: np.ndarray = np.zeros((1, 1))
-        self.champion_x_list: np.ndarray = np.zeros((1, params))
+        self.champion_x_list: np.ndarray = np.zeros((1, num_parameters))
 
         if self.readout.time_domain_simulation:
             target_list_3d: Sequence[np.ndarray] = read_datacubes(
                 filenames=target_output
             )
-            times, rows, cols = target_list_3d[0].shape
+            targets = xr.DataArray(
+                target_list_3d,
+                dims=["processor", "readout_time", "y", "x"],
+            )
 
-            # TODO: Create a new function 'check_fit_ranges'
-            check_ranges(
+            times = len(targets["readout_time"])
+            rows = len(targets["y"])
+            cols = len(targets["x"])
+
+            # times, rows, cols = target_list_3d[0].shape
+            check_fit_ranges(
                 target_fit_range=target_fit_range,
                 out_fit_range=out_fit_range,
                 rows=rows,
@@ -277,36 +161,29 @@ class ModelFittingDataTree(ProblemSingleObjective):
                 readout_times=times,
             )
 
-            self.targ_fit_range: Union[FitRange2D, FitRange3D] = list_to_fit_range(
-                target_fit_range
-            )
-            self.sim_fit_range: FitRange3D = FitRange3D.from_sequence(out_fit_range)
-
-            target_3d: np.ndarray
-            for target_3d in target_list_3d:
-                self.all_target_data += [target_3d[self.targ_fit_range.to_slices()]]
-
         else:
             target_list_2d: Sequence[np.ndarray] = read_data(filenames=target_output)
+            targets = xr.DataArray(target_list_2d, dims=["processor", "y", "x"])
 
-            rows, cols = target_list_2d[0].shape
-            check_ranges(
+            rows = len(targets["y"])
+            cols = len(targets["x"])
+
+            check_fit_ranges(
                 target_fit_range=target_fit_range,
                 out_fit_range=out_fit_range,
                 rows=rows,
                 cols=cols,
             )
-            self.targ_fit_range = list_to_fit_range(target_fit_range)
-            self.sim_fit_range = FitRange3D.from_sequence(out_fit_range)
-
-            target_2d: np.ndarray
-            for target_2d in target_list_2d:
-                self.all_target_data += [target_2d[self.targ_fit_range.to_slices()]]
-
             self._configure_weights(
                 weights=weights,
                 weights_from_file=weights_from_file,
             )
+
+        self.targ_fit_range: Union[FitRange2D, FitRange3D] = target_fit_range
+        self.sim_fit_range: FitRange3D = out_fit_range
+        self.all_target_data: xr.DataArray = targets.sel(
+            indexers=self.targ_fit_range.to_dict()
+        )
 
     def get_bounds(self) -> tuple[Sequence[float], Sequence[float]]:
         """Get the box bounds of the problem (lower_boundary, upper_boundary).
@@ -317,7 +194,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
         -------
         tuple of lower boundaries and upper boundaries
         """
-        return self.lbd, self.ubd
+        return self._lower_boundaries, self._upper_boundaries
 
     def _configure_weights(
         self,
@@ -345,13 +222,12 @@ class ModelFittingDataTree(ProblemSingleObjective):
         elif weights is not None:
             self.weighting = np.array(weights)
 
-    def set_bound(self) -> None:
-        """TBW."""
-        self.lbd = []
-        self.ubd = []
+    def _set_bound(self) -> tuple[Sequence[float], Sequence[float]]:
+        lbd: list[float] = []
+        ubd: list[float] = []
 
         var: ParameterValues
-        for var in self.variables:
+        for var in self._variables:
             assert var.boundaries is not None  # TODO: Fix this
 
             if var.values == "_":
@@ -365,8 +241,8 @@ class ModelFittingDataTree(ProblemSingleObjective):
                     low_val = math.log10(low_val)
                     high_val = math.log10(high_val)
 
-                self.lbd += [low_val]
-                self.ubd += [high_val]
+                lbd += [low_val]
+                ubd += [high_val]
 
             elif isinstance(var.values, Sequence) and all(
                 x == "_" for x in var.values[:]
@@ -391,14 +267,16 @@ class ModelFittingDataTree(ProblemSingleObjective):
                     low_values = np.log10(low_values)
                     high_values = np.log10(high_values)
 
-                self.lbd += low_values.tolist()
-                self.ubd += high_values.tolist()
+                lbd += low_values.tolist()
+                ubd += high_values.tolist()
 
             else:
                 raise ValueError(
                     'Character "_" (or a list of it) should be used to '
                     "indicate variables need to be calibrated"
                 )
+
+        return lbd, ubd
 
     def get_simulated_data(self, data: "DataTree") -> "xr.DataArray":
         """Extract 2D data from a processor."""
@@ -420,11 +298,11 @@ class ModelFittingDataTree(ProblemSingleObjective):
         if not isinstance(simulated_data, xr.DataArray):
             raise TypeError("Expected a 'DataArray'")
 
-        simulated_data = simulated_data.sel(self.sim_fit_range.to_dict())
+        simulated_data = simulated_data.sel(indexers=self.sim_fit_range.to_dict())
 
         return simulated_data
 
-    def calculate_fitness(
+    def _calculate_fitness(
         self,
         simulated_data: npt.ArrayLike,
         target_data: np.ndarray,
@@ -433,7 +311,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
         if weighting is not None:
             factor = weighting
         else:
-            factor = np.ones(np.shape(target_data))
+            factor = np.ones_like(target_data)
 
         fitness: float = self.fitness_func(
             simulated=np.array(simulated_data, dtype=float),
@@ -480,17 +358,12 @@ class ModelFittingDataTree(ProblemSingleObjective):
                 )
 
                 logger.setLevel(logging.WARNING)
-                # result_proc = None
-                if self.calibration_mode != CalibrationMode.Pipeline:
-                    raise NotImplementedError
 
                 data_tree: "DataTree" = run_pipeline(
                     processor=processor,
                     readout=self.readout,
                     pipeline_seed=self.pipeline_seed,
                 )
-                # elif self.calibration_mode == 'single_model':
-                #     self.fitted_model.function(processor.detector)               # todo: update
 
                 logger.setLevel(prev_log_level)
 
@@ -509,7 +382,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
                 elif self.weighting_from_file is not None:
                     weighting = self.weighting_from_file[i]
 
-                overall_fitness += self.calculate_fitness(
+                overall_fitness += self._calculate_fitness(
                     simulated_data=simulated_data,
                     target_data=target_data,
                     weighting=weighting,
@@ -539,7 +412,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
         parameters = np.array(decisions_vector)
 
         a = 0
-        for var in self.variables:
+        for var in self._variables:
             b = 1
             if isinstance(var.values, list):
                 b = len(var.values)
@@ -601,7 +474,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
         """TBW."""
         new_processor = copy.deepcopy(processor)
         a, b = 0, 0
-        for var in self.variables:
+        for var in self._variables:
             if var.values == "_":
                 b = 1
                 new_processor.set(key=var.key, value=parameter[a])

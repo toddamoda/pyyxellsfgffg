@@ -98,6 +98,8 @@ def show_versions():
         "pyxel",
         # required
         "astropy",
+        "asdf",
+        "attrs",
         "bokeh",
         "cloudpickle",
         "dask",
@@ -120,6 +122,7 @@ def show_versions():
         "pympler",
         "scipy",
         "seaborn",
+        "sep",
         "skimage",
         "tqdm",
         "typing-extensions",

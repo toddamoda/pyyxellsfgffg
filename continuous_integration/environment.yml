@@ -27,7 +27,7 @@ dependencies:
   - pip
 # Scientific computing
   - numba
-  - numpy>=1.21, <1.24  # poppy version 1.0.3 is not compatible with numpy>=1.24. See #591
+  - numpy>=1.21
   - pandas
   - scipy
   - xarray>=2022.06
@@ -89,5 +89,5 @@ dependencies:
 # Pip packages
   - pip:
 #    - --no-deps
-    - poppy>=1.0.2
+    - poppy>=1.1.0
 

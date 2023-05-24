@@ -1118,6 +1118,9 @@
                 "$ref": "#/definitions/ModelDataProcessingExtractRoiToXarray"
               },
               {
+                "$ref": "#/definitions/ModelDataProcessingLinearRegression"
+              },
+              {
                 "$ref": "#/definitions/ModelDataProcessingMeanVariance"
               },
               {
@@ -4071,6 +4074,61 @@
       "title": "Model 'extract_roi_to_xarray'",
       "type": "object"
     },
+    "ModelDataProcessingLinearRegression": {
+      "additionalProperties": false,
+      "description": "Compute a linear regression along 'readout_time' and store it in'.data' bucket.",
+      "properties": {
+        "arguments": {
+          "additionalProperties": false,
+          "default": {
+            "data_structure": "image",
+            "name": null
+          },
+          "properties": {
+            "data_structure": {
+              "default": "image",
+              "description": "Data bucket to use for the linear regression.",
+              "enum": [
+                "pixel",
+                "photon",
+                "image",
+                "signal"
+              ],
+              "title": "data_structure",
+              "type": "string"
+            },
+            "name": {
+              "default": null,
+              "description": "Name to use for the result.",
+              "title": "name",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "title": "Parameters",
+          "type": "object"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "func": {
+          "const": "pyxel.models.data_processing.linear_regression",
+          "default": "pyxel.models.data_processing.linear_regression",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Model 'linear_regression'",
+      "type": "object"
+    },
     "ModelDataProcessingMeanVariance": {
       "additionalProperties": false,
       "description": "Compute mean-variance and store it in '.data' bucket.",
@@ -4084,6 +4142,7 @@
           "properties": {
             "data_structure": {
               "default": "image",
+              "description": "Data bucket to use for the linear regression.",
               "enum": [
                 "pixel",
                 "photon",
@@ -4095,6 +4154,7 @@
             },
             "name": {
               "default": null,
+              "description": "Name to use for the result.",
               "title": "name",
               "type": [
                 "string",

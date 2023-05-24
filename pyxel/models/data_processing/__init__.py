@@ -11,3 +11,4 @@
 from .statistics import statistics
 from .source_extractor import extract_roi_to_xarray
 from .mean_variance import mean_variance
+from .linear_regression import linear_regression

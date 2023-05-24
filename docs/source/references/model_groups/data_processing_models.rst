@@ -103,3 +103,37 @@ Extract the roi data converts it to xarray dataset and saves the information to 
         enabled: true
 
 .. autofunction:: extract_roi_to_xarray
+
+
+Mean-variance
+=============
+
+Compute a mean-variance 1D array that shows relationship between the mean signal of a detector and its variance.
+
+.. code-block:: yaml
+
+  data_processing:
+    - name: mean_variance
+      func: pyxel.models.data_processing.mean_variance
+      enabled: true
+      arguments:
+        data_structure: image
+
+.. autofunction:: mean_variance
+
+
+Linear regression
+=================
+
+Compute a linear regression along readout time.
+
+.. code-block:: yaml
+
+  data_processing:
+    - name: linear_regression
+      func: pyxel.models.data_processing.linear_regression
+      enabled: true
+      arguments:
+        data_structure: image
+
+.. autofunction:: linear_regression

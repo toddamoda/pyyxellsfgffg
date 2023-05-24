@@ -119,15 +119,17 @@ def compute_simple_physical_non_linearity(
     xcd = np.linspace(0.2, 0.6, 1000)
     targeted_operating_temperature = temperature
     e_g_calculated = hgcdte_bandgap(
-        xcd, targeted_operating_temperature
+        x_cd=xcd,
+        temperature=targeted_operating_temperature,
     )  # Expected bandgap
+
     index = np.where(e_g_calculated > e_g_targeted)[0][0]
     x_cd = xcd[index]  # Targeted cadmium concentration in the HgCdTe alloy
 
     if not (0.2 <= x_cd <= 0.6):
         raise ValueError(
-            "Hansen bangap expression used out of its nominal application range. \
-                x_cd must be between 0.2 and 0.6"
+            "Hansen bangap expression used out of its nominal application range. "
+            "x_cd must be between 0.2 and 0.6"
         )
 
     ni = ni_hansen(x_cd=x_cd, temperature=temperature)
@@ -193,8 +195,8 @@ def simple_physical_non_linearity(
 
     if not (4 <= detector.environment.temperature <= 300):
         raise ValueError(
-            "Hansen bangap expression used out of its nominal application range. \
-                temperature must be between 4K and 300K"
+            "Hansen bangap expression used out of its nominal application range. "
+            "temperature must be between 4K and 300K"
         )
 
     if not isinstance(detector, CMOS):
@@ -264,8 +266,8 @@ def compute_physical_non_linearity(
 
     if not (0.2 <= x_cd <= 0.6):
         raise ValueError(
-            "Hansen bangap expression used out of its nominal application range. \
-                x_cd must be between 0.2 and 0.6"
+            "Hansen bangap expression used out of its nominal application range. "
+            "x_cd must be between 0.2 and 0.6"
         )
 
     # Calculate the effective band-gap value at the temperature at which simulations are performed.
@@ -342,8 +344,8 @@ def physical_non_linearity(
     """
     if not (4 <= detector.environment.temperature <= 300):
         raise ValueError(
-            "Hansen bangap expression used out of its nominal application range. \
-                temperature must be between 4K and 300K"
+            "Hansen bangap expression used out of its nominal application range. "
+            "temperature must be between 4K and 300K"
         )
 
     if not isinstance(detector, CMOS):
@@ -368,6 +370,7 @@ def compute_physical_non_linearity_with_saturation(
     signal_array_2d: np.ndarray,
     photon_array_2d: np.ndarray,
     time_step: float,
+    step_number: int,
     temperature: float,
     cutoff: float,
     n_donor: float,
@@ -391,6 +394,8 @@ def compute_physical_non_linearity_with_saturation(
         Input photon array.
     time_step
         Time step. Unit: s.
+    step_number : int
+        Step number.
     temperature : float
         Temperature. Unit: K.
     cutoff : float
@@ -434,8 +439,8 @@ def compute_physical_non_linearity_with_saturation(
 
     if not (0.2 <= x_cd <= 0.6):
         raise ValueError(
-            "Hansen bangap expression used out of its nominal application range. \
-                x_cd must be between 0.2 and 0.6"
+            "Hansen bangap expression used out of its nominal application range. "
+            "x_cd must be between 0.2 and 0.6"
         )
 
     row, col = signal_array_2d.shape
@@ -443,7 +448,7 @@ def compute_physical_non_linearity_with_saturation(
     phi_implant = phi_implant * 1e-6  # in m
     d_implant = d_implant * 1e-6  # in m
 
-    if signal_array_2d[3, 3] == 0:
+    if step_number == 0:
         signal_array_2d = v_reset * np.ones((row, col))
 
     # detector.signal.array should be expressed in unit of mV. It is the bias at the gate of the pixel SFD ????
@@ -514,17 +519,28 @@ def physical_non_linearity_with_saturation(
     """
     if not (4 <= detector.environment.temperature <= 300):
         raise ValueError(
-            "Hansen bangap expression used out of its nominal application range. \
-                temperature must be between 4K and 300K"
+            "Hansen bangap expression used out of its nominal application range. "
+            "temperature must be between 4K and 300K"
         )
 
     if not isinstance(detector, CMOS):
         raise TypeError("Expecting a 'CMOS' detector object.")
 
+    if detector.is_first_readout:
+        # This is the first step
+        signal_2d = detector.signal.array
+    else:
+        signal_2d = np.array(detector.data["/non_linearity_with_saturation/previous"])
+
+        if detector.is_last_readout:
+            # This is the last step. Remove the previous value
+            detector.data["/non_linearity_with_saturation"].orphan()
+
     signal_non_linear = compute_physical_non_linearity_with_saturation(
-        signal_array_2d=detector.signal.array,
+        signal_array_2d=signal_2d,
         photon_array_2d=detector.photon.array,
         time_step=detector.time_step,
+        step_number=detector.pipeline_count,
         temperature=detector.environment.temperature,
         cutoff=cutoff,
         n_donor=n_donor,
@@ -538,5 +554,8 @@ def physical_non_linearity_with_saturation(
         fixed_capacitance=fixed_capacitance,
         euler_points=euler_points,
     )
+
+    # Update previous value
+    detector.data["/non_linearity_with_saturation/previous"] = signal_non_linear
 
     detector.signal.array = signal_non_linear
