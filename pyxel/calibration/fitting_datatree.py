@@ -139,51 +139,62 @@ class ModelFittingDataTree(ProblemSingleObjective):
         self.champion_f_list: np.ndarray = np.zeros((1, 1))
         self.champion_x_list: np.ndarray = np.zeros((1, num_parameters))
 
-        if self.readout.time_domain_simulation:
-            target_list_3d: Sequence[np.ndarray] = read_datacubes(
-                filenames=target_output
-            )
-            targets = xr.DataArray(
-                target_list_3d,
-                dims=["processor", "readout_time", "y", "x"],
-            )
+        if not simulation_output.startswith("data"):
+            if self.readout.time_domain_simulation:
+                target_list_3d: Sequence[np.ndarray] = read_datacubes(
+                    filenames=target_output
+                )
+                targets = xr.DataArray(
+                    target_list_3d,
+                    dims=["processor", "readout_time", "y", "x"],
+                )
 
-            times = len(targets["readout_time"])
-            rows = len(targets["y"])
-            cols = len(targets["x"])
+                times = len(targets["readout_time"])
+                rows = len(targets["y"])
+                cols = len(targets["x"])
 
-            # times, rows, cols = target_list_3d[0].shape
-            check_fit_ranges(
-                target_fit_range=target_fit_range,
-                out_fit_range=out_fit_range,
-                rows=rows,
-                cols=cols,
-                readout_times=times,
+                # times, rows, cols = target_list_3d[0].shape
+                check_fit_ranges(
+                    target_fit_range=target_fit_range,
+                    out_fit_range=out_fit_range,
+                    rows=rows,
+                    cols=cols,
+                    readout_times=times,
+                )
+
+            else:
+                target_list_2d: Sequence[np.ndarray] = read_data(
+                    filenames=target_output
+                )
+                targets = xr.DataArray(target_list_2d, dims=["processor", "y", "x"])
+
+                rows = len(targets["y"])
+                cols = len(targets["x"])
+
+                check_fit_ranges(
+                    target_fit_range=target_fit_range,
+                    out_fit_range=out_fit_range,
+                    rows=rows,
+                    cols=cols,
+                )
+                self._configure_weights(
+                    weights=weights,
+                    weights_from_file=weights_from_file,
+                )
+
+            self.targ_fit_range: Union[FitRange2D, FitRange3D, None] = target_fit_range
+            self.sim_fit_range: Optional[FitRange3D] = out_fit_range
+            self.all_target_data: xr.DataArray = targets.sel(
+                indexers=target_fit_range.to_dict()
             )
 
         else:
-            target_list_2d: Sequence[np.ndarray] = read_data(filenames=target_output)
-            targets = xr.DataArray(target_list_2d, dims=["processor", "y", "x"])
+            target_list_2d = read_data(filenames=target_output)
+            targets = xr.DataArray(target_list_2d).rename(dim_0="processor")
 
-            rows = len(targets["y"])
-            cols = len(targets["x"])
-
-            check_fit_ranges(
-                target_fit_range=target_fit_range,
-                out_fit_range=out_fit_range,
-                rows=rows,
-                cols=cols,
-            )
-            self._configure_weights(
-                weights=weights,
-                weights_from_file=weights_from_file,
-            )
-
-        self.targ_fit_range: Union[FitRange2D, FitRange3D] = target_fit_range
-        self.sim_fit_range: FitRange3D = out_fit_range
-        self.all_target_data: xr.DataArray = targets.sel(
-            indexers=self.targ_fit_range.to_dict()
-        )
+            self.targ_fit_range = None
+            self.sim_fit_range = None
+            self.all_target_data = targets
 
     def get_bounds(self) -> tuple[Sequence[float], Sequence[float]]:
         """Get the box bounds of the problem (lower_boundary, upper_boundary).
@@ -209,6 +220,8 @@ class ModelFittingDataTree(ProblemSingleObjective):
         weights_from_file
         """
         if weights_from_file is not None:
+            assert self.targ_fit_range is not None
+
             if self.readout.time_domain_simulation:
                 wf = read_datacubes(weights_from_file)
                 self.weighting_from_file = [
@@ -291,6 +304,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
         if not isinstance(simulated_data, xr.DataArray):
             raise TypeError("Expected a 'DataArray'")
 
+        assert self.sim_fit_range is not None
         simulated_data = simulated_data.sel(indexers=self.sim_fit_range.to_dict())
 
         return simulated_data
