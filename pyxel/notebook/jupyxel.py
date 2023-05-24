@@ -134,7 +134,8 @@ def set_modelstate(processor: "Processor", model_name: str, state: bool = True) 
 
 
 # ----------------------------------------------------------------------------------------------
-# These method are used to display the detector object (all of the array Photon, pixel, signal, phase [for MKIDs] and image)
+# These method are used to display the detector object (all of the array Photon, pixel, signal,
+# phase [for MKIDs] and image)
 
 
 def display_detector(detector: "Detector") -> "Layout":
