@@ -14,3 +14,4 @@ from .shot_noise import shot_noise
 from .stripe_pattern import stripe_pattern
 from .poppy import optical_psf
 from .point_spread_function import load_psf
+from .ariel_airs import wavelength_dependence_airs
