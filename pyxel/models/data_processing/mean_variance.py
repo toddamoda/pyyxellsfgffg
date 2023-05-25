@@ -86,7 +86,8 @@ def mean_variance(
     >>> import pyxel
     >>> config = pyxel.load("exposure_mode.yaml")
 
-    # Run exposure mode with 'data_processing/mean_variance' model
+    Run exposure mode with 'data_processing/mean_variance' model
+
     >>> data_tree = pyxel.run_mode(
     ...     mode=config.exposure,
     ...     detector=config.detector,

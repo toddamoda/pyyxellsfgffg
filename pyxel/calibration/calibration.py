@@ -20,8 +20,10 @@ from pyxel.calibration import (
     CalibrationMode,
     DaskBFE,
     DaskIsland,
+    FitRange3D,
     Island,
     MyArchipelago,
+    to_fit_range,
 )
 from pyxel.calibration.fitting import ModelFitting
 from pyxel.calibration.fitting_datatree import ModelFittingDataTree
@@ -38,7 +40,7 @@ if TYPE_CHECKING:
 
 
 def to_path_list(values: Sequence[Union[str, Path]]) -> Sequence[Path]:
-    """TBW."""
+    """Convert a sequence of ``Path``-like into a sequence of ``Path``."""
     return [Path(obj).resolve() for obj in values]
 
 
@@ -55,9 +57,17 @@ class Calibration:
         readout: Optional["Readout"] = None,
         mode: Literal["pipeline", "single_model"] = "pipeline",
         result_type: Literal["image", "signal", "pixel"] = "image",
-        result_fit_range: Optional[Sequence[int]] = None,
+        result_fit_range: Union[
+            tuple[int, int, int, int],
+            tuple[int, int, int, int, int, int],
+            None,
+        ] = None,
         result_input_arguments: Optional[Sequence[ParameterValues]] = None,
-        target_fit_range: Optional[Sequence[int]] = None,
+        target_fit_range: Union[
+            tuple[int, int, int, int],
+            tuple[int, int, int, int, int, int],
+            None,
+        ] = None,
         pygmo_seed: Optional[int] = None,
         pipeline_seed: Optional[int] = None,
         num_islands: int = 1,
@@ -307,6 +317,45 @@ class Calibration:
         """TBW."""
         self._weights = value
 
+    def get_problem(self, processor: Processor, output_dir: Path) -> ModelFitting:
+        """Convert a 'processor' object into a Pygmo Problem.
+
+        Examples
+        --------
+        Create a 'Pygmo Problem'
+        >>> calibration = Calibration(...)
+        >>> problem = calibration.get_problem(processor=..., output_dir=...)
+
+        Create a decision vector
+        >>> problem.get_bounds()
+        >>> decision_vector = [...]
+
+        Compute fitness
+        >>> problem.fitness(decision_vector)
+        """
+        problem = ModelFitting(
+            processor=processor,
+            variables=self.parameters,
+            readout=self.readout,
+            calibration_mode=CalibrationMode(self.calibration_mode),
+            simulation_output=ResultType(self.result_type),
+            generations=self.algorithm.generations,
+            population_size=self.algorithm.population_size,
+            fitness_func=self.fitness_function,
+            file_path=output_dir,
+        )
+
+        problem.configure(
+            target_output=self.target_data_path,
+            target_fit_range=self.target_fit_range,
+            out_fit_range=self.result_fit_range,
+            input_arguments=self.result_input_arguments,
+            weights=self.weights,
+            weights_from_file=self.weights_from_file,
+        )
+
+        return problem
+
     # TODO: This function will be deprecated (see #563)
     def run_calibration(
         self,
@@ -327,67 +376,47 @@ class Calibration:
         pg.set_global_rng_seed(seed=self.pygmo_seed)
         self._log.info("Pygmo seed: %d", self.pygmo_seed)
 
-        fitting = ModelFitting(
-            processor=processor,
-            variables=self.parameters,
-            readout=self.readout,
-            calibration_mode=CalibrationMode(self.calibration_mode),
-            simulation_output=ResultType(self.result_type),
-            generations=self.algorithm.generations,
-            population_size=self.algorithm.population_size,
-            fitness_func=self.fitness_function,
-            file_path=output_dir,
+        # Create a Pygmo problem
+        fitting: ModelFitting = self.get_problem(
+            processor=processor, output_dir=output_dir
         )
 
-        fitting.configure(
-            target_output=self.target_data_path,
-            target_fit_range=self.target_fit_range,
-            out_fit_range=self.result_fit_range,
-            input_arguments=self.result_input_arguments,
-            weights=self.weights,
-            weights_from_file=self.weights_from_file,
-        )
+        # Create an archipelago
+        user_defined_island = DaskIsland()
+        user_defined_bfe = DaskBFE()
 
-        if self.num_islands > 1:  # default
-            # Create an archipelago
-            user_defined_island = DaskIsland()
-            user_defined_bfe = DaskBFE()
-
-            if self.topology == "unconnected":
-                topo = pg.unconnected()
-            elif self.topology == "ring":
-                topo = pg.ring()
-            elif self.topology == "fully_connected":
-                topo = pg.fully_connected()
-            else:
-                raise NotImplementedError(f"topology {self.topology!r}")
-
-            # Create a new archipelago
-            # This operation takes some time ...
-            my_archipelago = MyArchipelago(
-                num_islands=self.num_islands,
-                udi=user_defined_island,
-                algorithm=self.algorithm,
-                problem=fitting,
-                pop_size=self.algorithm.population_size,
-                bfe=user_defined_bfe,
-                topology=topo,
-                pygmo_seed=self.pygmo_seed,
-                with_bar=with_progress_bar,
-            )
-
-            # Run several evolutions in the archipelago
-            ds, df_processors, df_all_logs = my_archipelago.run_evolve(
-                readout=self.readout,
-                num_evolutions=self._num_evolutions,
-                num_best_decisions=self._num_best_decisions,
-            )
-
-            ds.attrs["topology"] = self.topology
-            ds.attrs["result_type"] = str(fitting.sim_output)
-
+        if self.topology == "unconnected":
+            topo = pg.unconnected()
+        elif self.topology == "ring":
+            topo = pg.ring()
+        elif self.topology == "fully_connected":
+            topo = pg.fully_connected()
         else:
-            raise NotImplementedError("Not implemented for 1 island.")
+            raise NotImplementedError(f"topology {self.topology!r}")
+
+        # Create a new archipelago
+        # This operation takes some time ...
+        archipelago = MyArchipelago(
+            num_islands=self.num_islands,
+            udi=user_defined_island,
+            algorithm=self.algorithm,
+            problem=fitting,
+            pop_size=self.algorithm.population_size,
+            bfe=user_defined_bfe,
+            topology=topo,
+            pygmo_seed=self.pygmo_seed,
+            with_bar=with_progress_bar,
+        )
+
+        # Run several evolutions in the archipelago
+        ds, df_processors, df_all_logs = archipelago.run_evolve(
+            readout=self.readout,
+            num_evolutions=self._num_evolutions,
+            num_best_decisions=self._num_best_decisions,
+        )
+
+        ds.attrs["topology"] = self.topology
+        ds.attrs["result_type"] = str(fitting.sim_output)
 
         self._log.info("Calibration ended.")
         return ds, df_processors, df_all_logs
@@ -411,21 +440,21 @@ class Calibration:
         pg.set_global_rng_seed(seed=self.pygmo_seed)
         self._log.info("Pygmo seed: %d", self.pygmo_seed)
 
-        # TODO: Merge 'ModelFittingDataTree.__init__' and '.configure'
+        target_fit_range = to_fit_range(self.target_fit_range)
+        result_fit_range = FitRange3D.from_sequence(self.result_fit_range)
+
         fitting: ModelFittingDataTree = ModelFittingDataTree(
             processor=processor,
             variables=self.parameters,
             readout=self.readout,
-            calibration_mode=CalibrationMode(self.calibration_mode),
             simulation_output=ResultType(self.result_type),
             generations=self.algorithm.generations,
             population_size=self.algorithm.population_size,
             fitness_func=self.fitness_function,
             file_path=output_dir,
-            # New
             target_output=self.target_data_path,
-            target_fit_range=self.target_fit_range,
-            out_fit_range=self.result_fit_range,
+            target_fit_range=target_fit_range,
+            out_fit_range=result_fit_range,
             input_arguments=self.result_input_arguments,
             weights=self.weights,
             weights_from_file=self.weights_from_file,
@@ -464,6 +493,8 @@ class Calibration:
         # Run several evolutions in the archipelago
         data_tree: "DataTree" = archipelago.run_evolve(
             readout=self.readout,
+            num_rows=processor.detector.geometry.row,
+            num_cols=processor.detector.geometry.col,
             num_evolutions=self._num_evolutions,
             num_best_decisions=self._num_best_decisions,
         )
@@ -474,13 +505,13 @@ class Calibration:
         self._log.info("Calibration ended.")
         return data_tree
 
-    def post_processing(
+    # TODO: This function will be deprecated (see #563)
+    def _post_processing(
         self,
         ds: "xr.Dataset",
         df_processors: "pd.DataFrame",
         output: "CalibrationOutputs",
     ) -> Sequence[Delayed]:
-        """TBW."""
         filenames: Sequence[Delayed] = output.save_processors(processors=df_processors)
 
         # TODO: Use output.fitting_plot ?

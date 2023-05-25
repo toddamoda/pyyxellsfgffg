@@ -20,6 +20,10 @@ from .util import (
     read_data,
     read_datacubes,
     list_to_3d_slice,
+    FitRange2D,
+    FitRange3D,
+    to_fit_range,
+    check_fit_ranges,
 )
 from ..pipelines.processor import ResultType
 from .archipelago import MyArchipelago

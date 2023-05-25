@@ -31,6 +31,9 @@ Support for Python 3.8 has been dropped and support for Python 3.11 has been add
   (See [!631](https://gitlab.com/esa/pyxel/-/merge_requests/631)).
 * Function `pyxel.run_mode` returns a `DataTree`.
   (See [!647](https://gitlab.com/esa/pyxel/-/merge_requests/647)).
+* Refactoring method `Calibration.run_calibration_new`.
+  (See [!661](https://gitlab.com/esa/pyxel/-/merge_requests/661) and
+  [!663](https://gitlab.com/esa/pyxel/-/merge_requests/663)).
 
 ### Documentation
 * The general documentation has been reviewed and minor fixes made such as:
@@ -75,6 +78,8 @@ Support for Python 3.8 has been dropped and support for Python 3.11 has been add
   (See [!657](https://gitlab.com/esa/pyxel/-/merge_requests/657)).
 * Poppy version 1.0.3 is not compatible with numpy 1.24.
   (See [!659](https://gitlab.com/esa/pyxel/-/merge_requests/659)).
+* Remove noisy error messages when using 'tox'.
+  (See [!662](https://gitlab.com/esa/pyxel/-/merge_requests/662)).
 
 
 ## 1.8 / 2023-03-30

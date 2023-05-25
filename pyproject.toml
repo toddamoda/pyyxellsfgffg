@@ -199,7 +199,7 @@ exclude_dirs = ["pyxel/_version.py"]
 
 [tool.codespell]
 ignore-words-list = "acn,sade,te"
-skip = "pyxel/_version.py"
+skip = "pyxel/_version.py,*.fits"
 
 [tool.coverage.report]
 exclude_lines = [
