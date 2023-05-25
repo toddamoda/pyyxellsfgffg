@@ -1575,6 +1575,9 @@
                 "$ref": "#/definitions/ModelPhotonCollectionStripePattern"
               },
               {
+                "$ref": "#/definitions/ModelPhotonCollectionWavelengthDependenceAirs"
+              },
+              {
                 "$ref": "#/definitions/ModelLoadDetector"
               },
               {
@@ -1672,9 +1675,6 @@
           "default": null,
           "items": {
             "anyOf": [
-              {
-                "$ref": "#/definitions/ModelSceneGenerationWavelengthDependenceAirs"
-              },
               {
                 "$ref": "#/definitions/ModelLoadDetector"
               },
@@ -5250,6 +5250,75 @@
       "title": "Model 'stripe_pattern'",
       "type": "object"
     },
+    "ModelPhotonCollectionWavelengthDependenceAirs": {
+      "additionalProperties": false,
+      "description": "Generate the photon over the array according to a specific dispersionpattern (ARIEL-AIRS).",
+      "properties": {
+        "arguments": {
+          "additionalProperties": false,
+          "properties": {
+            "expand_factor": {
+              "description": "Expansion factor used.",
+              "title": "expand_factor",
+              "type": "integer"
+            },
+            "psf_filename": {
+              "description": "The location and the filename where the PSFs are located.",
+              "title": "psf_filename",
+              "type": "string"
+            },
+            "target_filename": {
+              "description": "The location and the filename of the target file used in thesimulation.",
+              "title": "target_filename",
+              "type": "string"
+            },
+            "telescope_diameter_m1": {
+              "description": "Diameter of the M1 mirror of the TA in m.",
+              "title": "telescope_diameter_m1",
+              "type": "number"
+            },
+            "telescope_diameter_m2": {
+              "description": "Diameter of the M2 mirror of the TA in m.",
+              "title": "telescope_diameter_m2",
+              "type": "number"
+            },
+            "time_scale": {
+              "default": 1.0,
+              "description": "Time scale in seconds.",
+              "title": "time_scale",
+              "type": "number"
+            }
+          },
+          "required": [
+            "psf_filename",
+            "target_filename",
+            "telescope_diameter_m1",
+            "telescope_diameter_m2",
+            "expand_factor"
+          ],
+          "title": "Parameters",
+          "type": "object"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "func": {
+          "const": "pyxel.models.photon_collection.wavelength_dependence_airs",
+          "default": "pyxel.models.photon_collection.wavelength_dependence_airs",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "arguments"
+      ],
+      "title": "Model 'wavelength_dependence_airs'",
+      "type": "object"
+    },
     "ModelPhotonGenerationIllumination": {
       "additionalProperties": false,
       "description": "Generate photon uniformly over the entire array or over an elliptic orrectangular object.",
@@ -5993,75 +6062,6 @@
         "name",
         "arguments"
       ],
-      "type": "object"
-    },
-    "ModelSceneGenerationWavelengthDependenceAirs": {
-      "additionalProperties": false,
-      "description": "Generate the photon over the array according to a specific dispersionpattern (ARIEL-AIRS).",
-      "properties": {
-        "arguments": {
-          "additionalProperties": false,
-          "properties": {
-            "expand_factor": {
-              "description": "Expansion factor used.",
-              "title": "expand_factor",
-              "type": "integer"
-            },
-            "psf_filename": {
-              "description": "The location and the filename where the PSFs are located.",
-              "title": "psf_filename",
-              "type": "string"
-            },
-            "target_filename": {
-              "description": "The location and the filename of the target file used in thesimulation.",
-              "title": "target_filename",
-              "type": "string"
-            },
-            "telescope_diameter_m1": {
-              "description": "Diameter of the M1 mirror of the TA in m.",
-              "title": "telescope_diameter_m1",
-              "type": "number"
-            },
-            "telescope_diameter_m2": {
-              "description": "Diameter of the M2 mirror of the TA in m.",
-              "title": "telescope_diameter_m2",
-              "type": "number"
-            },
-            "time_scale": {
-              "default": 1.0,
-              "description": "Time scale in seconds.",
-              "title": "time_scale",
-              "type": "number"
-            }
-          },
-          "required": [
-            "psf_filename",
-            "target_filename",
-            "telescope_diameter_m1",
-            "telescope_diameter_m2",
-            "expand_factor"
-          ],
-          "title": "Parameters",
-          "type": "object"
-        },
-        "enabled": {
-          "default": true,
-          "type": "boolean"
-        },
-        "func": {
-          "const": "pyxel.models.scene_generation.wavelength_dependence_airs",
-          "default": "pyxel.models.scene_generation.wavelength_dependence_airs",
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "arguments"
-      ],
-      "title": "Model 'wavelength_dependence_airs'",
       "type": "object"
     },
     "Observation": {
