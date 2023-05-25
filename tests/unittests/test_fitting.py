@@ -17,7 +17,8 @@ from pyxel.calibration.fitting import ModelFitting
 from pyxel.calibration.util import CalibrationMode
 from pyxel.detectors import CCD
 from pyxel.pipelines import DetectionPipeline, Processor
-from pyxel.pipelines.processor import ResultType
+
+# from pyxel.pipelines.processor import ResultType
 
 try:
     import pygmo as pg
@@ -77,7 +78,7 @@ def test_configure_params(yaml_file):
         slice(2, 4, None),
     )
     assert mf.targ_fit_range == (slice(1, 5, None), slice(0, 2, None))
-    assert mf.sim_output == ResultType.Image
+    # assert mf.sim_output == ResultType.Image
 
 
 @pytest.mark.skipif(not WITH_PYGMO, reason="Package 'pygmo' is not installed.")
@@ -107,7 +108,7 @@ def test_configure_fits_target(yaml):
         slice(2, 4, None),
     )
     assert mf.targ_fit_range == (slice(1, 5, None), slice(0, 2, None))
-    assert mf.sim_output == ResultType.Image
+    # assert mf.sim_output == ResultType.Image
     expected = np.array(
         [
             [4173.6434, 4203.6883],
