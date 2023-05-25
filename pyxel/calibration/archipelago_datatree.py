@@ -43,13 +43,13 @@ def extract_data_3d(
     for _, row in df_results.iterrows():
         island: int = row["island"]
         id_processor: int = row["id_processor"]
-        data_tree: Mapping[str, Delayed] = row["data_tree"].result
+        data_tree: Delayed = row["data_tree"]
 
-        photon_delayed: Delayed = data_tree["/bucket/photon"]
-        charge_delayed: Delayed = data_tree["/bucket/charge"]
-        pixel_delayed: Delayed = data_tree["/bucket/pixel"]
-        signal_delayed: Delayed = data_tree["/bucket/signal"]
-        image_delayed: Delayed = data_tree["/bucket/image"]
+        photon_delayed: Delayed = data_tree["/bucket/photon"]  # type: ignore
+        charge_delayed: Delayed = data_tree["/bucket/charge"]  # type: ignore
+        pixel_delayed: Delayed = data_tree["/bucket/pixel"]  # type: ignore
+        signal_delayed: Delayed = data_tree["/bucket/signal"]  # type: ignore
+        image_delayed: Delayed = data_tree["/bucket/image"]  # type: ignore
 
         photon_3d = da.from_delayed(
             photon_delayed, shape=(times, rows, cols), dtype=float
