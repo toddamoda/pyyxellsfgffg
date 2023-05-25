@@ -325,25 +325,21 @@ class ModelFittingDataTree(ProblemSingleObjective):
         weighting: Optional[np.ndarray] = None,
     ) -> float:
         if self.sim_output.startswith("data"):
-            simulated_df: pd.DataFrame = simulated_data.to_pandas()
-            simulated_no_interp: np.ndarray = simulated_df.reset_index().to_numpy()
-            target_no_interp: np.ndarray = target_data.to_numpy()
+            assert simulated_data.ndim == target_data.ndim
 
-            assert simulated_no_interp.ndim == 2
-            assert target_no_interp.ndim == 2
+            # Create 'simulated_renamed' with the same dimensions as 'target_data'
+            renamed_dimensions = dict(zip(simulated_data.dims, target_data.dims))
+            simulated_renamed: xr.DataArray = simulated_data.rename(renamed_dimensions)
 
-            x_simulated = simulated_no_interp[:, 0]
-            x_target = target_no_interp[:, 0]
-            x_all = np.sort(np.concatenate([x_simulated, x_target]))
+            # 'simulated_interpolated' has the same coordinates as 'target_data'
+            simulated_interpolated = simulated_renamed.interp_like(target_data)
 
-            y_simulated = simulated_no_interp[:, 1]
-            y_target = target_no_interp[:, 1]
+            simulated_2d = np.array(simulated_interpolated, dtype=float)
 
-            simulated_2d = np.interp(x=x_all, xp=x_simulated, fp=y_simulated)
-            target_2d = np.interp(x=x_all, xp=x_target, fp=y_target)
         else:
             simulated_2d = np.array(simulated_data, dtype=float)
-            target_2d = np.array(target_data, dtype=float)
+
+        target_2d = np.array(target_data, dtype=float)
 
         if weighting is not None:
             factor = weighting
