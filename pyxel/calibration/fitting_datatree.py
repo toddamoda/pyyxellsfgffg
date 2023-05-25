@@ -34,6 +34,7 @@ from pyxel.calibration import (
     read_datacubes,
 )
 from pyxel.exposure import run_pipeline
+from pyxel.inputs import load_dataarray
 from pyxel.observation import ParameterValues
 from pyxel.pipelines import Processor, ResultId
 
@@ -92,7 +93,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
         file_path: Path,
         target_fit_range: Union[FitRange2D, FitRange3D],
         out_fit_range: FitRange3D,
-        target_output: Sequence[Path],
+        target_filenames: Sequence[Path],
         input_arguments: Optional[Sequence[ParameterValues]] = None,
         weights: Optional[Sequence[float]] = None,
         weights_from_file: Optional[Sequence[Path]] = None,
@@ -140,8 +141,9 @@ class ModelFittingDataTree(ProblemSingleObjective):
 
         if not simulation_output.startswith("data"):
             if self.readout.time_domain_simulation:
+                # Target(s) is/are 3D array(s) of dimensions: 'readout_time', 'y', 'x'
                 target_list_3d: Sequence[np.ndarray] = read_datacubes(
-                    filenames=target_output
+                    filenames=target_filenames
                 )
                 targets = xr.DataArray(
                     target_list_3d,
@@ -162,8 +164,9 @@ class ModelFittingDataTree(ProblemSingleObjective):
                 )
 
             else:
+                # Target(s) is/are 2D array(s) of dimensions: 'y', 'x'
                 target_list_2d: Sequence[np.ndarray] = read_data(
-                    filenames=target_output
+                    filenames=target_filenames
                 )
                 targets = xr.DataArray(target_list_2d, dims=["processor", "y", "x"])
 
@@ -188,8 +191,12 @@ class ModelFittingDataTree(ProblemSingleObjective):
             )
 
         else:
-            target_list_2d = read_data(filenames=target_output)
-            targets = xr.DataArray(target_list_2d).rename(dim_0="processor")
+            # Target(s) is/are arrays(s) of unknown number of dimensions.
+            # For this reason the file(s) are directly read as 'DataArray' object(s).
+            targets_list: Sequence["xr.DataArray"] = [
+                load_dataarray(filename) for filename in target_filenames
+            ]
+            targets = xr.concat(targets_list, dim="processor")
 
             self.targ_fit_range = None
             self.sim_fit_range = None

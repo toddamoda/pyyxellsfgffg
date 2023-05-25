@@ -452,7 +452,7 @@ class Calibration:
             population_size=self.algorithm.population_size,
             fitness_func=self.fitness_function,
             file_path=output_dir,
-            target_output=self.target_data_path,
+            target_filenames=self.target_data_path,
             target_fit_range=target_fit_range,
             out_fit_range=result_fit_range,
             input_arguments=self.result_input_arguments,
