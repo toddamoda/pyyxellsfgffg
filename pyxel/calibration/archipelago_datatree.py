@@ -7,7 +7,7 @@
 
 """Sub-package to create 'archipelagos'."""
 import logging
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 from concurrent.futures.thread import ThreadPoolExecutor
 from timeit import default_timer as timer
 from typing import TYPE_CHECKING, Callable, Optional, Union
