@@ -20,14 +20,14 @@ from pyxel.calibration.fitness import (
     [
         pytest.param(
             np.array([1, 2, 3, 4], dtype=float),
-            np.array([1.1, 1.8, 3.3, 4.0], dtype=float),
+            np.array([1.1, 1.8, 3.3, 4], dtype=float),
             1,
             0.6,
             id="normal",
         ),
         pytest.param(
             np.array([1, 2, 3, 4, np.nan], dtype=float),
-            np.array([1.1, 1.8, 3.3, 3.6, 5], dtype=float),
+            np.array([1.1, 1.8, 3.3, 4, 5], dtype=float),
             1,
             0.6,
             id="with NaN",
@@ -53,7 +53,7 @@ def test_sum_of_abs_residuals(simulated, target, weight, exp_result):
         ),
         pytest.param(
             np.array([1, 2, 3, 4, np.nan], dtype=float),
-            np.array([1.1, 1.8, 3.3, 3.6, 5], dtype=float),
+            np.array([1.1, 1.8, 3.3, 4.0, 5], dtype=float),
             1,
             0.14,
             id="with NaN",
@@ -82,7 +82,7 @@ def test_sum_of_squared_residuals(simulated, target, weight, exp_result):
         ),
         pytest.param(
             np.array([1, 2, 3, 4, np.nan], dtype=float),
-            np.array([1.1, 1.8, 3.3, 3.6, 5], dtype=float),
+            np.array([1.1, 1.8, 3.3, 4.0, 5], dtype=float),
             1,
             2,
             0.07,
