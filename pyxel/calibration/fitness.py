@@ -33,7 +33,7 @@ def sum_of_abs_residuals(
     diff = target - simulated
     diff *= weighting
 
-    result = float(np.sum(np.abs(diff)))
+    result = float(np.nansum(np.abs(diff)))
     return result
 
 
@@ -60,7 +60,7 @@ def sum_of_squared_residuals(
     diff_square = diff * diff
     diff_square *= weighting
 
-    result = float(np.sum(diff_square))
+    result = float(np.nansum(diff_square))
     return result
 
 
@@ -94,7 +94,9 @@ def reduced_chi_squared(
     diff = target - simulated
     deviation2 = np.square(diff / weighting)
 
-    degrees_of_freedom = target.size - free_parameters
-    reduced_chi2 = float(np.sum(deviation2)) / degrees_of_freedom
+    size = np.isfinite(diff).sum()
+
+    degrees_of_freedom = size - free_parameters
+    reduced_chi2 = float(np.nansum(deviation2)) / degrees_of_freedom
 
     return reduced_chi2
