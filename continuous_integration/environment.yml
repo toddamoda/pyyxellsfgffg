@@ -53,6 +53,7 @@ dependencies:
   - xlrd
   - openpyxl
   - netcdf4
+  - h5netcdf
   - asdf
 # Others
   - attrs
