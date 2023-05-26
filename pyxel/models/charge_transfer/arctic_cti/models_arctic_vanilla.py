@@ -50,8 +50,8 @@ def compute_arctic_add(
     well_fill_power: float,
     parallel_traps: Sequence[Trap],
     parallel_express: int,
-    well_notch_depth: float = 0.0,
-    first_electron_fill: float = 0.0,
+    well_notch_depth: float = 0.,
+    first_electron_fill: float = 0.
 ) -> np.ndarray:
     """Create a new image with :term:`CTI` trails.
 
@@ -78,7 +78,7 @@ def compute_arctic_add(
                 full_well_depth=full_well_depth,
                 well_fill_power=well_fill_power,
                 well_notch_depth=well_notch_depth,
-                first_electron_fill=first_electron_fill,
+                first_electron_fill=first_electron_fill
             )
         ]
     )
@@ -112,8 +112,8 @@ def arctic_add(
     trap_densities: Sequence[float],
     trap_release_timescales: Sequence[float],
     express: int = 0,
-    well_notch_depth: float = 0.0,
-    first_electron_fill: float = 0.0,
+    well_notch_depth: float =0.,
+    first_electron_fill: float = 0.,
 ) -> None:
     """Add :term:`CTI` trails to an image by trapping, releasing and moving electrons.
 
@@ -186,15 +186,13 @@ def compute_arctic_remove(
     parallel_traps: Sequence[Trap],
     parallel_express: int,
     num_iterations: int,
-    well_notch_depth: float = 0.0,
-    first_electron_fill: float = 0.0,
+    well_notch_depth: float = 0.,
+    first_electron_fill: float = 0.
 ) -> np.ndarray:
     """Create a new image with removed :term:`CTI` trails.
 
     Parameters
     ----------
-    first_electron_fill
-    well_notch_depth
     image_2d : ndarray
         2D image to process.
     full_well_depth : float
@@ -209,12 +207,10 @@ def compute_arctic_remove(
     ndarray
         2D array without :term:`CTI` trails.
     """
-    ccd = ac.CCD(
-        well_fill_power=well_fill_power,
-        full_well_depth=full_well_depth,
-        well_notch_depth=well_notch_depth,
-        first_electron_fill=first_electron_fill,
-    )
+    ccd = ac.CCD(well_fill_power=well_fill_power,
+                 full_well_depth=full_well_depth,
+                 well_notch_depth=well_notch_depth,
+                 first_electron_fill=first_electron_fill)
 
     roe = ac.ROE()
 
@@ -247,8 +243,8 @@ def arctic_remove(
     trap_release_timescales: Sequence[float],
     num_iterations: int,
     express: int = 0,
-    well_notch_depth: float = 0.0,
-    first_electron_fill: float = 0.0,
+    well_notch_depth: float = 0.,
+    first_electron_fill: float = 0.
 ) -> None:
     """Remove :term:`CTI` trails from an image by first modelling the addition of :term:`CTI`.
 
@@ -307,7 +303,7 @@ def arctic_remove(
         parallel_express=express,
         num_iterations=num_iterations,
         well_notch_depth=well_notch_depth,
-        first_electron_fill=first_electron_fill,
+        first_electron_fill=first_electron_fill
     )
 
     detector.pixel.array = image_2d_cti_removed
