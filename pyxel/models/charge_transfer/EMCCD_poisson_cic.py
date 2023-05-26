@@ -5,7 +5,8 @@
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
 
-"""Model for replicating the gain register in an EMCCD, including clock-induced-charge."""
+"""Model for replicating the gain register in an EMCCD, including clock-induced-charge (CIC). 
+This model is based on the photon counting (pc) mode, of the e2V CCD201, with clock controller for counting photons (CCCP). """
 
 import numba
 import numpy as np
@@ -19,7 +20,19 @@ def multiplication_register(
     pCIC_rate: float,
     sCIC_rate: float
 ) -> None:
-    """Calculate total gain of image with EMCCD multiplication register.
+    """
+    Parameters
+    ----------
+    detector : CCD
+    total_gain : int
+    gain_elements : int
+        Amount of single stage gain elements in the EMCCD register. 
+    pCIC_rate : float
+        Parallel CIC rate
+    sCIC_rate : float
+        Serial CIC rate
+
+    Calculate total gain of image with EMCCD multiplication register.
 
     Takes in CCD detector along with the gain and the total elements of the EMCCD
     multiplication register.
@@ -40,7 +53,20 @@ def multiplication_register(
 
 @numba.njit
 def poisson_register(lam, new_image_cube_pix, gain_elements, sCIC_rate):
-    """Calculate the total gain of a single pixel from EMCCD register elements.
+    """
+    Parameters
+    ----------
+    lam : float
+    new_image_cube_pix : int 
+    gain_elements : int
+    sCIC_rate : float
+
+    Returns 
+    -------
+    new_image_cube_pix : int
+
+
+    Calculate the total gain of a single pixel from EMCCD register elements.
 
     A single pixel is inputted and is iterated through the total number of gain
     elements provided with the result being the resultant signal from the pixel
@@ -76,7 +102,24 @@ def multiplication_register_poisson(
     pCIC_rate: float,
     sCIC_rate: float
 ) -> np.ndarray:
-    """Calculate total gain of image from EMCCD register.
+    """
+    Parameters
+    ----------
+    image_cube : np.ndarray
+    total_gain : int
+    gain_elements : int
+        Amount of single stage gain elements in the EMCCD register.
+    pCIC_rate : float
+        Parallel CIC rate.
+    sCIC_rate : float
+        Serial CIC rate.
+
+    Returns
+    -------
+    new_image_cube : np.ndarray
+
+
+    Calculate total gain of image from EMCCD register.
 
     Cycles through each pixel within the image provided. Returns a final image with signal added.
     """
