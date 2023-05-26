@@ -32,7 +32,7 @@ def multiplication_register(
         total_gain=total_gain,
         gain_elements=gain_elements,
     ).astype(float)
-    
+
 
 @numba.njit
 def poisson_register(lam, image_cube_pix, gain_elements):
