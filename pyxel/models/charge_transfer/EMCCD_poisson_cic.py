@@ -5,7 +5,15 @@
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
 
-"""Model for replicating the gain register in an EMCCD, including clock-induced-charge (CIC)."""
+"""Model for replicating the gain register in an EMCCD, including clock-induced-charge (CIC).
+A single pixel is inputted and is iterated through the total number of gain
+elements provided with the result being the resultant signal from the pixel
+going through the multiplication process.
+    
+Each register step is considered individual. Each electron entering a register
+stage has probability cause electron avalance with a Poisson rate lambda. Each
+stage has possibilty to introduce a serial CIC event. Serial CIC is assumed to
+be Poisson distributed."""
 
 import numba
 import numpy as np
@@ -19,8 +27,8 @@ def multiplication_register(
     pcic_rate: float,
     scic_rate: float
 ) -> None:
+    """Calculate total gain of image with EMCCD multiplication register.
 
-    """
     Parameters
     ----------
     detector : CCD
@@ -31,11 +39,6 @@ def multiplication_register(
         Parallel CIC rate
     sCIC_rate : float
         Serial CIC rate
-
-    Calculate total gain of image with EMCCD multiplication register.
-
-    Takes in CCD detector along with the gain and the total elements of the EMCCD
-    multiplication register.
     """
 
     if total_gain < 0 or gain_elements < 0:
@@ -54,7 +57,7 @@ def multiplication_register(
 @numba.njit
 def poisson_register(lam, new_image_cube_pix, gain_elements, scic_rate):
 
-    """
+    """Calculate the total gain of a single pixel from EMCCD register elements.
     Parameters
     ----------
     lam : float
@@ -65,18 +68,6 @@ def poisson_register(lam, new_image_cube_pix, gain_elements, scic_rate):
     Returns 
     -------
     new_image_cube_pix : int
-
-
-    Calculate the total gain of a single pixel from EMCCD register elements.
-
-    A single pixel is inputted and is iterated through the total number of gain
-    elements provided with the result being the resultant signal from the pixel
-    going through the multiplication process.
-    
-    Each register step is considered individual. Each electron entering a register
-    stage has probability cause electron avalance with a Poisson rate lambda. Each
-    stage has possibilty to introduce a serial CIC event. Serial CIC is assumed to
-    be Poisson distributed.
     """
 
     new_image_cube_pix = new_image_cube_pix
@@ -104,7 +95,8 @@ def multiplication_register_poisson(
     scic_rate: float
 ) -> np.ndarray:
 
-    """
+    """Calculate total gain of image from EMCCD register.
+
     Parameters
     ----------
     image_cube : np.ndarray
@@ -119,11 +111,6 @@ def multiplication_register_poisson(
     Returns
     -------
     new_image_cube : np.ndarray
-
-
-    Calculate total gain of image from EMCCD register.
-
-    Cycles through each pixel within the image provided. Returns a final image with signal added.
     """
 
     new_image_cube = np.zeros_like(image_cube, dtype=np.int32)
