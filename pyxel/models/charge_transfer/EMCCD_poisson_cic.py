@@ -11,6 +11,7 @@ import numpy as np
 
 from pyxel.detectors import CCD
 
+
 def multiplication_register(
     detector: CCD,
     total_gain: int,
@@ -25,7 +26,7 @@ def multiplication_register(
     detector : CCD
     total_gain : int
     gain_elements : int
-        Amount of single stage gain elements in the EMCCD register. 
+        Amount of single stage gain elements in the EMCCD register.
     pCIC_rate : float
         Parallel CIC rate
     sCIC_rate : float
@@ -44,7 +45,6 @@ def multiplication_register(
     ).astype(float)
 
 
-
 @numba.njit
 def poisson_register(lam, new_image_cube_pix, gain_elements, scic_rate):
     """Calculate the total gain of a single pixel from EMCCD register elements.
@@ -52,25 +52,25 @@ def poisson_register(lam, new_image_cube_pix, gain_elements, scic_rate):
     Parameters
     ----------
     lam : float
-    new_image_cube_pix : int 
+    new_image_cube_pix : int
     gain_elements : int
     sCIC_rate : float
 
-    Returns 
+    Returns
     -------
     new_image_cube_pix : int
     """
 
     new_image_cube_pix = new_image_cube_pix
-        
+
     for _ in range(gain_elements):
         # Add possibilty for a CIC event at each register stage
         new_image_cube_pix += np.random.poisson(scic_rate)
-    
+
         # Each electron increase has chance for impact ionization, so one needs
         # to loop over all electrons at each gain stage.
         gain_electrons = 0
-        for _ in range( np.floor(new_image_cube_pix) ):
+        for _ in range(np.floor(new_image_cube_pix)):
             gain_electrons += np.random.poisson(lam)
         new_image_cube_pix += gain_electrons
 
@@ -104,9 +104,9 @@ def multiplication_register_poisson(
     """
 
     new_image_cube = np.zeros_like(image_cube, dtype=np.int32)
-    
+
     # Generate and add pCIC to the frame
-    pcic = np.random.poisson(pcic_rate, image_cube.shape )
+    pcic = np.random.poisson(pcic_rate, image_cube.shape)
     new_image_cube += pcic
 
     lam = total_gain ** (1 / gain_elements) - 1
