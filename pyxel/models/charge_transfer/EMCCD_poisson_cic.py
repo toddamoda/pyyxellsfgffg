@@ -19,6 +19,7 @@ def multiplication_register(
     pcic_rate: float,
     scic_rate: float
 ) -> None:
+
     """
     Parameters
     ----------
@@ -52,6 +53,7 @@ def multiplication_register(
 
 @numba.njit
 def poisson_register(lam, new_image_cube_pix, gain_elements, scic_rate):
+
     """
     Parameters
     ----------
@@ -101,6 +103,7 @@ def multiplication_register_poisson(
     pcic_rate: float,
     scic_rate: float
 ) -> np.ndarray:
+
     """
     Parameters
     ----------
