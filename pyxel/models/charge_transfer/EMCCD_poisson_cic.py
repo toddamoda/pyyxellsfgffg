@@ -5,8 +5,7 @@
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
 
-"""Model for replicating the gain register in an EMCCD, including clock-induced-charge (CIC). 
-This model is based on the photon counting (pc) mode, of the e2V CCD201, with clock controller for counting photons (CCCP). """
+"""Model for replicating the gain register in an EMCCD, including clock-induced-charge (CIC)."""
 
 import numba
 import numpy as np
