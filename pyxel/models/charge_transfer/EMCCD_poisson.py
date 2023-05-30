@@ -33,6 +33,7 @@ def multiplication_register(
         gain_elements=gain_elements,
     ).astype(float)
 
+
 @numba.njit
 def poisson_register(lam, image_cube_pix, gain_elements):
     """Calculate the total gain of a single pixel from EMCCD register elements.
@@ -82,4 +83,3 @@ def multiplication_register_poisson(
                 )
 
     return new_image_cube
-    
