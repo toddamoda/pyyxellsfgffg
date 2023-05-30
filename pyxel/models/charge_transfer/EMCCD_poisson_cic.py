@@ -17,8 +17,8 @@ def multiplication_register(
     detector: CCD,
     total_gain: int,
     gain_elements: int,
-    pCIC_rate: float,
-    sCIC_rate: float
+    pcic_rate: float,
+    scic_rate: float
 ) -> None:
     """
     Parameters
@@ -45,14 +45,14 @@ def multiplication_register(
         image_cube=detector.pixel.array,
         total_gain=total_gain,
         gain_elements=gain_elements,
-        pCIC_rate=pCIC_rate,
-        sCIC_rate=sCIC_rate
+        pcic_rate=pcic_rate,
+        scic_rate=scic_rate
     ).astype(float)
 
 
 
 @numba.njit
-def poisson_register(lam, new_image_cube_pix, gain_elements, sCIC_rate):
+def poisson_register(lam, new_image_cube_pix, gain_elements, scic_rate):
     """
     Parameters
     ----------
@@ -82,7 +82,7 @@ def poisson_register(lam, new_image_cube_pix, gain_elements, sCIC_rate):
         
     for _ in range(gain_elements):
         # Add possibilty for a CIC event at each register stage
-        new_image_cube_pix += np.random.poisson( sCIC_rate )
+        new_image_cube_pix += np.random.poisson(scic_rate)
     
         # Each electron increase has chance for impact ionization, so one needs
         # to loop over all electrons at each gain stage.
@@ -99,8 +99,8 @@ def multiplication_register_poisson(
     image_cube: np.ndarray,
     total_gain: int,
     gain_elements: int,
-    pCIC_rate: float,
-    sCIC_rate: float
+    pcic_rate: float,
+    scic_rate: float
 ) -> np.ndarray:
     """
     Parameters
@@ -109,9 +109,9 @@ def multiplication_register_poisson(
     total_gain : int
     gain_elements : int
         Amount of single stage gain elements in the EMCCD register.
-    pCIC_rate : float
+    pcic_rate : float
         Parallel CIC rate.
-    sCIC_rate : float
+    scic_rate : float
         Serial CIC rate.
 
     Returns
@@ -127,8 +127,8 @@ def multiplication_register_poisson(
     new_image_cube = np.zeros_like(image_cube, dtype=np.int32)
     
     # Generate and add pCIC to the frame
-    pCIC = np.random.poisson( pCIC_rate, image_cube.shape )
-    new_image_cube += pCIC
+    pcic = np.random.poisson(pcic_rate, image_cube.shape )
+    new_image_cube += pcic
 
     lam = total_gain ** (1 / gain_elements) - 1
     yshape, xshape = image_cube.shape
@@ -139,7 +139,7 @@ def multiplication_register_poisson(
                 lam=lam,
                 new_image_cube_pix=image_cube[j, i],
                 gain_elements=gain_elements,
-                sCIC_rate=sCIC_rate
+                scic_rate=scic_rate
             )
 
     return new_image_cube
