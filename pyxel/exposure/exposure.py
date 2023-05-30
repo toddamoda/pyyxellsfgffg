@@ -346,7 +346,7 @@ def run_pipeline(
             if progressbar:
                 pbar.update(1)
 
-            if data_tree.is_empty:
+            if data_tree.get("bucket") is None:
                 data_tree = partial_data_tree
             else:
                 data_tree = data_tree.combine_first(partial_data_tree)

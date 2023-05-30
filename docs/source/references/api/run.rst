@@ -14,3 +14,5 @@ Run
 .. autofunction:: calibration_mode
 
 .. autofunction:: run
+
+.. autofunction:: show_versions

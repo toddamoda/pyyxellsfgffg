@@ -457,16 +457,38 @@ def run_mode(
     ...     pipeline=config.pipeline,
     ... )
     >>> data
-    <xarray.Dataset>
-    Dimensions:       (readout_time: 1, y: 450, x: 450)
-    Coordinates:
-      * readout_time  (readout_time) int64 1
-      * y             (y) int64 0 1 2 3 4 5 6 7 ... 442 443 444 445 446 447 448 449
-      * x             (x) int64 0 1 2 3 4 5 6 7 ... 442 443 444 445 446 447 448 449
-    Data variables:
-        image         (readout_time, y, x) uint16 9475 9089 8912 ... 9226 9584 10079
-        signal        (readout_time, y, x) float64 3.159 3.03 2.971 ... 3.195 3.36
-        pixel         (readout_time, y, x) float64 1.053e+03 1.01e+03 ... 1.12e+03
+    DataTree('None', parent=None)
+    │   Dimensions:            (period: 5, angle: 3, trap_densities_id: 7, dim_0: 2)
+    │   Coordinates:
+    │     * period             (period) int64 4 8 12 16 20
+    │     * angle              (angle) int64 0 10 20
+    │     * trap_densities_id  (trap_densities_id) int64 0 1 2 3 4 5 6
+    │       trap_densities     (trap_densities_id, dim_0) float64 nan nan ... 70.0 80.0
+    │   Dimensions without coordinates: dim_0
+    │   Data variables:
+    │       *empty*
+    │   Attributes:
+    │       pyxel version:  1.8+141.gb470c395
+    │       running mode:   Observation - Product
+    ├── DataTree('bucket')
+    │       Dimensions:            (trap_densities_id: 7, angle: 3, period: 5, time: 1,
+    │                               y: 100, x: 100, dim_0: 2)
+    │       Coordinates:
+    │         * time               (time) float64 1.0
+    │         * y                  (y) int64 0 1 2 3 4 5 6 7 8 ... 92 93 94 95 96 97 98 99
+    │         * x                  (x) int64 0 1 2 3 4 5 6 7 8 ... 92 93 94 95 96 97 98 99
+    │         * period             (period) int64 4 8 12 16 20
+    │         * angle              (angle) int64 0 10 20
+    │         * trap_densities_id  (trap_densities_id) int64 0 1 2 3 4 5 6
+    │           trap_densities     (trap_densities_id, dim_0) float64 nan nan ... 70.0 80.0
+    │       Dimensions without coordinates: dim_0
+    │       Data variables:
+    │           photon             (trap_densities_id, angle, period, time, y, x) float64 ...
+    │           charge             (trap_densities_id, angle, period, time, y, x) float64 ...
+    │           pixel              (trap_densities_id, angle, period, time, y, x) float64 ...
+    │           signal             (trap_densities_id, angle, period, time, y, x) float64 ...
+    │           image              (trap_densities_id, angle, period, time, y, x) float64 ...
+    └── DataTree('data')
     """
     from pyxel.calibration import Calibration
 
