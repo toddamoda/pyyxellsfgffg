@@ -132,13 +132,13 @@ class Array:
         self._numbytes = get_size(self)
         return self._numbytes
 
-    def to_xarray(self) -> "xr.DataArray":
+    def to_xarray(self, dtype: Optional[np.typing.DTypeLike] = None) -> "xr.DataArray":
         """Convert into a `DataArray` object."""
         import xarray as xr
 
         num_rows, num_cols = self.shape
         return xr.DataArray(
-            self.array,
+            np.array(self.array, dtype=dtype),
             name=self.NAME.lower(),
             dims=["y", "x"],
             coords={"y": range(num_rows), "x": range(num_cols)},

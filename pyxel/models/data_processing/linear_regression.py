@@ -50,16 +50,16 @@ def linear_regression(
     >>> data_tree["/data/linear_regression"]
     DataTree('linear_regression', parent="data")
     └── DataTree('image')
-            Dimensions:        (y: 450, x: 450)
+            Dimensions:        (y: 100, x: 100)
             Coordinates:
-              * y              (y) int64 0 1 2 3 4 5 6 7 ... 442 443 444 445 446 447 448 449
-              * x              (x) int64 0 1 2 3 4 5 6 7 ... 442 443 444 445 446 447 448 449
+              * y              (y) int64 0 1 2 3 4 5 6 7 8 9 ... 91 92 93 94 95 96 97 98 99
+              * x              (x) int64 0 1 2 3 4 5 6 7 8 9 ... 91 92 93 94 95 96 97 98 99
             Data variables:
-                slope          (y, x) float64 6.102e+03 6.144e+03 ... 5.998e+03 6.071e+03
-                intercept      (y, x) float64 3.592e+03 2.1e+03 ... 5.855e+03 4.411e+03
-                r2             (y, x) float64 3.033 40.95 9.039 4.155 ... 30.59 1.269 1.964
-                slope_std      (y, x) float64 nan nan nan nan nan ... nan nan nan nan nan
-                intercept_std  (y, x) float64 nan nan nan nan nan ... nan nan nan nan nan
+                slope          (y, x) float64 396.8 396.2 396.7 397.0 ... 396.1 396.2 396.7
+                intercept      (y, x) float64 8.363e+03 8.356e+03 ... 8.364e+03 8.36e+03
+                r2             (y, x) float64 0.9313 0.9312 0.9316 ... 0.9309 0.931 0.9313
+                slope_std      (y, x) float64 14.94 14.93 14.91 14.91 ... 14.96 14.96 14.94
+                intercept_std  (y, x) float64 846.4 845.8 844.5 844.5 ... 847.7 847.6 846.1
 
     Display slope as a 2D map
 
@@ -80,7 +80,7 @@ def linear_regression(
     data_bucket: Union[Pixel, Photon, Image, Signal] = getattr(detector, data_structure)
 
     x: float = detector.absolute_time
-    y: xr.DataArray = data_bucket.to_xarray()
+    y: xr.DataArray = data_bucket.to_xarray(dtype=float)
 
     if detector.is_first_readout:
         detector.data[f"/linear_regression/{name}/partial/n"] = 1

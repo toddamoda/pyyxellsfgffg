@@ -134,7 +134,7 @@ def mean_variance(
 
     # Extract data from 'detector'
     data_bucket: Union[Pixel, Photon, Image, Signal] = getattr(detector, data_structure)
-    data_array: xr.DataArray = data_bucket.to_xarray()
+    data_array: xr.DataArray = data_bucket.to_xarray(dtype=float)
 
     # Get Mean-Variance data
     mean_variance: xr.DataArray = compute_mean_variance(data_array)

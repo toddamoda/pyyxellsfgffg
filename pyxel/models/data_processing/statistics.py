@@ -82,7 +82,7 @@ def statistics(
     for name in names:
         # Extract data from 'detector'
         data_bucket: Union[Pixel, Photon, Signal, Image] = getattr(detector, name)
-        data_array: xr.DataArray = data_bucket.to_xarray()
+        data_array: xr.DataArray = data_bucket.to_xarray(dtype=float)
 
         # Get current absolute time
         absolute_time = xr.DataArray(
