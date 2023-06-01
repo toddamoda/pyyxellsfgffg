@@ -184,18 +184,21 @@ def compute_dark_current(
             time_step * avg_dark_current * spatial_noise_factor
         )  # sigma of fpn distribution
 
-        dark_current_2d = dark_current_2d * (
-            1 + np.random.lognormal(sigma=dark_current_fpn_sigma, size=shape)
-        )
+        with np.errstate(all="ignore"):
+            dark_current_2d = np.multiply(
+                dark_current_2d,
+                (1 + np.random.lognormal(sigma=dark_current_fpn_sigma, size=shape)),
+            )
 
-    if np.isinf(dark_current_2d).any():
-        warnings.warn(
-            "Unphysical high value for dark current from fixed pattern noise distribution"
-            " will result in inf values. Enable a FWC model to ensure a physical limit.",
-            RuntimeWarning,
-            stacklevel=2,
-        )
-    warnings.simplefilter("once", RuntimeWarning)
+    # warnings.simplefilter("once", RuntimeWarning)
+    #
+    # if np.isinf(dark_current_2d).any():
+    #     warnings.warn(
+    #         "Unphysical high value for dark current from fixed pattern noise distribution"
+    #         " will result in inf values. Enable a FWC model to ensure a physical limit.",
+    #         RuntimeWarning,
+    #         stacklevel=2,
+    #     )
 
     return dark_current_2d
 

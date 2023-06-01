@@ -205,19 +205,19 @@ class Detector:
     def empty(self, empty_all: bool = True) -> None:
         """Empty the data in the detector."""
         if self._photon:
-            self.photon.array *= 0
+            self.photon.array = np.zeros_like(self.photon.array)
 
         self._scene = Scene()
 
         if self._signal:
-            self.signal.array *= 0
+            self.signal.array = np.zeros_like(self.signal.array)
         if self._image:
-            self.image.array *= 0
+            self.image.array = np.zeros_like(self.image.array)
         if self._charge:
             self._charge.empty()
         if empty_all:
             if self._pixel:
-                self.pixel.array *= 0
+                self.pixel.array = np.zeros_like(self.pixel.array)
 
     # TODO: Set an `Output` object ? Is it really needed ? See #330
     def set_output_dir(self, path: Union[str, Path]) -> None:

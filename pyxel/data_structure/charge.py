@@ -402,7 +402,7 @@ class Charge:
         self.nextid = 0
         if not self._frame.empty:
             self._frame = self.EMPTY_FRAME.copy()
-        self._array *= 0
+        self._array = np.zeros_like(self._array)
 
     def frame_empty(self) -> bool:
         """Return True if frame is empty and False otherwise."""
