@@ -64,7 +64,7 @@ def poisson_register(lam, new_image_cube_pix, gain_elements, scic_rate):
     new_image_cube_pix = new_image_cube_pix
 
     for _ in range(gain_elements):
-        # Add possibilty for a CIC event at each register stage
+        # Add possibility for a CIC event at each register stage
         new_image_cube_pix += np.random.poisson(scic_rate)
 
         # Each electron increase has chance for impact ionization, so one needs
