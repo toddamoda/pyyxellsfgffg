@@ -23,6 +23,7 @@ if TYPE_CHECKING:
 
     from pyxel.calibration import Calibration
     from pyxel.detectors import Detector
+    from pyxel.pipelines import ResultId
 
 
 def display_calibration_inputs(
@@ -173,12 +174,12 @@ def display_simulated(ds: "xr.Dataset") -> "hv.Layout":
     if not hv.Store.renderers:
         hv.extension("bokeh")
 
-    result_type = ds.attrs["result_type"]
+    result_type: "ResultId" = ds.attrs["result_type"]
 
     var_name = {
-        "ResultType.Image": "simulated_image",
-        "ResultType.Signal": "simulated_signal",
-        "ResultType.Pixel": "simulated_pixel",
+        "image": "simulated_image",
+        "signal": "simulated_signal",
+        "pixel": "simulated_pixel",
     }[result_type]
 
     simulated_data = ds[var_name]

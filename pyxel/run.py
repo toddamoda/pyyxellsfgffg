@@ -287,7 +287,7 @@ def calibration_mode(
         num_evolutions:   2
         generations:      5
         topology:         unconnected
-        result_type:      ResultType.Image
+        result_type:      image
 
     >>> processors
            island  id_processor                                          processor

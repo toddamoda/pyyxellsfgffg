@@ -10,9 +10,8 @@ import logging
 import operator
 from collections.abc import Sequence
 from copy import deepcopy
-from enum import Enum
 from numbers import Number
-from typing import TYPE_CHECKING, Any, Callable, Literal, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, NewType, Optional, Union
 
 import numpy as np
 
@@ -28,21 +27,36 @@ if TYPE_CHECKING:
     from pyxel.detectors import Detector
 
 
-class ResultType(Enum):
-    """Result type class."""
+# class ResultType(Enum):
+#     """Result type class."""
+#
+#     Photon = "photon"
+#     Charge = "charge"
+#     Pixel = "pixel"
+#     Signal = "signal"
+#     Image = "image"
+#     Data = "data"
+#     All = "all"
 
-    Photon = "photon"
-    Charge = "charge"
-    Pixel = "pixel"
-    Signal = "signal"
-    Image = "image"
-    Data = "data"
-    All = "all"
+ResultId = NewType("ResultId", str)
 
 
-def result_keys(
-    result_type: ResultType = ResultType.All,
-) -> Sequence[Literal["photon", "charge", "pixel", "signal", "image", "data"]]:
+def get_result_id(name: str) -> ResultId:
+    """Convert to a 'ResultId' object."""
+    if name not in (
+        "photon",
+        "charge",
+        "pixel",
+        "signal",
+        "image",
+        "all",
+    ) and not name.startswith("data"):
+        raise ValueError(f"Result type: {name!r} unknown !")
+
+    return ResultId(name)
+
+
+def result_keys(result_type: ResultId) -> Sequence[ResultId]:
     """Return result keys based on result type.
 
     Parameters
@@ -53,22 +67,17 @@ def result_keys(
     -------
     list
     """
-    if result_type == ResultType.Photon:
-        return ["photon"]
-    elif result_type == ResultType.Charge:
-        return ["charge"]
-    elif result_type == ResultType.Pixel:
-        return ["pixel"]
-    elif result_type == ResultType.Signal:
-        return ["signal"]
-    elif result_type == ResultType.Image:
-        return ["image"]
-    elif result_type == ResultType.Data:
-        return ["data"]
-    elif result_type == ResultType.All:
-        return ["photon", "charge", "pixel", "signal", "image", "data"]
+    if result_type == "all":
+        return [
+            ResultId("photon"),
+            ResultId("charge"),
+            ResultId("pixel"),
+            ResultId("signal"),
+            ResultId("image"),
+            ResultId("data"),
+        ]
     else:
-        raise ValueError("Result type unknown.")
+        return [ResultId(result_type)]
 
 
 # TODO: Is this class needed ?
@@ -236,7 +245,11 @@ class Processor:
 
     # TODO: Refactor '.result'. See #524
     def result_to_dataset(
-        self, y: range, x: range, times: np.ndarray, result_type: ResultType
+        self,
+        y: range,
+        x: range,
+        times: np.ndarray,
+        result_type: ResultId,
     ) -> "xr.Dataset":
         """Return the result in a xarray dataset."""
         # Late import to speedup start-up time
@@ -253,9 +266,9 @@ class Processor:
 
         lst: list[xr.DataArray] = []
 
-        key: Literal["photon", "charge", "pixel", "signal", "image", "data"]
+        key: ResultId
         for key in result_keys(result_type):
-            if key == "data":
+            if key.startswith("data"):
                 continue
             elif key == "photon":
                 standard_name = "Photon"
@@ -274,8 +287,8 @@ class Processor:
                 unit = "adu"
             else:
                 raise NotImplementedError
-                standard_name = key
-                unit = ""
+                # standard_name = key
+                # unit = ""
 
             da = xr.DataArray(
                 self.result[key],

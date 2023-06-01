@@ -23,6 +23,7 @@ from pyxel.options import global_options
 
 if TYPE_CHECKING:
     import pandas as pd
+    import xarray as xr
 
 
 def load_image(filename: Union[str, Path]) -> np.ndarray:
@@ -36,7 +37,7 @@ def load_image(filename: Union[str, Path]) -> np.ndarray:
 
     Returns
     -------
-    array : ndarray
+    ndarray
         A 2D array.
 
     Raises
@@ -218,6 +219,49 @@ def load_table(
         raise ValueError("Only .npy, .xlsx, .csv, .txt and .data implemented.")
 
     return table
+
+
+def load_dataarray(filename: Union[str, Path]) -> "xr.DataArray":
+    """Load a ``DataArray`` image.
+
+    Parameters
+    ----------
+    filename : str of Path
+
+    Returns
+    -------
+    DataArray
+        A multi-dimensional array.
+
+    Raises
+    ------
+    FileNotFoundError
+        If an image is not found.
+    """
+    if isinstance(filename, Path):
+        full_filename: Path = filename.expanduser().resolve()
+        if not full_filename.exists():
+            raise FileNotFoundError(f"Input file '{full_filename}' can not be found.")
+
+        url_path: str = str(full_filename)
+
+    else:
+        url_path = filename
+
+    # Define extra parameters to use with 'fsspec'
+    extras = {}
+    if global_options.cache_enabled:
+        url_path = f"simplecache::{url_path}"
+
+        if global_options.cache_folder:
+            extras["simplecache"] = {"cache_storage": global_options.cache_folder}
+
+    import xarray as xr
+
+    with fsspec.open(url_path, mode="rb", **extras) as file_handler:
+        data_array = xr.load_dataarray(file_handler)
+
+    return data_array
 
 
 def load_datacube(filename: Union[str, Path]) -> np.ndarray:

@@ -19,7 +19,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Literal, Optional, Union
 
 import numpy as np
-import numpy.typing as npt
 import pandas as pd
 import xarray as xr
 from dask.delayed import delayed
@@ -35,8 +34,9 @@ from pyxel.calibration import (
     read_datacubes,
 )
 from pyxel.exposure import run_pipeline
+from pyxel.inputs import load_dataarray
 from pyxel.observation import ParameterValues
-from pyxel.pipelines import Processor, ResultType
+from pyxel.pipelines import Processor, ResultId
 
 if TYPE_CHECKING:
     from datatree import DataTree
@@ -86,14 +86,14 @@ class ModelFittingDataTree(ProblemSingleObjective):
         processor: Processor,
         variables: Sequence[ParameterValues],
         readout: "Readout",
-        simulation_output: ResultType,
+        simulation_output: ResultId,
         generations: int,
         population_size: int,
         fitness_func: FittingCallable,
         file_path: Path,
         target_fit_range: Union[FitRange2D, FitRange3D],
         out_fit_range: FitRange3D,
-        target_output: Sequence[Path],
+        target_filenames: Sequence[Path],
         input_arguments: Optional[Sequence[ParameterValues]] = None,
         weights: Optional[Sequence[float]] = None,
         weights_from_file: Optional[Sequence[Path]] = None,
@@ -108,7 +108,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
         self.weighting: Optional[np.ndarray] = None
         self.weighting_from_file: Optional[Sequence[np.ndarray]] = None
         self.fitness_func: FittingCallable = fitness_func
-        self.sim_output: ResultType = simulation_output
+        self.sim_output: ResultId = simulation_output
 
         self.file_path: Path = file_path
         self.pipeline_seed: Optional[int] = pipeline_seed
@@ -139,51 +139,68 @@ class ModelFittingDataTree(ProblemSingleObjective):
         self.champion_f_list: np.ndarray = np.zeros((1, 1))
         self.champion_x_list: np.ndarray = np.zeros((1, num_parameters))
 
-        if self.readout.time_domain_simulation:
-            target_list_3d: Sequence[np.ndarray] = read_datacubes(
-                filenames=target_output
-            )
-            targets = xr.DataArray(
-                target_list_3d,
-                dims=["processor", "readout_time", "y", "x"],
-            )
+        if not simulation_output.startswith("data"):
+            if self.readout.time_domain_simulation:
+                # Target(s) is/are 3D array(s) of dimensions: 'readout_time', 'y', 'x'
+                target_list_3d: Sequence[np.ndarray] = read_datacubes(
+                    filenames=target_filenames
+                )
+                targets = xr.DataArray(
+                    target_list_3d,
+                    dims=["processor", "readout_time", "y", "x"],
+                )
 
-            times = len(targets["readout_time"])
-            rows = len(targets["y"])
-            cols = len(targets["x"])
+                times = len(targets["readout_time"])
+                rows = len(targets["y"])
+                cols = len(targets["x"])
 
-            # times, rows, cols = target_list_3d[0].shape
-            check_fit_ranges(
-                target_fit_range=target_fit_range,
-                out_fit_range=out_fit_range,
-                rows=rows,
-                cols=cols,
-                readout_times=times,
+                # times, rows, cols = target_list_3d[0].shape
+                check_fit_ranges(
+                    target_fit_range=target_fit_range,
+                    out_fit_range=out_fit_range,
+                    rows=rows,
+                    cols=cols,
+                    readout_times=times,
+                )
+
+            else:
+                # Target(s) is/are 2D array(s) of dimensions: 'y', 'x'
+                target_list_2d: Sequence[np.ndarray] = read_data(
+                    filenames=target_filenames
+                )
+                targets = xr.DataArray(target_list_2d, dims=["processor", "y", "x"])
+
+                rows = len(targets["y"])
+                cols = len(targets["x"])
+
+                check_fit_ranges(
+                    target_fit_range=target_fit_range,
+                    out_fit_range=out_fit_range,
+                    rows=rows,
+                    cols=cols,
+                )
+                self._configure_weights(
+                    weights=weights,
+                    weights_from_file=weights_from_file,
+                )
+
+            self.targ_fit_range: Union[FitRange2D, FitRange3D, None] = target_fit_range
+            self.sim_fit_range: Optional[FitRange3D] = out_fit_range
+            self.all_target_data: xr.DataArray = targets.sel(
+                indexers=target_fit_range.to_dict()
             )
 
         else:
-            target_list_2d: Sequence[np.ndarray] = read_data(filenames=target_output)
-            targets = xr.DataArray(target_list_2d, dims=["processor", "y", "x"])
+            # Target(s) is/are arrays(s) of unknown number of dimensions.
+            # For this reason the file(s) are directly read as 'DataArray' object(s).
+            targets_list: Sequence["xr.DataArray"] = [
+                load_dataarray(filename) for filename in target_filenames
+            ]
+            targets = xr.concat(targets_list, dim="processor")
 
-            rows = len(targets["y"])
-            cols = len(targets["x"])
-
-            check_fit_ranges(
-                target_fit_range=target_fit_range,
-                out_fit_range=out_fit_range,
-                rows=rows,
-                cols=cols,
-            )
-            self._configure_weights(
-                weights=weights,
-                weights_from_file=weights_from_file,
-            )
-
-        self.targ_fit_range: Union[FitRange2D, FitRange3D] = target_fit_range
-        self.sim_fit_range: FitRange3D = out_fit_range
-        self.all_target_data: xr.DataArray = targets.sel(
-            indexers=self.targ_fit_range.to_dict()
-        )
+            self.targ_fit_range = None
+            self.sim_fit_range = None
+            self.all_target_data = targets
 
     def get_bounds(self) -> tuple[Sequence[float], Sequence[float]]:
         """Get the box bounds of the problem (lower_boundary, upper_boundary).
@@ -209,6 +226,8 @@ class ModelFittingDataTree(ProblemSingleObjective):
         weights_from_file
         """
         if weights_from_file is not None:
+            assert self.targ_fit_range is not None
+
             if self.readout.time_domain_simulation:
                 wf = read_datacubes(weights_from_file)
                 self.weighting_from_file = [
@@ -282,14 +301,10 @@ class ModelFittingDataTree(ProblemSingleObjective):
         """Extract 2D data from a processor."""
         import xarray as xr
 
-        if self.sim_output == ResultType.Image:
-            simulated_data = data["bucket/image"]
-
-        elif self.sim_output == ResultType.Signal:
-            simulated_data = data["bucket/signal"]
-
-        elif self.sim_output == ResultType.Pixel:
-            simulated_data = data["bucket/pixel"]
+        if self.sim_output in ("image", "signal", "pixel"):
+            simulated_data = data[f"bucket/{self.sim_output}"]
+        elif self.sim_output.startswith("data"):
+            simulated_data = data[self.sim_output]
         else:
             raise NotImplementedError(
                 f"Simulation mode: {self.sim_output!r} not implemented"
@@ -298,25 +313,45 @@ class ModelFittingDataTree(ProblemSingleObjective):
         if not isinstance(simulated_data, xr.DataArray):
             raise TypeError("Expected a 'DataArray'")
 
-        simulated_data = simulated_data.sel(indexers=self.sim_fit_range.to_dict())
+        if self.sim_fit_range is not None:
+            simulated_data = simulated_data.sel(indexers=self.sim_fit_range.to_dict())
 
         return simulated_data
 
     def _calculate_fitness(
         self,
-        simulated_data: npt.ArrayLike,
-        target_data: np.ndarray,
+        simulated_data: "xr.DataArray",
+        target_data: "xr.DataArray",
         weighting: Optional[np.ndarray] = None,
     ) -> float:
+        if self.sim_output.startswith("data"):
+            assert simulated_data.ndim == target_data.ndim
+
+            # Create 'simulated_renamed' with the same dimensions as 'target_data'
+            renamed_dimensions = dict(zip(simulated_data.dims, target_data.dims))
+            simulated_renamed: xr.DataArray = simulated_data.rename(renamed_dimensions)
+
+            # 'simulated_interpolated' has the same coordinates as 'target_data'
+            simulated_interpolated = simulated_renamed.interp_like(target_data)
+
+            simulated_2d = np.array(simulated_interpolated, dtype=float)
+
+        else:
+            simulated_2d = np.array(simulated_data, dtype=float)
+
+        target_2d = np.array(target_data, dtype=float)
+
         if weighting is not None:
             factor = weighting
         else:
-            factor = np.ones_like(target_data)
+            factor = np.ones_like(target_2d)
+
+        weighting_2d = np.array(factor, dtype=float)
 
         fitness: float = self.fitness_func(
-            simulated=np.array(simulated_data, dtype=float),
-            target=np.array(target_data, dtype=float),
-            weighting=np.array(factor, dtype=float),
+            simulated=simulated_2d,
+            target=target_2d,
+            weighting=weighting_2d,
         )
 
         return fitness

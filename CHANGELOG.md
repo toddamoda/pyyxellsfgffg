@@ -9,7 +9,7 @@ Minor releases include updated stdlib stubs from typeshed.
 
 Pyxel doesn't use SemVer anymore, since most minor releases have at least minor backward incompatible changes.
 
-## UNRELEASED
+## 1.9 / 2023-06-01
 
 This release brings a number of bugfixes and documentation improvements.
 
@@ -39,6 +39,8 @@ The minimum versions of some dependencies were changed:
   [!663](https://gitlab.com/esa/pyxel/-/merge_requests/663)).
 * Fix issue in function [`pyxel.run_mode`](https://esa.gitlab.io/pyxel/doc/latest/references/api/run.html#pyxel.run_mode).
   (See [!669](https://gitlab.com/esa/pyxel/-/merge_requests/669)).
+* Improve Calibration mode when using [`pyxel.run_mode`](https://esa.gitlab.io/pyxel/doc/latest/references/api/run.html#pyxel.run_mode).
+  (See [!666](https://gitlab.com/esa/pyxel/-/merge_requests/666)).
 
 ### Documentation
 * The general documentation has been reviewed and minor fixes made such as:

@@ -125,7 +125,7 @@ output fits image for each generation to see the evolution.
 Outputs
 =======
 
-User can save on disk contents of the detector (``pixel``,``signal``, and ``image`` arrays)
+User can save on disk contents of the detector (``pixel``, ``signal`` and ``image`` arrays)
 for every run of the pipeline - every parameter combination.
 User can also save at the end of the simulation the ``dataset`` containing all the results,
 as well as ``logs`` and ``parameters`` in NetCDF format.

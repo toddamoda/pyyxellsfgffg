@@ -76,22 +76,22 @@ commands in the terminal:
 
     .. code-block:: bash
 
-        curl -O https://esa.gitlab.io/pyxel/doc/latest/pyxel-1.8-environment.yaml
-        conda env create -f pyxel-1.8-environment.yaml
+        curl -O https://esa.gitlab.io/pyxel/doc/latest/pyxel-1.9-environment.yaml
+        conda env create -f pyxel-1.9-environment.yaml
 
 .. tab:: Windows (Powershell)
 
     .. code-block:: bash
 
-        wget https://esa.gitlab.io/pyxel/doc/latest/pyxel-1.8-environment.yaml -outfile "pyxel-1.8-environment.yaml"
-        conda env create -f pyxel-1.8-environment.yaml
+        wget https://esa.gitlab.io/pyxel/doc/latest/pyxel-1.9-environment.yaml -outfile "pyxel-1.9-environment.yaml"
+        conda env create -f pyxel-1.9-environment.yaml
 
 
 Once the conda environment has been created you can active it using:
 
 .. code-block:: bash
 
-    conda activate pyxel-1.8
+    conda activate pyxel-1.9
 
 You can now proceed to download the Pyxel tutorial notebooks.
 The total size to download is ~200 MB.

@@ -10,8 +10,8 @@
 
 import logging
 import operator
-from collections.abc import Mapping
-from typing import TYPE_CHECKING, Literal, Optional, Union
+from collections.abc import Mapping, Sequence
+from typing import TYPE_CHECKING, Optional, Union
 
 import numpy as np
 import xarray as xr
@@ -21,7 +21,7 @@ from tqdm.auto import tqdm
 from pyxel import __version__
 from pyxel.data_structure import Charge, Image, Photon, Pixel, Signal
 from pyxel.exposure import Readout
-from pyxel.pipelines import Processor, ResultType, result_keys
+from pyxel.pipelines import Processor, ResultId, get_result_id, result_keys
 from pyxel.util import set_random_seed
 
 if TYPE_CHECKING:
@@ -35,12 +35,12 @@ class Exposure:
         self,
         outputs: "ExposureOutputs",
         readout: "Readout",
-        result_type: Literal["image", "signal", "pixel", "all"] = "all",
+        result_type: str = "all",
         pipeline_seed: Optional[int] = None,
     ):
         self.outputs = outputs
         self.readout = readout
-        self._result_type = ResultType(result_type)
+        self._result_type: ResultId = get_result_id(result_type)
         self._pipeline_seed = pipeline_seed
 
     def __repr__(self) -> str:
@@ -48,12 +48,12 @@ class Exposure:
         return f"{cls_name}<outputs={self.outputs!r}>"
 
     @property
-    def result_type(self) -> ResultType:
+    def result_type(self) -> ResultId:
         """TBW."""
         return self._result_type
 
     @result_type.setter
-    def result_type(self, value: ResultType) -> None:
+    def result_type(self, value: ResultId) -> None:
         """TBW."""
         self._result_type = value
 
@@ -140,7 +140,7 @@ def run_exposure_pipeline(
         "CalibrationOutputs", "ObservationOutputs", "ExposureOutputs", None
     ] = None,
     progressbar: bool = False,
-    result_type: ResultType = ResultType.All,
+    result_type: ResultId = ResultId("all"),  # noqa: B008
     pipeline_seed: Optional[int] = None,
 ) -> Processor:
     """Run standalone exposure pipeline.
@@ -149,7 +149,7 @@ def run_exposure_pipeline(
     ----------
     pipeline_seed: int
         Random seed for the pipeline.
-    result_type: ResultType
+    result_type: ResultId
     processor: Processor
     readout: Readout
     outputs: DynamicOutputs
@@ -185,7 +185,7 @@ def run_exposure_pipeline(
         detector.empty()
 
         if progressbar:
-            pbar = tqdm(total=num_steps, desc="Observation time: ")
+            pbar = tqdm(total=num_steps, desc="Readout time: ")
 
         keys = result_keys(result_type)
 
@@ -242,7 +242,7 @@ def run_pipeline(
         "CalibrationOutputs", "ObservationOutputs", "ExposureOutputs", None
     ] = None,
     progressbar: bool = False,
-    result_type: ResultType = ResultType.All,
+    result_type: ResultId = ResultId("all"),  # noqa: B008
     pipeline_seed: Optional[int] = None,
 ) -> DataTree:
     """Run standalone exposure pipeline.
@@ -251,7 +251,7 @@ def run_pipeline(
     ----------
     pipeline_seed : int
         Random seed for the pipeline.
-    result_type : ResultType
+    result_type : ResultId
     processor : Processor
     readout : Readout
     outputs : DynamicOutputs
@@ -287,9 +287,9 @@ def run_pipeline(
         detector.empty()
 
         if progressbar:
-            pbar = tqdm(total=num_steps, desc="Observation time: ")
+            pbar = tqdm(total=num_steps, desc="Readout time: ")
 
-        keys = result_keys(result_type)
+        keys: Sequence[ResultId] = result_keys(result_type)
 
         data_tree: DataTree = DataTree()
 
@@ -324,9 +324,9 @@ def run_pipeline(
 
             partial_data_tree: DataTree = DataTree()
 
-            key: Literal["photon", "charge", "pixel", "signal", "image", "data"]
+            key: ResultId
             for key in keys:
-                if key == "data":
+                if key.startswith("data"):
                     continue
 
                 obj: Union[Photon, Pixel, Image, Signal, Charge] = getattr(

@@ -103,7 +103,7 @@ Example of a configuration file
 Outputs
 =======
 
-User can save on disk contents of the detector (``pixel``,``signal``, and ``image`` arrays)
+User can save on disk contents of the detector (``pixel``, ``signal`` and ``image`` arrays)
 for every run of the pipeline, which is not recommended due to a large amount of pipelines run.
 User can also save at the end of the simulation the ``dataset`` containing all the results in NetCDF,
 as well as ``logs``.

@@ -70,7 +70,7 @@ and emptying the data at each iteration of the detector through the pipeline.
 Outputs
 =======
 
-User can save on disk contents of the detector (``pixel``,``signal``, and ``image`` arrays)
+User can save on disk contents of the detector (``pixel``, ``signal`` and ``image`` arrays)
 for every run of the pipeline - every readout time.
 User can also save at the end of the simulation the ``dataset`` containing all the results.
 

@@ -58,6 +58,7 @@ dependencies = [
     "astropy>=4.3",
     "fsspec[http]>=2021",
     "h5py",
+    "h5netcdf",
     "pyyaml",
     "xlrd",
     "openpyxl",
