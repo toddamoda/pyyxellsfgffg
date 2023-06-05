@@ -1,9 +1,22 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+# Copyright (c) 2023 Arthur Kadela and Joonas Viuho, Niels Bohr Institute, University of Copenhagen
 #
-#  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
-#  is part of this Pyxel package. No part of the package, including
-#  this file, may be copied, modified, propagated, or distributed except according to
-#  the terms contained in the file ‘LICENCE.txt’.
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 """Model for replicating the gain register in an EMCCD, including clock-induced-charge (CIC)."""
 import numba
@@ -17,7 +30,7 @@ def multiplication_register(
     total_gain: int,
     gain_elements: int,
     pcic_rate: float,
-    scic_rate: float
+    scic_rate: float,
 ) -> None:
     """Calculate total gain of image with EMCCD multiplication register.
 
@@ -27,9 +40,9 @@ def multiplication_register(
     total_gain : int
     gain_elements : int
         Amount of single stage gain elements in the EMCCD register.
-    pCIC_rate : float
+    pcic_rate : float
         Parallel CIC rate
-    sCIC_rate : float
+    scic_rate : float
         Serial CIC rate
     """
 
@@ -41,7 +54,7 @@ def multiplication_register(
         total_gain=total_gain,
         gain_elements=gain_elements,
         pcic_rate=pcic_rate,
-        scic_rate=scic_rate
+        scic_rate=scic_rate,
     ).astype(float)
 
 
@@ -54,11 +67,11 @@ def poisson_register(lam, new_image_cube_pix, gain_elements, scic_rate):
     lam : float
     new_image_cube_pix : int
     gain_elements : int
-    sCIC_rate : float
+    scic_rate : float
 
     Returns
     -------
-    new_image_cube_pix : int
+    int
     """
 
     new_image_cube_pix = new_image_cube_pix
@@ -83,7 +96,7 @@ def multiplication_register_poisson(
     total_gain: int,
     gain_elements: int,
     pcic_rate: float,
-    scic_rate: float
+    scic_rate: float,
 ) -> np.ndarray:
     """Calculate total gain of image from EMCCD register.
 
@@ -100,7 +113,7 @@ def multiplication_register_poisson(
 
     Returns
     -------
-    new_image_cube : np.ndarray
+    np.ndarray
     """
 
     new_image_cube = np.zeros_like(image_cube, dtype=np.int32)
@@ -118,7 +131,7 @@ def multiplication_register_poisson(
                 lam=lam,
                 new_image_cube_pix=image_cube[j, i],
                 gain_elements=gain_elements,
-                scic_rate=scic_rate
+                scic_rate=scic_rate,
             )
 
     return new_image_cube

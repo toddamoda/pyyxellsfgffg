@@ -70,7 +70,6 @@ def multiplication_register_poisson(
 
     for j in range(0, yshape):
         for i in range(0, xshape):
-
             if image_cube[j, i] < 0:
                 new_image_cube[j, i] = poisson_register(
                     lam=lam, image_cube_pix=0, gain_elements=gain_elements
