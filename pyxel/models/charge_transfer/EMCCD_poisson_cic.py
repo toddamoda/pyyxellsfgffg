@@ -49,6 +49,9 @@ def multiplication_register(
     if total_gain < 0 or gain_elements < 0:
         raise ValueError("Wrong input parameter")
 
+    # TODO: Set number of threads used by numba
+    #       See: https://numba.readthedocs.io/en/stable/user/threading-layer.html#api-reference
+
     detector.pixel.array = multiplication_register_poisson(
         image_cube=detector.pixel.array,
         total_gain=total_gain,
@@ -125,8 +128,8 @@ def multiplication_register_poisson(
     lam = total_gain ** (1 / gain_elements) - 1
     yshape, xshape = image_cube.shape
 
-    for j in numba.prange(0, yshape):
-        for i in numba.prange(0, xshape):
+    for j in numba.prange(yshape):
+        for i in numba.prange(xshape):
             new_image_cube[j, i] = poisson_register(
                 lam=lam,
                 new_image_cube_pix=image_cube[j, i],
