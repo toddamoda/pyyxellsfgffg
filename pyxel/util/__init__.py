@@ -19,7 +19,7 @@ from .memory import get_size, memory_usage_details
 from .examples import download_examples
 from .timing import time_pipeline
 from .add_model import create_model
-from .random import set_random_seed
+from .randomize import set_random_seed
 from .image import fit_into_array, load_cropped_and_aligned_image
 
 __all__ = [
