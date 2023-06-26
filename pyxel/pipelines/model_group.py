@@ -9,14 +9,12 @@
 import logging
 from collections.abc import Iterator, Mapping, Sequence
 from copy import deepcopy
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
-from pyxel import util
 from pyxel.pipelines import ModelFunction
 
 if TYPE_CHECKING:
     from pyxel.detectors import Detector
-    from pyxel.pipelines import DetectionPipeline
 
 
 # TODO: These methods could also be as a `abc.Sequence` with magical methods:
@@ -64,34 +62,14 @@ class ModelGroup:
         return dir(type(self)) + [model.name for model in self.models]
 
     # TODO: Why is this method returning a `bool` ?
-    def run(
-        self,
-        detector: "Detector",
-        pipeline: "DetectionPipeline",
-        abort_model: Optional[str] = None,
-    ) -> bool:
+    def run(self, detector: "Detector") -> None:
         """Execute each enabled model in this group.
 
         Parameters
         ----------
         detector : Detector
-        pipeline : DetectionPipeline
-        abort_model : str, optional
-
-        Returns
-        -------
-        bool
-            TBW.
         """
         model: ModelFunction
-        for model in self.models:
-            if model.name == abort_model:
-                return True
-            if not pipeline.is_running:
-                raise util.PipelineAborted("Pipeline has been aborted.")
-            else:
-                if model.enabled:
-                    self._log.info("Model: %r", model.name)
-                    model(detector)
-
-        return False
+        for model in self:
+            self._log.info("Model: %r", model.name)
+            model(detector)

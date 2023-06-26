@@ -12,7 +12,7 @@ import logging
 
 import numpy as np
 
-from typing import Optional, Callable
+from typing import Callable
 
 # flake8: noqa
 from .memory import get_size, memory_usage_details
@@ -25,24 +25,11 @@ from .image import fit_into_array, load_cropped_and_aligned_image
 __all__ = [
     "convert_to_int",
     "round_convert_to_int",
-    "PipelineAborted",
     "LogFilter",
     "load_cropped_and_aligned_image",
     "set_random_seed",
     "deprecated",
 ]
-
-
-class PipelineAborted(Exception):
-    """Exception to force the pipeline to stop processing."""
-
-    def __init__(
-        self,
-        message: Optional[str] = None,
-        # errors=None
-    ):
-        super().__init__(message)
-        # self.errors = errors
 
 
 def round_convert_to_int(input_array: np.ndarray) -> np.ndarray:

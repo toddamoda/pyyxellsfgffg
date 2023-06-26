@@ -50,7 +50,6 @@ class DetectionPipeline:
         data_processing: Optional[Sequence[ModelFunction]] = None,
         doc: Optional[str] = None,
     ):
-        self._is_running = False
         self.doc = doc
 
         self._scene_generation: Optional[ModelGroup] = (
@@ -125,7 +124,7 @@ class DetectionPipeline:
 
     def __repr__(self) -> str:
         cls_name: str = self.__class__.__name__
-        return f"{cls_name}<is_running={self._is_running!r}, doc={self.doc!r}>"
+        return f"{cls_name}<doc={self.doc!r}>"
 
     def __iter__(self) -> Iterable[ModelFunction]:
         for model in self.MODEL_GROUPS:
@@ -211,15 +210,6 @@ class DetectionPipeline:
     def model_group_names(self) -> tuple[str, ...]:
         """TBW."""
         return self.MODEL_GROUPS
-
-    @property
-    def is_running(self) -> bool:
-        """Return the running state of this pipeline."""
-        return self._is_running
-
-    def abort(self) -> None:
-        """TBW."""
-        self._is_running = False
 
     # TODO: Is this method used ?
     def get_model(self, name: str) -> ModelFunction:
