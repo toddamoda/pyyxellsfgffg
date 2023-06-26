@@ -22,6 +22,8 @@ This release brings a number of bugfixes and documentation improvements.
 ### Models
 * Fix an error in a formula for model 'dead_time' in 'readout_electronics'.
   (See [!681](https://gitlab.com/esa/pyxel/-/merge_requests/681)).
+* Refactor EMCCD multiplication register model in 'Charge Transfer'.
+  (See [!678](https://gitlab.com/esa/pyxel/-/merge_requests/678)).
 
 ### Others
 * Cannot load a FITS file from an HTTP URL.
