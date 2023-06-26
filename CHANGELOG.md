@@ -20,6 +20,8 @@ This release brings a number of bugfixes and documentation improvements.
 ### Documentation
 
 ### Models
+* Refactor EMCCD multiplication register model in 'Charge Transfer'.
+  (See [!678](https://gitlab.com/esa/pyxel/-/merge_requests/678)).
 
 ### Others
 * Cannot load a FITS file from an HTTP URL.
