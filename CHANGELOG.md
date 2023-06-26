@@ -20,6 +20,8 @@ This release brings a number of bugfixes and documentation improvements.
 ### Documentation
 
 ### Models
+* New model 'Wavelength dependence AIRS' for 'Photon Collection'.
+  (See [!677](https://gitlab.com/esa/pyxel/-/merge_requests/677)).
 
 ### Others
 * Cannot load a FITS file from an HTTP URL.
