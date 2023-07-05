@@ -104,12 +104,17 @@ class Exposure:
 
         return ds
 
-    def run_exposure_new(self, processor: Processor) -> DataTree:
+    def run_exposure_new(
+        self,
+        processor: Processor,
+        with_intermediate_steps: bool,
+    ) -> DataTree:
         """Run an observation pipeline.
 
         Parameters
         ----------
         processor : Processor
+        with_intermediate_steps : bool
 
         Returns
         -------
@@ -125,6 +130,7 @@ class Exposure:
             progressbar=progressbar,
             result_type=self.result_type,
             pipeline_seed=self.pipeline_seed,
+            with_intermediate_steps=with_intermediate_steps,
         )
 
         data_tree.attrs["running mode"] = "Exposure"
@@ -244,20 +250,22 @@ def run_pipeline(
     progressbar: bool = False,
     result_type: ResultId = ResultId("all"),  # noqa: B008
     pipeline_seed: Optional[int] = None,
+    with_intermediate_steps: bool = False,
 ) -> DataTree:
     """Run standalone exposure pipeline.
 
     Parameters
     ----------
-    pipeline_seed : int
-        Random seed for the pipeline.
-    result_type : ResultId
     processor : Processor
     readout : Readout
     outputs : DynamicOutputs
         Sampling outputs.
     progressbar : bool
         Sets visibility of progress bar.
+    result_type : ResultId
+    pipeline_seed : int
+        Random seed for the pipeline.
+    with_intermediate_steps : bool
 
     Returns
     -------
@@ -310,7 +318,7 @@ def run_pipeline(
 
             detector.empty(empty_all)
 
-            processor.run_pipeline()
+            processor.run_pipeline(with_intermediate_steps=with_intermediate_steps)
 
             if outputs and detector.read_out:
                 outputs.save_to_file(processor)
