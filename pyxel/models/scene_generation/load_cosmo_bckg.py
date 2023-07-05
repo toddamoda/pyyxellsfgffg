@@ -19,7 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-"""Load a Cosmoslogical background selected"""
+"""Load a Cosmological background selected."""
 
 
 from pathlib import Path
@@ -32,7 +32,7 @@ from pyxel.util import load_cropped_and_aligned_image
 
 
 def load_cosmo_bckg(detector: Detector, filename: Union[str, Path]) -> None:
-    """Load the cosmoslogical background selected.
+    """Load the cosmological background selected.
 
     Parameters
     ----------
