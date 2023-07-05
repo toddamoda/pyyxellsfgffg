@@ -187,8 +187,12 @@ class Processor:
             setattr(obj, att, new_value)
 
     # TODO: Create a method `DetectionPipeline.run`
-    def run_pipeline(self) -> None:
+    def run_pipeline(self, with_intermediate_steps: bool = False) -> None:
         """Run a pipeline with all its models in the right order.
+
+        Parameters
+        ----------
+        with_intermediate_steps : bool
 
         Notes
         -----
@@ -199,10 +203,14 @@ class Processor:
         for group_name in self.pipeline.model_group_names:
             # Get a group of models
             models_grp: Optional[ModelGroup] = getattr(self.pipeline, group_name)
+            if not models_grp:
+                continue
 
-            if models_grp:
-                self._log.info("Processing group: %r", group_name)
-                models_grp.run(detector=self.detector)
+            self._log.info("Processing group: %r", group_name)
+            models_grp.run(
+                detector=self.detector,
+                with_intermediate_steps=with_intermediate_steps,
+            )
 
     # TODO: Refactor '.result'. See #524. Deprecate this method ?
     @property
