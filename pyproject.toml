@@ -85,7 +85,7 @@ tracker = "https://gitlab.com/esa/pyxel/issues"
 
 [project.optional-dependencies]
 calibration = [ "pygmo>=2.16.1" ]
-model = [ "poppy>=1.1.0" ]
+model = [ "poppy>=1.1.0", "dustmaps"]
 io = [ "asdf" ]
 all = [
     "pyxel-sim[calibration]",
@@ -176,6 +176,7 @@ module = [
     "bokeh.*",
     "jinja2.*",
     "click.*",
+    "dustmaps.*"
 ]
 ignore_errors=  true
 ignore_missing_imports = true

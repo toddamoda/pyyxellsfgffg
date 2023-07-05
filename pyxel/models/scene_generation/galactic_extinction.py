@@ -126,7 +126,7 @@ def cardelli_far_UV(x: float, R_v: float = 3.1) -> float:
     return a + b / R_v
 
 
-def cardelli(x: float, R_v: float = 3.1) -> float:
+def cardelli(x, R_v: float = 3.1):
     """Cardelli function (Cardelli et al., 1989).
 
     Parameters
@@ -156,7 +156,7 @@ def cardelli(x: float, R_v: float = 3.1) -> float:
     )
 
 
-def extintion_cardelli(wave: float, A_v: float, R_v: float = 3.1, units="nm"):
+def extintion_cardelli(wave, A_v: float, R_v: float = 3.1, units="nm"):
     """Application of Cardelli's extinction at a given wavelength (Cardelli et al., 1989).
 
     Parameters
@@ -210,7 +210,7 @@ def extinction_map(
 
 
 def load_extinction(
-    detector: Detector, coords_detector: dict, plate_scale:float, central_wv:float
+    detector: Detector, coords_detector: dict, plate_scale: float, central_wv: float
 ) -> None:
     extinction: np.ndarray = extinction_map(
         coords_detector=SkyCoord(**coords_detector),

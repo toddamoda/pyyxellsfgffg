@@ -20,13 +20,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 """Tools to calculate coordinates of each pixel."""
+from typing import Optional
+
 import numpy as np
 from astropy import wcs
 from astropy.coordinates import SkyCoord
 
 
-def index_coords(data: np.ndarray, origin: tuple = None):
-    """A function that creates a map of the numbered pixels from an origin selected.
+def index_coords(data: np.ndarray, origin: Optional[tuple] = None):
+    """Create a map of the numbered pixels from an origin selected.
 
     Parameters
     ----------
@@ -53,7 +55,7 @@ def index_coords(data: np.ndarray, origin: tuple = None):
 def detector_coordinates(
     coords_detector: SkyCoord, image: np.ndarray, plate_scale: float
 ):
-    """A function that provides a list of the coordinates of every pixel in the detector (ra, dec).
+    """Provide a list of the coordinates of every pixel in the detector (ra, dec).
 
     Parameters
     ----------
