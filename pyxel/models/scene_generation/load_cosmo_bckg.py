@@ -19,42 +19,30 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-"""Convertion from photons/s/cm2/pixel to photons/pixel."""
+"""Load a Cosmoslogical background selected"""
 
+
+from pathlib import Path
+from typing import Union
+import xarray as xr
 import numpy as np
 
+from pyxel.inputs import load_image
+from pyxel.util import load_cropped_and_aligned_image
 from pyxel.detectors import Detector
 
-
-def flux2phot(scene: np.ndarray, t_exp: float, aperture: float) -> np.ndarray:
-    """Convert flux (phontons/s/cm2) to photon units
-
-    Parameters
-    ----------
-    scene
-    t_exp
-    aperture
-
-    Returns
-    -------
-    """
-    col_area = np.pi * (aperture / 2) ** 2
-    scene_photons = scene * t_exp * col_area
-    return scene_photons
-
-
-def flux_convert(detector: Detector, aperture: float) -> np.ndarray:
-    """Convert flux (phontons/s/cm2) to photon units
+def load_cosmo_bckg(
+    detector: Detector, filename: Union[str, Path]) -> None:
+    """Load the cosmoslogical background selected.
 
     Parameters
     ----------
-    aperture
-
-    Returns
-    -------
+    detector : Detector
+        Pyxel Detector object.
+    filename : Path or str
+        Input filename of the cosmological background.
     """
-    scene = detector.data["/scene"]
+    cosmo_bckg = load_cropped_and_aligned_image(shape=detector.geometry.shape, filename=filename)
 
-    #print(f"{detector.time=}, {detector.absolute_time}")
-    scene_photons = flux2phot(scene=scene, t_exp=detector.time, aperture=aperture)
-    detector.photon.array = np.asarray(scene_photons)
+    detector.data["/scene"] += xr.DataArray(cosmo_bckg, attrs={"units": "photon/s/cm2"})
+
