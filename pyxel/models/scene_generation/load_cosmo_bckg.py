@@ -24,15 +24,14 @@
 
 from pathlib import Path
 from typing import Union
+
 import xarray as xr
-import numpy as np
 
-from pyxel.inputs import load_image
-from pyxel.util import load_cropped_and_aligned_image
 from pyxel.detectors import Detector
+from pyxel.util import load_cropped_and_aligned_image
 
-def load_cosmo_bckg(
-    detector: Detector, filename: Union[str, Path]) -> None:
+
+def load_cosmo_bckg(detector: Detector, filename: Union[str, Path]) -> None:
     """Load the cosmoslogical background selected.
 
     Parameters
@@ -42,7 +41,9 @@ def load_cosmo_bckg(
     filename : Path or str
         Input filename of the cosmological background.
     """
-    cosmo_bckg = load_cropped_and_aligned_image(shape=detector.geometry.shape, filename=filename)
+    cosmo_bckg = load_cropped_and_aligned_image(
+        shape=detector.geometry.shape,
+        filename=filename,
+    )
 
     detector.data["/scene"] += xr.DataArray(cosmo_bckg, attrs={"units": "photon/s/cm2"})
-
