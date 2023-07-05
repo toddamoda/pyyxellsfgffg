@@ -103,6 +103,7 @@ def _run_exposure_mode(
     exposure: "Exposure",
     detector: Detector,
     pipeline: "DetectionPipeline",
+    with_intermediate_steps: bool,
 ) -> "DataTree":
     """Run an 'exposure' pipeline.
 
@@ -110,9 +111,10 @@ def _run_exposure_mode(
 
     Parameters
     ----------
-    exposure: Exposure
-    detector: Detector
-    pipeline: DetectionPipeline
+    exposure : Exposure
+    detector : Detector
+    pipeline : DetectionPipeline
+    with_intermediate_steps : bool
 
     Returns
     -------
@@ -155,7 +157,10 @@ def _run_exposure_mode(
 
     processor = Processor(detector=detector, pipeline=pipeline)
 
-    result: DataTree = exposure.run_exposure_new(processor=processor)
+    result: DataTree = exposure.run_exposure_new(
+        processor=processor,
+        with_intermediate_steps=with_intermediate_steps,
+    )
 
     if exposure_outputs.save_exposure_data:
         exposure_outputs.save_exposure_outputs(dataset=result)
@@ -420,6 +425,7 @@ def run_mode(
     mode: Union[Exposure, Observation, "Calibration"],
     detector: Detector,
     pipeline: DetectionPipeline,
+    with_intermediate_steps: bool = False,
 ) -> "DataTree":
     """Run a pipeline.
 
@@ -431,6 +437,8 @@ def run_mode(
         This object is the container for all the data used for the models.
     pipeline : DetectionPipeline
         This is the core algorithm of Pyxel. This pipeline contains all the models to run.
+    with_intermediate_steps : bool, default: False
+        Add all intermediate steps into the results.
 
     Returns
     -------
@@ -497,6 +505,7 @@ def run_mode(
             exposure=mode,
             detector=detector,
             pipeline=pipeline,
+            with_intermediate_steps=with_intermediate_steps,
         )
 
     elif isinstance(mode, Observation):

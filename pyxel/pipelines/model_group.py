@@ -61,14 +61,42 @@ class ModelGroup:
     def __dir__(self):
         return dir(type(self)) + [model.name for model in self.models]
 
-    def run(self, detector: "Detector"):
+    def run(
+        self,
+        detector: "Detector",
+        with_intermediate_steps: bool = False,
+    ):
         """Execute each enabled model in this group.
 
         Parameters
         ----------
         detector : Detector
+        with_intermediate_steps : bool
         """
         model: ModelFunction
         for model in self:
             self._log.info("Model: %r", model.name)
             model(detector)
+
+            if with_intermediate_steps:
+                import xarray as xr
+                from datatree import DataTree
+
+                # Get current absolute time
+                absolute_time = xr.DataArray(
+                    [detector.absolute_time],
+                    dims=["time"],
+                    attrs={"units": "s"},
+                )
+
+                key: str = f"/intermediate/{self._name}/{model.name}"
+                ds: xr.Dataset = detector.to_xarray().expand_dims(time=absolute_time)
+
+                if detector.is_first_readout:
+                    new_data_tree: DataTree = DataTree(ds)
+                else:
+                    previous_data_tree: DataTree = detector.data[key]  # type: ignore
+
+                    new_data_tree = previous_data_tree.combine_first(ds)
+
+                detector.data[key] = new_data_tree
