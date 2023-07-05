@@ -190,7 +190,7 @@ def extinction_map(
          Image example to take the characteristics from.
      plate_scale: float (in arcsec/pixel).
          Plate scale of the telescope used.
-     central_wv: float, optional. (Default: 3.1).
+     central_wv: float, optional.
          Wavelength at the center of the filter.
     """
     dustmaps.planck.fetch(which="GNILC")
@@ -209,14 +209,14 @@ def extinction_map(
     return percent_pass
 
 
-def load_galaxy(
-    detector: Detector, coords_detector: SkyCoord, image, plate_scale, central_wv
+def load_extinction(
+    detector: Detector, coords_detector: dict, plate_scale:float, central_wv:float
 ) -> None:
-    exctinction: np.ndarray = extinction_map(
-        coords_detector=coords_detector,
+    extinction: np.ndarray = extinction_map(
+        coords_detector=SkyCoord(**coords_detector),
         image=np.asarray(detector.data["/scene"]),
         plate_scale=plate_scale,
-        central_wv=plate_scale,
+        central_wv=central_wv,
     )
 
-    detector.data["/scene"] = detector.data["/scene"] * exctinction
+    detector.data["/scene"] = detector.data["/scene"] * extinction
