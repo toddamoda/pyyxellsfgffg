@@ -57,4 +57,4 @@ def flux_convert(detector: Detector, aperture: float) -> np.ndarray:
 
     print(f"{detector.time=}, {detector.absolute_time}")
     scene_photons = flux2phot(scene=scene, t_exp=detector.time, aperture=aperture)
-    detector.photon.data = scene_photons
+    detector.photon.array = np.asarray(scene_photons)
