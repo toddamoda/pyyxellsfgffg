@@ -32,6 +32,7 @@ from typing import Callable, Literal
 import astropy.constants as cte
 import astropy.units as u
 import numpy as np
+import xarray as xr
 
 import pyxel.models.scene_generation.arrakihs_sph as sph
 from pyxel.detectors import Detector
@@ -577,4 +578,4 @@ def load_galaxy(
         n_neighbors=n_neighbors,
     )
 
-    detector.data["/scene"] = scene_2d
+    detector.data["/scene"] = xr.DataArray(scene_2d, attrs={"units": "photon/s/cm2"})
