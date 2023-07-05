@@ -27,33 +27,46 @@ from pyxel.detectors import Detector
 
 
 def flux2phot(scene: np.ndarray, t_exp: float, aperture: float) -> np.ndarray:
-    """Convert flux (phontons/s/cm2) to photon units
+    """Convert flux (phonton/s/cm2) to photon units.
 
     Parameters
     ----------
-    scene
-    t_exp
-    aperture
+    scene : np.ndarray
+        Scene object. Unit: photon/pixel/s/cm2.
+    t_exp : float
+        Exposure time. Unit: s.
+    aperture : float
+        Collecting area of the telescope. Unit: cm.
 
     Returns
     -------
+    np.ndarray
+        Converted scene in photons.
     """
+
     col_area = np.pi * (aperture / 2) ** 2
     scene_photons = scene * t_exp * col_area
+
     return scene_photons
 
 
-def flux_convert(detector: Detector, aperture: float) -> np.ndarray:
-    """Convert flux (phontons/s/cm2) to photon units
+def flux_convert(detector: Detector, aperture: float):
+    """Convert flux (phontons/s/cm2) to photon units.
 
     Parameters
     ----------
-    aperture
+    detector : Detector
+        Any detector object.
+    aperture : float
+        Collecting area of the telescope. Unit: cm.
 
     Returns
     -------
+    np.ndarray
+        Converted scene in photons.
+
     """
-    scene = detector.data["/scene"]
+    scene: np.ndarray = np.asarray(detector.data["/scene"])
 
     print(f"{detector.time=}, {detector.absolute_time}")
     scene_photons = flux2phot(scene=scene, t_exp=detector.time, aperture=aperture)
