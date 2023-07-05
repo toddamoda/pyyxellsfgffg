@@ -33,7 +33,7 @@ import astropy.constants as cte
 import astropy.units as u
 import numpy as np
 
-import pyxel.models.scene_generations.arrakihs_sph as sph
+import pyxel.models.scene_generation.arrakihs_sph as sph
 from pyxel.detectors import Detector
 
 
@@ -555,7 +555,7 @@ def load_galaxy(
     cosmo_model: Literal["dmf_model", "coco_model", "garrotxa_model"] = "dmf_model",
     galaxy_model: str = "30keV",
     dist: float = 25.0,
-    plate_scale: float = 1.675,
+    plate_scale: float = 1.65,
     s_size: int = 3400,
     angles: np.ndarray = np.array([0.0, 0.0, 0.0]),
     band_var: str = "Euclid_VIS",
