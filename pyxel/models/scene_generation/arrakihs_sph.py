@@ -1,13 +1,39 @@
+# Copyright (c) 2023 Alejandro Camazon Pinilla, University of Florida, ARRAKIHS Mission Consortium
+#
+# acamazon@ufl.edu
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+"""Smooth."""
+
 import logging
 
 import numpy as np
 import scipy.spatial.ckdtree as spkd
-from numba import jit, njit, prange
+from numba import jit, njit  # , prange
 from tqdm import tqdm
 
 log = logging.getLogger("DEBUG")
 
-_spline_kernels = dict()
+_spline_kernels: dict = dict()
+
+# ruff: noqa: F841
+# flake8: noqa: F841
 
 
 ############################################################
@@ -23,7 +49,6 @@ def sph_smooth_mp(
     max_softening=None,
     nproc=4,
 ):
-    """ """
     import time
 
     t0 = time.time()
@@ -47,22 +72,24 @@ def sph_smooth_mp(
     assert f1 > 0
 
     # Fudge HSML to never be less than the grid spacing
-    MIN_SOFTENING = min(f0, f1) * 0.5
-    MAX_SOFTENING = hsml.max()  # Just FYI, no function
-    log.debug("Min softening = ", MIN_SOFTENING)
-    if increase_softening and np.any(hsml < MIN_SOFTENING):
-        number_changed = int((hsml < MIN_SOFTENING).sum())
+    global_min_softening = min(f0, f1) * 0.5
+    global_max_softening = hsml.max()  # Just FYI, no function
+    log.debug("Min softening = ", global_min_softening)
+    if increase_softening and np.any(hsml < global_min_softening):
+        number_changed = int((hsml < global_min_softening).sum())
         min_hsml = np.min(hsml)
-        hsml = np.maximum(hsml, MIN_SOFTENING)
+        hsml = np.maximum(hsml, global_min_softening)
         log.debug("Warning: increased", number_changed, " softening lengths")
 
-    log.debug("Max softening = ", MAX_SOFTENING)
+    log.debug("Max softening = ", global_max_softening)
     if max_softening is not None:
         too_large = hsml > max_softening
         log.debug(
-            "Warning: {} of {} > max softening ({})".format(too_large.sum()),
-            len(hsml),
-            max_softening,
+            "Warning: {} of {} > max softening ({})".format(
+                too_large.sum(),
+                len(hsml),
+                max_softening,
+            )
         )
         hsml[too_large] = max_softening
 
@@ -121,7 +148,7 @@ def sph_smooth_mp(
 
 ############################################################
 def sph_smooth_unpacker(*args):
-    """ """
+    """Smooth."""
     xyz, hsml, weight, shape, kernel, x_range, y_range = args
     return sph_smooth_worker(xyz, hsml, weight, shape, kernel, x_range, y_range)
 
@@ -129,7 +156,7 @@ def sph_smooth_unpacker(*args):
 ############################################################
 @jit(nopython=True)
 def sph_smooth_worker(xyz, hsml, weight, shape, kernel, x_range, y_range):
-    """ """
+    """Smooth."""
     local_grid = np.zeros(shape, dtype=np.float64)
 
     x0 = x_range[0]
@@ -198,7 +225,8 @@ def sph_smooth_worker(xyz, hsml, weight, shape, kernel, x_range, y_range):
 def sph_smooth(
     xyz, hsml, weight, grid, x_range, y_range, kernel, increase_softening=True
 ):
-    """
+    """Smooth.
+
     Returns: density per unit area of input pixels.
     """
     npart = xyz.shape[0]
@@ -299,7 +327,8 @@ def sph_smooth(
 def xsph_smooth(
     xyz, hsml, weight, grid, x_range, y_range, kernel, increase_softening=True
 ):
-    """
+    """Smooth.
+
     Returns: density per unit area of input pixels.
     """
     npart = xyz.shape[0]
@@ -340,22 +369,24 @@ def xsph_smooth(
 
     print("Npart = ", npart)
     print("Starting loop...")
-    for ipart in prange(npart):
-        i1 = 0
-        i2 = 10
-        j1 = 30
-        j2 = 40
-        for ii in range(i1, i2):
-            for jj in range(j1, j2):
-                local_grid[ii, jj] += 1.0
+
+    # for ipart in prange(npart):
+
+    i1 = 0
+    i2 = 10
+    j1 = 30
+    j2 = 40
+    for ii in range(i1, i2):
+        for jj in range(j1, j2):
+            local_grid[ii, jj] += 1.0
 
     return local_grid
 
 
 ############################################################
 def tabulate_spline_kernel(ntab=1000):
-    r"""
-    Tabulate the smoothing kernel as a function of (r/h)**2.
+    r"""Tabulate the smoothing kernel as a function of (r/h)**2.
+
     The kernel is a cubic spline, nonzero from 0 to 2h.
     To normalize correctly per particle,
     W(r,h) = (sigma/(\pi h^2))*w(r,h) where
@@ -397,8 +428,8 @@ def tabulate_spline_kernel(ntab=1000):
 
 ############################################################
 def get_smoothing_lengths(xyz, ngb=32, hmin=0.0, hmax=1.0e20, leafsize=20, n_jobs=1):
-    """
-    Compute smoothing lengths for a set of particles xyz.
+    """Compute smoothing lengths for a set of particles xyz.
+
     Does not include any handling of wrapping around periodic boundaries!
     """
     import time
@@ -445,8 +476,9 @@ def get_smoothing_lengths(xyz, ngb=32, hmin=0.0, hmax=1.0e20, leafsize=20, n_job
 
 ############################################################
 def smooth_to_grid(xyz, hsml, weight, grid, **kwargs):
-    """
-    Don't forget, grid contains densities, not masses
+    """Smooth grid.
+
+    Don't forget, grid contains densities, not masses.
     """
     ntab = kwargs.get("ntab", 1000)
     update_grid = kwargs.get("update_grid", False)
@@ -492,18 +524,16 @@ def smooth_to_grid(xyz, hsml, weight, grid, **kwargs):
 
 
 ############################################################
-def make_demo_xyz(N):
-    """
-    Makes a particle distribution consiting of two concentric rings.
-    """
-    N1 = int(N / 2)
-    N2 = N - N1
+def make_demo_xyz(n):
+    """Make a particle distribution consiting of two concentric rings."""
+    n1 = int(n / 2)
+    n2 = n - n1
 
-    r1 = 25.0 + np.random.random(N1) * 2.0
-    r2 = 50.0 + np.random.random(N2) * 2.0
+    r1 = 25.0 + np.random.random(n1) * 2.0
+    r2 = 50.0 + np.random.random(n2) * 2.0
 
-    theta1 = np.random.random(N1) * np.pi * 2.0
-    theta2 = np.random.random(N2) * np.pi * 2.0
+    theta1 = np.random.random(n1) * np.pi * 2.0
+    theta2 = np.random.random(n2) * np.pi * 2.0
 
     x1 = r1 * np.sin(theta1)
     x2 = r2 * np.sin(theta2)
@@ -513,7 +543,7 @@ def make_demo_xyz(N):
 
     x = np.concatenate([x1, x2])
     y = np.concatenate([y1, y2])
-    z = np.random.random(N1 + N2) * 50.0
+    z = np.random.random(n1 + n2) * 50.0
 
     return np.vstack([x, y, z]).T
 
@@ -524,18 +554,23 @@ def make_demo_xyz(N):
 
 
 ############################################################
-def example_usage(xyz, mass, gridx, gridy, hsml=None, **kwargs):
-    """
-    Smooths the density field represented by a set of particles onto a regular
-    grid in projection. If smoothing lengths are not given, they are calculated
+def example_usage(xyz: np.ndarray, mass: np.ndarray, gridx, gridy, hsml=None, **kwargs):
+    """Smooth the density field represented by a set of particles onto a regular grid in projection.
+
+    If smoothing lengths are not given, they are calculated
     from the particles themselves.
+
+    Parameters
+    ----------
     xyz   : an (N,3) array of coordinates for N points.
-    mass  : an (N,) array of weights associated with each points.
+    mass  : an (N,) array of weights associated with each point.
     gridx : edges of bins in first dimension
-    gridy : edges of bins in second dimension
+    gridy : edges of bins in second dimension.
+    hsml
     All units are those of xyz and mass.
     To plot the returned array with the expected orientation:
     imshow(mygrid.T,interpolation='nearest',extent=(gridx[0],gridx[-1],gridy[0],gridy[-1]),origin='lower')
+
     Optional keyword arguments:
     proj     : [0,1,2] which axis of xyz to project along
     grid_dim : a tuple (nx,ny) giving the number of points in the output grid (default 100x100).
@@ -551,7 +586,7 @@ def example_usage(xyz, mass, gridx, gridy, hsml=None, **kwargs):
 
     # Compute hsml in the units of xyz
     npart = xyz.shape[0]
-    print("Computing HSML, %d particles" % (npart))
+    print("Computing HSML, %d particles" % npart)
 
     # Minimum and maximum smoothing lengths are chosen by the user.
     if hsml is None:

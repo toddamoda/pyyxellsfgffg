@@ -20,35 +20,34 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 """Load galaxy model."""
-import warnings
 
-warnings.filterwarnings("ignore")
-import pandas as pd
-
-pd.options.mode.chained_assignment = None  # default='warn'
 import pickle
-from typing import Callable, Literal
+import warnings
+from typing import Callable, Literal, Optional
 
 import astropy.constants as cte
 import astropy.units as u
 import numpy as np
+import pandas as pd
 import xarray as xr
 
 import pyxel.models.scene_generation.arrakihs_sph as sph
 from pyxel.detectors import Detector
 
+pd.options.mode.chained_assignment = None  # default='warn'
+warnings.filterwarnings("ignore")
 
-def galaxy_rot(X, Y, Z, alpha, beta, gamma):
-    """
-    A function for the rotation of Euler angles:
+
+def galaxy_rot(x, y, z, alpha, beta, gamma):
+    """Rotate galaxy using Euler angles.
 
     Parameters
-    -------
-    X: 1-d array.
+    ----------
+    x: 1-d array.
         Inital x-axis values.
-    Y: 1-d array.
+    y: 1-d array.
         Inital y-axis values.
-    Z: 1-d array.
+    z: 1-d array.
         Inital z-axis values.
     alpha: float (in degrees).
         Rotation angle along x-axis.
@@ -64,29 +63,29 @@ def galaxy_rot(X, Y, Z, alpha, beta, gamma):
 
     # Compute the 3-d rotation matrix with Euler angles.
     x_rot = (
-        X * (np.cos(alpha) * np.cos(beta))
-        + Y
+        x * (np.cos(alpha) * np.cos(beta))
+        + y
         * (
             -np.cos(gamma) * np.sin(alpha)
             + np.sin(gamma) * np.sin(beta) * np.cos(alpha)
         )
-        + Z
+        + z
         * (np.sin(gamma) * np.sin(alpha) + np.cos(gamma) * np.sin(beta) * np.cos(alpha))
     )
     y_rot = (
-        X * (np.sin(alpha) * np.cos(beta))
-        + Y
+        x * (np.sin(alpha) * np.cos(beta))
+        + y
         * (np.cos(gamma) * np.cos(alpha) + np.sin(gamma) * np.sin(beta) * np.sin(alpha))
-        + Z
+        + z
         * (
             -np.sin(gamma) * np.cos(alpha)
             + np.cos(gamma) * np.sin(beta) * np.sin(alpha)
         )
     )
     z_rot = (
-        -X * np.sin(beta)
-        + Y * np.sin(gamma) * np.cos(beta)
-        + Z * (np.cos(beta) * np.cos(gamma))
+        -x * np.sin(beta)
+        + y * np.sin(gamma) * np.cos(beta)
+        + z * (np.cos(beta) * np.cos(gamma))
     )
 
     # Save results
@@ -100,10 +99,10 @@ h_planck = 6.626075540e-34 * u.W * u.s**2  # Planck constant in W s
 
 
 def garrotxa_model(galaxy_model: str = "0.750") -> pd.DataFrame:
-    """A function that reads the GARROTXA Galaxies models:
+    """Read the GARROTXA Galaxies models.
 
     Parameters
-    -------
+    ----------
     galaxy_model: str.
         Name of the model (Default value: "0.750". Options: "0.650", "0.750", "0.850", "1.000").
     """
@@ -148,11 +147,10 @@ def garrotxa_model(galaxy_model: str = "0.750") -> pd.DataFrame:
 
 
 def dmf_model(galaxy_model="30keV"):
-    """
-        A function that reads the Dark Matter Flavours Galaxies models:
+    """Read the Dark Matter Flavours Galaxies models.
 
     Parameters
-    -------
+    ----------
     galaxy_model: str.
         Name of the model (Default value: "30keV". Options: "1keV", "3keV", "10keV", "30keV").
     """
@@ -168,42 +166,38 @@ def dmf_model(galaxy_model="30keV"):
     y = pickle.load(f)
     z = pickle.load(f)
 
-    HSTF475Xmags = np.array(pickle.load(f)).astype("float64")
-    VISmags = np.array(pickle.load(f)).astype("float64")
-    Ymags = np.array(pickle.load(f)).astype("float64")
-    Jmags = np.array(pickle.load(f)).astype("float64")
+    hstf475_x_mags = np.array(pickle.load(f)).astype("float64")
+    vis_mags = np.array(pickle.load(f)).astype("float64")
+    y_mags = np.array(pickle.load(f)).astype("float64")
+    j_mags = np.array(pickle.load(f)).astype("float64")
 
     print("Calculating Fluxes of stars")
 
-    ######################
-    ###### HST F475X filter
-    ######################
+    """HST F475X filter"""
 
     # Filter characteristics
-    wave_begin_475X = (3735.11 * u.AA).to(u.m)
-    wave_end_475X = (6919.31 * u.AA).to(u.m)
-    wave_central_475X = (4852.88 * u.AA).to(u.m)
+    wave_begin_475_x = (3735.11 * u.AA).to(u.m)
+    wave_end_475_x = (6919.31 * u.AA).to(u.m)
+    wave_central_475_x = (4852.88 * u.AA).to(u.m)
 
-    energy_475X_phot = h_planck * c_speed / wave_central_475X
+    energy_475_x_phot = h_planck * c_speed / wave_central_475_x
 
     # From AB Absolute Magnitude to Flux:
-    HSTF475X_flux = 10 ** (-(HSTF475Xmags - 34.0947) / 2.5) * u.W / u.Hz
+    hstf475_x_flux = 10 ** (-(hstf475_x_mags - 34.0947) / 2.5) * u.W / u.Hz
     # Integration factor in frecuancies:
     delta_nu = (
         c_speed
-        * (wave_end_475X - wave_begin_475X)
-        / (wave_begin_475X * wave_end_475X)
+        * (wave_end_475_x - wave_begin_475_x)
+        / (wave_begin_475_x * wave_end_475_x)
         * u.s
         * u.Hz
     )
     # Irradiance of the particles:
-    HSTF475X_irrad = HSTF475X_flux * delta_nu
+    hstf475_x_irrad = hstf475_x_flux * delta_nu
     # erg to photons:
-    HSTF475X_phot = (HSTF475X_irrad / energy_475X_phot).to(1 / u.s).value
+    hstf475_x_phot = (hstf475_x_irrad / energy_475_x_phot).to(1 / u.s).value
 
-    ######################
-    ###### VIS filter
-    ######################
+    """VIS filter"""
 
     # Filter characteristics
     wave_begin_vis = (537.5 * u.nm).to(u.m)
@@ -213,7 +207,7 @@ def dmf_model(galaxy_model="30keV"):
     energy_vis_phot = h_planck * c_speed / wave_central_vis
 
     # From AB Absolute Magnitude to Flux:
-    VIS_flux = 10 ** (-(VISmags - 34.0947) / 2.5) * u.W / u.Hz
+    vis_flux = 10 ** (-(vis_mags - 34.0947) / 2.5) * u.W / u.Hz
     # Integration factor in frecuancies:
     delta_nu = (
         c_speed
@@ -223,13 +217,11 @@ def dmf_model(galaxy_model="30keV"):
         * u.Hz
     )
     # Irradiance of the particles:
-    VIS_irrad = VIS_flux * delta_nu
+    vis_irradiance = vis_flux * delta_nu
     # erg to photons:
-    VIS_phot = (VIS_irrad / energy_vis_phot).to(1 / u.s).value
+    vis_photon = (vis_irradiance / energy_vis_phot).to(1 / u.s).value
 
-    ######################
-    ###### Y filter
-    ######################
+    """Y filter"""
 
     # Filter characteristics
     wave_begin_y = (947.5 * u.nm).to(u.m)
@@ -239,19 +231,17 @@ def dmf_model(galaxy_model="30keV"):
     energy_y_phot = h_planck * c_speed / wave_central_y
 
     # From AB Absolute Magnitude to Flux:
-    Y_flux = 10 ** (-(Ymags - 34.0947) / 2.5) * u.W / u.Hz
+    y_flux = 10 ** (-(y_mags - 34.0947) / 2.5) * u.W / u.Hz
     # Integration factor in frecuancies:
     delta_nu = (
         c_speed * (wave_end_y - wave_begin_y) / (wave_begin_y * wave_end_y) * u.s * u.Hz
     )
     # Irradiance of the particles:
-    Y_irrad = Y_flux * delta_nu
+    y_irradiance = y_flux * delta_nu
     # erg to photons:
-    Y_phot = (Y_irrad / energy_y_phot).to(1 / u.s).value
+    y_photon = (y_irradiance / energy_y_phot).to(1 / u.s).value
 
-    ######################
-    ###### J filter
-    ######################
+    """J filter"""
 
     # Filter characteristics
     wave_begin_j = (1160.0 * u.nm).to(u.m)
@@ -261,26 +251,24 @@ def dmf_model(galaxy_model="30keV"):
     energy_j_phot = h_planck * c_speed / wave_central_j
 
     # From AB Absolute Magnitude to Flux:
-    J_flux = 10 ** (-(Jmags - 34.0947) / 2.5) * u.W / u.Hz
+    j_flux = 10 ** (-(j_mags - 34.0947) / 2.5) * u.W / u.Hz
     # Integration factor in frecuancies:
     delta_nu = (
         c_speed * (wave_end_j - wave_begin_j) / (wave_begin_j * wave_end_j) * u.s * u.Hz
     )
     # Irradiance of the particles:
-    J_irrad = J_flux * delta_nu
+    j_irradiance = j_flux * delta_nu
     # erg to photons:
-    J_phot = (J_irrad / energy_j_phot).to(1 / u.s).value
+    j_photon = (j_irradiance / energy_j_phot).to(1 / u.s).value
 
-    #############################
-    ##### Printing data:
-    #############################
+    # Printing data:
 
     # We create new data with fluxes
     input_data = pd.DataFrame(data={"rx": x, "ry": y, "rz": z})
-    input_data["HSTF475X_flux"] = HSTF475X_phot
-    input_data["VIS_flux"] = VIS_phot
-    input_data["Y_flux"] = Y_phot
-    input_data["J_flux"] = J_phot
+    input_data["hstf475_x_flux"] = hstf475_x_phot
+    input_data["vis_flux"] = vis_photon
+    input_data["y_flux"] = y_photon
+    input_data["J_flux"] = j_photon
 
     file = input_data
 
@@ -296,13 +284,12 @@ def dmf_model(galaxy_model="30keV"):
     return file
 
 
-def coco_model(galaxy_model="98767_153"):
-    """
-        A function that reads the CoCo Galaxies models:
+def coco_model(galaxy_model="98767_153") -> pd.DataFrame:
+    """Read the CoCo Galaxies models.
 
     Parameters
-    -------
-    galaxy_model: str.
+    ----------
+    galaxy_model : str.
         Name of the model (Default value: "98767_153". Options: "98767_153").
     """
     # Read the model selected
@@ -351,35 +338,42 @@ def model_creator(
     dist: float = 25.0,
     plate_scale: float = 1.675,
     s_size: int = 3400,
-    angles: np.ndarray = np.array([0.0, 0.0, 0.0]),
+    angles: Optional[np.ndarray] = None,
     band_var: str = "Euclid_VIS",
     n_neighbors: int = 8,
 ) -> np.ndarray:
-    """
-        A function that creates the smooth image from the galaxies models for the ARRAKIHS filters.
+    """Create the smooth image from the galaxies models for the ARRAKIHS filters.
 
     Parameters
-    -------
+    ----------
     cosmo_model: function.
-        Name of the cosmological model function (Default value: dmf_model (Dark Matter Flavours). Options: garrotxa_model, dmf_model, coco_model).
+        Name of the cosmological model function.
+        (Default value: dmf_model (Dark Matter Flavours). Options: garrotxa_model, dmf_model, coco_model).
     galaxy_model: str.
-        Name of the model (Default value: "30keV". Options depends on the cosmological model selected:
+        Name of the model.
+        (Default value: "30keV". Option depends on the cosmological model selected:
                             - DMF model: "1keV", "3keV", "10keV", "30keV"
                             - GARROTXA model: "0.650", "0.750", "0.850", "1.000"
                             - CoCo model: "98767_153").
     dist: float (in Mpc).
         Physical distance to place the galaxy model (Default: 25.0 Mpc).
     plate_scale: float (in arcsec/pixel).
-        Plate scale of the telescope+detector used (Default: 1.675 arcsec/pixel).
+        Plate scale of the telescope+detector used.
+        (Default: 1.675 arcsec/pixel).
     s_size: int (in number of pixels).
         Number of pixels of the detector (Default: 3400).
     angles: 1-d float numpy array (in degrees).
-        Euler's rotation angles to rotate the initial postion of the galaxy model (Default: alpha=0.0, beta=0.0, gamma=0.0).
+        Euler's rotation angles to rotate the initial postion of the galaxy model.
+        (Default: alpha=0.0, beta=0.0, gamma=0.0).
     band_var: str.
-        Filter used in the simulation (Default: "Euclid_VIS". Options: "HST_F475X", "Euclid_VIS", "Euclid_Y", "Euclid_J").
+        Filter used in the simulation.
+        (Default: "Euclid_VIS". Options: "HST_F475X", "Euclid_VIS", "Euclid_Y", "Euclid_J").
     n_neighbors: int.
         Number of nearest neighbors used to calculate the adaptative kernel to smooth the galaxy model (Default: 8).
     """
+
+    if angles is None:
+        angles = np.array([0.0, 0.0, 0.0])
 
     # read the file from the corresponding galaxy model:
     file = cosmo_model(galaxy_model)
@@ -416,7 +410,8 @@ def model_creator(
     file["Y_rot"] = position[1]
     file["Z_rot"] = position[2]
 
-    # We create a new table with rotated positions and limitted by the maximum and minimum values inside the image:
+    # We create a new table with rotated positions and limitted by
+    # the maximum and minimum values inside the image.
     df_new = (
         file[
             (file["X_rot"] >= lower_limit)
@@ -429,30 +424,29 @@ def model_creator(
         np.array([df_new["Y_rot"], df_new["X_rot"], df_new["Z_rot"]])
     )
 
-    length_x = np.round(
-        (new_xyz[:][:, 0]).max() - (new_xyz[:][:, 0]).min(), 2
-    )  # total size in x-axis in Mpc
-    length_y = np.round(
-        (new_xyz[:][:, 1]).max() - (new_xyz[:][:, 1]).min(), 2
-    )  # total size in y-axis in Mpc
-    length_z = np.round(
-        (new_xyz[:][:, 2]).max() - (new_xyz[:][:, 2]).min(), 2
-    )  # total size in z-axis in Mpc
+    # total size in x-axis in Mpc
+    length_x = np.round((new_xyz[:][:, 0]).max() - (new_xyz[:][:, 0]).min(), 2)
+    # total size in y-axis in Mpc
+    length_y = np.round((new_xyz[:][:, 1]).max() - (new_xyz[:][:, 1]).min(), 2)
+    # total size in z-axis in Mpc
+    # length_z = np.round(
+    #     (new_xyz[:][:, 2]).max() - (new_xyz[:][:, 2]).min(), 2
+    # )
 
-    len_grid_scaled_x = int(
-        round(length_x / mpc_pixel, 1)
-    )  # total size in x-axis in number of pixels
-    len_grid_scaled_y = int(
-        round(length_y / mpc_pixel, 1)
-    )  # total size in x-axis in number of pixels
-    len_grid_scaled_z = int(
-        round(length_z / mpc_pixel, 1)
-    )  # total size in x-axis in number of pixels
+    # total size in x-axis in number of pixels
+    len_grid_scaled_x = int(round(length_x / mpc_pixel, 1))
+
+    # total size in x-axis in number of pixels
+    len_grid_scaled_y = int(round(length_y / mpc_pixel, 1))
+
+    # total size in x-axis in number of pixels
+    # len_grid_scaled_z = int(round(length_z / mpc_pixel, 1))
 
     # we set a grid with the number of pixels we will project the galaxy
     grid_x, grid_y = np.arange(
         -len_grid_scaled_x / 2, len_grid_scaled_x / 2
     ), np.arange(-len_grid_scaled_y / 2, len_grid_scaled_y / 2)
+
     # We calculate the photon irradiance for the given distance.
     if band_var == "HST_F475X":
         print("########## HST F475X model #########")
@@ -491,7 +485,8 @@ def model_creator(
         * mpc_pixel**2
     )
 
-    # The physical size of the galaxy model must be of the same size of the detector size. In case it is not, the size of the image won't be the same as the selected size:
+    # The physical size of the galaxy model must be of the same size of the detector size.
+    # In case it is not, the size of the image won't be the same as the selected size.
     if model_smooth.shape != (size_ampl, size_ampl):
         pixels_need_y = (
             size_ampl - len_grid_scaled_x
@@ -558,10 +553,13 @@ def load_galaxy(
     dist: float = 25.0,
     plate_scale: float = 1.65,
     s_size: int = 3400,
-    angles: np.ndarray = np.array([0.0, 0.0, 0.0]),
+    angles: Optional[np.ndarray] = None,
     band_var: str = "Euclid_VIS",
     n_neighbors: int = 8,
 ) -> None:
+    if angles is None:
+        angles = np.array([0.0, 0.0, 0.0])
+
     if cosmo_model == "dmf_model":
         cosmo_model_func: Callable = dmf_model
     else:

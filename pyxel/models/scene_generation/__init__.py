@@ -6,6 +6,7 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 """TBW."""
+# flake8: noqa
 from .load_galaxy import load_galaxy
 from .load_cosmo_bckg import load_cosmo_bckg
 from .galactic_extinction import load_extinction
