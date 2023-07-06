@@ -158,19 +158,18 @@ def dmf_model(galaxy_model="30keV"):
 
     # Read the model selected
     logging.info("########## Reading galaxy #########")
-    f = open(
+    with open(
         "Files/Galaxy_models/WDM_models/stars_" + str(galaxy_model) + "_1000kpc.pkl",
         "rb",
-    )
+    ) as f:
+        x = pickle.load(f)
+        y = pickle.load(f)
+        z = pickle.load(f)
 
-    x = pickle.load(f)
-    y = pickle.load(f)
-    z = pickle.load(f)
-
-    hstf475_x_mags = np.array(pickle.load(f)).astype("float64")
-    vis_mags = np.array(pickle.load(f)).astype("float64")
-    y_mags = np.array(pickle.load(f)).astype("float64")
-    j_mags = np.array(pickle.load(f)).astype("float64")
+        hstf475_x_mags = np.array(pickle.load(f)).astype("float64")
+        vis_mags = np.array(pickle.load(f)).astype("float64")
+        y_mags = np.array(pickle.load(f)).astype("float64")
+        j_mags = np.array(pickle.load(f)).astype("float64")
 
     logging.info("Calculating Fluxes of stars")
 
