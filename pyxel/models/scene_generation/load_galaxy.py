@@ -336,7 +336,7 @@ def model_creator(
     cosmo_model: Callable = dmf_model,
     galaxy_model: str = "30keV",
     dist: float = 25.0,
-    plate_scale: float = 1.675,
+    pixel_scale: float = 1.65,
     s_size: int = 3400,
     angles: Optional[np.ndarray] = None,
     band_var: str = "Euclid_VIS",
@@ -357,9 +357,9 @@ def model_creator(
                             - CoCo model: "98767_153").
     dist: float (in Mpc).
         Physical distance to place the galaxy model (Default: 25.0 Mpc).
-    plate_scale: float (in arcsec/pixel).
+    pixel_scale: float (in arcsec/pixel).
         Plate scale of the telescope+detector used.
-        (Default: 1.675 arcsec/pixel).
+        (Default: 1.65 arcsec/pixel).
     s_size: int (in number of pixels).
         Number of pixels of the detector (Default: 3400).
     angles: 1-d float numpy array (in degrees).
@@ -393,7 +393,7 @@ def model_creator(
     size_ampl = s_size + 2500
 
     mpc_pixel = dist * (
-        plate_scale / 206265
+        pixel_scale / 206265
     )  # Mpc/pixel for a certain distance and plate scale
     upper_limit = (size_ampl / 2) * mpc_pixel  # Maximum Mpc position inside the image
     lower_limit = -(size_ampl / 2) * mpc_pixel  # Minimum Mpc position inside the image
@@ -546,30 +546,63 @@ def model_creator(
     return true_image
 
 
+def compute_pixel_scale(focal_length: float, pixel_pitch: float) -> float:
+    """Compute the pixel scale the angular size of the part of the sky seen by one pixel.
+
+    Parameters
+    ----------
+    focal_length : float
+        the telescope focal length in m.
+    pixel_pitch : float
+        The size of a pixel on the detector in m.
+
+    Returns
+    -------
+    float
+        Pixel scale in arcsec/pixel.
+
+    """
+    deg_to_arcsec = 3600
+    rad_to_deg = 180 / np.pi
+    pixel_scale = np.arctan(pixel_pitch / focal_length) * rad_to_deg * deg_to_arcsec
+
+    return pixel_scale
+
+
 def load_galaxy(
     detector: Detector,
     cosmo_model: Literal["dmf_model", "coco_model", "garrotxa_model"] = "dmf_model",
     galaxy_model: str = "30keV",
     dist: float = 25.0,
-    plate_scale: float = 1.65,
+    focal_length: float = 1.5,
+    pixel_pitch: float = 12e-6,
     s_size: int = 3400,
     angles: Optional[np.ndarray] = None,
     band_var: str = "Euclid_VIS",
     n_neighbors: int = 8,
 ) -> None:
+    # default is no rotation
     if angles is None:
         angles = np.array([0.0, 0.0, 0.0])
 
     if cosmo_model == "dmf_model":
         cosmo_model_func: Callable = dmf_model
+    elif cosmo_model == "coco_model":
+        cosmo_model_func: Callable = coco_model
+    elif cosmo_model == "garrotxa_model":
+        cosmo_model_func: Callable = garrotxa_model
     else:
         raise NotImplementedError
+
+    pixel_scale = compute_pixel_scale(
+        focal_length=focal_length, pixel_pitch=pixel_pitch
+    )
 
     scene_2d: np.ndarray = model_creator(
         cosmo_model=cosmo_model_func,
         galaxy_model=galaxy_model,
         dist=dist,
-        plate_scale=plate_scale,
+        pixel_scale=pixel_scale,
         s_size=s_size,
         angles=angles,
         band_var=band_var,
