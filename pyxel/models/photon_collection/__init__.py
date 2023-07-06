@@ -19,3 +19,4 @@ from .load_cosmo_bckg import load_cosmo_bckg
 from .galactic_extinction import load_extinction
 from .zodiacal_light import zodiacal_light
 from .stars_foreground import stars_foreground
+from .straylight_functions import straylight

@@ -26,6 +26,7 @@ import numpy as np
 from astropy import wcs
 from astropy.coordinates import SkyCoord
 from scipy import interpolate
+from scipy.interpolate import griddata
 
 
 def flux2phot(flux: np.ndarray, t_exp: float, aperture: float) -> np.ndarray:
@@ -141,3 +142,30 @@ def num_photon_sky(
     )
     n_photon_zodi1 = nphotonsky_interp(x)
     return n_photon_zodi1
+
+
+def detector_interpolation(
+    coords: SkyCoord,
+    image_reduced: np.ndarray,
+    pixel_scale_reduced: float,
+    image: np.ndarray,
+    pixel_scale: float,
+    fluxes: np.ndarray,
+):
+    list_detector_reduced = detector_coordinates(
+        coords, image_reduced, pixel_scale_reduced
+    )
+    list_detector = detector_coordinates(coords, image, pixel_scale)
+
+    points = np.array(
+        [
+            list_detector_reduced.ra.deg.flatten(),
+            list_detector_reduced.dec.deg.flatten(),
+        ]
+    ).transpose()
+    values = fluxes.flatten()
+
+    new_grid = (list_detector.ra.deg, list_detector.dec.deg)
+    grid = griddata(points, values, new_grid, method="linear")
+
+    return grid

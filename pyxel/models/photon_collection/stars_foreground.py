@@ -24,6 +24,8 @@
 
 # Suppress warnings. Comment this out if you wish to see the warning messages
 import warnings
+from astropy import wcs
+from astropy.coordinates import SkyCoord  # High-level coordinates
 
 import astropy.units as u
 import numpy as np
@@ -36,8 +38,7 @@ import pyxel.models.photon_collection.arrakihs_tools as tools
 from pyxel.detectors import Detector
 
 warnings.filterwarnings("ignore")
-from astropy import wcs
-from astropy.coordinates import SkyCoord  # High-level coordinates
+
 
 
 def stars_frgnd_catalog(
@@ -142,7 +143,6 @@ def stars_frgnd_catalog(
     #################
 
     elif band_var == "Euclid_VIS":
-
         print("Getting data from GAIA")
         # we get the data from GAIA DR3 at the coordinates of tht pointing inside a FOV of radius = 0.7º
         Gaia.ROW_LIMIT = -1
@@ -398,7 +398,7 @@ def stars_frgnd_catalog(
         ]
     ).reset_index(drop=True)
 
-    print("..........................Creating galaxy image...........................")
+    print("..........................Creating stars image...........................")
 
     model = np.zeros([image.shape[0], image.shape[1]])
     for name, group in tqdm(df_new.groupby("coords_in_det_ra")):

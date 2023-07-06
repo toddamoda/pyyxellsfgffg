@@ -142,7 +142,7 @@ def zodiacal_light(
     obs_date: dict,
     method: str = "cubic",
 ) -> None:
-    """
+    """Calculate the Zodiacal light in the detector.
 
     Parameters
     ----------
@@ -154,10 +154,6 @@ def zodiacal_light(
     wave_end
     obs_date
     method
-
-    Returns
-    -------
-
     """
 
     zodi: np.ndarray = zod_map(

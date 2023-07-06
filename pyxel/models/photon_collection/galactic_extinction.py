@@ -180,7 +180,7 @@ def extintion_cardelli(wave, A_v: float, R_v: float = 3.1, units="nm"):
 
 
 def extinction_map(
-    coords_detector: SkyCoord, image, pixel_scale, central_wv
+    coords_detector: SkyCoord, image: np.ndarray, pixel_scale: float, central_wv: float
 ) -> np.ndarray:
     """Calculate of the extinction map on the detector (pixel-to-pixel) using Planck Collab. 2016.
 
