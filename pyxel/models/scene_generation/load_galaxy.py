@@ -147,7 +147,7 @@ def garrotxa_model(galaxy_model: str = "0.750") -> pd.DataFrame:
     return file
 
 
-def dmf_model(galaxy_model="30keV"):
+def dmf_model(galaxy_model="30keV") -> pd.DataFrame:
     """Read the Dark Matter Flavours Galaxies models.
 
     Parameters
@@ -333,7 +333,7 @@ def coco_model(galaxy_model="98767_153") -> pd.DataFrame:
 
 
 def model_creator(
-    cosmo_model: Callable = dmf_model,
+    cosmo_model: Callable[[str], pd.DataFrame] = dmf_model,
     galaxy_model: str = "30keV",
     dist: float = 25.0,
     pixel_scale: float = 1.65,
@@ -586,11 +586,11 @@ def load_galaxy(
         angles = np.array([0.0, 0.0, 0.0])
 
     if cosmo_model == "dmf_model":
-        cosmo_model_func: Callable = dmf_model
+        cosmo_model_func: Callable[[str], pd.DataFrame] = dmf_model
     elif cosmo_model == "coco_model":
-        cosmo_model_func: Callable = coco_model
+        cosmo_model_func = coco_model
     elif cosmo_model == "garrotxa_model":
-        cosmo_model_func: Callable = garrotxa_model
+        cosmo_model_func = garrotxa_model
     else:
         raise NotImplementedError
 
