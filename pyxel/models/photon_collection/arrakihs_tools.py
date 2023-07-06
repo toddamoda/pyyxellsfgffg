@@ -46,7 +46,7 @@ def flux2phot(flux: np.ndarray, t_exp: float, aperture: float) -> np.ndarray:
         Converted flux in photon/pixel.
     """
 
-    col_area = np.pi * (aperture*1e2 / 2) ** 2
+    col_area = np.pi * (aperture * 1e2 / 2) ** 2
     flux_converted = flux * t_exp * col_area
 
     return flux_converted

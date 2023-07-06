@@ -85,7 +85,11 @@ tracker = "https://gitlab.com/esa/pyxel/issues"
 
 [project.optional-dependencies]
 calibration = [ "pygmo>=2.16.1" ]
-model = [ "poppy>=1.1.0", "dustmaps"]
+model = [
+    "poppy>=1.1.0",
+    "dustmaps",
+    "astroquery"
+]
 io = [ "asdf" ]
 all = [
     "pyxel-sim[calibration]",
