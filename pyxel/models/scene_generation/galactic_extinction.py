@@ -170,8 +170,10 @@ def extintion_cardelli(wave, A_v: float, R_v: float = 3.1, units="nm"):
     """
     if units == "nm":
         wave_num = wave * 1e-3
-    if units == "microns":
+    elif units == "microns":
         wave_num = wave
+    else:
+        raise NotImplementedError
 
     x = 1 / wave_num
     return A_v * cardelli(x, R_v)
@@ -193,6 +195,9 @@ def extinction_map(
      central_wv: float, optional.
          Wavelength at the center of the filter.
     """
+    # TODO: This function downloads some FITS files from an external website and
+    #       cache them into this computer.
+    #       This could be a problem because this function is maybe not thread-safe.
     dustmaps.planck.fetch(which="GNILC")
 
     planckGNIL = PlanckGNILCQuery()
@@ -212,6 +217,18 @@ def extinction_map(
 def load_extinction(
     detector: Detector, coords_detector: dict, pixel_scale: float, central_wv: float
 ) -> None:
+    """Calculate of the extinction map on the detector (pixel-to-pixel) using Planck Collab. 2016.
+
+    Parameters
+    ----------
+    detector : Detector
+    coords_detector:  SkyCoord (ICRS): (ra, dec) in deg.
+        Coordinates of the pointing of the telescope.
+    plate_scale : float (in arcsec/pixel).
+        Plate scale of the telescope used.
+    central_wv : float, optional.
+        Wavelength at the center of the filter.
+    """
     extinction: np.ndarray = extinction_map(
         coords_detector=SkyCoord(**coords_detector),
         image=np.asarray(detector.data["/scene"]),
