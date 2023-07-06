@@ -38,7 +38,7 @@ from pyxel.util import fit_into_array
 def zod_map(
     coords_detector: SkyCoord,
     image: np.ndarray,
-    plate_scale: float,
+    pixel_scale: float,
     wave_begin: float,
     wave_end: float,
     obs_date: Time,
@@ -52,8 +52,8 @@ def zod_map(
         image of the detector (just for the size)
     coords_detector: SkyCoord (ICRS): (ra, dec) in deg.
         Coordinates of the pointing of the telescope.
-    plate_scale: float (in arcsec/pixel).
-        Plate scale of the telescope.
+    pixel_scale: float (in arcsec/pixel).
+        Pixel scale of the telescope.
     wave_begin: value.
         Lower limit of wavelength the detector.
     wave_end: value.
@@ -66,16 +66,20 @@ def zod_map(
     """
     # we increase the size of the image to avoid border effects
     image_ampl = np.zeros([image.shape[0] + 500, image.shape[1] + 500])
-    list_detector = tools.detector_coordinates(coords_detector, image_ampl, plate_scale)
+    list_detector = tools.detector_coordinates(
+        coords_detector=coords_detector, image=image_ampl, pixel_scale=pixel_scale
+    )
 
     # we reduce the size of the image and the pixel scale to decrease the computational time
     image_reduced = np.zeros(
         [int((image_ampl.shape[0]) / 100), int((image_ampl.shape[1]) / 100)]
     )
-    plate_scale_reduced = plate_scale * 100
+    pixel_scale_reduced = pixel_scale * 100
 
     list_detector_reduced = tools.detector_coordinates(
-        coords_detector, image_reduced, plate_scale_reduced
+        coords_detector=coords_detector,
+        image=image_reduced,
+        pixel_scale=pixel_scale_reduced,
     )
 
     zod = ZodiacalLight()  # Object that creates the zodiacal light
@@ -116,12 +120,14 @@ def zod_map(
 
     if method == "linear":
         grid = griddata(points, values, new_grid, method="linear")
-    if method == "nearest":
+    elif method == "nearest":
         grid = griddata(points, values, new_grid, method="nearest")
-    if method == "cubic":
+    elif method == "cubic":
         grid = griddata(points, values, new_grid, method="cubic")
+    else:
+        raise NotImplementedError
 
-    zodi_light_flux = grid * plate_scale**2  # units [photons/s/cm^2]
+    zodi_light_flux = grid * pixel_scale**2  # units [photons/s/cm^2]
 
     return zodi_light_flux
 
@@ -129,16 +135,35 @@ def zod_map(
 def zodiacal_light(
     detector: Detector,
     coords_detector: dict,
-    plate_scale: float,
+    pixel_scale: float,
+    aperture: float,
     wave_begin: float,
     wave_end: float,
     obs_date: dict,
     method: str = "cubic",
 ) -> None:
+    """
+
+    Parameters
+    ----------
+    detector
+    coords_detector
+    pixel_scale
+    aperture
+    wave_begin
+    wave_end
+    obs_date
+    method
+
+    Returns
+    -------
+
+    """
+
     zodi: np.ndarray = zod_map(
         coords_detector=SkyCoord(**coords_detector),
-        image=np.asarray(detector.data["/scene"]),
-        plate_scale=plate_scale,
+        image=detector.photon.array,
+        pixel_scale=pixel_scale,
         wave_begin=wave_begin,
         wave_end=wave_end,
         obs_date=Time(**obs_date),
@@ -146,6 +171,10 @@ def zodiacal_light(
     )
 
     zodi_cropped = fit_into_array(
-        array=zodi, output_shape=detector.data["/scene"].shape, align="center"
+        array=zodi, output_shape=detector.photon.shape, align="center"
     )
-    detector.data["/scene"] += zodi_cropped
+
+    converted_photon = tools.flux2phot(
+        flux=zodi_cropped, t_exp=detector.absolute_time, aperture=aperture
+    )
+    detector.photon.array += converted_photon

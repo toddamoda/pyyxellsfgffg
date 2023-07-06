@@ -33,6 +33,7 @@ import pandas as pd
 import xarray as xr
 
 import pyxel.models.photon_collection.arrakihs_sph as sph
+import pyxel.models.photon_collection.arrakihs_tools as tools
 from pyxel.detectors import Detector
 
 pd.options.mode.chained_assignment = None  # default='warn'
@@ -552,7 +553,7 @@ def compute_pixel_scale(focal_length: float, pixel_pitch: float) -> float:
     Parameters
     ----------
     focal_length : float
-        the telescope focal length in m.
+        The telescope focal length in m.
     pixel_pitch : float
         The size of a pixel on the detector in m.
 
@@ -576,6 +577,7 @@ def load_galaxy(
     dist: float = 25.0,
     focal_length: float = 1.5,
     pixel_pitch: float = 12e-6,
+    aperture: float = 147.75e-2,
     s_size: int = 3400,
     angles: Optional[np.ndarray] = None,
     band_var: str = "Euclid_VIS",
@@ -598,7 +600,7 @@ def load_galaxy(
         focal_length=focal_length, pixel_pitch=pixel_pitch
     )
 
-    scene_2d: np.ndarray = model_creator(
+    flux_2d: np.ndarray = model_creator(
         cosmo_model=cosmo_model_func,
         galaxy_model=galaxy_model,
         dist=dist,
@@ -609,4 +611,7 @@ def load_galaxy(
         n_neighbors=n_neighbors,
     )
 
-    detector.data["/scene"] = xr.DataArray(scene_2d, attrs={"units": "photon/s/cm2"})
+    converted_photon = tools.flux2phot(
+        flux=flux_2d, t_exp=detector.absolute_time, aperture=aperture
+    )
+    detector.photon.array = converted_photon

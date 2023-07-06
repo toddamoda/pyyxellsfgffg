@@ -25,13 +25,14 @@
 from pathlib import Path
 from typing import Union
 
-import xarray as xr
-
+import pyxel.models.photon_collection.arrakihs_tools as tools
 from pyxel.detectors import Detector
 from pyxel.util import load_cropped_and_aligned_image
 
 
-def load_cosmo_bckg(detector: Detector, filename: Union[str, Path]) -> None:
+def load_cosmo_bckg(
+    detector: Detector, filename: Union[str, Path], aperture: float
+) -> None:
     """Load the cosmological background selected.
 
     Parameters
@@ -40,9 +41,14 @@ def load_cosmo_bckg(detector: Detector, filename: Union[str, Path]) -> None:
         Pyxel Detector object.
     filename : Path or str
         Input filename of the cosmological background.
+    aperture : float
+        Telescope aperture in m.
     """
     cosmo_bckg = load_cropped_and_aligned_image(
         shape=detector.geometry.shape, filename=filename, align="center"
     )
 
-    detector.data["/scene"] += xr.DataArray(cosmo_bckg, attrs={"units": "photon/s/cm2"})
+    converted_photon = tools.flux2phot(
+        flux=cosmo_bckg, t_exp=detector.absolute_time, aperture=aperture
+    )
+    detector.photon.array += converted_photon

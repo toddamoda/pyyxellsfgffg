@@ -231,9 +231,9 @@ def load_extinction(
     """
     extinction: np.ndarray = extinction_map(
         coords_detector=SkyCoord(**coords_detector),
-        image=np.asarray(detector.data["/scene"]),
+        image=detector.photon.array,
         pixel_scale=pixel_scale,
         central_wv=central_wv,
     )
 
-    detector.data["/scene"] = detector.data["/scene"] * extinction
+    detector.photon.array = detector.photon.array * extinction
