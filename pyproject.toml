@@ -236,6 +236,7 @@ select = [
     "E",        # pycodestyle
     "F",        # pyflakes
     "D",        # pydocstyle
+    "G",        # flake8-logging-format
     # "SIM",      # flake8-simplify
     "W",        # pycodestyle
     # "PD",       # pandas-vet
