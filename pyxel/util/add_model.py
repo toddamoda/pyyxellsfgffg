@@ -77,19 +77,19 @@ def create_model(newmodel: str) -> None:
 
                 pathtofile = os.path.join(dirpath, x)
                 os.mkdir(pathtofile.replace(template_string, model_name))
-            logging.info("Module " + model_name + " created.")
+            logging.info("Module %s created.", model_name)
         print(f"Module {model_name!r} created in {dest!r}.")
 
     except FileExistsError:
-        logging.info(f"{dest} already exists, folder not created")
+        logging.info("%s already exists, folder not created", dest)
         raise
     # Directories are the same
     except shutil.Error as e:
-        logging.critical("Error while duplicating " + template_string + ": %s" % e)
+        logging.critical("Error while duplicating %s: %s", template_string, e)
         raise
     # Any error saying that the directory doesn't exist
     except OSError as e:
-        logging.critical(model_name + " not created. Error: %s" % e)
+        logging.critical("%s not created. Error: %s", model_name, e)
         raise
 
 

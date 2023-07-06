@@ -1019,7 +1019,7 @@ class Observation:
                 _, att = get_obj_att(proc, step.key)
                 value = get_value(proc, step.key)
                 values.append((att, value))
-            logging.debug("%d: %r" % (i, values))
+            logging.debug("%d: %r", i, values)
             result.append((i, values))
         return result
 
