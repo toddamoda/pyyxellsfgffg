@@ -30,6 +30,7 @@ import astropy.constants as cte
 import astropy.units as u
 import numpy as np
 import pandas as pd
+from astropy.coordinates import Angle
 
 import pyxel.models.photon_collection.arrakihs_sph as sph
 import pyxel.models.photon_collection.arrakihs_tools as tools
@@ -99,7 +100,9 @@ c_speed = cte.c  # light velocity in m/s
 h_planck = 6.626075540e-34 * u.W * u.s**2  # Planck constant in W s
 
 
-def garrotxa_model(galaxy_model: str = "0.750") -> pd.DataFrame:
+def garrotxa_model(
+    galaxy_model: Literal["0.650", "0.750", "0.850", "1.000"] = "0.750"
+) -> pd.DataFrame:
     """Read the GARROTXA Galaxies models.
 
     Parameters
@@ -152,7 +155,9 @@ def garrotxa_model(galaxy_model: str = "0.750") -> pd.DataFrame:
     return file
 
 
-def dmf_model(galaxy_model="30keV") -> pd.DataFrame:
+def dmf_model(
+    galaxy_model: Literal["1keV", "3keV", "10keV", "30keV"] = "30keV"
+) -> pd.DataFrame:
     """Read the Dark Matter Flavours Galaxies models.
 
     Parameters
@@ -294,7 +299,7 @@ def dmf_model(galaxy_model="30keV") -> pd.DataFrame:
     return file
 
 
-def coco_model(galaxy_model="98767_153") -> pd.DataFrame:
+def coco_model(galaxy_model: str = "98767_153") -> pd.DataFrame:
     """Read the CoCo Galaxies models.
 
     Parameters
@@ -348,12 +353,12 @@ def coco_model(galaxy_model="98767_153") -> pd.DataFrame:
 
 
 def model_creator(
+    angles: Angle,
     cosmo_model: Callable[[str], pd.DataFrame] = dmf_model,
     galaxy_model: str = "30keV",
-    dist: float = 25.0,
-    pixel_scale: float = 1.65,
+    dist: u.Quantity = 25.0 * u.Mpc,
+    pixel_scale: u.Quantity = 1.65 * u.arcsec,
     s_size: int = 3400,
-    angles: Optional[np.ndarray] = None,
     band_var: str = "Euclid_VIS",
     n_neighbors: int = 8,
 ) -> np.ndarray:
@@ -361,6 +366,9 @@ def model_creator(
 
     Parameters
     ----------
+    angles: 1-d float numpy array (in degrees).
+        Euler's rotation angles to rotate the initial postion of the galaxy model.
+        (Default: alpha=0.0, beta=0.0, gamma=0.0).
     cosmo_model: function.
         Name of the cosmological model function.
         (Default value: dmf_model (Dark Matter Flavours). Options: garrotxa_model, dmf_model, coco_model).
@@ -377,9 +385,6 @@ def model_creator(
         (Default: 1.65 arcsec/pixel).
     s_size: int (in number of pixels).
         Number of pixels of the detector (Default: 3400).
-    angles: 1-d float numpy array (in degrees).
-        Euler's rotation angles to rotate the initial postion of the galaxy model.
-        (Default: alpha=0.0, beta=0.0, gamma=0.0).
     band_var: str.
         Filter used in the simulation.
         (Default: "Euclid_VIS". Options: "HST_F475X", "Euclid_VIS", "Euclid_Y", "Euclid_J").
@@ -392,52 +397,50 @@ def model_creator(
         Galaxy model projected on the detector in ph/s/pixel.
     """
 
-    if angles is None:
-        angles = np.array([0.0, 0.0, 0.0])
-
     # read the file from the corresponding galaxy model:
-    file = cosmo_model(galaxy_model)
+    df = cosmo_model(galaxy_model)
 
     # calculate the hsml in case it has not been already provided:
-    if "hsml" in file:
+    if "hsml" in df:
         pass
     else:
         n_neighbors = n_neighbors
 
         logging.info("Finding %r Nearest Neighbors", n_neighbors)
-        xyz = np.transpose(np.array([file["rx"], file["ry"], file["rz"]]))
+        xyz = np.transpose(np.array([df["rx"], df["ry"], df["rz"]]))
         hsml = sph.get_smoothing_lengths(xyz, ngb=n_neighbors)
-        file["hsml"] = hsml
+        df["hsml"] = hsml
 
     # we create a bigger image in case the center of the galaxy is not centered in the image
-    size_ampl = s_size + 2500
+    expansion_factor = 2500
+    size_ampl = s_size + expansion_factor
 
     mpc_pixel = dist * (
-        pixel_scale / 206265
+        pixel_scale.to(u.rad)
     )  # Mpc/pixel for a certain distance and plate scale
     upper_limit = (size_ampl / 2) * mpc_pixel  # Maximum Mpc position inside the image
     lower_limit = -(size_ampl / 2) * mpc_pixel  # Minimum Mpc position inside the image
 
-    alpha = angles[0]  # Angle rotation x axis
-    beta = angles[1]  # Angle rotation y axis
-    gamma = angles[2]  # Angle rotation z axis
+    alpha, beta, gamma = angles  # Angle rotation x, y and z axis
 
     # we apply the rotation matrix
-    position = galaxy_rot(file["rx"], file["ry"], file["rz"], alpha, beta, gamma)
+    position = galaxy_rot(
+        x=df["rx"], y=df["ry"], z=df["rz"], alpha=alpha, beta=beta, gamma=gamma
+    )
 
     # Redifine the new positions:
-    file["X_rot"] = position[0]
-    file["Y_rot"] = position[1]
-    file["Z_rot"] = position[2]
+    df["X_rot"] = position[0]
+    df["Y_rot"] = position[1]
+    df["Z_rot"] = position[2]
 
     # We create a new table with rotated positions and limitted by
     # the maximum and minimum values inside the image.
     df_new = (
-        file[
-            (file["X_rot"] >= lower_limit)
-            & (file["X_rot"] <= upper_limit)
-            & (file["Y_rot"] >= lower_limit)
-            & (file["Y_rot"] <= upper_limit)
+        df[
+            (df["X_rot"] >= lower_limit)
+            & (df["X_rot"] <= upper_limit)
+            & (df["Y_rot"] >= lower_limit)
+            & (df["Y_rot"] <= upper_limit)
         ]
     ).reset_index(drop=True)
     new_xyz = np.transpose(
@@ -474,23 +477,25 @@ def model_creator(
             4 * np.pi * ((dist * u.Mpc).to(u.cm)) ** 2
         )
 
-    if band_var == "Euclid_VIS":
+    elif band_var == "Euclid_VIS":
         logging.info("########## Euclid-VIS model #########")
         irradiance_photons = df_new["vis_flux"].values / (
             4 * np.pi * ((dist * u.Mpc).to(u.cm)) ** 2
         )
 
-    if band_var == "Euclid_Y":
+    elif band_var == "Euclid_Y":
         logging.info("########## Euclid-Y model #########")
         irradiance_photons = df_new["y_flux"].values / (
             4 * np.pi * ((dist * u.Mpc).to(u.cm)) ** 2
         )
 
-    if band_var == "Euclid_J":
+    elif band_var == "Euclid_J":
         logging.info("########## Euclid-J model #########")
         irradiance_photons = df_new["j_flux"].values / (
             4 * np.pi * ((dist * u.Mpc).to(u.cm)) ** 2
         )
+    else:
+        raise NotImplementedError
 
     # we create the smooth image of the model
     model_smooth = (
@@ -566,25 +571,24 @@ def model_creator(
     return true_image
 
 
-def compute_pixel_scale(focal_length: float, pixel_pitch: float) -> float:
+def compute_pixel_scale(
+    focal_length: u.Quantity, pixel_pitch: u.Quantity
+) -> u.Quantity:
     """Compute the pixel scale the angular size of the part of the sky seen by one pixel.
 
     Parameters
     ----------
-    focal_length : float
+    focal_length : Quantity
         The telescope focal length in m.
-    pixel_pitch : float
+    pixel_pitch : Quantity
         The size of a pixel on the detector in m.
 
     Returns
     -------
-    float
+    Quantity
         Pixel scale in arcsec/pixel.
-
     """
-    deg_to_arcsec = 3600
-    rad_to_deg = 180 / np.pi
-    pixel_scale = np.arctan(pixel_pitch / focal_length) * rad_to_deg * deg_to_arcsec
+    pixel_scale = np.arctan(pixel_pitch / focal_length).to(u.arcsec)
 
     return pixel_scale
 
@@ -599,9 +603,28 @@ def load_galaxy(
     aperture: float = 147.75e-2,
     s_size: int = 3400,
     angles: Optional[np.ndarray] = None,
-    band_var: str = "Euclid_VIS",
+    band_var: Literal["Euclid_VIS", "Euclid_J", "Euclid_Y", "HST_F475X"] = "Euclid_VIS",
     n_neighbors: int = 8,
 ) -> None:
+    """Load galaxy model and projects it onto the detector.
+
+    Parameters
+    ----------
+    detector : Detector
+        Pyxel Detector object.
+    cosmo_model : str
+    galaxy_model : str
+    dist : float
+    focal_length : float
+    pixel_pitch : float
+    aperture : float
+    s_size : int
+    angles : numpy.ndarray
+        Euler's rotation angles to rotate the initial postion of the galaxy model.
+        (Default: alpha=0.0, beta=0.0, gamma=0.0). Unit: deg.
+    band_var : str
+    n_neighbors : int
+    """
     # default is no rotation
     if angles is None:
         angles = np.array([0.0, 0.0, 0.0])
@@ -616,16 +639,16 @@ def load_galaxy(
         raise NotImplementedError
 
     pixel_scale = compute_pixel_scale(
-        focal_length=focal_length, pixel_pitch=pixel_pitch
+        focal_length=focal_length * u.m, pixel_pitch=pixel_pitch * u.m
     )
 
     flux_2d: np.ndarray = model_creator(
+        angles=angles_deg,
         cosmo_model=cosmo_model_func,
         galaxy_model=galaxy_model,
-        dist=dist,
+        dist=dist * u.Mpc,
         pixel_scale=pixel_scale,
         s_size=s_size,
-        angles=angles,
         band_var=band_var,
         n_neighbors=n_neighbors,
     )
