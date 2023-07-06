@@ -184,7 +184,7 @@ def dmf_model(galaxy_model="30keV") -> pd.DataFrame:
     energy_475_x_phot = h_planck * c_speed / wave_central_475_x
 
     # From AB Absolute Magnitude to Flux:
-    hstf475_x_flux = 10 ** (-(hstf475_x_mags - 34.0947) / 2.5) * u.W / u.Hz
+    hstf475_flux = 10 ** (-(hstf475_x_mags - 34.0947) / 2.5) * u.W / u.Hz
     # Integration factor in frecuancies:
     delta_nu = (
         c_speed
@@ -194,7 +194,7 @@ def dmf_model(galaxy_model="30keV") -> pd.DataFrame:
         * u.Hz
     )
     # Irradiance of the particles:
-    hstf475_x_irrad = hstf475_x_flux * delta_nu
+    hstf475_x_irrad = hstf475_flux * delta_nu
     # erg to photons:
     hstf475_x_phot = (hstf475_x_irrad / energy_475_x_phot).to(1 / u.s).value
 
@@ -266,7 +266,7 @@ def dmf_model(galaxy_model="30keV") -> pd.DataFrame:
 
     # We create new data with fluxes
     input_data = pd.DataFrame(data={"rx": x, "ry": y, "rz": z})
-    input_data["hstf475_x_flux"] = hstf475_x_phot
+    input_data["hstf475_flux"] = hstf475_x_phot
     input_data["vis_flux"] = vis_photon
     input_data["y_flux"] = y_photon
     input_data["j_flux"] = j_photon
@@ -451,25 +451,25 @@ def model_creator(
     # We calculate the photon irradiance for the given distance.
     if band_var == "HST_F475X":
         logging.info("########## HST F475X model #########")
-        irradiance_photons = df_new["HSTF475X_flux"].values / (
+        irradiance_photons = df_new["hstf475_flux"].values / (
             4 * np.pi * ((dist * u.Mpc).to(u.cm)) ** 2
         )
 
     if band_var == "Euclid_VIS":
         logging.info("########## Euclid-VIS model #########")
-        irradiance_photons = df_new["VIS_flux"].values / (
+        irradiance_photons = df_new["vis_flux"].values / (
             4 * np.pi * ((dist * u.Mpc).to(u.cm)) ** 2
         )
 
     if band_var == "Euclid_Y":
         logging.info("########## Euclid-Y model #########")
-        irradiance_photons = df_new["Y_flux"].values / (
+        irradiance_photons = df_new["y_flux"].values / (
             4 * np.pi * ((dist * u.Mpc).to(u.cm)) ** 2
         )
 
     if band_var == "Euclid_J":
         logging.info("########## Euclid-J model #########")
-        irradiance_photons = df_new["J_flux"].values / (
+        irradiance_photons = df_new["j_flux"].values / (
             4 * np.pi * ((dist * u.Mpc).to(u.cm)) ** 2
         )
 
