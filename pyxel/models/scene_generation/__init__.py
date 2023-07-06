@@ -10,3 +10,4 @@
 from .load_galaxy import load_galaxy
 from .load_cosmo_bckg import load_cosmo_bckg
 from .galactic_extinction import load_extinction
+from .zodiacal_light import zodiacal_light

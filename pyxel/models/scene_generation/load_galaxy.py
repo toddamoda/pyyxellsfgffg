@@ -115,10 +115,10 @@ def garrotxa_model(galaxy_model: str = "0.750") -> pd.DataFrame:
             ("rx", ">f"),
             ("ry", ">f"),
             ("rz", ">f"),
-            ("VIS_flux", ">d"),
-            ("J_flux", ">d"),
-            ("Y_flux", ">d"),
-            ("HSTF475X_flux", ">d"),
+            ("vis_flux", ">d"),
+            ("j_flux", ">d"),
+            ("y_flux", ">d"),
+            ("hstf475X_flux", ">d"),
             ("End of the line", ">f"),
         ]
     )
@@ -208,7 +208,7 @@ def dmf_model(galaxy_model="30keV"):
 
     # From AB Absolute Magnitude to Flux:
     vis_flux = 10 ** (-(vis_mags - 34.0947) / 2.5) * u.W / u.Hz
-    # Integration factor in frecuancies:
+    # Integration factor in frequencies:
     delta_nu = (
         c_speed
         * (wave_end_vis - wave_begin_vis)
@@ -268,7 +268,7 @@ def dmf_model(galaxy_model="30keV"):
     input_data["hstf475_x_flux"] = hstf475_x_phot
     input_data["vis_flux"] = vis_photon
     input_data["y_flux"] = y_photon
-    input_data["J_flux"] = j_photon
+    input_data["j_flux"] = j_photon
 
     file = input_data
 
@@ -300,10 +300,10 @@ def coco_model(galaxy_model="98767_153") -> pd.DataFrame:
             ("rx", ">f"),
             ("ry", ">f"),
             ("rz", ">f"),
-            ("VIS_flux", ">d"),
-            ("J_flux", ">d"),
-            ("Y_flux", ">d"),
-            ("HSTF475X_flux", ">d"),
+            ("vis_flux", ">d"),
+            ("j_flux", ">d"),
+            ("y_flux", ">d"),
+            ("hstf475X_flux", ">d"),
             ("hsml", ">d"),
             ("End of the line", ">f"),
         ]
@@ -336,7 +336,7 @@ def model_creator(
     cosmo_model: Callable = dmf_model,
     galaxy_model: str = "30keV",
     dist: float = 25.0,
-    plate_scale: float = 1.675,
+    plate_scale: float = 1.65,
     s_size: int = 3400,
     angles: Optional[np.ndarray] = None,
     band_var: str = "Euclid_VIS",
@@ -450,25 +450,25 @@ def model_creator(
     # We calculate the photon irradiance for the given distance.
     if band_var == "HST_F475X":
         print("########## HST F475X model #########")
-        irradiance_photons = df_new["HSTF475X_flux"].values / (
+        irradiance_photons = df_new["hstf475X_flux"].values / (
             4 * np.pi * ((dist * u.Mpc).to(u.cm)) ** 2
         )
 
     if band_var == "Euclid_VIS":
         print("########## Euclid-VIS model #########")
-        irradiance_photons = df_new["VIS_flux"].values / (
+        irradiance_photons = df_new["vis_flux"].values / (
             4 * np.pi * ((dist * u.Mpc).to(u.cm)) ** 2
         )
 
     if band_var == "Euclid_Y":
         print("########## Euclid-Y model #########")
-        irradiance_photons = df_new["Y_flux"].values / (
+        irradiance_photons = df_new["y_flux"].values / (
             4 * np.pi * ((dist * u.Mpc).to(u.cm)) ** 2
         )
 
     if band_var == "Euclid_J":
         print("########## Euclid-J model #########")
-        irradiance_photons = df_new["J_flux"].values / (
+        irradiance_photons = df_new["j_flux"].values / (
             4 * np.pi * ((dist * u.Mpc).to(u.cm)) ** 2
         )
 

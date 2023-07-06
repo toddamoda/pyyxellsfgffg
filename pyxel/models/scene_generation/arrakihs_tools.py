@@ -25,6 +25,7 @@ from typing import Optional
 import numpy as np
 from astropy import wcs
 from astropy.coordinates import SkyCoord
+from scipy import interpolate
 
 
 def index_coords(data: np.ndarray, origin: Optional[tuple] = None):
@@ -94,3 +95,25 @@ def detector_coordinates(
     list_detector = SkyCoord(ra=rac_det, dec=dec_det, unit="deg", frame="icrs")
 
     return list_detector
+
+
+def num_photon_sky(
+    wvs_all_sorted: np.array, nphoton_all_sorted: np.array, x: np.array
+) -> np.array:
+    """Interpolate the photons from the spectrum and the wave lengths
+
+    Parameters
+    ----------
+    wvs_all_sorted: list or array.
+        Wavelengths.
+    nphoton_all_sorted: list or array.
+        Photons of the zodiacal light.
+    x: value.
+        Wavelength interpolated
+    """
+
+    nphotonsky_interp = interpolate.interp1d(
+        wvs_all_sorted, nphoton_all_sorted, kind="cubic"
+    )
+    n_photon_zodi1 = nphotonsky_interp(x)
+    return n_photon_zodi1

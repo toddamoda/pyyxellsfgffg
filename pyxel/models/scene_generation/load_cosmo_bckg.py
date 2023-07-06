@@ -42,8 +42,7 @@ def load_cosmo_bckg(detector: Detector, filename: Union[str, Path]) -> None:
         Input filename of the cosmological background.
     """
     cosmo_bckg = load_cropped_and_aligned_image(
-        shape=detector.geometry.shape,
-        filename=filename,
+        shape=detector.geometry.shape, filename=filename, align="center"
     )
 
     detector.data["/scene"] += xr.DataArray(cosmo_bckg, attrs={"units": "photon/s/cm2"})
