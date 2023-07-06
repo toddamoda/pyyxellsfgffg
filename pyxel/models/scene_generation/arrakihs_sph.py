@@ -32,6 +32,7 @@ log = logging.getLogger("DEBUG")
 
 _spline_kernels: dict = dict()
 
+# ignore that local variables are assigned but never used for now
 # ruff: noqa: F841
 # flake8: noqa: F841
 
