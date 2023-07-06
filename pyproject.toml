@@ -88,7 +88,8 @@ calibration = [ "pygmo>=2.16.1" ]
 model = [
     "poppy>=1.1.0",
     "dustmaps",
-    "astroquery"
+    "astroquery",
+    "gunagala @ git+https://github.com/AstroHuntsman/gunagala.git"
 ]
 io = [ "asdf" ]
 all = [
