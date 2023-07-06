@@ -30,7 +30,6 @@ import astropy.constants as cte
 import astropy.units as u
 import numpy as np
 import pandas as pd
-import xarray as xr
 
 import pyxel.models.photon_collection.arrakihs_sph as sph
 import pyxel.models.photon_collection.arrakihs_tools as tools

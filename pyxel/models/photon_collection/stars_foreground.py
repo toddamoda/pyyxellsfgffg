@@ -51,7 +51,7 @@ def stars_frgnd_catalog(
     """Calculate the stars inside the FOV.
 
     Parameters
-    -------
+    ----------
     coords_detector: SkyCoord (ICRS): (ra, dec) in deg.
             Coordinates of the pointing of the telescope.
     image: 2-d array.
@@ -141,7 +141,8 @@ def stars_frgnd_catalog(
     ##### VIS EUCLID
     #################
 
-    if band_var == "Euclid_VIS":
+    elif band_var == "Euclid_VIS":
+
         print("Getting data from GAIA")
         # we get the data from GAIA DR3 at the coordinates of tht pointing inside a FOV of radius = 0.7º
         Gaia.ROW_LIMIT = -1
@@ -182,7 +183,7 @@ def stars_frgnd_catalog(
     ##### Y EUCLID
     ###############
 
-    if band_var == "Euclid_Y":
+    elif band_var == "Euclid_Y":
         print("Getting data from Vizier")
         # we get the data from 2MASS at the coordinates of tht pointing inside a FOV of radius = 0.7º
         vv = Vizier(row_limit=-1)
@@ -277,7 +278,7 @@ def stars_frgnd_catalog(
     ##### J EUCLID
     ###############
 
-    if band_var == "Euclid_J":
+    elif band_var == "Euclid_J":
         print("Getting data from Vizier")
         # we get the data from 2MASS at the coordinates of tht pointing inside a FOV of radius = 0.7º
         vv = Vizier(row_limit=-1)
@@ -416,6 +417,23 @@ def stars_foreground(
     wave_begin: float,
     wave_end: float,
 ) -> None:
+    """Calculate the stars inside the FOV.
+
+    Parameters
+    ----------
+    coords_detector: SkyCoord (ICRS): (ra, dec) in deg.
+            Coordinates of the pointing of the telescope.
+    pixel_scale: float (in arcsec/pixel).
+            Plate scale of the telescope used.
+    band_var: str.
+            Name of the filter used in the simulation.
+    wave_begin: float, int (in nm).
+            Wavelength at the beginning of the filter.
+    wave_end: float, int (in nm).
+            Wavelength at the end of the filter.
+    Note:
+        The function returns an image in photons/s/cm2 units
+    """
     stars_flux: np.ndarray = stars_frgnd_catalog(
         coords_detector=SkyCoord(**coords_detector),
         image=detector.photon.array,
