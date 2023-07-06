@@ -21,6 +21,9 @@
 # SOFTWARE.
 """Smooth."""
 
+# ignore that local variables are assigned but never used for now
+# ruff: noqa: F841
+
 import logging
 
 import numpy as np
@@ -28,13 +31,7 @@ import scipy.spatial.ckdtree as spkd
 from numba import jit, njit  # , prange
 from tqdm import tqdm
 
-log = logging.getLogger("DEBUG")
-
 _spline_kernels: dict = dict()
-
-# ignore that local variables are assigned but never used for now
-# ruff: noqa: F841
-# flake8: noqa: F841
 
 
 ############################################################
@@ -75,37 +72,36 @@ def sph_smooth_mp(
     # Fudge HSML to never be less than the grid spacing
     global_min_softening = min(f0, f1) * 0.5
     global_max_softening = hsml.max()  # Just FYI, no function
-    log.debug("Min softening = ", global_min_softening)
+    logging.debug("Min softening = %r", global_min_softening)
     if increase_softening and np.any(hsml < global_min_softening):
         number_changed = int((hsml < global_min_softening).sum())
         min_hsml = np.min(hsml)
         hsml = np.maximum(hsml, global_min_softening)
-        log.debug("Warning: increased", number_changed, " softening lengths")
+        logging.debug("Warning: increased %r softening lengths", number_changed)
 
-    log.debug("Max softening = ", global_max_softening)
+    logging.debug("Max softening = ", global_max_softening)
     if max_softening is not None:
         too_large = hsml > max_softening
-        log.debug(
-            "Warning: {} of {} > max softening ({})".format(
-                too_large.sum(),
-                len(hsml),
-                max_softening,
-            )
+        logging.warning(
+            "%r of %r > max softening (%r)",
+            too_large.sum(),
+            len(hsml),
+            max_softening,
         )
         hsml[too_large] = max_softening
 
     chunk_size = np.ceil(npart / nproc)
 
     # Create segments list
-    log.debug(
-        f"Spawning {nproc:d} jobs for {npart:d} particles [{time.time()-t0:14.7f}s]"
+    logging.debug(
+        "Spawning %d jobs for %d particles [%d s]", nproc, npart, time.time() - t0
     )
 
     # The problem here is the distribution of hsml; processes take very different times.
     # Ideally want to divide the work equally
-    log.debug(f"Starting hsml sort [{time.time()-t0:14.7f}s]")
+    logging.debug("Starting hsml sort [%14.7f s]", time.time() - t0)
     s = np.argsort(hsml)
-    log.debug(f"Done hsml sort [{time.time()-t0:14.7f}s]")
+    logging.debug("Done hsml sort [%14.7f s]", time.time() - t0)
 
     jobs = []
     total_particles = 0
@@ -129,12 +125,12 @@ def sph_smooth_mp(
 
         hmax = np.log10((hsml[idx]).max())
         hmin = np.log10((hsml[idx]).min())
-        log.debug(
-            f"[{i:d}] {len(idx):d} particles (HSML range {hmax:7.2f} to {hmin:7.2f})"
+        logging.debug(
+            "[%d] %d particles (HSML range %7.2f to %7.2f)", i, len(idx), hmax, hmin
         )
         total_particles += len(idx)
         # print('[{:d}] {:d} particles ({:d} to {:d})'.format(i,B-A,A,B))
-    log.debug(f"{total_particles:d} particles total")
+    logging.debug("%d particles total", total_particles)
 
     pool = Pool(nproc)
     try:
@@ -143,7 +139,7 @@ def sph_smooth_mp(
     finally:
         pool.close()
 
-    log.debug(f"Done smoothing [{time.time()-t0:14.7f}s]")
+    logging.debug("Done smoothing [%14.7f s]", time.time() - t0)
     return result
 
 
@@ -248,12 +244,12 @@ def sph_smooth(
 
     # Fudge HSML to never be less than the grid spacing
     MIN_SOFTENING = min(f0, f1) * 0.5
-    print("Min softening = ", MIN_SOFTENING)
+    logging.info("Min softening = %r", MIN_SOFTENING)
     if increase_softening and np.any(hsml < MIN_SOFTENING):
         number_changed = int((hsml < MIN_SOFTENING).sum())
         min_hsml = np.min(hsml)
         hsml = np.maximum(hsml, MIN_SOFTENING)
-        print("Warning: increased", number_changed, " softening lengths")
+        logging.warning("increased %r softening lengths", number_changed)
 
     # kfac converts from pixel coordinates to (r/h)**2
     # kernel coordinates
@@ -266,8 +262,8 @@ def sph_smooth(
 
     local_grid = np.zeros(grid.shape, dtype=np.float64)
 
-    print("Npart = ", npart)
-    print("Starting smoothing loop...")
+    logging.info("Npart = %r", npart)
+    logging.info("Starting smoothing loop...")
     for ipart in tqdm(range(npart)):
         # Range of grid cells covered by this particle
         imin0 = np.floor(((xyz[ipart, 0] - 2.0 * hsml[ipart]) - x0) / f0)
@@ -317,7 +313,7 @@ def sph_smooth(
                 if itab < ntab:
                     w = kernel[itab] * norm
                     local_grid[ii, jj] += weight[ipart] * w
-    print("Done smoothing!")
+    logging.info("Done smoothing!")
 
     # Don't forget, grid contains densities, not masses
     return local_grid
@@ -350,12 +346,12 @@ def xsph_smooth(
 
     # Fudge HSML to never be less than the grid spacing
     MIN_SOFTENING = min(f0, f1) * 0.5
-    print(MIN_SOFTENING)
+    logging.info("MIN_SOFTENING: %r", MIN_SOFTENING)
     if increase_softening and np.any(hsml < MIN_SOFTENING):
         number_changed = int((hsml < MIN_SOFTENING).sum())
         min_hsml = np.min(hsml)
         hsml = np.maximum(hsml, MIN_SOFTENING)
-        print("Warning: increased", number_changed, " softening lengths")
+        logging.warning("increased %r softening lengths", number_changed)
 
     # kfac converts from pixel coordinates to (r/h)**2
     # kernel coordinates
@@ -368,8 +364,8 @@ def xsph_smooth(
 
     local_grid = np.zeros(grid.shape, dtype=np.float64)
 
-    print("Npart = ", npart)
-    print("Starting loop...")
+    logging.info("Npart = %r", npart)
+    logging.info("Starting loop...")
 
     # for ipart in prange(npart):
 
@@ -415,7 +411,7 @@ def tabulate_spline_kernel(ntab=1000):
     sel = rh <= 1.0
     # w[sel] = 1.0-(1.5*(rh[sel]**2))+0.75*(rh[sel]**3)
     w[sel] = 0.25 * ((2.0 - rh[sel]) ** 3) - (1 - rh[sel]) ** 3
-    print("new kernel")
+    logging.info("new kernel")
 
     # Second part: h<r<=2h
     sel = np.logical_and(rh > 1, rh <= 2.0)
@@ -435,19 +431,19 @@ def get_smoothing_lengths(xyz, ngb=32, hmin=0.0, hmax=1.0e20, leafsize=20, n_job
     """
     import time
 
-    log.debug("Building tree...")
+    logging.debug("Building tree...")
     t0 = time.time()
     tree = spkd.cKDTree(xyz, leafsize)
-    log.debug(f"{time.time()-t0:14.7f}s")
+    logging.debug("%14.7f s", time.time() - t0)
 
     # Get neighbours and distances for all particles
     # Note approximate nearest neighbours
-    log.debug("Searching tree...")
+    logging.debug("Searching tree...")
     t0 = time.time()
     r_nearest, ngb_index = tree.query(xyz, ngb + 1, eps=0.1, workers=n_jobs)
-    log.debug(f"{time.time()-t0:14.7f}s")
+    logging.debug("%14.7f s", time.time() - t0)
 
-    log.debug(f"R min {r_nearest.min()} max {r_nearest.max()}")
+    logging.debug("R min %r max %r", r_nearest.min(), r_nearest.max())
 
     del ngb_index
 
@@ -455,18 +451,18 @@ def get_smoothing_lengths(xyz, ngb=32, hmin=0.0, hmax=1.0e20, leafsize=20, n_job
     # separation of the particles.
     t0 = time.time()
     hsml = 0.5 * np.sqrt(np.sum(r_nearest**2, dtype=np.float64, axis=1))
-    log.debug(f"{time.time()-t0:14.7f}s")
+    logging.debug("%14.7f s", time.time() - t0)
 
     del r_nearest
 
     f_lt_min = (hsml < hmin).sum() / float(len(hsml))
     f_gt_max = (hsml > hmax).sum() / float(len(hsml))
-    log.debug(f"{f_lt_min:5.1%} < min")
-    log.debug(f"{f_gt_max:5.1%} > max")
+    logging.debug("%5.1f%% < min", f_lt_min)
+    logging.debug("%5.1f%% > max", f_gt_max)
 
-    log.debug(f"HSML min {hsml.min():10.3e} ({hmin:10.3e})")
-    log.debug(f"HSML med {np.nanmedian(hsml):10.3e}")
-    log.debug(f"HSML max {hsml.max():10.3e} ({hmax:10.3e})")
+    logging.debug("HSML min %10.3e (%10.3e)", hsml.min(), hmin)
+    logging.debug("HSML med %10.3e", np.nanmedian(hsml))
+    logging.debug("HSML max %10.3e (%10.3e)", hsml.max(), hmax)
 
     # Threshold the values
     np.maximum(hsml, hmin, hsml)
@@ -587,28 +583,26 @@ def example_usage(xyz: np.ndarray, mass: np.ndarray, gridx, gridy, hsml=None, **
 
     # Compute hsml in the units of xyz
     npart = xyz.shape[0]
-    print("Computing HSML, %d particles" % npart)
+    logging.info("Computing HSML, %d particles", npart)
 
     # Minimum and maximum smoothing lengths are chosen by the user.
     if hsml is None:
-        print("Calculating smoothing lengths...")
-        print(
-            "User specified softening range (physical Mpc) {:e} {:e}".format(
-                hsml_min, hsml_max
-            )
+        logging.info("Calculating smoothing lengths...")
+        logging.info(
+            "User specified softening range (physical Mpc) %e %e", hsml_min, hsml_max
         )
         hsml = get_smoothing_lengths(
             xyz, ngb=smoothing_neighbours, hmin=hsml_min, hmax=hsml_max
         )
 
-    print("HSML range", np.min(hsml), np.max(hsml))
+    logging.info("HSML range %r, %r", np.min(hsml), np.max(hsml))
 
     # Create an array representing the output grid
     nbins_x = len(gridx)
     nbins_y = len(gridy)
     grid = np.zeros((nbins_x, nbins_y), dtype=np.float64)
 
-    print("Smoothing to grid..")
+    logging.info("Smoothing to grid..")
     h2d = smooth_to_grid(
         (xyz[:][:, [px, py]]),
         hsml,

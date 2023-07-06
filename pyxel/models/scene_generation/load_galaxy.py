@@ -21,6 +21,7 @@
 # SOFTWARE.
 """Load galaxy model."""
 
+import logging
 import pickle
 import warnings
 from typing import Callable, Literal, Optional
@@ -108,7 +109,7 @@ def garrotxa_model(galaxy_model: str = "0.750") -> pd.DataFrame:
     """
 
     # Read the model selected
-    print("########## Reading galaxy #########")
+    logging.info("########## Reading galaxy #########")
     dt = np.dtype(
         [
             ("Begining of the line", ">f"),
@@ -156,7 +157,7 @@ def dmf_model(galaxy_model="30keV"):
     """
 
     # Read the model selected
-    print("########## Reading galaxy #########")
+    logging.info("########## Reading galaxy #########")
     f = open(
         "Files/Galaxy_models/WDM_models/stars_" + str(galaxy_model) + "_1000kpc.pkl",
         "rb",
@@ -171,7 +172,7 @@ def dmf_model(galaxy_model="30keV"):
     y_mags = np.array(pickle.load(f)).astype("float64")
     j_mags = np.array(pickle.load(f)).astype("float64")
 
-    print("Calculating Fluxes of stars")
+    logging.info("Calculating Fluxes of stars")
 
     """HST F475X filter"""
 
@@ -293,7 +294,7 @@ def coco_model(galaxy_model="98767_153") -> pd.DataFrame:
         Name of the model (Default value: "98767_153". Options: "98767_153").
     """
     # Read the model selected
-    print("########## Reading galaxy #########")
+    logging.info("########## Reading galaxy #########")
     dt = np.dtype(
         [
             ("Begining of the line", ">f"),
@@ -384,7 +385,7 @@ def model_creator(
     else:
         n_neighbors = n_neighbors
 
-        print("Finding ", n_neighbors, " Nearest Neighbors")
+        logging.info("Finding %r Nearest Neighbors", n_neighbors)
         xyz = np.transpose(np.array([file["rx"], file["ry"], file["rz"]]))
         hsml = sph.get_smoothing_lengths(xyz, ngb=n_neighbors)
         file["hsml"] = hsml
@@ -449,26 +450,26 @@ def model_creator(
 
     # We calculate the photon irradiance for the given distance.
     if band_var == "HST_F475X":
-        print("########## HST F475X model #########")
-        irradiance_photons = df_new["hstf475X_flux"].values / (
+        logging.info("########## HST F475X model #########")
+        irradiance_photons = df_new["HSTF475X_flux"].values / (
             4 * np.pi * ((dist * u.Mpc).to(u.cm)) ** 2
         )
 
     if band_var == "Euclid_VIS":
-        print("########## Euclid-VIS model #########")
-        irradiance_photons = df_new["vis_flux"].values / (
+        logging.info("########## Euclid-VIS model #########")
+        irradiance_photons = df_new["VIS_flux"].values / (
             4 * np.pi * ((dist * u.Mpc).to(u.cm)) ** 2
         )
 
     if band_var == "Euclid_Y":
-        print("########## Euclid-Y model #########")
-        irradiance_photons = df_new["y_flux"].values / (
+        logging.info("########## Euclid-Y model #########")
+        irradiance_photons = df_new["Y_flux"].values / (
             4 * np.pi * ((dist * u.Mpc).to(u.cm)) ** 2
         )
 
     if band_var == "Euclid_J":
-        print("########## Euclid-J model #########")
-        irradiance_photons = df_new["j_flux"].values / (
+        logging.info("########## Euclid-J model #########")
+        irradiance_photons = df_new["J_flux"].values / (
             4 * np.pi * ((dist * u.Mpc).to(u.cm)) ** 2
         )
 
