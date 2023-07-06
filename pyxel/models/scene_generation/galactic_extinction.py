@@ -178,7 +178,7 @@ def extintion_cardelli(wave, A_v: float, R_v: float = 3.1, units="nm"):
 
 
 def extinction_map(
-    coords_detector: SkyCoord, image, plate_scale, central_wv
+    coords_detector: SkyCoord, image, pixel_scale, central_wv
 ) -> np.ndarray:
     """Calculate of the extinction map on the detector (pixel-to-pixel) using Planck Collab. 2016.
 
@@ -188,7 +188,7 @@ def extinction_map(
          Coordinates of the pointing of the telescope.
      image: 2-d array.
          Image example to take the characteristics from.
-     plate_scale: float (in arcsec/pixel).
+     pixel_scale: float (in arcsec/pixel).
          Plate scale of the telescope used.
      central_wv: float, optional.
          Wavelength at the center of the filter.
@@ -197,7 +197,7 @@ def extinction_map(
 
     planckGNIL = PlanckGNILCQuery()
     list_detector = tools.detector_coordinates(
-        coords_detector=coords_detector, image=image, plate_scale=plate_scale
+        coords_detector=coords_detector, image=image, pixel_scale=pixel_scale
     )
     ebv = planckGNIL(list_detector)
     R_v = 3.1
@@ -210,12 +210,12 @@ def extinction_map(
 
 
 def load_extinction(
-    detector: Detector, coords_detector: dict, plate_scale: float, central_wv: float
+    detector: Detector, coords_detector: dict, pixel_scale: float, central_wv: float
 ) -> None:
     extinction: np.ndarray = extinction_map(
         coords_detector=SkyCoord(**coords_detector),
         image=np.asarray(detector.data["/scene"]),
-        plate_scale=plate_scale,
+        pixel_scale=pixel_scale,
         central_wv=central_wv,
     )
 

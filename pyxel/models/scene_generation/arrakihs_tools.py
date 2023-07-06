@@ -54,7 +54,7 @@ def index_coords(data: np.ndarray, origin: Optional[tuple] = None):
 
 
 def detector_coordinates(
-    coords_detector: SkyCoord, image: np.ndarray, plate_scale: float
+    coords_detector: SkyCoord, image: np.ndarray, pixel_scale: float
 ):
     """Provide a list of the coordinates of every pixel in the detector (ra, dec).
 
@@ -62,7 +62,7 @@ def detector_coordinates(
     ----------
     coords_detector: SkyCoord (ICRS): (ra, dec) in deg.
             Coordinates of the pointing of the telescope.
-    plate_scale: float (in arcsec/pixel).
+    pixel_scale: float (in arcsec/pixel).
             Plate scale of the telescope.
     image: 2-d array.
             Image of the detector (just for the size)
@@ -78,7 +78,7 @@ def detector_coordinates(
 
     x, y = index_coords(data, origin=(ycenter, xcenter))
 
-    cdelt = np.array([-1.0, 1.0]) / 3600 * plate_scale
+    cdelt = np.array([-1.0, 1.0]) / 3600 * pixel_scale
     crpix = np.array([image.shape[0] / 2, image.shape[1] / 2])
 
     w = wcs.WCS(naxis=2)
