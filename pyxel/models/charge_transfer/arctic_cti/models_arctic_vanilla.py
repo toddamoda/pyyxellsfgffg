@@ -45,13 +45,13 @@ class Trap:
 
 
 def compute_arctic_add(
-    image_2d: np.ndarray,
-    full_well_depth: float,
-    well_fill_power: float,
-    parallel_traps: Sequence[Trap],
-    parallel_express: int,
-    well_notch_depth: float = 0.,
-    first_electron_fill: float = 0.
+        image_2d: np.ndarray,
+        full_well_depth: float,
+        well_fill_power: float,
+        parallel_traps: Sequence[Trap],
+        parallel_express: int,
+        well_notch_depth: float = 0.0,
+        first_electron_fill: float = 0.,
 ) -> np.ndarray:
     """Create a new image with :term:`CTI` trails.
 
@@ -107,13 +107,13 @@ def compute_arctic_add(
 
 
 def arctic_add(
-    detector: CCD,
-    well_fill_power: float,
-    trap_densities: Sequence[float],
-    trap_release_timescales: Sequence[float],
-    express: int = 0,
-    well_notch_depth: float =0.,
-    first_electron_fill: float = 0.,
+        detector: CCD,
+        well_fill_power: float,
+        trap_densities: Sequence[float],
+        trap_release_timescales: Sequence[float],
+        express: int = 0,
+        well_notch_depth: float = 0.0,
+        first_electron_fill: float = 0.,
 ) -> None:
     """Add :term:`CTI` trails to an image by trapping, releasing and moving electrons.
 
@@ -180,14 +180,14 @@ def arctic_add(
 
 
 def compute_arctic_remove(
-    image_2d: np.ndarray,
-    full_well_depth: float,
-    well_fill_power: float,
-    parallel_traps: Sequence[Trap],
-    parallel_express: int,
-    num_iterations: int,
-    well_notch_depth: float = 0.,
-    first_electron_fill: float = 0.
+        image_2d: np.ndarray,
+        full_well_depth: float,
+        well_fill_power: float,
+        parallel_traps: Sequence[Trap],
+        parallel_express: int,
+        num_iterations: int,
+        well_notch_depth: float = 0.,
+        first_electron_fill: float = 0.
 ) -> np.ndarray:
     """Create a new image with removed :term:`CTI` trails.
 
@@ -239,14 +239,14 @@ def compute_arctic_remove(
 
 
 def arctic_remove(
-    detector: CCD,
-    well_fill_power: float,
-    trap_densities: Sequence[float],
-    trap_release_timescales: Sequence[float],
-    num_iterations: int,
-    express: int = 0,
-    well_notch_depth: float = 0.,
-    first_electron_fill: float = 0.
+        detector: CCD,
+        well_fill_power: float,
+        trap_densities: Sequence[float],
+        trap_release_timescales: Sequence[float],
+        num_iterations: int,
+        express: int = 0,
+        well_notch_depth: float = 0.,
+        first_electron_fill: float = 0.
 ) -> None:
     """Remove :term:`CTI` trails from an image by first modelling the addition of :term:`CTI`.
 
