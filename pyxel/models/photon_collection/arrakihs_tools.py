@@ -28,6 +28,30 @@ from astropy.coordinates import SkyCoord
 from scipy import interpolate
 
 
+def flux2phot(flux: np.ndarray, t_exp: float, aperture: float) -> np.ndarray:
+    """Convert flux (photon/s/cm2) to photon/pixel.
+
+    Parameters
+    ----------
+    flux : np.ndarray
+        Scene object. Unit: photon/pixel/s/cm2.
+    t_exp : float
+        Exposure time. Unit: s.
+    aperture : float
+        Collecting area of the telescope. Unit: cm.
+
+    Returns
+    -------
+    np.ndarray
+        Converted flux in photon/pixel.
+    """
+
+    col_area = np.pi * (aperture / 2) ** 2
+    flux_converted = flux * t_exp * col_area
+
+    return flux_converted
+
+
 def index_coords(data: np.ndarray, origin: Optional[tuple] = None):
     """Create a map of the numbered pixels from an origin selected.
 

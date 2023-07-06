@@ -26,7 +26,7 @@ import numpy as np
 from astropy.coordinates import SkyCoord
 from dustmaps.planck import PlanckGNILCQuery
 
-import pyxel.models.scene_generation.arrakihs_tools as tools
+import pyxel.models.photon_collection.arrakihs_tools as tools
 from pyxel.detectors import Detector
 
 

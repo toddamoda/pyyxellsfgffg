@@ -32,7 +32,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-import pyxel.models.scene_generation.arrakihs_sph as sph
+import pyxel.models.photon_collection.arrakihs_sph as sph
 from pyxel.detectors import Detector
 
 pd.options.mode.chained_assignment = None  # default='warn'

@@ -14,4 +14,7 @@ from .shot_noise import shot_noise
 from .stripe_pattern import stripe_pattern
 from .poppy import optical_psf
 from .point_spread_function import load_psf
-from .conv_flux2phot import flux_convert
+from .load_galaxy import load_galaxy
+from .load_cosmo_bckg import load_cosmo_bckg
+from .galactic_extinction import load_extinction
+from .zodiacal_light import zodiacal_light
