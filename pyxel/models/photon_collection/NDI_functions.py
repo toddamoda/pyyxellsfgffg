@@ -25,7 +25,7 @@ import numpy as np
 from scipy import interpolate
 
 
-def NDI_iSIM170(x: np.array):
+def NDI_iSIM170(x: np.ndarray):
     """Compute NDI function of iSIM-170 Earth Observation.
 
     Parameters
@@ -35,17 +35,17 @@ def NDI_iSIM170(x: np.array):
     """
     p_1 = np.array([105.44586205, 2.06647369])
 
-    def g_1(x: np.array):
+    def g_1(x: np.ndarray):
         return np.log10(p_1[0] * 1 / (1 + (x / p_1[1]) ** 2))
 
-    def f_1(x: np.array):
+    def f_1(x: np.ndarray):
         x_ndi = np.array([1e-6, 0.43, 0.7, 1])
         y_ndi = np.array([105.4458618, 102.4384568, 1, 0.03])
 
         tck = interpolate.splrep(x_ndi, np.log10(y_ndi))
         return interpolate.splev(x, tck)
 
-    def h_1(x: np.array):
+    def h_1(x: np.ndarray):
         x_ndi = np.array([1, 2, 5, 10, 20, 40, 60, 80, 100, 120, 150, 180])
         y_ndi = np.array(
             [
@@ -74,7 +74,7 @@ def NDI_iSIM170(x: np.array):
     )
 
 
-def NDI_GOAL(x: np.array):
+def NDI_GOAL(x: np.ndarray):
     """Compute NDI function Goal for ARRAKIHS mission.
 
     Parameters
@@ -84,17 +84,17 @@ def NDI_GOAL(x: np.array):
     """
     p_2 = np.array([105.44586205, 2.06647369])
 
-    def g_2(x: np.array):
+    def g_2(x: np.ndarray):
         return np.log10(p_2[0] * 1 / (1 + (x / p_2[1]) ** 2))
 
-    def f_2(x: np.array):
+    def f_2(x: np.ndarray):
         x_ndi = np.array([1e-6, 0.43, 0.7, 1])
         y_ndi = np.array([105.4458618, 102.4384568, 0.3, 4.5897136e-03])
 
         tck = interpolate.splrep(x_ndi, np.log10(y_ndi))
         return interpolate.splev(x, tck)
 
-    def h_2(x: np.array):
+    def h_2(x: np.ndarray):
         x_ndi = np.array([1, 2, 3.5, 5, 10, 15, 20])
 
         y_ndi = np.array(
@@ -112,7 +112,7 @@ def NDI_GOAL(x: np.array):
         tck = interpolate.splrep(x_ndi, np.log10(y_ndi))
         return interpolate.splev(x, tck)
 
-    def n_2(x: np.array):
+    def n_2(x: np.ndarray):
         x_ndi = np.array([20, 25, 30, 35, 40, 45, 50, 55, 60, 65])
         y_ndi = np.array(
             [
@@ -132,7 +132,7 @@ def NDI_GOAL(x: np.array):
         tck = interpolate.splrep(x_ndi, np.log10(y_ndi))
         return interpolate.splev(x, tck)
 
-    def k_2(x: np.array):
+    def k_2(x: np.ndarray):
         x_ndi = np.array([65, 80, 100, 120, 150, 180])
         y_ndi = np.array(
             [
@@ -167,7 +167,7 @@ def NDI_GOAL(x: np.array):
     )
 
 
-def NDI_CONOPS_C_90(x: np.array):
+def NDI_CONOPS_C_90(x: np.ndarray):
     """Compute NDI function for ARRAKIHS mission in CONOPS-C and zenith angle ≤ 90.
 
     Parameters
@@ -178,10 +178,10 @@ def NDI_CONOPS_C_90(x: np.array):
 
     p_2 = np.array([0.291688896864177, 0.28])
 
-    def g_2(x: np.array):
+    def g_2(x: np.ndarray):
         return np.log10(p_2[0] * 1 / (1 + (x / p_2[1]) ** 2))
 
-    def h_2(x: np.array):
+    def h_2(x: np.ndarray):
         x_ndi = np.array([1, 2, 3.5, 5, 10, 15, 24])
 
         y_ndi = np.array([7.5e-03, 5e-04, 1.00e-04, 5e-05, 8e-06, 3e-06, 2e-07])
@@ -189,7 +189,7 @@ def NDI_CONOPS_C_90(x: np.array):
         tck = interpolate.splrep(x_ndi, np.log10(y_ndi))
         return interpolate.splev(x, tck)
 
-    def n_2(x: np.array):
+    def n_2(x: np.ndarray):
         x_ndi = np.array([19, 25, 30, 35, 40, 45, 50, 55, 60, 70, 80])
         y_ndi = np.array(
             [
@@ -210,7 +210,7 @@ def NDI_CONOPS_C_90(x: np.array):
         tck = interpolate.splrep(x_ndi, np.log10(y_ndi))
         return interpolate.splev(x, tck)
 
-    def k_2(x: np.array):
+    def k_2(x: np.ndarray):
         x_ndi = np.array([70, 80, 100, 120, 150, 180])
         y_ndi = np.array(
             [
@@ -233,7 +233,7 @@ def NDI_CONOPS_C_90(x: np.array):
     )
 
 
-def NDI_CONOPS_B_90(x: np.array):
+def NDI_CONOPS_B_90(x: np.ndarray):
     """Compute NDI function for ARRAKIHS mission in CONOPS-B and zenith angle ≤ 90.
 
     Parameters
@@ -244,10 +244,10 @@ def NDI_CONOPS_B_90(x: np.array):
 
     p_2 = np.array([0.291688896864177, 0.28])
 
-    def g_2(x: np.array):
+    def g_2(x: np.ndarray):
         return np.log10(p_2[0] * 1 / (1 + (x / p_2[1]) ** 2))
 
-    def h_2(x: np.array):
+    def h_2(x: np.ndarray):
         x_ndi = np.array([1, 2, 3.5, 5, 10, 15, 24])
 
         y_ndi = np.array([7.5e-03, 5e-04, 1.00e-04, 5e-05, 8e-06, 3e-06, 2e-07])
@@ -255,7 +255,7 @@ def NDI_CONOPS_B_90(x: np.array):
         tck = interpolate.splrep(x_ndi, np.log10(y_ndi))
         return interpolate.splev(x, tck)
 
-    def n_2(x: np.array):
+    def n_2(x: np.ndarray):
         x_ndi = np.array([19, 25, 30, 35, 45, 55, 60, 70, 80])
         y_ndi = np.array(
             [
@@ -274,7 +274,7 @@ def NDI_CONOPS_B_90(x: np.array):
         tck = interpolate.splrep(x_ndi, np.log10(y_ndi))
         return interpolate.splev(x, tck)
 
-    def k_2(x: np.array):
+    def k_2(x: np.ndarray):
         x_ndi = np.array([70, 80, 100, 120, 150, 180])
         y_ndi = np.array([1.0e-13, 1.0e-13, 1.0e-13, 1.0e-13, 1.0e-13, 1.0e-13])
 
@@ -288,7 +288,7 @@ def NDI_CONOPS_B_90(x: np.array):
     )
 
 
-def NDI_CONOPS_C_80(x: np.array):
+def NDI_CONOPS_C_80(x: np.ndarray):
     """Compute NDI function for ARRAKIHS mission in CONOPS-C and zenith angle ≤ 80.
 
     Parameters
@@ -298,10 +298,10 @@ def NDI_CONOPS_C_80(x: np.array):
     """
     p_2 = np.array([0.291688896864177, 0.28])
 
-    def g_2(x: np.array):
+    def g_2(x: np.ndarray):
         return np.log10(p_2[0] * 1 / (1 + (x / p_2[1]) ** 2))
 
-    def h_2(x: np.array):
+    def h_2(x: np.ndarray):
         x_ndi = np.array([1, 2, 3.5, 5, 10, 15, 24])
 
         y_ndi = np.array([7.5e-03, 5e-04, 1.00e-04, 5e-05, 8e-06, 3e-06, 2e-07])
@@ -309,7 +309,7 @@ def NDI_CONOPS_C_80(x: np.array):
         tck = interpolate.splrep(x_ndi, np.log10(y_ndi))
         return interpolate.splev(x, tck)
 
-    def n_2(x: np.array):
+    def n_2(x: np.ndarray):
         x_ndi = np.array([19, 25, 30, 40, 50, 60, 70, 80, 90])
         y_ndi = np.array(
             [2e-06, 1.0e-7, 1.0e-8, 1e-9, 1.0e-10, 2.0e-11, 5.0e-12, 1e-12, 1e-13]
@@ -318,7 +318,7 @@ def NDI_CONOPS_C_80(x: np.array):
         tck = interpolate.splrep(x_ndi, np.log10(y_ndi))
         return interpolate.splev(x, tck)
 
-    def k_2(x: np.array):
+    def k_2(x: np.ndarray):
         x_ndi = np.array([70, 80, 100, 120, 150, 180])
         y_ndi = np.array([1.0e-13, 1.0e-13, 1.0e-13, 1.0e-13, 1.0e-13, 1.0e-13])
 
@@ -332,7 +332,7 @@ def NDI_CONOPS_C_80(x: np.array):
     )
 
 
-def NDI_CONOPS_B_80(x: np.array):
+def NDI_CONOPS_B_80(x: np.ndarray):
     """Compute NDI function for ARRAKIHS mission in CONOPS-B and zenith angle ≤ 80.
 
     Parameters
@@ -343,10 +343,10 @@ def NDI_CONOPS_B_80(x: np.array):
 
     p_2 = np.array([0.291688896864177, 0.28])
 
-    def g_2(x: np.array):
+    def g_2(x: np.ndarray):
         return np.log10(p_2[0] * 1 / (1 + (x / p_2[1]) ** 2))
 
-    def h_2(x: np.array):
+    def h_2(x: np.ndarray):
         x_ndi = np.array([1, 2, 3.5, 5, 10, 15, 24])
 
         y_ndi = np.array([7.5e-03, 5e-04, 1.00e-04, 5e-05, 8e-06, 3e-06, 2e-07])
@@ -354,7 +354,7 @@ def NDI_CONOPS_B_80(x: np.array):
         tck = interpolate.splrep(x_ndi, np.log10(y_ndi))
         return interpolate.splev(x, tck)
 
-    def n_2(x: np.array):
+    def n_2(x: np.ndarray):
         x_ndi = np.array([19, 25, 30, 40, 50, 60, 70, 80, 90])
         y_ndi = np.array(
             [1.3e-06, 1.0e-7, 5.0e-9, 5e-10, 8.0e-11, 1.5e-11, 3.0e-12, 8e-13, 1e-13]
@@ -363,7 +363,7 @@ def NDI_CONOPS_B_80(x: np.array):
         tck = interpolate.splrep(x_ndi, np.log10(y_ndi))
         return interpolate.splev(x, tck)
 
-    def k_2(x: np.array):
+    def k_2(x: np.ndarray):
         x_ndi = np.array([70, 80, 100, 120, 150, 180])
         y_ndi = np.array([1.0e-13, 1.0e-13, 1.0e-13, 1.0e-13, 1.0e-13, 1.0e-13])
 
@@ -377,7 +377,7 @@ def NDI_CONOPS_B_80(x: np.array):
     )
 
 
-def NDI_CONOPS_B_70(x: np.array):
+def NDI_CONOPS_B_70(x: np.ndarray):
     """Compute NDI function for ARRAKIHS mission in CONOPS-B and zenith angle ≤ 70.
 
     Parameters
@@ -387,10 +387,10 @@ def NDI_CONOPS_B_70(x: np.array):
     """
     p_2 = np.array([0.291688896864177, 0.28])
 
-    def g_2(x: np.array):
+    def g_2(x: np.ndarray):
         return np.log10(p_2[0] * 1 / (1 + (x / p_2[1]) ** 2))
 
-    def h_2(x: np.array):
+    def h_2(x: np.ndarray):
         x_ndi = np.array([1, 2, 3.5, 5, 10, 15, 24])
 
         y_ndi = np.array([7.5e-03, 5e-04, 1.00e-04, 5e-05, 8e-06, 4e-06, 4e-07])
@@ -398,7 +398,7 @@ def NDI_CONOPS_B_70(x: np.array):
         tck = interpolate.splrep(x_ndi, np.log10(y_ndi))
         return interpolate.splev(x, tck)
 
-    def n_2(x: np.array):
+    def n_2(x: np.ndarray):
         x_ndi = np.array([19, 25, 30, 40, 50, 60, 70, 80, 90])
         y_ndi = np.array(
             [3e-06, 4.0e-7, 8.0e-8, 8.0e-9, 8.0e-10, 8.0e-11, 1.0e-11, 1e-12, 1e-13]
@@ -407,7 +407,7 @@ def NDI_CONOPS_B_70(x: np.array):
         tck = interpolate.splrep(x_ndi, np.log10(y_ndi))
         return interpolate.splev(x, tck)
 
-    def k_2(x: np.array):
+    def k_2(x: np.ndarray):
         x_ndi = np.array([70, 80, 100, 120, 150, 180])
         y_ndi = np.array([1.0e-13, 1.0e-13, 1.0e-13, 1.0e-13, 1.0e-13, 1.0e-13])
 
@@ -421,7 +421,7 @@ def NDI_CONOPS_B_70(x: np.array):
     )
 
 
-def NDI_CONOPS_C_70(x: np.array):
+def NDI_CONOPS_C_70(x: np.ndarray):
     """Compute NDI function for ARRAKIHS mission in CONOPS-C and zenith angle ≤ 70.
 
     Parameters
@@ -431,17 +431,17 @@ def NDI_CONOPS_C_70(x: np.array):
     """
     p_2 = np.array([0.291688896864177, 0.28])
 
-    def g_2(x: np.array):
+    def g_2(x: np.ndarray):
         return np.log10(p_2[0] * 1 / (1 + (x / p_2[1]) ** 2))
 
-    def f_1(x: np.array):
+    def f_1(x: np.ndarray):
         x_ndi = np.array([1e-6, 0.43, 0.7, 1])
         y_ndi = np.array([0.291688896864177, 0.1, 0.05, 2e-2])
 
         tck = interpolate.splrep(x_ndi, np.log10(y_ndi))
         return interpolate.splev(x, tck)
 
-    def h_1(x: np.array):
+    def h_1(x: np.ndarray):
         x_ndi = np.array([1, 2, 5, 10, 20, 40, 60, 100, 120, 150, 180])
         y_ndi = np.array(
             [
@@ -469,7 +469,7 @@ def NDI_CONOPS_C_70(x: np.array):
     )
 
 
-def NDI_moon(x: np.array):
+def NDI_moon(x: np.ndarray):
     """Compute NDI function for the Moon in the ARRAKIHS mission.
 
     Parameters
@@ -481,7 +481,7 @@ def NDI_moon(x: np.array):
     return f
 
 
-def NDI_outfield_stars(x: np.array):
+def NDI_outfield_stars(x: np.ndarray):
     """Compute NDI function for the outfield stars in the ARRAKIHS mission.
 
     Parameters
@@ -490,7 +490,7 @@ def NDI_outfield_stars(x: np.array):
         angular separation, theta.
     """
 
-    def g_1(x: np.array):
+    def g_1(x: np.ndarray):
         x_ndi = np.array([1e-6, 0.43, 0.7, 1])
         y_ndi = np.array(
             [0.291688896864177, 0.291688896864177, 0.291688896864177, 0.291688896864177]
@@ -498,7 +498,7 @@ def NDI_outfield_stars(x: np.array):
         tck = interpolate.splrep(x_ndi, np.log10(y_ndi))
         return interpolate.splev(x, tck)
 
-    def h_1(x: np.array):
+    def h_1(x: np.ndarray):
         x_ndi = np.array([1, 2, 5, 10, 20, 40, 60, 80, 100, 120, 150, 180])
         y_ndi = np.array(
             [
@@ -525,7 +525,7 @@ def NDI_outfield_stars(x: np.array):
     )
 
 
-def final_ndi_70_indv(x: np.array):
+def final_ndi_70_indv(x: np.ndarray):
     """Compute final NDI requirement for the ARRAKIHS mission in CONOPS-C and zenith angle ≤ 70 (each contributions: mu >24.5 mag/arcsec2).
 
     Parameters
@@ -545,7 +545,7 @@ def final_ndi_70_indv(x: np.array):
     return f
 
 
-def final_ndi_90_indv(x: np.array):
+def final_ndi_90_indv(x: np.ndarray):
     """Compute final NDI requirement for the ARRAKIHS mission in CONOPS-C and zenith angle ≤ 90 (each contributions: mu >24.5 mag/arcsec2).
 
     Parameters
@@ -565,7 +565,7 @@ def final_ndi_90_indv(x: np.array):
     return f
 
 
-def final_ndi_70(x: np.array):
+def final_ndi_70(x: np.ndarray):
     """Compute final NDI requirement for the ARRAKIHS mission in CONOPS-C and zenith angle ≤ 70 (all contributions: mu >24.5 mag/arcsec2).
 
     Parameters
@@ -585,7 +585,7 @@ def final_ndi_70(x: np.array):
     return f
 
 
-def final_ndi_90(x: np.array):
+def final_ndi_90(x: np.ndarray):
     """Compute Final NDI requirement for the ARRAKIHS mission in CONOPS-C and zenith angle ≤ 90 (all contributions: mu >24.5 mag/arcsec2).
 
     Parameters
@@ -605,7 +605,7 @@ def final_ndi_90(x: np.array):
     return f
 
 
-def NDI_CONOPS_BASELINE_85(x: np.array):
+def NDI_CONOPS_BASELINE_85(x: np.ndarray):
     """Compute NDI function for ARRAKIHS mission in CONOPS-BASELINE and zenith angle ≤ 85.
 
     Parameters
@@ -616,10 +616,10 @@ def NDI_CONOPS_BASELINE_85(x: np.array):
 
     p_2 = np.array([0.291688896864177, 0.28])
 
-    def g_2(x: np.array):
+    def g_2(x: np.ndarray):
         return np.log10(p_2[0] * 1 / (1 + (x / p_2[1]) ** 2))
 
-    def h_2(x: np.array):
+    def h_2(x: np.ndarray):
         x_ndi = np.array([1, 2, 3.5, 5, 10, 15, 24])
 
         y_ndi = np.array([7.5e-03, 5e-04, 1.00e-04, 5e-05, 8e-06, 3e-06, 2e-07])
@@ -627,7 +627,7 @@ def NDI_CONOPS_BASELINE_85(x: np.array):
         tck = interpolate.splrep(x_ndi, np.log10(y_ndi))
         return interpolate.splev(x, tck)
 
-    def n_2(x: np.array):
+    def n_2(x: np.ndarray):
         x_ndi = np.array([19, 25, 30, 40, 50, 60, 70, 80, 90])
         y_ndi = np.array(
             [1.3e-06, 1.0e-7, 5.0e-9, 5e-10, 8.0e-11, 1.5e-11, 3.0e-12, 8e-13, 1e-13]
@@ -636,7 +636,7 @@ def NDI_CONOPS_BASELINE_85(x: np.array):
         tck = interpolate.splrep(x_ndi, np.log10(y_ndi))
         return interpolate.splev(x, tck)
 
-    def k_2(x: np.array):
+    def k_2(x: np.ndarray):
         x_ndi = np.array([70, 80, 100, 120, 150, 180])
         y_ndi = np.array([1.0e-13, 1.0e-13, 1.0e-13, 1.0e-13, 1.0e-13, 1.0e-13])
 
@@ -650,7 +650,7 @@ def NDI_CONOPS_BASELINE_85(x: np.array):
     )
 
 
-def requieremnt_ndi_baseline_85(x: np.array):
+def requieremnt_ndi_baseline_85(x: np.ndarray):
     """Compute final NDI requirement for the ARRAKIHS mission in CONOPS-C and zenith angle ≤ 85 (all contributions: mu >24.5 mag/arcsec2) .
 
     Parameters

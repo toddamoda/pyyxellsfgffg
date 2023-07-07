@@ -70,12 +70,12 @@ albedo_moon = 0.12
 ###################################################
 
 
-def indextoradec(nside: float, index: np.array) -> np.array:
+def indextoradec(nside: float, index: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     theta, phi = hp.pixelfunc.pix2ang(nside, index)
     return np.degrees(np.pi * 2.0 - phi), -np.degrees(theta - np.pi / 2.0)
 
 
-def radectoindex(nside: float, ra: np.array, dec: np.array) -> np.array:
+def radectoindex(nside: float, ra: np.ndarray, dec: np.ndarray) -> np.ndarray:
     return hp.pixelfunc.ang2pix(nside, np.radians(-dec + 90.0), np.radians(360.0 - ra))
 
 
@@ -129,7 +129,6 @@ def angular_separation_list(
             Plate scale of the telescope.
     image: 2-d array.
             Image of the detector (just for the size)
-
     """
 
     list_detector = tools.detector_coordinates(coords_detector, image, pixel_scale)
@@ -147,7 +146,7 @@ def angular_separation_list(
 
 
 ### Sun spectrum:
-def blackbody_sun(x: np.array):
+def blackbody_sun(x: np.ndarray):
     bb_out = (
         pii
         * (2.0 * h_planck * (c_speed**2.0) / (x * (x * 1.0e-8) ** 4.0))
@@ -159,7 +158,7 @@ def blackbody_sun(x: np.array):
 
 
 ### Moon spectrum:
-def moon_spectrum(obs_date: Time, x: np.array):
+def moon_spectrum(obs_date: Time, x: np.ndarray):
     distance_moon_earth = get_moon(obs_date).distance
     solid_angle_moon_sun = cte.R_sun**2 / (cte.au + distance_moon_earth.to(u.m)) ** 2
     # reflected from the sun
@@ -187,7 +186,7 @@ def moon_flux(obs_date: Time, wave_begin, wave_end):
 
 
 ### Earth emission spectrum:
-def blackbody_earth(x: np.array):
+def blackbody_earth(x: np.ndarray):
     bb_out = (
         pii
         * (2.0 * h_planck * (c_speed**2.0) / (x * (x * 1.0e-8) ** 4.0))
@@ -199,7 +198,7 @@ def blackbody_earth(x: np.array):
 
 
 ### Total Earth emission spectrum on the eclipse:
-def earth_spectrum_night(obs_date: Time, x: np.array):
+def earth_spectrum_night(obs_date: Time, x: np.ndarray):
     distance_moon_earth = get_moon(obs_date).distance
     solid_angle_moon = moon_rad**2 / distance_moon_earth**2
     earth_moon_ref = moon_spectrum(obs_date, x) * albedo_earth * solid_angle_moon / 2
@@ -209,7 +208,7 @@ def earth_spectrum_night(obs_date: Time, x: np.array):
 
 
 ### Total Earth emission spectrum on the sunlight:
-def earth_spectrum_day(x: np.array):
+def earth_spectrum_day(x: np.ndarray):
     earth_sun_ref = blackbody_sun(x) * albedo_earth * solid_angle_sun
     earth_emiss = blackbody_earth(x)
 
@@ -357,18 +356,18 @@ def earth_straylight(
 
     separation_list_center = satellite_coords.separation(coords_list).deg
 
-    separation_day_center = []
-    separation_night_center = []
+    separation_day_center_lst = []
+    separation_night_center_lst = []
 
     for i in range(len(coords_list)):
         if coords_list.ra.deg[i] <= 180:
-            separation_night_center.append(separation_list_center[i])
+            separation_night_center_lst.append(separation_list_center[i])
 
         else:
-            separation_day_center.append(separation_list_center[i])
+            separation_day_center_lst.append(separation_list_center[i])
 
-    separation_day_center = np.array(separation_day_center)
-    separation_night_center = np.array(separation_night_center)
+    separation_day_center = np.array(separation_day_center_lst)
+    separation_night_center = np.array(separation_night_center_lst)
 
     list_index_day = []
     for i in tqdm(range(len(separation_day_center))):
@@ -844,7 +843,7 @@ def stellar_straylight(
     band_var: str,
     wave_begin: float,
     wave_end: float,
-) -> np.array:
+) -> np.ndarray:
     """Calculate the straylight of the planets of the solar system for every exposure.
 
     Parameters

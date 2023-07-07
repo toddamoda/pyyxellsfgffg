@@ -181,7 +181,10 @@ module = [
     "bokeh.*",
     "jinja2.*",
     "click.*",
-    "dustmaps.*"
+    "dustmaps.*",
+    "astroquery.*",
+    "gunagala.*",
+    "healpy.*",
 ]
 ignore_errors=  true
 ignore_missing_imports = true

@@ -25,12 +25,12 @@ import astropy.units as u
 import numpy as np
 from astropy.coordinates import SkyCoord
 from astropy.time import Time
+from gunagala.sky import ZodiacalLight
 from scipy.integrate import quad
 from scipy.interpolate import griddata
 from tqdm import tqdm
 
 import pyxel.models.photon_collection.arrakihs_tools as tools
-from gunagala.sky import ZodiacalLight
 from pyxel.detectors import Detector
 from pyxel.util import fit_into_array
 

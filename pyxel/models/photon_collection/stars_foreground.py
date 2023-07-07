@@ -24,12 +24,12 @@
 
 # Suppress warnings. Comment this out if you wish to see the warning messages
 import warnings
-from astropy import wcs
-from astropy.coordinates import SkyCoord  # High-level coordinates
 
 import astropy.units as u
 import numpy as np
 import pandas as pd
+from astropy import wcs
+from astropy.coordinates import SkyCoord  # High-level coordinates
 from astroquery.gaia import Gaia
 from astroquery.vizier import Vizier
 from tqdm import tqdm
@@ -38,7 +38,6 @@ import pyxel.models.photon_collection.arrakihs_tools as tools
 from pyxel.detectors import Detector
 
 warnings.filterwarnings("ignore")
-
 
 
 def stars_frgnd_catalog(
