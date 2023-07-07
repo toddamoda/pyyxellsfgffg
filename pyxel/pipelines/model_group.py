@@ -89,11 +89,30 @@ class ModelGroup:
                     attrs={"units": "s"},
                 )
 
-                key: str = f"/intermediate/{self._name}/{model.name}"
+                intermediate_key: str = "intermediate"
+                key: str = f"/{intermediate_key}/{self._name}/{model.name}"
                 ds: xr.Dataset = detector.to_xarray().expand_dims(time=absolute_time)
 
+                if intermediate_key not in detector.data:
+                    last_ds = xr.Dataset()
+                else:
+                    *_, last_ds = detector.data[intermediate_key].leaves
+
+                new_ds = xr.Dataset(attrs=ds.attrs)
+                for name, data_array in ds.data_vars.items():
+                    if last_ds:
+                        if name in last_ds.data_vars:
+                            previous_data_array = last_ds[name]
+                        else:
+                            previous_data_array = data_array
+                    else:
+                        previous_data_array = xr.zeros_like(data_array)
+
+                    if not data_array.equals(previous_data_array):
+                        new_ds[name] = data_array
+
                 if detector.is_first_readout:
-                    new_data_tree: DataTree = DataTree(ds)
+                    new_data_tree: DataTree = DataTree(new_ds)
                 else:
                     previous_data_tree: DataTree = detector.data[key]  # type: ignore
 

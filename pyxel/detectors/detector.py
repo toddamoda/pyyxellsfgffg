@@ -194,7 +194,7 @@ class Detector:
         ds["pixel"] = self.pixel.to_xarray()
         ds["signal"] = self.signal.to_xarray()
         ds["image"] = self.image.to_xarray()
-        # ds["charge"] = self.charge.to_xarray()
+        ds["charge"] = self.charge.to_xarray()
 
         ds.attrs.update({"detector": type(self).__name__, "pyxel version": __version__})
 
