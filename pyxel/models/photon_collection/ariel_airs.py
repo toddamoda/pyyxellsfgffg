@@ -31,7 +31,7 @@
 # knowledge of the CeCILL license and that you accept its terms.
 
 
-"""Pyxel photon generator models."""
+"""Pyxel photon generator models for ARIEL AIRS."""
 
 import logging
 import os
