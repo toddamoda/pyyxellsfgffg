@@ -43,6 +43,11 @@ def load_cosmo_bckg(
         Input filename of the cosmological background.
     aperture : float
         Telescope aperture in m.
+
+    Returns
+    -------
+    np.ndarray
+        Cosmological Background flux in photon/s/pixel.
     """
     cosmo_bckg = load_cropped_and_aligned_image(
         shape=detector.geometry.shape, filename=filename, align="center"

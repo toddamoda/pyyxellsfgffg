@@ -30,7 +30,7 @@ from scipy.interpolate import griddata
 
 
 def flux2phot(flux: np.ndarray, t_exp: float, aperture: float) -> np.ndarray:
-    """Convert flux (photon/s/cm2) to photon/pixel.
+    """Convert flux (photon/s/cm2) to photon/s/pixel.
 
     Parameters
     ----------
@@ -44,7 +44,7 @@ def flux2phot(flux: np.ndarray, t_exp: float, aperture: float) -> np.ndarray:
     Returns
     -------
     np.ndarray
-        Converted flux in photon/pixel.
+        Converted flux in photon/s/pixel.
     """
 
     col_area = np.pi * (aperture * 1e2 / 2) ** 2
@@ -62,6 +62,11 @@ def index_coords(data: np.ndarray, origin: Optional[tuple] = None):
         The map that you want to number.
     origin: optional, [x0, y0].
         Origin selected.
+
+    Returns
+    -------
+    tuple(np.ndarray,np.ndarray)
+        Y and X pixel indexes.
     """
 
     ny, nx = data.shape[:2]
@@ -91,6 +96,11 @@ def detector_coordinates(
             Plate scale of the telescope.
     image: 2-d array.
             Image of the detector (just for the size)
+
+    Returns
+    -------
+    np.ndarray(SkyCoord)
+        Coordinates of the detector pixels.
     """
 
     n_grid_y = image.shape[0]
@@ -135,6 +145,11 @@ def num_photon_sky(
         Photons of the zodiacal light.
     x: value.
         Wavelength interpolated
+
+    Returns
+    -------
+    np.array
+        Interpolated value.
     """
 
     nphotonsky_interp = interpolate.interp1d(
@@ -152,6 +167,28 @@ def detector_interpolation(
     pixel_scale: float,
     fluxes: np.ndarray,
 ):
+    """Interpolate the values from a detector of larger pixels and lower number of pixels to the original image.
+
+    Parameters
+    ----------
+    coords: SkyCoord (ICRS): (ra, dec) in deg.
+            Coordinates of the pointing of the telescope.
+    image_reduced:: np.ndarray
+            Image of the reduced image size.
+    pixel_scale_reduced: float (in arcsec/pixel).
+            Reduced plate scale of the telescope used.
+    image: np.ndarray
+            Image of the original image size to be interpolated.
+    pixel_scale: float (in arcsec/pixel).
+            Plate scale of the telescope used.
+    fluxes: np.ndarray
+            Values to be integrated.
+
+    Returns
+    -------
+    np.ndarray
+        Interpolated values on the original detector.
+    """
     list_detector_reduced = detector_coordinates(
         coords, image_reduced, pixel_scale_reduced
     )
@@ -169,3 +206,40 @@ def detector_interpolation(
     grid = griddata(points, values, new_grid, method="linear")
 
     return grid
+
+
+def mask_circle_in(
+    image: np.ndarray, center: Optional[tuple] = None, radius: Optional[float] = None
+) -> np.ndarray:
+    """Mask an input image to the FOV of the telescope.
+
+    Parameters
+    ----------
+    image: np.ndarray
+            Image of the original image size to be interpolated.
+    center: tuple.
+            Center to mask the image.
+    radius: float
+            Radius to mask the image.
+
+    Returns
+    -------
+    np.ndarray
+        Masked image.
+    """
+    h, w = len(image), len(image)
+    if center is None:  # use the middle of the image
+        center = (int(w / 2), int(h / 2))
+    if radius is None:  # use the smallest distance between the center and image walls
+        radius = min(center[0], center[1], w - center[0], h - center[1])
+
+    Y, X = np.ogrid[:h, :w]
+    dist_from_center = np.sqrt((X - center[0]) ** 2 + (Y - center[1]) ** 2)
+
+    mask = dist_from_center <= radius
+
+    masked_img = image.copy()
+    masked_img = masked_img.astype("float")
+    masked_img[~mask] = np.nan
+
+    return masked_img

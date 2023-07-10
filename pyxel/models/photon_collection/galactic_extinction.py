@@ -38,7 +38,12 @@ def cardelli_IR(x: float, R_v: float = 3.1) -> float:
     x: 1/lambda, float (in 1/nm by default).
        1/wavelength value
     R_v: float, optional. (Default: 3.1).
-       R_v = A_v/E(B-V) from reddening law
+       R_v = A_v/E(B-V) from reddening law.
+
+    Returns
+    -------
+    float
+        Value of the Cardelli's function in the IR.
     """
     a = 0.574 * x**1.61
     b = -0.527 * x**1.61
@@ -54,6 +59,11 @@ def cardelli_opt(x: float, R_v: float = 3.1) -> float:
        1/wavelength value
     R_v: float, optional. (Default: 3.1).
        R_v = A_v/E(B-V) from reddening law
+
+    Returns
+    -------
+    float
+        Value of the Cardelli's function in the optical.
     """
     y = x - 1.82
     a = (
@@ -86,7 +96,12 @@ def cardelli_UV_1(x: float, R_v: float = 3.1) -> float:
     x: 1/lambda, float (in 1/nm by default).
        1/wavelength value
     R_v: float, optional. (Default: 3.1).
-       R_v = A_v/E(B-V) from reddening law
+       R_v = A_v/E(B-V) from reddening law.
+
+    Returns
+    -------
+    float
+        Value of the Cardelli's function in the UV.
     """
     a = 1.752 - 0.316 * x - 0.104 / ((x - 4.67) ** 2 + 0.341)
     b = -3.090 + 1.825 * x + 1.206 / ((x - 4.62) ** 2 + 0.263)
@@ -101,7 +116,12 @@ def cardelli_UV_2(x: float, R_v: float = 3.1) -> float:
     x: 1/lambda, float (in 1/nm by default).
        1/wavelength value
     R_v: float, optional. (Default: 3.1).
-       R_v = A_v/E(B-V) from reddening law
+       R_v = A_v/E(B-V) from reddening law.
+
+    Returns
+    -------
+    float
+        Value of the Cardelli's function in the UV.
     """
     Fa = -0.04473 * (x - 5.9) ** 2 - 0.009779 * (x - 5.9) ** 3
     Fb = 0.2130 * (x - 5.9) ** 2 + 0.1207 * (x - 5.9) ** 3
@@ -119,7 +139,12 @@ def cardelli_far_UV(x: float, R_v: float = 3.1) -> float:
     x: 1/lambda, float (in 1/nm by default).
        1/wavelength value
     R_v: float, optional. (Default: 3.1).
-       R_v = A_v/E(B-V) from reddening law
+       R_v = A_v/E(B-V) from reddening law.
+
+    Returns
+    -------
+    float
+        Value of the Cardelli's function in the far UV.
     """
     a = -1.073 - 0.628 * (x - 8) + 0.137 * (x - 8) ** 2 - 0.070 * (x - 8) ** 3
     b = 13.670 + 4.257 * (x - 8) - 0.420 * (x - 8) ** 2 + 0.374 * (x - 8) ** 3
@@ -134,7 +159,12 @@ def cardelli(x, R_v: float = 3.1):
     x: 1/lambda, float.
         Inverse wavelength.
     R_v: float, optional. (Default: 3.1).
-        R_v = A_v/E(B-V) from reddening law
+        R_v = A_v/E(B-V) from reddening law.
+
+    Returns
+    -------
+    float
+        Value of the Cardelli's function for any wavelength.
     """
 
     return np.piecewise(
@@ -156,7 +186,7 @@ def cardelli(x, R_v: float = 3.1):
     )
 
 
-def extintion_cardelli(wave, A_v: float, R_v: float = 3.1, units="nm"):
+def extintion_cardelli(wave, A_v: float, R_v: float = 3.1, units="nm") -> float:
     """Application of Cardelli's extinction at a given wavelength (Cardelli et al., 1989).
 
     Parameters
@@ -166,7 +196,12 @@ def extintion_cardelli(wave, A_v: float, R_v: float = 3.1, units="nm"):
      A_v: float (in magnitudes).
         Extinction at V band.
      R_v: float, optional. (Default: 3.1).
-        R_v = A_v/E(B-V) from reddening law
+        R_v = A_v/E(B-V) from reddening law.
+
+    Returns
+    -------
+    float
+        Value of the extinction.
     """
     if units == "nm":
         wave_num = wave * 1e-3
@@ -194,6 +229,11 @@ def extinction_map(
          Plate scale of the telescope used.
      central_wv: float, optional.
          Wavelength at the center of the filter.
+
+    Returns
+    -------
+    np.ndarray
+        Extinction map values in x per 1.
     """
     # TODO: This function downloads some FITS files from an external website and
     #       cache them into this computer.

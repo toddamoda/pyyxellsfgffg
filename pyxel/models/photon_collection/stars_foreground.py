@@ -85,7 +85,7 @@ def stars_frgnd_catalog(
         Gaia.ROW_LIMIT = -1
         Gaia.MAIN_GAIA_TABLE = "gaiadr3.gaia_source"
         result_gaia = Gaia.query_object_async(
-            coords_detector,
+            coordinate=coords_detector,
             radius=0.7 * u.deg,
             columns=[
                 "source_id",
@@ -147,7 +147,7 @@ def stars_frgnd_catalog(
         Gaia.ROW_LIMIT = -1
         Gaia.MAIN_GAIA_TABLE = "gaiadr3.gaia_source"
         result_gaia = Gaia.query_object_async(
-            coords_detector,
+            coordinate=coords_detector,
             radius=0.7 * u.deg,
             columns=[
                 "source_id",
@@ -186,7 +186,9 @@ def stars_frgnd_catalog(
         print("Getting data from Vizier")
         # we get the data from 2MASS at the coordinates of tht pointing inside a FOV of radius = 0.7º
         vv = Vizier(row_limit=-1)
-        result = vv.query_region(coords_detector, radius=0.7 * u.deg, catalog="II/246")
+        result = vv.query_region(
+            coordinate=coords_detector, radius=0.7 * u.deg, catalog="II/246"
+        )
         result_2mass = result[0].to_pandas()
         # Transform 2mass to Euclid-Y
         m_Ye = (
@@ -212,7 +214,7 @@ def stars_frgnd_catalog(
         Gaia.ROW_LIMIT = -1
         Gaia.MAIN_GAIA_TABLE = "gaiadr3.gaia_source"
         result_gaia = Gaia.query_object_async(
-            coords_detector,
+            coordinate=coords_detector,
             radius=0.7 * u.deg,
             columns=[
                 "source_id",
@@ -281,7 +283,9 @@ def stars_frgnd_catalog(
         print("Getting data from Vizier")
         # we get the data from 2MASS at the coordinates of tht pointing inside a FOV of radius = 0.7º
         vv = Vizier(row_limit=-1)
-        result = vv.query_region(coords_detector, radius=0.7 * u.deg, catalog="II/246")
+        result = vv.query_region(
+            coordinate=coords_detector, radius=0.7 * u.deg, catalog="II/246"
+        )
 
         result_2mass = result[0].to_pandas()
 
@@ -307,7 +311,7 @@ def stars_frgnd_catalog(
         Gaia.ROW_LIMIT = -1
         Gaia.MAIN_GAIA_TABLE = "gaiadr3.gaia_source"
         result_gaia = Gaia.query_object_async(
-            coords_detector,
+            coordinate=coords_detector,
             radius=0.7 * u.deg,
             columns=[
                 "source_id",

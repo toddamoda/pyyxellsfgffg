@@ -25,12 +25,12 @@ import astropy.units as u
 import numpy as np
 from astropy.coordinates import SkyCoord
 from astropy.time import Time
-from gunagala.sky import ZodiacalLight
 from scipy.integrate import quad
 from scipy.interpolate import griddata
 from tqdm import tqdm
 
 import pyxel.models.photon_collection.arrakihs_tools as tools
+from gunagala.sky import ZodiacalLight
 from pyxel.detectors import Detector
 from pyxel.util import fit_into_array
 
@@ -58,10 +58,15 @@ def zod_map(
         Lower limit of wavelength the detector.
     wave_end: value.
         Upper limit of wavelength the detector.
-    t_obs: Time object: scale='utc' format='iso'.
+    obs_date: Time object: scale='utc' format='iso'.
             Time of the observation.
     method: string (optional).
-        interpolation method: 'linear', 'nearest', 'cubic'. Default values: 'cubic'
+        interpolation method: 'linear', 'nearest', 'cubic'. Default values: 'cubic'.
+
+    Returns
+    -------
+    np.ndarray
+        A zodiacal light map in ph/s/cm2.
 
     """
     # we increase the size of the image to avoid border effects
@@ -146,14 +151,21 @@ def zodiacal_light(
 
     Parameters
     ----------
-    detector
-    coords_detector
-    pixel_scale
-    aperture
-    wave_begin
-    wave_end
-    obs_date
-    method
+    detector:
+    coords_detector: SkyCoord (ICRS): (ra, dec) in deg.
+        Coordinates of the pointing of the telescope.
+    pixel_scale: float (in arcsec/pixel).
+        Pixel scale of the telescope.
+    aperture: float (in m).
+        Aperture of the telescope.
+    wave_begin: value.
+        Lower limit of wavelength the detector.
+    wave_end: value.
+        Upper limit of wavelength the detector.
+    obs_date: Time object: scale='utc' format='iso'.
+        Time of the observation.
+    method: string (optional).
+        Interpolation method: 'linear', 'nearest', 'cubic'. Default values: 'cubic'.
     """
 
     zodi: np.ndarray = zod_map(

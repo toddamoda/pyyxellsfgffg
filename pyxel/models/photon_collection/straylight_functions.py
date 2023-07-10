@@ -71,11 +71,43 @@ albedo_moon = 0.12
 
 
 def indextoradec(nside: float, index: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Transform index value from healpy to ra and dec coordinates.
+
+    Parameters
+    ----------
+    nside : float
+        Scene object. Unit: photon/pixel/s/cm2.
+    index : np.ndarray
+        index value to be transformed
+
+    Returns
+    -------
+    tuple(np.ndarray, np.ndarray)
+        RA and DEC values.
+    """
+
     theta, phi = hp.pixelfunc.pix2ang(nside, index)
     return np.degrees(np.pi * 2.0 - phi), -np.degrees(theta - np.pi / 2.0)
 
 
-def radectoindex(nside: float, ra: np.ndarray, dec: np.ndarray) -> np.ndarray:
+def radec2index(nside: float, ra: np.ndarray, dec: np.ndarray) -> np.ndarray:
+    """Transform from ra and dec coordinates to index value from healpy.
+
+    Parameters
+    ----------
+    nside : float
+        Scene object. Unit: photon/pixel/s/cm2.
+    ra : np.ndarray
+        Right Ascension values.
+    dec: np.ndarray
+        Declination values
+
+    Returns
+    -------
+    np.ndarray
+        Healpy index values.
+    """
+
     return hp.pixelfunc.ang2pix(nside, np.radians(-dec + 90.0), np.radians(360.0 - ra))
 
 
@@ -101,8 +133,12 @@ def angular_separation_single(
     pixel_scale: float (in arcsec/pixel).
             Plate scale of the telescope.
     image: 2-d array.
-            Image of the detector (just for the size)
+            Image of the detector (just for the size).
 
+    Returns
+    -------
+    np.ndarray
+        Map of angular separation of each pixel to a source.
     """
     list_detector = tools.detector_coordinates(coords_detector, image, pixel_scale)
 
@@ -116,7 +152,7 @@ def angular_separation_list(
     coords_object: list,
     pixel_scale: float,
     image: np.ndarray,
-) -> np.ndarray:
+) -> list[np.ndarray]:
     """Calculate the angular distance from every pixel of the detector to every object.
 
     Parameters
@@ -128,7 +164,12 @@ def angular_separation_list(
     pixel_scale: float (in arcsec/pixel).
             Plate scale of the telescope.
     image: 2-d array.
-            Image of the detector (just for the size)
+            Image of the detector (just for the size).
+
+    Returns
+    -------
+    list(np.ndarray)
+        List of maps of angular separation of each pixel to several sources.
     """
 
     list_detector = tools.detector_coordinates(coords_detector, image, pixel_scale)
@@ -146,7 +187,19 @@ def angular_separation_list(
 
 
 ### Sun spectrum:
-def blackbody_sun(x: np.ndarray):
+def blackbody_sun(x: np.array) -> np.array:
+    """Calculate the spectral flux of the Sun's blackbody for a given wavelength.
+
+    Parameters
+    ----------
+    x: np.array.
+            Wavelength in microns.
+
+    Returns
+    -------
+    np.array
+        Spectral flux value in photons/s/cm2/A.
+    """
     bb_out = (
         pii
         * (2.0 * h_planck * (c_speed**2.0) / (x * (x * 1.0e-8) ** 4.0))
@@ -158,7 +211,7 @@ def blackbody_sun(x: np.ndarray):
 
 
 ### Moon spectrum:
-def moon_spectrum(obs_date: Time, x: np.ndarray):
+def moon_spectrum(obs_date: Time, x: np.array) -> np.array:
     distance_moon_earth = get_moon(obs_date).distance
     solid_angle_moon_sun = cte.R_sun**2 / (cte.au + distance_moon_earth.to(u.m)) ** 2
     # reflected from the sun
@@ -176,7 +229,7 @@ def moon_spectrum(obs_date: Time, x: np.ndarray):
 
 
 ### moon flux integrated:
-def moon_flux(obs_date: Time, wave_begin, wave_end):
+def moon_flux(obs_date: Time, wave_begin, wave_end) -> np.array:
     wv_beg = wave_begin * 10  # from nm to AA
     wv_end = wave_end * 10  # from nm to AA
     integ_flux, integ_flux_error = quad(
@@ -186,7 +239,7 @@ def moon_flux(obs_date: Time, wave_begin, wave_end):
 
 
 ### Earth emission spectrum:
-def blackbody_earth(x: np.ndarray):
+def blackbody_earth(x: np.array) -> np.array:
     bb_out = (
         pii
         * (2.0 * h_planck * (c_speed**2.0) / (x * (x * 1.0e-8) ** 4.0))
@@ -198,7 +251,7 @@ def blackbody_earth(x: np.ndarray):
 
 
 ### Total Earth emission spectrum on the eclipse:
-def earth_spectrum_night(obs_date: Time, x: np.ndarray):
+def earth_spectrum_night(obs_date: Time, x: np.array) -> np.array:
     distance_moon_earth = get_moon(obs_date).distance
     solid_angle_moon = moon_rad**2 / distance_moon_earth**2
     earth_moon_ref = moon_spectrum(obs_date, x) * albedo_earth * solid_angle_moon / 2
@@ -208,7 +261,7 @@ def earth_spectrum_night(obs_date: Time, x: np.ndarray):
 
 
 ### Total Earth emission spectrum on the sunlight:
-def earth_spectrum_day(x: np.ndarray):
+def earth_spectrum_day(x: np.array) -> np.array:
     earth_sun_ref = blackbody_sun(x) * albedo_earth * solid_angle_sun
     earth_emiss = blackbody_earth(x)
 
@@ -231,7 +284,7 @@ def earth_straylight(
     obs_date: Time,
     sat_ra_dev: float = 0.0,
     sat_dec_dev: float = 0.0,
-):
+) -> np.ndarray:
     """Calculate the straylight from the earth in a LEO telescope.
 
     Parameters
@@ -259,9 +312,9 @@ def earth_straylight(
     Note:
         The function returns a map in photons/s units.
     """
-    image_amp = np.zeros([int(image.shape[0] + 500), int(image.shape[1] + 500)])
+    image_amp = np.zeros([int(image.shape[0] + 1000), int(image.shape[1] + 1000)])
     image_reduced = np.zeros(
-        [int((image_amp.shape[0] + 500) / 100), int((image_amp.shape[1] + 500) / 100)]
+        [int((image_amp.shape[0]) / 100), int((image_amp.shape[1]) / 100)]
     )
     pixel_scale_reduced = pixel_scale * 100
 
@@ -409,13 +462,8 @@ def earth_straylight(
         fluxes=total,
     )
 
-    result = grid * (pix_size / 1e4) ** 2  # ph / s
-
-    result_cropped = fit_into_array(
-        array=result, output_shape=image.shape, align="center"
-    )
-
-    return result_cropped
+    earth_straylight_values = grid * (pix_size / 1e4) ** 2  # ph / s
+    return earth_straylight_values
 
 
 ##################################################
@@ -425,7 +473,7 @@ def earth_straylight(
 
 def moon_coords(
     obs_date: Time, sat_distance: float, pixel_scale: float, image: np.ndarray
-):
+) -> np.ndarray:
     """Calculate the coordinates of the Moon as an extenct object.
 
     Parameters
@@ -509,7 +557,7 @@ def moon_straylight(
     wave_begin: float,
     wave_end: float,
     obs_date: Time,
-):
+) -> np.ndarray:
     """Calculate the straylight between each coordinate of the moon and each pixel at the detector for a exposure time.
 
     Parameters
@@ -534,9 +582,9 @@ def moon_straylight(
             Time of the observation.
 
     """
-    image_amp = np.zeros([int(image.shape[0] + 500), int(image.shape[1] + 500)])
+    image_amp = np.zeros([int(image.shape[0] + 1000), int(image.shape[1] + 1000)])
     image_reduced = np.zeros(
-        [int((image_amp.shape[0] + 500) / 100), int((image_amp.shape[1] + 500) / 100)]
+        [int((image_amp.shape[0]) / 100), int((image_amp.shape[1]) / 100)]
     )
     pixel_scale_reduced = pixel_scale * 100
 
@@ -568,12 +616,12 @@ def moon_straylight(
         coords=coords_detector,
         image_reduced=image_reduced,
         pixel_scale_reduced=pixel_scale_reduced,
-        image=image,
+        image=image_amp,
         pixel_scale=pixel_scale,
         fluxes=total_flux_moon,
     )
-
-    return grid * (pix_size / 1e4) ** 2
+    moon_straylight_values = grid * (pix_size / 1e4) ** 2
+    return moon_straylight_values
 
 
 ##########################################
@@ -583,7 +631,7 @@ def moon_straylight(
 
 def stars_straylight_external(
     NDI_function: Callable, coords_detector: SkyCoord, pix_size: float
-):
+) -> np.array:
     """Calculate the straylight of the stars with an angular distance higher than 3 degrees. Uses an external file.
 
     Parameters
@@ -625,7 +673,7 @@ def stars_straylight_nearby_center(
     band_var: str,
     wave_begin: float,
     wave_end: float,
-):
+) -> np.array:
     """Calculate the straylight of the planets of the solar system for every exposure.
 
     Parameters
@@ -843,7 +891,7 @@ def stellar_straylight(
     band_var: str,
     wave_begin: float,
     wave_end: float,
-) -> np.ndarray:
+) -> np.array:
     """Calculate the straylight of the planets of the solar system for every exposure.
 
     Parameters
@@ -906,8 +954,10 @@ def straylight(
             Wavelength at the end of the filter.
     obs_date: dict.
             Date of the observation.
-    Note:
-        The function returns an image in photons/s/cm2 units
+
+    Returns
+    -------
+        An image in photons/s/cm2 units
     """
     earth_straylight_photon: np.ndarray = earth_straylight(
         NDI_function=NDI_iSIM170,
@@ -943,7 +993,18 @@ def straylight(
         wave_end=wave_end,
     )
 
+    earth_straylight_photon_cropped = fit_into_array(
+        array=earth_straylight_photon,
+        output_shape=detector.photon.shape,
+        align="center",
+    )
+    moon_straylight_photon_cropped = fit_into_array(
+        array=moon_straylight_photon, output_shape=detector.photon.shape, align="center"
+    )
+
     total_straylight = (
-        earth_straylight_photon + moon_straylight_photon + stellar_straylight_photon
+        earth_straylight_photon_cropped
+        + moon_straylight_photon_cropped
+        + stellar_straylight_photon
     )
     detector.photon.array += total_straylight * detector.absolute_time

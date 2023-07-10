@@ -106,6 +106,11 @@ def garrotxa_model(galaxy_model: str = "0.750") -> pd.DataFrame:
     ----------
     galaxy_model: str.
         Name of the model (Default value: "0.750". Options: "0.650", "0.750", "0.850", "1.000").
+
+    Returns
+    -------
+    pd.DateFrame
+        Table of position and fluxes of the galaxy model.
     """
 
     # Read the model selected
@@ -154,6 +159,11 @@ def dmf_model(galaxy_model="30keV") -> pd.DataFrame:
     ----------
     galaxy_model: str.
         Name of the model (Default value: "30keV". Options: "1keV", "3keV", "10keV", "30keV").
+
+    Returns
+    -------
+    pd.DateFrame
+        Table of position and fluxes of the galaxy model.
     """
 
     # Read the model selected
@@ -291,6 +301,11 @@ def coco_model(galaxy_model="98767_153") -> pd.DataFrame:
     ----------
     galaxy_model : str.
         Name of the model (Default value: "98767_153". Options: "98767_153").
+
+    Returns
+    -------
+    pd.DateFrame
+        Table of position and fluxes of the galaxy model.
     """
     # Read the model selected
     logging.info("########## Reading galaxy #########")
@@ -370,6 +385,11 @@ def model_creator(
         (Default: "Euclid_VIS". Options: "HST_F475X", "Euclid_VIS", "Euclid_Y", "Euclid_J").
     n_neighbors: int.
         Number of nearest neighbors used to calculate the adaptative kernel to smooth the galaxy model (Default: 8).
+
+    Returns
+    -------
+    np.ndarray
+        Galaxy model projected on the detector in ph/s/pixel.
     """
 
     if angles is None:
