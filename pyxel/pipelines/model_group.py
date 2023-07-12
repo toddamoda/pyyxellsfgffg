@@ -78,6 +78,7 @@ class ModelGroup:
             self._log.info("Model: %r", model.name)
             model(detector)
 
+            # TODO: Refactor
             if with_intermediate_steps:
                 import xarray as xr
                 from datatree import DataTree
@@ -89,33 +90,68 @@ class ModelGroup:
                     attrs={"units": "s"},
                 )
 
+                # Get current Dataset
+                absolute_time = xr.DataArray(absolute_time, attrs={"units": "s"})
+                ds: xr.Dataset = detector.to_xarray().assign_coords(time=absolute_time)
+
+                # Get datatree parent 'intermediate'
                 intermediate_key: str = "intermediate"
-                key: str = f"/{intermediate_key}/{self._name}/{model.name}"
-                ds: xr.Dataset = detector.to_xarray().expand_dims(time=absolute_time)
-
                 if intermediate_key not in detector.data:
-                    last_ds = xr.Dataset()
+                    datatree_intermediate: DataTree = DataTree(
+                        name="intermediate", parent=detector.data
+                    )
+                    datatree_intermediate.attrs = {
+                        "long_name": "Store all intermediate results modified along a pipeline"
+                    }
                 else:
-                    *_, last_ds = detector.data[intermediate_key].leaves
+                    datatree_intermediate = detector.data[intermediate_key]  # type: ignore
 
-                new_ds = xr.Dataset(attrs=ds.attrs)
+                # TODO: Refactor
+                pipeline_key: str = f"idx_{detector.pipeline_count}"
+                if pipeline_key not in datatree_intermediate:
+                    datatree_one_time: DataTree = DataTree(
+                        name=pipeline_key, parent=datatree_intermediate
+                    )
+                    datatree_one_time.attrs = {
+                        "long_name": "Pipeline for one unique time",
+                        "pipeline_count": detector.pipeline_count,
+                        "time": f"{detector.absolute_time} s",
+                    }
+                else:
+                    datatree_one_time = datatree_intermediate[pipeline_key]  # type: ignore
+
+                # TODO: Refactor
+                model_group_key: str = self._name
+                if model_group_key not in datatree_one_time:
+                    datatree_group: DataTree = DataTree(
+                        name=model_group_key, parent=datatree_one_time
+                    )
+                    datatree_group.attrs = {"long_name": f"Model group: {self._name!r}"}
+                else:
+                    datatree_group = datatree_one_time[model_group_key]  # type: ignore
+
+                # TODO: Refactor
+                model_key: str = model.name
+                if model_key not in datatree_group:
+                    datatree_model: DataTree = DataTree(
+                        name=model_key, parent=datatree_group
+                    )
+                    datatree_model.attrs = {"long_name": f"Group: {model.name!r}"}
+                else:
+                    datatree_model = datatree_group[model_key]  # type: ignore
+
+                # TODO: Refactor
+                last_key: str = "last"
+                if last_key not in datatree_intermediate:
+                    last_full_ds: xr.Dataset = xr.zeros_like(ds)
+                else:
+                    last_full_ds = datatree_intermediate[last_key]  # type: ignore
+
                 for name, data_array in ds.data_vars.items():
-                    if last_ds:
-                        if name in last_ds.data_vars:
-                            previous_data_array = last_ds[name]
-                        else:
-                            previous_data_array = data_array
-                    else:
-                        previous_data_array = xr.zeros_like(data_array)
+                    previous_data_array = last_full_ds[name]
 
                     if not data_array.equals(previous_data_array):
-                        new_ds[name] = data_array
+                        datatree_model[name] = data_array
 
-                if detector.is_first_readout:
-                    new_data_tree: DataTree = DataTree(new_ds)
-                else:
-                    previous_data_tree: DataTree = detector.data[key]  # type: ignore
-
-                    new_data_tree = previous_data_tree.combine_first(ds)
-
-                detector.data[key] = new_data_tree
+                # datatree_model
+                datatree_intermediate[last_key] = DataTree(ds.copy(deep=True))

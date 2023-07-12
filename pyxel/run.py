@@ -440,6 +440,10 @@ def run_mode(
     with_intermediate_steps : bool, default: False
         Add all intermediate steps into the results.
 
+    Notes
+    -----
+    Parameter 'with_intermediate_steps' is not (yet) stable and may change in the future.
+
     Returns
     -------
     DataTree
