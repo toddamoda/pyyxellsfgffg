@@ -245,9 +245,13 @@ select = [
     "RUF",      # Ruff-specific rules
     "TCH",      # Flake8 Type Checking
     "TRY",      # Tryceratops
+    "C90",      # McCabe
 ]
 
 exclude = ["_TEMPLATE.py", "_version.py"]
 
 [tool.ruff.pydocstyle]
 convention = "numpy"
+
+[tool.ruff.mccabe]
+max-complexity = 12
