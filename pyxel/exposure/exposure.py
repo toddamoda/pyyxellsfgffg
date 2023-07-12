@@ -359,6 +359,11 @@ def run_pipeline(
             else:
                 data_tree = data_tree.combine_first(partial_data_tree)
 
+        if with_intermediate_steps:
+            # Remove temporary data_tree '/intermediate/last'
+            datatree_intermediate: DataTree = detector.data["intermediate"]  # type: ignore
+            del datatree_intermediate["last"]
+
         if "data" in keys:
             data_tree["/data"] = detector.data
 
