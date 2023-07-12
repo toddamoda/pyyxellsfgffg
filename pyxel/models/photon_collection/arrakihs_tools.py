@@ -133,8 +133,8 @@ def detector_coordinates(
 
 
 def num_photon_sky(
-    wvs_all_sorted: np.ndarray, nphoton_all_sorted: np.ndarray, x: np.ndarray
-) -> np.ndarray:
+    wvs_all_sorted: np.array, nphoton_all_sorted: np.array, x: np.array
+) -> np.array:
     """Interpolate the photons from the spectrum and the wave lengths.
 
     Parameters
