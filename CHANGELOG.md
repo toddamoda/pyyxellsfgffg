@@ -12,6 +12,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 ## UNRELEASED
 
 ### Core
+* Add parameter 'with_intermediate_steps' in function 'run_mode'.
+  (See [!687](https://gitlab.com/esa/pyxel/-/merge_requests/687)).
 
 ### Documentation
 * Add questions to FAQ.
