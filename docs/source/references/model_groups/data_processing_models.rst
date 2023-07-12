@@ -7,7 +7,7 @@ Data Processing models
 .. currentmodule:: pyxel.models.data_processing
 
 Data processing models are used to process data.
-Result retrieved with run_mode() will show DataTree structure containing two groups:
+Result retrieved with run_mode() will show :py:class:`datatree.DataTree` structure containing two groups:
 
 ``Bucket`` group, containing the Photon, Charge, Pixel, Signal and Image.
 

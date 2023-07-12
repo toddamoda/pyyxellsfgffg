@@ -247,6 +247,7 @@ intersphinx_mapping = {
     # "rasterio": ("https://rasterio.readthedocs.io/en/latest", None),
     "xarray": ("https://docs.xarray.dev/en/stable/", None),
     "holoviews": ("https://holoviews.org/", None),
+    "datatree": ("https://xarray-datatree.readthedocs.io/en/latest/", None),
 }
 
 

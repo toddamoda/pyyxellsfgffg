@@ -115,8 +115,7 @@ Models in Pyxel makes changes and storing the data in data bucktes (:py:class:`~
 :py:class:`~pyxel.data_structure.Phase`,
 :py:class:`~pyxel.data_structure.Pixel`, :py:class:`~pyxel.data_structure.Signal` or
 :py:class:`~pyxel.data_structure.Image`,
-:py:class:`~pyxel.data_structure.Data` class).
-For details, see the :ref:`Data Structure <data_structure>` page.
+:py:class:`datatree.DataTree` class).
 
 Models could also modify any detector attributes (like Quantum Efficiency,
 gains, temperature, etc.) stored in a Detector subclass
