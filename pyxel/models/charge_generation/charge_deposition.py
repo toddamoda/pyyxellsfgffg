@@ -200,6 +200,48 @@ def tracks_to_charge(tracks: Sequence[float]) -> pd.DataFrame:
     )
 
 
+def _generate_random_energies(
+    energy_mean: float,
+    energy_spread: float,
+    energy_spectrum: Union[str, Path, None],
+    energy_spectrum_sampling: Literal["linear", "log"],
+    n_p,
+) -> np.ndarray:
+    if energy_spectrum is None:
+        # from normal distribution
+        p_energies = np.random.normal(loc=energy_mean, scale=energy_spread, size=n_p)
+    else:
+        # from parsed spectrum using either logarithmic or linear sampling
+        energy_spectrum_data = np.loadtxt(energy_spectrum, dtype="float", comments="#")
+        n_samples = 100000
+        if energy_spectrum_sampling == "log":
+            log_energy_range = np.logspace(
+                np.log10(np.min(energy_spectrum_data[:, 0])),
+                np.log10(np.max(energy_spectrum_data[:, 0])),
+                n_samples,
+            )
+            log_energy_pdf = np.interp(
+                log_energy_range, energy_spectrum_data[:, 0], energy_spectrum_data[:, 1]
+            )
+            log_energy_pdf /= np.sum(log_energy_pdf)
+            p_energies = np.random.choice(log_energy_range, size=n_p, p=log_energy_pdf)
+        else:
+            lin_energy_range = np.linspace(
+                np.min(energy_spectrum_data[:, 0]),
+                np.max(energy_spectrum_data[:, 0]),
+                n_samples,
+            )
+            energy_pdf = np.interp(
+                lin_energy_range, energy_spectrum_data[:, 0], energy_spectrum_data[:, 1]
+            )
+            energy_pdf /= np.sum(energy_pdf)
+            p_energies = np.random.choice(lin_energy_range, n_p, p=energy_pdf)
+
+    p_energies *= 1.0e6  # from MeV to eV
+
+    return p_energies
+
+
 def simulate_charge_deposition(
     flux: float,
     exposure: float,
@@ -271,36 +313,13 @@ def simulate_charge_deposition(
         raise ValueError("Detector dimension is negative or 0.")
 
     # generate random energies for each particle
-    if energy_spectrum is None:
-        # from normal distribution
-        p_energies = np.random.normal(energy_mean, energy_spread, n_p)
-    else:
-        # from parsed spectrum using either logarithmic or linear sampling
-        energy_spectrum_data = np.loadtxt(energy_spectrum, dtype="float", comments="#")
-        n_samples = 100000
-        if energy_spectrum_sampling == "log":
-            log_energy_range = np.logspace(
-                np.log10(np.min(energy_spectrum_data[:, 0])),
-                np.log10(np.max(energy_spectrum_data[:, 0])),
-                n_samples,
-            )
-            log_energy_pdf = np.interp(
-                log_energy_range, energy_spectrum_data[:, 0], energy_spectrum_data[:, 1]
-            )
-            log_energy_pdf /= np.sum(log_energy_pdf)
-            p_energies = np.random.choice(log_energy_range, size=n_p, p=log_energy_pdf)
-        else:
-            lin_energy_range = np.linspace(
-                np.min(energy_spectrum_data[:, 0]),
-                np.max(energy_spectrum_data[:, 0]),
-                n_samples,
-            )
-            energy_pdf = np.interp(
-                lin_energy_range, energy_spectrum_data[:, 0], energy_spectrum_data[:, 1]
-            )
-            energy_pdf /= np.sum(energy_pdf)
-            p_energies = np.random.choice(lin_energy_range, n_p, p=energy_pdf)
-    p_energies *= 1.0e6  # from MeV to eV
+    p_energies: np.ndarray = _generate_random_energies(
+        energy_mean=energy_mean,
+        energy_spread=energy_spread,
+        energy_spectrum=energy_spectrum,
+        energy_spectrum_sampling=energy_spectrum_sampling,
+        n_p=n_p,
+    )
 
     # extract stopping power data convert to correct units and compute initial deposited energy
     if stopping_power_curve is None:
@@ -340,24 +359,12 @@ def simulate_charge_deposition(
         dz = np.sin(alpha) * step_size
 
         # the particle is coming from outside the sensor: top or bottom, depending on travel direction (i.e. dz sign)
-        if dz >= 0:
-            z: float = 0.0
-        else:
-            z = z_lim
+        z: float = 0.0 if dz >= 0 else z_lim
 
         # compute distances to the closest edge of the sensor along each dimension
-        if dx > 0:
-            distance_x = x_lim - x
-        else:
-            distance_x = x
-        if dy > 0:
-            distance_y = y_lim - y
-        else:
-            distance_y = y
-        if dz > 0:
-            distance_z = z_lim - z
-        else:
-            distance_z = z
+        distance_x = (x_lim - x) if dx > 0 else x
+        distance_y = (y_lim - y) if dy > 0 else y
+        distance_z = (z_lim - z) if dz > 0 else z
 
         # compute the minimum number of steps required to reach one of the sensor edge
         distances = np.array([distance_x, distance_y, distance_z])

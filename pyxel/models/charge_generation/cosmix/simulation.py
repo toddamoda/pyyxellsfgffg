@@ -275,21 +275,11 @@ class Simulation:
 
             # check if p is still inside detector and have enough energy:
             if (
-                particle.position[0] <= 0.0
-                or particle.position[0] >= geo.vert_dimension
+                not (0.0 < particle.position[0] < geo.vert_dimension)
+                or not (0.0 < particle.position[1] < geo.horz_dimension)
+                or (0.0 <= particle.position[2] <= (-1 * geo.total_thickness))
+                or particle.deposited_energy >= particle.energy * 1e3
             ):
-                break
-            if (
-                particle.position[1] <= 0.0
-                or particle.position[1] >= geo.horz_dimension
-            ):
-                break
-            if (
-                particle.position[2] <= -1 * geo.total_thickness
-                or particle.position[2] >= 0.0
-            ):
-                break
-            if particle.deposited_energy >= particle.energy * 1e3:
                 break
 
             track_left = True

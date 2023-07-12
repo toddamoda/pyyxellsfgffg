@@ -17,7 +17,8 @@ import pandas as pd
 from tqdm.auto import tqdm
 
 from pyxel.detectors import Detector
-from pyxel.models.charge_generation.cosmix.plotting import PlottingCosmix
+
+# from pyxel.models.charge_generation.cosmix.plotting import PlottingCosmix
 from pyxel.models.charge_generation.cosmix.simulation import Simulation
 from pyxel.models.charge_generation.cosmix.util import interpolate_data, read_data
 from pyxel.util import set_random_seed
@@ -127,26 +128,35 @@ def cosmix(
         # cosmix.set_starting_position(starting_position)        # um
         cosmix.set_particle_spectrum(Path(spectrum_file))
 
-        if running_mode == "stopping":
-            # cosmix.run_mod()          ########
-            raise NotImplementedError
-            # cosmix.set_stopping_power(stopping_file)
-            # cosmix.run()
-        elif running_mode == "stepsize":
+        if running_mode == "stepsize":
             cosmix.set_stepsize()
-            cosmix.run()
         elif running_mode == "geant4":
             cosmix.set_geant4()
-            cosmix.run()
-        elif running_mode == "plotting":
-            plot_obj = PlottingCosmix(cosmix, save_plots=True, draw_plots=True)
-
-            plot_obj.plot_flux_spectrum()
-            plot_obj.plot_gaia_vs_gras_hist(normalize=True)
-
-            plot_obj.show()
         else:
-            raise ValueError
+            raise NotImplementedError(f"{running_mode=} not implemented !")
+
+        cosmix.run()
+
+        # if running_mode == "stopping":
+        #     # cosmix.run_mod()          ########
+        #     raise NotImplementedError
+        #     # cosmix.set_stopping_power(stopping_file)
+        #     # cosmix.run()
+        # elif running_mode == "stepsize":
+        #     cosmix.set_stepsize()
+        #     cosmix.run()
+        # elif running_mode == "geant4":
+        #     cosmix.set_geant4()
+        #     cosmix.run()
+        # elif running_mode == "plotting":
+        #     plot_obj = PlottingCosmix(cosmix, save_plots=True, draw_plots=True)
+        #
+        #     plot_obj.plot_flux_spectrum()
+        #     plot_obj.plot_gaia_vs_gras_hist(normalize=True)
+        #
+        #     plot_obj.show()
+        # else:
+        #     raise ValueError
 
 
 class Cosmix:

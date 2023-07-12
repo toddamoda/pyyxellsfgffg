@@ -527,6 +527,7 @@ class Observation:
                 )
 
     # TODO: This method will be deprecated (see #563)
+    # ruff: noqa: C901
     def run_observation(self, processor: "Processor") -> ObservationResult:
         """Run the observation pipelines.
 

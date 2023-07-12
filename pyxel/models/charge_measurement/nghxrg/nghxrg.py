@@ -186,6 +186,54 @@ def compute_nghxrg(
     return final_data_2d
 
 
+def _get_noise_type(
+    item: Mapping[
+        Literal[
+            "ktc_bias_noise",
+            "white_read_noise",
+            "corr_pink_noise",
+            "uncorr_pink_noise",
+            "acn_noise",
+            "pca_zero_noise",
+        ],
+        Mapping[str, float],
+    ]
+) -> NoiseType:
+    if "ktc_bias_noise" in item:
+        sub_item: Mapping[str, float] = item["ktc_bias_noise"]
+        return KTCBiasNoise(
+            ktc_noise=sub_item["ktc_noise"],
+            bias_offset=sub_item["bias_offset"],
+            bias_amp=sub_item["bias_amp"],
+        )
+
+    elif "white_read_noise" in item:
+        sub_item = item["white_read_noise"]
+        return WhiteReadNoise(
+            rd_noise=sub_item["rd_noise"],
+            ref_pixel_noise_ratio=sub_item["ref_pixel_noise_ratio"],
+        )
+
+    elif "corr_pink_noise" in item:
+        sub_item = item["corr_pink_noise"]
+        return CorrPinkNoise(c_pink=sub_item["c_pink"])
+
+    elif "uncorr_pink_noise" in item:
+        sub_item = item["uncorr_pink_noise"]
+        return UncorrPinkNoise(u_pink=sub_item["u_pink"])
+
+    elif "acn_noise" in item:
+        sub_item = item["acn_noise"]
+        return AcnNoise(acn=sub_item["acn"])
+
+    elif "pca_zero_noise" in item:
+        sub_item = item["pca_zero_noise"]
+        return PCAZeroNoise(pca0_amp=sub_item["pca0_amp"])
+
+    else:
+        raise KeyError(f"Unknown key: item = {item!r}")
+
+
 # TODO: copyright
 def nghxrg(
     detector: CMOS,
@@ -252,43 +300,7 @@ def nghxrg(
         raise ValueError("'reference_pixel_border_width' must be between 0 and 32.")
 
     # Converter
-    params: list[NoiseType] = []
-    for item in noise:
-        if "ktc_bias_noise" in item:
-            sub_item: Mapping[str, float] = item["ktc_bias_noise"]
-            param: NoiseType = KTCBiasNoise(
-                ktc_noise=sub_item["ktc_noise"],
-                bias_offset=sub_item["bias_offset"],
-                bias_amp=sub_item["bias_amp"],
-            )
-
-        elif "white_read_noise" in item:
-            sub_item = item["white_read_noise"]
-            param = WhiteReadNoise(
-                rd_noise=sub_item["rd_noise"],
-                ref_pixel_noise_ratio=sub_item["ref_pixel_noise_ratio"],
-            )
-
-        elif "corr_pink_noise" in item:
-            sub_item = item["corr_pink_noise"]
-            param = CorrPinkNoise(c_pink=sub_item["c_pink"])
-
-        elif "uncorr_pink_noise" in item:
-            sub_item = item["uncorr_pink_noise"]
-            param = UncorrPinkNoise(u_pink=sub_item["u_pink"])
-
-        elif "acn_noise" in item:
-            sub_item = item["acn_noise"]
-            param = AcnNoise(acn=sub_item["acn"])
-
-        elif "pca_zero_noise" in item:
-            sub_item = item["pca_zero_noise"]
-            param = PCAZeroNoise(pca0_amp=sub_item["pca0_amp"])
-
-        else:
-            raise KeyError(f"Unknown key: item = {item!r}")
-
-        params.append(param)
+    params: list[NoiseType] = [_get_noise_type(item) for item in noise]
 
     logging.getLogger("nghxrg").setLevel(logging.WARNING)
 
