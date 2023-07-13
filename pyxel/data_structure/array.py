@@ -186,7 +186,7 @@ class Array:
         --------
         >>> detector.photon.plot()
 
-        .. image:: _static/pipeline.png
+        .. image:: _static/photon_plot.png
         """
         import matplotlib.pyplot as plt
 
