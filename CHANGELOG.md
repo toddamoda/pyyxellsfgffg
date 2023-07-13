@@ -14,6 +14,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 ### Core
 
 ### Documentation
+* Add questions to FAQ.
+  (See [!688](https://gitlab.com/esa/pyxel/-/merge_requests/688)).
 
 ### Models
 
