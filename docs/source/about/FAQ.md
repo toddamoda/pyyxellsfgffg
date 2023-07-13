@@ -8,7 +8,7 @@
 - [Is there any way to use Pyxel to produce a bias or dark image without including any image file?](#is-there-any-way-to-use-pyxel-to-produce-a-bias-or-dark-image-without-including-any-image-file)
 - [What are the different running modes in Pyxel?](#what-are-the-different-running-modes-in-pyxel)
 - [What detectors types are implemented in Pyxel?](#what-detectors-types-are-implemented-in-pyxel)
-- [What happens to my code, when I contribute?](#what-happens-to-my-code,-when-i-contribute)
+- [What happens to my code when I contribute?](#what-happens-to-my-code-when-i-contribute)
 - [What is the easiest way to get the signal to noise ratio from the detector data buckets?](#what-is-the-easiest-way-to-get-the-signal-to-noise-ratio-from-the-detector-data-buckets)
 - [Where can I see the latest changes in Pyxel?](#where-can-i-see-the-latest-changes-in-pyxel)
 - [Why do I retrieve a blank image but no error?](#why-do-i-retrieve-a-blank-image-but-no-error)
@@ -85,8 +85,8 @@ are implemented in Pyxel:
 - [MKID](https://esa.gitlab.io/pyxel/doc/stable/background/detectors/mkid.html)
 - [APD](https://esa.gitlab.io/pyxel/doc/stable/background/detectors/apd.html)
 
-<a name="what-happens-to-my-code,-when-i-contribute"></a>
-## What happens to my code, when I contribute?
+<a name="what-happens-to-my-code-when-i-contribute"></a>
+## What happens to my code when I contribute?
 
 If you want to contribute to Pyxel, have a look into the 
 [Contributing guide](http://localhost:52873/references/contributing.html).

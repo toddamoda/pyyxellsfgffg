@@ -1,5 +1,5 @@
 ---
-title: What happens to my code, when I contribute?
+title: What happens to my code when I contribute?
 ---
 If you want to contribute to Pyxel, have a look into the 
 [Contributing guide](http://localhost:52873/references/contributing.html).
