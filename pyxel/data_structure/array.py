@@ -133,7 +133,35 @@ class Array:
         return self._numbytes
 
     def to_xarray(self, dtype: Optional[np.typing.DTypeLike] = None) -> "xr.DataArray":
-        """Convert into a `DataArray` object."""
+        """Convert into a 2D `DataArray` object with dimensions 'y' and 'x'.
+
+        Parameters
+        ----------
+        dtype : data-type, optional
+            Force a data-type for the array.
+
+        Returns
+        -------
+        DataArray
+            2D DataArray objects.
+
+        Examples
+        --------
+        >>> detector.photon.to_xarray(dtype=float)
+        <xarray.DataArray 'photon' (y: 100, x: 100)>
+        array([[15149., 15921., 15446., ..., 15446., 15446., 16634.],
+               [15149., 15446., 15446., ..., 15921., 16396., 17821.],
+               [14555., 14971., 15446., ..., 16099., 16337., 17168.],
+               ...,
+               [16394., 16334., 16334., ..., 16562., 16325., 16325.],
+               [16334., 15978., 16215., ..., 16444., 16444., 16206.],
+               [16097., 15978., 16215., ..., 16681., 16206., 16206.]])
+        Coordinates:
+          * y        (y) int64 0 1 2 3 4 5 6 7 8 9 10 ... 90 91 92 93 94 95 96 97 98 99
+          * x        (x) int64 0 1 2 3 4 5 6 7 8 9 10 ... 90 91 92 93 94 95 96 97 98 99
+        Attributes:
+            units:      Ph
+        """
         import xarray as xr
 
         num_rows, num_cols = self.shape
@@ -153,6 +181,12 @@ class Array:
         robust : bool, optional
             If True, the colormap is computed with 2nd and 98th percentile
             instead of the extreme values.
+
+        Examples
+        --------
+        >>> detector.photon.plot()
+
+        .. image:: _static/pipeline.png
         """
         import matplotlib.pyplot as plt
 
