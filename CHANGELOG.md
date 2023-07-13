@@ -30,6 +30,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 ### Others
 * Refactoring.
   (See [!682](https://gitlab.com/esa/pyxel/-/merge_requests/682)).
+* Reduce code complexity by enabling McCabe plugin ruff.
+  (See [!257](https://gitlab.com/esa/pyxel/-/merge_requests/257)).
 
 ## 1.9.1 / 2023-07-07
 
