@@ -14,6 +14,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 ### Core
 
 ### Documentation
+* Add documentation for methods '.plot()' and '.to_xarray()' for 'Pixel', 'Photon', 'Signal', 'Image' and 'Phase'.
+  (See [!533](https://gitlab.com/esa/pyxel/-/merge_requests/533)).
 
 ### Models
 
