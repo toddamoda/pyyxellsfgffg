@@ -663,7 +663,7 @@ class Observation:
                 logs.append(log)
 
                 # Figure out current coordinate
-                coordinate = str(list(parameter_dict)[0])
+                coordinate = str(next(iter(parameter_dict)))
                 # Check for overflow to next parameter
                 if index == 0:
                     step_counter += 1
@@ -970,7 +970,7 @@ class Observation:
             parameter_dict=parameter_dict,
         )
 
-        coordinate = str(list(parameter_dict)[0])
+        coordinate = str(next(iter(parameter_dict)))
 
         # run the pipeline
         _ = run_exposure_pipeline(
@@ -1352,7 +1352,7 @@ def compute_final_sequential_dataset(
     final_dict: dict[str, list[xr.Dataset]] = {}
 
     for _, parameter_dict, n in list_of_index_and_parameter:
-        coordinate = str(list(parameter_dict)[0])
+        coordinate = str(next(iter(parameter_dict)))
         coordinate_short: str = dimension_names[coordinate]
 
         if short(coordinate) not in final_dict:

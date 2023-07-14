@@ -282,3 +282,30 @@ Example of the configuration file:
 
 .. autofunction:: load_psf
 
+.. _Wavelength dependence AIRS:
+
+Wavelength dependence AIRS
+==========================
+
+:guilabel:`Photon` → :guilabel:`Photon`
+
+This model was specially developed for the `ARIEL AIRS <https://sci.esa.int/web/ariel/-/59801-payload>`_ instrument.
+It generates the photon over the array according to a specific dispersion pattern loading the PSF from a file.
+
+Example of the configuration file:
+
+.. code-block:: yaml
+
+    - name: wavelength_dependence_airs
+      func: pyxel.models.photon_collection.wavelength_dependence_airs
+      enabled: true
+        psf_filename: "data/CH1_big_cube_PSFs.fits"
+        target_filename: "data/target_flux_SED_00005.dat"
+        telescope_diameter_m1: 1.1 #m
+        telescope_diameter_m2: 0.7 #m
+        expand_factor: 18
+        time_scale:  1.0
+
+.. note:: This model is specific for the :term:`CMOS` detector.
+
+.. autofunction:: wavelength_dependence_airs

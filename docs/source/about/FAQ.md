@@ -1,6 +1,6 @@
 
 # Frequently Asked Questions
-- [How to contact the developers of Pyxel?](#how-to-contact-the-developers-of-pyxel)
+- [How to contribute to Pyxel?](#how-to-contribute-to-pyxel)
 - [How to install Pyxel?](#how-to-install-pyxel)
 - [How to run Pyxel?](#how-to-run-pyxel)
 - [Is there a simple example of a configuration file?](#is-there-a-simple-example-of-a-configuration-file)
@@ -8,31 +8,36 @@
 - [Is there any way to use Pyxel to produce a bias or dark image without including any image file?](#is-there-any-way-to-use-pyxel-to-produce-a-bias-or-dark-image-without-including-any-image-file)
 - [What are the different running modes in Pyxel?](#what-are-the-different-running-modes-in-pyxel)
 - [What detectors types are implemented in Pyxel?](#what-detectors-types-are-implemented-in-pyxel)
+- [What happens to my code when I contribute?](#what-happens-to-my-code-when-i-contribute)
 - [What is the easiest way to get the signal to noise ratio from the detector data buckets?](#what-is-the-easiest-way-to-get-the-signal-to-noise-ratio-from-the-detector-data-buckets)
 - [Where can I see the latest changes in Pyxel?](#where-can-i-see-the-latest-changes-in-pyxel)
 - [Why do I retrieve a blank image but no error?](#why-do-i-retrieve-a-blank-image-but-no-error)
 
-<a name="how-to-contact-the-developers-of-pyxel"></a>
-## How to contact the developers of Pyxel?
+<a name="how-to-contribute-to-pyxel"></a>
+## How to contribute to Pyxel?
 
 If you found a bug or want to suggest a new feature, you can create an [issue on Gitlab](https://gitlab.com/esa/pyxel/-/issues).
-
 If you have a question, you can use the Chat on [Gitter](https://gitter.im/pyxel-framework/community) to get help from the Pyxel community.
-
 [Read more](https://esa.gitlab.io/pyxel/doc/stable/tutorials/get_help.html).
 
-If you are using Pyxel on a regular basis and want to [contribute](http://localhost:52873/references/contributing.html), let us know.
-
+If you are using Pyxel on a regular basis and want to contribute, have a look into the 
+[Contributing guide](http://localhost:52873/references/contributing.html). 
+Contact us if you have further questions or want to participate in the monthly Pyxel Developer meeting.
 You can always reach us via email: [pyxel@esa.int](mailto:pyxel@esa.int).
 
 <a name="how-to-install-pyxel"></a>
 ## How to install Pyxel?
 
-Look at the [Installation Guide](https://esa.gitlab.io/pyxel/doc/stable/tutorials/install.html).
+You can install Pyxel using Anaconda or Miniconda, Mamba, Pip or install it from source, cloning the 
+[Pyxel Giltab repository](https://gitlab.com/esa/pyxel).
+You can run also tutorials and examples **without prior installation** of Pyxel in a live session with 
+[binder](https://mybinder.org/v2/gl/esa%2Fpyxel-data/HEAD?urlpath=lab).
+Look at the [Installation Guide](https://esa.gitlab.io/pyxel/doc/stable/tutorials/install.html) to select your installation method.
 
 <a name="how-to-run-pyxel"></a>
 ## How to run Pyxel?
 
+You can run Pyxel from the command line, run it in a jupyter notebook or from a Docker container.
 Look in the documentation to know [how to run Pyxel](https://esa.gitlab.io/pyxel/doc/stable/tutorials/running.html).
 
 <a name="is-there-a-simple-example-of-a-configuration-file"></a>
@@ -79,6 +84,40 @@ are implemented in Pyxel:
 - [CMOS](https://esa.gitlab.io/pyxel/doc/stable/background/detectors/cmos.html)
 - [MKID](https://esa.gitlab.io/pyxel/doc/stable/background/detectors/mkid.html)
 - [APD](https://esa.gitlab.io/pyxel/doc/stable/background/detectors/apd.html)
+
+<a name="what-happens-to-my-code-when-i-contribute"></a>
+## What happens to my code when I contribute?
+
+If you want to contribute to Pyxel, have a look into the 
+[Contributing guide](http://localhost:52873/references/contributing.html).
+If you want your code to be published in the open-source Pyxel framework, you have to add a Licence to your code.
+We are using a [MIT Licence](https://gitlab.com/esa/pyxel/-/blob/master/LICENSE.txt) 
+and your code will have to have a Licence, which is compatible with the [MIT Licence](https://en.wikipedia.org/wiki/MIT_License).
+
+Example: 
+```python
+# Copyright (c) <year> <name of model developer(s)>, <name of institution>
+#
+# <email address(es)>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+```
 
 <a name="what-is-the-easiest-way-to-get-the-signal-to-noise-ratio-from-the-detector-data-buckets"></a>
 ## What is the easiest way to get the signal to noise ratio from the detector data buckets?

@@ -17,6 +17,7 @@ Available models
     * :ref:`Shot noise`
     * :ref:`Physical Optics Propagation in PYthon (POPPY)`
     * :ref:`Load PSF`
+    * :ref:`Wavelength dependence AIRS`
 * Charge generation
     * :ref:`charge_generation_create_store_detector`
     * :ref:`Simple photoconversion`

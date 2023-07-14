@@ -9,8 +9,6 @@
 """Functions to add new models."""
 
 import logging
-import os
-import shutil
 import sys
 import time
 from pathlib import Path
@@ -21,75 +19,60 @@ def create_model(newmodel: str) -> None:
 
     Parameters
     ----------
-    newmodel: modeltype/modelname
-
-    Returns
-    -------
-    None
+    newmodel : str
+        modeltype/modelname
     """
 
     location, model_name = get_name_and_location(newmodel)
 
     # Is not working on UNIX AND Windows if I do not use os.path.abspath
-    template_string = "_TEMPLATE"
+    template_str = "_TEMPLATE"
     template_location = "_LOCATION"
 
     # Copying the template with the user defined model_name instead
     import pyxel
 
-    src = os.path.abspath(os.path.dirname(pyxel.__file__) + "/templates/")
-    dest = os.path.abspath(
-        os.path.dirname(pyxel.__file__) + "/models/" + location + "/"
-    )
+    folder: Path = Path(pyxel.__file__).parent
+    src: Path = folder.joinpath("templates").resolve()
+    dest: Path = folder.joinpath(f"models/{location}").resolve()
 
-    if not os.path.exists(src):
-        raise FileNotFoundError(f"Folder {src!r} does not exists !")
+    if not src.exists():
+        raise FileNotFoundError(f"Folder '{src}' does not exists !")
 
     try:
-        os.makedirs(dest, exist_ok=True)
-        # Replacing all of template in filenames and directories by model_name
-        for dirpath, subdirs, files in os.walk(src):
-            for x in files:
-                if x.startswith(".") or x.endswith(".pyc"):
-                    continue
+        # Replacing all templates in filenames and directories by model_name
+        filename: Path
+        for filename in src.glob("**/*"):
+            if filename.suffix == ".pyc" or filename.name == "__pycache__":
+                continue
 
-                pathtofile = os.path.join(dirpath, x)
-                new_pathtofile = os.path.join(
-                    dest, x.replace(template_string, model_name)
-                )
-                shutil.copy(pathtofile, new_pathtofile)
-                # Open file in the created copy
-                with open(new_pathtofile) as file_tochange:
-                    # Replace any mention of template by model_name
-                    new_contents = file_tochange.read().replace(
-                        template_string, model_name
-                    )
-                    new_contents = new_contents.replace(template_location, location)
-                    new_contents = new_contents.replace("%(date)", time.ctime())
+            relative_filename: str = str(filename.relative_to(src))
+            new_relative_filename = relative_filename.replace(template_str, model_name)
 
-                Path(new_pathtofile).write_text(new_contents)
-                # Close the file other we can't rename it
-                file_tochange.close()
+            # Get a destination filename
+            new_filename: Path = dest.joinpath(new_relative_filename)
 
-            for x in subdirs:
-                if x == "__pycache__":
-                    continue
+            # Create new modified content
+            content: str = filename.read_text()
+            new_content: str = (
+                content.replace(template_str, model_name)
+                .replace(template_location, location)
+                .replace("%(date)", time.ctime())
+            )
 
-                pathtofile = os.path.join(dirpath, x)
-                os.mkdir(pathtofile.replace(template_string, model_name))
-            logging.info("Module %s created.", model_name)
+            # Save this content in the destination filename
+            new_filename.parent.mkdir(parents=True, exist_ok=True)
+            new_filename.write_text(new_content)
+
+        logging.info("Module %r created.", model_name)
         print(f"Module {model_name!r} created in {dest!r}.")
 
     except FileExistsError:
-        logging.info("%s already exists, folder not created", dest)
+        logging.info("%r already exists, folder not created", dest)
         raise
-    # Directories are the same
-    except shutil.Error as e:
-        logging.critical("Error while duplicating %s: %s", template_string, e)
-        raise
-    # Any error saying that the directory doesn't exist
-    except OSError as e:
-        logging.critical("%s not created. Error: %s", model_name, e)
+    except OSError as exc:
+        # Any error saying that the directory doesn't exist
+        logging.critical("%r not created. Error: %s", model_name, exc)
         raise
 
 
@@ -107,13 +90,11 @@ def get_name_and_location(newmodel: str) -> tuple[str, str]:
     """
 
     try:
-        arguments = newmodel.split("/")
-        location = f"{arguments[0]}"
-        model_name = f"{arguments[1]}"
+        location, model_name = newmodel.split("/")
     except Exception:
         sys.exit(
             f"""
-        Can't create model {arguments}, please use location/newmodelname
+        Can't create model {newmodel!r}, please use location/newmodelname
         as an argument for creating a model
         """
         )

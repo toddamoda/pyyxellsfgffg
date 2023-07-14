@@ -8,8 +8,7 @@
 """Pyxel examples downloader."""
 
 import shutil
-from os import listdir, remove, rmdir
-from os.path import isdir, join
+from pathlib import Path
 from zipfile import ZipFile
 
 import requests
@@ -24,20 +23,24 @@ def download_examples(foldername: str = "pyxel-examples", force: bool = False) -
     foldername: str
     force: bool
     """
+    folder: Path = Path(foldername).resolve()
 
-    if isdir(foldername) and not force:
-        raise OSError(
-            f"Folder {foldername} already exists. Either delete it, "
-            f"use a different name, or use the '--force' argument."
-        )
-    elif isdir(foldername) and force:
-        shutil.rmtree(foldername)
+    if folder.is_dir():
+        if force:
+            shutil.rmtree(folder)
+        else:
+            raise OSError(
+                f"Folder '{folder}' already exists. Either delete it, "
+                f"use a different name, or use the '--force' argument."
+            )
 
     url = "https://gitlab.com/esa/pyxel-data/-/archive/master/pyxel-data-master.zip"
     response = requests.get(url, stream=True)
 
+    examples_filename = Path("examples_tmp.zip")
+
     total = int(response.headers.get("content-length", 0))
-    with open("examples_tmp.zip", "wb") as tmp, tqdm(
+    with examples_filename.open("wb") as tmp, tqdm(
         desc="Downloading examples",
         total=total,
         unit="B",
@@ -48,14 +51,17 @@ def download_examples(foldername: str = "pyxel-examples", force: bool = False) -
             size = tmp.write(data)
             bar.update(size)
 
-    with ZipFile("examples_tmp.zip", "r") as zipobj:
-        zipobj.extractall(foldername)
+    with ZipFile(examples_filename, "r") as zipobj:
+        zipobj.extractall(folder)
 
-    root = foldername
-    for filename in listdir(join(root, "pyxel-data-master")):
-        shutil.move(join(root, "pyxel-data-master", filename), join(root, filename))
-    rmdir(join(root, "pyxel-data-master"))
+    pyxel_data_folder: Path = folder.joinpath("pyxel-data-master")
 
-    remove("examples_tmp.zip")
+    filename: Path
+    for filename in pyxel_data_folder.glob("*"):
+        relative_filename: Path = filename.relative_to(pyxel_data_folder)
+        shutil.move(src=filename, dst=folder.joinpath(relative_filename))
+
+    pyxel_data_folder.rmdir()
+    examples_filename.unlink()
 
     print("Done.")

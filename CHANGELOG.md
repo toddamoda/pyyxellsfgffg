@@ -11,17 +11,27 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 
 ## UNRELEASED
 
-This release brings a number of bugfixes and documentation improvements.
-
-### Breaking changes
-
 ### Core
 
 ### Documentation
+* Add questions to FAQ.
+  (See [!688](https://gitlab.com/esa/pyxel/-/merge_requests/688)).
+
+### Models
+
+### Others
+* Refactoring.
+  (See [!682](https://gitlab.com/esa/pyxel/-/merge_requests/682)).
+
+## 1.9.1 / 2023-07-07
+
+This release brings a number of bugfixes.
 
 ### Models
 * Fix an error in a formula for model 'dead_time' in 'readout_electronics'.
   (See [!681](https://gitlab.com/esa/pyxel/-/merge_requests/681)).
+* New model 'Wavelength dependence AIRS' for 'Photon Collection'.
+  (See [!677](https://gitlab.com/esa/pyxel/-/merge_requests/677)).
 
 ### Others
 * Cannot load a FITS file from an HTTP URL.

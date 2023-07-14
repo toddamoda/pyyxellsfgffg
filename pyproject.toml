@@ -67,7 +67,7 @@ dependencies = [
 
     # Others
     "attrs>=21.3.0",
-    "click",
+    "click!=8.1.4,!=8.1.5",
     "tqdm",
     "typing-extensions",
     "pympler",
@@ -250,6 +250,7 @@ select = [
     "W",        # pycodestyle
     # "PD",       # pandas-vet
     # "S",        # bandit
+    "PTH",      # Flake8 use Pathlib
     "RUF",      # Ruff-specific rules
     "TCH",      # Flake8 Type Checking
     "TRY",      # Tryceratops
