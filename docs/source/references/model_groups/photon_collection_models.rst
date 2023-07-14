@@ -309,3 +309,25 @@ Example of the configuration file:
 .. note:: This model is specific for the :term:`CMOS` detector.
 
 .. autofunction:: wavelength_dependence_airs
+
+.. _Load_Cosmological_Background:
+
+Load Cosmological Background
+============================
+
+:guilabel:`Photon` → :guilabel:`Photon`
+
+Loads a cosmological background to the photon array.
+
+Example of the configuration file:
+
+.. code-block:: yaml
+
+    - name: load_cosmo_bckg
+      func: pyxel.models.photon_collection.load_cosmo_bckg
+      enabled: true
+      arguments:
+        filename : "Files/bckgrd/mock_Euclid-VIS_1.4x1.4deg_photons.fits"
+        aperture: 126.70e-3
+
+.. autofunction:: load_cosmo_bckg
