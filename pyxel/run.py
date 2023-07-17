@@ -504,6 +504,11 @@ def run_mode(
     """
     from pyxel.calibration import Calibration
 
+    if with_intermediate_steps and isinstance(mode, (Observation, Calibration)):
+        raise NotImplementedError(
+            "Parameter 'with_intermediate_steps' is not implemented for 'Observation' and 'Calibration' modes."
+        )
+
     if isinstance(mode, Exposure):
         data_tree = _run_exposure_mode(
             exposure=mode,
