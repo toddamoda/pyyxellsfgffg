@@ -20,6 +20,8 @@ community to directly contribute and expand the framework capabilities by
 adding their own models, codes simulating physical processes and effects of
 detectors.
 
+`What happens to your code, when you share it? <https://esa.gitlab.io/pyxel/doc/latest/about/FAQ.html#what-happens-to-my-code-when-i-contribute>`_
+
 Where to start?
 ===============
 

@@ -21,7 +21,7 @@ If you have a question, you can use the Chat on [Gitter](https://gitter.im/pyxel
 [Read more](https://esa.gitlab.io/pyxel/doc/stable/tutorials/get_help.html).
 
 If you are using Pyxel on a regular basis and want to contribute, have a look into the 
-[Contributing guide](http://localhost:52873/references/contributing.html). 
+[Contributing guide](https://esa.gitlab.io/pyxel/doc/latest/references/contributing.html). 
 Contact us if you have further questions or want to participate in the monthly Pyxel Developer meeting.
 You can always reach us via email: [pyxel@esa.int](mailto:pyxel@esa.int).
 
@@ -89,7 +89,7 @@ are implemented in Pyxel:
 ## What happens to my code when I contribute?
 
 If you want to contribute to Pyxel, have a look into the 
-[Contributing guide](http://localhost:52873/references/contributing.html).
+[Contributing guide](https://esa.gitlab.io/pyxel/doc/latest/references/contributing.html).
 If you want your code to be published in the open-source Pyxel framework, you have to add a Licence to your code.
 We are using a [MIT Licence](https://gitlab.com/esa/pyxel/-/blob/master/LICENSE.txt) 
 and your code will have to have a Licence, which is compatible with the [MIT Licence](https://en.wikipedia.org/wiki/MIT_License).
