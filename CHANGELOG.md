@@ -15,7 +15,7 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 
 ### Documentation
 * Add questions to FAQ.
-  (See [!688](https://gitlab.com/esa/pyxel/-/merge_requests/688)).
+  (See [!688](https://gitlab.com/esa/pyxel/-/merge_requests/688) and [!692](https://gitlab.com/esa/pyxel/-/merge_requests/692)).
 * Data link missing. Add link to `DataTree`.
   (See [!676](https://gitlab.com/esa/pyxel/-/merge_requests/676)).
 
