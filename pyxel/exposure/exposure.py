@@ -24,6 +24,7 @@ from pyxel.pipelines import Processor, ResultId, get_result_id, result_keys
 from pyxel.util import set_random_seed
 
 if TYPE_CHECKING:
+    from pyxel.detectors import Detector
     from pyxel.exposure import Readout
     from pyxel.outputs import CalibrationOutputs, ExposureOutputs, ObservationOutputs
 
@@ -241,6 +242,73 @@ def run_exposure_pipeline(
     return processor
 
 
+def _extract_datatree(detector: "Detector", keys: Sequence[ResultId]) -> DataTree:
+    """Extract data from a detector object.
+
+    A new `DataTree` is created with name 'bucket'.
+
+    Parameters
+    ----------
+    detector
+    keys
+
+    Returns
+    -------
+    DataTree
+
+    Notes
+    -----
+    This function is used internally.
+
+    Examples
+    --------
+    >>> _extract_datatree(
+    ...     detector=detector,
+    ...     keys=["photon", "charge", "pixel", "signal", "image", "data"],
+    ... )
+    DataTree('None', parent=None)
+    └── DataTree('bucket')
+            Dimensions:  (time: 1, y: 100, x: 100)
+            Coordinates:
+              * time     (time) float64 1.0
+              * y        (y) int64 0 1 2 3 4 5 6 7 8 9 10 ... 90 91 92 93 94 95 96 97 98 99
+              * x        (x) int64 0 1 2 3 4 5 6 7 8 9 10 ... 90 91 92 93 94 95 96 97 98 99
+            Data variables:
+                photon   (time, y, x) float64 1.515e+04 1.592e+04 ... 1.621e+04 1.621e+04
+                charge   (time, y, x) float64 1.515e+04 1.592e+04 ... 1.621e+04 1.621e+04
+                pixel    (time, y, x) float64 1.515e+04 1.592e+04 ... 1.621e+04 1.621e+04
+                signal   (time, y, x) float64 0.04545 0.04776 0.04634 ... 0.04862 0.04862
+                image    (time, y, x) uint32 298 314 304 304 304 314 ... 339 339 328 319 319
+    """
+    # Get current absolute time
+    absolute_time = xr.DataArray(
+        [detector.absolute_time],
+        dims=["time"],
+        attrs={"units": "s"},
+    )
+
+    partial_data_tree: DataTree = DataTree()
+
+    key: ResultId
+    for key in keys:
+        if key.startswith("data"):
+            continue
+
+        obj: Union[Photon, Pixel, Image, Signal, Charge] = getattr(detector, key)
+
+        if not isinstance(obj, (Photon, Pixel, Image, Signal, Charge)):
+            raise TypeError(
+                f"Wrong type from attribute 'detector.{key}'. Type: {type(obj)!r}"
+            )
+
+        data_array: xr.DataArray = obj.to_xarray().expand_dims(time=absolute_time)
+        data_array.name = "value"
+
+        partial_data_tree[f"/bucket/{key}"] = data_array
+
+    return partial_data_tree
+
+
 def run_pipeline(
     processor: Processor,
     readout: "Readout",
@@ -297,6 +365,8 @@ def run_pipeline(
         if progressbar:
             pbar = tqdm(total=num_steps, desc="Readout time: ")
 
+        # Get attributes to extract from 'detector'
+        # Example: keys = ['photon', 'charge', 'pixel', 'signal', 'image', 'data']
         keys: Sequence[ResultId] = result_keys(result_type)
 
         data_tree: DataTree = DataTree()
@@ -311,53 +381,28 @@ def run_pipeline(
 
             logging.info("time = %.3f s", time)
 
-            if detector.non_destructive_readout:
-                empty_all = False
-            else:
-                empty_all = True
+            # Empty detector (if needed)
+            is_destructive_readout: bool = not detector.non_destructive_readout
+            detector.empty(is_destructive_readout)
 
-            detector.empty(empty_all)
-
+            # Run one pipeline
             processor.run_pipeline(with_intermediate_steps=with_intermediate_steps)
 
+            # Save results in file(s) (if needed)
             if outputs and detector.read_out:
                 outputs.save_to_file(processor)
 
-            # Get current absolute time
-            absolute_time = xr.DataArray(
-                [detector.absolute_time],
-                dims=["time"],
-                attrs={"units": "s"},
-            )
+            # Extract data from 'detector' into a 'DataTree'
+            partial_datatree: DataTree = _extract_datatree(detector=detector, keys=keys)
 
-            partial_data_tree: DataTree = DataTree()
-
-            key: ResultId
-            for key in keys:
-                if key.startswith("data"):
-                    continue
-
-                obj: Union[Photon, Pixel, Image, Signal, Charge] = getattr(
-                    detector, key
-                )
-
-                if isinstance(obj, (Photon, Pixel, Image, Signal, Charge)):
-                    data_array: xr.DataArray = obj.to_xarray().expand_dims(
-                        time=absolute_time
-                    )
-                    data_array.name = "value"
-
-                    partial_data_tree[f"/bucket/{key}"] = data_array
-                else:
-                    raise NotImplementedError
+            # Concatenate all 'partialtree'
+            if data_tree.get("bucket") is None:
+                data_tree = partial_datatree
+            else:
+                data_tree = data_tree.combine_first(partial_datatree)
 
             if progressbar:
                 pbar.update(1)
-
-            if data_tree.get("bucket") is None:
-                data_tree = partial_data_tree
-            else:
-                data_tree = data_tree.combine_first(partial_data_tree)
 
         if with_intermediate_steps:
             # Remove temporary data_tree '/intermediate/last'
