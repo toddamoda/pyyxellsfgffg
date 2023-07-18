@@ -69,11 +69,6 @@ class CMOS(Detector):
                 "pixel": None if self._pixel is None else self._pixel.array.copy(),
                 "signal": None if self._signal is None else self._signal.array.copy(),
                 "image": None if self._image is None else self._image.array.copy(),
-                "processed_data": (
-                    None
-                    if self._processed_data is None
-                    else self._processed_data.data.to_dict()
-                ),
                 "data": None if self._data is None else self._data.to_dict(),
                 "charge": (
                     None
@@ -132,8 +127,6 @@ class CMOS(Detector):
             detector.signal.array = np.asarray(data["signal"])
         if "image" in data:
             detector.image.array = np.asarray(data["image"])
-        if "processed_data" in data:
-            detector.processed_data._data = xr.Dataset.from_dict(data["processed_data"])
         if "data" in data:
             detector._data = DataTree.from_dict(
                 {

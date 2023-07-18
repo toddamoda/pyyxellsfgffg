@@ -157,7 +157,6 @@ def comparison(dct, other_dct):
             "signal",
             "image",
             "charge",
-            "processed_data",
             "data",
         }
     )
@@ -237,12 +236,6 @@ def comparison(dct, other_dct):
                             dtype=float,
                         ),
                     },
-                    "processed_data": {
-                        "coords": {},
-                        "attrs": {},
-                        "dims": {},
-                        "data_vars": {},
-                    },
                     "data": {},
                 },
             },
@@ -314,12 +307,6 @@ def comparison(dct, other_dct):
                             ],
                             dtype=float,
                         ),
-                    },
-                    "processed_data": {
-                        "coords": {},
-                        "attrs": {},
-                        "dims": {},
-                        "data_vars": {},
                     },
                     "data": {},
                 },
@@ -418,7 +405,6 @@ def test_to_and_from_dict_with_arrays_no_frame(valid_ccd: CCD, klass):
                     dtype=float,
                 ),
             },
-            "processed_data": {"coords": {}, "attrs": {}, "dims": {}, "data_vars": {}},
             "data": {},
         },
     }

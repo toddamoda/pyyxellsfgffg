@@ -182,7 +182,10 @@ def load_cropped_and_aligned_image(
     """
     # Load 2d image (which can be smaller or
     #                         larger in dimensions than detector imaging area)
-    image = load_image(filename)
+    try:
+        image = load_image(filename)
+    except OSError as exc:
+        raise OSError(f"Cannot open filename: '{filename}'") from exc
 
     cropped_and_aligned_image: np.ndarray = fit_into_array(
         array=image,
