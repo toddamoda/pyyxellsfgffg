@@ -172,4 +172,4 @@ def extract_roi_to_xarray(
         ds_segmap
     )
 
-    detector.processed_data.append(ds)
+    detector.data["/source_extractor"] = ds
