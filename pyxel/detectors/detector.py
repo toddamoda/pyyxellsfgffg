@@ -18,7 +18,6 @@ from pyxel.data_structure import (
     Persistence,
     Photon,
     Pixel,
-    ProcessedData,
     Scene,
     Signal,
     SimplePersistence,
@@ -50,7 +49,6 @@ class Detector:
         self._pixel: Optional[Pixel] = None
         self._signal: Optional[Signal] = None
         self._image: Optional[Image] = None
-        self._processed_data: Optional[ProcessedData] = None
         self._data: Optional[DataTree] = None
 
         # This will be the memory of the detector where trapped charges will be saved
@@ -73,7 +71,6 @@ class Detector:
             and self._pixel == other._pixel
             and self._signal == other._signal
             and self._image == other._image
-            and self._processed_data == other._processed_data
             and (
                 (self._data is other._data is None)
                 or (
@@ -149,15 +146,6 @@ class Detector:
 
         return self._image
 
-    # TODO: This will be deprecated
-    @property
-    def processed_data(self) -> ProcessedData:
-        """TBW."""
-        if not self._processed_data:
-            raise RuntimeError("'processed_data' not initialized.")
-
-        return self._processed_data
-
     @property
     def data(self) -> "DataTree":
         """TBW."""
@@ -210,9 +198,6 @@ class Detector:
         self._pixel = Pixel(geo=self.geometry)
         self._signal = Signal(geo=self.geometry)
         self._image = Image(geo=self.geometry)
-
-        if self._processed_data is None:
-            self._processed_data = ProcessedData()
 
         self._data = DataTree()
 
@@ -453,7 +438,6 @@ class Detector:
             "_pixel",
             "_signal",
             "_image",
-            "_processed_data",
             "material",
             "environment",
             "_geometry",

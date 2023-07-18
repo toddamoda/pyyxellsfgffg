@@ -152,7 +152,6 @@ def comparison(dct, other_dct):
             "image",
             "photon",
             "pixel",
-            "processed_data",
             "scene",
             "signal",
         ]
@@ -234,7 +233,6 @@ def comparison(dct, other_dct):
                         ),
                     },
                     "data": {},
-                    "processed_data": {},
                 },
             },
             id="Default parameters",
@@ -307,7 +305,6 @@ def comparison(dct, other_dct):
                         ),
                     },
                     "data": {},
-                    "processed_data": {},
                 },
             },
             id="CMOS fully defined",

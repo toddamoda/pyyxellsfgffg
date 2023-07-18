@@ -157,7 +157,6 @@ def comparison(dct, other_dct):
             "image",
             "phase",
             "charge",
-            "processed_data",
             "data",
         }
     )
@@ -240,7 +239,6 @@ def comparison(dct, other_dct):
                         ),
                     },
                     "data": {},
-                    "processed_data": {},
                 },
             },
             id="Default Parameters",
@@ -313,7 +311,6 @@ def comparison(dct, other_dct):
                         ),
                     },
                     "data": {},
-                    "processed_data": {},
                 },
             },
             id="MKID fully defined",
