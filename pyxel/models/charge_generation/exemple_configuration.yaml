@@ -1,0 +1,128 @@
+# ########################################################### #
+# Pyxel detector simulation framework                         #
+#                                                             #
+# Example yaml configuration file                             #
+# Single run combining different detector effect models       #
+# Created by D. Lucsanyi (ESA)                                #
+# ########################################################### #
+
+
+# yaml-language-server: $schema=https://esa.gitlab.io/pyxel/doc/latest/pyxel_schema.json
+exposure:
+
+  outputs:
+    output_folder: "output"
+    save_data_to_file:
+
+ccd_detector:
+
+  geometry:
+
+    row: 450               # pixel
+    col: 450               # pixel
+    total_thickness: 40.    # um
+    pixel_vert_size: 10.    # um
+    pixel_horz_size: 10.    # um
+
+  environment:
+    temperature: 300        # K
+
+  characteristics:
+    quantum_efficiency: 1.                 # -
+    charge_to_volt_conversion: 3.e-6       # V/e
+    pre_amplification: 100                # V/V
+    adc_voltage_range: [0., 10.]
+    adc_bit_resolution: 16
+    full_well_capacity: 30000               # e
+
+pipeline:
+  # photon -> photon
+  photon_collection:
+    - name: load_image
+      func: pyxel.models.photon_collection.load_image
+      enabled: true
+      arguments:
+        image_file: 
+        align: center
+        convert_to_photons: true
+        bit_resolution: 15
+
+    - name: shot_noise
+      func: pyxel.models.photon_collection.shot_noise
+      enabled: false
+
+    - name: optical_psf
+      func: pyxel.models.photon_collection.optical_psf
+      enabled: false
+      arguments:
+        fov_arcsec: 5 # FOV in arcseconds
+        pixelscale: 0.01 #arcsec/pixel
+        wavelength: 0.6e-6 # wavelength in meters
+        optical_system:
+          - item: CircularAperture
+            radius: 3.0
+
+  # photon -> charge
+  charge_generation:
+    - name: photoelectrons
+      func: pyxel.models.charge_generation.simple_conversion
+      enabled: true
+
+    - name: dark_current
+      func: pyxel.models.charge_generation.dark_current
+      enabled: false
+      arguments:
+        figure_of_merit: 0.1  # nA/cm^2
+        spatial_noise_factor: 0.001 # typically between 0.1 and 0.4
+        temporal_noise: false
+        
+        
+    - name: dark_current_induced
+      func: pyxel.models.charge_generation.dark_current_induced
+      enabled: true
+      arguments:
+        DepletionVolume: 64 # µm3
+        AnnealingTime: 0.1 # weeks 
+        Dd:  50  # TeV/g
+        ShotNoise: false
+
+  # charge -> pixel
+  charge_collection:
+    - name: simple_collection
+      func: pyxel.models.charge_collection.simple_collection
+      enabled: true
+
+    - name: full_well
+      func: pyxel.models.charge_collection.simple_full_well
+      enabled: true
+
+  # pixel -> pixel
+  charge_transfer:
+    - name: cdm
+      func: pyxel.models.charge_transfer.cdm
+      enabled: false
+      arguments:
+        direction: parallel
+        trap_release_times: [3.e-2]
+        trap_densities: [20.]
+        sigma: [1.e-10]
+        beta: 0.3
+        max_electron_volume: 1.62e-10   # cm^2
+        transfer_period: 9.4722e-04     # s
+        charge_injection: false
+
+
+  # pixel -> signal
+  charge_measurement:
+    - name: simple_measurement
+      func: pyxel.models.charge_measurement.simple_measurement
+      enabled: true
+
+  # signal -> image
+  readout_electronics:
+    - name: simple_amplifier
+      func: pyxel.models.readout_electronics.simple_amplifier
+      enabled: true
+    - name: simple_adc
+      func: pyxel.models.readout_electronics.simple_adc
+      enabled: true
