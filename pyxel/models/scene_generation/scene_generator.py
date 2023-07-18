@@ -49,10 +49,18 @@ def load_objects_from_gaia(
         dec=declination,
         frame="icrs",
     )
+    # alternative to give over ra and dec and calculate the sycoords one could directly use skycoords as input like alex
+    # coords_detector: SkyCoord (ICRS): (ra, dec) in deg. # Coordinates of the pointing of the telescope.
 
     # The FOV of the optics limits the region in the sky together with the coordinates of the pointing of the optics.
+    # alternative: fov_radius, if we assume its always round
     width = fov_width * u.arcsec
     height = fov_heigth * u.arcsec
+
+    # Unlimited rows.
+    Gaia.ROW_LIMIT = -1
+    # we get the data from GAIA DR3 at the coordinates
+    Gaia.MAIN_GAIA_TABLE = "gaiadr3.gaia_source"
 
     # Query for the catalog to search area with coordinates in FOV of optics.
     objects = Gaia.query_object_async(
@@ -60,9 +68,6 @@ def load_objects_from_gaia(
         width=width,
         height=height,
     )
-
-    # Ensure it is lower than the ROW_LIMIT. Increase this if needed.
-    # Gaia.ROW_LIMIT
 
     return objects
 
