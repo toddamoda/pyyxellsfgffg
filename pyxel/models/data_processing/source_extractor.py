@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import sep
 import xarray as xr
+from datatree import DataTree
 from matplotlib.patches import Ellipse
 
 from pyxel.detectors import Detector
@@ -172,4 +173,4 @@ def extract_roi_to_xarray(
         ds_segmap
     )
 
-    detector.data["/source_extractor"] = ds
+    detector.data["/source_extractor"] = DataTree(ds)
