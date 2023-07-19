@@ -26,6 +26,8 @@ and is now replaced by the `Detector.data` bucket.
   (See [!687](https://gitlab.com/esa/pyxel/-/merge_requests/687)).
 * Remove data structure 'ProcessedData'.
   (See [!693](https://gitlab.com/esa/pyxel/-/merge_requests/693)).
+* Get full size 'simulated' and 'target' image when running a Calibration pipeline with `pyxel.run_mode`.
+  (See [!695](https://gitlab.com/esa/pyxel/-/merge_requests/695)).
 
 ### Documentation
 * Add questions to FAQ.
