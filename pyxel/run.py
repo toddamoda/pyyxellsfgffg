@@ -383,6 +383,74 @@ def _run_calibration_mode(
     detector: Detector,
     pipeline: "DetectionPipeline",
 ) -> "DataTree":
+    """Run a 'Calibration' pipeline.
+
+    Parameters
+    ----------
+    calibration : Calibration
+    detector : Detector
+    pipeline : DetectionPipeline
+
+    Notes
+    -----
+    This is a 'private' function called by 'run_mode'.
+
+    Returns
+    -------
+    DataTree
+
+    Examples
+    --------
+    >>> data_tree = _run_calibration_mode(calibration=..., detector=..., pipeline=...)
+    >>> data_tree
+    DataTree('None', parent=None)
+    │   Dimensions:              (evolution: 5, island: 1, param_id: 4, individual: 10,
+    │                             processor: 10, readout_time: 1, y: 235, x: 1)
+    │   Coordinates:
+    │     * evolution            (evolution) int64 0 1 2 3 4
+    │     * island               (island) int64 0
+    │     * param_id             (param_id) int64 0 1 2 3
+    │     * individual           (individual) int64 0 1 2 3 4 5 6 7 8 9
+    │     * processor            (processor) int64 0 1 2 3 4 5 6 7 8 9
+    │     * readout_time         (readout_time) int64 1
+    │     * y                    (y) int64 2065 2066 2067 2068 ... 2296 2297 2298 2299
+    │     * x                    (x) int64 0
+    │   Data variables:
+    │       champion_fitness     (island, evolution) float64 3.271e+06 ... 4.641e+05
+    │       champion_decision    (island, evolution, param_id) float64 -2.224 ... 3.662
+    │       champion_parameters  (island, evolution, param_id) float64 0.00597 ... 4....
+    │       best_fitness         (island, evolution, individual) float64 3.271e+06 .....
+    │       best_decision        (island, evolution, individual, param_id) float64 -2...
+    │       best_parameters      (island, evolution, individual, param_id) float64 0....
+    │       simulated_photon     (island, processor, readout_time, y, x) float64 dask.array<chunksize=(1, 1, 1, 235, 1), meta=np.ndarray>
+    │       simulated_charge     (island, processor, readout_time, y, x) float64 dask.array<chunksize=(1, 1, 1, 235, 1), meta=np.ndarray>
+    │       simulated_pixel      (island, processor, readout_time, y, x) float64 dask.array<chunksize=(1, 1, 1, 235, 1), meta=np.ndarray>
+    │       simulated_signal     (island, processor, readout_time, y, x) float64 dask.array<chunksize=(1, 1, 1, 235, 1), meta=np.ndarray>
+    │       simulated_image      (island, processor, readout_time, y, x) float64 dask.array<chunksize=(1, 1, 1, 235, 1), meta=np.ndarray>
+    │       target               (processor, y, x) float64 13.75 0.4567 ... 0.2293 0.375
+    │   Attributes:
+    │       num_islands:      1
+    │       population_size:  10
+    │       num_evolutions:   5
+    │       generations:      1
+    │       topology:         fully_connected
+    │       result_type:      pixel
+    └── DataTree('full_size')
+            Dimensions:           (island: 1, processor: 10, readout_time: 1, y: 2300, x: 1)
+            Coordinates:
+              * island            (island) int64 0
+              * processor         (processor) int64 0 1 2 3 4 5 6 7 8 9
+              * readout_time      (readout_time) int64 1
+              * y                 (y) int64 0 1 2 3 4 5 6 ... 2294 2295 2296 2297 2298 2299
+              * x                 (x) int64 0
+            Data variables:
+                simulated_photon  (island, processor, readout_time, y, x) float64 dask.array<chunksize=(1, 1, 1, 2300, 1), meta=np.ndarray>
+                simulated_charge  (island, processor, readout_time, y, x) float64 dask.array<chunksize=(1, 1, 1, 2300, 1), meta=np.ndarray>
+                simulated_pixel   (island, processor, readout_time, y, x) float64 dask.array<chunksize=(1, 1, 1, 2300, 1), meta=np.ndarray>
+                simulated_signal  (island, processor, readout_time, y, x) float64 dask.array<chunksize=(1, 1, 1, 2300, 1), meta=np.ndarray>
+                simulated_image   (island, processor, readout_time, y, x) float64 dask.array<chunksize=(1, 1, 1, 2300, 1), meta=np.ndarray>
+                target            (processor, y, x) float64 0.0 0.4285 ... 0.2293 0.375
+    """
     logging.info("Mode: Calibration")
 
     calibration_outputs: CalibrationOutputs = calibration.outputs
@@ -462,10 +530,10 @@ def run_mode(
     Load a configuration file
 
     >>> import pyxel
-    >>> config = pyxel.load("configuration.yaml")
+    >>> config = pyxel.load("exposure_configuration.yaml")
     >>> config
 
-     Run a pipeline
+     Run a 'Exposure' pipeline
 
     >>> data = pyxel.run_mode(
     ...     mode=config.exposure,
@@ -505,6 +573,63 @@ def run_mode(
     │           signal             (trap_densities_id, angle, period, time, y, x) float64 ...
     │           image              (trap_densities_id, angle, period, time, y, x) float64 ...
     └── DataTree('data')
+
+    Run a 'Calibration' pipeline
+
+    >>> config = pyxel.load("calibration_configuration.yaml")
+    >>> data = pyxel.run_mode(
+    ...     mode=config.exposure,
+    ...     detector=config.detector,
+    ...     pipeline=config.pipeline,
+    ... )
+    >>> data
+    DataTree('None', parent=None)
+    │   Dimensions:              (evolution: 5, island: 1, param_id: 4, individual: 10,
+    │                             processor: 10, readout_time: 1, y: 235, x: 1)
+    │   Coordinates:
+    │     * evolution            (evolution) int64 0 1 2 3 4
+    │     * island               (island) int64 0
+    │     * param_id             (param_id) int64 0 1 2 3
+    │     * individual           (individual) int64 0 1 2 3 4 5 6 7 8 9
+    │     * processor            (processor) int64 0 1 2 3 4 5 6 7 8 9
+    │     * readout_time         (readout_time) int64 1
+    │     * y                    (y) int64 2065 2066 2067 2068 ... 2296 2297 2298 2299
+    │     * x                    (x) int64 0
+    │   Data variables:
+    │       champion_fitness     (island, evolution) float64 3.271e+06 ... 4.641e+05
+    │       champion_decision    (island, evolution, param_id) float64 -2.224 ... 3.662
+    │       champion_parameters  (island, evolution, param_id) float64 0.00597 ... 4....
+    │       best_fitness         (island, evolution, individual) float64 3.271e+06 .....
+    │       best_decision        (island, evolution, individual, param_id) float64 -2...
+    │       best_parameters      (island, evolution, individual, param_id) float64 0....
+    │       simulated_photon     (island, processor, readout_time, y, x) float64 dask.array<chunksize=(1, 1, 1, 235, 1), meta=np.ndarray>
+    │       simulated_charge     (island, processor, readout_time, y, x) float64 dask.array<chunksize=(1, 1, 1, 235, 1), meta=np.ndarray>
+    │       simulated_pixel      (island, processor, readout_time, y, x) float64 dask.array<chunksize=(1, 1, 1, 235, 1), meta=np.ndarray>
+    │       simulated_signal     (island, processor, readout_time, y, x) float64 dask.array<chunksize=(1, 1, 1, 235, 1), meta=np.ndarray>
+    │       simulated_image      (island, processor, readout_time, y, x) float64 dask.array<chunksize=(1, 1, 1, 235, 1), meta=np.ndarray>
+    │       target               (processor, y, x) float64 13.75 0.4567 ... 0.2293 0.375
+    │   Attributes:
+    │       num_islands:      1
+    │       population_size:  10
+    │       num_evolutions:   5
+    │       generations:      1
+    │       topology:         fully_connected
+    │       result_type:      pixel
+    └── DataTree('full_size')
+            Dimensions:           (island: 1, processor: 10, readout_time: 1, y: 2300, x: 1)
+            Coordinates:
+              * island            (island) int64 0
+              * processor         (processor) int64 0 1 2 3 4 5 6 7 8 9
+              * readout_time      (readout_time) int64 1
+              * y                 (y) int64 0 1 2 3 4 5 6 ... 2294 2295 2296 2297 2298 2299
+              * x                 (x) int64 0
+            Data variables:
+                simulated_photon  (island, processor, readout_time, y, x) float64 dask.array<chunksize=(1, 1, 1, 2300, 1), meta=np.ndarray>
+                simulated_charge  (island, processor, readout_time, y, x) float64 dask.array<chunksize=(1, 1, 1, 2300, 1), meta=np.ndarray>
+                simulated_pixel   (island, processor, readout_time, y, x) float64 dask.array<chunksize=(1, 1, 1, 2300, 1), meta=np.ndarray>
+                simulated_signal  (island, processor, readout_time, y, x) float64 dask.array<chunksize=(1, 1, 1, 2300, 1), meta=np.ndarray>
+                simulated_image   (island, processor, readout_time, y, x) float64 dask.array<chunksize=(1, 1, 1, 2300, 1), meta=np.ndarray>
+                target            (processor, y, x) float64 0.0 0.4285 ... 0.2293 0.375
 
     Run a pipeline with all intermediate steps
 

@@ -202,7 +202,10 @@ class ArchipelagoDataTree:
             # Create the islands sequentially
             it = map(create_island, seeds)
             for island in tqdm(
-                it, desc="Create islands", total=self.num_islands, disable=disable_bar
+                it,
+                desc="Create islands",
+                total=self.num_islands,
+                disable=disable_bar,
             ):
                 self._pygmo_archi.push_back(island)
 
@@ -282,14 +285,6 @@ class ArchipelagoDataTree:
         # Get all champions
         champions: xr.Dataset = xr.concat(champions_lst, dim="evolution")
 
-        data_tree = DataTree()
-        data_tree["/champion/fitness"] = champions["champion_fitness"]
-        data_tree["/champion/decision"] = champions["champion_decision"]
-        data_tree["/champion/parameters"] = champions["champion_parameters"]
-        data_tree["/best/fitness"] = champions["best_fitness"]
-        data_tree["/best/decision"] = champions["best_decision"]
-        data_tree["/best/parameters"] = champions["best_parameters"]
-
         # Get the champions in a `Dataset`
         last_champions = champions.isel(evolution=-1)
 
@@ -308,18 +303,6 @@ class ArchipelagoDataTree:
             times=no_times,
             readout_times=readout.times,
         ).rename(id_processor="processor")
-
-        data_tree["/full_size/simulated/photon"] = all_simulated_full[
-            "simulated_photon"
-        ]
-        data_tree["/full_size/simulated/charge"] = all_simulated_full[
-            "simulated_charge"
-        ]
-        data_tree["/full_size/simulated/pixel"] = all_simulated_full["simulated_pixel"]
-        data_tree["/full_size/simulated/signal"] = all_simulated_full[
-            "simulated_signal"
-        ]
-        data_tree["/full_size/simulated/image"] = all_simulated_full["simulated_image"]
 
         # Get the target data
         if self.problem.sim_fit_range is not None:
@@ -358,24 +341,27 @@ class ArchipelagoDataTree:
             all_data_fit_range = all_simulated_full
             all_data_fit_range["target"] = self.problem.all_target_data
 
-        data_tree["/target_size/simulated/photon"] = all_data_fit_range[
-            "simulated_photon"
-        ]
-        data_tree["/target_size/simulated/charge"] = all_data_fit_range[
-            "simulated_charge"
-        ]
-        data_tree["/target_size/simulated/pixel"] = all_data_fit_range[
-            "simulated_pixel"
-        ]
-        data_tree["/target_size/simulated/signal"] = all_data_fit_range[
-            "simulated_signal"
-        ]
-        data_tree["/target_size/simulated/image"] = all_data_fit_range[
-            "simulated_image"
-        ]
+        data_tree: DataTree = DataTree()
+        data_tree["champion_fitness"] = champions["champion_fitness"]
+        data_tree["champion_decision"] = champions["champion_decision"]
+        data_tree["champion_parameters"] = champions["champion_parameters"]
+        data_tree["best_fitness"] = champions["best_fitness"]
+        data_tree["best_decision"] = champions["best_decision"]
+        data_tree["best_parameters"] = champions["best_parameters"]
 
-        data_tree["/full_size/target"] = self.problem.target_full_scale
-        data_tree["/target_size/target"] = all_data_fit_range["target"]
+        data_tree["simulated_photon"] = all_data_fit_range["simulated_photon"]
+        data_tree["simulated_charge"] = all_data_fit_range["simulated_charge"]
+        data_tree["simulated_pixel"] = all_data_fit_range["simulated_pixel"]
+        data_tree["simulated_signal"] = all_data_fit_range["simulated_signal"]
+        data_tree["simulated_image"] = all_data_fit_range["simulated_image"]
+        data_tree["target"] = all_data_fit_range["target"]
+
+        data_tree["full_size/simulated_photon"] = all_simulated_full["simulated_photon"]
+        data_tree["full_size/simulated_charge"] = all_simulated_full["simulated_charge"]
+        data_tree["full_size/simulated_pixel"] = all_simulated_full["simulated_pixel"]
+        data_tree["full_size/simulated_signal"] = all_simulated_full["simulated_signal"]
+        data_tree["full_size/simulated_image"] = all_simulated_full["simulated_image"]
+        data_tree["full_size/target"] = self.problem.target_full_scale
 
         data_tree.attrs["num_islands"] = self.num_islands
         data_tree.attrs["population_size"] = self.algorithm.population_size
