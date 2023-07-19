@@ -9,6 +9,7 @@
 """Tools for display of calibration IO in notebooks."""
 
 import os
+from enum import Enum
 from typing import TYPE_CHECKING, Optional, Union
 
 import numpy as np
@@ -175,6 +176,9 @@ def display_simulated(ds: "xr.Dataset") -> "hv.Layout":
         hv.extension("bokeh")
 
     result_type: "ResultId" = ds.attrs["result_type"]
+    if isinstance(result_type, Enum):
+        # Fix issue #627. In the future, this fix may be not relevant anymore.
+        result_type = result_type.value
 
     var_name = {
         "image": "simulated_image",
