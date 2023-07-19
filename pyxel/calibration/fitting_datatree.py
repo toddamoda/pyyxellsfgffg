@@ -138,7 +138,21 @@ class ModelFittingDataTree(ProblemSingleObjective):
         self.champion_f_list: np.ndarray = np.zeros((1, 1))
         self.champion_x_list: np.ndarray = np.zeros((1, num_parameters))
 
-        if not simulation_output.startswith("data"):
+        if simulation_output.startswith("data"):
+            # Target(s) is/are arrays(s) of unknown number of dimensions.
+            # For this reason the file(s) are directly read as 'DataArray' object(s).
+            targets_list: Sequence["xr.DataArray"] = [
+                load_dataarray(filename) for filename in target_filenames
+            ]
+            targets = xr.concat(targets_list, dim="processor")
+
+            self.targ_fit_range: Union[FitRange2D, FitRange3D, None] = None
+            self.sim_fit_range: Optional[FitRange3D] = None
+            self.all_target_data: xr.DataArray = targets
+
+            self.target_full_scale: Optional[xr.DataArray] = None
+
+        else:
             if self.readout.time_domain_simulation:
                 # Target(s) is/are 3D array(s) of dimensions: 'readout_time', 'y', 'x'
                 target_list_3d: Sequence[np.ndarray] = read_datacubes(
@@ -183,23 +197,11 @@ class ModelFittingDataTree(ProblemSingleObjective):
                     weights_from_file=weights_from_file,
                 )
 
-            self.targ_fit_range: Union[FitRange2D, FitRange3D, None] = target_fit_range
-            self.sim_fit_range: Optional[FitRange3D] = out_fit_range
-            self.all_target_data: xr.DataArray = targets.sel(
-                indexers=target_fit_range.to_dict()
-            )
+            self.targ_fit_range = target_fit_range
+            self.sim_fit_range = out_fit_range
+            self.all_target_data = targets.sel(indexers=target_fit_range.to_dict())
 
-        else:
-            # Target(s) is/are arrays(s) of unknown number of dimensions.
-            # For this reason the file(s) are directly read as 'DataArray' object(s).
-            targets_list: Sequence["xr.DataArray"] = [
-                load_dataarray(filename) for filename in target_filenames
-            ]
-            targets = xr.concat(targets_list, dim="processor")
-
-            self.targ_fit_range = None
-            self.sim_fit_range = None
-            self.all_target_data = targets
+            self.target_full_scale = targets
 
     def get_bounds(self) -> tuple[Sequence[float], Sequence[float]]:
         """Get the box bounds of the problem (lower_boundary, upper_boundary).
@@ -296,7 +298,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
 
         return lbd, ubd
 
-    def get_simulated_data(self, data: "DataTree") -> "xr.DataArray":
+    def _get_simulated_data(self, data: "DataTree") -> "xr.DataArray":
         """Extract 2D data from a processor."""
         import xarray as xr
 
@@ -401,7 +403,9 @@ class ModelFittingDataTree(ProblemSingleObjective):
 
                 logger.setLevel(prev_log_level)
 
-                simulated_data: "xr.DataArray" = self.get_simulated_data(data=data_tree)
+                simulated_data: "xr.DataArray" = self._get_simulated_data(
+                    data=data_tree
+                )
 
                 weighting: Optional[np.ndarray] = None
 
