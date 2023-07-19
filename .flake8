@@ -6,4 +6,4 @@ exclude =
     .ipynb_checkpoints
 #max_complexity=10
 max-line-length=120
-ignore=E203,W503,TC003,B028,TRY003
+ignore=E203,W503,TC003,B028,TRY003,E501
