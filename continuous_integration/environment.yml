@@ -93,4 +93,4 @@ dependencies:
   - pip:
 #    - --no-deps
     - poppy>=1.1.0
-
+    - lacomsic

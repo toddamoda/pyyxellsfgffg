@@ -40,6 +40,7 @@ dependencies = [
     "xarray>=2022.06",
     "xarray-datatree>=0.0.12",
     "sep",
+    "lacosmic",
 
     # Plotting
     "matplotlib>=3.1",

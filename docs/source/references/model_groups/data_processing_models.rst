@@ -137,3 +137,21 @@ Compute a linear regression along readout time.
         data_structure: image
 
 .. autofunction:: linear_regression
+
+
+Remove Cosmic Rays
+==================
+
+TODO: describe.
+
+.. code-block:: yaml
+
+  data_processing:
+    - name: todo
+      func: pyxel.models.data_processing.todo
+      enabled: true
+      arguments:
+        data_structure: image
+        todo: add_args
+
+.. autofunction:: todo
