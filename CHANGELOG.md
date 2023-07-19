@@ -28,6 +28,8 @@ and is now replaced by the `Detector.data` bucket.
   (See [!693](https://gitlab.com/esa/pyxel/-/merge_requests/693)).
 * Get full size 'simulated' and 'target' image when running a Calibration pipeline with `pyxel.run_mode`.
   (See [!695](https://gitlab.com/esa/pyxel/-/merge_requests/695)).
+* Fix KeyError issue with function `pyxel.display_simulated`.
+  (See [!696](https://gitlab.com/esa/pyxel/-/merge_requests/696)).
 
 ### Documentation
 * Add questions to FAQ.
