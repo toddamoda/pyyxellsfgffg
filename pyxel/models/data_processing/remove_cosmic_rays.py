@@ -31,7 +31,27 @@ def compute_cosmic_rays(
     effective_gain: float = 1.0,
     readnoise: float = 0.0,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Compute the image with cosmics removed, including the cosmic rays mask images."""
+    """Compute the image with cosmics removed, including the cosmic rays mask images.
+
+    Refer to lacosmic documentation for parameter descriptions.
+    https://lacosmic.readthedocs.io/en/stable/api/lacosmic.lacosmic.html#lacosmic.lacosmic
+
+    Parameters
+    ----------
+    data_2d : np.ndarray
+        2D image array
+    contrast : float
+        Contrast threshold between the Laplacian image and the fine-structure image.
+    cr_threshold : float
+        The Laplacian signal-to-noise ratio threshold for cosmic-ray detection.
+    neighbor_threshold : float
+        The Laplacian signal-to-noise ratio threshold for detection of cosmic rays in
+        pixels neighboring the initially-identified cosmic rays.
+    effective_gain : float
+        Ratio of counts (e.g., electrons or photons) to the units of data.
+    readnoise : float
+        The read noise (in electrons) in the input data.
+    """
     cleaned_image, cr_mask = lacosmic.lacosmic(
         data_2d,
         contrast=contrast,
@@ -54,20 +74,24 @@ def remove_cosmic_rays(
 ) -> None:
     """Extract the roi data converts it to xarray dataset and saves the information to the final result.
 
+    Refer to lacosmic documentation for parameter descriptions.
+    https://lacosmic.readthedocs.io/en/stable/api/lacosmic.lacosmic.html#lacosmic.lacosmic
+
     Parameters
     ----------
     detector : Detector
         Pyxel Detector object.
     contrast : float
-        todo
+        Contrast threshold between the Laplacian image and the fine-structure image.
     cr_threshold : float
-        todo
+        The Laplacian signal-to-noise ratio threshold for cosmic-ray detection.
     neighbor_threshold : float
-        todo
+        The Laplacian signal-to-noise ratio threshold for detection of cosmic rays in
+        pixels neighboring the initially-identified cosmic rays.
     effective_gain : float
-        todo
+        Ratio of counts (e.g., electrons or photons) to the units of data.
     readnoise : float
-        todo
+        The read noise (in electrons) in the input data.
     """
     cleaned_image, cr_mask = compute_cosmic_rays(
         data_2d=detector.pixel.array,

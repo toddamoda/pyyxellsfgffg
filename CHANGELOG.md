@@ -22,6 +22,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
   (See [!533](https://gitlab.com/esa/pyxel/-/merge_requests/533)).
 
 ### Models
+* New data processing model 'Remove Cosmic Rays' for 'Pixel Array'.
+  (See [!677](https://gitlab.com/esa/pyxel/-/merge_requests/677)).
 * New model 'Wavelength dependence AIRS' for 'Photon Collection'.
   (See [!677](https://gitlab.com/esa/pyxel/-/merge_requests/677)).
 * Refactor EMCCD multiplication register model in 'Charge Transfer' with clock-induced-charges (CIC).

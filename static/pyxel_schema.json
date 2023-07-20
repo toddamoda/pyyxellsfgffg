@@ -1489,6 +1489,9 @@
                 "$ref": "#/definitions/ModelDataProcessingMeanVariance"
               },
               {
+                "$ref": "#/definitions/ModelDataProcessingRemoveCosmicRays"
+              },
+              {
                 "$ref": "#/definitions/ModelDataProcessingStatistics"
               },
               {
@@ -4657,6 +4660,73 @@
         "name"
       ],
       "title": "Model 'mean_variance'",
+      "type": "object"
+    },
+    "ModelDataProcessingRemoveCosmicRays": {
+      "additionalProperties": false,
+      "description": "Extract the roi data converts it to xarray dataset and saves theinformation to the final result.",
+      "properties": {
+        "arguments": {
+          "additionalProperties": false,
+          "default": {
+            "contrast": 1.0,
+            "cr_threshold": 50.0,
+            "effective_gain": 1.0,
+            "neighbor_threshold": 50.0,
+            "readnoise": 0.0
+          },
+          "properties": {
+            "contrast": {
+              "default": 1.0,
+              "description": "Contrast threshold between the Laplacian image and the fine-structureimage.",
+              "title": "contrast",
+              "type": "number"
+            },
+            "cr_threshold": {
+              "default": 50.0,
+              "description": "The Laplacian signal-to-noise ratio threshold for cosmic-raydetection.",
+              "title": "cr_threshold",
+              "type": "number"
+            },
+            "effective_gain": {
+              "default": 1.0,
+              "description": "Ratio of counts (e.g., electrons or photons) to the units of data.",
+              "title": "effective_gain",
+              "type": "number"
+            },
+            "neighbor_threshold": {
+              "default": 50.0,
+              "description": "The Laplacian signal-to-noise ratio threshold for detection of cosmicrays in pixels neighboring the initially-identified cosmic rays.",
+              "title": "neighbor_threshold",
+              "type": "number"
+            },
+            "readnoise": {
+              "default": 0.0,
+              "description": "The read noise (in electrons) in the input data.",
+              "title": "readnoise",
+              "type": "number"
+            }
+          },
+          "title": "Parameters",
+          "type": "object"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "func": {
+          "const": "pyxel.models.data_processing.remove_cosmic_rays",
+          "default": "pyxel.models.data_processing.remove_cosmic_rays",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Model 'remove_cosmic_rays'",
       "type": "object"
     },
     "ModelDataProcessingStatistics": {
