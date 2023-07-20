@@ -48,6 +48,8 @@ and is now replaced by the `Detector.data` bucket.
   (See [!677](https://gitlab.com/esa/pyxel/-/merge_requests/677)).
 * Refactor EMCCD multiplication register model in 'Charge Transfer' with clock-induced-charges (CIC).
   (See [!678](https://gitlab.com/esa/pyxel/-/merge_requests/678)).
+* New model of induced dark current.
+  (See [!698](https://gitlab.com/esa/pyxel/-/merge_requests/698)).
 
 ### Others
 * Refactoring.
