@@ -60,15 +60,15 @@ def damage_factors(
         Parameter annealing_time. Unit: s
     eact_dc : float
         Activation Energy parameter. Unit: eV
-    temperature :
+    temperature : float
         temperature parameter. Unit K
-    kdark_srour :
+    kdark_srour : float
         Kdark_Srour parameter. Unit e-/cm3/sec per MeV/g
-    gamma_dark :
+    gamma_dark : float
         gammaDark parameter. Unit 1/µm3/(TeV/g)
-    depletion_volume :
+    depletion_volume : float
         DepletionVolume parameter. Unit µm3
-    displacement_dose :
+    displacement_dose : float
         Displacement dose parameter. Unit TeV/g
 
     Returns
@@ -238,7 +238,9 @@ def dark_current_induced(
     shot_noise: bool,
     seed: Optional[int] = None,
 ) -> None:
-    """Add induced dark current to the detector charge.
+    """Model to add dark current induced by radiation to the detector charge.
+
+    The Dark Current Model description can be found in :cite:p:`RadiationLeRoch2019` and :cite:p:`Belloir:16`.
 
     Parameters
     ----------
@@ -251,7 +253,7 @@ def dark_current_induced(
     displacement_dose : float
         Displacement dose parameter. Unit TeV/g
     shot_noise : bool
-        Shotnoise: true for shotnoise
+        Shotnoise: True for shotnoise
     seed : int, optional
     """
     geo = detector.geometry
