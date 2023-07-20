@@ -14,7 +14,7 @@ References,
 * https://lacosmic.readthedocs.io/en/stable/
 * https://www.astropy.org/ccd-reduction-and-photometry-guide/v/dev/notebooks/08-03-Cosmic-ray-removal.html
 """
-import lacosmic
+import lacosmic  # type: ignore
 import numpy as np
 import xarray as xr
 
