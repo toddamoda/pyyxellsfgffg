@@ -253,7 +253,7 @@ def dark_current_induced(
     displacement_dose : float
         Displacement dose parameter. Unit TeV/g
     shot_noise : bool
-        Shotnoise: True for shotnoise
+        True to enable shotnoise
     seed : int, optional
     """
     geo = detector.geometry

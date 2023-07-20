@@ -448,3 +448,29 @@ Example of the configuration file:
 .. note:: Dark current calculated with this model already takes into account the avalanche gain.
 
 .. autofunction:: pyxel.models.charge_generation.dark_current_saphira
+
+
+.. _Dark current induced:
+
+Dark Current induced
+====================
+
+:guilabel:`Charge` → :guilabel:`Charge`
+
+This model adds dark current induced by radiation. A more detailed description of the models can be found in
+:cite:p:`RadiationLeRoch2019` and :cite:p:`Belloir:16`.
+
+Example of configuration file:
+
+.. code-block:: yaml
+
+    - name: dark_current_induced
+      func: pyxel.models.charge_generation.dark_current_induced
+      enabled: true
+      arguments:
+        DepletionVolume: 64 # µm3
+        AnnealingTime: 0.1 # weeks
+        Dd:  50  # TeV/g
+        ShotNoise: false
+
+.. autofunction:: pyxel.models.charge_generation.dark_current_induced
