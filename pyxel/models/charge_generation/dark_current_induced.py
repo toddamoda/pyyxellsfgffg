@@ -1,141 +1,179 @@
-#   Copyright (c) 2023, Florian MORIOUSEF, Vincent GOIFFON, Alexandre LE ROCH, Aubin ANTONSANTI
-#  
-#   This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
-#   is part of this Pyxel package. No part of the package, including
-#   this file, may be copied, modified, propagated, or distributed except according to
-#   the terms contained in the file ‘LICENCE.txt’.
+# Copyright (c) 2023, Florian MORIOUSEF, Vincent GOIFFON, Alexandre LE ROCH, Aubin ANTONSANTI, ISAE-SUPAERO
+#
+# vincent.goiffon@isae-supaero.fr
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 
-"""Model to generate charge due to dark current induced by radiation"""
+"""Model to generate charge due to dark current induced by radiation.
 
-# The Dark Current Model description can be found in:
-# A. Le Roch et al., "Radiation-Induced Leakage Current and Electric Field Enhancement in CMOS Image Sensor Sense Node Floating Diffusions," in IEEE Transactions on Nuclear Science, vol. 66, no. 3, pp. 616-624, March 2019, doi: 10.1109/TNS.2019.2892645.
-# Jean-Marc Belloir, Vincent Goiffon, Cédric Virmontois, Mélanie Raine, Philippe Paillet, Olivier Duhamel, Marc Gaillardin, Romain Molina, Pierre Magnan, and Olivier Gilard, "Pixel pitch and particle energy influence on the dark current distribution of neutron irradiated CMOS image sensors," Opt. Express 24, 4299-4315 (2016)
-
+The Dark Current Model description can be found in:
+A. Le Roch et al., "Radiation-Induced Leakage Current and Electric Field Enhancement in CMOS Image Sensor Sense Node Floating Diffusions,"
+in IEEE Transactions on Nuclear Science, vol. 66, no. 3, pp. 616-624, March 2019, doi: 10.1109/TNS.2019.2892645.
+Jean-Marc Belloir, Vincent Goiffon, Cédric Virmontois, Mélanie Raine, Philippe Paillet, Olivier Duhamel, Marc Gaillardin,
+Romain Molina, Pierre Magnan, and Olivier Gilard, "Pixel pitch and particle energy influence on the dark current distribution of neutron irradiated CMOS image sensors," Opt. Express 24, 4299-4315 (2016)
+"""
 
 import warnings
 from typing import Optional
+
 import numpy as np
 from astropy import constants as const
-import matplotlib.pyplot as plt
 
-from pyxel.detectors import APD, Detector
+from pyxel.detectors import Detector
 from pyxel.util import set_random_seed
 
 
-def Damage_Factors(
-        AnnealingTime: float, EactDC: float, temperature: float, Kdark_Srour: float, gammaDark: float,
-        DepletionVolume: float, Dd: float
-) -> list:
+def damage_factors(
+    annealing_time: float,
+    eact_dc: float,
+    temperature: float,
+    kdark_srour: float,
+    gamma_dark: float,
+    depletion_volume: float,
+    displacement_dose: float,
+) -> tuple[float, float]:
+    """Return Damage Factors calculation list [nuDark, muDark].
 
-    """Return Damage Factors calculation list [nuDark, muDark]
-    
-    muDark: mean number of interactions per pixel 
-    
+    muDark: mean number of interactions per pixel
+
+
     Parameters
     ----------
-    AnnealingTime : float
+    annealing_time : float
         Parameter annealing_time. Unit: s
-    EactDC : float
+    eact_dc : float
         Activation Energy parameter. Unit: eV
     temperature :
         temperature parameter. Unit K
-    Kdark_Srour :
+    kdark_srour :
         Kdark_Srour parameter. Unit e-/cm3/sec per MeV/g
-    gammaDark : 
-        gammaDark parameter. Unit 1/µm3/(TeV/g)       
-    DepletionVolume : 
+    gamma_dark :
+        gammaDark parameter. Unit 1/µm3/(TeV/g)
+    depletion_volume :
         DepletionVolume parameter. Unit µm3
-    Dd : 
-        Displacment dose parameter. Unit TeV/g
+    displacement_dose :
+        Displacement dose parameter. Unit TeV/g
 
     Returns
     -------
     float
         Nudark. Unit: e-/s
-    float 
+    float
         MuDark. Unit: no units
     """
-    
+
     k = const.k_B.value
-    
-    q = const.e.value  
-    
+    q = const.e.value
+
     # Linear fit of Srour & Lo annealing factor (TNS 2000) in the 10^4 - 5.10^6 s range
-    AnnealingFactor = (-0.3965 * np.log10(AnnealingTime) + 3.5948)/1.3024 
-    OperatingTemperatureCorrection = np.exp( (-EactDC*q/k/temperature) - (-EactDC*q/k/300) )
-    Kdark = Kdark_Srour * AnnealingFactor * OperatingTemperatureCorrection / 1e4 ** 3 * 1e6
-    nuDark = Kdark/gammaDark
-    muDark = gammaDark * DepletionVolume * Dd # mean number of interactions per pixel
- 
-    return nuDark, muDark 
+    annealing_factor = (-0.3965 * np.log10(annealing_time) + 3.5948) / 1.3024
+    operating_temperature_correction = np.exp(
+        (-eact_dc * q / k / temperature) - (-eact_dc * q / k / 300)
+    )
+    kdark = (
+        kdark_srour
+        * annealing_factor
+        * operating_temperature_correction
+        / 1e4**3
+        * 1e6
+    )
+    nu_dark = kdark / gamma_dark
+    mu_dark = (
+        gamma_dark * depletion_volume * displacement_dose
+    )  # mean number of interactions per pixel
+
+    return nu_dark, mu_dark
 
 
-def DamageFactorsSilicon (AnnealingTime: float, temperature: float, DepletionVolume: float, Dd: float
-) -> list: 
-    
-    """Return Damage Factors (for silicon device) calculation list [nuDark, muDark]
-    
-    based on: 
+def damage_factors_silicon(
+    annealing_time: float,
+    temperature: float,
+    depletion_volume: float,
+    displacement_dose: float,
+) -> tuple[float, float]:
+    """Return Damage Factors (for silicon device) calculation list [nuDark, muDark].
+
+    based on:
     Source: J. R. Srour and D. H. Lo, "Universal damage factor for radiation-induced dark current in silicon devices," in IEEE Transactions     xon Nuclear Science, vol. 47, no. 6, pp. 2451-2459, Dec. 2000, doi: 10.1109/23.903792.
-    
-    muDark: mean number of interactions per pixel 
-    
+
+    muDark: mean number of interactions per pixel
+
+
     Parameters
     ----------
-    annealingtime : float
+    annealing_time : float
         Parameter annealing_time. Unit: weeks
     temperature :
-        Temperature parameter. Unit K       
-    DepletionVolume : 
+        Temperature parameter. Unit K
+    depletion_volume :
         DepletionVolume parameter. Unit µm3
-    Dd : 
-        Displacment dose parameter. Unit TeV/g
+    displacement_dose :
+        Displacement dose parameter. Unit TeV/g
 
     Returns
     -------
     float
         Nudark. Unit: e-/s
-    float 
+    float
         MuDark. Unit: no units
     """
-    
-    EactDC = 0.63 # eV
-    Kdark_Srour = 1.9e5 # e-/cm3/sec per MeV/g
-    gammaDark = 0.097179425484859/4100 # 1/µm3/(TeV/g) 
-    AnnealingTime = AnnealingTime * 7 * 24 * 3600 # convert week --> sec
-    
-    return Damage_Factors(
-            AnnealingTime = AnnealingTime, EactDC = EactDC, temperature = temperature, 
-            Kdark_Srour = Kdark_Srour, gammaDark = gammaDark, DepletionVolume = DepletionVolume, 
-            Dd = Dd
-    ) 
+
+    eact_dc = 0.63  # eV
+    kdark_srour = 1.9e5  # e-/cm3/sec per MeV/g
+    gamma_dark = 0.097179425484859 / 4100  # 1/µm3/(TeV/g)
+    annealing_time = annealing_time * 7 * 24 * 3600  # convert week --> sec
+
+    return damage_factors(
+        annealing_time=annealing_time,
+        eact_dc=eact_dc,
+        temperature=temperature,
+        kdark_srour=kdark_srour,
+        gamma_dark=gamma_dark,
+        depletion_volume=depletion_volume,
+        displacement_dose=displacement_dose,
+    )
 
 
-def computeDarkCurrentInduced (
-    NumberOfRows: float, 
-    NumberOfColumns: float, 
-    muDark: float,
-    nuDark: float,
-    IntegrationTime:float,
-    ShotNoise: bool
+def compute_dark_current_induced(
+    number_of_rows: int,
+    number_of_columns: int,
+    mu_dark: float,
+    nu_dark: float,
+    integration_time: float,
+    shot_noise: bool,
 ) -> np.ndarray:
-    
-    """Return Dark Signal Frame 
-    
+    """Return Dark Signal Frame.
+
     Parameters
     ----------
-    NumberOfRows : float
+    number_of_rows : int
         Parameter NumberOfRows. Unit: pixels (#)
-    NumberOfColumns :
-        NumberOfColumns parameter. Unit: pixels (#)     
-    muDark : 
+    number_of_columns : int
+        NumberOfColumns parameter. Unit: pixels (#)
+    mu_dark : float
         mean number of interactions per pixel. Unit: no units
-    nuDark : 
+    nu_dark : float
         nuDark parameter. Unit: e-/s
-    IntegrationTime : 
+    integration_time : float
         IntegrationTime parameter. Unit s
-    ShotNoise : 
+    shot_noise : bool
         Shotnoise: true for shotnoise
 
     Returns
@@ -143,82 +181,98 @@ def computeDarkCurrentInduced (
     np.ndarray
         DarkCurrentFrame. Unit: e-
     """
-    
-    # Define the Dark Current Frame
-    DarkCurrentFrame = np.zeros((NumberOfRows, NumberOfColumns)) # e-
-    
-    # Assign a number of interactions for each pixels of the frame
-    InteractionsArray = np.random.poisson(muDark, size =(NumberOfRows, NumberOfColumns))
-    
-    for i in range(1,np.max(InteractionsArray)):
-        
-        temp = np.array(np.where(InteractionsArray==i)) # Index of pixels with i events
-        temp = np.swapaxes(temp, 0, 1)
-       
-        temp_darkcurrent = np.random.exponential(scale = nuDark, size = (i,len(temp)) ) # e-/s
 
-        if i>1:
-            temp_darkcurrent = np.sum( temp_darkcurrent, axis = 0) # if one pixel has more than 1 interaction, sum darkcurrent contributions
-        else: 
-            temp_darkcurrent = np.reshape(temp_darkcurrent, (np.shape(temp_darkcurrent)[1]))
-      
+    # Define the Dark Current Frame
+    dark_current_frame = np.zeros((number_of_rows, number_of_columns))  # e-
+
+    # Assign a number of interactions for each pixels of the frame
+    interactions_array = np.random.poisson(
+        mu_dark, size=(number_of_rows, number_of_columns)
+    )
+
+    for i in range(1, np.max(interactions_array)):
+        # Index of pixels with i events
+        temp = np.array(np.where(interactions_array == i))
+        temp = np.swapaxes(temp, 0, 1)
+
+        temp_darkcurrent = np.random.exponential(
+            scale=nu_dark, size=(i, len(temp))
+        )  # e-/s
+
+        if i > 1:
+            # if one pixel has more than 1 interaction, sum darkcurrent contributions
+            temp_darkcurrent = np.sum(temp_darkcurrent, axis=0)
+        else:
+            temp_darkcurrent = np.reshape(
+                temp_darkcurrent, (np.shape(temp_darkcurrent)[1])
+            )
+
         for pixels in range(len(temp)):
-            Row = temp[pixels][0]
-            Column = temp[pixels][1]
-            DarkCurrentFrame[Row, Column] = temp_darkcurrent[pixels] # assign dark current value to corresponding pixel, e-/s
-            
-    DarkSignalFrame = np.round(DarkCurrentFrame * IntegrationTime) # e-
-    
-    if ShotNoise: 
-        DarkSignalFrame = np.random.poisson(DarkSignalFrame).astype(float)
-    
-    if np.isinf(DarkSignalFrame).any():
+            row = temp[pixels][0]
+            column = temp[pixels][1]
+
+            # assign dark current value to corresponding pixel, e-/s
+            dark_current_frame[row, column] = temp_darkcurrent[pixels]
+
+    dark_signal_frame = np.round(dark_current_frame * integration_time)  # e-
+
+    if shot_noise:
+        dark_signal_frame = np.random.poisson(dark_signal_frame).astype(float)
+
+    if np.isinf(dark_signal_frame).any():
         warnings.warn(
             "Unphysical high value for dark current from fixed pattern noise distribution"
             " will result in inf values. Enable a FWC model to ensure a physical limit.",
             RuntimeWarning,
+            stacklevel=2,
         )
-    
-    return DarkSignalFrame
+
+    return dark_signal_frame
+
 
 def dark_current_induced(
-    detector : Detector, 
-    DepletionVolume: float,
-    AnnealingTime: float,
-    Dd: float,
-    ShotNoise: bool,
+    detector: Detector,
+    depletion_volume: float,
+    annealing_time: float,
+    displacement_dose: float,
+    shot_noise: bool,
     seed: Optional[int] = None,
 ) -> None:
-    
-    """Add induced dark current to the detector charge 
-    
+    """Add induced dark current to the detector charge.
+
     Parameters
     ----------
     detector : Detector
-        Pyxel detector object.    
-    DepletionVolume : float
+        Pyxel detector object.
+    depletion_volume : float
         DepletionVolume parameter. Unit µm3.
-    IntegrationTime : float
-        IntegrationTime parameter. Unit s.
-    Annealingtime : float
+    annealing_time : float
         Parameter Annealing time. Unit: s
-    Dd : float
-        Displacment dose parameter. Unit TeV/g
-
+    displacement_dose : float
+        Displacement dose parameter. Unit TeV/g
+    shot_noise : bool
+        Shotnoise: true for shotnoise
+    seed : int, optional
     """
     geo = detector.geometry
     temperature = detector.environment.temperature
-    nuDark, muDark = DamageFactorsSilicon (AnnealingTime, temperature, DepletionVolume, Dd)
-    IntegrationTime = detector.time_step
-    NumberOfRows, NumberOfColumns = geo.shape
+    nu_dark, mu_dark = damage_factors_silicon(
+        annealing_time=annealing_time,
+        temperature=temperature,
+        depletion_volume=depletion_volume,
+        displacement_dose=displacement_dose,
+    )
+
+    integration_time = detector.time_step
+    number_of_rows, number_of_columns = geo.shape
+
     with set_random_seed(seed):
-        DarkSignalFrame = computeDarkCurrentInduced(NumberOfRows, NumberOfColumns, muDark, nuDark, IntegrationTime, ShotNoise)
-    detector.charge.add_charge_array(DarkSignalFrame)
-    
-    
-    
-    
-    
-    
-    
-    
+        dark_signal_frame = compute_dark_current_induced(
+            number_of_rows=number_of_rows,
+            number_of_columns=number_of_columns,
+            mu_dark=mu_dark,
+            nu_dark=nu_dark,
+            integration_time=integration_time,
+            shot_noise=shot_noise,
+        )
+    detector.charge.add_charge_array(dark_signal_frame)
