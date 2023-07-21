@@ -3123,7 +3123,7 @@
     },
     "ModelChargeGenerationDarkCurrentInduced": {
       "additionalProperties": false,
-      "description": "Add induced dark current to the detector charge.",
+      "description": "Model to add dark current induced by radiation to the detector charge.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
@@ -3152,7 +3152,7 @@
               ]
             },
             "shot_noise": {
-              "description": "Shotnoise: true for shotnoise",
+              "description": "True to enable shotnoise",
               "title": "shot_noise",
               "type": "boolean"
             }
