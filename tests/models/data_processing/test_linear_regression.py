@@ -4,11 +4,11 @@
 #   is part of this Pyxel package. No part of the package, including
 #   this file, may be copied, modified, propagated, or distributed except according to
 #   the terms contained in the file ‘LICENCE.txt’.
-import datatree.testing
+
 import numpy as np
 import pytest
+import statsmodels.api as s
 import xarray as xr
-from datatree import DataTree
 
 from pyxel.detectors import (
     CCD,
@@ -34,45 +34,49 @@ def ccd_10x10() -> CCD:
         environment=Environment(),
         characteristics=Characteristics(),
     )
-    detector.set_readout(num_steps=3, start_time=0.0, end_time=3.0)
+    detector.set_readout(num_steps=3, start_time=1.0, end_time=4.0)
+
     return detector
 
 
-# def test_raise_error():
-#     """Test that error is raised when less than two times are given."""
-#
-#     with pytest.raises()
+def test_raise_error():
+    """Test that error is raised when less than two times are given."""
+
+    detector = CCD(
+        geometry=CCDGeometry(
+            row=10,
+            col=10,
+            total_thickness=40.0,
+            pixel_vert_size=10.0,
+            pixel_horz_size=10.0,
+        ),
+        environment=Environment(),
+        characteristics=Characteristics(),
+    )
+    detector.set_readout(num_steps=2, start_time=1.0, end_time=4.0)
+
+    with pytest.raises(ValueError, match="Expecting at least 3 steps"):
+        linear_regression(detector=detector)
 
 
-def test_linear_regression(ccd_10x10):
-    """Test model 'linear_regression'."""
+@pytest.fixture
+def image_3d():
+    """Create fake image for three different times."""
 
-    # Create fake image for three different times
     rng = np.random.default_rng(seed=100)
-    absolute_time = [0.0, 1.0, 2.0]
+    absolute_time = [1.0, 2.0, 3.0]
     image = xr.DataArray(
-        rng.random((3, 4, 5)),
+        rng.random((3, 10, 10)),
         dims=["time", "y", "x"],
-        coords={"time": absolute_time, "y": range(4), "x": range(5)},
+        coords={"time": absolute_time, "y": range(10), "x": range(10)},
     )
-    detector = ccd_10x10
-    time_step_it = readout.time_step_it()
-    for i, (time, step) in enumerate(time_step_it):
-        detector.time = time
-        detector.time_step = step
-        detector.pipeline_count = i
+    return image
 
-        detector.image.array = rng.random((10, 10))
-        linear_regression(detector, data_structure="image")
 
-    data_array = detector.data["/linear_regression/image"]
-    # convert to Dataset
-    data_array = data_array.to_dataset()
-    # TODO: Expand test for r2 variable.
-    data_array = data_array.drop_vars("r2")
-    computed_result = detector.data["image"].polyfit(
-        dim="time", deg=1, full=True, cov=True
-    )
+@pytest.fixture
+def expected_result(image_3d):
+    """Create expected result."""
+    computed_result = image_3d.polyfit(dim="time", deg=1, full=True, cov=True)
 
     # create expected Dataset
     expected = xr.Dataset()
@@ -87,5 +91,37 @@ def test_linear_regression(ccd_10x10):
     )
     del expected["degree"]
 
+    return expected
+
+
+def test_linear_regression(
+    ccd_10x10: CCD, image_3d: np.ndarray, expected_result: xr.Dataset
+):
+    """Test model 'linear_regression'."""
+
+    detector = ccd_10x10
+    image = image_3d
+    steps = [1.0, 1.0, 1.0]
+    absolute_time = image_3d.time.to_numpy()
+
+    model = s.OLS(
+        endog=image_3d.isel(x=0, y=0).to_numpy(), exog=s.add_constant(absolute_time)
+    )
+    results = model.fit()
+
+    for i, (time, step) in enumerate(zip(absolute_time, steps)):
+        detector.time = time
+        detector.time_step = step
+        detector.pipeline_count = i
+
+        detector.image.array = image.isel(time=i).to_numpy()
+        linear_regression(detector=detector, data_structure="image")
+
+    data_array = detector.data["/linear_regression/image"]
+    # convert to Dataset
+    data_array = data_array.to_dataset()
+    # TODO: Expand test for r2 variable.
+    data_array = data_array.drop_vars("r2")
+
     # check that both datasets are the same
-    xr.testing.assert_allclose(data_array, expected)
+    xr.testing.assert_allclose(data_array, expected_result)
