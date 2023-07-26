@@ -10,5 +10,3 @@
 # flake8: noqa
 from .cdm import cdm
 from .arctic_cti.models_arctic_vanilla import arctic_add, arctic_remove
-import EMCCD_poisson
-import EMCCD_poisson_cic
