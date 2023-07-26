@@ -7,9 +7,11 @@
 
 """Detector class."""
 import collections
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, Union
+
+import numpy as np
 
 from pyxel import __version__, backends
 from pyxel.data_structure import (
@@ -26,7 +28,6 @@ from pyxel.detectors import Environment, ReadoutProperties
 from pyxel.util.memory import get_size, memory_usage_details
 
 if TYPE_CHECKING:
-    import numpy as np
     import xarray as xr
     from datatree import DataTree
 
@@ -234,113 +235,100 @@ class Detector:
 
     def set_readout(
         self,
-        num_steps: int,
-        start_time: float,
-        end_time: float,
-        ndreadout: bool = False,
-        times_linear: bool = True,
+        times: Union[Sequence[float], np.ndarray],
+        start_time: float = 0.0,
+        non_destructive: bool = False,
     ) -> None:
-        """Set readout."""
+        """Set readout sampling properties.
+
+        Parameters
+        ----------
+        times : Sequence[Number]
+            A sequence of numeric values representing the sampling times for the readout simulation.
+        start_time : float, optional. Default: 0.0
+            A float representing the starting time of the readout simulation.
+            The readout time(s) should be greater that this ``start_time``.
+        non_destructive : bool, optional. Default: False
+            A boolean flag indicating whether the readout simulation is non-destructive.
+            If set to ``True``, the readout process will not modify the underlying data.
+
+        Examples
+        --------
+        >>> detector.set_readout(times=[1, 2, 4, 7, 10], start_time=0.0)
+        """
         self._readout_properties = ReadoutProperties(
-            num_steps=num_steps,
+            times=times,
             start_time=start_time,
-            end_time=end_time,
-            ndreadout=ndreadout,
-            times_linear=times_linear,
+            non_destructive=non_destructive,
         )
+
+    @property
+    def readout_properties(self) -> ReadoutProperties:
+        """Return current ``ReadoutProperties``."""
+        if self._readout_properties is None:
+            raise ValueError("No readout defined.")
+
+        return self._readout_properties
 
     @property
     def time(self) -> float:
         """TBW."""
-        if self._readout_properties is not None:
-            return self._readout_properties.time
-        else:
-            raise ValueError("No readout defined.")
+        return self.readout_properties.time
 
     @time.setter
     def time(self, value: float) -> None:
         """TBW."""
-        if self._readout_properties is not None:
-            self._readout_properties.time = value
-        else:
-            raise ValueError("No readout defined.")
+        self.readout_properties.time = value
 
     @property
     def start_time(self) -> float:
         """TBW."""
-        if self._readout_properties is not None:
-            return self._readout_properties.start_time
-        else:
-            raise ValueError("No readout defined.")
+        return self.readout_properties.start_time
 
     @start_time.setter
     def start_time(self, value: float) -> None:
         """TBW."""
-        if self._readout_properties is not None:
-            self._readout_properties.start_time = value
-        else:
-            raise ValueError("No readout defined.")
+        self.readout_properties.start_time = value
 
     @property
     def absolute_time(self) -> float:
         """TBW."""
-        if self._readout_properties is not None:
-            return self._readout_properties.absolute_time
-        else:
-            raise ValueError("No readout defined.")
+        return self.readout_properties.absolute_time
 
     @property
     def time_step(self) -> float:
         """TBW."""
-        if self._readout_properties is not None:
-            return self._readout_properties.time_step
-        else:
-            raise ValueError("No readout defined.")
+        return self.readout_properties.time_step
 
     @time_step.setter
     def time_step(self, value: float) -> None:
         """TBW."""
-        if self._readout_properties is not None:
-            self._readout_properties.time_step = value
-        else:
-            raise ValueError("No readout defined.")
+        self.readout_properties.time_step = value
 
     @property
     def times_linear(self) -> bool:
         """TBW."""
-        if self._readout_properties is not None:
-            return self._readout_properties.times_linear
-        else:
-            raise ValueError("No readout defined.")
+        return self.readout_properties.times_linear
 
     @property
     def num_steps(self) -> int:
         """TBW."""
-        if self._readout_properties is not None:
-            return self._readout_properties.num_steps
-        else:
-            raise ValueError("No readout defined.")
+        return self.readout_properties.num_steps
 
     @property
     def pipeline_count(self) -> int:
         """TBW."""
-        if self._readout_properties is not None:
-            return self._readout_properties.pipeline_count
-        else:
-            raise ValueError("No readout defined.")
+        return self.readout_properties.pipeline_count
 
     @pipeline_count.setter
     def pipeline_count(self, value: int) -> None:
         """TBW."""
-        if self._readout_properties is not None:
-            self._readout_properties.pipeline_count = value
-        else:
-            raise ValueError("No readout defined.")
+        self.readout_properties.pipeline_count = value
 
     @property
     def is_first_readout(self) -> bool:
         """Check if this is the first readout time."""
-        return bool(self.pipeline_count == 0)
+        return self.readout_properties.is_first_readout
 
     @property
     def is_last_readout(self) -> bool:
@@ -350,18 +338,12 @@ class Detector:
     @property
     def read_out(self) -> bool:
         """TBW."""
-        if self._readout_properties is not None:
-            return self._readout_properties.read_out
-        else:
-            raise ValueError("No readout defined.")
+        return self.readout_properties.read_out
 
     @read_out.setter
     def read_out(self, value: bool) -> None:
         """TBW."""
-        if self._readout_properties is not None:
-            self._readout_properties.read_out = value
-        else:
-            raise ValueError("No readout defined.")
+        self.readout_properties.read_out = value
 
     @property
     def is_dynamic(self) -> bool:
@@ -380,10 +362,7 @@ class Detector:
 
         By default it is destructive (non-integrating).
         """
-        if self._readout_properties is not None:
-            return self._readout_properties.non_destructive
-        else:
-            raise ValueError("No sampling defined.")
+        return self.readout_properties.non_destructive
 
     def has_persistence(self) -> bool:
         """TBW."""

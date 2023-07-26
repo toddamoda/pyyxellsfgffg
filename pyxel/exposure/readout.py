@@ -32,7 +32,7 @@ class Readout:
         Python's syntax (e.g. 'numpy.linspace(0, 10, 100)').
         If not provided, the default readout/exposure time is 1 second.
 
-    times_from_file : string, optional
+    times_from_file : str, optional
         A string specifying the path to a file containing the sampling times for the readout.
         Parameters ``times`` and ``times_from_file`` cannot be provided at the same time.
 
@@ -61,7 +61,9 @@ class Readout:
     Example 2: Loading readout times from a file
 
     >>> readout2 = Readout(
-    ...     times_from_file="readout_times.csv", start_time=0.0, non_destructive=True
+    ...     times_from_file="readout_times.csv",
+    ...     start_time=0.0,
+    ...     non_destructive=True,
     ... )
     """
 
@@ -109,7 +111,7 @@ class Readout:
 
     def _set_steps(self) -> None:
         """TBW."""
-        self._times, self._steps = calculate_steps(self._times, self._start_time)
+        self._steps = calculate_steps(times=self._times, start_time=self._start_time)
         self._times_linear = bool(np.all(self._steps == self._steps[0]))
         self._num_steps = len(self._times)
 
@@ -171,26 +173,34 @@ class Readout:
         self._non_destructive = value
 
 
-def calculate_steps(
-    times: np.ndarray, start_time: float
-) -> tuple[np.ndarray, np.ndarray]:
-    """Calculate time differences for a given array and start time.
+def calculate_steps(times: np.ndarray, start_time: float) -> np.ndarray:
+    """Calculate time steps between consecutive time points.
 
     Parameters
     ----------
-    times: ndarray
-    start_time: float
+    times : ndarray
+        A numpy array representing the time points for which the time steps will be calculated.
+        The array should contain numerical values and must be one-dimensional (1D).
+    start_time : float
+        A float representing the starting time for which the time steps will be computed.
+        This value serves as the reference for the first time step.
 
     Returns
     -------
-    times: ndarray
-        Modified times according to start time.
-    steps: ndarray
-        Steps corresponding to times.
+    ndarray
+        An array containing the time steps between consecutive time points in the ``times`` array.
+
+    Examples
+    --------
+    >>> calculate_steps(times=np.array([1, 2, 4, 7, 10]), start_time=0.0)
+    array([1., 1., 2., 3., 3.])
+
+    >>> calculate_steps(times=np.array([1, 2, 4, 7, 10]), start_time=0.5)
+    array([0.5, 1., 2., 3., 3.])
     """
     steps = np.diff(
         np.concatenate((np.array([start_time]), times), axis=0),
         axis=0,
     )
 
-    return times, steps
+    return steps

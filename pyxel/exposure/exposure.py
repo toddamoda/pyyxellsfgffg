@@ -173,21 +173,17 @@ def run_exposure_pipeline(
 
     with set_random_seed(seed=pipeline_seed):
         num_steps = readout._num_steps
-        ndreadout = readout.non_destructive
-        times_linear = readout._times_linear
-        start_time = readout._start_time
-        end_time = readout._times[-1]
-        time_step_it = readout.time_step_it()
+        readout._times[-1]
+        readout.time_step_it()
 
         detector = processor.detector
 
         detector.set_readout(
-            num_steps=num_steps,
-            ndreadout=ndreadout,
-            times_linear=times_linear,
-            start_time=start_time,
-            end_time=end_time,
+            times=readout.times,
+            start_time=readout.start_time,
+            non_destructive=readout.non_destructive,
         )
+
         # The detector should be reset before exposure
         detector.empty()
 
@@ -201,7 +197,9 @@ def run_exposure_pipeline(
         i: int
         time: float
         step: float
-        for i, (time, step) in enumerate(time_step_it):
+        for i, (time, step) in enumerate(
+            zip(detector.readout_properties.times, detector.readout_properties.steps)
+        ):
             detector.time = time
             detector.time_step = step
             detector.pipeline_count = i
@@ -341,27 +339,21 @@ def run_pipeline(
     #    dynamic.non_destructive_readout = False
 
     with set_random_seed(seed=pipeline_seed):
-        num_steps = readout._num_steps
-        ndreadout = readout.non_destructive
-        times_linear = readout._times_linear
-        start_time = readout._start_time
-        end_time = readout._times[-1]
-        time_step_it = readout.time_step_it()
-
         detector = processor.detector
 
         detector.set_readout(
-            num_steps=num_steps,
-            ndreadout=ndreadout,
-            times_linear=times_linear,
-            start_time=start_time,
-            end_time=end_time,
+            times=readout.times,
+            start_time=readout.start_time,
+            non_destructive=readout.non_destructive,
         )
+
         # The detector should be reset before exposure
         detector.empty()
 
         if progressbar:
-            pbar = tqdm(total=num_steps, desc="Readout time: ")
+            pbar = tqdm(
+                total=detector.readout_properties.num_steps, desc="Readout time: "
+            )
 
         # Get attributes to extract from 'detector'
         # Example: keys = ['photon', 'charge', 'pixel', 'signal', 'image', 'data']
@@ -372,10 +364,12 @@ def run_pipeline(
         i: int
         time: float
         step: float
-        for i, (time, step) in enumerate(time_step_it):
-            detector.time = time
-            detector.time_step = step
-            detector.pipeline_count = i
+        for i, (time, step) in enumerate(
+            zip(detector.readout_properties.times, detector.readout_properties.steps)
+        ):
+            detector.readout_properties.time = time
+            detector.readout_properties.time_step = step
+            detector.readout_properties.pipeline_count = i
 
             logging.info("time = %.3f s", time)
 
