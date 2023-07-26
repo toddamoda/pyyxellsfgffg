@@ -189,7 +189,7 @@ The Electron Multiplying CCD (EMCCD) model for the :term:`CCD` detector includes
 This register takes each pixel, and applies a Poisson distribution, centered around the ``total_gain``. 
 Each pixel is inputted and iterated through the number of ``gain_elements`` with probability of multiplication :math:`P`:
 
-:math:`P = {G}^(\frac{1}{N_E}) - 1`.
+:math:`P = {G}^(\frac{1}{N_E}) - 1`
 
 :math:`G` is the total gain, and :math:`N_E` is the number of gain elements.
 
