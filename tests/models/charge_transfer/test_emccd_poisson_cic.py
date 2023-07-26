@@ -46,7 +46,7 @@ def test_multiplication_register_bad_inputs(
     detector = ccd_10x10
 
     with pytest.raises(ValueError, match="Wrong input parameter"):
-        multiplication_register(
+        multiplication_register_cic(
             detector=detector,
             total_gain=total_gain,
             gain_elements=gain_elements,
