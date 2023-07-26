@@ -178,6 +178,8 @@ Example of the configuration file:
 
 .. autofunction:: arctic_remove
 
+.. _EMCCD_poisson:
+
 EMCCD Model
 ===========
 
