@@ -36,8 +36,8 @@ Available models
     * :ref:`Charge Distortion Model (CDM)`
     * :ref:`Add CTI trails (ArCTIc)`
     * :ref:`Remove CTI trails (ArCTIc)`
-    * :ref:`EMCCD_poisson`
-    * :ref:`EMCCD_poisson_cic`
+    * :ref:`EMCCD Model`
+    * :ref:`EMCCD Clock Induced Charge (CIC)`
 * Charge measurement:
     * :ref:`charge_measurement_create_store_detector`
     * :ref:`DC offset`

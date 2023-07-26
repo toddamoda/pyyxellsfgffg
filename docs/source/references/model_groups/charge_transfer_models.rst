@@ -178,7 +178,7 @@ Example of the configuration file:
 
 .. autofunction:: arctic_remove
 
-.. _EMCCD_poisson:
+.. _EMCCD Model:
 
 EMCCD Model
 ===========
@@ -212,10 +212,10 @@ Example of the configuration file:
 
 .. note:: This model is specific for the :term:`CCD` detector.
 
-.. _EMCCD_poisson_cic:
+.. _EMCCD Clock Induced Charge (CIC):
 
-CIC
-===
+EMCCD Clock Induced Charge (CIC)
+================================
 
 :guilabel:`Pixel` → :guilabel:`Pixel`
 
