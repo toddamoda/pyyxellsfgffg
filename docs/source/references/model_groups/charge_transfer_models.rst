@@ -184,7 +184,7 @@ EMCCD Model
 :guilabel:`Pixel` → :guilabel:`Pixel`
 
 The Electron Multiplying CCD (EMCCD) model for the :term:`CCD` detector includes a multiplication register.
-This register takes each pixel, and applies a Poisson distribtution, centered around the ``total_gain``. 
+This register takes each pixel, and applies a Poisson distribution, centered around the ``total_gain``. 
 Each pixel is inputted and iterated through the number of ``gain_elements`` with probability of multiplication :math:`P`:
 
 :math:`P = {G}^(\frac{1}{N_E}) - 1`.
@@ -220,7 +220,7 @@ CIC
 Clock Induced Charge (CIC), can be included with ``EMCCD_poisson_cic``.
 Here a parallel CIC rate, ``pcic_rate``, and serial CIC rate ``scic_rate`` are specified,
 and added to the :py:class:`~pyxel.data_structure.Pixel` array. 
-Each ``gain_elements`` has possibilty to introduce a serial CIC event. 
+Each ``gain_elements`` has possibility to introduce a serial CIC event. 
 Serial and parallel CIC is assumed to be Poisson distributed.
 
 
