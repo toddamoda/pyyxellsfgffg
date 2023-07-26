@@ -13,7 +13,7 @@ class ReadoutProperties:
 
     Parameters
     ----------
-    num_steps
+    num_steps : int
     start_time
     end_time
     ndreadout

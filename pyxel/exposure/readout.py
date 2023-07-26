@@ -18,14 +18,51 @@ from pyxel.evaluator import eval_range
 
 
 class Readout:
-    """TBW.
+    """Readout configuration that contains parameters for a time-domain process.
+
+    This class supports both linear and custom sampling times, which can be loaded from a
+    file or defined directly.
 
     Parameters
     ----------
-    times
-    times_from_file
-    start_time
-    non_destructive
+    times : Sequence[Number] or str, optional
+        A sequence of numeric values or a string representing the sampling times for the
+        readout simulation. It can be a list, tuple, or other iterable containing numerical
+        values (e.g. [1.0, 2.0, 3.0]). Alternatively, it can be a string representing a range of numbers using
+        Python's syntax (e.g. 'numpy.linspace(0, 10, 100)').
+        If not provided, the default readout/exposure time is 1 second.
+
+    times_from_file : string, optional
+        A string specifying the path to a file containing the sampling times for the readout.
+        Parameters ``times`` and ``times_from_file`` cannot be provided at the same time.
+
+    start_time : float, optional. Default: 0.0
+        A float representing the starting time of the readout simulation.
+        The readout time(s) should be greater that this ``start_time``.
+
+    non_destructive : bool, optional. Default: False
+        A boolean flag indicating whether the readout simulation is non-destructive.
+        If set to ``True``, the readout process will not modify the underlying data.
+
+    Raises
+    ------
+    ValueError
+        Raises if both ``times`` and ``times_from_file`` parameters are provided or if neither
+        of them is specified.
+        Raises if the readout times are not strictly increasing or the first readout time is zero.
+        Raises if the ``start_time`` parameter is greater than or equal to the first readout time.
+
+    Examples
+    --------
+    Example 1: Using linearly spaced readout times
+
+    >>> readout1 = Readout(times=[1, 2, 3, 4, 5], start_time=0.5, non_destructive=False)
+
+    Example 2: Loading readout times from a file
+
+    >>> readout2 = Readout(
+    ...     times_from_file="readout_times.csv", start_time=0.0, non_destructive=True
+    ... )
     """
 
     def __init__(
@@ -82,12 +119,12 @@ class Readout:
 
     @property
     def start_time(self) -> float:
-        """Return start time."""
+        """Return start time of the readout."""
         return self._start_time
 
     @start_time.setter
     def start_time(self, value: float) -> None:
-        """Set start time."""
+        """Set start time of the readout."""
         if value >= self._times[0]:
             raise ValueError("Readout times should be greater than start time.")
         self._start_time = value
@@ -95,7 +132,7 @@ class Readout:
 
     @property
     def times(self) -> np.ndarray:
-        """Get readout times."""
+        """Return readout times."""
         return self._times
 
     @times.setter
