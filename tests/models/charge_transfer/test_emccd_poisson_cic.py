@@ -21,13 +21,13 @@
 import pytest
 
 from pyxel.detectors import CCD
-from pyxel.models.charge_transfer.EMCCD_poisson_cic import multiplication_register
+from pyxel.models.charge_transfer.EMCCD_poisson_cic import multiplication_register_cic
 
 
 def test_multiplication_register(ccd_10x10: CCD):
     detector = ccd_10x10
 
-    multiplication_register(
+    multiplication_register_cic(
         detector=detector, total_gain=0.0, gain_elements=1, pcic_rate=0.0, scic_rate=0.0
     )
 
