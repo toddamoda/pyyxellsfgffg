@@ -88,7 +88,7 @@ def test_extract_roi_to_xarray_incorrect_array_type(ccd_10x10: CCD, array_type="
     """Test to ensure warning isn't triggered for filled array"""
 
     with pytest.raises(ValueError) as x:
-        source_extractor.extract_roi_to_xarray(ccd_10x10, array_type="test")
+        extract_roi_to_xarray(ccd_10x10, array_type="test")
         assert (
             str(x.value)
             == "Incorrect array_type. Must be one of 'pixel','signal','image',photon' or 'charge'."
