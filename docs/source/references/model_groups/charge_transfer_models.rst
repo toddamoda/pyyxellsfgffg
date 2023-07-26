@@ -185,7 +185,7 @@ EMCCD Model
 
 :guilabel:`Pixel` → :guilabel:`Pixel`
 
-The Electron Multiplying CCD (EMCCD) model for the :term:`CCD` detector includes a multiplication register.
+The Electron Multiplying CCD (EMCCD) model for the :term:`CCD` detector includes a ``multiplication_register``.
 This register takes each pixel, and applies a Poisson distribution, centered around the ``total_gain``. 
 Each pixel is inputted and iterated through the number of ``gain_elements`` with probability of multiplication :math:`P`:
 
@@ -200,15 +200,15 @@ Example of the configuration file:
 
 .. code-block:: yaml
 
-    - name: EMCCD_poisson
-      func: pyxel.models.charge_transfer.EMCCD_poisson
+    - name: multiplication_register
+      func: pyxel.models.charge_transfer.multiplication_register
       enabled: true
       arguments:
         gain_elements: 100
         total_gain: 1000
 
 
-.. autofunction:: EMCCD_poisson
+.. autofunction:: multiplication_register
 
 .. note:: This model is specific for the :term:`CCD` detector.
 
@@ -219,7 +219,7 @@ EMCCD Clock Induced Charge (CIC)
 
 :guilabel:`Pixel` → :guilabel:`Pixel`
 
-Clock Induced Charge (CIC), can be included with ``EMCCD_poisson_cic``.
+Clock Induced Charge (CIC), can be included with ``multiplication_register_cic``.
 Here a parallel CIC rate, ``pcic_rate``, and serial CIC rate ``scic_rate`` are specified,
 and added to the :py:class:`~pyxel.data_structure.Pixel` array. 
 Each ``gain_elements`` has possibility to introduce a serial CIC event. 
@@ -230,8 +230,8 @@ Example of the configuration file:
 
 .. code-block:: yaml
 
-    - name: EMCCD_poisson_cic
-      func: pyxel.models.charge_transfer.EMCCD_poisson_cic
+    - name: multiplication_register_cic
+      func: pyxel.models.charge_transfer.multiplication_register_cic
       enabled: true
       arguments:
         gain_elements: 100
@@ -240,6 +240,6 @@ Example of the configuration file:
         scic_rate: 0.005
 
 
-.. autofunction:: EMCCD_poisson_cic
+.. autofunction:: multiplication_register_cic
 
 .. note:: This model is specific for photon counting, and should be used with very low individual pixel values.

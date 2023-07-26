@@ -25,7 +25,7 @@ import numpy as np
 from pyxel.detectors import CCD
 
 
-def multiplication_register(
+def multiplication_register_cic(
     detector: CCD,
     total_gain: int,
     gain_elements: int,
