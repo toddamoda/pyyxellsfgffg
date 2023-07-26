@@ -183,4 +183,61 @@ EMCCD Model
 
 :guilabel:`Pixel` → :guilabel:`Pixel`
 
-TBW.
+The Electron Multiplying CCD (EMCCD) model for the :term:`CCD` detector includes a multiplication register.
+This register takes each pixel, and applies a Poisson distribtution, centered around the ``total_gain``. 
+Each pixel is inputted and iterated through the number of ``gain_elements`` with probability of multiplication :math:`P`:
+
+:math:`P = {G}^(\frac{1}{N_E}) - 1`.
+
+:math:`G` is the total gain, and :math:`N_E` is the number of gain elements.
+
+The output is a :py:class:`~pyxel.data_structure.Pixel` array, with
+each pixel having gone through a multiplication register.
+
+Example of the configuration file:
+
+.. code-block:: yaml
+
+    - name: EMCCD_poisson
+      func: pyxel.models.charge_transfer.EMCCD_poisson
+      enabled: true
+      arguments:
+        gain_elements: 100
+        total_gain: 1000
+
+
+.. autofunction:: EMCCD_poisson
+
+.. note:: This model is specific for the :term:`CCD` detector.
+
+.. _EMCCD_poisson_cic:
+
+CIC
+===
+
+:guilabel:`Pixel` → :guilabel:`Pixel`
+
+Clock Induced Charge (CIC), can be included with ``EMCCD_poisson_cic``.
+Here a parallel CIC rate, ``pcic_rate``, and serial CIC rate ``scic_rate`` are specified,
+and added to the :py:class:`~pyxel.data_structure.Pixel` array. 
+Each ``gain_elements`` has possibilty to introduce a serial CIC event. 
+Serial and parallel CIC is assumed to be Poisson distributed.
+
+
+Example of the configuration file:
+
+.. code-block:: yaml
+
+    - name: EMCCD_poisson_cic
+      func: pyxel.models.charge_transfer.EMCCD_poisson_cic
+      enabled: true
+      arguments:
+        gain_elements: 100
+        total_gain: 1000
+        pcic_rate: 0.01
+        scic_rate: 0.005
+
+
+.. autofunction:: EMCCD_poisson_cic
+
+.. note:: This model is specific for photon counting, and should be used with very low individual pixel values.
