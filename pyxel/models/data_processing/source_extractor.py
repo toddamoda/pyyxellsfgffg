@@ -87,7 +87,7 @@ def subtract_background(image_2d: np.ndarray):
 
 
 def extract_roi(
-        image_2d: np.ndarray, thresh: int, minarea: int = 5, name: str = "pixel"
+    image_2d: np.ndarray, thresh: int, minarea: int = 5, name: str = "pixel"
 ):
     """Return a structured numpy array that gives information on the roi found based on the threshold and minea given.
 
@@ -139,10 +139,10 @@ def plot_roi(data: np.ndarray, roi) -> None:
 
 
 def extract_roi_to_xarray(
-        detector: Detector,
-        array_type: str = 'pixel',
-        thresh: int = 50,
-        minarea: int = 5,
+    detector: Detector,
+    array_type: str = "pixel",
+    thresh: int = 50,
+    minarea: int = 5,
 ) -> None:
     """Extract the roi data converts it to xarray dataset and saves the information to the final result.
 
@@ -156,21 +156,24 @@ def extract_roi_to_xarray(
     minarea : int
         Minimum area of pixels required that are above the threshold for the extractor to extract information
     """
-    if array_type == 'pixel':
+    if array_type == "pixel":
         data_2d = detector.pixel.array
-    elif array_type == 'signal':
+    elif array_type == "signal":
         data_2d = detector.signal.array
-    elif array_type == 'image':
+    elif array_type == "image":
         data_2d = detector.image.array
-    elif array_type == 'photon':
+    elif array_type == "photon":
         data_2d = detector.photon.array
-    elif array_type == 'charge':
+    elif array_type == "charge":
         data_2d = detector.charge.array
     else:
-        raise ValueError("Incorrect array_type. Must be one of 'pixel','signal','image',photon' or 'charge'.")
+        raise ValueError(
+            "Incorrect array_type. Must be one of 'pixel','signal','image',photon' or 'charge'."
+        )
+
     data_2d = np.asarray(data_2d, dtype=float)
     if np.all(data_2d == 0):
-        warnings.warn(f'{array_type} data array is empty')
+        warnings.warn(f"{array_type} data array is empty", stacklevel=2)
 
     objects, segmap = sep.extract(
         data_2d, thresh=thresh, minarea=minarea, segmentation_map=True
