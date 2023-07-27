@@ -20,8 +20,11 @@ def multiplication_register(
 ) -> None:
     """Calculate total gain of image with EMCCD multiplication register.
 
-    Takes in CCD detector along with the gain and the total elements of the EMCCD
-    multiplication register.
+    Parameters
+    ----------
+    detector : CCD
+    total_gain : int
+    gain_elements : int
     """
 
     if total_gain < 0 or gain_elements < 0:
@@ -38,9 +41,8 @@ def multiplication_register(
 def poisson_register(lam, image_cube_pix, gain_elements):
     """Calculate the total gain of a single pixel from EMCCD register elements.
 
-    A single pixel is
-    inputted and is iterated through the total number of gain elements provided with the result being the resultant
-    signal from the pixel going through the multiplication process.
+    A single pixel is inputted and iterated through the total number of gain elements 
+    with the result being the resultant signal from the pixel going through the multiplication process.
     """
 
     new_image_cube_pix = image_cube_pix
@@ -60,7 +62,8 @@ def multiplication_register_poisson(
 ) -> np.ndarray:
     """Calculate total gain of image from EMCCD register.
 
-    Cycles through each pixel within the image provided. Returns a final image with signal added.
+    Cycles through each pixel within the image provided. 
+    Returns a final image with signal added.
     """
 
     new_image_cube = np.zeros_like(image_cube, dtype=np.int32)

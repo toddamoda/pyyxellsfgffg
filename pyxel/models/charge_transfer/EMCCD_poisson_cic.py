@@ -18,7 +18,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Model for replicating the gain register in an EMCCD, including clock-induced-charge (CIC)."""
+"""Model for replicating the multiplication register in an EMCCD, including clock-induced-charge (CIC)."""
+
 import numba
 import numpy as np
 
@@ -32,7 +33,7 @@ def multiplication_register_cic(
     pcic_rate: float,
     scic_rate: float,
 ) -> None:
-    """Calculate total gain of image with EMCCD multiplication register.
+    """EMCCD multiplication register with clock induced charge. 
 
     Parameters
     ----------
