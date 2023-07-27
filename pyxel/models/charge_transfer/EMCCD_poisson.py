@@ -41,7 +41,7 @@ def multiplication_register(
 def poisson_register(lam, image_cube_pix, gain_elements):
     """Calculate the total gain of a single pixel from EMCCD register elements.
 
-    A single pixel is inputted and iterated through the total number of gain elements 
+    A single pixel is inputted and iterated through the total number of gain elements
     with the result being the resultant signal from the pixel going through the multiplication process.
     """
 
@@ -62,7 +62,7 @@ def multiplication_register_poisson(
 ) -> np.ndarray:
     """Calculate total gain of image from EMCCD register.
 
-    Cycles through each pixel within the image provided. 
+    Cycles through each pixel within the image provided.
     Returns a final image with signal added.
     """
 

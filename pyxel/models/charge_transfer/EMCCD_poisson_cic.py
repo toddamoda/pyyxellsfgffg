@@ -33,7 +33,7 @@ def multiplication_register_cic(
     pcic_rate: float,
     scic_rate: float,
 ) -> None:
-    """EMCCD multiplication register with clock induced charge. 
+    """EMCCD multiplication register with clock induced charge.
 
     Parameters
     ----------
