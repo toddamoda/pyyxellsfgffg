@@ -1094,6 +1094,12 @@
                 "$ref": "#/definitions/ModelChargeTransferCdm"
               },
               {
+                "$ref": "#/definitions/ModelChargeTransferMultiplicationRegister"
+              },
+              {
+                "$ref": "#/definitions/ModelChargeTransferMultiplicationRegisterCic"
+              },
+              {
                 "$ref": "#/definitions/ModelLoadDetector"
               },
               {
@@ -4026,6 +4032,105 @@
         "arguments"
       ],
       "title": "Model 'cdm'",
+      "type": "object"
+    },
+    "ModelChargeTransferMultiplicationRegister": {
+      "additionalProperties": false,
+      "description": "Calculate total gain of image with EMCCD multiplication register.",
+      "properties": {
+        "arguments": {
+          "additionalProperties": false,
+          "properties": {
+            "gain_elements": {
+              "title": "gain_elements",
+              "type": "integer"
+            },
+            "total_gain": {
+              "title": "total_gain",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "total_gain",
+            "gain_elements"
+          ],
+          "title": "Parameters",
+          "type": "object"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "func": {
+          "const": "pyxel.models.charge_transfer.multiplication_register",
+          "default": "pyxel.models.charge_transfer.multiplication_register",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "arguments"
+      ],
+      "title": "Model 'multiplication_register'",
+      "type": "object"
+    },
+    "ModelChargeTransferMultiplicationRegisterCic": {
+      "additionalProperties": false,
+      "description": "EMCCD multiplication register with clock induced charge.",
+      "properties": {
+        "arguments": {
+          "additionalProperties": false,
+          "properties": {
+            "gain_elements": {
+              "description": "Amount of single stage gain elements in the EMCCD register.",
+              "title": "gain_elements",
+              "type": "integer"
+            },
+            "pcic_rate": {
+              "description": "Parallel CIC rate",
+              "title": "pcic_rate",
+              "type": "number"
+            },
+            "scic_rate": {
+              "description": "Serial CIC rate",
+              "title": "scic_rate",
+              "type": "number"
+            },
+            "total_gain": {
+              "title": "total_gain",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "total_gain",
+            "gain_elements",
+            "pcic_rate",
+            "scic_rate"
+          ],
+          "title": "Parameters",
+          "type": "object"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "func": {
+          "const": "pyxel.models.charge_transfer.multiplication_register_cic",
+          "default": "pyxel.models.charge_transfer.multiplication_register_cic",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "arguments"
+      ],
+      "title": "Model 'multiplication_register_cic'",
       "type": "object"
     },
     "ModelDataProcessingExtractRoiToXarray": {
