@@ -527,6 +527,7 @@ class Observation:
                 )
 
     # TODO: This method will be deprecated (see #563)
+    # ruff: noqa: C901
     def run_observation(self, processor: "Processor") -> ObservationResult:
         """Run the observation pipelines.
 
@@ -663,7 +664,7 @@ class Observation:
                 logs.append(log)
 
                 # Figure out current coordinate
-                coordinate = str(list(parameter_dict)[0])
+                coordinate = str(next(iter(parameter_dict)))
                 # Check for overflow to next parameter
                 if index == 0:
                     step_counter += 1
@@ -970,7 +971,7 @@ class Observation:
             parameter_dict=parameter_dict,
         )
 
-        coordinate = str(list(parameter_dict)[0])
+        coordinate = str(next(iter(parameter_dict)))
 
         # run the pipeline
         _ = run_exposure_pipeline(
@@ -1019,7 +1020,7 @@ class Observation:
                 _, att = get_obj_att(proc, step.key)
                 value = get_value(proc, step.key)
                 values.append((att, value))
-            logging.debug("%d: %r" % (i, values))
+            logging.debug("%d: %r", i, values)
             result.append((i, values))
         return result
 
@@ -1352,7 +1353,7 @@ def compute_final_sequential_dataset(
     final_dict: dict[str, list[xr.Dataset]] = {}
 
     for _, parameter_dict, n in list_of_index_and_parameter:
-        coordinate = str(list(parameter_dict)[0])
+        coordinate = str(next(iter(parameter_dict)))
         coordinate_short: str = dimension_names[coordinate]
 
         if short(coordinate) not in final_dict:
