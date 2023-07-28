@@ -38,7 +38,7 @@ class ReadoutProperties:
     array([0., 1., 2., 3., 3.])
     >>> readout_properties.num_steps
     5
-    >>> readout.absolute_time
+    >>> readout_properties.absolute_time
     0.0
     """
 

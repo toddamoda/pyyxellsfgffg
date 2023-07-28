@@ -26,6 +26,13 @@ Detector properties
     :show-inheritance:
     :exclude-members:
 
+.. autoclass:: ReadoutProperties
+    :members:
+    :inherited-members:
+    :undoc-members:
+    :show-inheritance:
+    :exclude-members:
+
 CCD specific
 ============
 :term:`CCD` specific classes.
