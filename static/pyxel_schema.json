@@ -1495,6 +1495,9 @@
                 "$ref": "#/definitions/ModelDataProcessingRemoveCosmicRays"
               },
               {
+                "$ref": "#/definitions/ModelDataProcessingSignalToNoiseRatio"
+              },
+              {
                 "$ref": "#/definitions/ModelDataProcessingStatistics"
               },
               {
@@ -4801,6 +4804,52 @@
         "name"
       ],
       "title": "Model 'remove_cosmic_rays'",
+      "type": "object"
+    },
+    "ModelDataProcessingSignalToNoiseRatio": {
+      "additionalProperties": false,
+      "description": "Get signal-to-noise-ratio (SNR) for given data structure.",
+      "properties": {
+        "arguments": {
+          "additionalProperties": false,
+          "default": {
+            "data_structure": "signal"
+          },
+          "properties": {
+            "data_structure": {
+              "default": "signal",
+              "description": "Keyword to choose data structure. Can be any from: (\"pixel\", \"photon\",\"signal\", \"image\", \"all\"). Default is \"signal\" and computes the SNR on\"signal\".",
+              "enum": [
+                "pixel",
+                "photon",
+                "signal",
+                "image",
+                "all"
+              ],
+              "title": "data_structure",
+              "type": "string"
+            }
+          },
+          "title": "Parameters",
+          "type": "object"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "func": {
+          "const": "pyxel.models.data_processing.signal_to_noise_ratio",
+          "default": "pyxel.models.data_processing.signal_to_noise_ratio",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Model 'signal_to_noise_ratio'",
       "type": "object"
     },
     "ModelDataProcessingStatistics": {
