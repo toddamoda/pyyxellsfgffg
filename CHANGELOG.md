@@ -36,6 +36,8 @@ and is now replaced by the `Detector.data` bucket.
   (See [!701](https://gitlab.com/esa/pyxel/-/merge_requests/701)).
 * Simplify outputs of 'pyxel.run_mode' in Exposure mode.
   (See [!702](https://gitlab.com/esa/pyxel/-/merge_requests/702)).
+* Refactor class `ReadoutProperties`.
+  (See [!705](https://gitlab.com/esa/pyxel/-/merge_requests/705)).
 
 ### Documentation
 * Add questions to FAQ.
