@@ -171,3 +171,22 @@ Removes cosmic rays from the pixel array using LACosmic package.
         readnoise: 0.0
 
 .. autofunction:: remove_cosmic_rays
+
+.. _snr:
+
+Signal-to-noise ratio
+=====================
+
+The model :ref:`snr` can be used to get the signal-to-noise-ratio (SNR) for of the data buckets
+photon, pixel, signal and image of the detector. The ``data_structure`` "signal" is the one selected by default.
+
+.. code-block:: yaml
+
+    data_processing:
+    - name: snr
+      func: pyxel.models.data_processing.signal_to_noise_ratio
+      enabled: true
+      arguments:
+        data_structure: "signal"
+
+.. autofunction:: signal_to_noise_ratio

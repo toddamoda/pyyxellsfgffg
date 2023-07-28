@@ -49,3 +49,4 @@ Available models
     * :ref:`mean_variance`
     * :ref:`extract_roi_to_xarray`
     * :ref:`remove_cosmic_rays`
+    * :ref:`snr`
