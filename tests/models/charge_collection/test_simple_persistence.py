@@ -33,7 +33,7 @@ def cmos_5x10() -> CMOS:
         environment=Environment(),
         characteristics=Characteristics(),
     )
-    detector._readout_properties = ReadoutProperties(num_steps=1)
+    detector._readout_properties = ReadoutProperties(times=[1.0])
 
     return detector
 

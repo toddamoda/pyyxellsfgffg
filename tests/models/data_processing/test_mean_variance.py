@@ -43,7 +43,7 @@ def test_mean_variance():
         environment=Environment(),
         characteristics=Characteristics(),
     )
-    detector.set_readout(num_steps=3, start_time=0.0, end_time=3.0)
+    detector.set_readout(times=[1.0, 2.0, 3.0])
 
     # Step 1
     detector.photon.array = photons.isel(time=0).to_numpy()

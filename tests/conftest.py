@@ -56,5 +56,5 @@ def ccd_10x10() -> CCD:
         environment=Environment(temperature=200.0),
         characteristics=Characteristics(),
     )
-    detector._readout_properties = ReadoutProperties(num_steps=1)
+    detector._readout_properties = ReadoutProperties(times=[1.0])
     return detector

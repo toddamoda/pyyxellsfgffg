@@ -42,7 +42,7 @@ def ccd_5x5() -> CCD:
         environment=Environment(temperature=80),
         characteristics=Characteristics(),
     )
-    detector._readout_properties = ReadoutProperties(num_steps=1)
+    detector._readout_properties = ReadoutProperties(times=[1.0])
     return detector
 
 
@@ -60,7 +60,7 @@ def cmos_5x5() -> CMOS:
         environment=Environment(temperature=80),
         characteristics=Characteristics(),
     )
-    detector._readout_properties = ReadoutProperties(num_steps=1)
+    detector._readout_properties = ReadoutProperties(times=[1.0])
     return detector
 
 

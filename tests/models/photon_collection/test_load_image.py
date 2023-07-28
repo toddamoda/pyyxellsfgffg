@@ -57,7 +57,7 @@ def ccd_10x10() -> CCD:
             adc_voltage_range=(0.0, 10.0),
         ),
     )
-    detector._readout_properties = ReadoutProperties(num_steps=1)
+    detector._readout_properties = ReadoutProperties(times=[1.0])
     return detector
 
 

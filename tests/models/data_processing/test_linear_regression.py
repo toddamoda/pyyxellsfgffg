@@ -30,7 +30,7 @@ def ccd_10x10() -> CCD:
         environment=Environment(),
         characteristics=Characteristics(),
     )
-    detector.set_readout(num_steps=3, start_time=0.0, end_time=4.0)
+    detector.set_readout(times=[1.0, 2.0, 3.0])
 
     return detector
 
@@ -49,7 +49,7 @@ def test_raise_error():
         environment=Environment(),
         characteristics=Characteristics(),
     )
-    detector.set_readout(num_steps=2, start_time=0.0, end_time=4.0)
+    detector.set_readout(times=[1.0])
 
     with pytest.raises(ValueError, match="Expecting at least 2 steps"):
         linear_regression(detector=detector)
@@ -113,8 +113,8 @@ def test_linear_regression(
     """Test model 'linear_regression'."""
 
     detector = ccd_10x10
-    steps = [1.0, 1.0, 1.0]
-    absolute_time = image_3d.time.to_numpy()
+    steps = detector.readout_properties.steps
+    absolute_time = detector.readout_properties.times
 
     for i, (time, step) in enumerate(zip(absolute_time, steps)):
         detector.time = time
