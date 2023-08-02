@@ -4,15 +4,26 @@
 #   is part of this Pyxel package. No part of the package, including
 #   this file, may be copied, modified, propagated, or distributed except according to
 #   the terms contained in the file ‘LICENCE.txt’.
+
+"""Scene generator creates Scopesim Source object."""
+# Import astropy subpackages.
 import astropy
 import astropy.units as u
+import numpy as np
+
+# Import ScopeSIM packages.
 import scopesim
-from astropy.coordinates import SkyCoord
-from astropy.io import fits
+
+# from astropy.coordinates import SkyCoord
+from astropy.table import Table
+
+# Import astroquery. astroquery makes it easy to query several
+# online astronomical data sets, in this case we use GAIA.
 from astroquery.gaia import Gaia
-from scopesim_templates import stars
-from scopesim_templates.rc import Source
-from scopesim_templates.utils import general_utils as gu
+
+# Import specutils and synphot to convert spectrum into SourceSpectrum
+from specutils import Spectrum1D
+from synphot import SourceSpectrum
 
 from pyxel.detectors import Detector
 
@@ -21,33 +32,23 @@ def load_objects_from_gaia(
     right_ascension: float,
     declination: float,
     fov_radius: float,
-) -> astropy.table.table.Table:
+) -> (list, astropy.table.table.Table):
     """Load objects from GAIA Catalog for given coordinactes and FOV.
 
     Parameters
     ----------
-    coords_detector: SkyCoord (ICRS): (ra, dec) in deg.
-            Coordinates of the pointing of the telescope.
+    right_ascension: float
+        RA coordinate in degree.
+    declination: float
+        DEC coordinate in degree.
+    fov_radius: float
+        FOV radius of teescope optics.
 
     Returns
     -------
     objects : astropy.table.table.Table
         Objects in the FOV at given coordinates found by the GAIA catalog.
     """
-    # The coordinates of the object
-    # Frame: Type of coordinate frame this SkyCoord should represent.
-    # Default now is International Celestial Reference System (ICRS).
-    # coord = SkyCoord(
-    #     ra=right_ascension,
-    #     dec=declination,
-    #     frame="icrs",
-    # )
-    # alternative to give over ra and dec and calculate the sycoords one could directly use skycoords as input like alex
-    # coords_detector: SkyCoord (ICRS): (ra, dec) in deg. # Coordinates of the pointing of the telescope.
-
-    # The FOV of the optics limits the region in the sky together with the coordinates of the pointing of the optics.
-    # alternative: fov_radius, if we assume its always round
-    radius = fov_radius * u.arcsec
 
     # Unlimited rows.
     Gaia.ROW_LIMIT = -1
@@ -58,48 +59,91 @@ def load_objects_from_gaia(
     job = Gaia.launch_job_async(
         f"SELECT source_id, ra, dec, has_xp_sampled, phot_bp_mean_mag, phot_g_mean_mag, phot_rp_mean_mag \
     FROM gaiadr3.gaia_source \
-    WHERE CONTAINS(POINT('ICRS', ra, dec),CIRCLE('ICRS',{right_ascension},{declination},{radius}))=1 \
+    WHERE CONTAINS(POINT('ICRS', ra, dec),CIRCLE('ICRS',{right_ascension},{declination},{fov_radius}))=1 \
     AND has_xp_sampled = 'True'"
     )
 
-    query = job.get_results()
-    spectrum_list = Gaia.load_data(
-        ids=query["source_id"], retrieval_type="XP_SAMPLED", data_release="Gaia DR3"
+    # get the results from the query job
+    result = job.get_results()
+    # set parameters to load data from Gaia catalog
+    retrieval_type = "XP_SAMPLED"
+    data_release = "Gaia DR3"
+    data_structure = "COMBINED"
+    # load spectra from stars
+    spectra = Gaia.load_data(
+        ids=result["source_id"],
+        retrieval_type=retrieval_type,
+        data_release=data_release,
+        data_structure=data_structure,
     )
+    # save key
+    key = f"{retrieval_type}_{data_structure}.xml"
 
-    # objects = Gaia.query_object_async(
-    #     coordinate=coords_detector,
-    #     radius=radius
-    # )
+    # Source IDs are stored in the table metadata with accessing through the key
+    source_ids = [
+        product.get_field_by_id("source_id").value for product in spectra[key]
+    ]
+
+    d = {}
+    spec_list = []
+    # loop through all sources and create Source Spectrum to attach to a list of spectra
+    for i, sid in zip(range(0, len(source_ids)), source_ids):
+        d[sid] = spectra["XP_SAMPLED_COMBINED.xml"][i].to_table()
+        output = spectra["XP_SAMPLED_COMBINED.xml"][i].to_table()
+        # create 1D spectrum
+        spec = Spectrum1D(
+            spectral_axis=output["wavelength"] * u.m / u.m,
+            flux=output["flux"] * u.m / u.m,
+        )
+        # turn 1D spectrum into synphot Source spectrum
+        sp = SourceSpectrum.from_spectrum1d(spec)
+        spec_list.append(sp)
+
+    # Create astropy.table with relevant input parameters
+
+    # Convert the positions to arcseconds and center around 0.0, 0.0.
+    # The centering is necessary because ScopeSIM cannot actually 'point' the telescope.
+    x = 3600 * (result["ra"] - result["ra"].mean())
+    y = 3600 * (result["dec"] - result["dec"].mean())
+
+    # set index as ref.
+    ref = np.arange(0, (len(result)), dtype=int)
+
+    # select magnitude band. Could be an input parameter of model.
+    weight = result["phot_bp_mean_mag"]
+
+    tbl = Table(
+        names=["x", "y", "ref", "weight"],
+        data=[x, y, ref, weight],
+        units=[u.arcsec, u.arcsec, None, None],
+    )
+    objects = (spec_list, tbl)
 
     return objects
 
 
 def generate_scene(
     detector: Detector,
-    coords_detector: SkyCoord,
+    right_ascension: float,
+    declination: float,
     fov_radius: float,
-    filter_name: str = "H",  # or list?
-    spectrum_type: str = "A0V",  # or list?
-    # magnitude:
 ):
-    objects = load_objects_from_gaia(
-        coords_detector=coords_detector, fov_radius=fov_radius
+    """Generate scene from scopesim Source object loading stars from the GAIA catalog.
+
+    Parameters
+    ----------
+    detector : Detector
+        Pyxel Detector object.
+    right_ascension: float
+        RA coordinate in degree.
+    declination: float
+        DEC coordinate in degree.
+    fov_radius: float
+        FOV radius of teescope optics.
+
+    """
+    spec_list, table = load_objects_from_gaia(
+        right_ascension=right_ascension, declination=declination, fov_radius=fov_radius
     )
 
-    # Convert the positions to arcseconds and center around 0.0, 0.0.
-    # The centering is necessary because ScopeSIM cannot actually 'point' the telescope.
-    x = 3600 * (objects["ra"] - objects["ra"].mean())
-    y = 3600 * (objects["dec"] - objects["dec"].mean())
-    # Select a nice magnitude of the sources.
-    mags = objects["phot_g_mean_mag"]  # could be an input as well
-
-    scene = stars(
-        filter_name=filter_name,
-        spec_types=spectrum_type,
-        amplitudes=mags,
-        x=x,
-        y=y,
-    )
-
-    detector.scene = scene
+    detector.scene = scopesim.Source(table=table, spectra=spec_list)
