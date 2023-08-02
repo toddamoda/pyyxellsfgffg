@@ -8,3 +8,4 @@
 """TBW."""
 
 # flake8: noqa
+from .scene_generator import generate_scene
