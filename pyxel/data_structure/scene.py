@@ -65,6 +65,8 @@ class Scene:
         if not isinstance(source, Source):
             raise TypeError("Expecting a ScopeSim `Source` object for 'source'.")
 
+        self._source = Source
+
     def to_scopesim(self) -> "Source":
         """Convert this `Scene` object into a ScopeSim `Source` object.
 
