@@ -6,26 +6,16 @@
 #   the terms contained in the file ‘LICENCE.txt’.
 
 """Scene generator creates Scopesim Source object."""
-# Import astropy subpackages.
-import astropy
 import astropy.units as u
 import numpy as np
 import requests
-
-# Import ScopeSIM packages.
 import scopesim
-
-# from astropy.coordinates import SkyCoord
 from astropy.table import Table
-
-# Import astroquery. astroquery makes it easy to query several
-# online astronomical data sets, in this case we use GAIA.
 from astroquery.gaia import Gaia
-
-# Import specutils and synphot to convert spectrum into SourceSpectrum
 from specutils import Spectrum1D
 from synphot import SourceSpectrum
 
+from pyxel.data_structure import Scene
 from pyxel.detectors import Detector
 
 
@@ -33,8 +23,8 @@ def load_objects_from_gaia(
     right_ascension: float,
     declination: float,
     fov_radius: float,
-) -> (list, astropy.table.table.Table):
-    """Load objects from GAIA Catalog for given coordinactes and FOV.
+) -> scopesim.Source:
+    """Load objects from GAIA Catalog for given coordinates and FOV.
 
     Parameters
     ----------
@@ -47,8 +37,8 @@ def load_objects_from_gaia(
 
     Returns
     -------
-    objects : astropy.table.table.Table
-        Objects in the FOV at given coordinates found by the GAIA catalog.
+    scopesim.Source
+        Scopesim Source object in the FOV at given coordinates found by the GAIA catalog.
 
     Raises
     ------
@@ -129,9 +119,9 @@ def load_objects_from_gaia(
         data=[x, y, ref, weight],
         units=[u.arcsec, u.arcsec, None, None],
     )
-    objects = (spec_list, tbl)
 
-    return objects
+    source = scopesim.Source(table=tbl, spectra=spec_list)
+    return source
 
 
 def generate_scene(
@@ -151,11 +141,11 @@ def generate_scene(
     declination: float
         DEC coordinate in degree.
     fov_radius: float
-        FOV radius of teescope optics.
+        FOV radius of telescope optics.
 
     """
-    spec_list, table = load_objects_from_gaia(
+    source: scopesim.Source = load_objects_from_gaia(
         right_ascension=right_ascension, declination=declination, fov_radius=fov_radius
     )
 
-    detector.scene = scopesim.Source(table=table, spectra=spec_list)
+    detector.scene = Scene(source)
