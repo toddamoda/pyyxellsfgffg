@@ -10,6 +10,7 @@
 import astropy
 import astropy.units as u
 import numpy as np
+import requests
 
 # Import ScopeSIM packages.
 import scopesim
@@ -48,6 +49,11 @@ def load_objects_from_gaia(
     -------
     objects : astropy.table.table.Table
         Objects in the FOV at given coordinates found by the GAIA catalog.
+
+    Raises
+    ------
+    ConnectionError
+        If the connection to the GAIA database cannot be established.
     """
 
     # Unlimited rows.
@@ -55,27 +61,33 @@ def load_objects_from_gaia(
     # we get the data from GAIA DR3
     Gaia.MAIN_GAIA_TABLE = "gaiadr3.gaia_source"
 
-    # Query for the catalog to search area with coordinates in FOV of optics.
-    job = Gaia.launch_job_async(
-        f"SELECT source_id, ra, dec, has_xp_sampled, phot_bp_mean_mag, phot_g_mean_mag, phot_rp_mean_mag \
-    FROM gaiadr3.gaia_source \
-    WHERE CONTAINS(POINT('ICRS', ra, dec),CIRCLE('ICRS',{right_ascension},{declination},{fov_radius}))=1 \
-    AND has_xp_sampled = 'True'"
-    )
+    try:
+        # Query for the catalog to search area with coordinates in FOV of optics.
+        job = Gaia.launch_job_async(
+            f"SELECT source_id, ra, dec, has_xp_sampled, phot_bp_mean_mag, phot_g_mean_mag, phot_rp_mean_mag \
+        FROM gaiadr3.gaia_source \
+        WHERE CONTAINS(POINT('ICRS', ra, dec),CIRCLE('ICRS',{right_ascension},{declination},{fov_radius}))=1 \
+        AND has_xp_sampled = 'True'"
+        )
 
-    # get the results from the query job
-    result = job.get_results()
-    # set parameters to load data from Gaia catalog
-    retrieval_type = "XP_SAMPLED"
-    data_release = "Gaia DR3"
-    data_structure = "COMBINED"
-    # load spectra from stars
-    spectra = Gaia.load_data(
-        ids=result["source_id"],
-        retrieval_type=retrieval_type,
-        data_release=data_release,
-        data_structure=data_structure,
-    )
+        # get the results from the query job
+        result = job.get_results()
+        # set parameters to load data from Gaia catalog
+        retrieval_type = "XP_SAMPLED"
+        data_release = "Gaia DR3"
+        data_structure = "COMBINED"
+        # load spectra from stars
+        spectra = Gaia.load_data(
+            ids=result["source_id"],
+            retrieval_type=retrieval_type,
+            data_release=data_release,
+            data_structure=data_structure,
+        )
+    except requests.HTTPError as exc:
+        raise ConnectionError(
+            "Error when trying to communicate with the Gaia database"
+        ) from exc
+
     # save key
     key = f"{retrieval_type}_{data_structure}.xml"
 
