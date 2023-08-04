@@ -5,29 +5,28 @@
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
 
-from typing import List
-from unittest.mock import MagicMock
-
 import astropy.units as u
-import numpy as np
 import pytest
 import xarray as xr
-from astropy.io import votable
 from astropy.table import Table
-from astroquery.gaia import Gaia
+from numpy.testing import assert_allclose
+from pytest_mock import MockerFixture  # pip install pytest-mock
+from scopesim import Source
+from synphot import SourceSpectrum
 
-# from pyxel.models.scene_generation import scene_generator
-# from pyxel.models.scene_generation.scene_generator import retrieve_objects_from_gaia
+from pyxel.detectors import CCD
 from pyxel.models.scene_generation import generate_scene
 
 
 @pytest.fixture
 def source_ids() -> list[int]:
+    """Return unique source identifier from the GAIA database"""
     return [66727234683960320, 65214031805717376, 65225851555715328, 65226195153096192]
 
 
 @pytest.fixture
 def positions(source_ids: list[int]) -> xr.Dataset:
+    """Return source objects as a Dataset."""
     source_id = xr.DataArray(
         source_ids,
         dims="source_id",
@@ -66,7 +65,8 @@ def positions(source_ids: list[int]) -> xr.Dataset:
 
 
 @pytest.fixture
-def positions_table(positions: Table) -> Table:
+def positions_table(positions: xr.Dataset) -> Table:
+    """Return source objects as an Astropy Table."""
     table = Table.from_pandas(positions.to_pandas().reset_index())
     table["ra"].unit = u.deg
     table["dec"].unit = u.deg
@@ -78,12 +78,19 @@ def positions_table(positions: Table) -> Table:
 
 
 @pytest.fixture
-def spectra1() -> xr.Dataset:
-    wavelength = xr.DataArray(
-        [336.0, 338.0, 1018.0, 1020.0], dims="wavelength", attrs={"dims": "nm"}
+def wavelengths() -> xr.DataArray:
+    """Return wavelengths."""
+    return xr.DataArray(
+        [336.0, 338.0, 1018.0, 1020.0],
+        dims="wavelength",
+        attrs={"dims": "nm"},
     )
 
-    ds = xr.Dataset(coords={"wavelength": wavelength})
+
+@pytest.fixture
+def spectra1(wavelengths: xr.DataArray) -> xr.Dataset:
+    """Return spectra for the first object."""
+    ds = xr.Dataset(coords={"wavelength": wavelengths})
     ds["flux"] = xr.DataArray(
         [4.1858373e-17, 4.1012171e-17, 1.3888942e-17, 1.3445790e-17],
         dims="wavelength",
@@ -99,12 +106,9 @@ def spectra1() -> xr.Dataset:
 
 
 @pytest.fixture
-def spectra2() -> xr.Dataset:
-    wavelength = xr.DataArray(
-        [336.0, 338.0, 1018.0, 1020.0], dims="wavelength", attrs={"dims": "nm"}
-    )
-
-    ds = xr.Dataset(coords={"wavelength": wavelength})
+def spectra2(wavelengths: xr.DataArray) -> xr.Dataset:
+    """Return spectra for the second object."""
+    ds = xr.Dataset(coords={"wavelength": wavelengths})
     ds["flux"] = xr.DataArray(
         [3.0237057e-16, 2.9785625e-16, 2.4918341e-16, 2.5573007e-16],
         dims="wavelength",
@@ -120,12 +124,9 @@ def spectra2() -> xr.Dataset:
 
 
 @pytest.fixture
-def spectra3() -> xr.Dataset:
-    wavelength = xr.DataArray(
-        [336.0, 338.0, 1018.0, 1020.0], dims="wavelength", attrs={"dims": "nm"}
-    )
-
-    ds = xr.Dataset(coords={"wavelength": wavelength})
+def spectra3(wavelengths: xr.DataArray) -> xr.Dataset:
+    """Return spectra for the third object."""
+    ds = xr.Dataset(coords={"wavelength": wavelengths})
     ds["flux"] = xr.DataArray(
         [2.0389929e-17, 2.2613652e-17, 6.1739404e-17, 6.5074511e-17],
         dims="wavelength",
@@ -141,12 +142,9 @@ def spectra3() -> xr.Dataset:
 
 
 @pytest.fixture
-def spectra4() -> xr.Dataset:
-    wavelength = xr.DataArray(
-        [336.0, 338.0, 1018.0, 1020.0], dims="wavelength", attrs={"dims": "nm"}
-    )
-
-    ds = xr.Dataset(coords={"wavelength": wavelength})
+def spectra4(wavelengths: xr.DataArray) -> xr.Dataset:
+    """Return spectra for the fourth object."""
+    ds = xr.Dataset(coords={"wavelength": wavelengths})
     ds["flux"] = xr.DataArray(
         [2.4765946e-17, 2.1556272e-17, 9.0950110e-17, 9.1888827e-17],
         dims="wavelength",
@@ -169,6 +167,7 @@ def spectra_dct(
     spectra3: xr.Dataset,
     spectra4: xr.Dataset,
 ) -> dict[int, Table]:
+    """Return spectra for the four objects as dictionary."""
     dct = {}
     for source_id, spectra in zip(source_ids, [spectra1, spectra2, spectra3, spectra4]):
         table: Table = Table.from_pandas(spectra.to_pandas().reset_index())
@@ -181,12 +180,87 @@ def spectra_dct(
     return dct
 
 
-def test_scene_generator(mocker, positions_table: Table, spectra_dct: dict[int, Table]):
+def test_scene_generator(
+    mocker: MockerFixture,
+    ccd_10x10: CCD,
+    positions_table: Table,
+    spectra_dct: dict[int, Table],
+    wavelengths: xr.DataArray,
+):
+    """Test model 'scene_generator."""
+
+    # Mock function 'pyxel.models.scene_generation.scene_generator.retrieve_objects_from_gaia'
+    # When this function will be called (with any parameters), it will always return this tuple
+    # (positions_table, spectra_dct)
     mocker.patch(
-        "pyxel.models.scene_generation.scene_generator.retrieve_objects_from_gaia",
+        target="pyxel.models.scene_generation.scene_generator.retrieve_objects_from_gaia",
         return_value=(positions_table, spectra_dct),
     )
 
-    generate_scene(None, "not", "important", "at all")
-    print("Hello World")
-    print("Hello World")
+    # Run model
+    detector: CCD = ccd_10x10
+    generate_scene(
+        detector=detector,
+        right_ascension=0.0,  # This parameter is not important
+        declination=0.0,  # This parameter is not important
+        fov_radius=0.0,  # This parameter is not important
+    )
+
+    # Check outputs
+    obj = detector.scene.data
+    assert isinstance(obj, Source)
+
+    # Check .fields
+    assert len(obj.fields) == 1
+    first_field: Table = obj.fields[0]
+
+    exp_field = Table(
+        {
+            "x": [
+                233887.8826088319,
+                41185.82072014419,
+                -200709.88803928116,
+                -74363.81528997117,
+            ]
+            * u.arcsec,
+            "y": [
+                322625.4972494547,
+                -465552.82262015395,
+                -173390.98721904348,
+                316318.3125897427,
+            ]
+            * u.arcsec,
+            "ref": [0, 1, 2, 3],
+            "weight": [14.734505, 12.338661, 14.627676, 14.272486] * u.mag,
+        }
+    )
+
+    assert all(first_field == exp_field)
+
+    # Check .spectra
+    wavelengths_nm: u.Quantity = wavelengths.to_numpy() * u.nm
+    assert len(obj.spectra) == 4
+
+    source_spectrum: SourceSpectrum = obj.spectra[0]
+    spectra = source_spectrum(wavelengths_nm)
+    assert_allclose(
+        spectra.value, [0.00070802, 0.00069783, 0.00071177, 0.00069041], rtol=1e-5
+    )
+
+    source_spectrum: SourceSpectrum = obj.spectra[1]
+    spectra = source_spectrum(wavelengths_nm)
+    assert_allclose(
+        spectra.value, [0.00511449, 0.00506812, 0.01276998, 0.01313122], rtol=1e-5
+    )
+
+    source_spectrum: SourceSpectrum = obj.spectra[2]
+    spectra = source_spectrum(wavelengths_nm)
+    assert_allclose(
+        spectra.value, [0.00034489, 0.00038478, 0.00316398, 0.00334145], rtol=1e-5
+    )
+
+    source_spectrum: SourceSpectrum = obj.spectra[3]
+    spectra = source_spectrum(wavelengths_nm)
+    assert_allclose(
+        spectra.value, [0.00041891, 0.00036679, 0.00466095, 0.00471831], rtol=1e-5
+    )
