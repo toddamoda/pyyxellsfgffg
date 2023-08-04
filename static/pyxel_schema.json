@@ -1691,6 +1691,9 @@
           "items": {
             "anyOf": [
               {
+                "$ref": "#/definitions/ModelSceneGenerationGenerateScene"
+              },
+              {
                 "$ref": "#/definitions/ModelLoadDetector"
               },
               {
@@ -6361,6 +6364,57 @@
         "name",
         "arguments"
       ],
+      "type": "object"
+    },
+    "ModelSceneGenerationGenerateScene": {
+      "additionalProperties": false,
+      "description": "Generate scene from scopesim Source object loading stars from the GAIAcatalog.",
+      "properties": {
+        "arguments": {
+          "additionalProperties": false,
+          "properties": {
+            "declination": {
+              "description": "DEC coordinate in degree.",
+              "title": "declination",
+              "type": "number"
+            },
+            "fov_radius": {
+              "description": "FOV radius of telescope optics.",
+              "title": "fov_radius",
+              "type": "number"
+            },
+            "right_ascension": {
+              "description": "RA coordinate in degree.",
+              "title": "right_ascension",
+              "type": "number"
+            }
+          },
+          "required": [
+            "right_ascension",
+            "declination",
+            "fov_radius"
+          ],
+          "title": "Parameters",
+          "type": "object"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "func": {
+          "const": "pyxel.models.scene_generation.generate_scene",
+          "default": "pyxel.models.scene_generation.generate_scene",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "arguments"
+      ],
+      "title": "Model 'generate_scene'",
       "type": "object"
     },
     "Observation": {
