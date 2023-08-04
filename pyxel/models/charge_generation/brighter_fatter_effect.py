@@ -28,23 +28,33 @@ def get_gaussian_kernel(size, sigma):
 
 
 def simple_bfe(
-    detector: Detector, a, b, c, alpha, beta, normalize_kernel: bool = True
+    detector: Detector,
+    a: float,
+    b: float,
+    c: float,
+    alpha: float,
+    beta: float,
+    normalize_kernel: bool = True,
 ) -> None:
-    """Get BFE for photon array and convolve the photon array with the BFE.
+    """Get BFE for photon array and convolve the photon array with the varying input signal.
 
     Parameters
     ----------
     detector : Detector
         Pyxel Detector object.
-    coefficients : list of float
-        Coefficient of the polynomial function.
+    a: float
+        First coefficent in polynominal function.
+    b: float
+        Second coefficent in polynominal function.
+    c: float
+        Third coefficent in polynominal function.
+    alpha: float
+        Coefficent that defines where PTC curve starts.
+    beta: float
+        Coefficent that defines where the PTC curve breaks.
     normalize_kernel : bool
         Normalize kernel.
     """
-    # a = coefficients[0]
-    # b = coefficients[1]
-    # c = coefficients[2]
-
     signal = detector.photon.array
 
     mean = np.mean(detector.photon.array)
@@ -85,6 +95,22 @@ def bfe(
     alpha: float,
     beta: float,
 ) -> numpy.ndarray:
+    """
+
+    Parameters
+    ----------
+    data_2d
+    FWC
+    a
+    b
+    c
+    alpha
+    beta
+
+    Returns
+    -------
+
+    """
     new_data_2d = np.zeros_like(data_2d)
     num_y, num_x = new_data_2d.shape
 
@@ -134,17 +160,39 @@ def bfe(
                     new_data_2d[i + 1, j + 1] += (
                         gaussian_2d[2, 2] * data_2d[i + 1, j + 1]
                     )
+
     return data_2d + new_data_2d
 
 
 def get_bfe(
     detector: Detector,
-    a,
-    b,
-    c,
+    a: float,
+    b: float,
+    c: float,
     alpha: float,
     beta: float,
+    normalize_kernel: bool = True,
 ) -> None:
+    """Get BFE for photon array and convolve the photon array with the BFE.
+
+    Parameters
+    ----------
+    detector : Detector
+        Pyxel Detector object.
+    a: float
+        First coefficent in polynominal function.
+    b: float
+        Second coefficent in polynominal function.
+    c: float
+        Third coefficent in polynominal function.
+    alpha: float
+        Coefficent that defines where PTC curve starts.
+    beta: float
+        Coefficent that defines where the PTC curve breaks.
+    normalize_kernel : bool
+        Normalize kernel.
+    """
+
     data_2d = detector.photon.array
     conv = bfe(
         data_2d=data_2d,
