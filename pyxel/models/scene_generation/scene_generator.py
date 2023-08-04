@@ -184,18 +184,21 @@ def load_objects_from_gaia(
 
     # Convert the positions to arcseconds and center around 0.0, 0.0.
     # The centering is necessary because ScopeSIM cannot actually 'point' the telescope.
-    x = 3600 * (positions["ra"].quantity - positions["ra"].quantity.mean())
-    y = 3600 * (positions["dec"].quantity - positions["dec"].quantity.mean())
+    right_ascension_arcsec: u.Quantity = positions["ra"].to(u.arcsec)
+    declination_arcsec: u.Quantity = positions["dec"].to(u.arcsec)
+
+    x: u.Quantity = right_ascension_arcsec - right_ascension_arcsec.mean()
+    y: u.Quantity = declination_arcsec - declination_arcsec.mean()
 
     # set index as ref.
     ref = np.arange(len(positions), dtype=int)
 
     # select magnitude band. Could be an input parameter of model.
-    weight: u.Quantity = positions["phot_bp_mean_mag"].quantity
+    weight = positions["phot_bp_mean_mag"]
 
     tbl = Table(
         names=["x", "y", "ref", "weight"],
-        data=[x.to(u.arcsec), y.to(u.arcsec), ref, weight],
+        data=[x, y, ref, weight],
     )
 
     source = scopesim.Source(table=tbl, spectra=spec_list)
@@ -214,13 +217,12 @@ def generate_scene(
     ----------
     detector : Detector
         Pyxel Detector object.
-    right_ascension: float
+    right_ascension : float
         RA coordinate in degree.
-    declination: float
+    declination : float
         DEC coordinate in degree.
-    fov_radius: float
+    fov_radius : float
         FOV radius of telescope optics.
-
     """
     source: scopesim.Source = load_objects_from_gaia(
         right_ascension=right_ascension, declination=declination, fov_radius=fov_radius
