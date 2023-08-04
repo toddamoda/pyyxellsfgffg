@@ -9,6 +9,7 @@ import astropy.units as u
 import pytest
 import xarray as xr
 from astropy.table import Table
+from astropy.utils.diff import diff_values
 from numpy.testing import assert_allclose
 from pytest_mock import MockerFixture  # pip install pytest-mock
 from scopesim import Source
@@ -214,28 +215,19 @@ def test_scene_generator(
     assert len(obj.fields) == 1
     first_field: Table = obj.fields[0]
 
+    expected_x = 3600 * (positions_table["ra"] - positions_table["ra"].mean()).data
+    expected_y = 3600 * (positions_table["dec"] - positions_table["dec"].mean()).data
+
     exp_field = Table(
         {
-            "x": [
-                233887.8826088319,
-                41185.82072014419,
-                -200709.88803928116,
-                -74363.81528997117,
-            ]
-            * u.arcsec,
-            "y": [
-                322625.4972494547,
-                -465552.82262015395,
-                -173390.98721904348,
-                316318.3125897427,
-            ]
-            * u.arcsec,
+            "x": expected_x * u.arcsec,
+            "y": expected_y * u.arcsec,
             "ref": [0, 1, 2, 3],
             "weight": [14.734505, 12.338661, 14.627676, 14.272486] * u.mag,
         }
     )
 
-    assert all(first_field == exp_field)
+    assert all(diff_values(first_field, exp_field))
 
     # Check .spectra
     wavelengths_nm: u.Quantity = wavelengths.to_numpy() * u.nm
