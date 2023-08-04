@@ -182,6 +182,9 @@ module = [
     "bokeh.*",
     "jinja2.*",
     "click.*",
+    "astroquery.gaia.*",
+    "specutils.*",
+    "synphot.*",
 ]
 ignore_errors=  true
 ignore_missing_imports = true
