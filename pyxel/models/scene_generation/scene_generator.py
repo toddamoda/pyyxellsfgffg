@@ -31,43 +31,59 @@ def retrieve_objects_from_gaia(
 ) -> tuple[Table, dict[int, Table]]:
     """Retrieve objects from GAIA Catalog for giver coordinates and FOV.
 
+    Columns description:
+    * ``source_id``: Unique source identifier of the source
+    * ``ra``: Barycentric right ascension of the source.
+    * ``dec``: Barycentric Declination of the source.
+    * ``has_xp_sampled``: Flag indicating the availability of mean BP/RP spectrum in sampled form for this source
+    * ``phot_bp_mean_mag``: Mean magnitude in the integrated BP band.
+    * ``phot_g_mean_mag``: Mean magnitude in the G band.
+    * ``phot_rp_mean_mag``: Mean magnitude in the integrated RP band.
+
     Parameters
     ----------
-        right_ascension: float
-            RA coordinate in degree.
-        declination: float
-            DEC coordinate in degree.
-        fov_radius: float
-            FOV radius of telescope optics.
+    right_ascension: float
+        RA coordinate in degree.
+    declination: float
+        DEC coordinate in degree.
+    fov_radius: float
+        FOV radius of telescope optics.
 
     Returns
     -------
-        Table, Sequence of Tables
+    Table, Sequence of Tables
+        All sources found and a list of spectrum for these sources
 
     Raises
     ------
-        ConnectionError
-            If the connection to the GAIA database cannot be established.
+    ConnectionError
+        If the connection to the GAIA database cannot be established.
+
+    Notes
+    -----
+    More information about the GAIA catalog at these links:
+    * https://gea.esac.esa.int/archive/documentation/GDR3/
+    * https://gea.esac.esa.int/archive/documentation/GDR3/Gaia_archive/chap_datamodel/sec_dm_main_source_catalogue/ssec_dm_gaia_source.html
 
     Examples
     --------
-        >>> positions, spectra = retrieve_objects_from_gaia(
-        ...     right_ascension=56.75,
-        ...     declination=24.1167,
-        ...     fov_radius=0.05,
-        ... )
-        >>> positions
-            source_id             ra                dec         has_xp_sampled phot_bp_mean_mag phot_g_mean_mag phot_rp_mean_mag
-                                 deg                deg                              mag              mag             mag
-        ----------------- ------------------ ------------------ -------------- ---------------- --------------- ----------------
-        66727234683960320 56.760485086776846 24.149991010998228           True        14.734505       14.433147        13.954827
-        65214031805717376     56.74561610052 24.089174782613686           True        12.338661       11.940813        11.368548
-        65225851555715328 56.726951308177455 24.111718134110838           True        14.627676        13.91212        13.091035
-        65226195153096192 56.736700233543914 24.149504345515066           True        14.272486       13.613182        12.804853
-        >>> len(spectra)
-        4
-        >>> spectra[66727234683960320]
-        wavelength      flux       flux_error
+    >>> positions, spectra = retrieve_objects_from_gaia(
+    ...     right_ascension=56.75,
+    ...     declination=24.1167,
+    ...     fov_radius=0.05,
+    ... )
+    >>> positions
+        source_id             ra                dec         has_xp_sampled phot_bp_mean_mag phot_g_mean_mag phot_rp_mean_mag
+                             deg                deg                              mag              mag             mag
+    ----------------- ------------------ ------------------ -------------- ---------------- --------------- ----------------
+    66727234683960320 56.760485086776846 24.149991010998228           True        14.734505       14.433147        13.954827
+    65214031805717376     56.74561610052 24.089174782613686           True        12.338661       11.940813        11.368548
+    65225851555715328 56.726951308177455 24.111718134110838           True        14.627676        13.91212        13.091035
+    65226195153096192 56.736700233543914 24.149504345515066           True        14.272486       13.613182        12.804853
+    >>> len(spectra)
+    4
+    >>> spectra[66727234683960320]
+    wavelength      flux       flux_error
         nm      W / (nm m2)   W / (nm m2)
     ---------- ------------- -------------
          336.0 4.1858373e-17 5.8010027e-18
