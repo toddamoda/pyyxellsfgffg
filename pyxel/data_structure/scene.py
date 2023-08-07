@@ -11,6 +11,8 @@ from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING
 
 import numpy as np
+import xarray as xr
+from datatree import DataTree
 
 if TYPE_CHECKING:
     from astropy.io.fits import ImageHDU
@@ -21,16 +23,83 @@ if TYPE_CHECKING:
 class Scene:
     """Scene class defining and storing information of all multi-wavelength photon."""
 
-    def __init__(self, source: "Source"):
-        self._source: Source = source
+    def __init__(self):
+        self._source: DataTree = DataTree(name="scene")
 
     def __eq__(self, other) -> bool:
         return type(self) is type(other) and self.data == other.data
 
+    def add_source(self, source: xr.Dataset) -> None:
+        """Add a source to the current scene.
+
+        Parameters
+        ----------
+        source : Dataset
+
+        Raises
+        ------
+        TypeError
+            If 'source' is not a ``Dataset`` object.
+        ValueError
+            If 'source' has not the expected format.
+
+        Examples
+        --------
+        >>> from pyxel.detectors import CCD
+        >>> detector = CCD(...)
+        >>> detector.reset()
+
+        >>> source
+        <xarray.Dataset>
+        Dimensions:     (ref: 345, wavelength: 343)
+        Coordinates:
+          * ref         (ref) int64 0 1 2 3 4 5 6 7 ... 337 338 339 340 341 342 343 344
+          * wavelength  (wavelength) float64 336.0 338.0 340.0 ... 1.018e+03 1.02e+03
+        Data variables:
+            x           (ref) float64 1.334e+03 1.434e+03 ... -1.271e+03 -1.381e+03
+            y           (ref) float64 -1.009e+03 -956.1 -797.1 ... 1.195e+03 1.309e+03
+            weight      (ref) float64 11.49 14.13 15.22 14.56 ... 15.21 11.51 8.727
+            flux        (ref, wavelength) float64 2.228e-16 2.432e-16 ... 3.693e-15
+
+        >>> detector.scene.add_source(source)
+        >>> detector.scene.data
+        DataTree('scene', parent=None)
+        └── DataTree('list')
+            └── DataTree('0')
+                    Dimensions:     (ref: 4, wavelength: 4)
+                    Coordinates:
+                      * ref         (ref) int64 0 1 2 3
+                      * wavelength  (wavelength) float64 336.0 338.0 1.018e+03 1.02e+03
+                    Data variables:
+                        x           (ref) float64 64.97 11.44 -55.75 -20.66
+                        y           (ref) float64 89.62 -129.3 -48.16 87.87
+                        weight      (ref) float64 14.73 12.34 14.63 14.27
+                        flux        (ref, wavelength) float64 4.186e-17 4.101e-17 ... 9.189e-17
+        """
+        if not isinstance(source, xr.Dataset):
+            raise TypeError("Expecting a Dataset object for source")
+
+        if set(source.coords) != {"ref", "wavelength"} or set(source.data_vars) != {
+            "x",
+            "y",
+            "weight",
+            "flux",
+        }:
+            raise ValueError(
+                "Wrong format for source. Expecting a Dataset with variables 'x', 'y', 'weight' and 'flux'."
+            )
+
+        if "list" not in self.data:
+            key: int = 0
+        else:
+            key = self.data.width
+
+        self.data[f"/list/{key}"] = DataTree(source)
+
     # TODO: This method will be removed in the future.
     #       If you want to have a `Source` object, you should use method '.to_scopesim'
     @property
-    def data(self) -> "Source":
+    def data(self) -> DataTree:
         """Get a multi-wavelength object."""
         return self._source
 
@@ -65,7 +134,7 @@ class Scene:
         if not isinstance(source, Source):
             raise TypeError("Expecting a ScopeSim `Source` object for 'source'.")
 
-        self._source = Source
+        raise NotImplementedError
 
     def to_scopesim(self) -> "Source":
         """Convert this `Scene` object into a ScopeSim `Source` object.
@@ -80,7 +149,7 @@ class Scene:
         More information about ScopeSim `Source` objects at
         this link: https://scopesim.readthedocs.io/en/latest/reference/scopesim.source.source.html
         """
-        return self._source
+        raise NotImplementedError
 
     def to_dict(self) -> Mapping:
         """Convert an instance of `Scene` to a `dict`."""
