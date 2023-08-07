@@ -194,7 +194,7 @@ class Detector:
         from datatree import DataTree
 
         self._photon = Photon(geo=self.geometry)
-        self._scene = None
+        self._scene = Scene()
         self._charge = Charge(geo=self.geometry)
         self._pixel = Pixel(geo=self.geometry)
         self._signal = Signal(geo=self.geometry)
@@ -207,7 +207,7 @@ class Detector:
         if self._photon:
             self.photon.array *= 0
 
-        self._scene = None
+        self._scene = Scene()
 
         if self._signal:
             self.signal.array *= 0
