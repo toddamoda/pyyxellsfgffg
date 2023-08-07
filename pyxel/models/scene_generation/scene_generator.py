@@ -6,23 +6,22 @@
 #   the terms contained in the file ‘LICENCE.txt’.
 
 """Scene generator creates Scopesim Source object."""
+
+from collections.abc import Sequence
 from enum import Enum
 from typing import TYPE_CHECKING, Literal
 
 import astropy.units as u
 import numpy as np
 import requests
-import scopesim
-from astropy.table import Table
+import xarray as xr
 from astroquery.gaia import Gaia
-from specutils import Spectrum1D
-from synphot import SourceSpectrum
 
-from pyxel.data_structure import Scene
 from pyxel.detectors import Detector
 
 if TYPE_CHECKING:
     from astropy.io.votable import tree
+    from astropy.table import Table
 
 
 class GaiaPassBand(Enum):
@@ -54,11 +53,11 @@ class GaiaPassBand(Enum):
             raise NotImplementedError
 
 
-def retrieve_objects_from_gaia(
+def _retrieve_objects_from_gaia(
     right_ascension: float,
     declination: float,
     fov_radius: float,
-) -> tuple[Table, dict[int, Table]]:
+) -> tuple["Table", dict[int, "Table"]]:
     """Retrieve objects from GAIA Catalog for giver coordinates and FOV.
 
     Columns description:
@@ -97,7 +96,7 @@ def retrieve_objects_from_gaia(
 
     Examples
     --------
-    >>> positions, spectra = retrieve_objects_from_gaia(
+    >>> positions, spectra = _retrieve_objects_from_gaia(
     ...     right_ascension=56.75,
     ...     declination=24.1167,
     ...     fov_radius=0.05,
@@ -169,12 +168,121 @@ def retrieve_objects_from_gaia(
     return result, spectra
 
 
+def retrieve_from_gaia(
+    right_ascension: float, declination: float, fov_radius: float
+) -> xr.Dataset:
+    """Retrieve objects from GAIA Catalog for giver coordinates and FOV.
+
+    Data variable/coordinates description:
+    * ``source_id``: Unique source identifier of the source
+    * ``ra``: Barycentric right ascension of the source.
+    * ``dec``: Barycentric Declination of the source.
+    * ``has_xp_sampled``: Flag indicating the availability of mean BP/RP spectrum in sampled form for this source
+    * ``phot_bp_mean_mag``: Mean magnitude in the integrated BP band.
+    * ``phot_g_mean_mag``: Mean magnitude in the G band.
+    * ``phot_rp_mean_mag``: Mean magnitude in the integrated RP band.
+
+    Parameters
+    ----------
+    right_ascension: float
+        RA coordinate in degree.
+    declination: float
+        DEC coordinate in degree.
+    fov_radius: float
+        FOV radius of telescope optics.
+
+    Returns
+    -------
+    Dataset
+
+    Raises
+    ------
+    ConnectionError
+        If the connection to the GAIA database cannot be established.
+
+    Notes
+    -----
+    More information about the GAIA catalog at these links:
+    * https://gea.esac.esa.int/archive/documentation/GDR3/
+    * https://gea.esac.esa.int/archive/documentation/GDR3/Gaia_archive/chap_datamodel/sec_dm_main_source_catalogue/ssec_dm_gaia_source.html
+
+    Examples
+    --------
+    >>> ds = retrieve_from_gaia(
+    ...     right_ascension=56.75,
+    ...     declination=24.1167,
+    ...     fov_radius=0.05,
+    ... )
+    >>> ds
+    <xarray.Dataset>
+    Dimensions:           (source_id: 345, wavelength: 343)
+    Coordinates:
+      * source_id         (source_id) int64 66504343062472704 ... 65296357738731008
+      * wavelength        (wavelength) float64 336.0 338.0 ... 1.018e+03 1.02e+03
+    Data variables:
+        ra                (source_id) float64 57.15 57.18 57.23 ... 56.4 56.42 56.39
+        dec               (source_id) float64 23.82 23.83 23.88 ... 24.43 24.46
+        has_xp_sampled    (source_id) bool True True True True ... True True True
+        phot_bp_mean_mag  (source_id) float32 11.49 14.13 15.22 ... 11.51 8.727
+        phot_g_mean_mag   (source_id) float32 10.66 13.8 14.56 ... 14.79 11.09 8.55
+        phot_rp_mean_mag  (source_id) float32 9.782 13.29 13.78 ... 14.19 10.5 8.229
+        flux              (source_id, wavelength) float32 2.228e-16 ... 3.693e-15
+        flux_error        (source_id, wavelength) float32 7.737e-17 ... 2.783e-16
+    """
+    positions_table: Table
+    spectra_dct: dict[int, Table]
+    positions_table, spectra_dct = _retrieve_objects_from_gaia(
+        right_ascension=right_ascension,
+        declination=declination,
+        fov_radius=fov_radius,
+    )
+
+    # Convert data from Gaia into a dataset
+    positions: xr.Dataset = positions_table.to_pandas(index="source_id").to_xarray()
+    spectra: xr.Dataset = xr.concat(
+        [
+            spectrum_table.to_pandas(index="wavelength")
+            .to_xarray()
+            .assign_coords(source_id=source_id)
+            for source_id, spectrum_table in spectra_dct.items()
+        ],
+        dim="source_id",
+    )
+    ds: xr.Dataset = xr.merge([positions, spectra])
+
+    # Add units
+    first_spectrum: Table = next(iter(spectra_dct.values()))
+
+    ds["wavelength"].attrs = {"units": str(first_spectrum["wavelength"].unit)}
+    ds["flux"].attrs = {"units": str(first_spectrum["flux"].unit)}
+    ds["flux_error"].attrs = {"units": str(first_spectrum["flux_error"].unit)}
+    ds["ra"].attrs = {
+        "name": "Right Ascension",
+        "units": str(positions_table["ra"].unit),
+    }
+    ds["dec"].attrs = {"name": "Declination", "units": str(positions_table["dec"].unit)}
+    ds["phot_bp_mean_mag"].attrs = {
+        "name": "Mean magnitude in the integrated BP band",
+        "units": str(positions_table["phot_bp_mean_mag"].unit),
+    }
+    ds["phot_g_mean_mag"].attrs = {
+        "name": "Mean magnitude in the G band",
+        "units": str(positions_table["phot_g_mean_mag"].unit),
+    }
+    ds["phot_rp_mean_mag"].attrs = {
+        "name": "Mean magnitude in the integrated RP band",
+        "units": str(positions_table["phot_rp_mean_mag"].unit),
+    }
+
+    return ds
+
+
 def load_objects_from_gaia(
     right_ascension: float,
     declination: float,
     fov_radius: float,
     band: GaiaPassBand = GaiaPassBand.BluePhotometer,
-) -> scopesim.Source:
+) -> xr.Dataset:
     """Load objects from GAIA Catalog for given coordinates and FOV.
 
     Parameters
@@ -190,52 +298,65 @@ def load_objects_from_gaia(
 
     Returns
     -------
-    scopesim.Source
-        Scopesim Source object in the FOV at given coordinates found by the GAIA catalog.
+    Dataset
+        Dataset object in the FOV at given coordinates found by the GAIA catalog.
+
+    Examples
+    --------
+    >>> ds = load_objects_from_gaia(
+    ...     right_ascension=56.75,
+    ...     declination=24.1167,
+    ...     fov_radius=0.5,
+    ... )
+    >>> ds
+    <xarray.Dataset>
+    Dimensions:     (ref: 345, wavelength: 343)
+    Coordinates:
+      * ref         (ref) int64 0 1 2 3 4 5 6 7 ... 337 338 339 340 341 342 343 344
+      * wavelength  (wavelength) float64 336.0 338.0 340.0 ... 1.018e+03 1.02e+03
+    Data variables:
+        x           (ref) float64 1.334e+03 1.434e+03 ... -1.271e+03 -1.381e+03
+        y           (ref) float64 -1.009e+03 -956.1 -797.1 ... 1.195e+03 1.309e+03
+        weight      (ref) float64 11.49 14.13 15.22 14.56 ... 15.21 11.51 8.727
+        flux        (ref, wavelength) float64 2.228e-16 2.432e-16 ... 3.693e-15
     """
-    positions, spectra = retrieve_objects_from_gaia(
+    # Get all sources and spectrum in one Dataset
+    ds_from_gaia: xr.Dataset = retrieve_from_gaia(
         right_ascension=right_ascension,
         declination=declination,
         fov_radius=fov_radius,
     )
 
-    # loop through all sources and create Source Spectrum to attach to a list of spectra
-    spec_list: list[SourceSpectrum] = []
-    for source_id in positions["source_id"]:
-        spectrum: Table = spectra[source_id]
-
-        # create 1D spectrum
-        spec = Spectrum1D(
-            spectral_axis=spectrum["wavelength"].quantity,
-            flux=spectrum["flux"].quantity,
-        )
-        # turn 1D spectrum into synphot Source spectrum
-        source_spectrum = SourceSpectrum.from_spectrum1d(spec)
-        spec_list.append(source_spectrum)
-
-    # Create astropy.table with relevant input parameters
-
     # Convert the positions to arcseconds and center around 0.0, 0.0.
     # The centering is necessary because ScopeSIM cannot actually 'point' the telescope.
-    right_ascension_arcsec: u.Quantity = positions["ra"].to(u.arcsec)
-    declination_arcsec: u.Quantity = positions["dec"].to(u.arcsec)
+    ra_arcsec: u.Quantity = u.Quantity(ds_from_gaia["ra"], unit=u.deg).to(u.arcsec)
+    dec_arcsec: u.Quantity = u.Quantity(ds_from_gaia["dec"], unit=u.deg).to(u.arcsec)
 
-    x: u.Quantity = right_ascension_arcsec - right_ascension_arcsec.mean()
-    y: u.Quantity = declination_arcsec - declination_arcsec.mean()
+    x: u.Quantity = ra_arcsec - ra_arcsec.mean()
+    y: u.Quantity = dec_arcsec - dec_arcsec.mean()
 
-    # set index as ref.
-    ref = np.arange(len(positions), dtype=int)
+    # Get weights
+    weights_from_gaia: xr.DataArray = ds_from_gaia[band.get_magnitude_key()]
 
-    # select magnitude band. Could be an input parameter of model.
-    weight = positions[band.get_magnitude_key()]
+    num_sources = len(ds_from_gaia["source_id"])
+    ref_sequence: Sequence[int] = range(num_sources)
 
-    tbl = Table(
-        names=["x", "y", "ref", "weight"],
-        data=[x, y, ref, weight],
+    ds = xr.Dataset(coords={"ref": ref_sequence})
+    ds["x"] = xr.DataArray(np.asarray(x), dims="ref", attrs={"units": str(x.unit)})
+    ds["y"] = xr.DataArray(np.asarray(y), dims="ref", attrs={"units": str(y.unit)})
+    ds["weight"] = xr.DataArray(
+        np.asarray(weights_from_gaia, dtype=float),
+        dims="ref",
+        attrs={"units": weights_from_gaia.attrs["units"]},
+    )
+    ds["flux"] = xr.DataArray(
+        np.asarray(ds_from_gaia["flux"], dtype=float),
+        dims=["ref", "wavelength"],
+        coords={"wavelength": ds_from_gaia["wavelength"]},
+        attrs={"units": ds_from_gaia["flux"].attrs["units"]},
     )
 
-    source = scopesim.Source(table=tbl, spectra=spec_list)
-    return source
+    return ds
 
 
 def generate_scene(
@@ -265,11 +386,11 @@ def generate_scene(
     """
     band_pass: GaiaPassBand = GaiaPassBand(band)
 
-    source: scopesim.Source = load_objects_from_gaia(
+    ds: xr.Dataset = load_objects_from_gaia(
         right_ascension=right_ascension,
         declination=declination,
         fov_radius=fov_radius,
         band=band_pass,
     )
 
-    detector.scene = Scene(source)
+    detector.scene.add_source(ds)
