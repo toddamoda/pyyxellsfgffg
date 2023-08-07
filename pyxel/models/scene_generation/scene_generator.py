@@ -6,6 +6,7 @@
 #   the terms contained in the file ‘LICENCE.txt’.
 
 """Scene generator creates Scopesim Source object."""
+from enum import Enum
 from typing import TYPE_CHECKING
 
 import astropy.units as u
@@ -22,6 +23,17 @@ from pyxel.detectors import Detector
 
 if TYPE_CHECKING:
     from astropy.io.votable import tree
+
+
+class GaiaPassBand(Enum):
+    """Define different type of magnitude provided by the Gaia database.
+
+    More information available here: https://www.cosmos.esa.int/web/gaia/iow_20180316
+    """
+
+    BP = "phot_bp_mean_mag"  # Wavelength from 330 nm to 680 nm
+    G = "phot_g_mean_mag"  # Wavelength from 330 nm to 1050 nm
+    RP = "phot_rp_mean_mag"  # Wavelength from 640 nm to 1050 nm
 
 
 def retrieve_objects_from_gaia(
@@ -143,17 +155,20 @@ def load_objects_from_gaia(
     right_ascension: float,
     declination: float,
     fov_radius: float,
+    band: GaiaPassBand = GaiaPassBand.BP,
 ) -> scopesim.Source:
     """Load objects from GAIA Catalog for given coordinates and FOV.
 
     Parameters
     ----------
-    right_ascension: float
+    right_ascension : float
         RA coordinate in degree.
-    declination: float
+    declination : float
         DEC coordinate in degree.
-    fov_radius: float
+    fov_radius : float
         FOV radius of telescope optics.
+    band : GaiaPassBand
+        Define the passband to select.
 
     Returns
     -------
@@ -194,7 +209,7 @@ def load_objects_from_gaia(
     ref = np.arange(len(positions), dtype=int)
 
     # select magnitude band. Could be an input parameter of model.
-    weight = positions["phot_bp_mean_mag"]
+    weight = positions[band.value]
 
     tbl = Table(
         names=["x", "y", "ref", "weight"],
