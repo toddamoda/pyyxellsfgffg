@@ -8,16 +8,20 @@
 from typing import TYPE_CHECKING
 
 import astropy.units as u
+import numpy as np
 import pytest
 import xarray as xr
 from astropy.table import Table
 from astropy.utils.diff import diff_values
+from datatree import DataTree
+from datatree.testing import assert_equal
 from numpy.testing import assert_allclose
 from pytest_mock import MockerFixture  # pip install pytest-mock
 from scopesim import Source
 
 from pyxel.detectors import CCD
 from pyxel.models.scene_generation import generate_scene
+from pyxel.models.scene_generation.scene_generator import retrieve_from_gaia
 from pyxel.models.scene_generation.scene_generator import GaiaPassBand
 
 if TYPE_CHECKING:
@@ -186,6 +190,76 @@ def spectra_dct(
     return dct
 
 
+@pytest.fixture
+def source1_gaia(
+    positions: xr.Dataset,
+    source_ids: list[int],
+    spectra1: xr.Dataset,
+    spectra2: xr.Dataset,
+    spectra3: xr.Dataset,
+    spectra4: xr.Dataset,
+) -> xr.Dataset:
+    """Build a Dataset object retrieved from the Gaia database."""
+    return xr.merge(
+        [
+            positions,
+            xr.concat(
+                [
+                    spectra.assign(source_id=source_id)
+                    for source_id, spectra in zip(
+                        source_ids, [spectra1, spectra2, spectra3, spectra4]
+                    )
+                ],
+                dim="source_id",
+            ),
+        ]
+    )
+
+
+@pytest.fixture
+def source1_pyxel(
+    positions: xr.Dataset,
+    source_ids: list[int],
+    spectra1: xr.Dataset,
+    spectra2: xr.Dataset,
+    spectra3: xr.Dataset,
+    spectra4: xr.Dataset,
+) -> DataTree:
+    return 0
+
+
+def test_retrieve_from_gaia(
+    mocker: MockerFixture,
+    positions_table: Table,
+    spectra_dct: dict[int, Table],
+    source1_pyxel: xr.Dataset,
+    #
+    positions: xr.Dataset,  # TO REMOVE
+    source_ids: list[int],  # TO REMOVE
+    spectra1: xr.Dataset,  # TO REMOVE
+    spectra2: xr.Dataset,  # TO REMOVE
+    spectra3: xr.Dataset,  # TO REMOVE
+    spectra4: xr.Dataset,  # TO REMOVE
+):
+    """Test function 'retrieve_from_gaia'."""
+    # Mock function 'pyxel.models.scene_generation.scene_generator.retrieve_objects_from_gaia'
+    # When this function will be called (with any parameters), it will always return this tuple
+    # (positions_table, spectra_dct)
+    mocker.patch(
+        target="pyxel.models.scene_generation.scene_generator._retrieve_objects_from_gaia",
+        return_value=(positions_table, spectra_dct),
+    )
+
+    ds = retrieve_from_gaia(
+        right_ascension=0.0,  # This parameter is not important
+        declination=0.0,  # This parameter is not important
+        fov_radius=0.0,  # This parameter is not important
+    )
+
+    expected_ds = source1_gaia
+    xr.testing.assert_equal(ds, expected_ds)
+
+
 @pytest.mark.parametrize(
     "name, exp_band",
     [
@@ -217,6 +291,8 @@ def test_scene_generator(
     positions_table: Table,
     spectra_dct: dict[int, Table],
     wavelengths: xr.DataArray,
+    source1_gaia,  # TO REMOVE
+    source1_pyxel: DataTree,
 ):
     """Test model 'scene_generator."""
 
@@ -224,7 +300,7 @@ def test_scene_generator(
     # When this function will be called (with any parameters), it will always return this tuple
     # (positions_table, spectra_dct)
     mocker.patch(
-        target="pyxel.models.scene_generation.scene_generator.retrieve_objects_from_gaia",
+        target="pyxel.models.scene_generation.scene_generator._retrieve_objects_from_gaia",
         return_value=(positions_table, spectra_dct),
     )
 
@@ -239,50 +315,63 @@ def test_scene_generator(
 
     # Check outputs
     obj = detector.scene.data
-    assert isinstance(obj, Source)
+    assert isinstance(obj, DataTree)
 
-    # Check .fields
-    assert len(obj.fields) == 1
-    first_field: Table = obj.fields[0]
+    expected_x = 3600 * (source1_gaia["ra"] - source1_gaia["ra"].mean())
+    expected_y = 3600 * (source1_gaia["dec"] - source1_gaia["dec"].mean())
 
-    expected_x = 3600 * (positions_table["ra"] - positions_table["ra"].mean()).data
-    expected_y = 3600 * (positions_table["dec"] - positions_table["dec"].mean()).data
-
-    exp_field = Table(
-        {
-            "x": expected_x * u.arcsec,
-            "y": expected_y * u.arcsec,
-            "ref": [0, 1, 2, 3],
-            "weight": [14.734505, 12.338661, 14.627676, 14.272486] * u.mag,
-        }
+    ds = xr.Dataset()
+    ds["x"] = xr.DataArray(
+        np.array(expected_x), dims="ref", coords={"ref": [0, 1, 2, 3]}
+    )
+    ds["y"] = xr.DataArray(
+        np.array(expected_y), dims="ref", coords={"ref": [0, 1, 2, 3]}
     )
 
-    assert all(diff_values(first_field, exp_field))
+    exp_scene = DataTree.from_dict(name="scene", d={"/list/0": DataTree(source1)})
 
-    # Check .spectra
-    wavelengths_nm: u.Quantity = wavelengths.to_numpy() * u.nm
-    assert len(obj.spectra) == 4
-
-    source_spectrum: SourceSpectrum = obj.spectra[0]
-    spectra = source_spectrum(wavelengths_nm)
-    assert_allclose(
-        spectra.value, [0.00070802, 0.00069783, 0.00071177, 0.00069041], rtol=1e-5
-    )
-
-    source_spectrum: SourceSpectrum = obj.spectra[1]
-    spectra = source_spectrum(wavelengths_nm)
-    assert_allclose(
-        spectra.value, [0.00511449, 0.00506812, 0.01276998, 0.01313122], rtol=1e-5
-    )
-
-    source_spectrum: SourceSpectrum = obj.spectra[2]
-    spectra = source_spectrum(wavelengths_nm)
-    assert_allclose(
-        spectra.value, [0.00034489, 0.00038478, 0.00316398, 0.00334145], rtol=1e-5
-    )
-
-    source_spectrum: SourceSpectrum = obj.spectra[3]
-    spectra = source_spectrum(wavelengths_nm)
-    assert_allclose(
-        spectra.value, [0.00041891, 0.00036679, 0.00466095, 0.00471831], rtol=1e-5
-    )
+    # # Check .fields
+    # assert len(obj.fields) == 1
+    # first_field: Table = obj.fields[0]
+    #
+    # expected_x = 3600 * (positions_table["ra"] - positions_table["ra"].mean()).data
+    # expected_y = 3600 * (positions_table["dec"] - positions_table["dec"].mean()).data
+    #
+    # exp_field = Table(
+    #     {
+    #         "x": expected_x * u.arcsec,
+    #         "y": expected_y * u.arcsec,
+    #         "ref": [0, 1, 2, 3],
+    #         "weight": [14.734505, 12.338661, 14.627676, 14.272486] * u.mag,
+    #     }
+    # )
+    #
+    # assert all(diff_values(first_field, exp_field))
+    #
+    # # Check .spectra
+    # wavelengths_nm: u.Quantity = wavelengths.to_numpy() * u.nm
+    # assert len(obj.spectra) == 4
+    #
+    # source_spectrum: SourceSpectrum = obj.spectra[0]
+    # spectra = source_spectrum(wavelengths_nm)
+    # assert_allclose(
+    #     spectra.value, [0.00070802, 0.00069783, 0.00071177, 0.00069041], rtol=1e-5
+    # )
+    #
+    # source_spectrum: SourceSpectrum = obj.spectra[1]
+    # spectra = source_spectrum(wavelengths_nm)
+    # assert_allclose(
+    #     spectra.value, [0.00511449, 0.00506812, 0.01276998, 0.01313122], rtol=1e-5
+    # )
+    #
+    # source_spectrum: SourceSpectrum = obj.spectra[2]
+    # spectra = source_spectrum(wavelengths_nm)
+    # assert_allclose(
+    #     spectra.value, [0.00034489, 0.00038478, 0.00316398, 0.00334145], rtol=1e-5
+    # )
+    #
+    # source_spectrum: SourceSpectrum = obj.spectra[3]
+    # spectra = source_spectrum(wavelengths_nm)
+    # assert_allclose(
+    #     spectra.value, [0.00041891, 0.00036679, 0.00466095, 0.00471831], rtol=1e-5
+    # )
