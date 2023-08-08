@@ -59,7 +59,7 @@ class Scene:
             x           (ref) float64 1.334e+03 1.434e+03 ... -1.271e+03 -1.381e+03
             y           (ref) float64 -1.009e+03 -956.1 -797.1 ... 1.195e+03 1.309e+03
             weight      (ref) float64 11.49 14.13 15.22 14.56 ... 15.21 11.51 8.727
-            flux        (ref, wavelength) float64 2.228e-16 2.432e-16 ... 3.693e-15
+            flux        (ref, wavelength) float64 0.003769 0.004137 ... 0.1813 0.1896
 
         >>> detector.scene.add_source(source)
         >>> detector.scene.data
@@ -74,7 +74,7 @@ class Scene:
                         x           (ref) float64 64.97 11.44 -55.75 -20.66
                         y           (ref) float64 89.62 -129.3 -48.16 87.87
                         weight      (ref) float64 14.73 12.34 14.63 14.27
-                        flux        (ref, wavelength) float64 4.186e-17 4.101e-17 ... 9.189e-17
+                        flux        (ref, wavelength) float64 0.003769 0.004137 ... 0.1813 0.1896
         """
         if not isinstance(source, xr.Dataset):
             raise TypeError("Expecting a Dataset object for source")
@@ -153,54 +153,56 @@ class Scene:
 
     def to_dict(self) -> Mapping:
         """Convert an instance of `Scene` to a `dict`."""
-        meta: Mapping = self._source.meta
-        table_fields: Sequence[Table] = self._source.table_fields
-        image_fields: Sequence[ImageHDU] = self._source.image_fields
-
-        # Create 'tables'
-        tables: Sequence[Mapping] = [
-            {
-                "data": table.to_pandas(),
-                "units": {
-                    key.replace("_unit", ""): value
-                    for key, value in table.meta.items()
-                    if key.endswith("_unit")
-                },
-            }
-            for table in table_fields
-        ]
-
-        images: Sequence[Mapping] = [
-            {"header": dict(image.header), "data": np.asarray(image.data)}
-            for image in image_fields
-        ]
-
-        return {"meta": meta, "tables": tables, "images": images}
+        # meta: Mapping = self._source.meta
+        # table_fields: Sequence[Table] = self._source.table_fields
+        # image_fields: Sequence[ImageHDU] = self._source.image_fields
+        #
+        # # Create 'tables'
+        # tables: Sequence[Mapping] = [
+        #     {
+        #         "data": table.to_pandas(),
+        #         "units": {
+        #             key.replace("_unit", ""): value
+        #             for key, value in table.meta.items()
+        #             if key.endswith("_unit")
+        #         },
+        #     }
+        #     for table in table_fields
+        # ]
+        #
+        # images: Sequence[Mapping] = [
+        #     {"header": dict(image.header), "data": np.asarray(image.data)}
+        #     for image in image_fields
+        # ]
+        #
+        # return {"meta": meta, "tables": tables, "images": images}
+        raise NotImplementedError
 
     @classmethod
     def from_dict(cls, dct: Mapping) -> "Scene":
         """Create a new instance of a `Scene` object from a `dict`."""
-        from astropy.io.fits import Header, ImageHDU
-        from astropy.table import Table
-        from scopesim import Source
-
-        meta: Mapping = dct["meta"]
-        tables: Mapping = dct["tables"]
-        images: Mapping = dct["images"]
-
-        table_fields: Sequence[Table] = [
-            Table.from_pandas(dataframe=table["data"], units=table["units"])
-            for table in tables
-        ]
-
-        image_fields: Sequence[ImageHDU] = [
-            ImageHDU(data=img["data"], header=Header(img["header"])) for img in images
-        ]
-
-        src: Source = Source(
-            meta=meta,
-            image_fields=image_fields,
-            table_fields=table_fields,
-        )
-
-        return cls(src)
+        # from astropy.io.fits import Header, ImageHDU
+        # from astropy.table import Table
+        # from scopesim import Source
+        #
+        # meta: Mapping = dct["meta"]
+        # tables: Mapping = dct["tables"]
+        # images: Mapping = dct["images"]
+        #
+        # table_fields: Sequence[Table] = [
+        #     Table.from_pandas(dataframe=table["data"], units=table["units"])
+        #     for table in tables
+        # ]
+        #
+        # image_fields: Sequence[ImageHDU] = [
+        #     ImageHDU(data=img["data"], header=Header(img["header"])) for img in images
+        # ]
+        #
+        # src: Source = Source(
+        #     meta=meta,
+        #     image_fields=image_fields,
+        #     table_fields=table_fields,
+        # )
+        #
+        # return cls(src)
+        raise NotImplementedError
