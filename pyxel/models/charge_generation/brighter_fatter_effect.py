@@ -43,15 +43,15 @@ def simple_bfe(
     detector : Detector
         Pyxel Detector object.
     a: float
-        First coefficent in polynominal function.
+        First coefficient in polynomial function.
     b: float
-        Second coefficent in polynominal function.
+        Second coefficient in polynomial function.
     c: float
-        Third coefficent in polynominal function.
+        Third coefficient in polynomial function.
     alpha: float
-        Coefficent that defines where PTC curve starts.
+        Coefficient that defines where PTC curve starts.
     beta: float
-        Coefficent that defines where the PTC curve breaks.
+        Coefficient that defines where the PTC curve breaks.
     normalize_kernel : bool
         Normalize kernel.
     """
@@ -180,15 +180,15 @@ def get_bfe(
     detector : Detector
         Pyxel Detector object.
     a: float
-        First coefficent in polynominal function.
+        First coefficient in polynomial function.
     b: float
-        Second coefficent in polynominal function.
+        Second coefficient in polynomial function.
     c: float
-        Third coefficent in polynominal function.
+        Third coefficient in polynomial function.
     alpha: float
-        Coefficent that defines where PTC curve starts.
+        Coefficient that defines where PTC curve starts.
     beta: float
-        Coefficent that defines where the PTC curve breaks.
+        Coefficient that defines where the PTC curve breaks.
     normalize_kernel : bool
         Normalize kernel.
     """
