@@ -16,6 +16,8 @@ import numpy as np
 import requests
 import xarray as xr
 from astroquery.gaia import Gaia
+from specutils import Spectrum1D
+from synphot import SourceSpectrum
 
 from pyxel.detectors import Detector
 
@@ -160,16 +162,28 @@ def _retrieve_objects_from_gaia(
     # save key
     key = f"{retrieval_type}_{data_structure}.xml"
 
-    spectra: dict[int, Table] = {
-        spectrum.get_field_by_id("source_id").value: spectrum.to_table()
-        for spectrum in spectra_dct[key]
-    }
+    spectra: dict[int, Table] = {}
+    for spectrum in spectra_dct[key]:
+        # Get 'table' from the Gaia testbench
+        table: Table = spectrum.to_table()
+
+        # Add a new column 'flux_photolam'
+        # flux_photolam: u.Quantity = _compute_flux(
+        #     wavelength=table["wavelength"].quantity,
+        #     flux=table["flux"].quantity,
+        # )
+        # table["flux_photlam"] = flux_photolam
+
+        source_id = int(spectrum.get_field_by_id("source_id").value)
+        spectra[source_id] = table
 
     return result, spectra
 
 
 def retrieve_from_gaia(
-    right_ascension: float, declination: float, fov_radius: float
+    right_ascension: float,
+    declination: float,
+    fov_radius: float,
 ) -> xr.Dataset:
     """Retrieve objects from GAIA Catalog for giver coordinates and FOV.
 
@@ -248,6 +262,7 @@ def retrieve_from_gaia(
         ],
         dim="source_id",
     )
+
     ds: xr.Dataset = xr.merge([positions, spectra])
 
     # Add units
@@ -256,6 +271,8 @@ def retrieve_from_gaia(
     ds["wavelength"].attrs = {"units": str(first_spectrum["wavelength"].unit)}
     ds["flux"].attrs = {"units": str(first_spectrum["flux"].unit)}
     ds["flux_error"].attrs = {"units": str(first_spectrum["flux_error"].unit)}
+    ds["flux_photlam"].attrs = {"units": str(first_spectrum["flux_photlam"].unit)}
+
     ds["ra"].attrs = {
         "name": "Right Ascension",
         "units": str(positions_table["ra"].unit),
@@ -275,6 +292,38 @@ def retrieve_from_gaia(
     }
 
     return ds
+
+
+def _compute_flux(wavelength: u.Quantity, flux: u.Quantity) -> u.Quantity:
+    """Compute flux in Photon.
+
+    Parameters
+    ----------
+    wavelength : Quantity
+        Unit: nm
+    flux : Quantity
+        Unit: W / (nm * m^2)
+
+    Returns
+    -------
+    Quantity
+        Unit: photon / (s * cm^2 * Angstrom)
+
+    >>> wavelength
+    <Quantity [ 336.,  338.,  340., ..., 1016., 1018., 1020.] nm>
+    >>> flux
+    <Quantity [1.0647195e-14, 9.9830278e-15, 9.1758579e-15, ..., 3.5089168e-15,
+               3.5376517e-15, 3.6932771e-15] W / (nm m2)>
+    >>> _compute_flux(wavelength=wavelength, flux=flux)
+    <Quantity [0.18009338, 0.18009338, 0.18009338, ..., 0.18009338, 0.18009338,
+               0.18009338] ph / (Angstrom s cm2)>
+    """
+    spectrum_1d = Spectrum1D(spectral_axis=wavelength, flux=flux)
+    source_spectrum = SourceSpectrum.from_spectrum1d(spectrum_1d)
+
+    flux_photlam: u.Quantity = source_spectrum(wavelength)
+
+    return flux_photlam.to(u.ph / (u.s * u.cm * u.cm * u.AA))
 
 
 def load_objects_from_gaia(
@@ -350,10 +399,10 @@ def load_objects_from_gaia(
         attrs={"units": weights_from_gaia.attrs["units"]},
     )
     ds["flux"] = xr.DataArray(
-        np.asarray(ds_from_gaia["flux"], dtype=float),
+        np.asarray(ds_from_gaia["flux_photlam"], dtype=float),
         dims=["ref", "wavelength"],
         coords={"wavelength": ds_from_gaia["wavelength"]},
-        attrs={"units": ds_from_gaia["flux"].attrs["units"]},
+        attrs={"units": ds_from_gaia["flux_photlam"].attrs["units"]},
     )
 
     return ds
