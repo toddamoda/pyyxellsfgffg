@@ -190,6 +190,7 @@ def compute_dark_current(
                 (1 + np.random.lognormal(sigma=dark_current_fpn_sigma, size=shape)),
             )
 
+    # see issue #580 https://gitlab.com/esa/pyxel/-/issues/580
     # warnings.simplefilter("once", RuntimeWarning)
     #
     # if np.isinf(dark_current_2d).any():
