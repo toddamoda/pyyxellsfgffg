@@ -35,6 +35,20 @@ class GaiaPassBand(Enum):
     G = "phot_g_mean_mag"  # Wavelength from 330 nm to 1050 nm
     RP = "phot_rp_mean_mag"  # Wavelength from 640 nm to 1050 nm
 
+    @classmethod
+    def from_string(cls, value: str) -> "GaiaPassBand":
+        """Create a 'GaiaPassBand' object."""
+        band: str = value.upper()
+
+        if band == "BP":
+            return cls.BP
+        elif band == "G":
+            return cls.G
+        elif band == "RP":
+            return cls.RP
+        else:
+            raise ValueError(f"Unknown GaiaPassBand. {value=}")
+
 
 def retrieve_objects_from_gaia(
     right_ascension: float,
@@ -245,7 +259,7 @@ def generate_scene(
         * 'g' is the band from 330 nm to 1050 nm
         * 'rp' is the band from 640 nm to 1050 nm
     """
-    band_pass = GaiaPassBand(band)
+    band_pass: GaiaPassBand = GaiaPassBand.from_string(band)
 
     source: scopesim.Source = load_objects_from_gaia(
         right_ascension=right_ascension,
