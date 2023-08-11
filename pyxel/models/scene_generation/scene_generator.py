@@ -7,7 +7,7 @@
 
 """Scene generator creates Scopesim Source object."""
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import astropy.units as u
 import numpy as np
@@ -225,6 +225,7 @@ def generate_scene(
     right_ascension: float,
     declination: float,
     fov_radius: float,
+    band: Literal["bp", "g", "rp"] = "bp",
 ):
     """Generate scene from scopesim Source object loading stars from the GAIA catalog.
 
@@ -238,9 +239,19 @@ def generate_scene(
         DEC coordinate in degree.
     fov_radius : float
         FOV radius of telescope optics.
+    band : 'bp', 'g' or 'rp'
+        Define the band to use.
+        * 'bp' is the band from 330 nm to 680 nm
+        * 'g' is the band from 330 nm to 1050 nm
+        * 'rp' is the band from 640 nm to 1050 nm
     """
+    band_pass = GaiaPassBand(band)
+
     source: scopesim.Source = load_objects_from_gaia(
-        right_ascension=right_ascension, declination=declination, fov_radius=fov_radius
+        right_ascension=right_ascension,
+        declination=declination,
+        fov_radius=fov_radius,
+        band=band_pass,
     )
 
     detector.scene = Scene(source)
