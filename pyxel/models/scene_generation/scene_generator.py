@@ -55,6 +55,129 @@ class GaiaPassBand(Enum):
             raise NotImplementedError
 
 
+def compute_flux(wavelength: u.Quantity, flux: u.Quantity) -> u.Quantity:
+    """Compute flux in Photon.
+
+    Parameters
+    ----------
+    wavelength : Quantity
+        Unit: nm
+    flux : Quantity
+        Unit: W / (nm * m^2)
+
+    Returns
+    -------
+    Quantity
+        Unit: photon / (s * cm^2 * Angstrom)
+
+    >>> wavelength
+    <Quantity [ 336.,  338.,  340., ..., 1016., 1018., 1020.] nm>
+    >>> flux
+    <Quantity [1.0647195e-14, 9.9830278e-15, 9.1758579e-15, ..., 3.5089168e-15,
+               3.5376517e-15, 3.6932771e-15] W / (nm m2)>
+    >>> compute_flux(wavelength=wavelength, flux=flux)
+    <Quantity [0.18009338, 0.18009338, 0.18009338, ..., 0.18009338, 0.18009338,
+               0.18009338] ph / (Angstrom s cm2)>
+    """
+    spectrum_1d = Spectrum1D(spectral_axis=wavelength, flux=flux)
+    source_spectrum = SourceSpectrum.from_spectrum1d(spectrum_1d)
+
+    flux_photlam: u.Quantity = source_spectrum(wavelength)
+
+    return flux_photlam.to(u.ph / (u.s * u.cm * u.cm * u.AA))
+
+
+def _convert_spectrum(flux_1d: np.ndarray, wavelength_1d: np.ndarray) -> np.ndarray:
+    """Convert a 1d flux in W / (nm m2) to ph / (s AA cm2).
+
+    Parameters
+    ----------
+    flux_1d : np.ndarray
+        1D numpy array
+    wavelength_1d : np.ndarray
+        1D numpy array
+
+    Returns
+    -------
+    np.ndarray
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> flux_1d = np.array(
+    ...     [2.2282904e-16, 2.4315793e-16, ..., 1.5625901e-15, 1.6213707e-15],
+    ...     dtype=np.float32,
+    ... )
+    >>> wavelength_1d = np.array(
+    ...     [3.76907117e-03, 4.13740861e-03, ..., 8.00785350e-02, 8.32541239e-02]
+    ... )
+    >>> _convert_spectrum(flux_1d=flux_1d, wavelength_1d=wavelength_1d)
+    array([3.76907117e-03, 4.13740861e-03, ..., 8.00785350e-02, 8.32541239e-02])
+    """
+    converted_flux: u.Quantity = compute_flux(
+        wavelength=wavelength_1d * u.nm,
+        flux=flux_1d * (u.W / (u.nm * u.m * u.m)),
+    )
+
+    return np.asarray(converted_flux)
+
+
+def convert_spectrum(flux: xr.DataArray) -> xr.DataArray:
+    """Convert a DataArray flux in W / (nm m2) to ph / (s AA cm2).
+
+    Parameters
+    ----------
+    flux : DataArray
+        This DataArray must have at least one dimension 'wavelength'
+
+    Returns
+    -------
+    DataArray
+
+    Examples
+    --------
+    >>> import xarray as xr
+    >>> flux = xr.DataArray(...)
+    >>> flux
+    <xarray.DataArray 'flux' (source_id: 345, wavelength: 343)>
+    array([[2.2282904e-16, 2.4315793e-16, ..., 1.5625901e-15, 1.6213707e-15],
+           [6.8100953e-17, 6.0069631e-17, ..., 3.9121338e-17, 4.0024586e-17],
+           ...,
+           [5.9822517e-16, 5.6280908e-16, ..., 5.2960899e-16, 5.5697906e-16],
+           [1.0647195e-14, 9.9830278e-15, ..., 3.5376517e-15, 3.6932771e-15]], dtype=float32)
+    Coordinates:
+      * source_id   (source_id) int64 66504343062472704 ... 65296357738731008
+      * wavelength  (wavelength) float64 336.0 338.0 340.0 ... 1.018e+03 1.02e+03
+    Attributes:
+        units:    W / (nm m2)
+
+    >>> convert_spectrum(flux)
+    <xarray.DataArray 'flux' (source_id: 345, wavelength: 343)>
+    array([[3.76907117e-03, 4.13740861e-03, ..., 8.00785350e-02, 8.32541239e-02],
+           [1.15190254e-03, 1.02210366e-03, ..., 2.00486326e-03, 2.05518196e-03],
+           ...,
+           [1.01187592e-02, 9.57637374e-03, ..., 2.71410354e-02, 2.85997559e-02],
+           [1.80093381e-01, 1.69864354e-01, ..., 1.81295134e-01, 1.89642359e-01]])
+    Coordinates:
+      * source_id   (source_id) int64 66504343062472704 ... 65296357738731008
+      * wavelength  (wavelength) float64 336.0 338.0 340.0 ... 1.018e+03 1.02e+03
+    Attributes:
+        units:    ph / (Angstrom s cm2)
+    """
+    new_flux: xr.DataArray = xr.apply_ufunc(
+        _convert_spectrum,
+        flux,
+        kwargs={"wavelength_1d": flux["wavelength"].to_numpy()},
+        vectorize=True,
+        input_core_dims=[["wavelength"]],
+        output_core_dims=[["wavelength"]],
+    )
+
+    new_flux.attrs["units"] = str(u.ph / (u.s * u.AA * u.cm * u.cm))
+    new_flux["wavelength"].attrs["units"] = flux["wavelength"].units
+    return new_flux
+
+
 def _retrieve_objects_from_gaia(
     right_ascension: float,
     declination: float,
@@ -167,13 +290,6 @@ def _retrieve_objects_from_gaia(
         # Get 'table' from the Gaia testbench
         table: Table = spectrum.to_table()
 
-        # Add a new column 'flux_photolam'
-        # flux_photolam: u.Quantity = _compute_flux(
-        #     wavelength=table["wavelength"].quantity,
-        #     flux=table["flux"].quantity,
-        # )
-        # table["flux_photlam"] = flux_photolam
-
         source_id = int(spectrum.get_field_by_id("source_id").value)
         spectra[source_id] = table
 
@@ -271,7 +387,7 @@ def retrieve_from_gaia(
     ds["wavelength"].attrs = {"units": str(first_spectrum["wavelength"].unit)}
     ds["flux"].attrs = {"units": str(first_spectrum["flux"].unit)}
     ds["flux_error"].attrs = {"units": str(first_spectrum["flux_error"].unit)}
-    ds["flux_photlam"].attrs = {"units": str(first_spectrum["flux_photlam"].unit)}
+    # ds["flux_photlam"].attrs = {"units": str(first_spectrum["flux_photlam"].unit)}
 
     ds["ra"].attrs = {
         "name": "Right Ascension",
@@ -292,38 +408,6 @@ def retrieve_from_gaia(
     }
 
     return ds
-
-
-def _compute_flux(wavelength: u.Quantity, flux: u.Quantity) -> u.Quantity:
-    """Compute flux in Photon.
-
-    Parameters
-    ----------
-    wavelength : Quantity
-        Unit: nm
-    flux : Quantity
-        Unit: W / (nm * m^2)
-
-    Returns
-    -------
-    Quantity
-        Unit: photon / (s * cm^2 * Angstrom)
-
-    >>> wavelength
-    <Quantity [ 336.,  338.,  340., ..., 1016., 1018., 1020.] nm>
-    >>> flux
-    <Quantity [1.0647195e-14, 9.9830278e-15, 9.1758579e-15, ..., 3.5089168e-15,
-               3.5376517e-15, 3.6932771e-15] W / (nm m2)>
-    >>> _compute_flux(wavelength=wavelength, flux=flux)
-    <Quantity [0.18009338, 0.18009338, 0.18009338, ..., 0.18009338, 0.18009338,
-               0.18009338] ph / (Angstrom s cm2)>
-    """
-    spectrum_1d = Spectrum1D(spectral_axis=wavelength, flux=flux)
-    source_spectrum = SourceSpectrum.from_spectrum1d(spectrum_1d)
-
-    flux_photlam: u.Quantity = source_spectrum(wavelength)
-
-    return flux_photlam.to(u.ph / (u.s * u.cm * u.cm * u.AA))
 
 
 def load_objects_from_gaia(
@@ -376,6 +460,9 @@ def load_objects_from_gaia(
         fov_radius=fov_radius,
     )
 
+    # Convert 'flux' from W / (nm m2) to ph / (s AA cm2)
+    flux_converted: xr.DataArray = convert_spectrum(flux=ds_from_gaia["flux"])
+
     # Convert the positions to arcseconds and center around 0.0, 0.0.
     # The centering is necessary because ScopeSIM cannot actually 'point' the telescope.
     ra_arcsec: u.Quantity = u.Quantity(ds_from_gaia["ra"], unit=u.deg).to(u.arcsec)
@@ -399,10 +486,10 @@ def load_objects_from_gaia(
         attrs={"units": weights_from_gaia.attrs["units"]},
     )
     ds["flux"] = xr.DataArray(
-        np.asarray(ds_from_gaia["flux_photlam"], dtype=float),
+        np.asarray(flux_converted, dtype=float),
         dims=["ref", "wavelength"],
-        coords={"wavelength": ds_from_gaia["wavelength"]},
-        attrs={"units": ds_from_gaia["flux_photlam"].attrs["units"]},
+        coords={"wavelength": flux_converted["wavelength"]},
+        attrs={"units": flux_converted.attrs["units"]},
     )
 
     return ds
