@@ -6374,12 +6374,12 @@
           "additionalProperties": false,
           "properties": {
             "band": {
-              "default": "bp",
-              "description": "Define the band to use. * 'bp' is the band from 330 nm to 680 nm * 'g'is the band from 330 nm to 1050 nm * 'rp' is the band from 640 nm to1050 nm",
+              "default": "blue_photometer",
+              "description": "Define the band to use. * 'blue_photometer' is the band from 330 nm to680 nm * 'gaia_band' is the band from 330 nm to 1050 nm *'red_photometer' is the band from 640 nm to 1050 nm",
               "enum": [
-                "bp",
-                "g",
-                "rp"
+                "blue_photometer",
+                "gaia_band",
+                "red_photometer"
               ],
               "title": "band",
               "type": "string"
