@@ -7,16 +7,13 @@
 
 """Pyxel Scene class to track multi-wavelength photon."""
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping
 from typing import TYPE_CHECKING
 
-import numpy as np
 import xarray as xr
 from datatree import DataTree
 
 if TYPE_CHECKING:
-    from astropy.io.fits import ImageHDU
-    from astropy.table import Table
     from scopesim import Source
 
 
