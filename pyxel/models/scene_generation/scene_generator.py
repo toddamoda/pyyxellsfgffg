@@ -31,23 +31,27 @@ class GaiaPassBand(Enum):
     More information available here: https://www.cosmos.esa.int/web/gaia/iow_20180316
     """
 
-    BP = "phot_bp_mean_mag"  # Wavelength from 330 nm to 680 nm
-    G = "phot_g_mean_mag"  # Wavelength from 330 nm to 1050 nm
-    RP = "phot_rp_mean_mag"  # Wavelength from 640 nm to 1050 nm
+    BluePhotometer = "blue_photometer"  # Wavelength from 330 nm to 680 nm
+    GaiaBand = "gaia_band"  # Wavelength from 330 nm to 1050 nm
+    RedPhotometer = "red_photometer"  # Wavelength from 640 nm to 1050 nm
 
-    @classmethod
-    def from_string(cls, value: str) -> "GaiaPassBand":
-        """Create a 'GaiaPassBand' object."""
-        band: str = value.upper()
+    def get_magnitude_key(self) -> str:
+        """Return the Gaia magnitude keyword.
 
-        if band == "BP":
-            return cls.BP
-        elif band == "G":
-            return cls.G
-        elif band == "RP":
-            return cls.RP
+        Examples
+        --------
+        >>> band = GaiaPassBand.BluePhotometer
+        >>> band.get_magnitude_key()
+        'phot_bp_mean_map'
+        """
+        if self is self.BluePhotometer:
+            return "phot_bp_mean_mag"
+        elif self is self.GaiaBand:
+            return "phot_g_mean_mag"
+        elif self is self.RedPhotometer:
+            return "phot_rp_mean_mag"
         else:
-            raise ValueError(f"Unknown GaiaPassBand. {value=}")
+            raise NotImplementedError
 
 
 def retrieve_objects_from_gaia(
@@ -169,7 +173,7 @@ def load_objects_from_gaia(
     right_ascension: float,
     declination: float,
     fov_radius: float,
-    band: GaiaPassBand = GaiaPassBand.BP,
+    band: GaiaPassBand = GaiaPassBand.BluePhotometer,
 ) -> scopesim.Source:
     """Load objects from GAIA Catalog for given coordinates and FOV.
 
@@ -223,7 +227,7 @@ def load_objects_from_gaia(
     ref = np.arange(len(positions), dtype=int)
 
     # select magnitude band. Could be an input parameter of model.
-    weight = positions[band.value]
+    weight = positions[band.get_magnitude_key()]
 
     tbl = Table(
         names=["x", "y", "ref", "weight"],
@@ -239,7 +243,7 @@ def generate_scene(
     right_ascension: float,
     declination: float,
     fov_radius: float,
-    band: Literal["bp", "g", "rp"] = "bp",
+    band: Literal["blue_photometer", "gaia_band", "red_photometer"] = "blue_photometer",
 ):
     """Generate scene from scopesim Source object loading stars from the GAIA catalog.
 
@@ -253,13 +257,13 @@ def generate_scene(
         DEC coordinate in degree.
     fov_radius : float
         FOV radius of telescope optics.
-    band : 'bp', 'g' or 'rp'
+    band : 'blue_photometer', 'gaia_band' or 'red_photometer'
         Define the band to use.
-        * 'bp' is the band from 330 nm to 680 nm
-        * 'g' is the band from 330 nm to 1050 nm
-        * 'rp' is the band from 640 nm to 1050 nm
+        * 'blue_photometer' is the band from 330 nm to 680 nm
+        * 'gaia_band' is the band from 330 nm to 1050 nm
+        * 'red_photometer' is the band from 640 nm to 1050 nm
     """
-    band_pass: GaiaPassBand = GaiaPassBand.from_string(band)
+    band_pass: GaiaPassBand = GaiaPassBand(band)
 
     source: scopesim.Source = load_objects_from_gaia(
         right_ascension=right_ascension,
