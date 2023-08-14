@@ -17,6 +17,7 @@ from synphot import SourceSpectrum
 
 from pyxel.detectors import CCD
 from pyxel.models.scene_generation import generate_scene
+from pyxel.models.scene_generation.scene_generator import GaiaPassBand
 
 
 @pytest.fixture
@@ -179,6 +180,31 @@ def spectra_dct(
         dct[source_id] = table
 
     return dct
+
+
+@pytest.mark.parametrize(
+    "name, exp_band",
+    [
+        ("blue_photometer", GaiaPassBand.BluePhotometer),
+        ("gaia_band", GaiaPassBand.GaiaBand),
+        ("red_photometer", GaiaPassBand.RedPhotometer),
+    ],
+)
+def test_gaia_passband(name: str, exp_band: GaiaPassBand):
+    """Test class 'GaiaPassBand'."""
+    band = GaiaPassBand(name)
+    assert band is exp_band
+
+
+@pytest.mark.parametrize(
+    "band, exp_result", [(GaiaPassBand.BluePhotometer, "phot_bp_mean_mag")]
+)
+def test_gaia_pass_band_magnitude_key(band: GaiaPassBand, exp_result: str):
+    """Test method 'GaiaPassBand.get_magnitude_key()."""
+    assert isinstance(band, GaiaPassBand)
+
+    result = band.get_magnitude_key()
+    assert result == exp_result
 
 
 def test_scene_generator(

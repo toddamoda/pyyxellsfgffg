@@ -59,6 +59,7 @@ Models
 
 .. toctree::
 
+   model_groups/scene_generation_models.rst
    model_groups/photon_collection_models.rst
    model_groups/charge_generation_models.rst
    model_groups/charge_collection_models.rst
