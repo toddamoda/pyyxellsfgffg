@@ -155,9 +155,9 @@ class Scene:
 
     def to_dict(self) -> Mapping:
         """Convert an instance of `Scene` to a `dict`."""
-        key: str
-        value: xr.Dataset
-        result = {key: value.to_dict() for key, value in self.data.to_dict().items()}
+        result: Mapping = {
+            key: value.to_dict() for key, value in self.data.to_dict().items()
+        }
 
         return result
 
@@ -169,6 +169,6 @@ class Scene:
         }
 
         scene = cls()
-        scene._data = data
+        scene._source = DataTree.from_dict(data, name="scene")  # type: ignore
 
         return scene
