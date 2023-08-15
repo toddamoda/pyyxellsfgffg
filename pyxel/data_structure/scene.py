@@ -24,7 +24,7 @@ class Scene:
         self._source: DataTree = DataTree(name="scene")
 
     def __eq__(self, other) -> bool:
-        return type(self) is type(other) and self.data == other.data
+        return type(self) is type(other) and self.data.identical(other.data)
 
     def add_source(self, source: xr.Dataset) -> None:
         """Add a source to the current scene.
@@ -76,7 +76,12 @@ class Scene:
         if not isinstance(source, xr.Dataset):
             raise TypeError("Expecting a Dataset object for source")
 
-        if set(source.coords) != {"ref", "wavelength"} or set(source.data_vars) != {
+        if set(source.coords) != {"ref", "wavelength"}:
+            raise ValueError(
+                "Wrong format for source. Expecting coordinates 'ref' and 'wavelength'."
+            )
+
+        if set(source.data_vars) != {
             "x",
             "y",
             "weight",
@@ -150,56 +155,20 @@ class Scene:
 
     def to_dict(self) -> Mapping:
         """Convert an instance of `Scene` to a `dict`."""
-        # meta: Mapping = self._source.meta
-        # table_fields: Sequence[Table] = self._source.table_fields
-        # image_fields: Sequence[ImageHDU] = self._source.image_fields
-        #
-        # # Create 'tables'
-        # tables: Sequence[Mapping] = [
-        #     {
-        #         "data": table.to_pandas(),
-        #         "units": {
-        #             key.replace("_unit", ""): value
-        #             for key, value in table.meta.items()
-        #             if key.endswith("_unit")
-        #         },
-        #     }
-        #     for table in table_fields
-        # ]
-        #
-        # images: Sequence[Mapping] = [
-        #     {"header": dict(image.header), "data": np.asarray(image.data)}
-        #     for image in image_fields
-        # ]
-        #
-        # return {"meta": meta, "tables": tables, "images": images}
-        raise NotImplementedError
+        key: str
+        value: xr.Dataset
+        result = {key: value.to_dict() for key, value in self.data.to_dict().items()}
+
+        return result
 
     @classmethod
     def from_dict(cls, dct: Mapping) -> "Scene":
         """Create a new instance of a `Scene` object from a `dict`."""
-        # from astropy.io.fits import Header, ImageHDU
-        # from astropy.table import Table
-        # from scopesim import Source
-        #
-        # meta: Mapping = dct["meta"]
-        # tables: Mapping = dct["tables"]
-        # images: Mapping = dct["images"]
-        #
-        # table_fields: Sequence[Table] = [
-        #     Table.from_pandas(dataframe=table["data"], units=table["units"])
-        #     for table in tables
-        # ]
-        #
-        # image_fields: Sequence[ImageHDU] = [
-        #     ImageHDU(data=img["data"], header=Header(img["header"])) for img in images
-        # ]
-        #
-        # src: Source = Source(
-        #     meta=meta,
-        #     image_fields=image_fields,
-        #     table_fields=table_fields,
-        # )
-        #
-        # return cls(src)
-        raise NotImplementedError
+        data: Mapping[str, xr.Dataset] = {
+            key: xr.Dataset.from_dict(value) for key, value in dct.items()
+        }
+
+        scene = cls()
+        scene._data = data
+
+        return scene
