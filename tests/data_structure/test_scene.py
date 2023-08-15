@@ -128,7 +128,7 @@ def test_add_source_bad_inputs(source, exp_error, exp_message):
 
 
 def test_empty_to_dict_from_dict():
-    """Test methods '.to_dict' and '.from_dict'"""
+    """Test methods '.to_dict' and '.from_dict'."""
     scene = Scene()
 
     # Test method '.to_dict'
@@ -142,7 +142,7 @@ def test_empty_to_dict_from_dict():
 
 
 def test_to_dict_from_dict(source: xr.Dataset):
-    """Test methods '.to_dict' and '.from_dict'"""
+    """Test methods '.to_dict' and '.from_dict'."""
     scene = Scene()
     scene.add_source(source)
 

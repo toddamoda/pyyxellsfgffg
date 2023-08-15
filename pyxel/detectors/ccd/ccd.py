@@ -8,7 +8,7 @@
 """CCD detector modeling class."""
 
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from pyxel.detectors import Detector
 
@@ -65,22 +65,31 @@ class CCD(Detector):
             },
             "data": {
                 "photon": None if self._photon is None else self._photon.array.copy(),
-                "scene": None if self._scene is None else self._scene.to_dict(),
                 "pixel": None if self._pixel is None else self._pixel.array.copy(),
                 "signal": None if self._signal is None else self._signal.array.copy(),
                 "image": None if self._image is None else self._image.array.copy(),
-                "data": None
-                if self._data is None
-                else {
-                    key.replace("/", "#"): value
-                    for key, value in self._data.to_dict().items()
-                },
+                "data": (
+                    None
+                    if self._data is None
+                    else {
+                        key.replace("/", "#"): value
+                        for key, value in self._data.to_dict().items()
+                    }
+                ),
                 "charge": (
                     None
                     if self._charge is None
                     else {
                         "array": self._charge.array.copy(),
                         "frame": self._charge.frame.copy(),
+                    }
+                ),
+                "scene": (
+                    None
+                    if self._scene is None
+                    else {
+                        key.replace("/", "#"): value
+                        for key, value in self._scene.to_dict().items()
                     }
                 ),
             },
@@ -121,11 +130,6 @@ class CCD(Detector):
 
         if "photon" in data:
             detector.photon.array = np.asarray(data["photon"])
-
-        scene: Optional[Mapping] = data.get("scene")
-        if scene is not None:
-            detector.scene = Scene.from_dict(scene)
-
         if "pixel" in data:
             detector.pixel.array = np.asarray(data["pixel"])
         if "signal" in data:
@@ -138,6 +142,10 @@ class CCD(Detector):
                     key.replace("#", "/"): xr.Dataset.from_dict(value)
                     for key, value in data["data"].items()
                 }
+            )
+        if "scene" in data and (scene_dct := data["scene"]) is not None:
+            detector.scene = Scene.from_dict(
+                {key.replace("#", "/"): value for key, value in scene_dct.items()}
             )
         if "charge" in data and data["charge"] is not None:
             charge_dct = data["charge"]
