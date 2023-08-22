@@ -61,6 +61,8 @@ and is now replaced by the `Detector.data` bucket.
   (See [!685](https://gitlab.com/esa/pyxel/-/merge_requests/685)).
 * Signal to Noise Ratio model.
   (See [!707](https://gitlab.com/esa/pyxel/-/merge_requests/707)).
+* Use new Pyxel Coordinate Conventions for model 'charge_generation.load_charge'.
+  (See [!717](https://gitlab.com/esa/pyxel/-/merge_requests/717)).
 
 ### Others
 * Refactoring.
