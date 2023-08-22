@@ -118,11 +118,12 @@ to look for certain things:
 
 .. toctree::
    :caption: Background / Explanations
-   :maxdepth: 1
+   :maxdepth: 2
    :hidden:
 
    background/overview.rst
    background/architecture.rst
+   background/pixel_coordinate_conventions.rst
    background/detectors.rst
    background/pipeline.rst
    background/yaml.rst
