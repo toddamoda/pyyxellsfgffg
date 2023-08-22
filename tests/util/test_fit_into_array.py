@@ -12,6 +12,7 @@ import numpy as np
 import pytest
 
 from pyxel.util import fit_into_array
+from pyxel.util.image import Alignment, _set_relative_position
 
 
 @pytest.fixture
@@ -104,25 +105,25 @@ def array_1d_row() -> np.ndarray:
         pytest.param(
             (5, 5),
             (0, 0),
-            "top_left",
-            True,
-            np.array(
-                [
-                    [1.0, 2.0, 0.0, 0.0, 0.0],
-                    [3.0, 4.0, 0.0, 0.0, 0.0],
-                    [5.0, 6.0, 0.0, 0.0, 0.0],
-                    [0.0, 0.0, 0.0, 0.0, 0.0],
-                    [0.0, 0.0, 0.0, 0.0, 0.0],
-                ]
-            ),
-        ),
-        pytest.param(
-            (5, 5),
-            (0, 0),
             "bottom_left",
             True,
             np.array(
                 [
+                    [1.0, 2.0, 0.0, 0.0, 0.0],
+                    [3.0, 4.0, 0.0, 0.0, 0.0],
+                    [5.0, 6.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0],
+                ]
+            ),
+        ),
+        pytest.param(
+            (5, 5),
+            (0, 0),
+            "top_left",
+            True,
+            np.array(
+                [
                     [0.0, 0.0, 0.0, 0.0, 0.0],
                     [0.0, 0.0, 0.0, 0.0, 0.0],
                     [1.0, 2.0, 0.0, 0.0, 0.0],
@@ -134,7 +135,7 @@ def array_1d_row() -> np.ndarray:
         pytest.param(
             (5, 5),
             (0, 0),
-            "bottom_right",
+            "top_right",
             True,
             np.array(
                 [
@@ -149,7 +150,7 @@ def array_1d_row() -> np.ndarray:
         pytest.param(
             (5, 5),
             (0, 0),
-            "top_right",
+            "bottom_right",
             True,
             np.array(
                 [
@@ -381,3 +382,35 @@ def test_fit_into_array_bad_inputs(
             align=align,
             allow_smaller_array=allow_smaller_array,
         )
+
+
+@pytest.mark.parametrize(
+    "output,array,alignment,expected",
+    [
+        ((None, None), (None, None), Alignment.bottom_left, (0, 0)),
+        ((2, 3), (0, 0), Alignment.top_left, (2, 0)),
+        ((2, 3), (1, 1), Alignment.top_left, (1, 0)),
+        ((2, 3), (0, 0), Alignment.bottom_right, (0, 3)),
+        ((2, 3), (1, 1), Alignment.bottom_right, (0, 2)),
+        ((2, 3), (0, 0), Alignment.top_right, (2, 3)),
+        ((2, 3), (1, 1), Alignment.top_right, (1, 2)),
+        ((4, 6), (0, 0), Alignment.center, (2, 3)),
+        ((4, 6), (2, 2), Alignment.center, (1, 2)),
+        ((3, 5), (0, 0), Alignment.center, (1, 2)),
+        ((3, 5), (1, 1), Alignment.center, (1, 2)),
+        ((3, 5), (2, 2), Alignment.center, (0, 1)),
+    ],
+)
+def test_set_relative_position(output, array, alignment, expected):
+    """Test function 'pyxel.util.image._set_relative_position."""
+    array_y, array_x = array
+    output_y, output_x = output
+
+    result = _set_relative_position(
+        array_x=array_x,
+        array_y=array_y,
+        output_x=output_x,
+        output_y=output_y,
+        alignment=alignment,
+    )
+    assert result == expected

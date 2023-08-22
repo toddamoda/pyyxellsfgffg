@@ -41,6 +41,27 @@ def load_charge(
         ("center", "top_left", "top_right", "bottom_left", "bottom_right")
     time_scale : float
         Time scale of the input charge, default is 1 second. 0.001 would be ms.
+
+    Notes
+    -----
+    The :ref:`Pixel coordinate conventions <pixel_coordinate_conventions>` in Pyxel define
+    the coordinate of pixel ``(0, 0)`` at the center of the leftmost bottom pyxel.
+
+    For example, when using the parameter ``align = "bottom_left"``, the image generated will
+    be aligned to the lower leftmost pixel ``(0, 0)`` like this:
+
+    .. code-block:: bash
+
+                   ┌─────────────┐
+          top    4 │ ........... │
+                 3 │ ........... │     Size: 5 x 10
+       Y         2 │ xxxxx...... │     x: charge injected
+                 1 │ xxxxx...... │
+          bottom 0 │ xxxxx...... │
+                   └─────────────┘
+                     0 2 4 6 8 9
+                    left    right
+                          X
     """
     geo: Geometry = detector.geometry
     position_y, position_x = position
