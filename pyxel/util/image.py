@@ -52,13 +52,13 @@ def _set_relative_position(
     if alignment == Alignment.center:
         return int((output_y - array_y) / 2), int((output_x - array_x) / 2)
     elif alignment == Alignment.top_left:
-        return 0, 0
-    elif alignment == Alignment.top_right:
-        return 0, output_x - array_x
-    elif alignment == Alignment.bottom_left:
         return output_y - array_y, 0
-    elif alignment == Alignment.bottom_right:
+    elif alignment == Alignment.top_right:
         return output_y - array_y, output_x - array_x
+    elif alignment == Alignment.bottom_left:
+        return 0, 0
+    elif alignment == Alignment.bottom_right:
+        return 0, output_x - array_x
     else:
         raise NotImplementedError
 
