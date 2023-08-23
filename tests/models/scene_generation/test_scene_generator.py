@@ -24,7 +24,7 @@ from pyxel.models.scene_generation.scene_generator import (
 
 @pytest.fixture
 def source_ids() -> list[int]:
-    """Return unique source identifier from the GAIA database"""
+    """Return unique source identifier from the GAIA database."""
     return [66727234683960320, 65214031805717376, 65225851555715328, 65226195153096192]
 
 
