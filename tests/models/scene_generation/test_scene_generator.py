@@ -5,6 +5,8 @@
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
 
+from typing import TYPE_CHECKING
+
 import astropy.units as u
 import pytest
 import xarray as xr
@@ -13,16 +15,18 @@ from astropy.utils.diff import diff_values
 from numpy.testing import assert_allclose
 from pytest_mock import MockerFixture  # pip install pytest-mock
 from scopesim import Source
-from synphot import SourceSpectrum
 
 from pyxel.detectors import CCD
 from pyxel.models.scene_generation import generate_scene
 from pyxel.models.scene_generation.scene_generator import GaiaPassBand
 
+if TYPE_CHECKING:
+    from synphot import SourceSpectrum
+
 
 @pytest.fixture
 def source_ids() -> list[int]:
-    """Return unique source identifier from the GAIA database"""
+    """Return unique source identifier from the GAIA database."""
     return [66727234683960320, 65214031805717376, 65225851555715328, 65226195153096192]
 
 
