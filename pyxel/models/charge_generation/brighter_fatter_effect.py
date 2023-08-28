@@ -10,9 +10,10 @@
 from collections.abc import Sequence
 
 import numba
-import numpy
 import numpy as np
+import xarray as xr
 from astropy.convolution import Gaussian2DKernel, convolve_fft
+from datatree import DataTree
 
 from pyxel.detectors import Detector
 
@@ -69,6 +70,7 @@ def simple_bfe(
     norm_sigma = alpha + beta * ((1 / theta_fwc) * theta)
 
     std = np.mean(norm_sigma)  # just for now in pyxel
+    # print(std)
 
     # calculate 2D Gaussian kernel
     kernel = Gaussian2DKernel(x_stddev=std, x_size=9)  # , y_size=3)
@@ -81,6 +83,41 @@ def simple_bfe(
         fill_value=mean,
         normalize_kernel=normalize_kernel,
     )
+    # Get current absolute time
+    absolute_time = xr.DataArray(
+        [detector.absolute_time],
+        dims=["time"],
+        attrs={"units": "s"},
+    )
+    dataset = xr.Dataset()
+    dataset["sigma"] = xr.DataArray(std)
+    dataset = dataset.expand_dims(dim="time").assign_coords(time=absolute_time)
+
+    key = "kernel"
+    key_partial = "kernel_partial"
+
+    try:
+        _ = detector.data[key_partial]
+    except KeyError:
+        has_key_partial = False
+    else:
+        has_key_partial = True
+
+    if not has_key_partial:
+        data_tree: DataTree = DataTree(dataset)
+    else:
+        # Concatenate data
+        previous_datatree = detector.data[key_partial]
+        data_tree = previous_datatree.combine_first(dataset)  # type: ignore
+
+    if detector.pipeline_count == (detector.num_steps - 1):
+        detector.data[key] = data_tree
+    else:
+        detector.data[key_partial] = data_tree
+
+    # This is the last step and there is at least two steps
+    if detector.num_steps > 1 and (detector.pipeline_count == (detector.num_steps - 1)):
+        detector.data[key_partial].orphan()
 
     detector.photon.array = conv
 
@@ -94,7 +131,7 @@ def bfe(
     c,
     alpha: float,
     beta: float,
-) -> numpy.ndarray:
+) -> np.ndarray:
     """
 
     Parameters
