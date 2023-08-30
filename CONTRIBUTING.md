@@ -26,3 +26,7 @@ We also have guidelines regarding coding style that will be enforced during test
 
 Once your changes are ready to be submitted, make sure to push your changes to GitHub before creating a pull request. Details about how to do that can be found in the "[Contributing your changes to Pyxel](https://esa.gitlab.io/pyxel/doc/stable/references/contributing.html#contributing-your-changes-to-pyxel)" section. 
 We will review your changes, and you will most likely be asked to make additional changes before it is finally ready to merge. However, once it's ready, we will merge it, and you will have successfully contributed to the codebase!
+More information can be found in the Contribution Guide, when clicking on the button below.
+
+[![Static Badge](https://img.shields.io/badge/I_want_to_contribute_to_Pyxel-yellow)](https://esa.gitlab.io/pyxel/doc/stable/references/contributing.html)
+

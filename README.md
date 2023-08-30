@@ -14,6 +14,7 @@ Pyxel detector simulation framework
 [![coverage report](https://gitlab.com/esa/pyxel/badges/master/coverage.svg)](https://esa.gitlab.io/pyxel/htmlcov/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![JSON Schema](https://img.shields.io/badge/JSON%20Schema-draft--07-green)](https://esa.gitlab.io/pyxel/pyxel_schema.json)
+[![Static Badge](https://img.shields.io/badge/I_want_to_contribute_to_Pyxel-yellow)](https://esa.gitlab.io/pyxel/doc/stable/references/contributing.html)
 
 ## What is it?
 
