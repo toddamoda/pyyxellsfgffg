@@ -1351,9 +1351,6 @@
                 "$ref": "#/definitions/ModelChargeGenerationDarkCurrent"
               },
               {
-                "$ref": "#/definitions/ModelChargeGenerationDarkCurrentInduced"
-              },
-              {
                 "$ref": "#/definitions/ModelChargeGenerationDarkCurrentRule07"
               },
               {
@@ -1361,6 +1358,9 @@
               },
               {
                 "$ref": "#/definitions/ModelChargeGenerationLoadCharge"
+              },
+              {
+                "$ref": "#/definitions/ModelChargeGenerationRadiationInducedDarkCurrent"
               },
               {
                 "$ref": "#/definitions/ModelChargeGenerationSimpleConversion"
@@ -3132,71 +3132,6 @@
       "title": "Model 'dark_current'",
       "type": "object"
     },
-    "ModelChargeGenerationDarkCurrentInduced": {
-      "additionalProperties": false,
-      "description": "Model to add dark current induced by radiation to the detector charge.",
-      "properties": {
-        "arguments": {
-          "additionalProperties": false,
-          "properties": {
-            "annealing_time": {
-              "description": "Annealing time. Unit: weeks",
-              "title": "annealing_time",
-              "type": "number"
-            },
-            "depletion_volume": {
-              "description": "Depletion volume parameter. Unit: \u00b5m3.",
-              "title": "depletion_volume",
-              "type": "number"
-            },
-            "displacement_dose": {
-              "description": "Displacement dose parameter. Unit: TeV/g",
-              "title": "displacement_dose",
-              "type": "number"
-            },
-            "seed": {
-              "default": null,
-              "title": "seed",
-              "type": [
-                "integer",
-                "null"
-              ]
-            },
-            "shot_noise": {
-              "description": "True to enable shotnoise.",
-              "title": "shot_noise",
-              "type": "boolean"
-            }
-          },
-          "required": [
-            "depletion_volume",
-            "annealing_time",
-            "displacement_dose",
-            "shot_noise"
-          ],
-          "title": "Parameters",
-          "type": "object"
-        },
-        "enabled": {
-          "default": true,
-          "type": "boolean"
-        },
-        "func": {
-          "const": "pyxel.models.charge_generation.dark_current_induced",
-          "default": "pyxel.models.charge_generation.dark_current_induced",
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "arguments"
-      ],
-      "title": "Model 'dark_current_induced'",
-      "type": "object"
-    },
     "ModelChargeGenerationDarkCurrentRule07": {
       "additionalProperties": false,
       "description": "Generate charge from dark current process.",
@@ -3397,6 +3332,71 @@
         "arguments"
       ],
       "title": "Model 'load_charge'",
+      "type": "object"
+    },
+    "ModelChargeGenerationRadiationInducedDarkCurrent": {
+      "additionalProperties": false,
+      "description": "Model to add dark current induced by radiation to the detector charge.",
+      "properties": {
+        "arguments": {
+          "additionalProperties": false,
+          "properties": {
+            "annealing_time": {
+              "description": "Annealing time. Unit: weeks",
+              "title": "annealing_time",
+              "type": "number"
+            },
+            "depletion_volume": {
+              "description": "Depletion volume parameter. Unit: \u00b5m3.",
+              "title": "depletion_volume",
+              "type": "number"
+            },
+            "displacement_dose": {
+              "description": "Displacement dose parameter. Unit: TeV/g",
+              "title": "displacement_dose",
+              "type": "number"
+            },
+            "seed": {
+              "default": null,
+              "title": "seed",
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "shot_noise": {
+              "description": "True to enable shotnoise.",
+              "title": "shot_noise",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "depletion_volume",
+            "annealing_time",
+            "displacement_dose",
+            "shot_noise"
+          ],
+          "title": "Parameters",
+          "type": "object"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "func": {
+          "const": "pyxel.models.charge_generation.radiation_induced_dark_current",
+          "default": "pyxel.models.charge_generation.radiation_induced_dark_current",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "arguments"
+      ],
+      "title": "Model 'radiation_induced_dark_current'",
       "type": "object"
     },
     "ModelChargeGenerationSimpleConversion": {
