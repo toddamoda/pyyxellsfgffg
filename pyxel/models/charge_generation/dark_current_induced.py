@@ -148,7 +148,7 @@ def damage_factors_silicon(
     )
 
 
-def compute_dark_current_induced(
+def compute_radiation_induced_dark_current(
     number_of_rows: int,
     number_of_columns: int,
     mu_dark: float,
@@ -227,7 +227,7 @@ def compute_dark_current_induced(
     return dark_signal_frame
 
 
-def dark_current_induced(
+def radiation_induced_dark_current(
     detector: CMOS,
     depletion_volume: float,
     annealing_time: float,
@@ -237,7 +237,8 @@ def dark_current_induced(
 ) -> None:
     """Model to add dark current induced by radiation to the detector charge.
 
-    The induced dark current model description can be found in :cite:p:`RadiationLeRoch2019` and :cite:p:`Belloir:16`.
+    The radiation induced dark current model description can be found in :cite:p:`RadiationLeRoch2019`
+    and :cite:p:`Belloir:16`.
 
     Parameters
     ----------
@@ -266,7 +267,7 @@ def dark_current_induced(
     number_of_rows, number_of_columns = geo.shape
 
     with set_random_seed(seed):
-        dark_signal_frame = compute_dark_current_induced(
+        dark_signal_frame = compute_radiation_induced_dark_current(
             number_of_rows=number_of_rows,
             number_of_columns=number_of_columns,
             mu_dark=mu_dark,

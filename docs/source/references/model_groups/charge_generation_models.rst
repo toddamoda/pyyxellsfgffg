@@ -452,8 +452,8 @@ Example of the configuration file:
 
 .. _Dark current induced:
 
-Dark Current induced
-====================
+Radiation induced Dark Current
+==============================
 
 :guilabel:`Charge` → :guilabel:`Charge`
 
@@ -464,8 +464,8 @@ Example of configuration file:
 
 .. code-block:: yaml
 
-    - name: dark_current_induced
-      func: pyxel.models.charge_generation.dark_current_induced
+    - name: radiation_induced_dark_current
+      func: pyxel.models.charge_generation.radiation_induced_dark_current
       enabled: true
       arguments:
         depletion_volume: 64 # µm3
@@ -475,4 +475,4 @@ Example of configuration file:
 
 .. note:: This model is only available for CMOS detector.
 
-.. autofunction:: pyxel.models.charge_generation.dark_current_induced
+.. autofunction:: pyxel.models.charge_generation.radiation_induced_dark_current
