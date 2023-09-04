@@ -124,7 +124,8 @@ def simple_bfe(
 
 @numba.njit(fastmath=False)
 def bfe(
-    detector: Detector,
+    data_2d,
+    FWC,
     a,
     b,
     c,
@@ -146,23 +147,18 @@ def bfe(
     -------
 
     """
-    signal = detector.photon.array
 
-    new_data_2d = np.zeros_like(signal)
+    new_data_2d = np.zeros_like(data_2d)
     num_y, num_x = new_data_2d.shape
 
-    mean = np.mean(signal)
+    mean = np.mean(data_2d)
     # sigma_array = a + b * data_2d + c * data_2d**2
-    theta = a + b * signal + c * signal**2
-    theta_fwc = (
-        a
-        + b * detector.characteristics.full_well_capacity
-        + c * detector.characteristics.full_well_capacity**2
-    )
+    theta = a + b * data_2d + c * data_2d**2
+    theta_fwc = a + b * FWC + c * FWC**2
     # norm_sigma = (1 / np.max(sigma_array)) * sigma_array
     norm_sigma = alpha + beta * ((1 / theta_fwc) * theta)
     # std = np.mean(norm_sigma)
-    new_data = np.zeros_like(signal)
+    new_data = np.zeros_like(data_2d)
     for k in range(num_x):
         for l in range(num_y):
             sigma = norm_sigma[k, l]
