@@ -8,4 +8,4 @@
 """TBW."""
 
 # flake8: noqa
-from .scene_generator import generate_scene
+from .load_star_map import load_star_map

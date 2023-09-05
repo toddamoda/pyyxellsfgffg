@@ -495,7 +495,7 @@ def load_objects_from_gaia(
     return ds
 
 
-def generate_scene(
+def load_star_map(
     detector: Detector,
     right_ascension: float,
     declination: float,
