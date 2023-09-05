@@ -15,11 +15,8 @@ from datatree import DataTree
 from pytest_mock import MockerFixture  # pip install pytest-mock
 
 from pyxel.detectors import CCD
-from pyxel.models.scene_generation import generate_scene
-from pyxel.models.scene_generation.scene_generator import (
-    GaiaPassBand,
-    retrieve_from_gaia,
-)
+from pyxel.models.scene_generation import load_star_map
+from pyxel.models.scene_generation.load_star_map import GaiaPassBand, retrieve_from_gaia
 
 
 @pytest.fixture
@@ -313,7 +310,7 @@ def test_compute_flux_compare_to_manual_conversion():
     assert_quantity_allclose(actual=new_flux, desired=expected_flux, rtol=1e-5)
 
 
-def test_scene_generator(
+def test_load_star_map(
     mocker: MockerFixture,
     ccd_10x10: CCD,
     positions_table: Table,
@@ -334,7 +331,7 @@ def test_scene_generator(
 
     # Run model
     detector: CCD = ccd_10x10
-    generate_scene(
+    load_star_map(
         detector=detector,
         right_ascension=0.0,  # This parameter is not important
         declination=0.0,  # This parameter is not important
