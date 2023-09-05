@@ -71,30 +71,59 @@ def test_simple_adc_wrong_data_type(
 
 
 @pytest.mark.parametrize(
-    "signal, bit_resolution, voltage_range, exp_output",
+    "signal, bit_resolution, voltage_range, dtype, exp_output",
     [
         pytest.param(
-            np.array([0.0, 6.0]),
+            np.array([0.0, 0.4, 0.5, 0.6, 1.0, 7.0, 8.0, 14.0, 15.0]),
+            4,
+            (0.0, 15.0),
+            np.uint8,
+            np.array([0, 0, 0, 0, 1, 7, 8, 14, 15], dtype=np.uint8),
+            id="4 bit - Range: [0.0, 15.0]",
+        ),
+        pytest.param(
+            np.array([-0.1, 0.0, 3.0, 6.0, 6.1]),
             8,
             (0.0, 6.0),
-            np.array([0, 255], dtype=int),
-            id="8 bit",
+            np.uint8,
+            np.array([0, 0, 127, 255, 255], dtype=np.uint8),
+            id="8 bit - Range: [0.0, 6.0]",
+        ),
+        pytest.param(
+            np.array([0.9, 1.0, 4.0, 7.0, 7.1]),
+            8,
+            (1.0, 7.0),
+            np.uint8,
+            np.array([0, 0, 127, 255, 255], dtype=np.uint8),
+            id="8 bit - Range: [1.0, 7.0]",
         ),
         pytest.param(
             np.array([-0.1, 0.0, 6.0, 6.1]),
             16,
             (0.0, 6.0),
-            np.array([0, 0, 65535, 65535], dtype=int),
-            id="16 bit",
+            np.uint16,
+            np.array([0, 0, 65535, 65535], dtype=np.uint16),
+            id="16 bit - Range: [0.0, 6.0]",
         ),
-        # pytest.param( np.array([-.1, 0., 6., 6.1]),32 ,(0., 6.), np.array([0, 0,2**32-1, 2**32-1], dtype=int), id='32 bit'),
+        pytest.param(
+            np.array([-0.1, 0.0, 6.0, 6.1]),
+            32,
+            (0.0, 6.0),
+            np.uint32,
+            np.array([0, 0, 2**32 - 1, 2**32 - 1], dtype=np.uint32),
+            id="32 bit - Range: [0.0, 6.0]",
+        ),
     ],
 )
-def test_apply_simple_adc(signal, bit_resolution, voltage_range, exp_output):
+def test_apply_simple_adc(signal, bit_resolution, voltage_range, dtype, exp_output):
+    """Test function 'apply_simple_adc'."""
+    voltage_min, voltage_max = voltage_range
     output = apply_simple_adc(
         signal=signal,
         bit_resolution=bit_resolution,
-        voltage_range=voltage_range,
+        voltage_min=voltage_min,
+        voltage_max=voltage_max,
+        dtype=dtype,
     )
 
     assert_array_equal(output, exp_output)
