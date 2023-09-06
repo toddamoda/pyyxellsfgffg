@@ -1691,7 +1691,7 @@
           "items": {
             "anyOf": [
               {
-                "$ref": "#/definitions/ModelSceneGenerationGenerateScene"
+                "$ref": "#/definitions/ModelSceneGenerationLoadStarMap"
               },
               {
                 "$ref": "#/definitions/ModelLoadDetector"
@@ -6366,7 +6366,7 @@
       ],
       "type": "object"
     },
-    "ModelSceneGenerationGenerateScene": {
+    "ModelSceneGenerationLoadStarMap": {
       "additionalProperties": false,
       "description": "Generate scene from scopesim Source object loading stars from the GAIAcatalog.",
       "properties": {
@@ -6413,8 +6413,8 @@
           "type": "boolean"
         },
         "func": {
-          "const": "pyxel.models.scene_generation.generate_scene",
-          "default": "pyxel.models.scene_generation.generate_scene",
+          "const": "pyxel.models.scene_generation.load_star_map",
+          "default": "pyxel.models.scene_generation.load_star_map",
           "type": "string"
         },
         "name": {
@@ -6425,7 +6425,7 @@
         "name",
         "arguments"
       ],
-      "title": "Model 'generate_scene'",
+      "title": "Model 'load_star_map'",
       "type": "object"
     },
     "Observation": {
