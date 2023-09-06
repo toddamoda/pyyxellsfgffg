@@ -61,10 +61,10 @@ Accepted file formats are ``.h5``, ``.hdf5``, ``.hdf`` and ``.asdf``.
    :noindex:
 
 
-.. _generate_scene:
+.. _load_star_map:
 
-Scene Generation
-================
+Load star map
+=============
 
 :guilabel:`Scene` → :guilabel:`Scene`
 
@@ -74,12 +74,12 @@ Example of the configuration file:
 
 .. code-block:: yaml
 
-    - name: generate_scene
-      func: pyxel.models.scene_generation.generate_scene
+    - name: load_star_map
+      func: pyxel.models.scene_generation.load_star_map
       enabled: true
       arguments:
         right_ascension: 56.75 # deg
         declination: 24.1167 # deg
         fov_radius: 0.5 # deg
 
-.. autofunction:: generate_scene
+.. autofunction:: load_star_map
