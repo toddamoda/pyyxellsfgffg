@@ -85,6 +85,7 @@ dependencies:
   - pre-commit
   - pytest
   - pytest-httpserver
+  - pytest-mock
   - tox
   - tryceratops
   - freezegun

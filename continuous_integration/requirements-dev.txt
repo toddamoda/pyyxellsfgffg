@@ -21,3 +21,4 @@ pytest-httpserver
 freezegun
 jsonschema
 pytest-cov
+pytest-mock
