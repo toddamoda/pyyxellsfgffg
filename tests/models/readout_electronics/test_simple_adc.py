@@ -98,6 +98,14 @@ def test_simple_adc_wrong_data_type(
             id="8 bit - Range: [1.0, 7.0]",
         ),
         pytest.param(
+            np.array([-1.1, -1.0, 2.0, 5.0, 5.1]),
+            8,
+            (-1.0, 5.0),
+            np.uint8,
+            np.array([0, 0, 127, 255, 255], dtype=np.uint8),
+            id="8 bit - Range: [-1.0, 5.0]",
+        ),
+        pytest.param(
             np.array([-0.1, 0.0, 6.0, 6.1]),
             16,
             (0.0, 6.0),
