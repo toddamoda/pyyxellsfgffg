@@ -227,11 +227,11 @@ def test_retrieve_from_gaia(
     source1_gaia: xr.Dataset,
 ):
     """Test function 'retrieve_from_gaia'."""
-    # Mock function 'pyxel.models.scene_generation.scene_generator.retrieve_objects_from_gaia'
+    # Mock function 'pyxel.models.scene_generation.load_star_map.retrieve_objects_from_gaia'
     # When this function will be called (with any parameters), it will always return this tuple
     # (positions_table, spectra_dct)
     mocker.patch(
-        target="pyxel.models.scene_generation.scene_generator._retrieve_objects_from_gaia",
+        target="pyxel.models.scene_generation.load_star_map._retrieve_objects_from_gaia",
         return_value=(positions_table, spectra_dct),
     )
 
@@ -319,13 +319,13 @@ def test_load_star_map(
     source1_gaia,
     source1_pyxel: DataTree,
 ):
-    """Test model 'scene_generator."""
+    """Test model 'load_star_map'."""
 
-    # Mock function 'pyxel.models.scene_generation.scene_generator.retrieve_objects_from_gaia'
+    # Mock function 'pyxel.models.scene_generation.load_star_map.retrieve_objects_from_gaia'
     # When this function will be called (with any parameters), it will always return this tuple
     # (positions_table, spectra_dct)
     mocker.patch(
-        target="pyxel.models.scene_generation.scene_generator._retrieve_objects_from_gaia",
+        target="pyxel.models.scene_generation.load_star_map._retrieve_objects_from_gaia",
         return_value=(positions_table, spectra_dct),
     )
 
