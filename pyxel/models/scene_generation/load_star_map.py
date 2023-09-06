@@ -68,7 +68,7 @@ def compute_flux(wavelength: u.Quantity, flux: u.Quantity) -> u.Quantity:
     Returns
     -------
     Quantity
-        Unit: photon / (s * cm^2 * Angstrom)
+        Unit: photon / (s * cm^2 * nm)
 
     >>> wavelength
     <Quantity [ 336.,  338.,  340., ..., 1016., 1018., 1020.] nm>
@@ -77,14 +77,14 @@ def compute_flux(wavelength: u.Quantity, flux: u.Quantity) -> u.Quantity:
                3.5376517e-15, 3.6932771e-15] W / (nm m2)>
     >>> compute_flux(wavelength=wavelength, flux=flux)
     <Quantity [0.18009338, 0.18009338, 0.18009338, ..., 0.18009338, 0.18009338,
-               0.18009338] ph / (Angstrom s cm2)>
+               0.18009338] ph / (nm s cm2)>
     """
     spectrum_1d = Spectrum1D(spectral_axis=wavelength, flux=flux)
     source_spectrum = SourceSpectrum.from_spectrum1d(spectrum_1d)
 
     flux_photlam: u.Quantity = source_spectrum(wavelength)
 
-    return flux_photlam.to(u.ph / (u.s * u.cm * u.cm * u.AA))
+    return flux_photlam.to(u.ph / (u.s * u.cm * u.cm * u.nm))
 
 
 def _convert_spectrum(flux_1d: np.ndarray, wavelength_1d: np.ndarray) -> np.ndarray:
