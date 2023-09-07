@@ -1645,7 +1645,6 @@
           ]
         },
         "readout_electronics": {
-          "default": null,
           "items": {
             "anyOf": [
               {
@@ -6291,25 +6290,24 @@
     },
     "ModelReadoutElectronicsSimpleAdc": {
       "additionalProperties": false,
-      "description": "Apply simple Analog to Digital conversion.",
+      "description": "Apply simple Analog-to-Digital Converter (ADC) to the `signal` bucketfrom `Detector`.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
-          "default": {
-            "data_type": "uint32"
-          },
           "properties": {
             "data_type": {
-              "default": "uint32",
-              "description": "The desired data-type for the Image array. The data-type must be anunsigned integer. Valid values: 'uint16', 'uint32', 'uint64', 'uint'Invalid values: 'int16', 'int32', 'int64', 'int', 'float'...",
+              "description": "The desired data-type for the Image array. The data-type must be anunsigned integer. If not provided, the data type is determined basedon `detector.characteristics.adc_bit_resolution`. Valid values:'uint8', 'uint16', 'uint32', 'uint64' Invalid values: 'int16','int32', 'int64', 'int', 'float'...",
               "enum": [
+                "uint8",
                 "uint16",
                 "uint32",
-                "uint64",
-                "uint"
+                "uint64"
               ],
               "title": "data_type",
-              "type": "string"
+              "type": [
+                "string",
+                "null"
+              ]
             }
           },
           "title": "Parameters",

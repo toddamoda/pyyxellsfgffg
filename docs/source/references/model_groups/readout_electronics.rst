@@ -70,7 +70,8 @@ With this model you can convert :py:class:`~pyxel.data_structure.Signal`
 array into :py:class:`~pyxel.data_structure.Image` mimicking an ideal Analog to Digital Converter (ADC).
 The parameters ``adc_bit_resolution`` and ``adc_voltage_range`` from detector
 :py:class:`~pyxel.detectors.Characteristics` are used.
-Output data_type can also be specified with the parameter ``data_type``, default is ``uint32``.
+Output data_type can also be specified with the parameter ``data_type``.
+If not provided, data_type is determined based on ``detector.characteristics.adc_bit_resolution``.
 
 Example of the configuration file:
 

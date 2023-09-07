@@ -14,7 +14,7 @@ from numpy.testing import assert_array_equal
 
 from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
 from pyxel.models.readout_electronics import simple_adc
-from pyxel.models.readout_electronics.simple_adc import apply_simple_adc
+from pyxel.models.readout_electronics.simple_adc import _get_dtype, apply_simple_adc
 
 
 @pytest.fixture
@@ -138,3 +138,22 @@ def test_apply_simple_adc(signal, bit_resolution, voltage_range, dtype, exp_outp
 
     # TODO: Use param 'strict' in 'assert_array_equal' (available in Numpy 1.24)
     assert output.dtype == exp_output.dtype
+
+
+@pytest.mark.parametrize(
+    "bit_resolution, exp_dtype",
+    [
+        (1, np.dtype(np.uint8)),
+        (8, np.dtype(np.uint8)),
+        (9, np.dtype(np.uint16)),
+        (16, np.dtype(np.uint16)),
+        (17, np.dtype(np.uint32)),
+        (32, np.dtype(np.uint32)),
+        (33, np.dtype(np.uint64)),
+        (64, np.dtype(np.uint64)),
+    ],
+)
+def test_get_dtype(bit_resolution, exp_dtype):
+    """Test function '_get_dtype'."""
+    result = _get_dtype(bit_resolution)
+    assert result == exp_dtype
