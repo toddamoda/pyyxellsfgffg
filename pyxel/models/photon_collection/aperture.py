@@ -130,6 +130,7 @@ def simple_aperture(
     coords_detector = SkyCoord(ra=telescope_ra, dec=telescope_dec, unit="degree")
 
     # magic
+    # TODO: add info from https://heasarc.gsfc.nasa.gov/docs/fcg/standard_dict.html
     cdelt = (np.array([-1.0, 1.0]) * pixel_scale).to(u.deg / u.pixel)
     # shape of detector 100,100
     crpix = np.array([geo.row.shape[0] / 2, geo.col.shape[1] / 2]) * u.pixel
