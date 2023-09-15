@@ -21,7 +21,7 @@ def extract_wavelength(
     scene: Scene,
     wavelength: float,
 ) -> xr.Dataset:
-    """Extracts xarray Dataset of Scene for selected wavelength.
+    """Extract xarray Dataset of Scene for selected wavelength.
 
     Parameters
     ----------
@@ -116,10 +116,10 @@ def simple_aperture(
     # load converted flux to selected dataset
     selected_data["converted_flux"] = converted_flux
 
-    # extra function
+    # TODO: split up to an extra function
     # we project the stars in the FOV:
 
-    # array of star coordinates #realy needed?
+    # array of star coordinates really needed?
     stars_coords = SkyCoord(
         selected_data["x"].values * u.arcsec,
         selected_data["y"].values * u.arcsec,
