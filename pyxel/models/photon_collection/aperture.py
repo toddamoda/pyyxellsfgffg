@@ -110,13 +110,16 @@ def simple_aperture(
     # get time in s
     time = detector.time_step * u.s
 
-    # get flux converted to photon
+    # get flux converted to ph
     converted_flux = convert_flux(flux=flux, t_exp=time, aperture=aperture)
+
+    # load converted flux to selected dataset
+    selected_data["converted_flux"] = converted_flux
 
     # extra function
     # we project the stars in the FOV:
 
-    # array of star coordinates
+    # array of star coordinates #realy needed?
     stars_coords = SkyCoord(
         selected_data["x"].values * u.arcsec,
         selected_data["y"].values * u.arcsec,
@@ -129,11 +132,10 @@ def simple_aperture(
     telescope_dec = "24.1167"
     coords_detector = SkyCoord(ra=telescope_ra, dec=telescope_dec, unit="degree")
 
-    # magic
+    # using world coordinate system to convert to pixel
     # TODO: add info from https://heasarc.gsfc.nasa.gov/docs/fcg/standard_dict.html
     cdelt = (np.array([-1.0, 1.0]) * pixel_scale).to(u.deg / u.pixel)
-    # shape of detector 100,100
-    crpix = np.array([geo.row.shape[0] / 2, geo.col.shape[1] / 2]) * u.pixel
+    crpix = np.array([geo.row / 2, geo.col / 2]) * u.pixel
     w = wcs.WCS(naxis=2)
     w.wcs.crpix = crpix
     w.wcs.crval = [coords_detector.ra.deg, coords_detector.dec.deg]
@@ -174,23 +176,30 @@ def simple_aperture(
     )
 
     # make sure that only stars inside the detector
-    selected_data_new = (
-        selected_data.query(ref="detector_coords_x > 0")
+    selected_data_new = selected_data.copy(deep=True)
+    selected_data_query = (
+        selected_data_new.query(ref="detector_coords_x > 0")
         .query(ref=f"detector_coords_x < {cols}")
         .query(ref=f"detector_coords_y < {rows}")
         .query(ref="detector_coords_y > 0")
     )
 
+    # convert to int
+    selected_data2 = selected_data_query.copy(deep=True)
+
+    selected_data2["detector_coords_x"] = selected_data2["detector_coords_x"].astype(
+        int
+    )
+    selected_data2["detector_coords_y"] = selected_data2["detector_coords_y"].astype(
+        int
+    )
+
     # shape of the detector
-    projection = np.zeros([geo.row.shape[1], geo.col.shape[2]])
+    projection = np.zeros([geo.row, geo.col])
 
-    # TODO: check if x, y or y, x.
-    #  From Pixel Coordinate Conventions:
-    #  Following Numpy indexing, the y coordinate corresponds to rows and the x coordinate corresponds to columns.
-
-    for x, group_x in selected_data_new.groupby("detector_coords_x"):
+    for x, group_x in selected_data2.groupby("detector_coords_x"):
         for y, group_y in group_x.groupby("detector_coords_y"):
-            projection[int(x), int(y)] = group_y["flux"].values.sum()
+            projection[int(y), int(x)] = group_y["converted_flux"].values.sum()
 
     # extra func over
 
