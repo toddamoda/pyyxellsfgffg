@@ -209,7 +209,9 @@ def display_detector(detector: "Detector") -> "Layout":
     return out
 
 
-def display_array(data: np.ndarray, axes: Sequence["plt.axes"], **kwargs: str) -> None:
+def display_array(
+    data: np.ndarray, axes: tuple["plt.Axes", "plt.Axes"], **kwargs,
+) -> None:
     """For a pair of axes, display the image on the first one, the histogram on the second.
 
     Parameters
@@ -235,9 +237,9 @@ def display_array(data: np.ndarray, axes: Sequence["plt.axes"], **kwargs: str) -
     cax1.yaxis.set_label_position("left")
     cax1.yaxis.set_ticks_position("left")
     if mini == maxi:
-        bins: Union[int, np.ndarray] = 50
+        bins: Union[int, Sequence] = 50
     else:
-        bins = np.arange(start=mini, stop=maxi, step=(maxi - mini) / 50)
+        bins = list(np.arange(start=mini, stop=maxi, step=(maxi - mini) / 50))
 
     axes[1].hist(data.flatten(), bins=bins, **kwargs)
     plt.setp(axes[1].xaxis.get_majorticklabels(), rotation=45)
@@ -311,4 +313,4 @@ def display_persist(persistence: Union[Persistence, SimplePersistence]) -> None:
         )
 
     for ax, trapmap, keyw in zip(axes, trapped_charges, labels):
-        display_array(trapmap, ax, label=keyw)
+        display_array(data=trapmap, axes=ax, label=keyw)

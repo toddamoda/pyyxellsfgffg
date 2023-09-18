@@ -18,6 +18,8 @@ with suppress(ImportError):
     from matplotlib import pyplot as plt
 
 if TYPE_CHECKING:
+    from mpl_toolkits.mplot3d import Axes3D
+
     from pyxel.models.charge_generation.cosmix.cosmix import Cosmix
 
 
@@ -107,7 +109,7 @@ class PlottingCosmix:
         plt.loglog(lin_energy_range, flux_dist)
         self.save_and_draw("flux_spectrum")
 
-    def plot_spectrum_hist(self, data: Optional[str] = None) -> None:
+    def plot_spectrum_hist(self, data: Union[str, np.ndarray]) -> None:
         plt.figure()
         plt.title("Proton flux spectrum sampled by CosmiX")
         plt.xlabel("Energy (MeV)")
@@ -115,14 +117,18 @@ class PlottingCosmix:
         # plt.ylabel('Flux (1/(s*MeV))')
         # plt.loglog(lin_energy_range, flux_dist)
 
-        if isinstance(data, str):
-            if data.endswith(".npy"):
-                data = np.load(data)
+        if isinstance(data, str) and data.endswith(".npy"):
+            data = np.load(data)
 
         hist_bins = 250
         # hist_range = (1e-1, 1e5)
         # col = (0, 1, 1, 1)
-        plt.hist(data, bins=np.logspace(np.log10(0.1), np.log10(1e5), hist_bins))
+        plt.hist(
+            data,
+            bins=list(
+                np.logspace(start=np.log10(0.1), stop=np.log10(1e5), num=hist_bins)
+            ),
+        )
         plt.gca().set_xscale("log")
         # plt.legend(loc='upper right')
         self.save_and_draw("tars_spectrum")
@@ -137,11 +143,11 @@ class PlottingCosmix:
         e_num_lst_per_event = self.cosmix.sim_obj.e_num_lst_per_event
         size = [x / 10.0 for x in e_num_lst_per_event]
         # ax = fig.add_subplot(1, 2, 1, projection='3d')
-        ax = fig.add_subplot(1, 2, 1, projection="3d")
+        ax: "Axes3D" = fig.add_subplot(1, 2, 1, projection="3d")
         ax.scatter(
-            self.cosmix.sim_obj.e_pos0_lst,
-            self.cosmix.sim_obj.e_pos1_lst,
-            self.cosmix.sim_obj.e_pos2_lst,
+            xs=self.cosmix.sim_obj.e_pos0_lst,
+            ys=self.cosmix.sim_obj.e_pos1_lst,
+            sz=self.cosmix.sim_obj.e_pos2_lst,
             c="b",
             marker=".",
             s=size,
@@ -266,7 +272,7 @@ class PlottingCosmix:
         plt.xlabel(r"horizontal ($\mu$m)")
         plt.ylabel(r"vertical ($\mu$m)")
         plt.title("p trajectory in CCD")
-        plt.axis([0, geo.horz_dimension, 0, geo.vert_dimension])
+        plt.axis(xmin=0, xmax=geo.horz_dimension, ymin=0, ymax=geo.vert_dimension)
         plt.grid(True)
         self.save_and_draw("trajectory_xy")
 
@@ -282,7 +288,7 @@ class PlottingCosmix:
         plt.xlabel(r"horizontal ($\mu$m)")
         plt.ylabel(r"z ($\mu$m)")
         plt.title("p trajectory in CCD")
-        plt.axis([0, geo.horz_dimension, -1 * geo.total_thickness, 0])
+        plt.axis(xmin=0, xmax=geo.horz_dimension, ymin=-1 * geo.total_thickness, ymax=0)
         plt.grid(True)
         self.save_and_draw("trajectory_xz")
 
@@ -362,7 +368,7 @@ class PlottingCosmix:
                         label=p_type + ", " + energy + ", " + thickness,
                     )
 
-        plt.axis([0, 20, 0, 0.010])
+        plt.axis(xmin=0, xmax=20, ymin=0, ymax=0.010)
         plt.xlabel("Step size (um)")
         plt.ylabel("Counts")
         plt.legend(loc="upper right")
@@ -462,7 +468,7 @@ class PlottingCosmix:
 
             i += 1
 
-        plt.axis([0, 15e3, 0, 3.0e-4])
+        plt.axis(xmin=0, xmax=15e3, ymin=0, ymax=3.0e-4)
 
         plt.xlabel("Number of electrons")
         plt.ylabel("Counts (normalized)")
