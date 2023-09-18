@@ -14,7 +14,7 @@ This release brings a number of bugfixes, documentation and improvements.
 
 The following new models were added:
 * `load_star_map`.
-* `simple_adc`.
+
 
 ### Core
 
@@ -34,6 +34,9 @@ The following new models were added:
   (See [!732](https://gitlab.com/esa/pyxel/-/merge_requests/732)).
 
 ### Others
+* Fix issues with mypy and Matplotlib 3.8.
+  (See [!734](https://gitlab.com/esa/pyxel/-/merge_requests/734)).
+
 
 ## 1.10.2 / 2023-08-29
 This release brings a bugfix with the conda package.
