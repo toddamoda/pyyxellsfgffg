@@ -128,8 +128,12 @@ def simple_aperture(
 
     # TODO: get this from input from the "load_star_map" model
     # coordinates of telescope pointing
-    telescope_ra = "56.75"
-    telescope_dec = "24.1167"
+    telescope_ra: u.Quantity = (selected_data["x"].values * u.arcsec).mean()
+    telescope_dec: u.Quantity = (selected_data["y"].values * u.arcsec).mean()
+
+    # print(f'{telescope_ra=}, {telescope_dec=}')
+    # telescope_ra = "56.75"
+    # telescope_dec = "24.1167"
     coords_detector = SkyCoord(ra=telescope_ra, dec=telescope_dec, unit="degree")
 
     # using world coordinate system to convert to pixel
