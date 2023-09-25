@@ -495,6 +495,11 @@ def load_objects_from_gaia(
     return ds
 
 
+# TODO: add information about magnitude
+# TODO: add option to select filter to compute apparent magnitude
+# TODO: add option to select different catalogue versions
+
+
 def load_star_map(
     detector: Detector,
     right_ascension: float,
