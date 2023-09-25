@@ -105,6 +105,8 @@ def simple_aperture(
     # get dataset for given wavelength and scene object.
     selected_data = extract_wavelength(scene=detector.scene, wavelength=wavelength)
 
+    # TODO: convert magnitude to intensity (ph/s cm2)
+
     # get flux in ph/s/cm^2
     flux = selected_data.flux.values * u.nm * u.Unit(selected_data["flux"].units)
     # get time in s
@@ -126,7 +128,6 @@ def simple_aperture(
         frame="icrs",
     )
 
-    # TODO: get this from input from the "load_star_map" model
     # coordinates of telescope pointing
     telescope_ra: u.Quantity = (selected_data["x"].values * u.arcsec).mean()
     telescope_dec: u.Quantity = (selected_data["y"].values * u.arcsec).mean()
