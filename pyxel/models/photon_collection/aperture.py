@@ -19,7 +19,7 @@ from pyxel.detectors import Detector
 
 def extract_wavelength(
     scene: Scene,
-    wavelength: float,
+    wavelength_band: tuple[float, float],
 ) -> xr.Dataset:
     """Extract xarray Dataset of Scene for selected wavelength.
 
@@ -27,7 +27,7 @@ def extract_wavelength(
     ----------
     scene : Scene
         Pyxel scene object.
-    wavelength : float
+    wavelength_band : float
         Selected wavelength. Unit: nm.
 
     Returns
@@ -38,8 +38,12 @@ def extract_wavelength(
     assert len(scene.data["/list"]) == 1
     data: xr.Dataset = scene.data["/list/0"].to_dataset()
 
-    # get dataset with x, y, weight and flux of scene for selected wavelength.
-    selected_data: xr.Dataset = data.sel(wavelength=wavelength, method="nearest")
+    start_wavelength, end_wavelength = wavelength_band
+
+    # get dataset with x, y, weight and flux of scene for selected wavelength band.
+    selected_data: xr.Dataset = data.sel(
+        wavelength=slice(start_wavelength, end_wavelength)
+    )
 
     return selected_data
 
@@ -81,7 +85,7 @@ def simple_aperture(
     detector: Detector,
     pixel_scale: float,
     aperture: float,
-    wavelength: float,
+    wavelength_band: tuple[float, float],
 ):
     """Convert scene(photon/s/cm2) to photon.
 
@@ -93,8 +97,8 @@ def simple_aperture(
         Pixel scale. Unit: arcsec/pixel.
     aperture : float
         Collecting area of the telescope. Unit: m.
-    wavelength : float
-        Wavelength. Unit: nm.
+    wavelength_band : tuple[float, float]
+        Wavelength band. Unit: nm.
     """
     # define variables
     pixel_scale = pixel_scale * u.arcsec / u.pixel
@@ -103,12 +107,19 @@ def simple_aperture(
     cols = geo.col
 
     # get dataset for given wavelength and scene object.
-    selected_data = extract_wavelength(scene=detector.scene, wavelength=wavelength)
+    selected_data = extract_wavelength(
+        scene=detector.scene, wavelength_band=wavelength_band
+    )
 
-    # TODO: convert magnitude to intensity (ph/s cm2)
+    # integrate flux
+    integrated_flux = selected_data["flux"].integrate(coord="wavelength")
+    integrated_flux.attrs["units"] = str(u.Unit(selected_data["flux"].units) * u.nm)
+    selected_data["integrated_flux"] = integrated_flux
 
     # get flux in ph/s/cm^2
-    flux = selected_data.flux.values * u.nm * u.Unit(selected_data["flux"].units)
+    flux = u.Quantity(
+        selected_data["integrated_flux"], unit=selected_data["integrated_flux"].units
+    )
     # get time in s
     time = detector.time_step * u.s
 
