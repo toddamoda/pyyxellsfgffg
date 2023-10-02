@@ -32,6 +32,8 @@ The following new models were added:
   and [!716](https://gitlab.com/esa/pyxel/-/merge_requests/716)).
 * Fix unexpected value in `simple_adc` in `Readout Electronics`.
   (See [!732](https://gitlab.com/esa/pyxel/-/merge_requests/732)).
+* Conversion from scene to photon.
+  (See [!733](https://gitlab.com/esa/pyxel/-/merge_requests/733)).
 
 ### Others
 * Fix issues with mypy and Matplotlib 3.8.
