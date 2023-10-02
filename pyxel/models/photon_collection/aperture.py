@@ -231,18 +231,29 @@ def project_objects_to_detector(
     telescope_dec: u.Quantity = (selected_data["y"].values * u.arcsec).mean()
     coords_detector = SkyCoord(ra=telescope_ra, dec=telescope_dec, unit="degree")
 
-    # using world coordinate system to convert to pixel
-    # TODO: add info from https://heasarc.gsfc.nasa.gov/docs/fcg/standard_dict.html
-    cdelt = (np.array([-1.0, 1.0]) * pixel_scale).to(u.deg / u.pixel)
-    crpix = np.array([rows / 2, cols / 2]) * u.pixel
+    # using World Coordinate System (WCS) to convert to pixel
+    # more info: https://heasarc.gsfc.nasa.gov/docs/fcg/standard_dict.html
     w = wcs.WCS(naxis=2)
-    w.wcs.crpix = crpix
-    w.wcs.crval = [coords_detector.ra.deg, coords_detector.dec.deg]
+
+    # define cdelt: coordinate increment along axis
+    cdelt = (np.array([-1.0, 1.0]) * pixel_scale).to(u.deg / u.pixel)
     w.wcs.cdelt = cdelt
+
+    # define crpix: coordinate system reference pixel
+    crpix = np.array([rows / 2, cols / 2]) * u.pixel
+    w.wcs.crpix = crpix
+
+    # define crval: coordinate system value at reference pixel
+    w.wcs.crval = [coords_detector.ra.deg, coords_detector.dec.deg]
+
+    # define crota: coordinate system rotation angle
     w.wcs.crota = [0, -0]
+
+    # define ctype: name of the coordinate axis
     w.wcs.ctype = ["RA---TAN", "DEC--TAN"]
 
-    # or like scopesim:
+    """
+    # Other possible method to convert to pixel usingscopesim:
     # https://github.com/AstarVienna/ScopeSim/blob/dev_master/scopesim/optics/image_plane_utils.py#L698
     # gives different result.
     # da = cdelt[0]
@@ -256,6 +267,7 @@ def project_objects_to_detector(
     # convert stars coordinate to detector coordinates
     # detector_coords_x = x0 + 1. / da * (a - a0)
     # detector_coords_y = y0 + 1. / db * (b - b0)
+    """
 
     detector_coords_x = np.round(
         w.world_to_pixel_values(stars_coords.ra, stars_coords.dec)[0]
