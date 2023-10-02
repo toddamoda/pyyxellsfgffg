@@ -123,11 +123,12 @@ def simple_aperture(
     # get time in s
     time = detector.time_step * u.s
 
+    # TODO: Add units for converted flux
     # get flux converted to ph
     converted_flux = convert_flux(flux=flux, t_exp=time, aperture=aperture)
 
     # load converted flux to selected dataset
-    selected_data["converted_flux"] = converted_flux
+    selected_data["converted_flux"] = xr.DataArray(converted_flux, dims="ref")
 
     # TODO: split up to an extra function
     # we project the stars in the FOV:
@@ -142,10 +143,6 @@ def simple_aperture(
     # coordinates of telescope pointing
     telescope_ra: u.Quantity = (selected_data["x"].values * u.arcsec).mean()
     telescope_dec: u.Quantity = (selected_data["y"].values * u.arcsec).mean()
-
-    # print(f'{telescope_ra=}, {telescope_dec=}')
-    # telescope_ra = "56.75"
-    # telescope_dec = "24.1167"
     coords_detector = SkyCoord(ra=telescope_ra, dec=telescope_dec, unit="degree")
 
     # using world coordinate system to convert to pixel
