@@ -346,8 +346,8 @@ def test_load_star_map(
     scene = detector.scene.data
     assert isinstance(scene, DataTree)
 
-    expected_x = 3600 * (source1_gaia["ra"] - source1_gaia["ra"].mean())
-    expected_y = 3600 * (source1_gaia["dec"] - source1_gaia["dec"].mean())
+    expected_x = 3600 * source1_gaia["ra"]
+    expected_y = 3600 * source1_gaia["dec"]
 
     exp_ds = xr.Dataset()
     exp_ds["x"] = xr.DataArray(
