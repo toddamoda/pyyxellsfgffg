@@ -1587,6 +1587,9 @@
                 "$ref": "#/definitions/ModelPhotonCollectionShotNoise"
               },
               {
+                "$ref": "#/definitions/ModelPhotonCollectionSimpleAperture"
+              },
+              {
                 "$ref": "#/definitions/ModelPhotonCollectionStripePattern"
               },
               {
@@ -5483,6 +5486,76 @@
         "name"
       ],
       "title": "Model 'shot_noise'",
+      "type": "object"
+    },
+    "ModelPhotonCollectionSimpleAperture": {
+      "additionalProperties": false,
+      "description": "Convert scene(photon/s/cm2) to photon.",
+      "properties": {
+        "arguments": {
+          "additionalProperties": false,
+          "properties": {
+            "aperture": {
+              "description": "Collecting area of the telescope. Unit: m.",
+              "title": "aperture",
+              "type": "number"
+            },
+            "pixel_scale": {
+              "description": "Pixel scale. Unit: arcsec/pixel.",
+              "title": "pixel_scale",
+              "type": "number"
+            },
+            "wavelength_band": {
+              "additionalItems": false,
+              "description": "Wavelength band. Unit: nm.",
+              "items": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "title": "wavelength_band",
+              "type": "array"
+            }
+          },
+          "required": [
+            "pixel_scale",
+            "aperture",
+            "wavelength_band"
+          ],
+          "title": "Parameters",
+          "type": "object"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "func": {
+          "const": "pyxel.models.photon_collection.simple_aperture",
+          "default": "pyxel.models.photon_collection.simple_aperture",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "arguments"
+      ],
+      "title": "Model 'simple_aperture'",
       "type": "object"
     },
     "ModelPhotonCollectionStripePattern": {
