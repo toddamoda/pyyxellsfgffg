@@ -50,9 +50,14 @@ def extract_wavelength(
         flux        (ref, wavelength) float64 0.2331 0.231 0.2269 ... 2.213 2.212
     """
 
-    data = scene.to_xarray()
     start_wavelength, end_wavelength = wavelength_band
 
+    if start_wavelength > end_wavelength:
+        raise ValueError(
+            "First input in wavelength_band needs to be smaller than the second."
+        )
+
+    data = scene.to_xarray()
     # get dataset with x, y, weight and flux of scene for selected wavelength band.
     selected_data: xr.Dataset = data.sel(
         wavelength=slice(start_wavelength, end_wavelength)
