@@ -21,14 +21,14 @@ def extract_wavelength(
     scene: Scene,
     wavelength_band: tuple[float, float],
 ) -> xr.Dataset:
-    """Extract xarray Dataset of Scene for selected wavelength.
+    """Extract xarray Dataset of Scene for selected wavelength band.
 
     Parameters
     ----------
     scene : Scene
         Pyxel scene object.
     wavelength_band : float
-        Selected wavelength. Unit: nm.
+        Selected wavelength band. Unit: nm.
 
     Returns
     -------
@@ -48,17 +48,27 @@ def extract_wavelength(
     return selected_data
 
 
-def convert_flux(
+def integrate_flux(
     flux: xr.DataArray,
+) -> xr.DataArray:
+    # integrate flux
+    integrated_flux = flux.integrate(coord="wavelength")
+    integrated_flux.attrs["units"] = str(u.Unit(flux.units) * u.nm)
+
+    return integrated_flux
+
+
+def convert_flux(
+    flux: u.Quantity,
     t_exp: float,
     aperture: float,
-) -> np.ndarray:
+) -> u.Quantity:
     """Convert flux (photon/s/cm2) to photon/s/pixel.
 
     Parameters
     ----------
-    flux : np.ndarray
-        Scene object. Unit: photon/pixel/s/cm2.
+    flux : u.Quantity
+        Flux. Unit: photon/pixel/s/cm2.
     t_exp : float
         Exposure time. Unit: s.
     aperture : float
@@ -66,7 +76,7 @@ def convert_flux(
 
     Returns
     -------
-    np.ndarray
+    u.Quantity
         Converted flux in photon/s/pixel.
     """
 
@@ -107,28 +117,25 @@ def simple_aperture(
     cols = geo.col
 
     # get dataset for given wavelength and scene object.
-    selected_data = extract_wavelength(
+    selected_data: xr.Dataset = extract_wavelength(
         scene=detector.scene, wavelength_band=wavelength_band
     )
 
     # integrate flux
-    integrated_flux = selected_data["flux"].integrate(coord="wavelength")
-    integrated_flux.attrs["units"] = str(u.Unit(selected_data["flux"].units) * u.nm)
-    selected_data["integrated_flux"] = integrated_flux
+    integrated_flux: xr.DataArray = integrate_flux(flux=selected_data["flux"])
 
     # get flux in ph/s/cm^2
-    flux = u.Quantity(
-        selected_data["integrated_flux"], unit=selected_data["integrated_flux"].units
-    )
+    flux = u.Quantity(integrated_flux, unit=integrated_flux.units)
     # get time in s
     time = detector.time_step * u.s
 
-    # TODO: Add units for converted flux
     # get flux converted to ph
-    converted_flux = convert_flux(flux=flux, t_exp=time, aperture=aperture)
+    converted_flux: u.Quantity = convert_flux(flux=flux, t_exp=time, aperture=aperture)
 
     # load converted flux to selected dataset
-    selected_data["converted_flux"] = xr.DataArray(converted_flux, dims="ref")
+    selected_data["converted_flux"] = xr.DataArray(
+        converted_flux, dims="ref", attrs={"units": str(converted_flux.unit)}
+    )
 
     # TODO: split up to an extra function
     # we project the stars in the FOV:
