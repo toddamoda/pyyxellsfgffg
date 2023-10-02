@@ -210,7 +210,9 @@ def display_detector(detector: "Detector") -> "Layout":
 
 
 def display_array(
-    data: np.ndarray, axes: tuple["plt.Axes", "plt.Axes"], **kwargs,
+    data: np.ndarray,
+    axes: tuple["plt.Axes", "plt.Axes"],
+    **kwargs,
 ) -> None:
     """For a pair of axes, display the image on the first one, the histogram on the second.
 

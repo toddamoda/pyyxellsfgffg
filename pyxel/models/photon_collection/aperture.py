@@ -50,9 +50,7 @@ def extract_wavelength(
         flux        (ref, wavelength) float64 0.2331 0.231 0.2269 ... 2.213 2.212
     """
 
-    assert len(scene.data["/list"]) == 1
-    data: xr.Dataset = scene.data["/list/0"].to_dataset()
-
+    data = scene.to_xarray()
     start_wavelength, end_wavelength = wavelength_band
 
     # get dataset with x, y, weight and flux of scene for selected wavelength band.

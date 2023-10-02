@@ -172,3 +172,49 @@ class Scene:
         scene._source = DataTree.from_dict(data, name="scene")  # type: ignore
 
         return scene
+
+    def to_xarray(self) -> xr.Dataset:
+        """Convert current scene to a xarray Dataset.
+
+        Returns
+        -------
+        xr.Dataset
+
+        Examples
+        --------
+        >>> ds = scene.to_xarray()
+        >>> ds
+        <xarray.Dataset>
+        Dimensions:     (ref: 345, wavelength: 343)
+        Coordinates:
+          * ref         (ref) int64 0 1 2 3 4 5 6 7 ... 337 338 339 340 341 342 343 344
+          * wavelength  (wavelength) float64 336.0 338.0 340.0 ... 1.018e+03 1.02e+03
+        Data variables:
+            x           (ref) float64 2.057e+05 2.058e+05 ... 2.031e+05 2.03e+05
+            y           (ref) float64 8.575e+04 8.58e+04 ... 8.795e+04 8.807e+04
+            weight      (ref) float64 11.49 14.13 15.22 14.56 ... 15.21 11.51 8.727
+            flux        (ref, wavelength) float64 0.03769 0.04137 ... 1.813 1.896
+        >>> ds["wavelength"]
+        <xarray.DataArray 'wavelength' (wavelength: 343)>
+        array([ 336.,  338.,  340., ..., 1016., 1018., 1020.])
+        Coordinates:
+          * wavelength  (wavelength) float64 336.0 338.0 340.0 ... 1.018e+03 1.02e+03
+        Attributes:
+            units:    nm
+        >>> ds["flux"]
+        <xarray.DataArray 'flux' (ref: 345, wavelength: 343)>
+        array([[3.76907117e-02, 4.13740861e-02, ..., 3.98815404e-02, 7.96581117e-01],
+               [1.15190254e-02, 1.02210366e-02, ..., 2.00486326e-02, 2.05518196e-02],
+               ...,
+               [1.01187592e-01, 9.57637374e-02, ..., 2.71410354e-01, 2.85997559e-01],
+               [1.80093381e+00, 1.69864354e+00, ..., 1.81295134e+00, 1.89642359e+00]])
+        Coordinates:
+          * ref         (ref) int64 0 1 2 3 4 5 6 7 ... 337 338 339 340 341 342 343 344
+          * wavelength  (wavelength) float64 336.0 338.0 340.0 ... 1.018e+03 1.02e+03
+        Attributes:
+            units:    ph / (cm2 nm s)
+        """
+        assert len(self.data["/list"]) == 1
+        data: xr.Dataset = self.data["/list/0"].to_dataset()
+
+        return data
