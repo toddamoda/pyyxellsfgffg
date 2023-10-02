@@ -9,8 +9,12 @@ API reference: :py:class:`~pyxel.detectors.APD`
 Available models
 ================
 
+* Scene generation
+    * :ref:`scene_generation_create_store_detector`
+    * :ref:`load_star_map`
 * Photon collection
     * :ref:`photon_collection_create_store_detector`
+    * :ref:`aperture`
     * :ref:`Load image`
     * :ref:`Simple illumination`
     * :ref:`Stripe pattern`
@@ -44,6 +48,7 @@ Available models
     * :ref:`readout_electronics_create_store_detector`
     * :ref:`Simple ADC`
 * Data processing:
+    * :ref:`data_processing_create_store_detector`
     * :ref:`statistics`
     * :ref:`linear_regression`
     * :ref:`mean_variance`

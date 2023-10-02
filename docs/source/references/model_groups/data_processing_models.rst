@@ -15,6 +15,7 @@ Result retrieved with run_mode() will show :py:class:`datatree.DataTree` structu
 
 Processed data from models in the used in the YAML configuration file can be also accessed directly via ``detector.data``.
 
+.. _data_processing_create_store_detector:
 
 Create and Store a detector
 ===========================

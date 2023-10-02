@@ -68,7 +68,7 @@ Load star map
 
 :guilabel:`Scene` → :guilabel:`Scene`
 
-TBW.
+Generate scene from `scopesim <https://scopesim.readthedocs.io/en/latest/>`_ Source object loading objects from the GAIA catalog for given coordinates and FOV.
 
 Example of the configuration file:
 
