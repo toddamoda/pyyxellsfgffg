@@ -116,6 +116,17 @@ class Arguments(MutableMapping):
 class ModelFunction:
     """Create a wrapper function around a Model function.
 
+    Parameters
+    ----------
+    func : str
+        Full name of the model to use with this ModelFunction.
+    name : str
+        A unique name for this ModelFunction.
+    arguments : dict (optional). Default: None
+        Parameters that will be passed to 'func'.
+    enabled : bool. Default: True
+        A flag indicating whether this ModelFunction is enabled or disabled.
+
     Examples
     --------
     >>> model_func = ModelFunction(
@@ -146,6 +157,12 @@ class ModelFunction:
 
     >>> model_func.arguments.level
     1
+
+    Execute this ModelFunction
+    >>> from pyxel.detectors import CCD
+    >>> detector = CCD(...)
+    >>> model_func(detector=detector)
+    >>> detector  # Modified detector
     """
 
     def __init__(
@@ -158,13 +175,10 @@ class ModelFunction:
         if inspect.isclass(func):
             raise AttributeError("Cannot pass a class to ModelFunction.")
 
-        self._func: Callable = evaluate_reference(func)
-        if hasattr(self._func, "__deprecated__"):
-            # This will be visible by the user
-            msg = self._func.__deprecated__
-            warnings.warn(msg, FutureWarning, stacklevel=2)
+        self._func_name: str = func
+        self._func: Optional[Callable] = None
 
-        self._name = name
+        self._name: str = name
         self.enabled: bool = enabled
 
         if arguments is None:
@@ -176,16 +190,15 @@ class ModelFunction:
 
     def __repr__(self) -> str:
         cls_name: str = self.__class__.__name__
-        func_name = self._func.__module__ + "." + self._func.__name__
 
         return (
-            f"{cls_name}(name={self.name!r}, func={func_name}, "
+            f"{cls_name}(name={self.name!r}, func={self._func}, "
             f"arguments={self.arguments!r}, enabled={self.enabled!r})"
         )
 
     @property
     def name(self) -> str:
-        """TBW."""
+        """Name for this ModelFunction."""
         return self._name
 
     @property
@@ -193,9 +206,22 @@ class ModelFunction:
         """TBW."""
         return self._arguments
 
+    @property
+    def func(self) -> Callable:
+        """TBW."""
+        if self._func is None:
+            self._func = evaluate_reference(self._func_name)
+
+        if hasattr(self._func, "__deprecated__"):
+            # This will be visible by the user
+            msg = self._func.__deprecated__
+            warnings.warn(msg, FutureWarning, stacklevel=2)
+
+        return self._func
+
     def __call__(self, detector: "Detector") -> None:
         """TBW."""
-        self._func(detector, **self.arguments)
+        self.func(detector, **self.arguments)
 
 
 class FitnessFunction:
