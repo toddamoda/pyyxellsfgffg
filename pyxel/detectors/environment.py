@@ -10,7 +10,7 @@
 from collections.abc import Mapping
 from typing import Optional
 
-from pyxel.util.memory import get_size
+from pyxel.util import get_size
 
 
 class Environment:

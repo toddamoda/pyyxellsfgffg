@@ -101,3 +101,31 @@ def deprecated(msg: str) -> Callable:
         return _wrapper
 
     return _decorator
+
+
+def convert_unit(name: str) -> str:
+    """Convert a unit name to its corresponding Unicode representation.
+
+    Parameters
+    ----------
+    name : str
+        A string representing a unit name.
+
+    Returns
+    -------
+    str
+        The unicode representation of the unit name.
+
+    Examples
+    --------
+    >>> convert_unit("electron")
+    'e⁻'
+    """
+    # Late import to speedup start-up time
+    import astropy.units as u
+
+    try:
+        unit = u.Unit(name)
+        return f"{unit:unicode}"
+    except ValueError:
+        return name

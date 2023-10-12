@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Optional, Union
 
 import numpy as np
 
-from pyxel.util.memory import get_size
+from pyxel.util import convert_unit, get_size
 
 if TYPE_CHECKING:
     import xarray as xr
@@ -170,7 +170,7 @@ class Array:
             name=self.NAME.lower(),
             dims=["y", "x"],
             coords={"y": range(num_rows), "x": range(num_cols)},
-            attrs={"units": self.UNIT, "long_name": self.NAME},
+            attrs={"units": convert_unit(self.UNIT), "long_name": self.NAME},
         )
 
     def plot(self, robust: bool = True) -> None:

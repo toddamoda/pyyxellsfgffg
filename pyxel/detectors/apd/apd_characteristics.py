@@ -35,7 +35,7 @@ from typing import Optional
 import numpy as np
 from toolz import dicttoolz
 
-from pyxel.util.memory import get_size
+from pyxel.util import get_size
 
 
 class APDCharacteristics:

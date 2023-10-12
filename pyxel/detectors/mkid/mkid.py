@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING
 
 from pyxel.data_structure import Phase
 from pyxel.detectors import Detector
-from pyxel.util.memory import memory_usage_details
+from pyxel.util import memory_usage_details
 
 if TYPE_CHECKING:
     import pandas as pd

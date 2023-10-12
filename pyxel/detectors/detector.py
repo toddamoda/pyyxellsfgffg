@@ -25,7 +25,7 @@ from pyxel.data_structure import (
     SimplePersistence,
 )
 from pyxel.detectors import Environment, ReadoutProperties
-from pyxel.util.memory import get_size, memory_usage_details
+from pyxel.util import get_size, memory_usage_details
 
 if TYPE_CHECKING:
     import xarray as xr
@@ -178,12 +178,12 @@ class Detector:
         import xarray as xr
 
         ds = xr.Dataset()
-        ds["photon"] = self.photon.to_xarray()
         # ds["scene"] = self.scene.to_xarray()
+        ds["photon"] = self.photon.to_xarray()
+        ds["charge"] = self.charge.to_xarray()
         ds["pixel"] = self.pixel.to_xarray()
         ds["signal"] = self.signal.to_xarray()
         ds["image"] = self.image.to_xarray()
-        ds["charge"] = self.charge.to_xarray()
 
         ds.attrs.update({"detector": type(self).__name__, "pyxel version": __version__})
 

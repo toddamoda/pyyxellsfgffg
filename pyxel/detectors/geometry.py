@@ -12,7 +12,7 @@ from typing import Optional
 
 import numpy as np
 
-from pyxel.util.memory import get_size
+from pyxel.util import get_size
 
 
 def get_vertical_pixel_center_pos(

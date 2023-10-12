@@ -17,6 +17,7 @@ from pyxel.detectors.geometry import (
     get_horizontal_pixel_center_pos,
     get_vertical_pixel_center_pos,
 )
+from pyxel.util import convert_unit
 
 if TYPE_CHECKING:
     import xarray as xr
@@ -381,7 +382,7 @@ class Charge:
             name="charge",
             dims=["y", "x"],
             coords={"y": range(num_rows), "x": range(num_cols)},
-            attrs={"units": "electron", "long_name": "Charge"},
+            attrs={"units": convert_unit("electron"), "long_name": "Charge"},
         )
 
     def __array__(self, dtype: Optional[np.dtype] = None):

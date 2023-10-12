@@ -19,7 +19,7 @@ from pyxel import __version__
 from pyxel.evaluator import eval_entry
 from pyxel.pipelines import DetectionPipeline, ModelGroup
 from pyxel.state import get_obj_att
-from pyxel.util.memory import get_size
+from pyxel.util import get_size
 
 if TYPE_CHECKING:
     import xarray as xr
