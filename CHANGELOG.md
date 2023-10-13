@@ -21,6 +21,8 @@ If this parameter is not provided then it is inferred from `adc_bit_resolution` 
 ### Core
 * Bug when using with a configuration file with extension '.yml' instead of '.yaml'.
   (See [!737](https://gitlab.com/esa/pyxel/-/merge_requests/737)).
+* Speedup function `pyxel.load`.
+  (See [!738](https://gitlab.com/esa/pyxel/-/merge_requests/738)).
 
 ### Documentation
 * Add info about Jupyter book being not interactive.
