@@ -15,6 +15,8 @@ This release brings a number of bugfixes, documentation and improvements.
 The following new models were added:
 * `load_star_map`.
 
+Parameter `data_type` is now optional in model `simple_adc` in `Readout Electronics`.
+If this parameter is not provided then it is inferred from `adc_bit_resolution` in `Detector`.
 
 ### Core
 
@@ -34,6 +36,8 @@ The following new models were added:
   (See [!732](https://gitlab.com/esa/pyxel/-/merge_requests/732)).
 * Conversion from scene to photon.
   (See [!733](https://gitlab.com/esa/pyxel/-/merge_requests/733)).
+* Parameter 'data_type' is optional in model `simple_adc` in `Readout Electronics`.
+  (See [!736](https://gitlab.com/esa/pyxel/-/merge_requests/736)).
 
 ### Others
 * Fix issues with mypy and Matplotlib 3.8.
