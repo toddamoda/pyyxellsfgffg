@@ -385,10 +385,10 @@ def test_invalid_filename(
         ("http://{host}/data/img_pipe.txt", np.array([[1, 2], [3, 4]], np.uint16)),
         ("http://{host}/data/img_semicolon.txt", np.array([[1, 2], [3, 4]], np.uint16)),
         # JPG files
-        ("data/img.jpg", np.array([[13, 19], [28, 34]])),
-        ("data/img.jpeg", np.array([[13, 19], [28, 34]])),
-        ("http://{host}/data/img.jpg", np.array([[13, 19], [28, 34]])),
-        ("http://{host}/data/img.jpeg", np.array([[13, 19], [28, 34]])),
+        ("data/img.jpg", np.array([[0, 24], [24, 47]])),
+        ("data/img.jpeg", np.array([[0, 24], [24, 47]])),
+        ("http://{host}/data/img.jpg", np.array([[0, 24], [24, 47]])),
+        ("http://{host}/data/img.jpeg", np.array([[0, 24], [24, 47]])),
         # PNG files
         ("data/img.png", np.array([[10, 20], [30, 40]])),
         ("data/img2.PNG", np.array([[10, 20], [30, 40]])),
