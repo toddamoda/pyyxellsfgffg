@@ -254,7 +254,7 @@ class Processor:
 
         key: ResultId
         for key in result_keys(result_type):
-            if key.startswith("data"):
+            if key.startswith("data") or key.startswith("scene"):
                 continue
             elif key == "photon":
                 standard_name = "Photon"
