@@ -36,8 +36,7 @@ dependencies:
 # Plotting
   - matplotlib>=3.1
   - seaborn
-  - holoviews>=1.14.2
-  - bokeh
+  - hvplot
 # Parallel computing
   - dask>=2.9
   - dask-labextension
