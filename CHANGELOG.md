@@ -25,6 +25,8 @@ If this parameter is not provided then it is inferred from `adc_bit_resolution` 
   (See [!738](https://gitlab.com/esa/pyxel/-/merge_requests/738)).
 * Improved function `pyxel.display_detector`.
   (See [!739](https://gitlab.com/esa/pyxel/-/merge_requests/739)).
+* Add `Scene` to `pyxel.run_mode`.
+  (See [!740](https://gitlab.com/esa/pyxel/-/merge_requests/740)).
 
 ### Documentation
 * Add info about Jupyter book being not interactive.
