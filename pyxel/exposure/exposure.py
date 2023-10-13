@@ -287,7 +287,7 @@ def _extract_datatree(detector: "Detector", keys: Sequence[ResultId]) -> DataTre
 
     key: ResultId
     for key in keys:
-        if key.startswith("data"):
+        if key.startswith("data") or key.startswith("scene"):
             continue
 
         obj: Union[Photon, Pixel, Image, Signal, Charge] = getattr(detector, key)
@@ -400,6 +400,9 @@ def run_pipeline(
             # Remove temporary data_tree '/intermediate/last'
             datatree_intermediate: DataTree = detector.data["intermediate"]  # type: ignore
             del datatree_intermediate["last"]
+
+        if "scene" in keys:
+            data_tree["/scene"] = detector.scene.data
 
         if "data" in keys:
             data_tree["/data"] = detector.data

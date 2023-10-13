@@ -569,6 +569,18 @@ def run_mode(
     │   Attributes:
     │       pyxel version:  1.9.1+104.g9da11bb2
     │       running mode:   Exposure
+    ├── DataTree('scene')
+    │   └── DataTree('list')
+    │       └── DataTree('0')
+    │               Dimensions:     (ref: 345, wavelength: 343)
+    │               Coordinates:
+    │                 * ref         (ref) int64 0 1 2 3 4 5 6 7 ... 337 338 339 340 341 342 343 344
+    │                 * wavelength  (wavelength) float64 336.0 338.0 340.0 ... 1.018e+03 1.02e+03
+    │               Data variables:
+    │                   x           (ref) float64 2.057e+05 2.058e+05 ... 2.031e+05 2.03e+05
+    │                   y           (ref) float64 8.575e+04 8.58e+04 ... 8.795e+04 8.807e+04
+    │                   weight      (ref) float64 11.49 14.13 15.22 14.56 ... 15.21 11.51 8.727
+    │                   flux        (ref, wavelength) float64 0.03769 0.04137 ... 1.813 1.896
     └── DataTree('data')
         ├── DataTree('mean_variance')
         │   └── DataTree('image')
