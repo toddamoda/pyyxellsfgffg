@@ -19,6 +19,8 @@ Parameter `data_type` is now optional in model `simple_adc` in `Readout Electron
 If this parameter is not provided then it is inferred from `adc_bit_resolution` in `Detector`.
 
 ### Core
+* Bug when using with a configuration file with extension '.yml' instead of '.yaml'.
+  (See [!737](https://gitlab.com/esa/pyxel/-/merge_requests/737)).
 
 ### Documentation
 * Add info about Jupyter book being not interactive.
