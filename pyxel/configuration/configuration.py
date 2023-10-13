@@ -656,7 +656,8 @@ def save(input_filename: Union[str, Path], output_dir: Path) -> Path:
     copy2(input_file, output_dir)
 
     # TODO: sort filenames ?
-    copied_input_file_it: Iterator[Path] = output_dir.glob("*.yaml")
+    pattern: str = f"*{input_file.suffix}"
+    copied_input_file_it: Iterator[Path] = output_dir.glob(pattern)
     copied_input_file: Path = next(copied_input_file_it)
 
     with copied_input_file.open("a") as file:
