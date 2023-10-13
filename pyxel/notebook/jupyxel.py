@@ -16,7 +16,10 @@ from pyxel.data_structure import Persistence, SimplePersistence
 
 if TYPE_CHECKING:
     import matplotlib.pyplot as plt
-    from holoviews import Layout
+    import panel as pn
+    import xarray as xr
+    from hvplot.xarray import XArrayInteractive
+    from panel.widgets import Widget
 
     from pyxel import Configuration
     from pyxel.detectors import Detector
@@ -137,76 +140,121 @@ def set_modelstate(processor: "Processor", model_name: str, state: bool = True) 
 # These method are used to display the detector object (all of the array Photon, pixel, signal and image)
 
 
-def display_detector(detector: "Detector") -> "Layout":
+def display_detector(detector: "Detector") -> "pn.Tabs":
     """Display detector interactively.
 
     Parameters
     ----------
     detector: Detector
-    hist: bool
 
-    Returnsimport pandas as pd
-
+    Returns
     -------
-    hv.Layout
-        A Holoviews object.
+    Tabs
     """
     # Late import to speedup start-up time
-    import holoviews as hv
+    import hvplot.xarray  # To integrate 'hvplot' with 'xarray' # noqa
+    import panel as pn
+    import param
 
-    # Apply an extension to Holoviews (if needed)
-    if not hv.Store.renderers:
-        hv.extension("bokeh")
+    # Extract a 'dataset' from 'detector'
+    ds: "xr.Dataset" = detector.to_xarray()
 
-    # Container for detector data, leave out where there is none.
-    det: dict[str, np.ndarray] = {}
-    if detector.input_image is not None:
-        det["Input Image"] = detector.input_image
-    if detector._photon is not None:
-        det["Photon [ph]"] = detector.photon.array
-    if detector._charge is not None:
-        det["Charge [e-]"] = detector.charge.array
-    if detector._pixel is not None:
-        det["Pixel [e-]"] = detector.pixel.array
-    if detector._signal is not None:
-        det["Signal [V]"] = detector.signal.array
-    if detector._image is not None:
-        det["Image [ADU]"] = detector.image.array
-
-    def get_image(name):
-        data: np.ndarray = det[name]
-
-        if detector.geometry.row == 1:
-            im = hv.Curve((range(len(data[0, :])), data[0, :])).opts(
-                tools=["hover"], aspect=1.5, xlabel="x", ylabel="z"
-            )
-        elif detector.geometry.col == 1:
-            im = hv.Curve((range(len(data[:, 0])), data[:, 0])).opts(
-                tools=["hover"], aspect=1.5, xlabel="y", ylabel="z"
-            )
-        else:
-            im = hv.Image((range(data.shape[1]), range(data.shape[0]), data)).opts(
-                colorbar=True,
-                cmap="gray",
-                tools=["hover"],
-                aspect=(detector.geometry.col / detector.geometry.row),
-                invert_yaxis=True,
-            )
-        return im
-
-    array_names = [key for key in det.keys()]
+    # Extract names from the arrays
+    array_names: list[str] = [str(name) for name in ds]
     if not array_names:
-        raise ValueError("No data in the detector.")
+        raise ValueError("Detector object does not contain any arrays.")
 
-    dmap = hv.DynamicMap(get_image, kdims=["Array"]).redim.values(Array=array_names)
-    dmap = dmap.opts(framewise=True)
+    first_array_name = array_names[0]
 
-    hist = dmap.hist(adjoin=False, num_bins=100).opts(
-        aspect=1.5, framewise=True, tools=["hover"], xlabel="z"
+    # Create widget 'Array'
+    array_widget: Widget = pn.widgets.Select(name="Array", options=array_names)
+    array_widget.value = first_array_name
+
+    # Create widget 'Color'
+    color_widget: Widget = pn.widgets.Select(
+        name="Color", options=["gray", "viridis", "fire"]
     )
-    out = (dmap.relabel("Array") + hist.relabel("Histogram")).opts(tabs=True)
 
-    return out
+    # Create an interactive widget
+    ds_interactive: XArrayInteractive = ds.interactive(loc="right")
+    selected_data: XArrayInteractive = ds_interactive[array_widget]
+
+    # Create widget 'Color bar'
+    colorbar_widget: Widget = pn.widgets.ToggleGroup(
+        name="Color bar",
+        options=["linear", "log"],
+        behavior="radio",
+    )
+
+    # Create interactive 2D imge 'Array'
+    img: XArrayInteractive = selected_data.hvplot(
+        title="Array",
+        aspect="equal",
+        cmap=color_widget,
+        cnorm=colorbar_widget,
+    )
+
+    def update_tabs_widget(*events: param.parameterized.Event) -> None:
+        for event in events:
+            if event.name != "value":
+                continue
+
+            tab_widgets.insert(index=1, pane=("Array", img))
+            _ = tab_widgets.pop(0)
+
+    # See https://panel.holoviz.org/how_to/links/watchers.html
+    colorbar_widget.param.watch(fn=update_tabs_widget, parameter_names="value")
+
+    num_bins_widget: Widget = pn.widgets.DiscreteSlider(
+        name="Num bins",
+        options=[10, 20, 50, 100, 200],
+        value=50,
+    )
+
+    def configure_range_slider(name: str) -> None:
+        data_2d = ds[name]
+        start, val_low, val_high, end = np.asarray(
+            data_2d.quantile(q=[0.0, 0.5, 0.95, 1.0])
+        )
+
+        step = (end - start) / 1000.0
+
+        hist_range_widget.start = start
+        hist_range_widget.end = end
+        hist_range_widget.step = step
+
+        hist_range_widget.value = (val_low, val_high)
+
+    hist_range_widget: Widget = pn.widgets.EditableRangeSlider(name="Range Slider")
+    configure_range_slider(name=first_array_name)
+
+    hist: XArrayInteractive = selected_data.hvplot.hist(
+        aspect=1.0,
+        bins=num_bins_widget,
+        logx=False,
+        logy=False,
+        title="Histogram",
+        bin_range=hist_range_widget,
+    )
+
+    def update_array_widget(*events: param.parameterized.Event) -> None:
+        for event in events:
+            if event.name != "value":
+                continue
+
+            configure_range_slider(name=event.new)
+
+    # See https://panel.holoviz.org/how_to/links/watchers.html
+    array_widget.param.watch(fn=update_array_widget, parameter_names="value")
+
+    # hist_widget = pn.Row(pn.WidgetBox(array_name, num_bins, range_slider), hist)
+    tab_widgets = pn.Tabs(
+        ("Array", img),
+        ("Histogram", hist),
+        dynamic=True,
+    )
+
+    return tab_widgets
 
 
 def display_array(
