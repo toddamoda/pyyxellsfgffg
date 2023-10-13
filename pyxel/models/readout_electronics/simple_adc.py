@@ -25,13 +25,13 @@ def apply_simple_adc(
 ) -> np.ndarray:
     """Apply a simple Analog-to-Digital Converted (ADC) digitization.
 
-    This functions simulates the behaviour of an ADC by quantizing a continous signal
+    This functions simulates the behaviour of an ADC by quantizing a continuous signal
     to a discrete digital representation based on the provided bit resolution and voltage range.
 
     Parameters
     ----------
     signal : array
-        Continous input signal to be quantized.
+        Continuous input signal to be quantized.
     bit_resolution : int
         ADC bit resolution used for quantization.
     voltage_min : float
