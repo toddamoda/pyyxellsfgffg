@@ -72,6 +72,11 @@ To install the latest stable version of Pyxel, execute this command in a termina
 
     conda install -c conda-forge pyxel-sim
 
+.. note::
+
+    It is recommended to install pyxel in its own dedicated Conda environment.
+    For more information, click here :ref:`conda_envs`.
+
 To update an existing installation you can use:
 
 .. code-block:: bash
@@ -136,6 +141,12 @@ using `pip <https://pip.pypa.io>`_:
 
 Full installation
 -----------------
+
+.. note::
+
+    It is recommended to install pyxel in its own dedicated Python's virtual environment.
+    For more information, click here :ref:`venv_envs`.
+
 
 To install all optional dependencies of Pyxel, you must run the command:
 

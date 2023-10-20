@@ -8,6 +8,8 @@ We recommend to create an isolated virtual environment for each version of Pyxel
 so that you have full control over additional packages that you may use in your analysis.
 This will also help you on improving reproducibility within the user community.
 
+.. _conda_envs:
+
 Conda Environments
 ==================
 
@@ -110,6 +112,7 @@ If you want to remove a conda environment, you can use the following command:
 
        conda update pyxel-sim
 
+.. _venv_envs:
 
 Venv Environments
 =================
