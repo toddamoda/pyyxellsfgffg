@@ -135,8 +135,8 @@ skip = ["__init__.py", "versioneer.py", ".ipynb_checkpoints",
     "src", ".tox", ".eggs", ".venv", "build", "dist"]
 
 [tool.mypy]
-# disallow_untyped_calls = true
-# disallow_untyped_defs = true
+disallow_untyped_calls = false
+disallow_untyped_defs = false
 # disallow_incomplete_defs = true
 # disallow_untyped_decorators = true
 no_implicit_optional = true
@@ -148,6 +148,7 @@ warn_unused_ignores = false
 # check_untyped_defs = true
 check_untyped_defs = true
 # no_implicit_reexport = true
+strict_equality = false
 
 [[tool.mypy.overrides]]
 module = [
