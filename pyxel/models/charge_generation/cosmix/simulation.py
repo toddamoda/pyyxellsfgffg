@@ -262,7 +262,7 @@ class Simulation:
                 # e_kin_energy = sampling_distribution(self.kin_energy_cdf)     # keV   TODO
             # elif self.energy_loss_data == 'geant4':
             #     pass
-            elif self.energy_loss_data == "stopping":
+            else:
                 raise NotImplementedError  # TODO: implement this
 
             e_kin_energy = 1.0  # TODO
@@ -293,7 +293,7 @@ class Simulation:
             # elif self.energy_loss_data == 'geant4':
             #     electron_number = electron_number_vector[g4_j]
             #     g4_j += 1
-            elif self.energy_loss_data == "stopping":
+            else:
                 raise NotImplementedError
 
             secondary_per_event += 1

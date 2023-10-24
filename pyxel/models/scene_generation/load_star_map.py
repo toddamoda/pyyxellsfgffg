@@ -48,11 +48,11 @@ class GaiaPassBand(Enum):
         >>> band.get_magnitude_key()
         'phot_bp_mean_map'
         """
-        if self is self.BluePhotometer:
+        if self is GaiaPassBand.BluePhotometer:
             return "phot_bp_mean_mag"
-        elif self is self.GaiaBand:
+        elif self is GaiaPassBand.GaiaBand:
             return "phot_g_mean_mag"
-        elif self is self.RedPhotometer:
+        elif self is GaiaPassBand.RedPhotometer:
             return "phot_rp_mean_mag"
         else:
             raise NotImplementedError

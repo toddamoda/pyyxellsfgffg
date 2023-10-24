@@ -811,9 +811,7 @@ class Observation:
 
         if self.with_dask:
             datatree_bag: db.Bag = (
-                db.from_sequence(parameters)
-                .map(apply_pipeline)
-                .fold(binop=merge)  # type: ignore
+                db.from_sequence(parameters).map(apply_pipeline).fold(binop=merge)
             )
 
             final_datatree: DataTree = datatree_bag.compute()
