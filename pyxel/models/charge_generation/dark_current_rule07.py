@@ -14,6 +14,8 @@ import numpy as np
 from pyxel.detectors import CMOS
 from pyxel.util import set_random_seed
 
+warnings.filterwarnings("once", category=RuntimeWarning, append=True)
+
 
 def lambda_e(lambda_cutoff: float) -> float:
     """Compute lambda_e.
@@ -142,13 +144,12 @@ def compute_mct_dark_rule07(
             1 + np.random.lognormal(sigma=dark_current_fpn_sigma_rule07, size=shape)
         )
 
-    # see issue #580 https://gitlab.com/esa/pyxel/-/issues/580
-    # if np.isinf(dark_current_2d_rule07).any():
-    #     warnings.warn(
-    #         "Unphysical high value for dark current from fixed pattern noise distribution"
-    #         " will result in inf values. Enable a FWC model to ensure a physical limit.",
-    #         RuntimeWarning,
-    #     )
+    if np.isinf(dark_current_2d_rule07).any():
+        warnings.warn(
+            "Unphysical high value for dark current from fixed pattern noise distribution"
+            " will result in inf values. Enable a FWC model to ensure a physical limit.",
+            RuntimeWarning,
+        )
 
     return dark_current_2d_rule07
 

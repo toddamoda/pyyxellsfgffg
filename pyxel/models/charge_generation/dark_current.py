@@ -15,6 +15,8 @@ from astropy import constants as const
 from pyxel.detectors import APD, Detector
 from pyxel.util import set_random_seed
 
+warnings.filterwarnings("once", category=RuntimeWarning, append=True)
+
 
 def calculate_band_gap(
     band_gap_0: float, alpha: float, beta: float, temperature: float
@@ -190,16 +192,13 @@ def compute_dark_current(
                 (1 + np.random.lognormal(sigma=dark_current_fpn_sigma, size=shape)),
             )
 
-    # see issue #580 https://gitlab.com/esa/pyxel/-/issues/580
-    # warnings.simplefilter("once", RuntimeWarning)
-    #
-    # if np.isinf(dark_current_2d).any():
-    #     warnings.warn(
-    #         "Unphysical high value for dark current from fixed pattern noise distribution"
-    #         " will result in inf values. Enable a FWC model to ensure a physical limit.",
-    #         RuntimeWarning,
-    #         stacklevel=2,
-    #     )
+    if np.isinf(dark_current_2d).any():
+        warnings.warn(
+            "Unphysical high value for dark current from fixed pattern noise distribution"
+            " will result in inf values. Enable a FWC model to ensure a physical limit.",
+            RuntimeWarning,
+            stacklevel=2,
+        )
 
     return dark_current_2d
 

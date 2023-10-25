@@ -41,6 +41,8 @@ from astropy import constants as const
 from pyxel.detectors import CMOS
 from pyxel.util import set_random_seed
 
+warnings.filterwarnings("once", category=RuntimeWarning, append=True)
+
 
 def damage_factors(
     annealing_time: float,
@@ -216,14 +218,13 @@ def compute_radiation_induced_dark_current(
     if shot_noise:
         dark_signal_frame = np.random.poisson(dark_signal_frame).astype(float)
 
-    # see issue #580 https://gitlab.com/esa/pyxel/-/issues/580
-    # if np.isinf(dark_signal_frame).any():
-    #     warnings.warn(
-    #         "Unphysical high value for dark current from fixed pattern noise distribution"
-    #         " will result in inf values. Enable a FWC model to ensure a physical limit.",
-    #         RuntimeWarning,
-    #         stacklevel=2,
-    #     )
+    if np.isinf(dark_signal_frame).any():
+        warnings.warn(
+            "Unphysical high value for dark current from fixed pattern noise distribution"
+            " will result in inf values. Enable a FWC model to ensure a physical limit.",
+            RuntimeWarning,
+            stacklevel=2,
+        )
 
     return dark_signal_frame
 
