@@ -64,7 +64,7 @@ Accepted file formats are ``.h5``, ``.hdf5``, ``.hdf`` and ``.asdf``.
 .. _aperture:
 
 Simple aperture
----------------
+===============
 
 :guilabel:`Scene` → :guilabel:`Photon`
 
