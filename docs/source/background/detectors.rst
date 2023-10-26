@@ -41,9 +41,10 @@ input photon distribution (photons), number of charge carriers generated (carrie
 (voltage, phase), and digitised image value (ADU). The data buckets are modified by the models in the pipeline
 and the state of the output detector at the end of the pipeline is changed.
 These data structures are:
-:py:class:`~pyxel.data_structure.Photon`, :py:class:`~pyxel.data_structure.Charge`,
-:py:class:`~pyxel.data_structure.Pixel`, :py:class:`~pyxel.data_structure.Signal`
-and :py:class:`~pyxel.data_structure.Image` class.
+:py:class:`~pyxel.data_structure.Scene`, :py:class:`~pyxel.data_structure.Photon`,
+:py:class:`~pyxel.data_structure.Charge`, :py:class:`~pyxel.data_structure.Pixel`,
+:py:class:`~pyxel.data_structure.Signal`, :py:class:`~pyxel.data_structure.Image`
+and :py:class:`~pyxel.data_structure.Phase` class.
 
 The classes are storing the data values either inside a Pandas
 :py:class:`pandas.DataFrame` or in a NumPy :py:class:`numpy.ndarray`. Via DataFrame or

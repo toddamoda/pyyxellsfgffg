@@ -10,11 +10,11 @@ It is an instance of :py:class:`~pyxel.pipelines.DetectionPipeline` class.
 
 Inside the pipeline the :ref:`models <models_explanation>` are grouped into different
 levels per detector type imitating the working principle of the detector, for example
-in case of a :term:`CCD` the model groups are :ref:`photon collection <photon_collection>`,
-:ref:`charge <charge_transfer>`, :ref:`generation <charge_generation>`,
+in case of a :term:`CCD` the model groups are :ref:`scene generation <scene_generation>`,
+:ref:`photon collection <photon_collection>`, :ref:`charge <charge_transfer>`, :ref:`generation <charge_generation>`,
 :ref:`charge collection <charge_collection>`, :ref:`charge transfer <charge_transfer>`,
-:ref:`charge measurement <charge_measurement>`, :ref:`readout electronics <readout_electronics>` and :ref:`data processing <data_processing>`
-in this order.
+:ref:`charge measurement <charge_measurement>`, :ref:`readout electronics <readout_electronics>`
+and :ref:`data processing <data_processing>` in this order.
 
 .. deprecated:: 1.7
 
@@ -111,7 +111,8 @@ which object of the :py:class:`~pyxel.detectors.Detector` object is used or modi
 the models. These groups correspond roughly to the detector fundamental
 functions.
 
-Models in Pyxel makes changes and storing the data in data bucktes (:py:class:`~pyxel.data_structure.Photon`, :py:class:`~pyxel.data_structure.Charge`,
+Models in Pyxel makes changes and storing the data in data bucktes (:py:class:`~pyxel.data_structure.Scene`,
+:py:class:`~pyxel.data_structure.Photon`, :py:class:`~pyxel.data_structure.Charge`,
 :py:class:`~pyxel.data_structure.Phase`,
 :py:class:`~pyxel.data_structure.Pixel`, :py:class:`~pyxel.data_structure.Signal` or
 :py:class:`~pyxel.data_structure.Image`,
