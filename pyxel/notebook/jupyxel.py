@@ -156,22 +156,8 @@ def display_detector(detector: "Detector") -> "pn.Tabs":
     import panel as pn
     import param
 
-    # Container for detector data, leave out where there is none.
-    det: dict[str, np.ndarray] = {}
-    if detector.input_image is not None:
-        det["Input Image"] = detector.input_image
-    if detector._photon is not None:
-        det["Photon [ph]"] = detector.photon.array
-    if detector._charge is not None:
-        det["Charge [e-]"] = detector.charge.array
-    if detector._pixel is not None:
-        det["Pixel [e-]"] = detector.pixel.array
-    if detector._signal is not None:
-        det["Signal [V]"] = detector.signal.array
-    if detector._phase is not None:
-        det["Phase [rad] (MKIDs)"] = detector.phase.array
-    if detector._image is not None:
-        det["Image [ADU]"] = detector.image.array
+    # Extract a 'dataset' from 'detector'
+    ds: "xr.Dataset" = detector.to_xarray()
 
     # Extract names from the arrays
     array_names: list[str] = [str(name) for name in ds]

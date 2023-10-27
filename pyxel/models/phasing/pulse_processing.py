@@ -33,8 +33,8 @@ def convert_to_phase(
     -------
     ndarray
     """
-    from pyxel.models.phasing.mkid_models import SC as sclib
-    from pyxel.models.phasing.mkid_models import SCtheory as sctheory
+    from pyxel.models.phasing.mkid_models import SC as sclib  # noqa: N811
+    from pyxel.models.phasing.mkid_models import SCtheory as sctheory  # noqa: N813
 
     if not wavelength > 0.0:
         raise ValueError("Only positive values accepted for wavelength.")
@@ -47,46 +47,65 @@ def convert_to_phase(
     # TD = 433  # Debye temperature, for Aluminium [K]
     # N0 = 1.72e4  # Electronic density of states at Fermi surface, for Aluminium [µeV^-1 µm^-3]
     # lbd0 = 0.092  # Penetration depth at T = 0 [µm] (0.092 for Aluminium, by default)
-    kbT0 = 86.17 * 0.2  # Boltzmann's constant * bath temperature [µeV]
-    kbT = 86.17 * 0.2  # Boltzmann's constant * quasi-particle temperature [µeV]
-    hw0 = (
-        0.6582 * 5 * 2 * np.pi
-    )  # Reduced Planck’s constant * angular resonance frequency at T0
+
+    # Boltzmann's constant * bath temperature [µeV]
+    constant_boltzmann_t0 = 86.17 * 0.2
+
+    # Boltzmann's constant * quasi-particle temperature [µeV]
+    constant_boltzmann_t = 86.17 * 0.2
+
+    # Reduced Planck’s constant * angular resonance frequency at T0
+    hw0 = 0.6582 * 5 * 2 * np.pi
+
     ak = 0.0268  # Kinetic inductance fraction
     beta = 2  # = 2 in the thin-film limit (= 1 in the bulk) [CHECK FUNCTION BELOW]
-    Qc = 2e4  # Coupling quality factor
-    SCvol: sclib.Vol = sclib.Vol(SC=sclib.Al, d=0.05, V=15.0)
-    SC: sclib.Superconductor = SCvol.SC
+    coupling_quality_factor = 2e4  # Coupling quality factor
+
+    superconductor_volume: sclib.Vol = sclib.Vol(SC=sclib.Al, d=0.05, V=15.0)
+    superconductor: sclib.Superconductor = superconductor_volume.SC
     # d = SCvol.d  # Film thickness [µm]
-    V: float = SCvol.V  # Superconductor's volume [µm]
+    volume: float = superconductor_volume.V  # Superconductor's volume [µm]
 
     # kbTc = Tc * const.Boltzmann / const.e * 1e6  # Critical temperature [µeV]
     # kbTD = TD * const.Boltzmann / const.e * 1e6  # Debye's energy [µeV]
     # D0 = 1.76 * kbTc  # BSC relation for the energy gap at
-    D_0: float = sctheory.D(kbT, SC)
-    hwread: float = sctheory.hwread(
-        hw0=hw0, kbT0=kbT0, ak=ak, kbT=kbT, D=D_0, SCvol=SCvol
-    )  # Gives the read frequency such that it is equal to the resonance frequency
+    delta_0: float = sctheory.D(kbT=constant_boltzmann_t, SC=superconductor)
 
-    s_0: tuple[float, float] = sctheory.cinduct(hw=hwread, D=D_0, kbT=kbT)
-    Qi_0: float = 2 * s_0[1] / (ak * beta * s_0[0])
-    Q: float = Qi_0 * Qc / (Qi_0 + Qc)
+    # Gives the read frequency such that it is equal to the resonance frequency
+    hwread: float = sctheory.hwread(
+        hw0=hw0,
+        kbT0=constant_boltzmann_t0,
+        ak=ak,
+        kbT=constant_boltzmann_t,
+        D=delta_0,
+        SCvol=superconductor_volume,
+    )
+
+    s_0: tuple[float, float] = sctheory.cinduct(
+        hw=hwread, D=delta_0, kbT=constant_boltzmann_t
+    )
+    qi_0: float = 2 * s_0[1] / (ak * beta * s_0[0])
+    q: float = qi_0 * coupling_quality_factor / (qi_0 + coupling_quality_factor)
 
     row_of_pixels, column_of_pixels = array_2d.shape
-    linearised_DeltaA = np.zeros((row_of_pixels, column_of_pixels))
+    linearised_delta_a = np.zeros((row_of_pixels, column_of_pixels))
     linearised_theta = np.zeros((row_of_pixels, column_of_pixels))
 
     for row_idx in range(row_of_pixels):
         for col_idx in range(column_of_pixels):
-            Nqp: float = array_2d[row_idx, col_idx]
+            nqp: float = array_2d[row_idx, col_idx]
 
-            kbTeff = sctheory.kbTeff(nqp_value=Nqp / V, SC=SC)
-            D = sctheory.D(kbTeff, SC)  # Energy gap
-            s1, s2 = sctheory.cinduct(hw=hwread, D=D, kbT=kbTeff)
+            kb_teff = sctheory.kbTeff(nqp_value=nqp / volume, SC=superconductor)
+
+            # Energy gap
+            d = sctheory.D(kbT=kb_teff, SC=superconductor)
+            s1, s2 = sctheory.cinduct(hw=hwread, D=d, kbT=kb_teff)
 
             # Calculate changes in amplitude and phase
-            linearised_DeltaA[row_idx, col_idx] = ak * beta * Q * (s1 - s_0[0]) / s_0[1]
-            linearised_theta[row_idx, col_idx] = -ak * beta * Q * (s2 - s_0[1]) / s_0[1]
+            linearised_delta_a[row_idx, col_idx] = (
+                ak * beta * q * (s1 - s_0[0]) / s_0[1]
+            )
+            linearised_theta[row_idx, col_idx] = -ak * beta * q * (s2 - s_0[1]) / s_0[1]
 
     output = linearised_theta * scaling_factor
 
@@ -103,6 +122,7 @@ def pulse_processing(
     f: float = 0.2,
 ) -> None:
     """Phase-pulse processor.
+
     This model is derived from :cite:p:`Dodkins`; more information can be found on the website :cite:p:`Mazin`.
 
     Parameters
@@ -119,9 +139,9 @@ def pulse_processing(
         the quasi-particle losses, etc.
     t_c : float [used also in /pyxel/models/readout_electronics/dead_time.py]
         Material dependent critical temperature. Unit: K
-    eta_pb: float
+    eta_pb : float
         Superconducting pair-breaking efficiency.
-    f: float
+    f : float
         Fano's factor.
     """
     if not isinstance(detector, MKID):
@@ -161,6 +181,6 @@ def pulse_processing(
 
     np.random.seed(42)
 
-    gaussian_samples = np.random.normal(
+    _gaussian_samples = np.random.normal(
         mu, sigma, detector.phase.array[0][0]
     )  # To be continued...
