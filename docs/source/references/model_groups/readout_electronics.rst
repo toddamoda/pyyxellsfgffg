@@ -161,9 +161,19 @@ Dead time filter
 
 This model only applies to the :py:class:`~pyxel.detectors.MKID` detector.
 
-There is a maximum limit to the achievable count rate, which is inversely proportional to the minimum distance in time between distinguishable pulse profiles: the so-called “dead time”, which is fundamentally determined by the recombination time of quasi-particles re-forming Cooper pairs :cite:p:`2020:prodhomme`.
+There is a maximum limit to the achievable count rate, which is inversely proportional to the minimum distance in time
+between distinguishable pulse profiles: the so-called “dead time”, which is fundamentally determined by the recombination
+time of quasi-particles re-forming Cooper pairs. The following is a mosaic of simulations---from
+:cite:p:`2020:prodhomme`---showing the effect of temporal saturation for an MKID-array, which leads to an intensity
+saturation; by incrementally increasing the brightness level in the field of view, from (a) to (f). The effect appears
+when the interval between the arrival time of two photons is smaller than the dead time of the affected MKIDs in the
+array, assuming an ideal read-out bandwidth. The sequence of associated histograms shows how the counts ($\#$) move
+towards higher intensities, until the wall of :math:`10^5` (in arbitrary units) is reached.
 
-The underlying physics of this model is described in :cite:p:`PhysRevB.104.L180506`; more information can be found on the website :cite:p:`Mazin`.
+.. figure:: ../_static/Dead_time.png
+    :scale: 50%
+    :alt: Mosaic of simulations showing the effect of temporal saturation for an MKID-array, which leads to an intensity saturation.
+    :align: center
 
 Example of the configuration file:
 
