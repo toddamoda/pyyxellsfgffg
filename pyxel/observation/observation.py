@@ -16,16 +16,7 @@ from enum import Enum
 from functools import partial
 from itertools import chain
 from numbers import Number
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Literal,
-    NamedTuple,
-    Optional,
-    Tuple,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Callable, Literal, NamedTuple, Optional, Union
 
 import dask.bag as db
 import numpy as np
@@ -355,7 +346,7 @@ class Observation:
                 parameter_dict = {key: value}
                 yield index, parameter_dict
 
-    def _product_indices(self) -> "Iterator[Tuple]":
+    def _product_indices(self) -> Iterator[tuple]:
         """Return an iterator of product parameter indices.
 
         Returns

@@ -197,7 +197,7 @@ def _get_noise_type(
             "pca_zero_noise",
         ],
         Mapping[str, float],
-    ]
+    ],
 ) -> NoiseType:
     if "ktc_bias_noise" in item:
         sub_item: Mapping[str, float] = item["ktc_bias_noise"]

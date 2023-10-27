@@ -81,8 +81,9 @@ def read_star_flux_from_file(
     elif extension == ".dat":
         """ExoNoodle file"""
         df_topex = pd.read_csv(filename, header=11)
-        wavelength, flux = np.zeros(len(df_topex["wavelength flux "])), np.zeros(
-            len(df_topex["wavelength flux "])
+        wavelength, flux = (
+            np.zeros(len(df_topex["wavelength flux "])),
+            np.zeros(len(df_topex["wavelength flux "])),
         )
         for i in range(len(df_topex["wavelength flux "])):
             wavelength[i] = float(df_topex["wavelength flux "][i].split("        ")[0])
@@ -329,8 +330,9 @@ def project_psfs(
     photon_incident = np.zeros((row * expand_factor, col * expand_factor))
     photoelectron_generated = np.zeros((row * expand_factor, col * expand_factor))
 
-    col_win_middle, line_win_middle = int(col_psf_pos.mean()), int(
-        line_psf_pos_1d.mean()
+    col_win_middle, line_win_middle = (
+        int(col_psf_pos.mean()),
+        int(line_psf_pos_1d.mean()),
     )
 
     for i in np.arange(nw):  # Loop over the wavelength

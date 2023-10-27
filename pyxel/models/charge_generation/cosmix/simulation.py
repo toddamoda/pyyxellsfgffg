@@ -231,7 +231,7 @@ class Simulation:
             spectrum_cdf=self.spectrum_cdf,
             starting_pos_ver=self.position_ver,
             starting_pos_hor=self.position_hor,
-            starting_pos_z=self.position_z
+            starting_pos_z=self.position_z,
             # self.angle_alpha, self.angle_beta)
         )
 
@@ -347,7 +347,7 @@ class Simulation:
             spectrum_cdf=self.spectrum_cdf,
             starting_pos_ver=self.position_ver,
             starting_pos_hor=self.position_hor,
-            starting_pos_z=self.position_z
+            starting_pos_z=self.position_z,
             # self.angle_alpha, self.angle_beta
         )
         particle = self.particle
