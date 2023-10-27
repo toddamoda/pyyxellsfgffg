@@ -5083,11 +5083,23 @@
     },
     "ModelPhasingPulseProcessing": {
       "additionalProperties": false,
-      "description": "TBW.",
+      "description": "Phase-pulse processor.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
           "properties": {
+            "eta_pb": {
+              "default": 0.59,
+              "description": "Superconducting pair-breaking efficiency.",
+              "title": "eta_pb",
+              "type": "number"
+            },
+            "f": {
+              "default": 0.2,
+              "description": "Fano's factor.",
+              "title": "f",
+              "type": "number"
+            },
             "responsivity": {
               "description": "Responsivity of the pixel.",
               "title": "responsivity",
@@ -5099,8 +5111,14 @@
               "title": "scaling_factor",
               "type": "number"
             },
+            "t_c": {
+              "default": 1.26,
+              "description": "Material dependent critical temperature. Unit: K",
+              "title": "t_c",
+              "type": "number"
+            },
             "wavelength": {
-              "description": "Wavelength.",
+              "description": "Wavelength. Unit: um.",
               "title": "wavelength",
               "type": "number"
             }
