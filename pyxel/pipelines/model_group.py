@@ -101,7 +101,9 @@ class ModelGroup:
                         name="intermediate", parent=detector.data
                     )
                     datatree_intermediate.attrs = {
-                        "long_name": "Store all intermediate results modified along a pipeline"
+                        "long_name": (
+                            "Store all intermediate results modified along a pipeline"
+                        )
                     }
                 else:
                     datatree_intermediate = detector.data[intermediate_key]  # type: ignore

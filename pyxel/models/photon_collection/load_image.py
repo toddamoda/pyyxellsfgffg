@@ -67,7 +67,8 @@ def load_image(
     if convert_to_photons:
         if not bit_resolution:
             raise ValueError(
-                "Bit resolution of the input image has to be specified for converting to photons."
+                "Bit resolution of the input image has to be specified for converting"
+                " to photons."
             )
 
         cht = detector.characteristics

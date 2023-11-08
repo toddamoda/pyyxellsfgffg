@@ -536,8 +536,8 @@ class Observation:
                 model_enabled: str = model_name + ".enabled"
                 if not processor.get(model_enabled):
                     raise ValueError(
-                        f"The '{model_name}' model referenced in Observation configuration "
-                        f"has not been enabled in yaml config!"
+                        f"The '{model_name}' model referenced in Observation"
+                        " configuration has not been enabled in yaml config!"
                     )
 
             if (

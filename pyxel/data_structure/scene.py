@@ -88,7 +88,8 @@ class Scene:
             "flux",
         }:
             raise ValueError(
-                "Wrong format for source. Expecting a Dataset with variables 'x', 'y', 'weight' and 'flux'."
+                "Wrong format for source. Expecting a Dataset with variables 'x', 'y',"
+                " 'weight' and 'flux'."
             )
 
         if "list" not in self.data:

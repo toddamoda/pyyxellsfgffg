@@ -88,7 +88,8 @@ class ObservationOutputs(Outputs):
 
                 if obj not in dataset_names:
                     raise ValueError(
-                        "Please specify a valid result dataset names ('dataset', 'parameters', 'logs')."
+                        "Please specify a valid result dataset names ('dataset',"
+                        " 'parameters', 'logs')."
                     )
 
                 if mode == ParameterMode.Sequential and obj == "dataset":

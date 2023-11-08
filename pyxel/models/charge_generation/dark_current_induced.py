@@ -220,8 +220,9 @@ def compute_radiation_induced_dark_current(
 
     if np.isinf(dark_signal_frame).any():
         warnings.warn(
-            "Unphysical high value for dark current from fixed pattern noise distribution"
-            " will result in inf values. Enable a FWC model to ensure a physical limit.",
+            "Unphysical high value for dark current from fixed pattern noise"
+            " distribution will result in inf values. Enable a FWC model to ensure a"
+            " physical limit.",
             RuntimeWarning,
             stacklevel=2,
         )

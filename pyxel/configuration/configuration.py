@@ -75,7 +75,8 @@ class Configuration:
 
         if num_detectors != 1:
             raise ValueError(
-                "Expecting only one detector: 'ccd_detector', 'cmos_detector', 'mkid_detector' or 'apd_detector'."
+                "Expecting only one detector: 'ccd_detector', 'cmos_detector',"
+                " 'mkid_detector' or 'apd_detector'."
             )
 
     @property

@@ -177,8 +177,9 @@ def calculate_illumination(
 
 
 @deprecated(
-    "Model 'pyxel.models.photon_generation.illumination' is deprecated and will be removed in version 2. "
-    "Use model 'pyxel.models.photon_collection.illumination' instead."
+    "Model 'pyxel.models.photon_generation.illumination' is deprecated and will be"
+    " removed in version 2. Use model 'pyxel.models.photon_collection.illumination'"
+    " instead."
 )
 def illumination(
     detector: Detector,

@@ -384,7 +384,8 @@ class Detector:
         """TBW."""
         if not isinstance(value, (Persistence, SimplePersistence)):
             raise TypeError(
-                "Expecting Persistence or SimplePersistence type to set detector persistence."
+                "Expecting Persistence or SimplePersistence type to set detector"
+                " persistence."
             )
         self._persistence = value
 

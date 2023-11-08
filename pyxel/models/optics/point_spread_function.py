@@ -51,8 +51,8 @@ def apply_psf(
 
 
 @deprecated(
-    "Model 'pyxel.models.optics.load_psf' is deprecated and will be removed in version 2. "
-    "Use model 'pyxel.models.photon_collection.stripe_pattern' instead."
+    "Model 'pyxel.models.optics.load_psf' is deprecated and will be removed in version"
+    " 2. Use model 'pyxel.models.photon_collection.stripe_pattern' instead."
 )
 def load_psf(
     detector: Detector, filename: Union[str, Path], normalize_kernel: bool = True

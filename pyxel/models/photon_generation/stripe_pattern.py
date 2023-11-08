@@ -108,8 +108,9 @@ def compute_pattern(
 
 
 @deprecated(
-    "Model 'pyxel.models.photon_generation.stripe_pattern' is deprecated and will be removed in version 2. "
-    "Use model 'pyxel.models.photon_collection.stripe_pattern' instead."
+    "Model 'pyxel.models.photon_generation.stripe_pattern' is deprecated and will be"
+    " removed in version 2. Use model 'pyxel.models.photon_collection.stripe_pattern'"
+    " instead."
 )
 def stripe_pattern(
     detector: "Detector",

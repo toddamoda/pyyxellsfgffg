@@ -78,6 +78,7 @@ which returns result numpy array to be able to add to Pyxel detector signal
 - ZeroDivision error fixed
 - Version 2.8
 """
+
 import logging
 from typing import Literal, Optional
 
@@ -725,12 +726,14 @@ class HXRGNoise:
                 half_ch_pixels = self.naxis1 * self.naxis2 // (2 * self.n_out)
                 if len(a) != half_ch_pixels:
                     ValueError(
-                        "This should not happen: in ACN noise len(a) != number of half ch pixel"
+                        "This should not happen: in ACN noise len(a) != number of half"
+                        " ch pixel"
                     )
                     # a = np.append(a, np.zeros(halfchpixels-len(a)))
                 if len(b) != half_ch_pixels:
                     ValueError(
-                        "This should not happen: in ACN noise len(b) != number of half ch pixel"
+                        "This should not happen: in ACN noise len(b) != number of half"
+                        " ch pixel"
                     )
                     # b = np.append(b, np.zeros(halfchpixels-len(b)))
 

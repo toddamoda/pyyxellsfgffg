@@ -146,8 +146,9 @@ def compute_mct_dark_rule07(
 
     if np.isinf(dark_current_2d_rule07).any():
         warnings.warn(
-            "Unphysical high value for dark current from fixed pattern noise distribution"
-            " will result in inf values. Enable a FWC model to ensure a physical limit.",
+            "Unphysical high value for dark current from fixed pattern noise"
+            " distribution will result in inf values. Enable a FWC model to ensure a"
+            " physical limit.",
             RuntimeWarning,
             stacklevel=2,
         )

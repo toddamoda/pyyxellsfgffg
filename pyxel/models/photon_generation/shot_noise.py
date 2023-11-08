@@ -77,8 +77,9 @@ def compute_noise(
 
 
 @deprecated(
-    "Model 'pyxel.models.photon_generation.shot_noise' is deprecated and will be removed in version 2. "
-    "Use model 'pyxel.models.photon_collection.shot_noise' instead."
+    "Model 'pyxel.models.photon_generation.shot_noise' is deprecated and will be"
+    " removed in version 2. Use model 'pyxel.models.photon_collection.shot_noise'"
+    " instead."
 )
 def shot_noise(
     detector: Detector,

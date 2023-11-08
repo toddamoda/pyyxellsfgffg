@@ -60,7 +60,8 @@ class Photon(Array):
         if np.any(value < 0):
             value[value < 0] = 0.0
             warnings.warn(
-                "Trying to set negative values in the Photon array! Negative values clipped to 0.",
+                "Trying to set negative values in the Photon array! Negative values"
+                " clipped to 0.",
                 stacklevel=2,
             )
 

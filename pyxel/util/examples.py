@@ -31,7 +31,7 @@ def download_examples(foldername: str = "pyxel-examples", force: bool = False) -
         else:
             raise OSError(
                 f"Folder '{folder}' already exists. Either delete it, "
-                f"use a different name, or use the '--force' argument."
+                "use a different name, or use the '--force' argument."
             )
 
     url = "https://gitlab.com/esa/pyxel-data/-/archive/master/pyxel-data-master.zip"
@@ -40,13 +40,16 @@ def download_examples(foldername: str = "pyxel-examples", force: bool = False) -
     examples_filename = Path("examples_tmp.zip")
 
     total = int(response.headers.get("content-length", 0))
-    with examples_filename.open("wb") as tmp, tqdm(
-        desc="Downloading examples",
-        total=total,
-        unit="B",
-        unit_scale=True,
-        unit_divisor=1024,
-    ) as bar:
+    with (
+        examples_filename.open("wb") as tmp,
+        tqdm(
+            desc="Downloading examples",
+            total=total,
+            unit="B",
+            unit_scale=True,
+            unit_divisor=1024,
+        ) as bar,
+    ):
         for data in response.iter_content(chunk_size=1024):
             size = tmp.write(data)
             bar.update(size)

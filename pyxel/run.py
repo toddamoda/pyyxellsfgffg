@@ -761,7 +761,8 @@ def run_mode(
 
     if with_intermediate_steps and isinstance(mode, (Observation, Calibration)):
         raise NotImplementedError(
-            "Parameter 'with_intermediate_steps' is not implemented for 'Observation' and 'Calibration' modes."
+            "Parameter 'with_intermediate_steps' is not implemented for 'Observation'"
+            " and 'Calibration' modes."
         )
 
     if isinstance(mode, Exposure):

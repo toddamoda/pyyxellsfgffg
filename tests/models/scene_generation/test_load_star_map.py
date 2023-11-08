@@ -234,7 +234,9 @@ def test_retrieve_from_gaia(
     # When this function will be called (with any parameters), it will always return this tuple
     # (positions_table, spectra_dct)
     mocker.patch(
-        target="pyxel.models.scene_generation.load_star_map._retrieve_objects_from_gaia",
+        target=(
+            "pyxel.models.scene_generation.load_star_map._retrieve_objects_from_gaia"
+        ),
         return_value=(positions_table, spectra_dct),
     )
 
@@ -329,7 +331,9 @@ def test_load_star_map(
     # When this function will be called (with any parameters), it will always return this tuple
     # (positions_table, spectra_dct)
     mocker.patch(
-        target="pyxel.models.scene_generation.load_star_map._retrieve_objects_from_gaia",
+        target=(
+            "pyxel.models.scene_generation.load_star_map._retrieve_objects_from_gaia"
+        ),
         return_value=(positions_table, spectra_dct),
     )
 

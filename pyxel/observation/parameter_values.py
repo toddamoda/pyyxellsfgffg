@@ -88,12 +88,14 @@ class ParameterValues:
             if boundaries_array.ndim == 1:
                 if boundaries_array.shape != (2,):
                     raise ValueError(
-                        f"Expecting only two values for the boundaries. Got: {boundaries}."
+                        "Expecting only two values for the boundaries. Got:"
+                        f" {boundaries}."
                     )
             elif boundaries_array.ndim == 2:
                 if boundaries_array.shape != (len(values), 2):
                     raise ValueError(
-                        f"Expecting a 2x{len(values)} values for the boundaries. Got: {boundaries}."
+                        f"Expecting a 2x{len(values)} values for the boundaries. Got:"
+                        f" {boundaries}."
                     )
             else:
                 raise ValueError(f"Wrong format of boundaries. Got {boundaries}.")
@@ -105,7 +107,10 @@ class ParameterValues:
     def __repr__(self) -> str:
         cls_name: str = self.__class__.__name__
 
-        return f"{cls_name}<key={self.key!r}, values={self.values!r}, enabled={self.enabled!r}>"
+        return (
+            f"{cls_name}<key={self.key!r}, values={self.values!r},"
+            f" enabled={self.enabled!r}>"
+        )
 
     def __len__(self) -> int:
         try:

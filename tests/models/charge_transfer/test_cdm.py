@@ -129,7 +129,8 @@ def input_array() -> np.ndarray:
             1.0,
             False,
             ValueError,
-            r"Length of 'sigma', 'trap_densities' and 'trap_release_times' not the same!",
+            r"Length of 'sigma', 'trap_densities' and 'trap_release_times' not the"
+            r" same!",
             id="Different lengths.",
         ),
         pytest.param(

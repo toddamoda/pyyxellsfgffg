@@ -13,8 +13,9 @@ from pyxel.util import deprecated, load_cropped_and_aligned_image
 
 
 @deprecated(
-    "Model 'pyxel.models.photon_generation.load_image' is deprecated and will be removed in version 2. "
-    "Use model 'pyxel.models.photon_collection.load_image' instead."
+    "Model 'pyxel.models.photon_generation.load_image' is deprecated and will be"
+    " removed in version 2. Use model 'pyxel.models.photon_collection.load_image'"
+    " instead."
 )
 def load_image(
     detector: Detector,
@@ -69,7 +70,8 @@ def load_image(
     if convert_to_photons:
         if not bit_resolution:
             raise ValueError(
-                "Bit resolution of the input image has to be specified for converting to photons."
+                "Bit resolution of the input image has to be specified for converting"
+                " to photons."
             )
 
         cht = detector.characteristics

@@ -90,7 +90,8 @@ def test_dark_current_warning(ccd_10x10: CCD):
 
 
 @pytest.mark.parametrize(
-    "figure_of_merit, spatial_noise_factor, band_gap, band_gap_room_temperature, exp_exc, exp_error",
+    "figure_of_merit, spatial_noise_factor, band_gap, band_gap_room_temperature,"
+    " exp_exc, exp_error",
     [
         pytest.param(
             1.0,
@@ -98,7 +99,8 @@ def test_dark_current_warning(ccd_10x10: CCD):
             None,
             1.2,
             ValueError,
-            "Both parameters band_gap and band_gap_room_temperature have to be defined.",
+            "Both parameters band_gap and band_gap_room_temperature have to be"
+            " defined.",
         ),
         pytest.param(
             1.0,
@@ -106,7 +108,8 @@ def test_dark_current_warning(ccd_10x10: CCD):
             1.2,
             None,
             ValueError,
-            "Both parameters band_gap and band_gap_room_temperature have to be defined.",
+            "Both parameters band_gap and band_gap_room_temperature have to be"
+            " defined.",
         ),
     ],
 )

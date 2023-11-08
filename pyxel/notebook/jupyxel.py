@@ -347,7 +347,8 @@ def display_persist(persistence: Union[Persistence, SimplePersistence]) -> None:
 
     if isinstance(persistence, SimplePersistence):
         labels = [
-            f"Trap time constant: {persistence.trap_time_constants[i]}; trap density: {persistence.trap_densities[i]}"
+            f"Trap time constant: {persistence.trap_time_constants[i]}; trap density:"
+            f" {persistence.trap_densities[i]}"
             for i in range(len(trapped_charges))
         ]
 

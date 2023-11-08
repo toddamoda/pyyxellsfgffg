@@ -20,27 +20,29 @@ from pyxel.pipelines import Processor
         pytest.param(
             Path("observation_missing_param.yaml"),
             KeyError,
-            "Missing parameter: 'pipeline.charge_generation.dark_current.arguments.temperature'",
+            "Missing parameter:"
+            " 'pipeline.charge_generation.dark_current.arguments.temperature'",
             id="observation_missing_param",
         ),
         pytest.param(
             Path("observation_not_enabled.yaml"),
             ValueError,
-            "The 'pipeline.charge_generation.dark_current' model referenced in Observation "
-            "configuration has not been enabled",
+            "The 'pipeline.charge_generation.dark_current' model referenced in"
+            " Observation configuration has not been enabled",
             id="observation_not_enabled",
         ),
         pytest.param(
             Path("deprecated_observation_missing_param.yaml"),
             KeyError,
-            "Missing parameter: 'pipeline.charge_generation.dark_current.arguments.temperature'",
+            "Missing parameter:"
+            " 'pipeline.charge_generation.dark_current.arguments.temperature'",
             id="deprecated_observation_missing_param",
         ),
         pytest.param(
             Path("deprecated_observation_not_enabled.yaml"),
             ValueError,
-            "The 'pipeline.charge_generation.dark_current' model referenced in Observation "
-            "configuration has not been enabled",
+            "The 'pipeline.charge_generation.dark_current' model referenced in"
+            " Observation configuration has not been enabled",
             id="deprecated_observation_not_enabled",
         ),
     ],

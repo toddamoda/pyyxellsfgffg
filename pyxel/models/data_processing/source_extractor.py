@@ -175,7 +175,8 @@ def extract_roi_to_xarray(
         data_2d = detector.charge.array
     else:
         raise ValueError(
-            "Incorrect array_type. Must be one of 'pixel','signal','image',photon' or 'charge'."
+            "Incorrect array_type. Must be one of 'pixel','signal','image',photon' or"
+            " 'charge'."
         )
 
     data_2d = np.asarray(data_2d, dtype=float)

@@ -423,8 +423,8 @@ def apply_convolution(data_2d: np.ndarray, kernel_2d: np.ndarray) -> np.ndarray:
 
 
 @deprecated(
-    "Model 'pyxel.models.optics.optical_psf' is deprecated and will be removed in version 2. "
-    "Use model 'pyxel.models.photon_collection.optical_psf' instead."
+    "Model 'pyxel.models.optics.optical_psf' is deprecated and will be removed in"
+    " version 2. Use model 'pyxel.models.photon_collection.optical_psf' instead."
 )
 def optical_psf(
     detector: Detector,
