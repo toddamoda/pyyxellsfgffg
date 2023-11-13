@@ -13,6 +13,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 This release brings a number of bugfixes, documentation and improvements.
 
 ### Core
+* Create 3D photon container.
+  (See [!673](https://gitlab.com/esa/pyxel/-/merge_requests/673)).
 
 ### Documentation
 
