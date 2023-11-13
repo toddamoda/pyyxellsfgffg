@@ -219,20 +219,6 @@ class Detector:
             if self._pixel:
                 self.pixel.array = np.zeros_like(self.pixel.array)
 
-    # TODO: Set an `Output` object ? Is it really needed ? See #330
-    def set_output_dir(self, path: Union[str, Path]) -> None:
-        """Set output directory path."""
-        self._output_dir = Path(path)
-
-    # TODO: Set an `Output` object ? Is it really needed ? See #330
-    @property
-    def output_dir(self) -> Path:
-        """Output directory path."""
-        if self._output_dir is None:
-            raise RuntimeError("'output_dir' is not initialized.")
-
-        return self._output_dir
-
     def set_readout(
         self,
         times: Union[Sequence[float], np.ndarray],
