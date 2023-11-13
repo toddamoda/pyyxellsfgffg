@@ -16,3 +16,4 @@ from .poppy import optical_psf
 from .point_spread_function import load_psf
 from .ariel_airs import wavelength_dependence_airs
 from .aperture import simple_aperture
+from .aperture_3d import aperture_3d

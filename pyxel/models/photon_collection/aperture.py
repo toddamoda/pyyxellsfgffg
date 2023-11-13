@@ -123,45 +123,41 @@ def integrate_flux(
     return integrated_flux
 
 
+# TODO: add unit test.
 def convert_flux(
     flux: u.Quantity,
-    t_exp: float,
-    aperture: float,
+    t_exp: u.Quantity,
+    aperture: u.Quantity,
 ) -> u.Quantity:
-    """Convert flux in photon/(s cm2) to photon/(s pixel).
+    """Convert flux in ph/(s cm2) to ph OR
+    in ph/(s nm cm2) to ph/nm.
+
 
     Parameters
     ----------
     flux : u.Quantity
-        Flux. Unit: photon/pixel/s/cm2.
-    t_exp : float
+        Flux. Unit: ph/(s cm2).
+    t_exp : u.Quantity
         Exposure time. Unit: s.
-    aperture : float
+    aperture : u.Quantity
         Collecting area of the telescope. Unit: m.
 
     Returns
     -------
     u.Quantity
-        Converted flux in photon/s/pixel.
+        Converted flux in ph OR ph/nm.
 
     Examples
     --------
     >>> flux
-     <Quantity [2.13684421e+02, 1.01716326e+01, 5.69110647e+00, 1.17371054e+01,
-           2.55767948e+01, 6.91026764e+00, 3.79706245e+00, 1.04048130e+01,
-           2.67257165e+02, 1.50122471e+01, 5.76777354e+00, 4.18198718e+00,
-           ...
-           1.18302668e+03] ph / (cm2 s)>
-    >>> convert_flux(flux=flux, t_exp=6000 * u.s, aperture=0.1267)
-    <Quantity [1.61646841e+08, 7.69458192e+06, 4.30517760e+06, 8.87882234e+06,
-           1.93481961e+07, 5.22744209e+06, 2.87238137e+06, 7.87097696e+06,
-           ...
-           2.10520464e+07, 9.04914055e+06, 4.45057621e+07, 3.61838622e+07,
-           4.44387021e+09, 4.28110535e+06, 6.37296766e+06, 9.86548629e+06,
-            8.94929654e+08] ph / cm2>
+     <Quantity [0.037690712, 0.041374086, 0.03988154, …,
+     0.79658112, 0.80078535, 0.83254124] ph/s cm2>
+    >>> convert_flux(flux=flux, t_exp=6000 * u.s, aperture=0.1267 * u.m)
+    <Quantity  [1362360.7, 1284980.7, 1188073.3, …,
+    1357639.3, 1371451.7, 1434596.3] ph>
     """
 
-    col_area = np.pi * (aperture * 1e2 / 2) ** 2
+    col_area = np.pi * (aperture / 2) ** 2
     flux_converted = flux * t_exp * col_area
 
     return flux_converted
@@ -345,6 +341,9 @@ def simple_aperture(
     flux = u.Quantity(integrated_flux, unit=integrated_flux.units)
     # get time in s
     time = detector.time_step * u.s
+
+    # get aperture in m
+    aperture = aperture * u.m
 
     # get flux converted to ph
     converted_flux: u.Quantity = convert_flux(flux=flux, t_exp=time, aperture=aperture)
