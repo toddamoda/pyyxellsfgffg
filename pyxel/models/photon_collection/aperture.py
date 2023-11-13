@@ -129,9 +129,7 @@ def convert_flux(
     t_exp: u.Quantity,
     aperture: u.Quantity,
 ) -> u.Quantity:
-    """Convert flux in ph/(s cm2) to ph OR
-    in ph/(s nm cm2) to ph/nm.
-
+    """Convert flux in ph/(s cm2) to ph OR in ph/(s nm cm2) to ph/nm.
 
     Parameters
     ----------

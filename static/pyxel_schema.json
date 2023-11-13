@@ -1572,6 +1572,9 @@
           "items": {
             "anyOf": [
               {
+                "$ref": "#/definitions/ModelPhotonCollectionAperture3d"
+              },
+              {
                 "$ref": "#/definitions/ModelPhotonCollectionIllumination"
               },
               {
@@ -5148,6 +5151,51 @@
         "arguments"
       ],
       "title": "Model 'pulse_processing'",
+      "type": "object"
+    },
+    "ModelPhotonCollectionAperture3d": {
+      "additionalProperties": false,
+      "description": "Convert scene in ph/(cm2 nm s) to 3D photon in ph/nm s.",
+      "properties": {
+        "arguments": {
+          "additionalProperties": false,
+          "properties": {
+            "aperture": {
+              "description": "Collecting area of the telescope. Unit: m.",
+              "title": "aperture",
+              "type": "number"
+            },
+            "pixel_scale": {
+              "description": "Pixel scale. Unit: arcsec/pixel.",
+              "title": "pixel_scale",
+              "type": "number"
+            }
+          },
+          "required": [
+            "pixel_scale",
+            "aperture"
+          ],
+          "title": "Parameters",
+          "type": "object"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "func": {
+          "const": "pyxel.models.photon_collection.aperture_3d",
+          "default": "pyxel.models.photon_collection.aperture_3d",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "arguments"
+      ],
+      "title": "Model 'aperture_3d'",
       "type": "object"
     },
     "ModelPhotonCollectionIllumination": {
