@@ -27,7 +27,7 @@ class Photon3D:
     NAME = "Photon3d"
     UNIT = "Ph/nm"  # ?
 
-    def __init__(self, array):
+    def __init__(self, array: xr.DataArray):
         assert array.ndim == 3
 
         assert array.dims == ("wavelength", "y", "x")
@@ -38,6 +38,12 @@ class Photon3D:
         return type(self) is type(other) and xr.testing.assert_equal(
             self.array, other.array
         )
+
+    def _validate_array(self, value: xr.DataArray) -> None:
+        if value.ndim != 3:
+            raise ValueError(
+                f"Expected array with 3 dimensions. Got {value.ndim} dimensions."
+            )
 
     @property
     def array(self) -> xr.DataArray:
