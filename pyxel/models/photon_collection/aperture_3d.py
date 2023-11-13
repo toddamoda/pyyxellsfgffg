@@ -13,7 +13,7 @@ import xarray as xr
 from astropy import wcs
 from astropy.coordinates import SkyCoord
 
-from pyxel.data_structure import Scene
+from pyxel.data_structure import Photon3D
 from pyxel.detectors import Detector
 from pyxel.models.photon_collection.aperture import convert_flux
 
@@ -23,7 +23,7 @@ def project_objects_to_detector(
     pixel_scale: u.Quantity,
     rows: int,
     cols: int,
-) -> np.ndarray:
+) -> xr.DataArray:
     """
     Project objects onto detector. Converting scene from arcsec to detector coordinates.
 
@@ -40,7 +40,7 @@ def project_objects_to_detector(
 
     Returns
     -------
-    projection : np.ndarray
+    photon_3d : xr.DataArray
         Projected objects in detector coordinates.
 
     """
@@ -135,7 +135,14 @@ def project_objects_to_detector(
                 group_y["converted_flux"].squeeze()
             )
 
-    return projection
+    photon_3d = xr.DataArray(
+        projection,
+        dims=["wavelength", "y", "x"],
+        coords={"wavelength": selected_data2.wavelength},
+        attrs={"units": selected_data2.converted_flux.units},
+    )
+
+    return photon_3d
 
 
 def aperture_3d(
@@ -182,4 +189,4 @@ def aperture_3d(
         cols=detector.geometry.col,
     )
 
-    detector.photon_3d.array = projection
+    detector.photon3d = Photon3D(projection)
