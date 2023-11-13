@@ -21,8 +21,7 @@ if TYPE_CHECKING:
 class Photon(Array):
     """Photon class defining and storing information of all photon.
 
-    Accepted array types: ``np.int32``, ``np.int64``, ``np.uint32``, ``np.uint64``,
-    ``np.float16``, ``np.float32``, ``np.float64``
+    Accepted array types: ``np.float16``, ``np.float32``, ``np.float64``
     """
 
     # TODO: add unit (ph)
