@@ -19,6 +19,7 @@ from pyxel.data_structure import (
     Image,
     Persistence,
     Photon,
+    Photon3D,
     Pixel,
     Scene,
     Signal,
@@ -44,8 +45,9 @@ class Detector:
 
         self.header: dict[str, object] = collections.OrderedDict()
 
-        self._photon: Optional[Photon] = None
         self._scene: Optional[Scene] = None
+        self._photon: Optional[Photon] = None
+        self._photon3d: Optional[Photon3D] = None
         self._charge: Optional[Charge] = None
         self._pixel: Optional[Pixel] = None
         self._signal: Optional[Signal] = None
@@ -66,8 +68,9 @@ class Detector:
     def __eq__(self, other) -> bool:
         return (
             isinstance(other, Detector)
-            and self._photon == other._photon
             and self._scene == other._scene
+            and self._photon == other._photon
+            and self._photon3d == other._photon3d
             and self._charge == other._charge
             and self._pixel == other._pixel
             and self._signal == other._signal
@@ -93,17 +96,6 @@ class Detector:
         raise NotImplementedError
 
     @property
-    def photon(self) -> Photon:
-        """TBW."""
-        if not self._photon:
-            raise RuntimeError("Photon array is not initialized ! ")
-        return self._photon
-
-    @photon.setter
-    def photon(self, obj: Photon) -> None:
-        self._photon = obj
-
-    @property
     def scene(self) -> Scene:
         """TBW."""
         if not self._scene:
@@ -115,6 +107,29 @@ class Detector:
         """TBW."""
         self._scene = obj
 
+    @property
+    def photon3d(self) -> Photon3D:
+        """TBW."""
+        if not self._photon3d:
+            raise RuntimeError("Photon 3D array is not initialized ! ")
+        return self._photon3d
+
+    @photon3d.setter
+    def photon3d(self, obj: Photon3D) -> None:
+        self._photon3d = obj
+
+    @property
+    def photon(self) -> Photon:
+        """TBW."""
+        if not self._photon:
+            raise RuntimeError("Photon array is not initialized ! ")
+        return self._photon
+
+    @photon.setter
+    def photon(self, obj: Photon) -> None:
+        self._photon = obj
+
+    # TODO: Why no setter for charge, pixel, signal and image?
     @property
     def charge(self) -> Charge:
         """TBW."""
@@ -193,8 +208,9 @@ class Detector:
         """TBW."""
         from datatree import DataTree
 
-        self._photon = Photon(geo=self.geometry)
         self._scene = Scene()
+        # self._photon3d = Photon3D(geo=self.geometry)
+        self._photon = Photon(geo=self.geometry)
         self._charge = Charge(geo=self.geometry)
         self._pixel = Pixel(geo=self.geometry)
         self._signal = Signal(geo=self.geometry)
@@ -204,11 +220,12 @@ class Detector:
 
     def empty(self, empty_all: bool = True) -> None:
         """Empty the data in the detector."""
-        if self._photon:
-            self.photon.array = np.zeros_like(self.photon.array)
-
         self._scene = Scene()
 
+        if self._photon:
+            self.photon.array = np.zeros_like(self.photon.array)
+        # if self._photon3d:
+        #     self.photon3d.array = np.zeros_like(self.photon3d.array)
         if self._signal:
             self.signal.array = np.zeros_like(self.signal.array)
         if self._image:
@@ -412,8 +429,9 @@ class Detector:
             Dictionary of attribute memory usage
         """
         attributes = [
-            "_photon",
             "_scene",
+            "_photon",
+            # "_photon3d",
             "_charge",
             "_pixel",
             "_signal",

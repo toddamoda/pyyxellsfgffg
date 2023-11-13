@@ -6,21 +6,14 @@
 #   the terms contained in the file ‘LICENCE.txt’.
 """Pyxel Photon 3D class to generate and track 3D photon."""
 
-import warnings
-from typing import TYPE_CHECKING
+from typing import Optional
 
 import numpy as np
 import xarray as xr
 
-from pyxel.data_structure import Array
 
-if TYPE_CHECKING:
-    from pyxel.detectors import Geometry
-
-
-class Photon3d:
-    """Photon class defining and storing information of all 3d photon.
-    The dimensions are wavelength, y and x.
+class Photon3D:
+    """Photon class defining and storing information of all 3d photon. The dimensions are wavelength, y and x.
 
     Accepted array types: ``np.float16``, ``np.float32``, ``np.float64``
     """
@@ -41,6 +34,11 @@ class Photon3d:
 
         self._array = array
 
+    def __eq__(self, other) -> bool:
+        return type(self) is type(other) and xr.testing.assert_equal(
+            self.array, other.array
+        )
+
     @property
     def array(self) -> xr.DataArray:
         """Three-dimensional numpy array storing the data.
@@ -59,3 +57,19 @@ class Photon3d:
         assert value.ndim == 3
 
         assert value.dims == ("wavelength", "y", "x")
+
+    def to_xarray(self, dtype: Optional[np.typing.DTypeLike] = None) -> "xr.DataArray":
+        return self._array
+
+    @property
+    def numbytes(self) -> int:
+        """Recursively calculates object size in bytes using `Pympler` library.
+
+        Returns
+        -------
+        int
+            Size of the object in bytes.
+        """
+        # self._numbytes = get_size(self)
+        # return self._numbytes
+        raise NotImplementedError
