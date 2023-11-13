@@ -9,7 +9,7 @@
 import itertools
 import logging
 from collections import Counter
-from collections.abc import Iterable, Iterator, Mapping, Sequence
+from collections.abc import Iterable, Iterator, Mapping, MutableMapping, Sequence
 from copy import deepcopy
 from dataclasses import dataclass
 from enum import Enum
@@ -22,7 +22,6 @@ import dask.bag as db
 import numpy as np
 import pandas as pd
 import toolz
-from numpy.typing import ArrayLike
 from tqdm.auto import tqdm
 
 from pyxel.exposure import Readout, run_exposure_pipeline, run_pipeline
@@ -54,13 +53,24 @@ class ObservationResult(NamedTuple):
     logs: "xr.Dataset"
 
 
+ParametersType = MutableMapping[
+    str,
+    Union[
+        str,
+        Number,
+        np.ndarray,
+        Sequence[Union[str, Number, np.ndarray]],
+    ],
+]
+
+
 @dataclass(frozen=True)
 class ParameterItem:
     """Internal Parameter Item."""
 
     # TODO: Merge 'index' and 'parameters'
     index: tuple[int, ...]
-    parameters: Mapping[str, Any]
+    parameters: ParametersType
     run_index: int
 
 
@@ -70,7 +80,7 @@ class CustomParameterItem:
 
     # TODO: Merge 'index' and 'parameters'
     index: int
-    parameters: Mapping[str, Any]
+    parameters: ParametersType
     run_index: int
 
 
@@ -273,12 +283,7 @@ class Observation:
 
     def _custom_parameters(
         self,
-    ) -> Iterator[
-        tuple[
-            int,
-            dict[str, Union[Number, str, Sequence[Union[Number, str]]]],
-        ]
-    ]:
+    ) -> Iterator[tuple[int, ParametersType]]:
         """Generate custom mode parameters based on input file.
 
         Yields
@@ -295,9 +300,7 @@ class Observation:
             row: Sequence[Union[Number, str]] = row_serie.to_list()
 
             i: int = 0
-            parameter_dict: dict[
-                str, Union[Number, str, Sequence[Union[Number, str]]]
-            ] = {}
+            parameter_dict: ParametersType = {}
             for step in self.enabled_steps:
                 key: str = step.key
 
@@ -331,7 +334,7 @@ class Observation:
 
             yield index, parameter_dict
 
-    def _sequential_parameters(self) -> Iterator[tuple[int, dict]]:
+    def _sequential_parameters(self) -> Iterator[tuple[int, ParametersType]]:
         """Generate sequential mode parameters.
 
         Yields
@@ -343,7 +346,7 @@ class Observation:
         for step in self.enabled_steps:
             key: str = step.key
             for index, value in enumerate(step):
-                parameter_dict = {key: value}
+                parameter_dict: ParametersType = {key: value}
                 yield index, parameter_dict
 
     def _product_indices(self) -> Iterator[tuple]:
@@ -409,7 +412,7 @@ class Observation:
             ]
             params_unique_keys: Iterator[str] = toolz.unique(params_all_keys)
 
-            params_defaults: Mapping[str, np.ndarray] = {
+            params_defaults: ParametersType = {
                 key: processor.get(key) for key in params_unique_keys
             }
 
@@ -418,7 +421,8 @@ class Observation:
             return [
                 CustomParameterItem(
                     index=index,
-                    parameters=params_defaults | parameter_dict,
+                    # parameters=params_defaults | parameter_dict,
+                    parameters={**params_defaults, **parameter_dict},
                     run_index=n,
                 )
                 for n, (index, parameter_dict) in enumerate(params_it)
@@ -827,10 +831,7 @@ class Observation:
         self,
         index_and_parameter: tuple[
             tuple[int, ...],
-            Mapping[
-                str,
-                Union[str, Number, np.ndarray, list[Union[str, Number, np.ndarray]]],
-            ],
+            ParametersType,
             int,
         ],
         dimension_names: Mapping[str, str],
@@ -927,10 +928,7 @@ class Observation:
         self,
         index_and_parameter: tuple[
             int,
-            Mapping[
-                str,
-                Union[str, Number, np.ndarray, list[Union[str, Number, np.ndarray]]],
-            ],
+            ParametersType,
             int,
         ],
         processor: "Processor",
@@ -973,10 +971,7 @@ class Observation:
         self,
         index_and_parameter: tuple[
             int,
-            Mapping[
-                str,
-                Union[str, Number, np.ndarray, list[Union[str, Number, np.ndarray]]],
-            ],
+            ParametersType,
             int,
         ],
         dimension_names: Mapping[str, str],
@@ -1049,9 +1044,7 @@ class Observation:
 
 def create_new_processor(
     processor: "Processor",
-    parameter_dict: Mapping[
-        str, Union[str, Number, np.ndarray, list[Union[str, Number, np.ndarray]]]
-    ],
+    parameter_dict: ParametersType,
 ) -> "Processor":
     """Create a copy of processor and set new attributes from a dictionary before returning it.
 
@@ -1173,7 +1166,7 @@ def _add_custom_parameters(ds: "xr.Dataset", index: int) -> "xr.Dataset":
 
 def _add_custom_parameters_datatree(
     data_tree: "DataTree",
-    parameter_dict: Mapping[str, Union[str, Number, ArrayLike]],
+    parameter_dict: ParametersType,
     index: int,
     dimension_names: Mapping[str, str],
     types: Mapping[str, ParameterType],
@@ -1217,9 +1210,7 @@ def _add_custom_parameters_datatree(
 # TODO: This function will be deprecated (see #563)
 def _add_sequential_parameters(
     ds: "xr.Dataset",
-    parameter_dict: Mapping[
-        str, Union[str, Number, np.ndarray, list[Union[str, Number, np.ndarray]]]
-    ],
+    parameter_dict: ParametersType,
     dimension_names: Mapping[str, str],
     index: int,
     coordinate_name: str,
@@ -1258,9 +1249,7 @@ def _add_sequential_parameters(
 # TODO: This function will be deprecated (see #563)
 def _add_product_parameters(
     ds: "xr.Dataset",
-    parameter_dict: Mapping[
-        str, Union[str, Number, np.ndarray, list[Union[str, Number, np.ndarray]]]
-    ],
+    parameter_dict: ParametersType,
     dimension_names: Mapping[str, str],
     indices: tuple[int, ...],
     types: Mapping[str, ParameterType],
@@ -1310,7 +1299,7 @@ def to_tuples(data: Iterable) -> tuple:
 
 def _add_product_parameters_datatree(
     data_tree: "DataTree",
-    parameter_dict: Mapping[str, Union[str, Number, ArrayLike]],
+    parameter_dict: ParametersType,
     indexes: tuple[int, ...],
     dimension_names: Mapping[str, str],
     types: Mapping[str, ParameterType],

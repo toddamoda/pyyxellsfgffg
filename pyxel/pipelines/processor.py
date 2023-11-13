@@ -149,7 +149,7 @@ class Processor:
     def set(  # noqa: A003
         self,
         key: str,
-        value: Union[str, Number, np.ndarray, list[Union[str, Number, np.ndarray]]],
+        value: Union[str, Number, np.ndarray, Sequence[Union[str, Number, np.ndarray]]],
         convert_value: bool = True,
     ) -> None:
         """TBW.
@@ -172,13 +172,17 @@ class Processor:
                     new_value_lst.append(new_val)
 
                 new_value: Union[
-                    str, Number, np.ndarray, list[Union[str, Number, np.ndarray]]
+                    str, Number, np.ndarray, Sequence[Union[str, Number, np.ndarray]]
                 ] = new_value_lst
 
-            else:
+            elif isinstance(value, (str, Number, np.ndarray)):
                 converted_value: Union[str, Number, np.ndarray] = eval_entry(value)
 
                 new_value = converted_value
+
+            else:
+                raise TypeError
+
         else:
             new_value = value
 
