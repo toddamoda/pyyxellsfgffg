@@ -110,12 +110,13 @@ class Detector:
     @property
     def photon3d(self) -> Photon3D:
         """TBW."""
-        if not self._photon3d:
+        if self._photon3d is None:
             raise RuntimeError("Photon 3D array is not initialized ! ")
         return self._photon3d
 
     @photon3d.setter
     def photon3d(self, obj: Photon3D) -> None:
+        assert isinstance(obj, Photon3D)
         self._photon3d = obj
 
     @property
