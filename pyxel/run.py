@@ -87,7 +87,6 @@ def exposure_mode(
     logging.info("Mode: Exposure")
 
     exposure_outputs: ExposureOutputs = exposure.outputs
-    detector.set_output_dir(exposure_outputs.output_dir)  # TODO: Remove this
 
     processor = Processor(detector=detector, pipeline=pipeline)
 
@@ -166,7 +165,6 @@ def _run_exposure_mode(
     logging.info("Mode: Exposure")
 
     exposure_outputs: ExposureOutputs = exposure.outputs
-    detector.set_output_dir(exposure_outputs.output_dir)  # TODO: Remove this
 
     processor = Processor(detector=detector, pipeline=pipeline)
 
@@ -224,7 +222,6 @@ def observation_mode(
     logging.info("Mode: Observation")
 
     observation_outputs: ObservationOutputs = observation.outputs
-    detector.set_output_dir(observation_outputs.output_dir)  # TODO: Remove this
 
     # TODO: This should be done during initializing of object `Configuration`
     # parametric_outputs.params_func(parametric)
@@ -335,7 +332,6 @@ def calibration_mode(
     logging.info("Mode: Calibration")
 
     calibration_outputs: CalibrationOutputs = calibration.outputs
-    detector.set_output_dir(calibration_outputs.output_dir)  # TODO: Remove this
 
     processor = Processor(detector=detector, pipeline=pipeline)
 
@@ -467,7 +463,6 @@ def _run_calibration_mode(
     logging.info("Mode: Calibration")
 
     calibration_outputs: CalibrationOutputs = calibration.outputs
-    detector.set_output_dir(calibration_outputs.output_dir)  # TODO: Remove this
 
     processor = Processor(detector=detector, pipeline=pipeline)
 
@@ -487,7 +482,6 @@ def _run_observation_mode(
     logging.info("Mode: Observation")
 
     observation_outputs: ObservationOutputs = observation.outputs
-    detector.set_output_dir(observation_outputs.output_dir)  # TODO: Remove this
 
     processor = Processor(detector=detector, pipeline=pipeline)
 
