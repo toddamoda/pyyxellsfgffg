@@ -10,6 +10,7 @@
 # flake8: noqa
 from .array import Array
 from .photon import Photon
+from .photon3d import Photon3d
 from .scene import Scene
 from .pixel import Pixel
 from .signal import Signal
