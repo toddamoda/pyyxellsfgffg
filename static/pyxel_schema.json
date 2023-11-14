@@ -1572,9 +1572,6 @@
           "items": {
             "anyOf": [
               {
-                "$ref": "#/definitions/ModelPhotonCollectionAperture3d"
-              },
-              {
                 "$ref": "#/definitions/ModelPhotonCollectionIllumination"
               },
               {
@@ -1591,6 +1588,9 @@
               },
               {
                 "$ref": "#/definitions/ModelPhotonCollectionSimpleAperture"
+              },
+              {
+                "$ref": "#/definitions/ModelPhotonCollectionSimpleCollection"
               },
               {
                 "$ref": "#/definitions/ModelPhotonCollectionStripePattern"
@@ -5153,51 +5153,6 @@
       "title": "Model 'pulse_processing'",
       "type": "object"
     },
-    "ModelPhotonCollectionAperture3d": {
-      "additionalProperties": false,
-      "description": "Convert scene in ph/(cm2 nm s) to 3D photon in ph/nm s.",
-      "properties": {
-        "arguments": {
-          "additionalProperties": false,
-          "properties": {
-            "aperture": {
-              "description": "Collecting area of the telescope. Unit: m.",
-              "title": "aperture",
-              "type": "number"
-            },
-            "pixel_scale": {
-              "description": "Pixel scale. Unit: arcsec/pixel.",
-              "title": "pixel_scale",
-              "type": "number"
-            }
-          },
-          "required": [
-            "pixel_scale",
-            "aperture"
-          ],
-          "title": "Parameters",
-          "type": "object"
-        },
-        "enabled": {
-          "default": true,
-          "type": "boolean"
-        },
-        "func": {
-          "const": "pyxel.models.photon_collection.aperture_3d",
-          "default": "pyxel.models.photon_collection.aperture_3d",
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "arguments"
-      ],
-      "title": "Model 'aperture_3d'",
-      "type": "object"
-    },
     "ModelPhotonCollectionIllumination": {
       "additionalProperties": false,
       "description": "Generate photon uniformly over the entire array or over an elliptic orrectangular object.",
@@ -5621,6 +5576,76 @@
         "arguments"
       ],
       "title": "Model 'simple_aperture'",
+      "type": "object"
+    },
+    "ModelPhotonCollectionSimpleCollection": {
+      "additionalProperties": false,
+      "description": "Convert scene in ph/(cm2 nm s) to 3D photon in ph/nm s.",
+      "properties": {
+        "arguments": {
+          "additionalProperties": false,
+          "properties": {
+            "aperture": {
+              "description": "Collecting area of the telescope. Unit: m.",
+              "title": "aperture",
+              "type": "number"
+            },
+            "filter_band": {
+              "additionalItems": false,
+              "description": "Wavelength range of selected filter band. Unit: nm.",
+              "items": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "title": "filter_band",
+              "type": "array"
+            },
+            "pixel_scale": {
+              "description": "Pixel scale. Unit: arcsec/pixel.",
+              "title": "pixel_scale",
+              "type": "number"
+            }
+          },
+          "required": [
+            "pixel_scale",
+            "aperture",
+            "filter_band"
+          ],
+          "title": "Parameters",
+          "type": "object"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "func": {
+          "const": "pyxel.models.photon_collection.simple_collection",
+          "default": "pyxel.models.photon_collection.simple_collection",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "arguments"
+      ],
+      "title": "Model 'simple_collection'",
       "type": "object"
     },
     "ModelPhotonCollectionStripePattern": {

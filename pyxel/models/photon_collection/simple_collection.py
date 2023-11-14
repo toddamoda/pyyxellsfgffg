@@ -15,7 +15,7 @@ from astropy.coordinates import SkyCoord
 
 from pyxel.data_structure import Photon3D
 from pyxel.detectors import Detector
-from pyxel.models.photon_collection.aperture import convert_flux
+from pyxel.models.photon_collection.aperture import convert_flux, extract_wavelength
 
 
 def project_objects_to_detector(
@@ -149,6 +149,7 @@ def simple_collection(
     detector: Detector,
     pixel_scale: float,
     aperture: float,
+    filter_band: tuple[float, float],
 ):
     """Convert scene in ph/(cm2 nm s) to 3D photon in ph/nm s.
 
@@ -160,9 +161,15 @@ def simple_collection(
         Pixel scale. Unit: arcsec/pixel.
     aperture : float
         Collecting area of the telescope. Unit: m.
+    filter_band : tuple[float, float]
+        Wavelength range of selected filter band. Unit: nm.
     """
-    # get scene data from detector
-    scene_data = detector.scene.data["/list/0"].to_dataset()
+    # get dataset for given wavelength and scene object.
+    scene_data: xr.Dataset = extract_wavelength(
+        scene=detector.scene, wavelength_band=filter_band
+    )
+    # # get scene data from detector
+    # scene_data = detector.scene.data["/list/0"].to_dataset()
     # get flux in ph/(s nm cm^2)
     flux = u.Quantity(np.asarray(scene_data["flux"]), unit=scene_data["flux"].units)
     # get time in s

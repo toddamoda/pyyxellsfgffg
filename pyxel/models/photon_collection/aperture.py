@@ -123,7 +123,6 @@ def integrate_flux(
     return integrated_flux
 
 
-# TODO: add unit test.
 def convert_flux(
     flux: u.Quantity,
     t_exp: u.Quantity,
@@ -154,8 +153,9 @@ def convert_flux(
     <Quantity  [1362360.7, 1284980.7, 1188073.3, …,
     1357639.3, 1371451.7, 1434596.3] ph>
     """
-
-    col_area = np.pi * (aperture / 2) ** 2
+    # TODO: check aperture factor 1e2 correct?!
+    # TODO: add unit test.
+    col_area = np.pi * (aperture * 1e2 / 2) ** 2
     flux_converted = flux * t_exp * col_area
 
     return flux_converted
