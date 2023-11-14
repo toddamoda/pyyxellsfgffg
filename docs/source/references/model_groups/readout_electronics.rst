@@ -106,52 +106,6 @@ Example of the configuration file:
 
 .. autofunction:: simple_amplifier
 
-.. _DC crosstalk:
-
-DC crosstalk
-============
-
-:guilabel:`Signal` → :guilabel:`Signal`
-
-Apply DC crosstalk signal to detector signal.
-
-Example of the configuration file:
-
-.. code-block:: yaml
-
-    - name: dc_crosstalk
-      func: pyxel.models.readout_electronics.dc_crosstalk
-      enabled: true
-      arguments:
-        coupling_matrix: [[1, 0.5, 0, 0], [0.5, 1, 0, 0], [0, 0, 1, 0.5], [0, 0, 0.5, 1]]
-        channel_matrix: [1,2,3,4]
-        readout_directions: [1,2,1,2]
-
-.. autofunction:: dc_crosstalk
-
-.. _AC crosstalk:
-
-AC crosstalk
-============
-
-:guilabel:`Signal` → :guilabel:`Signal`
-
-Apply AC crosstalk signal to detector signal.
-
-Example of the configuration file:
-
-.. code-block:: yaml
-
-    - name: ac_crosstalk
-      func: pyxel.models.readout_electronics.ac_crosstalk
-      enabled: true
-      arguments:
-        coupling_matrix: [[1, 0.5, 0, 0], [0.5, 1, 0, 0], [0, 0, 1, 0.5], [0, 0, 0.5, 1]]
-        channel_matrix: [1,2,3,4]
-        readout_directions: [1,2,1,2]
-
-.. autofunction:: ac_crosstalk
-
 .. _Dead time filter:
 
 Dead time filter
