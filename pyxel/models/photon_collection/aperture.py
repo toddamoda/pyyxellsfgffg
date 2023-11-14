@@ -303,7 +303,7 @@ def project_objects_to_detector(
     # fill in projection of objects in detector coordinates
     for x, group_x in selected_data2.groupby("detector_coords_x"):
         for y, group_y in group_x.groupby("detector_coords_y"):
-            projection[int(y), int(x)] = group_y["converted_flux"].values.sum()
+            projection[int(y), int(x)] += group_y["converted_flux"].values.sum()
 
     return projection
 

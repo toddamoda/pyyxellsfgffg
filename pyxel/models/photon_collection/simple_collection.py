@@ -145,7 +145,7 @@ def project_objects_to_detector(
     return photon_3d
 
 
-def aperture_3d(
+def simple_collection(
     detector: Detector,
     pixel_scale: float,
     aperture: float,
