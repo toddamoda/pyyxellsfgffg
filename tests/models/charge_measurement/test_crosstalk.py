@@ -8,7 +8,7 @@
 import numpy as np
 import pytest
 
-from pyxel.models.readout_electronics.amplifier_crosstalk import get_channel_slices
+from pyxel.models.charge_measurement.amplifier_crosstalk import get_channel_slices
 
 
 @pytest.fixture

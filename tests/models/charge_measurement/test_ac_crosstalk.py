@@ -8,7 +8,7 @@
 import pytest
 
 from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
-from pyxel.models.readout_electronics import ac_crosstalk
+from pyxel.models.charge_measurement import ac_crosstalk
 
 
 @pytest.fixture
