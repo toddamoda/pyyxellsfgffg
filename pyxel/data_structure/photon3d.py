@@ -115,9 +115,13 @@ class Photon3D:
         return self._numbytes
 
     def to_dict(self) -> dict:
-        return {
-            key.replace("/", "#"): value for key, value in self.array.to_dict().items()
-        }
+        if self._array is None:
+            return {}
+        else:
+            return {
+                key.replace("/", "#"): value
+                for key, value in self.array.to_dict().items()
+            }
 
     # TODO: Remove parameter 'geometry' ?
     # TODO: This method is not used. Remove it.

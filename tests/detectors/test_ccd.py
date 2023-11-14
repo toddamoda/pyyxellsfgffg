@@ -152,6 +152,7 @@ def comparison(dct, other_dct):
         == set(other_dct["data"])
         == {
             "photon",
+            "photon_3d",
             "scene",
             "pixel",
             "signal",
