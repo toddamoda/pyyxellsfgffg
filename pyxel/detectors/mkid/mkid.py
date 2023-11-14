@@ -122,7 +122,9 @@ class MKID(Detector):
                 "photon": None if self._photon is None else self._photon.array.copy(),
                 "pixel": None if self._pixel is None else self._pixel.array.copy(),
                 "signal": None if self._signal is None else self._signal.array.copy(),
-                "image": None if self._image is None else self._image.array.copy(),
+                "image": None
+                if self._image is None
+                else self._image.copy_array(auto_create=True),
                 "phase": None if self._phase is None else self._phase.array.copy(),
                 "data": None if self._data is None else self._data.to_dict(),
                 "charge": (

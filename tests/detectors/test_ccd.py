@@ -165,7 +165,10 @@ def comparison(dct, other_dct):
     np.testing.assert_equal(dct["data"]["photon"], other_dct["data"]["photon"])
     np.testing.assert_equal(dct["data"]["pixel"], other_dct["data"]["pixel"])
     np.testing.assert_equal(dct["data"]["signal"], other_dct["data"]["signal"])
-    np.testing.assert_equal(dct["data"]["image"], other_dct["data"]["image"])
+    if dct["data"]["image"] is not None:
+        np.testing.assert_equal(dct["data"]["image"], other_dct["data"]["image"])
+    else:
+        assert dct["data"]["image"] == other_dct["data"]["image"]
 
     assert (
         set(dct["data"]["charge"])
@@ -216,7 +219,8 @@ def comparison(dct, other_dct):
                     "scene": None,
                     "pixel": np.zeros(shape=(100, 120)),
                     "signal": np.zeros(shape=(100, 120)),
-                    "image": np.zeros(shape=(100, 120), dtype=np.uint64),
+                    "image": None,
+                    # "image": np.zeros(shape=(100, 120), dtype=np.uint64),
                     "charge": {
                         "array": np.zeros(shape=(100, 120)),
                         "frame": pd.DataFrame(
@@ -288,7 +292,8 @@ def comparison(dct, other_dct):
                     "scene": None,
                     "pixel": np.zeros(shape=(100, 120)),
                     "signal": np.zeros(shape=(100, 120)),
-                    "image": np.zeros(shape=(100, 120), dtype=np.uint64),
+                    "image": None,
+                    # "image": np.zeros(shape=(100, 120), dtype=np.uint64),
                     "charge": {
                         "array": np.zeros(shape=(100, 120)),
                         "frame": pd.DataFrame(

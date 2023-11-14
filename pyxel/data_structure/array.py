@@ -31,16 +31,21 @@ class Array:
     UNIT: str = ""
 
     # TODO: Add units ?
-    def __init__(self, value: np.ndarray):
-        if value.ndim != 2:
-            raise ValueError(
-                f"Expecting a 2D array. Got an array with {value.ndim} dimensions."
-            )
+    def __init__(self, shape: Optional[tuple[int, int]] = None):
+        # if value is None and shape is None:
+        #     raise ValueError("Invalid arguments to Array initializer.")
+        #
+        # if value is not None:
+        #     if value.ndim != 2:
+        #         raise ValueError(
+        #             f"Expecting a 2D array. Got an array with {value.ndim} dimensions."
+        #         )
+        #
+        #     self.validate_type(value)
+        #     shape = value.shape
 
-        self.validate_type(value)
-
-        self._array: np.ndarray = value
-
+        self._array: Optional[np.ndarray] = None
+        self._shape = shape
         self._numbytes = 0
 
         # TODO: Implement a method to initialized 'self._array' ???
@@ -51,7 +56,9 @@ class Array:
         return f"{cls_name}<shape={self.shape}, dtype={self.dtype}>"
 
     def __eq__(self, other) -> bool:
-        return type(self) is type(other) and np.array_equal(self.array, other.array)
+        return type(self) is type(other) and self.shape == other.shape
+        # if self.has_array: .... implement
+        # return type(self) is type(other) and np.array_equal(self.array, other.array)
 
     def validate_type(self, value: np.ndarray) -> None:
         """Validate a value.
@@ -73,7 +80,7 @@ class Array:
         """TBW."""
         cls_name: str = self.__class__.__name__
 
-        if value.shape != self._array.shape:
+        if value.shape != self._shape:
             raise ValueError(f"Expected {cls_name} array is {self._array.shape}.")
 
     def __array__(self, dtype: Optional[np.dtype] = None):
@@ -82,20 +89,35 @@ class Array:
         return np.asarray(self._array, dtype=dtype)
 
     @property
+    def has_array(self) -> bool:
+        """Returns true if the array is initialized."""
+        return self._array is not None
+
+    def copy_array(self, auto_create: bool = False) -> Optional[np.ndarray]:
+        """Returns true if the array is initialized."""
+        if self._array is None and auto_create:
+            self._array = np.zeros(shape=self._shape, dtype=self.dtype)
+        if self._array is not None:
+            return self._array.copy()
+        return None
+
+    @property
     def shape(self) -> tuple[int, int]:
         """Return array shape."""
-        num_cols, num_rows = self._array.shape
+        num_cols, num_rows = self._shape
         return num_cols, num_rows
 
     @property
     def ndim(self) -> int:
         """Return number of dimensions of the array."""
-        return self._array.ndim
+        return len(self._shape)
 
     @property
     def dtype(self) -> np.dtype:
         """Return array data type."""
-        return self._array.dtype
+        if self._array:
+            return self._array.dtype
+        return self.EXP_TYPE
 
     @property
     def array(self) -> np.ndarray:
@@ -103,9 +125,8 @@ class Array:
 
         Only accepts an array with the right type and shape.
         """
-        # if self._array is None:
-        #     raise ValueError("'array' is not initialized.")
-
+        if self._array is None:
+            raise ValueError("'array' is not initialized.")
         return self._array
 
     @array.setter
@@ -117,7 +138,6 @@ class Array:
         self.validate_type(value)
         self.validate_shape(value)
 
-        # self.type = value.dtype
         self._array = value
 
     @property
@@ -165,6 +185,9 @@ class Array:
         import xarray as xr
 
         num_rows, num_cols = self.shape
+        if not self.has_array:
+            return xr.DataArray()
+
         return xr.DataArray(
             np.array(self.array, dtype=dtype),
             name=self.NAME.lower(),

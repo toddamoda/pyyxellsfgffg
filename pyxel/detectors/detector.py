@@ -211,7 +211,7 @@ class Detector:
 
         if self._signal:
             self.signal.array = np.zeros_like(self.signal.array)
-        if self._image:
+        if self._image and self._image.has_array:
             self.image.array = np.zeros_like(self.image.array)
         if self._charge:
             self._charge.empty()

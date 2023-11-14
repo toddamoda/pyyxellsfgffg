@@ -67,7 +67,9 @@ class CCD(Detector):
                 "photon": None if self._photon is None else self._photon.array.copy(),
                 "pixel": None if self._pixel is None else self._pixel.array.copy(),
                 "signal": None if self._signal is None else self._signal.array.copy(),
-                "image": None if self._image is None else self._image.array.copy(),
+                "image": None
+                if (self._image is None or not self._image.has_array)
+                else self._image.array.copy(),
                 "data": (
                     None
                     if self._data is None
@@ -135,7 +137,10 @@ class CCD(Detector):
         if "signal" in data:
             detector.signal.array = np.asarray(data["signal"])
         if "image" in data:
-            detector.image.array = np.asarray(data["image"])
+            if data["image"] is not None:
+                detector.image.array = np.asarray(data["image"])
+            else:
+                detector.image._array = None
         if "data" in data:
             detector._data = DataTree.from_dict(
                 {
