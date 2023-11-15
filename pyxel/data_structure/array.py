@@ -7,7 +7,7 @@
 
 """Pyxel Array class."""
 
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 import numpy as np
 
@@ -45,10 +45,10 @@ class Array:
         return f"{cls_name}<shape={self.shape}, dtype={self.dtype}>"
 
     def __eq__(self, other) -> bool:
-        is_ok = type(self) is type(other) and self.shape == other.shape
-        if is_ok and self._array is not None:
-            is_ok = np.array_equal(self.array, other.array)
-        return is_ok
+        is_true = type(self) is type(other) and self.shape == other.shape
+        if is_true and self._array is not None:
+            is_true = np.array_equal(self.array, other.array)
+        return is_true
 
     def validate_type(self, value: np.ndarray) -> None:
         """Validate a value.

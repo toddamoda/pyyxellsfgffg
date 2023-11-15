@@ -166,6 +166,7 @@ def test_readout_noise_saphira_with_ccd(ccd_5x10: CCD):
 def test_readout_noise_saphira(apd_5x5: APD):
     """Test model 'readout_noise_saphira' with valid inputs."""
     detector = apd_5x5
+
     readout_noise_saphira(
         detector=detector, roic_readout_noise=0.1, controller_noise=0.1
     )

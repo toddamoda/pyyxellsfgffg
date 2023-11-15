@@ -163,13 +163,13 @@ def extract_roi_to_xarray(
     ValueError
         If parameter 'array_type' is not 'pixel','signal','image',photon' or 'charge'
     """
-    if array_type == "pixel":
+    if array_type == "pixel" and detector.pixel.has_array:
         data_2d = detector.pixel.array
-    elif array_type == "signal":
+    elif array_type == "signal" and detector.signal.has_array:
         data_2d = detector.signal.array
     elif array_type == "image" and detector.image.has_array:
         data_2d = detector.image.array
-    elif array_type == "photon":
+    elif array_type == "photon" and detector.photon.has_array:
         data_2d = detector.photon.array
     elif array_type == "charge":
         data_2d = detector.charge.array
