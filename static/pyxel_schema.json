@@ -1360,6 +1360,9 @@
                 "$ref": "#/definitions/ModelChargeGenerationLoadCharge"
               },
               {
+                "$ref": "#/definitions/ModelChargeGenerationLoadQeCurve"
+              },
+              {
                 "$ref": "#/definitions/ModelChargeGenerationRadiationInducedDarkCurrent"
               },
               {
@@ -3335,6 +3338,65 @@
         "arguments"
       ],
       "title": "Model 'load_charge'",
+      "type": "object"
+    },
+    "ModelChargeGenerationLoadQeCurve": {
+      "additionalProperties": false,
+      "description": "Apply wavelength dependent QE with loading a file.",
+      "properties": {
+        "arguments": {
+          "additionalProperties": false,
+          "properties": {
+            "filename": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "format": "uri",
+                  "type": "string"
+                }
+              ],
+              "description": "File path.",
+              "title": "filename"
+            },
+            "qe_col_name": {
+              "description": "Column name of quantum efficiency in loaded file.",
+              "title": "qe_col_name",
+              "type": "string"
+            },
+            "wavelength_col_name": {
+              "description": "Column name of wavelength in loaded file.",
+              "title": "wavelength_col_name",
+              "type": "string"
+            }
+          },
+          "required": [
+            "filename",
+            "wavelength_col_name",
+            "qe_col_name"
+          ],
+          "title": "Parameters",
+          "type": "object"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "func": {
+          "const": "pyxel.models.charge_generation.load_qe_curve",
+          "default": "pyxel.models.charge_generation.load_qe_curve",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "arguments"
+      ],
+      "title": "Model 'load_qe_curve'",
       "type": "object"
     },
     "ModelChargeGenerationRadiationInducedDarkCurrent": {
