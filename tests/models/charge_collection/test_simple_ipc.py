@@ -25,7 +25,7 @@ from pyxel.models.charge_collection import simple_ipc
 @pytest.fixture
 def cmos_10x10() -> CMOS:
     """Create a valid CCD detector."""
-    return CMOS(
+    detector = CMOS(
         geometry=CMOSGeometry(
             row=10,
             col=10,
@@ -36,6 +36,8 @@ def cmos_10x10() -> CMOS:
         environment=Environment(),
         characteristics=Characteristics(),
     )
+    detector.pixel.enforce_array()
+    return detector
 
 
 def test_simple_ipc_valid(cmos_10x10: CMOS):

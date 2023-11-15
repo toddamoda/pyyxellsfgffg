@@ -7,7 +7,7 @@
 
 """Pyxel Array class."""
 
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 import numpy as np
 
@@ -31,21 +31,10 @@ class Array:
     UNIT: str = ""
 
     # TODO: Add units ?
-    def __init__(self, shape: Optional[tuple[int, int]] = None):
-        # if value is None and shape is None:
-        #     raise ValueError("Invalid arguments to Array initializer.")
-        #
-        # if value is not None:
-        #     if value.ndim != 2:
-        #         raise ValueError(
-        #             f"Expecting a 2D array. Got an array with {value.ndim} dimensions."
-        #         )
-        #
-        #     self.validate_type(value)
-        #     shape = value.shape
-
+    def __init__(self, shape: tuple[int, int]):
         self._array: Optional[np.ndarray] = None
         self._shape = shape
+        self._dtype = self.EXP_TYPE
         self._numbytes = 0
 
         # TODO: Implement a method to initialized 'self._array' ???
@@ -56,9 +45,10 @@ class Array:
         return f"{cls_name}<shape={self.shape}, dtype={self.dtype}>"
 
     def __eq__(self, other) -> bool:
-        return type(self) is type(other) and self.shape == other.shape
-        # if self.has_array: .... implement
-        # return type(self) is type(other) and np.array_equal(self.array, other.array)
+        is_ok = type(self) is type(other) and self.shape == other.shape
+        if is_ok and self._array is not None:
+            is_ok = np.array_equal(self.array, other.array)
+        return is_ok
 
     def validate_type(self, value: np.ndarray) -> None:
         """Validate a value.
@@ -81,7 +71,7 @@ class Array:
         cls_name: str = self.__class__.__name__
 
         if value.shape != self._shape:
-            raise ValueError(f"Expected {cls_name} array is {self._array.shape}.")
+            raise ValueError(f"Expected {cls_name} array is {self._shape}.")
 
     def __array__(self, dtype: Optional[np.dtype] = None):
         if not isinstance(self._array, np.ndarray):
@@ -92,14 +82,6 @@ class Array:
     def has_array(self) -> bool:
         """Returns true if the array is initialized."""
         return self._array is not None
-
-    def copy_array(self, auto_create: bool = False) -> Optional[np.ndarray]:
-        """Returns true if the array is initialized."""
-        if self._array is None and auto_create:
-            self._array = np.zeros(shape=self._shape, dtype=self.dtype)
-        if self._array is not None:
-            return self._array.copy()
-        return None
 
     @property
     def shape(self) -> tuple[int, int]:
@@ -115,9 +97,11 @@ class Array:
     @property
     def dtype(self) -> np.dtype:
         """Return array data type."""
-        if self._array:
-            return self._array.dtype
-        return self.EXP_TYPE
+        return np.dtype(self._dtype)
+
+    def enforce_array(self):
+        if self._array is None:
+            self._array = np.zeros(shape=self.shape, dtype=self.dtype)
 
     @property
     def array(self) -> np.ndarray:
@@ -126,7 +110,7 @@ class Array:
         Only accepts an array with the right type and shape.
         """
         if self._array is None:
-            raise ValueError("'array' is not initialized.")
+            raise ValueError(f"'array' is not initialized for {self}.")
         return self._array
 
     @array.setter
@@ -138,6 +122,7 @@ class Array:
         self.validate_type(value)
         self.validate_shape(value)
 
+        self._dtype = value.dtype
         self._array = value
 
     @property

@@ -32,6 +32,7 @@ def ccd_20x20() -> CCD:
         environment=Environment(),
         characteristics=Characteristics(),
     )
+    detector.photon.enforce_array()
     detector._readout_properties = ReadoutProperties(times=[1.0])
     return detector
 

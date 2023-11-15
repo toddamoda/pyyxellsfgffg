@@ -56,4 +56,4 @@ def simple_measurement(detector: Detector, gain: Optional[float] = None) -> None
     # Compute
     signal_2d = apply_gain(pixel_2d=detector.pixel.array, gain=gain)
 
-    detector.signal.array += signal_2d.astype("float64")
+    detector.signal.array = signal_2d.astype("float64")

@@ -120,7 +120,7 @@ def test_simple_physical_non_linearity_valid(cmos_5x5: CMOS):
 def test_physical_non_linearity_valid(cmos_5x5: CMOS):
     """Test model 'physical_non_linearity' with valid inputs."""
     detector = cmos_5x5
-    detector.signal.array = np.ones(detector.signal.shape)
+    detector.pixel.array = np.ones(detector.signal.shape)
     physical_non_linearity(
         detector=detector,
         cutoff=2.0,
@@ -136,6 +136,7 @@ def test_physical_non_linearity_with_saturation_valid(cmos_5x5: CMOS):
     """Test model 'physical_non_linearity_with_saturation' with valid inputs."""
     detector = cmos_5x5
     detector.signal.array = np.ones(detector.signal.shape)
+    detector.photon.array = np.ones(detector.signal.shape)
     physical_non_linearity_with_saturation(
         detector=detector,
         cutoff=2.0,

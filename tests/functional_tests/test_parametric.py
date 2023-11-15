@@ -71,6 +71,11 @@ def test_pipeline_parametric_without_init_photon(mode: ParameterMode, expected):
     result = observation.debug_parameters(processor)
     assert result == expected
 
+    detector.photon.enforce_array()
+    detector.image.enforce_array()
+    detector.pixel.enforce_array()
+    detector.signal.enforce_array()
+
     processor_generator = observation._processors_it(processor=processor)
     assert isinstance(processor_generator, abc.Generator)
 
@@ -114,6 +119,11 @@ def test_pipeline_parametric_without_init_photon_deprecated(
     processor = Processor(detector=detector, pipeline=pipeline)
     result = observation.debug_parameters(processor)
     assert result == expected
+
+    detector.photon.enforce_array()
+    detector.image.enforce_array()
+    detector.pixel.enforce_array()
+    detector.signal.enforce_array()
 
     processor_generator = observation._processors_it(processor=processor)
     assert isinstance(processor_generator, abc.Generator)

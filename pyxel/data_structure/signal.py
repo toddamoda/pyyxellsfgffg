@@ -29,6 +29,4 @@ class Signal(Array):
     UNIT = "Volt"
 
     def __init__(self, geo: "Geometry"):
-        new_array = np.zeros((geo.row, geo.col), dtype=self.EXP_TYPE)
-
-        super().__init__(new_array)  # TODO: add unit (V)
+        super().__init__(shape=(geo.row, geo.col))

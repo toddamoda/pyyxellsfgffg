@@ -204,19 +204,19 @@ class Detector:
 
     def empty(self, empty_all: bool = True) -> None:
         """Empty the data in the detector."""
-        if self._photon:
+        if self._photon and self._photon.has_array:
             self.photon.array = np.zeros_like(self.photon.array)
 
         self._scene = Scene()
 
-        if self._signal:
+        if self._signal and self._signal.has_array:
             self.signal.array = np.zeros_like(self.signal.array)
         if self._image and self._image.has_array:
             self.image.array = np.zeros_like(self.image.array)
         if self._charge:
             self._charge.empty()
         if empty_all:
-            if self._pixel:
+            if self._pixel and self._pixel.has_array:
                 self.pixel.array = np.zeros_like(self.pixel.array)
 
     def set_readout(

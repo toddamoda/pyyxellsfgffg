@@ -30,6 +30,7 @@ def ccd_5x5() -> CCD:
         environment=Environment(),
         characteristics=Characteristics(),
     )
+    detector.photon.enforce_array()
     return detector
 
 
@@ -117,7 +118,6 @@ def test_simple_conversion_valid2(
 
 def test_conversion_with_qe_valid(ccd_5x5: CCD, valid_qe_map_path: Union[str, Path]):
     detector = ccd_5x5
-
     conversion_with_qe_map(detector=detector, filename=valid_qe_map_path)
 
 

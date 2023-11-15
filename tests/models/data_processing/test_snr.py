@@ -33,6 +33,10 @@ def ccd_10x10() -> CCD:
         environment=Environment(),
         characteristics=Characteristics(),
     )
+    detector.signal.enforce_array()
+    detector.pixel.enforce_array()
+    detector.photon.enforce_array()
+    detector.image.enforce_array()
     detector._readout_properties = ReadoutProperties(times=[1.0])
     return detector
 

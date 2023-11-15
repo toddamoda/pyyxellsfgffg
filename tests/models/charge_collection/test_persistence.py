@@ -38,6 +38,7 @@ def ccd_5x5() -> CCD:
         environment=Environment(),
         characteristics=Characteristics(),
     )
+    detector.pixel.enforce_array()
     detector._readout_properties = ReadoutProperties(times=[1.0])
     return detector
 
@@ -56,6 +57,7 @@ def cmos_5x5() -> CMOS:
         environment=Environment(),
         characteristics=Characteristics(),
     )
+    detector.pixel.enforce_array()
     detector._readout_properties = ReadoutProperties(times=[1.0])
     return detector
 

@@ -38,6 +38,8 @@ def mkid_5x4() -> MKID:
     )
 
     detector.reset()
+    detector.phase.enforce_array()
+    detector.photon.enforce_array()
 
     return detector
 

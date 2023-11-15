@@ -28,7 +28,7 @@ from pyxel.models.photon_collection.poppy import (
 @pytest.fixture
 def ccd_3x3() -> CCD:
     """Create a valid CCD detector."""
-    return CCD(
+    detector = CCD(
         geometry=CCDGeometry(
             row=3,
             col=3,
@@ -39,6 +39,8 @@ def ccd_3x3() -> CCD:
         environment=Environment(),
         characteristics=Characteristics(),
     )
+    detector.photon.enforce_array()
+    return detector
 
 
 @pytest.mark.parametrize(

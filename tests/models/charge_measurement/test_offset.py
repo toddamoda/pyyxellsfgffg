@@ -24,7 +24,7 @@ from pyxel.models.charge_measurement import dc_offset, output_pixel_reset_voltag
 @pytest.fixture
 def ccd_5x5() -> CCD:
     """Create a valid CCD detector."""
-    return CCD(
+    detector = CCD(
         geometry=CCDGeometry(
             row=5,
             col=5,
@@ -37,12 +37,14 @@ def ccd_5x5() -> CCD:
             adc_voltage_range=(0.0, 10.0),
         ),
     )
+    detector.signal.enforce_array()
+    return detector
 
 
 @pytest.fixture
 def apd_5x5() -> APD:
     """Create a valid CCD detector."""
-    return APD(
+    detector = APD(
         geometry=APDGeometry(
             row=5,
             col=5,
@@ -61,6 +63,8 @@ def apd_5x5() -> APD:
             roic_gain=0.8,
         ),
     )
+    detector.signal.enforce_array()
+    return detector
 
 
 @pytest.mark.parametrize("detector_type", ["ccd", "apd"])

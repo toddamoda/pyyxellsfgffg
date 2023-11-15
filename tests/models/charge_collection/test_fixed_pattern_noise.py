@@ -23,6 +23,7 @@ def ccd_5x5() -> CCD:
         environment=Environment(),
         characteristics=Characteristics(quantum_efficiency=0.9),
     )
+    detector.pixel.enforce_array()
     return detector
 
 

@@ -67,6 +67,7 @@ def test_load_psf(ccd_10x10: CCD, psf_10x10_npy_filename: Path) -> None:
     detector: Detector = ccd_10x10
 
     # Run model
+    detector.photon.enforce_array()
     load_psf(
         detector=detector,
         filename=psf_10x10_npy_filename,

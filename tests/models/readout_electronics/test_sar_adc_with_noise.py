@@ -16,7 +16,7 @@ from pyxel.models.readout_electronics import sar_adc_with_noise
 @pytest.fixture
 def ccd_10x3() -> CCD:
     """Create a valid CCD detector."""
-    return CCD(
+    detector = CCD(
         geometry=CCDGeometry(
             row=10,
             col=3,
@@ -29,6 +29,8 @@ def ccd_10x3() -> CCD:
             adc_bit_resolution=8, adc_voltage_range=(0.0, 10.0)
         ),
     )
+    detector.signal.enforce_array()
+    return detector
 
 
 @pytest.mark.parametrize(
