@@ -261,7 +261,7 @@ class Processor:
 
         key: ResultId
         for key in result_keys(result_type):
-            if key.startswith("data") or key.startswith("scene"):
+            if key.startswith("data") or key.startswith("scene") or key == "photon3d":
                 continue
 
             if key == "photon":

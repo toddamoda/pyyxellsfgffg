@@ -19,7 +19,7 @@ from datatree import DataTree
 from tqdm.auto import tqdm
 
 from pyxel import __version__
-from pyxel.data_structure import Charge, Image, Photon, Pixel, Scene, Signal
+from pyxel.data_structure import Charge, Image, Photon, Photon3D, Pixel, Scene, Signal
 from pyxel.pipelines import Processor, ResultId, get_result_id, result_keys
 from pyxel.util import set_random_seed
 
@@ -222,12 +222,14 @@ def run_exposure_pipeline(
                 if key in ("data", "scene"):
                     continue
 
-                obj: Union[Scene, Photon, Pixel, Image, Signal, Charge] = getattr(
-                    detector, key
-                )
+                obj: Union[
+                    Scene, Photon, Photon3D, Pixel, Image, Signal, Charge
+                ] = getattr(detector, key)
 
                 # TODO: Is this necessary ?
-                if not isinstance(obj, (Scene, Photon, Pixel, Image, Signal, Charge)):
+                if not isinstance(
+                    obj, (Scene, Photon, Photon3D, Pixel, Image, Signal, Charge)
+                ):
                     raise TypeError(
                         f"Wrong type from attribute 'detector.{key}'. Type: {type(obj)!r}"
                     )
@@ -304,10 +306,12 @@ def _extract_datatree(detector: "Detector", keys: Sequence[ResultId]) -> DataTre
         if key.startswith("data") or key.startswith("scene"):
             continue
 
-        obj: Union[Photon, Pixel, Image, Signal, Charge] = getattr(detector, key)
+        obj: Union[Photon, Photon3D, Pixel, Image, Signal, Charge] = getattr(
+            detector, key
+        )
 
         # TODO: Is this necessary ?
-        if not isinstance(obj, (Photon, Pixel, Image, Signal, Charge)):
+        if not isinstance(obj, (Photon, Photon3D, Pixel, Image, Signal, Charge)):
             raise TypeError(
                 f"Wrong type from attribute 'detector.{key}'. Type: {type(obj)!r}"
             )

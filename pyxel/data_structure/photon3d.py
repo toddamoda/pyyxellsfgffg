@@ -59,6 +59,9 @@ class Photon3D:
         result = ", ".join([f"{key}: {value}" for key, value in dct.items()])
         return f"{cls_name}<{result:s}>"
 
+    def __array__(self, dtype: Optional[np.dtype] = None):
+        return np.asarray(self.array, dtype=dtype)
+
     def empty(self) -> None:
         self._array = None
 
@@ -95,7 +98,7 @@ class Photon3D:
         Only accepts an DataArray with the right type and shape.
         """
         if self._array is None:
-            raise ValueError("'.array' is not initialized.")
+            raise ValueError("Property 'array' is not initialized.")
 
         return self._array
 
