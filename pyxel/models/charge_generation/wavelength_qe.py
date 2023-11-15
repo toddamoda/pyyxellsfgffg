@@ -10,14 +10,15 @@
 from pathlib import Path
 from typing import Union
 
+import pandas as pd
 import xarray as xr
 
 from pyxel.detectors import Detector
-from pyxel.inputs.loader import load_dataarray
-from pyxel.models.charge_generation.photoelectrons import apply_qe
+
+# from pyxel.inputs.loader import load_table
+# from pyxel.models.charge_generation.photoelectrons import apply_qe
 
 
-# def apply_wavelength_qe()
 def interpolate_dataset(
     input_dataset: xr.Dataset,
     input_array: xr.DataArray,
@@ -38,6 +39,29 @@ def interpolate_dataset(
     interpolated_ds = input_dataset.interp_like(input_array)
 
     return interpolated_ds
+
+
+def apply_wavelength_qe(
+    photon_array: xr.DataArray,
+    qe_array: xr.DataArray
+    # binomial_sampling = False,
+    # TODO: add option for binominal_sampling. See pyxel.models.charge_generation.photoelectrons.apply_qe()
+) -> xr.DataArray:
+    """Apply wavelength dependent QE to photon array to convert to charge array.
+
+    Parameters
+    ----------
+    photon_array : xr.DataArray
+    qe_array : xr.DataArray
+
+    Returns
+    -------
+    xr.DataArray
+    """
+
+    charge_array = photon_array * qe_array
+
+    return charge_array
 
 
 def integrate_charge(input_array: xr.DataArray) -> xr.DataArray:
@@ -70,36 +94,37 @@ def load_qe_curve(
     detector : Detector
         Pyxel Detector object.
     filename : str or Path
-        File path.
+        CSV File path.
     wavelength_col_name : str
         Column name of wavelength in loaded file.
     qe_col_name : str
         Column name of quantum efficiency in loaded file.
     """
 
-    # load QE curve data
-    qe_curve: xr.DataArray = load_dataarray(filename=filename)
+    # load QE curve data from csv file
+    qe_curve = pd.read_csv(filename)
+    # TODO: Make other file endings possible, e.g. make use of loader function "load_table".
 
     # rename column to wavelength and turn into xr.Dataset
-    qe_curve_ds = qe_curve.rename(
-        columns={wavelength_col_name: "wavelength", qe_col_name: "QE"}
-    ).to_xarray()
+    qe_curve_ds: xr.Dataset = (
+        qe_curve.rename(columns={wavelength_col_name: "wavelength", qe_col_name: "QE"})
+        .set_index("wavelength")
+        .to_xarray()
+    )
 
     # interpolate the qe_curve wavelength data to the resolution of the photon3D data.
-    qe_interpolated = interpolate_dataset(
+    qe_interpolated: xr.Dataset = interpolate_dataset(
         input_dataset=qe_curve_ds,
         input_array=detector.photon3d.array,
     )
 
     # apply QE
-    detector_charge = apply_qe(
-        array=detector.photon3d.array,
-        qe=qe_interpolated["QE"],
-        binomial_sampling=False,
+    detector_charge: xr.DataArray = apply_wavelength_qe(
+        photon_array=detector.photon3d.array,
+        qe_array=qe_interpolated["QE"],
     )
-    # TODO: add option for binominal_sampling.
 
     # integrate charge along coordinate wavelength
     integrated_charge = integrate_charge(input_array=detector_charge)
 
-    detector.charge.array = integrated_charge.values
+    detector.charge.add_charge_array(integrated_charge.values)

@@ -3357,7 +3357,7 @@
                   "type": "string"
                 }
               ],
-              "description": "File path.",
+              "description": "CSV File path.",
               "title": "filename"
             },
             "qe_col_name": {
