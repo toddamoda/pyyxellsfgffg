@@ -26,16 +26,17 @@ from .persistence import Persistence, SimplePersistence
 
 def copy_array(obj: Optional[Array]) -> Optional[np.ndarray]:
     """Copy the array if the object has an array."""
-    if obj and obj.has_array:
+    if obj and obj._array is not None:
         return obj.array.copy()
     return None
 
 
 def load_array(data: Mapping, key: str, obj: Optional[Array]) -> None:
     """Load new data into array."""
-    if obj is not None:
-        if key in data:
-            if data[key] is not None:
-                obj.array = np.asarray(data[key])
-            else:
-                obj._array = None
+    if obj is None or key not in data:
+        return None
+
+    if data[key] is not None:
+        obj.array = np.asarray(data[key])
+    else:
+        obj._array = None

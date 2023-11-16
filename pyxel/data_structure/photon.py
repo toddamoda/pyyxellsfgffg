@@ -52,8 +52,7 @@ class Photon(Array):
 
         Only accepts an array with the right type and shape.
         """
-        self.validate_type(value)
-        self.validate_shape(value)
+        self._validate(value)
 
         if np.any(value < 0):
             value[value < 0] = 0.0

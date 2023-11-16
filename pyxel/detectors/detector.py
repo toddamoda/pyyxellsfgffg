@@ -131,6 +131,11 @@ class Detector:
 
         return self._pixel
 
+    @pixel.setter
+    def pixel(self, obj: Pixel) -> None:
+        """TBW."""
+        self._pixel.array = obj.array
+
     @property
     def signal(self) -> Signal:
         """TBW."""
@@ -139,6 +144,11 @@ class Detector:
 
         return self._signal
 
+    @signal.setter
+    def signal(self, obj: Signal) -> None:
+        """TBW."""
+        self._signal = obj
+
     @property
     def image(self) -> Image:
         """TBW."""
@@ -146,6 +156,11 @@ class Detector:
             raise RuntimeError("'image' not initialized.")
 
         return self._image
+
+    @image.setter
+    def image(self, obj: Signal) -> None:
+        """TBW."""
+        self._image = obj
 
     @property
     def data(self) -> "DataTree":
@@ -204,20 +219,13 @@ class Detector:
 
     def empty(self, empty_all: bool = True) -> None:
         """Empty the data in the detector."""
-        if self._photon and self._photon.has_array:
-            self.photon.array = np.zeros_like(self.photon.array)
-
-        self._scene = Scene()
-
-        if self._signal and self._signal.has_array:
-            self.signal.array = np.zeros_like(self.signal.array)
-        if self._image and self._image.has_array:
-            self.image.array = np.zeros_like(self.image.array)
-        if self._charge:
-            self._charge.empty()
+        self.photon.empty()
+        self.scene = Scene()
+        self.signal.empty()
+        self.image.empty()
+        self.charge.empty()
         if empty_all:
-            if self._pixel and self._pixel.has_array:
-                self.pixel.array = np.zeros_like(self.pixel.array)
+            self.pixel.empty()
 
     def set_readout(
         self,

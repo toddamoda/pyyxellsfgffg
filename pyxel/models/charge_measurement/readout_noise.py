@@ -197,7 +197,7 @@ def readout_noise_saphira(
         raise TypeError("Expecting a 'APD' detector object.")
 
     with set_random_seed(seed):
-        detector.signal.array += compute_readout_noise_saphira(
+        detector.signal += compute_readout_noise_saphira(
             roic_readout_noise=roic_readout_noise,
             avalanche_gain=detector.characteristics.avalanche_gain,
             shape=detector.geometry.shape,

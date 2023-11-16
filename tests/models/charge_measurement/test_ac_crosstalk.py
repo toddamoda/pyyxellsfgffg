@@ -4,7 +4,7 @@
 #  is part of this Pyxel package. No part of the package, including
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
-
+import numpy as np
 import pytest
 
 from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
@@ -25,6 +25,7 @@ def ccd_8x8() -> CCD:
         environment=Environment(),
         characteristics=Characteristics(),
     )
+    detector.signal.array = np.ndarray(detector.geometry.shape, dtype=float)
     detector.signal.enforce_array()
     return detector
 

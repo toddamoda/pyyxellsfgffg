@@ -48,7 +48,7 @@ def dc_offset(detector: Detector, offset: float) -> None:
     ):
         raise ValueError("Parameter 'offset' out of bonds of the ADC voltage range.")
 
-    detector.signal.array += compute_dc_offset(offset, detector.geometry.shape)
+    detector.signal += compute_dc_offset(offset, detector.geometry.shape)
 
 
 def compute_output_pixel_reset_voltage_apd(
@@ -114,4 +114,4 @@ def output_pixel_reset_voltage_apd(detector: APD, roic_drop: float) -> None:
             "Output pixel reset voltage out of bonds of the ADC voltage range."
         )
 
-    detector.signal.array += max(ch.adc_voltage_range) - offset
+    detector.signal += max(ch.adc_voltage_range) - offset

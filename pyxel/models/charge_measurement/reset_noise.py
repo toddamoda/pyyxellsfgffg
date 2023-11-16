@@ -62,7 +62,7 @@ def ktc_noise(
             if node_capacitance <= 0:
                 raise ValueError("Node capacitance should be larger than 0!")
 
-            detector.signal.array += compute_ktc_noise(
+            detector.signal += compute_ktc_noise(
                 temperature=detector.environment.temperature,
                 capacitance=node_capacitance,
                 shape=detector.geometry.shape,
@@ -72,7 +72,7 @@ def ktc_noise(
             try:
                 capacitance = detector.characteristics.node_capacitance
 
-                detector.signal.array += compute_ktc_noise(
+                detector.signal += compute_ktc_noise(
                     temperature=detector.environment.temperature,
                     capacitance=capacitance,
                     shape=detector.geometry.shape,

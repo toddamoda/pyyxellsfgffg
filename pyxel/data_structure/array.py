@@ -42,7 +42,7 @@ class Array:
     def __repr__(self) -> str:
         cls_name = self.__class__.__name__
 
-        return f"{cls_name}<shape={self.shape}, dtype={self.dtype}>"
+        return f"{cls_name}<shape={self.shape}>"  # , dtype={self.dtype}>"
 
     def __eq__(self, other) -> bool:
         is_true = type(self) is type(other) and self.shape == other.shape
@@ -50,8 +50,22 @@ class Array:
             is_true = np.array_equal(self.array, other.array)
         return is_true
 
-    def validate_type(self, value: np.ndarray) -> None:
-        """Validate a value.
+    def __iadd__(self, other: np.ndarray) -> "Array":
+        if self._array is not None:
+            self.array += other
+        else:
+            self.array = other
+        return self
+
+    def __add__(self, other: np.ndarray) -> "Array":
+        if self._array is not None:
+            self.array += other
+        else:
+            self.array = other
+        return self
+
+    def _validate(self, value: np.ndarray) -> None:
+        """Ensure that the new np array is the correct shape and type.
 
         Parameters
         ----------
@@ -65,10 +79,6 @@ class Array:
         if value.dtype not in self.TYPE_LIST:
             exp_type_name: str = str(self.EXP_TYPE)
             raise TypeError(f"Expected type of {cls_name} array is {exp_type_name}.")
-
-    def validate_shape(self, value: np.ndarray) -> None:
-        """TBW."""
-        cls_name: str = self.__class__.__name__
 
         if value.shape != self._shape:
             raise ValueError(f"Expected {cls_name} array is {self._shape}.")
@@ -103,6 +113,10 @@ class Array:
         if self._array is None:
             self._array = np.zeros(shape=self.shape, dtype=self.dtype)
 
+    def empty(self):
+        """Empty the array by setting the array to None."""
+        self._array = None
+
     @property
     def array(self) -> np.ndarray:
         """Two-dimensional numpy array storing the data.
@@ -110,6 +124,7 @@ class Array:
         Only accepts an array with the right type and shape.
         """
         if self._array is None:
+            # TODO: add more info explaining how to solve this exception
             raise ValueError(f"'array' is not initialized for {self}.")
         return self._array
 
@@ -119,8 +134,7 @@ class Array:
 
         Only accepts an array with the right type and shape.
         """
-        self.validate_type(value)
-        self.validate_shape(value)
+        self._validate(value)
 
         self._dtype = value.dtype
         self._array = value
@@ -170,7 +184,7 @@ class Array:
         import xarray as xr
 
         num_rows, num_cols = self.shape
-        if not self.has_array:
+        if self._array is not None:
             return xr.DataArray()
 
         return xr.DataArray(

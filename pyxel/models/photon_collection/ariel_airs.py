@@ -512,4 +512,4 @@ def wavelength_dependence_airs(
     photon_array = photo_electron_generated * (time_step / time_scale)
     assert photon_array.unit == "electron"
 
-    detector.photon.array += np.array(photon_array)
+    detector.photon += np.array(photon_array)

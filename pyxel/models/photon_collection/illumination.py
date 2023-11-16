@@ -221,10 +221,4 @@ def illumination(
 
     photon_array = photon_array * (detector.time_step / time_scale)
 
-    try:
-        if detector.photon.has_array:
-            detector.photon.array += photon_array
-        else:
-            detector.photon.array = photon_array
-    except ValueError as ex:
-        raise ValueError("Shapes of arrays do not match") from ex
+    detector.photon += photon_array
