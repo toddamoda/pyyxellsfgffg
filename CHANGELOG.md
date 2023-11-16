@@ -17,6 +17,8 @@ This release brings a number of bugfixes, documentation and improvements.
   (See [!759](https://gitlab.com/esa/pyxel/-/merge_requests/759)).
 * Image data bucket only allows integer data.
   (See [!764](https://gitlab.com/esa/pyxel/-/merge_requests/764)).
+* Fix issue in Observation mode with a 2D parameter.
+  (See [!770](https://gitlab.com/esa/pyxel/-/merge_requests/770)).
 
 ### Documentation
 
