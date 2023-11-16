@@ -6,6 +6,7 @@
 #   the terms contained in the file ‘LICENCE.txt’.
 
 import pytest
+import numpy as np
 import xarray as xr
 from datatree import DataTree
 
@@ -33,10 +34,10 @@ def ccd_10x10() -> CCD:
         environment=Environment(),
         characteristics=Characteristics(),
     )
-    detector.pixel.enforce_array()
-    detector.signal.enforce_array()
-    detector.photon.enforce_array()
-    detector.image.enforce_array()
+    detector.pixel.array = np.ndarray(detector.geometry.shape, dtype=float)
+    detector.signal.array = np.ndarray(detector.geometry.shape, dtype=float)
+    detector.photon.array = np.ndarray(detector.geometry.shape, dtype=float)
+    detector.image.array = np.ndarray(detector.geometry.shape, dtype=np.uint64)
     detector._readout_properties = ReadoutProperties(times=[1.0])
     return detector
 

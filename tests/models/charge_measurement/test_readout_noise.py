@@ -8,6 +8,7 @@
 
 from typing import Union
 
+import numpy as np
 import pytest
 
 from pyxel.detectors import (
@@ -42,7 +43,7 @@ def ccd_5x10() -> CCD:
         environment=Environment(),
         characteristics=Characteristics(),
     )
-    detector.signal.enforce_array()
+    detector.signal.array = np.ndarray(detector.geometry.shape, dtype=float)
     return detector
 
 
@@ -60,7 +61,7 @@ def cmos_5x10() -> CMOS:
         environment=Environment(),
         characteristics=Characteristics(charge_to_volt_conversion=1.0e-6),
     )
-    detector.signal.enforce_array()
+    detector.signal.array = np.ndarray(detector.geometry.shape, dtype=float)
     return detector
 
 
@@ -86,7 +87,7 @@ def apd_5x5() -> APD:
             roic_gain=0.8,
         ),
     )
-    detector.signal.enforce_array()
+    detector.signal.array = np.ndarray(detector.geometry.shape, dtype=float)
     return detector
 
 

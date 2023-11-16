@@ -9,6 +9,8 @@ from collections.abc import Mapping, Sequence
 
 import pytest
 
+import numpy as np
+
 from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
 from pyxel.models.photon_collection import optical_psf
 from pyxel.models.photon_collection.poppy import (
@@ -39,7 +41,7 @@ def ccd_3x3() -> CCD:
         environment=Environment(),
         characteristics=Characteristics(),
     )
-    detector.photon.enforce_array()
+    detector.photon.array = np.ndarray(detector.geometry.shape, dtype=float)
     return detector
 
 

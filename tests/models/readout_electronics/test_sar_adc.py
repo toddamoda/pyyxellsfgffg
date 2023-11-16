@@ -7,6 +7,8 @@
 
 import pytest
 
+import numpy as np
+
 from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
 from pyxel.models.readout_electronics import sar_adc
 
@@ -27,7 +29,7 @@ def ccd_10x3() -> CCD:
             adc_bit_resolution=16, adc_voltage_range=(0.0, 10.0)
         ),
     )
-    detector.signal.enforce_array()
+    detector.signal.array = np.ndarray(detector.geometry.shape, dtype=float)
     return detector
 
 

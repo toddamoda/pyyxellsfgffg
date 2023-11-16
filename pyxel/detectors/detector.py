@@ -101,7 +101,7 @@ class Detector:
 
     @photon.setter
     def photon(self, obj: Photon) -> None:
-        self._photon = obj
+        self.photon.array = obj.array
 
     @property
     def scene(self) -> Scene:
@@ -134,7 +134,7 @@ class Detector:
     @pixel.setter
     def pixel(self, obj: Pixel) -> None:
         """TBW."""
-        self._pixel.array = obj.array
+        self.pixel.array = obj.array
 
     @property
     def signal(self) -> Signal:
@@ -145,9 +145,9 @@ class Detector:
         return self._signal
 
     @signal.setter
-    def signal(self, obj: Signal) -> None:
+    def signal(self, obj: Pixel) -> None:
         """TBW."""
-        self._signal = obj
+        self.signal.array = obj.array
 
     @property
     def image(self) -> Image:
@@ -158,9 +158,9 @@ class Detector:
         return self._image
 
     @image.setter
-    def image(self, obj: Signal) -> None:
+    def image(self, obj: Pixel) -> None:
         """TBW."""
-        self._image = obj
+        self.image.array = obj.array
 
     @property
     def data(self) -> "DataTree":

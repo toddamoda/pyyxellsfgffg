@@ -26,7 +26,7 @@ def ccd_8x8() -> CCD:
         characteristics=Characteristics(),
     )
     detector.signal.array = np.ndarray(detector.geometry.shape, dtype=float)
-    detector.signal.enforce_array()
+    detector.signal.array = np.ndarray(detector.geometry.shape, dtype=float)
     return detector
 
 

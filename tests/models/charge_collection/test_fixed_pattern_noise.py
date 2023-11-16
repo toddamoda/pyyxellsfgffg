@@ -23,7 +23,7 @@ def ccd_5x5() -> CCD:
         environment=Environment(),
         characteristics=Characteristics(quantum_efficiency=0.9),
     )
-    detector.pixel.enforce_array()
+    detector.pixel.array = np.ndarray(detector.geometry.shape, dtype=float)
     return detector
 
 

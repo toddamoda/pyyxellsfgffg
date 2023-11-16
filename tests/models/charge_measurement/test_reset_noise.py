@@ -10,6 +10,7 @@
 
 from typing import Optional
 
+import numpy as np
 import pytest
 
 from pyxel.detectors import (
@@ -40,7 +41,7 @@ def ccd_5x5() -> CCD:
             adc_voltage_range=(0.0, 10.0),
         ),
     )
-    detector.signal.enforce_array()
+    detector.signal.array = np.ndarray(detector.geometry.shape, dtype=float)
     return detector
 
 
@@ -66,7 +67,7 @@ def apd_5x5() -> APD:
             roic_gain=0.8,
         ),
     )
-    detector.signal.enforce_array()
+    detector.signal.array = np.ndarray(detector.geometry.shape, dtype=float)
     return detector
 
 

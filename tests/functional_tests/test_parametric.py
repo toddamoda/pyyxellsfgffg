@@ -8,6 +8,7 @@
 from collections import abc
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 import pyxel
@@ -71,10 +72,10 @@ def test_pipeline_parametric_without_init_photon(mode: ParameterMode, expected):
     result = observation.debug_parameters(processor)
     assert result == expected
 
-    detector.photon.enforce_array()
-    detector.image.enforce_array()
-    detector.pixel.enforce_array()
-    detector.signal.enforce_array()
+    detector.photon.array = np.ndarray(detector.geometry.shape, dtype=float)
+    detector.image.array = np.ndarray(detector.geometry.shape, dtype=np.uint64)
+    detector.pixel.array = np.ndarray(detector.geometry.shape, dtype=float)
+    detector.signal.array = np.ndarray(detector.geometry.shape, dtype=float)
 
     processor_generator = observation._processors_it(processor=processor)
     assert isinstance(processor_generator, abc.Generator)
@@ -120,10 +121,10 @@ def test_pipeline_parametric_without_init_photon_deprecated(
     result = observation.debug_parameters(processor)
     assert result == expected
 
-    detector.photon.enforce_array()
-    detector.image.enforce_array()
-    detector.pixel.enforce_array()
-    detector.signal.enforce_array()
+    detector.photon.array = np.ndarray(detector.geometry.shape, dtype=float)
+    detector.image.array = np.ndarray(detector.geometry.shape, dtype=np.uint64)
+    detector.pixel.array = np.ndarray(detector.geometry.shape, dtype=float)
+    detector.signal.array = np.ndarray(detector.geometry.shape, dtype=float)
 
     processor_generator = observation._processors_it(processor=processor)
     assert isinstance(processor_generator, abc.Generator)

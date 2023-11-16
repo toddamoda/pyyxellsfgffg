@@ -7,7 +7,7 @@
 
 """Pyxel Array class."""
 
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Optional, Union, Any
 
 import numpy as np
 
@@ -34,7 +34,6 @@ class Array:
     def __init__(self, shape: tuple[int, int]):
         self._array: Optional[np.ndarray] = None
         self._shape = shape
-        self._dtype = self.EXP_TYPE
         self._numbytes = 0
 
         # TODO: Implement a method to initialized 'self._array' ???
@@ -42,7 +41,10 @@ class Array:
     def __repr__(self) -> str:
         cls_name = self.__class__.__name__
 
-        return f"{cls_name}<shape={self.shape}>"  # , dtype={self.dtype}>"
+        if self._array:
+            return f"{cls_name}<shape={self.shape}, dtype={self.dtype}>"
+        else:
+            return f"{cls_name}<shape={self.shape}>"
 
     def __eq__(self, other) -> bool:
         is_true = type(self) is type(other) and self.shape == other.shape
@@ -50,14 +52,14 @@ class Array:
             is_true = np.array_equal(self.array, other.array)
         return is_true
 
-    def __iadd__(self, other: np.ndarray) -> "Array":
+    def __iadd__(self, other: np.ndarray):
         if self._array is not None:
             self.array += other
         else:
             self.array = other
         return self
 
-    def __add__(self, other: np.ndarray) -> "Array":
+    def __add__(self, other: np.ndarray):
         if self._array is not None:
             self.array += other
         else:
@@ -89,11 +91,6 @@ class Array:
         return np.asarray(self._array, dtype=dtype)
 
     @property
-    def has_array(self) -> bool:
-        """Returns true if the array is initialized."""
-        return self._array is not None
-
-    @property
     def shape(self) -> tuple[int, int]:
         """Return array shape."""
         num_cols, num_rows = self._shape
@@ -107,11 +104,7 @@ class Array:
     @property
     def dtype(self) -> np.dtype:
         """Return array data type."""
-        return np.dtype(self._dtype)
-
-    def enforce_array(self):
-        if self._array is None:
-            self._array = np.zeros(shape=self.shape, dtype=self.dtype)
+        return self.array.dtype
 
     def empty(self):
         """Empty the array by setting the array to None."""
@@ -136,7 +129,6 @@ class Array:
         """
         self._validate(value)
 
-        self._dtype = value.dtype
         self._array = value
 
     @property
@@ -184,7 +176,7 @@ class Array:
         import xarray as xr
 
         num_rows, num_cols = self.shape
-        if self._array is not None:
+        if self._array is None:
             return xr.DataArray()
 
         return xr.DataArray(
