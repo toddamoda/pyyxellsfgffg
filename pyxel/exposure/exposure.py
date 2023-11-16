@@ -228,7 +228,7 @@ def run_exposure_pipeline(
 
                 # TODO: Is this necessary ?
                 if not isinstance(
-                    obj, (Scene, Photon, Photon3D, Pixel, Image, Signal, Charge)
+                    obj, (Photon, Photon3D, Pixel, Image, Signal, Charge)
                 ):
                     raise TypeError(
                         f"Wrong type from attribute 'detector.{key}'. Type: {type(obj)!r}"
