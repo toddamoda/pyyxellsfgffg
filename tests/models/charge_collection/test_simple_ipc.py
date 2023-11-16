@@ -36,7 +36,7 @@ def cmos_10x10() -> CMOS:
         environment=Environment(),
         characteristics=Characteristics(),
     )
-    detector.pixel.array = np.ndarray(detector.geometry.shape, dtype=float)
+    detector.pixel.array = np.zeros(detector.geometry.shape, dtype=float)
     return detector
 
 

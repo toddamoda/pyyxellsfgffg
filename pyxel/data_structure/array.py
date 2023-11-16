@@ -7,7 +7,7 @@
 
 """Pyxel Array class."""
 
-from typing import TYPE_CHECKING, Optional, Union, Any
+from typing import TYPE_CHECKING, Optional, Union
 
 import numpy as np
 

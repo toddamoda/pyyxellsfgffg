@@ -38,8 +38,8 @@ def mkid_5x4() -> MKID:
     )
 
     detector.reset()
-    detector.phase.array = np.ndarray(detector.geometry.shape, dtype=float)
-    detector.photon.array = np.ndarray(detector.geometry.shape, dtype=float)
+    detector.phase.array = np.zeros(detector.geometry.shape, dtype=float)
+    detector.photon.array = np.zeros(detector.geometry.shape, dtype=float)
 
     return detector
 

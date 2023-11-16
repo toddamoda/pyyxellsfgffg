@@ -29,7 +29,7 @@ def ccd_10x3() -> CCD:
             adc_bit_resolution=16, adc_voltage_range=(0.0, 10.0)
         ),
     )
-    detector.signal.array = np.ndarray(detector.geometry.shape, dtype=float)
+    detector.signal.array = np.zeros(detector.geometry.shape, dtype=float)
     return detector
 
 

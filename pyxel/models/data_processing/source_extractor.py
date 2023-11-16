@@ -180,6 +180,7 @@ def extract_roi_to_xarray(
         )
 
     data_2d = np.asarray(data_2d, dtype=float)
+    print(f"!!!!!!!!! {array_type} data array is empty: {np.all(data_2d == 0)} {data_2d.sum()} {data_2d.dtype}")
     if np.all(data_2d == 0):
         warnings.warn(f"{array_type} data array is empty", stacklevel=2)
 

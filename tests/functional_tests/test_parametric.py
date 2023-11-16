@@ -72,10 +72,10 @@ def test_pipeline_parametric_without_init_photon(mode: ParameterMode, expected):
     result = observation.debug_parameters(processor)
     assert result == expected
 
-    detector.photon.array = np.ndarray(detector.geometry.shape, dtype=float)
-    detector.image.array = np.ndarray(detector.geometry.shape, dtype=np.uint64)
-    detector.pixel.array = np.ndarray(detector.geometry.shape, dtype=float)
-    detector.signal.array = np.ndarray(detector.geometry.shape, dtype=float)
+    detector.photon.array = np.zeros(detector.geometry.shape, dtype=float)
+    detector.image.array = np.zeros(detector.geometry.shape, dtype=np.uint64)
+    detector.pixel.array = np.zeros(detector.geometry.shape, dtype=float)
+    detector.signal.array = np.zeros(detector.geometry.shape, dtype=float)
 
     processor_generator = observation._processors_it(processor=processor)
     assert isinstance(processor_generator, abc.Generator)
@@ -121,10 +121,10 @@ def test_pipeline_parametric_without_init_photon_deprecated(
     result = observation.debug_parameters(processor)
     assert result == expected
 
-    detector.photon.array = np.ndarray(detector.geometry.shape, dtype=float)
-    detector.image.array = np.ndarray(detector.geometry.shape, dtype=np.uint64)
-    detector.pixel.array = np.ndarray(detector.geometry.shape, dtype=float)
-    detector.signal.array = np.ndarray(detector.geometry.shape, dtype=float)
+    detector.photon.array = np.zeros(detector.geometry.shape, dtype=float)
+    detector.image.array = np.zeros(detector.geometry.shape, dtype=np.uint64)
+    detector.pixel.array = np.zeros(detector.geometry.shape, dtype=float)
+    detector.signal.array = np.zeros(detector.geometry.shape, dtype=float)
 
     processor_generator = observation._processors_it(processor=processor)
     assert isinstance(processor_generator, abc.Generator)

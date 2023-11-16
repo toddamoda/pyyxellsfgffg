@@ -36,7 +36,7 @@ def ccd_10x10() -> CCD:
         environment=Environment(),
         characteristics=Characteristics(),
     )
-    detector.photon.array = np.ndarray(detector.geometry.shape, dtype=float)
+    detector.photon.array = np.zeros(detector.geometry.shape, dtype=float)
     detector._readout_properties = ReadoutProperties(times=[1.0])
     return detector
 
