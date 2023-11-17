@@ -117,7 +117,9 @@ def load_wavelength_psf(
 
     # where to store the wavelength information?
     detector.photon.array = apply_psf(
-        array=detector.photon.array, psf=psf_datacube, normalize_kernel=normalize_kernel
+        array=detector.photon3d.array,
+        psf=psf_datacube,
+        normalize_kernel=normalize_kernel,
     )
 
     # return psf_datacube, psf_wavelength, line_psf_pos, col_psf_pos
