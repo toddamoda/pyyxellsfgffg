@@ -12,18 +12,16 @@ from collections.abc import Sequence
 from contextlib import suppress
 from io import BytesIO, StringIO
 from pathlib import Path
-from typing import TYPE_CHECKING, Union
+from typing import Optional, Union
 
 import fsspec
 import numpy as np
+import pandas as pd
+import xarray as xr
 from numpy.typing import DTypeLike
 from PIL import Image
 
 from pyxel.options import global_options
-
-if TYPE_CHECKING:
-    import pandas as pd
-    import xarray as xr
 
 
 def load_image(filename: Union[str, Path]) -> np.ndarray:
@@ -84,6 +82,7 @@ def load_image(filename: Union[str, Path]) -> np.ndarray:
             extras["simplecache"] = {"cache_storage": global_options.cache_folder}
 
     if suffix.startswith(".fits"):
+        # with fits.open(url_path, use_fsspec=True, fsspec_kwargs=extras) as file_handler:
         with fsspec.open(url_path, mode="rb", **extras) as file_handler:
             from astropy.io import fits  # Late import to speed-up general import time
 
@@ -117,6 +116,76 @@ def load_image(filename: Union[str, Path]) -> np.ndarray:
         )
 
     return data_2d
+
+
+# TODO: needs tests!
+# TODO: add units
+def load_image_v2(
+    filename: Union[str, Path],
+    rename_dims: dict,
+    data_path: Union[str, int, None] = None,
+) -> xr.DataArray:
+    # Extract suffix (e.g. '.txt', '.fits'...)
+    suffix: str = Path(filename).suffix.lower()
+
+    if isinstance(filename, Path):
+        full_filename: Path = filename.expanduser().resolve()
+        if not full_filename.exists():
+            raise FileNotFoundError(f"Input file '{full_filename}' can not be found.")
+
+        url_path: str = str(full_filename)
+
+    else:
+        url_path = filename
+
+    if suffix.startswith(".fits"):
+        from astropy.io import fits
+
+        with fits.open(url_path) as hdus:
+            if data_path is None:
+                data_path = 0
+            assert isinstance(data_path, int)
+            image_data: np.ndarray = hdus[data_path].data
+            # TODO: check if hdus data_path is image hdu.
+            if image_data.ndim == 2:
+                data_array = xr.DataArray(image_data, dims=["y", "x"])
+            elif image_data.ndim == 3:
+                dims = []
+                for ax in [0, 1, 2]:
+                    for key, value in rename_dims.items():
+                        if value == ax:
+                            break
+                    else:
+                        raise ValueError
+                    dims.append(key)
+                data_array = xr.DataArray(image_data, dims=dims)
+            else:
+                raise NotImplementedError()
+
+    elif suffix.startswith(".npy"):
+        with open(url_path, mode="rb") as file_handler:
+            data_2d: np.ndarray = np.load(file_handler)
+            assert data_2d.ndim == 2
+            data_array = xr.DataArray(data_2d, dims=["y", "x"])
+
+    elif suffix.startswith((".txt", ".data")):
+        for sep in ("\t", " ", ",", "|", ";"):
+            with suppress(ValueError):
+                with open(url_path) as file_handler:
+                    data_2d = np.loadtxt(file_handler, delimiter=sep, ndmin=2)
+                break
+
+        else:
+            raise ValueError(f"Cannot find the separator for filename '{url_path}'.")
+        data_array = xr.DataArray(data_2d, dims=["y", "x"])
+
+    elif suffix.startswith((".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif")):
+        with open(url_path, mode="rb") as file_handler:
+            image_2d = Image.open(file_handler)
+            image_2d_converted = image_2d.convert("LA")  # RGB to grayscale conversion
+            data_array = xr.DataArray(image_2d_converted, dims=["y", "x"])
+
+    return data_array
 
 
 def load_table(
@@ -219,6 +288,87 @@ def load_table(
         raise ValueError("Only .npy, .xlsx, .csv, .txt and .data implemented.")
 
     return table
+
+
+# TODO: needs tests!
+# TODO: add units
+def load_table_v2(
+    filename: Union[str, Path],
+    rename_cols: Optional[dict] = None,
+    data_path: Union[str, int, None] = None,
+    header: bool = False,
+) -> pd.DataFrame:
+    suffix: str = Path(filename).suffix.lower()
+
+    if isinstance(filename, Path):
+        full_filename = Path(filename).expanduser().resolve()
+        if not full_filename.exists():
+            raise FileNotFoundError(f"Input file '{full_filename}' can not be found.")
+
+        url_path: str = str(full_filename)
+    else:
+        url_path = filename
+
+    if suffix.startswith(".fits"):
+        from astropy.io import fits
+        from astropy.table import Table
+
+        with fits.open(url_path) as hdus:
+            if data_path is None:
+                data_path = 0
+            assert isinstance(data_path, int)
+            assert isinstance(hdus[data_path], (fits.TableHDU, fits.BinTableHDU))
+        table: pd.DataFrame = Table.read(url_path, hdu=data_path).to_pandas()
+        if rename_cols:
+            col_new = {value: key for key, value in rename_cols.items()}
+            table_data = table.rename(columns=col_new)[list(rename_cols)]
+        else:
+            table_data = table
+
+    elif suffix.startswith((".txt", ".data", ".csv")):
+        with open(url_path) as file_handler:
+            data: str = file_handler.read()
+        valid_delimiters: Sequence[str] = ("\t", " ", ",", "|", ";")
+        valid_delimiters_str = "".join(valid_delimiters)
+
+        # Find a delimiter
+        try:
+            dialect = csv.Sniffer().sniff(data, delimiters=valid_delimiters_str)
+        except csv.Error as exc:
+            raise ValueError("Cannot find the separator") from exc
+
+        delimiter: str = dialect.delimiter
+
+        if delimiter not in valid_delimiters:
+            raise ValueError(f"Cannot find the separator. {delimiter=!r}")
+
+        with StringIO(data) as file_handler:
+            if suffix.startswith("csv"):
+                table = pd.read_csv(
+                    file_handler,
+                    delimiter=delimiter,
+                    header=0 if header else None,
+                    usecols=[key for key, value in rename_cols.items()]
+                    if rename_cols
+                    else None,
+                )
+            else:
+                table = pd.read_table(
+                    file_handler,
+                    delimiter=delimiter,
+                    header=0 if header else None,
+                    usecols=[key for key, value in rename_cols.items()]
+                    if rename_cols
+                    else None,
+                )
+            if rename_cols:
+                table_data = table.rename(columns=rename_cols)
+            else:
+                table_data = table
+    else:
+        NotImplementedError
+
+    return table_data
 
 
 def load_dataarray(filename: Union[str, Path]) -> "xr.DataArray":

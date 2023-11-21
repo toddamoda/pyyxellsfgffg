@@ -8,4 +8,11 @@
 #
 """TBW."""
 # flake8: noqa
-from .loader import load_image, load_table, load_datacube, load_dataarray
+from .loader import (
+    load_image,
+    load_table,
+    load_datacube,
+    load_dataarray,
+    load_image_v2,
+    load_table_v2,
+)
