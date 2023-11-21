@@ -78,7 +78,7 @@ def integrate_charge(input_array: xr.DataArray) -> xr.DataArray:
     """
     integrated_charge = input_array.integrate(coord="wavelength")
 
-    return integrated_charge
+    return integrated_charge.data
 
 
 def load_qe_curve(
@@ -101,23 +101,13 @@ def load_qe_curve(
         Column name of quantum efficiency in loaded file.
     """
 
-    df = load_table_v2(
+    df: pd.DataFrame = load_table_v2(
         filename=filename,
         rename_cols={wavelength_col_name: "wavelength", qe_col_name: "QE"},
         header=True,
     )
 
-    qe_curve_ds: xr.Dataset = df.to_xarray()
-    # # load QE curve data from csv file
-    # qe_curve = pd.read_csv(filename)
-    # # TODO: Make other file endings possible, e.g. make use of loader function "load_table".
-    #
-    # # rename column to wavelength and turn into xr.Dataset
-    # qe_curve_ds: xr.Dataset = (
-    #     qe_curve.rename(columns={wavelength_col_name: "wavelength", qe_col_name: "QE"})
-    #     .set_index("wavelength")
-    #     .to_xarray()
-    # )
+    qe_curve_ds: xr.Dataset = df.set_index("wavelength").to_xarray()
 
     # interpolate the qe_curve wavelength data to the resolution of the photon3D data.
     qe_interpolated: xr.Dataset = interpolate_dataset(
@@ -134,4 +124,4 @@ def load_qe_curve(
     # integrate charge along coordinate wavelength
     integrated_charge = integrate_charge(input_array=detector_charge)
 
-    detector.charge.add_charge_array(integrated_charge.values)
+    detector.charge.add_charge_array(integrated_charge)
