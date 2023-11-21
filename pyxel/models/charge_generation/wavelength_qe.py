@@ -14,8 +14,8 @@ import pandas as pd
 import xarray as xr
 
 from pyxel.detectors import Detector
+from pyxel.inputs.loader import load_table_v2
 
-# from pyxel.inputs.loader import load_table
 # from pyxel.models.charge_generation.photoelectrons import apply_qe
 
 
@@ -101,16 +101,23 @@ def load_qe_curve(
         Column name of quantum efficiency in loaded file.
     """
 
-    # load QE curve data from csv file
-    qe_curve = pd.read_csv(filename)
-    # TODO: Make other file endings possible, e.g. make use of loader function "load_table".
-
-    # rename column to wavelength and turn into xr.Dataset
-    qe_curve_ds: xr.Dataset = (
-        qe_curve.rename(columns={wavelength_col_name: "wavelength", qe_col_name: "QE"})
-        .set_index("wavelength")
-        .to_xarray()
+    df = load_table_v2(
+        filename=filename,
+        rename_cols={wavelength_col_name: "wavelength", qe_col_name: "QE"},
+        header=True,
     )
+
+    qe_curve_ds: xr.Dataset = df.to_xarray()
+    # # load QE curve data from csv file
+    # qe_curve = pd.read_csv(filename)
+    # # TODO: Make other file endings possible, e.g. make use of loader function "load_table".
+    #
+    # # rename column to wavelength and turn into xr.Dataset
+    # qe_curve_ds: xr.Dataset = (
+    #     qe_curve.rename(columns={wavelength_col_name: "wavelength", qe_col_name: "QE"})
+    #     .set_index("wavelength")
+    #     .to_xarray()
+    # )
 
     # interpolate the qe_curve wavelength data to the resolution of the photon3D data.
     qe_interpolated: xr.Dataset = interpolate_dataset(
