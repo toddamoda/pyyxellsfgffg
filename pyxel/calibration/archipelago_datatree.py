@@ -237,8 +237,6 @@ class ArchipelagoDataTree:
         -------
         DataTree
         """
-        import pygmo as pg
-
         self._log.info("Run %i evolutions", num_evolutions)
 
         total_num_generations = num_evolutions * self.algorithm.generations
@@ -361,9 +359,13 @@ class ArchipelagoDataTree:
         data_tree["champion_fitness"] = champions["champion_fitness"]
         data_tree["champion_decision"] = champions["champion_decision"]
         data_tree["champion_parameters"] = champions["champion_parameters"]
-        data_tree["best_fitness"] = champions["best_fitness"]
-        data_tree["best_decision"] = champions["best_decision"]
-        data_tree["best_parameters"] = champions["best_parameters"]
+
+        if "best_fitness" in champions:
+            data_tree["best_fitness"] = champions["best_fitness"]
+        if "best_decision" in champions:
+            data_tree["best_decision"] = champions["best_decision"]
+        if "best_parameters" in champions:
+            data_tree["best_parameters"] = champions["best_parameters"]
 
         data_tree["simulated_photon"] = all_data_fit_range["simulated_photon"]
         data_tree["simulated_charge"] = all_data_fit_range["simulated_charge"]
