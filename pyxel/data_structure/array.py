@@ -41,10 +41,10 @@ class Array:
     def __repr__(self) -> str:
         cls_name = self.__class__.__name__
 
-        if self._array:
+        if self._array is not None:
             return f"{cls_name}<shape={self.shape}, dtype={self.dtype}>"
         else:
-            return f"{cls_name}<shape={self.shape}>"
+            return f"{cls_name}<UNINITIALIZED, shape={self.shape}>"
 
     def __eq__(self, other) -> bool:
         is_true = type(self) is type(other) and self.shape == other.shape
