@@ -45,11 +45,11 @@ def extract_data_3d(
         id_processor: int = row["id_processor"]
         data_tree: Delayed = row["data_tree"]
 
-        photon_delayed: Delayed = data_tree["/bucket/photon"]  # type: ignore
-        charge_delayed: Delayed = data_tree["/bucket/charge"]  # type: ignore
-        pixel_delayed: Delayed = data_tree["/bucket/pixel"]  # type: ignore
-        signal_delayed: Delayed = data_tree["/bucket/signal"]  # type: ignore
-        image_delayed: Delayed = data_tree["/bucket/image"]  # type: ignore
+        photon_delayed: Delayed = data_tree["photon"]  # type: ignore
+        charge_delayed: Delayed = data_tree["charge"]  # type: ignore
+        pixel_delayed: Delayed = data_tree["pixel"]  # type: ignore
+        signal_delayed: Delayed = data_tree["signal"]  # type: ignore
+        image_delayed: Delayed = data_tree["image"]  # type: ignore
 
         photon_3d = da.from_delayed(
             photon_delayed, shape=(times, rows, cols), dtype=float
@@ -237,6 +237,8 @@ class ArchipelagoDataTree:
         -------
         DataTree
         """
+        import pygmo as pg
+
         self._log.info("Run %i evolutions", num_evolutions)
 
         total_num_generations = num_evolutions * self.algorithm.generations
@@ -259,6 +261,25 @@ class ArchipelagoDataTree:
                 # Block until all evolutions have finished and raise the first exception
                 # that was encountered
                 self._pygmo_archi.wait_check()
+
+                # island: pg.island
+                # for id_island, island in enumerate(self._pygmo_archi):
+                #     algo: pg.algorithm = island.get_algorithm().extract(pg.sade)
+                #     logs: list[tuple] = algo.get_log()
+                #     columns = (
+                #         "num_generations",  # Generation number
+                #         "num_evaluations",  # Number of functions evaluation made
+                #         "best_fitness",  # The best fitness currently in the population
+                #         "f",
+                #         "cr",
+                #         "dx",
+                #         "df",
+                #     )
+                #     df = (
+                #         pd.DataFrame(logs, columns=columns)
+                #         .set_index(["num_generations", "num_evaluations"])
+                #         .to_xarray()
+                #     )
 
                 progress.update(self.algorithm.generations)
 
