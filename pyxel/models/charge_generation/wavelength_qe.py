@@ -5,16 +5,19 @@
 #   this file, may be copied, modified, propagated, or distributed except according to
 #   the terms contained in the file ‘LICENCE.txt’.
 
-"""Simple model to convert photon into photo-electrons inside detector."""
+"""Simple model to convert photon into photo-electrons using QE(-map) inside detector."""
 
 from pathlib import Path
-from typing import Union
+from typing import TYPE_CHECKING, Union
 
-import pandas as pd
 import xarray as xr
 
 from pyxel.detectors import Detector
 from pyxel.inputs.loader import load_table_v2
+
+if TYPE_CHECKING:
+    import numpy as np
+    import pandas as pd
 
 # from pyxel.models.charge_generation.photoelectrons import apply_qe
 
@@ -115,6 +118,9 @@ def load_qe_curve(
         input_array=detector.photon3d.array,
     )
 
+    if not 0 <= qe_interpolated["QE"].any() <= 1:
+        raise ValueError("Quantum efficiency not between 0 and 1.")
+
     # apply QE
     detector_charge: xr.DataArray = apply_wavelength_qe(
         photon_array=detector.photon3d.array,
@@ -122,6 +128,9 @@ def load_qe_curve(
     )
 
     # integrate charge along coordinate wavelength
-    integrated_charge = integrate_charge(input_array=detector_charge)
+    integrated_charge: xr.DataArray = integrate_charge(input_array=detector_charge)
 
-    detector.charge.add_charge_array(integrated_charge)
+    # get data from xr.DataArray
+    new_charge: np.ndarray = integrated_charge.data
+
+    detector.charge.add_charge_array(new_charge)
