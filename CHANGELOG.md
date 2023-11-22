@@ -23,7 +23,8 @@ This release brings a number of bugfixes, documentation and improvements.
   (See [!767](https://gitlab.com/esa/pyxel/-/merge_requests/767)).
 * Remove attribute `input_image` from `Detector`.
   (See [!772](https://gitlab.com/esa/pyxel/-/merge_requests/772)).
-
+* Fix issue in `Array.__repr__`.
+  (See [!773](https://gitlab.com/esa/pyxel/-/merge_requests/773)).
 
 ### Documentation
 
