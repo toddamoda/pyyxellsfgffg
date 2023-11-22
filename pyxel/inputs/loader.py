@@ -120,6 +120,8 @@ def load_image(filename: Union[str, Path]) -> np.ndarray:
 
 # TODO: needs tests!
 # TODO: add units
+# TODO: reduce complexity and remove ruff noqa.
+# ruff: noqa: C901, PTH123
 def load_image_v2(
     filename: Union[str, Path],
     rename_dims: dict,
@@ -154,10 +156,10 @@ def load_image_v2(
                 for ax in [0, 1, 2]:
                     for key, value in rename_dims.items():
                         if value == ax:
+                            dims.append(key)
                             break
                     else:
                         raise ValueError
-                    dims.append(key)
                 data_array = xr.DataArray(image_data, dims=dims)
             else:
                 raise NotImplementedError()
@@ -366,7 +368,7 @@ def load_table_v2(
             else:
                 table_data = table
     else:
-        NotImplementedError
+        raise NotImplementedError
 
     return table_data
 
