@@ -10,13 +10,13 @@
 from pathlib import Path
 from typing import TYPE_CHECKING, Union
 
-import numpy as np
 import xarray as xr
 
 from pyxel.detectors import Detector
 from pyxel.inputs.loader import load_table_v2
 
 if TYPE_CHECKING:
+    import numpy as np
     import pandas as pd
 
 # from pyxel.models.charge_generation.photoelectrons import apply_qe
