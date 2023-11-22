@@ -5,7 +5,7 @@
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
 
-"""Simple model to convert photon into photo-electrons using QE(-map) inside detector."""
+"""Simple model to convert photon into photo-electrons inside detector."""
 
 from pathlib import Path
 from typing import Literal, Optional, Union
