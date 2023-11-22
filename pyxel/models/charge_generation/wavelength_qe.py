@@ -5,16 +5,18 @@
 #   this file, may be copied, modified, propagated, or distributed except according to
 #   the terms contained in the file ‘LICENCE.txt’.
 
-"""Simple model to convert photon into photo-electrons inside detector."""
+"""Simple model to convert photon into photo-electrons using QE(-map) inside detector."""
 
 from pathlib import Path
-from typing import Union
+from typing import TYPE_CHECKING, Union
 
-import pandas as pd
 import xarray as xr
 
 from pyxel.detectors import Detector
 from pyxel.inputs.loader import load_table_v2
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 # from pyxel.models.charge_generation.photoelectrons import apply_qe
 
