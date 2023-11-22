@@ -327,6 +327,14 @@ def load_table_v2(
         else:
             table_data = table
 
+    elif suffix.startswith(".npy"):
+        with open(url_path, mode="rb") as file_handler:
+            table = pd.DataFrame(np.load(file_handler))
+            if rename_cols:
+                col_new = [value for key, value in rename_cols.items()]
+                table.columns = col_new
+                table_data = table.copy()
+
     elif suffix.startswith((".txt", ".data", ".csv")):
         with open(url_path) as file_handler:
             data: str = file_handler.read()
