@@ -327,6 +327,21 @@ def load_table_v2(
         else:
             table_data = table
 
+    elif suffix.startswith(".npy"):
+        with open(url_path, mode="rb") as file_handler:
+            table = pd.DataFrame(np.load(file_handler))
+            dims = []
+            for ax in range(len(table.columns)):
+                for key, value in rename_cols.items():
+                    if value == ax:
+                        dims.append(key)
+                        break
+                else:
+                    raise ValueError
+            if rename_cols:
+                table.columns = dims
+                table_data = table.copy()
+
     elif suffix.startswith((".txt", ".data", ".csv")):
         with open(url_path) as file_handler:
             data: str = file_handler.read()
@@ -350,21 +365,18 @@ def load_table_v2(
                     file_handler,
                     delimiter=delimiter,
                     header=0 if header else None,
-                    usecols=[key for key, value in rename_cols.items()]
-                    if rename_cols
-                    else None,
+                    usecols=rename_cols.values() if rename_cols else None,
                 )
             else:
                 table = pd.read_table(
                     file_handler,
                     delimiter=delimiter,
                     header=0 if header else None,
-                    usecols=[key for key, value in rename_cols.items()]
-                    if rename_cols
-                    else None,
+                    usecols=rename_cols.values() if rename_cols else None,
                 )
             if rename_cols:
-                table_data = table.rename(columns=rename_cols)
+                col_new = {value: key for key, value in rename_cols.items()}
+                table_data = table.rename(columns=col_new)
             else:
                 table_data = table
     else:
