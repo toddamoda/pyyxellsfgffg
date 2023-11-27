@@ -87,8 +87,8 @@ def integrate_charge(input_array: xr.DataArray) -> xr.DataArray:
 def load_qe_curve(
     detector: Detector,
     filename: Union[str, Path],
-    wavelength_col_name: str,
-    qe_col_name: str,
+    wavelength_col_name: Union[str, int],
+    qe_col_name: Union[str, int],
 ) -> None:
     """Apply wavelength dependent QE with loading a file.
 
@@ -106,7 +106,7 @@ def load_qe_curve(
 
     df: pd.DataFrame = load_table_v2(
         filename=filename,
-        rename_cols={wavelength_col_name: "wavelength", qe_col_name: "QE"},
+        rename_cols={"wavelength": wavelength_col_name, "QE": qe_col_name},
         header=True,
     )
 
