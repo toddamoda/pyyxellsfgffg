@@ -330,17 +330,18 @@ def load_table_v2(
     elif suffix.startswith(".npy"):
         with open(url_path, mode="rb") as file_handler:
             table = pd.DataFrame(np.load(file_handler))
-            dims = []
-            for ax in range(len(table.columns)):
-                for key, value in rename_cols.items():
-                    if value == ax:
-                        dims.append(key)
-                        break
-                else:
-                    raise ValueError
             if rename_cols:
-                table.columns = dims
-                table_data = table.copy()
+                dims = []
+                for ax in range(len(table.columns)):
+                    for key, value in rename_cols.items():
+                        if value == ax:
+                            dims.append(key)
+                            break
+                    else:
+                        raise ValueError
+
+                    table.columns = dims
+                    table_data = table.copy()
 
     elif suffix.startswith((".txt", ".data", ".csv")):
         with open(url_path) as file_handler:
