@@ -61,7 +61,7 @@ def valid_qe_map_path(
 def invalid_qe_map_path(
     tmp_path: Path,
 ) -> str:
-    """Create valid 2D file on a temporary folder."""
+    """Create invalid 2D file on a temporary folder."""
 
     data_2d = np.array(
         [
