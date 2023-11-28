@@ -64,14 +64,14 @@ class ModelGroup:
     def run(
         self,
         detector: "Detector",
-        with_intermediate_steps: bool,
+        debug: bool,
     ):
         """Execute each enabled model in this group.
 
         Parameters
         ----------
         detector : Detector
-        with_intermediate_steps : bool
+        debug : bool
         """
         model: ModelFunction
         for model in self:
@@ -79,7 +79,7 @@ class ModelGroup:
             model(detector)
 
             # TODO: Refactor
-            if with_intermediate_steps:
+            if debug:
                 import xarray as xr
                 from datatree import DataTree
 
@@ -109,7 +109,7 @@ class ModelGroup:
                     datatree_intermediate = detector.data[intermediate_key]  # type: ignore
 
                 # TODO: Refactor
-                pipeline_key: str = f"idx_{detector.pipeline_count}"
+                pipeline_key: str = f"time_idx_{detector.pipeline_count}"
                 if pipeline_key not in datatree_intermediate:
                     datatree_one_time: DataTree = DataTree(
                         name=pipeline_key, parent=datatree_intermediate
