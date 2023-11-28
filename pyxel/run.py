@@ -102,7 +102,7 @@ def _run_exposure_mode(
     exposure: "Exposure",
     detector: Detector,
     pipeline: "DetectionPipeline",
-    with_intermediate_steps: bool,
+    debug: bool,
 ) -> "DataTree":
     """Run an 'exposure' pipeline.
 
@@ -113,7 +113,7 @@ def _run_exposure_mode(
     exposure : Exposure
     detector : Detector
     pipeline : DetectionPipeline
-    with_intermediate_steps : bool
+    debug : bool
 
     Returns
     -------
@@ -170,7 +170,7 @@ def _run_exposure_mode(
 
     result: DataTree = exposure.run_exposure_new(
         processor=processor,
-        with_intermediate_steps=with_intermediate_steps,
+        debug=debug,
     )
 
     if exposure_outputs.save_exposure_data:
@@ -500,7 +500,7 @@ def run_mode(
     mode: Union[Exposure, Observation, "Calibration"],
     detector: Detector,
     pipeline: DetectionPipeline,
-    with_intermediate_steps: bool = False,
+    debug: bool = False,
 ) -> "DataTree":
     """Run a pipeline.
 
@@ -512,7 +512,7 @@ def run_mode(
         This object is the container for all the data used for the models.
     pipeline : DetectionPipeline
         This is the core algorithm of Pyxel. This pipeline contains all the models to run.
-    with_intermediate_steps : bool, default: False
+    debug : bool, default: False
         Add all intermediate steps into the results as a ``DataTree``. This mode is used for debugging.
 
 
@@ -658,16 +658,16 @@ def run_mode(
     ...     mode=config.exposure,
     ...     detector=config.detector,
     ...     pipeline=config.pipeline,
-    ...     with_intermediate_steps=True,
+    ...     debug=True,
     ... )
-    >>> results["/data/intermediate"]
+    >>> results["/intermediate"]
     DataTree('intermediate', parent="data")
     │   Dimensions:  ()
     │   Data variables:
     │       *empty*
     │   Attributes:
     │       long_name:  Store all intermediate results modified along a pipeline
-    └── DataTree('idx_0')
+    └── DataTree('time_idx_0')
         │   Dimensions:  ()
         │   Data variables:
         │       *empty*
@@ -753,7 +753,7 @@ def run_mode(
     """
     from pyxel.calibration import Calibration
 
-    if with_intermediate_steps and isinstance(mode, (Observation, Calibration)):
+    if debug and isinstance(mode, (Observation, Calibration)):
         raise NotImplementedError(
             "Parameter 'with_intermediate_steps' is not implemented for 'Observation'"
             " and 'Calibration' modes."
@@ -764,7 +764,7 @@ def run_mode(
             exposure=mode,
             detector=detector,
             pipeline=pipeline,
-            with_intermediate_steps=with_intermediate_steps,
+            debug=debug,
         )
 
     elif isinstance(mode, Observation):
