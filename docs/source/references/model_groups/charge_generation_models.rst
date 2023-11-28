@@ -12,7 +12,7 @@ inside the :py:class:`~pyxel.detectors.Detector` object.
 The values in the :py:class:`~pyxel.data_structure.Charge` array represent charge in electron.
 If the :ref:`photon collection <photon_collection>` model group
 is used, a model like :ref:`Simple photoconversion` needs to be enabled in the pipeline to make the conversion from
-:guilabel:`Photon` → :guilabel:`Charge`.
+:guilabel:`Photon` to :guilabel:`Charge`.
 Otherwise, a model like :ref:`Load charge` needs to be enabled to initialize the
 :py:class:`~pyxel.data_structure.Charge` array.
 

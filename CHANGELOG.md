@@ -20,6 +20,8 @@ This release brings a number of bugfixes, documentation and improvements.
   (See [!781](https://gitlab.com/esa/pyxel/-/merge_requests/781)).
 
 ### Documentation
+* Review model descriptions in reference documentation.
+  (See [!784](https://gitlab.com/esa/pyxel/-/merge_requests/784)).
 
 ### Models
 
