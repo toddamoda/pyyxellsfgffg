@@ -9,8 +9,8 @@ Photon Collection models
 Photon generation models are used to add to and manipulate data in :py:class:`~pyxel.data_structure.Photon` array
 inside the :py:class:`~pyxel.detectors.Detector` object. If the :ref:`scene generation <scene_generation>` model group
 is used, a model like :ref:`aperture` needs to be enabled in the pipeline to make the conversion from
-:guilabel:`Scene` → :guilabel:`Photon`.
-Otherwise, models like :ref:`illumination` or :ref:`load_image` need to be enabled to initialize the
+:guilabel:`Scene` to :guilabel:`Photon`.
+Otherwise, models like :ref:`Simple illumination` or :ref:`Load image` need to be enabled to initialize the
 :py:class:`~pyxel.data_structure.Photon` array.
 Multiple photon generation models can be linked together one after another.
 The values in the :py:class:`~pyxel.data_structure.Photon` array represent photon flux,
