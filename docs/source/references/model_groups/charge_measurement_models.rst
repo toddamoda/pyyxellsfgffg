@@ -7,6 +7,12 @@ Charge Measurement models
 .. currentmodule:: pyxel.models.charge_measurement
 .. automodule:: pyxel.models.charge_measurement
 
+Charge measurement models are used to add to and manipulate data in :py:class:`~pyxel.data_structure.Signal` array
+inside the :py:class:`~pyxel.detectors.Detector` object.
+The values in the :py:class:`~pyxel.data_structure.Signal` array represent the amount of signal in Volt.
+A charge measurement model, e.g. :ref:`Simple charge measurement`, is necessary to first convert from pixel data stored
+in :py:class:`~pyxel.data_structure.Pixel` class to signal stored in :py:class:`~pyxel.data_structure.Signal`.
+Multiple models are available to add detector effects after.
 
 
 .. _charge_measurement_create_store_detector:
@@ -58,6 +64,28 @@ Accepted file formats are ``.h5``, ``.hdf5``, ``.hdf`` and ``.asdf``.
 
 .. autofunction:: pyxel.models.load_detector
    :noindex:
+
+.. _Simple charge measurement:
+
+Simple charge measurement
+=========================
+
+:guilabel:`Pixel` → :guilabel:`Signal`
+
+Convert the pixels array to the signal array.
+
+Example of the configuration file:
+
+.. code-block:: yaml
+
+    - name: simple_measurement
+      func: pyxel.models.charge_measurement.simple_measurement
+      enabled: true
+      arguments:
+        noise:
+          - gain: 1.    # Optional
+
+.. autofunction:: simple_measurement
 
 
 .. _DC offset:
@@ -120,28 +148,6 @@ Add kTC reset noise to the signal array of the detector object.
 .. note:: When using with the :term:`APD` detector, node capacitance is calculated from detector characteristics.
 
 .. autofunction:: ktc_noise
-
-.. _Simple charge measurement:
-
-Simple charge measurement
-=========================
-
-:guilabel:`Pixel` → :guilabel:`Signal`
-
-Convert the pixels array to the signal array.
-
-Example of the configuration file:
-
-.. code-block:: yaml
-
-    - name: simple_measurement
-      func: pyxel.models.charge_measurement.simple_measurement
-      enabled: true
-      arguments:
-        noise:
-          - gain: 1.    # Optional
-
-.. autofunction:: simple_measurement
 
 .. _Output node noise:
 

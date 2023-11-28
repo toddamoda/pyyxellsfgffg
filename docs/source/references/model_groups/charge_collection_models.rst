@@ -9,8 +9,9 @@ Charge Collection models
 Charge collection models are used to add to and manipulate data in :py:class:`~pyxel.data_structure.Pixel` array
 inside the :py:class:`~pyxel.detectors.Detector` object.
 The data represents amount of charge stored in each of the pixels.
-A charge collection model is necessary to first convert from charge data stored in
-:py:class:`~pyxel.data_structure.Charge` class. Multiple models are available to add detector effects after.
+A charge collection model, e.g. :ref:`Simple collection`, is necessary to first convert from charge data stored in
+:py:class:`~pyxel.data_structure.Charge` class to pixel stored in :py:class:`~pyxel.data_structure.Pixel`.
+Multiple models are available to add detector effects after.
 
 
 .. _charge_collection_create_store_detector:

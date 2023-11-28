@@ -6,7 +6,12 @@ Readout Electronics models
 
 .. currentmodule:: pyxel.models.readout_electronics
 
-Readout electronics models are used to add TBW.
+Readout electronic models are used to add to and manipulate data in :py:class:`~pyxel.data_structure.Image` array
+inside the :py:class:`~pyxel.detectors.Detector` object.
+The data represents the image data in ADUs.
+A readout electronic model, e.g. :ref:`Simple ADC`, is necessary to first convert from signal data stored in
+:py:class:`~pyxel.data_structure.Signal` class to image data stored in :py:class:`~pyxel.data_structure.Image`.
+Multiple models are available to add detector effects after.
 
 .. _readout_electronics_create_store_detector:
 

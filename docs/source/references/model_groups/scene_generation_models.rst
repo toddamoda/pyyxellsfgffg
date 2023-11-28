@@ -6,8 +6,9 @@ Scene Generation models
 
 .. currentmodule:: pyxel.models.scene_generation
 
-Scene generation models are used to add photons to :py:class:`~pyxel.data_structure.Scene` data structure
-inside the :py:class:`~pyxel.detectors.Detector` object.
+Scene generation models are used to add a scene to :py:class:`~pyxel.data_structure.Scene` data structure
+inside the :py:class:`~pyxel.detectors.Detector` object. The values in the :py:class:`~pyxel.data_structure.Scene` array
+represent flux per wavelength and area, so number of photons per nanometer per area per second.
 
 
 .. _scene_generation_create_store_detector:

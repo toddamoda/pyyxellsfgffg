@@ -134,7 +134,7 @@ or locally (on pixel level or only for a specific detector area).
 
 Most of the model groups work for :term:`CCD`, :term:`CMOS`, :term:`MKID` and :term:`APD` detectors,
 which are imitating the physical working principles of imaging detectors. They were
-grouped according to which physics data storing objects are modified by them. Note that 3 out of the 9 groups are
+grouped according to which physics data storing objects are modified by them. Note that 3 out of the 10 groups are
 specific to a single detector type.
 
 Model functions

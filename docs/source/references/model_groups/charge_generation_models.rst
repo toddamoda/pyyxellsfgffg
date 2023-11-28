@@ -7,6 +7,15 @@ Charge Generation models
 .. currentmodule:: pyxel.models.charge_generation
 .. automodule:: pyxel.models.charge_generation
 
+Charge generation models are used to add to and manipulate data in :py:class:`~pyxel.data_structure.Charge` array
+inside the :py:class:`~pyxel.detectors.Detector` object.
+The values in the :py:class:`~pyxel.data_structure.Charge` array represent charge in electron.
+If the :ref:`photon collection <photon_collection>` model group
+is used, a model like :ref:`Simple photoconversion` needs to be enabled in the pipeline to make the conversion from
+:guilabel:`Photon` → :guilabel:`Charge`.
+Otherwise, a model like :ref:`load_charge` needs to be enabled to initialize the
+:py:class:`~pyxel.data_structure.Charge` array.
+
 
 .. _charge_generation_create_store_detector:
 

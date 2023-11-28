@@ -28,8 +28,7 @@ and :py:class:`~pyxel.detectors.Environment`, as shown in the figure.
 These are all the properties used by more than one model.
 They do not change during a pipeline run and can vary depending on the detector used.
 Another category of detector properties, ``Material``, was temporarily removed in version
-1.0 due to non-use. Additionally, since version 1.0, properties were given user-friendly names with whole words
-instead of symbols and abbreviations.
+1.0 due to non-use.
 
 .. _data_structure:
 

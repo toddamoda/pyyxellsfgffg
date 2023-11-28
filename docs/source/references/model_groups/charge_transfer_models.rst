@@ -9,6 +9,10 @@ Charge Transfer models (CCD)
 
 .. currentmodule:: pyxel.models.charge_transfer
 
+Charge transfer models are used to manipulate data in :py:class:`~pyxel.data_structure.Pixel` array
+inside the :py:class:`~pyxel.detectors.Detector` object.
+Multiple models can be linked together one after another.
+
 
 .. _charge_transfer_create_store_detector:
 

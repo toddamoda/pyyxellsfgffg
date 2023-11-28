@@ -4,6 +4,9 @@
 Models
 ======
 
+The containers such as `Scene`, `Photon`, `Pixel`, `Signal` and `Image` are not
+initialized before running a pipeline. The models inside the model groups must initialize the containers.
+
 .. deprecated:: 1.7
 
     The models groups **photon generation** and **optics** have been deprecated and
