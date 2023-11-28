@@ -194,12 +194,12 @@ class Processor:
             setattr(obj, att, new_value)
 
     # TODO: Create a method `DetectionPipeline.run`
-    def run_pipeline(self, with_intermediate_steps: bool = False) -> None:
+    def run_pipeline(self, debug: bool = False) -> None:
         """Run a pipeline with all its models in the right order.
 
         Parameters
         ----------
-        with_intermediate_steps : bool
+        debug : bool
 
         Notes
         -----
@@ -216,7 +216,7 @@ class Processor:
             self._log.info("Processing group: %r", group_name)
             models_grp.run(
                 detector=self.detector,
-                with_intermediate_steps=with_intermediate_steps,
+                debug=debug,
             )
 
     # TODO: Refactor '.result'. See #524. Deprecate this method ?

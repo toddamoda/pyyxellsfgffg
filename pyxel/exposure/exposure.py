@@ -109,14 +109,14 @@ class Exposure:
     def run_exposure_new(
         self,
         processor: Processor,
-        with_intermediate_steps: bool,
+        debug: bool,
     ) -> DataTree:
         """Run an observation pipeline.
 
         Parameters
         ----------
         processor : Processor
-        with_intermediate_steps : bool
+        debug : bool
 
         Returns
         -------
@@ -132,7 +132,7 @@ class Exposure:
             progressbar=progressbar,
             result_type=self.result_type,
             pipeline_seed=self.pipeline_seed,
-            with_intermediate_steps=with_intermediate_steps,
+            debug=debug,
         )
 
         data_tree.attrs["running mode"] = "Exposure"
@@ -327,7 +327,7 @@ def run_pipeline(
     progressbar: bool = False,
     result_type: ResultId = ResultId("all"),  # noqa: B008
     pipeline_seed: Optional[int] = None,
-    with_intermediate_steps: bool = False,
+    debug: bool = False,
 ) -> DataTree:
     """Run standalone exposure pipeline.
 
@@ -342,7 +342,7 @@ def run_pipeline(
     result_type : ResultId
     pipeline_seed : int
         Random seed for the pipeline.
-    with_intermediate_steps : bool
+    debug : bool
 
     Returns
     -------
@@ -391,7 +391,7 @@ def run_pipeline(
             detector.empty(is_destructive_readout)
 
             # Run one pipeline
-            processor.run_pipeline(with_intermediate_steps=with_intermediate_steps)
+            processor.run_pipeline(debug=debug)
 
             # Save results in file(s) (if needed)
             if outputs and detector.read_out:
@@ -417,9 +417,9 @@ def run_pipeline(
             if progressbar:
                 pbar.update(1)
 
-        if with_intermediate_steps:
+        if debug:
             # Remove temporary data_tree '/intermediate/last'
-            datatree_intermediate: DataTree = detector.data["intermediate"]  # type: ignore
+            datatree_intermediate: DataTree = detector.intermediate["intermediate"]
             del datatree_intermediate["last"]
 
         if "scene" in keys:
