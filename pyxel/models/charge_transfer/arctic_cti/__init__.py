@@ -6,3 +6,10 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 """TBW."""
+
+# flake8: noqa
+from .models_arctic_vanilla import (
+    arctic_add,
+    arctic_remove,
+    arctic_add_trap_slow_capture,
+)
