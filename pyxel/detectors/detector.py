@@ -198,6 +198,11 @@ class Detector:
             container: Union[Photon, Charge, Pixel, Signal, Image] = getattr(self, name)
             data_array: xr.DataArray = container.to_xarray()
 
+            # TODO: Special case, this will be fixed in issue #692
+            if name == "charge" and bool((data_array == 0).all()):
+                # No charges
+                continue
+
             if data_array.ndim != 0:
                 ds[name] = data_array
         #
