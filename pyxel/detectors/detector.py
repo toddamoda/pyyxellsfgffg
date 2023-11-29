@@ -208,6 +208,11 @@ class Detector:
             container: Union[Photon, Charge, Pixel, Signal, Image] = getattr(self, name)
             data_array: xr.DataArray = container.to_xarray()
 
+            # TODO: Special case, this will be fixed in issue #692
+            if name == "charge" and bool((data_array == 0).all()):
+                # No charges
+                continue
+
             if data_array.ndim != 0:
                 ds[name] = data_array
         #
@@ -239,7 +244,6 @@ class Detector:
         self._image = Image(geo=self.geometry)
 
         self._data = DataTree()
-        self._intermediate = DataTree()
 
     # TODO: refactor to split up to empty and reset.
     def empty(self, reset: bool = True) -> None:
