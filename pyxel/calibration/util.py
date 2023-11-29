@@ -132,6 +132,7 @@ def create_processor_data_array(filenames: Sequence[Path]) -> xr.DataArray:
             "y": range(num_y),
             "x": range(num_x),
         },
+        attrs={"filenames": filenames},
     )
     return data_array
 
