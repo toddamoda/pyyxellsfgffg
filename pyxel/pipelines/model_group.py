@@ -128,7 +128,14 @@ class ModelGroup:
                         name=model_group_key,
                         parent=datatree_single_time,
                     )
-                    datatree_group.attrs = {"long_name": f"Model group: {self._name!r}"}
+
+                    # TODO: Refactor this ?
+                    # Convert a model group's name to a better string representation
+                    # Example: 'photon_collection' becomes 'Photon Collection'
+                    group_name: str = " ".join(
+                        map(str.capitalize, self._name.split("_"))
+                    )
+                    datatree_group.attrs = {"long_name": f"Model group: {group_name}"}
                 else:
                     datatree_group = datatree_single_time[model_group_key]  # type: ignore
 
@@ -139,7 +146,10 @@ class ModelGroup:
                         name=model_key,
                         parent=datatree_group,
                     )
-                    datatree_model.attrs = {"long_name": f"Group: {model.name!r}"}
+                    datatree_model.attrs = {
+                        "long_name": f"Model name: {model.name!r}",
+                        "function_name": f"Model function: {model.func.__name__!r}",
+                    }
                 else:
                     datatree_model = datatree_group[model_key]  # type: ignore
 
@@ -151,12 +161,12 @@ class ModelGroup:
                     last_full_ds = datatree_intermediate[last_key]  # type: ignore
 
                 for name, data_array in ds.data_vars.items():
-                    if name not in last_full_ds:
-                        continue
+                    if name in last_full_ds:
+                        previous_data_array = last_full_ds[name]
 
-                    previous_data_array = last_full_ds[name]
-
-                    if not data_array.equals(previous_data_array):
+                        if not data_array.equals(previous_data_array):
+                            datatree_model[name] = data_array
+                    else:
                         datatree_model[name] = data_array
 
                 # datatree_model

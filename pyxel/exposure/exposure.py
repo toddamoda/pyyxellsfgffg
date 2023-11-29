@@ -418,7 +418,7 @@ def run_pipeline(
                 pbar.update(1)
 
         if debug:
-            # Remove temporary data_tree '/intermediate/last'
+            # Remove temporary data_tree '/last'
             datatree_intermediate: DataTree = detector.intermediate
             del datatree_intermediate["last"]
 
