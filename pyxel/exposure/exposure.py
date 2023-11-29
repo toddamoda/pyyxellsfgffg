@@ -214,7 +214,7 @@ def run_exposure_pipeline(
             detector.empty(empty_all)
 
             processor.run_pipeline(
-                with_intermediate_steps=False,  # Not supported here
+                debug=False,  # Not supported here
             )
 
             if outputs and detector.read_out:
@@ -420,7 +420,7 @@ def run_pipeline(
                 pbar.update(1)
 
         if debug:
-            # Remove temporary data_tree '/intermediate/last'
+            # Remove temporary data_tree '/last'
             datatree_intermediate: DataTree = detector.intermediate
             del datatree_intermediate["last"]
 
