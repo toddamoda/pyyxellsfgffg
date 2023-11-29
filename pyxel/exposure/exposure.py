@@ -421,8 +421,10 @@ def run_pipeline(
 
         if debug:
             # Remove temporary data_tree '/intermediate/last'
-            datatree_intermediate: DataTree = detector.intermediate["intermediate"]
+            datatree_intermediate: DataTree = detector.intermediate
             del datatree_intermediate["last"]
+
+            data_tree["/intermediate"] = detector.intermediate
 
         if "scene" in keys:
             data_tree["/scene"] = detector.scene.data
