@@ -44,6 +44,27 @@ class Trap:
     release_timescale: float
 
 
+@dataclass
+class TrapSlowCapture:
+    """Define a trap slow capture.
+
+    For traps with a non-instant capture time
+
+    Parameters
+    ----------
+    density : float
+        The density of the trap species in a pixel.
+    release_timescale : float
+        The release timescale of the trap.
+    capture_timescale : float
+        The capture timescale of the trap.
+    """
+
+    density: float
+    release_timescale: float
+    capture_timescale: float
+
+
 def compute_arctic_add(
     image_2d: np.ndarray,
     full_well_depth: float,
@@ -311,3 +332,152 @@ def arctic_remove(
     )
 
     detector.pixel.array = image_2d_cti_removed
+
+
+def compute_add_traps_slow_capture(
+    image_2d: np.ndarray,
+    full_well_depth: float,
+    well_fill_power: float,
+    parallel_traps: Sequence[TrapSlowCapture],
+    parallel_express: int,
+    well_notch_depth: float = 0.0,
+    first_electron_fill: float = 0.0,
+) -> np.ndarray:
+    """Create a new image with :term:`CTI` trails.
+
+    Parameters
+    ----------
+    well_notch_depth
+    first_electron_fill
+    image_2d : ndarray
+        2D image to process.
+    full_well_depth : float
+    well_fill_power : float
+    parallel_traps : sequence of Traps
+        List of trap to process.
+    parallel_express : int
+
+    Returns
+    -------
+    ndarray
+        2D array with :term:`CTI` trails.
+    """
+    ccd = ac.CCD(
+        phases=[
+            ac.CCDPhase(
+                full_well_depth=full_well_depth,
+                well_fill_power=well_fill_power,
+                well_notch_depth=well_notch_depth,
+                first_electron_fill=first_electron_fill,
+            )
+        ]
+    )
+
+    roe = ac.ROE()
+
+    # Create the trap(s)
+    traps: Sequence[ac.TrapSlowCapture] = [
+        ac.TrapSlowCapture(
+            density=trap.density,
+            release_timescale=trap.release_timescale,
+            capture_timescale=trap.capture_timescale,
+        )
+        for trap in parallel_traps
+    ]
+
+    image_cti_added_2d = ac.add_cti(
+        image=image_2d,
+        parallel_traps=traps,
+        parallel_ccd=ccd,
+        parallel_roe=roe,
+        parallel_express=parallel_express,
+        verbosity=0,
+    )
+
+    return image_cti_added_2d
+
+
+def arctic_add_trap_slow_capture(
+    detector: CCD,
+    well_fill_power: float,
+    trap_densities: Sequence[float],
+    trap_release_timescales: Sequence[float],
+    trap_capture_timescales: Sequence[float],
+    express: int = 0,
+    well_notch_depth: float = 0.0,
+    first_electron_fill: float = 0.0,
+) -> None:
+    """Add :term:`CTI` trails to an image by trapping, releasing and moving electrons.
+
+    Parameters
+    ----------
+    first_electron_fill
+    well_notch_depth
+    detector : CCD
+        Pyxel :term:`CCD` Detector object.
+    well_fill_power : float
+    trap_densities : sequence of float
+        A 1D arrays of all trap species densities for serial clocking.
+    trap_release_timescales : sequence of float
+        A 1D arrays of all trap release timescales for serial clocking.
+    trap_capture_timescales : sequence of float
+        A 1D arrays of all trap capture timescales of the traps.
+    express : int
+        As described in more detail in :cite:p:`2014:massey` section 2.1.5, the effects
+        of each individual pixel-to-pixel transfer can be very similar, so multiple
+        transfers can be computed at once for efficiency.
+        The ``express`` input sets the number of times the transfers are calculated.
+
+            * ``express = 1`` is the fastest and least accurate.
+            * ``express = 2`` means the transfers are re-computed half-way through readout.
+            * ``express = N`` where ``N`` is the total number of pixels.
+
+        Default ``express = 0`` is a convenient input for automatic ``express = N``.
+
+    Notes
+    -----
+    The external library `arcticpy <https://github.com/jkeger/arcticpy>`_ is used to add
+    the :term:`CTI` trails.
+    """
+    if not WITH_ARTICPY:
+        raise RuntimeError(
+            "ArCTIC python wrapper is not installed ! "
+            "See https://github.com/jkeger/arctic"
+        )
+
+    # Validation
+    if not (
+        len(trap_densities)
+        == len(trap_release_timescales)
+        == len(trap_capture_timescales)
+    ):
+        raise ValueError(
+            "Expecting same number of 'trap_densities' and 'trap_release_timescales'"
+        )
+
+    if len(trap_densities) == 0:
+        raise ValueError("Expecting at least one 'trap_density'.")
+
+    # Conversion - Create a list of `Trap`
+    traps: Sequence[TrapSlowCapture] = [
+        TrapSlowCapture(
+            density=density,
+            release_timescale=release_timescale,
+            capture_timescale=capture_timescale,
+        )
+        for density, release_timescale, capture_timescale in zip(
+            trap_densities, trap_release_timescales, trap_capture_timescales
+        )
+    ]
+
+    image_cti_added_2d = compute_add_traps_slow_capture(
+        image_2d=np.asarray(detector.pixel.array, dtype=float),
+        full_well_depth=detector.characteristics.full_well_capacity,
+        well_fill_power=well_fill_power,
+        parallel_traps=traps,
+        parallel_express=express,
+        well_notch_depth=well_notch_depth,
+        first_electron_fill=first_electron_fill,
+    )
+
+    detector.pixel.array = image_cti_added_2d
