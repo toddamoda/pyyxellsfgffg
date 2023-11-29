@@ -52,6 +52,8 @@ class Detector:
         self._image: Optional[Image] = None
         self._data: Optional[DataTree] = None
 
+        self._intermediate: Optional[DataTree] = None
+
         # This will be the memory of the detector where trapped charges will be saved
         self._memory: dict = {}
         self._persistence: Optional[Union[Persistence, SimplePersistence]] = None
@@ -168,6 +170,14 @@ class Detector:
             raise RuntimeError("'data' not initialized.")
 
         return self._data
+
+    @property
+    def intermediate(self) -> "DataTree":
+        """TBW."""
+        if self._intermediate is None:
+            raise RuntimeError("'intermediate' not initialized.")
+
+        return self._intermediate
 
     def to_xarray(self) -> "xr.Dataset":
         """Create a new ``Dataset`` from all data containers.
