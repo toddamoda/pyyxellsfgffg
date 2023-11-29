@@ -434,11 +434,49 @@ class ModelFittingDataTree(ProblemSingleObjective):
                     )
                     weighting = weighting_data.to_numpy()
 
-                overall_fitness += self._calculate_fitness(
+                fitness = self._calculate_fitness(
                     simulated_data=simulated_data,
                     target_data=target_data,
                     weighting=weighting,  # TODO: 'weighting' should be a 'DataArray'
                 )
+
+                # BRAD
+                # def get_params(filename: str):
+                #     input_filename = (
+                #         processor.pipeline.charge_generation.load_charge.arguments.filename
+                #     )
+                #     trap_densities = (
+                #         processor.pipeline.charge_transfer.arctic_add.arguments.trap_densities
+                #     )
+                #     trap_rt = (
+                #         processor.pipeline.charge_transfer.arctic_add.arguments.trap_release_timescales
+                #     )
+                #     w_n_depth = (
+                #         processor.pipeline.charge_transfer.arctic_add.arguments.well_notch_depth
+                #     )
+                #
+                #     # ds_debug = xr.Dataset()
+                #     # ds_debug['simulated_data'] = xr.DataArray(simulated_data, dims=['time', 'y', 'x'])
+                #     # ds_debug['target_data'] = xr.DataArray(target_data, dims=['y', 'x'])
+                #     # ds_debug['weighting'] = xr.DataArray(weighting, dims=['y', 'x'])
+                #     # ds_debug.attrs['processor_id'] = repr(processor_id)
+                #     # ds_debug.attrs['parameters'] = repr((input_filename, *trap_densities.tolist(),
+                #     #                                      *trap_rt.tolist(), float(w_n_depth)))
+                #     np.save(
+                #         f"{filename}_{processor_id}_simulated_data.npy", simulated_data
+                #     )
+                #     np.save(f"{filename}_{processor_id}_target_data.npy", target_data)
+                #     np.save(f"{filename}_{processor_id}_weighting.npy", weighting)
+                #
+                #     return (
+                #         input_filename,
+                #         fitness,
+                #         *trap_densities.tolist(),
+                #         *trap_rt.tolist(),
+                #         float(w_n_depth),
+                #     )
+
+                overall_fitness += fitness
 
         except Exception:
             logging.exception(

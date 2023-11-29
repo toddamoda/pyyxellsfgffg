@@ -182,12 +182,12 @@ def arctic_add(
 def compute_arctic_remove(
     image_2d: np.ndarray,
     full_well_depth: float,
-    well_fill_power: float,
+    well_fill_power: float,  # beta
     parallel_traps: Sequence[Trap],
     parallel_express: int,
     num_iterations: int,
-    well_notch_depth: float = 0.0,
-    first_electron_fill: float = 0.0,
+    well_notch_depth: float = 0.0,  # d
+    first_electron_fill: float = 0.0,  # alpha
 ) -> np.ndarray:
     """Create a new image with removed :term:`CTI` trails.
 
