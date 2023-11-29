@@ -201,13 +201,25 @@ class Detector:
         """
         import xarray as xr
 
-        ds = xr.Dataset()
         # ds["scene"] = self.scene.to_xarray()
-        ds["photon"] = self.photon.to_xarray()
-        ds["charge"] = self.charge.to_xarray()
-        ds["pixel"] = self.pixel.to_xarray()
-        ds["signal"] = self.signal.to_xarray()
-        ds["image"] = self.image.to_xarray()
+
+        ds = xr.Dataset()
+        for name in ("photon", "charge", "pixel", "signal", "image"):
+            container: Union[Photon, Charge, Pixel, Signal, Image] = getattr(self, name)
+            data_array: xr.DataArray = container.to_xarray()
+
+            if data_array.ndim != 0:
+                ds[name] = data_array
+        #
+        # array:xr.DataArray = self.photon.to_xarray()
+        # if array.ndim != 0:
+        #     ds['photon'] = array
+        #
+        # ds["photon"] = self.photon.to_xarray()
+        # ds["charge"] = self.charge.to_xarray()
+        # ds["pixel"] = self.pixel.to_xarray()
+        # ds["signal"] = self.signal.to_xarray()
+        # ds["image"] = self.image.to_xarray()
 
         ds.attrs.update({"detector": type(self).__name__, "pyxel version": __version__})
 
@@ -227,6 +239,7 @@ class Detector:
         self._image = Image(geo=self.geometry)
 
         self._data = DataTree()
+        self._intermediate = DataTree()
 
     # TODO: refactor to split up to empty and reset.
     def empty(self, reset: bool = True) -> None:
