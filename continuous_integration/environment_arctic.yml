@@ -2,7 +2,7 @@
 #   $ cd pyxel
 #   $ conda update -n base conda
 #   $ conda deactivate
-#   $ conda env create -f continuous_integration/environment.yml
+#   $ conda env create -f continuous_integration/environment_arctic.yml
 #   $ conda activate pyxel-dev
 #   (pyxel_dev) $ pip install --no-deps -e .
 
@@ -22,11 +22,11 @@ channels:
   - conda-forge
 dependencies:
 # Python
-  - python=3.11
+  - python=3.10    # For Arctic
   - pip
 # Scientific computing
   - numba
-  - numpy>=1.21
+  - numpy=1.21    # For Arctic
   - pandas
   - scipy
   - xarray>=2022.06
@@ -92,6 +92,10 @@ dependencies:
 # Profiling
   - pyinstrument
   - memray
+# For Arctic (needed for the installation)
+  - gsl
+  - llvm
+  - llvm-openmp
 # Pip packages
   - pip:
 #    - --no-deps
