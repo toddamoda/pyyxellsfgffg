@@ -1,0 +1,103 @@
+# Create a new conda environment:
+#   $ cd pyxel
+#   $ conda update -n base conda
+#   $ conda deactivate
+#   $ conda env create -f continuous_integration/environment_arctic.yml
+#   $ conda activate pyxel-dev
+#   (pyxel_dev) $ pip install --no-deps -e .
+
+# Get a list of all the environments:
+#  $ conda env list -v
+
+# Upgrade a conda environment
+#  $ conda env update -f environment.yml [-n CONDA_ENV_NAME]
+#  $ conda env update [-n CONDA_ENV_NAME] --all
+
+# Remove a conda environment
+#  $ conda env remove --name MYENV
+
+
+name: pyxel-dev
+channels:
+  - conda-forge
+  - numba
+dependencies:
+# Python
+  - python=3.9    # For Arctic
+  - pip
+# Scientific computing
+  - numba
+  - numpy=1.21    # For Arctic
+  - pandas
+  - scipy
+  - xarray>=2022.06
+  - sep
+  - xarray-datatree>=0.0.12
+  - poppy>=1.1.0
+  # Plotting
+  - matplotlib>=3.1
+  - seaborn
+  - hvplot
+# Parallel computing
+  - dask>=2.9
+  - dask-labextension
+# Jupyter notebook
+  - ipywidgets>=7.5
+  - jupyterlab
+  - ipympl              # Interactive Matplotlib in Jupyter
+# Input/Output
+  - astropy>=4.3
+  - fsspec>=2021
+  - aiohttp             # For fsspec
+  - h5py
+  - pyyaml
+  - xlrd
+  - openpyxl
+  - netcdf4
+  - h5netcdf
+  - asdf
+# Others
+  - attrs
+  - click
+  - tqdm
+  - typing-extensions
+  - pygmo>=2.16.1
+  - pympler
+  - pillow
+  - scikit-image
+# Code formatting
+  - black>=20
+  - isort>=5
+  - jupyterlab_code_formatter
+# Documentation
+  - doc8
+  - sphinx
+  - sphinx-book-theme
+  - sphinxcontrib-bibtex
+  - sphinx-panels
+  - sphinx-inline-tabs
+  - myst-nb
+  - sphinx-copybutton
+#  - jupyter-book
+# Development
+  - flake8
+  - mypy
+  - pre-commit
+  - pytest
+  - pytest-httpserver
+  - pytest-mock
+  - tox
+  - tryceratops
+  - freezegun
+  - codespell
+# Profiling
+  - pyinstrument
+  - memray
+# For Arctic (needed for the installation)
+  - gsl
+  - llvm
+  - llvm-openmp
+# Pip packages
+  - pip:
+#    - --no-deps
+    - lacosmic
