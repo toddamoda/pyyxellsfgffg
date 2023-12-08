@@ -12,6 +12,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 ## UNRELEASED
 
 ### Core
+* Improved method `Detector.to_xarray()`.
+  (See [!787](https://gitlab.com/esa/pyxel/-/merge_requests/787)).
 
 ### Documentation
 
