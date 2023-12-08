@@ -19,7 +19,7 @@ from pyxel.detectors import CCD
 from pyxel.exposure import run_exposure_pipeline
 from pyxel.observation import Observation, ParameterMode
 from pyxel.pipelines import DetectionPipeline, Processor
-from pyxel.state import get_obj_att
+from pyxel.pipelines.processor import _get_obj_att
 
 expected_sequential = [
     (0, [("level", 10), ("initial_energy", 100)]),
@@ -55,7 +55,7 @@ def get_value(obj: Any, key: str) -> Any:
     The above example works as well for a user-defined object with a attribute
     objects, i.e. configuration object model.
     """
-    obj, att = get_obj_att(obj, key)
+    obj, att = _get_obj_att(obj, key)
 
     if isinstance(obj, dict) and att in obj:
         value = obj[att]
@@ -72,7 +72,7 @@ def debug_parameters(observation: Observation, processor: Processor) -> list:
     for i, (proc, _, _) in enumerate(processor_generator):
         values = []
         for step in observation.enabled_steps:
-            _, att = get_obj_att(proc, step.key)
+            _, att = _get_obj_att(proc, step.key)
             value = get_value(proc, step.key)
             values.append((att, value))
         logging.debug("%d: %r", i, values)
