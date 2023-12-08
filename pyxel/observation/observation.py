@@ -7,7 +7,6 @@
 
 """Parametric mode class and helper functions."""
 import itertools
-import logging
 from collections import Counter
 from collections.abc import Iterable, Iterator, Mapping, MutableMapping, Sequence
 from copy import deepcopy
@@ -27,7 +26,6 @@ from tqdm.auto import tqdm
 from pyxel.exposure import Readout, run_exposure_pipeline, run_pipeline
 from pyxel.observation.parameter_values import ParameterType, ParameterValues
 from pyxel.pipelines import ResultId, get_result_id
-from pyxel.state import get_obj_att, get_value
 
 if TYPE_CHECKING:
     import xarray as xr
@@ -1018,29 +1016,6 @@ class Observation:
         ds.attrs.update({"running mode": "Observation - Sequential"})
 
         return ds
-
-    def debug_parameters(self, processor: "Processor") -> list:
-        """List the parameters using processor parameters in processor generator.
-
-        Parameters
-        ----------
-        processor: Processor
-
-        Returns
-        -------
-        result: list
-        """
-        result = []
-        processor_generator = self._processors_it(processor=processor)
-        for i, (proc, _, _) in enumerate(processor_generator):
-            values = []
-            for step in self.enabled_steps:
-                _, att = get_obj_att(proc, step.key)
-                value = get_value(proc, step.key)
-                values.append((att, value))
-            logging.debug("%d: %r", i, values)
-            result.append((i, values))
-        return result
 
 
 def create_new_processor(
