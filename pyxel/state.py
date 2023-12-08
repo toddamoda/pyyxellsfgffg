@@ -13,21 +13,34 @@ __all__ = ["get_obj_att"]
 
 # TODO: Refactor this function ?
 def get_obj_att(obj: Any, key: str, obj_type: Optional[type] = None) -> tuple[Any, str]:
-    """Get the object associated with the key.
+    """Retrieve an object associated with a specified key.
 
-    Example::
+    The function is versatile and can be applied to dictionaries, lists,
+    or user-defined objects, such as configuration models.
 
-        >>> obj = {"processor": {"pipeline": {"models": [1, 2, 3]}}}
-        >>> om.get_obj_att(obj, "processor.pipeline.models")
-        ({'models': [1, 2, 3]}, 'models')
+    Parameters
+    ----------
+    obj : Any
+        The target object from which to extract the desired attribute.
+    key : str
+        A string representing the attribute path within the object.
+        Nested attributes are separated by dots.
+    obj_type
+        An optional parameter specifying the expected type of the retrieved object.
+        If provided, the function ensures that the final object matches this type.
 
-    The above example works as well for a user-defined object with a attribute
-    objects, i.e. configuration object model.
+    Returns
+    -------
+    A tuple containing two elements
 
-    :param obj:
-    :param key:
-    :param obj_type:
-    :return: the object and attribute name tuple
+    1. The object associated with the specified key.
+    2. The name of the attribute, extracted from the key.
+
+    Examples
+    --------
+    >>> obj = {"processor": {"pipeline": {"models": [1, 2, 3]}}}
+    >>> get_obj_att(obj, "processor.pipeline.models")
+    ({'models': [1, 2, 3]}, 'models')
     """
     *body, tail = key.split(".")
     for part in body:
