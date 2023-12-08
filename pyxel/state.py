@@ -9,7 +9,7 @@
 from collections.abc import Mapping, Sequence
 from typing import Any, Optional
 
-__all__ = ["get_obj_att", "get_obj_by_type", "get_value", "get_state_ids", "copy_state"]
+__all__ = ["get_obj_att", "get_obj_by_type", "get_state_ids", "copy_state"]
 
 
 # TODO: Remove this function ? See issue #230.
@@ -145,33 +145,6 @@ def get_state_ids(
             for i, value in enumerate(obj):
                 get_state_ids(value, [*parent_key_list, str(i)], result)
     return result
-
-
-# TODO: Remove this function ? See issue #230.
-def get_value(obj: Any, key: str) -> Any:
-    """Retrieve the attribute value of the object given the attribute dot formatted key chain.
-
-    Example::
-
-        >>> obj = {"processor": {"pipeline": {"models": [1, 2, 3]}}}
-        >>> om.get_value(obj, "processor.pipeline.models")
-        [1, 2, 3]
-
-    The above example works as well for a user-defined object with a attribute
-    objects, i.e. configuration object model.
-
-    :param obj:
-    :param key:
-    :return:
-    """
-    obj, att = get_obj_att(obj, key)
-
-    if isinstance(obj, dict) and att in obj:
-        value = obj[att]
-    else:
-        value = getattr(obj, att)
-
-    return value
 
 
 # TODO: Remove this function ? See issue #230.
