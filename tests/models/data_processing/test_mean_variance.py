@@ -5,15 +5,23 @@
 #   this file, may be copied, modified, propagated, or distributed except according to
 #   the terms contained in the file ‘LICENCE.txt’.
 
-import datatree.testing
 import numpy as np
+import pytest
 import xarray as xr
 from datatree import DataTree
 
 from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
 from pyxel.models.data_processing import mean_variance
 
+# TODO: Remove this hack
+if xr.__version__ != "2023.12.0":
+    from datatree.testing import assert_equal
 
+
+@pytest.mark.skipif(
+    xr.__version__ == "2023.12.0",
+    reason="Issue with Xarray version 2023.12.0 and DataTree",
+)
 def test_mean_variance():
     """Test model 'mean_variance'."""
     # Create fake photons for three different times
@@ -52,7 +60,7 @@ def test_mean_variance():
     expected_photon_step1 = DataTree().from_dict(
         {"mean_variance/partial/photon": expected_mean_variance.isel(mean=[0])}
     )
-    datatree.testing.assert_equal(detector.data, expected_photon_step1)
+    assert_equal(detector.data, expected_photon_step1)
 
     # Step 2
     detector.photon.array = photons.isel(time=1).to_numpy()
@@ -61,7 +69,7 @@ def test_mean_variance():
     expected_photon_step2 = DataTree().from_dict(
         {"mean_variance/partial/photon": expected_mean_variance.isel(mean=[1, 0])}
     )
-    datatree.testing.assert_equal(detector.data, expected_photon_step2)
+    assert_equal(detector.data, expected_photon_step2)
 
     # Step 3
     detector.photon.array = photons.isel(time=2).to_numpy()
@@ -70,4 +78,4 @@ def test_mean_variance():
     expected_photon_step3 = DataTree().from_dict(
         {"mean_variance/partial/photon": expected_mean_variance.isel(mean=[2, 1, 0])}
     )
-    datatree.testing.assert_equal(detector.data, expected_photon_step3)
+    assert_equal(detector.data, expected_photon_step3)

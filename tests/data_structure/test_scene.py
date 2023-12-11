@@ -8,9 +8,12 @@
 import pytest
 import xarray as xr
 from datatree import DataTree
-from datatree.testing import assert_identical
 
 from pyxel.data_structure import Scene
+
+# TODO: Remove this hack
+if xr.__version__ != "2023.12.0":
+    from datatree.testing import assert_identical
 
 
 @pytest.fixture
@@ -35,6 +38,10 @@ def source() -> xr.Dataset:
     )
 
 
+@pytest.mark.skipif(
+    xr.__version__ == "2023.12.0",
+    reason="Issue with Xarray version 2023.12.0 and DataTree",
+)
 def test_empty_scene():
     """Tests with an empty Scene."""
     scene = Scene()
@@ -49,6 +56,10 @@ def test_empty_scene():
     assert scene == other_scene
 
 
+@pytest.mark.skipif(
+    xr.__version__ == "2023.12.0",
+    reason="Issue with Xarray version 2023.12.0 and DataTree",
+)
 def test_add_source(source: xr.Dataset):
     """Test method 'Scene.add_source'."""
     scene = Scene()
@@ -71,6 +82,10 @@ def test_add_source(source: xr.Dataset):
     assert scene == another_scene
 
 
+@pytest.mark.skipif(
+    xr.__version__ == "2023.12.0",
+    reason="Issue with Xarray version 2023.12.0 and DataTree",
+)
 def test_add_source_twice(source: xr.Dataset):
     """Test method 'Scene.add_source'."""
     scene = Scene()
