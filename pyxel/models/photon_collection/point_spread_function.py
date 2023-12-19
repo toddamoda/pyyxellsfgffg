@@ -12,13 +12,15 @@ from pathlib import Path
 from typing import Union
 
 import numpy as np
+import xarray as xr
 from astropy import units as u
 from astropy.convolution import convolve_fft
-from astropy.io import fits
-from astropy.units import Quantity
 
 from pyxel.detectors import Detector
 from pyxel.inputs import load_image
+from pyxel.inputs.loader import load_image_v2, load_table_v2
+
+# from astropy.units import Quantity
 
 
 def apply_psf(
@@ -75,51 +77,86 @@ def load_psf(
 
 
 def load_wavelength_psf(
-    detector: Detector, filename: Union[str, Path], normalize_kernel: bool = True
-) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """
-    Read psf files depending on simulation and instrument parameters.
+    detector: Detector,
+    filename: Union[str, Path],
+    wavelength_col: str,
+    y_col: str,
+    x_col: str,
+    wavelength_table_name: str,
+    normalize_kernel: bool = True,
+):
+    """Read psf files depending on simulation and instrument parameters.
 
     Parameters
     ----------
     detector : Detector
-        Pyxel Detector object.
+            Pyxel Detector object.
     filename : Path or str
         Input filename of the point spread function.
+    wavelength_col : str
+        Dimension name in the file that contains the wavelength information.
+    y_col : str
+        Dimension name in the file that contains the y information.
+    x_col : str
+        Dimension name in the file that contains the x information.
+    wavelength_table_name : str
+        Column name in the file that contains the wavelength information.
     normalize_kernel : bool
-        Normalize kernel.
+            Normalize kernel.
     """
-    # Returns
-    # -------
-    # psf_datacube : ndarray
-    #     3D array, PSF for each wavelength saved as array, one for each wavelength
-    #     waves (1D array) wavelength. Unit: um.
-    # psf_wavelength : ndarray
-    #     1D array, wavelengths. Unit: um.
-    # line_pos_psf : ndarray
-    #     1D array, x position of the PSF at each wavelength.
-    # col_pos_psf : ndarray
-    #     1D array, y position of the PSF at each wavelength.
 
-    # rewrite load_image, that if 3d dayacube it will be possible to read waveength as 3rd dimension.
-    # Open fits
-    with fits.open(filename) as hdu:
-        psf_datacube, table = hdu[0].data, hdu[1].data
-
-        # Position of the PSF on FOV window along line
-        line_psf_pos = (table["x_centers"]).astype(int)
-
-        # Position of the PSF on FOV window along col
-        col_psf_pos = (table["y_centers"]).astype(int)
-
-        # Wavelength
-        psf_wavelength = table["waves"] * u.micron
-
-    # where to store the wavelength information?
-    detector.photon.array = apply_psf(
-        array=detector.photon3d.array,
-        psf=psf_datacube,
-        normalize_kernel=normalize_kernel,
+    data = load_image_v2(
+        filename=filename,
+        data_path=0,
+        rename_dims={"wavelength": wavelength_col, "y": y_col, "x": x_col},
     )
 
-    # return psf_datacube, psf_wavelength, line_psf_pos, col_psf_pos
+    table = load_table_v2(
+        filename=filename,
+        data_path=1,
+        rename_cols={"wavelength": wavelength_table_name},
+    )
+
+    wavelength_da = xr.DataArray(
+        # to remove facotr 100, as soon as there is data in same wavelength range available!
+        table.wavelength * 100,
+        dims=["wavelength"],
+        coords={"wavelength": (table.wavelength * 100)},
+        attrs={"units": u.nm.to_string("unicode")},
+    )
+
+    da = xr.DataArray(
+        np.asarray(data, dtype=float),
+        dims=["wavelength", "y", "x"],
+        coords={"wavelength": wavelength_da},
+    )
+
+    interpolated_array = da.interp_like(detector.photon3d.array)
+
+    new_array = interpolated_array.dropna(dim="wavelength", how="any")
+
+    # detector.photon3d.array = apply_psf(
+    #     array=detector.photon3d.array,
+    #     psf=psf_datacube,
+    #     normalize_kernel=normalize_kernel,
+    # )
+
+    # mean = detector.photon3d.array.mean(dim=["y", "x"]) # list of values.
+    array_3d = convolve_fft(
+        detector.photon3d.array,
+        kernel=new_array.values,
+        boundary="fill",
+        # fill_value=mean,
+        normalize_kernel=normalize_kernel,
+        allow_huge=True,
+    )
+
+    psf = xr.DataArray(
+        array_3d,
+        dims=["wavelength", "y", "x"],
+        coords={"wavelength": interpolated_array.wavelength},
+    )
+
+    # integrated = psf.integrate(coord="wavelength")
+
+    detector.photon3d.array = psf
