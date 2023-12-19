@@ -152,15 +152,9 @@ def load_image_v2(
             if image_data.ndim == 2:
                 data_array = xr.DataArray(image_data, dims=["y", "x"])
             elif image_data.ndim == 3:
-                dims = []
-                for ax in [0, 1, 2]:
-                    for key, value in rename_dims.items():
-                        if value == ax:
-                            dims.append(key)
-                            break
-                    else:
-                        raise ValueError
-                data_array = xr.DataArray(image_data, dims=dims)
+                da_array = xr.DataArray(image_data)
+                col_new = {value: key for key, value in rename_dims.items()}
+                data_array = da_array.rename(col_new)
             else:
                 raise NotImplementedError()
 
