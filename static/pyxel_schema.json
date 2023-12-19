@@ -1593,6 +1593,9 @@
                 "$ref": "#/definitions/ModelPhotonCollectionLoadPsf"
               },
               {
+                "$ref": "#/definitions/ModelPhotonCollectionLoadWavelengthPsf"
+              },
+              {
                 "$ref": "#/definitions/ModelPhotonCollectionOpticalPsf"
               },
               {
@@ -5629,6 +5632,83 @@
         "arguments"
       ],
       "title": "Model 'load_psf'",
+      "type": "object"
+    },
+    "ModelPhotonCollectionLoadWavelengthPsf": {
+      "additionalProperties": false,
+      "description": "Read psf files depending on simulation and instrument parameters.",
+      "properties": {
+        "arguments": {
+          "additionalProperties": false,
+          "properties": {
+            "filename": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "format": "uri",
+                  "type": "string"
+                }
+              ],
+              "description": "Input filename of the point spread function.",
+              "title": "filename"
+            },
+            "normalize_kernel": {
+              "default": true,
+              "description": "Normalize kernel.",
+              "title": "normalize_kernel",
+              "type": "boolean"
+            },
+            "wavelength_col": {
+              "description": "Dimension name in the file that contains the wavelength information.",
+              "title": "wavelength_col",
+              "type": "string"
+            },
+            "wavelength_table_name": {
+              "description": "Column name in the file that contains the wavelength information.",
+              "title": "wavelength_table_name",
+              "type": "string"
+            },
+            "x_col": {
+              "description": "Dimension name in the file that contains the x information.",
+              "title": "x_col",
+              "type": "string"
+            },
+            "y_col": {
+              "description": "Dimension name in the file that contains the y information.",
+              "title": "y_col",
+              "type": "string"
+            }
+          },
+          "required": [
+            "filename",
+            "wavelength_col",
+            "y_col",
+            "x_col",
+            "wavelength_table_name"
+          ],
+          "title": "Parameters",
+          "type": "object"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "func": {
+          "const": "pyxel.models.photon_collection.load_wavelength_psf",
+          "default": "pyxel.models.photon_collection.load_wavelength_psf",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "arguments"
+      ],
+      "title": "Model 'load_wavelength_psf'",
       "type": "object"
     },
     "ModelPhotonCollectionOpticalPsf": {
