@@ -26,7 +26,8 @@ dependencies:
   - pip
 # Scientific computing
   - numba
-  - numpy>=1.21
+#  - numpy>=1.21
+  - numpy<2
   - pandas
   - scipy
   - xarray>=2022.06
