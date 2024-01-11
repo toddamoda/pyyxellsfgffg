@@ -213,7 +213,9 @@ def run_exposure_pipeline(
 
             detector.empty(empty_all)
 
-            processor.run_pipeline()
+            processor.run_pipeline(
+                with_intermediate_steps=False,  # Not supported here
+            )
 
             if outputs and detector.read_out:
                 outputs.save_to_file(processor)

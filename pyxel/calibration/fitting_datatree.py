@@ -410,6 +410,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
                     processor=processor,
                     readout=self.readout,
                     pipeline_seed=self.pipeline_seed,
+                    with_intermediate_steps=False,  # Not supported in Observation mode
                 )
 
                 logger.setLevel(prev_log_level)
@@ -486,6 +487,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
             processor=new_processor,
             readout=self.readout,
             pipeline_seed=self.pipeline_seed,
+            with_intermediate_steps=False,  # Not supported in Observation mode
         )
 
         return data_tree
