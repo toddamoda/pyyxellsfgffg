@@ -280,10 +280,10 @@ class ModelFittingDataTree(ProblemSingleObjective):
                 if var.boundaries.ndim == 1:
                     low_val, high_val = var.boundaries
 
-                    low_values: NDArray[np.float_] = np.array(
+                    low_values: NDArray[np.float64] = np.array(
                         [low_val] * len(var.values)
                     )
-                    high_values: NDArray[np.float_] = np.array(
+                    high_values: NDArray[np.float64] = np.array(
                         [high_val] * len(var.values)
                     )
 
