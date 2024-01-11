@@ -321,13 +321,13 @@ def _extract_datatree(detector: "Detector", keys: Sequence[ResultId]) -> DataTre
 def run_pipeline(
     processor: Processor,
     readout: "Readout",
+    with_intermediate_steps: bool,
     outputs: Union[
         "CalibrationOutputs", "ObservationOutputs", "ExposureOutputs", None
     ] = None,
     progressbar: bool = False,
     result_type: ResultId = ResultId("all"),  # noqa: B008
     pipeline_seed: Optional[int] = None,
-    with_intermediate_steps: bool = False,
 ) -> DataTree:
     """Run standalone exposure pipeline.
 
@@ -335,6 +335,7 @@ def run_pipeline(
     ----------
     processor : Processor
     readout : Readout
+    with_intermediate_steps : bool
     outputs : DynamicOutputs
         Sampling outputs.
     progressbar : bool
@@ -342,7 +343,6 @@ def run_pipeline(
     result_type : ResultId
     pipeline_seed : int
         Random seed for the pipeline.
-    with_intermediate_steps : bool
 
     Returns
     -------

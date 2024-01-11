@@ -194,7 +194,7 @@ class Processor:
             setattr(obj, att, new_value)
 
     # TODO: Create a method `DetectionPipeline.run`
-    def run_pipeline(self, with_intermediate_steps: bool = False) -> None:
+    def run_pipeline(self, with_intermediate_steps: bool) -> None:
         """Run a pipeline with all its models in the right order.
 
         Parameters
