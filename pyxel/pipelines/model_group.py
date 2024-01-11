@@ -64,7 +64,7 @@ class ModelGroup:
     def run(
         self,
         detector: "Detector",
-        with_intermediate_steps: bool = False,
+        with_intermediate_steps: bool,
     ):
         """Execute each enabled model in this group.
 
