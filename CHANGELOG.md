@@ -24,6 +24,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
   (See [!792](https://gitlab.com/esa/pyxel/-/merge_requests/792)).
 * Fix for Xarray 2023.12.0.
   (See [!793](https://gitlab.com/esa/pyxel/-/merge_requests/793)).
+* Prepare for Numpy 2.
+  (See [!795](https://gitlab.com/esa/pyxel/-/merge_requests/795)).
 
 
 ## 1.13.1 / 2023-11-28
