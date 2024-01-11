@@ -895,6 +895,7 @@ class Observation:
             readout=self.readout,
             result_type=self.result_type,
             pipeline_seed=self.pipeline_seed,
+            with_intermediate_steps=False,  # Not supported in Observation mode
         )
 
         _ = self.outputs.save_to_file(
