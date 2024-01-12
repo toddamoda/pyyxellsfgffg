@@ -135,12 +135,12 @@ class Algorithm:
         self._nlopt_selection = nlopt_selection
 
     @property
-    def type(self) -> AlgorithmType:  # noqa: A003
+    def type(self) -> AlgorithmType:
         """TBW."""
         return self._type
 
     @type.setter
-    def type(self, value: AlgorithmType) -> None:  # noqa: A003
+    def type(self, value: AlgorithmType) -> None:
         """TBW."""
         self._type = AlgorithmType(value)
 

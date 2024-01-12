@@ -114,7 +114,7 @@ def conversion_with_qe_map(
         align=align,
     )
 
-    if not np.all((0 <= qe) & (qe <= 1)):
+    if not np.all((qe >= 0) & (qe <= 1)):
         raise ValueError("Quantum efficiency values not between 0 and 1.")
 
     with set_random_seed(seed):

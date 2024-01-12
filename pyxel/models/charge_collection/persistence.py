@@ -317,7 +317,7 @@ def persistence(
         trap_densities_2d, nan=0.0, posinf=0.0, neginf=0.0
     )
 
-    if not np.all((0 <= trap_densities_2d) & (trap_densities_2d <= 1)):
+    if not np.all((trap_densities_2d >= 0) & (trap_densities_2d <= 1)):
         raise ValueError("Trap density map values not between 0 and 1.")
 
     if not detector.has_persistence():
