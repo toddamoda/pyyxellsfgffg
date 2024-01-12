@@ -20,22 +20,24 @@
 name: pyxel-dev
 channels:
   - conda-forge
-  - numba
 dependencies:
 # Python
   - python=3.11
   - pip
 # Scientific computing
   - numba
-  - numpy>=1.21
+#  - numpy>=1.21
+  - numpy<2
   - pandas
   - scipy
   - xarray>=2022.06
   - sep
   - xarray-datatree>=0.0.12
   - poppy>=1.1.0
+  - specutils
+  - synphot
   # Plotting
-  - matplotlib>=3.1
+  - matplotlib-base>=3.1
   - seaborn
   - hvplot
 # Parallel computing
@@ -47,6 +49,7 @@ dependencies:
   - ipympl              # Interactive Matplotlib in Jupyter
 # Input/Output
   - astropy>=4.3
+  - astroquery
   - fsspec>=2021
   - aiohttp             # For fsspec
   - h5py

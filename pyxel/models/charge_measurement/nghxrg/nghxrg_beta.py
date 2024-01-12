@@ -85,7 +85,7 @@ from typing import Literal, Optional
 import numpy as np
 from astropy.io import fits
 from astropy.stats.funcs import median_absolute_deviation as mad
-from scipy.ndimage.interpolation import zoom
+from scipy.ndimage import zoom
 
 
 def white_noise(nstep: int) -> np.ndarray:

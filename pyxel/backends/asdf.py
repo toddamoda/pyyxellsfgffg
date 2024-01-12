@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -21,8 +21,8 @@ def to_asdf(filename: Union[str, Path], dct: Mapping[str, Any]) -> None:
     """Write data to a ASDF file."""
     try:
         import asdf
-    except ImportError as exc:
-        raise ImportError(
+    except ModuleNotFoundError as exc:
+        raise ModuleNotFoundError(
             "Missing optional package 'asdf'.\n"
             "Please install it with 'pip install pyxel-sim[io]' "
             "or 'pip install pyxel-sim[all]'"
@@ -56,8 +56,8 @@ def from_asdf(filename: Union[str, Path]) -> Iterator[Mapping[str, Any]]:
 
     try:
         import asdf
-    except ImportError as exc:
-        raise ImportError(
+    except ModuleNotFoundError as exc:
+        raise ModuleNotFoundError(
             "Missing optional package 'asdf'.\n"
             "Please install it with 'pip install pyxel-sim[io]' "
             "or 'pip install pyxel-sim[all]'"

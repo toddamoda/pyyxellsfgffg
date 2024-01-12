@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -23,7 +23,7 @@ try:
     import poppy as op
 
     WITH_POPPY: bool = True
-except ImportError:
+except ModuleNotFoundError:
     WITH_POPPY = False
 
 
@@ -360,7 +360,7 @@ def calc_psf(
         Tuple of lists containing the psf and intermediate wavefronts.
     """
     if not WITH_POPPY:
-        raise ImportError(
+        raise ModuleNotFoundError(
             "Missing optional package 'poppy'.\n"
             "Please install it with 'pip install pyxel-sim[model]' "
             "or 'pip install pyxel-sim[all]'"

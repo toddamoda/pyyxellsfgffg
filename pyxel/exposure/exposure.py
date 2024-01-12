@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -109,14 +109,14 @@ class Exposure:
     def run_exposure_new(
         self,
         processor: Processor,
-        with_intermediate_steps: bool,
+        debug: bool,
     ) -> DataTree:
         """Run an observation pipeline.
 
         Parameters
         ----------
         processor : Processor
-        with_intermediate_steps : bool
+        debug : bool
 
         Returns
         -------
@@ -132,7 +132,7 @@ class Exposure:
             progressbar=progressbar,
             result_type=self.result_type,
             pipeline_seed=self.pipeline_seed,
-            with_intermediate_steps=with_intermediate_steps,
+            debug=debug,
         )
 
         data_tree.attrs["running mode"] = "Exposure"
@@ -213,7 +213,9 @@ def run_exposure_pipeline(
 
             detector.empty(empty_all)
 
-            processor.run_pipeline()
+            processor.run_pipeline(
+                debug=False,  # Not supported here
+            )
 
             if outputs and detector.read_out:
                 outputs.save_to_file(processor)
@@ -327,7 +329,7 @@ def _extract_datatree(detector: "Detector", keys: Sequence[ResultId]) -> DataTre
 def run_pipeline(
     processor: Processor,
     readout: "Readout",
-    with_intermediate_steps: bool,
+    debug: bool,
     outputs: Union[
         "CalibrationOutputs", "ObservationOutputs", "ExposureOutputs", None
     ] = None,
@@ -341,7 +343,7 @@ def run_pipeline(
     ----------
     processor : Processor
     readout : Readout
-    with_intermediate_steps : bool
+    debug : bool
     outputs : DynamicOutputs
         Sampling outputs.
     progressbar : bool
@@ -397,7 +399,7 @@ def run_pipeline(
             detector.empty(is_destructive_readout)
 
             # Run one pipeline
-            processor.run_pipeline(with_intermediate_steps=with_intermediate_steps)
+            processor.run_pipeline(debug=debug)
 
             # Save results in file(s) (if needed)
             if outputs and detector.read_out:
@@ -423,10 +425,12 @@ def run_pipeline(
             if progressbar:
                 pbar.update(1)
 
-        if with_intermediate_steps:
-            # Remove temporary data_tree '/intermediate/last'
-            datatree_intermediate: DataTree = detector.data["intermediate"]  # type: ignore
+        if debug:
+            # Remove temporary data_tree '/last'
+            datatree_intermediate: DataTree = detector.intermediate
             del datatree_intermediate["last"]
+
+            data_tree["/intermediate"] = detector.intermediate
 
         if "scene" in keys:
             data_tree["/scene"] = detector.scene.data

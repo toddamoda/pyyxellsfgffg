@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -895,6 +895,7 @@ class Observation:
             readout=self.readout,
             result_type=self.result_type,
             pipeline_seed=self.pipeline_seed,
+            debug=False,  # Not supported in Observation mode
         )
 
         _ = self.outputs.save_to_file(
