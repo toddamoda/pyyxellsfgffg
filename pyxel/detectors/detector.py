@@ -205,6 +205,7 @@ class Detector:
         ds = xr.Dataset()
         # ds["scene"] = self.scene.to_xarray()
         ds["photon"] = self.photon.to_xarray()
+        ds["photon3d"] = self.photon3d.to_xarray()
         ds["charge"] = self.charge.to_xarray()
         ds["pixel"] = self.pixel.to_xarray()
         ds["signal"] = self.signal.to_xarray()
