@@ -148,7 +148,7 @@ def load_wavelength_psf(
         boundary="fill",
         # fill_value=mean,
         normalize_kernel=normalize_kernel,
-        allow_huge=True,
+        # allow_huge=True, # not needed anymore with reduced kernel.
     )
 
     psf = xr.DataArray(
