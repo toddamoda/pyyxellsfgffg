@@ -104,53 +104,54 @@ def load_wavelength_psf(
     normalize_kernel : bool
             Normalize kernel.
     """
-
+    # load fits image
     data = load_image_v2(
         filename=filename,
         data_path=0,
         rename_dims={"wavelength": wavelength_col, "y": y_col, "x": x_col},
     )
 
+    # load wavelength information from table
     table = load_table_v2(
         filename=filename,
         data_path=1,
         rename_cols={"wavelength": wavelength_table_name},
     )
 
+    # save table information into DataArray.
     wavelength_da = xr.DataArray(
-        # to remove facotr 100, as soon as there is data in same wavelength range available!
-        table.wavelength * 100,
+        table.wavelength,
         dims=["wavelength"],
-        coords={"wavelength": (table.wavelength * 100)},
+        coords={"wavelength": table.wavelength},
         attrs={"units": u.nm.to_string("unicode")},
     )
-
+    # save image information into DataArray with wavelength info from table.
     da = xr.DataArray(
         np.asarray(data, dtype=float),
         dims=["wavelength", "y", "x"],
         coords={"wavelength": wavelength_da},
     )
 
+    # interpolate array along wavelength dimension
     interpolated_array = da.interp_like(detector.photon3d.array)
 
-    new_array = interpolated_array.dropna(dim="wavelength", how="any")
+    # drop nan values.
+    kernel = interpolated_array.dropna(dim="wavelength", how="any")
 
-    # detector.photon3d.array = apply_psf(
-    #     array=detector.photon3d.array,
-    #     psf=psf_datacube,
-    #     normalize_kernel=normalize_kernel,
-    # )
+    # TODO check that kernel size is not to large and kernel has 3 dimensions.
+    # if kernel.shape > (200, 50, 50):
+    #     raise ValueError("Input PSF used as kernel to convolute with input photon arrat needs to be smaller than "
+    #                      "(200, 50, 50). Please reduce the size of the PSF input file, e.g. "
+    #                      "with skimage.transform.resize(image, (200, 10, 10)).")
 
-    # mean = detector.photon3d.array.mean(dim=["y", "x"]) # list of values.
+    # convolve the input 3d photon array with the psf kernel
     array_3d = convolve_fft(
         detector.photon3d.array,
-        kernel=new_array.values,
-        boundary="fill",
-        # fill_value=mean,
+        kernel=kernel.values,
         normalize_kernel=normalize_kernel,
-        # allow_huge=True, # not needed anymore with reduced kernel.
     )
 
+    # save psf into a DataArray
     psf = xr.DataArray(
         array_3d,
         dims=["wavelength", "y", "x"],
