@@ -39,7 +39,6 @@ dependencies = [
     "scipy",
     "xarray>=2022.06",
     "xarray-datatree>=0.0.12",
-    "sep",
 
     # Plotting
     "matplotlib>=3.1",
@@ -91,7 +90,8 @@ tracker = "https://gitlab.com/esa/pyxel/issues"
 calibration = [ "pygmo>=2.16.1" ]
 model = [
     "poppy>=1.1.0",
-    "lacosmic"
+    "lacosmic",
+    "sep",    # 'sep' is not available for Python 3.11+ via PyPi (only with conda)
 ]
 io = [ "asdf" ]
 all = [
