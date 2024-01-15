@@ -518,7 +518,7 @@ def run_mode(
 
     Notes
     -----
-    Parameter ``with_intermediate_steps`` is not (yet) stable and may change in the future.
+    Parameter ``debug`` is not (yet) stable and may change in the future.
 
     Returns
     -------
@@ -530,7 +530,7 @@ def run_mode(
         Raised if the ``mode`` is not valid.
 
     NotImplementedError
-        Raised if parameter ``with_intermediate_steps`` is activated and `mode` is not an ``Exposure`` object.
+        Raised if parameter ``debug`` is activated and `mode` is not an ``Exposure`` object.
 
     Examples
     --------
@@ -755,7 +755,7 @@ def run_mode(
 
     if debug and isinstance(mode, (Observation, Calibration)):
         raise NotImplementedError(
-            "Parameter 'with_intermediate_steps' is not implemented for 'Observation'"
+            "Parameter 'debug' is not implemented for 'Observation'"
             " and 'Calibration' modes."
         )
 
