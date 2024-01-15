@@ -107,14 +107,14 @@ def load_wavelength_psf(
     # load fits image
     data = load_image_v2(
         filename=filename,
-        data_path=0,
+        data_path=0,  # TODO: remove magical value
         rename_dims={"wavelength": wavelength_col, "y": y_col, "x": x_col},
     )
 
     # load wavelength information from table
     table = load_table_v2(
         filename=filename,
-        data_path=1,
+        data_path=1,  # TODO: remove magical value
         rename_cols={"wavelength": wavelength_table_name},
     )
 
@@ -133,10 +133,14 @@ def load_wavelength_psf(
     )
 
     # interpolate array along wavelength dimension
-    interpolated_array = da.interp_like(detector.photon3d.array)
+    interpolated_array: xr.DataArray = da.interp_like(detector.photon3d.array)
 
     # drop nan values.
-    kernel = interpolated_array.dropna(dim="wavelength", how="any")
+    kernel: xr.DataArray = interpolated_array.dropna(dim="wavelength", how="any")
+
+    integrated: xr.DataArray = kernel.integrate(coord="wavelength")
+
+    mean: xr.DataArray = integrated.mean(dim=["y", "x"])
 
     # TODO check that kernel size is not to large and kernel has 3 dimensions.
     # if kernel.shape > (200, 50, 50):
@@ -145,9 +149,11 @@ def load_wavelength_psf(
     #                      "with skimage.transform.resize(image, (200, 10, 10)).")
 
     # convolve the input 3d photon array with the psf kernel
-    array_3d = convolve_fft(
-        detector.photon3d.array,
-        kernel=kernel.values,
+    array_3d: np.ndarray = convolve_fft(
+        detector.photon3d.array.to_numpy(),
+        kernel=kernel.to_numpy(),
+        boundary="fill",
+        fill_value=float(mean),
         normalize_kernel=normalize_kernel,
     )
 
