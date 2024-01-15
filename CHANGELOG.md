@@ -20,6 +20,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
   (See [!799](https://gitlab.com/esa/pyxel/-/merge_requests/799)).
 
 ### Documentation
+* Add documentation for `Detector.scene`.
+  (See [!800](https://gitlab.com/esa/pyxel/-/merge_requests/800)).
 
 ### Models
 * Add a caching mechanism with model `load_star_map` from `Scene Generation`.
