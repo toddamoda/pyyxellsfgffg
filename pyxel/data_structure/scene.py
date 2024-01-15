@@ -18,7 +18,11 @@ if TYPE_CHECKING:
 
 
 class Scene:
-    """Scene class defining and storing information of all multi-wavelength photon."""
+    """Scene class defining and storing information of all multi-wavelength photons.
+
+    Multi-wavelength photon information are store in form of xarray Datasets
+    within a hierarchical structure.
+    """
 
     def __init__(self):
         self._source: DataTree = DataTree(name="scene")
@@ -44,7 +48,7 @@ class Scene:
         --------
         >>> from pyxel.detectors import CCD
         >>> detector = CCD(...)
-        >>> detector._initialize()
+        >>> detector.initialize()
 
         >>> source
         <xarray.Dataset>
@@ -105,7 +109,7 @@ class Scene:
         return self._source
 
     def empty(self):
-        """Create a new source."""
+        """Create a new empty source."""
         self._source = DataTree(name="scene")
 
     def from_scopesim(self, source: "Source") -> None:

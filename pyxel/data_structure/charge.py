@@ -26,7 +26,12 @@ if TYPE_CHECKING:
 
 
 class Charge:
-    """TBW."""
+    """Charge class representing charge distribution.
+
+    This class manipulates charge data in the form of a Numpy array
+    and Pandas dataframe.
+
+    """
 
     EXP_TYPE = float
     TYPE_LIST = (
