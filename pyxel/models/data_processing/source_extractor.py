@@ -11,7 +11,6 @@ import warnings
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import sep
 import xarray as xr
 from datatree import DataTree
 from matplotlib.patches import Ellipse
@@ -46,6 +45,7 @@ def get_background(image_2d: np.ndarray):
     image_2d
         2d image array.
     """
+    import sep
 
     return sep.Background(image_2d)
 
@@ -100,6 +100,8 @@ def extract_roi(
     minarea : int
         minimum area of elements required that are above the threshold for the extractor to extract information
     """
+    import sep
+
     return sep.extract(image_2d, thresh=thresh, segmentation_map=True, minarea=minarea)
 
 
@@ -163,6 +165,15 @@ def extract_roi_to_xarray(
     ValueError
         If parameter 'array_type' is not 'pixel','signal','image',photon' or 'charge'
     """
+    try:
+        import sep
+    except ModuleNotFoundError as exc:
+        raise ModuleNotFoundError(
+            "Missing optional package 'sep'.\n"
+            "Please install it with 'pip install pyxel-sim[model]' "
+            "or 'pip install pyxel-sim[all]'"
+        ) from exc
+
     if array_type == "pixel":
         data_2d = detector.pixel.array
     elif array_type == "signal":
