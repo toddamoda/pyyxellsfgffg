@@ -9,16 +9,21 @@ Minor releases include updated stdlib stubs from typeshed.
 
 Pyxel doesn't use SemVer anymore, since most minor releases have at least minor backward incompatible changes.
 
-## UNRELEASED
+## 1.14 / 2024-01-17
+This release brings a number of bugfixes and improvements.
+
+The functions `pyxel.exposure_mode(...)`, `pyxel.observation_mode(...)` and `pyxel.calibration_mode(...)`
+are deprecated and will be removed in Pyxel 2.0.
+These functions are replaced by `pyxel.run_mode(...)`
 
 ### Core
-* Move "intermediate_steps" from data to parent data_tree..
+* Move "intermediate_steps" from data to parent data_tree.
   (See [!788](https://gitlab.com/esa/pyxel/-/merge_requests/788)).
 * Improved method `Detector.to_xarray()`.
   (See [!787](https://gitlab.com/esa/pyxel/-/merge_requests/787)).
 * Improved method `Scene.to_xarray()`.
   (See [!799](https://gitlab.com/esa/pyxel/-/merge_requests/799)).
-* Added deprecated warnings to `pyxel.calibdation_mode()`, `pyxel.exposure_mode()`, `pyxel.observation_mode()`.
+* Added deprecated warnings to `pyxel.calibration_mode()`, `pyxel.exposure_mode()`, `pyxel.observation_mode()`.
   (See [!802](https://gitlab.com/esa/pyxel/-/merge_requests/802)
   and [!804](https://gitlab.com/esa/pyxel/-/merge_requests/804)).
 
