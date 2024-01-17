@@ -43,6 +43,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
   (See [!795](https://gitlab.com/esa/pyxel/-/merge_requests/795)).
 * Parameter `with_intermediate_steps` is not optional in function `run_pipeline`.
   (See [!794](https://gitlab.com/esa/pyxel/-/merge_requests/794)).
+* Package `sep` must be an optional package`.
+  (See [!805](https://gitlab.com/esa/pyxel/-/merge_requests/805)).
 
 
 ## 1.13.1 / 2023-11-28
