@@ -7,6 +7,7 @@
 
 from collections.abc import Mapping, Sequence
 
+import numpy as np
 import pytest
 
 from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
@@ -28,7 +29,7 @@ from pyxel.models.photon_collection.poppy import (
 @pytest.fixture
 def ccd_3x3() -> CCD:
     """Create a valid CCD detector."""
-    return CCD(
+    detector = CCD(
         geometry=CCDGeometry(
             row=3,
             col=3,
@@ -39,6 +40,8 @@ def ccd_3x3() -> CCD:
         environment=Environment(),
         characteristics=Characteristics(),
     )
+    detector.photon.array = np.zeros(detector.geometry.shape, dtype=float)
+    return detector
 
 
 @pytest.mark.parametrize(

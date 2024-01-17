@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -26,7 +26,7 @@ def evaluate_reference(reference_str: str) -> Callable:
         This is usually a reference to a class or a function.
     :return: the module attribute or object.
     :rtype: object
-    :raises ImportError: if reference_str cannot be evaluated to a callable.
+    :raises ModuleNotFoundError: if reference_str cannot be evaluated to a callable.
     """
     if not reference_str:
         raise ImportError("Empty string cannot be evaluated")
@@ -45,8 +45,10 @@ def evaluate_reference(reference_str: str) -> Callable:
         # if isinstance(reference, type):
         #     # this is a class type, instantiate it using default arguments.
         #     reference = reference()
-    except ImportError as exc:
-        raise ImportError(f"Cannot import module: {module_str!r}. exc: {exc}") from exc
+    except ModuleNotFoundError as exc:
+        raise ModuleNotFoundError(
+            f"Cannot import module: {module_str!r}. exc: {exc}"
+        ) from exc
     except AttributeError as ex:
         raise ImportError(
             f"Module: {module_str}, does not contain {function_str}"

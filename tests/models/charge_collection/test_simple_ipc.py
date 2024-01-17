@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -25,7 +25,7 @@ from pyxel.models.charge_collection import simple_ipc
 @pytest.fixture
 def cmos_10x10() -> CMOS:
     """Create a valid CCD detector."""
-    return CMOS(
+    detector = CMOS(
         geometry=CMOSGeometry(
             row=10,
             col=10,
@@ -36,6 +36,8 @@ def cmos_10x10() -> CMOS:
         environment=Environment(),
         characteristics=Characteristics(),
     )
+    detector.pixel.array = np.zeros(detector.geometry.shape, dtype=float)
+    return detector
 
 
 def test_simple_ipc_valid(cmos_10x10: CMOS):

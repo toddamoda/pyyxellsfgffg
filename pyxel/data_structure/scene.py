@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -18,7 +18,11 @@ if TYPE_CHECKING:
 
 
 class Scene:
-    """Scene class defining and storing information of all multi-wavelength photon."""
+    """Scene class defining and storing information of all multi-wavelength photons.
+
+    Multi-wavelength photon information are store in form of xarray Datasets
+    within a hierarchical structure.
+    """
 
     def __init__(self):
         self._source: DataTree = DataTree(name="scene")
@@ -44,7 +48,7 @@ class Scene:
         --------
         >>> from pyxel.detectors import CCD
         >>> detector = CCD(...)
-        >>> detector.reset()
+        >>> detector.initialize()
 
         >>> source
         <xarray.Dataset>
@@ -88,7 +92,8 @@ class Scene:
             "flux",
         }:
             raise ValueError(
-                "Wrong format for source. Expecting a Dataset with variables 'x', 'y', 'weight' and 'flux'."
+                "Wrong format for source. Expecting a Dataset with variables 'x', 'y',"
+                " 'weight' and 'flux'."
             )
 
         if "list" not in self.data:
@@ -98,12 +103,14 @@ class Scene:
 
         self.data[f"/list/{key}"] = DataTree(source)
 
-    # TODO: This method will be removed in the future.
-    #       If you want to have a `Source` object, you should use method '.to_scopesim'
     @property
     def data(self) -> DataTree:
         """Get a multi-wavelength object."""
         return self._source
+
+    def empty(self):
+        """Create a new empty source."""
+        self._source = DataTree(name="scene")
 
     def from_scopesim(self, source: "Source") -> None:
         """Convert a ScopeSim `Source` object into a `Scene` object.
@@ -127,8 +134,8 @@ class Scene:
         """
         try:
             from scopesim import Source
-        except ImportError as exc:
-            raise RuntimeError(
+        except ModuleNotFoundError as exc:
+            raise ModuleNotFoundError(
                 "Package 'scopesim' is not installed ! "
                 "Please run command 'pip install scopesim' from the command line."
             ) from exc
@@ -170,5 +177,68 @@ class Scene:
 
         scene = cls()
         scene._source = DataTree.from_dict(data, name="scene")  # type: ignore
+
+        return scene
+
+    def to_xarray(self) -> xr.Dataset:
+        """Convert current scene to a xarray Dataset.
+
+        Returns
+        -------
+        xr.Dataset
+
+        Examples
+        --------
+        >>> ds = scene.to_xarray()
+        >>> ds
+        <xarray.Dataset>
+        Dimensions:     (ref: 345, wavelength: 343)
+        Coordinates:
+          * ref         (ref) int64 0 1 2 3 4 5 6 7 ... 337 338 339 340 341 342 343 344
+          * wavelength  (wavelength) float64 336.0 338.0 340.0 ... 1.018e+03 1.02e+03
+        Data variables:
+            x           (ref) float64 2.057e+05 2.058e+05 ... 2.031e+05 2.03e+05
+            y           (ref) float64 8.575e+04 8.58e+04 ... 8.795e+04 8.807e+04
+            weight      (ref) float64 11.49 14.13 15.22 14.56 ... 15.21 11.51 8.727
+            flux        (ref, wavelength) float64 0.03769 0.04137 ... 1.813 1.896
+        >>> ds["wavelength"]
+        <xarray.DataArray 'wavelength' (wavelength: 343)>
+        array([ 336.,  338.,  340., ..., 1016., 1018., 1020.])
+        Coordinates:
+          * wavelength  (wavelength) float64 336.0 338.0 340.0 ... 1.018e+03 1.02e+03
+        Attributes:
+            units:    nm
+        >>> ds["flux"]
+        <xarray.DataArray 'flux' (ref: 345, wavelength: 343)>
+        array([[3.76907117e-02, 4.13740861e-02, ..., 3.98815404e-02, 7.96581117e-01],
+               [1.15190254e-02, 1.02210366e-02, ..., 2.00486326e-02, 2.05518196e-02],
+               ...,
+               [1.01187592e-01, 9.57637374e-02, ..., 2.71410354e-01, 2.85997559e-01],
+               [1.80093381e+00, 1.69864354e+00, ..., 1.81295134e+00, 1.89642359e+00]])
+        Coordinates:
+          * ref         (ref) int64 0 1 2 3 4 5 6 7 ... 337 338 339 340 341 342 343 344
+          * wavelength  (wavelength) float64 336.0 338.0 340.0 ... 1.018e+03 1.02e+03
+        Attributes:
+            units:    ph / (cm2 nm s)
+        """
+        if "list" not in self.data:
+            return xr.Dataset()
+
+        scene_dt = self.data["/list"]
+        assert isinstance(scene_dt, DataTree)  # TODO: Improve this
+
+        last_ref: int = 0
+        lst: list[xr.Dataset] = []
+
+        partial_scene: DataTree
+        for partial_scene in scene_dt.values():
+            ds: xr.Dataset = partial_scene.to_dataset()
+
+            num_ref: int = len(ds["ref"])
+            lst.append(ds.assign_coords(ref=range(last_ref, last_ref + num_ref)))
+
+            last_ref += num_ref
+
+        scene: xr.Dataset = xr.concat(lst, dim="ref")
 
         return scene

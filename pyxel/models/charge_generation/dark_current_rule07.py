@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -13,6 +13,8 @@ import numpy as np
 
 from pyxel.detectors import CMOS
 from pyxel.util import set_random_seed
+
+warnings.filterwarnings("once", category=RuntimeWarning, append=True)
 
 
 def lambda_e(lambda_cutoff: float) -> float:
@@ -144,8 +146,9 @@ def compute_mct_dark_rule07(
 
     if np.isinf(dark_current_2d_rule07).any():
         warnings.warn(
-            "Unphysical high value for dark current from fixed pattern noise distribution"
-            " will result in inf values. Enable a FWC model to ensure a physical limit.",
+            "Unphysical high value for dark current from fixed pattern noise"
+            " distribution will result in inf values. Enable a FWC model to ensure a"
+            " physical limit.",
             RuntimeWarning,
             stacklevel=2,
         )

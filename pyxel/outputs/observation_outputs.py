@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -88,7 +88,8 @@ class ObservationOutputs(Outputs):
 
                 if obj not in dataset_names:
                     raise ValueError(
-                        "Please specify a valid result dataset names ('dataset', 'parameters', 'logs')."
+                        "Please specify a valid result dataset names ('dataset',"
+                        " 'parameters', 'logs')."
                     )
 
                 if mode == ParameterMode.Sequential and obj == "dataset":

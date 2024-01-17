@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -8,8 +8,9 @@
 """CCD detector modeling class."""
 
 from collections.abc import Mapping
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
+from pyxel.data_structure import _get_array_if_initialized
 from pyxel.detectors import Detector
 
 if TYPE_CHECKING:
@@ -31,7 +32,7 @@ class CCD(Detector):
         self._characteristics: Characteristics = characteristics
 
         super().__init__(environment=environment)
-        super().reset()
+        super()._initialize()
 
     def __eq__(self, other) -> bool:
         return (
@@ -64,10 +65,10 @@ class CCD(Detector):
                 "characteristics": self.characteristics.to_dict(),
             },
             "data": {
-                "photon": None if self._photon is None else self._photon.array.copy(),
-                "pixel": None if self._pixel is None else self._pixel.array.copy(),
-                "signal": None if self._signal is None else self._signal.array.copy(),
-                "image": None if self._image is None else self._image.array.copy(),
+                "photon": _get_array_if_initialized(self._photon),
+                "pixel": _get_array_if_initialized(self._pixel),
+                "signal": _get_array_if_initialized(self._signal),
+                "image": _get_array_if_initialized(self._image),
                 "data": (
                     None
                     if self._data is None
@@ -126,16 +127,13 @@ class CCD(Detector):
             characteristics=characteristics,
         )
 
-        data = dct["data"]
+        data: Mapping[str, Any] = dct["data"]
 
-        if "photon" in data:
-            detector.photon.array = np.asarray(data["photon"])
-        if "pixel" in data:
-            detector.pixel.array = np.asarray(data["pixel"])
-        if "signal" in data:
-            detector.signal.array = np.asarray(data["signal"])
-        if "image" in data:
-            detector.image.array = np.asarray(data["image"])
+        detector.photon.update(data.get("photon"))
+        detector.pixel.update(data.get("pixel"))
+        detector.signal.update(data.get("signal"))
+        detector.image.update(data.get("image"))
+
         if "data" in data:
             detector._data = DataTree.from_dict(
                 {

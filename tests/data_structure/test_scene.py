@@ -8,9 +8,26 @@
 import pytest
 import xarray as xr
 from datatree import DataTree
-from datatree.testing import assert_identical
 
 from pyxel.data_structure import Scene
+
+try:
+    from datatree.testing import assert_identical
+except ImportError:
+    # Hack for xarray version '2023.12.0'
+    def assert_identical(
+        actual: DataTree,
+        desired: DataTree,
+        from_root: bool = True,
+    ):
+        assert isinstance(actual, DataTree)
+        assert isinstance(desired, DataTree)
+
+        from datatree.formatting import diff_tree_repr
+
+        assert actual.identical(desired, from_root=from_root), diff_tree_repr(
+            actual, desired, "identical"
+        )
 
 
 @pytest.fixture
@@ -35,6 +52,28 @@ def source() -> xr.Dataset:
     )
 
 
+@pytest.fixture
+def other_source() -> xr.Dataset:
+    """Create a valid source."""
+    return xr.Dataset(
+        {
+            "x": xr.DataArray([64.97, 11.94, -55.75, -20.66], dims="ref"),
+            "y": xr.DataArray([89.62, -129.3, -48.16, 87.87], dims="ref"),
+            "weight": xr.DataArray([14.73, 12.34, 14.63, 14.27], dims="ref"),
+            "flux": xr.DataArray(
+                [
+                    [0.1, 0.2, 0.3, 0.4],
+                    [0.5, 0.6, 0.7, 0.8],
+                    [0.9, 1.0, 1.1, 1.2],
+                    [1.3, 1.4, 1.5, 1.6],
+                ],
+                dims=["ref", "wavelength"],
+            ),
+        },
+        coords={"ref": [0, 1, 2, 3], "wavelength": [1336.0, 1338.0, 2018.0, 2020.0]},
+    )
+
+
 def test_empty_scene():
     """Tests with an empty Scene."""
     scene = Scene()
@@ -56,12 +95,18 @@ def test_add_source(source: xr.Dataset):
     # Add one source
     scene.add_source(source.copy(deep=True))
 
-    # Check
+    # Check '.data'
     data = scene.data
     exp_data = DataTree(name="scene")
     exp_data["/list/0"] = DataTree(source.copy(deep=True))
 
     assert_identical(data, exp_data)
+
+    # Check '.to_xarray()'
+    ds = scene.to_xarray()
+    exp_ds = source.copy(deep=True)
+
+    xr.testing.assert_identical(ds, exp_ds)
 
     # Check __eq__
     another_scene = Scene()
@@ -71,28 +116,40 @@ def test_add_source(source: xr.Dataset):
     assert scene == another_scene
 
 
-def test_add_source_twice(source: xr.Dataset):
+def test_add_multiple_sources(source: xr.Dataset, other_source: xr.Dataset):
     """Test method 'Scene.add_source'."""
     scene = Scene()
 
     # Add inputs
     scene.add_source(source.copy(deep=True))
-    scene.add_source(source.copy(deep=True))
+    scene.add_source(other_source.copy(deep=True))
 
-    # Check
+    # Check '.data'
     data = scene.data
     exp_data = DataTree(name="scene")
     exp_data["/list/0"] = DataTree(source.copy(deep=True))
-    exp_data["/list/1"] = DataTree(source.copy(deep=True))
+    exp_data["/list/1"] = DataTree(other_source.copy(deep=True))
 
     assert_identical(data, exp_data)
+
+    # Check '.to_xarray()'
+    ds = scene.to_xarray()
+    exp_ds = xr.concat(
+        [
+            source.copy(deep=True).assign_coords(ref=[0, 1, 2, 3]),
+            other_source.copy(deep=True).assign_coords(ref=[4, 5, 6, 7]),
+        ],
+        dim="ref",
+    )
+
+    xr.testing.assert_identical(ds, exp_ds)
 
     # Check __eq__
     another_scene = Scene()
     another_scene.add_source(source.copy(deep=True))
     assert scene != another_scene
 
-    another_scene.add_source(source.copy(deep=True))
+    another_scene.add_source(other_source.copy(deep=True))
     assert scene == another_scene
 
 

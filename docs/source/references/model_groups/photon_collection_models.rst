@@ -6,9 +6,13 @@ Photon Collection models
 
 .. currentmodule:: pyxel.models.photon_collection
 
-Photon generation models are used to add photons to :py:class:`~pyxel.data_structure.Photon` array
-inside the :py:class:`~pyxel.detectors.Detector` object. At the beginning the :py:class:`~pyxel.data_structure.Photon`
-array is an array of zeros. Multiple photon generation models can be linked together one after another.
+Photon generation models are used to add to and manipulate data in :py:class:`~pyxel.data_structure.Photon` array
+inside the :py:class:`~pyxel.detectors.Detector` object. If the :ref:`scene generation <scene_generation>` model group
+is used, a model like :ref:`aperture` needs to be enabled in the pipeline to make the conversion from
+:guilabel:`Scene` to :guilabel:`Photon`.
+Otherwise, models like :ref:`Simple illumination` or :ref:`Load image` need to be enabled to initialize the
+:py:class:`~pyxel.data_structure.Photon` array.
+Multiple photon generation models can be linked together one after another.
 The values in the :py:class:`~pyxel.data_structure.Photon` array represent photon flux,
 so number of photons per pixel area per second. Time scale of the incoming flux can be changed in the model arguments.
 
@@ -60,6 +64,30 @@ Accepted file formats are ``.h5``, ``.hdf5``, ``.hdf`` and ``.asdf``.
         filename: my_detector.h5
 
 .. autofunction:: pyxel.models.load_detector
+
+.. _aperture:
+
+Simple aperture
+===============
+
+:guilabel:`Scene` → :guilabel:`Photon`
+
+Converts scene to photon with given aperture.
+First an xarray Dataset will be extracted from the Scene for a selected wavelength band, where the flux of the objects will be integrated along the wavelength band.
+This integrated flux in photon/(s cm2) is converted to photon/(s pixel).
+Finally, the objects are projected onto detector, while converting the object coordinates from arcsec to detector coordinates (pixel).
+
+.. code-block:: yaml
+
+     - name: aperture
+      func: pyxel.models.photon_collection.simple_aperture
+      enabled: true
+      arguments:
+         pixel_scale: 1.65
+         aperture: 126.70e-3
+         wavelength_band: [500, 900]
+
+.. autofunction:: simple_aperture
 
 .. _Load image:
 

@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -197,7 +197,7 @@ def _get_noise_type(
             "pca_zero_noise",
         ],
         Mapping[str, float],
-    ]
+    ],
 ) -> NoiseType:
     if "ktc_bias_noise" in item:
         sub_item: Mapping[str, float] = item["ktc_bias_noise"]
@@ -334,7 +334,7 @@ def nghxrg(
         )
 
     # Add the pixels
-    detector.pixel.array += result_2d
+    detector.pixel += result_2d
 
 
 # TODO: This generates plot. It should be in class `Output`

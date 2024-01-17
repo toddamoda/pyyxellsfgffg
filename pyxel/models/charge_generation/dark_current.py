@@ -1,4 +1,4 @@
-#   Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#   Copyright (c) European Space Agency, 2017.
 #  #
 #   This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #   is part of this Pyxel package. No part of the package, including
@@ -184,14 +184,17 @@ def compute_dark_current(
             time_step * avg_dark_current * spatial_noise_factor
         )  # sigma of fpn distribution
 
-        dark_current_2d = dark_current_2d * (
-            1 + np.random.lognormal(sigma=dark_current_fpn_sigma, size=shape)
-        )
+        with np.errstate(all="ignore"):
+            dark_current_2d = np.multiply(
+                dark_current_2d,
+                (1 + np.random.lognormal(sigma=dark_current_fpn_sigma, size=shape)),
+            )
 
     if np.isinf(dark_current_2d).any():
         warnings.warn(
-            "Unphysical high value for dark current from fixed pattern noise distribution"
-            " will result in inf values. Enable a FWC model to ensure a physical limit.",
+            "Unphysical high value for dark current from fixed pattern noise"
+            " distribution will result in inf values. Enable a FWC model to ensure a"
+            " physical limit.",
             RuntimeWarning,
             stacklevel=2,
         )
@@ -249,17 +252,20 @@ def dark_current(
         final_band_gap_room_temperature = band_gap_silicon(temperature=300)
 
     with set_random_seed(seed):
-        dark_current_array = compute_dark_current(
-            shape=geo.shape,
-            time_step=time_step,
-            temperature=temperature,
-            pixel_area=pixel_area,
-            figure_of_merit=figure_of_merit,
-            band_gap=final_band_gap,
-            band_gap_room_temperature=final_band_gap_room_temperature,
-            spatial_noise_factor=spatial_noise_factor,
-            temporal_noise=temporal_noise,
-        )
+        with warnings.catch_warnings():
+            warnings.filterwarnings(action="ignore", category=RuntimeWarning)
+
+            dark_current_array = compute_dark_current(
+                shape=geo.shape,
+                time_step=time_step,
+                temperature=temperature,
+                pixel_area=pixel_area,
+                figure_of_merit=figure_of_merit,
+                band_gap=final_band_gap,
+                band_gap_room_temperature=final_band_gap_room_temperature,
+                spatial_noise_factor=spatial_noise_factor,
+                temporal_noise=temporal_noise,
+            )
 
     detector.charge.add_charge_array(dark_current_array)
 

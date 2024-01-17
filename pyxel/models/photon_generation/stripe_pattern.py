@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -108,8 +108,9 @@ def compute_pattern(
 
 
 @deprecated(
-    "Model 'pyxel.models.photon_generation.stripe_pattern' is deprecated and will be removed in version 2. "
-    "Use model 'pyxel.models.photon_collection.stripe_pattern' instead."
+    "Model 'pyxel.models.photon_generation.stripe_pattern' is deprecated and will be"
+    " removed in version 2. Use model 'pyxel.models.photon_collection.stripe_pattern'"
+    " instead."
 )
 def stripe_pattern(
     detector: "Detector",
@@ -146,7 +147,4 @@ def stripe_pattern(
 
     photon_array = photon_array * (detector.time_step / time_scale)
 
-    try:
-        detector.photon.array += photon_array
-    except ValueError as ex:
-        raise ValueError("Shapes of arrays do not match") from ex
+    detector.photon += photon_array

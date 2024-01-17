@@ -61,7 +61,7 @@ def image_3d() -> xr.DataArray:
     rng = np.random.default_rng(seed=100)
     relative_time = [1.0, 2.0, 3.0]
     image = xr.DataArray(
-        rng.random((3, 10, 10)),
+        rng.integers(low=0, high=65535, size=(3, 10, 10), dtype=np.uint64),
         dims=["time", "y", "x"],
         coords={"time": relative_time, "y": range(10), "x": range(10)},
     )

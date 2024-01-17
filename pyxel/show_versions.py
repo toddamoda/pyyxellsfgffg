@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -28,7 +28,6 @@ def get_system_info() -> Mapping[str, Any]:
 
     size_integer: int = struct.calcsize("P")
     language_code, encoding = locale.getlocale()
-
     return {
         "commit": commit,
         "version": version,
@@ -104,10 +103,12 @@ def show_versions():
         "cloudpickle",
         "dask",
         "dask_jobqueue",
+        "datashader",
         "distributed",
         "fsspec",
         "h5py",
         "holoviews",
+        "hvplot",
         "ipywidgets",
         "jupyter",
         "jupyterlab",
@@ -116,6 +117,8 @@ def show_versions():
         "numba",
         "numpy",
         "pandas",
+        "panel",
+        "param",
         "PIL",
         "poppy",
         "pygmo",

@@ -1,11 +1,11 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
 
-"""TBW."""
+"""Dead-time filtering model."""
 
 import astropy.constants as const
 import astropy.units as u
@@ -15,7 +15,7 @@ from pyxel.detectors import MKID
 
 
 def apply_dead_time_filter(phase_2d: np.ndarray, maximum_count: float) -> np.ndarray:
-    """Apply dead time filter.
+    """Apply the dead-time filter.
 
     Parameters
     ----------

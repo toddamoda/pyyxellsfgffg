@@ -1,11 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
-#
-#  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
-#  is part of this Pyxel package. No part of the package, including
-#  this file, may be copied, modified, propagated, or distributed except according to
-#  the terms contained in the file ‘LICENCE.txt’.
-#
-#
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -15,11 +8,11 @@
 """:term:`MKID`-array detector modeling class."""
 
 from collections.abc import Mapping
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
-from pyxel.data_structure import Phase
+from pyxel.data_structure import Phase, _get_array_if_initialized
 from pyxel.detectors import Detector
-from pyxel.util.memory import memory_usage_details
+from pyxel.util import memory_usage_details
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -40,7 +33,7 @@ class MKID(Detector):
         self._characteristics: Characteristics = characteristics
 
         super().__init__(environment=environment)
-        self.reset()
+        self._initialize()
 
     def __eq__(self, other) -> bool:
         return (
@@ -52,21 +45,21 @@ class MKID(Detector):
             and super().__eq__(other)
         )
 
-    def reset(self) -> None:
+    def _initialize(self) -> None:
         """TBW."""
-        super().reset()
+        super()._initialize()
         self._phase = Phase(geo=self.geometry)
 
-    def empty(self, empty_all: bool = True) -> None:
+    def empty(self, reset: bool = True) -> None:
         """Empty the data in the detector.
 
         Returns
         -------
         None
         """
-        super().empty(empty_all)
+        super().empty(reset)
 
-        if empty_all and self._phase:
+        if reset and self._phase and self._phase._array is not None:
             self.phase.array *= 0
 
     @property
@@ -126,11 +119,11 @@ class MKID(Detector):
                 "characteristics": self.characteristics.to_dict(),
             },
             "data": {
-                "photon": None if self._photon is None else self._photon.array.copy(),
-                "pixel": None if self._pixel is None else self._pixel.array.copy(),
-                "signal": None if self._signal is None else self._signal.array.copy(),
-                "image": None if self._image is None else self._image.array.copy(),
-                "phase": None if self._phase is None else self._phase.array.copy(),
+                "photon": _get_array_if_initialized(self._photon),
+                "pixel": _get_array_if_initialized(self._pixel),
+                "signal": _get_array_if_initialized(self._signal),
+                "image": _get_array_if_initialized(self._image),
+                "phase": _get_array_if_initialized(self._phase),
                 "data": None if self._data is None else self._data.to_dict(),
                 "charge": (
                     None
@@ -182,17 +175,13 @@ class MKID(Detector):
             characteristics=characteristics,
         )
 
-        data = dct["data"]
+        data: Mapping[str, Any] = dct["data"]
 
-        if "photon" in data:
-            detector.photon.array = np.asarray(data["photon"])
+        detector.photon.update(data.get("photon"))
+        detector.pixel.update(data.get("pixel"))
+        detector.signal.update(data.get("signal"))
+        detector.image.update(data.get("image"))
 
-        if "pixel" in data:
-            detector.pixel.array = np.asarray(data["pixel"])
-        if "signal" in data:
-            detector.signal.array = np.asarray(data["signal"])
-        if "image" in data:
-            detector.image.array = np.asarray(data["image"])
         if "data" in data:
             detector._data = DataTree.from_dict(
                 {

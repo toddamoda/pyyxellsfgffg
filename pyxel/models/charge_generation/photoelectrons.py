@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -114,7 +114,7 @@ def conversion_with_qe_map(
         align=align,
     )
 
-    if not np.all((0 <= qe) & (qe <= 1)):
+    if not np.all((qe >= 0) & (qe <= 1)):
         raise ValueError("Quantum efficiency values not between 0 and 1.")
 
     with set_random_seed(seed):

@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -7,36 +7,25 @@
 
 """Parametric mode class and helper functions."""
 import itertools
-import logging
 from collections import Counter
-from collections.abc import Iterable, Iterator, Mapping, Sequence
+from collections.abc import Iterable, Iterator, Mapping, MutableMapping, Sequence
 from copy import deepcopy
 from dataclasses import dataclass
 from enum import Enum
-from functools import partial, reduce
+from functools import partial
+from itertools import chain
 from numbers import Number
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Literal,
-    NamedTuple,
-    Optional,
-    Tuple,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Callable, Literal, NamedTuple, Optional, Union
 
 import dask.bag as db
 import numpy as np
 import pandas as pd
 import toolz
-from numpy.typing import ArrayLike
 from tqdm.auto import tqdm
 
 from pyxel.exposure import Readout, run_exposure_pipeline, run_pipeline
 from pyxel.observation.parameter_values import ParameterType, ParameterValues
 from pyxel.pipelines import ResultId, get_result_id
-from pyxel.state import get_obj_att, get_value
 
 if TYPE_CHECKING:
     import xarray as xr
@@ -62,13 +51,24 @@ class ObservationResult(NamedTuple):
     logs: "xr.Dataset"
 
 
+ParametersType = MutableMapping[
+    str,
+    Union[
+        str,
+        Number,
+        np.ndarray,
+        Sequence[Union[str, Number, np.ndarray]],
+    ],
+]
+
+
 @dataclass(frozen=True)
 class ParameterItem:
     """Internal Parameter Item."""
 
     # TODO: Merge 'index' and 'parameters'
     index: tuple[int, ...]
-    parameters: Mapping[str, Any]
+    parameters: ParametersType
     run_index: int
 
 
@@ -78,7 +78,7 @@ class CustomParameterItem:
 
     # TODO: Merge 'index' and 'parameters'
     index: int
-    parameters: Mapping[str, Any]
+    parameters: ParametersType
     run_index: int
 
 
@@ -169,6 +169,22 @@ def _get_short_dimension_names_new(
     return potential_dim_names
 
 
+# TODO: Replace this function by 'xr.merge'
+# TODO: or 'datatree.merge' when it will be possible
+def merge(*objects: Iterable["DataTree"]) -> "DataTree":
+    """Merge any number of DataTree into a single DataTree."""
+    import datatree
+    import xarray as xr
+
+    def _merge_dataset(*args: xr.Dataset) -> xr.Dataset:
+        return xr.merge(args)
+
+    _merge_datatree: Callable[..., "DataTree"] = datatree.map_over_subtree(
+        _merge_dataset
+    )
+    return _merge_datatree(*objects)
+
+
 class Observation:
     """Observation class."""
 
@@ -246,16 +262,26 @@ class Observation:
         all_data: pd.DataFrame = load_table(self._custom_file, dtype=None)
         filtered_data: pd.DataFrame = all_data.loc[:, self._custom_columns]
 
+        # Sanity check
+        num_columns = len(filtered_data.columns)
+        all_values = [list(el.values) for el in self.enabled_steps]
+
+        counter = Counter(chain.from_iterable(all_values))
+        if "_" not in counter:
+            raise ValueError("Missing at parameter '_'")
+
+        num_parameters: int = counter["_"]
+        if num_parameters != num_columns:
+            raise ValueError(
+                f"Custom data file has {num_columns} column(s). "
+                f"{num_parameters} is/are expected ! "
+            )
+
         self._custom_data = filtered_data
 
     def _custom_parameters(
         self,
-    ) -> Iterator[
-        tuple[
-            int,
-            dict[str, Union[Number, str, Sequence[Union[Number, str]]]],
-        ]
-    ]:
+    ) -> Iterator[tuple[int, ParametersType]]:
         """Generate custom mode parameters based on input file.
 
         Yields
@@ -272,9 +298,7 @@ class Observation:
             row: Sequence[Union[Number, str]] = row_serie.to_list()
 
             i: int = 0
-            parameter_dict: dict[
-                str, Union[Number, str, Sequence[Union[Number, str]]]
-            ] = {}
+            parameter_dict: ParametersType = {}
             for step in self.enabled_steps:
                 key: str = step.key
 
@@ -308,7 +332,7 @@ class Observation:
 
             yield index, parameter_dict
 
-    def _sequential_parameters(self) -> Iterator[tuple[int, dict]]:
+    def _sequential_parameters(self) -> Iterator[tuple[int, ParametersType]]:
         """Generate sequential mode parameters.
 
         Yields
@@ -320,10 +344,10 @@ class Observation:
         for step in self.enabled_steps:
             key: str = step.key
             for index, value in enumerate(step):
-                parameter_dict = {key: value}
+                parameter_dict: ParametersType = {key: value}
                 yield index, parameter_dict
 
-    def _product_indices(self) -> "Iterator[Tuple]":
+    def _product_indices(self) -> Iterator[tuple]:
         """Return an iterator of product parameter indices.
 
         Returns
@@ -386,7 +410,7 @@ class Observation:
             ]
             params_unique_keys: Iterator[str] = toolz.unique(params_all_keys)
 
-            params_defaults: Mapping[str, np.ndarray] = {
+            params_defaults: ParametersType = {
                 key: processor.get(key) for key in params_unique_keys
             }
 
@@ -395,7 +419,8 @@ class Observation:
             return [
                 CustomParameterItem(
                     index=index,
-                    parameters=params_defaults | parameter_dict,
+                    # parameters=params_defaults | parameter_dict,
+                    parameters={**params_defaults, **parameter_dict},
                     run_index=n,
                 )
                 for n, (index, parameter_dict) in enumerate(params_it)
@@ -513,8 +538,8 @@ class Observation:
                 model_enabled: str = model_name + ".enabled"
                 if not processor.get(model_enabled):
                     raise ValueError(
-                        f"The '{model_name}' model referenced in Observation configuration "
-                        f"has not been enabled in yaml config!"
+                        f"The '{model_name}' model referenced in Observation"
+                        " configuration has not been enabled in yaml config!"
                     )
 
             if (
@@ -757,7 +782,6 @@ class Observation:
     def run_observation_datatree(self, processor: "Processor") -> "DataTree":
         """Run the observation pipelines."""
         # Late import to speedup start-up time
-        from datatree import DataTree
 
         # validation
         self.validate_steps(processor)
@@ -780,16 +804,16 @@ class Observation:
 
         if self.with_dask:
             datatree_bag: db.Bag = (
-                db.from_sequence(parameters)
-                .map(apply_pipeline)
-                .fold(binop=DataTree.combine_first, combine=DataTree.combine_first)  # type: ignore
+                db.from_sequence(parameters).map(apply_pipeline).fold(binop=merge)
             )
+
             final_datatree: DataTree = datatree_bag.compute()
         else:
             datatree_list: Iterator[DataTree] = (
                 apply_pipeline(el) for el in tqdm(parameters)
             )
-            final_datatree = reduce(DataTree.combine_first, datatree_list)  # type: ignore
+
+            final_datatree = merge(*datatree_list)
 
         parameter_name: str = self.parameter_mode.name
         final_datatree.attrs["running mode"] = f"Observation - {parameter_name}"
@@ -805,10 +829,7 @@ class Observation:
         self,
         index_and_parameter: tuple[
             tuple[int, ...],
-            Mapping[
-                str,
-                Union[str, Number, np.ndarray, list[Union[str, Number, np.ndarray]]],
-            ],
+            ParametersType,
             int,
         ],
         dimension_names: Mapping[str, str],
@@ -872,6 +893,7 @@ class Observation:
             readout=self.readout,
             result_type=self.result_type,
             pipeline_seed=self.pipeline_seed,
+            debug=False,  # Not supported in Observation mode
         )
 
         _ = self.outputs.save_to_file(
@@ -905,10 +927,7 @@ class Observation:
         self,
         index_and_parameter: tuple[
             int,
-            Mapping[
-                str,
-                Union[str, Number, np.ndarray, list[Union[str, Number, np.ndarray]]],
-            ],
+            ParametersType,
             int,
         ],
         processor: "Processor",
@@ -951,10 +970,7 @@ class Observation:
         self,
         index_and_parameter: tuple[
             int,
-            Mapping[
-                str,
-                Union[str, Number, np.ndarray, list[Union[str, Number, np.ndarray]]],
-            ],
+            ParametersType,
             int,
         ],
         dimension_names: Mapping[str, str],
@@ -1001,35 +1017,10 @@ class Observation:
 
         return ds
 
-    def debug_parameters(self, processor: "Processor") -> list:
-        """List the parameters using processor parameters in processor generator.
-
-        Parameters
-        ----------
-        processor: Processor
-
-        Returns
-        -------
-        result: list
-        """
-        result = []
-        processor_generator = self._processors_it(processor=processor)
-        for i, (proc, _, _) in enumerate(processor_generator):
-            values = []
-            for step in self.enabled_steps:
-                _, att = get_obj_att(proc, step.key)
-                value = get_value(proc, step.key)
-                values.append((att, value))
-            logging.debug("%d: %r", i, values)
-            result.append((i, values))
-        return result
-
 
 def create_new_processor(
     processor: "Processor",
-    parameter_dict: Mapping[
-        str, Union[str, Number, np.ndarray, list[Union[str, Number, np.ndarray]]]
-    ],
+    parameter_dict: ParametersType,
 ) -> "Processor":
     """Create a copy of processor and set new attributes from a dictionary before returning it.
 
@@ -1151,7 +1142,7 @@ def _add_custom_parameters(ds: "xr.Dataset", index: int) -> "xr.Dataset":
 
 def _add_custom_parameters_datatree(
     data_tree: "DataTree",
-    parameter_dict: Mapping[str, Union[str, Number, ArrayLike]],
+    parameter_dict: ParametersType,
     index: int,
     dimension_names: Mapping[str, str],
     types: Mapping[str, ParameterType],
@@ -1195,9 +1186,7 @@ def _add_custom_parameters_datatree(
 # TODO: This function will be deprecated (see #563)
 def _add_sequential_parameters(
     ds: "xr.Dataset",
-    parameter_dict: Mapping[
-        str, Union[str, Number, np.ndarray, list[Union[str, Number, np.ndarray]]]
-    ],
+    parameter_dict: ParametersType,
     dimension_names: Mapping[str, str],
     index: int,
     coordinate_name: str,
@@ -1236,9 +1225,7 @@ def _add_sequential_parameters(
 # TODO: This function will be deprecated (see #563)
 def _add_product_parameters(
     ds: "xr.Dataset",
-    parameter_dict: Mapping[
-        str, Union[str, Number, np.ndarray, list[Union[str, Number, np.ndarray]]]
-    ],
+    parameter_dict: ParametersType,
     dimension_names: Mapping[str, str],
     indices: tuple[int, ...],
     types: Mapping[str, ParameterType],
@@ -1288,7 +1275,7 @@ def to_tuples(data: Iterable) -> tuple:
 
 def _add_product_parameters_datatree(
     data_tree: "DataTree",
-    parameter_dict: Mapping[str, Union[str, Number, ArrayLike]],
+    parameter_dict: ParametersType,
     indexes: tuple[int, ...],
     dimension_names: Mapping[str, str],
     types: Mapping[str, ParameterType],
@@ -1307,6 +1294,8 @@ def _add_product_parameters_datatree(
     """
     import xarray as xr
 
+    dim_idx = 0
+
     # TODO: join 'indexes' and 'parameter_dict'
     for index, (coordinate_name, param_value) in zip(indexes, parameter_dict.items()):
         short_name: str = dimension_names[coordinate_name]
@@ -1317,9 +1306,32 @@ def _add_product_parameters_datatree(
 
         elif types[coordinate_name] == ParameterType.Multi:
             data = np.array(param_value)
-            data_array = xr.DataArray(data).expand_dims(
-                dim={f"{short_name}_id": [index]}
-            )
+
+            if data.ndim == 1:
+                data_array = xr.DataArray(
+                    data,
+                    dims=f"dim_{dim_idx}",
+                    coords={f"dim_{dim_idx}": range(len(data))},
+                ).expand_dims(dim={f"{short_name}_id": [index]})
+
+                dim_idx += 1
+
+            elif data.ndim == 2:
+                shape_0, shape_1 = data.shape
+                data_array = xr.DataArray(
+                    data,
+                    dims=[f"dim_{dim_idx}", f"dim_{dim_idx+1}"],
+                    coords={
+                        f"dim_{dim_idx}": range(shape_0),
+                        f"dim_{dim_idx+1}": range(shape_1),
+                    },
+                ).expand_dims(dim={f"{short_name}_id": [index]})
+
+                dim_idx += 2
+
+            else:
+                raise NotImplementedError
+
             data_tree = data_tree.expand_dims(
                 {f"{short_name}_id": [index]}
             ).assign_coords({short_name: data_array})

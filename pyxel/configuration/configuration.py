@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -75,7 +75,8 @@ class Configuration:
 
         if num_detectors != 1:
             raise ValueError(
-                "Expecting only one detector: 'ccd_detector', 'cmos_detector', 'mkid_detector' or 'apd_detector'."
+                "Expecting only one detector: 'ccd_detector', 'cmos_detector',"
+                " 'mkid_detector' or 'apd_detector'."
             )
 
     @property
@@ -656,7 +657,8 @@ def save(input_filename: Union[str, Path], output_dir: Path) -> Path:
     copy2(input_file, output_dir)
 
     # TODO: sort filenames ?
-    copied_input_file_it: Iterator[Path] = output_dir.glob("*.yaml")
+    pattern: str = f"*{input_file.suffix}"
+    copied_input_file_it: Iterator[Path] = output_dir.glob(pattern)
     copied_input_file: Path = next(copied_input_file_it)
 
     with copied_input_file.open("a") as file:

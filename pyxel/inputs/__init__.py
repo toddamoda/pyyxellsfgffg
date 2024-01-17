@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -8,4 +8,11 @@
 #
 """TBW."""
 # flake8: noqa
-from .loader import load_image, load_table, load_datacube, load_dataarray
+from .loader import (
+    load_image,
+    load_table,
+    load_datacube,
+    load_dataarray,
+    load_image_v2,
+    load_table_v2,
+)

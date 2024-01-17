@@ -5,16 +5,17 @@
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
 
+import numpy as np
 import pytest
 
 from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
-from pyxel.models.readout_electronics import ac_crosstalk
+from pyxel.models.charge_measurement import dc_crosstalk
 
 
 @pytest.fixture
 def ccd_8x8() -> CCD:
     """Create a valid CCD detector."""
-    return CCD(
+    detector = CCD(
         geometry=CCDGeometry(
             row=8,
             col=8,
@@ -25,6 +26,8 @@ def ccd_8x8() -> CCD:
         environment=Environment(),
         characteristics=Characteristics(),
     )
+    detector.signal.array = np.zeros(detector.geometry.shape, dtype=float)
+    return detector
 
 
 @pytest.mark.parametrize(
@@ -40,11 +43,11 @@ def ccd_8x8() -> CCD:
         pytest.param([[1]], [1], [1], id="1 channel"),
     ],
 )
-def test_ac_crosstalk(
+def test_dc_crosstalk(
     ccd_8x8: CCD, coupling_matrix, channel_matrix, readout_directions
 ):
-    """Test model 'ac_crosstalk' with valid parameters."""
-    ac_crosstalk(
+    """Test model 'dc_crosstalk' with valid parameters."""
+    dc_crosstalk(
         detector=ccd_8x8,
         coupling_matrix=coupling_matrix,
         channel_matrix=channel_matrix,
@@ -91,12 +94,12 @@ def test_ac_crosstalk(
         ),
     ],
 )
-def test_ac_crosstalk_invalid_params(
+def test_dc_crosstalk_invalid_params(
     ccd_8x8: CCD, coupling_matrix, channel_matrix, readout_directions, exp_exc, exp_msg
 ):
-    """Test model 'ac_crosstalk' with invalid parameters."""
+    """Test model 'dc_crosstalk' with invalid parameters."""
     with pytest.raises(exp_exc, match=exp_msg):
-        ac_crosstalk(
+        dc_crosstalk(
             detector=ccd_8x8,
             coupling_matrix=coupling_matrix,
             channel_matrix=channel_matrix,

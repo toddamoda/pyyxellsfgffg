@@ -9,12 +9,13 @@ Data Processing models
 Data processing models are used to process data.
 Result retrieved with run_mode() will show :py:class:`datatree.DataTree` structure containing two groups:
 
-``Bucket`` group, containing the Photon, Charge, Pixel, Signal and Image.
+``Bucket`` group, containing the Scene, Photon, Charge, Pixel, Signal and Image, if initialized in the pipeline.
 
 ``Data`` group, containing processed data for each data processing model used in the YAML configuration file.
 
 Processed data from models in the used in the YAML configuration file can be also accessed directly via ``detector.data``.
 
+.. _data_processing_create_store_detector:
 
 Create and Store a detector
 ===========================

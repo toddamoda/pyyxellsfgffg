@@ -2,7 +2,7 @@
 
 This is just a reminder about the most common mistakes.
 Please make sure that you tick all *appropriate* boxes.
-But please read our [contribution guide](https://esa.gitlab.io/pyxel/doc/contributing.html) 
+But please read our [contribution guide](https://esa.gitlab.io/pyxel/doc/stable/references/contributing.html) 
 at least once, it will save you unnecessary review cycles !
 
 If an item doesn't apply to your merge request, **check it anyway** to 

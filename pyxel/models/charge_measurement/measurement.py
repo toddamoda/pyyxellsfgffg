@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -56,4 +56,4 @@ def simple_measurement(detector: Detector, gain: Optional[float] = None) -> None
     # Compute
     signal_2d = apply_gain(pixel_2d=detector.pixel.array, gain=gain)
 
-    detector.signal.array += signal_2d.astype("float64")
+    detector.signal.array = signal_2d.astype("float64")

@@ -16,8 +16,10 @@ observation:
       values: numpy.unique(numpy.logspace(0, 6, 10, dtype=int))
     - key: detector.characteristics.quantum_efficiency
       values: [0.1,0.2,0.3,0.4,0.5,0.6]
-    - key: pipeline.readout_electronics.ac_crosstalk.arguments.coupling_matrix
-      values: [[[1, 0.5, 0, 0], [0.5, 1, 0, 0], [0, 0, 1, 0.5], [0, 0, 0.5, 1]], [[1, 0.3, 0, 0], [0.3, 1, 0, 0], [0, 0, 1, 0.3], [0, 0, 0.3, 1]]]
+    - key: pipeline.charge_measurement.ac_crosstalk.arguments.coupling_matrix
+      values:
+        - [[1, 0.5, 0, 0], [0.5, 1, 0, 0], [0, 0, 1, 0.5], [0, 0, 0.5, 1]]
+        - [[1, 0.3, 0, 0], [0.3, 1, 0, 0], [0, 0, 1, 0.3], [0, 0, 0.3, 1]]
 
   outputs:
     output_folder:  'outputs'
@@ -95,19 +97,18 @@ pipeline:
       enabled: true
       arguments:
         std_deviation: 1.e-6   # Volt
-
-  # signal -> image
-  readout_electronics:
-    - name: simple_amplifier
-      func: pyxel.models.readout_electronics.simple_amplifier
-      enabled: true
     - name: ac_crosstalk
-      func: pyxel.models.readout_electronics.ac_crosstalk
+      func: pyxel.models.charge_measurement.ac_crosstalk
       enabled: true
       arguments:
         coupling_matrix: [[1, 0.5, 0, 0], [0.5, 1, 0, 0], [0, 0, 1, 0.5], [0, 0, 0.5, 1]]
         channel_matrix: [1,2,3,4]
         readout_directions: [1,2,1,2]
+  # signal -> image
+  readout_electronics:
+    - name: simple_amplifier
+      func: pyxel.models.readout_electronics.simple_amplifier
+      enabled: true
     - name: simple_adc
       func: pyxel.models.readout_electronics.simple_adc
       enabled: true

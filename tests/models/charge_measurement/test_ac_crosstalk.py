@@ -4,17 +4,17 @@
 #  is part of this Pyxel package. No part of the package, including
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
-
+import numpy as np
 import pytest
 
 from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
-from pyxel.models.readout_electronics import dc_crosstalk
+from pyxel.models.charge_measurement import ac_crosstalk
 
 
 @pytest.fixture
 def ccd_8x8() -> CCD:
     """Create a valid CCD detector."""
-    return CCD(
+    detector = CCD(
         geometry=CCDGeometry(
             row=8,
             col=8,
@@ -25,6 +25,9 @@ def ccd_8x8() -> CCD:
         environment=Environment(),
         characteristics=Characteristics(),
     )
+    detector.signal.array = np.zeros(detector.geometry.shape, dtype=float)
+    detector.signal.array = np.zeros(detector.geometry.shape, dtype=float)
+    return detector
 
 
 @pytest.mark.parametrize(
@@ -40,11 +43,11 @@ def ccd_8x8() -> CCD:
         pytest.param([[1]], [1], [1], id="1 channel"),
     ],
 )
-def test_dc_crosstalk(
+def test_ac_crosstalk(
     ccd_8x8: CCD, coupling_matrix, channel_matrix, readout_directions
 ):
-    """Test model 'dc_crosstalk' with valid parameters."""
-    dc_crosstalk(
+    """Test model 'ac_crosstalk' with valid parameters."""
+    ac_crosstalk(
         detector=ccd_8x8,
         coupling_matrix=coupling_matrix,
         channel_matrix=channel_matrix,
@@ -91,12 +94,12 @@ def test_dc_crosstalk(
         ),
     ],
 )
-def test_dc_crosstalk_invalid_params(
+def test_ac_crosstalk_invalid_params(
     ccd_8x8: CCD, coupling_matrix, channel_matrix, readout_directions, exp_exc, exp_msg
 ):
-    """Test model 'dc_crosstalk' with invalid parameters."""
+    """Test model 'ac_crosstalk' with invalid parameters."""
     with pytest.raises(exp_exc, match=exp_msg):
-        dc_crosstalk(
+        ac_crosstalk(
             detector=ccd_8x8,
             coupling_matrix=coupling_matrix,
             channel_matrix=channel_matrix,

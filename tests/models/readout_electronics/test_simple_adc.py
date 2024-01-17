@@ -33,6 +33,7 @@ def ccd_3x3() -> CCD:
             adc_bit_resolution=16, adc_voltage_range=(0.0, 10.0)
         ),
     )
+    detector.signal.array = np.zeros(detector.geometry.shape, dtype=float)
     return detector
 
 
@@ -50,10 +51,9 @@ def test_simple_adc(
         ("float", TypeError, "Expecting a signed/unsigned integer"),
         ("float32", TypeError, "Expecting a signed/unsigned integer"),
         ("float64", TypeError, "Expecting a signed/unsigned integer"),
-        ("uint8", TypeError, "Expected type of Image array is uint64"),
-        ("int32", TypeError, "Expected type of Image array is uint64"),
-        ("int64", TypeError, "Expected type of Image array is uint64"),
-        ("int", TypeError, "Expected type of Image array is uint64"),
+        ("int32", TypeError, "Expected types of Image array are"),
+        ("int64", TypeError, "Expected types of Image array are"),
+        ("int", TypeError, "Expected types of Image array are"),
     ],
 )
 def test_simple_adc_wrong_data_type(

@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -129,7 +129,8 @@ def input_array() -> np.ndarray:
             1.0,
             False,
             ValueError,
-            r"Length of 'sigma', 'trap_densities' and 'trap_release_times' not the same!",
+            r"Length of 'sigma', 'trap_densities' and 'trap_release_times' not the"
+            r" same!",
             id="Different lengths.",
         ),
         pytest.param(

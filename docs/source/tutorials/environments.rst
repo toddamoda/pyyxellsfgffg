@@ -8,6 +8,8 @@ We recommend to create an isolated virtual environment for each version of Pyxel
 so that you have full control over additional packages that you may use in your analysis.
 This will also help you on improving reproducibility within the user community.
 
+.. _conda_envs:
+
 Conda Environments
 ==================
 
@@ -40,12 +42,12 @@ Once the conda environment is created, you have to activate it:
 After that you can install Pyxel using ``conda`` / ``mamba`` as well as
 other packages you may need (in this case ``jupyterlab``):
 
-.. note:: Don't forget to install poppy manually with ``pip`` (in the current conda environment)
+.. note:: Don't forget to install lacosmic manually with ``pip`` (in the current conda environment)
 
 .. code-block:: bash
 
     conda install -c conda-forge pyxel-sim jupyterlab
-    python -m pip install poppy
+    python -m pip install lacosmic
 
 
 To leave the environment, you may activate another one or just type:
@@ -71,14 +73,15 @@ If you want to remove a conda environment, you can use the following command:
 
         conda install -c conda-forge pyxel-sim
 
-    For now, it's not possible to install a recent version of `poppy <https://poppy-optics.readthedocs.io>`__
-    for all platforms directly from ``conda``.
-    The user **must** install ``poppy`` manually (in the current conda environment) with the command ``pip``:
+    For now, it's not possible to install
+    `lacosmic <https://lacosmic.readthedocs.io/en/stable/api/lacosmic.lacosmic.html#lacosmic.lacosmic>`__
+    from ``conda``.
+    The user **must** install ``lacosmic`` manually (in the current conda environment) with the command ``pip``:
 
     .. code-block:: bash
 
         conda install -c conda-forge pyxel-sim
-        pip install poppy
+        pip install lacosmic
 
 
     .. warning::
@@ -109,6 +112,7 @@ If you want to remove a conda environment, you can use the following command:
 
        conda update pyxel-sim
 
+.. _venv_envs:
 
 Venv Environments
 =================
@@ -220,11 +224,11 @@ To leave the environment, you may activate another one or just type:
 
 
     .. note::
-        The libraries ``pygmo2`` and ``poppy`` are not installed with these
+        The libraries ``pygmo2`` and ``lacosmic`` are not installed with these
         compulsory requirements.
 
         ``pygmo2`` is needed for the calibration mode.
-        ``poppy`` is needed for 'optical_psf' model.
+        ``lacosmic`` is needed for 'remove_cosmic_rays' model.
 
     It is recommended to also install JupyterLab (for example).
     In this case you must run the command:

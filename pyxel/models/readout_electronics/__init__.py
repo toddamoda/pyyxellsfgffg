@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -11,7 +11,6 @@
 from .amplification import simple_amplifier
 from .sar_adc import sar_adc
 from .sar_adc_with_noise import sar_adc_with_noise
-from .amplifier_crosstalk import dc_crosstalk, ac_crosstalk
 from .dead_time import dead_time_filter
 from .phase_conversion import simple_phase_conversion
 from .simple_adc import simple_adc

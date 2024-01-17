@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -23,3 +23,4 @@ from .linearity import (
 )
 from .offset import dc_offset, output_pixel_reset_voltage_apd
 from .reset_noise import ktc_noise
+from .amplifier_crosstalk import dc_crosstalk, ac_crosstalk

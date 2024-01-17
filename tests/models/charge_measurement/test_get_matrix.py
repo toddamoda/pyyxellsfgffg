@@ -7,7 +7,7 @@
 
 import numpy as np
 
-from pyxel.models.readout_electronics.amplifier_crosstalk import get_matrix
+from pyxel.models.charge_measurement.amplifier_crosstalk import get_matrix
 
 
 def test_get_matrix_with_list():

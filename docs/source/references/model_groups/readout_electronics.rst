@@ -6,7 +6,12 @@ Readout Electronics models
 
 .. currentmodule:: pyxel.models.readout_electronics
 
-Readout electronics models are used to add TBW.
+Readout electronic models are used to add to and manipulate data in :py:class:`~pyxel.data_structure.Image` array
+inside the :py:class:`~pyxel.detectors.Detector` object.
+The data represents the image data in ADUs.
+A readout electronic model, e.g. :ref:`Simple ADC`, is necessary to first convert from signal data stored in
+:py:class:`~pyxel.data_structure.Signal` class to image data stored in :py:class:`~pyxel.data_structure.Image`.
+Multiple models are available to add detector effects after.
 
 .. _readout_electronics_create_store_detector:
 
@@ -70,7 +75,8 @@ With this model you can convert :py:class:`~pyxel.data_structure.Signal`
 array into :py:class:`~pyxel.data_structure.Image` mimicking an ideal Analog to Digital Converter (ADC).
 The parameters ``adc_bit_resolution`` and ``adc_voltage_range`` from detector
 :py:class:`~pyxel.detectors.Characteristics` are used.
-Output data_type can also be specified with the parameter ``data_type``, default is ``uint32``.
+Output data_type can also be specified with the parameter ``data_type``.
+If not provided, data_type is determined based on ``detector.characteristics.adc_bit_resolution``.
 
 Example of the configuration file:
 
@@ -105,52 +111,6 @@ Example of the configuration file:
 
 .. autofunction:: simple_amplifier
 
-.. _DC crosstalk:
-
-DC crosstalk
-============
-
-:guilabel:`Signal` → :guilabel:`Signal`
-
-Apply DC crosstalk signal to detector signal.
-
-Example of the configuration file:
-
-.. code-block:: yaml
-
-    - name: dc_crosstalk
-      func: pyxel.models.readout_electronics.dc_crosstalk
-      enabled: true
-      arguments:
-        coupling_matrix: [[1, 0.5, 0, 0], [0.5, 1, 0, 0], [0, 0, 1, 0.5], [0, 0, 0.5, 1]]
-        channel_matrix: [1,2,3,4]
-        readout_directions: [1,2,1,2]
-
-.. autofunction:: dc_crosstalk
-
-.. _AC crosstalk:
-
-AC crosstalk
-============
-
-:guilabel:`Signal` → :guilabel:`Signal`
-
-Apply AC crosstalk signal to detector signal.
-
-Example of the configuration file:
-
-.. code-block:: yaml
-
-    - name: ac_crosstalk
-      func: pyxel.models.readout_electronics.ac_crosstalk
-      enabled: true
-      arguments:
-        coupling_matrix: [[1, 0.5, 0, 0], [0.5, 1, 0, 0], [0, 0, 1, 0.5], [0, 0, 0.5, 1]]
-        channel_matrix: [1,2,3,4]
-        readout_directions: [1,2,1,2]
-
-.. autofunction:: ac_crosstalk
-
 .. _Dead time filter:
 
 Dead time filter
@@ -160,9 +120,19 @@ Dead time filter
 
 This model only applies to the :py:class:`~pyxel.detectors.MKID` detector.
 
-There is a maximum limit to the achievable count rate, which is inversely proportional to the minimum distance in time between distinguishable pulse profiles: the so-called “dead time”, which is fundamentally determined by the recombination time of quasi-particles re-forming Cooper pairs :cite:p:`2020:prodhomme`.
+There is a maximum limit to the achievable count rate, which is inversely proportional to the minimum distance in time
+between distinguishable pulse profiles: the so-called “dead time”, which is fundamentally determined by the recombination
+time of quasi-particles re-forming Cooper pairs. The following is a mosaic of simulations---from
+:cite:p:`2020:prodhomme`---showing the effect of temporal saturation for an MKID-array, which leads to an intensity
+saturation; by incrementally increasing the brightness level in the field of view, from (a) to (f). The effect appears
+when the interval between the arrival time of two photons is smaller than the dead time of the affected MKIDs in the
+array, assuming an ideal read-out bandwidth. The sequence of associated histograms shows how the counts ($\#$) move
+towards higher intensities, until the wall of :math:`10^5` (in arbitrary units) is reached.
 
-The underlying physics of this model is described in :cite:p:`PhysRevB.104.L180506`; more information can be found on the website :cite:p:`Mazin`.
+.. figure:: ../_static/Dead_time.png
+    :scale: 50%
+    :alt: Mosaic of simulations showing the effect of temporal saturation for an MKID-array, which leads to an intensity saturation.
+    :align: center
 
 Example of the configuration file:
 

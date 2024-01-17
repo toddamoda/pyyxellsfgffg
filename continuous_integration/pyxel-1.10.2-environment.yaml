@@ -16,11 +16,11 @@ dependencies:
   - python=3.11
   - pip
   - ipykernel!=6.18.0   # Version 6.18.0 is not working
+  - poppy>=1.1.0
 # Optional packages
   - jupyterlab          # Install JupyterLab
   - dask-labextension   # Install an extension for JupyterLab
   - ipympl              # Interactive Matplotlib in Jupyter
 # Pip packages
   - pip:
-    - poppy>=1.1.0
     - lacosmic

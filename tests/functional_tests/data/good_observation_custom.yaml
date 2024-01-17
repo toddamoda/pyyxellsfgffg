@@ -1,0 +1,104 @@
+#############################################################
+# Pyxel detector simulation framework                       #
+#                                                           #
+# Example YAML configuration file                           #
+# Observation mode                                          #        
+#############################################################
+
+# yaml-language-server: $schema=https://esa.gitlab.io/pyxel/doc/latest/pyxel_schema.json
+observation:
+
+  mode:  custom
+  from_file:        'data/good_custom_input.txt'
+  column_range:     [0, 3]
+  parameters:
+    - key:      pipeline.charge_transfer.cdm.arguments.sigma
+      values:   [_]
+      enabled: true
+    - key:      pipeline.charge_transfer.cdm.arguments.trap_densities
+      values:   [_]
+      enabled: true
+    - key:      pipeline.charge_transfer.cdm.arguments.trap_release_times
+      values:   [_]
+      enabled: true
+         
+  outputs:
+    output_folder: "output"
+    save_data_to_file:
+      
+ccd_detector:
+
+  geometry:
+
+    row: 4510             # pixel
+    col: 10            # pixel
+    total_thickness: 30.    # um
+    pixel_vert_size: 18.    # um
+    pixel_horz_size: 18    # um
+
+  environment:
+    temperature: 203 # K
+
+  characteristics:
+    quantum_efficiency: 1.                 # -
+    charge_to_volt_conversion: 2.e-6   # V/e-
+    pre_amplification: 1.        # V/V
+    adc_voltage_range: [0., 2.1]
+    adc_bit_resolution: 14
+    full_well_capacity: 1_000_000 # e-
+
+
+
+pipeline:
+  # -> photon
+  photon_collection:
+
+  # photon -> charge
+  charge_generation:      
+    - name: load_charge
+      func: pyxel.models.charge_generation.load_charge
+      enabled: true
+      arguments:
+        filename: ccd.npy
+        position: [0,0]
+
+  # charge -> pixel
+  charge_collection:
+    - name: simple_collection
+      func: pyxel.models.charge_collection.simple_collection
+      enabled: true
+
+    - name: full_well
+      func: pyxel.models.charge_collection.simple_full_well
+      enabled: false
+
+       
+  # pixel -> pixel
+  charge_transfer:
+    - name: cdm
+      func: pyxel.models.charge_transfer.cdm
+      enabled: true
+      arguments:
+        direction: parallel
+        trap_release_times: [3.e-2]
+        trap_densities: [2.e-5]
+        sigma: [1.e-10]
+        beta: 0.37
+        max_electron_volume: 1.62e-10   # cm^2
+        transfer_period: 9.4722e-04     # s
+        charge_injection: false
+
+  # pixel -> signal
+  charge_measurement:
+    - name: simple_measurement
+      func: pyxel.models.charge_measurement.simple_measurement
+      enabled: true
+
+  # signal -> image
+  readout_electronics:
+    - name: simple_amplifier
+      func: pyxel.models.readout_electronics.simple_amplifier
+      enabled: true
+    - name: simple_adc
+      func: pyxel.models.readout_electronics.simple_adc
+      enabled: true

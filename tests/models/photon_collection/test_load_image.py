@@ -62,7 +62,8 @@ def ccd_10x10() -> CCD:
 
 
 @pytest.mark.parametrize(
-    "image_file, position, align, convert_to_photons, multiplier, time_scale, bit_resolution",
+    "image_file, position, align, convert_to_photons, multiplier, time_scale,"
+    " bit_resolution",
     [
         pytest.param("img.npy", (0, 0), None, True, 1.0, 1.0, 16, id="valid"),
     ],
@@ -94,7 +95,8 @@ def test_load_image(
 
 
 @pytest.mark.parametrize(
-    "image_file, position, align, convert_to_photons, multiplier, time_scale, bit_resolution, exp_exc, exp_msg",
+    "image_file, position, align, convert_to_photons, multiplier, time_scale,"
+    " bit_resolution, exp_exc, exp_msg",
     [
         pytest.param(
             "img.npy",
@@ -105,7 +107,8 @@ def test_load_image(
             1.0,
             None,
             ValueError,
-            "Bit resolution of the input image has to be specified for converting to photons.",
+            "Bit resolution of the input image has to be specified for converting to"
+            " photons.",
             id="invalid",
         ),
     ],

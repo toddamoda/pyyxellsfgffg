@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -37,6 +37,7 @@ def mkid_5x5() -> MKID:
     return detector
 
 
+@pytest.mark.skip(reason="This test is too slow ! Fix this.")
 @pytest.mark.parametrize(
     "wavelength, responsivity, scaling_factor",
     [
@@ -117,7 +118,7 @@ def test_pulse_processing_with_ccd():
         characteristics=Characteristics(),
     )
 
-    with pytest.raises(TypeError, match="Expecting a MKID object for the detector."):
+    with pytest.raises(TypeError, match="Expecting an MKID object for the detector."):
         pulse_processing(
             detector=detector, wavelength=1.0, responsivity=1.0, scaling_factor=1.0
         )

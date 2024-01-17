@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -17,6 +17,7 @@ from pyxel.detectors.geometry import (
     get_horizontal_pixel_center_pos,
     get_vertical_pixel_center_pos,
 )
+from pyxel.util import convert_unit
 
 if TYPE_CHECKING:
     import xarray as xr
@@ -25,7 +26,12 @@ if TYPE_CHECKING:
 
 
 class Charge:
-    """TBW."""
+    """Charge class representing charge distribution.
+
+    This class manipulates charge data in the form of a Numpy array
+    and Pandas dataframe.
+
+    """
 
     EXP_TYPE = float
     TYPE_LIST = (
@@ -381,7 +387,7 @@ class Charge:
             name="charge",
             dims=["y", "x"],
             coords={"y": range(num_rows), "x": range(num_cols)},
-            attrs={"units": "electron", "long_name": "Charge"},
+            attrs={"units": convert_unit("electron"), "long_name": "Charge"},
         )
 
     def __array__(self, dtype: Optional[np.dtype] = None):
@@ -401,7 +407,7 @@ class Charge:
         self.nextid = 0
         if not self._frame.empty:
             self._frame = self.EMPTY_FRAME.copy()
-        self._array *= 0
+        self._array = np.zeros_like(self._array)
 
     def frame_empty(self) -> bool:
         """Return True if frame is empty and False otherwise."""

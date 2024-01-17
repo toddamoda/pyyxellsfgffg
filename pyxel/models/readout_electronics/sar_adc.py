@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -9,6 +9,7 @@
 import numpy as np
 
 from pyxel.detectors import Detector
+from pyxel.util import get_dtype
 
 
 def apply_sar_adc(
@@ -55,7 +56,8 @@ def apply_sar_adc(
         # Divide reference voltage by 2 for next step
         ref /= 2.0
 
-    return data_digitized_2d
+    dtype = get_dtype(adc_bits)
+    return data_digitized_2d.astype(dtype)
 
 
 # TODO: documentation, range volt - only max is used

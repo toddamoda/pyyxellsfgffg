@@ -34,7 +34,7 @@ keywords = ["ESA", "data modeling", "sensors", "calibration", "CCD",
 dependencies = [
     # Scientific computing
     "numba",
-    "numpy>=1.21",
+    "numpy>=1.21,<2",
     "pandas",
     "scipy",
     "xarray>=2022.06",
@@ -44,7 +44,7 @@ dependencies = [
     # Plotting
     "matplotlib>=3.1",
     "seaborn",
-    "holoviews>=1.15.0",
+    "hvplot",
     "bokeh",
 
     # Parallel computing
@@ -69,14 +69,14 @@ dependencies = [
     "attrs>=21.3.0",
     "click!=8.1.4,!=8.1.5",
     "tqdm",
-    "typing-extensions",
+    "typing-extensions>=4.5",
     "pympler",
     "pillow",
     "scikit-image",
     "astroquery",
     "specutils",
     "synphot",
-    "scopesim",
+    "diskcache",
 ]
 dynamic = ["version"]
 
@@ -136,19 +136,21 @@ skip = ["__init__.py", "versioneer.py", ".ipynb_checkpoints",
     "src", ".tox", ".eggs", ".venv", "build", "dist"]
 
 [tool.mypy]
-# disallow_untyped_calls = true
-# disallow_untyped_defs = true
+disallow_untyped_calls = false
+disallow_untyped_defs = false
 # disallow_incomplete_defs = true
 # disallow_untyped_decorators = true
 no_implicit_optional = true
 warn_unreachable = true
 warn_unused_configs = true
 warn_redundant_casts = true
-warn_unused_ignores = false
+warn_unused_ignores = true
+
 # warn_return_any = true
 # check_untyped_defs = true
 check_untyped_defs = true
 # no_implicit_reexport = true
+strict_equality = true
 
 [[tool.mypy.overrides]]
 module = [
@@ -159,15 +161,18 @@ module = [
     "cloudpickle.*",
     "dask.*",
     "distributed.*",
+    "diskcache.*",
     "fsspec.*",
     "jsonschema.*",
     "h5py.*",
+    "hvplot.*",
     "lacosmic.*",
     "matplotlib.*",
     "mpl_toolkits.*",
     "numba.*",
     "numpy.*",
     "pandas.*",
+    "param.*",
     "poppy",
     "pygmo",
     "pympler.*",
@@ -187,8 +192,9 @@ module = [
     "astroquery.gaia.*",
     "specutils.*",
     "synphot.*",
+    "pyxel.models.phasing.mkid_models.*"
 ]
-ignore_errors=  true
+ignore_errors = true
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
@@ -198,10 +204,13 @@ addopts = [
     "-vv",
     "--ignore=old_code"
 ]
-
+markers = [
+    "deprecated: marks tests as deprecated (deselect with '-m \"not deprecated\"')",
+]
 [tool.pydocstyle]
 convention = "numpy"
 match = "(?!_version).*.py"
+match_dir = "/[^pyxel\\/models\\/phasing\\/mkid\\_models].*"
 add_ignore = "D202,D105,D102,D103"
 
 [tool.doc8]
@@ -212,7 +221,7 @@ exclude_dirs = ["pyxel/_version.py"]
 
 [tool.codespell]
 ignore-words-list = "acn,sade,te"
-skip = "pyxel/_version.py,*.fits"
+skip = "pyxel/_version.py,*.fits,pyxel/models/phasing/mkid_models/*"
 
 [tool.coverage.report]
 exclude_lines = [
@@ -235,6 +244,7 @@ select = [
     "F",        # pyflakes
     "D",        # pydocstyle
     "G",        # flake8-logging-format
+    "UP",       # pyupgrade
     # "SIM",      # flake8-simplify
     "W",        # pycodestyle
     # "PD",       # pandas-vet
@@ -269,6 +279,16 @@ exclude = ["_TEMPLATE.py", "_version.py"]
     "D104",     # Missing docstring in public package
     "N803",     # Argument name should be lowercase
     "PT006",    # Wrong name(s) type in '@pytest.mark.parametrize'
+]
+"pyxel/models/phasing/mkid_models/*" = [
+    "F",        # pyflakes
+    "B",        # flake8-bugbear
+    "E",        # pycodestyle
+    "D",        # pydocstyle
+    "N",        # pep8-naming
+    "W",        # pycodestyle
+    "PTH",      # Flake8 use Pathlib
+    "UP",       # pyupgrade
 ]
 
 [tool.ruff.flake8-pytest-style]

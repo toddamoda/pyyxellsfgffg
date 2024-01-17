@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -197,7 +197,7 @@ def readout_noise_saphira(
         raise TypeError("Expecting a 'APD' detector object.")
 
     with set_random_seed(seed):
-        detector.signal.array += compute_readout_noise_saphira(
+        detector.signal += compute_readout_noise_saphira(
             roic_readout_noise=roic_readout_noise,
             avalanche_gain=detector.characteristics.avalanche_gain,
             shape=detector.geometry.shape,

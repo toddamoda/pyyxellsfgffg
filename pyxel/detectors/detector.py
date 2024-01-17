@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -25,7 +25,7 @@ from pyxel.data_structure import (
     SimplePersistence,
 )
 from pyxel.detectors import Environment, ReadoutProperties
-from pyxel.util.memory import get_size, memory_usage_details
+from pyxel.util import get_size, memory_usage_details
 
 if TYPE_CHECKING:
     import xarray as xr
@@ -52,11 +52,12 @@ class Detector:
         self._image: Optional[Image] = None
         self._data: Optional[DataTree] = None
 
+        self._intermediate: Optional[DataTree] = None
+
         # This will be the memory of the detector where trapped charges will be saved
         self._memory: dict = {}
         self._persistence: Optional[Union[Persistence, SimplePersistence]] = None
 
-        self.input_image: Optional[np.ndarray] = None
         self._output_dir: Optional[Path] = None  # TODO: See #330
 
         self._readout_properties: Optional["ReadoutProperties"] = None
@@ -101,7 +102,7 @@ class Detector:
 
     @photon.setter
     def photon(self, obj: Photon) -> None:
-        self._photon = obj
+        self.photon.array = obj.array
 
     @property
     def scene(self) -> Scene:
@@ -131,6 +132,11 @@ class Detector:
 
         return self._pixel
 
+    @pixel.setter
+    def pixel(self, obj: Pixel) -> None:
+        """TBW."""
+        self.pixel.array = obj.array
+
     @property
     def signal(self) -> Signal:
         """TBW."""
@@ -138,6 +144,11 @@ class Detector:
             raise RuntimeError("'signal' not initialized.")
 
         return self._signal
+
+    @signal.setter
+    def signal(self, obj: Pixel) -> None:
+        """TBW."""
+        self.signal.array = obj.array
 
     @property
     def image(self) -> Image:
@@ -147,6 +158,11 @@ class Detector:
 
         return self._image
 
+    @image.setter
+    def image(self, obj: Pixel) -> None:
+        """TBW."""
+        self.image.array = obj.array
+
     @property
     def data(self) -> "DataTree":
         """TBW."""
@@ -154,6 +170,14 @@ class Detector:
             raise RuntimeError("'data' not initialized.")
 
         return self._data
+
+    @property
+    def intermediate(self) -> "DataTree":
+        """TBW."""
+        if self._intermediate is None:
+            raise RuntimeError("'intermediate' not initialized.")
+
+        return self._intermediate
 
     def to_xarray(self) -> "xr.Dataset":
         """Create a new ``Dataset`` from all data containers.
@@ -177,61 +201,62 @@ class Detector:
         """
         import xarray as xr
 
-        ds = xr.Dataset()
-        ds["photon"] = self.photon.to_xarray()
         # ds["scene"] = self.scene.to_xarray()
-        ds["pixel"] = self.pixel.to_xarray()
-        ds["signal"] = self.signal.to_xarray()
-        ds["image"] = self.image.to_xarray()
-        ds["charge"] = self.charge.to_xarray()
+
+        ds = xr.Dataset()
+        for name in ("photon", "charge", "pixel", "signal", "image"):
+            container: Union[Photon, Charge, Pixel, Signal, Image] = getattr(self, name)
+            data_array: xr.DataArray = container.to_xarray()
+
+            # TODO: Special case, this will be fixed in issue #692
+            if name == "charge" and bool((data_array == 0).all()):
+                # No charges
+                continue
+
+            if data_array.ndim != 0:
+                ds[name] = data_array
+        #
+        # array:xr.DataArray = self.photon.to_xarray()
+        # if array.ndim != 0:
+        #     ds['photon'] = array
+        #
+        # ds["photon"] = self.photon.to_xarray()
+        # ds["charge"] = self.charge.to_xarray()
+        # ds["pixel"] = self.pixel.to_xarray()
+        # ds["signal"] = self.signal.to_xarray()
+        # ds["image"] = self.image.to_xarray()
 
         ds.attrs.update({"detector": type(self).__name__, "pyxel version": __version__})
 
         return ds
 
-    def reset(self) -> None:
-        """TBW."""
+    def _initialize(self) -> None:
+        """Initialize data buckets."""
         from datatree import DataTree
 
-        self._photon = Photon(geo=self.geometry)
         self._scene = Scene()
+        self._photon = Photon(geo=self.geometry)
         self._charge = Charge(geo=self.geometry)
+
         self._pixel = Pixel(geo=self.geometry)
+
         self._signal = Signal(geo=self.geometry)
         self._image = Image(geo=self.geometry)
 
         self._data = DataTree()
 
-    def empty(self, empty_all: bool = True) -> None:
+    # TODO: refactor to split up to empty and reset.
+    def empty(self, reset: bool = True) -> None:
         """Empty the data in the detector."""
-        if self._photon:
-            self.photon.array *= 0
+        self.scene = Scene()
+        self.photon.empty()
+        self.charge.empty()
 
-        self._scene = Scene()
+        if reset:
+            self.pixel.empty()
 
-        if self._signal:
-            self.signal.array *= 0
-        if self._image:
-            self.image.array *= 0
-        if self._charge:
-            self._charge.empty()
-        if empty_all:
-            if self._pixel:
-                self.pixel.array *= 0
-
-    # TODO: Set an `Output` object ? Is it really needed ? See #330
-    def set_output_dir(self, path: Union[str, Path]) -> None:
-        """Set output directory path."""
-        self._output_dir = Path(path)
-
-    # TODO: Set an `Output` object ? Is it really needed ? See #330
-    @property
-    def output_dir(self) -> Path:
-        """Output directory path."""
-        if self._output_dir is None:
-            raise RuntimeError("'output_dir' is not initialized.")
-
-        return self._output_dir
+        self.signal.empty()
+        self.image.empty()
 
     def set_readout(
         self,
@@ -384,7 +409,8 @@ class Detector:
         """TBW."""
         if not isinstance(value, (Persistence, SimplePersistence)):
             raise TypeError(
-                "Expecting Persistence or SimplePersistence type to set detector persistence."
+                "Expecting Persistence or SimplePersistence type to set detector"
+                " persistence."
             )
         self._persistence = value
 

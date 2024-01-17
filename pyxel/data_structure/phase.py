@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -23,12 +23,9 @@ class Phase(Array):
     Accepted array types: np.float16, np.float32 and np.float64.
     """
 
-    EXP_TYPE = float
     TYPE_LIST = (np.dtype(np.float16), np.dtype(np.float32), np.dtype(np.float64))
     NAME = "Phase"
     UNIT = ""
 
     def __init__(self, geo: "Geometry"):
-        new_array = np.zeros((geo.row, geo.col), dtype=self.EXP_TYPE)
-
-        super().__init__(new_array)
+        super().__init__(shape=(geo.row, geo.col))

@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -77,8 +77,9 @@ def compute_noise(
 
 
 @deprecated(
-    "Model 'pyxel.models.photon_generation.shot_noise' is deprecated and will be removed in version 2. "
-    "Use model 'pyxel.models.photon_collection.shot_noise' instead."
+    "Model 'pyxel.models.photon_generation.shot_noise' is deprecated and will be"
+    " removed in version 2. Use model 'pyxel.models.photon_collection.shot_noise'"
+    " instead."
 )
 def shot_noise(
     detector: Detector,

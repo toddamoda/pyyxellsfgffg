@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -35,7 +35,7 @@ from typing import Optional
 import numpy as np
 from toolz import dicttoolz
 
-from pyxel.util.memory import get_size
+from pyxel.util import get_size
 
 
 class APDCharacteristics:
@@ -78,7 +78,8 @@ class APDCharacteristics:
 
         if avalanche_gain and pixel_reset_voltage and common_voltage:
             raise ValueError(
-                "Please only specify two inputs out of: avalanche gain, pixel reset voltage, common voltage."
+                "Please only specify two inputs out of: avalanche gain, pixel reset"
+                " voltage, common voltage."
             )
         elif avalanche_gain and pixel_reset_voltage and not common_voltage:
             self._avalanche_bias = self.gain_to_bias_saphira(avalanche_gain)
@@ -315,7 +316,8 @@ class APDCharacteristics:
         """
         if bias < 1:
             raise ValueError(
-                "Warning! Node capacitance calculation is inaccurate for bias voltages <1 V!"
+                "Warning! Node capacitance calculation is inaccurate for bias voltages"
+                " <1 V!"
             )
 
         # From [2] (Mk13 ME1000; data supplied by Leonardo):

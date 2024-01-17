@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -38,6 +38,7 @@ def ccd_5x5() -> CCD:
         environment=Environment(),
         characteristics=Characteristics(),
     )
+    detector.pixel.array = np.zeros(detector.geometry.shape, dtype=float)
     detector._readout_properties = ReadoutProperties(times=[1.0])
     return detector
 
@@ -56,6 +57,7 @@ def cmos_5x5() -> CMOS:
         environment=Environment(),
         characteristics=Characteristics(),
     )
+    detector.pixel.array = np.zeros(detector.geometry.shape, dtype=float)
     detector._readout_properties = ReadoutProperties(times=[1.0])
     return detector
 

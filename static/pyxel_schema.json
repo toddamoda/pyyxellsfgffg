@@ -1351,9 +1351,6 @@
                 "$ref": "#/definitions/ModelChargeGenerationDarkCurrent"
               },
               {
-                "$ref": "#/definitions/ModelChargeGenerationDarkCurrentInduced"
-              },
-              {
                 "$ref": "#/definitions/ModelChargeGenerationDarkCurrentRule07"
               },
               {
@@ -1361,6 +1358,9 @@
               },
               {
                 "$ref": "#/definitions/ModelChargeGenerationLoadCharge"
+              },
+              {
+                "$ref": "#/definitions/ModelChargeGenerationRadiationInducedDarkCurrent"
               },
               {
                 "$ref": "#/definitions/ModelChargeGenerationSimpleConversion"
@@ -1389,6 +1389,12 @@
           "default": null,
           "items": {
             "anyOf": [
+              {
+                "$ref": "#/definitions/ModelChargeMeasurementAcCrosstalk"
+              },
+              {
+                "$ref": "#/definitions/ModelChargeMeasurementDcCrosstalk"
+              },
               {
                 "$ref": "#/definitions/ModelChargeMeasurementDcOffset"
               },
@@ -1587,6 +1593,9 @@
                 "$ref": "#/definitions/ModelPhotonCollectionShotNoise"
               },
               {
+                "$ref": "#/definitions/ModelPhotonCollectionSimpleAperture"
+              },
+              {
                 "$ref": "#/definitions/ModelPhotonCollectionStripePattern"
               },
               {
@@ -1642,15 +1651,8 @@
           ]
         },
         "readout_electronics": {
-          "default": null,
           "items": {
             "anyOf": [
-              {
-                "$ref": "#/definitions/ModelReadoutElectronicsAcCrosstalk"
-              },
-              {
-                "$ref": "#/definitions/ModelReadoutElectronicsDcCrosstalk"
-              },
               {
                 "$ref": "#/definitions/ModelReadoutElectronicsDeadTimeFilter"
               },
@@ -3130,71 +3132,6 @@
       "title": "Model 'dark_current'",
       "type": "object"
     },
-    "ModelChargeGenerationDarkCurrentInduced": {
-      "additionalProperties": false,
-      "description": "Model to add dark current induced by radiation to the detector charge.",
-      "properties": {
-        "arguments": {
-          "additionalProperties": false,
-          "properties": {
-            "annealing_time": {
-              "description": "Annealing time. Unit: weeks",
-              "title": "annealing_time",
-              "type": "number"
-            },
-            "depletion_volume": {
-              "description": "Depletion volume parameter. Unit: \u00b5m3.",
-              "title": "depletion_volume",
-              "type": "number"
-            },
-            "displacement_dose": {
-              "description": "Displacement dose parameter. Unit: TeV/g",
-              "title": "displacement_dose",
-              "type": "number"
-            },
-            "seed": {
-              "default": null,
-              "title": "seed",
-              "type": [
-                "integer",
-                "null"
-              ]
-            },
-            "shot_noise": {
-              "description": "True to enable shotnoise.",
-              "title": "shot_noise",
-              "type": "boolean"
-            }
-          },
-          "required": [
-            "depletion_volume",
-            "annealing_time",
-            "displacement_dose",
-            "shot_noise"
-          ],
-          "title": "Parameters",
-          "type": "object"
-        },
-        "enabled": {
-          "default": true,
-          "type": "boolean"
-        },
-        "func": {
-          "const": "pyxel.models.charge_generation.dark_current_induced",
-          "default": "pyxel.models.charge_generation.dark_current_induced",
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "arguments"
-      ],
-      "title": "Model 'dark_current_induced'",
-      "type": "object"
-    },
     "ModelChargeGenerationDarkCurrentRule07": {
       "additionalProperties": false,
       "description": "Generate charge from dark current process.",
@@ -3397,6 +3334,71 @@
       "title": "Model 'load_charge'",
       "type": "object"
     },
+    "ModelChargeGenerationRadiationInducedDarkCurrent": {
+      "additionalProperties": false,
+      "description": "Model to add dark current induced by radiation to the detector charge.",
+      "properties": {
+        "arguments": {
+          "additionalProperties": false,
+          "properties": {
+            "annealing_time": {
+              "description": "Annealing time. Unit: weeks",
+              "title": "annealing_time",
+              "type": "number"
+            },
+            "depletion_volume": {
+              "description": "Depletion volume parameter. Unit: \u00b5m3.",
+              "title": "depletion_volume",
+              "type": "number"
+            },
+            "displacement_dose": {
+              "description": "Displacement dose parameter. Unit: TeV/g",
+              "title": "displacement_dose",
+              "type": "number"
+            },
+            "seed": {
+              "default": null,
+              "title": "seed",
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "shot_noise": {
+              "description": "True to enable shotnoise.",
+              "title": "shot_noise",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "depletion_volume",
+            "annealing_time",
+            "displacement_dose",
+            "shot_noise"
+          ],
+          "title": "Parameters",
+          "type": "object"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "func": {
+          "const": "pyxel.models.charge_generation.radiation_induced_dark_current",
+          "default": "pyxel.models.charge_generation.radiation_induced_dark_current",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "arguments"
+      ],
+      "title": "Model 'radiation_induced_dark_current'",
+      "type": "object"
+    },
     "ModelChargeGenerationSimpleConversion": {
       "additionalProperties": false,
       "description": "Generate charge from incident photon via photoelectric effect, simplemodel.",
@@ -3500,6 +3502,124 @@
         "arguments"
       ],
       "title": "Model 'simple_dark_current'",
+      "type": "object"
+    },
+    "ModelChargeMeasurementAcCrosstalk": {
+      "additionalProperties": false,
+      "description": "Apply AC crosstalk signal to detector signal.",
+      "properties": {
+        "arguments": {
+          "additionalProperties": false,
+          "properties": {
+            "channel_matrix": {
+              "title": "channel_matrix",
+              "type": "array"
+            },
+            "coupling_matrix": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "format": "uri",
+                  "type": "string"
+                },
+                {
+                  "type": "array"
+                }
+              ],
+              "title": "coupling_matrix"
+            },
+            "readout_directions": {
+              "title": "readout_directions",
+              "type": "array"
+            }
+          },
+          "required": [
+            "coupling_matrix",
+            "channel_matrix",
+            "readout_directions"
+          ],
+          "title": "Parameters",
+          "type": "object"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "func": {
+          "const": "pyxel.models.charge_measurement.ac_crosstalk",
+          "default": "pyxel.models.charge_measurement.ac_crosstalk",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "arguments"
+      ],
+      "title": "Model 'ac_crosstalk'",
+      "type": "object"
+    },
+    "ModelChargeMeasurementDcCrosstalk": {
+      "additionalProperties": false,
+      "description": "Apply DC crosstalk signal to detector signal.",
+      "properties": {
+        "arguments": {
+          "additionalProperties": false,
+          "properties": {
+            "channel_matrix": {
+              "title": "channel_matrix",
+              "type": "array"
+            },
+            "coupling_matrix": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "format": "uri",
+                  "type": "string"
+                },
+                {
+                  "type": "array"
+                }
+              ],
+              "title": "coupling_matrix"
+            },
+            "readout_directions": {
+              "title": "readout_directions",
+              "type": "array"
+            }
+          },
+          "required": [
+            "coupling_matrix",
+            "channel_matrix",
+            "readout_directions"
+          ],
+          "title": "Parameters",
+          "type": "object"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "func": {
+          "const": "pyxel.models.charge_measurement.dc_crosstalk",
+          "default": "pyxel.models.charge_measurement.dc_crosstalk",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "arguments"
+      ],
+      "title": "Model 'dc_crosstalk'",
       "type": "object"
     },
     "ModelChargeMeasurementDcOffset": {
@@ -5081,11 +5201,23 @@
     },
     "ModelPhasingPulseProcessing": {
       "additionalProperties": false,
-      "description": "TBW.",
+      "description": "Phase-pulse processor.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
           "properties": {
+            "eta_pb": {
+              "default": 0.59,
+              "description": "Superconducting pair-breaking efficiency.",
+              "title": "eta_pb",
+              "type": "number"
+            },
+            "f": {
+              "default": 0.2,
+              "description": "Fano's factor.",
+              "title": "f",
+              "type": "number"
+            },
             "responsivity": {
               "description": "Responsivity of the pixel.",
               "title": "responsivity",
@@ -5097,8 +5229,14 @@
               "title": "scaling_factor",
               "type": "number"
             },
+            "t_c": {
+              "default": 1.26,
+              "description": "Material dependent critical temperature. Unit: K",
+              "title": "t_c",
+              "type": "number"
+            },
             "wavelength": {
-              "description": "Wavelength.",
+              "description": "Wavelength. Unit: um.",
               "title": "wavelength",
               "type": "number"
             }
@@ -5483,6 +5621,76 @@
         "name"
       ],
       "title": "Model 'shot_noise'",
+      "type": "object"
+    },
+    "ModelPhotonCollectionSimpleAperture": {
+      "additionalProperties": false,
+      "description": "Convert scene(photon/s/cm2) to photon.",
+      "properties": {
+        "arguments": {
+          "additionalProperties": false,
+          "properties": {
+            "aperture": {
+              "description": "Collecting area of the telescope. Unit: m.",
+              "title": "aperture",
+              "type": "number"
+            },
+            "pixel_scale": {
+              "description": "Pixel scale. Unit: arcsec/pixel.",
+              "title": "pixel_scale",
+              "type": "number"
+            },
+            "wavelength_band": {
+              "additionalItems": false,
+              "description": "Wavelength band. Unit: nm.",
+              "items": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "title": "wavelength_band",
+              "type": "array"
+            }
+          },
+          "required": [
+            "pixel_scale",
+            "aperture",
+            "wavelength_band"
+          ],
+          "title": "Parameters",
+          "type": "object"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "func": {
+          "const": "pyxel.models.photon_collection.simple_aperture",
+          "default": "pyxel.models.photon_collection.simple_aperture",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "arguments"
+      ],
+      "title": "Model 'simple_aperture'",
       "type": "object"
     },
     "ModelPhotonCollectionStripePattern": {
@@ -5930,124 +6138,6 @@
       "title": "Model 'stripe_pattern'",
       "type": "object"
     },
-    "ModelReadoutElectronicsAcCrosstalk": {
-      "additionalProperties": false,
-      "description": "Apply AC crosstalk signal to detector signal.",
-      "properties": {
-        "arguments": {
-          "additionalProperties": false,
-          "properties": {
-            "channel_matrix": {
-              "title": "channel_matrix",
-              "type": "array"
-            },
-            "coupling_matrix": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "format": "uri",
-                  "type": "string"
-                },
-                {
-                  "type": "array"
-                }
-              ],
-              "title": "coupling_matrix"
-            },
-            "readout_directions": {
-              "title": "readout_directions",
-              "type": "array"
-            }
-          },
-          "required": [
-            "coupling_matrix",
-            "channel_matrix",
-            "readout_directions"
-          ],
-          "title": "Parameters",
-          "type": "object"
-        },
-        "enabled": {
-          "default": true,
-          "type": "boolean"
-        },
-        "func": {
-          "const": "pyxel.models.readout_electronics.ac_crosstalk",
-          "default": "pyxel.models.readout_electronics.ac_crosstalk",
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "arguments"
-      ],
-      "title": "Model 'ac_crosstalk'",
-      "type": "object"
-    },
-    "ModelReadoutElectronicsDcCrosstalk": {
-      "additionalProperties": false,
-      "description": "Apply DC crosstalk signal to detector signal.",
-      "properties": {
-        "arguments": {
-          "additionalProperties": false,
-          "properties": {
-            "channel_matrix": {
-              "title": "channel_matrix",
-              "type": "array"
-            },
-            "coupling_matrix": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "format": "uri",
-                  "type": "string"
-                },
-                {
-                  "type": "array"
-                }
-              ],
-              "title": "coupling_matrix"
-            },
-            "readout_directions": {
-              "title": "readout_directions",
-              "type": "array"
-            }
-          },
-          "required": [
-            "coupling_matrix",
-            "channel_matrix",
-            "readout_directions"
-          ],
-          "title": "Parameters",
-          "type": "object"
-        },
-        "enabled": {
-          "default": true,
-          "type": "boolean"
-        },
-        "func": {
-          "const": "pyxel.models.readout_electronics.dc_crosstalk",
-          "default": "pyxel.models.readout_electronics.dc_crosstalk",
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "arguments"
-      ],
-      "title": "Model 'dc_crosstalk'",
-      "type": "object"
-    },
     "ModelReadoutElectronicsDeadTimeFilter": {
       "additionalProperties": false,
       "description": "Dead time filter.",
@@ -6218,25 +6308,24 @@
     },
     "ModelReadoutElectronicsSimpleAdc": {
       "additionalProperties": false,
-      "description": "Apply simple Analog to Digital conversion.",
+      "description": "Apply simple Analog-to-Digital Converter (ADC) to the `signal` bucketfrom `Detector`.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
-          "default": {
-            "data_type": "uint32"
-          },
           "properties": {
             "data_type": {
-              "default": "uint32",
-              "description": "The desired data-type for the Image array. The data-type must be anunsigned integer. Valid values: 'uint16', 'uint32', 'uint64', 'uint'Invalid values: 'int16', 'int32', 'int64', 'int', 'float'...",
+              "description": "The desired data-type for the Image array. The data-type must be anunsigned integer. If not provided, the data type is determined basedon `detector.characteristics.adc_bit_resolution`. Valid values:'uint8', 'uint16', 'uint32', 'uint64' Invalid values: 'int16','int32', 'int64', 'int', 'float'...",
               "enum": [
+                "uint8",
                 "uint16",
                 "uint32",
-                "uint64",
-                "uint"
+                "uint64"
               ],
               "title": "data_type",
-              "type": "string"
+              "type": [
+                "string",
+                "null"
+              ]
             }
           },
           "title": "Parameters",
@@ -6398,6 +6487,12 @@
               "description": "RA coordinate in degree.",
               "title": "right_ascension",
               "type": "number"
+            },
+            "with_caching": {
+              "default": true,
+              "description": "Enable/Disable caching request to GAIA catalog.",
+              "title": "with_caching",
+              "type": "boolean"
             }
           },
           "required": [

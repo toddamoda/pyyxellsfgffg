@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -8,6 +8,7 @@
 
 from typing import Union
 
+import numpy as np
 import pytest
 
 from pyxel.detectors import (
@@ -31,7 +32,7 @@ from pyxel.models.charge_measurement import (
 @pytest.fixture
 def ccd_5x10() -> CCD:
     """Create a valid CCD detector."""
-    return CCD(
+    detector = CCD(
         geometry=CCDGeometry(
             row=5,
             col=10,
@@ -42,12 +43,14 @@ def ccd_5x10() -> CCD:
         environment=Environment(),
         characteristics=Characteristics(),
     )
+    detector.signal.array = np.zeros(detector.geometry.shape, dtype=float)
+    return detector
 
 
 @pytest.fixture
 def cmos_5x10() -> CMOS:
     """Create a valid CMOS detector."""
-    return CMOS(
+    detector = CMOS(
         geometry=CMOSGeometry(
             row=5,
             col=10,
@@ -58,12 +61,14 @@ def cmos_5x10() -> CMOS:
         environment=Environment(),
         characteristics=Characteristics(charge_to_volt_conversion=1.0e-6),
     )
+    detector.signal.array = np.zeros(detector.geometry.shape, dtype=float)
+    return detector
 
 
 @pytest.fixture
 def apd_5x5() -> APD:
     """Create a valid CCD detector."""
-    return APD(
+    detector = APD(
         geometry=APDGeometry(
             row=5,
             col=5,
@@ -82,6 +87,8 @@ def apd_5x5() -> APD:
             roic_gain=0.8,
         ),
     )
+    detector.signal.array = np.zeros(detector.geometry.shape, dtype=float)
+    return detector
 
 
 @pytest.mark.parametrize("detector_type", ["ccd", "cmos"])

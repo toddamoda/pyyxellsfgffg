@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -33,7 +33,7 @@ def get_xvalue_with_interpolation(function_array: np.ndarray, y_value: float) ->
         intpol_x_value = function_array[-1, 0]
     else:
         value_bisect: int = bisect.bisect(
-            a=function_array[:, 1],  # type: ignore
+            a=function_array[:, 1],
             x=y_value,
         )
         y_index_bot: int = value_bisect - 1

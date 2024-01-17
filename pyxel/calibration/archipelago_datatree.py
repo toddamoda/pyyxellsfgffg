@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -45,11 +45,11 @@ def extract_data_3d(
         id_processor: int = row["id_processor"]
         data_tree: Delayed = row["data_tree"]
 
-        photon_delayed: Delayed = data_tree["/bucket/photon"]  # type: ignore
-        charge_delayed: Delayed = data_tree["/bucket/charge"]  # type: ignore
-        pixel_delayed: Delayed = data_tree["/bucket/pixel"]  # type: ignore
-        signal_delayed: Delayed = data_tree["/bucket/signal"]  # type: ignore
-        image_delayed: Delayed = data_tree["/bucket/image"]  # type: ignore
+        photon_delayed: Delayed = data_tree["photon"]  # type: ignore
+        charge_delayed: Delayed = data_tree["charge"]  # type: ignore
+        pixel_delayed: Delayed = data_tree["pixel"]  # type: ignore
+        signal_delayed: Delayed = data_tree["signal"]  # type: ignore
+        image_delayed: Delayed = data_tree["image"]  # type: ignore
 
         photon_3d = da.from_delayed(
             photon_delayed, shape=(times, rows, cols), dtype=float
@@ -122,8 +122,8 @@ class ArchipelagoDataTree:
     ):
         try:
             import pygmo as pg
-        except ImportError as exc:
-            raise ImportError(
+        except ModuleNotFoundError as exc:
+            raise ModuleNotFoundError(
                 "Missing optional package 'pygmo'.\n"
                 "Please install it with 'pip install pyxel-sim[calibration]' "
                 "or 'pip install pyxel-sim[all]'"
@@ -260,6 +260,25 @@ class ArchipelagoDataTree:
                 # that was encountered
                 self._pygmo_archi.wait_check()
 
+                # island: pg.island
+                # for id_island, island in enumerate(self._pygmo_archi):
+                #     algo: pg.algorithm = island.get_algorithm().extract(pg.sade)
+                #     logs: list[tuple] = algo.get_log()
+                #     columns = (
+                #         "num_generations",  # Generation number
+                #         "num_evaluations",  # Number of functions evaluation made
+                #         "best_fitness",  # The best fitness currently in the population
+                #         "f",
+                #         "cr",
+                #         "dx",
+                #         "df",
+                #     )
+                #     df = (
+                #         pd.DataFrame(logs, columns=columns)
+                #         .set_index(["num_generations", "num_evaluations"])
+                #         .to_xarray()
+                #     )
+
                 progress.update(self.algorithm.generations)
 
                 # Get partial champions for this evolution
@@ -340,9 +359,13 @@ class ArchipelagoDataTree:
         data_tree["champion_fitness"] = champions["champion_fitness"]
         data_tree["champion_decision"] = champions["champion_decision"]
         data_tree["champion_parameters"] = champions["champion_parameters"]
-        data_tree["best_fitness"] = champions["best_fitness"]
-        data_tree["best_decision"] = champions["best_decision"]
-        data_tree["best_parameters"] = champions["best_parameters"]
+
+        if "best_fitness" in champions:
+            data_tree["best_fitness"] = champions["best_fitness"]
+        if "best_decision" in champions:
+            data_tree["best_decision"] = champions["best_decision"]
+        if "best_parameters" in champions:
+            data_tree["best_parameters"] = champions["best_parameters"]
 
         data_tree["simulated_photon"] = all_data_fit_range["simulated_photon"]
         data_tree["simulated_charge"] = all_data_fit_range["simulated_charge"]

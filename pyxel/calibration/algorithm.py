@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -135,12 +135,12 @@ class Algorithm:
         self._nlopt_selection = nlopt_selection
 
     @property
-    def type(self) -> AlgorithmType:  # noqa: A003
+    def type(self) -> AlgorithmType:
         """TBW."""
         return self._type
 
     @type.setter
-    def type(self, value: AlgorithmType) -> None:  # noqa: A003
+    def type(self, value: AlgorithmType) -> None:
         """TBW."""
         self._type = AlgorithmType(value)
 
@@ -483,8 +483,8 @@ class Algorithm:
         """TBW."""
         try:
             import pygmo as pg
-        except ImportError as exc:
-            raise ImportError(
+        except ModuleNotFoundError as exc:
+            raise ModuleNotFoundError(
                 "Missing optional package 'pygmo'.\n"
                 "Please install it with 'pip install pyxel-sim[calibration]' "
                 "or 'pip install pyxel-sim[all]'"

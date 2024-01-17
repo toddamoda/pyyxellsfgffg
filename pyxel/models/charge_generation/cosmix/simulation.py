@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -231,7 +231,7 @@ class Simulation:
             spectrum_cdf=self.spectrum_cdf,
             starting_pos_ver=self.position_ver,
             starting_pos_hor=self.position_hor,
-            starting_pos_z=self.position_z
+            starting_pos_z=self.position_z,
             # self.angle_alpha, self.angle_beta)
         )
 
@@ -262,7 +262,7 @@ class Simulation:
                 # e_kin_energy = sampling_distribution(self.kin_energy_cdf)     # keV   TODO
             # elif self.energy_loss_data == 'geant4':
             #     pass
-            elif self.energy_loss_data == "stopping":
+            else:
                 raise NotImplementedError  # TODO: implement this
 
             e_kin_energy = 1.0  # TODO
@@ -293,7 +293,7 @@ class Simulation:
             # elif self.energy_loss_data == 'geant4':
             #     electron_number = electron_number_vector[g4_j]
             #     g4_j += 1
-            elif self.energy_loss_data == "stopping":
+            else:
                 raise NotImplementedError
 
             secondary_per_event += 1
@@ -347,7 +347,7 @@ class Simulation:
             spectrum_cdf=self.spectrum_cdf,
             starting_pos_ver=self.position_ver,
             starting_pos_hor=self.position_hor,
-            starting_pos_z=self.position_z
+            starting_pos_z=self.position_z,
             # self.angle_alpha, self.angle_beta
         )
         particle = self.particle

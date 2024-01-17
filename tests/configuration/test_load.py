@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -524,13 +524,18 @@ pipeline:
     return filename
 
 
-@pytest.mark.deprecated
-def test_load_2_times_deprecated():
-    """Test function 'pyxel.load' called two times."""
-    filename = "tests/data/deprecated_dummy_simple.yaml"
+@pytest.fixture
+def folder_data(request: pytest.FixtureRequest) -> Path:
+    """Get the folder 'tests'."""
+    filename: Path = request.path / "../../data"
+    return filename.resolve(strict=True)
 
+
+@pytest.mark.deprecated
+def test_load_2_times_deprecated(folder_data: Path):
+    """Test function 'pyxel.load' called two times."""
     # Get full filename
-    full_filename: Path = Path(filename)
+    full_filename: Path = folder_data / "deprecated_dummy_simple.yaml"
     assert full_filename.exists()
 
     # Load the configuration file for the first time
@@ -542,12 +547,10 @@ def test_load_2_times_deprecated():
         _ = pyxel.load(full_filename)
 
 
-def test_load_2_times():
+def test_load_2_times(folder_data: Path):
     """Test function 'pyxel.load' called two times."""
-    filename = "tests/data/dummy_simple.yaml"
-
     # Get full filename
-    full_filename: Path = Path(filename)
+    full_filename: Path = folder_data / "dummy_simple.yaml"
     assert full_filename.exists()
 
     # Load the configuration file for the first time
@@ -566,7 +569,9 @@ def test_load_no_running_mode_deprecated(config_no_running_mode_deprecated: Path
 
     with pytest.raises(
         ValueError,
-        match=r"Expecting only one running mode: 'exposure', 'observation', 'calibration'",
+        match=(
+            r"Expecting only one running mode: 'exposure', 'observation', 'calibration'"
+        ),
     ):
         _ = pyxel.load(filename)
 
@@ -577,7 +582,9 @@ def test_load_no_running_mode(config_no_running_mode: Path):
 
     with pytest.raises(
         ValueError,
-        match=r"Expecting only one running mode: 'exposure', 'observation', 'calibration'",
+        match=(
+            r"Expecting only one running mode: 'exposure', 'observation', 'calibration'"
+        ),
     ):
         _ = pyxel.load(filename)
 
@@ -589,7 +596,9 @@ def test_load_two_running_modes_deprecated(config_two_running_modes_deprecated: 
 
     with pytest.raises(
         ValueError,
-        match=r"Expecting only one running mode: 'exposure', 'observation', 'calibration'",
+        match=(
+            r"Expecting only one running mode: 'exposure', 'observation', 'calibration'"
+        ),
     ):
         _ = pyxel.load(filename)
 
@@ -600,7 +609,9 @@ def test_load_two_running_modes(config_two_running_modes: Path):
 
     with pytest.raises(
         ValueError,
-        match=r"Expecting only one running mode: 'exposure', 'observation', 'calibration'",
+        match=(
+            r"Expecting only one running mode: 'exposure', 'observation', 'calibration'"
+        ),
     ):
         _ = pyxel.load(filename)
 
@@ -612,7 +623,10 @@ def test_load_no_detector_before(config_no_detector_deprecated: Path):
 
     with pytest.raises(
         ValueError,
-        match=r"Expecting only one detector: 'ccd_detector', 'cmos_detector', 'mkid_detector'",
+        match=(
+            r"Expecting only one detector: 'ccd_detector', 'cmos_detector',"
+            r" 'mkid_detector'"
+        ),
     ):
         _ = pyxel.load(filename)
 
@@ -623,7 +637,10 @@ def test_load_no_detector(config_no_detector: Path):
 
     with pytest.raises(
         ValueError,
-        match=r"Expecting only one detector: 'ccd_detector', 'cmos_detector', 'mkid_detector'",
+        match=(
+            r"Expecting only one detector: 'ccd_detector', 'cmos_detector',"
+            r" 'mkid_detector'"
+        ),
     ):
         _ = pyxel.load(filename)
 
@@ -635,7 +652,10 @@ def test_load_two_detectors_deprecated(config_two_detectors_deprecated: Path):
 
     with pytest.raises(
         ValueError,
-        match=r"Expecting only one detector: 'ccd_detector', 'cmos_detector', 'mkid_detector'",
+        match=(
+            r"Expecting only one detector: 'ccd_detector', 'cmos_detector',"
+            r" 'mkid_detector'"
+        ),
     ):
         _ = pyxel.load(filename)
 
@@ -646,6 +666,9 @@ def test_load_two_detectors(config_two_detectors: Path):
 
     with pytest.raises(
         ValueError,
-        match=r"Expecting only one detector: 'ccd_detector', 'cmos_detector', 'mkid_detector'",
+        match=(
+            r"Expecting only one detector: 'ccd_detector', 'cmos_detector',"
+            r" 'mkid_detector'"
+        ),
     ):
         _ = pyxel.load(filename)

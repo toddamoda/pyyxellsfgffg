@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -26,8 +26,8 @@ def load_detector(detector: Detector, filename: Union[str, Path]) -> None:
     # Check type of 'new_detector'
     if type(detector) is not type(new_detector):
         raise TypeError(
-            f"Wrong detector type from 'filename':'{filename}'. "
-            f"Got type: '{type(detector).__name__}', expected '{type(new_detector).__name__}'"
+            f"Wrong detector type from 'filename':'{filename}'. Got type:"
+            f" '{type(detector).__name__}', expected '{type(new_detector).__name__}'"
         )
 
     detector = new_detector

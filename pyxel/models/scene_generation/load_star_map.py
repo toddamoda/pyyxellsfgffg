@@ -7,9 +7,10 @@
 
 """Scene generator creates Scopesim Source object."""
 
+import warnings
 from collections.abc import Sequence
 from enum import Enum
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Callable, Literal
 
 import astropy.units as u
 import numpy as np
@@ -19,7 +20,10 @@ from astroquery.gaia import Gaia
 from specutils import Spectrum1D
 from synphot import SourceSpectrum
 
+from pyxel import util
 from pyxel.detectors import Detector
+
+warnings.filterwarnings("ignore")
 
 if TYPE_CHECKING:
     from astropy.io.votable import tree
@@ -45,11 +49,11 @@ class GaiaPassBand(Enum):
         >>> band.get_magnitude_key()
         'phot_bp_mean_map'
         """
-        if self is self.BluePhotometer:
+        if self is GaiaPassBand.BluePhotometer:
             return "phot_bp_mean_mag"
-        elif self is self.GaiaBand:
+        elif self is GaiaPassBand.GaiaBand:
             return "phot_g_mean_mag"
-        elif self is self.RedPhotometer:
+        elif self is GaiaPassBand.RedPhotometer:
             return "phot_rp_mean_mag"
         else:
             raise NotImplementedError
@@ -257,10 +261,11 @@ def _retrieve_objects_from_gaia(
     try:
         # Query for the catalog to search area with coordinates in FOV of optics.
         job = Gaia.launch_job_async(
-            f"SELECT source_id, ra, dec, has_xp_sampled, phot_bp_mean_mag, phot_g_mean_mag, phot_rp_mean_mag \
-        FROM gaiadr3.gaia_source \
-        WHERE CONTAINS(POINT('ICRS', ra, dec),CIRCLE('ICRS',{right_ascension},{declination},{fov_radius}))=1 \
-        AND has_xp_sampled = 'True'"
+            "SELECT source_id, ra, dec, has_xp_sampled, phot_bp_mean_mag,"
+            " phot_g_mean_mag, phot_rp_mean_mag         FROM gaiadr3.gaia_source      "
+            "   WHERE CONTAINS(POINT('ICRS', ra,"
+            f" dec),CIRCLE('ICRS',{right_ascension},{declination},{fov_radius}))=1     "
+            "    AND has_xp_sampled = 'True'"
         )
 
         # get the results from the query job
@@ -468,8 +473,8 @@ def load_objects_from_gaia(
     ra_arcsec: u.Quantity = u.Quantity(ds_from_gaia["ra"], unit=u.deg).to(u.arcsec)
     dec_arcsec: u.Quantity = u.Quantity(ds_from_gaia["dec"], unit=u.deg).to(u.arcsec)
 
-    x: u.Quantity = ra_arcsec - ra_arcsec.mean()
-    y: u.Quantity = dec_arcsec - dec_arcsec.mean()
+    x: u.Quantity = ra_arcsec  # - ra_arcsec.mean()
+    y: u.Quantity = dec_arcsec  # - dec_arcsec.mean()
 
     # Get weights
     weights_from_gaia: xr.DataArray = ds_from_gaia[band.get_magnitude_key()]
@@ -495,12 +500,18 @@ def load_objects_from_gaia(
     return ds
 
 
+# TODO: add information about magnitude
+# TODO: add option to select filter to compute apparent magnitude
+# TODO: add option to select different catalogue versions
+
+
 def load_star_map(
     detector: Detector,
     right_ascension: float,
     declination: float,
     fov_radius: float,
     band: Literal["blue_photometer", "gaia_band", "red_photometer"] = "blue_photometer",
+    with_caching: bool = True,
 ):
     """Generate scene from scopesim Source object loading stars from the GAIA catalog.
 
@@ -519,10 +530,18 @@ def load_star_map(
         * 'blue_photometer' is the band from 330 nm to 680 nm
         * 'gaia_band' is the band from 330 nm to 1050 nm
         * 'red_photometer' is the band from 640 nm to 1050 nm
+    with_caching : bool
+        Enable/Disable caching request to GAIA catalog.
     """
     band_pass: GaiaPassBand = GaiaPassBand(band)
 
-    ds: xr.Dataset = load_objects_from_gaia(
+    if not with_caching:
+        func: Callable = load_objects_from_gaia
+    else:
+        cache = util.get_cache()
+        func = cache.memoize()(load_objects_from_gaia)
+
+    ds: xr.Dataset = func(
         right_ascension=right_ascension,
         declination=declination,
         fov_radius=fov_radius,

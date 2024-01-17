@@ -10,32 +10,206 @@ Minor releases include updated stdlib stubs from typeshed.
 Pyxel doesn't use SemVer anymore, since most minor releases have at least minor backward incompatible changes.
 
 ## UNRELEASED
+
+### Core
+* Move "intermediate_steps" from data to parent data_tree..
+  (See [!788](https://gitlab.com/esa/pyxel/-/merge_requests/788)).
+* Improved method `Detector.to_xarray()`.
+  (See [!787](https://gitlab.com/esa/pyxel/-/merge_requests/787)).
+* Improved method `Scene.to_xarray()`.
+  (See [!799](https://gitlab.com/esa/pyxel/-/merge_requests/799)).
+* Added deprecated warnings to `pyxel.calibdation_mode()`, `pyxel.exposure_mode()`, `pyxel.observation_mode()`.
+  (See [!802](https://gitlab.com/esa/pyxel/-/merge_requests/802)).
+
+### Documentation
+* Add documentation for `Detector.scene`.
+  (See [!800](https://gitlab.com/esa/pyxel/-/merge_requests/800)).
+
+### Models
+* Add a caching mechanism with model `load_star_map` from `Scene Generation`.
+  (See [!798](https://gitlab.com/esa/pyxel/-/merge_requests/798)).
+
+### Others
+* Catch exception `ModuleNotFoundError` instead of `ImportError`.
+  (See [!789](https://gitlab.com/esa/pyxel/-/merge_requests/789)).
+* Refactor functions in `state.py`.
+  (See [!790](https://gitlab.com/esa/pyxel/-/merge_requests/790)).
+* Add missing packages in `environment.yml`.
+  (See [!792](https://gitlab.com/esa/pyxel/-/merge_requests/792)).
+* Fix for Xarray 2023.12.0.
+  (See [!793](https://gitlab.com/esa/pyxel/-/merge_requests/793)).
+* Prepare for Numpy 2.
+  (See [!795](https://gitlab.com/esa/pyxel/-/merge_requests/795)).
+* Parameter `with_intermediate_steps` is not optional in function `run_pipeline`.
+  (See [!794](https://gitlab.com/esa/pyxel/-/merge_requests/794)).
+
+
+## 1.13.1 / 2023-11-28
+This release brings a number of bugfixes and improvements.
+
+With the new breaking changes in version 1.13 the pixel array was reset also when using non-destructive readout mode. 
+This new release fixes the bug. 
+The error message is improved when an array is not initialized and the documentation for the model groups is updated, 
+such that the user is better informed.
+
+### Core
+* Add better error message when a 'Photon', 'Pixel', 'Signal' and 'Image' 
+  data containers are not initialized.
+  (See [!780](https://gitlab.com/esa/pyxel/-/merge_requests/780)).
+* Small refactoring of methods 'Detector.from_dict' and 'Detector.to_dict'.
+  (See [!781](https://gitlab.com/esa/pyxel/-/merge_requests/781)).
+* Non destructive readout, signal is not increasing.
+  (See [!783](https://gitlab.com/esa/pyxel/-/merge_requests/783)).
+
+
+### Documentation
+* Review model descriptions in reference documentation.
+  (See [!784](https://gitlab.com/esa/pyxel/-/merge_requests/784)).
+
+
+## 1.13 / 2023-11-22
+This release brings a number of bugfixes and improvements.
+
+### Breaking changes
+
+The containers such as `Photon`, `Pixel`, `Signal` and `Image` are not
+initialized before running a pipeline. The models must initialize the containers.
+
+### Core
+* Removed deprecated `Detector.set_output_dir` method and `Detector.output_dir` property.
+  (See [!759](https://gitlab.com/esa/pyxel/-/merge_requests/759)).
+* Image data bucket only allows integer data.
+  (See [!764](https://gitlab.com/esa/pyxel/-/merge_requests/764)).
+* Fix issue in Observation mode with a 2D parameter.
+  (See [!770](https://gitlab.com/esa/pyxel/-/merge_requests/770)).
+* Changed Array class initializer. The internal array is initialized to None not np.zeroes. 
+  (See [!767](https://gitlab.com/esa/pyxel/-/merge_requests/767)).
+* Remove attribute `input_image` from `Detector`.
+  (See [!772](https://gitlab.com/esa/pyxel/-/merge_requests/772)).
+* Fix bug in `Array.__repr__`.
+  (See [!773](https://gitlab.com/esa/pyxel/-/merge_requests/773)).
+* Fix bugs in Calibration mode.
+  (See [!774](https://gitlab.com/esa/pyxel/-/merge_requests/774)).
+* Add two new `load_table_v2` and `load_image_v2` functions. 
+  These functions are more flexible than `load_table` and `load_image` and are provisional.
+  (See [!775](https://gitlab.com/esa/pyxel/-/merge_requests/775)).
+
+### Models
+* Improvements in model 'pulse_processing' in Model group 'phasing'.
+  (See [!665](https://gitlab.com/esa/pyxel/-/merge_requests/665)).
+* Model 'amplifier_crosstalk' is moved from 'readout_electronics' to 'charge_measurement'.
+  (See [!763](https://gitlab.com/esa/pyxel/-/merge_requests/763)).
+* Remove warnings from model 'Cosmix' from 'Charge Generation.
+  (See [!768](https://gitlab.com/esa/pyxel/-/merge_requests/768)).
+* Remove all warnings in dark current model.
+  (See [!769](https://gitlab.com/esa/pyxel/-/merge_requests/769)).
+* Fix issue with model 'wavelength_dependence_airs' in 'Photon Collection'.
+  (See [!776](https://gitlab.com/esa/pyxel/-/merge_requests/776)
+  and [!777](https://gitlab.com/esa/pyxel/-/merge_requests/777)).
+
+### Others
+* Minor refactoring.
+  (See [!756](https://gitlab.com/esa/pyxel/-/merge_requests/756)).
+* Check more packages with function `pyxel.show_versions()`.
+  (See [!757](https://gitlab.com/esa/pyxel/-/merge_requests/757)).
+* Fix issues when running Mypy 1.7.
+  (See [!762](https://gitlab.com/esa/pyxel/-/merge_requests/762)).
+* Remove conda package 'memray' from 'environment.yml'.
+  (See [!782](https://gitlab.com/esa/pyxel/-/merge_requests/782)).
+
+
+## 1.12 / 2023-10-27
+This release brings a number of bugfixes, documentation and improvements.
+
+The function `pyxel.display_detector` used in the jupyter notebooks to visualise the detector at each stage of the 
+pipeline, has now the option to display in logarithmic scale besides the linear scale and to change the color of the image.
+The bin size and the x-axis range can now be changed in the related histogram plot.
+
+### Core
+* In 'Custom Observation' mode, add a sanity test to verify input custom data.
+  (See [!749](https://gitlab.com/esa/pyxel/-/merge_requests/749)).
+* Nan output and missing output in observation mode.
+  (See [!750](https://gitlab.com/esa/pyxel/-/merge_requests/750)).
+* Improved function `pyxel.display_detector`.
+  (See [!739](https://gitlab.com/esa/pyxel/-/merge_requests/739)).
+* Add filter to ignore warnings in scene_generation.
+  (See [!751](https://gitlab.com/esa/pyxel/-/merge_requests/751)).
+* Reduce warning in dark current model.
+  (See [!643](https://gitlab.com/esa/pyxel/-/merge_requests/643)).
+
+### Documentation
+* Add more information about the Conda environments in the 
+  [installation documentation](https://esa.gitlab.io/pyxel/doc/stable/tutorials/install.html).
+  (See [!746](https://gitlab.com/esa/pyxel/-/merge_requests/746)).
+* Add documentation for ModelGroup 'Scene Generation'.
+  (See [!752](https://gitlab.com/esa/pyxel/-/merge_requests/752)).
+
+
+## 1.11.1 / 2023-10-19
+
+This release brings one bugfix.
+
+### Others
+* Remove Scopesim as a dependency of Pyxel.
+  (See [!745](https://gitlab.com/esa/pyxel/-/merge_requests/745)).
+
+## 1.11 / 2023-10-18
 This release brings a number of bugfixes, documentation and improvements.
 
 The following new models were added:
-* `load_star_map`.
+* [`load_star_map`](https://esa.gitlab.io/pyxel/doc/latest/references/model_groups/scene_generation_models.html#pyxel.models.scene_generation.load_star_map) in `Scene Generation`.
+* [`simple_aperture`](https://esa.gitlab.io/pyxel/doc/latest/references/model_groups/photon_collection_models.html#pyxel.models.photon_collection.simple_aperture) in `Photon Collection`.
 
+Parameter `data_type` is now optional in model 
+[`simple_adc`](https://esa.gitlab.io/pyxel/doc/latest/references/model_groups/readout_electronics.html#pyxel.models.readout_electronics.simple_adc) 
+in `Readout Electronics`.
+If this parameter is not provided then it is inferred from `adc_bit_resolution` in `Detector`.
 
 ### Core
+* Bug when using with a configuration file with extension '.yml' instead of '.yaml'.
+  (See [!737](https://gitlab.com/esa/pyxel/-/merge_requests/737)).
+* Speedup function [`pyxel.load`](https://esa.gitlab.io/pyxel/doc/latest/references/api/configuration.html#pyxel.load).
+  (See [!738](https://gitlab.com/esa/pyxel/-/merge_requests/738)).
+* Add `Scene` to `pyxel.run_mode`.
+  (See [!740](https://gitlab.com/esa/pyxel/-/merge_requests/740)).
+* Fix bug with the output of [`pyxel.run_mode`](https://esa.gitlab.io/pyxel/doc/latest/references/api/run.html#pyxel.run_mode).
+  The 'image' container has type `float64` instead of `int`.
+  (See [!742](https://gitlab.com/esa/pyxel/-/merge_requests/742)).
 
 ### Documentation
 * Add info about Jupyter book being not interactive.
   (See [!726](https://gitlab.com/esa/pyxel/-/merge_requests/726)).
 * Add new icon/badge 'I want to contribute !'
   (See [!727](https://gitlab.com/esa/pyxel/-/merge_requests/727)).
-* Update EMCCD cic model updates.
+* Update EMCCD cic model [`multiplication_register_cic`](https://esa.gitlab.io/pyxel/doc/latest/references/model_groups/charge_transfer_models.html#pyxel.models.charge_transfer.multiplication_register_cic)
+  in `Charge Transfer`.
   (See [!728](https://gitlab.com/esa/pyxel/-/merge_requests/728)).
+* Fix documentation for model [`load_charge`](https://esa.gitlab.io/pyxel/doc/latest/references/model_groups/charge_generation_models.html#pyxel.models.charge_generation.load_charge) 
+  in `charge_generation`.
+  (See [!743](https://gitlab.com/esa/pyxel/-/merge_requests/743)).
 
 ### Models
-* Add first model for group `load_star_map` in `Scene Generation`.
+* Add first model for group [`load_star_map`](https://esa.gitlab.io/pyxel/doc/latest/references/model_groups/scene_generation_models.html#pyxel.models.scene_generation.load_star_map)
+  in `Scene Generation`.
   (See [!715](https://gitlab.com/esa/pyxel/-/merge_requests/715)
   and [!716](https://gitlab.com/esa/pyxel/-/merge_requests/716)).
-* Fix unexpected value in `simple_adc` in `Readout Electronics`.
+* Fix unexpected value in [`simple_adc`](https://esa.gitlab.io/pyxel/doc/latest/references/model_groups/readout_electronics.html#pyxel.models.readout_electronics.simple_adc)
+  in `Readout Electronics`.
   (See [!732](https://gitlab.com/esa/pyxel/-/merge_requests/732)).
+* Add model [`simple_aperture`](https://esa.gitlab.io/pyxel/doc/latest/references/model_groups/photon_collection_models.html#pyxel.models.photon_collection.simple_aperture)
+  in `Photon Collection` to convert from scene to photon.
+  (See [!733](https://gitlab.com/esa/pyxel/-/merge_requests/733)).
+* Parameter `data_type` is optional in model [`simple_adc`](https://esa.gitlab.io/pyxel/doc/latest/references/model_groups/readout_electronics.html#pyxel.models.readout_electronics.simple_adc)
+  in `Readout Electronics`.
+  (See [!736](https://gitlab.com/esa/pyxel/-/merge_requests/736)).
+* Rename induced dark_current model to [`radiation induced dark current`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_generation_models.html#radiation-induced-dark-current).
+  (See [!731](https://gitlab.com/esa/pyxel/-/merge_requests/731)).
 
 ### Others
 * Fix issues with mypy and Matplotlib 3.8.
   (See [!734](https://gitlab.com/esa/pyxel/-/merge_requests/734)).
+* Add [`poppy`](https://poppy-optics.readthedocs.io/) as a dependency in Conda.
+  (See [!741](https://gitlab.com/esa/pyxel/-/merge_requests/741)).
 
 
 ## 1.10.2 / 2023-08-29

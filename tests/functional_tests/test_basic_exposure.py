@@ -7,21 +7,27 @@
 
 from pathlib import Path
 
+import numpy as np
+import pytest
 from datatree import DataTree
 
 import pyxel
 from pyxel import Configuration
 from pyxel.detectors import Detector
+from pyxel.exposure import Exposure
 
 
-def test_basic_exposure_hdf5(tmp_path: Path):
+@pytest.fixture
+def valid_config_filename(request: pytest.FixtureRequest) -> Path:
+    """Get a valid existing YAML filename."""
+    filename: Path = request.path.parent / "data/basic_exposure.yaml"
+    return filename.resolve(strict=True)
+
+
+def test_basic_exposure_hdf5(valid_config_filename: Path, tmp_path: Path):
     """Functional test with a basic Exposure mode."""
-    config_filename: str = "tests/functional_tests/data/basic_exposure.yaml"
-    config_full_filename = Path(config_filename).resolve()
-    assert config_full_filename.exists()
-
     # Read configuration file
-    cfg = pyxel.load(config_filename)
+    cfg = pyxel.load(valid_config_filename)
     assert isinstance(cfg, Configuration)
 
     # Save 'detector' before modifications
@@ -37,7 +43,7 @@ def test_basic_exposure_hdf5(tmp_path: Path):
     # Execute 'cfg'
     data_tree = pyxel.run_mode(
         mode=cfg.running_mode,
-        detector=cfg.detector,
+        detector=detector,
         pipeline=cfg.pipeline,
     )
     assert isinstance(data_tree, DataTree)
@@ -57,14 +63,10 @@ def test_basic_exposure_hdf5(tmp_path: Path):
     # assert detector == new_detector
 
 
-def test_basic_exposure_asdf(tmp_path: Path):
+def test_basic_exposure_asdf(valid_config_filename: Path, tmp_path: Path):
     """Functional test with a basic Exposure mode."""
-    config_filename: str = "tests/functional_tests/data/basic_exposure.yaml"
-    config_full_filename = Path(config_filename).resolve()
-    assert config_full_filename.exists()
-
     # Read configuration file
-    cfg = pyxel.load(config_filename)
+    cfg = pyxel.load(valid_config_filename)
     assert isinstance(cfg, Configuration)
 
     # Save 'detector' before modifications
@@ -98,3 +100,27 @@ def test_basic_exposure_asdf(tmp_path: Path):
     assert detector.data.isomorphic(new_detector.data)
     assert set(detector.data.groups) == set(new_detector.data.groups)
     # assert detector == new_detector
+
+
+@pytest.mark.parametrize("readout_times", [[0.1], [0.1, 0.5]])
+def test_simple_adc_dtype(readout_times, valid_config_filename: Path):
+    """Functional tests to check '.dtype' when using model 'simple_adc'."""
+    # Read configuration file
+    cfg = pyxel.load(valid_config_filename)
+    assert isinstance(cfg, Configuration)
+
+    detector = cfg.detector
+
+    exposure = cfg.running_mode
+    assert isinstance(exposure, Exposure)
+
+    exposure.readout.times = readout_times
+
+    result = pyxel.run_mode(
+        mode=exposure,
+        detector=detector,
+        pipeline=cfg.pipeline,
+    )
+
+    assert detector.image.dtype == np.uint16
+    assert result["image"].dtype == np.uint16

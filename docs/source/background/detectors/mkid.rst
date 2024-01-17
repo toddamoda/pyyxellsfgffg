@@ -31,8 +31,12 @@ API reference: :py:class:`~pyxel.detectors.MKID`
 Available models
 ================
 
+* Scene generation
+    * :ref:`scene_generation_create_store_detector`
+    * :ref:`load_star_map`
 * Photon collection
     * :ref:`photon_collection_create_store_detector`
+    * :ref:`aperture`
     * :ref:`Load image`
     * :ref:`Simple illumination`
     * :ref:`Stripe pattern`
@@ -69,6 +73,7 @@ Available models
     * :ref:`Dead time filter`
     * :ref:`Simple phase conversion`
 * Data processing:
+    * :ref:`data_processing_create_store_detector`
     * :ref:`statistics`
     * :ref:`mean_variance`
     * :ref:`linear_regression`

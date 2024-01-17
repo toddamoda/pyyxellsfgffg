@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -82,30 +82,35 @@ class ParameterValues:
         self._logarithmic: bool = logarithmic
 
         if boundaries is None:
-            boundaries_array: Optional[NDArray[np.float_]] = None
+            boundaries_array: Optional[NDArray[np.float64]] = None
         else:
-            boundaries_array = np.array(boundaries, dtype=np.float_)
+            boundaries_array = np.array(boundaries, dtype=np.float64)
             if boundaries_array.ndim == 1:
                 if boundaries_array.shape != (2,):
                     raise ValueError(
-                        f"Expecting only two values for the boundaries. Got: {boundaries}."
+                        "Expecting only two values for the boundaries. Got:"
+                        f" {boundaries}."
                     )
             elif boundaries_array.ndim == 2:
                 if boundaries_array.shape != (len(values), 2):
                     raise ValueError(
-                        f"Expecting a 2x{len(values)} values for the boundaries. Got: {boundaries}."
+                        f"Expecting a 2x{len(values)} values for the boundaries. Got:"
+                        f" {boundaries}."
                     )
             else:
                 raise ValueError(f"Wrong format of boundaries. Got {boundaries}.")
 
-        self._boundaries: Optional[NDArray[np.float_]] = boundaries_array
+        self._boundaries: Optional[NDArray[np.float64]] = boundaries_array
 
         self._current: Optional[Union[Literal["_"], Number, str]] = None
 
     def __repr__(self) -> str:
         cls_name: str = self.__class__.__name__
 
-        return f"{cls_name}<key={self.key!r}, values={self.values!r}, enabled={self.enabled!r}>"
+        return (
+            f"{cls_name}<key={self.key!r}, values={self.values!r},"
+            f" enabled={self.enabled!r}>"
+        )
 
     def __len__(self) -> int:
         try:
@@ -160,6 +165,6 @@ class ParameterValues:
         return self._logarithmic
 
     @property
-    def boundaries(self) -> Optional[NDArray[np.float_]]:
+    def boundaries(self) -> Optional[NDArray[np.float64]]:
         """TBW."""
         return self._boundaries

@@ -83,11 +83,13 @@ Pipeline
 --------
 
 It contains the model functions grouped into model groups
-(*photon_collection*, *charge_generation*, etc.).
+(*scene_generation*, *photon_collection*, *charge_generation*, etc.).
 For details, see :ref:`pipeline`.
 
 The order of model levels and models are important,
 as the execution order is defined here!
+
+* **scene_generation**
 
 * **photon_collection**
 
@@ -102,6 +104,8 @@ as the execution order is defined here!
 * **(signal_transfer)**
 
 * **readout_electronics**
+
+* **data_processing**
 
 
 Models need a ``name`` which defines the path to the model wrapper

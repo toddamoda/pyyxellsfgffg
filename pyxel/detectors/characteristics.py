@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -13,7 +13,7 @@ from typing import Optional
 import numpy as np
 from toolz import dicttoolz
 
-from pyxel.util.memory import get_size
+from pyxel.util import get_size
 
 
 class Characteristics:

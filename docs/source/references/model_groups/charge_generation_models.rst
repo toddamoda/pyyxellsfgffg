@@ -5,7 +5,15 @@ Charge Generation models
 ========================
 
 .. currentmodule:: pyxel.models.charge_generation
-.. automodule:: pyxel.models.charge_generation
+
+Charge generation models are used to add to and manipulate data in :py:class:`~pyxel.data_structure.Charge` array
+inside the :py:class:`~pyxel.detectors.Detector` object.
+The values in the :py:class:`~pyxel.data_structure.Charge` array represent charge in electron.
+If the :ref:`photon collection <photon_collection>` model group
+is used, a model like :ref:`Simple photoconversion` needs to be enabled in the pipeline to make the conversion from
+:guilabel:`Photon` to :guilabel:`Charge`.
+Otherwise, a model like :ref:`Load charge` needs to be enabled to initialize the
+:py:class:`~pyxel.data_structure.Charge` array.
 
 
 .. _charge_generation_create_store_detector:
@@ -143,7 +151,7 @@ Basic example of YAML configuration model:
       func: pyxel.models.charge_generation.load_charge
       enabled: true
       arguments:
-        charge_file: data/charge.npy
+        filename: data/charge.npy
         position: [0,0]
 
 .. autofunction:: load_charge
@@ -452,8 +460,8 @@ Example of the configuration file:
 
 .. _Dark current induced:
 
-Dark Current induced
-====================
+Radiation induced Dark Current
+==============================
 
 :guilabel:`Charge` → :guilabel:`Charge`
 
@@ -464,8 +472,8 @@ Example of configuration file:
 
 .. code-block:: yaml
 
-    - name: dark_current_induced
-      func: pyxel.models.charge_generation.dark_current_induced
+    - name: radiation_induced_dark_current
+      func: pyxel.models.charge_generation.radiation_induced_dark_current
       enabled: true
       arguments:
         depletion_volume: 64 # µm3
@@ -475,4 +483,4 @@ Example of configuration file:
 
 .. note:: This model is only available for CMOS detector.
 
-.. autofunction:: pyxel.models.charge_generation.dark_current_induced
+.. autofunction:: pyxel.models.charge_generation.radiation_induced_dark_current

@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -7,14 +7,38 @@
 
 """Pyxel Array class."""
 
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Optional
 
 import numpy as np
+from numpy.typing import ArrayLike
+from typing_extensions import TypeGuard
 
-from pyxel.util.memory import get_size
+from pyxel.util import convert_unit, get_size
 
 if TYPE_CHECKING:
     import xarray as xr
+
+
+def _is_array_initialized(data: Optional[np.ndarray]) -> TypeGuard[np.ndarray]:
+    """Check whether the parameter data is a numpy array.
+
+    Parameters
+    ----------
+    data : array, Optional
+        An optional numpy array.
+
+    Returns
+    -------
+    bool
+        A boolean value indicating whether the array is initialized (not None).
+
+    Notes
+    -----
+    This function uses special `typing.TypeGuard`.
+    This technique is used by static type checkers to narrow type of 'data'.
+    For more information, see https://docs.python.org/3/library/typing.html#typing.TypeGuard
+    """
+    return data is not None
 
 
 # TODO: Is it possible to move this to `data_structure/__init__.py' ?
@@ -25,22 +49,14 @@ if TYPE_CHECKING:
 class Array:
     """Array class."""
 
-    EXP_TYPE: Union[type, np.dtype] = type(None)
     TYPE_LIST: tuple[np.dtype, ...] = ()
     NAME: str = ""
     UNIT: str = ""
 
     # TODO: Add units ?
-    def __init__(self, value: np.ndarray):
-        if value.ndim != 2:
-            raise ValueError(
-                f"Expecting a 2D array. Got an array with {value.ndim} dimensions."
-            )
-
-        self.validate_type(value)
-
-        self._array: np.ndarray = value
-
+    def __init__(self, shape: tuple[int, int]):
+        self._array: Optional[np.ndarray] = None
+        self._shape = shape
         self._numbytes = 0
 
         # TODO: Implement a method to initialized 'self._array' ???
@@ -48,17 +64,45 @@ class Array:
     def __repr__(self) -> str:
         cls_name = self.__class__.__name__
 
-        return f"{cls_name}<shape={self.shape}, dtype={self.dtype}>"
+        if self._array is not None:
+            return f"{cls_name}<shape={self.shape}, dtype={self.dtype}>"
+        else:
+            return f"{cls_name}<UNINITIALIZED, shape={self.shape}>"
 
     def __eq__(self, other) -> bool:
-        return type(self) is type(other) and np.array_equal(self.array, other.array)
+        is_true = type(self) is type(other) and self.shape == other.shape
+        if is_true and self._array is not None:
+            is_true = np.array_equal(self.array, other.array)
+        return is_true
 
-    def validate_type(self, value: np.ndarray) -> None:
-        """Validate a value.
+    def __iadd__(self, other: np.ndarray):
+        if self._array is not None:
+            self.array += other
+        else:
+            self.array = other
+        return self
+
+    def __add__(self, other: np.ndarray):
+        if self._array is not None:
+            self.array += other
+        else:
+            self.array = other
+        return self
+
+    def _validate(self, value: np.ndarray) -> None:
+        """Ensure that the new np array is the correct shape and type.
 
         Parameters
         ----------
-        value
+        value : array
+            Numpy array to be validated.
+
+        Raises
+        ------
+        TypeError
+            Raised if 'value' is not a NumPy array or has not the expected dtype.
+        ValueError
+            Raised if the shape does not match the expected shape.
         """
         cls_name: str = self.__class__.__name__
 
@@ -66,15 +110,13 @@ class Array:
             raise TypeError(f"{cls_name} array should be a numpy.ndarray")
 
         if value.dtype not in self.TYPE_LIST:
-            exp_type_name: str = str(self.EXP_TYPE)
-            raise TypeError(f"Expected type of {cls_name} array is {exp_type_name}.")
+            raise TypeError(
+                f"Expected types of {cls_name} array are "
+                f"{', '.join(map(str, self.TYPE_LIST))}."
+            )
 
-    def validate_shape(self, value: np.ndarray) -> None:
-        """TBW."""
-        cls_name: str = self.__class__.__name__
-
-        if value.shape != self._array.shape:
-            raise ValueError(f"Expected {cls_name} array is {self._array.shape}.")
+        if value.shape != self._shape:
+            raise ValueError(f"Expected {cls_name} array is {self._shape}.")
 
     def __array__(self, dtype: Optional[np.dtype] = None):
         if not isinstance(self._array, np.ndarray):
@@ -84,27 +126,41 @@ class Array:
     @property
     def shape(self) -> tuple[int, int]:
         """Return array shape."""
-        num_cols, num_rows = self._array.shape
+        num_cols, num_rows = self._shape
         return num_cols, num_rows
 
     @property
     def ndim(self) -> int:
         """Return number of dimensions of the array."""
-        return self._array.ndim
+        return len(self._shape)
 
     @property
     def dtype(self) -> np.dtype:
         """Return array data type."""
-        return self._array.dtype
+        return self.array.dtype
+
+    def empty(self):
+        """Empty the array by setting the array to None."""
+        self._array = None
+
+    def _get_uninitialized_error_message(self) -> str:
+        """Get an explicit error message for an uninitialized 'array'."""
+        return f"'array' is not initialized for {self}."
 
     @property
     def array(self) -> np.ndarray:
         """Two-dimensional numpy array storing the data.
 
         Only accepts an array with the right type and shape.
+
+        Raises
+        ------
+        ValueError
+            Raised if 'array' is not initialized.
         """
-        # if self._array is None:
-        #     raise ValueError("'array' is not initialized.")
+        if not _is_array_initialized(self._array):
+            msg: str = self._get_uninitialized_error_message()
+            raise ValueError(msg)
 
         return self._array
 
@@ -114,11 +170,35 @@ class Array:
 
         Only accepts an array with the right type and shape.
         """
-        self.validate_type(value)
-        self.validate_shape(value)
+        self._validate(value)
 
-        # self.type = value.dtype
         self._array = value
+
+    # TODO: Rename this method to '_update' ?
+    def update(self, data: Optional[ArrayLike]) -> None:
+        """Update 'array' attribute.
+
+        This method updates 'array' attribute of this object with new data.
+        If the data is None, then the object is empty.
+
+        Parameters
+        ----------
+        data : array_like, Optional
+
+        Examples
+        --------
+        >>> from pyxel.data_structure import Photon
+        >>> obj = Photon(...)
+        >>> obj.update([[1, 2], [3, 4]])
+        >>> obj.array
+        array([[1, 2], [3, 4]])
+
+        >>> obj.update(None)  # Equivalent to obj.empty()
+        """
+        if data is not None:
+            self.array = np.asarray(data)
+        else:
+            self.empty()
 
     @property
     def numbytes(self) -> int:
@@ -165,12 +245,15 @@ class Array:
         import xarray as xr
 
         num_rows, num_cols = self.shape
+        if self._array is None:
+            return xr.DataArray()
+
         return xr.DataArray(
             np.array(self.array, dtype=dtype),
             name=self.NAME.lower(),
             dims=["y", "x"],
             coords={"y": range(num_rows), "x": range(num_cols)},
-            attrs={"units": self.UNIT, "long_name": self.NAME},
+            attrs={"units": convert_unit(self.UNIT), "long_name": self.NAME},
         )
 
     def plot(self, robust: bool = True) -> None:

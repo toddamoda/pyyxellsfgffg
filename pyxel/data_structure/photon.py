@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -11,6 +11,7 @@ import warnings
 from typing import TYPE_CHECKING
 
 import numpy as np
+from typing_extensions import override
 
 from pyxel.data_structure import Array
 
@@ -25,8 +26,6 @@ class Photon(Array):
     ``np.float16``, ``np.float32``, ``np.float64``
     """
 
-    # TODO: add unit (ph)
-    EXP_TYPE = float
     TYPE_LIST = (
         np.dtype(np.float16),
         np.dtype(np.float32),
@@ -36,32 +35,48 @@ class Photon(Array):
     UNIT = "Ph"
 
     def __init__(self, geo: "Geometry"):
-        new_array = np.zeros((geo.row, geo.col), dtype=self.EXP_TYPE)
+        super().__init__(shape=(geo.row, geo.col))
 
-        super().__init__(new_array)
+    @override
+    def _get_uninitialized_error_message(self) -> str:
+        """Get an explicit error message for an uninitialized 'array'.
 
-    @property
-    def array(self) -> np.ndarray:
-        """Two-dimensional numpy array storing the data.
-
-        Only accepts an array with the right type and shape.
+        This method is used in the property 'array' in the ``Array`` parent class.
         """
-        return super().array
+        example_model = "illumination"
+        example_yaml_content = """
+- name: illumination
+  func: pyxel.models.photon_collection.illumination
+  enabled: true
+  arguments:
+      level: 500
+      object_center: [250,250]
+      object_size: [15,15]
+      option: "elliptic"
+"""
+        cls_name: str = self.__class__.__name__
+        obj_name = "photons"
+        group_name = "Photon Collection"
 
-    @array.setter
-    def array(self, value: np.ndarray) -> None:
-        """Overwrite the two-dimensional numpy array storing the data.
+        return (
+            f"The '.array' attribute cannot be retrieved because the '{cls_name}'"
+            " container is not initialized.\nTo resolve this issue, initialize"
+            f" '.array' using a model that generates {obj_name} from the "
+            f"'{group_name}' group.\n"
+            f"Consider using the '{example_model}' model from"
+            f" the '{group_name}' group.\n\n"
+            "Example code snippet to add to your YAML configuration file "
+            f"to initialize the '{cls_name}' container:\n{example_yaml_content}"
+        )
 
-        Only accepts an array with the right type and shape.
-        """
-        self.validate_type(value)
-        self.validate_shape(value)
-
+    @override
+    def _validate(self, value: np.ndarray) -> None:
+        """Check that values in array are all positive."""
         if np.any(value < 0):
             value[value < 0] = 0.0
             warnings.warn(
-                "Trying to set negative values in the Photon array! Negative values clipped to 0.",
+                "Trying to set negative values in the Photon array! Negative values"
+                " clipped to 0.",
                 stacklevel=2,
             )
-
-        self._array = value
+        super()._validate(value)

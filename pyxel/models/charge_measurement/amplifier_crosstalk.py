@@ -240,7 +240,7 @@ def dc_crosstalk(
     if cpl_matrix_2d.shape != (ch_matrix.size, ch_matrix.size):
         raise ValueError(
             f"Expecting a matrix of {ch_matrix.size}x{ch_matrix.size} "
-            f"elements for 'coupling_matrix'"
+            "elements for 'coupling_matrix'"
         )
 
     if detector.geometry.row % ch_matrix.shape[0] != 0:
@@ -301,7 +301,7 @@ def ac_crosstalk(
     if cpl_matrix_2d.shape != (ch_matrix.size, ch_matrix.size):
         raise ValueError(
             f"Expecting a matrix of {ch_matrix.size}x{ch_matrix.size} "
-            f"elements for 'coupling_matrix'"
+            "elements for 'coupling_matrix'"
         )
 
     if detector.geometry.row % ch_matrix.shape[0] != 0:

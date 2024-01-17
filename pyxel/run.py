@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -9,6 +9,7 @@
 import logging
 import sys
 import time
+import warnings
 from collections.abc import Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Union
@@ -24,7 +25,7 @@ from pyxel.detectors import APD, CCD, CMOS, MKID, Detector
 from pyxel.exposure import Exposure
 from pyxel.observation import Observation, ObservationResult
 from pyxel.pipelines import DetectionPipeline, Processor
-from pyxel.util import create_model, download_examples
+from pyxel.util import create_model, deprecated, download_examples
 
 if TYPE_CHECKING:
     import xarray as xr
@@ -35,12 +36,19 @@ if TYPE_CHECKING:
 
 
 # TODO: This function will be deprecated (see #563)
+@deprecated(
+    "Model 'pyxel.models.optics.load_psf' is deprecated and will be removed in version"
+    " 2. Use model 'pyxel.models.photon_collection.stripe_pattern' instead."
+)
 def exposure_mode(
     exposure: "Exposure",
     detector: Detector,
     pipeline: "DetectionPipeline",
 ) -> "xr.Dataset":
     """Run an 'exposure' pipeline.
+
+    .. deprecated:: 1.8.0
+        `exposure_mode` will be removed in pyxel 2.0.0, it is replaced by `run_mode`.
 
     For more information, see :ref:`exposure_mode`.
 
@@ -83,11 +91,11 @@ def exposure_mode(
         signal        (readout_time, y, x) float64 3.159 3.03 2.971 ... 3.195 3.36
         pixel         (readout_time, y, x) float64 1.053e+03 1.01e+03 ... 1.12e+03
     """
+    warnings.warn("Use function 'pyxel.run_mode'", DeprecationWarning, stacklevel=1)
 
     logging.info("Mode: Exposure")
 
     exposure_outputs: ExposureOutputs = exposure.outputs
-    detector.set_output_dir(exposure_outputs.output_dir)  # TODO: Remove this
 
     processor = Processor(detector=detector, pipeline=pipeline)
 
@@ -103,7 +111,7 @@ def _run_exposure_mode(
     exposure: "Exposure",
     detector: Detector,
     pipeline: "DetectionPipeline",
-    with_intermediate_steps: bool,
+    debug: bool,
 ) -> "DataTree":
     """Run an 'exposure' pipeline.
 
@@ -114,7 +122,7 @@ def _run_exposure_mode(
     exposure : Exposure
     detector : Detector
     pipeline : DetectionPipeline
-    with_intermediate_steps : bool
+    debug : bool
 
     Returns
     -------
@@ -166,13 +174,12 @@ def _run_exposure_mode(
     logging.info("Mode: Exposure")
 
     exposure_outputs: ExposureOutputs = exposure.outputs
-    detector.set_output_dir(exposure_outputs.output_dir)  # TODO: Remove this
 
     processor = Processor(detector=detector, pipeline=pipeline)
 
     result: DataTree = exposure.run_exposure_new(
         processor=processor,
-        with_intermediate_steps=with_intermediate_steps,
+        debug=debug,
     )
 
     if exposure_outputs.save_exposure_data:
@@ -188,6 +195,9 @@ def observation_mode(
     pipeline: "DetectionPipeline",
 ) -> "ObservationResult":
     """Run an 'observation' pipeline.
+
+    .. deprecated:: 1.8.0
+        `observation_mode` will be removed in pyxel 2.0.0, it is replaced by `run_mode`.
 
     For more information, see :ref:`observation_mode`.
 
@@ -221,10 +231,11 @@ def observation_mode(
     >>> result
     ObservationResult(...)
     """
+    warnings.warn("Use function 'pyxel.run_mode'", DeprecationWarning, stacklevel=1)
+
     logging.info("Mode: Observation")
 
     observation_outputs: ObservationOutputs = observation.outputs
-    detector.set_output_dir(observation_outputs.output_dir)  # TODO: Remove this
 
     # TODO: This should be done during initializing of object `Configuration`
     # parametric_outputs.params_func(parametric)
@@ -249,6 +260,9 @@ def calibration_mode(
     compute_and_save: bool = True,
 ) -> tuple["xr.Dataset", pd.DataFrame, pd.DataFrame, Sequence]:
     """Run a 'calibration' pipeline.
+
+    .. deprecated:: 1.8.0
+        `calibration_mode` will be removed in pyxel 2.0.0, it is replaced by `run_mode`.
 
     For more information, see :ref:`calibration_mode`.
 
@@ -330,12 +344,13 @@ def calibration_mode(
     []
     """
     # Late import to speedup start-up time
+    warnings.warn("Use function 'pyxel.run_mode'", DeprecationWarning, stacklevel=1)
+
     from pyxel.calibration import CalibrationResult
 
     logging.info("Mode: Calibration")
 
     calibration_outputs: CalibrationOutputs = calibration.outputs
-    detector.set_output_dir(calibration_outputs.output_dir)  # TODO: Remove this
 
     processor = Processor(detector=detector, pipeline=pipeline)
 
@@ -467,7 +482,6 @@ def _run_calibration_mode(
     logging.info("Mode: Calibration")
 
     calibration_outputs: CalibrationOutputs = calibration.outputs
-    detector.set_output_dir(calibration_outputs.output_dir)  # TODO: Remove this
 
     processor = Processor(detector=detector, pipeline=pipeline)
 
@@ -487,7 +501,6 @@ def _run_observation_mode(
     logging.info("Mode: Observation")
 
     observation_outputs: ObservationOutputs = observation.outputs
-    detector.set_output_dir(observation_outputs.output_dir)  # TODO: Remove this
 
     processor = Processor(detector=detector, pipeline=pipeline)
 
@@ -506,7 +519,7 @@ def run_mode(
     mode: Union[Exposure, Observation, "Calibration"],
     detector: Detector,
     pipeline: DetectionPipeline,
-    with_intermediate_steps: bool = False,
+    debug: bool = False,
 ) -> "DataTree":
     """Run a pipeline.
 
@@ -518,13 +531,13 @@ def run_mode(
         This object is the container for all the data used for the models.
     pipeline : DetectionPipeline
         This is the core algorithm of Pyxel. This pipeline contains all the models to run.
-    with_intermediate_steps : bool, default: False
+    debug : bool, default: False
         Add all intermediate steps into the results as a ``DataTree``. This mode is used for debugging.
 
 
     Notes
     -----
-    Parameter ``with_intermediate_steps`` is not (yet) stable and may change in the future.
+    Parameter ``debug`` is not (yet) stable and may change in the future.
 
     Returns
     -------
@@ -536,7 +549,7 @@ def run_mode(
         Raised if the ``mode`` is not valid.
 
     NotImplementedError
-        Raised if parameter ``with_intermediate_steps`` is activated and `mode` is not an ``Exposure`` object.
+        Raised if parameter ``debug`` is activated and `mode` is not an ``Exposure`` object.
 
     Examples
     --------
@@ -569,6 +582,18 @@ def run_mode(
     │   Attributes:
     │       pyxel version:  1.9.1+104.g9da11bb2
     │       running mode:   Exposure
+    ├── DataTree('scene')
+    │   └── DataTree('list')
+    │       └── DataTree('0')
+    │               Dimensions:     (ref: 345, wavelength: 343)
+    │               Coordinates:
+    │                 * ref         (ref) int64 0 1 2 3 4 5 6 7 ... 337 338 339 340 341 342 343 344
+    │                 * wavelength  (wavelength) float64 336.0 338.0 340.0 ... 1.018e+03 1.02e+03
+    │               Data variables:
+    │                   x           (ref) float64 2.057e+05 2.058e+05 ... 2.031e+05 2.03e+05
+    │                   y           (ref) float64 8.575e+04 8.58e+04 ... 8.795e+04 8.807e+04
+    │                   weight      (ref) float64 11.49 14.13 15.22 14.56 ... 15.21 11.51 8.727
+    │                   flux        (ref, wavelength) float64 0.03769 0.04137 ... 1.813 1.896
     └── DataTree('data')
         ├── DataTree('mean_variance')
         │   └── DataTree('image')
@@ -652,16 +677,16 @@ def run_mode(
     ...     mode=config.exposure,
     ...     detector=config.detector,
     ...     pipeline=config.pipeline,
-    ...     with_intermediate_steps=True,
+    ...     debug=True,
     ... )
-    >>> results["/data/intermediate"]
+    >>> results["/intermediate"]
     DataTree('intermediate', parent="data")
     │   Dimensions:  ()
     │   Data variables:
     │       *empty*
     │   Attributes:
     │       long_name:  Store all intermediate results modified along a pipeline
-    └── DataTree('idx_0')
+    └── DataTree('time_idx_0')
         │   Dimensions:  ()
         │   Data variables:
         │       *empty*
@@ -747,9 +772,10 @@ def run_mode(
     """
     from pyxel.calibration import Calibration
 
-    if with_intermediate_steps and isinstance(mode, (Observation, Calibration)):
+    if debug and isinstance(mode, (Observation, Calibration)):
         raise NotImplementedError(
-            "Parameter 'with_intermediate_steps' is not implemented for 'Observation' and 'Calibration' modes."
+            "Parameter 'debug' is not implemented for 'Observation'"
+            " and 'Calibration' modes."
         )
 
     if isinstance(mode, Exposure):
@@ -757,7 +783,7 @@ def run_mode(
             exposure=mode,
             detector=detector,
             pipeline=pipeline,
-            with_intermediate_steps=with_intermediate_steps,
+            debug=debug,
         )
 
     elif isinstance(mode, Observation):

@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -280,10 +280,10 @@ class ModelFittingDataTree(ProblemSingleObjective):
                 if var.boundaries.ndim == 1:
                     low_val, high_val = var.boundaries
 
-                    low_values: NDArray[np.float_] = np.array(
+                    low_values: NDArray[np.float64] = np.array(
                         [low_val] * len(var.values)
                     )
-                    high_values: NDArray[np.float_] = np.array(
+                    high_values: NDArray[np.float64] = np.array(
                         [high_val] * len(var.values)
                     )
 
@@ -410,6 +410,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
                     processor=processor,
                     readout=self.readout,
                     pipeline_seed=self.pipeline_seed,
+                    debug=False,  # Not supported in Observation mode
                 )
 
                 logger.setLevel(prev_log_level)
@@ -486,6 +487,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
             processor=new_processor,
             readout=self.readout,
             pipeline_seed=self.pipeline_seed,
+            debug=False,  # Not supported in Observation mode
         )
 
         return data_tree

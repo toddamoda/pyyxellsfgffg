@@ -1,4 +1,4 @@
-#  Copyright (c) European Space Agency, 2017, 2018, 2019, 2020, 2021, 2022.
+#  Copyright (c) European Space Agency, 2017.
 #
 #  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #  is part of this Pyxel package. No part of the package, including
@@ -21,6 +21,7 @@ from .timing import time_pipeline
 from .add_model import create_model
 from .randomize import set_random_seed
 from .image import fit_into_array, load_cropped_and_aligned_image
+from .caching import get_cache
 
 __all__ = [
     "convert_to_int",
@@ -29,6 +30,7 @@ __all__ = [
     "load_cropped_and_aligned_image",
     "set_random_seed",
     "deprecated",
+    "get_dtype",
 ]
 
 
@@ -101,3 +103,70 @@ def deprecated(msg: str) -> Callable:
         return _wrapper
 
     return _decorator
+
+
+def convert_unit(name: str) -> str:
+    """Convert a unit name to its corresponding Unicode representation.
+
+    Parameters
+    ----------
+    name : str
+        A string representing a unit name.
+
+    Returns
+    -------
+    str
+        The unicode representation of the unit name.
+
+    Examples
+    --------
+    >>> convert_unit("electron")
+    'e⁻'
+    """
+    # Late import to speedup start-up time
+    import astropy.units as u
+
+    try:
+        unit = u.Unit(name)
+        return f"{unit:unicode}"
+    except ValueError:
+        return name
+
+
+def get_dtype(bit_resolution: int) -> np.dtype:
+    """Get NumPy data type based on a given bit resolution.
+
+    Parameters
+    ----------
+    bit_resolution : int
+        Number of bits representing the data.
+
+    Returns
+    -------
+    np.dtype
+        Numpy data type corresponding to the provided bit resolution.
+
+    Raises
+    ------
+    ValueError
+        Raised if the bit resolution does not fall within the supported range [1, 64]
+
+    Examples
+    --------
+    >>> get_dtype(8)
+    dtype('uint8')
+    >>> get_dtype(12)
+    dtype('uint16')
+    """
+    if 1 <= bit_resolution <= 8:
+        return np.dtype(np.uint8)
+    elif 9 <= bit_resolution <= 16:
+        return np.dtype(np.uint16)
+    elif 17 <= bit_resolution <= 32:
+        return np.dtype(np.uint32)
+    elif 33 <= bit_resolution <= 64:
+        return np.dtype(np.uint64)
+    else:
+        raise ValueError(
+            "Bit resolution does not fall within the supported range [1, 64]"
+        )
