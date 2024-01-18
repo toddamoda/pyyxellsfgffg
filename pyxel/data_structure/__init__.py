@@ -9,13 +9,11 @@
 
 # flake8: noqa
 from typing import Optional
-from collections.abc import Mapping
 
 import numpy as np
 
 from .array import Array
 from .photon import Photon
-from .photon3d import Photon3D
 from .scene import Scene
 from .pixel import Pixel
 from .signal import Signal
