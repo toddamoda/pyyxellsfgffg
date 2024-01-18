@@ -77,6 +77,6 @@ class Photon(Array):
             warnings.warn(
                 "Trying to set negative values in the Photon array! Negative values"
                 " clipped to 0.",
-                stacklevel=2,
+                stacklevel=4,
             )
         super()._validate(value)
