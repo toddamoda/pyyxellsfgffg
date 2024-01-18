@@ -133,7 +133,7 @@ def load_wavelength_psf(
     )
 
     # interpolate array along wavelength dimension
-    interpolated_array: xr.DataArray = da.interp_like(detector.photon3d.array)
+    interpolated_array: xr.DataArray = da.interp_like(detector.photon.array_3d)
 
     # drop nan values.
     kernel: xr.DataArray = interpolated_array.dropna(dim="wavelength", how="any")
@@ -150,7 +150,7 @@ def load_wavelength_psf(
 
     # convolve the input 3d photon array with the psf kernel
     array_3d: np.ndarray = convolve_fft(
-        detector.photon3d.array.to_numpy(),
+        detector.photon.array_3d.to_numpy(),
         kernel=kernel.to_numpy(),
         boundary="fill",
         fill_value=float(mean),
@@ -166,4 +166,4 @@ def load_wavelength_psf(
 
     # integrated = psf.integrate(coord="wavelength")
 
-    detector.photon3d.array = psf
+    detector.photon.array_3d = psf

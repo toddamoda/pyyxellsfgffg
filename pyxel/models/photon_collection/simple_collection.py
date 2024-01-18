@@ -196,4 +196,4 @@ def simple_collection(
         cols=detector.geometry.col,
     )
 
-    detector.photon3d.array = projection
+    detector.photon.array_3d = projection

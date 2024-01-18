@@ -8,7 +8,8 @@
 """Pyxel Photon class to generate and track photon."""
 
 import warnings
-from typing import TYPE_CHECKING, Optional, Self
+from collections.abc import Mapping
+from typing import TYPE_CHECKING, Any, Optional, Self
 
 import numpy as np
 import xarray as xr
@@ -225,11 +226,11 @@ class Photon:
         self._array_2d = value
 
     @property
-    def array3d(self) -> xr.DataArray:
+    def array_3d(self) -> xr.DataArray:
         raise NotImplementedError
 
-    @array3d.setter
-    def array3d(self, value: xr.DataArray) -> None:
+    @array_3d.setter
+    def array_3d(self, value: xr.DataArray) -> None:
         if not isinstance(value, xr.DataArray):
             raise TypeError("Expecting a 'DataArray'.")
 
@@ -275,25 +276,30 @@ class Photon:
             raise NotImplementedError
 
     def to_dict(self) -> dict:
+        dct: dict = {}
         if self._array_2d is None and self._array_3d is None:
-            return {}
-        elif self._array_2d is not None and self._array_3d is None:
-            raise NotImplementedError
-        elif self._array_2d is None and self._array_3d is not None:
-            return {
-                "array_3d": {
-                    key.replace("/", "#"): value
-                    for key, value in self._array_3d.to_dict().items()
-                }
+            # Do nothing
+            pass
+
+        if self._array_2d is not None:
+            dct["array_2d"] = self._array_2d.copy()
+
+        if self._array_3d is not None:
+            dct["array_3d"] = {
+                key.replace("/", "#"): value
+                for key, value in self._array_3d.to_dict().items()
             }
+
         else:
             raise NotImplementedError
 
+        return dct
+
     @classmethod
-    def from_dict(cls, geometry: "Geometry", data: dict) -> Self:
+    def from_dict(cls, geometry: "Geometry", data: Mapping[str, Any]) -> Self:
         array_2d: Optional[np.ndarray] = None
         if "array_2d" in data:
-            raise NotImplementedError
+            array_2d = np.array(data["array_2d"])
 
         array_3d: Optional[xr.DataArray] = None
         if "array_3d" in data:

@@ -19,7 +19,6 @@ from pyxel.data_structure import (
     Image,
     Persistence,
     Photon,
-    Photon3D,
     Pixel,
     Scene,
     Signal,
@@ -47,7 +46,6 @@ class Detector:
 
         self._scene: Optional[Scene] = None
         self._photon: Optional[Photon] = None
-        self._photon3d: Optional[Photon3D] = None
         self._charge: Optional[Charge] = None
         self._pixel: Optional[Pixel] = None
         self._signal: Optional[Signal] = None
@@ -71,7 +69,6 @@ class Detector:
             isinstance(other, Detector)
             and self._scene == other._scene
             and self._photon == other._photon
-            and self._photon3d == other._photon3d
             and self._charge == other._charge
             and self._pixel == other._pixel
             and self._signal == other._signal
@@ -118,13 +115,6 @@ class Detector:
     def scene(self, obj: Scene) -> None:
         """TBW."""
         self._scene = obj
-
-    @property
-    def photon3d(self) -> Photon3D:
-        """TBW."""
-        if self._photon3d is None:
-            raise RuntimeError("Photon 3D array is not initialized ! ")
-        return self._photon3d
 
     # TODO: Why no setter for charge, pixel, signal and image?
     @property
@@ -215,15 +205,8 @@ class Detector:
         # ds["scene"] = self.scene.to_xarray()
 
         ds = xr.Dataset()
-        for name in ("photon", "photon3d", "charge", "pixel", "signal", "image"):
-            container: Union[
-                Photon,
-                Photon3D,
-                Charge,
-                Pixel,
-                Signal,
-                Image,
-            ] = getattr(self, name)
+        for name in ("photon", "charge", "pixel", "signal", "image"):
+            container: Union[Photon, Charge, Pixel, Signal, Image] = getattr(self, name)
             data_array: xr.DataArray = container.to_xarray()
 
             # TODO: Special case, this will be fixed in issue #692
@@ -253,7 +236,6 @@ class Detector:
         from datatree import DataTree
 
         self._scene = Scene()
-        self._photon3d = Photon3D(geo=self.geometry)
         self._photon = Photon(geo=self.geometry)
         self._charge = Charge(geo=self.geometry)
 
@@ -270,9 +252,6 @@ class Detector:
         self.scene = Scene()
 
         self.photon.empty()
-        if self._photon3d:
-            self.photon3d.empty()
-
         self.charge.empty()
 
         if reset:
@@ -462,7 +441,6 @@ class Detector:
         attributes = [
             "_scene",
             "_photon",
-            "_photon3d",
             "_charge",
             "_pixel",
             "_signal",

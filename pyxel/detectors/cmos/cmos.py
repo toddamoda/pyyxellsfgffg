@@ -65,14 +65,18 @@ class CMOS(Detector):
                 "characteristics": self.characteristics.to_dict(),
             },
             "data": {
-                "photon": _get_array_if_initialized(self._photon),
-                "photon_3d": (
-                    None if self._photon3d is None else self._photon3d.to_dict()
-                ),
+                "photon": self.photon.to_dict(),
                 "pixel": _get_array_if_initialized(self._pixel),
                 "signal": _get_array_if_initialized(self._signal),
                 "image": _get_array_if_initialized(self._image),
-                "data": None if self._data is None else self._data.to_dict(),
+                "data": (
+                    None
+                    if self._data is None
+                    else {
+                        key.replace("/", "#"): value
+                        for key, value in self._data.to_dict().items()
+                    }
+                ),
                 "charge": (
                     None
                     if self._charge is None
@@ -103,7 +107,7 @@ class CMOS(Detector):
         import xarray as xr
         from datatree import DataTree
 
-        from pyxel.data_structure import Scene
+        from pyxel.data_structure import Photon, Scene
         from pyxel.detectors import Characteristics, CMOSGeometry, Environment
 
         if dct["type"] != "CMOS":
@@ -125,14 +129,7 @@ class CMOS(Detector):
 
         data: Mapping[str, Any] = dct["data"]
 
-        detector.photon.update(data.get("photon"))
-        if "photon_3d" in data and data["photon_3d"]:
-            detector.photon3d.array = xr.DataArray(
-                {
-                    key.replace("#", "/"): value
-                    for key, value in data["photon_3d"].items()
-                }
-            )
+        detector.photon = Photon.from_dict(geometry=geometry, data=data)
         detector.pixel.update(data.get("pixel"))
         detector.signal.update(data.get("signal"))
         detector.image.update(data.get("image"))
@@ -140,7 +137,7 @@ class CMOS(Detector):
         if "data" in data:
             detector._data = DataTree.from_dict(
                 {
-                    key: xr.Dataset.from_dict(value)
+                    key.replace("#", "/"): xr.Dataset.from_dict(value)
                     for key, value in data["data"].items()
                 }
             )

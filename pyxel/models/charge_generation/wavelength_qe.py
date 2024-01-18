@@ -117,7 +117,7 @@ def apply_qe_curve(
     # interpolate the qe_curve wavelength data to the resolution of the photon3D data.
     qe_interpolated: xr.Dataset = interpolate_dataset(
         input_dataset=qe_curve_ds,
-        input_array=detector.photon3d.array,
+        input_array=detector.photon.array_3d,
     )
 
     if not np.all(
@@ -128,7 +128,7 @@ def apply_qe_curve(
     # apply QE
     foo: xr.DataArray = qe_interpolated["QE"]
     detector_charge: xr.DataArray = apply_wavelength_qe(
-        photon_array=detector.photon3d.array, qe_array=foo
+        photon_array=detector.photon.array_3d, qe_array=foo
     )
 
     # integrate charge along coordinate wavelength
@@ -168,12 +168,12 @@ def conversion_with_3d_qe_map(
     # interpolate the qe_curve wavelength data to the resolution of the photon3D data.
     qe_interpolated: xr.DataArray = interpolate_dataset(
         input_dataset=qe_dataarray,
-        input_array=detector.photon3d.array,
+        input_array=detector.photon.array_3d,
     )
 
     # apply QE
     detector_charge: xr.DataArray = apply_wavelength_qe(
-        photon_array=detector.photon3d.array,
+        photon_array=detector.photon.array_3d,
         qe_array=qe_interpolated,
     )
 
