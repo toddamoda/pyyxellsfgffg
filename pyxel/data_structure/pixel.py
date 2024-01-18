@@ -32,7 +32,7 @@ class Pixel(Array):
         np.dtype(np.float64),
     )
     NAME = "Pixel"
-    UNIT = "$e^{-1}$"
+    UNIT = "e⁻"
 
     def __init__(self, geo: "Geometry"):
         super().__init__(shape=(geo.row, geo.col))

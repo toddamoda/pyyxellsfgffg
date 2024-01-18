@@ -7,6 +7,7 @@
 
 """TBW."""
 import logging
+import warnings
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Optional, Union
@@ -356,7 +357,6 @@ class Calibration:
 
         return problem
 
-    # TODO: This function will be deprecated (see #563)
     def run_calibration(
         self,
         processor: Processor,
@@ -364,6 +364,10 @@ class Calibration:
         with_progress_bar: bool = True,
     ) -> tuple["xr.Dataset", "pd.DataFrame", "pd.DataFrame"]:
         """Run calibration pipeline."""
+        warnings.warn(
+            "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
+        )
+
         try:
             import pygmo as pg
         except ModuleNotFoundError as exc:
@@ -502,13 +506,16 @@ class Calibration:
         self._log.info("Calibration ended.")
         return data_tree
 
-    # TODO: This function will be deprecated (see #563)
     def _post_processing(
         self,
         ds: "xr.Dataset",
         df_processors: "pd.DataFrame",
         output: "CalibrationOutputs",
     ) -> Sequence[Delayed]:
+        warnings.warn(
+            "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
+        )
+
         filenames: Sequence[Delayed] = output.save_processors(processors=df_processors)
 
         # TODO: Use output.fitting_plot ?

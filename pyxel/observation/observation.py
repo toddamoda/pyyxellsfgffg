@@ -7,6 +7,7 @@
 
 """Parametric mode class and helper functions."""
 import itertools
+import warnings
 from collections import Counter
 from collections.abc import Iterable, Iterator, Mapping, MutableMapping, Sequence
 from copy import deepcopy
@@ -97,8 +98,10 @@ def _get_final_short_name(name: str, param_type: ParameterType) -> str:
         raise NotImplementedError
 
 
-# TODO: This function will be deprecated (see #563)
 def _get_short_dimension_names(types: Mapping[str, ParameterType]) -> Mapping[str, str]:
+    warnings.warn(
+        "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
+    )
     # Create potential names for the dimensions
     potential_dim_names: dict[str, str] = {}
     for param_name, param_type in types.items():
@@ -340,12 +343,16 @@ class Observation:
         index: int
         parameter_dict: dict
         """
+        index = 0
+
         step: ParameterValues
         for step in self.enabled_steps:
             key: str = step.key
-            for index, value in enumerate(step):
+            for value in step:
                 parameter_dict: ParametersType = {key: value}
                 yield index, parameter_dict
+
+                index += 1
 
     def _product_indices(self) -> Iterator[tuple]:
         """Return an iterator of product parameter indices.
@@ -378,9 +385,11 @@ class Observation:
                 parameter_dict.update({key: value})
             yield indices, parameter_dict
 
-    # TODO: This function will be deprecated (see #563)
     def _parameter_it(self) -> Iterator[tuple]:
         """Return the method for generating parameters based on parametric mode."""
+        warnings.warn(
+            "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
+        )
         if self.parameter_mode == ParameterMode.Product:
             yield from self._product_parameters()
 
@@ -551,7 +560,6 @@ class Observation:
                     "do not use '_' character in 'values' field"
                 )
 
-    # TODO: This method will be deprecated (see #563)
     # ruff: noqa: C901
     def run_observation(self, processor: "Processor") -> ObservationResult:
         """Run the observation pipelines.
@@ -564,6 +572,10 @@ class Observation:
         -------
         Result
         """
+        warnings.warn(
+            "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
+        )
+
         # Late import to speedup start-up time
         import xarray as xr
 
@@ -824,7 +836,6 @@ class Observation:
 
         return final_datatree
 
-    # TODO: This function will be deprecated (see #563)
     def _apply_exposure_pipeline_product(
         self,
         index_and_parameter: tuple[
@@ -839,6 +850,10 @@ class Observation:
         times: np.ndarray,
         types: Mapping[str, ParameterType],
     ) -> "xr.Dataset":
+        warnings.warn(
+            "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
+        )
+
         index, parameter_dict, n = index_and_parameter
 
         new_processor = create_new_processor(
@@ -922,7 +937,6 @@ class Observation:
 
         return final_data_tree
 
-    # TODO: This function will be deprecated (see #563)
     def _apply_exposure_pipeline_custom(
         self,
         index_and_parameter: tuple[
@@ -935,6 +949,10 @@ class Observation:
         y: range,
         times: np.ndarray,
     ):
+        warnings.warn(
+            "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
+        )
+
         index, parameter_dict, n = index_and_parameter
 
         new_processor = create_new_processor(
@@ -965,7 +983,6 @@ class Observation:
 
         return ds
 
-    # TODO: This function will be deprecated (see #563)
     def _apply_exposure_pipeline_sequential(
         self,
         index_and_parameter: tuple[
@@ -980,6 +997,10 @@ class Observation:
         times: np.ndarray,
         types: Mapping[str, ParameterType],
     ):
+        warnings.warn(
+            "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
+        )
+
         index, parameter_dict, n = index_and_parameter
 
         new_processor = create_new_processor(
@@ -1120,7 +1141,6 @@ def parameter_to_dataset(
     return parameter_ds
 
 
-# TODO: This function will be deprecated (see #563)
 def _add_custom_parameters(ds: "xr.Dataset", index: int) -> "xr.Dataset":
     """Add coordinate "index" to the dataset.
 
@@ -1133,6 +1153,9 @@ def _add_custom_parameters(ds: "xr.Dataset", index: int) -> "xr.Dataset":
     -------
     Dataset
     """
+    warnings.warn(
+        "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
+    )
 
     ds = ds.assign_coords({"id": index})
     ds = ds.expand_dims(dim="id")
@@ -1183,7 +1206,6 @@ def _add_custom_parameters_datatree(
     return data_tree
 
 
-# TODO: This function will be deprecated (see #563)
 def _add_sequential_parameters(
     ds: "xr.Dataset",
     parameter_dict: ParametersType,
@@ -1207,6 +1229,9 @@ def _add_sequential_parameters(
     -------
     Dataset
     """
+    warnings.warn(
+        "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
+    )
 
     #  assigning the right coordinates based on type
     short_name: str = dimension_names[coordinate_name]
@@ -1222,7 +1247,6 @@ def _add_sequential_parameters(
     return ds
 
 
-# TODO: This function will be deprecated (see #563)
 def _add_product_parameters(
     ds: "xr.Dataset",
     parameter_dict: ParametersType,
@@ -1243,6 +1267,10 @@ def _add_product_parameters(
     -------
     Dataset
     """
+    warnings.warn(
+        "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
+    )
+
     # TODO: Implement for coordinate 'multi'
     for i, (coordinate_name, param_value) in enumerate(parameter_dict.items()):
         short_name: str = dimension_names[coordinate_name]

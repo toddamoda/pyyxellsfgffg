@@ -9,6 +9,7 @@
 import logging
 import sys
 import time
+import warnings
 from collections.abc import Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Union
@@ -34,13 +35,15 @@ if TYPE_CHECKING:
     from pyxel.outputs import CalibrationOutputs, ExposureOutputs, ObservationOutputs
 
 
-# TODO: This function will be deprecated (see #563)
 def exposure_mode(
     exposure: "Exposure",
     detector: Detector,
     pipeline: "DetectionPipeline",
 ) -> "xr.Dataset":
     """Run an 'exposure' pipeline.
+
+    .. deprecated:: 1.14
+        `exposure_mode` will be removed in pyxel 2.0.0, it is replaced by `pyxel.run_mode`.
 
     For more information, see :ref:`exposure_mode`.
 
@@ -83,6 +86,7 @@ def exposure_mode(
         signal        (readout_time, y, x) float64 3.159 3.03 2.971 ... 3.195 3.36
         pixel         (readout_time, y, x) float64 1.053e+03 1.01e+03 ... 1.12e+03
     """
+    warnings.warn("Use function 'pyxel.run_mode'", DeprecationWarning, stacklevel=1)
 
     logging.info("Mode: Exposure")
 
@@ -179,13 +183,15 @@ def _run_exposure_mode(
     return result
 
 
-# TODO: This function will be deprecated (see #563)
 def observation_mode(
     observation: "Observation",
     detector: Detector,
     pipeline: "DetectionPipeline",
 ) -> "ObservationResult":
     """Run an 'observation' pipeline.
+
+    .. deprecated:: 1.14
+        `observation_mode` will be removed in pyxel 2.0.0, it is replaced by `pyxel.run_mode`.
 
     For more information, see :ref:`observation_mode`.
 
@@ -219,6 +225,8 @@ def observation_mode(
     >>> result
     ObservationResult(...)
     """
+    warnings.warn("Use function 'pyxel.run_mode'", DeprecationWarning, stacklevel=1)
+
     logging.info("Mode: Observation")
 
     observation_outputs: ObservationOutputs = observation.outputs
@@ -238,7 +246,6 @@ def observation_mode(
     return result
 
 
-# TODO: This function will be deprecated (see #563)
 def calibration_mode(
     calibration: "Calibration",
     detector: Detector,
@@ -246,6 +253,9 @@ def calibration_mode(
     compute_and_save: bool = True,
 ) -> tuple["xr.Dataset", pd.DataFrame, pd.DataFrame, Sequence]:
     """Run a 'calibration' pipeline.
+
+    .. deprecated:: 1.14
+        `calibration_mode` will be removed in pyxel 2.0.0, it is replaced by `pyxel.run_mode`.
 
     For more information, see :ref:`calibration_mode`.
 
@@ -327,6 +337,8 @@ def calibration_mode(
     []
     """
     # Late import to speedup start-up time
+    warnings.warn("Use function 'pyxel.run_mode'", DeprecationWarning, stacklevel=1)
+
     from pyxel.calibration import CalibrationResult
 
     logging.info("Mode: Calibration")
@@ -751,12 +763,10 @@ def run_mode(
                     Attributes:
                         long_name:  Group: 'simple_adc'
     """
-    from pyxel.calibration import Calibration
 
-    if debug and isinstance(mode, (Observation, Calibration)):
+    if debug and not isinstance(mode, Exposure):
         raise NotImplementedError(
-            "Parameter 'debug' is not implemented for 'Observation'"
-            " and 'Calibration' modes."
+            "Parameter 'debug' is only implemented for 'Exposure' mode."
         )
 
     if isinstance(mode, Exposure):
@@ -774,15 +784,19 @@ def run_mode(
             pipeline=pipeline,
         )
 
-    elif isinstance(mode, Calibration):
-        data_tree = _run_calibration_mode(
-            calibration=mode,
-            detector=detector,
-            pipeline=pipeline,
-        )
-
     else:
-        raise TypeError("Please provide a valid simulation mode !")
+        # Late import.
+        # Importing 'Calibration' can take up to 3 s !
+        from pyxel.calibration import Calibration
+
+        if isinstance(mode, Calibration):
+            data_tree = _run_calibration_mode(
+                calibration=mode,
+                detector=detector,
+                pipeline=pipeline,
+            )
+        else:
+            raise TypeError("Please provide a valid simulation mode !")
 
     return data_tree
 

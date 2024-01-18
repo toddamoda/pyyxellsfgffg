@@ -6,22 +6,31 @@
 #   the terms contained in the file ‘LICENCE.txt’.
 
 import numpy as np
-import pytest
 import xarray as xr
 from datatree import DataTree
 
 from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
 from pyxel.models.data_processing import mean_variance
 
-# TODO: Remove this hack
-if xr.__version__ != "2023.12.0":
+try:
     from datatree.testing import assert_equal
+except ImportError:
+    # Hack for xarray version '2023.12.0'
+    def assert_equal(
+        actual: DataTree,
+        desired: DataTree,
+        from_root: bool = True,
+    ):
+        assert isinstance(actual, DataTree)
+        assert isinstance(desired, DataTree)
+
+        from datatree.formatting import diff_tree_repr
+
+        assert actual.equals(desired, from_root=from_root), diff_tree_repr(
+            actual, desired, "identical"
+        )
 
 
-@pytest.mark.skipif(
-    xr.__version__ == "2023.12.0",
-    reason="Issue with Xarray version 2023.12.0 and DataTree",
-)
 def test_mean_variance():
     """Test model 'mean_variance'."""
     # Create fake photons for three different times

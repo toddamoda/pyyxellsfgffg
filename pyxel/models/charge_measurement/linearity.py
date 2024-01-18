@@ -368,7 +368,7 @@ def physical_non_linearity(
 
 def compute_physical_non_linearity_with_saturation(
     signal_array_2d: np.ndarray,
-    photon_array_2d: np.ndarray,
+    charge_array_2d: np.ndarray,
     time_step: float,
     step_number: int,
     temperature: float,
@@ -390,7 +390,7 @@ def compute_physical_non_linearity_with_saturation(
     ----------
     signal_array_2d : ndarray
         Input signal array.
-    photon_array_2d : ndarray
+    charge_array_2d : ndarray
         Input photon array.
     time_step
         Time step. Unit: s.
@@ -462,7 +462,7 @@ def compute_physical_non_linearity_with_saturation(
         n_donor=n_donor,
         x_cd=x_cd,
         temperature=temperature,
-        photonic_current=np.ravel(photon_array_2d) / time_step,
+        photonic_current=np.ravel(charge_array_2d) / time_step,
         fixed_capacitance=fixed_capacitance,
         sat_current=saturation_current,
         n=ideality_factor,
@@ -538,7 +538,7 @@ def physical_non_linearity_with_saturation(
 
     signal_non_linear = compute_physical_non_linearity_with_saturation(
         signal_array_2d=signal_2d,
-        photon_array_2d=detector.photon.array,
+        charge_array_2d=detector.charge.array,
         time_step=detector.time_step,
         step_number=detector.pipeline_count,
         temperature=detector.environment.temperature,
