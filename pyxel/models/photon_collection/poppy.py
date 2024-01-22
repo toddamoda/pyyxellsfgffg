@@ -338,6 +338,8 @@ def calc_psf(
     fov_arcsec: float,
     pixelscale: float,
     optical_parameters: Sequence[OpticalParameter],
+    apply_jitter: bool = False,
+    jitter_sigma: float = 0.007,
 ) -> tuple[Sequence[fits.hdu.image.PrimaryHDU], Sequence["op.Wavefront"]]:
     """Calculate the point spread function for the given optical system.
 
@@ -352,6 +354,10 @@ def calc_psf(
         Defines sampling resolution of :term:`PSF`.
     optical_parameters : list of OpticalParameter
         List of optical parameters before detector with their specific arguments.
+    apply_jitter : bool
+        Defines whether jitter should be applied. Default = False.
+    jitter_sigma : float
+        Jitter sigma value in arcsec per axis, default is 0.007.
 
     Returns
     -------
@@ -385,8 +391,25 @@ def calc_psf(
     # Calculate a monochromatic PSF
     output_fits: Sequence[fits.hdu.image.PrimaryHDU]
     wavefronts: Sequence[op.Wavefront]
-    output_fits, wavefronts = osys.calc_psf(
-        wavelength=wavelength,
+    # output_fits, wavefronts = osys.calc_psf(
+    #     wavelength=wavelength,
+    #     return_intermediates=True,
+    #     normalize="last",
+    # )
+
+    # Create Instrument
+    instrument = op.Instrument(
+        name="instrument",
+    )
+
+    if apply_jitter:
+        instrument.options["jitter"] = "gaussian"
+        instrument.options[
+            "jitter_sigma"
+        ] = jitter_sigma  # in arcsec per axis, default 0.007
+
+    output_fits, wavefronts = instrument.calc_psf(
+        monochromatic=wavelength,
         return_intermediates=True,
         normalize="last",
     )
@@ -427,6 +450,8 @@ def optical_psf(
     fov_arcsec: float,
     pixelscale: float,
     optical_system: Sequence[Mapping[str, Any]],
+    apply_jitter: bool = False,
+    jitter_sigma: float = 0.007,
 ) -> None:
     """Model function for poppy optics model: convolve photon array with psf.
 
@@ -443,6 +468,10 @@ def optical_psf(
         Defines sampling resolution of :term:`PSF`.
     optical_system : list of dict
         List of optical elements before detector with their specific arguments.
+    apply_jitter : bool
+        Defines whether jitter should be applied. Default = False.
+    jitter_sigma : float
+        Jitter sigma value in arcsec per axis, default is 0.007.
     """
     logging.getLogger("poppy").setLevel(
         logging.WARNING
@@ -468,6 +497,8 @@ def optical_psf(
         fov_arcsec=fov_arcsec,
         pixelscale=pixelscale,
         optical_parameters=optical_parameters,
+        apply_jitter=apply_jitter,
+        jitter_sigma=jitter_sigma,
     )
 
     # Extract 'first_image'
