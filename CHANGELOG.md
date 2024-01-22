@@ -12,17 +12,17 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 ## UNRELEASED
 
 ### Core
-* Create 3D photon container.
+* Create 3D photon container, add it as an output of function `pyxel.run_mode` and merge it with `Photon`.
   (See [!673](https://gitlab.com/esa/pyxel/-/merge_requests/673)).
-* Add 'Photon3D' as an output of function 'pyxel.run_mode'.
-  (See [!766](https://gitlab.com/esa/pyxel/-/merge_requests/766)).
+  , [!766](https://gitlab.com/esa/pyxel/-/merge_requests/766)
+  and [!813](https://gitlab.com/esa/pyxel/-/merge_requests/813)).
 
 ### Documentation
 
 ### Models
 * Add model that converts 3D scene to 3D photon.
   (See [!674](https://gitlab.com/esa/pyxel/-/merge_requests/674)).
-* Implement a wavelength-dependancy for the QE map.
+* Implement a wavelength-dependency for the QE map.
   (See [!765](https://gitlab.com/esa/pyxel/-/merge_requests/765)).
 * Add model "load_PSF_wavelength".
   (See [!686](https://gitlab.com/esa/pyxel/-/merge_requests/686)).
