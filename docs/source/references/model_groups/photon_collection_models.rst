@@ -260,6 +260,11 @@ It implements a flexible framework for modeling Fraunhofer and Fresnel diffracti
 particularly in the context of astronomical telescopes.
 
 POPPY calculates the optical Point Spread Function of an optical system and applies the convolution.
+The needed arguments are the FOV in arcsec ``fov_arcsec``, the detector pixel scale in arseconds/pixel ``pixelscale``,
+the ``wavelength`` in nm and the ``optical_system``.
+If ``apply_jitter`` is true (default is false), pointing jitter will be applied using a gaussian kernel to convolve
+with the created PSF. The width of the jitter kernel is defined with ``jitter sigma`` in arcsec per axis,
+the default is 0.007 arcsec.
 
 * Developed by: Marshall Perrin et al., STScI
 * Developed for: James Webb Space Telescope
@@ -300,6 +305,8 @@ Example of the configuration file:
       arguments:
         fov_arcsec: 5               # FOV in arcseconds
         wavelength: 0.6e-6          # wavelength in meters
+        apply_jitter: true
+        jitter_sigma: 0.5
         optical_system:
           - item: CircularAperture
             radius: 3.0             # radius in meters        

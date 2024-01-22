@@ -384,6 +384,7 @@ To use the model,
 user has to provide arguments ``figure_of_merit`` in :math:`nA/cm^2` (:math:`D_{FM}`),
 ``band_gap`` in :math:`eV`, ``band_gap_room_temperature`` in :math:`eV`, ``spatial_noise_factor`` (:math:`D_N`)
 and ``temporal_noise``.
+If ``temporal_noise`` is true, shot noise will be included.
 The ``spatial_noise_factor`` is typically between 0.1 and 0.4 for CCD and CMOS sensors :cite:p:`Konnik:noises`.
 Parameter ``temperature`` in :math:`K` is taken from detector :py:class:`~pyxel.detectors.Environment`.
 If arguments ``band_gap`` and ``band_gap_room_temperature`` are not provided,
@@ -420,6 +421,7 @@ Dark current rule07
 With this model you can add dark current to :py:class:`~pyxel.data_structure.Charge` following the
 model described in :cite:p:`Tennant2008MBEHT`.
 This model is only valid for :term:`MCT` hybridised array (:term:`MCT`).
+If ``temporal_noise`` is true, shot noise will be included.
 The model has one extra argument: ``cut-off wavelength``, and also takes some values from :py:class:`~pyxel.detectors.Detector` object,
 to be precise: ``temperature``, ``pixel size`` (assuming it is square),
 and ``time step`` since last read-out.
