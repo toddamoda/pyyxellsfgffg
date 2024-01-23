@@ -13,14 +13,14 @@ from pyxel.detectors import CMOSGeometry, Geometry
 
 
 @pytest.mark.parametrize(
-    "row, col, total_thickness, pixel_vert_size, pixel_horz_size",
+    "row, col, total_thickness, pixel_vert_size, pixel_horz_size, pixel_scale",
     [
-        (1, 1, 0.0, 0.0, 0.0),
-        (10000, 10000, 10000.0, 1000.0, 1000.0),
+        (1, 1, 0.0, 0.0, 0.0, 0.0),
+        (10000, 10000, 10000.0, 1000.0, 1000.0, 1000.0),
     ],
 )
 def test_create_valid_geometry(
-    row, col, total_thickness, pixel_vert_size, pixel_horz_size
+    row, col, total_thickness, pixel_vert_size, pixel_horz_size, pixel_scale
 ):
     """Test when creating a valid `Geometry` object."""
     _ = CMOSGeometry(
@@ -29,21 +29,29 @@ def test_create_valid_geometry(
         total_thickness=total_thickness,
         pixel_vert_size=pixel_vert_size,
         pixel_horz_size=pixel_horz_size,
+        pixel_scale=pixel_scale,
     )
 
 
 @pytest.mark.parametrize(
-    "row, col, total_thickness, pixel_vert_size, pixel_horz_size, exp_exc",
+    "row, col, total_thickness, pixel_vert_size, pixel_horz_size, pixel_scale, exp_exc",
     [
-        pytest.param(0, 100, 100.0, 100.0, 100.0, ValueError, id="row == 0"),
-        pytest.param(-1, 100, 100.0, 100.0, 100.0, ValueError, id="row < 0"),
-        pytest.param(100, 0, 100.0, 100.0, 100.0, ValueError, id="col == 0"),
-        pytest.param(100, -1, 100.0, 100.0, 100.0, ValueError, id="col < 0"),
+        pytest.param(0, 100, 100.0, 100.0, 100.0, 100.0, ValueError, id="row == 0"),
+        pytest.param(-1, 100, 100.0, 100.0, 100.0, 100.0, ValueError, id="row < 0"),
+        pytest.param(100, 0, 100.0, 100.0, 100.0, 100.0, ValueError, id="col == 0"),
+        pytest.param(100, -1, 100.0, 100.0, 100.0, 100.0, ValueError, id="col < 0"),
         pytest.param(
-            100, 100, -0.1, 100.0, 100.0, ValueError, id="total_thickness < 0."
+            100, 100, -0.1, 100.0, 100.0, 100.0, ValueError, id="total_thickness < 0."
         ),
         pytest.param(
-            100, 100, 10000.1, 100.0, 100.0, ValueError, id="total_thickness > 10000."
+            100,
+            100,
+            10000.1,
+            100.0,
+            100.0,
+            100.0,
+            ValueError,
+            id="total_thickness > 10000.",
         ),
     ],
 )
@@ -53,6 +61,7 @@ def test_create_invalid_geometry(
     total_thickness,
     pixel_vert_size,
     pixel_horz_size,
+    pixel_scale,
     exp_exc,
 ):
     """Test when creating an invalid `Geometry` object."""
@@ -63,6 +72,7 @@ def test_create_invalid_geometry(
             total_thickness=total_thickness,
             pixel_vert_size=pixel_vert_size,
             pixel_horz_size=pixel_horz_size,
+            pixel_scale=pixel_scale,
         )
 
 
@@ -78,6 +88,7 @@ def test_create_invalid_geometry(
                 total_thickness=123.1,
                 pixel_horz_size=12.4,
                 pixel_vert_size=34.5,
+                pixel_scale=1.5,
             ),
             False,
             id="Almost same parameters, different class",
@@ -89,6 +100,7 @@ def test_create_invalid_geometry(
                 total_thickness=123.1,
                 pixel_horz_size=12.4,
                 pixel_vert_size=34.5,
+                pixel_scale=1.5,
             ),
             True,
             id="Same parameters, same class",
@@ -103,6 +115,7 @@ def test_is_equal(other_obj, is_equal):
         total_thickness=123.1,
         pixel_horz_size=12.4,
         pixel_vert_size=34.5,
+        pixel_scale=1.5,
     )
 
     if is_equal:
@@ -121,6 +134,7 @@ def test_is_equal(other_obj, is_equal):
                 total_thickness=123.1,
                 pixel_horz_size=12.4,
                 pixel_vert_size=34.5,
+                pixel_scale=1.5,
             ),
             {
                 "row": 100,
@@ -128,6 +142,7 @@ def test_is_equal(other_obj, is_equal):
                 "total_thickness": 123.1,
                 "pixel_horz_size": 12.4,
                 "pixel_vert_size": 34.5,
+                "pixel_scale": 1.5,
             },
         ),
     ],

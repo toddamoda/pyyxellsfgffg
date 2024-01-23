@@ -24,6 +24,7 @@ def valid_mkid() -> MKID:
             total_thickness=123.1,
             pixel_horz_size=12.4,
             pixel_vert_size=34.5,
+            pixel_scale=1.5,
         ),
         environment=Environment(temperature=100.1),
         characteristics=Characteristics(
@@ -55,6 +56,7 @@ def valid_mkid() -> MKID:
                     total_thickness=123.1,
                     pixel_horz_size=12.4,
                     pixel_vert_size=34.5,
+                    pixel_scale=1.5,
                 ),
                 environment=Environment(),
                 characteristics=Characteristics(),
@@ -70,6 +72,7 @@ def valid_mkid() -> MKID:
                     total_thickness=123.1,
                     pixel_horz_size=12.4,
                     pixel_vert_size=34.5,
+                    pixel_scale=1.5,
                 ),
                 environment=Environment(temperature=100.1),
                 characteristics=Characteristics(
@@ -201,6 +204,7 @@ def comparison(dct, other_dct):
                         "total_thickness": None,
                         "pixel_horz_size": None,
                         "pixel_vert_size": None,
+                        "pixel_scale": None,
                     },
                     "environment": {"temperature": None},
                     "characteristics": {
@@ -253,6 +257,7 @@ def comparison(dct, other_dct):
                     total_thickness=123.1,
                     pixel_horz_size=12.4,
                     pixel_vert_size=34.5,
+                    pixel_scale=1.5,
                 ),
                 environment=Environment(temperature=100.1),
                 characteristics=Characteristics(
@@ -273,6 +278,7 @@ def comparison(dct, other_dct):
                         "total_thickness": 123.1,
                         "pixel_horz_size": 12.4,
                         "pixel_vert_size": 34.5,
+                        "pixel_scale": 1.5,
                     },
                     "environment": {"temperature": 100.1},
                     "characteristics": {

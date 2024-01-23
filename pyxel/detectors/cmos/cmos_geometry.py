@@ -24,4 +24,6 @@ class CMOSGeometry(Geometry):
         Vertical dimension of pixel. Unit: um
     pixel_horz_size : float
         Horizontal dimension of pixel. Unit: um
+    pixel_scale : float
+        Dimension of how much of the sky is covered by one pixel. Unit: arcsec/pixel
     """
