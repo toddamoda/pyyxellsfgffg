@@ -59,7 +59,7 @@ class Photon:
         if type(self) is not type(other):
             return False
 
-        if self._array is None and other._array is None:
+        if self._array is other._array is None:
             return True
 
         if isinstance(self._array, np.ndarray):
@@ -136,7 +136,7 @@ class Photon:
     @property
     def shape(self) -> tuple[int, ...]:
         if self._array is None:
-            return tuple()
+            return ()
 
         return self._array.shape
 

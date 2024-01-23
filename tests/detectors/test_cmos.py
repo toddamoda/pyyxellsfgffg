@@ -153,7 +153,6 @@ def comparison(dct, other_dct):
             "data",
             "image",
             "photon",
-            "photon_3d",
             "pixel",
             "scene",
             "signal",
@@ -209,8 +208,7 @@ def comparison(dct, other_dct):
                     },
                 },
                 "data": {
-                    "photon": None,
-                    "photon_3d": None,
+                    "photon": {},
                     "scene": None,
                     "pixel": None,
                     "signal": None,
@@ -282,8 +280,7 @@ def comparison(dct, other_dct):
                     },
                 },
                 "data": {
-                    "photon": None,
-                    "photon_3d": None,
+                    "photon": {},
                     "scene": None,
                     "pixel": None,
                     "signal": None,

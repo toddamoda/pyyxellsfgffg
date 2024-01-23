@@ -33,7 +33,9 @@ def test_shot_noise_poisson(ccd_10x10: CCD):
 
     detector = ccd_10x10
 
-    detector.photon.array = np.ones(detector.photon.shape) * 10
+    detector.photon.array = np.full(
+        shape=(detector.geometry.row, detector.geometry.col), fill_value=10, dtype=float
+    )
 
     shot_noise(
         detector=detector,
@@ -67,7 +69,9 @@ def test_shot_noise_normal(ccd_10x10: CCD):
 
     detector = ccd_10x10
 
-    detector.photon.array = np.ones(detector.photon.shape) * 10
+    detector.photon.array = np.full(
+        shape=(detector.geometry.row, detector.geometry.col), fill_value=10, dtype=float
+    )
 
     shot_noise(
         detector=detector,
