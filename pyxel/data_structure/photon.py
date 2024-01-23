@@ -121,10 +121,10 @@ class Photon:
 
     def __iadd__(self, other: Union[np.ndarray, xr.DataArray]) -> Self:
         if isinstance(other, np.ndarray) and isinstance(self._array, xr.DataArray):
-            raise TypeError("Must be a DataArray")
+            raise TypeError("Must be a 3D DataArray")
 
         if isinstance(other, xr.DataArray) and isinstance(self._array, np.ndarray):
-            raise TypeError("Must be a numpy array")
+            raise TypeError("Must be a 2D numpy array")
 
         if self._array is not None:
             self._array += other
@@ -134,10 +134,10 @@ class Photon:
 
     def __add__(self, other: Union[np.ndarray, xr.DataArray]) -> Self:
         if isinstance(other, np.ndarray) and isinstance(self._array, xr.DataArray):
-            raise TypeError("Must be a DataArray")
+            raise TypeError("Must be a 3D DataArray")
 
         if isinstance(other, xr.DataArray) and isinstance(self._array, np.ndarray):
-            raise TypeError("Must be a numpy array")
+            raise TypeError("Must be a 2D numpy array")
 
         if self._array is not None:
             self._array += other
@@ -261,6 +261,14 @@ class Photon:
                 raise ValueError(
                     f"{cls_name} data array must have coordinates for dimension 'wavelength'."
                 )
+
+        if isinstance(self._array, np.ndarray) and not isinstance(value, np.ndarray):
+            raise TypeError(f"{cls_name} expects a 2D numpy array")
+
+        if isinstance(self._array, xr.DataArray) and not isinstance(
+            value, xr.DataArray
+        ):
+            raise TypeError(f"{cls_name} expects a 3D Data Array")
 
         if np.any(value < 0):
             value = np.clip(value, a_min=0.0, a_max=None)

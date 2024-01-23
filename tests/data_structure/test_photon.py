@@ -305,6 +305,34 @@ def test_invalid_array(data, exp_exc: Exception, exp_msg: str):
         photon.array = data
 
 
+def test_set_array_3d_after_2d(photon_2d: Photon):
+    """Test 'Photon.array' with 3D array when 2D array were set before."""
+    photon_3d = xr.DataArray(
+        np.array(
+            [
+                [[0, 1, 2], [4, 5, 6]],
+                [[12, 13, 14], [16, 17, 18]],
+            ],
+            dtype=float,
+        ),
+        dims=["wavelength", "y", "x"],
+        coords={"wavelength": [300.0, 350.0]},
+    )
+
+    # Try to set '3D' photons to 'photon_2d'
+    with pytest.raises(TypeError, match="expects a 2D numpy array"):
+        photon_2d.array = photon_3d
+
+
+def test_set_array_2d_after_3d(photon_3d: Photon):
+    """Test 'Photon.array' with 2D array when 3D array were set before."""
+    photon_2d = np.array([[0, 1, 2], [4, 5, 6]], dtype=float)
+
+    # Try to set '2D' photons to 'photon_3d'
+    with pytest.raises(TypeError, match="expects a 3D Data Array"):
+        photon_3d.array = photon_2d
+
+
 def test_eq(empty_photon: Photon, photon_2d: Photon, photon_3d: Photon):
     """Test method 'Photon.__eq__'."""
 
