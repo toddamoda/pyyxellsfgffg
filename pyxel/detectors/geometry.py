@@ -54,6 +54,8 @@ class Geometry:
         Vertical dimension of pixel. Unit: um
     pixel_horz_size : float, optional
         Horizontal dimension of pixel. Unit: um
+    pixel_scale : float, optional
+        Dimension of how much of the sky is covered by one pixel. Unit: arcsec/pixel
     """
 
     def __init__(
@@ -63,6 +65,7 @@ class Geometry:
         total_thickness: Optional[float] = None,  # unit: um
         pixel_vert_size: Optional[float] = None,  # unit: um
         pixel_horz_size: Optional[float] = None,  # unit: um
+        pixel_scale: Optional[float] = None,  # unit: arcsec/pixel
     ):
         if row <= 0:
             raise ValueError("'row' must be strictly greater than 0.")
@@ -84,6 +87,7 @@ class Geometry:
         self._total_thickness = total_thickness
         self._pixel_vert_size = pixel_vert_size
         self._pixel_horz_size = pixel_horz_size
+        self._pixel_scale = pixel_scale
 
         self._numbytes = 0
 
@@ -93,7 +97,8 @@ class Geometry:
             f"{cls_name}(row={self._row!r}, col={self._col!r}, "
             f"total_thickness={self._total_thickness!r}, "
             f"pixel_vert_size={self._pixel_vert_size!r}, "
-            f"pixel_horz_size={self._pixel_horz_size})"
+            f"pixel_horz_size={self._pixel_horz_size}), "
+            f"pixel_scale={self._pixel_scale})"
         )
 
     def __eq__(self, other) -> bool:
@@ -103,12 +108,14 @@ class Geometry:
             self._total_thickness,
             self._pixel_vert_size,
             self._pixel_horz_size,
+            self._pixel_scale,
         ) == (
             other.row,
             other.col,
             other._total_thickness,
             other._pixel_vert_size,
             other._pixel_horz_size,
+            other._pixel_scale,
         )
 
     # def _repr_html_(self):
@@ -195,6 +202,22 @@ class Geometry:
         self._pixel_horz_size = value
 
     @property
+    def pixel_scale(self) -> float:
+        """Get pixel scale."""
+        if self._pixel_scale:
+            return self._pixel_scale
+        else:
+            raise ValueError("'pixel_scale' not specified in detector geometry.")
+
+    @pixel_scale.setter
+    def pixel_scale(self, value: float) -> None:
+        """Set pixel scale."""
+        if not (0.0 <= value <= 1000.0):
+            raise ValueError("'pixel_scale' must be between 0.0 and 1000.0.")
+
+        self._pixel_scale = value
+
+    @property
     def horz_dimension(self) -> float:
         """Get total horizontal dimension of detector. Calculated automatically.
 
@@ -252,6 +275,7 @@ class Geometry:
             "total_thickness": self._total_thickness,
             "pixel_vert_size": self._pixel_vert_size,
             "pixel_horz_size": self._pixel_horz_size,
+            "pixel_scale": self._pixel_scale,
         }
 
     @classmethod
