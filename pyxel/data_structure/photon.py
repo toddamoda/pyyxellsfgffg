@@ -9,10 +9,11 @@
 
 import warnings
 from collections.abc import Hashable, Mapping
-from typing import TYPE_CHECKING, Any, Optional, Self, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 import numpy as np
 import xarray as xr
+from typing_extensions import Self
 
 from pyxel.util import convert_unit, get_size
 
@@ -24,6 +25,46 @@ class Photon:
     """Photon class defining and storing information of all photon.
 
     Accepted array types: ``np.float16``, ``np.float32``, ``np.float64``
+
+    Examples
+    --------
+
+    Create an empty Photon container
+
+    >>> import numpy as np
+    >>> from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
+    >>> detector = CCD(
+    ...     geometry=CCDGeometry(row=5, col=5),
+    ...     characteristics=Characteristics(),
+    ...     environment=Environment(),
+    ... )
+    >>> detector.photon
+    Photon<UNINITIALIZED, shape=(5, 5)>
+
+    Use monochromatic photons with the container
+
+    >>> detector.photon.array = np.zeros(shape=(5, 5), dtype=float)
+    >>> detector.photon
+    Photon<shape=(5, 5), dtype=float64>
+
+    >>> detector.photon.array = detector.photon.array + np.ones(shape=(5, 5))
+    >>> detector.photon.array += np.ones(shape=(5, 5))
+
+    >>> np.array(detector.photon)
+    array([[2., ...., 2.],
+           ...,
+           [2., ..., 2.]])
+    >>> detector.photon.to_xarray()
+    <xarray.DataArray 'photon' (y: 5, x: 5)>
+    array([[2., ...., 2.],
+           ...,
+           [2., ..., 2.]])
+    Coordinates:
+      * y        (y) int64 0 1 2 3 4
+      * x        (x) int64 0 1 2 3 4
+    Attributes:
+        units:      Ph
+        long_name:  Photon
     """
 
     TYPE_LIST = (
@@ -42,7 +83,9 @@ class Photon:
         cls_name = self.__class__.__name__
 
         if self._array is None:
-            return f"{cls_name}<UNINITIALIZED, shape={self.shape}>"
+            return (
+                f"{cls_name}<UNINITIALIZED, shape={(self._num_rows, self._num_cols)}>"
+            )
 
         elif isinstance(self._array, np.ndarray):
             return f"{cls_name}<shape={self.shape}, dtype={self.dtype}>"
@@ -59,7 +102,7 @@ class Photon:
         if type(self) is not type(other):
             return False
 
-        if self._array is None and other._array is None:
+        if self._array is other._array is None:
             return True
 
         if isinstance(self._array, np.ndarray):
@@ -136,7 +179,7 @@ class Photon:
     @property
     def shape(self) -> tuple[int, ...]:
         if self._array is None:
-            return tuple()
+            return ()
 
         return self._array.shape
 
@@ -364,4 +407,5 @@ class Photon:
         return arr.plot(robust=robust)
 
     def empty(self) -> None:
+        """Empty the data container."""
         self._array = None

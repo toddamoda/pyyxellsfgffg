@@ -153,7 +153,6 @@ def comparison(dct, other_dct):
         == set(other_dct["data"])
         == {
             "photon",
-            "photon_3d",
             "scene",
             "pixel",
             "signal",
@@ -214,8 +213,7 @@ def comparison(dct, other_dct):
                     },
                 },
                 "data": {
-                    "photon": None,
-                    "photon_3d": None,
+                    "photon": {},
                     "scene": None,
                     "pixel": None,
                     "signal": None,
@@ -287,8 +285,7 @@ def comparison(dct, other_dct):
                     },
                 },
                 "data": {
-                    "photon": None,
-                    "photon_3d": None,
+                    "photon": {},
                     "scene": None,
                     "pixel": None,
                     "signal": None,

@@ -17,6 +17,8 @@ from pyxel.detectors import (
 )
 from pyxel.models.data_processing import extract_roi_to_xarray
 
+_ = pytest.importorskip("sep")
+
 
 @pytest.mark.parametrize(
     "array_type,exp_warn",

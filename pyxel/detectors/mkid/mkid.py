@@ -8,7 +8,7 @@
 """:term:`MKID`-array detector modeling class."""
 
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Optional
 
 from pyxel.data_structure import Phase, _get_array_if_initialized
 from pyxel.detectors import Detector
@@ -33,6 +33,8 @@ class MKID(Detector):
         self._characteristics: Characteristics = characteristics
 
         super().__init__(environment=environment)
+
+        self._phase: Optional[Phase] = None
         self._initialize()
 
     def __eq__(self, other) -> bool:
@@ -123,6 +125,7 @@ class MKID(Detector):
                 "pixel": _get_array_if_initialized(self._pixel),
                 "signal": _get_array_if_initialized(self._signal),
                 "image": _get_array_if_initialized(self._image),
+                "phase": _get_array_if_initialized(self._phase),
                 "data": (
                     None
                     if self._data is None
@@ -183,7 +186,9 @@ class MKID(Detector):
 
         data: Mapping[str, Any] = dct["data"]
 
-        detector.photon = Photon.from_dict(geometry=geometry, data=data)
+        detector.photon = Photon.from_dict(
+            geometry=geometry, data=data.get("photon", dict())
+        )
         detector.pixel.update(data.get("pixel"))
         detector.signal.update(data.get("signal"))
         detector.image.update(data.get("image"))

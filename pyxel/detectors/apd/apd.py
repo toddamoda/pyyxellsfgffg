@@ -129,7 +129,9 @@ class APD(Detector):
 
         data: Mapping[str, Any] = dct["data"]
 
-        detector.photon = Photon.from_dict(geometry=geometry, data=data)
+        detector.photon = Photon.from_dict(
+            geometry=geometry, data=data.get("photon", dict())
+        )
         detector.pixel.update(data.get("pixel"))
         detector.signal.update(data.get("signal"))
         detector.image.update(data.get("image"))

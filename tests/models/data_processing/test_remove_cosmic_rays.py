@@ -68,7 +68,7 @@ def ccd_50x50() -> CCD:
     return detector
 
 
-def test_data_ouput(ccd_50x50: CCD):
+def test_data_output(ccd_50x50: CCD):
     """Test output for function 'remove_cosmic_rays'."""
     detector = ccd_50x50
     pixels = create_image_with_cosmics()  # 2d array

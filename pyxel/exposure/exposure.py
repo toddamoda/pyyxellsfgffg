@@ -279,7 +279,7 @@ def _extract_datatree(detector: "Detector", keys: Sequence[ResultId]) -> DataTre
     --------
     >>> _extract_datatree(
     ...     detector=detector,
-    ...     keys=["photon", "photon3d", "charge", "pixel", "signal", "image", "data"],
+    ...     keys=["photon", "charge", "pixel", "signal", "image", "data"],
     ... )
     DataTree('None', parent=None)
         Dimensions:  (time: 1, y: 100, x: 100, wavelength: 201)
@@ -290,7 +290,6 @@ def _extract_datatree(detector: "Detector", keys: Sequence[ResultId]) -> DataTre
           * wavelength  (wavelength) float64 500.0 502.0 504.0 ... 896.0 898.0 900.0
         Data variables:
             photon   (time, y, x) float64 1.515e+04 1.592e+04 ... 1.621e+04 1.621e+04
-            photon3d    (time, wavelength, y, x) float64 0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0
             charge   (time, y, x) float64 1.515e+04 1.592e+04 ... 1.621e+04 1.621e+04
             pixel    (time, y, x) float64 1.515e+04 1.592e+04 ... 1.621e+04 1.621e+04
             signal   (time, y, x) float64 0.04545 0.04776 0.04634 ... 0.04862 0.04862
