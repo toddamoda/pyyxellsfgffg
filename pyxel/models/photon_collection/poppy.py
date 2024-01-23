@@ -371,36 +371,69 @@ def calc_psf(
             "or 'pip install pyxel-sim[all]'"
         )
 
-    # Create the optical element(s)
-    osys = op.OpticalSystem(npix=1000)  # default: 1024
+    # # Create the optical element(s)
+    # osys = op.OpticalSystem(npix=1000)  # default: 1024
+    #
+    # param: OpticalParameter
+    # for param in optical_parameters:
+    #     element: op.OpticalElement = create_optical_item(
+    #         param=param,
+    #         wavelength=wavelength,
+    #     )
+    #
+    #     osys.add_pupil(element)
+    #
+    # osys.add_detector(
+    #     pixelscale=pixelscale,
+    #     fov_arcsec=fov_arcsec,
+    # )
 
-    param: OpticalParameter
-    for param in optical_parameters:
-        element: op.OpticalElement = create_optical_item(
-            param=param,
-            wavelength=wavelength,
-        )
-
-        osys.add_pupil(element)
-
-    osys.add_detector(
-        pixelscale=pixelscale,
-        fov_arcsec=fov_arcsec,
-    )
-
-    # Calculate a monochromatic PSF
-    output_fits: Sequence[fits.hdu.image.PrimaryHDU]
-    wavefronts: Sequence[op.Wavefront]
+    # # Calculate a monochromatic PSF
+    # output_fits: Sequence[fits.hdu.image.PrimaryHDU]
+    # wavefronts: Sequence[op.Wavefront]
     # output_fits, wavefronts = osys.calc_psf(
     #     wavelength=wavelength,
     #     return_intermediates=True,
     #     normalize="last",
     # )
 
+    ### NEW:
+
+    # Calculate a monochromatic PSF
+    output_fits: Sequence[fits.hdu.image.PrimaryHDU]
+    wavefronts: Sequence[op.Wavefront]
+
     # Create Instrument
-    instrument = op.Instrument(
-        name="instrument",
+    instrument = op.Instrument(name="inst")
+
+    instrument.pixelscale = pixelscale
+
+    instrument.optsys = op.OpticalSystem(npix=1000)
+
+    # Create the optical element(s)
+    # osys = op.OpticalSystem(npix=1000)  # default: 1024
+    for param in optical_parameters:
+        element: op.OpticalElement = create_optical_item(
+            param=param,
+            wavelength=wavelength,
+        )
+
+        instrument.optsys.add_pupil(element)
+        # instrument.optsys.add_pupil(element)
+
+    instrument.optsys.add_detector(
+        pixelscale=pixelscale,
+        fov_arcsec=fov_arcsec,
     )
+    # instrument.optsys.add_detector(
+    #     pixelscale=pixelscale,
+    #     fov_arcsec=fov_arcsec,
+    # )
+
+    # instrument.optsys = osys
+    # instrument.get_optical_system(
+    #     fov_arcsec=fov_arcsec
+    # )  # why does it not take the values from the optical system above?
 
     if apply_jitter:
         instrument.options["jitter"] = "gaussian"
@@ -410,6 +443,7 @@ def calc_psf(
 
     output_fits, wavefronts = instrument.calc_psf(
         monochromatic=wavelength,
+        fov_arcsec=fov_arcsec,
         return_intermediates=True,
         normalize="last",
     )
