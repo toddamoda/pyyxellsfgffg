@@ -262,6 +262,14 @@ class Photon:
                     f"{cls_name} data array must have coordinates for dimension 'wavelength'."
                 )
 
+        if isinstance(self._array, np.ndarray) and not isinstance(value, np.ndarray):
+            raise ValueError(f"{cls_name} expects a 2D array")
+
+        if isinstance(self._array, xr.DataArray) and not isinstance(
+            value, xr.DataArray
+        ):
+            raise ValueError(f"{cls_name} expects a 3D array")
+
         if np.any(value < 0):
             value = np.clip(value, a_min=0.0, a_max=None)
             warnings.warn(
