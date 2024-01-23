@@ -102,7 +102,7 @@ class Detector:
 
     @photon.setter
     def photon(self, obj: Photon) -> None:
-        self.photon.array = obj.array
+        self.photon._array = obj._array
 
     @property
     def scene(self) -> Scene:

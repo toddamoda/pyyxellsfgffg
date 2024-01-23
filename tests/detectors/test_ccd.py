@@ -154,7 +154,6 @@ def comparison(dct, other_dct):
         == set(other_dct["data"])
         == {
             "photon",
-            "photon_3d",
             "scene",
             "pixel",
             "signal",
@@ -213,8 +212,7 @@ def comparison(dct, other_dct):
                     },
                 },
                 "data": {
-                    "photon": None,
-                    "photon_3d": None,
+                    "photon": {},
                     "scene": None,
                     "pixel": None,
                     "signal": None,
@@ -286,8 +284,7 @@ def comparison(dct, other_dct):
                     },
                 },
                 "data": {
-                    "photon": None,
-                    "photon_3d": None,
+                    "photon": {},
                     "scene": None,
                     "pixel": None,
                     "signal": None,
@@ -386,8 +383,7 @@ def test_to_and_from_dict_with_arrays_no_frame(valid_ccd: CCD, klass):
             },
         },
         "data": {
-            "photon": photon_2d.copy(),
-            "photon_3d": None,
+            "photon": {"array_2d": photon_2d.copy()},
             "scene": None,
             "pixel": pixel_2d.copy(),
             "signal": signal_2d.copy(),

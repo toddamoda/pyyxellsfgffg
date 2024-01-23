@@ -9,10 +9,11 @@
 
 import warnings
 from collections.abc import Hashable, Mapping
-from typing import TYPE_CHECKING, Any, Optional, Self, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 import numpy as np
 import xarray as xr
+from typing_extensions import Self
 
 from pyxel.util import convert_unit, get_size
 
@@ -59,7 +60,7 @@ class Photon:
         if type(self) is not type(other):
             return False
 
-        if self._array is None and other._array is None:
+        if self._array is other._array is None:
             return True
 
         if isinstance(self._array, np.ndarray):
@@ -136,7 +137,7 @@ class Photon:
     @property
     def shape(self) -> tuple[int, ...]:
         if self._array is None:
-            return tuple()
+            return ()
 
         return self._array.shape
 
