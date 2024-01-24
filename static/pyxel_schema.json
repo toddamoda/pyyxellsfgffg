@@ -195,6 +195,15 @@
             "null"
           ]
         },
+        "pixel_scale": {
+          "default": null,
+          "description": "Dimension of how much of the sky is covered by one pixel. Unit:arcsec/pixel",
+          "title": "pixel_scale",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
         "pixel_vert_size": {
           "default": null,
           "description": "Vertical dimension of pixel. Unit: um",
@@ -448,6 +457,15 @@
             "null"
           ]
         },
+        "pixel_scale": {
+          "default": null,
+          "description": "Dimension of how much of the sky is covered by one pixel. Unit:arcsec/pixel",
+          "title": "pixel_scale",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
         "pixel_vert_size": {
           "default": null,
           "description": "Vertical dimension of pixel. Unit: um",
@@ -532,6 +550,15 @@
           "default": null,
           "description": "Horizontal dimension of pixel. Unit: um",
           "title": "pixel_horz_size",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "pixel_scale": {
+          "default": null,
+          "description": "Dimension of how much of the sky is covered by one pixel. Unit:arcsec/pixel",
+          "title": "pixel_scale",
           "type": [
             "number",
             "null"
@@ -1936,6 +1963,15 @@
           "default": null,
           "description": "Horizontal dimension of pixel. Unit: um",
           "title": "pixel_horz_size",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "pixel_scale": {
+          "default": null,
+          "description": "Dimension of how much of the sky is covered by one pixel. Unit:arcsec/pixel",
+          "title": "pixel_scale",
           "type": [
             "number",
             "null"
@@ -5731,11 +5767,6 @@
               "title": "optical_system",
               "type": "array"
             },
-            "pixelscale": {
-              "description": "Pixel scale on detector plane (arcsec/pixel). Defines samplingresolution of :term:`PSF`.",
-              "title": "pixelscale",
-              "type": "number"
-            },
             "wavelength": {
               "description": "Wavelength of incoming light in meters.",
               "title": "wavelength",
@@ -5745,7 +5776,6 @@
           "required": [
             "wavelength",
             "fov_arcsec",
-            "pixelscale",
             "optical_system"
           ],
           "title": "Parameters",
@@ -5836,11 +5866,6 @@
               "title": "aperture",
               "type": "number"
             },
-            "pixel_scale": {
-              "description": "Pixel scale. Unit: arcsec/pixel.",
-              "title": "pixel_scale",
-              "type": "number"
-            },
             "wavelength_band": {
               "additionalItems": false,
               "description": "Wavelength band. Unit: nm.",
@@ -5867,7 +5892,6 @@
             }
           },
           "required": [
-            "pixel_scale",
             "aperture",
             "wavelength_band"
           ],
@@ -5929,15 +5953,9 @@
               ],
               "title": "filter_band",
               "type": "array"
-            },
-            "pixel_scale": {
-              "description": "Pixel scale. Unit: arcsec/pixel.",
-              "title": "pixel_scale",
-              "type": "number"
             }
           },
           "required": [
-            "pixel_scale",
             "aperture",
             "filter_band"
           ],
