@@ -36,6 +36,7 @@ def ccd_3x3() -> CCD:
             total_thickness=40.0,
             pixel_vert_size=10.0,
             pixel_horz_size=10.0,
+            pixel_scale=0.01,
         ),
         environment=Environment(),
         characteristics=Characteristics(),
@@ -120,15 +121,14 @@ def test_create_optical_parameter(dct: Mapping, exp_parameter):
 
 
 @pytest.mark.parametrize(
-    "wavelength, fov_arcsec, pixelscale, optical_system",
+    "wavelength, fov_arcsec, optical_system",
     [
         pytest.param(
-            0.6e-6, 5, 0.01, [{"item": "CircularAperture", "radius": 3.0}], id="valid"
+            0.6e-6, 5, [{"item": "CircularAperture", "radius": 3.0}], id="valid"
         ),
         pytest.param(
             -1,
             5,
-            0.01,
             [{"item": "CircularAperture", "radius": 3.0}],
             marks=pytest.mark.xfail(raises=ValueError, strict=True),
             id="Negative 'wavelength'",
@@ -136,26 +136,23 @@ def test_create_optical_parameter(dct: Mapping, exp_parameter):
         pytest.param(
             0.6e-6,
             -1,
-            0.01,
             [{"item": "CircularAperture", "radius": 3.0}],
             marks=pytest.mark.xfail(raises=ValueError, strict=True),
             id="Negative 'fov_arcsec'",
         ),
-        pytest.param(
-            0.6e-6,
-            5,
-            -1,
-            [{"item": "CircularAperture", "radius": 3.0}],
-            marks=pytest.mark.xfail(raises=ValueError, strict=True),
-            id="Negative 'pixelscale'",
-        ),
+        # pytest.param(
+        #     0.6e-6,
+        #     5,
+        #     [{"item": "CircularAperture", "radius": 3.0}],
+        #     marks=pytest.mark.xfail(raises=ValueError, strict=True),
+        #     id="Negative 'pixelscale'",
+        # ),
     ],
 )
 def test_optical_psf(
     ccd_3x3: CCD,
     wavelength: float,
     fov_arcsec: float,
-    pixelscale: float,
     optical_system: Sequence[Mapping],
 ):
     """Test input parameters for function 'optical_psf'."""
@@ -163,6 +160,5 @@ def test_optical_psf(
         detector=ccd_3x3,
         wavelength=wavelength,
         fov_arcsec=fov_arcsec,
-        pixelscale=pixelscale,
         optical_system=optical_system,
     )

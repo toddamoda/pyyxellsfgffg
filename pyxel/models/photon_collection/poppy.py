@@ -446,10 +446,10 @@ def optical_psf(
 
     # Validation and Conversion stage
     # These steps will be probably moved into the YAML engine
-    if wavelength < 0.0 or fov_arcsec < 0.0 or detector.geometry.pixelscale < 0.0:
+    if wavelength < 0.0 or fov_arcsec < 0.0 or detector.geometry.pixel_scale < 0.0:
         raise ValueError(
             "Expecting strictly positive value for 'wavelength', "
-            "'fov_arcsec' and 'pixelscale'."
+            "'fov_arcsec' and 'pixel_scale'."
         )
 
     # Convert 'optical_system' to 'optical_parameters'
@@ -462,7 +462,7 @@ def optical_psf(
     images, wavefronts = calc_psf(
         wavelength=wavelength,
         fov_arcsec=fov_arcsec,
-        pixelscale=detector.geometry.pixelscale,
+        pixelscale=detector.geometry.pixel_scale,
         optical_parameters=optical_parameters,
     )
 

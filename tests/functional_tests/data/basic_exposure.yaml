@@ -62,7 +62,6 @@ pipeline:
       enabled: true
       arguments:
         fov_arcsec: 5 # FOV in arcseconds
-        pixelscale: 0.01 #arcsec/pixel
         wavelength: 0.6e-6 # wavelength in meters
         optical_system:
           - item: CircularAperture
