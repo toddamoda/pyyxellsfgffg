@@ -5754,9 +5754,21 @@
         "arguments": {
           "additionalProperties": false,
           "properties": {
+            "apply_jitter": {
+              "default": false,
+              "description": "Defines whether jitter should be applied. Default = False.",
+              "title": "apply_jitter",
+              "type": "boolean"
+            },
             "fov_arcsec": {
               "description": "Field Of View on detector plane in arcsec.",
               "title": "fov_arcsec",
+              "type": "number"
+            },
+            "jitter_sigma": {
+              "default": 0.007,
+              "description": "Jitter sigma value in arcsec per axis, default is 0.007.",
+              "title": "jitter_sigma",
               "type": "number"
             },
             "optical_system": {

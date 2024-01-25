@@ -397,7 +397,7 @@ def calc_psf(
     #     normalize="last",
     # )
 
-    ### NEW:
+    # NEW:
 
     # Calculate a monochromatic PSF
     output_fits: Sequence[fits.hdu.image.PrimaryHDU]
