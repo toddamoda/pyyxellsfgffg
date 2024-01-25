@@ -365,3 +365,67 @@ def display_persist(persistence: Union[Persistence, SimplePersistence]) -> None:
 
     for ax, trapmap, keyw in zip(axes, trapped_charges, labels):
         display_array(data=trapmap, axes=ax, label=keyw)
+
+
+def display_scene(
+    detector: "Detector", figsize: tuple[int, int] = (8, 6)
+) -> "plt.Axes":
+    """Display the scene contained of 'detector' and the size of the detector.
+
+    Examples
+    --------
+    >>> import pyxel
+    >>> pyxel.display_scene(detector)
+
+    .. image:: _static/display_scene.jpg
+    """
+    import astropy.units as u
+    import matplotlib.pyplot as plt
+
+    scene: xr.Dataset = detector.scene.to_xarray()
+
+    if not scene:
+        raise ValueError("Scene not initialized in this detector")
+
+    right_ascension_key = "right_ascension[deg]"
+    declination_key = "declination[deg]"
+
+    if right_ascension_key not in scene.attrs:
+        raise KeyError(f"Missing key {right_ascension_key!r} in the attributes.")
+
+    if declination_key not in scene.attrs:
+        raise KeyError(f"Missing key {declination_key!r} in the attributes.")
+
+    # Extract parameters from 'scene'
+    right_ascension = u.Quantity(scene.attrs[right_ascension_key], unit="deg")
+    declination = u.Quantity(scene.attrs[declination_key], unit="deg")
+
+    middle_point_x = right_ascension.to(u.arcsec)
+    middle_point_y = declination.to(u.arcsec)
+
+    # Extract parameters from 'detector'
+    pixel_scale = u.Quantity(detector.geometry.pixel_scale, unit="arcsec/pixel")
+    detector_row = u.Quantity(detector.geometry.row, unit="pixel")
+    detector_col = u.Quantity(detector.geometry.col, unit="pixel")
+
+    x_factor = detector_row * pixel_scale / 2
+    y_factor = detector_col * pixel_scale / 2
+
+    l_x = middle_point_x - x_factor
+    r_x = middle_point_x + x_factor
+    t_y = middle_point_y + y_factor
+    b_y = middle_point_y - y_factor
+
+    fig, ax = plt.subplots(figsize=figsize)
+    scene.plot.scatter(x="x", y="y", hue="weight", marker="o", ax=ax)
+
+    ax.set_title(
+        f"Right ascension: {right_ascension:latex}, "
+        f"declination: {declination:latex}"
+    )
+    ax.hlines(y=t_y.value, xmin=l_x.value, xmax=r_x.value)
+    ax.vlines(x=l_x.value, ymin=b_y.value, ymax=t_y.value)
+    ax.hlines(y=b_y.value, xmin=l_x.value, xmax=r_x.value)
+    ax.vlines(x=r_x.value, ymin=b_y.value, ymax=t_y.value)
+
+    return ax
