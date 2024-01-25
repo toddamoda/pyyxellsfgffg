@@ -19,6 +19,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
   and [!815](https://gitlab.com/esa/pyxel/-/merge_requests/815)).
 * Moving pixel scale parameter to detector geometry.
   (See [!816](https://gitlab.com/esa/pyxel/-/merge_requests/816)).
+* Add new function `pyxel.display_scene` to display a `scene` container in a `Detector` object.
+  (See [!819](https://gitlab.com/esa/pyxel/-/merge_requests/819)).
 
 ### Documentation
 
