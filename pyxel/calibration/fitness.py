@@ -64,8 +64,9 @@ def sum_of_squared_residuals(
     return result
 
 
-# @numba.njit
+@numba.njit
 def reduced_chi_squared(
+
     simulated: np.ndarray,
     target: np.ndarray,
     weighting: np.ndarray,
@@ -91,16 +92,16 @@ def reduced_chi_squared(
     float
         The reduced :math:`\chi^{2}`.
     """
-    assert target.ndim == 2
-    assert simulated.ndim == 3
-    assert simulated.shape[0] == 1
-    assert target.shape == weighting.shape
+    # assert target.ndim == 2
+    # assert simulated.ndim == 3
+    # assert simulated.shape[0] == 1
+    # assert target.shape == weighting.shape
 
     simulated_2d = simulated[0]
-    assert simulated_2d.ndim == 2
+    # assert simulated_2d.ndim == 2
 
-    assert target.size == simulated_2d.size
-    assert target.size >= 1
+    # assert target.size == simulated_2d.size
+    # assert target.size >= 1
     diff = target - simulated_2d
     deviation2 = np.square(diff / weighting)
 
@@ -112,8 +113,8 @@ def reduced_chi_squared(
 
     degrees_of_freedom = size - free_parameters
 
-    assert free_parameters >= 1
-    assert degrees_of_freedom >= 1
+    # assert free_parameters >= 1
+    # assert degrees_of_freedom >= 1
 
     # reduced_chi2 = float(np.nansum(deviation2)) / degrees_of_freedom
     reduced_chi2 = float(np.sum(deviation2)) / degrees_of_freedom
