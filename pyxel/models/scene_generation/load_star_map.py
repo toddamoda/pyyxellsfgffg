@@ -547,5 +547,10 @@ def load_star_map(
         fov_radius=fov_radius,
         band=band_pass,
     )
+    ds.attrs = {
+        "right_ascension[deg]": right_ascension,
+        "declination[deg]": declination,
+        "fov_radius": fov_radius,
+    }
 
     detector.scene.add_source(ds)
