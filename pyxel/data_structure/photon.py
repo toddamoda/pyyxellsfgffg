@@ -22,7 +22,10 @@ if TYPE_CHECKING:
 
 
 class Photon:
-    """Photon class defining and storing information of all photon (unit: ph or ph/nm).
+    """Photon class designed to handle the storage of monochromatic (unit: ph_ or multi-wavelength photons (unit ph/nm).
+
+    Monochromatic photons are stored in a 2D Numpy array and
+    multi-wavelength photons are stored in a 3D Xarray DataArray.
 
     Accepted array types: ``np.float16``, ``np.float32``, ``np.float64``
 
@@ -39,6 +42,10 @@ class Photon:
     ... )
     >>> detector.photon
     Photon<UNINITIALIZED, shape=(5, 5)>
+    >>> detector.ndim
+    0
+    >>> detector.shape
+    ()
 
     Use monochromatic photons
 
@@ -240,6 +247,7 @@ pipeline:
 
     @property
     def shape(self) -> tuple[int, ...]:
+        """Return the shape of the Photon container."""
         if self._array is None:
             return ()
 
@@ -258,7 +266,7 @@ pipeline:
 
     @property
     def array(self) -> np.ndarray:
-        """Two-dimensional numpy array storing the data.
+        """Two-dimensional numpy array storing monochromatic photon.
 
         Only accepts an array with the right type and shape.
 
@@ -266,6 +274,18 @@ pipeline:
         ------
         ValueError
             Raised if 'array' is not initialized.
+
+        Examples
+        --------
+        >>> from pyxel.detectors import CCD, CCDGeometry
+        >>> detector = CCD(geometry=CCDGeometry(row=2, col=3))
+
+        >>> import numpy as np
+        >>> detector.photon.array = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
+
+        >>> detector.photon.array
+        array([[1., 2., 3.],
+              [4., 5., 6.]])
         """
         if self._array is None:
             msg: str = self._get_uninitialized_2d_error_message()
