@@ -9,9 +9,10 @@ from collections.abc import Mapping, Sequence
 
 import numpy as np
 import pytest
+import xarray as xr
 
 from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
-from pyxel.models.photon_collection import optical_psf
+from pyxel.models.photon_collection import optical_psf, optical_psf_multi_wavelength
 from pyxel.models.photon_collection.poppy import (
     CircularAperture,
     HexagonAperture,
@@ -25,6 +26,8 @@ from pyxel.models.photon_collection.poppy import (
     create_optical_parameter,
 )
 
+_ = pytest.importorskip("poppy")
+
 
 @pytest.fixture
 def ccd_3x3() -> CCD:
@@ -36,12 +39,39 @@ def ccd_3x3() -> CCD:
             total_thickness=40.0,
             pixel_vert_size=10.0,
             pixel_horz_size=10.0,
-            pixel_scale=0.01,
+            pixel_scale=1.65,
         ),
         environment=Environment(),
         characteristics=Characteristics(),
     )
     detector.photon.array = np.zeros(detector.geometry.shape, dtype=float)
+    return detector
+
+
+@pytest.fixture
+def ccd_4x5_multi_wavelength() -> CCD:
+    """Create a valid CCD detector."""
+    detector = CCD(
+        geometry=CCDGeometry(
+            row=4,
+            col=5,
+            total_thickness=40.0,
+            pixel_vert_size=10.0,
+            pixel_horz_size=10.0,
+            pixel_scale=1.65,
+        ),
+        environment=Environment(),
+        characteristics=Characteristics(),
+    )
+
+    num_rows, num_cols = detector.geometry.shape
+
+    detector.photon.array_3d = xr.DataArray(
+        np.zeros(shape=(3, num_rows, num_cols), dtype=float),
+        dims=["wavelength", "y", "x"],
+        coords={"wavelength": [620.0, 640.0, 680.0]},
+    )
+
     return detector
 
 
@@ -124,7 +154,7 @@ def test_create_optical_parameter(dct: Mapping, exp_parameter):
     "wavelength, fov_arcsec, optical_system",
     [
         pytest.param(
-            0.6e-6, 5, [{"item": "CircularAperture", "radius": 3.0}], id="valid"
+            0.6e-6, 5, [{"item": "CircularAperture", "radius": 1.0}], id="valid"
         ),
         pytest.param(
             -1,
@@ -152,6 +182,32 @@ def test_optical_psf(
     optical_psf(
         detector=ccd_3x3,
         wavelength=wavelength,
+        fov_arcsec=fov_arcsec,
+        optical_system=optical_system,
+    )
+
+
+@pytest.mark.parametrize(
+    "wavelengths, fov_arcsec, optical_system",
+    [
+        pytest.param(
+            (0.6e-6, 0.7e-6),
+            5,
+            [{"item": "CircularAperture", "radius": 3.0}],
+            id="valid",
+        ),
+    ],
+)
+def test_optical_psf_multiwavelength(
+    ccd_4x5_multi_wavelength: CCD,
+    wavelengths: tuple[float, float],
+    fov_arcsec: float,
+    optical_system: Sequence[Mapping],
+):
+    """Test input parameters for function 'optical_psf'."""
+    optical_psf_multi_wavelength(
+        detector=ccd_4x5_multi_wavelength,
+        wavelengths=wavelengths,
         fov_arcsec=fov_arcsec,
         optical_system=optical_system,
     )

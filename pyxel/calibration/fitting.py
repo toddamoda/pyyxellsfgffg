@@ -367,7 +367,7 @@ class ModelFitting(ProblemSingleObjective):
                     parameter=parameter_1d, processor=processor
                 )
 
-                logger.setLevel(logging.WARNING)
+                logger.setLevel(logging.WARNING)  # TODO: Fix this. See issue #81
                 # result_proc = None
                 if self.calibration_mode == CalibrationMode.Pipeline:
                     _ = run_exposure_pipeline(
@@ -380,7 +380,7 @@ class ModelFitting(ProblemSingleObjective):
                 else:
                     raise NotImplementedError
 
-                logger.setLevel(prev_log_level)
+                logger.setLevel(prev_log_level)  # TODO: Fix this. See issue #81
 
                 simulated_data = self.get_simulated_data(processor=processor)
 

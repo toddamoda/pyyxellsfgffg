@@ -7,6 +7,7 @@
 
 """Scene generator creates Scopesim Source object."""
 
+import logging
 import warnings
 from collections.abc import Sequence
 from enum import Enum
@@ -22,8 +23,6 @@ from synphot import SourceSpectrum
 
 from pyxel import util
 from pyxel.detectors import Detector
-
-warnings.filterwarnings("ignore")
 
 if TYPE_CHECKING:
     from astropy.io.votable import tree
@@ -458,6 +457,9 @@ def load_objects_from_gaia(
         weight      (ref) float64 11.49 14.13 15.22 14.56 ... 15.21 11.51 8.727
         flux        (ref, wavelength) float64 2.228e-16 2.432e-16 ... 3.693e-15
     """
+    # TODO: Fix this. See issue #81
+    logging.getLogger("astroquery").setLevel(logging.WARNING)
+
     # Get all sources and spectrum in one Dataset
     ds_from_gaia: xr.Dataset = retrieve_from_gaia(
         right_ascension=right_ascension,
@@ -465,8 +467,11 @@ def load_objects_from_gaia(
         fov_radius=fov_radius,
     )
 
-    # Convert 'flux' from W / (nm m2) to ph / (s AA cm2)
-    flux_converted: xr.DataArray = convert_spectrum(flux=ds_from_gaia["flux"])
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore")
+
+        # Convert 'flux' from W / (nm m2) to ph / (s AA cm2)
+        flux_converted: xr.DataArray = convert_spectrum(flux=ds_from_gaia["flux"])
 
     # Convert the positions to arcseconds and center around 0.0, 0.0.
     # The centering is necessary because ScopeSIM cannot actually 'point' the telescope.
@@ -547,5 +552,10 @@ def load_star_map(
         fov_radius=fov_radius,
         band=band_pass,
     )
+    ds.attrs = {
+        "right_ascension[deg]": right_ascension,
+        "declination[deg]": declination,
+        "fov_radius[deg]": fov_radius,
+    }
 
     detector.scene.add_source(ds)

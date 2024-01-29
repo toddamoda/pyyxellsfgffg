@@ -60,7 +60,7 @@ pipeline:
 
     - name: optical_psf
       func: pyxel.models.photon_collection.optical_psf
-      enabled: true
+      enabled: false
       arguments:
         fov_arcsec: 5 # FOV in arcsecond
         wavelength: 0.6e-6 # wavelength in meters

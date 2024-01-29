@@ -86,7 +86,7 @@ def exposure_mode(
         signal        (readout_time, y, x) float64 3.159 3.03 2.971 ... 3.195 3.36
         pixel         (readout_time, y, x) float64 1.053e+03 1.01e+03 ... 1.12e+03
     """
-    warnings.warn("Use function 'pyxel.run_mode'", DeprecationWarning, stacklevel=1)
+    warnings.warn("Use function 'pyxel.run_mode'", FutureWarning, stacklevel=1)
 
     logging.info("Mode: Exposure")
 
@@ -225,7 +225,7 @@ def observation_mode(
     >>> result
     ObservationResult(...)
     """
-    warnings.warn("Use function 'pyxel.run_mode'", DeprecationWarning, stacklevel=1)
+    warnings.warn("Use function 'pyxel.run_mode'", FutureWarning, stacklevel=1)
 
     logging.info("Mode: Observation")
 
@@ -337,7 +337,7 @@ def calibration_mode(
     []
     """
     # Late import to speedup start-up time
-    warnings.warn("Use function 'pyxel.run_mode'", DeprecationWarning, stacklevel=1)
+    warnings.warn("Use function 'pyxel.run_mode'", FutureWarning, stacklevel=1)
 
     from pyxel.calibration import CalibrationResult
 

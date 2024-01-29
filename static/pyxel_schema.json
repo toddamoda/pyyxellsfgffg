@@ -1626,6 +1626,9 @@
                 "$ref": "#/definitions/ModelPhotonCollectionOpticalPsf"
               },
               {
+                "$ref": "#/definitions/ModelPhotonCollectionOpticalPsfMultiWavelength"
+              },
+              {
                 "$ref": "#/definitions/ModelPhotonCollectionShotNoise"
               },
               {
@@ -5754,9 +5757,21 @@
         "arguments": {
           "additionalProperties": false,
           "properties": {
+            "apply_jitter": {
+              "default": false,
+              "description": "Defines whether jitter should be applied. Default = False.",
+              "title": "apply_jitter",
+              "type": "boolean"
+            },
             "fov_arcsec": {
               "description": "Field Of View on detector plane in arcsec.",
               "title": "fov_arcsec",
+              "type": "number"
+            },
+            "jitter_sigma": {
+              "default": 0.007,
+              "description": "Jitter sigma value in arcsec per axis, default is 0.007.",
+              "title": "jitter_sigma",
               "type": "number"
             },
             "optical_system": {
@@ -5799,6 +5814,91 @@
         "arguments"
       ],
       "title": "Model 'optical_psf'",
+      "type": "object"
+    },
+    "ModelPhotonCollectionOpticalPsfMultiWavelength": {
+      "additionalProperties": false,
+      "description": "Model function for poppy optics model: convolve photon array with psf.",
+      "properties": {
+        "arguments": {
+          "additionalProperties": false,
+          "properties": {
+            "apply_jitter": {
+              "default": false,
+              "description": "Defines whether jitter should be applied. Default = False.",
+              "title": "apply_jitter",
+              "type": "boolean"
+            },
+            "fov_arcsec": {
+              "description": "Field Of View on detector plane in arcsec.",
+              "title": "fov_arcsec",
+              "type": "number"
+            },
+            "jitter_sigma": {
+              "default": 0.007,
+              "description": "Jitter sigma value in arcsec per axis, default is 0.007.",
+              "title": "jitter_sigma",
+              "type": "number"
+            },
+            "optical_system": {
+              "description": "List of optical elements before detector with their specificarguments.",
+              "items": {
+                "type": "object"
+              },
+              "title": "optical_system",
+              "type": "array"
+            },
+            "wavelengths": {
+              "additionalItems": false,
+              "description": "Wavelengths of incoming light in meters.",
+              "items": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "title": "wavelengths",
+              "type": "array"
+            }
+          },
+          "required": [
+            "wavelengths",
+            "fov_arcsec",
+            "optical_system"
+          ],
+          "title": "Parameters",
+          "type": "object"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "func": {
+          "const": "pyxel.models.photon_collection.optical_psf_multi_wavelength",
+          "default": "pyxel.models.photon_collection.optical_psf_multi_wavelength",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "arguments"
+      ],
+      "title": "Model 'optical_psf_multi_wavelength'",
       "type": "object"
     },
     "ModelPhotonCollectionShotNoise": {
@@ -5953,6 +6053,12 @@
               ],
               "title": "filter_band",
               "type": "array"
+            },
+            "integrate_wavelength": {
+              "default": true,
+              "description": "If true, integrates along the wavelength else multiwavelength.",
+              "title": "integrate_wavelength",
+              "type": "boolean"
             }
           },
           "required": [

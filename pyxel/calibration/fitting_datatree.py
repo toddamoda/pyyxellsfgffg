@@ -404,7 +404,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
                     parameter=parameter_1d, processor=processor
                 )
 
-                logger.setLevel(logging.WARNING)
+                logger.setLevel(logging.WARNING)  # TODO: Fix this. See issue #81
 
                 data_tree: "DataTree" = run_pipeline(
                     processor=processor,
@@ -413,7 +413,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
                     debug=False,  # Not supported in Observation mode
                 )
 
-                logger.setLevel(prev_log_level)
+                logger.setLevel(prev_log_level)  # TODO: Fix this. See issue #81
 
                 simulated_data: "xr.DataArray" = self._get_simulated_data(
                     data=data_tree

@@ -13,6 +13,8 @@ General
 
 .. autofunction:: display_html
 
+.. autofunction:: display_scene
+
 
 Displaying calibration inputs and outputs in notebooks
 ======================================================

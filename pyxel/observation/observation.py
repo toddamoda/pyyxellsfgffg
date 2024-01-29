@@ -573,7 +573,7 @@ class Observation:
         Result
         """
         warnings.warn(
-            "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
+            "Deprecated. Will be removed in Pyxel 2.0", FutureWarning, stacklevel=1
         )
 
         # Late import to speedup start-up time

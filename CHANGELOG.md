@@ -19,6 +19,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
   and [!815](https://gitlab.com/esa/pyxel/-/merge_requests/815)).
 * Moving pixel scale parameter to detector geometry.
   (See [!816](https://gitlab.com/esa/pyxel/-/merge_requests/816)).
+* Add new function `pyxel.display_scene` to display a `scene` container in a `Detector` object.
+  (See [!819](https://gitlab.com/esa/pyxel/-/merge_requests/819)).
 
 ### Documentation
 
@@ -29,8 +31,16 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
   (See [!765](https://gitlab.com/esa/pyxel/-/merge_requests/765)).
 * Add model "load_PSF_wavelength".
   (See [!686](https://gitlab.com/esa/pyxel/-/merge_requests/686)).
+* Refactor aperture and simple collection.
+  (See [!818](https://gitlab.com/esa/pyxel/-/merge_requests/818)).
+* Add model 'optical_psf_multi_wavelength' from group 'Photon Collection'.
+  (See [!820](https://gitlab.com/esa/pyxel/-/merge_requests/820)).
+* Pointing jitter model.
+  (See [!814](https://gitlab.com/esa/pyxel/-/merge_requests/814)).
 
 ### Others
+* Convert DeprecationWarning to FutureWarning.
+  (See [!821](https://gitlab.com/esa/pyxel/-/merge_requests/821)).
 
 
 ## 1.14 / 2024-01-19

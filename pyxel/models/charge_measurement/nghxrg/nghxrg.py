@@ -302,7 +302,9 @@ def nghxrg(
     # Converter
     params: list[NoiseType] = [_get_noise_type(item) for item in noise]
 
-    logging.getLogger("nghxrg").setLevel(logging.WARNING)
+    logging.getLogger("nghxrg").setLevel(
+        logging.WARNING
+    )  # TODO: Fix this. See issue #81
 
     # Prepare the parameters
     geo: CMOSGeometry = detector.geometry

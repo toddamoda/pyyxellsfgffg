@@ -14,7 +14,7 @@ Available models
     * :ref:`load_star_map`
 * Photon collection
     * :ref:`photon_collection_create_store_detector`
-    * :ref:`aperture`
+    * :ref:`simple_collection`
     * :ref:`Load image`
     * :ref:`Simple illumination`
     * :ref:`Stripe pattern`

@@ -365,7 +365,7 @@ class Calibration:
     ) -> tuple["xr.Dataset", "pd.DataFrame", "pd.DataFrame"]:
         """Run calibration pipeline."""
         warnings.warn(
-            "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
+            "Deprecated. Will be removed in Pyxel 2.0", FutureWarning, stacklevel=1
         )
 
         try:
