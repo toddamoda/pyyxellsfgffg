@@ -654,7 +654,8 @@ def apply_convolution(data: np.ndarray, kernel: np.ndarray) -> np.ndarray:
             num_wavelengths, _, _ = kernel.shape
             new_shape = num_wavelengths, 10, 10
 
-        kernel = sk.resize(kernel, output_shape=new_shape)
+        resized_kernel = sk.resize(kernel, output_shape=new_shape, anti_aliasing=False)
+        kernel = resized_kernel / resized_kernel.sum()
 
     array = convolve_fft(
         data,
