@@ -12,6 +12,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 ## UNRELEASED
 
 ### Core
+* Remove deprecated models under `optics` and `photon_generation` model groups.
+  (See [!825](https://gitlab.com/esa/pyxel/-/merge_requests/825)).
 
 ### Documentation
 
