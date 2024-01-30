@@ -10,7 +10,7 @@ import xarray as xr
 from pytest_mock import MockerFixture  # pip install pytest-mock
 
 from pyxel.data_structure import Scene
-from pyxel.models.photon_collection.aperture import extract_wavelength
+from pyxel.models.photon_collection.simple_collection import extract_wavelength
 
 
 def test_extract_wavelength_error():
