@@ -7,7 +7,6 @@
 
 """TBW."""
 
-import warnings
 from collections.abc import Iterable, Sequence
 from typing import Optional
 
@@ -21,8 +20,6 @@ class DetectionPipeline:
     MODEL_GROUPS: tuple[str, ...] = (
         "scene_generation",
         "photon_collection",
-        "photon_generation",  # Deprecated. It will be removed in version 2.0
-        "optics",  # Deprecated. It will be removed in version 2.0
         "phasing",
         "charge_generation",
         "charge_collection",
@@ -38,8 +35,6 @@ class DetectionPipeline:
         self,  # TODO: Too many instance attributes
         scene_generation: Optional[Sequence[ModelFunction]] = None,
         photon_collection: Optional[Sequence[ModelFunction]] = None,
-        photon_generation: Optional[Sequence[ModelFunction]] = None,  # Deprecated
-        optics: Optional[Sequence[ModelFunction]] = None,  # Deprecated
         phasing: Optional[Sequence[ModelFunction]] = None,
         charge_generation: Optional[Sequence[ModelFunction]] = None,
         charge_collection: Optional[Sequence[ModelFunction]] = None,
@@ -62,18 +57,6 @@ class DetectionPipeline:
             ModelGroup(photon_collection, name="photon_collection")
             if photon_collection
             else None
-        )
-
-        # Deprecated
-        self._photon_generation: Optional[ModelGroup] = (
-            ModelGroup(photon_generation, name="photon_generation")
-            if photon_generation
-            else None
-        )
-
-        # Deprecated
-        self._optics: Optional[ModelGroup] = (
-            ModelGroup(optics, name="optics") if optics else None
         )
 
         self._phasing: Optional[ModelGroup] = (
@@ -141,30 +124,6 @@ class DetectionPipeline:
     def photon_collection(self) -> Optional[ModelGroup]:
         """Get group 'photon collection'."""
         return self._photon_collection
-
-    @property
-    def photon_generation(self) -> Optional[ModelGroup]:
-        """Get group 'photon generation'."""
-        warnings.warn(
-            "Group 'photon_generation' is deprecated "
-            "and will be removed in version 2.0. "
-            "Use group 'photon_collection' instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self._photon_generation
-
-    @property
-    def optics(self) -> Optional[ModelGroup]:
-        """Get group 'optics'."""
-        warnings.warn(
-            "Group 'optics' is deprecated "
-            "and will be removed in version 2.0. "
-            "Use group 'photon_collection' instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self._optics
 
     @property
     def phasing(self) -> Optional[ModelGroup]:

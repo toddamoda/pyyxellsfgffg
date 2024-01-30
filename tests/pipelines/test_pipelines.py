@@ -38,20 +38,6 @@ def pipeline_single() -> DetectionPipeline:
     return pipeline
 
 
-@pytest.mark.deprecated
-@pytest.mark.parametrize("pickle_method", [pickle, cloudpickle])
-def test_serialization_deprecated(
-    pipeline_single_deprecated: DetectionPipeline, pickle_method
-):
-    """Test serialization/deserialization."""
-    data = pickle_method.dumps(pipeline_single_deprecated)
-    assert isinstance(data, bytes)
-
-    obj = pickle_method.loads(data)
-    assert isinstance(obj, DetectionPipeline)
-    assert obj is not pipeline_single_deprecated
-
-
 @pytest.mark.parametrize("pickle_method", [pickle, cloudpickle])
 def test_serialization(pipeline_single: DetectionPipeline, pickle_method):
     """Test serialization/deserialization."""
