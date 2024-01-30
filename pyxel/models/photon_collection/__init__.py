@@ -16,5 +16,4 @@ from .stripe_pattern import stripe_pattern
 from .poppy import optical_psf, optical_psf_multi_wavelength
 from .point_spread_function import load_psf, load_wavelength_psf
 from .ariel_airs import wavelength_dependence_airs
-from .aperture import simple_aperture
 from .simple_collection import simple_collection
