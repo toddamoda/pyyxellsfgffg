@@ -15,10 +15,14 @@ This release brings a number of bugfixes and improvements.
 ### Breaking Changes
 The deprecated models in `optics` and `photon_generation` model groups are removed.
 
+The deprecated model `simple_aperture` in `photon_collection` is removed.
+
 
 ### Core
 * Remove deprecated models under `optics` and `photon_generation` model groups.
   (See [!825](https://gitlab.com/esa/pyxel/-/merge_requests/825)).
+* Remove deprecated model `simple_aperture`.
+  (See [!827](https://gitlab.com/esa/pyxel/-/merge_requests/827)).
 
 ### Documentation
 
