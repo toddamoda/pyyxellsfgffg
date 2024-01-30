@@ -10,8 +10,15 @@ Minor releases include updated stdlib stubs from typeshed.
 Pyxel doesn't use SemVer anymore, since most minor releases have at least minor backward incompatible changes.
 
 ## UNRELEASED
+This release brings a number of bugfixes and improvements.
+
+### Breaking Changes
+The deprecated models in `optics` and `photon_generation` model groups are removed.
+
 
 ### Core
+* Remove deprecated models under `optics` and `photon_generation` model groups.
+  (See [!825](https://gitlab.com/esa/pyxel/-/merge_requests/825)).
 
 ### Documentation
 
