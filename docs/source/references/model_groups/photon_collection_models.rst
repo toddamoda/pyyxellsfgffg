@@ -65,33 +65,6 @@ Accepted file formats are ``.h5``, ``.hdf5``, ``.hdf`` and ``.asdf``.
 
 .. autofunction:: pyxel.models.load_detector
 
-.. _aperture:
-
-Simple aperture
-===============
-
-:guilabel:`Scene` → :guilabel:`Photon`
-
-.. deprecated:: 1.15
-    The model **simple_aperture** has been deprecated and will be removed for version 2.0.
-    Please use model **simple_collection** instead.
-
-Converts scene to 2D photon with given aperture.
-First an xarray Dataset will be extracted from the Scene for a selected wavelength band, where the flux of the objects will be integrated along the wavelength band.
-This integrated flux in photon/(s cm2) is converted to photon/(s pixel).
-Finally, the objects are projected onto detector, while converting the object coordinates from arcsec to detector coordinates (pixel).
-
-.. code-block:: yaml
-
-     - name: aperture
-      func: pyxel.models.photon_collection.simple_aperture
-      enabled: true
-      arguments:
-         aperture: 126.70e-3
-         wavelength_band: [500, 900]
-
-.. autofunction:: simple_aperture
-
 .. _simple_collection:
 
 Simple collection
