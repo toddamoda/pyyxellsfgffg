@@ -121,6 +121,8 @@ def show_versions():
         "param",
         "PIL",
         "poppy",
+        "synphot",
+        "lacosmic",
         "pygmo",
         "pympler",
         "scipy",
