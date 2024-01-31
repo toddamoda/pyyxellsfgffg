@@ -212,48 +212,85 @@ You can verify that Pyxel is installed with the following command:
 Dependencies
 ============
 
+Required dependencies
+---------------------
+
 Pyxel has the following **mandatory** dependencies:
 
-Packages used for scientific computing:
+=================================================================================== ========================= ===================================
+Package                                                                             Minimum supported version Notes
+=================================================================================== ========================= ===================================
+`python <https://www.python.org>`_                                                  3.9
+`numpy <https://numpy.org>`_                                                        1.21
+`xarray <http://xarray.pydata.org/>`_                                               2022.06                   API for N-dimensional data
+`xarray-datatree <https://xarray-datatree.readthedocs.io/en/stable/index.html>`_    0.0.12
+`astropy <https://www.astropy.org>`_                                                4.3
+`pandas <https://pandas.pydata.org>`_
+`numba <https://numba.pydata.org>`_
+`scipy <https://scipy.org>`_                                                                                  Miscellaneous statistical functions
+`holoviews <https://holoviews.org>`_                                                1.15
+`matplotlib <https://matplotlib.org>`_                                              3.1                       Plotting library
+`bokeh <http://bokeh.org>`_
+`dask <https://dask.org>`_
+`tqdm <https://tqdm.github.io>`_
+=================================================================================== ========================= ===================================
 
-* `python <https://www.python.org>`_ 3.9 or later
-* `numpy <https://numpy.org>`_ 1.21 or later
-* `xarray <http://xarray.pydata.org/>`_ 2022.06 or later
-* `xarray-datatree <https://xarray-datatree.readthedocs.io/en/stable/index.html>`_ 0.0.12 or later
-* `astropy <https://www.astropy.org>`_ 4.3 or later
-* `pandas <https://pandas.pydata.org>`_
-* `numba <https://numba.pydata.org>`_
-* `scipy <https://scipy.org>`_
-* `sep <https://sep.readthedocs.io>`_
-* `tqdm <https://tqdm.github.io>`_
+Optional dependencies
+---------------------
 
-Packages used for input/output handling:
+Pyxel has many optional dependencies for specific functionalities.
+If an optional dependency is not installed, Pyxel will raise an ``ImportError`` when
+the functionality requiring that dependency is called.
 
-* `h5py <https://www.h5py.org>`_
-* `netcdf4 <https://unidata.github.io/netcdf4-python/>`_
-* `fsspec <https://filesystem-spec.readthedocs.io>`_ 2021 or later
+If using pip, optional pyxel dependencies can be installed as optional extras
+(e.g. ``pyxel-sim[model,calibration]``).
+All optional dependencies can be installed with ``pip install "pyxel-sim[all]"``,
+and specific sets of dependencies are listed in the sections below.
 
-Packages used for plotting:
+Models dependencies
+~~~~~~~~~~~~~~~~~~~
 
-* `holoviews <https://holoviews.org>`_ 1.15 or later
-* `matplotlib <https://matplotlib.org>`_ 3.1 or later
-* `seaborn <https://seaborn.pydata.org>`_
-* `bokeh <http://bokeh.org>`_
+Installable with ``pip install "pyxel-sim[model]"``.
 
-Packages used for parallel computing:
-
-* `dask <https://dask.org>`_
-
-Additionally, Pyxel has the following **optional** dependencies:
-
-* `pygmo <https://esa.github.io/pygmo2/>`_, version 2.16.1 or later
-* `poppy <https://poppy-optics.readthedocs.io/>`_, version 1.1.0 or later
-* `lacosmic <https://lacosmic.readthedocs.io/en/stable/api/lacosmic.lacosmic.html#lacosmic.lacosmic>`__
+======================================================================================================= =============== ==============================================================
+Package                                                                                                 Minimum version Notes
+======================================================================================================= =============== ==============================================================
+`sep <https://sep.readthedocs.io>`_                                                                                     For model ``extract_roi_to_xarray``
+`poppy <https://poppy-optics.readthedocs.io/>`_                                                         1.1.0           For models ``optical_psf`` and ``optical_psf_multi_wavelength``
+`lacosmic <https://lacosmic.readthedocs.io/en/stable/api/lacosmic.lacosmic.html#lacosmic.lacosmic>`__                   For model ``remove_cosmic_rays``
+======================================================================================================= =============== ==============================================================
 
 .. note::
     Optional package
     `lacosmic <https://lacosmic.readthedocs.io/en/stable/api/lacosmic.lacosmic.html#lacosmic.lacosmic>`__ is not available
     on ``conda``, only on the ``PyPI`` repository.
+
+
+Calibration mode
+~~~~~~~~~~~~~~~~
+
+To use the calibration mode, you must use ``pip install "pyxel-sim[calibration]"``.
+
+=========================================== ===============
+Package                                     Minimum version
+=========================================== ===============
+`pygmo <https://esa.github.io/pygmo2/>`_    2.16.1
+=========================================== ===============
+
+
+Extra data sources
+~~~~~~~~~~~~~~~~~~
+
+Installable with ``pip install "pyxel-sim[io]"``.
+
+======================================================= =============== ===============================================
+Package                                                 Minimum version Notes
+======================================================= =============== ===============================================
+`h5py <https://www.h5py.org>`_
+`netcdf4 <https://unidata.github.io/netcdf4-python/>`_
+`fsspec <https://filesystem-spec.readthedocs.io>`_      2021            Handling files aside from simple local and HTTP
+======================================================= =============== ===============================================
+
 
 
 ..
