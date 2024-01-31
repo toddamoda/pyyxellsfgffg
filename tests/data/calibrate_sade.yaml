@@ -60,10 +60,7 @@ ccd_detector:
 pipeline:
 
   # -> photon
-  photon_generation:
-
-  # photon -> photon
-  optics:
+  photon_collection:
 
   # photon -> charge
   charge_generation:

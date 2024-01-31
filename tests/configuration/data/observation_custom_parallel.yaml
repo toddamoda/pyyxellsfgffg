@@ -17,11 +17,12 @@ observation:
 ccd_detector:
 
   geometry:
-    row: 512             # pixel
+    row: 512              # pixel
     col: 512              # pixel
-    total_thickness: 40.    # um
-    pixel_vert_size: 10.    # um
-    pixel_horz_size: 10.    # um
+    total_thickness: 40.  # um
+    pixel_vert_size: 10.  # um
+    pixel_horz_size: 10.  # um
+    pixel_scale: 0.01     # arcsec/pixel
 
   environment:
     temperature: 300        # K
@@ -36,10 +37,10 @@ ccd_detector:
 
 pipeline:
   # -> photon
-  photon_generation:
+  photon_collection:
 
     - name: illumination_star
-      func: pyxel.models.photon_generation.illumination
+      func: pyxel.models.photon_collection.illumination
       enabled: true
       arguments:
           level: 5000
@@ -48,7 +49,7 @@ pipeline:
           option: "elliptic"
 
     - name: illumination_planet
-      func: pyxel.models.photon_generation.illumination
+      func: pyxel.models.photon_collection.illumination
       enabled: true
       arguments:
           level: -5000
@@ -57,24 +58,21 @@ pipeline:
           option: "elliptic"
 
     - name: illumination
-      func: pyxel.models.photon_generation.illumination
+      func: pyxel.models.photon_collection.illumination
       enabled: true
       arguments:
           level: 1000
           option: "uniform"
 
     - name: shot_noise
-      func: pyxel.models.photon_generation.shot_noise
+      func: pyxel.models.photon_collection.shot_noise
       enabled: true
 
-  # photon -> photon
-  optics:
     - name: optical_psf
-      func: pyxel.models.optics.optical_psf
+      func: pyxel.models.photon_collection.optical_psf
       enabled: true
       arguments:
         fov_arcsec: 5 # FOV in arcseconds
-        pixelscale: 0.01 #arcsec/pixel
         wavelength: 0.6e-6 # wavelength in meters
         optical_system:
           - item: CircularAperture

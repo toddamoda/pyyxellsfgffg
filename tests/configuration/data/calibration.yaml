@@ -53,17 +53,14 @@ ccd_detector:
 pipeline:
 
   # -> photon
-  photon_generation:
+  photon_collection:
     - name: load_image
-      func: pyxel.models.photon_generation.load_image
+      func: pyxel.models.photon_collection.load_image
       enabled: true
       arguments:
         image_file: 'data/inputs/image_non_irradiated.fits'
         convert_to_photons: true
         bit_resolution: 16
-
-  # photon -> photon
-  optics:
 
   # photon -> charge
   charge_generation:
