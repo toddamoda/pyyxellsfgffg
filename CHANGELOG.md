@@ -31,6 +31,8 @@ The deprecated model `simple_aperture` in `photon_collection` is removed.
 ### Others
 * Bump pre-commit versions.
   (See [!826](https://gitlab.com/esa/pyxel/-/merge_requests/826)).
+* Remove warnings when using function `pyxel.show_versions()`.
+  (See [!828](https://gitlab.com/esa/pyxel/-/merge_requests/828)).
 
 
 ## 1.15 / 2024-01-29
