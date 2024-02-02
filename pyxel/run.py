@@ -168,8 +168,6 @@ def _run_exposure_mode(
 
     logging.info("Mode: Exposure")
 
-    exposure_outputs: ExposureOutputs = exposure.outputs
-
     processor = Processor(detector=detector, pipeline=pipeline)
 
     result: DataTree = exposure.run_exposure(
@@ -177,6 +175,7 @@ def _run_exposure_mode(
         debug=debug,
     )
 
+    exposure_outputs: ExposureOutputs = exposure.outputs
     if exposure_outputs.save_exposure_data:
         exposure_outputs.save_exposure_outputs(dataset=result)
 

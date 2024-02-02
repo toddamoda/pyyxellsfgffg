@@ -47,7 +47,7 @@ class ExposureOutputs(Outputs):
     def __init__(
         self,
         output_folder: Union[str, Path],
-        custom_dir_name: Optional[str] = "",
+        custom_dir_name: str = "",
         save_data_to_file: Optional[
             Sequence[Mapping[ValidName, Sequence[ValidFormat]]]
         ] = None,
