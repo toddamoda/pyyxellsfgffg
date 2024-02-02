@@ -1,78 +1,31 @@
 #
 # Pyxel with Jupyter notebook server
 #
+# $ docker build .
 
-# Use LTS version
-FROM ubuntu:20.04
+# $ docker-compose build
 
-# Set the timezone
-ENV TZ=Europe/Amsterdam
-
-ARG PYXEL_HOME="/home/pyxel"
-
-RUN apt-get update --fix-missing \
-    && apt-get install -y wget bzip2 git git-lfs \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# Use a Docker image with 'mamba' pre-installed
+FROM mambaorg/micromamba:1.5.6
 
 # Copy Pyxel source code
-COPY . $PYXEL_HOME/src
-RUN mkdir -p $PYXEL_HOME/jupyter
+RUN mkdir -p pyxel-dev/src
+WORKDIR pyxel-dev
+COPY --chown=$MAMBA_USER:$MAMBA_USER . src/pyxel
 
-# Get Pyxel data code
-RUN git lfs install
-RUN git clone https://gitlab.com/esa/pyxel-data.git $PYXEL_HOME/jupyter/pyxel-data
+# Install Pyxel
+RUN micromamba install --yes -n base --file src/pyxel/continuous_integration/environment.yml && \
+    micromamba install --yes -n base -c conda-forge git && \
+    micromamba clean --all --yes
+ARG MAMBA_DOCKERFILE_ACTIVATE=1  # (otherwise python will not be found)
 
-# Add a new user (no need to run as roo)
-RUN mkdir -p $PYXEL_HOME \
-    && groupadd -g 999 pyxel \
-    && useradd --shell=/bin/bash -r -u 999 -g pyxel pyxel \
-    && chown -R pyxel:pyxel $PYXEL_HOME 
+# Install Pyxel
+RUN python -m pip install -e src/pyxel --no-deps
+RUN python -c "import pyxel; pyxel.show_versions()"
 
-USER pyxel
-WORKDIR $PYXEL_HOME
-
-# Install miniconda
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh \
-    && /bin/bash ~/miniconda.sh -b -u -p ~/.local \
-    && rm ~/miniconda.sh \
-    && ~/.local/bin/conda clean -tipsy \
-    && ~/.local/bin/conda init
-
-# Make 'bash' the default shell
-SHELL [ "/bin/bash", "--login", "-c" ]
-
-# Make non-activate conda commands available
-ENV PATH=~/.local/bin:$PATH
-
-# make conda activate command available from /bin/bash --login shells
-RUN echo ". ~/.local/etc/profile.d/conda.sh" >> ~/.profile
-
-# make conda activate command available from /bin/bash --interative shells
-RUN conda init bash
-
-# Build the conda environment
-RUN conda env create -f ~/src/environment.yml
-
-# Install Pyxel from the source code
-RUN conda activate pyxel-dev && \
-    pip install -e ~/src && \
-    conda deactivate
-
-RUN conda activate pyxel-dev && \
-    python -c "import pyxel; print('Pyxel version:', pyxel.__version__)" && \
-    conda deactivate
-
-# Install Jupyterlab extensions
-#RUN conda activate pyxel-dev && \
-#    jupyter labextension install @jupyter-widgets/jupyterlab-manager && \
-#    conda deactivate
-
-# Add aliases
-RUN echo "alias ll='ls -alF'" >> ~/.bashrc \
-    && echo "alias ls='ls --color=auto'" >> ~/.bashrc
+# Get Pyxel data
+RUN git clone --depth 1 --branch master https://gitlab.com/esa/pyxel-data.git pyxel-data
 
 # Expose Jupyter notebook port
 EXPOSE 8888
-CMD conda activate pyxel-dev && \
-    jupyter lab --ip=0.0.0.0 --no-browser --NotebookApp.quit_button=True --notebook-dir=~/jupyter 
+CMD jupyter lab --ip=0.0.0.0 --no-browser --NotebookApp.quit_button=True --notebook-dir=pyxel-data
