@@ -28,6 +28,10 @@ or using Pyxel by running the command:
 
     pyxel download-examples
 
+    or
+
+    python -m pyxel download-examples
+
 Now you can launch JupyterLab to explore them:
 
 .. code-block:: console
