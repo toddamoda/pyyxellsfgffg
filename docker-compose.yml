@@ -2,7 +2,7 @@ version: '3'
 
 services:
 
-  pyxel:
+  pyxel-dev:
     restart: always
     build: .
     ports:
