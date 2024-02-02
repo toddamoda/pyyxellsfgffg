@@ -546,55 +546,52 @@ Package                                                 Minimum version Notes
     see :ref:`here how to run Pyxel <running_modes>`.
 
 
-    Using Docker
-    -------------
+Using Docker
+-------------
 
-    .. attention::
-        Not yet available!
+Using Docker, you can just download the Pyxel Docker image and run it without
+installing Pyxel.
 
-    Using Docker, you can just download the Pyxel Docker image and run it without
-    installing Pyxel.
+How to run a Pyxel container with Docker:
 
-    How to run a Pyxel container with Docker:
+Login:
 
-    Login:
+.. code-block:: bash
 
-    .. code-block:: bash
+  docker login gitlab.esa.int:4567
 
-      docker login gitlab.esa.int:4567
+Pull latest version of the Pyxel Docker image:
 
-    Pull latest version of the Pyxel Docker image:
+.. code-block:: bash
 
-    .. code-block:: bash
+  docker pull gitlab.esa.int:4567/sci-fv/pyxel
 
-      docker pull gitlab.esa.int:4567/sci-fv/pyxel
+Run Pyxel Docker container with GUI:
 
-    Run Pyxel Docker container with GUI:
+.. code-block:: bash
 
-    .. code-block:: bash
+  docker run -p 9999:9999 \
+             -it gitlab.esa.int:4567/sci-fv/pyxel:latest \
+             --gui True
 
-      docker run -p 9999:9999 \
-                 -it gitlab.esa.int:4567/sci-fv/pyxel:latest \
-                 --gui True
+Run Pyxel Docker container in batch mode (without GUI):
 
-    Run Pyxel Docker container in batch mode (without GUI):
+.. code-block:: bash
 
-    .. code-block:: bash
+  docker run -p 9999:9999 \
+             -v C:\dev\work\docker:/data \
+             -it gitlab.esa.int:4567/sci-fv/pyxel:latest \
+             -c /data/settings_ccd.yaml \
+             -o /data/result.fits
 
-      docker run -p 9999:9999 \
-                 -v C:\dev\work\docker:/data \
-                 -it gitlab.esa.int:4567/sci-fv/pyxel:latest \
-                 -c /data/settings_ccd.yaml \
-                 -o /data/result.fits
+List your running Docker containers:
 
-    List your running Docker containers:
+.. code-block:: bash
 
-    .. code-block:: bash
+  docker ps
 
-      docker ps
+After running Pyxel container you can access it:
 
-    After running Pyxel container you can access it:
+.. code-block:: bash
 
-    .. code-block:: bash
-
-      docker exec -it <CONTAINER_NAME> /bin/bash
+  docker exec -it <CONTAINER_NAME> /bin/bash
