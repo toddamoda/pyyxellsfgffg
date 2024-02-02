@@ -74,17 +74,16 @@ class Outputs:
     def __init__(
         self,
         output_folder: Union[str, Path],
-        custom_dir_name: Optional[str] = "",
+        custom_dir_name: str = "",
         save_data_to_file: Optional[
             Sequence[Mapping[ValidName, Sequence[ValidFormat]]]
         ] = None,
     ):
         self._log = logging.getLogger(__name__)
 
-        # TODO: Refactor this. See #566
-        self.output_dir: Path = create_output_directory(
-            output_folder=output_folder, custom_dir_name=custom_dir_name
-        )
+        self._output_folder: Path = Path(output_folder)
+        self._custom_dir_name = custom_dir_name
+        self._output_dir: Optional[Path] = None
 
         # TODO: Not related to a plot. Use by 'single' and 'parametric' modes.
         self.save_data_to_file: Optional[
@@ -94,6 +93,33 @@ class Outputs:
     def __repr__(self):
         cls_name: str = self.__class__.__name__
         return f"{cls_name}<output_dir={self.output_dir!r}>"
+
+    @property
+    def output_dir(self) -> Path:
+        if self._output_dir is None:
+            raise RuntimeError
+
+        return self._output_dir
+
+    def create_output_folder(
+        self,
+        output_folder: Union[str, Path, None] = None,
+        custom_dir_name: Optional[str] = None,
+    ) -> None:
+        if output_folder is not None:
+            folder: Path = Path(output_folder)
+        else:
+            folder = self._output_folder
+
+        if custom_dir_name is not None:
+            dir_name: str = custom_dir_name
+        else:
+            dir_name = self._custom_dir_name
+
+        self._output_dir = create_output_directory(
+            output_folder=folder,
+            custom_dir_name=dir_name,
+        )
 
     def save_to_fits(
         self,
