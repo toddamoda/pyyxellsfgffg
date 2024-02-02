@@ -2,11 +2,10 @@
 
 sphinx>=5
 sphinx-book-theme>=1
-pydata-sphinx-theme==0.13.1
+pydata-sphinx-theme
 sphinxcontrib-bibtex
-sphinx-panels
-ipython != 8.1; python_version < '3.9'
-ipython>=8.1; python_version >= '3.9'
+sphinx_design
+ipython>=8.1
 sphinx-inline-tabs
 myst-nb
 sphinx-copybutton
