@@ -87,7 +87,11 @@ It is possible to create a new model from an already prepared template with the 
 
 .. code-block:: bash
 
-    $ pyxel create-model photon_collection/new_model
+    pyxel create-model photon_collection/new_model
+
+    or
+
+    python -m pyxel create-model photon_collection/new_model
 
 This will create a new python script ``new_model.py`` with a template model function
 in folder ``pyxel/models/photon_collection``. All you have to do is edit your model function

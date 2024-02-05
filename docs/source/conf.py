@@ -15,7 +15,6 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
-import sys
 from datetime import datetime
 from importlib.metadata import metadata
 
@@ -51,7 +50,7 @@ extensions = [
     "IPython.sphinxext.ipython_console_highlighting",
     "sphinx.ext.viewcode",  # add links to highlighted source code
     "sphinxcontrib.bibtex",
-    "sphinx_panels",
+    "sphinx_design",
     "sphinx_inline_tabs",  # Add inline tabs
     "sphinx.ext.intersphinx",  # Link to other project's documentation
     "myst_nb",  # Parser '.ipynb' and '.md' files
@@ -165,7 +164,7 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "sphinx_book_theme"
+html_theme = "pydata_sphinx_theme"
 html_title = f"version {version}"
 
 # Theme options are theme-specific and customize the look and feel of a theme
@@ -173,28 +172,38 @@ html_title = f"version {version}"
 # documentation.
 #
 html_theme_options = {
-    "repository_url": "https://gitlab.com/esa/pyxel",
+    # "repository_url": "https://gitlab.com/esa/pyxel",
     # Add buttons
     "use_edit_page_button": True,
-    "use_repository_button": True,
-    "use_issues_button": True,
-    "use_download_button": True,
-    "home_page_in_toc": False,
-    "extra_footer": f"""<p>Last updated on {now_dt:%Y-%m-%d}.</p>""",
-    "toc_title": "Contents",  # Control the right sidebar items
-    # Version switcher dropdown. See issue #562
-    # "switcher": {"json_url": "https://esa.gitlab.io/pyxel/doc/switcher.json"},
-    # "check_switcher": False,
+    # "use_repository_button": True,
+    # "use_issues_button": True,
+    # "use_download_button": True,
+    # "home_page_in_toc": False,
+    # "extra_footer": f"""<p>Last updated on {now_dt:%Y-%m-%d}.</p>""",
+    # "toc_title": "Contents",  # Control the right sidebar items
+    # Version switcher dropdown.
+    # See https://pydata-sphinx-theme.readthedocs.io/en/latest/user_guide/version-dropdown.html
+    "switcher": {
+        "json_url": "https://esa.gitlab.io/pyxel/doc/switcher.json",
+        "version_match": "stable",
+    },
+    "navbar_start": ["navbar-logo", "version-switcher"],
+    "navbar_center": ["navbar-nav"],
+    "navbar_end": ["navbar-icon-links"],
+    "navbar_persistent": ["search-button"],
+    "check_switcher": True,
     # "announcement": "Hello World",
 }
 
 # This is used to generate the link 'suggest edit'
 html_context = {
-    "github_url": "https://gitlab.com",
-    "github_user": "esa",
-    "github_repo": "pyxel",
+    "gitlab_url": "https://gitlab.com",
+    "gitlab_user": "esa",
+    "gitlab_repo": "pyxel",
+    "gitlab_version": "master",
+    "doc_path": "https://gitlab.com/esa/pyxel",
 }
-html_theme_options["path_to_docs"] = "../../-/edit/master/docs/source"
+# html_theme_options["path_to_docs"] = "../../-/edit/master/docs/source"
 
 
 # The name of an image file (relative to this directory) to place at the top

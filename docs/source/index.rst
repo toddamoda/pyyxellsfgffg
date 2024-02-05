@@ -24,75 +24,87 @@ How the documentation is organized
 A high-level overview of how the documentation is organized will help you known where
 to look for certain things:
 
-.. panels::
-    :card: + intro-card text-center
-    :column: col-lg-6 col-md-6 col-sm-6 col-xs-12 d-flex p-3
-    :body: bg-white
-    :header: bg-white
-    :footer: bg-white
+.. grid:: 1 2 2 2
+    :gutter: 4
 
-    ---
+    .. grid-item-card::
+        :text-align: center
 
-    **Getting started**
-    ^^^^^^^^^^^^^^^^^^^
+        **Getting started**
+        ^^^^^^^^^^^^^^^^^^^
 
-    Getting started section takes you by the hand through a series of steps on how
-    to install and how to use Pyxel. Contains a tutorial and multiple examples.
-    **Start here if you're new to Pyxel**.
+        Getting started section takes you by the hand through a series of steps on how
+        to install and how to use Pyxel. Contains a tutorial and multiple examples.
+        **Start here if you're new to Pyxel**.
 
-    +++
+        +++
 
-    .. link-button:: introduction
-            :type: ref
-            :text: Get started
-            :classes: btn-outline-primary btn-block stretched-link
+        .. button-ref:: introduction
+            :ref-type: ref
+            :color: primary
+            :outline:
+            :expand:
 
-    ---
+            Get started
 
-    **How-to guides**
-    ^^^^^^^^^^^^^^^^^
+    .. grid-item-card::
+        :text-align: center
 
-    How-to guides are recipes. They guide you through the steps
-    involved in addressing the key problems and use-cases.
-    They are more advanced than tutorials and assume some knowledge of how Pyxel works.
+        **How-to guides**
+        ^^^^^^^^^^^^^^^^^
 
-    +++
+        How-to guides are recipes. They guide you through the steps
+        involved in addressing the key problems and use-cases.
+        They are more advanced than tutorials and assume some knowledge of how Pyxel works.
 
-    .. link-button:: howtos
-            :type: ref
-            :text: To the how-to guides
-            :classes: btn-outline-primary btn-block stretched-link
+        +++
 
-    ---
+        .. button-ref:: howtos
+            :ref-type: ref
+            :color: primary
+            :outline:
+            :expand:
 
-    **Background**
-    ^^^^^^^^^^^^^^
+            To the how-to guides
 
-    Background section discusses and explains key topics and concepts at a fairly
-    high level and provides useful background information.
+    .. grid-item-card::
+        :text-align: center
 
-    +++
+        **Background**
+        ^^^^^^^^^^^^^^
 
-    .. link-button:: background
-            :type: ref
-            :text: To the background guide
-            :classes: btn-outline-primary btn-block stretched-link
+        Background section discusses and explains key topics and concepts at a fairly
+        high level and provides useful background information.
 
-    ---
+        +++
 
-    **Reference**
-    ^^^^^^^^^^^^^
+        .. button-ref:: background
+            :ref-type: ref
+            :color: primary
+            :outline:
+            :expand:
 
-    Reference guides contain technical reference for APIs, models and
-    other aspects of Pyxel. They describe how it works and how to use it but assume that
-    you have a basic understanding of key concepts.
+            To the background guide
 
-    +++
+    .. grid-item-card::
+        :text-align: center
 
-    .. link-button:: reference
-            :type: ref
-            :text: To the reference guide
-            :classes: btn-outline-primary btn-block stretched-link
+        **Reference**
+        ^^^^^^^^^^^^^
+
+        Reference guides contain technical reference for APIs, models and
+        other aspects of Pyxel. They describe how it works and how to use it but assume that
+        you have a basic understanding of key concepts.
+
+        +++
+
+        .. button-ref:: reference
+            :ref-type: ref
+            :color: primary
+            :outline:
+            :expand:
+
+            To the reference guide
 
 .. toctree::
    :caption: Getting Started

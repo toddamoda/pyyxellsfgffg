@@ -12,10 +12,8 @@ All tutorials and examples can be found in a separate public repository
 `Pyxel Data <https://gitlab.com/esa/pyxel-data>`_, to access the corresponding Jupyter book click on the link below.
 Please note, that the Jupyter book is just for viewing the examples and not interactive.
 
-.. link-button:: https://esa.gitlab.io/pyxel-data/intro.html
-    :type: url
-    :text: To tutorials and examples
-    :classes: btn-outline-primary btn-block
+.. button-link:: https://esa.gitlab.io/pyxel-data/intro.html
+    :ref-type: any
 
 If you want to change the inputs and see the results immediately,
 you need to a :ref:`install` of Pyxel and download the `Pyxel Data <https://gitlab.com/esa/pyxel-data>`_ repository
@@ -27,6 +25,10 @@ or using Pyxel by running the command:
 .. code-block:: console
 
     pyxel download-examples
+
+    or
+
+    python -m pyxel download-examples
 
 Now you can launch JupyterLab to explore them:
 

@@ -103,6 +103,12 @@ proceed with the following command to download them in folder ``pyxel-examples``
 
     pyxel download-examples
 
+You can run Pyxel as a package if running it as a script does not work:
+
+.. code-block:: bash
+
+    python -m pyxel download-examples
+
 Finally start a notebook server by executing:
 
 .. code-block:: bash
