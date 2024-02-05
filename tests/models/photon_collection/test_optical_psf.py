@@ -15,15 +15,15 @@ from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
 from pyxel.models.photon_collection import optical_psf, optical_psf_multi_wavelength
 from pyxel.models.photon_collection.poppy import (
     CircularAperture,
+    DeprecatedThinLens,
     HexagonAperture,
     MultiHexagonalAperture,
     RectangleAperture,
     SecondaryObscuration,
     SineWaveWFE,
     SquareAperture,
-    ThinLens,
     ZernikeWFE,
-    create_optical_parameter,
+    _create_optical_parameter_deprecated,
 )
 
 _ = pytest.importorskip("poppy")
@@ -88,7 +88,7 @@ def ccd_4x5_multi_wavelength() -> CCD:
         ),
         pytest.param(
             {"item": "ThinLens", "nwaves": 1.1, "radius": 2.2},
-            ThinLens(nwaves=1.1, radius=2.2),
+            DeprecatedThinLens(nwaves=1.1, radius=2.2),
             id="ThinLens",
         ),
         pytest.param(
@@ -145,7 +145,7 @@ def ccd_4x5_multi_wavelength() -> CCD:
 )
 def test_create_optical_parameter(dct: Mapping, exp_parameter):
     """Test function 'create_optical_parameter'."""
-    parameter = create_optical_parameter(dct)
+    parameter = _create_optical_parameter_deprecated(dct)
 
     assert parameter == exp_parameter
 

@@ -8,6 +8,7 @@
 """Poppy model."""
 
 import logging
+import warnings
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any, Optional, Union
@@ -15,8 +16,9 @@ from typing import Any, Optional, Union
 import numpy as np
 from astropy.convolution import convolve_fft
 from astropy.io import fits
+from astropy.units import Quantity
 
-from pyxel.detectors import Detector, WavelengthHandling
+from pyxel.detectors import Detector
 
 try:
     import poppy as op
@@ -32,10 +34,27 @@ class CircularAperture:
 
     Parameters
     ----------
-    radius : float
+    radius : Quantity
         Radius of the pupil, in meters.
     """
 
+    radius: Quantity
+
+
+@dataclass
+class DeprecatedThinLens:
+    """Parameters for an idealized thin lens.
+
+    Parameters
+    ----------
+    nwaves : float
+        The number of waves of defocus, peak to valley.
+    radius : float
+        Pupil radius, in meters, over which the Zernike defocus term should be computed
+        such that rho = 1 at r = `radius`.
+    """
+
+    nwaves: float
     radius: float
 
 
@@ -47,33 +66,16 @@ class ThinLens:
     ----------
     nwaves : float
         The number of waves of defocus, peak to valley.
-    radius : float
+    radius : Quantity
         Pupil radius, in meters, over which the Zernike defocus term should be computed
         such that rho = 1 at r = `radius`.
+    reference_wavelength : Quantity
+        Wavelength, in nm, at which that number of waves of defocus is specified.
     """
 
     nwaves: float
-    radius: float
-
-
-@dataclass
-class NewThinLens:
-    """Parameters for an idealized thin lens.
-
-    Parameters
-    ----------
-    nwaves : float
-        The number of waves of defocus, peak to valley.
-    radius : float
-        Pupil radius, in meters, over which the Zernike defocus term should be computed
-        such that rho = 1 at r = `radius`.
-    reference_wavelength : float
-        Wavelength, in meters, at which that number of waves of defocus is specified.
-    """
-
-    nwaves: float
-    radius: float
-    reference_wavelength: Optional[float] = None
+    radius: Quantity
+    reference_wavelength: Optional[Quantity] = None
     # center wavelength if not provided takes the middle
 
 
@@ -83,11 +85,11 @@ class SquareAperture:
 
     Parameters
     ----------
-    size : float
+    size : Quantity
         side length of the square, in meters.
     """
 
-    size: float
+    size: Quantity
 
 
 @dataclass
@@ -96,14 +98,14 @@ class RectangleAperture:
 
     Parameters
     ----------
-    width : float
+    width : Quantity
         width of the rectangle, in meters.
-    height : float
+    height : Quantity
         height of the rectangle, in meters.
     """
 
-    width: float
-    height: float
+    width: Quantity
+    height: Quantity
 
 
 @dataclass
@@ -112,11 +114,11 @@ class HexagonAperture:
 
     Parameters
     ----------
-    side : float
+    side : Quantity
         side length (and/or radius) of hexagon, in meters.
     """
 
-    side: float
+    side: Quantity
 
 
 @dataclass
@@ -125,18 +127,18 @@ class MultiHexagonalAperture:
 
     Parameters
     ----------
-    side : float
+    side : Quantity
         side length (and/or radius) of hexagon, in meters.
     rings : integer
         The number of rings of hexagons to include, not counting the central segment
         (i.e. 2 for a JWST-like aperture, 3 for a Keck-like aperture, and so on)
-    gap : float
+    gap : Quantity
         Gap between adjacent segments, in meters.
     """
 
-    side: float
+    side: Quantity
     rings: int
-    gap: float
+    gap: Quantity
 
 
 @dataclass
@@ -147,18 +149,18 @@ class SecondaryObscuration:
 
     Parameters
     ----------
-    secondary_radius : float
+    secondary_radius : Quantity
         Radius of the circular secondary obscuration, in meters.
     n_supports : int
         Number of secondary mirror supports ("spiders"). These will be
         spaced equally around a circle.
-    support_width : float
+    support_width : Quantity
         Width of each support, in meters.
     """
 
-    secondary_radius: float
+    secondary_radius: Quantity
     n_supports: int
-    support_width: float
+    support_width: Quantity
 
 
 @dataclass
@@ -167,7 +169,7 @@ class ZernikeWFE:
 
     Parameters
     ----------
-    radius : float
+    radius : Quantity
         Pupil radius, in meters, over which the Zernike terms should be
         computed such that rho = 1 at r = `radius`.
     coefficients : iterable of floats
@@ -177,7 +179,7 @@ class ZernikeWFE:
     aperture_stop : float
     """
 
-    radius: float
+    radius: Quantity
     coefficients: Sequence[float]
     aperture_stop: float
 
@@ -188,17 +190,28 @@ class SineWaveWFE:
 
     Parameters
     ----------
-    spatialfreq : float
-    amplitude : float
+    spatialfreq : Quantity
+    amplitude : Quantity
     rotation : float
     """
 
-    spatialfreq: float
-    amplitude: float
+    spatialfreq: Quantity
+    amplitude: Quantity
     rotation: float
 
 
 # Define a type alias
+OpticalParameterDeprecated = Union[
+    CircularAperture,
+    DeprecatedThinLens,
+    SquareAperture,
+    RectangleAperture,
+    HexagonAperture,
+    MultiHexagonalAperture,
+    SecondaryObscuration,
+    ZernikeWFE,
+    SineWaveWFE,
+]
 OpticalParameter = Union[
     CircularAperture,
     ThinLens,
@@ -210,20 +223,9 @@ OpticalParameter = Union[
     ZernikeWFE,
     SineWaveWFE,
 ]
-NewOpticalParameter = Union[
-    CircularAperture,
-    NewThinLens,
-    SquareAperture,
-    RectangleAperture,
-    HexagonAperture,
-    MultiHexagonalAperture,
-    SecondaryObscuration,
-    ZernikeWFE,
-    SineWaveWFE,
-]
 
 
-def create_optical_parameter(dct: Mapping) -> OpticalParameter:
+def _create_optical_parameter_deprecated(dct: Mapping) -> OpticalParameterDeprecated:
     """Create a new ``OpticalParameter`` based on a dictionary.
 
     Parameters
@@ -236,11 +238,15 @@ def create_optical_parameter(dct: Mapping) -> OpticalParameter:
     OpticalParameter
         New parameters.
     """
+    warnings.warn(
+        "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
+    )
+
     if dct["item"] == "CircularAperture":
         return CircularAperture(radius=dct["radius"])
 
     elif dct["item"] == "ThinLens":
-        return ThinLens(
+        return DeprecatedThinLens(
             nwaves=dct["nwaves"],
             radius=dct["radius"],
         )
@@ -285,8 +291,8 @@ def create_optical_parameter(dct: Mapping) -> OpticalParameter:
         raise NotImplementedError
 
 
-def new_create_optical_parameter(dct: Mapping) -> NewOpticalParameter:
-    """Create a new ``OpticalParameter`` based on a dictionary.
+def create_optical_parameter(dct: Mapping) -> OpticalParameter:
+    """Create an``OpticalParameter`` based on a dictionary.
 
     Parameters
     ----------
@@ -299,50 +305,53 @@ def new_create_optical_parameter(dct: Mapping) -> NewOpticalParameter:
         New parameters.
     """
     if dct["item"] == "CircularAperture":
-        return CircularAperture(radius=dct["radius"])
+        return CircularAperture(radius=Quantity(dct["radius"], unit="m"))
 
     elif dct["item"] == "ThinLens":
-        return NewThinLens(
-            nwaves=dct["nwaves"],
-            radius=dct["radius"],
-            reference_wavelength=dct["reference_wavelength"],
+        return ThinLens(
+            nwaves=float(dct["nwaves"]),
+            radius=Quantity(dct["radius"], unit="m"),
+            reference_wavelength=Quantity(dct["reference_wavelength"], unit="nm"),
         )
 
     elif dct["item"] == "SquareAperture":
-        return SquareAperture(size=dct["size"])
+        return SquareAperture(size=Quantity(dct["size"], unit="m"))
 
     elif dct["item"] == "RectangularAperture":
-        return RectangleAperture(width=dct["width"], height=dct["height"])
+        return RectangleAperture(
+            width=Quantity(dct["width"], unit="m"),
+            height=Quantity(dct["height"], unit="m"),
+        )
 
     elif dct["item"] == "HexagonAperture":
-        return HexagonAperture(side=dct["side"])
+        return HexagonAperture(side=Quantity(dct["side"]), unit="m")
 
     elif dct["item"] == "MultiHexagonalAperture":
         return MultiHexagonalAperture(
-            side=dct["side"],
-            rings=dct["rings"],
-            gap=dct["gap"],
+            side=Quantity(dct["side"], unit="m"),
+            rings=int(dct["rings"]),
+            gap=Quantity(dct["gap"], unit="m"),
         )  # cm
 
     elif dct["item"] == "SecondaryObscuration":
         return SecondaryObscuration(
-            secondary_radius=dct["secondary_radius"],
-            n_supports=dct["n_supports"],
-            support_width=dct["support_width"],
+            secondary_radius=Quantity(dct["secondary_radius"], unit="m"),
+            n_supports=int(dct["n_supports"]),
+            support_width=Quantity(dct["support_width"], unit="m"),
         )  # cm
 
     elif dct["item"] == "ZernikeWFE":
         return ZernikeWFE(
-            radius=dct["radius"],
+            radius=Quantity(dct["radius"], unit="m"),
             coefficients=dct["coefficients"],  # list of floats
-            aperture_stop=dct["aperture_stop"],
+            aperture_stop=float(dct["aperture_stop"]),
         )  # bool
 
     elif dct["item"] == "SineWaveWFE":
         return SineWaveWFE(
-            spatialfreq=dct["spatialfreq"],  # 1/m
-            amplitude=dct["amplitude"],  # um
-            rotation=dct["rotation"],
+            spatialfreq=Quantity(dct["spatialfreq"], unit="1/m"),
+            amplitude=Quantity(dct["amplitude"], unit="um"),
+            rotation=float(dct["rotation"]),
         )
     else:
         raise NotImplementedError
@@ -350,7 +359,7 @@ def new_create_optical_parameter(dct: Mapping) -> NewOpticalParameter:
 
 def create_optical_parameters(
     optical_system: Sequence[Mapping],
-) -> Sequence[OpticalParameter]:
+) -> Sequence[OpticalParameterDeprecated]:
     """Create a list of ``OpticalParameters``.
 
     Parameters
@@ -363,11 +372,11 @@ def create_optical_parameters(
     ``list`` of ``OpticalParameter``
         A new list of parameters.
     """
-    return [create_optical_parameter(dct) for dct in optical_system]
+    return [_create_optical_parameter_deprecated(dct) for dct in optical_system]
 
 
-def create_optical_item(
-    param: OpticalParameter,
+def _create_optical_item_deprecated(
+    param: OpticalParameterDeprecated,
     wavelength: float,
 ) -> "op.OpticalElement":
     """Create a new poppy ``OpticalElement``.
@@ -383,10 +392,14 @@ def create_optical_item(
     ``OpticalElement``
         A new poppy ``OpticalElement``.
     """
+    warnings.warn(
+        "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
+    )
+
     if isinstance(param, CircularAperture):
         return op.CircularAperture(radius=param.radius)
 
-    elif isinstance(param, ThinLens):
+    elif isinstance(param, DeprecatedThinLens):
         return op.ThinLens(
             nwaves=param.nwaves,
             reference_wavelength=wavelength,
@@ -431,23 +444,23 @@ def create_optical_item(
         raise NotImplementedError
 
 
-def new_create_optical_item(param: NewOpticalParameter) -> "op.OpticalElement":
-    """Create a new poppy ``OpticalElement``.
+def create_optical_item(param: OpticalParameter) -> "op.OpticalElement":
+    """Create a poppy ``OpticalElement``.
 
     Parameters
     ----------
-    param : ``NewOpticalParameter``
+    param : ``OpticalParameter``
         Pyxel Optical parameters to create a poppy ``OpticalElement``.
 
     Returns
     -------
     ``OpticalElement``
-        A new poppy ``OpticalElement``.
+        A poppy ``OpticalElement``.
     """
     if isinstance(param, CircularAperture):
         return op.CircularAperture(radius=param.radius)
 
-    elif isinstance(param, NewThinLens):
+    elif isinstance(param, ThinLens):
         return op.ThinLens(
             nwaves=param.nwaves,
             reference_wavelength=param.reference_wavelength,
@@ -465,7 +478,9 @@ def new_create_optical_item(param: NewOpticalParameter) -> "op.OpticalElement":
 
     elif isinstance(param, MultiHexagonalAperture):
         return op.MultiHexagonAperture(
-            side=param.side, rings=param.rings, gap=param.gap
+            side=param.side,
+            rings=param.rings,
+            gap=param.gap,
         )
 
     elif isinstance(param, SecondaryObscuration):
@@ -713,33 +728,36 @@ def optical_psf(
 
     if wavelength is None:
         if isinstance(detector.environment.wavelength, float):
-            selected_wavelength: Union[float, tuple[float, float]] = (
-                detector.environment.wavelength
+            selected_wavelength: Union[Quantity, tuple[Quantity, Quantity]] = Quantity(
+                detector.environment.wavelength, unit="nm"
             )
         else:
             selected_wavelength = (
-                detector.environment.wavelength.cut_on,
-                detector.environment.wavelength.cut_off,
+                Quantity(detector.environment.wavelength.cut_on, unit="nm"),
+                Quantity(detector.environment.wavelength.cut_off, unit="nm"),
             )
     elif isinstance(wavelength, (int, float)):
-        selected_wavelength = float(wavelength)
+        selected_wavelength = Quantity(wavelength, unit="nm")
     elif isinstance(wavelength, Sequence) and len(wavelength) == 2:
-        selected_wavelength = tuple(wavelength)
+        cut_on, cut_off = wavelength
+        selected_wavelength = (
+            Quantity(cut_on, unit="nm"),
+            Quantity(cut_off, unit="nm"),
+        )
     else:
         raise ValueError
 
+    # Convert 'optical_system' to 'optical_parameters'
+    optical_parameters: Sequence[OpticalParameter] = [
+        create_optical_parameter(dct) for dct in optical_system
+    ]
+
+    optical_elements: Sequence["op.OpticalElement"] = [
+        create_optical_item(param=param) for param in optical_parameters
+    ]
+
     # Depending on Type calculate for 2D or 3D photon
     if isinstance(selected_wavelength, float):
-
-        # Convert 'optical_system' to 'optical_parameters'
-        optical_parameters: Sequence[OpticalParameter] = [
-            create_optical_parameter(dct) for dct in optical_system
-        ]
-
-        optical_elements: Sequence["op.OpticalElement"] = [
-            create_optical_item(param=param, wavelength=selected_wavelength)
-            for param in optical_parameters
-        ]
 
         # Processing
         # Get a Point Spread Function
@@ -766,14 +784,6 @@ def optical_psf(
         detector.photon.array = new_array_2d
 
     else:
-        # Convert 'optical_system' to 'optical_parameters'
-        optical_parameters: Sequence[NewOpticalParameter] = [
-            new_create_optical_parameter(dct) for dct in optical_system
-        ]
-
-        optical_elements: Sequence["op.OpticalElement"] = [
-            new_create_optical_item(param=param) for param in optical_parameters
-        ]
 
         # Validation and Conversion stage
         # These steps will be probably moved into the YAML engine
