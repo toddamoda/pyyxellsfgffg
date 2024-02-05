@@ -116,7 +116,7 @@ class Exposure:
         processor: Processor,
         debug: bool,
     ) -> DataTree:
-        """Run an observation pipeline.
+        """Run an exposure pipeline.
 
         Parameters
         ----------
@@ -337,9 +337,7 @@ def run_pipeline(
     processor: Processor,
     readout: "Readout",
     debug: bool,
-    outputs: Union[
-        "CalibrationOutputs", "ObservationOutputs", "ExposureOutputs", None
-    ] = None,
+    outputs: Optional["ExposureOutputs"] = None,
     progressbar: bool = False,
     result_type: ResultId = ResultId("all"),  # noqa: B008
     pipeline_seed: Optional[int] = None,
