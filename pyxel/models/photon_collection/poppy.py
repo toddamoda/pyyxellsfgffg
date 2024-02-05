@@ -291,13 +291,17 @@ def _create_optical_parameter_deprecated(dct: Mapping) -> OpticalParameterDeprec
         raise NotImplementedError
 
 
-def create_optical_parameter(dct: Mapping) -> OpticalParameter:
+def create_optical_parameter(
+    dct: Mapping, selected_wavelength: Union[Quantity, tuple[Quantity, Quantity]]
+) -> OpticalParameter:
     """Create an``OpticalParameter`` based on a dictionary.
 
     Parameters
     ----------
     dct : dict
-        Dictionary to convert
+        Dictionary to convert.
+    selected_wavelength : Union[Quantity, tuple[Quantity,Quantity]]
+        Wavelength in nanometer.
 
     Returns
     -------
@@ -308,10 +312,17 @@ def create_optical_parameter(dct: Mapping) -> OpticalParameter:
         return CircularAperture(radius=Quantity(dct["radius"], unit="m"))
 
     elif dct["item"] == "ThinLens":
+        if "reference_wavelength" in dct:
+            reference_wavelength = Quantity(dct["reference_wavelength"], unit="nm")
+        elif isinstance(selected_wavelength, Quantity):
+            reference_wavelength = selected_wavelength
+        else:
+            cut_on, cut_off = selected_wavelength
+            reference_wavelength = (cut_on + cut_off) / 2
         return ThinLens(
             nwaves=float(dct["nwaves"]),
             radius=Quantity(dct["radius"], unit="m"),
-            reference_wavelength=Quantity(dct["reference_wavelength"], unit="nm"),
+            reference_wavelength=reference_wavelength,
         )
 
     elif dct["item"] == "SquareAperture":
@@ -556,7 +567,7 @@ def calc_psf(
             name="PyxelInstrument",
         ):
             super().__init__(name=name)
-            self._pixelscale = pixelscale
+            self._pixelscale = Quantity(pixelscale, unit="arcsec/pix")
             self._optical_elements = optical_elements
             self._fov_arcsec = fov_arcsec
 
@@ -600,9 +611,10 @@ def calc_psf(
             for element in self._optical_elements:
                 osys.add_pupil(element)
 
+            analysis_fov = self._pixelscale * Quantity(10, unit="pix")
             osys.add_detector(
                 pixelscale=self._pixelscale,
-                fov_arcsec=self._fov_arcsec,
+                fov_arcsec=analysis_fov,
             )
 
             return osys
@@ -749,7 +761,8 @@ def optical_psf(
 
     # Convert 'optical_system' to 'optical_parameters'
     optical_parameters: Sequence[OpticalParameter] = [
-        create_optical_parameter(dct) for dct in optical_system
+        create_optical_parameter(dct, selected_wavelength=selected_wavelength)
+        for dct in optical_system
     ]
 
     optical_elements: Sequence["op.OpticalElement"] = [
@@ -818,7 +831,11 @@ def optical_psf(
             )
         ]
         if selected_wavelengths_nm.size == 0:
-            raise ValueError
+            raise ValueError(
+                f"The provided wavelength range ({min_wavelength:unicode}, {max_wavelength:unicode}) has "
+                f"no overlap with the wavelengths from detector.photon.array_3d "
+                f"({wavelengths_nm[0]:unicode}, {wavelengths_nm[-1]:unicode})."
+            )
 
         # Processing
         # Get a Point Spread Function
