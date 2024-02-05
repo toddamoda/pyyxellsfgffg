@@ -90,7 +90,9 @@ def exposure_mode(
 
     logging.info("Mode: Exposure")
 
+    # Create an output folder
     exposure_outputs: ExposureOutputs = exposure.outputs
+    exposure_outputs.create_output_folder()
 
     processor = Processor(detector=detector, pipeline=pipeline)
 
@@ -170,12 +172,15 @@ def _run_exposure_mode(
 
     processor = Processor(detector=detector, pipeline=pipeline)
 
+    # Create an output folder
+    exposure_outputs: ExposureOutputs = exposure.outputs
+    exposure_outputs.create_output_folder()
+
     result: DataTree = exposure.run_exposure(
         processor=processor,
         debug=debug,
     )
 
-    exposure_outputs: ExposureOutputs = exposure.outputs
     if exposure_outputs.save_exposure_data:
         exposure_outputs.save_exposure_outputs(dataset=result)
 
@@ -228,7 +233,9 @@ def observation_mode(
 
     logging.info("Mode: Observation")
 
+    # Create an output folder
     observation_outputs: ObservationOutputs = observation.outputs
+    observation_outputs.create_output_folder()
 
     # TODO: This should be done during initializing of object `Configuration`
     # parametric_outputs.params_func(parametric)
@@ -344,12 +351,14 @@ def calibration_mode(
 
     logging.info("Mode: Calibration")
 
+    # Create an output folder
     calibration_outputs: CalibrationOutputs = calibration.outputs
+    calibration_outputs.create_output_folder()
 
     processor = Processor(detector=detector, pipeline=pipeline)
 
     ds_results, df_processors, df_all_logs = calibration._run_calibration_deprecated(
-        processor=processor, output_dir=calibration_outputs.output_dir
+        processor=processor, output_dir=calibration_outputs.current_output_folder
     )
 
     # TODO: Save the processors from 'df_processors'
@@ -380,7 +389,9 @@ def calibration_mode(
             calibration_outputs._save_calibration_outputs_deprecated(
                 dataset=computed_ds, logs=df_logs
             )
-            print(f"Saved calibration outputs to {calibration_outputs.output_dir}")
+            print(
+                f"Saved calibration outputs to {calibration_outputs.current_output_folder}"
+            )
 
         result = CalibrationResult(
             dataset=computed_ds,
@@ -475,13 +486,15 @@ def _run_calibration_mode(
     """
     logging.info("Mode: Calibration")
 
-    calibration_outputs: CalibrationOutputs = calibration.outputs
-
     processor = Processor(detector=detector, pipeline=pipeline)
 
-    data_tree = calibration.run_calibration(
+    # Create an output folder
+    calibration_outputs: CalibrationOutputs = calibration.outputs
+    calibration_outputs.create_output_folder()
+
+    data_tree: "DataTree" = calibration.run_calibration(
         processor=processor,
-        output_dir=calibration_outputs.output_dir,
+        output_dir=calibration_outputs.current_output_folder,
     )
 
     return data_tree
@@ -494,11 +507,13 @@ def _run_observation_mode(
 ) -> "DataTree":
     logging.info("Mode: Observation")
 
-    observation_outputs: ObservationOutputs = observation.outputs
-
     processor = Processor(detector=detector, pipeline=pipeline)
 
-    result = observation.run_observation_datatree(processor=processor)
+    # Create an output folder
+    observation_outputs: ObservationOutputs = observation.outputs
+    observation_outputs.create_output_folder()
+
+    result: "DataTree" = observation.run_observation_datatree(processor=processor)
 
     if observation_outputs._save_observation_data_deprecated:
         raise NotImplementedError
@@ -817,11 +832,11 @@ def output_directory(configuration: Configuration) -> Path:
     from pyxel.calibration import Calibration
 
     if isinstance(configuration.exposure, Exposure):
-        output_dir = configuration.exposure.outputs.output_dir
+        output_dir = configuration.exposure.outputs.current_output_folder
     elif isinstance(configuration.calibration, Calibration):
-        output_dir = configuration.calibration.outputs.output_dir
+        output_dir = configuration.calibration.outputs.current_output_folder
     elif isinstance(configuration.observation, Observation):
-        output_dir = configuration.observation.outputs.output_dir
+        output_dir = configuration.observation.outputs.current_output_folder
     else:
         raise (TypeError("Outputs not initialized."))
     return output_dir
