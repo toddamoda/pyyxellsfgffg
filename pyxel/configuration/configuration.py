@@ -398,7 +398,7 @@ def to_environment(dct: Optional[dict]) -> Environment:
     """
     if dct is None:
         dct = {}
-    return Environment(**dct)
+    return Environment.from_dict(dct)
 
 
 def to_ccd_characteristics(dct: Optional[dict]) -> Characteristics:
