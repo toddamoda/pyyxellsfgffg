@@ -10,7 +10,7 @@
 # flake8: noqa
 # Warning: Import order matters
 from .readout_properties import ReadoutProperties
-from .environment import Environment
+from .environment import Environment, WavelengthHandling
 from .detector import Detector
 from .geometry import Geometry
 from .characteristics import Characteristics
