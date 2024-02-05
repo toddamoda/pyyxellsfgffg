@@ -8,9 +8,36 @@
 """TBW."""
 
 from collections.abc import Mapping
-from typing import Optional
+from dataclasses import dataclass
+from typing import Optional, Union
+
+from typing_extensions import Self
 
 from pyxel.util import get_size
+
+
+@dataclass
+class WavelengthHandling:
+    """Information about multi-wavelength."""
+
+    cut_on: float
+    cut_off: float
+    resolution: int
+
+    def to_dict(self) -> dict:
+        return {
+            "cut_on": self.cut_on,
+            "cut_off": self.cut_off,
+            "resolution": self.resolution,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Self:
+        return cls(
+            cut_on=data["cut_on"],
+            cut_off=data["cut_off"],
+            resolution=data["resolution"],
+        )
 
 
 class Environment:
@@ -22,20 +49,43 @@ class Environment:
         Temperature of the detector. Unit: K
     """
 
-    def __init__(self, temperature: Optional[float] = None):
-        if temperature and not (0.0 <= temperature <= 1000.0):
+    def __init__(
+        self,
+        temperature: Optional[float] = None,
+        wavelength: Union[float, WavelengthHandling, None] = None,
+    ):
+        if isinstance(temperature, (int, float)) and not (0.0 <= temperature <= 1000.0):
             raise ValueError("'temperature' must be between 0.0 and 1000.0.")
 
-        self._temperature = temperature
+        if isinstance(wavelength, (int, float)) and not (wavelength > 0.0):
+            raise ValueError("'wavelength' must be strictly positive.")
+
+        if isinstance(wavelength, WavelengthHandling):
+            if not (wavelength.cut_on < wavelength.cut_off):
+                raise ValueError("'cut_on' must be strictly inferior to 'cut_off'.")
+            if not (wavelength.resolution > 0):
+                raise ValueError("'resolution' must be strictly positive and not 0.")
+
+        self._temperature: Optional[float] = (
+            float(temperature) if temperature is not None else None
+        )
+
+        self._wavelength: Union[float, WavelengthHandling, None] = (
+            float(wavelength) if isinstance(wavelength, (int, float)) else wavelength
+        )
 
         self._numbytes = 0
 
     def __repr__(self) -> str:
         cls_name: str = self.__class__.__name__
-        return f"{cls_name}(temperature={self._temperature!r})"
+        return f"{cls_name}(temperature={self._temperature!r}, wavelength={self._wavelength!r})"
 
     def __eq__(self, other) -> bool:
-        return type(self) is type(other) and self._temperature == other._temperature
+        return (
+            type(self) is type(other)
+            and self._temperature == other._temperature
+            and self._wavelength == other._wavelength
+        )
 
     @property
     def temperature(self) -> float:
@@ -54,6 +104,29 @@ class Environment:
         self._temperature = value
 
     @property
+    def wavelength(self) -> Union[float, WavelengthHandling]:
+        """Get wavelength of the detector."""
+        if self._wavelength is None:
+            raise ValueError("'wavelength' not specified in detector environment.")
+        return self._wavelength
+
+    @wavelength.setter
+    def wavelength(self, value: Union[float, WavelengthHandling]) -> None:
+        """Set wavelength of the detector."""
+        if isinstance(value, float) and not (value > 0.0):
+            raise ValueError("'wavelength' must be strictly positive.")
+
+        elif isinstance(value, WavelengthHandling):
+            if not (value.cut_on < value.cut_off):
+                raise ValueError("'cut_on' must be strictly inferior to 'cut_off'.")
+            if not (value.resolution > 0):
+                raise ValueError("'resolution' must be strictly positive and not 0.")
+        else:
+            raise ValueError("A WavelengthHandling object or a float must be provided.")
+
+        self._wavelength = value
+
+    @property
     def numbytes(self) -> int:
         """Recursively calculates object size in bytes using Pympler library.
 
@@ -67,10 +140,27 @@ class Environment:
 
     def to_dict(self) -> Mapping:
         """Get the attributes of this instance as a `dict`."""
-        return {"temperature": self._temperature}
+        if self._wavelength is None:
+            wavelength_dict = {}
+        elif isinstance(self._wavelength, (int, float)):
+            wavelength_dict = {"wavelength": self._wavelength}
+        else:
+            wavelength_dict = self._wavelength.to_dict()
+        return {"temperature": self._temperature} | wavelength_dict
 
     @classmethod
-    def from_dict(cls, dct: Mapping):
+    def from_dict(cls, dct: Mapping) -> Self:
         """Create a new instance of `Geometry` from a `dict`."""
-        # TODO: This is a simplistic implementation. Improve this.
-        return cls(**dct)
+
+        value = dct.get("wavelength")
+
+        if value is None:
+            wavelength: Union[float, WavelengthHandling, None] = None
+        elif isinstance(value, (int, float)):
+            wavelength = float(value)
+        elif isinstance(value, dict):
+            wavelength = WavelengthHandling.from_dict(value)
+        else:
+            raise NotImplementedError
+
+        return cls(temperature=dct.get("temperature"), wavelength=wavelength)
