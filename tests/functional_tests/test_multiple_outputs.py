@@ -82,6 +82,9 @@ def test_exposure_output(valid_simple_config_filename: Path, tmp_path: Path):
         with freeze_time(date_2023_12_19_08_20):
             _ = pyxel.run_mode(mode=mode, detector=detector, pipeline=pipeline)
 
+            print(f"{datetime.now()=}")
+            print(f'{datetime.now().strftime("%Y%m%d_%H%M%S")=}')
+
         # Check if an empty 'output' folder is created
         folder_output_01 = tmp_path / "output"
         assert folder_output_01.exists()
