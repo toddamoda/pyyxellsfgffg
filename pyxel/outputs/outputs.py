@@ -9,9 +9,9 @@
 import logging
 import re
 from collections.abc import Mapping, Sequence
+from datetime import datetime
 from glob import glob
 from pathlib import Path
-from time import strftime
 from typing import TYPE_CHECKING, Any, Literal, Optional, Protocol, Union
 
 import h5py as h5
@@ -571,23 +571,19 @@ def create_output_directory(
     add = ""
     count = 0
 
+    date_str: str = datetime.now().strftime("%Y%m%d_%H%M%S")
+    if not custom_dir_name:
+        prefix_dir: str = "run_"
+    else:
+        prefix_dir = custom_dir_name
+
     while True:
         try:
-            if not custom_dir_name:
-                output_dir: Path = (
-                    Path(output_folder)
-                    .joinpath("run_" + strftime("%Y%m%d_%H%M%S") + add)
-                    .resolve()
-                )
-            else:
-                output_dir = (
-                    Path(output_folder)
-                    .joinpath(custom_dir_name + strftime("%Y%m%d_%H%M%S") + add)
-                    .resolve()
-                )
+            output_dir: Path = (
+                Path(output_folder).joinpath(f"{prefix_dir}{date_str}{add}").resolve()
+            )
 
             output_dir.mkdir(parents=True, exist_ok=False)
-
         except FileExistsError:
             count += 1
             add = "_" + str(count)

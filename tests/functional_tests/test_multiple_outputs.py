@@ -9,7 +9,6 @@ import os
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
-from zoneinfo import ZoneInfo
 
 import pytest
 from freezegun import freeze_time
@@ -31,26 +30,43 @@ def chdir(folder: Path):
 
 
 @pytest.fixture
-def valid_simple_config_filename(request: pytest.FixtureRequest) -> Path:
+def folder_parent(request: pytest.FixtureRequest) -> Path:
     """Get a valid existing YAML filename."""
-    filename: Path = request.path.parent / "data/simple_exposure.yaml"
-    return filename.resolve(strict=True)
+    return request.path.parent
 
 
-def test_exposure_output(valid_simple_config_filename: Path, tmp_path: Path):
+@pytest.mark.parametrize("config_filename", ["data/simple_exposure.yaml"])
+def test_exposure_output(config_filename: str, folder_parent: Path, tmp_path: Path):
     """Test simple mode with different outputs."""
-    zone = ZoneInfo("Europe/Amsterdam")
+    full_config_filename = folder_parent.joinpath(config_filename).resolve(strict=True)
+
     date_2023_12_18_08_20 = datetime(
-        year=2023, month=12, day=18, hour=8, minute=20, tzinfo=zone
+        year=2023,
+        month=12,
+        day=18,
+        hour=8,
+        minute=20,
     )
     date_2023_12_19_08_20 = datetime(
-        year=2023, month=12, day=19, hour=8, minute=20, tzinfo=zone
+        year=2023,
+        month=12,
+        day=19,
+        hour=8,
+        minute=20,
     )
     date_2023_12_19_08_30 = datetime(
-        year=2023, month=12, day=19, hour=8, minute=30, tzinfo=zone
+        year=2023,
+        month=12,
+        day=19,
+        hour=8,
+        minute=30,
     )
     date_2023_12_19_08_40 = datetime(
-        year=2023, month=12, day=19, hour=8, minute=40, tzinfo=zone
+        year=2023,
+        month=12,
+        day=19,
+        hour=8,
+        minute=40,
     )
 
     # Change the current directory
@@ -61,7 +77,7 @@ def test_exposure_output(valid_simple_config_filename: Path, tmp_path: Path):
 
         # Load YAML configuration file
         with freeze_time(date_2023_12_18_08_20):
-            config = pyxel.load(valid_simple_config_filename)
+            config = pyxel.load(full_config_filename)
 
         assert isinstance(config, Configuration)
         mode = config.running_mode
