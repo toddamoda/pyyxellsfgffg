@@ -119,10 +119,10 @@ class CalibrationOutputs(Outputs):
                 if obj == "logs":
                     for formal_file in format_list:
                         if formal_file == "csv":
-                            filename = self.output_dir.joinpath("logs.csv")
+                            filename = self.current_output_folder.joinpath("logs.csv")
                             logs.to_csv(filename)
                         elif formal_file == "xlsx":
-                            filename = self.output_dir.joinpath("logs.xlsx")
+                            filename = self.current_output_folder.joinpath("logs.xlsx")
                             logs.to_excel(filename)
                         else:
                             raise NotImplementedError(
