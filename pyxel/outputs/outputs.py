@@ -53,6 +53,7 @@ ValidFormat = Literal["fits", "hdf", "npy", "txt", "csv", "png", "jpg", "jpeg"]
 
 
 # TODO: Create a new class that will contain the parameter 'save_data_to_file'
+# TODO: Refactor 'Outputs' with a new class 'ExportData'. See #566
 class Outputs:
     """Collection of methods to save the data buckets from a Detector.
 
@@ -69,6 +70,28 @@ class Outputs:
 
         Example:
         {'detector.photon.array': 'fits', 'detector.charge.array': 'hdf', 'detector.image.array':'png'}
+
+    Examples
+    --------
+    >>> import pyxel
+    >>> config = pyxel.load("my_config.yaml")
+    >>> mode = config.running_mode
+    >>> detector = config.detector
+    >>> pipeline = config.pipeline
+
+    Run and get 'output_dir'
+
+    >>> result = pyxel.run_mode(mode=mode, detector=detector, pipeline=pipeline)
+    >>> result.mode.outputs.current_output_folder
+    Path('./output/run_20231219_0920000')
+
+    Change 'output_dir'
+
+    >>> result.mode.outputs.output_folder = "folder1/folder2"
+    >>> result.mode.outputs.custom_dir_name = "foo_"
+    >>> result = pyxel.run_mode(mode=mode, detector=detector, pipeline=pipeline)
+    >>> result.mode.outputs.current_output_folder
+    Path('./folder1/folder2/foo_20231219_0922000')
     """
 
     def __init__(
@@ -81,9 +104,10 @@ class Outputs:
     ):
         self._log = logging.getLogger(__name__)
 
+        self._current_output_folder: Optional[Path] = None
+
         self._output_folder: Path = Path(output_folder)
-        self._custom_dir_name = custom_dir_name
-        self._output_dir: Optional[Path] = None
+        self._custom_dir_name: str = custom_dir_name
 
         # TODO: Not related to a plot. Use by 'single' and 'parametric' modes.
         self.save_data_to_file: Optional[
@@ -92,33 +116,46 @@ class Outputs:
 
     def __repr__(self):
         cls_name: str = self.__class__.__name__
-        return f"{cls_name}<output_dir={self.output_dir!r}>"
+
+        if self._current_output_folder is None:
+            return f"{cls_name}<NO OUTPUT DIR>"
+        else:
+            return f"{cls_name}<output_dir={self.current_output_folder!r}>"
 
     @property
-    def output_dir(self) -> Path:
-        if self._output_dir is None:
+    def current_output_folder(self) -> Path:
+        """Get directory where all outputs are saved."""
+        if self._current_output_folder is None:
             raise RuntimeError
 
-        return self._output_dir
+        return self._current_output_folder
 
-    def create_output_folder(
-        self,
-        output_folder: Union[str, Path, None] = None,
-        custom_dir_name: Optional[str] = None,
-    ) -> None:
-        if output_folder is not None:
-            folder: Path = Path(output_folder)
-        else:
-            folder = self._output_folder
+    @property
+    def output_folder(self) -> Path:
+        return self._output_folder
 
-        if custom_dir_name is not None:
-            dir_name: str = custom_dir_name
-        else:
-            dir_name = self._custom_dir_name
+    @output_folder.setter
+    def output_folder(self, folder: Union[str, Path]) -> None:
+        if not isinstance(folder, (str, Path)):
+            raise TypeError
 
-        self._output_dir = create_output_directory(
-            output_folder=folder,
-            custom_dir_name=dir_name,
+        self._output_folder = Path(folder)
+
+    @property
+    def custom_dir_name(self) -> str:
+        return self._custom_dir_name
+
+    @custom_dir_name.setter
+    def custom_dir_name(self, name: str) -> None:
+        if not isinstance(name, str):
+            raise TypeError
+
+        self._custom_dir_name = name
+
+    def create_output_folder(self) -> None:
+        self._current_output_folder = create_output_directory(
+            output_folder=self._output_folder,
+            custom_dir_name=self._custom_dir_name,
         )
 
     def save_to_fits(
@@ -133,11 +170,11 @@ class Outputs:
 
         if with_auto_suffix:
             filename = apply_run_number(
-                template_filename=self.output_dir.joinpath(f"{name}_?.fits"),
+                template_filename=self.current_output_folder.joinpath(f"{name}_?.fits"),
                 run_number=run_number,
             )
         else:
-            filename = self.output_dir / f"{name}.fits"
+            filename = self.current_output_folder / f"{name}.fits"
 
         full_filename: Path = filename.resolve()
         self._log.info("Save to FITS - filename: '%s'", full_filename)
@@ -162,11 +199,11 @@ class Outputs:
 
         if with_auto_suffix:
             filename = apply_run_number(
-                template_filename=self.output_dir.joinpath(f"{name}_?.h5"),
+                template_filename=self.current_output_folder.joinpath(f"{name}_?.h5"),
                 run_number=run_number,
             )
         else:
-            filename = self.output_dir / f"{name}.h5"
+            filename = self.current_output_folder / f"{name}.h5"
 
         full_filename: Path = filename.resolve()
 
@@ -205,11 +242,11 @@ class Outputs:
 
         if with_auto_suffix:
             filename = apply_run_number(
-                template_filename=self.output_dir.joinpath(f"{name}_?.txt"),
+                template_filename=self.current_output_folder.joinpath(f"{name}_?.txt"),
                 run_number=run_number,
             )
         else:
-            filename = self.output_dir / f"{name}.txt"
+            filename = self.current_output_folder / f"{name}.txt"
 
         full_filename: Path = filename.resolve()
         np.savetxt(full_filename, data, delimiter=" | ", fmt="%.8e")
@@ -228,11 +265,11 @@ class Outputs:
 
         if with_auto_suffix:
             filename = apply_run_number(
-                template_filename=self.output_dir.joinpath(f"{name}_?.csv"),
+                template_filename=self.current_output_folder.joinpath(f"{name}_?.csv"),
                 run_number=run_number,
             )
         else:
-            filename = self.output_dir / f"{name}.csv"
+            filename = self.current_output_folder / f"{name}.csv"
 
         full_filename = filename.resolve()
         try:
@@ -254,11 +291,11 @@ class Outputs:
 
         if with_auto_suffix:
             filename = apply_run_number(
-                template_filename=self.output_dir.joinpath(f"{name}_?.npy"),
+                template_filename=self.current_output_folder.joinpath(f"{name}_?.npy"),
                 run_number=run_number,
             )
         else:
-            filename = self.output_dir / f"{name}.npy"
+            filename = self.current_output_folder / f"{name}.npy"
 
         full_filename: Path = filename.resolve()
 
@@ -280,11 +317,11 @@ class Outputs:
 
         if with_auto_suffix:
             filename = apply_run_number(
-                template_filename=self.output_dir.joinpath(f"{name}_?.png"),
+                template_filename=self.current_output_folder.joinpath(f"{name}_?.png"),
                 run_number=run_number,
             )
         else:
-            filename = self.output_dir / f"{name}.png"
+            filename = self.current_output_folder / f"{name}.png"
 
         full_filename: Path = filename.resolve()
 
@@ -308,11 +345,11 @@ class Outputs:
 
         if with_auto_suffix:
             filename = apply_run_number(
-                template_filename=self.output_dir.joinpath(f"{name}_?.jpeg"),
+                template_filename=self.current_output_folder.joinpath(f"{name}_?.jpeg"),
                 run_number=run_number,
             )
         else:
-            filename = self.output_dir / f"{name}.jpeg"
+            filename = self.current_output_folder / f"{name}.jpeg"
 
         full_filename: Path = filename.resolve()
 
@@ -336,11 +373,11 @@ class Outputs:
 
         if with_auto_suffix:
             filename = apply_run_number(
-                template_filename=self.output_dir.joinpath(f"{name}_?.jpg"),
+                template_filename=self.current_output_folder.joinpath(f"{name}_?.jpg"),
                 run_number=run_number,
             )
         else:
-            filename = self.output_dir / f"{name}.jpg"
+            filename = self.current_output_folder / f"{name}.jpg"
 
         full_filename: Path = filename.resolve()
 
@@ -458,7 +495,7 @@ class Outputs:
         filename: Path
         """
         name = name.replace(".", "_")
-        filename = self.output_dir.joinpath(name + ".nc")
+        filename = self.current_output_folder.joinpath(name + ".nc")
         data.to_netcdf(filename)
         return filename
 
