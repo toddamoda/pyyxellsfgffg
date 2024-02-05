@@ -16,7 +16,7 @@ import numpy as np
 from astropy.convolution import convolve_fft
 from astropy.io import fits
 
-from pyxel.detectors import Detector
+from pyxel.detectors import Detector, WavelengthHandling
 
 try:
     import poppy as op
@@ -671,9 +671,9 @@ def apply_convolution(data: np.ndarray, kernel: np.ndarray) -> np.ndarray:
 
 def optical_psf(
     detector: Detector,
-    wavelength: float,
     fov_arcsec: float,
     optical_system: Sequence[Mapping[str, Any]],
+    wavelength: Union[int, float, tuple[float, float], None] = None,
     apply_jitter: bool = False,
     jitter_sigma: float = 0.007,
 ) -> None:
@@ -683,8 +683,8 @@ def optical_psf(
     ----------
     detector : Detector
         Pyxel Detector object.
-    wavelength : float
-        Wavelength of incoming light in meters.
+    wavelength : Union[int, float, tuple[float, float], None]
+        Wavelength of incoming light in meters, default is None.
     fov_arcsec : float
         Field Of View on detector plane in arcsec.
     optical_system : list of dict
@@ -700,11 +700,28 @@ def optical_psf(
 
     # Validation and Conversion stage
     # These steps will be probably moved into the YAML engine
-    if wavelength < 0.0 or fov_arcsec < 0.0 or detector.geometry.pixel_scale < 0.0:
-        raise ValueError(
-            "Expecting strictly positive value for 'wavelength', "
-            "'fov_arcsec' and 'pixel_scale'."
-        )
+    # if wavelength < 0.0 or fov_arcsec < 0.0 or detector.geometry.pixel_scale < 0.0:
+    #     raise ValueError(
+    #         "Expecting strictly positive value for 'wavelength', "
+    #         "'fov_arcsec' and 'pixel_scale'."
+    #     )
+
+    if wavelength is None:
+        if isinstance(detector.environment.wavelength, float):
+            selected_wavelength: Union[float, tuple[float, float]] = (
+                detector.environment.wavelength
+            )
+        else:
+            selected_wavelength = (
+                detector.environment.wavelength.cut_on,
+                detector.environment.wavelength.cut_off,
+            )
+    elif isinstance(wavelength, (int, float)):
+        selected_wavelength = float(wavelength)
+    elif isinstance(wavelength, Sequence) and len(wavelength) == 2:
+        selected_wavelength = tuple(wavelength)
+    else:
+        raise ValueError
 
     # Convert 'optical_system' to 'optical_parameters'
     optical_parameters: Sequence[OpticalParameter] = [
