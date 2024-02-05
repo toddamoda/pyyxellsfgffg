@@ -74,6 +74,7 @@ class NewThinLens:
     nwaves: float
     radius: float
     reference_wavelength: Optional[float] = None
+    # center wavelength if not provided takes the middle
 
 
 @dataclass
@@ -612,6 +613,7 @@ def calc_psf(
     output_fits, wavefronts = instrument.calc_datacube(
         wavelengths=wavelengths,
         fov_arcsec=fov_arcsec,
+        oversample=1,
     )
 
     return output_fits, wavefronts
@@ -746,6 +748,8 @@ def optical_psf_multi_wavelength(
     optical_system: Sequence[Mapping[str, Any]],
     apply_jitter: bool = False,
     jitter_sigma: float = 0.007,
+    # oversample : should be one
+    # normalization should be default true.
 ) -> None:
     """Model function for poppy optics model: convolve photon array with psf.
 
