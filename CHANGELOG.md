@@ -19,6 +19,9 @@ The deprecated models in `optics` and `photon_generation` model groups are remov
 ### Core
 * Remove deprecated models under `optics` and `photon_generation` model groups.
   (See [!825](https://gitlab.com/esa/pyxel/-/merge_requests/825)).
+* Fix bug when `pyxel.load` is executed and output folder already exists.
+  (See [!835](https://gitlab.com/esa/pyxel/-/merge_requests/835)
+  and [#643](https://gitlab.com/esa/pyxel/-/issues/643)).
 
 ### Documentation
 
