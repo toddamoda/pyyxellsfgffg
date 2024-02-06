@@ -586,9 +586,6 @@ def _build_configuration(dct: dict) -> Configuration:
     -------
     Configuration
     """
-    if "working_directory" in dct:
-        global_options.update({"working_directory": dct["working_directory"]})
-
     pipeline: DetectionPipeline = to_pipeline(dct["pipeline"])
 
     # Sanity checks
@@ -637,6 +634,7 @@ def _build_configuration(dct: dict) -> Configuration:
 
     configuration: Configuration = Configuration(
         pipeline=pipeline,
+        working_directory=dct.get("working_directory"),
         **running_mode,  # type: ignore
         **detector,  # type: ignore
     )
