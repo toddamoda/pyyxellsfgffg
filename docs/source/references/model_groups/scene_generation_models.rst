@@ -6,9 +6,9 @@ Scene Generation models
 
 .. currentmodule:: pyxel.models.scene_generation
 
-Scene generation models are used to add a scene to :py:class:`~pyxel.data_structure.Scene` data structure
+Scene generation models are used to add a scene to the :py:class:`~pyxel.data_structure.Scene` data structure
 inside the :py:class:`~pyxel.detectors.Detector` object. The values in the :py:class:`~pyxel.data_structure.Scene` array
-represent flux per wavelength and area, so number of photons per nanometer per area per second.
+represent flux per wavelength and area, i.e. number of photons per nanometer per area per second.
 
 
 .. _scene_generation_create_store_detector:
@@ -17,7 +17,7 @@ Create and Store a detector
 ===========================
 
 The models :ref:`scene_generation_save_detector` and :ref:`scene_generation_load_detector`
-can be used respectively to create and to store a :py:class:`~pyxel.detectors.Detector` to/from a file.
+to respectively create and store a :py:class:`~pyxel.detectors.Detector` to/from a file.
 
 These models can be used when you want to store or to inject a :py:class:`~pyxel.detectors.Detector`
 into the current :ref:`pipeline`.
@@ -69,7 +69,7 @@ Load star map
 
 :guilabel:`Scene` → :guilabel:`Scene`
 
-Generate scene from `scopesim <https://scopesim.readthedocs.io/en/latest/>`_ Source object loading objects from the GAIA catalog for given coordinates and FOV.
+Generate a scene from `ScopeSim <https://scopesim.readthedocs.io/en/latest/>`_ source object loading objects from the GAIA catalog for given coordinates and FOV.
 
 Example of the configuration file:
 

@@ -14,7 +14,7 @@ Otherwise, models like :ref:`Simple illumination` or :ref:`Load image` need to b
 :py:class:`~pyxel.data_structure.Photon` array.
 Multiple photon generation models can be linked together one after another.
 The values in the :py:class:`~pyxel.data_structure.Photon` array represent photon flux,
-so number of photons per pixel area per second. Time scale of the incoming flux can be changed in the model arguments.
+i.e. number of photons per pixel area per second. The time scale of the incoming flux can be changed in the model arguments.
 
 
 .. _photon_collection_create_store_detector:
@@ -73,14 +73,14 @@ Simple collection
 :guilabel:`Scene` → :guilabel:`Photon`
 
 Converts scene to photon with given aperture.
-First an xarray Dataset will be extracted from the Scene for a selected wavelength band.
+First, a xarray Dataset will be extracted from the Scene for a selected wavelength band.
 It is possible to use this model in monochromatic or multiwavelength mode.
-With ``integrate_wavelenght`` set to true (default) the monochromatic mode is chosen,
+With ``integrate_wavelength`` set to true (default) the monochromatic mode is chosen,
 as the flux of the objects in the scene will be integrated along the wavelength band.
 The integrated flux in photon/(s cm2) is converted to photon/(s pixel).
-With ``integrate_wavelenght`` set to false, the photon has the dimensions "wavelength", "y", and "x".
+With ``integrate_wavelength`` set to false, the photon has the dimensions "wavelength", "y", and "x".
 
-The objects are projected onto detector, while converting the object coordinates from arcsec to detector
+The objects are projected onto the detector, while converting the object coordinates from arcsec to detector
 coordinates (pixel) using ``pixel_scale`` defined in the :py:class:`~pyxel.detectors.Detector.Geometry`.
 
 .. code-block:: yaml
@@ -104,9 +104,9 @@ Load image
 
 With this model you can add photons to :py:class:`~pyxel.detectors.Detector` by loading an image from a file.
 Accepted file formats are ``.npy``, ``.fits``, ``.txt``, ``.data``, ``.jpg``, ``.jpeg``, ``.bmp``,
-``.png`` and ``.tiff``. Use argument ``position`` to set the offset from (0,0) pixel
-and set where the input image is placed onto detector. You can set preset positions with argument ``align``.
-Values outside of detector shape will be cropped.
+``.png`` and ``.tiff``. Use argument ``position`` to set the offset from the (0,0) pixel
+and set where the input image is placed onto detector. You can preset positions with argument ``align``.
+Values outside of the detector shape will be cropped.
 Read more about placement in the documentation of function :py:func:`~pyxel.util.fit_into_array`.
 With ``multiplier`` you can multiply the photon number by a custom float,
 and ``time_scale`` is to set the time scale of the incoming photons, default is 1 second.
