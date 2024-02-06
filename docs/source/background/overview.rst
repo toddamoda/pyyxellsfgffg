@@ -16,3 +16,57 @@ Further information on specific parts of the code can be found in the :ref:`Refe
 * :doc:`detectors`
 * :doc:`pipeline`
 * :doc:`running_modes`
+
+
+.. grid:: 1 2 2 2
+    :gutter: 4
+
+    .. grid-item-card::
+        :text-align: center
+
+        **Architecture**
+        ^^^^^^^^^^^^^^^^
+
+        The three main elements behind Pyxel's architecture.
+
+        +++
+
+       .. button-ref:: architecture
+                :ref-type: ref
+                :color: primary
+                :outline:
+                :expand:
+
+                :doc:`architecture`
+
+    .. grid-item-card::
+        :text-align: center
+
+        **YAML**
+        ^^^^^^^^
+
+        :doc:`yaml`
+
+    .. grid-item-card::
+        :text-align: center
+
+        **Detectors**
+        ^^^^^^^^^^^^^
+
+        :doc:`detectors`
+
+    .. grid-item-card::
+        :text-align: center
+
+        **Pipeline**
+        ^^^^^^^^^^^^
+
+        :doc:`pipeline`
+
+    .. grid-item-card::
+        :text-align: center
+
+        **Running Modes**
+        ^^^^^^^^^^^^^^^^^
+
+        :doc:`running_modes`
