@@ -165,21 +165,21 @@ The following command creates the directory `Pyxel`.
 
 .. code-block:: fish
 
-    $ git clone https://gitlab.com/YOUR-USER-NAME/pyxel.git
-    $ cd pyxel
+    git clone https://gitlab.com/YOUR-USER-NAME/pyxel.git
+    cd pyxel
 
 Then the following command connects your repository to upstream (main project)
 *Pyxel* repository.
 
 .. code-block:: fish
 
-    $ git remote add upstream https://gitlab.com/esa/pyxel.git
+    git remote add upstream https://gitlab.com/esa/pyxel.git
 
 And finally verify the new remote 'upstream' repository:
 
 .. code-block:: fish
 
-    $ git remote -v
+    git remote -v
 
 
 Now you can push/pull your *fork* with ``git push`` and ``git pull``.
@@ -244,19 +244,19 @@ We'll now kick off a two-step process:
 .. code-block:: fish
 
    # Update 'conda' in your base environment
-   $ conda update -n base conda
+   conda update -n base conda
 
    # Create the new build environment (once)
-   $ conda env create -f continuous_integration/environment.yml
+   conda env create -f continuous_integration/environment.yml
 
    # Activate the build environment
-   $ conda activate pyxel-dev
+   conda activate pyxel-dev
 
    # or with older versions of Anaconda:
-   $ source activate pyxel-dev
+   source activate pyxel-dev
 
    # Build and install Pyxel in the new environment
-   (pyxel-dev) $ pip install --no-deps -e .
+   (pyxel-dev) pip install --no-deps -e .
 
 At this point you should be able to import *Pyxel* from your
 locally built version:
@@ -264,7 +264,7 @@ locally built version:
 .. code-block:: fish
 
    # Start an interpreter
-   $ python
+   python
    >>> import pyxel
    >>> pyxel.__version__
    '0.5+0.gcae5a0b'
@@ -276,13 +276,13 @@ To view your environments:
 
 .. code-block:: fish
 
-      $ conda info -e
+      conda info -e
 
 To return to your root environment:
 
 .. code-block:: fish
 
-      $ conda deactivate
+      conda deactivate
 
 See the full conda docs `here <http://conda.pydata.org/docs>`__.
 
@@ -303,16 +303,16 @@ these instructions:
     # Create a virtual environment
     # Use an ENV_DIR of your choice. We'll use ~/virtualenvs/pyxel-dev
     # Any parent directories should already exist
-    $ python3 -m venv ~/virtualenvs/pyxel-dev
+    python3 -m venv ~/virtualenvs/pyxel-dev
 
     # Activate the virtualenv
-    $ . ~/virtualenvs/pyxel-dev/bin/activate
+    . ~/virtualenvs/pyxel-dev/bin/activate
 
     # Install the build dependencies
-    $ python -m pip install -r continuous_integration/requirements-dev.txt
+    python -m pip install -r continuous_integration/requirements-dev.txt
 
     # Build and install Pyxel
-    $ python -m pip install -e .
+    python -m pip install -e .
 
 At this point you should be able to import *Pyxel* from your locally
 built version:
@@ -320,7 +320,7 @@ built version:
 .. code-block:: fish
 
    # Start an interpreter
-   $ python
+   python
    >>> import pyxel
    >>> pyxel.__version__
    '1.8+88.g5e2e17dc'
@@ -334,14 +334,14 @@ feature branch for making your changes. For example:
 
 .. code-block:: fish
 
-    $ git branch shiny-new-feature
-    $ git checkout shiny-new-feature
+    git branch shiny-new-feature
+    git checkout shiny-new-feature
 
 The above can be simplified to:
 
 .. code-block:: fish
 
-    $ git checkout -b shiny-new-feature
+    git checkout -b shiny-new-feature
 
 This changes your working directory to the shiny-new-feature branch.  Keep any
 changes in this branch specific to one bug or feature so it is clear
@@ -352,8 +352,8 @@ To update this branch, you need to retrieve the changes from the master branch:
 
 .. code-block:: fish
 
-    $ git fetch upstream
-    $ git rebase upstream/master
+    git fetch upstream
+    git rebase upstream/master
 
 This will replay your commits on top of the latest *Pyxel* git master.  If this
 leads to merge conflicts, you must resolve these before submitting your merge
@@ -440,14 +440,14 @@ to use the environment file ``continuous_integration/environment.yml``.
 .. code-block:: fish
 
     # Create and activate the docs environment
-    $ conda env create -f continuous_integration/environment.yml
-    $ conda activate pyxel-dev
+    conda env create -f continuous_integration/environment.yml
+    conda activate pyxel-dev
 
     # or with older versions of Anaconda:
-    $ source activate pyxel-dev
+    source activate pyxel-dev
 
     # Build and install pyxel
-    $ pip install --no-deps -e .
+    pip install --no-deps -e .
 
 
 Building the documentation
@@ -457,7 +457,7 @@ Navigate to your local ``pyxel/docs/`` directory in the console and run:
 
 .. code-block:: fish
 
-    $ tox -e docs
+    tox -e docs
 
 Then you can find the HTML output in the folder ``pyxels/docs/html/``.
 
@@ -470,13 +470,13 @@ If you want to do a full clean build, do:
 
 .. code-block:: fish
 
-    $ tox -e docs --recreate
+    tox -e docs --recreate
 
 To view the documentation locally, you can also run:
 
 .. code-block:: fish
 
-    $ tox -e serve-docs
+    tox -e serve-docs
 
 
 
@@ -510,14 +510,14 @@ Both tools can be installed with
 
 .. code-block:: fish
 
-   $ pip install tox pre-commit
+   pip install tox pre-commit
 
 and then run from the root of the Pyxel repository:
 
 .. code-block:: fish
 
-    $ pre-commit run -a
-    $ tox -p
+    pre-commit run -a
+    tox -p
 
 Backwards Compatibility
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -623,7 +623,7 @@ to install *Pyxel*) by typing:
 
 .. code-block:: fish
 
-    $ pytest
+    pytest
 
 The tests suite is exhaustive and takes a few minutes.  Often it is
 worth running only a subset of tests first around your changes before
@@ -633,15 +633,15 @@ The easiest way to do this is with:
 
 .. code-block:: fish
 
-    $ pytest tests/path/to/test.py -k regex_matching_test_name
+    pytest tests/path/to/test.py -k regex_matching_test_name
 
 Or with one of the following constructs:
 
 .. code-block:: fish
 
-    $ pytest tests/[test-module].py
-    $ pytest tests/[test-module].py::[TestClass]
-    $ pytest tests/[test-module].py::[TestClass]::[test_method]
+    pytest tests/[test-module].py
+    pytest tests/[test-module].py::[TestClass]
+    pytest tests/[test-module].py::[TestClass]::[test_method]
 
 Using `pytest-xdist <https://pypi.python.org/pypi/pytest-xdist>`_, one can
 speed up local testing on multicore machines. To use this feature, you will
@@ -649,14 +649,14 @@ need to install `pytest-xdist` via:
 
 .. code-block:: fish
 
-    $ pip install pytest-xdist
+    pip install pytest-xdist
 
 
 Then, run pytest with the optional -n argument:
 
 .. code-block:: fish
 
-    $ pytest -n 4
+    pytest -n 4
 
 This can significantly reduce the time it takes to locally run tests before
 submitting a pull request.
@@ -685,14 +685,14 @@ Once you've made changes, you can see them by typing:
 
 .. code-block:: fish
 
-    $ git status
+    git status
 
 If you have created a new file, it is not being tracked by git.
 Add it by typing:
 
 .. code-block:: fish
 
-    $ git add path/to/file-to-be-added.py
+    git add path/to/file-to-be-added.py
 
 Doing 'git status' again should give something like:
 
@@ -717,7 +717,7 @@ Now you can commit your changes in your local repository:
 
 .. code-block:: fish
 
-    $ git commit -m
+    git commit -m
 
 
 Pushing your changes
@@ -728,14 +728,14 @@ forked feature branch's commits:
 
 .. code-block:: fish
 
-    $ git push origin shiny-new-feature
+    git push origin shiny-new-feature
 
 Here ``origin`` is the default name given to your remote repository on GitLab.
 You can see the remote repositories:
 
 .. code-block:: fish
 
-    $ git remote -v
+    git remote -v
 
 If you added the upstream repository as described above you will see something
 like:
@@ -798,7 +798,7 @@ be automatically updated.  Pushing them to GitLab again is done by:
 
 .. code-block:: fish
 
-    $ git push origin shiny-new-feature
+    git push origin shiny-new-feature
 
 This will automatically update your merge request with the latest code
 and restart the :ref:`Continuous Integration <contributing.ci>` tests.
@@ -813,15 +813,15 @@ so git knows it is safe to delete your branch:
 
 .. code-block:: fish
 
-    $ git fetch upstream
-    $ git checkout master
-    $ git merge upstream/master
+    git fetch upstream
+    git checkout master
+    git merge upstream/master
 
 Then you can do:
 
 .. code-block:: fish
 
-    $ git branch -d shiny-new-feature
+    git branch -d shiny-new-feature
 
 Make sure you use a lower-case ``-d``, or else git won't warn you if your
 feature branch has not actually been merged.
@@ -830,7 +830,7 @@ The branch will still exist on GitLab, so to delete it there do:
 
 .. code-block:: fish
 
-    $ git push origin --delete shiny-new-feature
+    git push origin --delete shiny-new-feature
 
 .. _contributing.mergechecklist:
 
@@ -862,8 +862,8 @@ Merge Request checklist
 
   .. code-block:: fish
 
-    $ pre-commit run -a
-    $ tox -p
+    pre-commit run -a
+    tox -p
 
 - **Push your code and** `create a Merge Request on GitLab <https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html>`_.
 - **Use a helpful title for your merge request** by summarizing the main contributions rather than using the latest commit message.
