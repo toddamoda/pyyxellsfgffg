@@ -22,6 +22,9 @@ from .add_model import create_model
 from .randomize import set_random_seed
 from .image import fit_into_array, load_cropped_and_aligned_image
 from .caching import get_cache
+from .fileutil import is_path_relative
+from .fileutil import complete_path
+
 
 __all__ = [
     "convert_to_int",
@@ -31,6 +34,8 @@ __all__ = [
     "set_random_seed",
     "deprecated",
     "get_dtype",
+    "is_path_relative",
+    "complete_path",
 ]
 
 
