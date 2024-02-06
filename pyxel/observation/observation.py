@@ -13,10 +13,10 @@ from collections.abc import Iterable, Iterator, Mapping, MutableMapping, Sequenc
 from copy import deepcopy
 from dataclasses import dataclass
 from enum import Enum
-from pathlib import Path
 from functools import partial
 from itertools import chain
 from numbers import Number
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Literal, NamedTuple, Optional, Union
 
 import dask.bag as db

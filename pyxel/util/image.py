@@ -15,8 +15,6 @@ from typing import Literal, Optional, Union
 
 import numpy as np
 
-from pyxel.inputs import load_image
-
 
 class Alignment(Enum):
     """Alignment class."""
@@ -181,6 +179,8 @@ def load_cropped_and_aligned_image(
     """
     # Load 2d image (which can be smaller or
     #                         larger in dimensions than detector imaging area)
+    from pyxel.inputs import load_image
+
     try:
         image = load_image(filename)
     except OSError as exc:
