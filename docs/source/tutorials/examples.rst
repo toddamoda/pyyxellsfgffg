@@ -13,7 +13,12 @@ All tutorials and examples can be found in a separate public repository
 Please note, that the Jupyter book is just for viewing the examples and not interactive.
 
 .. button-link:: https://esa.gitlab.io/pyxel-data/intro.html
+    :color: primary
+    :outline:
+    :expand:
     :ref-type: any
+
+    To tutorials and examples
 
 If you want to change the inputs and see the results immediately,
 you need to a :ref:`install` of Pyxel and download the `Pyxel Data <https://gitlab.com/esa/pyxel-data>`_ repository
