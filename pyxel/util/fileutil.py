@@ -1,6 +1,7 @@
 """File utility functions to simplify path logic."""
-from typing import Union, Optional
+
 from pathlib import Path
+from typing import Optional, Union
 
 
 def is_path_relative(filename: Union[str, Path]) -> bool:
@@ -11,7 +12,9 @@ def is_path_relative(filename: Union[str, Path]) -> bool:
     return True
 
 
-def complete_path(filename: Union[str, Path], working_dir: Union[str, Path, None]) -> Union[str, Path]:
+def complete_path(
+    filename: Union[str, Path], working_dir: Union[str, Path, None]
+) -> Union[str, Path]:
     """Prefix the filename with the working directory.
 
     The returned type will be the same as the `filename` type.
