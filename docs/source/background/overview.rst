@@ -22,12 +22,11 @@ Further information on specific parts of the code can be found in the :ref:`Refe
         **Architecture**
         ^^^
 
-        Pyxel's architecture comprises :ref:`running modes <running_modes>`,
-        :ref:`detectors <detectors>`, and the :ref:`pipeline <pipeline>`,
-        defined in :ref:`configuration files <yaml>`.
+        Pyxel's architecture comprises running modes,
+        and the pipeline, defined in configuration files.
 
-        Detectors store properties and data used by :ref:`models <models_explanation>` in the :ref:`pipeline <pipeline>`,
-        mimicking detector principles.
+        Detectors store properties and data used by models in
+        the pipeline <pipeline>, mimicking detector principles.
         
         +++
 
@@ -48,11 +47,10 @@ Further information on specific parts of the code can be found in the :ref:`Refe
 
         A configuration file is the main user entry point for any Pyxel simulation.
 
-        Pyxel utilizes :ref:`YAML configuration files <yaml>` to define 
-        :ref:`running modes <running_modes>`, :ref:`detectors <detectors>` properties,
-        and effect models.
+        Pyxel utilizes YAML configuration files to define
+        running modes, detectors properties, and effect models.
 
-        These files are user-friendly but can be validated using :ref:`JSON Schema <json_schema>`
+        These files are user-friendly but can be validated using JSON Schema
         for error prevention.
         +++
 
@@ -71,12 +69,10 @@ Further information on specific parts of the code can be found in the :ref:`Refe
         **Detectors**
         ^^^
 
-        Explanations about :ref:`Detector <detectors>` object.
-
-        The :ref:`Detector <detectors>`  object in Pyxel's pipeline holds 
-        data crucial for :ref:`model <models_explanation>` execution, 
-        including physical :ref:`properties <detector_properties>` like geometry, characteristics, 
-        and environment, defined in the :ref:`YAML <yaml>` configuration file.
+        The Detector object in Pyxel's pipeline holds
+        data crucial for model execution,
+        including physical properties like geometry, characteristics,
+        and environment, defined in the YAML configuration file.
        
         +++
 
@@ -96,7 +92,7 @@ Further information on specific parts of the code can be found in the :ref:`Refe
         ^^^
 
         The Detection pipeline, represented by the DetectionPipeline class, 
-        hosts various :ref:`models <models_explanation>` grouped into levels resembling 
+        hosts various models grouped into levels resembling
         detector principles, with user-customizable order.
      
         +++
@@ -116,9 +112,9 @@ Further information on specific parts of the code can be found in the :ref:`Refe
         **Running modes**
         ^^^
 
-        Pyxel offers three running modes: :ref:`Exposure <exposure_mode>` mode for single or incremental exposures,
-        :ref:`Observation <observation_mode>` mode for multiple exposures over a range of parameters
-        and :ref:`Calibration <calibration_mode>` mode for model fitting/optimization.
+        Pyxel offers three running modes: Exposure mode for single or incremental exposures,
+        Observation mode for multiple exposures over a range of parameters
+        and Calibration mode for model fitting/optimization.
 
         +++
 
