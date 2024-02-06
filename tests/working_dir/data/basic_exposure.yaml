@@ -7,8 +7,8 @@
 
 
 # yaml-language-server: $schema=https://esa.gitlab.io/pyxel/doc/latest/pyxel_schema.json
-working_directory: data
 exposure:
+  working_directory: data
 
   pipeline_seed: 1234
 

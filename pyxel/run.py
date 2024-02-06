@@ -11,6 +11,7 @@ import sys
 import time
 import warnings
 from collections.abc import Sequence
+from contextlib import nullcontext
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Union
 
@@ -20,7 +21,7 @@ import pandas as pd
 
 from pyxel import Configuration
 from pyxel import __version__ as version
-from pyxel import copy_config_file, load, outputs
+from pyxel import load, outputs, copy_config_file, set_options
 from pyxel.detectors import APD, CCD, CMOS, MKID, Detector
 from pyxel.exposure import Exposure
 from pyxel.observation import Observation, ObservationResult
@@ -793,34 +794,42 @@ def run_mode(
             "Parameter 'debug' is only implemented for 'Exposure' mode."
         )
 
-    if isinstance(mode, Exposure):
-        data_tree = _run_exposure_mode(
-            exposure=mode,
-            detector=detector,
-            pipeline=pipeline,
-            debug=debug,
-        )
+    working_directory: Optional[Path] = mode.working_directory
 
-    elif isinstance(mode, Observation):
-        data_tree = _run_observation_mode(
-            observation=mode,
-            detector=detector,
-            pipeline=pipeline,
-        )
-
+    if working_directory is not None:
+        ctx = set_options(working_directory=working_directory)
     else:
-        # Late import.
-        # Importing 'Calibration' can take up to 3 s !
-        from pyxel.calibration import Calibration
+        ctx = nullcontext()
 
-        if isinstance(mode, Calibration):
-            data_tree = _run_calibration_mode(
-                calibration=mode,
+    with ctx:
+        if isinstance(mode, Exposure):
+            data_tree = _run_exposure_mode(
+                exposure=mode,
+                detector=detector,
+                pipeline=pipeline,
+                debug=debug,
+            )
+
+        elif isinstance(mode, Observation):
+            data_tree = _run_observation_mode(
+                observation=mode,
                 detector=detector,
                 pipeline=pipeline,
             )
+
         else:
-            raise TypeError("Please provide a valid simulation mode !")
+            # Late import.
+            # Importing 'Calibration' can take up to 3 s !
+            from pyxel.calibration import Calibration
+
+            if isinstance(mode, Calibration):
+                data_tree = _run_calibration_mode(
+                    calibration=mode,
+                    detector=detector,
+                    pipeline=pipeline,
+                )
+            else:
+                raise TypeError("Please provide a valid simulation mode !")
 
     return data_tree
 
@@ -868,6 +877,10 @@ def run(input_filename: Union[str, Path], random_seed: Optional[int] = None) -> 
     start_time = time.time()
 
     configuration: Configuration = load(Path(input_filename).expanduser().resolve())
+
+    output_dir = output_directory(configuration)
+
+    save(input_filename=input_filename, output_dir=output_dir)
 
     pipeline: DetectionPipeline = configuration.pipeline
     detector: Union[CCD, CMOS, MKID, APD] = configuration.detector
