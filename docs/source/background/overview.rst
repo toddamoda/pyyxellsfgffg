@@ -13,9 +13,9 @@ Further information on specific parts of the code can be found in the :ref:`Refe
 
 .. grid:: 1 2 2 2
     :gutter: 4
+    :class-container: sd-text-center
 
     .. grid-item-card:: Architecture
-        :text-align: center
 
         The three main elements behind Pyxel's architecture.
 
