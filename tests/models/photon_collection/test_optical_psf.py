@@ -12,7 +12,7 @@ import pytest
 import xarray as xr
 
 from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
-from pyxel.models.photon_collection import optical_psf, optical_psf_multi_wavelength
+from pyxel.models.photon_collection import optical_psf
 from pyxel.models.photon_collection.poppy import (
     CircularAperture,
     DeprecatedThinLens,
@@ -153,9 +153,7 @@ def test_create_optical_parameter(dct: Mapping, exp_parameter):
 @pytest.mark.parametrize(
     "wavelength, fov_arcsec, optical_system",
     [
-        pytest.param(
-            0.6e-6, 5, [{"item": "CircularAperture", "radius": 1.0}], id="valid"
-        ),
+        pytest.param(600, 5, [{"item": "CircularAperture", "radius": 1.0}], id="valid"),
         pytest.param(
             -1,
             5,
@@ -164,7 +162,7 @@ def test_create_optical_parameter(dct: Mapping, exp_parameter):
             id="Negative 'wavelength'",
         ),
         pytest.param(
-            0.6e-6,
+            600,
             -1,
             [{"item": "CircularAperture", "radius": 3.0}],
             marks=pytest.mark.xfail(raises=ValueError, strict=True),
@@ -182,32 +180,6 @@ def test_optical_psf(
     optical_psf(
         detector=ccd_3x3,
         wavelength=wavelength,
-        fov_arcsec=fov_arcsec,
-        optical_system=optical_system,
-    )
-
-
-@pytest.mark.parametrize(
-    "wavelengths, fov_arcsec, optical_system",
-    [
-        pytest.param(
-            (0.6e-6, 0.7e-6),
-            5,
-            [{"item": "CircularAperture", "radius": 3.0}],
-            id="valid",
-        ),
-    ],
-)
-def test_optical_psf_multiwavelength(
-    ccd_4x5_multi_wavelength: CCD,
-    wavelengths: tuple[float, float],
-    fov_arcsec: float,
-    optical_system: Sequence[Mapping],
-):
-    """Test input parameters for function 'optical_psf'."""
-    optical_psf_multi_wavelength(
-        detector=ccd_4x5_multi_wavelength,
-        wavelengths=wavelengths,
         fov_arcsec=fov_arcsec,
         optical_system=optical_system,
     )

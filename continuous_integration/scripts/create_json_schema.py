@@ -11,6 +11,7 @@ import functools
 import importlib
 import inspect
 import textwrap
+import typing
 from collections import defaultdict
 from collections.abc import Callable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
@@ -195,8 +196,13 @@ def generate_class(klass: Klass) -> Iterator[str]:
         for name, param in doc.parameters.items():
             title = name
 
-            if (origin := get_origin(param.annotation)) is not None:
-                args: Sequence = get_args(param.annotation)
+            if isinstance(param.annotation, str):
+                param_annotation = eval(param.annotation, {"typing": typing})
+            else:
+                param_annotation = param.annotation
+
+            if (origin := get_origin(param_annotation)) is not None:
+                args: Sequence = get_args(param_annotation)
 
                 if origin == Union:
                     if len(args) != 2:
@@ -206,7 +212,7 @@ def generate_class(klass: Klass) -> Iterator[str]:
                 else:
                     raise NotImplementedError
             else:
-                annotation = str(param.annotation)
+                annotation = str(param_annotation)
 
             annotation = annotation.replace("typing.", "")
 

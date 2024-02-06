@@ -335,7 +335,7 @@ def create_optical_parameter(
         )
 
     elif dct["item"] == "HexagonAperture":
-        return HexagonAperture(side=Quantity(dct["side"]), unit="m")
+        return HexagonAperture(side=Quantity(dct["side"], unit="m"))
 
     elif dct["item"] == "MultiHexagonalAperture":
         return MultiHexagonalAperture(
@@ -712,12 +712,12 @@ def optical_psf(
     ----------
     detector : Detector
         Pyxel Detector object.
-    wavelength : Union[int, float, tuple[float, float], None]
-        Wavelength of incoming light in meters, default is None.
     fov_arcsec : float
         Field Of View on detector plane in arcsec.
     optical_system : list of dict
         List of optical elements before detector with their specific arguments.
+    wavelength : Union[int, float, tuple[float, float], None]
+        Wavelength of incoming light in meters, default is None.
     apply_jitter : bool
         Defines whether jitter should be applied. Default = False.
     jitter_sigma : float
@@ -770,12 +770,12 @@ def optical_psf(
     ]
 
     # Depending on Type calculate for 2D or 3D photon
-    if isinstance(selected_wavelength, float):
+    if isinstance(selected_wavelength, Quantity):
 
         # Processing
         # Get a Point Spread Function
         image_hdu_3d: fits.PrimaryHDU
-        # wavefront_hdu_3d: fits.PrimaryHDU
+        wavefront_3d: fits.PrimaryHDU
         image_hdu_3d, wavefront_3d = calc_psf(
             wavelengths=[selected_wavelength],
             fov_arcsec=fov_arcsec,
@@ -840,7 +840,6 @@ def optical_psf(
         # Processing
         # Get a Point Spread Function
         image_3d: fits.PrimaryHDU
-        wavefront_3d: fits.PrimaryHDU
         image_3d, wavefront_3d = calc_psf(
             wavelengths=selected_wavelengths_nm.to("m").value,
             fov_arcsec=fov_arcsec,
