@@ -14,11 +14,8 @@ Further information on specific parts of the code can be found in the :ref:`Refe
 .. grid:: 1 2 2 2
     :gutter: 4
 
-    .. grid-item-card::
+    .. grid-item-card:: Architecture
         :text-align: center
-
-        **Architecture**
-        ^^^^^^^^^^^^^^^^
 
         The three main elements behind Pyxel's architecture.
 
@@ -32,34 +29,22 @@ Further information on specific parts of the code can be found in the :ref:`Refe
 
                 :doc:`architecture`
 
-    .. grid-item-card::
+    .. grid-item-card:: YAML
         :text-align: center
-
-        **YAML**
-        ^^^^^^^^
 
         :doc:`yaml`
 
-    .. grid-item-card::
+    .. grid-item-card:: Detectors
         :text-align: center
-
-        **Detectors**
-        ^^^^^^^^^^^^^
 
         :doc:`detectors`
 
-    .. grid-item-card::
+    .. grid-item-card:: Pipeline
         :text-align: center
-
-        **Pipeline**
-        ^^^^^^^^^^^^
 
         :doc:`pipeline`
 
-    .. grid-item-card::
+    .. grid-item-card:: Running Modes
         :text-align: center
-
-        **Running Modes**
-        ^^^^^^^^^^^^^^^^^
 
         :doc:`running_modes`
