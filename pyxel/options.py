@@ -26,6 +26,10 @@ class GlobalOptions:
         validator=attrs.validators.optional(attrs.validators.instance_of((str, Path))),
         default=None,
     )
+    working_directory: Optional[Union[str, Path]] = attrs.field(
+        validator=attrs.validators.optional(attrs.validators.instance_of((str, Path))),
+        default=None,
+    )
 
     def update(self, dct: Mapping) -> Mapping:
         """Apply the option(s) in this container class.
