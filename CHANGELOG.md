@@ -19,6 +19,8 @@ The deprecated model `simple_aperture` in `photon_collection` is removed.
 
 
 ### Core
+* Added `working_directory` to run modules.
+  (See [!838](https://gitlab.com/esa/pyxel/-/merge_requests/838)).
 * Remove deprecated models under `optics` and `photon_generation` model groups.
   (See [!825](https://gitlab.com/esa/pyxel/-/merge_requests/825)).
 * Remove deprecated model `simple_aperture`.

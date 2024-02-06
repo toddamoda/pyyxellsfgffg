@@ -30,7 +30,6 @@ from pyxel.detectors import (
 )
 from pyxel.exposure import Exposure, Readout
 from pyxel.observation import Observation, ParameterValues
-from pyxel.options import global_options
 from pyxel.outputs import CalibrationOutputs, ExposureOutputs, ObservationOutputs
 from pyxel.pipelines import DetectionPipeline, FitnessFunction, ModelFunction
 
