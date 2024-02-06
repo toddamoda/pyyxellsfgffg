@@ -22,12 +22,12 @@ Further information on specific parts of the code can be found in the :ref:`Refe
         +++
 
        .. button-ref:: architecture
-                :ref-type: ref
-                :color: primary
-                :outline:
-                :expand:
+           :ref-type: ref
+           :color: secondary
+           :outline:
+           :expand:
 
-                :doc:`architecture`
+           :doc:`architecture`
 
     .. grid-item-card:: YAML
         :text-align: center
