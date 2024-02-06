@@ -64,6 +64,7 @@ def load_image(filename: Union[str, Path]) -> np.ndarray:
     suffix: str = Path(filename).suffix.lower()
 
     from pyxel.util import complete_path
+
     filename = complete_path(filename, global_options.working_directory)
 
     if isinstance(filename, Path):
