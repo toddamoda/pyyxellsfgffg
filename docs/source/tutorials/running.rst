@@ -104,15 +104,15 @@ Build an image
 
     .. code-block:: console
 
-        Create docker image 'pyxel_pyxel'
-        $ docker-compose build
+        # Create docker image 'pyxel_pyxel'
+        docker-compose build
 
 .. tab:: only docker
 
     .. code-block:: console
 
-        Create docker image 'pyxel'
-        $ docker build -t pyxel .
+        # Create docker image 'pyxel'
+        docker build -t pyxel .
 
 
 Create and start the container
@@ -124,16 +124,16 @@ Run Pyxel with a Jupyter Lab server from a new docker container:
 
     .. code-block:: console
 
-        Create and start a new container 'pyxel_pyxel_1'
-        $ docker-compose up -d
+        # Create and start a new container 'pyxel_pyxel_1'
+        docker-compose up -d
 
 .. tab:: only docker
 
     .. code-block:: console
 
-        Create and start new container 'my_pyxel' from image 'pyxel'
-        $ docker create -p 8888:8888 -v $PWD/volumes/notebooks:/home/pyxel/jupyter/notebooks pyxel --name my_pyxel
-        $ docker start my_pyxel
+        # Create and start new container 'my_pyxel' from image 'pyxel'
+        docker create -p 8888:8888 -v $PWD/volumes/notebooks:/home/pyxel/jupyter/notebooks pyxel --name my_pyxel
+        docker start my_pyxel
 
 Stop and remove the container
 -----------------------------
@@ -144,16 +144,16 @@ Stop and remove a running Pyxel container.
 
     .. code-block:: console
 
-        Stop and remove container 'pyxel_pyxel_1'
-        $ docker-compose down
+        # Stop and remove container 'pyxel_pyxel_1'
+        docker-compose down
 
 .. tab:: only docker
 
     .. code-block:: console
 
-        Stop and remove container 'my_pyxel'
-        $ docker stop my_pyxel
-        $ docker rm my_pyxel
+        # Stop and remove container 'my_pyxel'
+        docker stop my_pyxel
+        docker rm my_pyxel
 
 Check if the container is running
 ----------------------------------
@@ -164,14 +164,14 @@ List running containers.
 
     .. code-block:: console
 
-        $ docker-compose ps
+        docker-compose ps
 
 
 .. tab:: only docker
 
     .. code-block:: console
 
-        $ docker ps
+        docker ps
 
 
 Get logs
@@ -183,13 +183,13 @@ View output from the Pyxel container.
 
     .. code-block:: console
 
-        Get logs from container 'pyxel_pyxel_1'
-        $ docker-compose logs -f
+        # Get logs from container 'pyxel_pyxel_1'
+        docker-compose logs -f
 
 
 .. tab:: only docker
 
     .. code-block:: console
 
-        Get logs from container 'my_pyxel'
-        $ docker logs -f my_pyxel
+        # Get logs from container 'my_pyxel'
+        docker logs -f my_pyxel
