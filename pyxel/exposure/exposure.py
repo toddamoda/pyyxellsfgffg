@@ -12,6 +12,7 @@ import logging
 import warnings
 from collections import defaultdict
 from collections.abc import Sequence
+from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Union
 
 import numpy as np
@@ -39,11 +40,15 @@ class Exposure:
         outputs: Optional["ExposureOutputs"] = None,
         result_type: str = "all",
         pipeline_seed: Optional[int] = None,
+        working_directory: Optional[str] = None,
     ):
         self.outputs: Optional["ExposureOutputs"] = outputs
         self.readout = readout
         self._result_type: ResultId = get_result_id(result_type)
         self._pipeline_seed = pipeline_seed
+        self.working_directory: Optional[Path] = (
+            Path(working_directory) if working_directory else None
+        )
 
     def __repr__(self) -> str:
         cls_name: str = self.__class__.__name__
