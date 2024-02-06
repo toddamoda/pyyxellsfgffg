@@ -47,6 +47,11 @@ how to add a model etc.
 gathering several hundreds of detector and instrument simulation enthusiasts from the instrumentation community,
 and demonstrating the potential of such a tool to foster knowledge transfer.
 
-With always more users, features and domain of applications,
-Pyxel is steadily growing and just recently got a first stable version 1.0 with a large validated set of models,
-a simplified architecture, and improved user experience. Stay tuned.
+In 2024, we achieved version 2.0, enhancing Pyxel's functionality to be multi-wavelength compatible.
+This was achieved through the implementation of a scene generation model group, enabling the
+creation of scenes in the sky, and the adaptation of models to effectively handle and process
+wavelength information.
+
+Pyxel is steadily growing with new features, application domains, and users.
+The focus remains on adding new validated models, simplifying the architecture,
+and improving the user experience.
