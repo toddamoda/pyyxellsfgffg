@@ -904,7 +904,7 @@ and it's now possible to import/export a Detector object to/from an ASDF file.
 * 'JupyterLab' as an optional dependency of Pyxel.
   (See [!532](https://gitlab.com/esa/pyxel/-/merge_requests/532)).
 
-## version 1.3.2 / 2022-09-08
+## 1.3.2 / 2022-09-08
 
 This is a minor release to add a new reference about the latest SPIE paper.
 
@@ -914,7 +914,7 @@ This is a minor release to add a new reference about the latest SPIE paper.
   (See [!502](https://gitlab.com/esa/pyxel/-/merge_requests/502)).
 
 
-## version 1.3.1 / 2022-09-07
+## 1.3.1 / 2022-09-07
 
 This release is a bugfix to resolve issues with command `pyxel create-model`.
 
@@ -927,7 +927,7 @@ This release is a bugfix to resolve issues with command `pyxel create-model`.
   (See [!499](https://gitlab.com/esa/pyxel/-/merge_requests/499)).
 
 
-## version 1.3 / 2022-08-30
+## 1.3 / 2022-08-30
 
 ### Documentation
 * Update documentation.
@@ -946,14 +946,14 @@ This release is a bugfix to resolve issues with command `pyxel create-model`.
   (See [!495](https://gitlab.com/esa/pyxel/-/merge_requests/495)).
 
 
-## version 1.2.1 / 2022-08-05
+## 1.2.1 / 2022-08-05
 
 ### Documentation.
 * Fix issues with latest version of 'fsspec' (2022.7.1) and 'doc8' (1.0.0).
   (See [!491](https://gitlab.com/esa/pyxel/-/merge_requests/491)).
 
 
-## version 1.2.0 / 2022-07-12
+## 1.2.0 / 2022-07-12
 
 ### Core
 * Fix bug in 'ModelFitting.convert_to_parameters'.
@@ -987,7 +987,7 @@ This release is a bugfix to resolve issues with command `pyxel create-model`.
   (See [!482](https://gitlab.com/esa/pyxel/-/merge_requests/482)).
 
 
-## version 1.1.2 / 2022-06-06
+## 1.1.2 / 2022-06-06
 
 ### Models
 * Fix for: Charge generation model suppressing shot noise. 
@@ -1002,7 +1002,7 @@ This release is a bugfix to resolve issues with command `pyxel create-model`.
 * Fix issue with Mypy when using Numpy 1.22.
   (See [!477](https://gitlab.com/esa/pyxel/-/merge_requests/477)).
 
-## version 1.1.1 / 2022-05-13
+## 1.1.1 / 2022-05-13
 
 ### Core
 
@@ -1032,7 +1032,7 @@ This release is a bugfix to resolve issues with command `pyxel create-model`.
   (See [!471](https://gitlab.com/esa/pyxel/-/merge_requests/471)).
 
 
-## version 1.1.0 / 2022-04-22
+## 1.1.0 / 2022-04-22
 
 ### Core
 
@@ -1090,7 +1090,7 @@ This release is a bugfix to resolve issues with command `pyxel create-model`.
   (See [!447](https://gitlab.com/esa/pyxel/-/merge_requests/447)).
 
 
-## version 1.0.0 / 2022-02-10
+## 1.0.0 / 2022-02-10
 
 We are happy to announce that Pyxel has reached a stable version 1.0.0!
 Pyxel releases will use [semantic versioning](https://semver.org/) notation.
@@ -1107,7 +1107,7 @@ Excited for what comes next, stay tuned!
   (See [!429](https://gitlab.com/esa/pyxel/-/merge_requests/429)).
 
 
-## version 1.0.0-rc.6 / 2022-02-09
+## 1.0.0-rc.6 / 2022-02-09
 
 ### Others
 
@@ -1115,7 +1115,7 @@ Excited for what comes next, stay tuned!
   (See [!426](https://gitlab.com/esa/pyxel/-/merge_requests/426)).
 
 
-## version 1.0.0-rc.5 / 2022-02-09
+## 1.0.0-rc.5 / 2022-02-09
 
 ### Others
 
@@ -1125,7 +1125,7 @@ Excited for what comes next, stay tuned!
   (See [!423](https://gitlab.com/esa/pyxel/-/merge_requests/423)).
 
 
-## version 1.0.0-rc.4 / 2022-01-27
+## 1.0.0-rc.4 / 2022-01-27
 
 ### Models
 
@@ -1138,7 +1138,7 @@ Excited for what comes next, stay tuned!
   (See [!420](https://gitlab.com/esa/pyxel/-/merge_requests/420)).
 
 
-## version 1.0.0-rc.3 / 2022-01-26
+## 1.0.0-rc.3 / 2022-01-26
 
 ### Core
 
@@ -1173,7 +1173,7 @@ Excited for what comes next, stay tuned!
   (See [!408](https://gitlab.com/esa/pyxel/-/merge_requests/408)).
 
 
-## version 1.0.0-rc.2 / 2022-01-18
+## 1.0.0-rc.2 / 2022-01-18
 
 ### Core
 
@@ -1181,7 +1181,7 @@ Excited for what comes next, stay tuned!
   (See [!402](https://gitlab.com/esa/pyxel/-/merge_requests/402)).
 
 
-## version 1.0.0-rc.1 / 2022-01-18
+## 1.0.0-rc.1 / 2022-01-18
 
 ### Core
 
@@ -1207,7 +1207,7 @@ Excited for what comes next, stay tuned!
   (See [!398](https://gitlab.com/esa/pyxel/-/merge_requests/398)).
 
 
-## version 0.11.7 / 2022-01-07
+## 0.11.7 / 2022-01-07
 
 ### Documentation
 
@@ -1231,7 +1231,7 @@ Excited for what comes next, stay tuned!
   (See [!386](https://gitlab.com/esa/pyxel/-/merge_requests/386)).
 
 
-## version 0.11.6 / 2021-12-13
+## 0.11.6 / 2021-12-13
 
 ### Core
 
@@ -1250,7 +1250,7 @@ Excited for what comes next, stay tuned!
   (See [!374](https://gitlab.com/esa/pyxel/-/merge_requests/374)).
 
 
-## version 0.11.5 / 2021-12-07
+## 0.11.5 / 2021-12-07
 
 ### Core
 
@@ -1275,7 +1275,7 @@ Excited for what comes next, stay tuned!
   (See [!310](https://gitlab.com/esa/pyxel/-/merge_requests/310)).
 
 
-## version 0.11.4 / 2021-11-23
+## 0.11.4 / 2021-11-23
 
 ### Core
 
@@ -1308,7 +1308,7 @@ Excited for what comes next, stay tuned!
   (See [!342](https://gitlab.com/esa/pyxel/-/merge_requests/342)).
 
 
-## version 0.11.3 / 2021-11-15
+## 0.11.3 / 2021-11-15
 
 ### Core
 
@@ -1325,7 +1325,7 @@ Excited for what comes next, stay tuned!
   (See [!288](https://gitlab.com/esa/pyxel/-/merge_requests/288)).
 
 
-## version 0.11.2 / 2021-11-09
+## 0.11.2 / 2021-11-09
 
 ### Core
 
@@ -1361,7 +1361,7 @@ Excited for what comes next, stay tuned!
   (See [!302](https://gitlab.com/esa/pyxel/-/merge_requests/302)).
 
 
-## version 0.11.1 / 2021-10-29
+## 0.11.1 / 2021-10-29
 
 ### Models
 
@@ -1369,7 +1369,7 @@ Excited for what comes next, stay tuned!
   (See [!283](https://gitlab.com/esa/pyxel/-/merge_requests/283)).
 
 
-## version 0.11 / 2021-10-27
+## 0.11 / 2021-10-27
 
 ### Core
 
@@ -1430,7 +1430,7 @@ Excited for what comes next, stay tuned!
   (See [!278](https://gitlab.com/esa/pyxel/-/merge_requests/278.)).
 
 
-## version 0.10.2 / 2021-09-02
+## 0.10.2 / 2021-09-02
 
 ### Core
 
@@ -1443,7 +1443,7 @@ Excited for what comes next, stay tuned!
   (See [!253](https://gitlab.com/esa/pyxel/-/merge_requests/253)).
 
 
-## version 0.10.1 / 2021-08-18
+## 0.10.1 / 2021-08-18
 
 ### Core
 
@@ -1469,7 +1469,7 @@ Excited for what comes next, stay tuned!
   (See [!247](https://gitlab.com/esa/pyxel/-/merge_requests/247)).
 
 
-## version 0.10 / 2021-06-13
+## 0.10 / 2021-06-13
 
 ### Core
 
@@ -1510,7 +1510,7 @@ Excited for what comes next, stay tuned!
   (See [!223](https://gitlab.com/esa/pyxel/-/merge_requests/223)).
 
 
-## version 0.9.1 / 2021-05-17
+## 0.9.1 / 2021-05-17
 
 ### Core
 
@@ -1541,7 +1541,7 @@ Excited for what comes next, stay tuned!
   (See [!207](https://gitlab.com/esa/pyxel/-/merge_requests/207)).
 
 
-## version 0.9 / 2021-03-25
+## 0.9 / 2021-03-25
 
 ### Core
 
@@ -1600,7 +1600,7 @@ Excited for what comes next, stay tuned!
   (See [!166](https://gitlab.com/esa/pyxel/-/merge_requests/166)).
 
 
-## version 0.8.1 / 2021-01-26
+## 0.8.1 / 2021-01-26
 
 ### Documentation
 
@@ -1615,7 +1615,7 @@ Excited for what comes next, stay tuned!
   (See [!161](https://gitlab.com/esa/pyxel/-/merge_requests/161)).
 
 
-## version 0.8 / 2020-12-11
+## 0.8 / 2020-12-11
 
 ### Core
 
@@ -1656,7 +1656,7 @@ Excited for what comes next, stay tuned!
   (See [!153](https://gitlab.com/esa/pyxel/-/merge_requests/153)).
 
 
-## version 0.7 / 2020-10-22
+## 0.7 / 2020-10-22
 
 ### Core
 
@@ -1691,7 +1691,7 @@ Excited for what comes next, stay tuned!
   (See [!127](https://gitlab.com/esa/pyxel/-/merge_requests/127)).
 
 
-## version 0.6 / 2020-09-16
+## 0.6 / 2020-09-16
 
 * Improved contributing guide
   (See [#68](<https://gitlab.com/esa/pyxel/issues/68>)).
@@ -1726,7 +1726,7 @@ Excited for what comes next, stay tuned!
   (See [#125](<https://gitlab.com/esa/pyxel/issues/125>)).
 
 
-## version 0.5 / 2019-12-20
+## 0.5 / 2019-12-20
 
 * Clean-up code.
 * Remove any dependencies to esapy_config
@@ -1737,7 +1737,7 @@ Excited for what comes next, stay tuned!
   (See [#44](<https://gitlab.com/esa/pyxel/issues/44>)).
 
 
-## version 0.4 / 2019-07-09
+## 0.4 / 2019-07-09
 
 * Running modes implemented:
   * Calibration mode for model fitting and detector optimization
@@ -1752,17 +1752,17 @@ Excited for what comes next, stay tuned!
 * Examples
 * Documentation
 
-## version 0.3 / 2018-03-26
+## 0.3 / 2018-03-26
 
 * Single and Parametric mode have been implemented
 * Infrastructure code has been placed in 2 new projects: esapy_config and esapy_web
 * Web interface (GUI) is dynamically generated based on attrs definitions
 * NGHxRG noise generator model has been added
 
-## version 0.2 / 2018-01-18
+## 0.2 / 2018-01-18
 
 * TARS cosmic ray model has been reimplemented and added
 
-## version 0.1 / 2018-01-10
+## 0.1 / 2018-01-10
 
 * Prototype: first pipeline for a CCD detector
