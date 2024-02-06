@@ -1,7 +1,7 @@
 """File utility functions to simplify path logic."""
 
 from pathlib import Path
-from typing import Optional, Union
+from typing import Union
 
 
 def is_path_relative(filename: Union[str, Path]) -> bool:

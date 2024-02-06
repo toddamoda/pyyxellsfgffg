@@ -22,6 +22,7 @@ from numpy.typing import DTypeLike
 from PIL import Image
 
 from pyxel.options import global_options
+from pyxel.util import complete_path
 
 
 def load_image(filename: Union[str, Path]) -> np.ndarray:
@@ -60,12 +61,9 @@ def load_image(filename: Union[str, Path]) -> np.ndarray:
     >>> load_image("rgb_frame.jpg")
     array([[234, 211, ...]])
     """
+    filename = complete_path(filename, global_options.working_directory)
     # Extract suffix (e.g. '.txt', '.fits'...)
     suffix: str = Path(filename).suffix.lower()
-
-    from pyxel.util import complete_path
-
-    filename = complete_path(filename, global_options.working_directory)
 
     if isinstance(filename, Path):
         full_filename: Path = filename.expanduser().resolve()
@@ -131,6 +129,7 @@ def load_image_v2(
     rename_dims: dict,
     data_path: Union[str, int, None] = None,
 ) -> xr.DataArray:
+    filename = complete_path(filename, global_options.working_directory)
     # Extract suffix (e.g. '.txt', '.fits'...)
     suffix: str = Path(filename).suffix.lower()
 
@@ -218,6 +217,7 @@ def load_table(
     # Late import to speedup start-up time
     import pandas as pd
 
+    filename = complete_path(filename, global_options.working_directory)
     suffix: str = Path(filename).suffix.lower()
 
     if isinstance(filename, Path):
@@ -298,6 +298,7 @@ def load_table_v2(
     data_path: Union[str, int, None] = None,
     header: bool = False,
 ) -> pd.DataFrame:
+    filename = complete_path(filename, global_options.working_directory)
     suffix: str = Path(filename).suffix.lower()
 
     if isinstance(filename, Path):
@@ -402,6 +403,7 @@ def load_dataarray(filename: Union[str, Path]) -> "xr.DataArray":
     FileNotFoundError
         If an image is not found.
     """
+    filename = complete_path(filename, global_options.working_directory)
     if isinstance(filename, Path):
         full_filename: Path = filename.expanduser().resolve()
         if not full_filename.exists():
@@ -449,6 +451,7 @@ def load_datacube(filename: Union[str, Path]) -> np.ndarray:
     ValueError
         When the extension of the filename is unknown or separator is not found.
     """
+    filename = complete_path(filename, global_options.working_directory)
     # Extract suffix (e.g. '.txt', '.fits'...)
     suffix: str = Path(filename).suffix.lower()
 
