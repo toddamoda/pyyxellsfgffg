@@ -130,7 +130,7 @@ to look for certain things:
 
 .. toctree::
    :caption: Background / Explanations
-   :maxdepth: 2
+   :maxdepth: 1
    :hidden:
 
    background/overview.rst

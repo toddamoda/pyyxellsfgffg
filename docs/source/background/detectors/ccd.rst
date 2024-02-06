@@ -1,13 +1,25 @@
 .. _CCD architecture:
 
-###
+===
 CCD
-###
+===
+
+As reported in :cite:p:`2001:janesick`, a Charge-Coupled Device (CCD) detector is a vital component in modern imaging technology, proficient in capturing light across a wide spectrum.
+Operating on the principle of converting incident photons into electrical charge, CCDs offer exceptional sensitivity, capable of detecting individual photons with precision.
+This sensitivity makes CCDs invaluable in various scientific and industrial applications, including astronomy, microscopy, and digital photography.
+
+Despite their versatility, CCDs face challenges such as thermal noise and dark current, which can affect image quality.
+Nevertheless, ongoing advancements in sensor technology and signal processing continue to enhance the performance and utility of CCD detectors, ensuring their continued importance in scientific research and visual documentation.
+
+Below all available models for CCD are listed.
 
 API reference: :py:class:`~pyxel.detectors.CCD`
 
+
+.. _CCD models:
+
 Available models
-================
+----------------
 
 * Scene generation
     * :ref:`scene_generation_create_store_detector`

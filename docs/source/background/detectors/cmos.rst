@@ -1,13 +1,27 @@
 .. _CMOS architecture:
 
-####
+====
 CMOS
-####
+====
+
+A CMOS image sensor, providing a flexible alternative to CCD detectors, functions by converting light into electrical
+signals through individual pixel circuits arranged in an array. This parallel architecture facilitates faster readout
+speeds and lower power consumption, leading to widespread adoption in digital cameras, smartphones, and other imaging devices.
+
+Furthermore, CMOS technology enables the integration of additional functionalities such as on-chip analog-to-digital
+conversion and image processing, enhancing versatility across various imaging applications.
+However, CMOS sensors often encounter electrical crosstalk between pixels.
+This interpixel capacitance (IPC) responsible for crosstalk can impact the point-spread function (PSF) of the telescope,
+causing an increase in size and alteration of shape for all objects in the images while correlating with Poisson noise :cite:p:`Kannawadi_2016`.
+
+Below all available models for CMOS are listed.
 
 API reference: :py:class:`~pyxel.detectors.CMOS`
 
+.. _CMOS models:
+
 Available models
-================
+----------------
 
 * Scene generation
     * :ref:`scene_generation_create_store_detector`

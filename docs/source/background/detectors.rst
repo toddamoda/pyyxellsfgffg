@@ -1,8 +1,8 @@
 .. _detectors:
 
-#########
+=========
 Detectors
-#########
+=========
 
 The :py:class:`~pyxel.detectors.Detector` object is the main input of the detection pipeline.
 Therefore it is a container for all the data that the models need access to inside the :ref:`pipeline`.
@@ -18,7 +18,7 @@ instantiated for each exposure.
 .. _detector_properties:
 
 Detector properties
-===================
+-------------------
 
 First group of the data buckets inside the :py:class:`~pyxel.detectors.Detector` object
 are all the information and data related to the physical properties of the simulated detector,
@@ -56,18 +56,24 @@ signal amplitude, etc.
 .. _time_properties:
 
 Time properties
-===============
+---------------
 
 As shown in the image, the :py:class:`~pyxel.detectors.Detector` object also tracks time.
 There are multiple properties inside the :py:class:`~pyxel.detectors.Detector` object:
 ``time`` is the time since ``start_time`` (which can be different to 0), ``absolute time`` is the time since 0,
 and ``time_step`` is the time since last readout. Those properties can be used by the time-sensitive models.
 
+.. _detector_types:
+
 Implemented detector types:
-===========================
+---------------------------
 
 .. toctree::
-    detectors/ccd.rst
-    detectors/cmos.rst
-    detectors/mkid.rst
-    detectors/apd.rst
+   :caption: Detector types
+   :maxdepth: 1
+   :hidden:
+
+   detectors/ccd.rst
+   detectors/cmos.rst
+   detectors/mkid.rst
+   detectors/apd.rst
