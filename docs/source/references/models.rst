@@ -9,18 +9,18 @@ The containers such as :py:class:`~pyxel.data_structure.Scene`, :py:class:`~pyxe
 :py:class:`~pyxel.data_structure.Image` are not initialized before running a pipeline.
 The models inside the model groups must initialize the containers.
 
-* :doc:`scene_generation`
-* :doc:`photon_collection`
-* :doc:`charge_generation`
-* :doc:`charge_collection`
-* :doc:`phasing`
-* :doc:`charge_transfer`
-* :doc:`charge_measurement`
-* :doc:`readout_electronics`
-* :doc:`data_processing`
+* :ref:`scene_generation`
+* :ref:`photon_collection`
+* :ref:`charge_generation`
+* :ref:`charge_collection`
+* :ref:`phasing`
+* :ref:`charge_transfer`
+* :ref:`charge_measurement`
+* :ref:`readout_electronics`
+* :ref:`data_processing`
 
 .. toctree::
-   :caption: Detector types
+   :caption: Model groups
    :maxdepth: 1
    :hidden:
 

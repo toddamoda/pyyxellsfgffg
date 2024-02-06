@@ -68,10 +68,10 @@ and ``time_step`` is the time since last readout. Those properties can be used b
 Implemented detector types:
 ---------------------------
 
-* :doc:`CCD architecture`
-* :doc:`CMOS architecture`
-* :doc:`MKID architecture`
-* :doc:`APD architecture`
+* :ref:`CCD architecture`
+* :ref:`CMOS architecture`
+* :ref:`MKID architecture`
+* :ref:`APD architecture`
 
 .. toctree::
    :caption: Detector types
