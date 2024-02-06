@@ -5,7 +5,7 @@ Developers:
 
 * David Lucsanyi
 * Matej Arko
-* `Constanze Seibert <constanze.seibert@esa.int>`_
+* Constanze Nghiem
 * `Thibaut Prod'homme <thibaut.prodhomme@esa.int>`_
 * `Hans Smit <hans.smit@esa.int>`_
 * `Frederic Lemmel <frederic.lemmel@esa.int>`_
@@ -23,3 +23,7 @@ Contributors:
 * Thibault Pichon
 * James Gilbert
 * Lawrence Jones
+* Florian Moriousef
+* Vincent Goiffon
+* Arthur Kadela
+* Joonas Viuho
