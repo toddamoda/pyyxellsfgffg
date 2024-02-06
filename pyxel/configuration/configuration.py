@@ -30,6 +30,7 @@ from pyxel.detectors import (
 )
 from pyxel.exposure import Exposure, Readout
 from pyxel.observation import Observation, ParameterValues
+from pyxel.options import global_options
 from pyxel.outputs import CalibrationOutputs, ExposureOutputs, ObservationOutputs
 from pyxel.pipelines import DetectionPipeline, FitnessFunction, ModelFunction
 
@@ -592,6 +593,9 @@ def _build_configuration(dct: dict) -> Configuration:
     -------
     Configuration
     """
+    if "working_directory" in dct:
+        global_options.update({"working_directory": dct["working_directory"]})
+
     pipeline: DetectionPipeline = to_pipeline(dct["pipeline"])
 
     # Sanity checks
