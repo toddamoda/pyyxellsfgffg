@@ -1,7 +1,9 @@
+from pathlib import Path
+
 import numpy as np
 import pytest
-from pathlib import Path
-from pyxel.util import is_path_relative, complete_path
+
+from pyxel.util import complete_path, is_path_relative
 
 
 @pytest.mark.parametrize(
@@ -9,13 +11,10 @@ from pyxel.util import is_path_relative, complete_path
     [
         ("sub", True),
         (Path("sub"), True),
-
         ("/sub/test.fits", False),
         (Path("/sub/test.fits"), False),
-
         ("sub\\sub2\\test.fits", True),
         (Path("sub\\sub2\\test.fits"), True),
-
         ("ftp://test", False),
         (Path("ftp://test"), False),
         ("http://test", False),
@@ -33,10 +32,8 @@ def test_is_relative_true(filename, exp_result):
     [
         ("sub", None, "sub"),
         ("sub", "", "sub"),
-
         ("/sub", "parent", "/sub"),
         ("/sub", "/parent", "/sub"),
-
         ("sub", "parent", "parent/sub"),
         (Path("sub"), Path("parent"), Path("parent/sub")),
         ("sub", "/parent", "/parent/sub"),
