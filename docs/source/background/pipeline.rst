@@ -16,59 +16,6 @@ in case of a :term:`CCD` the model groups are :ref:`scene generation <scene_gene
 :ref:`charge measurement <charge_measurement>`, :ref:`readout electronics <readout_electronics>`
 and :ref:`data processing <data_processing>` in this order.
 
-.. deprecated:: 1.7
-
-    The models groups **photon generation** and **optics** have been deprecated and
-    will be removed for version 2.0.
-
-    All models from **photon generation** and **optics** are moved to the new
-    model group :ref:`photon collection <photon_collection>`.
-
-    Example of migration from a model from 'Photon Generation' to 'Optics':
-
-    Before:
-
-    .. code-block:: yaml
-
-        pipeline:
-          photon_generation:
-            - name: shot_noise
-              func: pyxel.models.photon_generation.shot_noise
-              enabled: true
-
-          optics:
-            - name: optical_psf
-              func: pyxel.models.optics.optical_psf
-              enabled: true
-              arguments:
-                fov_arcsec: 5 # FOV in arcseconds
-                pixelscale: 0.01 #arcsec/pixel
-
-    After:
-
-    .. code-block:: yaml
-
-        pipeline:
-          photon_collection:
-        # ^^^^^^^^^^^^^^^^^
-        #      modified
-
-            - name: shot_noise
-              func: pyxel.models.photon_collection.shot_noise
-            #       ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^~~~~~~~~~~~
-            #                         modified
-              enabled: true
-
-            - name: optical_psf
-              func: pyxel.models.photon_collection.optical_psf
-            #       ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^~~~~~~~~~~~~
-            #                         modified
-              enabled: true
-              arguments:
-                fov_arcsec: 5 # FOV in arcseconds
-                pixelscale: 0.01 #arcsec/pixel
-
-
 Each group is based on a
 for loop, looping over all the included and selected models in a predefined
 order, which can be changed by the user. All the models in a pipeline, get
