@@ -3,6 +3,7 @@
 ====
 MKID
 ====
+API reference: :py:class:`~pyxel.detectors.MKID`
 
 As reported in :cite:p:`2020:prodhomme`,
 a superconducting microwave kinetic-inductance detector (MKID) is a novel concept of photo-detector
@@ -27,8 +28,6 @@ Given this, an MKID-array per se can serve as an intrinsic integral-field spectr
 at low resolution, without any dispersive elements or chromatic filters :cite:p:`Mazin`.
 
 Below all available models for MKID are listed.
-
-API reference: :py:class:`~pyxel.detectors.MKID`
 
 .. _MKID models:
 

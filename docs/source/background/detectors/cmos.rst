@@ -3,6 +3,7 @@
 ====
 CMOS
 ====
+API reference: :py:class:`~pyxel.detectors.CMOS`
 
 A CMOS image sensor, providing a flexible alternative to CCD detectors, functions by converting light into electrical
 signals through individual pixel circuits arranged in an array. This parallel architecture facilitates faster readout
@@ -15,8 +16,6 @@ This interpixel capacitance (IPC) responsible for crosstalk can impact the point
 causing an increase in size and alteration of shape for all objects in the images while correlating with Poisson noise :cite:p:`Kannawadi_2016`.
 
 Below all available models for CMOS are listed.
-
-API reference: :py:class:`~pyxel.detectors.CMOS`
 
 .. _CMOS models:
 

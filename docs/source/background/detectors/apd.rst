@@ -3,6 +3,7 @@
 ===
 APD
 ===
+API reference: :py:class:`~pyxel.detectors.APD`
 
 An Avalanche Photodiode (APD) detector represents a crucial component in photon detection technology,
 particularly in scenarios requiring high sensitivity and low light detection.
@@ -14,7 +15,7 @@ and low-light imaging. Challenges such as excess noise and afterpulsing are miti
 and advanced signal processing. Despite these hurdles, APDs remain indispensable for sensitive photon detection in
 various scientific, industrial, and telecommunications applications.
 
-API reference: :py:class:`~pyxel.detectors.APD`
+Below all available models for APD are listed.
 
 .. _APD models:
 
