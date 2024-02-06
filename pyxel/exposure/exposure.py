@@ -44,11 +44,11 @@ class Exposure:
     ):
         self.outputs: Optional["ExposureOutputs"] = outputs
         self.readout = readout
-        self._result_type: ResultId = get_result_id(result_type)
-        self._pipeline_seed = pipeline_seed
         self.working_directory: Optional[Path] = (
             Path(working_directory) if working_directory else None
         )
+        self._result_type: ResultId = get_result_id(result_type)
+        self._pipeline_seed = pipeline_seed
 
     def __repr__(self) -> str:
         cls_name: str = self.__class__.__name__

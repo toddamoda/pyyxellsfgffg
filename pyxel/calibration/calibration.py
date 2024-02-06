@@ -96,6 +96,8 @@ class Calibration:
         ] = "multiprocessing",
         weights_from_file: Optional[Sequence[Union[str, Path]]] = None,
         weights: Optional[Sequence[float]] = None,
+        working_directory: Optional[str] = None,
+
     ):
         if pygmo_seed is not None and pygmo_seed not in range(100001):
             raise ValueError("'Pygmo seed' must be between 0 and 100000.")
@@ -107,6 +109,9 @@ class Calibration:
 
         self.outputs: Optional["CalibrationOutputs"] = outputs
         self.readout: Readout = readout or Readout()
+        self.working_directory: Optional[Path] = (
+            Path(working_directory) if working_directory else None
+        )
 
         self._calibration_mode = CalibrationMode(mode)
 

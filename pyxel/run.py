@@ -796,10 +796,9 @@ def run_mode(
 
     working_directory: Optional[Path] = mode.working_directory
 
+    ctx: nullcontext[None] | set_options = nullcontext()
     if working_directory is not None:
         ctx = set_options(working_directory=working_directory)
-    else:
-        ctx = nullcontext()
 
     with ctx:
         if isinstance(mode, Exposure):

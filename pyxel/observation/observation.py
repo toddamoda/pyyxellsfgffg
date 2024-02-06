@@ -13,6 +13,7 @@ from collections.abc import Iterable, Iterator, Mapping, MutableMapping, Sequenc
 from copy import deepcopy
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
 from functools import partial
 from itertools import chain
 from numbers import Number
@@ -210,10 +211,14 @@ class Observation:
         with_dask: bool = False,
         result_type: str = "all",
         pipeline_seed: Optional[int] = None,
+        working_directory: Optional[str] = None,
     ):
         self.outputs: Optional["ObservationOutputs"] = outputs
         self.readout: Readout = readout or Readout()
         self.parameter_mode: ParameterMode = ParameterMode(mode)
+        self.working_directory: Optional[Path] = (
+            Path(working_directory) if working_directory else None
+        )
         self._parameters: Sequence[ParameterValues] = parameters
 
         # Specific to mode 'custom'
