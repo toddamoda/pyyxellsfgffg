@@ -17,7 +17,6 @@ from astropy.io import fits
 from freezegun import freeze_time
 
 import pyxel
-from pyxel import Configuration
 from pyxel.util import complete_path
 
 
@@ -49,10 +48,7 @@ def test_working_directory(work_dir):
         minute=20,
     )
     config_file = "data/simple_exposure_for_work_dir.yaml"
-    # work_dir = "~/work_dir"
     with chdir(Path(__file__).parent):
-        # config.exposure.working_directory = "work_dir"
-
         config = pyxel.load(config_file)
 
         # Save 2d images
