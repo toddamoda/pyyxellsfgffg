@@ -744,6 +744,13 @@
             "array",
             "null"
           ]
+        },
+        "working_directory": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "required": [
@@ -1768,6 +1775,13 @@
             "all"
           ],
           "type": "string"
+        },
+        "working_directory": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "required": [
@@ -6455,6 +6469,13 @@
         "with_dask": {
           "default": false,
           "type": "boolean"
+        },
+        "working_directory": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "required": [
