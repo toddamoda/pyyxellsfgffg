@@ -7,13 +7,13 @@
 
 
 # yaml-language-server: $schema=https://esa.gitlab.io/pyxel/doc/latest/pyxel_schema.json
-exposure:
-  working_directory: data
 
+exposure:
+  working_directory: null
   pipeline_seed: 1234
 
   readout:
-    times: [0.1, 0.5, 0.7]
+    times: [0.1, 0.5]
     non_destructive:  false
 
   outputs:
@@ -53,29 +53,28 @@ pipeline:
       func: pyxel.models.photon_collection.load_image
       enabled: true
       arguments:
-        image_file: 'inputs/image_non_irradiated.fits'
+        image_file: 'data/inputs/img.fits'
         convert_to_photons: true
         bit_resolution: 16
-
-    - name: illumination
-      func: pyxel.models.photon_collection.illumination
-      enabled: true
-      arguments:
-        level: 100.
+#    - name: illumination
+#      func: pyxel.models.photon_collection.illumination
+#      enabled: true
+#      arguments:
+#        level: 100.
 
     - name: shot_noise
       func: pyxel.models.photon_collection.shot_noise
       enabled: false
 
-    - name: optical_psf
-      func: pyxel.models.photon_collection.optical_psf
-      enabled: true
-      arguments:
-        fov_arcsec: 5 # FOV in arcseconds
-        wavelength: 0.6e-6 # wavelength in meters
-        optical_system:
-          - item: CircularAperture
-            radius: 3.0
+#    - name: optical_psf
+#      func: pyxel.models.photon_collection.optical_psf
+#      enabled: true
+#      arguments:
+#        fov_arcsec: 5 # FOV in arcseconds
+#        wavelength: 0.6e-6 # wavelength in meters
+#        optical_system:
+#          - item: CircularAperture
+#            radius: 3.0
 
   # photon -> charge
   charge_generation:
