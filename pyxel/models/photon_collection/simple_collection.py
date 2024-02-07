@@ -344,7 +344,7 @@ def simple_collection(
     pixelscale: Union[float, None] = None,
     integrate_wavelength: bool = True,
 ):
-    """Convert scene in ph/(cm2 nm s) to 3D photon in ph/nm s.
+    """Convert scene in ph/(cm2 nm s) to photon in ph/nm s or ph s.
 
     Parameters
     ----------

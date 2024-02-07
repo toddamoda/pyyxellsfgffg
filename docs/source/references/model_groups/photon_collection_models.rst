@@ -72,21 +72,22 @@ Simple collection
 
 :guilabel:`Scene` → :guilabel:`Photon`
 
-Converts scene to photon with given aperture.
-First, a xarray Dataset will be extracted from the Scene for a selected wavelength band.
+Converts scene to photon using a given aperture.
+Initially, a xarray Dataset will be extracted from the Scene for a selected wavelength band.
 By default, the model uses ``pixelscale`` in :math:`arseconds/pixel` and ``filter_band`` in :math:`nm`,
 which are extracted from the detector properties in the YAML configuration file.
 However, you can override these properties by providing them as model arguments.
-The ``filter_band`` input is the wavelength range of a selected filter band.
+The ``filter_band`` input represents the wavelength range of the selected filter band.
 
 It is possible to use this model in monochromatic or multiwavelength mode.
-With ``integrate_wavelength`` set to true (default) the monochromatic mode is chosen,
-as the flux of the objects in the scene will be integrated along the wavelength band.
-The integrated flux in photon/(s cm2) is converted to photon/(s pixel).
-With ``integrate_wavelength`` set to false, the photon has the dimensions "wavelength", "y", and "x".
+When ``integrate_wavelength`` is set to true (default) the monochromatic mode is selected,
+where the flux of objects in the scene is integrated across the wavelength band.
+The integrated flux in photon/(s cm2) is then converted to photon/(s pixel).
+When ``integrate_wavelength`` set to false, the photons are represented with dimensions "wavelength", "y", and "x".
 
 The objects are projected onto the detector, while converting the object coordinates from arcsec to detector
-coordinates (pixel) using ``pixel_scale`` defined in the :py:class:`~pyxel.detectors.Detector.Geometry`.
+coordinates (pixel) using the ``pixelscale`` either defined in the :py:class:`~pyxel.detectors.Detector.Geometry`
+or in the model arguments.
 
 .. code-block:: yaml
 
@@ -96,6 +97,7 @@ coordinates (pixel) using ``pixel_scale`` defined in the :py:class:`~pyxel.detec
       arguments:
         aperture: 126.70e-3 #m
         filter_band: [400, 500] #nm
+        pixelscale: 1.65 #arcsec/pixel
         integrate_wavelength: true
 
 .. autofunction:: simple_collection
