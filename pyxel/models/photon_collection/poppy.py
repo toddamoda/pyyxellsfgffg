@@ -335,7 +335,7 @@ def create_optical_parameter(
         )
 
     elif dct["item"] == "HexagonAperture":
-        return HexagonAperture(side=Quantity(dct["side"]), unit="m")
+        return HexagonAperture(side=Quantity(dct["side"], unit="m"))
 
     elif dct["item"] == "MultiHexagonalAperture":
         return MultiHexagonalAperture(
@@ -701,10 +701,9 @@ def optical_psf(
     fov_arcsec: float,
     optical_system: Sequence[Mapping[str, Any]],
     wavelength: Union[int, float, tuple[float, float], None] = None,
+    pixelscale: Union[float, None] = None,
     apply_jitter: bool = False,
     jitter_sigma: float = 0.007,
-    #  oversample : should be one
-    #  normalization should be default true.
 ) -> None:
     """Model function for poppy optics model: convolve photon array with psf.
 
@@ -712,14 +711,16 @@ def optical_psf(
     ----------
     detector : Detector
         Pyxel Detector object.
-    wavelength : Union[int, float, tuple[float, float], None]
-        Wavelength of incoming light in meters, default is None.
     fov_arcsec : float
         Field Of View on detector plane in arcsec.
     optical_system : list of dict
         List of optical elements before detector with their specific arguments.
+    wavelength : Union[int, float, tuple[float, float], None]
+        Wavelength of incoming light in meters, default is None.
+    pixelscale:  Union[float, None]
+        Pixel scale of detector, default is None.
     apply_jitter : bool
-        Defines whether jitter should be applied. Default = False.
+        Defines whether jitter should be applied, default is False.
     jitter_sigma : float
         Jitter sigma value in arcsec per axis, default is 0.007.
     """
@@ -738,7 +739,19 @@ def optical_psf(
     #         "'fov_arcsec' and 'pixel_scale'."
     #     )
 
+    if pixelscale is None:
+        if detector.geometry.pixel_scale is None:
+            raise ValueError(
+                "Pixel scale is not defined. It must be either provided in the detector geometry "
+                "or as model argmument."
+            )
+        pixel_scale: float = detector.geometry.pixel_scale
+    else:
+        pixel_scale = pixelscale
+
+    # get wavelength information
     if wavelength is None:
+        # take wavelngth input from detector.environment
         if isinstance(detector.environment.wavelength, float):
             selected_wavelength: Union[Quantity, tuple[Quantity, Quantity]] = Quantity(
                 detector.environment.wavelength, unit="nm"
@@ -757,7 +770,10 @@ def optical_psf(
             Quantity(cut_off, unit="nm"),
         )
     else:
-        raise ValueError
+        raise ValueError(
+            "Wavelength is not defined. It must be either provided in the detector environment or as model "
+            "argmument."
+        )
 
     # Convert 'optical_system' to 'optical_parameters'
     optical_parameters: Sequence[OpticalParameter] = [
@@ -774,18 +790,18 @@ def optical_psf(
 
         # Processing
         # Get a Point Spread Function
-        image_hdu_3d: fits.PrimaryHDU
+        image_hdu: fits.PrimaryHDU
         # wavefront_hdu_3d: fits.PrimaryHDU
-        image_hdu_3d, wavefront_3d = calc_psf(
+        image_hdu, wavefront = calc_psf(
             wavelengths=[selected_wavelength],
             fov_arcsec=fov_arcsec,
-            pixelscale=detector.geometry.pixel_scale,
+            pixelscale=pixel_scale,
             optical_elements=optical_elements,
             apply_jitter=apply_jitter,
             jitter_sigma=jitter_sigma,
         )
 
-        data_3d: np.ndarray = image_hdu_3d.data
+        data_3d: np.ndarray = image_hdu.data
         data_2d: np.ndarray = data_3d[0, :, :]
 
         # Convolution
