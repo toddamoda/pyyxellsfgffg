@@ -7,6 +7,7 @@ Architecture
 There are three main elements behind Pyxel's architecture,
 the :ref:`running_modes`, the :ref:`detectors` and the :ref:`pipeline`,
 each of them represented by a class in the code.
+
 See :ref:`apireference` for further information on the three types of classes.
 The main user entry point for any Pyxel simulation is a configuration file.
 All the three elements are defined before running Pyxel through the input YAML configuration file.
