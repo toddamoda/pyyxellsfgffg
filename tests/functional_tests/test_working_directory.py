@@ -6,15 +6,15 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 import os
+import shutil
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
-from astropy.io import fits
-import numpy as np
 
+import numpy as np
 import pytest
+from astropy.io import fits
 from freezegun import freeze_time
-import shutil
 
 import pyxel
 from pyxel import Configuration
@@ -34,10 +34,11 @@ def chdir(folder: Path):
 
 @pytest.mark.parametrize(
     "work_dir",
-    [None,  # current working directory (no working_directory)
-     "work_dir_relative_to_cur_dir",
-     "~/work_dir_user_dir"
-     ],
+    [
+        None,  # current working directory (no working_directory)
+        "work_dir_relative_to_cur_dir",
+        "~/work_dir_user_dir",
+    ],
 )
 def test_working_directory(work_dir):
     date_2023_12_18_08_20 = datetime(
@@ -93,4 +94,3 @@ def test_working_directory(work_dir):
         shutil.rmtree(output_dir, ignore_errors=True)
         if work_dir:
             shutil.rmtree(Path(work_dir).expanduser(), ignore_errors=True)
-
