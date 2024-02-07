@@ -47,6 +47,8 @@ class Environment:
     ----------
     temperature : float, optional
         Temperature of the detector. Unit: K
+    wavelength : float, WavelengthHandling, optional
+        Information about multi-wavelength. Unit: nm
     """
 
     def __init__(
