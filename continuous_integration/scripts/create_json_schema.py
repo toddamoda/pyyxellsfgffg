@@ -554,6 +554,7 @@ def generate_detectors() -> Iterator[str]:
     yield "    outputs: Optional[ExposureOutputs] = None"
     yield "    result_type: Literal['image', 'signal', 'pixel', 'all'] = 'all'"
     yield "    pipeline_seed: Optional[int] = None"
+    yield "    working_directory: Optional[str] = None"  # TODO: Fix this. See #727
     yield ""
     yield ""
     yield "#"
@@ -597,6 +598,7 @@ def generate_detectors() -> Iterator[str]:
     yield "    with_dask: bool = False"
     yield "    result_type: Literal['image', 'signal', 'pixel', 'all'] = 'all'"
     yield "    pipeline_seed: Optional[int] = None"
+    yield "    working_directory: Optional[str] = None"  # TODO: Fix this. See #727
     yield ""
     yield ""
     yield "#"
@@ -683,6 +685,7 @@ def generate_detectors() -> Iterator[str]:
     yield "    ] = 'multiprocessing'"
     yield "    weights_from_file: Optional[Sequence[pathlib.Path]] = None"
     yield "    weights: Optional[Sequence[float]] = None"
+    yield "    working_directory: Optional[str] = None"  # TODO: Fix this. See #727
 
     yield ""
     yield ""
