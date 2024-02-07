@@ -5,7 +5,7 @@
 #   this file, may be copied, modified, propagated, or distributed except according to
 #   the terms contained in the file ‘LICENCE.txt’.
 
-"""Convert scene to photon with aperture model."""
+"""Convert scene to photon with simple collection model."""
 from typing import Union
 
 import astropy.units as u
@@ -13,9 +13,10 @@ import numpy as np
 import xarray as xr
 from astropy import wcs
 from astropy.coordinates import SkyCoord
+from astropy.units import Quantity
 
 from pyxel.data_structure import Scene
-from pyxel.detectors import Detector
+from pyxel.detectors import Detector, WavelengthHandling
 
 
 def extract_wavelength(
@@ -339,6 +340,7 @@ def simple_collection(
     detector: Detector,
     aperture: float,
     filter_band: tuple[float, float],
+    pixelscale: Union[float, None] = None,
     integrate_wavelength: bool = True,
 ):
     """Convert scene in ph/(cm2 nm s) to 3D photon in ph/nm s.
@@ -351,9 +353,21 @@ def simple_collection(
         Collecting area of the telescope. Unit: m.
     filter_band : tuple[float, float]
         Wavelength range of selected filter band. Unit: nm.
+    pixelscale:  Union[float, None]
+        Pixel scale of detector, default is None.
     integrate_wavelength : bool
         If true, integrates along the wavelength else multiwavelength.
     """
+    if pixelscale is None:
+        if detector.geometry.pixel_scale is None:
+            raise ValueError(
+                "Pixel scale is not defined. It must be either provided in the detector geometry "
+                "or as model argmument."
+            )
+        pixel_scale: float = detector.geometry.pixel_scale
+    else:
+        pixel_scale = pixelscale
+
     # get dataset for given wavelength and scene object.
     scene_data: xr.Dataset = extract_wavelength(
         scene=detector.scene, wavelength_band=filter_band
@@ -383,7 +397,7 @@ def simple_collection(
         photon_projection_2d: Union[np.ndarray, xr.DataArray] = (
             project_objects_to_detector(
                 scene_data=scene_data,
-                pixel_scale=detector.geometry.pixel_scale * u.arcsec / u.pixel,
+                pixel_scale=Quantity(pixel_scale, unit="arcsec/pixel"),
                 rows=detector.geometry.row,
                 cols=detector.geometry.col,
                 integrate_wavelength=integrate_wavelength,
@@ -414,7 +428,7 @@ def simple_collection(
         photon_projection_3d: Union[np.ndarray, xr.DataArray] = (
             project_objects_to_detector(
                 scene_data=scene_data,
-                pixel_scale=detector.geometry.pixel_scale * u.arcsec / u.pixel,
+                pixel_scale=Quantity(pixel_scale, unit="arcsec/pixel"),
                 rows=detector.geometry.row,
                 cols=detector.geometry.col,
                 integrate_wavelength=integrate_wavelength,
