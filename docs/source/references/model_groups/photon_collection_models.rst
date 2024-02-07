@@ -233,11 +233,18 @@ It implements a flexible framework for modeling Fraunhofer and Fresnel diffracti
 particularly in the context of astronomical telescopes.
 
 POPPY calculates the optical Point Spread Function of an optical system and applies the convolution.
-The needed arguments are the FOV in arcsec ``fov_arcsec``, the detector pixel scale in arseconds/pixel ``pixelscale``,
-the ``wavelength`` in nm and the ``optical_system``.
-If ``apply_jitter`` is true (default is false), pointing jitter will be applied using a gaussian kernel to convolve
-with the created PSF. The width of the jitter kernel is defined with ``jitter sigma`` in arcsec per axis,
-the default is 0.007 arcsec.
+It required the Field of View (FOV) in :math:`arcsec` (``fov_arcsec``) and the ``optical_system`` as arguemnts.
+By default, the model uses ``pixelscale`` in :math:`arseconds/pixel` and ``wavelength`` in :math:`nm`,
+which are extracted from the detector properties in the YAML configuration file.
+However, you can override these properties by providing them as model arguments.
+
+The ``wavelength`` input can either be a float for a monochromatic PSF or a tuple for a multi-wavelength PSF calculations.
+Additionaly, the ``ThinLens`` optical parameter offers an optional argument ``reference_wavelength``, which, if provided,
+overrides the input wavelength for a single float or calculates the middle wavelength for a range.
+
+When ``apply_jitter`` is set to true (default is false), pointing jitter will be applied using a Gaussian kernel to convolve
+with the PSF. The width of the jitter kernel is defined by ``jitter sigma`` in :math:`arcsec` per axis,
+with a default value of 0.007 :math:`arcsec`.
 
 * Developed by: Marshall Perrin et al., STScI
 * Developed for: James Webb Space Telescope
@@ -268,9 +275,6 @@ Supported optical elements:
 - ``SineWaveWFE``
 
 
-Monochromatic version
----------------------
-
 Example of the configuration file:
 
 .. code-block:: yaml
@@ -280,7 +284,7 @@ Example of the configuration file:
       enabled: true
       arguments:
         fov_arcsec: 5               # FOV in arcseconds
-        wavelength: 0.6e-6          # wavelength in meters
+        wavelength: 600        # wavelength in nanometer
         apply_jitter: true
         jitter_sigma: 0.5
         optical_system:
@@ -327,7 +331,6 @@ Example of the configuration file:
             coefficients: [0.1e-6, 3.e-6, -3.e-6, 1.e-6, -7.e-7, 0.4e-6, -2.e-6]
             aperture_stop: false
 
-.. autofunction:: optical_psf_multi_wavelength
 
 
 .. _Load PSF:
