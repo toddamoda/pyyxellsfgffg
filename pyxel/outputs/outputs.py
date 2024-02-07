@@ -157,9 +157,9 @@ class Outputs:
         self._custom_dir_name = name
 
     def create_output_folder(self) -> None:
-        output_folder = Path(complete_path(
-            self._output_folder, global_options.working_directory
-        )).expanduser()
+        output_folder = Path(
+            complete_path(self._output_folder, global_options.working_directory)
+        ).expanduser()
         self._current_output_folder = create_output_directory(
             output_folder=output_folder,
             custom_dir_name=self._custom_dir_name,
