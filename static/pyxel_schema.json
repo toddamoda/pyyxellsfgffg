@@ -1728,6 +1728,22 @@
             "number",
             "null"
           ]
+        },
+        "wavelength": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "$ref": "#/definitions/WavelengthHandling"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Information about multi-wavelength. Unit: nm",
+          "title": "wavelength"
         }
       },
       "title": "Environment",
@@ -6679,6 +6695,26 @@
           ]
         }
       },
+      "type": "object"
+    },
+    "WavelengthHandling": {
+      "additionalProperties": false,
+      "properties": {
+        "cut_off": {
+          "type": "number"
+        },
+        "cut_on": {
+          "type": "number"
+        },
+        "resolution": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "cut_on",
+        "cut_off",
+        "resolution"
+      ],
       "type": "object"
     }
   }
