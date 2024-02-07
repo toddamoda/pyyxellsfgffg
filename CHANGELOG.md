@@ -29,6 +29,9 @@ The deprecated model `simple_aperture` in `photon_collection` is removed.
   (See [!830](https://gitlab.com/esa/pyxel/-/merge_requests/830)).
 * Use 'sphinx-design' instead of 'sphinx-panels' in the documentation.
   (See [!831](https://gitlab.com/esa/pyxel/-/merge_requests/831)).
+* Add more documentations.
+  (See [!829](https://gitlab.com/esa/pyxel/-/merge_requests/829)
+  and [!841](https://gitlab.com/esa/pyxel/-/merge_requests/841)).
 
 ### Models
 
