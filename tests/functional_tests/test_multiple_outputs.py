@@ -9,6 +9,7 @@ import os
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
+from time import strftime
 from zoneinfo import ZoneInfo
 
 import pytest
@@ -41,16 +42,32 @@ def test_exposure_output(valid_simple_config_filename: Path, tmp_path: Path):
     """Test simple mode with different outputs."""
     zone = ZoneInfo("Europe/Amsterdam")
     date_2023_12_18_08_20 = datetime(
-        year=2023, month=12, day=18, hour=8, minute=20, tzinfo=zone
+        year=2023,
+        month=12,
+        day=18,
+        hour=8,
+        minute=20,  # tzinfo=zone
     )
     date_2023_12_19_08_20 = datetime(
-        year=2023, month=12, day=19, hour=8, minute=20, tzinfo=zone
+        year=2023,
+        month=12,
+        day=19,
+        hour=8,
+        minute=20,  # tzinfo=zone
     )
     date_2023_12_19_08_30 = datetime(
-        year=2023, month=12, day=19, hour=8, minute=30, tzinfo=zone
+        year=2023,
+        month=12,
+        day=19,
+        hour=8,
+        minute=30,  # tzinfo=zone
     )
     date_2023_12_19_08_40 = datetime(
-        year=2023, month=12, day=19, hour=8, minute=40, tzinfo=zone
+        year=2023,
+        month=12,
+        day=19,
+        hour=8,
+        minute=40,  # tzinfo=zone
     )
 
     # Change the current directory
