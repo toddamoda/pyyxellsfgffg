@@ -7,10 +7,11 @@
 
 """TBW."""
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Optional, Union
 
+import numpy as np
 from typing_extensions import Self
 
 from pyxel.util import get_size
@@ -38,6 +39,9 @@ class WavelengthHandling:
             cut_off=data["cut_off"],
             resolution=data["resolution"],
         )
+
+    def get_wavelengths(self) -> Sequence[float]:
+        return np.arange(self.cut_on, self.cut_off + self.resolution, self.resolution)
 
 
 class Environment:
