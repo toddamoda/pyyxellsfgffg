@@ -674,14 +674,14 @@ def apply_convolution(data: np.ndarray, kernel: np.ndarray) -> np.ndarray:
 
     assert num_rows == num_cols
     # resize kernel, if kernel size too big.
-    if num_rows > 10:
+    if num_rows > 11:
         import skimage.transform as sk
 
         if kernel.ndim == 2:
-            new_shape: tuple[int, ...] = (10, 10)
+            new_shape: tuple[int, ...] = (11, 11)
         elif kernel.ndim == 3:
             num_wavelengths, _, _ = kernel.shape
-            new_shape = num_wavelengths, 10, 10
+            new_shape = num_wavelengths, 11, 11
 
         resized_kernel = sk.resize(kernel, output_shape=new_shape, anti_aliasing=False)
         kernel = resized_kernel / resized_kernel.sum()

@@ -74,6 +74,11 @@ Simple collection
 
 Converts scene to photon with given aperture.
 First, a xarray Dataset will be extracted from the Scene for a selected wavelength band.
+By default, the model uses ``pixelscale`` in :math:`arseconds/pixel` and ``filter_band`` in :math:`nm`,
+which are extracted from the detector properties in the YAML configuration file.
+However, you can override these properties by providing them as model arguments.
+The ``filter_band`` input is the wavelength range of a selected filter band.
+
 It is possible to use this model in monochromatic or multiwavelength mode.
 With ``integrate_wavelength`` set to true (default) the monochromatic mode is chosen,
 as the flux of the objects in the scene will be integrated along the wavelength band.
@@ -90,7 +95,7 @@ coordinates (pixel) using ``pixel_scale`` defined in the :py:class:`~pyxel.detec
       enabled: true
       arguments:
         aperture: 126.70e-3 #m
-        filter_band: [420, 1000] #nm
+        filter_band: [400, 500] #nm
         integrate_wavelength: true
 
 .. autofunction:: simple_collection

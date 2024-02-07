@@ -6,6 +6,7 @@
 #   the terms contained in the file ‘LICENCE.txt’.
 
 """Convert scene to photon with simple collection model."""
+from collections.abc import Sequence
 from typing import Union
 
 import astropy.units as u
@@ -339,7 +340,7 @@ def project_objects_to_detector(
 def simple_collection(
     detector: Detector,
     aperture: float,
-    filter_band: tuple[float, float],
+    filter_band: Union[tuple[float, float], None] = None,
     pixelscale: Union[float, None] = None,
     integrate_wavelength: bool = True,
 ):
@@ -351,12 +352,12 @@ def simple_collection(
         Pyxel detector object.
     aperture : float
         Collecting area of the telescope. Unit: m.
-    filter_band : tuple[float, float]
-        Wavelength range of selected filter band. Unit: nm.
+    filter_band : Union[tuple[float, float], None]
+        Wavelength range of selected filter band, default is None. Unit: nm.
     pixelscale:  Union[float, None]
         Pixel scale of detector, default is None.
     integrate_wavelength : bool
-        If true, integrates along the wavelength else multiwavelength.
+        If true, integrates along the wavelength else multiwavelength, default is True.
     """
     if pixelscale is None:
         if detector.geometry.pixel_scale is None:
@@ -368,9 +369,23 @@ def simple_collection(
     else:
         pixel_scale = pixelscale
 
+    if filter_band is None:
+        if isinstance(detector.environment.wavelength, Sequence):
+            wavelength_band = (
+                Quantity(detector.environment.wavelength.cut_on, unit="nm"),
+                Quantity(detector.environment.wavelength.cut_off, unit="nm"),
+            )
+        else:
+            raise ValueError("No filter band provided for model 'simple_collection'.")
+    else:
+        wavelength_band = (
+            Quantity(filter_band[0], unit="nm"),
+            Quantity(filter_band[1], unit="nm"),
+        )
+
     # get dataset for given wavelength and scene object.
     scene_data: xr.Dataset = extract_wavelength(
-        scene=detector.scene, wavelength_band=filter_band
+        scene=detector.scene, wavelength_band=wavelength_band
     )
 
     # get time in s
