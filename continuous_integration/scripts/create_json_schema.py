@@ -209,6 +209,10 @@ def generate_class(klass: Klass) -> Iterator[str]:
                 annotation = str(param.annotation)
 
             annotation = annotation.replace("typing.", "")
+            annotation = annotation.replace(
+                "pyxel.detectors.environment.WavelengthHandling",
+                "WavelengthHandling",
+            )  # TODO: Fix this. See issue #727
 
             yield f"    {name}: {annotation} = field("
             if isinstance(param, ParamDefault):
@@ -487,6 +491,15 @@ def generate_detectors() -> Iterator[str]:
     detector: type[Detector]
     for detector in registered_detectors:
         create_graph(cls=detector, graph=graph)
+
+    # TODO: Fix this. See issue #727
+    yield ""
+    yield "@dataclass"
+    yield "class WavelengthHandling:"
+    yield "    cut_on: float"
+    yield "    cut_off: float"
+    yield "    resolution: int"
+    yield ""
 
     # Generate code based on the dependency graph
     ts = TopologicalSorter(graph)
