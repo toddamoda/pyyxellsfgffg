@@ -18,7 +18,23 @@ from pyxel.util import get_size
 
 @dataclass
 class WavelengthHandling:
-    """Information about multi-wavelength."""
+    """Information about multi-wavelength.
+
+    Parameters
+    ----------
+    cut_on : float
+        The lower bound wavelength. Unit: nm
+    cut_off : float
+        The upper bound wavelength. Unit: nm
+    resolution : int
+        The resolution. Unit: nm
+
+    Examples
+    --------
+    >>> obj = WavelengthHandling(cut_on=200.0, cut_off=400.0, resolution=50)
+    >>> obj
+    WavelengthHandling(cut_on=200.0, cut_off=400.0, resolution=50)
+    """
 
     cut_on: float
     cut_off: float
