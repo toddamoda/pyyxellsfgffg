@@ -18,13 +18,30 @@ from pyxel.util import get_size
 
 @dataclass
 class WavelengthHandling:
-    """Information about multi-wavelength."""
+    """Information about multi-wavelength.
+
+    Parameters
+    ----------
+    cut_on : float
+        The lower bound wavelength. Unit: nm
+    cut_off : float
+        The upper bound wavelength. Unit: nm
+    resolution : int
+        The resolution. Unit: nm
+
+    Examples
+    --------
+    >>> obj = WavelengthHandling(cut_on=200.0, cut_off=400.0, resolution=50)
+    >>> obj
+    WavelengthHandling(cut_on=200.0, cut_off=400.0, resolution=50)
+    """
 
     cut_on: float
     cut_off: float
     resolution: int
 
     def to_dict(self) -> dict:
+        """Convert this object into a dictionary."""
         return {
             "cut_on": self.cut_on,
             "cut_off": self.cut_off,
@@ -33,6 +50,7 @@ class WavelengthHandling:
 
     @classmethod
     def from_dict(cls, data: dict) -> Self:
+        """Convert a dictionary to a `WavelengthHandling` object."""
         return cls(
             cut_on=data["cut_on"],
             cut_off=data["cut_off"],
@@ -141,7 +159,7 @@ class Environment:
         return self._numbytes
 
     def to_dict(self) -> Mapping:
-        """Get the attributes of this instance as a `dict`."""
+        """Convert this object into a dictionary."""
         if self._wavelength is None:
             wavelength_dict = {}
         elif isinstance(self._wavelength, (int, float)):
@@ -152,7 +170,7 @@ class Environment:
 
     @classmethod
     def from_dict(cls, dct: Mapping) -> Self:
-        """Create a new instance of `Geometry` from a `dict`."""
+        """Convert a dictionary to a `WavelengthHandling` object."""
 
         value = dct.get("wavelength")
 
