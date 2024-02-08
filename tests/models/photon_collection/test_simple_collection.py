@@ -13,14 +13,6 @@ from pyxel.data_structure import Scene
 from pyxel.models.photon_collection.simple_collection import extract_wavelength
 
 
-def test_extract_wavelength_error():
-    with pytest.raises(
-        ValueError,
-        match="First input in wavelength_band needs to be smaller than the second.",
-    ):
-        extract_wavelength(scene=..., wavelength_band=[900, 500])
-
-
 @pytest.fixture
 def scene_dataset() -> xr.Dataset:
     dct = {
@@ -89,7 +81,10 @@ def dummy_scene(mocker: MockerFixture, scene_dataset: xr.Dataset):
 
 def test_extract_wavelength(dummy_scene: Scene, scene_dataset: xr.Dataset):
     """..."""
-    ds = extract_wavelength(scene=dummy_scene, wavelength_band=[336, 340])
+    ds = extract_wavelength(
+        scene=dummy_scene,
+        wavelengths=xr.DataArray(data=[334.0, 335.0, 336.0, 337.0, 338.0]),
+    )
 
     exp_ds = scene_dataset.copy().sel(wavelength=slice(336, 340))
 

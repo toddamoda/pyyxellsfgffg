@@ -7,23 +7,24 @@
 
 from collections.abc import Mapping, Sequence
 
+import astropy.units as u
 import numpy as np
 import pytest
 import xarray as xr
 
 from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
-from pyxel.models.photon_collection import optical_psf, optical_psf_multi_wavelength
+from pyxel.models.photon_collection import optical_psf
 from pyxel.models.photon_collection.poppy import (
     CircularAperture,
-    DeprecatedThinLens,
     HexagonAperture,
     MultiHexagonalAperture,
     RectangleAperture,
     SecondaryObscuration,
     SineWaveWFE,
     SquareAperture,
+    ThinLens,
     ZernikeWFE,
-    _create_optical_parameter_deprecated,
+    create_optical_parameter,
 )
 
 _ = pytest.importorskip("poppy")
@@ -41,7 +42,7 @@ def ccd_3x3() -> CCD:
             pixel_horz_size=10.0,
             pixel_scale=1.65,
         ),
-        environment=Environment(),
+        environment=Environment(wavelength=600.0),
         characteristics=Characteristics(),
     )
     detector.photon.array = np.zeros(detector.geometry.shape, dtype=float)
@@ -60,7 +61,7 @@ def ccd_4x5_multi_wavelength() -> CCD:
             pixel_horz_size=10.0,
             pixel_scale=1.65,
         ),
-        environment=Environment(),
+        environment=Environment(wavelength=600.0),
         characteristics=Characteristics(),
     )
 
@@ -83,32 +84,37 @@ def ccd_4x5_multi_wavelength() -> CCD:
         ),
         pytest.param(
             {"item": "CircularAperture", "radius": 3.14},
-            CircularAperture(radius=3.14),
+            CircularAperture(radius=3.14 * u.m),
             id="CircularAperture",
         ),
         pytest.param(
-            {"item": "ThinLens", "nwaves": 1.1, "radius": 2.2},
-            DeprecatedThinLens(nwaves=1.1, radius=2.2),
+            {
+                "item": "ThinLens",
+                "nwaves": 1.1,
+                "radius": 2.2,
+                "reference_wavelength": 600.0,
+            },
+            ThinLens(nwaves=1.1, radius=2.2 * u.m, reference_wavelength=600.0 * u.nm),
             id="ThinLens",
         ),
         pytest.param(
             {"item": "SquareAperture", "size": 1},
-            SquareAperture(size=1),
+            SquareAperture(size=1 * u.m),
             id="SquareAperture",
         ),
         pytest.param(
             {"item": "RectangularAperture", "width": 1.1, "height": 2.2},
-            RectangleAperture(width=1.1, height=2.2),
+            RectangleAperture(width=1.1 * u.m, height=2.2 * u.m),
             id="RectangularAperture",
         ),
         pytest.param(
             {"item": "HexagonAperture", "side": 1.1},
-            HexagonAperture(side=1.1),
+            HexagonAperture(side=1.1 * u.m),
             id="HexagonAperture",
         ),
         pytest.param(
             {"item": "MultiHexagonalAperture", "side": 1.1, "rings": 2, "gap": 3.3},
-            MultiHexagonalAperture(side=1.1, rings=2, gap=3.3),
+            MultiHexagonalAperture(side=1.1 * u.m, rings=2, gap=3.3 * u.m),
             id="MultiHexagonalAperture",
         ),
         pytest.param(
@@ -118,7 +124,9 @@ def ccd_4x5_multi_wavelength() -> CCD:
                 "n_supports": 2,
                 "support_width": 3.3,
             },
-            SecondaryObscuration(secondary_radius=1.1, n_supports=2, support_width=3.3),
+            SecondaryObscuration(
+                secondary_radius=1.1 * u.m, n_supports=2, support_width=3.3 * u.m
+            ),
             id="SecondaryObscuration",
         ),
         pytest.param(
@@ -128,7 +136,7 @@ def ccd_4x5_multi_wavelength() -> CCD:
                 "coefficients": [2.2, 3.3],
                 "aperture_stop": 4.4,
             },
-            ZernikeWFE(radius=1.1, coefficients=[2.2, 3.3], aperture_stop=4.4),
+            ZernikeWFE(radius=1.1 * u.m, coefficients=[2.2, 3.3], aperture_stop=4.4),
             id="ZernikeWFE",
         ),
         pytest.param(
@@ -138,14 +146,18 @@ def ccd_4x5_multi_wavelength() -> CCD:
                 "amplitude": 3.3,
                 "rotation": 4.4,
             },
-            SineWaveWFE(spatialfreq=2.2, amplitude=3.3, rotation=4.4),
+            SineWaveWFE(
+                spatialfreq=2.2 * (1 / u.m), amplitude=3.3 * u.um, rotation=4.4
+            ),
             id="SineWaveWFE",
         ),
     ],
 )
-def test_create_optical_parameter(dct: Mapping, exp_parameter):
+def test_create_optical_parameter(dct: Mapping, ccd_3x3: CCD, exp_parameter):
     """Test function 'create_optical_parameter'."""
-    parameter = _create_optical_parameter_deprecated(dct)
+    parameter = create_optical_parameter(
+        dct, selected_wavelength=ccd_3x3.environment.wavelength * u.nm
+    )
 
     assert parameter == exp_parameter
 
@@ -153,9 +165,7 @@ def test_create_optical_parameter(dct: Mapping, exp_parameter):
 @pytest.mark.parametrize(
     "wavelength, fov_arcsec, optical_system",
     [
-        pytest.param(
-            0.6e-6, 5, [{"item": "CircularAperture", "radius": 1.0}], id="valid"
-        ),
+        pytest.param(600, 5, [{"item": "CircularAperture", "radius": 1.0}], id="valid"),
         pytest.param(
             -1,
             5,
@@ -164,7 +174,7 @@ def test_create_optical_parameter(dct: Mapping, exp_parameter):
             id="Negative 'wavelength'",
         ),
         pytest.param(
-            0.6e-6,
+            600,
             -1,
             [{"item": "CircularAperture", "radius": 3.0}],
             marks=pytest.mark.xfail(raises=ValueError, strict=True),
@@ -191,7 +201,7 @@ def test_optical_psf(
     "wavelengths, fov_arcsec, optical_system",
     [
         pytest.param(
-            (0.6e-6, 0.7e-6),
+            (600, 700),
             5,
             [{"item": "CircularAperture", "radius": 3.0}],
             id="valid",
@@ -205,9 +215,9 @@ def test_optical_psf_multiwavelength(
     optical_system: Sequence[Mapping],
 ):
     """Test input parameters for function 'optical_psf'."""
-    optical_psf_multi_wavelength(
+    optical_psf(
         detector=ccd_4x5_multi_wavelength,
-        wavelengths=wavelengths,
+        wavelength=wavelengths,
         fov_arcsec=fov_arcsec,
         optical_system=optical_system,
     )

@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from typing import Any, Optional, Union
 
 import numpy as np
+import xarray as xr
 from astropy.convolution import convolve_fft
 from astropy.io import fits
 from astropy.units import Quantity
@@ -696,6 +697,7 @@ def apply_convolution(data: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     return array
 
 
+# ruff: noqa: C901
 def optical_psf(
     detector: Detector,
     fov_arcsec: float,
@@ -724,32 +726,22 @@ def optical_psf(
     jitter_sigma : float
         Jitter sigma value in arcsec per axis, default is 0.007.
     """
-    import xarray as xr
-    from astropy.units import Quantity
-
     logging.getLogger("poppy").setLevel(
         logging.WARNING
     )  # TODO: Fix this. See issue #81
 
-    # Validation and Conversion stage
-    # These steps will be probably moved into the YAML engine
-    # if wavelength < 0.0 or fov_arcsec < 0.0 or detector.geometry.pixel_scale < 0.0:
-    #     raise ValueError(
-    #         "Expecting strictly positive value for 'wavelength', "
-    #         "'fov_arcsec' and 'pixel_scale'."
-    #     )
-
+    # get pixel scale either from detector geometry or from model input
     if pixelscale is None:
         if detector.geometry.pixel_scale is None:
             raise ValueError(
                 "Pixel scale is not defined. It must be either provided in the detector geometry "
-                "or as model argmument."
+                "or as model argument."
             )
         pixel_scale: float = detector.geometry.pixel_scale
     else:
         pixel_scale = pixelscale
 
-    # get wavelength information
+    # get wavelength information either from detector envorinment or from model input
     if wavelength is None:
         # take wavelngth input from detector.environment
         if isinstance(detector.environment.wavelength, float):
@@ -772,7 +764,7 @@ def optical_psf(
     else:
         raise ValueError(
             "Wavelength is not defined. It must be either provided in the detector environment or as model "
-            "argmument."
+            "argument."
         )
 
     # Convert 'optical_system' to 'optical_parameters'
@@ -786,14 +778,15 @@ def optical_psf(
     ]
 
     # Depending on Type calculate for 2D or 3D photon
-    if isinstance(selected_wavelength, float):
+    # 2D
+    if isinstance(selected_wavelength, Quantity):
 
         # Processing
         # Get a Point Spread Function
         image_hdu: fits.PrimaryHDU
         # wavefront_hdu_3d: fits.PrimaryHDU
         image_hdu, wavefront = calc_psf(
-            wavelengths=[selected_wavelength],
+            wavelengths=[selected_wavelength.to("m").value],
             fov_arcsec=fov_arcsec,
             pixelscale=pixel_scale,
             optical_elements=optical_elements,
@@ -811,13 +804,9 @@ def optical_psf(
         )
 
         detector.photon.array = new_array_2d
-
+    # 3D
     else:
 
-        # Validation and Conversion stage
-        # These steps will be probably moved into the YAML engine
-
-        # cut on cut off and resolution????
         min_wavelength, max_wavelength = selected_wavelength
         if min_wavelength <= 0:
             raise ValueError("Expecting strictly positive value for the 'wavelengths'")
@@ -878,109 +867,3 @@ def optical_psf(
             coords={"wavelength": selected_wavelengths_nm.value},
         )
         detector.photon.array_3d = array_3d
-
-
-# def optical_psf_multi_wavelength(
-#     detector: Detector,
-#     wavelengths: tuple[float, float],
-#     fov_arcsec: float,
-#     optical_system: Sequence[Mapping[str, Any]],
-#     apply_jitter: bool = False,
-#     jitter_sigma: float = 0.007,
-#     # oversample : should be one
-#     # normalization should be default true.
-# ) -> None:
-#     """Model function for poppy optics model: convolve photon array with psf.
-#
-#     Parameters
-#     ----------
-#     detector : Detector
-#         Pyxel Detector object.
-#     wavelengths : tuple of floats
-#         Wavelengths of incoming light in meters.
-#     fov_arcsec : float
-#         Field Of View on detector plane in arcsec.
-#     optical_system : list of dict
-#         List of optical elements before detector with their specific arguments.
-#     apply_jitter : bool
-#         Defines whether jitter should be applied. Default = False.
-#     jitter_sigma : float
-#         Jitter sigma value in arcsec per axis, default is 0.007.
-#     """
-#     import xarray as xr
-#     from astropy.units import Quantity
-#
-#     logging.getLogger("poppy").setLevel(
-#         logging.WARNING
-#     )  # TODO: Fix this. See issue #81
-#
-#     # Validation and Conversion stage
-#     # These steps will be probably moved into the YAML engine
-#     if len(wavelengths) != 2:
-#         raise ValueError("Expecting two wavelengths in parameter 'wavelengths'.")
-#
-#     min_wavelength, max_wavelength = wavelengths
-#     if min_wavelength <= 0:
-#         raise ValueError("Expecting strictly positive value for the 'wavelengths'")
-#
-#     if min_wavelength > max_wavelength:
-#         raise ValueError(
-#             f"Min wavelength must be smaller that max wavelength. Got: {wavelengths!r}"
-#         )
-#
-#     if fov_arcsec < 0.0 or detector.geometry.pixel_scale < 0.0:
-#         raise ValueError(
-#             "Expecting strictly positive value for " "'fov_arcsec' and 'pixel_scale'."
-#         )
-#
-#     # Convert 'optical_system' to 'optical_parameters'
-#     optical_parameters: Sequence[NewOpticalParameter] = [
-#         new_create_optical_parameter(dct) for dct in optical_system
-#     ]
-#
-#     optical_elements: Sequence["op.OpticalElement"] = [
-#         new_create_optical_item(param=param) for param in optical_parameters
-#     ]
-#
-#     # Get current wavelengths (in nm)
-#     start_wavelength = Quantity(min_wavelength, unit="m")
-#     end_wavelength = Quantity(max_wavelength, unit="m")
-#     wavelengths_nm: Quantity = Quantity(
-#         detector.photon.array_3d["wavelength"], unit="nm"
-#     )
-#
-#     tolerance = Quantity(1e-7, unit="m")
-#     selected_wavelengths_nm: Quantity = wavelengths_nm[
-#         np.logical_and(
-#             wavelengths_nm >= (start_wavelength - tolerance),
-#             wavelengths_nm <= (end_wavelength + tolerance),
-#         )
-#     ]
-#     if selected_wavelengths_nm.size == 0:
-#         raise ValueError
-#
-#     # Processing
-#     # Get a Point Spread Function
-#     image_3d: fits.PrimaryHDU
-#     wavefront_3d: fits.PrimaryHDU
-#     image_3d, wavefront_3d = calc_psf(
-#         wavelengths=selected_wavelengths_nm.to("m").value,
-#         fov_arcsec=fov_arcsec,
-#         pixelscale=detector.geometry.pixel_scale,
-#         optical_elements=optical_elements,
-#         apply_jitter=apply_jitter,
-#         jitter_sigma=jitter_sigma,
-#     )
-#
-#     # Convolution
-#     new_array_3d: np.ndarray = apply_convolution(
-#         data=detector.photon.array_3d.to_numpy(),
-#         kernel=image_3d.data,
-#     )
-#
-#     array_3d = xr.DataArray(
-#         new_array_3d,
-#         dims=["wavelength", "y", "x"],
-#         coords={"wavelength": selected_wavelengths_nm.value},
-#     )
-#     detector.photon.array_3d = array_3d
