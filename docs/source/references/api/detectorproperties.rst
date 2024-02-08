@@ -5,12 +5,25 @@ Detector properties
 ===================
 .. currentmodule:: pyxel.detectors
 
+Environment
+===========
+
 .. autoclass:: Environment
     :members:
     :inherited-members:
     :undoc-members:
     :show-inheritance:
     :exclude-members:
+
+.. autoclass:: WavelengthHandling
+    :members:
+    :inherited-members:
+    :undoc-members:
+    :show-inheritance:
+    :exclude-members:
+
+Others
+======
 
 .. autoclass:: Characteristics
     :members:
