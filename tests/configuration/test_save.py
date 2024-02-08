@@ -10,7 +10,7 @@ from shutil import copy2
 
 import pytest
 
-from pyxel.configuration import save
+from pyxel.configuration import save_config_file
 
 
 @pytest.fixture
@@ -44,7 +44,9 @@ def test_save_with_yaml(filename, tmp_path: Path, valid_filename: Path):
     output_folder.mkdir()
 
     # Test
-    filename_copied = save(input_filename=input_filename, output_dir=output_folder)
+    filename_copied = save_config_file(
+        input_filename=input_filename, output_dir=output_folder
+    )
     exp_filename_copied = tmp_path / "output" / filename
 
     assert filename_copied.exists()

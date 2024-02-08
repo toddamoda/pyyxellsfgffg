@@ -20,7 +20,7 @@ import pandas as pd
 
 from pyxel import Configuration
 from pyxel import __version__ as version
-from pyxel import load, outputs, save
+from pyxel import load, outputs, save_config_file
 from pyxel.detectors import APD, CCD, CMOS, MKID, Detector
 from pyxel.exposure import Exposure
 from pyxel.observation import Observation, ObservationResult
@@ -829,17 +829,7 @@ def output_directory(configuration: Configuration) -> Path:
     -------
     output_dir
     """
-    # Late import to speedup start-up time
-    from pyxel.calibration import Calibration
-
-    if isinstance(configuration.exposure, Exposure):
-        output_dir = configuration.exposure.outputs.current_output_folder
-    elif isinstance(configuration.calibration, Calibration):
-        output_dir = configuration.calibration.outputs.current_output_folder
-    elif isinstance(configuration.observation, Observation):
-        output_dir = configuration.observation.outputs.current_output_folder
-    else:
-        raise (TypeError("Outputs not initialized."))
+    output_dir: Path = configuration.running_mode.outputs.current_output_folder
     return output_dir
 
 
@@ -867,15 +857,16 @@ def run(input_filename: Union[str, Path], random_seed: Optional[int] = None) -> 
 
     configuration: Configuration = load(Path(input_filename).expanduser().resolve())
 
-    output_dir = output_directory(configuration)
-
-    save(input_filename=input_filename, output_dir=output_dir)
-
     pipeline: DetectionPipeline = configuration.pipeline
     detector: Union[CCD, CMOS, MKID, APD] = configuration.detector
     running_mode: Union[Exposure, Observation, Calibration] = configuration.running_mode
 
     _ = run_mode(mode=running_mode, detector=detector, pipeline=pipeline)
+
+    output_dir: Path = output_directory(configuration)
+
+    # TODO: Fix this, see issue #728
+    save_config_file(input_filename=input_filename, output_dir=output_dir)
 
     logging.info("Pipeline completed.")
     logging.info("Running time: %.3f seconds", (time.time() - start_time))

@@ -640,7 +640,7 @@ def _build_configuration(dct: dict) -> Configuration:
     return configuration
 
 
-def save(input_filename: Union[str, Path], output_dir: Path) -> Path:
+def save_config_file(input_filename: Union[str, Path], output_dir: Path) -> Path:
     """Save a copy of the input ``YAML`` file to output directory.
 
     Parameters
