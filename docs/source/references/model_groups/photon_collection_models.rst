@@ -240,13 +240,13 @@ It implements a flexible framework for modeling Fraunhofer and Fresnel diffracti
 particularly in the context of astronomical telescopes.
 
 POPPY calculates the optical Point Spread Function of an optical system and applies the convolution.
-It required the Field of View (FOV) in :math:`arcsec` (``fov_arcsec``) and the ``optical_system`` as arguemnts.
+It required the Field of View (FOV) in :math:`arcsec` (``fov_arcsec``) and the ``optical_system`` as arguments.
 By default, the model uses ``pixelscale`` in :math:`arseconds/pixel` and ``wavelength`` in :math:`nm`,
 which are extracted from the detector properties in the YAML configuration file.
 However, you can override these properties by providing them as model arguments.
 
 The ``wavelength`` input can either be a float for a monochromatic PSF or a tuple for a multi-wavelength PSF calculations.
-Additionaly, the ``ThinLens`` optical parameter offers an optional argument ``reference_wavelength``, which, if provided,
+Additionally, the ``ThinLens`` optical parameter offers an optional argument ``reference_wavelength``, which, if provided,
 overrides the input wavelength for a single float or calculates the middle wavelength for a range.
 
 When ``apply_jitter`` is set to true (default is false), pointing jitter will be applied using a Gaussian kernel to convolve

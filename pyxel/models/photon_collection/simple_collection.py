@@ -7,7 +7,7 @@
 
 """Convert scene to photon with simple collection model."""
 from collections.abc import Sequence
-from typing import Union
+from typing import Optional, Union
 
 import astropy.units as u
 import numpy as np
@@ -22,7 +22,7 @@ from pyxel.detectors import Detector, WavelengthHandling
 
 def extract_wavelength(
     scene: Scene,
-    wavelength_band: tuple[float, float],
+    wavelengths: xr.DataArray,
 ) -> xr.Dataset:
     """Extract xarray Dataset of Scene for selected wavelength band.
 
@@ -30,7 +30,7 @@ def extract_wavelength(
     ----------
     scene : Scene
         Pyxel scene object.
-    wavelength_band : float
+    wavelengths : WavelengthHandling
         Selected wavelength band. Unit: nm.
 
     Returns
@@ -53,17 +53,15 @@ def extract_wavelength(
         flux        (ref, wavelength) float64 0.2331 0.231 0.2269 ... 2.213 2.212
     """
 
-    start_wavelength, end_wavelength = wavelength_band
-
-    if start_wavelength > end_wavelength:
-        raise ValueError(
-            "First input in wavelength_band needs to be smaller than the second."
-        )
-
+    # get data from scene and convert to xarray
     data = scene.to_xarray()
+
+    # interpolation
+    interpolated_wavelengths = data.interp_like(wavelengths)
+
     # get dataset with x, y, weight and flux of scene for selected wavelength band.
     selected_data: xr.Dataset = data.sel(
-        wavelength=slice(start_wavelength, end_wavelength)
+        wavelength=interpolated_wavelengths["wavelength"]
     )
 
     return selected_data
@@ -341,6 +339,7 @@ def simple_collection(
     detector: Detector,
     aperture: float,
     filter_band: Union[tuple[float, float], None] = None,
+    resolution: Optional[int] = None,
     pixelscale: Union[float, None] = None,
     integrate_wavelength: bool = True,
 ):
@@ -354,6 +353,8 @@ def simple_collection(
         Collecting area of the telescope. Unit: m.
     filter_band : Union[tuple[float, float], None]
         Wavelength range of selected filter band, default is None. Unit: nm.
+    resolution: Optional[int]
+        Resolution of provided wavelength range in filter band.
     pixelscale:  Union[float, None]
         Pixel scale of detector, default is None.
     integrate_wavelength : bool
@@ -369,23 +370,29 @@ def simple_collection(
     else:
         pixel_scale = pixelscale
 
-    if filter_band is None:
-        if isinstance(detector.environment.wavelength, Sequence):
-            wavelength_band = (
-                Quantity(detector.environment.wavelength.cut_on, unit="nm"),
-                Quantity(detector.environment.wavelength.cut_off, unit="nm"),
-            )
-        else:
-            raise ValueError("No filter band provided for model 'simple_collection'.")
-    else:
-        wavelength_band = (
-            Quantity(filter_band[0], unit="nm"),
-            Quantity(filter_band[1], unit="nm"),
+    if filter_band is not None and resolution is not None:
+        multi_wavelengths: WavelengthHandling = WavelengthHandling(
+            cut_on=filter_band[0], cut_off=filter_band[1], resolution=resolution
         )
+    elif filter_band is None and resolution is None:
+        if not isinstance(detector.environment._wavelength, WavelengthHandling):
+            raise ValueError(
+                "No filter band provided for model 'simple_collection'. Please provide `cut_on` and `cut_off` "
+                "parameters in the detector environment wavelength or as input to model directly."
+            )
+
+        multi_wavelengths = detector.environment.wavelength
+    else:
+        raise ValueError(
+            "`filter_band` and `resolution` have both to be provided either as model arguments or in the "
+            "detector environment."
+        )
+
+    wavelengths: xr.DataArray = multi_wavelengths.get_wavelengths()
 
     # get dataset for given wavelength and scene object.
     scene_data: xr.Dataset = extract_wavelength(
-        scene=detector.scene, wavelength_band=wavelength_band
+        scene=detector.scene, wavelengths=wavelengths
     )
 
     # get time in s
