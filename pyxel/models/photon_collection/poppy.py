@@ -731,14 +731,7 @@ def optical_psf(
         logging.WARNING
     )  # TODO: Fix this. See issue #81
 
-    # Validation and Conversion stage
-    # These steps will be probably moved into the YAML engine
-    # if wavelength < 0.0 or fov_arcsec < 0.0 or detector.geometry.pixel_scale < 0.0:
-    #     raise ValueError(
-    #         "Expecting strictly positive value for 'wavelength', "
-    #         "'fov_arcsec' and 'pixel_scale'."
-    #     )
-
+    # get pixel scale either from detector geometry or from model input
     if pixelscale is None:
         if detector.geometry.pixel_scale is None:
             raise ValueError(
@@ -749,7 +742,7 @@ def optical_psf(
     else:
         pixel_scale = pixelscale
 
-    # get wavelength information
+    # get wavelength information either from detector envorinment or from model input
     if wavelength is None:
         # take wavelngth input from detector.environment
         if isinstance(detector.environment.wavelength, float):
@@ -775,6 +768,14 @@ def optical_psf(
             "argmument."
         )
 
+    # Validation and Conversion stage
+    # These steps will be probably moved into the YAML engine
+    if selected_wavelength.value < 0.0 or fov_arcsec < 0.0 or pixel_scale < 0.0:
+        raise ValueError(
+            "Expecting strictly positive value for 'wavelength', "
+            "'fov_arcsec' and 'pixel_scale'."
+        )
+
     # Convert 'optical_system' to 'optical_parameters'
     optical_parameters: Sequence[OpticalParameter] = [
         create_optical_parameter(dct, selected_wavelength=selected_wavelength)
@@ -786,14 +787,15 @@ def optical_psf(
     ]
 
     # Depending on Type calculate for 2D or 3D photon
-    if isinstance(selected_wavelength, float):
+    # 2D
+    if isinstance(selected_wavelength, Quantity):
 
         # Processing
         # Get a Point Spread Function
         image_hdu: fits.PrimaryHDU
         # wavefront_hdu_3d: fits.PrimaryHDU
         image_hdu, wavefront = calc_psf(
-            wavelengths=[selected_wavelength],
+            wavelengths=[selected_wavelength.to("m").value],
             fov_arcsec=fov_arcsec,
             pixelscale=pixel_scale,
             optical_elements=optical_elements,
@@ -811,13 +813,9 @@ def optical_psf(
         )
 
         detector.photon.array = new_array_2d
-
+    # 3D
     else:
 
-        # Validation and Conversion stage
-        # These steps will be probably moved into the YAML engine
-
-        # cut on cut off and resolution????
         min_wavelength, max_wavelength = selected_wavelength
         if min_wavelength <= 0:
             raise ValueError("Expecting strictly positive value for the 'wavelengths'")
