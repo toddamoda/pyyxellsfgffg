@@ -22,6 +22,8 @@ The deprecated model `simple_aperture` in `photon_collection` is removed.
 * Fix bug when `pyxel.load` is executed and output folder already exists.
   (See [!835](https://gitlab.com/esa/pyxel/-/merge_requests/835)
   and [#643](https://gitlab.com/esa/pyxel/-/issues/643)).
+* Add new parameter `wavelength` to `detector.environment`.
+  (See [!836](https://gitlab.com/esa/pyxel/-/merge_requests/836)).
 
 ### Documentation
 * Update documentation about quick start installation.
