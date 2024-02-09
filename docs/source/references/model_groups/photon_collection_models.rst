@@ -73,21 +73,24 @@ Simple collection
 :guilabel:`Scene` → :guilabel:`Photon`
 
 Converts scene to photon using a given aperture.
-Initially, a xarray Dataset will be extracted from the Scene for a selected wavelength band.
-By default, the model uses ``pixelscale`` in :math:`arseconds/pixel` and ``filter_band`` in :math:`nm`,
-which are extracted from the detector properties in the YAML configuration file.
-However, you can override these properties by providing them as model arguments.
+Initially, a xarray Dataset is extracted from the Scene for a selected wavelength band.
 The ``filter_band`` input represents the wavelength range of the selected filter band.
+By default, the ``filter_band`` argument in :math:`nm` is None, and the information is retrieved from the
+detector properties in the YAML configuration file, where ``cut_on`` and ``cut_off`` wavelengths can be defined
+in the :py:class:`~pyxel.detectors.Detector.Environment`.
+However, you can override this property by providing the ``filter_band`` as a model argument.
 
-It is possible to use this model in monochromatic or multiwavelength mode.
+This model supports both monochromatic or multiwavelength modes, generating a 2D Photon array or 3D Photon array
+as output, whereas the 3D Photon array includes the wavelength dimension.
 When ``integrate_wavelength`` is set to true (default) the monochromatic mode is selected,
 where the flux of objects in the scene is integrated across the wavelength band.
-The integrated flux in photon/(s cm2) is then converted to photon/(s pixel).
+The integrated flux in :math:`photon/(s cm2)` is then converted to :mayh:`photon/(s pixel)`.
 When ``integrate_wavelength`` set to false, the photons are represented with dimensions "wavelength", "y", and "x".
 
-The objects are projected onto the detector, while converting the object coordinates from arcsec to detector
-coordinates (pixel) using the ``pixelscale`` either defined in the :py:class:`~pyxel.detectors.Detector.Geometry`
-or in the model arguments.
+The objects are projected onto the detector, with object coordinates converted from :math:`arcsec` to detector
+coordinates (pixel) using the ``pixelscale`` in :math:`arseconds/pixel`. By default ``pixelscale`` is None, and
+the model retrieves the ``pixel_scale`` defined in the :py:class:`~pyxel.detectors.Detector.Geometry`.
+However, it is possible to override this property by providing ``pixelscale`` as model argument.
 
 .. code-block:: yaml
 
@@ -240,7 +243,7 @@ It implements a flexible framework for modeling Fraunhofer and Fresnel diffracti
 particularly in the context of astronomical telescopes.
 
 POPPY calculates the optical Point Spread Function of an optical system and applies the convolution.
-It required the Field of View (FOV) in :math:`arcsec` (``fov_arcsec``) and the ``optical_system`` as arguments.
+It requires the Field of View (FOV) in :math:`arcsec` (``fov_arcsec``) and the ``optical_system`` as arguments.
 By default, the model uses ``pixelscale`` in :math:`arseconds/pixel` and ``wavelength`` in :math:`nm`,
 which are extracted from the detector properties in the YAML configuration file.
 However, you can override these properties by providing them as model arguments.
@@ -291,7 +294,7 @@ Example of the configuration file:
       enabled: true
       arguments:
         fov_arcsec: 5               # FOV in arcseconds
-        wavelength: 600        # wavelength in nanometer
+        wavelength: 600             # wavelength in nanometer
         apply_jitter: true
         jitter_sigma: 0.5
         optical_system:
@@ -303,41 +306,13 @@ Example of the configuration file:
           - item: ThinLens
             radius: 1.2             # radius in meters  
             nwaves: 1
+            reference_wavelength: 600  # wavelength in nanometer
           - item: ZernikeWFE
             radius: 0.8             # radius in meters  
             coefficients: [0.1e-6, 3.e-6, -3.e-6, 1.e-6, -7.e-7, 0.4e-6, -2.e-6]
             aperture_stop: false
 
 .. autofunction:: optical_psf
-
-Multi wavelengths version
--------------------------
-
-Example of the configuration file:
-
-.. code-block:: yaml
-
-    - name: optical_psf_multi_wavelength
-      func: pyxel.models.photon_collection.optical_psf_multi_wavelength
-      enabled: true
-      arguments:
-        fov_arcsec: 5                  # FOV in arcseconds
-        wavelengths: [0.6e-6, 0.7e-6]  # wavelength in meters
-        optical_system:
-          - item: CircularAperture
-            radius: 3.0                # radius in meters
-        optical_system:
-          - item: CircularAperture
-            radius: 1.5                # radius in meters
-          - item: ThinLens
-            radius: 1.2                # radius in meters
-            nwaves: 1
-            reference_wavelength: 0.6e-6
-          - item: ZernikeWFE
-            radius: 0.8                # radius in meters
-            coefficients: [0.1e-6, 3.e-6, -3.e-6, 1.e-6, -7.e-7, 0.4e-6, -2.e-6]
-            aperture_stop: false
-
 
 
 .. _Load PSF:
