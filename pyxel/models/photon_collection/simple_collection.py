@@ -394,7 +394,7 @@ def simple_collection(
         if detector.geometry.pixel_scale is None:
             raise ValueError(
                 "Pixel scale is not defined. It must be either provided in the detector geometry "
-                "or as model argmument."
+                "or as model argument."
             )
         pixel_scale: float = detector.geometry.pixel_scale
     else:
