@@ -7,11 +7,12 @@
 
 """TBW."""
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping, MutableSequence, Sequence
 from dataclasses import dataclass
 from enum import Enum
+from numbers import Rational, Real
 from pathlib import Path
-from typing import NamedTuple, Optional, Union
+from typing import Any, NamedTuple, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -34,6 +35,7 @@ __all__ = [
     "FitRange3D",
     "to_fit_range",
     "check_fit_ranges",
+    "sanitize",
 ]
 
 
@@ -488,3 +490,42 @@ def check_fit_ranges(
         target_fit_range.check(rows=rows, cols=cols)
     else:
         target_fit_range.check(rows=rows, cols=cols, readout_times=readout_times)
+
+
+def sanitize(data: Any) -> Any:
+    """Sanitize the input 'data'.
+
+    Parameters
+    ----------
+    data : Any
+
+    Examples
+    --------
+    >>> from pathlib import Path
+    >>> import numpy as np
+    >>> from astropy.units import Quantity
+    >>> sanitize({"a": "1", "b": 2, "c": 3.14, "d": np.float64(1.2)})
+    {'a': '1', 'b': 2, 'c': 3.14, 'd': 1.2}
+    >>> sanitize({"a": [Path("foo"), True], "b": (Quantity(1.1, unit="m"), "hello")})
+    {'a': ['foo': True], 'b': ('1.1 m', 'hello')}
+    """
+    if isinstance(data, Mapping):
+        return {sanitize(key): sanitize(value) for key, value in data.items()}
+
+    elif isinstance(data, MutableSequence):
+        return [sanitize(key) for key in data]
+
+    elif isinstance(data, Sequence) and not isinstance(data, str):
+        return tuple([sanitize(key) for key in data])
+
+    elif isinstance(data, Rational):
+        return int(data)
+
+    elif isinstance(data, Real):
+        return float(data)
+
+    elif isinstance(data, bool) or data is None:
+        return data
+
+    else:
+        return str(data)
