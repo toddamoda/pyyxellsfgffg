@@ -7,6 +7,7 @@
 
 """TBW."""
 import logging
+import sys
 import warnings
 from collections.abc import Mapping, Sequence
 from pathlib import Path
@@ -40,9 +41,24 @@ if TYPE_CHECKING:
     from pyxel.outputs import CalibrationOutputs
 
 
-def to_path_list(values: Sequence[Union[str, Path]]) -> Sequence[Path]:
-    """Convert a sequence of ``Path``-like into a sequence of ``Path``."""
-    return [Path(obj).resolve() for obj in values]
+def to_path_list(filenames: Sequence[Union[str, Path]]) -> Sequence[Path]:
+    """Convert a sequence of ``Path``-like into a sequence of ``Path``.
+
+    Raises
+    ------
+    FileNotFoundError
+        Raised if the filename does not exist.
+    """
+    lst: list[Path] = []
+    for filename in filenames:
+        full_filename = Path(filename).resolve()
+
+        if not full_filename.exists():
+            raise FileNotFoundError(f"File: {full_filename} does not exist !")
+
+        lst.append(full_filename)
+
+    return lst
 
 
 class Calibration:
@@ -102,9 +118,18 @@ class Calibration:
             result_input_arguments or []
         )
 
-        self._target_data_path: Sequence[Path] = (
-            to_path_list(target_data_path) if target_data_path else []
-        )
+        # TODO: Write functional tests
+        try:
+            target_data_full_path: Sequence[Path] = to_path_list(target_data_path)
+        except FileNotFoundError as exc:
+            note = "A file was not found in parameter 'calibration.target_data_path'."
+            if sys.version_info >= (3, 11):
+                exc.add_note(note)
+                raise
+            else:
+                raise FileNotFoundError(f"{exc}\n{note}") from exc
+
+        self._target_data_path: Sequence[Path] = target_data_full_path
         self._target_fit_range: Sequence[int] = target_fit_range or []
 
         self._fitness_function: FitnessFunction = fitness_function
@@ -128,9 +153,23 @@ class Calibration:
         if weights and weights_from_file:
             raise ValueError("Cannot define both weights and weights from file.")
 
-        self._weights_from_file: Optional[Sequence[Path]] = (
-            to_path_list(weights_from_file) if weights_from_file else None
-        )
+        # TODO: Write functional tests
+        if not weights_from_file:
+            weights_full_path: Optional[Sequence[Path]] = []
+        else:
+            try:
+                weights_full_path = to_path_list(weights_from_file)
+            except FileNotFoundError as exc:
+                note = (
+                    "A file was not found in parameter 'calibration.weights_from_file'."
+                )
+                if sys.version_info >= (3, 11):
+                    exc.add_note(note)
+                    raise
+                else:
+                    raise FileNotFoundError(f"{exc}\n{note}") from exc
+
+        self._weights_from_file: Optional[Sequence[Path]] = weights_full_path
         self._weights: Optional[Sequence[float]] = weights
 
     @property
