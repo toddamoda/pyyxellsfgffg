@@ -22,6 +22,8 @@ The deprecated model `simple_aperture` in `photon_collection` is removed.
 * Fix bug when `pyxel.load` is executed and output folder already exists.
   (See [!835](https://gitlab.com/esa/pyxel/-/merge_requests/835)
   and [#643](https://gitlab.com/esa/pyxel/-/issues/643)).
+* Fix issue with `pyxel.run_mode()` in Calibration mode.
+  (See [!844](https://gitlab.com/esa/pyxel/-/merge_requests/844)).
 
 ### Documentation
 * Update documentation about quick start installation.
