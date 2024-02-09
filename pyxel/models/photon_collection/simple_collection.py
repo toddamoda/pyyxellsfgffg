@@ -6,7 +6,6 @@
 #   the terms contained in the file ‘LICENCE.txt’.
 
 """Convert scene to photon with simple collection model."""
-from collections.abc import Sequence
 from typing import Optional, Union
 
 import astropy.units as u
@@ -335,6 +334,37 @@ def project_objects_to_detector(
         return projection_3d
 
 
+# TODO: Add unit tests
+def _extract_wavelength(
+    resolution: Optional[int],
+    filter_band: Optional[tuple[float, float]],
+    default_wavelength_handling: Union[None, float, WavelengthHandling],
+) -> xr.DataArray:
+    """Extract wavelength."""
+    if filter_band is not None and resolution is not None:
+        multi_wavelengths: WavelengthHandling = WavelengthHandling(
+            cut_on=filter_band[0], cut_off=filter_band[1], resolution=resolution
+        )
+
+    elif filter_band is None and resolution is None:
+        if not isinstance(default_wavelength_handling, WavelengthHandling):
+            raise ValueError(
+                "No filter band provided for model 'simple_collection'. Please provide `cut_on` and `cut_off` "
+                "parameters in the detector environment wavelength or as input to model directly."
+            )
+
+        multi_wavelengths = default_wavelength_handling
+
+    else:
+        raise ValueError(
+            "`filter_band` and `resolution` have both to be provided either as model arguments or in the "
+            "detector environment."
+        )
+
+    wavelengths: xr.DataArray = multi_wavelengths.get_wavelengths()
+    return wavelengths
+
+
 def simple_collection(
     detector: Detector,
     aperture: float,
@@ -354,9 +384,9 @@ def simple_collection(
     filter_band : Union[tuple[float, float], None]
         Wavelength range of selected filter band, default is None. Unit: nm.
     resolution: Optional[int]
-        Resolution of provided wavelength range in filter band.
+        Resolution of provided wavelength range in filter band. Unit: nm.
     pixelscale:  Union[float, None]
-        Pixel scale of detector, default is None.
+        Pixel scale of detector, default is None. Unit: arcsec/pixel.
     integrate_wavelength : bool
         If true, integrates along the wavelength else multiwavelength, default is True.
     """
@@ -370,25 +400,11 @@ def simple_collection(
     else:
         pixel_scale = pixelscale
 
-    if filter_band is not None and resolution is not None:
-        multi_wavelengths: WavelengthHandling = WavelengthHandling(
-            cut_on=filter_band[0], cut_off=filter_band[1], resolution=resolution
-        )
-    elif filter_band is None and resolution is None:
-        if not isinstance(detector.environment._wavelength, WavelengthHandling):
-            raise ValueError(
-                "No filter band provided for model 'simple_collection'. Please provide `cut_on` and `cut_off` "
-                "parameters in the detector environment wavelength or as input to model directly."
-            )
-
-        multi_wavelengths = detector.environment.wavelength
-    else:
-        raise ValueError(
-            "`filter_band` and `resolution` have both to be provided either as model arguments or in the "
-            "detector environment."
-        )
-
-    wavelengths: xr.DataArray = multi_wavelengths.get_wavelengths()
+    wavelengths: xr.DataArray = _extract_wavelength(
+        resolution=resolution,
+        filter_band=filter_band,
+        default_wavelength_handling=detector.environment._wavelength,
+    )
 
     # get dataset for given wavelength and scene object.
     scene_data: xr.Dataset = extract_wavelength(
