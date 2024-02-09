@@ -1599,9 +1599,6 @@
                 "$ref": "#/definitions/ModelPhotonCollectionOpticalPsf"
               },
               {
-                "$ref": "#/definitions/ModelPhotonCollectionOpticalPsfMultiWavelength"
-              },
-              {
                 "$ref": "#/definitions/ModelPhotonCollectionShotNoise"
               },
               {
@@ -1728,22 +1725,6 @@
             "number",
             "null"
           ]
-        },
-        "wavelength": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "$ref": "#/definitions/WavelengthHandling"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "Information about multi-wavelength. Unit: nm",
-          "title": "wavelength"
         }
       },
       "title": "Environment",
@@ -5600,7 +5581,7 @@
           "properties": {
             "apply_jitter": {
               "default": false,
-              "description": "Defines whether jitter should be applied. Default = False.",
+              "description": "Defines whether jitter should be applied, default is False.",
               "title": "apply_jitter",
               "type": "boolean"
             },
@@ -5623,14 +5604,55 @@
               "title": "optical_system",
               "type": "array"
             },
+            "pixelscale": {
+              "default": null,
+              "description": "Pixel scale of detector, default is None.",
+              "title": "pixelscale",
+              "type": [
+                "number",
+                "null"
+              ]
+            },
             "wavelength": {
-              "description": "Wavelength of incoming light in meters.",
-              "title": "wavelength",
-              "type": "number"
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "additionalItems": false,
+                  "items": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ],
+                  "maxItems": 2,
+                  "minItems": 2,
+                  "prefixItems": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ],
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Wavelength of incoming light in meters, default is None.",
+              "title": "wavelength"
             }
           },
           "required": [
-            "wavelength",
             "fov_arcsec",
             "optical_system"
           ],
@@ -5655,91 +5677,6 @@
         "arguments"
       ],
       "title": "Model 'optical_psf'",
-      "type": "object"
-    },
-    "ModelPhotonCollectionOpticalPsfMultiWavelength": {
-      "additionalProperties": false,
-      "description": "Model function for poppy optics model: convolve photon array with psf.",
-      "properties": {
-        "arguments": {
-          "additionalProperties": false,
-          "properties": {
-            "apply_jitter": {
-              "default": false,
-              "description": "Defines whether jitter should be applied. Default = False.",
-              "title": "apply_jitter",
-              "type": "boolean"
-            },
-            "fov_arcsec": {
-              "description": "Field Of View on detector plane in arcsec.",
-              "title": "fov_arcsec",
-              "type": "number"
-            },
-            "jitter_sigma": {
-              "default": 0.007,
-              "description": "Jitter sigma value in arcsec per axis, default is 0.007.",
-              "title": "jitter_sigma",
-              "type": "number"
-            },
-            "optical_system": {
-              "description": "List of optical elements before detector with their specificarguments.",
-              "items": {
-                "type": "object"
-              },
-              "title": "optical_system",
-              "type": "array"
-            },
-            "wavelengths": {
-              "additionalItems": false,
-              "description": "Wavelengths of incoming light in meters.",
-              "items": [
-                {
-                  "type": "number"
-                },
-                {
-                  "type": "number"
-                }
-              ],
-              "maxItems": 2,
-              "minItems": 2,
-              "prefixItems": [
-                {
-                  "type": "number"
-                },
-                {
-                  "type": "number"
-                }
-              ],
-              "title": "wavelengths",
-              "type": "array"
-            }
-          },
-          "required": [
-            "wavelengths",
-            "fov_arcsec",
-            "optical_system"
-          ],
-          "title": "Parameters",
-          "type": "object"
-        },
-        "enabled": {
-          "default": true,
-          "type": "boolean"
-        },
-        "func": {
-          "const": "pyxel.models.photon_collection.optical_psf_multi_wavelength",
-          "default": "pyxel.models.photon_collection.optical_psf_multi_wavelength",
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "arguments"
-      ],
-      "title": "Model 'optical_psf_multi_wavelength'",
       "type": "object"
     },
     "ModelPhotonCollectionShotNoise": {
@@ -5797,7 +5734,7 @@
     },
     "ModelPhotonCollectionSimpleCollection": {
       "additionalProperties": false,
-      "description": "Convert scene in ph/(cm2 nm s) to 3D photon in ph/nm s.",
+      "description": "Convert scene in ph/(cm2 nm s) to photon in ph/nm s or ph s.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
@@ -5809,7 +5746,8 @@
             },
             "filter_band": {
               "additionalItems": false,
-              "description": "Wavelength range of selected filter band. Unit: nm.",
+              "default": null,
+              "description": "Wavelength range of selected filter band, default is None. Unit: nm.",
               "items": [
                 {
                   "type": "number"
@@ -5829,18 +5767,38 @@
                 }
               ],
               "title": "filter_band",
-              "type": "array"
+              "type": [
+                "array",
+                "null"
+              ]
             },
             "integrate_wavelength": {
               "default": true,
-              "description": "If true, integrates along the wavelength else multiwavelength.",
+              "description": "If true, integrates along the wavelength else multiwavelength, defaultis True.",
               "title": "integrate_wavelength",
               "type": "boolean"
+            },
+            "pixelscale": {
+              "default": null,
+              "description": "Pixel scale of detector, default is None. Unit: arcsec/pixel.",
+              "title": "pixelscale",
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "resolution": {
+              "default": null,
+              "description": "Resolution of provided wavelength range in filter band. Unit: nm.",
+              "title": "resolution",
+              "type": [
+                "integer",
+                "null"
+              ]
             }
           },
           "required": [
-            "aperture",
-            "filter_band"
+            "aperture"
           ],
           "title": "Parameters",
           "type": "object"
@@ -6695,26 +6653,6 @@
           ]
         }
       },
-      "type": "object"
-    },
-    "WavelengthHandling": {
-      "additionalProperties": false,
-      "properties": {
-        "cut_off": {
-          "type": "number"
-        },
-        "cut_on": {
-          "type": "number"
-        },
-        "resolution": {
-          "type": "integer"
-        }
-      },
-      "required": [
-        "cut_on",
-        "cut_off",
-        "resolution"
-      ],
       "type": "object"
     }
   }
