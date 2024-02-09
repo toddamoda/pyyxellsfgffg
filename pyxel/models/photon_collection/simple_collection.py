@@ -383,9 +383,9 @@ def simple_collection(
         Collecting area of the telescope. Unit: m.
     filter_band : Union[tuple[float, float], None]
         Wavelength range of selected filter band, default is None. Unit: nm.
-    resolution: Optional[int]
+    resolution : Optional[int]
         Resolution of provided wavelength range in filter band. Unit: nm.
-    pixelscale:  Union[float, None]
+    pixelscale : Union[float, None]
         Pixel scale of detector, default is None. Unit: arcsec/pixel.
     integrate_wavelength : bool
         If true, integrates along the wavelength else multiwavelength, default is True.
