@@ -28,6 +28,7 @@ __all__ = [
     "check_ranges",
     "list_to_slice",
     "read_data",
+    "sanitize",
     "create_processor_data_array",
     "read_datacubes",
     "list_to_3d_slice",
@@ -35,7 +36,6 @@ __all__ = [
     "FitRange3D",
     "to_fit_range",
     "check_fit_ranges",
-    "sanitize",
 ]
 
 
@@ -107,6 +107,45 @@ def read_data(filenames: Sequence[Path]) -> Sequence[np.ndarray]:
     return output
 
 
+def sanitize(data: Any) -> Any:
+    """Sanitize the input 'data'.
+
+    Parameters
+    ----------
+    data : Any
+
+    Examples
+    --------
+    >>> from pathlib import Path
+    >>> import numpy as np
+    >>> from astropy.units import Quantity
+    >>> sanitize({"a": "1", "b": 2, "c": 3.14, "d": np.float64(1.2)})
+    {'a': '1', 'b': 2, 'c': 3.14, 'd': 1.2}
+    >>> sanitize({"a": [Path("foo"), True], "b": (Quantity(1.1, unit="m"), "hello")})
+    {'a': ['foo': True], 'b': ('1.1 m', 'hello')}
+    """
+    if isinstance(data, Mapping):
+        return {sanitize(key): sanitize(value) for key, value in data.items()}
+
+    elif isinstance(data, MutableSequence):
+        return [sanitize(key) for key in data]
+
+    elif isinstance(data, Sequence) and not isinstance(data, str):
+        return tuple([sanitize(key) for key in data])
+
+    elif isinstance(data, Rational):
+        return int(data)
+
+    elif isinstance(data, Real):
+        return float(data)
+
+    elif isinstance(data, bool) or data is None:
+        return data
+
+    else:
+        return str(data)
+
+
 def create_processor_data_array(filenames: Sequence[Path]) -> xr.DataArray:
     """Create a 3D data array from FITS or NPY files for several processor(s).
 
@@ -134,6 +173,7 @@ def create_processor_data_array(filenames: Sequence[Path]) -> xr.DataArray:
             "y": range(num_y),
             "x": range(num_x),
         },
+        attrs={"filenames": sanitize(filenames)},
     )
     return data_array
 
@@ -490,42 +530,3 @@ def check_fit_ranges(
         target_fit_range.check(rows=rows, cols=cols)
     else:
         target_fit_range.check(rows=rows, cols=cols, readout_times=readout_times)
-
-
-def sanitize(data: Any) -> Any:
-    """Sanitize the input 'data'.
-
-    Parameters
-    ----------
-    data : Any
-
-    Examples
-    --------
-    >>> from pathlib import Path
-    >>> import numpy as np
-    >>> from astropy.units import Quantity
-    >>> sanitize({"a": "1", "b": 2, "c": 3.14, "d": np.float64(1.2)})
-    {'a': '1', 'b': 2, 'c': 3.14, 'd': 1.2}
-    >>> sanitize({"a": [Path("foo"), True], "b": (Quantity(1.1, unit="m"), "hello")})
-    {'a': ['foo': True], 'b': ('1.1 m', 'hello')}
-    """
-    if isinstance(data, Mapping):
-        return {sanitize(key): sanitize(value) for key, value in data.items()}
-
-    elif isinstance(data, MutableSequence):
-        return [sanitize(key) for key in data]
-
-    elif isinstance(data, Sequence) and not isinstance(data, str):
-        return tuple([sanitize(key) for key in data])
-
-    elif isinstance(data, Rational):
-        return int(data)
-
-    elif isinstance(data, Real):
-        return float(data)
-
-    elif isinstance(data, bool) or data is None:
-        return data
-
-    else:
-        return str(data)
