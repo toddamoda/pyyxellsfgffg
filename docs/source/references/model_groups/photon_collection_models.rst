@@ -84,7 +84,7 @@ This model supports both monochromatic or multiwavelength modes, generating a 2D
 as output, whereas the 3D Photon array includes the wavelength dimension.
 When ``integrate_wavelength`` is set to true (default) the monochromatic mode is selected,
 where the flux of objects in the scene is integrated across the wavelength band.
-The integrated flux in :math:`photon/(s cm2)` is then converted to :mayh:`photon/(s pixel)`.
+The integrated flux in :math:`photon/(s cm2)` is then converted to :math:`photon/(s pixel)`.
 When ``integrate_wavelength`` set to false, the photons are represented with dimensions "wavelength", "y", and "x".
 
 The objects are projected onto the detector, with object coordinates converted from :math:`arcsec` to detector

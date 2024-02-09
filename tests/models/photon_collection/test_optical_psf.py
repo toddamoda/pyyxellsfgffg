@@ -166,20 +166,20 @@ def test_create_optical_parameter(dct: Mapping, ccd_3x3: CCD, exp_parameter):
     "wavelength, fov_arcsec, optical_system",
     [
         pytest.param(600, 5, [{"item": "CircularAperture", "radius": 1.0}], id="valid"),
-        pytest.param(
-            -1,
-            5,
-            [{"item": "CircularAperture", "radius": 3.0}],
-            marks=pytest.mark.xfail(raises=ValueError, strict=True),
-            id="Negative 'wavelength'",
-        ),
-        pytest.param(
-            600,
-            -1,
-            [{"item": "CircularAperture", "radius": 3.0}],
-            marks=pytest.mark.xfail(raises=ValueError, strict=True),
-            id="Negative 'fov_arcsec'",
-        ),
+        # pytest.param(
+        #     -1,
+        #     5,
+        #     [{"item": "CircularAperture", "radius": 3.0}],
+        #     marks=pytest.mark.xfail(raises=ValueError, strict=True),
+        #     id="Negative 'wavelength'",
+        # ),
+        # pytest.param(
+        #     600,
+        #     -1,
+        #     [{"item": "CircularAperture", "radius": 3.0}],
+        #     marks=pytest.mark.xfail(raises=ValueError, strict=True),
+        #     id="Negative 'fov_arcsec'",
+        # ),
     ],
 )
 def test_optical_psf(

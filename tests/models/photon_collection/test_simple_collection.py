@@ -83,9 +83,11 @@ def test_extract_wavelength(dummy_scene: Scene, scene_dataset: xr.Dataset):
     """..."""
     ds = extract_wavelength(
         scene=dummy_scene,
-        wavelengths=xr.DataArray(data=[334.0, 335.0, 336.0, 337.0, 338.0]),
+        wavelengths=xr.DataArray(
+            data=[335.0, 336.0, 337.0, 338.0, 339.0, 340.0, 341.0, 342.0]
+        ),
     )
 
-    exp_ds = scene_dataset.copy().sel(wavelength=slice(336, 340))
+    exp_ds = scene_dataset.copy().sel(wavelength=slice(336, 342))
 
     xr.testing.assert_equal(ds, exp_ds)
