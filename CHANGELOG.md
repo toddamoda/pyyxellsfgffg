@@ -46,6 +46,8 @@ The deprecated model `simple_aperture` in `photon_collection` is removed.
   (See [!825](https://gitlab.com/esa/pyxel/-/merge_requests/825)).
 * Remove deprecated model `simple_aperture`.
   (See [!827](https://gitlab.com/esa/pyxel/-/merge_requests/827)).
+* Merge 'optical_psf_with_multiiwavelength' into 'optical_psf'.
+  (See [!837](https://gitlab.com/esa/pyxel/-/merge_requests/837)).
 
 ### Others
 * Bump pre-commit versions.
