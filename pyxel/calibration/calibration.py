@@ -155,7 +155,7 @@ class Calibration:
 
         # TODO: Write functional tests
         if not weights_from_file:
-            weights_full_path: Optional[Sequence[Path]] = []
+            weights_full_path: Optional[Sequence[Path]] = None
         else:
             try:
                 weights_full_path = to_path_list(weights_from_file)

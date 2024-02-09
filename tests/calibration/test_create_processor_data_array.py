@@ -47,6 +47,7 @@ def test_create_processor_data_array(folder_files: Path):
         ),
         dims=["processor", "y", "x"],
         coords={"processor": range(5), "y": range(10), "x": range(2)},
+        attrs={"filenames": list(map(str, filenames))},
     )
 
     xr.testing.assert_identical(result, exp_result)
