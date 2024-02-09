@@ -719,7 +719,7 @@ def optical_psf(
         List of optical elements before detector with their specific arguments.
     wavelength : Union[int, float, tuple[float, float], None]
         Wavelength of incoming light in meters, default is None.
-    pixelscale:  Union[float, None]
+    pixelscale :  Union[float, None]
         Pixel scale of detector, default is None.
     apply_jitter : bool
         Defines whether jitter should be applied, default is False.
