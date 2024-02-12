@@ -30,6 +30,7 @@ in IEEE Transactions on Nuclear Science, vol. 66, no. 3, pp. 616-624, March 2019
 Jean-Marc Belloir, Vincent Goiffon, Cédric Virmontois, Mélanie Raine, Philippe Paillet, Olivier Duhamel,
 Marc Gaillardin, Romain Molina, Pierre Magnan, and Olivier Gilard, "Pixel pitch and particle energy influence on the
 dark current distribution of neutron irradiated CMOS image sensors," Opt. Express 24, 4299-4315 (2016)
+
 """
 
 import warnings
