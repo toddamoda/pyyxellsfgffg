@@ -82,11 +82,13 @@ def dummy_scene(mocker: MockerFixture, scene_dataset: xr.Dataset):
 
 def test_extract_wavelength(dummy_scene: Scene, scene_dataset: xr.Dataset):
     """..."""
+    wavelengths = xr.DataArray(
+        data=[336.0, 337.0, 338.0, 339.0, 340.0, 341.0, 342.0], dims="wavelength"
+    )
+
     ds = extract_wavelength(
         scene=dummy_scene,
-        wavelengths=xr.DataArray(
-            data=[335.0, 336.0, 337.0, 338.0, 339.0, 340.0, 341.0, 342.0]
-        ),
+        wavelengths=wavelengths,
     )
 
     exp_ds = scene_dataset.copy().sel(wavelength=slice(336, 342))
