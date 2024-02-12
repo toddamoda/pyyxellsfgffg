@@ -37,10 +37,16 @@ __all__ = ["Detector"]
 
 # TODO: Add methods to save/load a `Detector` instance to the filesystem. See #329
 class Detector:
-    """The detector class."""
+    """The detector base class.
+
+    Note
+    ----
+    This class is not intended to be directly used.
+    This is the base class for the other detectors such as CCD, CMOS...
+    """
 
     def __init__(self, environment: Optional[Environment] = None):
-        self.environment: Environment = environment or Environment()
+        self._environment: Environment = environment or Environment()
 
         self.header: dict[str, object] = collections.OrderedDict()
 
@@ -85,17 +91,22 @@ class Detector:
 
     @property
     def geometry(self):
-        """TBW."""
+        """Geometrical attributes of the detector (e.g. num of rows, columns...)."""
         raise NotImplementedError
 
     @property
     def characteristics(self):
-        """TBW."""
+        """Characteristics attributes of the detector (e.g. quantum efficiency...)."""
         raise NotImplementedError
 
     @property
+    def environment(self) -> Environment:
+        """Environmental attributes of the detector (e.g. temperature...)."""
+        return self._environment
+
+    @property
     def photon(self) -> Photon:
-        """TBW."""
+        """Define and store information of all photon (in ph or ph/nm)."""
         if not self._photon:
             raise RuntimeError("Photon array is not initialized ! ")
         return self._photon
@@ -106,20 +117,20 @@ class Detector:
 
     @property
     def scene(self) -> Scene:
-        """TBW."""
+        """Define and store information of a scene (in ph / (cm2 nm s))."""
         if not self._scene:
             raise RuntimeError("Scene object is not initialized ! ")
         return self._scene
 
     @scene.setter
     def scene(self, obj: Scene) -> None:
-        """TBW."""
         self._scene = obj
 
     # TODO: Why no setter for charge, pixel, signal and image?
     @property
     def charge(self) -> Charge:
-        """TBW."""
+        """Define and store information of charge distribution (in electron)."""
+
         if not self._charge:
             raise RuntimeError("'charge' not initialized.")
 
@@ -127,7 +138,8 @@ class Detector:
 
     @property
     def pixel(self) -> Pixel:
-        """TBW."""
+        """Define and store information of charge packets within pixel (in electron)."""
+
         if not self._pixel:
             raise RuntimeError("'pixel' not initialized.")
 
@@ -135,12 +147,11 @@ class Detector:
 
     @pixel.setter
     def pixel(self, obj: Pixel) -> None:
-        """TBW."""
         self.pixel.array = obj.array
 
     @property
     def signal(self) -> Signal:
-        """TBW."""
+        """Define and store information of detector signal (in Volt)."""
         if not self._signal:
             raise RuntimeError("'signal' not initialized.")
 
@@ -148,12 +159,11 @@ class Detector:
 
     @signal.setter
     def signal(self, obj: Pixel) -> None:
-        """TBW."""
         self.signal.array = obj.array
 
     @property
     def image(self) -> Image:
-        """TBW."""
+        """Define and store information of detector 'image' (in adu)."""
         if not self._image:
             raise RuntimeError("'image' not initialized.")
 
@@ -161,7 +171,6 @@ class Detector:
 
     @image.setter
     def image(self, obj: Pixel) -> None:
-        """TBW."""
         self.image.array = obj.array
 
     @property
@@ -401,10 +410,10 @@ class Detector:
     @property
     def persistence(self) -> Union[Persistence, SimplePersistence]:
         """TBW."""
-        if self._persistence is not None:
-            return self._persistence
-        else:
+        if self._persistence is None:
             raise RuntimeError("'persistence' not initialized.")
+
+        return self._persistence
 
     @persistence.setter
     def persistence(self, value: Union[Persistence, SimplePersistence]) -> None:
@@ -431,7 +440,16 @@ class Detector:
     def memory_usage(
         self, print_result: bool = True, human_readable: bool = True
     ) -> dict:
-        """TBW.
+        """Calculate the memory usage of this detector.
+
+        Parameters
+        ----------
+        print_result : bool, default: True
+            Boolean flag indicating whether to print the
+            memory usage details
+        human_readable : bool, default: True
+            Boolean flag indicating whether to print
+            memory usage details in human-readable format
 
         Returns
         -------

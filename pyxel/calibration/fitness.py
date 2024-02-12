@@ -17,18 +17,23 @@ def sum_of_abs_residuals(
     target: np.ndarray,
     weighting: np.ndarray,
 ) -> float:
-    """TBW.
+    """Calculate the sum of absolute residuals between simulated and target values.
 
     Parameters
     ----------
-    simulated
-    target
-    weighting
+    simulated : np.ndarray
+        An array containing simulated values.
+    target : np.ndarray
+        An array containing target (observed) values.
+    weighting : np.ndarray
+        An array containing weights for each data point.
+        These weights adjust the contribution of each residual
+        to the final sum.
 
     Returns
     -------
-    array
-        TBW.
+    float
+        The sum of absolute residuals, considering the provided weighting.
     """
     diff = target - simulated
     diff *= weighting
@@ -43,18 +48,23 @@ def sum_of_squared_residuals(
     target: np.ndarray,
     weighting: np.ndarray,
 ) -> float:
-    """TBW.
+    """Calculate the sum of squared residuals between simulated and target values.
 
     Parameters
     ----------
-    simulated
-    target
-    weighting
+    simulated : np.ndarray
+        An array containing simulated values.
+    target : np.ndarray
+        An array containing target (observed) values.
+    weighting : np.ndarray
+        An array containing weights for each data point.
+        These weights adjust the contribution of each squared residual
+        to the final sum.
 
     Returns
     -------
-    array
-        TBW.
+    float
+        The sum of squared residuals, considering the provided weighting.
     """
     diff = target - simulated
     diff_square = diff * diff
@@ -80,11 +90,16 @@ def reduced_chi_squared(
 
     Parameters
     ----------
-    simulated
-    target
-    weighting
+    simulated : np.ndarray
+        An array containing simulated values.
+    target : np.ndarray
+        An array containing target (observed) values.
+    weighting : np.ndarray
+        An array containing weights for each data point.
+        These weights adjust the contribution of each squared deviation
+        to the final statistic.
     free_parameters : int
-        Number of free parameters in the model
+        Number of free parameters in the model.
 
     Returns
     -------

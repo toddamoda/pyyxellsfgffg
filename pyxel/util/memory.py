@@ -55,14 +55,18 @@ def memory_usage_details(
     print_result: bool = True,
     human_readable: bool = True,
 ) -> dict:
-    """TBW.
+    """Calculate the memory usage of an object.
 
     Parameters
     ----------
-    obj: object
-    attr_kw: list
-    print_result: bool
-    human_readable: bool
+    obj : Any
+    attr_kw : list of str
+    print_result : bool, default: True
+        Boolean flag indicating whether to print the
+        memory usage details.
+    human_readable: bool, default: True
+        Boolean flag indicating whether to print memory
+        usage details in human-readable format.
 
     Returns
     -------

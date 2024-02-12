@@ -14,7 +14,7 @@ from pyxel.pipelines import ModelFunction, ModelGroup
 
 
 class DetectionPipeline:
-    """TBW."""
+    """Represent a pipeline of detection models organized into different groups."""
 
     # Define the order of steps in the pipeline.
     MODEL_GROUPS: tuple[str, ...] = (
@@ -167,12 +167,12 @@ class DetectionPipeline:
 
     @property
     def model_group_names(self) -> tuple[str, ...]:
-        """TBW."""
+        """Get all model groups."""
         return self.MODEL_GROUPS
 
     # TODO: Is this method used ?
     def get_model(self, name: str) -> ModelFunction:
-        """Return a ModelFunction object for the specified model name.
+        """Return a ``ModelFunction`` object for the specified model name.
 
         Parameters
         ----------
