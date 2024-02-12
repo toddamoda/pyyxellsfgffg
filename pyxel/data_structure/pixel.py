@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 class Pixel(Array):
-    """Pixel class defining and storing information of charge packets within pixel.
+    """Pixel class defining and storing information of charge packets within pixel (unit: e⁻).
 
     Accepted array types: ``np.int32``, ``np.int64``, ``np.uint32``, ``np.uint64``,
     ``np.float16``, ``np.float32``, ``np.float64``.

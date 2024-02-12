@@ -19,8 +19,7 @@ if TYPE_CHECKING:
 
 
 class Image(Array):
-    """
-    Image class defining and storing information of detector image.
+    """Image class defining and storing information of detector image (unit: adu).
 
     Accepted array types: ``np.uint16``, ``np.uint32``, ``np.uint64``
     """

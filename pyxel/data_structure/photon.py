@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 
 class Photon:
-    """Photon class defining and storing information of all photon.
+    """Photon class defining and storing information of all photon (unit: ph or ph/nm).
 
     Accepted array types: ``np.float16``, ``np.float32``, ``np.float64``
 

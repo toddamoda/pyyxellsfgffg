@@ -139,7 +139,7 @@ def _get_short_dimension_names(types: Mapping[str, ParameterType]) -> Mapping[st
 
 # TODO: Add unit tests
 def _get_short_dimension_names_new(
-    types: Mapping[str, ParameterType]
+    types: Mapping[str, ParameterType],
 ) -> Mapping[str, str]:
     # Create potential names for the dimensions
     potential_dim_names: dict[str, str] = {}

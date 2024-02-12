@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 class CCD(Detector):
-    """Charge-Coupled Device class containing all detector attributes and data."""
+    """:term:`Charge-Coupled Device<CCD>` class containing all detector attributes and data."""
 
     def __init__(
         self,
