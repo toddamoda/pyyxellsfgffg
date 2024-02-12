@@ -140,6 +140,7 @@ def set_modelstate(processor: "Processor", model_name: str, state: bool = True) 
 # These method are used to display the detector object (all of the array Photon, pixel, signal and image)
 
 
+# ruff: noqa: F401
 def display_detector(detector: "Detector") -> "pn.Tabs":
     """Display detector interactively.
 
@@ -152,7 +153,7 @@ def display_detector(detector: "Detector") -> "pn.Tabs":
     Tabs
     """
     # Late import to speedup start-up time
-    import hvplot.xarray  # To integrate 'hvplot' with 'xarray' # noqa
+    import hvplot.xarray  # To integrate 'hvplot' with 'xarray'
     import panel as pn
     import param
 
@@ -259,6 +260,125 @@ def display_detector(detector: "Detector") -> "pn.Tabs":
     )
 
     return tab_widgets
+
+
+def new_display_detector(detector: "Detector", custom_histogram=True):
+    # Extract a 'dataset' from 'detector'
+    ds: "xr.Dataset" = detector.to_xarray()
+
+    # Extract names from the arrays
+    array_names: list[str] = [str(name) for name in ds]
+    if not array_names:
+        raise ValueError("Detector object does not contain any arrays.")
+
+    import colorcet as cc
+    import hvplot.xarray  # To integrate 'hvplot' with 'xarray'
+    import numpy as np
+    import panel as pn
+    import param as pm
+    import xarray as xr
+    from holoviews.selection import link_selections
+
+    # pn.extension(nthreads=2)
+    # pn.extension()
+
+    class Parameters(pm.Parameterized):
+        array = pm.Selector(objects=array_names)
+        color_norm = pm.Selector(objects=["linear", "log"], doc="foo")
+        color_map = pm.Selector(
+            objects={
+                "fire": cc.fire,
+                "gray": cc.gray,  # linear colormaps, for plotting magnitudes
+                "blues": cc.blues,  # linear colormaps, for plotting magnitudes
+                "colorwheel": cc.colorwheel,  # cyclic colormaps for cyclic quantities like orientation or phase
+                "coolwarm": cc.coolwarm,  # diverging colormap, for plotting magnitude increasing or decreasin from a central point
+                "rainbow": cc.rainbow4,  # To highlight local differences in sequential data
+                "isoluminant": cc.isolum,  # To highlight low spatial-frequency information
+            }
+        )
+        flip_yaxis = pm.Boolean(default=True)
+
+        # Histogram
+        nbins = pm.Selector(objects=["auto", 10, 20, 50, 100])
+        logx = pm.Boolean(False)
+        logy = pm.Boolean(False)
+
+        @pm.depends("color_norm", watch=True)
+        def _change_logx(self):
+            self.logx = bool(self.color_norm == "log")
+
+        def view(self):
+            array_name: str = self.array
+            data: xr.DataArray = ds[array_name]
+
+            # 2D image
+            img = data.hvplot.image(
+                title="Array",
+                aspect=1.0,
+                cnorm=self.color_norm,
+                cmap=self.color_map,
+                flip_yaxis=self.flip_yaxis,
+                hover_cols=[array_name],
+                colorbar=True,
+                tools=[] if custom_histogram else ["box_select"],
+                # datashade=True
+            )
+
+            # Histogram
+            if custom_histogram:
+                frequencies, edges = np.histogram(data, bins=self.nbins)
+
+                data_hist = xr.DataArray(
+                    frequencies,
+                    dims=array_name,
+                    coords={array_name: edges[:-1]},
+                    name="Count",
+                )
+
+                long_name = data.attrs.get("long_name", array_name)
+                unit = data.attrs["units"]
+
+                hist = data_hist.hvplot.step(
+                    logx=self.logx,
+                    logy=self.logy,
+                    xlabel=f"{long_name} [{unit}]",
+                    grid=True,
+                    aspect=1.0,
+                )
+
+                return img + hist
+            else:
+                hist = data.hvplot.hist(
+                    aspect=1.0,
+                    bins=self.nbins,
+                    logx=self.logx,
+                    logy=self.logy,
+                )
+
+                link_selection = link_selections.instance()
+                return link_selection(img + hist)
+                # return pn.Row(pn.widgets.StaticText(value='Yo'),link_selection(img + hist))
+
+            # return pn.Row(img, hist)
+
+    # with param.parameterized.batch_call_watchers(p):
+    #     p.a = 2
+    #     p.a = 3
+    #     p.a = 1
+    #     p.a = 5
+
+    params = Parameters()
+    # obj = pn.Row(
+    #     params.view,
+    #     pn.Param(params.param, widgets={"color_map": pn.widgets.ColorMap}),
+    # )
+    obj = pn.Row(
+        params.view,
+        pn.Param(params.param, widgets={"color_map": pn.widgets.ColorMap}),
+    )
+
+    # return pn.Column(pn.widgets.StaticText(value='Yo'), obj)
+    return obj
 
 
 def display_array(

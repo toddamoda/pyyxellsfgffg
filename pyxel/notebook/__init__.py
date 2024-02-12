@@ -14,6 +14,7 @@ from .jupyxel import (
     change_modelparam,
     display_array,
     display_detector,
+    new_display_detector,
     display_persist,
     display_scene,
 )
