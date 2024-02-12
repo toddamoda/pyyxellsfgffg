@@ -22,7 +22,15 @@ if TYPE_CHECKING:
 #       __getitem__, __iter__, __len__, __contains__, ...
 #       See #181
 class ModelGroup:
-    """TBW."""
+    """Manage a collection of model functions.
+
+    Parameters
+    ----------
+    models : Sequence of ``ModelFunction``
+        Sequence of model functions belonging to the group.
+    name : str
+        Name of this group.
+    """
 
     def __init__(self, models: Sequence[ModelFunction], name: str):
         self._log = logging.getLogger(__name__)

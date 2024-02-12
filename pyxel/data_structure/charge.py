@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 
 
 class Charge:
-    """Charge class representing charge distribution.
+    """Charge class representing charge distribution (unit: e⁻).
 
     This class manipulates charge data in the form of a Numpy array
     and Pandas dataframe.

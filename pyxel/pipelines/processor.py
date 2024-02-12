@@ -153,7 +153,17 @@ def _get_obj_att(
 
 # TODO: Is this class needed ?
 class Processor:
-    """TBW."""
+    """Represent a processor that execute pipeline.
+
+    It manages the execution of models in the pipeline.
+
+    Parameters
+    ----------
+    detector : Detector
+        The detector object associated with the processor.
+    pipeline : DetectionPipeline
+        The detection pipeline object defining the sequence of model groups.
+    """
 
     def __init__(self, detector: "Detector", pipeline: DetectionPipeline):
         self._log = logging.getLogger(__name__)

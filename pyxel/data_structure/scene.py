@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 class Scene:
-    """Scene class defining and storing information of all multi-wavelength photons.
+    """Scene class defining and storing information of all multi-wavelength photons (unit: ph / (cm2 nm s)).
 
     Multi-wavelength photon information are store in form of xarray Datasets
     within a hierarchical structure.

@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 
 class Signal(Array):
-    """Signal class defining and storing information of detector signal.
+    """Signal class defining and storing information of detector signal (unit: Volt).
 
     Accepted array types: ``np.float16``, ``np.float32``, ``np.float64``.
     """
