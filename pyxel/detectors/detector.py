@@ -37,10 +37,16 @@ __all__ = ["Detector"]
 
 # TODO: Add methods to save/load a `Detector` instance to the filesystem. See #329
 class Detector:
-    """The detector class."""
+    """The detector base class.
+
+    Note
+    ----
+    This class is not intended to be directly used.
+    This is the base class for the other detectors such as CCD, CMOS...
+    """
 
     def __init__(self, environment: Optional[Environment] = None):
-        self.environment: Environment = environment or Environment()
+        self._environment: Environment = environment or Environment()
 
         self.header: dict[str, object] = collections.OrderedDict()
 
@@ -85,17 +91,22 @@ class Detector:
 
     @property
     def geometry(self):
-        """TBW."""
+        """Geometrical attributes of the detector (e.g. num of rows, columns...)."""
         raise NotImplementedError
 
     @property
     def characteristics(self):
-        """TBW."""
+        """Characteristics attributes of the detector (e.g. quantum efficiency...)."""
         raise NotImplementedError
 
     @property
+    def environment(self) -> Environment:
+        """Environmental attributes of the detector (e.g. temperature...)."""
+        return self._environment
+
+    @property
     def photon(self) -> Photon:
-        """TBW."""
+        """Define and store information of all photon (in photon)."""
         if not self._photon:
             raise RuntimeError("Photon array is not initialized ! ")
         return self._photon
@@ -113,13 +124,13 @@ class Detector:
 
     @scene.setter
     def scene(self, obj: Scene) -> None:
-        """TBW."""
         self._scene = obj
 
     # TODO: Why no setter for charge, pixel, signal and image?
     @property
     def charge(self) -> Charge:
-        """TBW."""
+        """Define and store information of charge distribution (in electron)."""
+
         if not self._charge:
             raise RuntimeError("'charge' not initialized.")
 
@@ -127,7 +138,8 @@ class Detector:
 
     @property
     def pixel(self) -> Pixel:
-        """TBW."""
+        """Define and store information of charge packets within pixel (in electron)."""
+
         if not self._pixel:
             raise RuntimeError("'pixel' not initialized.")
 
@@ -135,7 +147,6 @@ class Detector:
 
     @pixel.setter
     def pixel(self, obj: Pixel) -> None:
-        """TBW."""
         self.pixel.array = obj.array
 
     @property
@@ -148,12 +159,12 @@ class Detector:
 
     @signal.setter
     def signal(self, obj: Pixel) -> None:
-        """TBW."""
+        """Define and store information of detector 'signal' (in Volt)."""
         self.signal.array = obj.array
 
     @property
     def image(self) -> Image:
-        """TBW."""
+        """Define and store information of detector 'image' (in adu)."""
         if not self._image:
             raise RuntimeError("'image' not initialized.")
 
@@ -161,7 +172,6 @@ class Detector:
 
     @image.setter
     def image(self, obj: Pixel) -> None:
-        """TBW."""
         self.image.array = obj.array
 
     @property
