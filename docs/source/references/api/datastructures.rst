@@ -5,7 +5,7 @@ Data structures
 ===============
 .. currentmodule:: pyxel.data_structure
 
-.. autoclass:: Array
+.. autoclass:: Scene
     :members:
     :inherited-members:
     :undoc-members:
@@ -13,6 +13,13 @@ Data structures
     :exclude-members:
 
 .. autoclass:: Photon
+    :members:
+    :inherited-members:
+    :undoc-members:
+    :show-inheritance:
+    :exclude-members:
+
+.. autoclass:: Charge
     :members:
     :inherited-members:
     :undoc-members:
@@ -47,7 +54,7 @@ Data structures
     :show-inheritance:
     :exclude-members:
 
-.. autoclass:: Charge
+.. autoclass:: Array
     :members:
     :inherited-members:
     :undoc-members:
