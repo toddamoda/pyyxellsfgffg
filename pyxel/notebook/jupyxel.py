@@ -262,7 +262,13 @@ def display_detector(detector: "Detector") -> "pn.Tabs":
     return tab_widgets
 
 
-def new_display_detector(detector: "Detector", custom_histogram=True):
+def new_display_detector(detector: "Detector", custom_histogram=True) -> "pn.Tabs":
+    """Display detector interactively.
+
+    Notes
+    -----
+    This function is provisional and may change.
+    """
     # Extract a 'dataset' from 'detector'
     ds: "xr.Dataset" = detector.to_xarray()
 
@@ -419,34 +425,6 @@ def display_array(
     plt.setp(axes[1].xaxis.get_majorticklabels(), rotation=45)
     axes[1].legend(fontsize=12)
     axes[1].grid(True, alpha=0.5)
-
-
-# def display_detector(
-#     detector: "Detector", array: Union[None, Photon, Pixel, Signal, Image] = None
-# ) -> None:
-#     """Display detector.
-#
-#     Parameters
-#     ----------
-#     detector: Detector
-#     array: str
-#
-#     Returns
-#     -------
-#     None
-#     """
-#     if array is not None:
-#         fig, axes = plt.subplots(1, 2, figsize=(15, 6))
-#         display_array(array.array, axes, label=str(array).split("<")[0])
-#     else:
-#         arrays = [detector.photon, detector.pixel, detector.signal, detector.image]
-#
-#         fig, axes = plt.subplots(len(arrays), 2, figsize=(15, 6 * len(arrays)))
-#
-#         for idx, data in enumerate(arrays):
-#             display_array(data.array, axes[idx], label=str(data).split("<")[0])
-#
-#     plt.show()
 
 
 # ----------------------------------------------------------------------------------------------
