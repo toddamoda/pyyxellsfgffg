@@ -17,6 +17,12 @@ The deprecated models in `optics` and `photon_generation` model groups are remov
 
 The deprecated model `simple_aperture` in `photon_collection` is removed.
 
+The minimum versions of some dependencies were changed:
+
+  | Package | Old | New      |
+  |---------|-----|----------|
+  | Bokeh   |     | **3.3+** |
+
 
 ### Core
 * Fix bug when `pyxel.load` is executed and output folder already exists.
@@ -28,6 +34,8 @@ The deprecated model `simple_aperture` in `photon_collection` is removed.
   (See [!844](https://gitlab.com/esa/pyxel/-/merge_requests/844)).
 * Fix bug in `ModelFittingDataTree`.
   (See [!845](https://gitlab.com/esa/pyxel/-/merge_requests/845)).
+* Add new function `pyxel.new_display_detector`.
+  (See [!850](https://gitlab.com/esa/pyxel/-/merge_requests/850)).
 
 ### Documentation
 * Update documentation about quick start installation.
