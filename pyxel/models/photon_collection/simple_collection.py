@@ -56,14 +56,14 @@ def extract_wavelength(
     data = scene.to_xarray()
 
     # interpolation
-    interpolated_wavelengths = data.interp_like(wavelengths)
+    interpolated_wavelengths = data.interp(wavelength=wavelengths)
 
     # get dataset with x, y, weight and flux of scene for selected wavelength band.
-    selected_data: xr.Dataset = data.sel(
-        wavelength=interpolated_wavelengths["wavelength"]
-    )
+    # selected_data: xr.Dataset = data.sel(
+    #     wavelength=interpolated_wavelengths["wavelength"]
+    # )
 
-    return selected_data
+    return interpolated_wavelengths
 
 
 def integrate_flux(
