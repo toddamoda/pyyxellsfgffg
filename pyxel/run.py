@@ -21,7 +21,7 @@ import pandas as pd
 
 from pyxel import Configuration
 from pyxel import __version__ as version
-from pyxel import load, outputs, copy_config_file, set_options
+from pyxel import copy_config_file, load, outputs, set_options
 from pyxel.detectors import APD, CCD, CMOS, MKID, Detector
 from pyxel.exposure import Exposure
 from pyxel.observation import Observation, ObservationResult
@@ -876,10 +876,6 @@ def run(input_filename: Union[str, Path], random_seed: Optional[int] = None) -> 
     start_time = time.time()
 
     configuration: Configuration = load(Path(input_filename).expanduser().resolve())
-
-    output_dir = output_directory(configuration)
-
-    save(input_filename=input_filename, output_dir=output_dir)
 
     pipeline: DetectionPipeline = configuration.pipeline
     detector: Union[CCD, CMOS, MKID, APD] = configuration.detector
