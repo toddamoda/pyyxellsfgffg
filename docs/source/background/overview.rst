@@ -26,7 +26,7 @@ Further information on specific parts of the code can be found in the :ref:`Refe
         and the pipeline, defined in configuration files.
 
         Detectors store properties and data used by models in
-        the pipeline <pipeline>, mimicking detector principles.
+        the pipeline, mimicking detector principles.
         
         +++
 

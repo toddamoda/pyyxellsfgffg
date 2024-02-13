@@ -257,8 +257,6 @@ Outputs
     CalibrationOutputs
 
 
-* :ref:`util_api`
-
 .. toctree::
    :caption: api reference
    :maxdepth: 1

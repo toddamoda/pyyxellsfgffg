@@ -41,6 +41,7 @@ to look for certain things:
 
         .. button-ref:: introduction
             :ref-type: ref
+            :click-parent:
             :color: primary
             :outline:
             :expand:
@@ -61,6 +62,7 @@ to look for certain things:
 
         .. button-ref:: howtos
             :ref-type: ref
+            :click-parent:
             :color: primary
             :outline:
             :expand:
@@ -80,6 +82,7 @@ to look for certain things:
 
         .. button-ref:: background
             :ref-type: ref
+            :click-parent:
             :color: primary
             :outline:
             :expand:
@@ -100,6 +103,7 @@ to look for certain things:
 
         .. button-ref:: reference
             :ref-type: ref
+            :click-parent:
             :color: primary
             :outline:
             :expand:
