@@ -41,7 +41,7 @@
   "definitions": {
     "APD": {
       "additionalProperties": false,
-      "description": ":term:`CMOS`-based detector class containing all detector attributesand data.",
+      "description": ":term:`CMOS`-based detector class containing all detector attributes and data.",
       "properties": {
         "characteristics": {
           "allOf": [
@@ -149,7 +149,7 @@
         },
         "pixel_reset_voltage": {
           "default": null,
-          "description": "DC voltage going into the detector, not the voltage of a reset pixel.Unit: V",
+          "description": "DC voltage going into the detector, not the voltage of a reset pixel. Unit: V",
           "title": "pixel_reset_voltage",
           "type": [
             "number",
@@ -197,7 +197,7 @@
         },
         "pixel_scale": {
           "default": null,
-          "description": "Dimension of how much of the sky is covered by one pixel. Unit:arcsec/pixel",
+          "description": "Dimension of how much of the sky is covered by one pixel. Unit: arcsec/pixel",
           "title": "pixel_scale",
           "type": [
             "number",
@@ -401,7 +401,7 @@
     },
     "CCD": {
       "additionalProperties": false,
-      "description": "Charge-Coupled Device class containing all detector attributes anddata.",
+      "description": ":term:`Charge-Coupled Device<CCD>` class containing all detector attributes and data.",
       "properties": {
         "characteristics": {
           "allOf": [
@@ -459,7 +459,7 @@
         },
         "pixel_scale": {
           "default": null,
-          "description": "Dimension of how much of the sky is covered by one pixel. Unit:arcsec/pixel",
+          "description": "Dimension of how much of the sky is covered by one pixel. Unit: arcsec/pixel",
           "title": "pixel_scale",
           "type": [
             "number",
@@ -499,7 +499,7 @@
     },
     "CMOS": {
       "additionalProperties": false,
-      "description": ":term:`CMOS`-based detector class containing all detector attributesand data.",
+      "description": ":term:`CMOS`-based detector class containing all detector attributes and data.",
       "properties": {
         "characteristics": {
           "allOf": [
@@ -557,7 +557,7 @@
         },
         "pixel_scale": {
           "default": null,
-          "description": "Dimension of how much of the sky is covered by one pixel. Unit:arcsec/pixel",
+          "description": "Dimension of how much of the sky is covered by one pixel. Unit: arcsec/pixel",
           "title": "pixel_scale",
           "type": [
             "number",
@@ -1866,7 +1866,7 @@
     },
     "MKID": {
       "additionalProperties": false,
-      "description": ":term:`MKID`-based detector class containing all detector attributesand data.",
+      "description": ":term:`MKID`-based detector class containing all detector attributes and data.",
       "properties": {
         "characteristics": {
           "allOf": [
@@ -1924,7 +1924,7 @@
         },
         "pixel_scale": {
           "default": null,
-          "description": "Dimension of how much of the sky is covered by one pixel. Unit:arcsec/pixel",
+          "description": "Dimension of how much of the sky is covered by one pixel. Unit: arcsec/pixel",
           "title": "pixel_scale",
           "type": [
             "number",
@@ -1964,13 +1964,13 @@
     },
     "ModelChargeCollectionFixedPatternNoise": {
       "additionalProperties": false,
-      "description": "Add fixed pattern noise caused by pixel non-uniformity during chargecollection.",
+      "description": "Add fixed pattern noise caused by pixel non-uniformity during charge collection.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
           "properties": {
             "align": {
-              "description": "Keyword to align the noise to detector. Can be any from: (\"center\",\"top_left\", \"top_right\", \"bottom_left\", \"bottom_right\")",
+              "description": "Keyword to align the noise to detector. Can be any from: (\"center\", \"top_left\", \"top_right\", \"bottom_left\", \"bottom_right\")",
               "enum": [
                 "center",
                 "top_left",
@@ -2016,7 +2016,7 @@
                 0,
                 0
               ],
-              "description": "Indices of starting row and column, used when fitting noise todetector.",
+              "description": "Indices of starting row and column, used when fitting noise to detector.",
               "items": [
                 {
                   "type": "integer"
@@ -2078,7 +2078,7 @@
           "additionalProperties": false,
           "properties": {
             "trap_capacities_align": {
-              "description": "Keyword to align the capacities to detector. Can be any from:(\"center\", \"top_left\", \"top_right\", \"bottom_left\", \"bottom_right\")",
+              "description": "Keyword to align the capacities to detector. Can be any from: (\"center\", \"top_left\", \"top_right\", \"bottom_left\", \"bottom_right\")",
               "enum": [
                 "center",
                 "top_left",
@@ -2115,7 +2115,7 @@
                 0,
                 0
               ],
-              "description": "Indices of starting row and column, used when fitting capacities todetector.",
+              "description": "Indices of starting row and column, used when fitting capacities to detector.",
               "items": [
                 {
                   "type": "integer"
@@ -2138,7 +2138,7 @@
               "type": "array"
             },
             "trap_densities_align": {
-              "description": "Keyword to align the densities to detector. Can be any from:(\"center\", \"top_left\", \"top_right\", \"bottom_left\", \"bottom_right\")",
+              "description": "Keyword to align the densities to detector. Can be any from: (\"center\", \"top_left\", \"top_right\", \"bottom_left\", \"bottom_right\")",
               "enum": [
                 "center",
                 "top_left",
@@ -2171,7 +2171,7 @@
                 0,
                 0
               ],
-              "description": "Indices of starting row and column, used when fitting densities todetector.",
+              "description": "Indices of starting row and column, used when fitting densities to detector.",
               "items": [
                 {
                   "type": "integer"
@@ -2569,14 +2569,14 @@
     },
     "ModelChargeGenerationChargeDeposition": {
       "additionalProperties": false,
-      "description": "Simulate charge deposition by ionizing particles using a stoppingpower curve.",
+      "description": "Simulate charge deposition by ionizing particles using a stopping power curve.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
           "properties": {
             "ehpair_creation": {
               "default": 3.65,
-              "description": "the energy required to generate a electron-hole pair in eV by defaultthe Si value at room temperature is parsed i.e. 3.65 eV",
+              "description": "the energy required to generate a electron-hole pair in eV by default the Si value at room temperature is parsed i.e. 3.65 eV",
               "title": "ehpair_creation",
               "type": "number"
             },
@@ -2600,12 +2600,12 @@
                 }
               ],
               "default": null,
-              "description": "the location of the file describing the energy spectrum of incidentparticles if no spectrum is provided energies are randomly drawn froma normal distribution with mean and spread defined above note that theenergy spectrum is assumed to be a txt file with two columns [energy,flux] with the energy in MeV",
+              "description": "the location of the file describing the energy spectrum of incident particles if no spectrum is provided energies are randomly drawn from a normal distribution with mean and spread defined above note that the energy spectrum is assumed to be a txt file with two columns [energy, flux] with the energy in MeV",
               "title": "energy_spectrum"
             },
             "energy_spectrum_sampling": {
               "default": "log",
-              "description": "\"log\" or None: the energy spectrum is sampled in log space \"linear\" :the energy spectrum is sampled in linear space",
+              "description": "\"log\" or None: the energy spectrum is sampled in log space \"linear\" : the energy spectrum is sampled in linear space",
               "enum": [
                 "linear",
                 "log"
@@ -2626,13 +2626,13 @@
             },
             "material_density": {
               "default": 2.329,
-              "description": "the material density in g/cm3 by default he Si value at roomtemperature is parsed i.e. 2.3290 g/cm3",
+              "description": "the material density in g/cm3 by default he Si value at room temperature is parsed i.e. 2.3290 g/cm3",
               "title": "material_density",
               "type": "number"
             },
             "particle_direction": {
               "default": "isotropic",
-              "description": "\"isotropic\" : particles are coming from all directions (outside of thesensor) \"orthogonal\" : particles are coming from the top of the sensor(thickness = 0) and orthogonal to its surface",
+              "description": "\"isotropic\" : particles are coming from all directions (outside of the sensor) \"orthogonal\" : particles are coming from the top of the sensor (thickness = 0) and orthogonal to its surface",
               "enum": [
                 "isotropic",
                 "orthogonal"
@@ -2650,7 +2650,7 @@
             },
             "step_size": {
               "default": 1.0,
-              "description": "the size of the considered unitary step in unit length along whichenergy is deposited",
+              "description": "the size of the considered unitary step in unit length along which energy is deposited",
               "title": "step_size",
               "type": "number"
             },
@@ -2668,7 +2668,7 @@
                 }
               ],
               "default": null,
-              "description": "the location of the file describing the total massive stopping powerenergetic loss per mass of material and per unit path length versusparticle energy note that the the stopping power curve is assumed tobe a csv file with two columns [energy, stopping power] energy in MeV,stopping power in MeV cm2/g",
+              "description": "the location of the file describing the total massive stopping power energetic loss per mass of material and per unit path length versus particle energy note that the the stopping power curve is assumed to be a csv file with two columns [energy, stopping power] energy in MeV, stopping power in MeV cm2/g",
               "title": "stopping_power_curve"
             }
           },
@@ -2700,14 +2700,14 @@
     },
     "ModelChargeGenerationChargeDepositionInMct": {
       "additionalProperties": false,
-      "description": "Simulate charge deposition by ionizing particles using a stoppingpower curve.",
+      "description": "Simulate charge deposition by ionizing particles using a stopping power curve.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
           "properties": {
             "cutoff_wavelength": {
               "default": 2.5,
-              "description": "the longest wavelength in micrometer at which the QE reaches 50% ofits maximum, used to compute the bandgap energy, and the correspondingfraction of cadmium",
+              "description": "the longest wavelength in micrometer at which the QE reaches 50% of its maximum, used to compute the bandgap energy, and the corresponding fraction of cadmium",
               "title": "cutoff_wavelength",
               "type": "number"
             },
@@ -2731,12 +2731,12 @@
                 }
               ],
               "default": null,
-              "description": "the location of the file describing the energy spectrum of incidentparticles if no spectrum is provided energies are randomly drawn froma normal distribution with mean and spread defined above note that theenergy spectrum is assumed to be a txt file with two columns [energy,flux] with the energy in MeV",
+              "description": "the location of the file describing the energy spectrum of incident particles if no spectrum is provided energies are randomly drawn from a normal distribution with mean and spread defined above note that the energy spectrum is assumed to be a txt file with two columns [energy, flux] with the energy in MeV",
               "title": "energy_spectrum"
             },
             "energy_spectrum_sampling": {
               "default": "log",
-              "description": "\"log\" : the energy spectrum is sampled in log space \"linear\" : theenergy spectrum is sampled in linear space",
+              "description": "\"log\" : the energy spectrum is sampled in log space \"linear\" : the energy spectrum is sampled in linear space",
               "enum": [
                 "linear",
                 "log"
@@ -2757,7 +2757,7 @@
             },
             "particle_direction": {
               "default": "isotropic",
-              "description": "\"isotropic\" : particles are coming from all directions (outside of thesensor) \"orthogonal\" : particles are coming from the top of the sensor(thickness = 0) and orthogonal to its surface",
+              "description": "\"isotropic\" : particles are coming from all directions (outside of the sensor) \"orthogonal\" : particles are coming from the top of the sensor (thickness = 0) and orthogonal to its surface",
               "enum": [
                 "isotropic",
                 "orthogonal"
@@ -2775,7 +2775,7 @@
             },
             "step_size": {
               "default": 1.0,
-              "description": "the size of the considered unitary step in unit length along whichenergy is deposited",
+              "description": "the size of the considered unitary step in unit length along which energy is deposited",
               "title": "step_size",
               "type": "number"
             },
@@ -2793,7 +2793,7 @@
                 }
               ],
               "default": null,
-              "description": "the location of the file describing the total massive stopping powerenergetic loss per mass of material and per unit path length versusparticle energy note that the the stopping power curve is assumed tobe a csv file with two columns [energy, stopping power] energy in MeV,stopping power in MeV cm2/g",
+              "description": "the location of the file describing the total massive stopping power energetic loss per mass of material and per unit path length versus particle energy note that the the stopping power curve is assumed to be a csv file with two columns [energy, stopping power] energy in MeV, stopping power in MeV cm2/g",
               "title": "stopping_power_curve"
             }
           },
@@ -2872,13 +2872,13 @@
     },
     "ModelChargeGenerationConversionWithQeMap": {
       "additionalProperties": false,
-      "description": "Generate charge from incident photon via photoelectric effect, simplemodel with custom :term:`QE` map.",
+      "description": "Generate charge from incident photon via photoelectric effect, simple model with custom :term:`QE` map.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
           "properties": {
             "align": {
-              "description": "Keyword to align the :term:`QE` map to detector. Can be any from:(\"center\", \"top_left\", \"top_right\", \"bottom_left\", \"bottom_right\")",
+              "description": "Keyword to align the :term:`QE` map to detector. Can be any from: (\"center\", \"top_left\", \"top_right\", \"bottom_left\", \"bottom_right\")",
               "enum": [
                 "center",
                 "top_left",
@@ -2917,7 +2917,7 @@
                 0,
                 0
               ],
-              "description": "Indices of starting row and column, used when fitting :term:`QE` mapto detector.",
+              "description": "Indices of starting row and column, used when fitting :term:`QE` map to detector.",
               "items": [
                 {
                   "type": "integer"
@@ -3183,7 +3183,7 @@
             },
             "band_gap_room_temperature": {
               "default": null,
-              "description": "Semiconductor band gap at 300K. If none, the one for silicon is used.Unit: eV",
+              "description": "Semiconductor band gap at 300K. If none, the one for silicon is used. Unit: eV",
               "title": "band_gap_room_temperature",
               "type": [
                 "number",
@@ -3354,13 +3354,13 @@
     },
     "ModelChargeGenerationLoadCharge": {
       "additionalProperties": false,
-      "description": "Load charge from txt file for detector, mostly for but not limited to:term:`CCDs<CCD>`.",
+      "description": "Load charge from txt file for detector, mostly for but not limited to :term:`CCDs<CCD>`.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
           "properties": {
             "align": {
-              "description": "Keyword to align the charge to detector. Can be any from: (\"center\",\"top_left\", \"top_right\", \"bottom_left\", \"bottom_right\")",
+              "description": "Keyword to align the charge to detector. Can be any from: (\"center\", \"top_left\", \"top_right\", \"bottom_left\", \"bottom_right\")",
               "enum": [
                 "center",
                 "top_left",
@@ -3393,7 +3393,7 @@
                 0,
                 0
               ],
-              "description": "Indices of starting row and column, used when fitting charge todetector.",
+              "description": "Indices of starting row and column, used when fitting charge to detector.",
               "items": [
                 {
                   "type": "integer"
@@ -3417,7 +3417,7 @@
             },
             "time_scale": {
               "default": 1.0,
-              "description": "Time scale of the input charge, default is 1 second. 0.001 would bems.",
+              "description": "Time scale of the input charge, default is 1 second. 0.001 would be ms.",
               "title": "time_scale",
               "type": "number"
             }
@@ -3515,7 +3515,7 @@
     },
     "ModelChargeGenerationSimpleConversion": {
       "additionalProperties": false,
-      "description": "Generate charge from incident photon via photoelectric effect, simplemodel.",
+      "description": "Generate charge from incident photon via photoelectric effect, simple model.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
@@ -3579,7 +3579,7 @@
           "additionalProperties": false,
           "properties": {
             "dark_rate": {
-              "description": "Dark current, in electrons/pixel/second, which is the waymanufacturers typically report it.",
+              "description": "Dark current, in electrons/pixel/second, which is the way manufacturers typically report it.",
               "title": "dark_rate",
               "type": "number"
             },
@@ -3836,7 +3836,7 @@
           "properties": {
             "n_frame_overhead": {
               "default": 0,
-              "description": "New frame overhead in rows. This allows for a short wait at the end ofa frame before starting the next frame.",
+              "description": "New frame overhead in rows. This allows for a short wait at the end of a frame before starting the next frame.",
               "title": "n_frame_overhead",
               "type": "integer"
             },
@@ -3848,7 +3848,7 @@
             },
             "n_row_overhead": {
               "default": 0,
-              "description": "New row overhead in pixel. This allows for a short wait at the end ofa row before starting the next row.",
+              "description": "New row overhead in pixel. This allows for a short wait at the end of a row before starting the next row.",
               "title": "n_row_overhead",
               "type": "integer"
             },
@@ -3873,7 +3873,7 @@
             },
             "reverse_scan_direction": {
               "default": false,
-              "description": "Set this True to reverse the fast scanner readout directions. Thiscapability was added to support Teledyne\u2019s programmable fast scanreadout directions. The default setting (False) corresponds to whatHxRG detectors default to upon power up.",
+              "description": "Set this True to reverse the fast scanner readout directions. This capability was added to support Teledyne\u2019s programmable fast scan readout directions. The default setting (False) corresponds to what HxRG detectors default to upon power up.",
               "title": "reverse_scan_direction",
               "type": "boolean"
             },
@@ -3970,7 +3970,7 @@
     },
     "ModelChargeMeasurementOutputNodeLinearityPoly": {
       "additionalProperties": false,
-      "description": "Add non-linearity to signal array to simulate the non-linearity of theoutput node circuit.",
+      "description": "Add non-linearity to signal array to simulate the non-linearity of the output node circuit.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
@@ -4012,7 +4012,7 @@
     },
     "ModelChargeMeasurementOutputNodeNoise": {
       "additionalProperties": false,
-      "description": "Add noise to signal array of detector output node using normal randomdistribution.",
+      "description": "Add noise to signal array of detector output node using normal random distribution.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
@@ -4060,7 +4060,7 @@
     },
     "ModelChargeMeasurementOutputNodeNoiseCmos": {
       "additionalProperties": false,
-      "description": "Output node noise model for :term:`CMOS` detectors where readout isstatistically independent for each pixel.",
+      "description": "Output node noise model for :term:`CMOS` detectors where readout is statistically independent for each pixel.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
@@ -4384,7 +4384,7 @@
           "properties": {
             "gain": {
               "default": null,
-              "description": "Gain to apply. By default, this is the sensitivity of charge readout.Unit: V/e-",
+              "description": "Gain to apply. By default, this is the sensitivity of charge readout. Unit: V/e-",
               "title": "gain",
               "type": [
                 "number",
@@ -4479,14 +4479,14 @@
     },
     "ModelChargeTransferArcticAdd": {
       "additionalProperties": false,
-      "description": "Add :term:`CTI` trails to an image by trapping, releasing and movingelectrons.",
+      "description": "Add :term:`CTI` trails to an image by trapping, releasing and moving electrons.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
           "properties": {
             "express": {
               "default": 0,
-              "description": "As described in more detail in :cite:p:`2014:massey` section 2.1.5,the effects of each individual pixel-to-pixel transfer can be verysimilar, so multiple transfers can be computed at once for efficiency.The ``express`` input sets the number of times the transfers arecalculated.      * ``express = 1`` is the fastest and least accurate.* ``express = 2`` means the transfers are re-computed half-way throughreadout.     * ``express = N`` where ``N`` is the total number ofpixels.  Default ``express = 0`` is a convenient input for automatic``express = N``.",
+              "description": "As described in more detail in :cite:p:`2014:massey` section 2.1.5, the effects of each individual pixel-to-pixel transfer can be very similar, so multiple transfers can be computed at once for efficiency. The ``express`` input sets the number of times the transfers are calculated.      * ``express = 1`` is the fastest and least accurate.     * ``express = 2`` means the transfers are re-computed half-way through readout.     * ``express = N`` where ``N`` is the total number of pixels.  Default ``express = 0`` is a convenient input for automatic ``express = N``.",
               "title": "express",
               "type": "integer"
             },
@@ -4541,19 +4541,19 @@
     },
     "ModelChargeTransferArcticRemove": {
       "additionalProperties": false,
-      "description": "Remove :term:`CTI` trails from an image by first modelling theaddition of :term:`CTI`.",
+      "description": "Remove :term:`CTI` trails from an image by first modelling the addition of :term:`CTI`.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
           "properties": {
             "express": {
               "default": 0,
-              "description": "As described in more detail in :cite:p:`2014:massey` section 2.1.5,the effects of each individual pixel-to-pixel transfer can be verysimilar, so multiple transfers can be computed at once for efficiency.The ``express`` input sets the number of times the transfers arecalculated.      * ``express = 1`` is the fastest and least accurate.* ``express = 2`` means the transfers are re-computed half-way throughreadout.     * ``express = N`` where ``N`` is the total number ofpixels.  Default ``express = 0`` is a convenient input for automatic``express = N``.",
+              "description": "As described in more detail in :cite:p:`2014:massey` section 2.1.5, the effects of each individual pixel-to-pixel transfer can be very similar, so multiple transfers can be computed at once for efficiency. The ``express`` input sets the number of times the transfers are calculated.      * ``express = 1`` is the fastest and least accurate.     * ``express = 2`` means the transfers are re-computed half-way through readout.     * ``express = N`` where ``N`` is the total number of pixels.  Default ``express = 0`` is a convenient input for automatic ``express = N``.",
               "title": "express",
               "type": "integer"
             },
             "num_iterations": {
-              "description": "Number of iterations for the forward modelling. More iterationsprovide higher accuracy at the cost of longer runtime. In practice,just 1 to 3 iterations are usually sufficient.",
+              "description": "Number of iterations for the forward modelling. More iterations provide higher accuracy at the cost of longer runtime. In practice, just 1 to 3 iterations are usually sufficient.",
               "title": "num_iterations",
               "type": "integer"
             },
@@ -4624,7 +4624,7 @@
               "type": "boolean"
             },
             "direction": {
-              "description": "Set ``\"parallel\"`` for :term:`CTI` in parallel direction or``\"serial\"`` for :term:`CTI` in serial register.",
+              "description": "Set ``\"parallel\"`` for :term:`CTI` in parallel direction or ``\"serial\"`` for :term:`CTI` in serial register.",
               "enum": [
                 "parallel",
                 "serial"
@@ -4634,7 +4634,7 @@
             },
             "electron_effective_mass": {
               "default": 0.5,
-              "description": "Electron effective mass in the semiconductor lattice. Unit: 1 electronmass",
+              "description": "Electron effective mass in the semiconductor lattice. Unit: 1 electron mass",
               "title": "electron_effective_mass",
               "type": "number"
             },
@@ -4649,7 +4649,7 @@
             },
             "max_electron_volume": {
               "default": 0.0,
-              "description": "Maximum geometrical volume :math:`V_g` that electrons can occupywithin a pixel. Unit: :math:`cm^3`.",
+              "description": "Maximum geometrical volume :math:`V_g` that electrons can occupy within a pixel. Unit: :math:`cm^3`.",
               "title": "max_electron_volume",
               "type": "number"
             },
@@ -4816,7 +4816,7 @@
     },
     "ModelDataProcessingExtractRoiToXarray": {
       "additionalProperties": false,
-      "description": "Extract the roi data converts it to xarray dataset and saves theinformation to the final result.",
+      "description": "Extract the roi data converts it to xarray dataset and saves the information to the final result.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
@@ -4833,13 +4833,13 @@
             },
             "minarea": {
               "default": 5,
-              "description": "Minimum area of pixels required that are above the threshold for theextractor to extract information",
+              "description": "Minimum area of pixels required that are above the threshold for the extractor to extract information",
               "title": "minarea",
               "type": "integer"
             },
             "thresh": {
               "default": 50,
-              "description": "Threshold pixel value above which information from the image array isextracted",
+              "description": "Threshold pixel value above which information from the image array is extracted",
               "title": "thresh",
               "type": "integer"
             }
@@ -4868,7 +4868,7 @@
     },
     "ModelDataProcessingLinearRegression": {
       "additionalProperties": false,
-      "description": "Compute a linear regression along 'readout_time' and store it in'.data' bucket.",
+      "description": "Compute a linear regression along 'readout_time' and store it in '.data' bucket.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
@@ -4978,7 +4978,7 @@
     },
     "ModelDataProcessingRemoveCosmicRays": {
       "additionalProperties": false,
-      "description": "Extract the roi data converts it to xarray dataset and saves theinformation to the final result.",
+      "description": "Extract the roi data converts it to xarray dataset and saves the information to the final result.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
@@ -4992,13 +4992,13 @@
           "properties": {
             "contrast": {
               "default": 1.0,
-              "description": "Contrast threshold between the Laplacian image and the fine-structureimage.",
+              "description": "Contrast threshold between the Laplacian image and the fine-structure image.",
               "title": "contrast",
               "type": "number"
             },
             "cr_threshold": {
               "default": 50.0,
-              "description": "The Laplacian signal-to-noise ratio threshold for cosmic-raydetection.",
+              "description": "The Laplacian signal-to-noise ratio threshold for cosmic-ray detection.",
               "title": "cr_threshold",
               "type": "number"
             },
@@ -5010,7 +5010,7 @@
             },
             "neighbor_threshold": {
               "default": 50.0,
-              "description": "The Laplacian signal-to-noise ratio threshold for detection of cosmicrays in pixels neighboring the initially-identified cosmic rays.",
+              "description": "The Laplacian signal-to-noise ratio threshold for detection of cosmic rays in pixels neighboring the initially-identified cosmic rays.",
               "title": "neighbor_threshold",
               "type": "number"
             },
@@ -5055,7 +5055,7 @@
           "properties": {
             "data_structure": {
               "default": "signal",
-              "description": "Keyword to choose data structure. Can be any from: (\"pixel\", \"photon\",\"signal\", \"image\", \"all\"). Default is \"signal\" and computes the SNR on\"signal\".",
+              "description": "Keyword to choose data structure. Can be any from: (\"pixel\", \"photon\", \"signal\", \"image\", \"all\"). Default is \"signal\" and computes the SNR on \"signal\".",
               "enum": [
                 "pixel",
                 "photon",
@@ -5101,7 +5101,7 @@
           "properties": {
             "data_structure": {
               "default": "all",
-              "description": "Keyword to choose data structure. Can be any from: (\"pixel\", \"photon\",\"signal\", \"image\", \"all\"). Default is \"all\" and computes thestatistics on \"pixel\", \"photon\", \"signal\" and \"image\".",
+              "description": "Keyword to choose data structure. Can be any from: (\"pixel\", \"photon\", \"signal\", \"image\", \"all\"). Default is \"all\" and computes the statistics on \"pixel\", \"photon\", \"signal\" and \"image\".",
               "enum": [
                 "pixel",
                 "photon",
@@ -5226,7 +5226,7 @@
             },
             "scaling_factor": {
               "default": 250.0,
-              "description": "Scaling factor taking into account the missing pieces ofsuperconducting physics, as well as the resonator quality factor, thebias power, the quasi-particle losses, etc.",
+              "description": "Scaling factor taking into account the missing pieces of superconducting physics, as well as the resonator quality factor, the bias power, the quasi-particle losses, etc.",
               "title": "scaling_factor",
               "type": "number"
             },
@@ -5271,7 +5271,7 @@
     },
     "ModelPhotonCollectionIllumination": {
       "additionalProperties": false,
-      "description": "Generate photon uniformly over the entire array or over an elliptic orrectangular object.",
+      "description": "Generate photon uniformly over the entire array or over an elliptic or rectangular object.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
@@ -5283,7 +5283,7 @@
             },
             "object_center": {
               "default": null,
-              "description": "List or tuple of length 2, two integers (row and column number),defining the coordinates of the center of the elliptic or rectangularobject.",
+              "description": "List or tuple of length 2, two integers (row and column number), defining the coordinates of the center of the elliptic or rectangular object.",
               "items": {
                 "type": "integer"
               },
@@ -5295,7 +5295,7 @@
             },
             "object_size": {
               "default": null,
-              "description": "List or tuple of length 2, integers defining the diameters of theelliptic or rectangular object in vertical and horizontal directions.",
+              "description": "List or tuple of length 2, integers defining the diameters of the elliptic or rectangular object in vertical and horizontal directions.",
               "items": {
                 "type": "integer"
               },
@@ -5307,7 +5307,7 @@
             },
             "option": {
               "default": "uniform",
-              "description": "A string indicating the type of illumination: - ``uniform`` Uniformlyfill the entire array with photon. (Default) - ``elliptic`` Mask withelliptic object. - ``rectangular`` Mask with rectangular object.",
+              "description": "A string indicating the type of illumination: - ``uniform`` Uniformly fill the entire array with photon. (Default) - ``elliptic`` Mask with elliptic object. - ``rectangular`` Mask with rectangular object.",
               "enum": [
                 "uniform",
                 "rectangular",
@@ -5351,13 +5351,13 @@
     },
     "ModelPhotonCollectionLoadImage": {
       "additionalProperties": false,
-      "description": "Load :term:`FITS` file as a numpy array and add to the detector asinput image.",
+      "description": "Load :term:`FITS` file as a numpy array and add to the detector as input image.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
           "properties": {
             "align": {
-              "description": "Keyword to align the image to detector. Can be any from: (\"center\",\"top_left\", \"top_right\", \"bottom_left\", \"bottom_right\")",
+              "description": "Keyword to align the image to detector. Can be any from: (\"center\", \"top_left\", \"top_right\", \"bottom_left\", \"bottom_right\")",
               "enum": [
                 "center",
                 "top_left",
@@ -5382,7 +5382,7 @@
             },
             "convert_to_photons": {
               "default": false,
-              "description": "If ``True``, the model converts the values of loaded image array fromADU to photon numbers for each pixel using the Photon TransferFunction: :math:`\\mathit{PTF} = \\mathit{quantum\\_efficiency} \\cdot\\mathit{charge\\_to\\_voltage\\_conversion} \\cdot\\mathit{pre\\_amplification} \\cdot \\mathit{adc\\_factor}`.",
+              "description": "If ``True``, the model converts the values of loaded image array from ADU to photon numbers for each pixel using the Photon Transfer Function: :math:`\\mathit{PTF} = \\mathit{quantum\\_efficiency} \\cdot \\mathit{charge\\_to\\_voltage\\_conversion} \\cdot \\mathit{pre\\_amplification} \\cdot \\mathit{adc\\_factor}`.",
               "title": "convert_to_photons",
               "type": "boolean"
             },
@@ -5403,7 +5403,7 @@
                 0,
                 0
               ],
-              "description": "Indices of starting row and column, used when fitting image todetector.",
+              "description": "Indices of starting row and column, used when fitting image to detector.",
               "items": [
                 {
                   "type": "integer"
@@ -5460,7 +5460,7 @@
     },
     "ModelPhotonCollectionLoadPsf": {
       "additionalProperties": false,
-      "description": "Load a point spread function from file and convolve the photon arraywith the PSF.",
+      "description": "Load a point spread function from file and convolve the photon array with the PSF.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
@@ -5613,7 +5613,7 @@
               "type": "number"
             },
             "optical_system": {
-              "description": "List of optical elements before detector with their specificarguments.",
+              "description": "List of optical elements before detector with their specific arguments.",
               "items": {
                 "type": "object"
               },
@@ -5697,7 +5697,7 @@
     },
     "ModelPhotonCollectionShotNoise": {
       "additionalProperties": false,
-      "description": "Add shot noise to the flux of photon per pixel. It can be eitherPoisson noise or Gaussian.",
+      "description": "Add shot noise to the flux of photon per pixel. It can be either Poisson noise or Gaussian.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
@@ -5790,7 +5790,7 @@
             },
             "integrate_wavelength": {
               "default": true,
-              "description": "If true, integrates along the wavelength else multiwavelength, defaultis True.",
+              "description": "If true, integrates along the wavelength else multiwavelength, default is True.",
               "title": "integrate_wavelength",
               "type": "boolean"
             },
@@ -5908,7 +5908,7 @@
     },
     "ModelPhotonCollectionWavelengthDependenceAirs": {
       "additionalProperties": false,
-      "description": "Generate the photon over the array according to a specific dispersionpattern (ARIEL-AIRS).",
+      "description": "Generate the photon over the array according to a specific dispersion pattern (ARIEL-AIRS).",
       "properties": {
         "arguments": {
           "additionalProperties": false,
@@ -5924,7 +5924,7 @@
               "type": "string"
             },
             "target_filename": {
-              "description": "The location and the filename of the target file used in thesimulation.",
+              "description": "The location and the filename of the target file used in the simulation.",
               "title": "target_filename",
               "type": "string"
             },
@@ -5994,7 +5994,7 @@
           "properties": {
             "n_0": {
               "default": 17200000000.0,
-              "description": "Material dependent single spin density of states at the Fermi-level.Unit: um^-3 eV^-1",
+              "description": "Material dependent single spin density of states at the Fermi-level. Unit: um^-3 eV^-1",
               "title": "n_0",
               "type": "number"
             },
@@ -6012,7 +6012,7 @@
             },
             "tau_0": {
               "default": 4.4e-07,
-              "description": "Material dependent characteristic time for the electron-phononcoupling. Unit: s",
+              "description": "Material dependent characteristic time for the electron-phonon coupling. Unit: s",
               "title": "tau_0",
               "type": "number"
             },
@@ -6065,7 +6065,7 @@
     },
     "ModelReadoutElectronicsSarAdc": {
       "additionalProperties": false,
-      "description": "Digitize signal array using :term:`SAR` (Successive ApproximationRegister) :term:`ADC` logic.",
+      "description": "Digitize signal array using :term:`SAR` (Successive Approximation Register) :term:`ADC` logic.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
@@ -6094,13 +6094,13 @@
     },
     "ModelReadoutElectronicsSarAdcWithNoise": {
       "additionalProperties": false,
-      "description": "Digitize signal array using :term:`SAR` (Successive ApproximationRegister) :term:`ADC` logic with noise.",
+      "description": "Digitize signal array using :term:`SAR` (Successive Approximation Register) :term:`ADC` logic with noise.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
           "properties": {
             "noises": {
-              "description": "Sequence of ``detector.characteristics.adc_bit_resolution`` number(s).Unit: V",
+              "description": "Sequence of ``detector.characteristics.adc_bit_resolution`` number(s). Unit: V",
               "items": {
                 "type": "number"
               },
@@ -6108,7 +6108,7 @@
               "type": "array"
             },
             "strengths": {
-              "description": "Sequence of ``detector.characteristics.adc_bit_resolution`` number(s).Unit: V",
+              "description": "Sequence of ``detector.characteristics.adc_bit_resolution`` number(s). Unit: V",
               "items": {
                 "type": "number"
               },
@@ -6145,13 +6145,13 @@
     },
     "ModelReadoutElectronicsSimpleAdc": {
       "additionalProperties": false,
-      "description": "Apply simple Analog-to-Digital Converter (ADC) to the `signal` bucketfrom `Detector`.",
+      "description": "Apply simple Analog-to-Digital Converter (ADC) to the `signal` bucket from `Detector`.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
           "properties": {
             "data_type": {
-              "description": "The desired data-type for the Image array. The data-type must be anunsigned integer. If not provided, the data type is determined basedon `detector.characteristics.adc_bit_resolution`. Valid values:'uint8', 'uint16', 'uint32', 'uint64' Invalid values: 'int16','int32', 'int64', 'int', 'float'...",
+              "description": "The desired data-type for the Image array. The data-type must be an unsigned integer. If not provided, the data type is determined based on `detector.characteristics.adc_bit_resolution`. Valid values: 'uint8', 'uint16', 'uint32', 'uint64' Invalid values: 'int16', 'int32', 'int64', 'int', 'float'...",
               "enum": [
                 "uint8",
                 "uint16",
@@ -6189,7 +6189,7 @@
     },
     "ModelReadoutElectronicsSimpleAmplifier": {
       "additionalProperties": false,
-      "description": "Amplify signal using gain from the output amplifier and the signalprocessor.",
+      "description": "Amplify signal using gain from the output amplifier and the signal processor.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
@@ -6294,14 +6294,14 @@
     },
     "ModelSceneGenerationLoadStarMap": {
       "additionalProperties": false,
-      "description": "Generate scene from scopesim Source object loading stars from the GAIAcatalog.",
+      "description": "Generate scene from scopesim Source object loading stars from the GAIA catalog.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
           "properties": {
             "band": {
               "default": "blue_photometer",
-              "description": "Define the band to use. * 'blue_photometer' is the band from 330 nm to680 nm * 'gaia_band' is the band from 330 nm to 1050 nm *'red_photometer' is the band from 640 nm to 1050 nm",
+              "description": "Define the band to use. * 'blue_photometer' is the band from 330 nm to 680 nm * 'gaia_band' is the band from 330 nm to 1050 nm * 'red_photometer' is the band from 640 nm to 1050 nm",
               "enum": [
                 "blue_photometer",
                 "gaia_band",
