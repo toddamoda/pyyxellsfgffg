@@ -34,7 +34,7 @@ The minimum versions of some dependencies were changed:
   (See [!844](https://gitlab.com/esa/pyxel/-/merge_requests/844)).
 * Fix bug in `ModelFittingDataTree`.
   (See [!845](https://gitlab.com/esa/pyxel/-/merge_requests/845)).
-* Add new function `pyxel.new_display_detector`.
+* Add new parameter `new_behaviour` in function `pyxel.display_detector`.
   (See [!850](https://gitlab.com/esa/pyxel/-/merge_requests/850)).
 
 ### Documentation
