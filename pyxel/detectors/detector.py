@@ -494,6 +494,7 @@ class Detector:
         ValueError
             If the extension of filename is not recognized.
         """
+        # TODO: implement working_dir
         full_filename = Path(filename).resolve()
         if not full_filename.exists():
             raise FileNotFoundError(f"Filename '{filename}' does not exist !")

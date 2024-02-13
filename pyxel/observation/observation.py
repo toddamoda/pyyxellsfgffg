@@ -222,6 +222,7 @@ class Observation:
         self._parameters: Sequence[ParameterValues] = parameters
 
         # Specific to mode 'custom'
+        # TODO: implement working_dir
         self._custom_file: Optional[str] = from_file
         self._custom_data: Optional[pd.DataFrame] = None
         self._custom_columns: Optional[slice] = (
@@ -233,6 +234,7 @@ class Observation:
         self._result_type: ResultId = get_result_id(result_type)
         self._pipeline_seed = pipeline_seed
 
+        # TODO: implement working_dir
         if self.parameter_mode == ParameterMode.Custom:
             self._load_custom_parameters()
 

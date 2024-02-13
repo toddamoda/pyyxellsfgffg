@@ -182,6 +182,7 @@ def load_cropped_and_aligned_image(
     from pyxel.inputs import load_image
 
     try:
+        # TODO: implement working_dir (this is called in many place)
         image = load_image(filename)
     except OSError as exc:
         if sys.version_info >= (3, 11):

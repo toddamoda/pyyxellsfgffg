@@ -37,6 +37,7 @@ def chdir(folder: Path):
         None,  # current working directory (no working_directory)
         "work_dir_relative_to_cur_dir",
         "~/work_dir_user_dir",
+        "/tmp/work_dir_absolute_dir",
     ],
 )
 def test_working_directory(work_dir):
