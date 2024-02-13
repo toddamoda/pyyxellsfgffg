@@ -123,6 +123,7 @@ class Calibration:
         )
 
         # TODO: Write functional tests
+        # TODO: implement working_dir
         try:
             target_data_full_path: Sequence[Path] = to_path_list(target_data_path)
         except FileNotFoundError as exc:
@@ -158,6 +159,7 @@ class Calibration:
             raise ValueError("Cannot define both weights and weights from file.")
 
         # TODO: Write functional tests
+        # TODO: implement working_dir
         if not weights_from_file:
             weights_full_path: Optional[Sequence[Path]] = None
         else:

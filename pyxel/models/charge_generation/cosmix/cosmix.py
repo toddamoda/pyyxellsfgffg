@@ -134,6 +134,7 @@ def cosmix(
         # cosmix.set_particle_number(particle_number)            # -
         # cosmix.set_incident_angles(incident_angles)            # rad
         # cosmix.set_starting_position(starting_position)        # um
+        # TODO: implement working_dir
         cosmix.set_particle_spectrum(Path(spectrum_file))
 
         if running_mode == "stepsize":
@@ -269,6 +270,7 @@ class Cosmix:
 
     def set_stopping_power(self, stopping_file: Path) -> None:
         self.sim_obj.energy_loss_data = "stopping"
+        # TODO: implement working_dir
         self.sim_obj.stopping_power = read_data(stopping_file)
 
     def set_stepsize(self) -> None:
