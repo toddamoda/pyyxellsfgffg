@@ -278,13 +278,13 @@ def display_detector(
     new_display : bool, default: False
         Enable new display.
 
-        .. note:: This pararameter is provisional and can be changed or removed.
+        .. note:: This parameter is provisional and can be changed or removed.
 
     custom_histogram : bool, default: True
         Use a custom method to display the histogram.
         This parameter can only be used when `new_display` is enabled.
 
-        .. note:: This pararameter is provisional and can be changed or removed.
+        .. note:: This parameter is provisional and can be changed or removed.
 
     Notes
     -----
