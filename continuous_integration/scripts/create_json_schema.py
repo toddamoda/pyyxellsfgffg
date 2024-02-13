@@ -168,7 +168,9 @@ def generate_class(klass: Klass) -> Iterator[str]:
     assert isinstance(klass, Klass)
 
     doc = get_doc_from_klass(klass)
-    klass_description_lst: Sequence[str] = textwrap.wrap(doc.description)
+    klass_description_lst: Sequence[str] = textwrap.wrap(
+        doc.description, drop_whitespace=False
+    )
 
     yield "@schema("
     if len(klass_description_lst) == 1:
@@ -219,7 +221,9 @@ def generate_class(klass: Klass) -> Iterator[str]:
                 yield f"        default={param.default!r},"
             yield "        metadata=schema("
 
-            description_lst: Sequence[str] = textwrap.wrap(param.description)
+            description_lst: Sequence[str] = textwrap.wrap(
+                param.description, drop_whitespace=False
+            )
             if len(description_lst) == 1:
                 yield f"            title={title!r},"
                 yield f"            description={description_lst[0]!r}"
@@ -270,7 +274,9 @@ def generate_model(
             yield "        metadata=schema("
             yield f"            title={title!r}"
 
-            description_lst: Sequence[str] = textwrap.wrap(param.description)
+            description_lst: Sequence[str] = textwrap.wrap(
+                param.description, drop_whitespace=False
+            )
             if len(description_lst) == 1:
                 yield f"            ,description={description_lst[0]!r}"
             elif len(description_lst) > 1:
@@ -301,7 +307,7 @@ def generate_model(
     yield "@schema("
     yield f"    title=\"Model '{func_name}'\""
 
-    description_lst = textwrap.wrap(doc.description)
+    description_lst = textwrap.wrap(doc.description, drop_whitespace=False)
     if len(description_lst) == 1:
         yield f"    ,description={description_lst[0]!r}"
     elif len(description_lst) > 1:
