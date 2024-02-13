@@ -140,129 +140,9 @@ def set_modelstate(processor: "Processor", model_name: str, state: bool = True) 
 # These method are used to display the detector object (all of the array Photon, pixel, signal and image)
 
 
-# ruff: noqa: F401
-def display_detector(detector: "Detector") -> "pn.Tabs":
-    """Display detector interactively.
-
-    Parameters
-    ----------
-    detector: Detector
-
-    Returns
-    -------
-    Tabs
-    """
-    # Late import to speedup start-up time
-    import hvplot.xarray  # To integrate 'hvplot' with 'xarray'
-    import panel as pn
-    import param
-
-    # Extract a 'dataset' from 'detector'
-    ds: "xr.Dataset" = detector.to_xarray()
-
-    # Extract names from the arrays
-    array_names: list[str] = [
-        str(name)
-        for name, data_array in ds.items()
-        if "wavelength" not in data_array.dims
-    ]
-    if not array_names:
-        raise ValueError("Detector object does not contain any arrays.")
-
-    first_array_name = array_names[0]
-
-    # Create widget 'Array'
-    array_widget: Widget = pn.widgets.Select(name="Array", options=array_names)
-    array_widget.value = first_array_name
-
-    # Create widget 'Color'
-    color_widget: Widget = pn.widgets.Select(
-        name="Color", options=["gray", "viridis", "fire"]
-    )
-
-    # Create an interactive widget
-    ds_interactive: XArrayInteractive = ds.interactive(loc="right")
-    selected_data: XArrayInteractive = ds_interactive[array_widget]
-
-    # Create widget 'Color bar'
-    colorbar_widget: Widget = pn.widgets.ToggleGroup(
-        name="Color bar",
-        options=["linear", "log"],
-        behavior="radio",
-    )
-
-    # Create interactive 2D imge 'Array'
-    img: XArrayInteractive = selected_data.hvplot(
-        title="Array",
-        aspect="equal",
-        cmap=color_widget,
-        cnorm=colorbar_widget,
-    )
-
-    def update_tabs_widget(*events: param.parameterized.Event) -> None:
-        for event in events:
-            if event.name != "value":
-                continue
-
-            tab_widgets.insert(index=1, pane=("Array", img))
-            _ = tab_widgets.pop(0)
-
-    # See https://panel.holoviz.org/how_to/links/watchers.html
-    colorbar_widget.param.watch(fn=update_tabs_widget, parameter_names="value")
-
-    num_bins_widget: Widget = pn.widgets.DiscreteSlider(
-        name="Num bins",
-        options=[10, 20, 50, 100, 200],
-        value=50,
-    )
-
-    def configure_range_slider(name: str) -> None:
-        data_2d = ds[name]
-        start, val_low, val_high, end = np.asarray(
-            data_2d.quantile(q=[0.0, 0.5, 0.95, 1.0])
-        )
-
-        step = (end - start) / 1000.0
-
-        hist_range_widget.start = start
-        hist_range_widget.end = end
-        hist_range_widget.step = step
-
-        hist_range_widget.value = (val_low, val_high)
-
-    hist_range_widget: Widget = pn.widgets.EditableRangeSlider(name="Range Slider")
-    configure_range_slider(name=first_array_name)
-
-    hist: XArrayInteractive = selected_data.hvplot.hist(
-        aspect=1.0,
-        bins=num_bins_widget,
-        logx=False,
-        logy=False,
-        title="Histogram",
-        bin_range=hist_range_widget,
-    )
-
-    def update_array_widget(*events: param.parameterized.Event) -> None:
-        for event in events:
-            if event.name != "value":
-                continue
-
-            configure_range_slider(name=event.new)
-
-    # See https://panel.holoviz.org/how_to/links/watchers.html
-    array_widget.param.watch(fn=update_array_widget, parameter_names="value")
-
-    # hist_widget = pn.Row(pn.WidgetBox(array_name, num_bins, range_slider), hist)
-    tab_widgets = pn.Tabs(
-        ("Array", img),
-        ("Histogram", hist),
-        dynamic=True,
-    )
-
-    return tab_widgets
-
-
-def new_display_detector(detector: "Detector", custom_histogram=True) -> "pn.Tabs":
+def _new_display_detector(
+    detector: "Detector", custom_histogram: bool = True
+) -> "pn.Tabs":
     """Display detector interactively.
 
     Notes
@@ -385,6 +265,152 @@ def new_display_detector(detector: "Detector", custom_histogram=True) -> "pn.Tab
 
     # return pn.Column(pn.widgets.StaticText(value='Yo'), obj)
     return obj
+
+
+def display_detector(
+    detector: "Detector", *, new_behaviour: bool = False, custom_histogram: bool = True
+) -> "pn.Tabs":
+    """Display detector interactively.
+
+    Parameters
+    ----------
+    detector : Detector
+    new_behaviour : bool, default: False
+        Enable new behaviour.
+    custom_histogram : bool, default: True
+
+    Notes
+    -----
+    Parameters `prout` and `custom_histogram` are provisional and may be removed.
+    """
+    if new_behaviour is False:
+        return _display_detector(detector=detector)
+    else:
+        return _new_display_detector(
+            detector=detector, custom_histogram=custom_histogram
+        )
+
+
+# ruff: noqa: F401
+def _display_detector(detector: "Detector") -> "pn.Tabs":
+    """Display detector interactively.
+
+    Parameters
+    ----------
+    detector: Detector
+
+    Returns
+    -------
+    Tabs
+    """
+    # Late import to speedup start-up time
+    import hvplot.xarray  # To integrate 'hvplot' with 'xarray'
+    import panel as pn
+    import param
+
+    # Extract a 'dataset' from 'detector'
+    ds: "xr.Dataset" = detector.to_xarray()
+
+    # Extract names from the arrays
+    array_names: list[str] = [
+        str(name)
+        for name, data_array in ds.items()
+        if "wavelength" not in data_array.dims
+    ]
+    if not array_names:
+        raise ValueError("Detector object does not contain any arrays.")
+
+    first_array_name = array_names[0]
+
+    # Create widget 'Array'
+    array_widget: Widget = pn.widgets.Select(name="Array", options=array_names)
+    array_widget.value = first_array_name
+
+    # Create widget 'Color'
+    color_widget: Widget = pn.widgets.Select(
+        name="Color", options=["gray", "viridis", "fire"]
+    )
+
+    # Create an interactive widget
+    ds_interactive: XArrayInteractive = ds.interactive(loc="right")
+    selected_data: XArrayInteractive = ds_interactive[array_widget]
+
+    # Create widget 'Color bar'
+    colorbar_widget: Widget = pn.widgets.ToggleGroup(
+        name="Color bar",
+        options=["linear", "log"],
+        behavior="radio",
+    )
+
+    # Create interactive 2D imge 'Array'
+    img: XArrayInteractive = selected_data.hvplot(
+        title="Array",
+        aspect="equal",
+        cmap=color_widget,
+        cnorm=colorbar_widget,
+    )
+
+    def update_tabs_widget(*events: param.parameterized.Event) -> None:
+        for event in events:
+            if event.name != "value":
+                continue
+
+            tab_widgets.insert(index=1, pane=("Array", img))
+            _ = tab_widgets.pop(0)
+
+    # See https://panel.holoviz.org/how_to/links/watchers.html
+    colorbar_widget.param.watch(fn=update_tabs_widget, parameter_names="value")
+
+    num_bins_widget: Widget = pn.widgets.DiscreteSlider(
+        name="Num bins",
+        options=[10, 20, 50, 100, 200],
+        value=50,
+    )
+
+    def configure_range_slider(name: str) -> None:
+        data_2d = ds[name]
+        start, val_low, val_high, end = np.asarray(
+            data_2d.quantile(q=[0.0, 0.5, 0.95, 1.0])
+        )
+
+        step = (end - start) / 1000.0
+
+        hist_range_widget.start = start
+        hist_range_widget.end = end
+        hist_range_widget.step = step
+
+        hist_range_widget.value = (val_low, val_high)
+
+    hist_range_widget: Widget = pn.widgets.EditableRangeSlider(name="Range Slider")
+    configure_range_slider(name=first_array_name)
+
+    hist: XArrayInteractive = selected_data.hvplot.hist(
+        aspect=1.0,
+        bins=num_bins_widget,
+        logx=False,
+        logy=False,
+        title="Histogram",
+        bin_range=hist_range_widget,
+    )
+
+    def update_array_widget(*events: param.parameterized.Event) -> None:
+        for event in events:
+            if event.name != "value":
+                continue
+
+            configure_range_slider(name=event.new)
+
+    # See https://panel.holoviz.org/how_to/links/watchers.html
+    array_widget.param.watch(fn=update_array_widget, parameter_names="value")
+
+    # hist_widget = pn.Row(pn.WidgetBox(array_name, num_bins, range_slider), hist)
+    tab_widgets = pn.Tabs(
+        ("Array", img),
+        ("Histogram", hist),
+        dynamic=True,
+    )
+
+    return tab_widgets
 
 
 def display_array(

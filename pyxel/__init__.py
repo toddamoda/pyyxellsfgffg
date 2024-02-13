@@ -19,7 +19,6 @@ from .configuration import load, loads, copy_config_file, Configuration
 from .run import calibration_mode, exposure_mode, observation_mode, run, run_mode
 from .notebook import (
     display_detector,
-    new_display_detector,
     display_scene,
     display_persist,
     display_html,
