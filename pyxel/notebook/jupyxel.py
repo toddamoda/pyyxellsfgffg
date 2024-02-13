@@ -277,17 +277,36 @@ def display_detector(
     detector : Detector
     new_behaviour : bool, default: False
         Enable new behaviour.
-    custom_histogram : bool, default: True
 
-    Notes
-    -----
-    Parameters `prout` and `custom_histogram` are provisional and may be removed.
+        .. note:: This pararameter is provisional and can be changed or removed.
+
+    custom_histogram : bool, default: True
+        Use a custom method to display the histogram.
+        This parameter can only be used when `new_behaviour` is enabled.
+
+        .. note:: This pararameter is provisional and can be changed or removed.
+
+    Examples
+    --------
+    >>> import pyxel
+    >>> from pyxel.detectors import CCD
+
+    >>> detector = CCD(...)
+    >>> pyxel.display_detector(detector)
+
+    .. image:: _static/display_detector.jpg
+
+    >>> pyxel.display_detector(detector, new_behaviour=True)
+
+    .. image:: _static/new_display_detector.jpg
+
     """
     if new_behaviour is False:
         return _display_detector(detector=detector)
     else:
         return _new_display_detector(
-            detector=detector, custom_histogram=custom_histogram
+            detector=detector,
+            custom_histogram=custom_histogram,
         )
 
 
