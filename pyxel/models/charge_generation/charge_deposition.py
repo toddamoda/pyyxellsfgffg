@@ -212,6 +212,7 @@ def _generate_random_energies(
         p_energies = np.random.normal(loc=energy_mean, scale=energy_spread, size=n_p)
     else:
         # from parsed spectrum using either logarithmic or linear sampling
+        # TODO: implement working_dir
         energy_spectrum_data = np.loadtxt(energy_spectrum, dtype="float", comments="#")
         n_samples = 100000
         if energy_spectrum_sampling == "log":
