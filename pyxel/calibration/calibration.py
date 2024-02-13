@@ -106,6 +106,7 @@ class Calibration:
             result_input_arguments or []
         )
 
+        # TODO: implement working_dir
         self._target_data_path: Sequence[Path] = (
             to_path_list(target_data_path) if target_data_path else []
         )
@@ -132,6 +133,7 @@ class Calibration:
         if weights and weights_from_file:
             raise ValueError("Cannot define both weights and weights from file.")
 
+        # TODO: implement working_dir
         self._weights_from_file: Optional[Sequence[Path]] = (
             to_path_list(weights_from_file) if weights_from_file else None
         )
