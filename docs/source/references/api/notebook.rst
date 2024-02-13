@@ -11,8 +11,6 @@ General
 
 .. autofunction:: display_detector
 
-.. autofunction:: new_display_detector
-
 .. autofunction:: display_html
 
 .. autofunction:: display_scene
