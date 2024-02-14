@@ -692,7 +692,7 @@ def compute_add_traps_continuum_instant_capture(
     return image_cti_added_2d
 
 
-def arctic_add_trap_slow_capture(
+def arctic_add_trap_continuum_instant(
         detector: CCD,
         well_fill_power: float,
         trap_densities: Sequence[float],
