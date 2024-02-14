@@ -5,12 +5,64 @@
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
 
+from contextlib import nullcontext as does_not_raise
+
+import numpy as np
 import pytest
 import xarray as xr
 from pytest_mock import MockerFixture  # pip install pytest-mock
 
-from pyxel.data_structure import Scene
-from pyxel.models.photon_collection.simple_collection import extract_wavelength
+from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
+from pyxel.models.photon_collection.simple_collection import (
+    extract_wavelength,
+    simple_collection,
+)
+
+
+@pytest.fixture
+def ccd_3x3() -> CCD:
+    """Create a valid CCD detector."""
+    detector = CCD(
+        geometry=CCDGeometry(
+            row=3,
+            col=3,
+            total_thickness=40.0,
+            pixel_vert_size=10.0,
+            pixel_horz_size=10.0,
+            pixel_scale=1.65,
+        ),
+        environment=Environment(wavelength=600.0),
+        characteristics=Characteristics(),
+    )
+    detector.photon.array = np.zeros(detector.geometry.shape, dtype=float)
+    return detector
+
+
+@pytest.fixture
+def ccd_4x5_multi_wavelength() -> CCD:
+    """Create a valid CCD detector."""
+    detector = CCD(
+        geometry=CCDGeometry(
+            row=4,
+            col=5,
+            total_thickness=40.0,
+            pixel_vert_size=10.0,
+            pixel_horz_size=10.0,
+            pixel_scale=1.65,
+        ),
+        environment=Environment(wavelength=600.0),
+        characteristics=Characteristics(),
+    )
+
+    num_rows, num_cols = detector.geometry.shape
+
+    detector.photon.array_3d = xr.DataArray(
+        np.zeros(shape=(3, num_rows, num_cols), dtype=float),
+        dims=["wavelength", "y", "x"],
+        coords={"wavelength": [620.0, 640.0, 680.0]},
+    )
+
+    return detector
 
 
 @pytest.fixture
@@ -94,3 +146,48 @@ def test_extract_wavelength(dummy_scene: Scene, scene_dataset: xr.Dataset):
     exp_ds = scene_dataset.copy().sel(wavelength=slice(336, 342))
 
     xr.testing.assert_equal(ds, exp_ds)
+
+
+@pytest.mark.parametrize(
+    "aperture, filter_band, resolution, pixelscale, integrate_wavelength, expectation",
+    [
+        pytest.param(3.0, [600.0, 650.0], 10, 0.01, True, does_not_raise(), id="valid"),
+        pytest.param(
+            3.0,
+            [650.0, 600.0],
+            10,
+            0.01,
+            True,
+            pytest.raises(ValueError, match=""),
+            id="invalid",
+        ),
+    ],
+)
+def test_simple_collection(
+    ccd_4x5_multi_wavelength: CCD,
+    with_scene: bool,
+    with_photon_2d: bool,
+    with_photon_3d: bool,
+    with_env_wavelength,
+    aperture: float,
+    filter_band: tuple[float, float],
+    resolution: int,
+    pixelscale: float,
+    integrate_wavelength: bool,
+    expectation,
+    scene_dataset,
+):
+    """Test input parameters for function 'simple_collection'."""
+    detector = ccd_4x5_multi_wavelength
+    if with_scene:
+        detector.scene = scene_dataset
+
+    with expectation:
+        simple_collection(
+            detector=ccd_4x5_multi_wavelength,
+            aperture=aperture,
+            filter_band=filter_band,
+            resolution=resolution,
+            pixelscale=pixelscale,
+            integrate_wavelength=integrate_wavelength,
+        )

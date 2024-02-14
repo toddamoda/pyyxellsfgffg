@@ -47,7 +47,7 @@ class WavelengthHandling:
 
     def get_wavelengths(self) -> xr.DataArray:
         return xr.DataArray(
-            np.arange(self.cut_on, self.cut_off + self.resolution, self.resolution),
+            np.arange(self.cut_on, self.cut_off, self.resolution),
             dims="wavelength",
             attrs={"units": "nm"},
         )
