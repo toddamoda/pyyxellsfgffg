@@ -766,7 +766,7 @@ def arctic_add_trap_continuum_instant(
         )
     ]
 
-    image_cti_added_2d = compute_add_traps_slow_capture(
+    image_cti_added_2d = compute_add_traps_continuum_instant_capture(
         image_2d=np.asarray(detector.pixel.array, dtype=float),
         full_well_depth=detector.characteristics.full_well_capacity,
         well_fill_power=well_fill_power,
