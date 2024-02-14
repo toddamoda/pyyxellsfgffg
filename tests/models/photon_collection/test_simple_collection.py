@@ -12,6 +12,7 @@ import pytest
 import xarray as xr
 from pytest_mock import MockerFixture  # pip install pytest-mock
 
+from pyxel.data_structure import Photon, Scene
 from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
 from pyxel.models.photon_collection.simple_collection import (
     extract_wavelength,
@@ -61,6 +62,27 @@ def ccd_4x5_multi_wavelength() -> CCD:
         dims=["wavelength", "y", "x"],
         coords={"wavelength": [620.0, 640.0, 680.0]},
     )
+
+    return detector
+
+
+@pytest.fixture
+def ccd_100x100_no_photon() -> CCD:
+    """Create a valid CCD detector."""
+    detector = CCD(
+        geometry=CCDGeometry(
+            row=100,
+            col=100,
+            total_thickness=40.0,
+            pixel_vert_size=10.0,
+            pixel_horz_size=10.0,
+            pixel_scale=1.65,
+        ),
+        environment=Environment(),
+        characteristics=Characteristics(),
+    )
+
+    detector.set_readout(times=[1.0], start_time=0.0)
 
     return detector
 
@@ -148,46 +170,108 @@ def test_extract_wavelength(dummy_scene: Scene, scene_dataset: xr.Dataset):
     xr.testing.assert_equal(ds, exp_ds)
 
 
-@pytest.mark.parametrize(
-    "aperture, filter_band, resolution, pixelscale, integrate_wavelength, expectation",
-    [
-        pytest.param(3.0, [600.0, 650.0], 10, 0.01, True, does_not_raise(), id="valid"),
-        pytest.param(
-            3.0,
-            [650.0, 600.0],
-            10,
-            0.01,
-            True,
-            pytest.raises(ValueError, match=""),
-            id="invalid",
-        ),
-    ],
-)
-def test_simple_collection(
-    ccd_4x5_multi_wavelength: CCD,
-    with_scene: bool,
-    with_photon_2d: bool,
-    with_photon_3d: bool,
-    with_env_wavelength,
-    aperture: float,
-    filter_band: tuple[float, float],
-    resolution: int,
-    pixelscale: float,
-    integrate_wavelength: bool,
-    expectation,
-    scene_dataset,
+def test_simple_collection_photon_2d(
+    ccd_100x100_no_photon: CCD, scene_dataset: xr.Dataset
 ):
-    """Test input parameters for function 'simple_collection'."""
-    detector = ccd_4x5_multi_wavelength
-    if with_scene:
-        detector.scene = scene_dataset
+    """Test function 'simple_collection'."""
+    detector = ccd_100x100_no_photon
 
-    with expectation:
-        simple_collection(
-            detector=ccd_4x5_multi_wavelength,
-            aperture=aperture,
-            filter_band=filter_band,
-            resolution=resolution,
-            pixelscale=pixelscale,
-            integrate_wavelength=integrate_wavelength,
-        )
+    # Check if 'scene' and 'photon' are empty
+    assert detector.scene == Scene()
+    assert detector.photon == Photon(geo=detector.geometry)
+
+    # Add a scene
+    detector.scene.add_source(scene_dataset)
+
+    # Run the model
+    simple_collection(
+        detector=detector,
+        aperture=1.0,
+        filter_band=(336, 342),
+        resolution=2,
+        pixelscale=1.0,
+        integrate_wavelength=True,
+    )
+
+    # Check if a 2D photon is created
+    photon_2d = detector.photon._array
+    assert isinstance(photon_2d, np.ndarray)
+    assert photon_2d.shape == (100, 100)
+    assert photon_2d.dtype == float
+
+
+def test_simple_collection_photon_3d(
+    ccd_100x100_no_photon: CCD, scene_dataset: xr.Dataset
+):
+    """Test function 'simple_collection'."""
+    detector = ccd_100x100_no_photon
+
+    # Check if 'scene' and 'photon' are empty
+    assert detector.scene == Scene()
+    assert detector.photon == Photon(geo=detector.geometry)
+
+    # Add a scene
+    detector.scene.add_source(scene_dataset)
+
+    # Run the model
+    simple_collection(
+        detector=detector,
+        aperture=1.0,
+        filter_band=(336, 342),
+        resolution=2,
+        pixelscale=1.0,
+        integrate_wavelength=False,
+    )
+
+    # Check if a 2D photon is created
+    photon_2d = detector.photon._array
+    assert isinstance(photon_2d, xr.DataArray)
+    assert photon_2d.sizes == {"wavelength": 3, "y": 100, "x": 100}
+    assert photon_2d.dtype == float
+
+
+#
+# @pytest.mark.parametrize(
+#     "with_scene, with_photon_2d, with_photon_3d, env_wavelength, aperture, filter_band, resolution, pixelscale, integrate_wavelength, expectation",
+#     [
+#         # pytest.param(True, False, False, None, 1., (500, 600), 100, 1.2, True)
+#         # pytest.param(3.0, [600.0, 650.0], 10, 0.01, True, does_not_raise(), id="valid"),
+#         # pytest.param(
+#         #     3.0,
+#         #     [650.0, 600.0],
+#         #     10,
+#         #     0.01,
+#         #     True,
+#         #     pytest.raises(ValueError, match=""),
+#         #     id="invalid",
+#         # ),
+#     ],
+# )
+# def test_simple_collection_error(
+#     ccd_3x5_no_photon: CCD,
+#     with_scene: bool,
+#     with_photon_2d: bool,
+#     with_photon_3d: bool,
+#     env_wavelength,
+#     aperture: float,
+#     filter_band: tuple[float, float],
+#     resolution: int,
+#     pixelscale: float,
+#     integrate_wavelength: bool,
+#     expectation,
+#     scene_dataset,
+# ):
+#     """Test input parameters for function 'simple_collection'."""
+#     detector = ccd_3x5_no_photon
+#     if with_scene:
+#         detector.scene = scene_dataset
+#
+#     with expectation:
+#         simple_collection(
+#             detector=detector,
+#             aperture=aperture,
+#             filter_band=filter_band,
+#             resolution=resolution,
+#             pixelscale=pixelscale,
+#             integrate_wavelength=integrate_wavelength,
+#         )

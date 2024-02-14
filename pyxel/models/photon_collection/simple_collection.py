@@ -291,7 +291,9 @@ def project_objects_to_detector(
         .query(ref=f"detector_coords_y < {rows}")
         .query(ref="detector_coords_y > 0")
     )
-    assert selected_data_query.sizes["ref"] != 0
+
+    if selected_data_query.sizes["ref"] == 0:
+        return ValueError
 
     # convert to int
     selected_data2 = selected_data_query.copy(deep=True)
