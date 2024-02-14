@@ -66,13 +66,13 @@ class TrapSlowCapture:
 
 
 def compute_arctic_add(
-    image_2d: np.ndarray,
-    full_well_depth: float,
-    well_fill_power: float,
-    parallel_traps: Sequence[Trap],
-    parallel_express: int,
-    well_notch_depth: float = 0.0,
-    first_electron_fill: float = 0.0,
+        image_2d: np.ndarray,
+        full_well_depth: float,
+        well_fill_power: float,
+        parallel_traps: Sequence[Trap],
+        parallel_express: int,
+        well_notch_depth: float = 0.0,
+        first_electron_fill: float = 0.0,
 ) -> np.ndarray:
     """Create a new image with :term:`CTI` trails.
 
@@ -128,13 +128,13 @@ def compute_arctic_add(
 
 
 def arctic_add(
-    detector: CCD,
-    well_fill_power: float,
-    trap_densities: Sequence[float],
-    trap_release_timescales: Sequence[float],
-    express: int = 0,
-    well_notch_depth: float = 0.0,
-    first_electron_fill: float = 0.0,
+        detector: CCD,
+        well_fill_power: float,
+        trap_densities: Sequence[float],
+        trap_release_timescales: Sequence[float],
+        express: int = 0,
+        well_notch_depth: float = 0.0,
+        first_electron_fill: float = 0.0,
 ) -> None:
     """Add :term:`CTI` trails to an image by trapping, releasing and moving electrons.
 
@@ -201,14 +201,14 @@ def arctic_add(
 
 
 def compute_arctic_remove(
-    image_2d: np.ndarray,
-    full_well_depth: float,
-    well_fill_power: float,  # beta
-    parallel_traps: Sequence[Trap],
-    parallel_express: int,
-    num_iterations: int,
-    well_notch_depth: float = 0.0,  # d
-    first_electron_fill: float = 0.0,  # alpha
+        image_2d: np.ndarray,
+        full_well_depth: float,
+        well_fill_power: float,  # beta
+        parallel_traps: Sequence[Trap],
+        parallel_express: int,
+        num_iterations: int,
+        well_notch_depth: float = 0.0,  # d
+        first_electron_fill: float = 0.0,  # alpha
 ) -> np.ndarray:
     """Create a new image with removed :term:`CTI` trails.
 
@@ -262,14 +262,14 @@ def compute_arctic_remove(
 
 
 def arctic_remove(
-    detector: CCD,
-    well_fill_power: float,
-    trap_densities: Sequence[float],
-    trap_release_timescales: Sequence[float],
-    num_iterations: int,
-    express: int = 0,
-    well_notch_depth: float = 0.0,
-    first_electron_fill: float = 0.0,
+        detector: CCD,
+        well_fill_power: float,
+        trap_densities: Sequence[float],
+        trap_release_timescales: Sequence[float],
+        num_iterations: int,
+        express: int = 0,
+        well_notch_depth: float = 0.0,
+        first_electron_fill: float = 0.0,
 ) -> None:
     """Remove :term:`CTI` trails from an image by first modelling the addition of :term:`CTI`.
 
@@ -335,13 +335,13 @@ def arctic_remove(
 
 
 def compute_add_traps_slow_capture(
-    image_2d: np.ndarray,
-    full_well_depth: float,
-    well_fill_power: float,
-    parallel_traps: Sequence[TrapSlowCapture],
-    parallel_express: int,
-    well_notch_depth: float = 0.0,
-    first_electron_fill: float = 0.0,
+        image_2d: np.ndarray,
+        full_well_depth: float,
+        well_fill_power: float,
+        parallel_traps: Sequence[TrapSlowCapture],
+        parallel_express: int,
+        well_notch_depth: float = 0.0,
+        first_electron_fill: float = 0.0,
 ) -> np.ndarray:
     """Create a new image with :term:`CTI` trails.
 
@@ -398,14 +398,14 @@ def compute_add_traps_slow_capture(
 
 
 def arctic_add_trap_slow_capture(
-    detector: CCD,
-    well_fill_power: float,
-    trap_densities: Sequence[float],
-    trap_release_timescales: Sequence[float],
-    trap_capture_timescales: Sequence[float],
-    express: int = 0,
-    well_notch_depth: float = 0.0,
-    first_electron_fill: float = 0.0,
+        detector: CCD,
+        well_fill_power: float,
+        trap_densities: Sequence[float],
+        trap_release_timescales: Sequence[float],
+        trap_capture_timescales: Sequence[float],
+        express: int = 0,
+        well_notch_depth: float = 0.0,
+        first_electron_fill: float = 0.0,
 ) -> None:
     """Add :term:`CTI` trails to an image by trapping, releasing and moving electrons.
 
@@ -447,9 +447,9 @@ def arctic_add_trap_slow_capture(
 
     # Validation
     if not (
-        len(trap_densities)
-        == len(trap_release_timescales)
-        == len(trap_capture_timescales)
+            len(trap_densities)
+            == len(trap_release_timescales)
+            == len(trap_capture_timescales)
     ):
         raise ValueError(
             "Expecting same number of 'trap_densities' and 'trap_release_timescales'"
@@ -484,14 +484,14 @@ def arctic_add_trap_slow_capture(
 
 
 def compute_arctic_remove_slow_capture(
-    image_2d: np.ndarray,
-    full_well_depth: float,
-    well_fill_power: float,  # beta
-    parallel_traps: Sequence[TrapSlowCapture],
-    parallel_express: int,
-    num_iterations: int,
-    well_notch_depth: float = 0.0,  # d
-    first_electron_fill: float = 0.0,  # alpha
+        image_2d: np.ndarray,
+        full_well_depth: float,
+        well_fill_power: float,  # beta
+        parallel_traps: Sequence[TrapSlowCapture],
+        parallel_express: int,
+        num_iterations: int,
+        well_notch_depth: float = 0.0,  # d
+        first_electron_fill: float = 0.0,  # alpha
 ) -> np.ndarray:
     """Create a new image with removed :term:`CTI` trails.
 
@@ -545,15 +545,15 @@ def compute_arctic_remove_slow_capture(
 
 
 def arctic_remove_slow_capture(
-    detector: CCD,
-    well_fill_power: float,
-    trap_densities: Sequence[float],
-    trap_release_timescales: Sequence[float],
-    trap_capture_timescales: Sequence[float],
-    num_iterations: int,
-    express: int = 0,
-    well_notch_depth: float = 0.0,
-    first_electron_fill: float = 0.0,
+        detector: CCD,
+        well_fill_power: float,
+        trap_densities: Sequence[float],
+        trap_release_timescales: Sequence[float],
+        trap_capture_timescales: Sequence[float],
+        num_iterations: int,
+        express: int = 0,
+        well_notch_depth: float = 0.0,
+        first_electron_fill: float = 0.0,
 ) -> None:
     """Remove :term:`CTI` trails from an image by first modelling the addition of :term:`CTI`.
 
@@ -627,3 +627,153 @@ def arctic_remove_slow_capture(
     )
 
     detector.pixel.array = image_2d_cti_removed
+
+
+def compute_add_traps_continuum_instant_capture(
+        image_2d: np.ndarray,
+        full_well_depth: float,
+        well_fill_power: float,
+        parallel_traps: Sequence[ac.TrapInstantCaptureContinuum],
+        parallel_express: int,
+        well_notch_depth: float = 0.0,
+        first_electron_fill: float = 0.0,
+) -> np.ndarray:
+    """Create a new image with :term:`CTI` trails.
+
+    Parameters
+    ----------
+    well_notch_depth
+    first_electron_fill
+    image_2d : ndarray
+        2D image to process.
+    full_well_depth : float
+    well_fill_power : float
+    parallel_traps : sequence of Traps
+        List of trap to process.
+    parallel_express : int
+
+    Returns
+    -------
+    ndarray
+        2D array with :term:`CTI` trails.
+    """
+    ccd = ac.CCD(
+        phases=[
+            ac.CCDPhase(
+                full_well_depth=full_well_depth,
+                well_fill_power=well_fill_power,
+                well_notch_depth=well_notch_depth,
+                first_electron_fill=first_electron_fill,
+            )
+        ]
+    )
+
+    roe = ac.ROE()
+
+    # Create the trap(s)
+    traps: Sequence[ac.TrapInstantCaptureContinuum] = [
+        ac.TrapInstantCaptureContinuum(
+            density=trap.density,
+            release_timescale=trap.release_timescale,
+            release_timescale_sigma=trap.release_timescale_sigma,
+        )
+        for trap in parallel_traps
+    ]
+
+    image_cti_added_2d = ac.add_cti(
+        image=image_2d,
+        parallel_traps=traps,
+        parallel_ccd=ccd,
+        parallel_roe=roe,
+        parallel_express=parallel_express,
+        verbosity=0,
+    )
+
+    return image_cti_added_2d
+
+
+def arctic_add_trap_slow_capture(
+        detector: CCD,
+        well_fill_power: float,
+        trap_densities: Sequence[float],
+        trap_release_timescales: Sequence[float],
+        trap_release_timescales_sigma: Sequence[float],
+        express: int = 0,
+        well_notch_depth: float = 0.0,
+        first_electron_fill: float = 0.0,
+) -> None:
+    """Add :term:`CTI` trails to an image by trapping, releasing and moving electrons.
+
+    Parameters
+    ----------
+
+    first_electron_fill
+    well_notch_depth
+    detector : CCD
+        Pyxel :term:`CCD` Detector object.
+    well_fill_power : float
+    trap_densities : sequence of float
+        A 1D arrays of all trap species densities for serial clocking.
+    trap_release_timescales : sequence of float
+        A 1D arrays of all trap release timescales for serial clocking.
+    trap_release_timescales_sigma : sequence of float
+        A 1D arrays of all trap release timescale sigma values.
+    express : int
+        As described in more detail in :cite:p:`2014:massey` section 2.1.5, the effects
+        of each individual pixel-to-pixel transfer can be very similar, so multiple
+        transfers can be computed at once for efficiency.
+        The ``express`` input sets the number of times the transfers are calculated.
+
+            * ``express = 1`` is the fastest and least accurate.
+            * ``express = 2`` means the transfers are re-computed half-way through readout.
+            * ``express = N`` where ``N`` is the total number of pixels.
+
+        Default ``express = 0`` is a convenient input for automatic ``express = N``.
+
+    Notes
+    -----
+    The external library `arcticpy <https://github.com/jkeger/arcticpy>`_ is used to add
+    the :term:`CTI` trails.
+    """
+    if not WITH_ARTICPY:
+        raise RuntimeError(
+            "ArCTIC python wrapper is not installed ! "
+            "See https://github.com/jkeger/arctic"
+        )
+
+    # Validation
+    if not (
+            len(trap_densities)
+            == len(trap_release_timescales)
+            == len(trap_release_timescales_sigma)
+    ):
+        raise ValueError(
+            "Expecting same number of 'trap_densities' and 'trap_release_timescales'"
+        )
+
+    if len(trap_densities) == 0:
+        raise ValueError("Expecting at least one 'trap_density'.")
+
+    # Conversion - Create a list of `Trap`
+    traps: Sequence[ac.TrapInstantCaptureContinuum] = [
+        ac.TrapInstantCaptureContinuum(
+            density=density,
+            release_timescale=release_timescale,
+            release_timescale_sigma=release_timescale_sigma,
+        )
+        for density, release_timescale, release_timescale_sigma in zip(
+            trap_densities, trap_release_timescales, trap_release_timescales_sigma
+        )
+    ]
+
+    image_cti_added_2d = compute_add_traps_slow_capture(
+        image_2d=np.asarray(detector.pixel.array, dtype=float),
+        full_well_depth=detector.characteristics.full_well_capacity,
+        well_fill_power=well_fill_power,
+        parallel_traps=traps,
+        parallel_express=express,
+        well_notch_depth=well_notch_depth,
+        first_electron_fill=first_electron_fill,
+    )
+
+    detector.pixel.array = image_cti_added_2d
