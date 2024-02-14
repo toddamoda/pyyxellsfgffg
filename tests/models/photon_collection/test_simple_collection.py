@@ -13,7 +13,13 @@ import xarray as xr
 from pytest_mock import MockerFixture  # pip install pytest-mock
 
 from pyxel.data_structure import Photon, Scene
-from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
+from pyxel.detectors import (
+    CCD,
+    CCDGeometry,
+    Characteristics,
+    Environment,
+    WavelengthHandling,
+)
 from pyxel.models.photon_collection.simple_collection import (
     extract_wavelength,
     simple_collection,
@@ -170,11 +176,32 @@ def test_extract_wavelength(dummy_scene: Scene, scene_dataset: xr.Dataset):
     xr.testing.assert_equal(ds, exp_ds)
 
 
+@pytest.mark.parametrize(
+    "aperture, wavelength, filter_band, resolution, pixelscale",
+    [
+        (1.0, None, (336, 342), 2, 1.65),
+        (1.5, 336.0, (336, 342), 2, 1.65),
+        (
+            3.0,
+            WavelengthHandling(cut_on=336.0, cut_off=342, resolution=2),
+            None,
+            None,
+            None,
+        ),
+    ],
+)
 def test_simple_collection_photon_2d(
-    ccd_100x100_no_photon: CCD, scene_dataset: xr.Dataset
+    aperture,
+    wavelength,
+    filter_band,
+    resolution,
+    pixelscale,
+    ccd_100x100_no_photon: CCD,
+    scene_dataset: xr.Dataset,
 ):
     """Test function 'simple_collection'."""
     detector = ccd_100x100_no_photon
+    detector.environment._wavelength = wavelength
 
     # Check if 'scene' and 'photon' are empty
     assert detector.scene == Scene()
@@ -186,10 +213,10 @@ def test_simple_collection_photon_2d(
     # Run the model
     simple_collection(
         detector=detector,
-        aperture=1.0,
-        filter_band=(336, 342),
-        resolution=2,
-        pixelscale=1.0,
+        aperture=aperture,
+        filter_band=filter_band,
+        resolution=resolution,
+        pixelscale=pixelscale,
         integrate_wavelength=True,
     )
 
@@ -200,11 +227,32 @@ def test_simple_collection_photon_2d(
     assert photon_2d.dtype == float
 
 
+@pytest.mark.parametrize(
+    "aperture, wavelength, filter_band, resolution, pixelscale",
+    [
+        (1.0, None, (336, 342), 2, 1.65),
+        (1.5, 336.0, (336, 342), 2, 1.65),
+        (
+            3.0,
+            WavelengthHandling(cut_on=336.0, cut_off=342, resolution=2),
+            None,
+            None,
+            None,
+        ),
+    ],
+)
 def test_simple_collection_photon_3d(
-    ccd_100x100_no_photon: CCD, scene_dataset: xr.Dataset
+    aperture,
+    wavelength,
+    filter_band,
+    resolution,
+    pixelscale,
+    ccd_100x100_no_photon: CCD,
+    scene_dataset: xr.Dataset,
 ):
     """Test function 'simple_collection'."""
     detector = ccd_100x100_no_photon
+    detector.environment._wavelength = wavelength
 
     # Check if 'scene' and 'photon' are empty
     assert detector.scene == Scene()
@@ -216,10 +264,10 @@ def test_simple_collection_photon_3d(
     # Run the model
     simple_collection(
         detector=detector,
-        aperture=1.0,
-        filter_band=(336, 342),
-        resolution=2,
-        pixelscale=1.0,
+        aperture=aperture,
+        filter_band=filter_band,
+        resolution=resolution,
+        pixelscale=pixelscale,
         integrate_wavelength=False,
     )
 
