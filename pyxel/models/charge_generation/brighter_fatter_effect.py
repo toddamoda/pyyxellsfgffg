@@ -37,7 +37,7 @@ def simple_bfe(
     beta: float,
     normalize_kernel: bool = True,
 ) -> None:
-    """Get BFE for photon array and convolve the photon array with the varying input signal.
+    """Get BFE for charge array and convolve the charge array with the varying input signal.
 
     Parameters
     ----------
@@ -56,9 +56,9 @@ def simple_bfe(
     normalize_kernel : bool
         Normalize kernel.
     """
-    signal = detector.photon.array
+    signal = detector.charge.array
 
-    mean = np.mean(detector.photon.array)
+    mean = np.mean(detector.charge.array)
     theta = a + b * signal + c * signal**2
 
     theta_fwc = (
@@ -75,7 +75,7 @@ def simple_bfe(
     # calculate 2D Gaussian kernel
     kernel = Gaussian2DKernel(x_stddev=std, x_size=9)  # , y_size=3)
 
-    # calulate convolution of photon array with kernel
+    # calulate convolution of charge array with kernel
     conv = convolve_fft(
         signal,
         kernel=kernel,
@@ -119,7 +119,7 @@ def simple_bfe(
     if detector.num_steps > 1 and (detector.pipeline_count == (detector.num_steps - 1)):
         detector.data[key_partial].orphan()
 
-    detector.photon.array = conv
+    detector.charge.array = conv
 
 
 @numba.njit(fastmath=False)
@@ -210,7 +210,7 @@ def get_bfe(
     beta: float,
     normalize_kernel: bool = True,
 ) -> None:
-    """Get BFE for photon array and convolve the photon array with the BFE.
+    """Get BFE for charge array and convolve the charge array with the BFE.
 
     Parameters
     ----------
@@ -230,7 +230,7 @@ def get_bfe(
         Normalize kernel.
     """
 
-    data_2d = detector.photon.array
+    data_2d = detector.charge.array
     conv = bfe(
         data_2d=data_2d,
         FWC=detector.characteristics.full_well_capacity,
@@ -241,12 +241,12 @@ def get_bfe(
         beta=beta,
     )
 
-    detector.photon.array = conv
+    detector.charge.array = conv
 
 
 # @numba.njit(fastmath=False)
 # def apply_bfe(signal: np.ndarray, coefficients: Sequence[float]) -> np.ndarray:
-#     """Get BFE for photon array and convolve the photon array with the BFE.
+#     """Get BFE for charge array and convolve the charge array with the BFE.
 #
 #     Parameters
 #     ----------
@@ -307,22 +307,22 @@ def get_bfe(
 
 
 # def brighter_fatter(detector: Detector, coefficients: Sequence[float]) -> None:
-#     # signal = detector.photon.array
-#     new_signal = apply_bfe(signal=detector.photon.array, coefficients=coefficients)
+#     # signal = detector.charge.array
+#     new_signal = apply_bfe(signal=detector.charge.array, coefficients=coefficients)
 #
-#     detector.photon.array = new_signal
+#     detector.charge.array = new_signal
 
 # print(df)
 # i j raussuchen und dann convoluted images ineinander stacken.
 # polynomial_function = np.polynomial.polynomial.Polynomial(coefficients)
-# sigma_array = polynomial_function(detector.photon.array)
+# sigma_array = polynomial_function(detector.charge.array)
 # list = []
 # for sigma in sigma_array:
 #     kernel = Gaussian2DKernel(x_stddev=sigma)
-#     mean = np.mean(detector.photon.array)
+#     mean = np.mean(detector.charge.array)
 #
 #     array_2d = convolve_fft(
-#         detector.photon.array,
+#         detector.charge.array,
 #         kernel=kernel,
 #         boundary="fill",
 #         fill_value=mean,
@@ -330,10 +330,10 @@ def get_bfe(
 #     )
 #     list.append(array_2d)
 # print(list)
-# sigma = np.max(detector.photon.array)
+# sigma = np.max(detector.charge.array)
 
-# detector.photon.array = apply_bfe(
-#     array=detector.photon.array, sigma=sigma, normalize_kernel=normalize_kernel
+# detector.charge.array = apply_bfe(
+#     array=detector.charge.array, sigma=sigma, normalize_kernel=normalize_kernel
 # )
 # polynomial_function = np.polynomial.polynomial.Polynomial(coefficients)
 
