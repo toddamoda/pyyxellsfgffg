@@ -12,6 +12,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 ## UNRELEASED
 
 ### Core
+* Fix bug with [`pyxel.display_scene`](https://esa.gitlab.io/pyxel/doc/stable/references/api/notebook.html#pyxel.display_scene).
+  (See [!855](https://gitlab.com/esa/pyxel/-/merge_requests/855)).
 
 ### Documentation
 
