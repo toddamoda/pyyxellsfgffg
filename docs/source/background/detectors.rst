@@ -11,7 +11,7 @@ According to the ``YAML`` configuration file, one :py:class:`~pyxel.detectors.De
 instantiated for each exposure.
 
 .. figure:: _static/detector.png
-    :width: 500px
+    :width: 600px
     :alt: detector
     :align: center
 
@@ -20,15 +20,17 @@ instantiated for each exposure.
 Detector properties
 -------------------
 
-First group of the data buckets inside the :py:class:`~pyxel.detectors.Detector` object
-are all the information and data related to the physical properties of the simulated detector,
-falling in either of the following categories:
+The initial group of data buckets within the :py:class:`~pyxel.detectors.Detector` object encompasses all information
+and data pertinent to the physical attributes of the simulated detector.
+These can be classified into the following categories:
 :py:class:`~pyxel.detectors.Geometry`, :py:class:`~pyxel.detectors.Characteristics`,
-and :py:class:`~pyxel.detectors.Environment`, as shown in the figure.
-These are all the properties used by more than one model.
-They do not change during a pipeline run and can vary depending on the detector used.
-Another category of detector properties, ``Material``, was temporarily removed in version
-1.0 due to non-use.
+and :py:class:`~pyxel.detectors.Environment`, as shown in the image.
+:ref:`time_properties` and the
+``row`` and ``col`` of :py:class:`~pyxel.detectors.Geometry` are mandatory, as highlighted in the image.
+These properties are utilized by multiple models within the pipeline and remain constant throughout a pipeline run,
+though subject to variation depending on the specific detector employed.
+Notably, the category of detector properties labeled ``Material``, was temporarily removed in version
+1.0 due to its lack of utilization.
 
 .. _data_structure:
 
