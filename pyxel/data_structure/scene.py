@@ -101,10 +101,61 @@ class Scene:
 
     Multi-wavelength photon information are store in form of xarray Datasets
     within a hierarchical structure.
+
+    Examples
+    --------
+    Create an empty Scene
+    >>> from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
+    >>> detector = CCD(
+    ...     geometry=CCDGeometry(row=5, col=5),
+    ...     characteristics=Characteristics(),
+    ...     environment=Environment(),
+    ... )
+    >>> detector.scene
+    Scene<no source>
+
+    Add a source
+    >>> import xarray as xr
+    >>> source = xr.Dataset(...)
+    >>> source
+    <xarray.Dataset>
+    Dimensions:     (ref: 345, wavelength: 343)
+    Coordinates:
+      * ref         (ref) int64 0 1 2 3 4 5 6 7 ... 337 338 339 340 341 342 343 344
+      * wavelength  (wavelength) float64 336.0 338.0 340.0 ... 1.018e+03 1.02e+03
+    Data variables:
+        x           (ref) float64 1.334e+03 1.434e+03 ... -1.271e+03 -1.381e+03
+        y           (ref) float64 -1.009e+03 -956.1 -797.1 ... 1.195e+03 1.309e+03
+        weight      (ref) float64 11.49 14.13 15.22 14.56 ... 15.21 11.51 8.727
+        flux        (ref, wavelength) float64 0.003769 0.004137 ... 0.1813 0.1896
+    Attributes:
+        right_ascension[deg]:  56.75
+        declination[deg]:      24.1167
+        fov_radius[deg]:       0.5
+
+    >>> detector.scene.add_source(source)
+    >>> detector.scene
+    Scene<1 source(s)>
+
+    Get the pointing coordinates of the first source
+    >>> detector.scene.get_pointing_coordinates()
+    or
+    >>> detector.scene.get_pointing_coordinates(source_idx=0)
+    SceneCoordinates(right_ascension=<Quantity 56.75 deg>, declination=<Quantity 24.1167 deg>, fov=<Quantity 0.5 deg>)
     """
 
     def __init__(self):
         self._source: DataTree = DataTree(name="scene")
+
+    def __repr__(self) -> str:
+        cls_name: str = self.__class__.__name__
+
+        if "list" not in self._source:
+            return f"{cls_name}<no source>"
+
+        # Get number of nodes at 'list' level
+        num_sources: int = self._source["list"].width
+        return f"{cls_name}<{num_sources} source(s)>"
 
     def __eq__(self, other) -> bool:
         return type(self) is type(other) and self.data.identical(other.data)
@@ -127,7 +178,6 @@ class Scene:
         --------
         >>> from pyxel.detectors import CCD
         >>> detector = CCD(...)
-        >>> detector.initialize()
 
         >>> source
         <xarray.Dataset>
@@ -190,12 +240,12 @@ class Scene:
 
         self.data[f"/list/{key}"] = DataTree(source)
 
-    def get_pointing_coordinates(self, scene_id: int = 0) -> SceneCoordinates:
+    def get_pointing_coordinates(self, source_idx: int = 0) -> SceneCoordinates:
         """Get the `SceneCoordinates` from a source in the scene."""
-        if scene_id != 0:
+        if source_idx != 0:
             raise NotImplementedError
 
-        sub_scene: xr.Dataset = self.data[f"/list/{scene_id}"].to_dataset()
+        sub_scene: xr.Dataset = self.data[f"/list/{source_idx}"].to_dataset()
         return SceneCoordinates.from_dataset(sub_scene)
 
     @property
@@ -296,6 +346,10 @@ class Scene:
             y           (ref) float64 8.575e+04 8.58e+04 ... 8.795e+04 8.807e+04
             weight      (ref) float64 11.49 14.13 15.22 14.56 ... 15.21 11.51 8.727
             flux        (ref, wavelength) float64 0.03769 0.04137 ... 1.813 1.896
+        Attributes:
+            right_ascension[deg]:  56.75
+            declination[deg]:      24.1167
+            fov_radius[deg]:       0.5
         >>> ds["wavelength"]
         <xarray.DataArray 'wavelength' (wavelength: 343)>
         array([ 336.,  338.,  340., ..., 1016., 1018., 1020.])
