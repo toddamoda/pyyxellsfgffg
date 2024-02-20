@@ -10,8 +10,7 @@ It is passed through all the including models represented by model functions.
 According to the ``YAML`` configuration file, one :py:class:`~pyxel.detectors.Detector` object is
 instantiated for each exposure.
 
-.. figure:: _static/detector.svg
-    :scale: 70%
+.. figure:: _static/detector.png
     :alt: detector
     :align: center
 
@@ -50,6 +49,11 @@ The classes are storing the data values either inside a Pandas
 NumPy array handling functions, models can modify properties of photons,
 charges, etc., like position, kinetic energy, number of electrons per charge packet,
 signal amplitude, etc.
+
+.. figure:: _static/data.png
+    :alt: detector
+    :align: center
+
 
 .. [#] Which is going to be a phase shift, in the case of MKIDs---once their underlying physics is fully implemented.
 
