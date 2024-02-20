@@ -19,10 +19,10 @@ for example the incoming photons, stored charge in the pixels etc.
 This data can be used and edited by any of models in the pipeline.
 The pipeline is the core algorithm, hosting and running the models,
 which are grouped into different model groups, levels imitating the working principles of the detector/instrument.
-Since version 2.0 Pyxel can host mutliwavelength models.
+Since version 2.0 Pyxel can host multiwavelength models.
 
 .. figure:: _static/architecture.png
-    :scale: 70%
+    :width: 800px
     :alt: architecture
     :align: center
 

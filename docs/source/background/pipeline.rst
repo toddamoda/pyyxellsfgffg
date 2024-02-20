@@ -24,7 +24,7 @@ At the end, the pipeline returns the :py:class:`~pyxel.detectors.Detector` objec
 as an output ready to generate output files from results.
 
 .. image:: _static/pipeline.png
-    :scale: 50%
+    :width: 600px
     :alt: ccd_pipeline
     :align: center
 
@@ -75,7 +75,7 @@ Detector attributes changes could happen globally (on detector level)
 or locally (on pixel level or only for a specific detector area).
 
 .. figure:: _static/model-table.png
-    :scale: 70%
+    :width: 800px
     :alt: models
     :align: center
 
