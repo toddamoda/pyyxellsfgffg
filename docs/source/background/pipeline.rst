@@ -23,7 +23,7 @@ and modify the same :py:class:`~pyxel.detectors.Detector` object one after anoth
 At the end, the pipeline returns the :py:class:`~pyxel.detectors.Detector` object
 as an output ready to generate output files from results.
 
-.. image:: _static/Pipeline.pdf
+.. image:: _static/pipeline.pdf
     :alt: ccd_pipeline
     :align: center
 

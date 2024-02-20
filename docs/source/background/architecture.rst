@@ -20,7 +20,7 @@ This data can be used and edited by any of models in the pipeline.
 The pipeline is the core algorithm, hosting and running the models,
 which are grouped into different model groups, levels imitating the working principles of the detector/instrument.
 
-.. figure:: _static/Pyxel_Architecture.pdf
+.. figure:: _static/architecture.pdf
     :alt: architecture
     :align: center
 
