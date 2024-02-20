@@ -5601,6 +5601,12 @@
               "title": "apply_jitter",
               "type": "boolean"
             },
+            "extract_psf": {
+              "default": false,
+              "description": "Extract the computed PSF into the data bucket '/data/{name of the model}/psf'",
+              "title": "extract_psf",
+              "type": "boolean"
+            },
             "fov_arcsec": {
               "description": "Field Of View on detector plane in arcsec.",
               "title": "fov_arcsec",

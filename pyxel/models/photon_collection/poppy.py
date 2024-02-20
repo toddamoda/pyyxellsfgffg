@@ -638,6 +638,7 @@ def optical_psf(
     pixel_scale: Optional[float] = None,
     apply_jitter: bool = False,
     jitter_sigma: float = 0.007,
+    extract_psf: bool = False,
 ) -> None:
     """Model function for poppy optics model: convolve photon array with psf.
 
@@ -653,10 +654,12 @@ def optical_psf(
         Wavelength of incoming light in meters, default is None.
     pixel_scale : float, Optional, default: None
         Pixel scale of detector in arcsec/pix.
-    apply_jitter : bool
+    apply_jitter : bool, default: False
         Defines whether jitter should be applied, default is False.
     jitter_sigma : float
         Jitter sigma value in arcsec per axis, default is 0.007.
+    extract_psf : bool, default: False
+        Extract the computed PSF into the data bucket '/data/{name of the model}/psf'
     """
     logging.getLogger("poppy").setLevel(
         logging.WARNING
@@ -750,9 +753,9 @@ def optical_psf(
         # 2D
         # Processing
         # Get a Point Spread Function
-        image_hdu: fits.PrimaryHDU
+        psf_hdu: fits.PrimaryHDU
         # wavefront_hdu_3d: fits.PrimaryHDU
-        image_hdu, wavefront = calc_psf(
+        psf_hdu, wavefront = calc_psf(
             wavelengths=[selected_wavelength.to("m").value],
             fov_arcsec=fov_arcsec,
             pixel_scale=pixel_scale_with_unit,
@@ -761,13 +764,40 @@ def optical_psf(
             jitter_sigma=jitter_sigma,
         )
 
-        data_3d: np.ndarray = image_hdu.data
-        data_2d: np.ndarray = data_3d[0, :, :]
+        psf_3d: np.ndarray = psf_hdu.data
+        psf_2d: np.ndarray = psf_3d[0, :, :]
+
+        if extract_psf and detector.is_first_readout:
+            optical_elements_attrs: dict[str, Union[str, int]] = {
+                "num_optical_elements": len(optical_elements)
+            }
+            for idx, element in enumerate(optical_elements):
+                optical_elements_attrs[f"element_{idx}"] = str(element)
+
+            general_attrs = {
+                "wavelength": str(selected_wavelength),
+                "fov": str(Quantity(fov_arcsec, unit="arcsec")),
+                "pixel_scale": str(pixel_scale_with_unit),
+                "apply_jitter": apply_jitter,
+                "jitter_sigma": jitter_sigma,
+            }
+
+            detector.data["/optical_psf/psf"] = xr.DataArray(
+                psf_2d,
+                dims=["y", "x"],
+                coords={
+                    "wavelength": xr.DataArray(
+                        selected_wavelength.value,
+                        attrs={"unit": selected_wavelength.unit},
+                    )
+                },
+                attrs=general_attrs | optical_elements_attrs,
+            )
 
         # Convolution
         new_array_2d: np.ndarray = apply_convolution(
             data=detector.photon.array,
-            kernel=data_2d,
+            kernel=psf_2d,
         )
 
         detector.photon.array = new_array_2d
@@ -803,9 +833,9 @@ def optical_psf(
 
         # Processing
         # Get a Point Spread Function
-        image_3d: fits.PrimaryHDU
+        psf_hdu_3d: fits.PrimaryHDU
         wavefront_3d: fits.PrimaryHDU
-        image_3d, wavefront_3d = calc_psf(
+        psf_hdu_3d, wavefront_3d = calc_psf(
             wavelengths=selected_wavelengths_nm.to("m").value,
             fov_arcsec=fov_arcsec,
             pixel_scale=pixel_scale_with_unit,
@@ -815,9 +845,39 @@ def optical_psf(
         )
 
         # Convolution
+        psf_3d = psf_hdu_3d.data
+
+        if extract_psf and detector.is_first_readout:
+            optical_elements_attrs = {"num_optical_elements": len(optical_elements)}
+            for idx, element in enumerate(optical_elements):
+                optical_elements_attrs[f"element_{idx}"] = str(element)
+
+            start_wavelength, end_wavelength = selected_wavelength
+
+            general_attrs = {
+                "wavelengths": f"From {start_wavelength} to {end_wavelength}",
+                "fov": str(Quantity(fov_arcsec, unit="arcsec")),
+                "pixel_scale": str(pixel_scale_with_unit),
+                "apply_jitter": apply_jitter,
+                "jitter_sigma": jitter_sigma,
+            }
+
+            detector.data["/optical_psf/psf"] = xr.DataArray(
+                psf_3d,
+                dims=["wavelength", "y", "x"],
+                coords={
+                    "wavelength": xr.DataArray(
+                        selected_wavelengths_nm.value,
+                        dims="wavelength",
+                        attrs={"unit": selected_wavelengths_nm.unit},
+                    )
+                },
+                attrs=general_attrs | optical_elements_attrs,
+            )
+
         new_array_3d: np.ndarray = apply_convolution(
             data=detector.photon.array_3d.to_numpy(),
-            kernel=image_3d.data,
+            kernel=psf_3d,
         )
 
         array_3d = xr.DataArray(
