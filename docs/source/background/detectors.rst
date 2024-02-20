@@ -52,7 +52,7 @@ charges, etc., like position, kinetic energy, number of electrons per charge pac
 signal amplitude, etc.
 
 .. figure:: _static/data.png
-    :width: 500px
+    :width: 800px
     :alt: detector
     :align: center
 
