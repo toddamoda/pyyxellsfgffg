@@ -100,7 +100,7 @@ However, it is possible to override this property by providing ``pixelscale`` as
       arguments:
         aperture: 126.70e-3 #m
         filter_band: [400, 500] #nm
-        pixelscale: 1.65 #arcsec/pixel
+        pixel_scale: 1.65 #arcsec/pixel
         integrate_wavelength: true
 
 .. autofunction:: simple_collection

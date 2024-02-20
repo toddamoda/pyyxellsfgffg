@@ -441,7 +441,7 @@ def simple_collection(
     aperture: float,
     filter_band: Union[tuple[float, float], None] = None,
     resolution: Optional[int] = None,
-    pixelscale: Union[float, None] = None,
+    pixel_scale: Optional[float] = None,
     integrate_wavelength: bool = True,
 ):
     """Convert scene in ph/(cm2 nm s) to photon in ph/nm s or ph s.
@@ -456,7 +456,7 @@ def simple_collection(
         Wavelength range of selected filter band, default is None. Unit: nm.
     resolution : Optional[int]
         Resolution of provided wavelength range in filter band. Unit: nm.
-    pixelscale : Union[float, None]
+    pixel_scale : float, optional
         Pixel scale of detector, default is None. Unit: arcsec/pixel.
     integrate_wavelength : bool
         If true, integrates along the wavelength else multiwavelength, default is True.
@@ -478,18 +478,20 @@ def simple_collection(
             "To resolve this issue, you must have no photons before running this model."
         )
 
-    if pixelscale is None:
+    if pixel_scale is None:
         if detector.geometry._pixel_scale is None:
             raise ValueError(
                 "Pixel scale is not defined. It must be either provided in the detector geometry "
                 "or as model argument."
             )
-        pixel_scale: float = detector.geometry.pixel_scale
+        pixel_scale_arcsec: Quantity = Quantity(
+            detector.geometry.pixel_scale, unit="arcsec/pixel"
+        )
     else:
-        if pixelscale <= 0.0:
-            raise ValueError(f"Expected 'pixelscale' > 0. Got: {pixelscale!r}")
+        if pixel_scale <= 0.0:
+            raise ValueError(f"Expected 'pixel_scale' > 0. Got: {pixel_scale!r}")
 
-        pixel_scale = pixelscale
+        pixel_scale_arcsec = Quantity(pixel_scale, unit="arcsec/pixel")
 
     wavelengths: xr.DataArray = _extract_wavelength(
         resolution=resolution,
@@ -526,7 +528,7 @@ def simple_collection(
 
         photon_projected: xr.Dataset = project_objects_to_detector(
             scene_data=scene_data,
-            pixel_scale=Quantity(pixel_scale, unit="arcsec/pixel"),
+            pixel_scale=pixel_scale_arcsec,
             rows=detector.geometry.row,
             cols=detector.geometry.col,
         )
@@ -557,7 +559,7 @@ def simple_collection(
 
         photon_projected = project_objects_to_detector(
             scene_data=scene_data,
-            pixel_scale=Quantity(pixel_scale, unit="arcsec/pixel"),
+            pixel_scale=pixel_scale_arcsec,
             rows=detector.geometry.row,
             cols=detector.geometry.col,
         )

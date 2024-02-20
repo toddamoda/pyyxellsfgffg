@@ -5791,10 +5791,10 @@
               "title": "integrate_wavelength",
               "type": "boolean"
             },
-            "pixelscale": {
+            "pixel_scale": {
               "default": null,
               "description": "Pixel scale of detector, default is None. Unit: arcsec/pixel.",
-              "title": "pixelscale",
+              "title": "pixel_scale",
               "type": [
                 "number",
                 "null"

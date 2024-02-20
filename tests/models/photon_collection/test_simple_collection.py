@@ -222,7 +222,7 @@ def test_simple_collection_photon_2d(
         aperture=aperture,
         filter_band=filter_band,
         resolution=resolution,
-        pixelscale=pixelscale,
+        pixel_scale=pixelscale,
         integrate_wavelength=True,
     )
 
@@ -297,7 +297,7 @@ def test_simple_collection_photon_3d(
         aperture=aperture,
         filter_band=filter_band,
         resolution=resolution,
-        pixelscale=pixelscale,
+        pixel_scale=pixelscale,
         integrate_wavelength=False,
     )
 
@@ -769,6 +769,6 @@ def test_simple_collection_error(
             aperture=aperture,
             filter_band=filter_band,
             resolution=resolution,
-            pixelscale=pixelscale,
+            pixel_scale=pixelscale,
             integrate_wavelength=integrate_wavelength,
         )
