@@ -121,24 +121,24 @@ def integrate_flux(
 
 
 def convert_flux(
-    flux: u.Quantity,
-    t_exp: u.Quantity,
-    aperture: u.Quantity,
-) -> u.Quantity:
+    flux: Quantity,
+    t_exp: Quantity,
+    aperture: Quantity,
+) -> Quantity:
     """Convert flux in ph/(s cm2) to ph OR in ph/(s nm cm2) to ph/nm.
 
     Parameters
     ----------
-    flux : u.Quantity
+    flux : Quantity
         Flux. Unit: ph/(s cm2).
-    t_exp : u.Quantity
+    t_exp : Quantity
         Exposure time. Unit: s.
-    aperture : u.Quantity
+    aperture : Quantity
         Collecting area of the telescope. Unit: m.
 
     Returns
     -------
-    u.Quantity
+    Quantity
         Converted flux in ph OR ph/nm.
 
     Examples
@@ -160,7 +160,7 @@ def convert_flux(
 
 def project_objects_to_detector(
     scene_data: xr.Dataset,
-    pixel_scale: u.Quantity,
+    pixel_scale: Quantity,
     rows: int,
     cols: int,
 ) -> xr.Dataset:
@@ -171,7 +171,7 @@ def project_objects_to_detector(
     ----------
     scene_data : xr.Dataset
         Scene dataset with wavelength and flux information to project onto detector.
-    pixel_scale : u.Quantity
+    pixel_scale : Quantity
         Pixel sclae of instrument. Unit: arcsec/pixel.
     rows : int
         Rows of detector.
@@ -201,7 +201,7 @@ def project_objects_to_detector(
         detector_coords_y  (ref) float64 1.454e+03 1.487e+03 ... 2.79e+03 2.859e+03
     >>> project_objects_to_detector(
     ...     selected_data=selected_data,
-    ...     pixel_scale=1.65 * u.arcsec / u.pixel,
+    ...     pixel_scale=Quantity(1.65, unit="arcsec / pix"),
     ...     rows=4096,
     ...     cols=4132,
     ... )
@@ -215,8 +215,8 @@ def project_objects_to_detector(
     """
     # we project the stars in the FOV:
     stars_coords = SkyCoord(
-        scene_data["x"].values * u.arcsec,
-        scene_data["y"].values * u.arcsec,
+        Quantity(scene_data["x"].values, unit="arcsec"),
+        Quantity(scene_data["y"].values, unit="arcsec"),
         frame="icrs",
     )
 
@@ -227,8 +227,8 @@ def project_objects_to_detector(
     telescope_dec: Quantity = scene_coord.declination
     # fov = scene_coord.fov
 
-    # telescope_ra: u.Quantity = (scene_data["x"].values * u.arcsec).mean()
-    # telescope_dec: u.Quantity = (scene_data["y"].values * u.arcsec).mean()
+    # telescope_ra: Quantity = (scene_data["x"].values * u.arcsec).mean()
+    # telescope_dec: Quantity = (scene_data["y"].values * u.arcsec).mean()
     coords_detector = SkyCoord(ra=telescope_ra, dec=telescope_dec, unit="degree")
 
     # using World Coordinate System (WCS) to convert to pixel
@@ -236,11 +236,11 @@ def project_objects_to_detector(
     w = wcs.WCS(naxis=2)
 
     # define cdelt: coordinate increment along axis
-    cdelt = (np.array([-1.0, 1.0]) * pixel_scale).to(u.deg / u.pixel)
+    cdelt = (np.array([-1.0, 1.0]) * pixel_scale).to("deg / pix")
     w.wcs.cdelt = cdelt
 
     # define crpix: coordinate system reference pixel
-    crpix = np.array([rows / 2, cols / 2]) * u.pixel
+    crpix = Quantity(np.array([rows / 2, cols / 2]), unit="pix")
     w.wcs.crpix = crpix
 
     # define crval: coordinate system value at reference pixel
@@ -506,18 +506,18 @@ def simple_collection(
     )
 
     # get time in s
-    time = detector.time_step * u.s
+    time = Quantity(detector.time_step, unit="s")
     # get aperture in m
-    aperture = aperture * u.m
+    aperture = Quantity(aperture, unit="m")
 
     if integrate_wavelength:
         # integrate flux
         integrated_flux: xr.DataArray = integrate_flux(flux=scene_data["flux"])
         # get flux in ph/s/cm^2
-        flux = u.Quantity(integrated_flux, unit=integrated_flux.units)
+        flux = Quantity(integrated_flux, unit=integrated_flux.units)
 
         # get flux converted to ph
-        converted_flux_2d: u.Quantity = convert_flux(
+        converted_flux_2d: Quantity = convert_flux(
             flux=flux, t_exp=time, aperture=aperture
         )
 
@@ -543,10 +543,10 @@ def simple_collection(
 
     else:
         # get flux in ph/(s nm cm^2)
-        flux = u.Quantity(np.asarray(scene_data["flux"]), unit=scene_data["flux"].units)
+        flux = Quantity(np.asarray(scene_data["flux"]), unit=scene_data["flux"].units)
 
         # get flux converted to ph/nm
-        converted_flux_3d: u.Quantity = convert_flux(
+        converted_flux_3d: Quantity = convert_flux(
             flux=flux, t_exp=time, aperture=aperture
         )
 
