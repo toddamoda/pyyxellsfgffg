@@ -24,7 +24,6 @@ At the end, the pipeline returns the :py:class:`~pyxel.detectors.Detector` objec
 as an output ready to generate output files from results.
 
 .. image:: _static/Pipeline.pdf
-    :scale: 70%
     :alt: ccd_pipeline
     :align: center
 

@@ -21,7 +21,6 @@ The pipeline is the core algorithm, hosting and running the models,
 which are grouped into different model groups, levels imitating the working principles of the detector/instrument.
 
 .. figure:: _static/Pyxel_Architecture.pdf
-    :scale: 80%
     :alt: architecture
     :align: center
 

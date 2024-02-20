@@ -10,8 +10,8 @@ It is passed through all the including models represented by model functions.
 According to the ``YAML`` configuration file, one :py:class:`~pyxel.detectors.Detector` object is
 instantiated for each exposure.
 
-.. figure:: _static/Detector.pdf
-    :scale: 50%
+.. figure:: _static/Detector.png
+    :scale: 70%
     :alt: detector
     :align: center
 
