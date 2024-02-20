@@ -42,25 +42,6 @@ Further information on specific parts of the code can be found in the :ref:`Refe
     .. grid-item-card::
         :text-align: center
 
-        **Pixel Coordinate Conventions**
-        ^^^
-
-        Define the convention used for the coordinates in Pyxel.
-
-        +++
-
-        .. button-ref:: pixel_coordinate_conventions
-            :ref-type: ref
-            :click-parent:
-            :color: primary
-            :outline:
-            :expand:
-
-            More explanations
-
-    .. grid-item-card::
-        :text-align: center
-
         **Detectors**
         ^^^
 
@@ -139,6 +120,25 @@ Further information on specific parts of the code can be found in the :ref:`Refe
         +++
 
         .. button-ref:: running_modes
+            :ref-type: ref
+            :click-parent:
+            :color: primary
+            :outline:
+            :expand:
+
+            More explanations
+
+    .. grid-item-card::
+        :text-align: center
+
+        **Pixel Coordinate Conventions**
+        ^^^
+
+        Define the convention used for the coordinates in Pyxel.
+
+        +++
+
+        .. button-ref:: pixel_coordinate_conventions
             :ref-type: ref
             :click-parent:
             :color: primary
