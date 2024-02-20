@@ -11,7 +11,7 @@ According to the ``YAML`` configuration file, one :py:class:`~pyxel.detectors.De
 instantiated for each exposure.
 
 .. figure:: _static/detector.png
-    :scale: 50%
+    :width: 500px
     :alt: detector
     :align: center
 
@@ -52,7 +52,7 @@ charges, etc., like position, kinetic energy, number of electrons per charge pac
 signal amplitude, etc.
 
 .. figure:: _static/data.png
-    :scale: 50%
+    :width: 800px
     :alt: detector
     :align: center
 
