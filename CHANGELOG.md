@@ -32,6 +32,9 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
   in [`photon_collection`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/photon_collection_models.html).
   (See [!857](https://gitlab.com/esa/pyxel/-/merge_requests/857)
   and [!859](https://gitlab.com/esa/pyxel/-/merge_requests/859)).
+* Add new parameter `extract_psf` in [`optical_psf`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/photon_collection_models.html#physical-optics-propagation-in-python-poppy) 
+  in [`photon_collection`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/photon_collection_models.html).
+  (See [!860](https://gitlab.com/esa/pyxel/-/merge_requests/860)).
 
 ### Others
 
