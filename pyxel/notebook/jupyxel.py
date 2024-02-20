@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from panel.widgets import Widget
 
     from pyxel import Configuration
-    from pyxel.data_structure import SceneCoordinates
+    from pyxel.data_structure import Scene, SceneCoordinates
     from pyxel.detectors import Detector
     from pyxel.pipelines import DetectionPipeline, ModelFunction, Processor
 
@@ -554,7 +554,7 @@ def display_persist(persistence: Union[Persistence, SimplePersistence]) -> None:
 def display_scene(
     detector: "Detector", figsize: tuple[int, int] = (8, 6)
 ) -> "plt.Axes":
-    """Display the scene contained of 'detector' and the size of the detector.
+    """Display the scene contained in 'detector' and the size of the detector.
 
     Examples
     --------
@@ -566,7 +566,7 @@ def display_scene(
     import matplotlib.pyplot as plt
     from astropy.units import Quantity
 
-    scene = detector.scene
+    scene: "Scene" = detector.scene
     scene_ds: xr.Dataset = scene.to_xarray()
 
     if not scene:
