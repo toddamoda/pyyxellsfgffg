@@ -23,10 +23,10 @@ conversion from one data structure to another. These mandatory models are highli
 the accompanying image, while all other models within the pipeline are optional, as they solely manipulate the existing
 data repository. For further information, please consult the :ref:`models` page.
 
-Since version 2.0, Pyxel has the capability to support multiwavelength models. These models, along with their
-respective groups, are visually distinguished by color in the accompanying image. Integration of multiwavelength photons
-occurs no later than the charge collection stage, ensuring that they are consolidated across the specified wavelength
-range.
+Since version 2.0, Pyxel has the capability to support multi-wavelength models. These models, along with their
+respective groups, are visually distinguished by color in the accompanying image. Integration of multi-wavelength photons
+occurs either in the photon collection or in the charge generation model group, ensuring that they are consolidated
+across the specified wavelength range.
 
 .. figure:: _static/architecture.png
     :width: 800px

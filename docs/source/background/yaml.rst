@@ -4,7 +4,7 @@
 Configuration files
 ===================
 
-The framework uses a user-friendly, structured ``YAML`` configuration file as an
+The framework uses a structured ``YAML`` configuration file as an
 input, which defines the running mode, the detector properties, detector effect models and
 their input arguments.
 The configuration file is loaded with the function :py:func:`~pyxel.load`.
@@ -12,12 +12,12 @@ The configuration file is loaded with the function :py:func:`~pyxel.load`.
 Despite the configuration file being human-readable and easy to understand,
 it is still possible to make mistakes that result in errors during the simulation.
 Therefore a configuration file validation process based on JSON schema can be used
-to will further improve the user experience. More information here: :ref:`json_schema`.
+to further improve the user experience. More information here: :ref:`json_schema`.
 
 Structure
 =========
 
-The file consists of three separate parts, each representing a class in Pyxel architecture.
+The file consists of three separate parts, each representing a class in the Pyxel architecture.
 They define the running mode, the detector properties, and the pipeline - the models the user wants to apply.
 When the YAML configuration file is loaded, the nested dictionaries, lists, numbers,
 and strings are used to directly initialize the Pyxel classes. See examples below.
@@ -54,11 +54,11 @@ Detector
 
 All arguments of Detector subclasses (:py:class:`~pyxel.detectors.Geometry`,
 :py:class:`~pyxel.detectors.Characteristics`, :py:class:`~pyxel.detectors.Environment`) are defined here.
-Since version 2.0, Pyxel supports multiwavelength functionality.
+Since version 2.0, Pyxel supports multi-wavelength functionality.
 In addition to providing the wavelength as input for models capable of handling multiple wavelengths,
 users can also specify wavelength information within the detector object's environment.
 This can involve setting a single value for monochromatic wavelength handling or specifying parameters such as
-``cut_on``, ``cut_off`` and ``resolution`` to define the wavelength range and resolution for creating a multiwavelength
+``cut_on``, ``cut_off`` and ``resolution`` to define the wavelength range and resolution for creating a multi-wavelength
 detector object.
 
 Example of a monochromatic detector object:
@@ -88,7 +88,7 @@ Example of a monochromatic detector object:
         adc_voltage_range: [0.,5.]
         full_well_capacity: 90000
 
-Example of a multiwavelength detector object:
+Example of a multi-wavelength detector object:
 
 .. code-block:: yaml
 
@@ -124,7 +124,7 @@ For more details on the :py:class:`~pyxel.detectors.Detector` object, see also :
 Pipeline
 --------
 
-It contains the model functions grouped into model groups
+The pipeline contains the model functions grouped into model groups
 (*scene_generation*, *photon_collection*, *charge_generation*, etc.).
 For more details, see :ref:`pipeline`.
 

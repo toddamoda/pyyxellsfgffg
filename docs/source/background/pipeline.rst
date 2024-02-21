@@ -4,9 +4,9 @@
 Pipeline
 ########
 
-The core algorithm of the architecture is the Detection pipeline allowing to
-host any type of :ref:`models <models_explanation>` in a flexible manner, allowing for an arbitrary number of models.
-It is an instance of :py:class:`~pyxel.pipelines.DetectionPipeline` class.
+The core algorithm is the detection pipeline which includes various :ref:`models <models_explanation>` at each stage of
+the pipeline. It is an instance of :py:class:`~pyxel.pipelines.DetectionPipeline` class.
+Each model's input parameters can be configured using the ``YAML`` configuration file.
 
 Inside the pipeline the :ref:`models <models_explanation>` are grouped into different
 levels per detector type mirroring the operational principles of the detector, for example
@@ -18,13 +18,13 @@ and :ref:`data processing <data_processing>` in this order.
 
 Each group is structured around a for loop, iterating over all included and selected models in a predefined sequence,
 which can be customized by the user. All models within a pipeline sequentially access and modify the same
-:py:class:`~pyxel.detectors.Detector` object. pon completion, the pipeline yields the modified
+:py:class:`~pyxel.detectors.Detector` object. Upon completion, the pipeline yields the modified
 :py:class:`~pyxel.detectors.Detector` object as output, ready for generating output files based on the results.
 
-Since version 2.0, Pyxel possesses the ability to accommodate multiwavelength models.
+Since version 2.0, Pyxel includes the ability to accommodate multi-wavelength models.
 These models, along with their associated groups, are visually highlighted by distinct colors in the accompanying image.
-Integration of multiwavelength photons is conducted latest at the charge collection stage, ensuring their consolidation
-across the designated wavelength range without delay.
+Integration of multi-wavelength photons occurs either in the photon collection or in the charge generation model group,
+ensuring that they are consolidated across the specified wavelength range.
 
 .. image:: _static/pipeline.png
     :width: 600px
@@ -51,11 +51,10 @@ models in the pipeline.
 
 Model groups
 ------------
-
-Models are grouped into multiple model groups per detector type according to
-which object of the :py:class:`~pyxel.detectors.Detector` object is used or modified by
-the models. These groups correspond roughly to the detector fundamental
-functions.
+A set of models is associated with a model group according to
+which object of the :py:class:`~pyxel.detectors.Detector` data container is used or modified by the models.
+These groups correspond roughly to the detector fundamental functions, e.g. generating charge, so converting photons
+to charge or modyfying the charge bucket.
 
 Models in Pyxel makes changes and storing the data in data buckets (:py:class:`~pyxel.data_structure.Scene`,
 :py:class:`~pyxel.data_structure.Photon`, :py:class:`~pyxel.data_structure.Charge`,
@@ -63,14 +62,16 @@ Models in Pyxel makes changes and storing the data in data buckets (:py:class:`~
 :py:class:`~pyxel.data_structure.Pixel`, :py:class:`~pyxel.data_structure.Signal` or
 :py:class:`~pyxel.data_structure.Image`,
 :py:class:`datatree.DataTree` class).
+The data buckets are not initialized before running a pipeline. The models inside the model groups must initialize
+the data buckets.
 
-Models could also modify any detector attributes (like Quantum Efficiency,
+Models can also modify any detector attributes (like Quantum Efficiency,
 gains, temperature, etc.) stored in a Detector subclass
 (:py:class:`~pyxel.detectors.Characteristics`, :py:class:`~pyxel.detectors.Environment`,
 :py:class:`~pyxel.detectors.Material`).
 
 
-Detector attributes changes could happen globally (on detector level)
+Detector attributes changes can happen globally (on detector level)
 or locally (on pixel level or only for a specific detector area).
 
 .. figure:: _static/model-table.png
@@ -79,7 +80,7 @@ or locally (on pixel level or only for a specific detector area).
     :align: center
 
 Most of the model groups work for :term:`CCD`, :term:`CMOS`, :term:`MKID` and :term:`APD` detectors,
-which are imitating the physical working principles of imaging detectors. They were
+which are imitating the physical working principles of imaging detectors. They are
 grouped according to which physics data storing objects are modified by them. Note that among the 10 groups,
 three are dedicated to a single detector type. They are visually highlighted in the accompanying image.
 
@@ -94,7 +95,7 @@ a :py:class:`~pyxel.detectors.CMOS` type :py:class:`~pyxel.detectors.Detector` o
 depending on the simulation requirements of the model.
 Any other (optional) input arguments can be defined for the model as well,
 which will be loaded from the :ref:`YAML <yaml>` file automatically.
-Users can change model parameters or enable/disable them by interacting with the configuration file.
+Users can change model parameters or enable/disable them by modifying with the configuration file.
 For example, a model function that multiplies the photon array with the input argument would look like this in the code:
 
 .. code-block:: python

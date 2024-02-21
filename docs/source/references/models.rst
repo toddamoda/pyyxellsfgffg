@@ -4,7 +4,7 @@
 Models
 ======
 
-The containers such as :py:class:`~pyxel.data_structure.Scene`, :py:class:`~pyxel.data_structure.Photon`,
+The data containers such as :py:class:`~pyxel.data_structure.Scene`, :py:class:`~pyxel.data_structure.Photon`,
 :py:class:`~pyxel.data_structure.Pixel`, :py:class:`~pyxel.data_structure.Signal` and
 :py:class:`~pyxel.data_structure.Image` are not initialized before running a pipeline.
 The models inside the model groups must initialize the containers.
