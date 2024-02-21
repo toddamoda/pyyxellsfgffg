@@ -131,23 +131,23 @@ For more details, see :ref:`pipeline`.
 The order of model levels and models are important,
 as the execution order is defined here!
 
-* :ref:`**scene_generation**`
+* :ref:`scene_generation`
 
-* :ref:`**photon_collection**`
+* :ref:`photon_collection`
 
-* :ref:`**charge_generation**`
+* :ref:`charge_generation`
 
-* :ref:`**charge_collection**`
+* :ref:`charge_collection`
 
-* :ref:`**(phasing)**`
+* (:ref:`phasing`)
 
-* :ref:`**(charge_transfer)**`
+* (:ref:`charge_transfer`)
 
-* :ref:`**charge_measurement**`
+* :ref:`charge_measurement`
 
-* :ref:`**readout_electronics**`
+* :ref:`readout_electronics`
 
-* :ref:`**data_processing**`
+* :ref:`data_processing`
 
 Models need a ``name`` which defines the path to the model wrapper
 function. Models also have an ``enabled`` boolean switch, where the user
