@@ -4,11 +4,14 @@
 Detectors
 =========
 
-The :py:class:`~pyxel.detectors.Detector` object is the main input of the detection pipeline.
-Therefore it is a container for all the data that the models need access to inside the :ref:`pipeline`.
-It is passed through all the including models represented by model functions.
-According to the ``YAML`` configuration file, one :py:class:`~pyxel.detectors.Detector` object is
-instantiated for each exposure.
+The :py:class:`~pyxel.detectors.Detector` object serves as the primary input for the detection pipeline,
+functioning as a repository for all data required by the models within the :ref:`pipeline`.
+Note, that not all models are compatible with every detector type. To verify compatibility, consult the model table and
+refer to the :ref:`model_groups_explanation` within the comprehensive list of all models provided (see :ref:`models`).
+This will ensure that the model you intend to use is suitable for the selected detector type.
+It traverses through all the encompassing models, represented by model functions.
+As per the specifications outlined in the ``YAML`` configuration file, a single :py:class:`~pyxel.detectors.Detector`
+object is instantiated for each exposure.
 
 .. figure:: _static/detector.png
     :width: 600px
@@ -37,11 +40,11 @@ Notably, the category of detector properties labeled ``Material``, was temporari
 Data
 ====
 
-The detector also holds data buckets storing the simulated data, such as
+The detector additionally contains data buckets that store simulated data, including
 input photon distribution (photons), number of charge carriers generated (carrier type), signal variation [#]_ in pixels
-(voltage, phase), and digitised image value (ADU). The data buckets are modified by the models in the pipeline
-and the state of the output detector at the end of the pipeline is changed.
-These data structures are:
+(voltage, phase), and digitised image value (ADU). These data buckets undergo modifications by the models within the
+pipeline, ultimately altering the state of the output detector upon completion of the pipeline.
+The data structures involved are:
 :py:class:`~pyxel.data_structure.Scene`, :py:class:`~pyxel.data_structure.Photon`,
 :py:class:`~pyxel.data_structure.Charge`, :py:class:`~pyxel.data_structure.Pixel`,
 :py:class:`~pyxel.data_structure.Signal`, :py:class:`~pyxel.data_structure.Image`

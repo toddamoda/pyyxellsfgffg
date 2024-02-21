@@ -54,8 +54,14 @@ Detector
 
 All arguments of Detector subclasses (:py:class:`~pyxel.detectors.Geometry`,
 :py:class:`~pyxel.detectors.Characteristics`, :py:class:`~pyxel.detectors.Environment`) are defined here.
-For details, see :ref:`detectors`.
+Since version 2.0, Pyxel supports multiwavelength functionality.
+In addition to providing the wavelength as input for models capable of handling multiple wavelengths,
+users can also specify wavelength information within the detector object's environment.
+This can involve setting a single value for monochromatic wavelength handling or specifying parameters such as
+``cut_on``, ``cut_off`` and ``resolution`` to define the wavelength range and resolution for creating a multiwavelength
+detector object.
 
+Example of a monochromatic detector object:
 .. code-block:: yaml
 
     ccd_detector:
@@ -67,9 +73,11 @@ For details, see :ref:`detectors`.
         total_thickness: 40.
         pixel_vert_size: 15.
         pixel_horz_size: 15.
+        pixel_scale: 1.38
 
       environment:
         temperature: 80
+        wavelength: 600
 
       characteristics:
         quantum_efficiency: 1.
@@ -79,40 +87,73 @@ For details, see :ref:`detectors`.
         adc_voltage_range: [0.,5.]
         full_well_capacity: 90000
 
+Example of a multiwavelength detector object:
+.. code-block:: yaml
+
+    ccd_detector:
+
+      geometry:
+
+        row: 512
+        col: 512
+        total_thickness: 40.
+        pixel_vert_size: 15.
+        pixel_horz_size: 15.
+        pixel_scale: 1.38
+
+      # monochromatic
+      environment:
+        temperature: 80
+        wavelength:
+          cut_on: 550
+          cut_off: 650
+          resolution: 10
+
+      characteristics:
+        quantum_efficiency: 1.
+        charge_to_volt_conversion: 5.e-6
+        pre_amplification: 5.
+        adc_bit_resolution: 16
+        adc_voltage_range: [0.,5.]
+        full_well_capacity: 90000
+
+For more details on the :py:class:`~pyxel.detectors.Detector` object, see also :ref:`detectors`.
+
+
 Pipeline
 --------
 
 It contains the model functions grouped into model groups
 (*scene_generation*, *photon_collection*, *charge_generation*, etc.).
-For details, see :ref:`pipeline`.
+For more details, see :ref:`pipeline`.
 
 The order of model levels and models are important,
 as the execution order is defined here!
 
-* **scene_generation**
+* :ref:`**scene_generation**`
 
-* **photon_collection**
+* :ref:`**photon_collection**`
 
-* **charge_generation**
+* :ref:`**charge_generation**`
 
-* **charge_collection**
+* :ref:`**charge_collection**`
 
-* **(charge_transfer)**
+* :ref:`**(phasing)**`
 
-* **charge_measurement**
+* :ref:`**(charge_transfer)**`
 
-* **(signal_transfer)**
+* :ref:`**charge_measurement**`
 
-* **readout_electronics**
+* :ref:`**readout_electronics**`
 
-* **data_processing**
-
+* :ref:`**data_processing**`
 
 Models need a ``name`` which defines the path to the model wrapper
 function. Models also have an ``enabled`` boolean switch, where the user
 can enable or disable the given model. The optional and compulsory
 arguments of the model functions have to be listed inside the
-``arguments``. For details, see :ref:`models`.
+``arguments``.
+For more details, see :ref:`models`.
 
 .. code-block:: yaml
 
