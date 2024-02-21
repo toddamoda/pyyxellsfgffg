@@ -225,7 +225,7 @@ match_dir = "/[^pyxel\\/models\\/phasing\\/mkid\\_models].*"
 add_ignore = "D202,D105,D102,D103"
 
 [tool.doc8]
-ignore = ["D001", "D002", "D004", "D005"]
+ignore = ["D000", "D001", "D002", "D004", "D005"]
 
 [tool.bandit]
 exclude_dirs = ["pyxel/_version.py"]

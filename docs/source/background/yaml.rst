@@ -101,7 +101,6 @@ Example of a multiwavelength detector object:
         pixel_horz_size: 15.
         pixel_scale: 1.38
 
-      # monochromatic
       environment:
         temperature: 80
         wavelength:
