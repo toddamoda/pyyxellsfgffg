@@ -186,7 +186,7 @@ html_theme_options = {
     # Version switcher dropdown. See issue #562
     # "switcher": {"json_url": "https://esa.gitlab.io/pyxel/doc/switcher.json"},
     # "check_switcher": False,
-    # "announcement": "Hello World",
+    "announcement": "Version 2 is released ! 🚀",
 }
 
 # This is used to generate the link 'suggest edit'
