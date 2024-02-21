@@ -532,6 +532,8 @@ def load_star_map(
         FOV radius of telescope optics.
     band : 'blue_photometer', 'gaia_band' or 'red_photometer'
         Define the band to use.
+        Available values:
+
         * 'blue_photometer' is the band from 330 nm to 680 nm
         * 'gaia_band' is the band from 330 nm to 1050 nm
         * 'red_photometer' is the band from 640 nm to 1050 nm
