@@ -139,11 +139,11 @@ to look for certain things:
 
    background/overview.rst
    background/architecture.rst
-   background/pixel_coordinate_conventions.rst
    background/detectors.rst
    background/pipeline.rst
    background/yaml.rst
    background/running_modes.rst
+   background/pixel_coordinate_conventions.rst
 
 .. toctree::
    :caption: Reference
