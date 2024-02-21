@@ -54,7 +54,7 @@ Model groups
 A set of models is associated with a model group according to
 which object of the :py:class:`~pyxel.detectors.Detector` data container is used or modified by the models.
 These groups correspond roughly to the detector fundamental functions, e.g. generating charge, so converting photons
-to charge or modyfying the charge bucket.
+to charge or modifying the charge bucket.
 
 Models in Pyxel makes changes and storing the data in data buckets (:py:class:`~pyxel.data_structure.Scene`,
 :py:class:`~pyxel.data_structure.Photon`, :py:class:`~pyxel.data_structure.Charge`,
