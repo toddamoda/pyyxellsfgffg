@@ -659,7 +659,7 @@ def optical_psf(
     jitter_sigma : float
         Jitter sigma value in arcsec per axis, default is 0.007.
     extract_psf : bool, default: False
-        Copy the computed PSF into the data bucket `detector.data['/optical_psf/psf']`
+        Copy the computed PSF into the data bucket `detector.data['/optical_psf/[name of the model]/psf']`
     """
     logging.getLogger("poppy").setLevel(
         logging.WARNING
@@ -774,7 +774,9 @@ def optical_psf(
             for idx, element in enumerate(optical_elements):
                 optical_elements_attrs[f"element_{idx}"] = str(element)
 
+            model_name: str = detector.current_running_model_name
             general_attrs = {
+                "model": model_name,
                 "wavelength": str(selected_wavelength),
                 "fov": str(Quantity(fov_arcsec, unit="arcsec")),
                 "pixel_scale": str(pixel_scale_with_unit),
@@ -782,7 +784,7 @@ def optical_psf(
                 "jitter_sigma": jitter_sigma,
             }
 
-            detector.data["/optical_psf/psf"] = xr.DataArray(
+            psf_info = xr.DataArray(
                 psf_2d,
                 dims=["y", "x"],
                 coords={
@@ -793,6 +795,8 @@ def optical_psf(
                 },
                 attrs=general_attrs | optical_elements_attrs,
             )
+
+            detector.data[f"/optical_psf/{model_name}/psf"] = psf_info
 
         # Convolution
         new_array_2d: np.ndarray = apply_convolution(
@@ -854,7 +858,9 @@ def optical_psf(
 
             start_wavelength, end_wavelength = selected_wavelength
 
+            model_name = detector.current_running_model_name
             general_attrs = {
+                "model": model_name,
                 "wavelengths": f"From {start_wavelength} to {end_wavelength}",
                 "fov": str(Quantity(fov_arcsec, unit="arcsec")),
                 "pixel_scale": str(pixel_scale_with_unit),
@@ -862,7 +868,7 @@ def optical_psf(
                 "jitter_sigma": jitter_sigma,
             }
 
-            detector.data["/optical_psf/psf"] = xr.DataArray(
+            psf_info = xr.DataArray(
                 psf_3d,
                 dims=["wavelength", "y", "x"],
                 coords={
@@ -874,6 +880,8 @@ def optical_psf(
                 },
                 attrs=general_attrs | optical_elements_attrs,
             )
+
+            detector.data[f"/optical_psf/{model_name}/psf"] = psf_info
 
         new_array_3d: np.ndarray = apply_convolution(
             data=detector.photon.array_3d.to_numpy(),

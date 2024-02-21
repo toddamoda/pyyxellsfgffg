@@ -70,6 +70,10 @@ class Detector:
 
         self._numbytes = get_size(self)
 
+        # TODO: This variable is used to store the name of the current model executed
+        #       A better interface to access this information must be provided
+        self.current_running_model_name: str = ""
+
     def __eq__(self, other) -> bool:
         return (
             isinstance(other, Detector)

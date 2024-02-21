@@ -5603,7 +5603,7 @@
             },
             "extract_psf": {
               "default": false,
-              "description": "Copy the computed PSF into the data bucket `detector.data['/optical_psf/psf']`",
+              "description": "Copy the computed PSF into the data bucket `detector.data['/optical_psf/[name of the model]/psf']`",
               "title": "extract_psf",
               "type": "boolean"
             },

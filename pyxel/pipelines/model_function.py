@@ -221,6 +221,8 @@ class ModelFunction:
 
     def __call__(self, detector: "Detector") -> None:
         """TBW."""
+        # TODO: Implement this a context manager
+        detector.current_running_model_name = self.name
         self.func(detector, **self.arguments)
 
 
