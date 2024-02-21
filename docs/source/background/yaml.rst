@@ -62,6 +62,7 @@ This can involve setting a single value for monochromatic wavelength handling or
 detector object.
 
 Example of a monochromatic detector object:
+
 .. code-block:: yaml
 
     ccd_detector:
@@ -88,6 +89,7 @@ Example of a monochromatic detector object:
         full_well_capacity: 90000
 
 Example of a multiwavelength detector object:
+
 .. code-block:: yaml
 
     ccd_detector:
@@ -101,7 +103,6 @@ Example of a multiwavelength detector object:
         pixel_horz_size: 15.
         pixel_scale: 1.38
 
-      # monochromatic
       environment:
         temperature: 80
         wavelength:
@@ -130,23 +131,23 @@ For more details, see :ref:`pipeline`.
 The order of model levels and models are important,
 as the execution order is defined here!
 
-* :ref:`**scene_generation**`
+* :ref:`scene_generation`
 
-* :ref:`**photon_collection**`
+* :ref:`photon_collection`
 
-* :ref:`**charge_generation**`
+* :ref:`charge_generation`
 
-* :ref:`**charge_collection**`
+* :ref:`charge_collection`
 
-* :ref:`**(phasing)**`
+* (:ref:`phasing`)
 
-* :ref:`**(charge_transfer)**`
+* (:ref:`charge_transfer`)
 
-* :ref:`**charge_measurement**`
+* :ref:`charge_measurement`
 
-* :ref:`**readout_electronics**`
+* :ref:`readout_electronics`
 
-* :ref:`**data_processing**`
+* :ref:`data_processing`
 
 Models need a ``name`` which defines the path to the model wrapper
 function. Models also have an ``enabled`` boolean switch, where the user
