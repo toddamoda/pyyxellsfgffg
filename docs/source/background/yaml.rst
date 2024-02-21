@@ -62,6 +62,7 @@ This can involve setting a single value for monochromatic wavelength handling or
 detector object.
 
 Example of a monochromatic detector object:
+
 .. code-block:: yaml
 
     ccd_detector:
@@ -88,6 +89,7 @@ Example of a monochromatic detector object:
         full_well_capacity: 90000
 
 Example of a multiwavelength detector object:
+
 .. code-block:: yaml
 
     ccd_detector:
