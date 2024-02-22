@@ -520,6 +520,7 @@ class Detector:
         ValueError
             If the extension of filename is not recognized.
         """
+        # TODO: implement working_dir
         full_filename = Path(filename).resolve()
         extension: str = full_filename.suffix
 
