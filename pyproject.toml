@@ -242,7 +242,7 @@ omit = [
     "pyxel/models/charge_generation/tars/plotting.py",
 ]
 
-[tool.ruff]
+[tool.ruff.lint]
 select = [
     "A",        # flake8-builtins
     "B",        # flake8-bugbear
@@ -279,7 +279,7 @@ ignore = [
 
 exclude = ["_TEMPLATE.py", "_version.py"]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/*" = [
     "D100",     # Missing docstring in public module
     "D104",     # Missing docstring in public package
@@ -297,13 +297,13 @@ exclude = ["_TEMPLATE.py", "_version.py"]
     "UP",       # pyupgrade
 ]
 
-[tool.ruff.flake8-pytest-style]
+[tool.ruff.lint.flake8-pytest-style]
 fixture-parentheses = false
 mark-parentheses = false
 
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "numpy"
 
-[tool.ruff.mccabe]
+[tool.ruff.lint.mccabe]
 max-complexity = 12
