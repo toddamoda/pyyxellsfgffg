@@ -99,9 +99,8 @@ def fit_into_array(
     output = np.zeros(output_shape)
     output_y, output_x = output_shape
 
-    if not allow_smaller_array:
-        if array_y < output_y or array_x < output_y:
-            raise ValueError("Input array too small to fit into the desired shape!.")
+    if not allow_smaller_array and array_y < output_y or array_x < output_y:
+        raise ValueError("Input array too small to fit into the desired shape!.")
 
     if align:
         relative_position = _set_relative_position(

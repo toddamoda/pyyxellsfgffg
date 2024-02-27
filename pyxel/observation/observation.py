@@ -1070,7 +1070,7 @@ def create_new_processor(
 
     new_processor = deepcopy(processor)
 
-    for key in parameter_dict.keys():
+    for key in parameter_dict:
         new_processor.set(key=key, value=parameter_dict[key])
 
     return new_processor

@@ -42,7 +42,7 @@ def display_html(obj: Union[Callable, ModelFunction, ModelGroup]) -> "HTML":
                 type(obj.__dict__[key]).__name__,
                 str(obj.__dict__[key]).replace(">", "&gt").replace("<", "&lt"),
             ]
-            for key in obj.__dict__.keys()
+            for key in obj.__dict__
         }
 
         template_str = """
@@ -88,14 +88,14 @@ def display_model_html(mf: "ModelFunction") -> "HTML":
             type(mf.__dict__[key]).__name__,
             str(mf.__dict__[key]).replace(">", "&gt").replace("<", "&lt"),
         ]
-        for key in mf.__dict__.keys()
+        for key in mf.__dict__
     }
     a = {
         key: [
             type(mf._arguments[key]).__name__,
             str(mf._arguments[key]).replace(">", "&gt").replace("<", "&lt"),
         ]
-        for key in mf._arguments.keys()
+        for key in mf._arguments
     }
 
     template_str = """
@@ -157,7 +157,7 @@ def display_model_group_html(mg: "ModelGroup") -> "HTML":
             type(mg.__dict__[key]).__name__,
             str(mg.__dict__[key]).replace(">", "&gt").replace("<", "&lt"),
         ]
-        for key in mg.__dict__.keys()
+        for key in mg.__dict__
     }
     m = {
         model._name: [

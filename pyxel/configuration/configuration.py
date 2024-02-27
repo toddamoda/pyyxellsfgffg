@@ -562,7 +562,7 @@ def to_pipeline(dct: dict) -> DetectionPipeline:
     -------
     DetectionPipeline
     """
-    for model_group_name in dct.keys():
+    for model_group_name in dct:
         models_list: Optional[Sequence[dict]] = dct[model_group_name]
 
         if models_list is None:

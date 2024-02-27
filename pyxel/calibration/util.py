@@ -272,17 +272,17 @@ def _check_out_ranges(
         raise ValueError("Fitting ranges have different lengths in 1st dimension")
 
     # TODO: Refactor and add more unit tests. See #328
-    if len(target_fit_range) == len(out_fit_range) == 4:
-        if (target_fit_range[3] - target_fit_range[2]) != (
-            out_fit_range[3] - out_fit_range[2]
-        ):
-            raise ValueError("Fitting ranges have different lengths in 2nd dimension")
+    if len(target_fit_range) == len(out_fit_range) == 4 and (
+        (target_fit_range[3] - target_fit_range[2])
+        != (out_fit_range[3] - out_fit_range[2])
+    ):
+        raise ValueError("Fitting ranges have different lengths in 2nd dimension")
 
-    if len(target_fit_range) == len(out_fit_range) == 6:
-        if (target_fit_range[5] - target_fit_range[4]) != (
-            out_fit_range[5] - out_fit_range[4]
-        ):
-            raise ValueError("Fitting ranges have different lengths in third dimension")
+    if len(target_fit_range) == len(out_fit_range) == 6 and (
+        (target_fit_range[5] - target_fit_range[4])
+        != (out_fit_range[5] - out_fit_range[4])
+    ):
+        raise ValueError("Fitting ranges have different lengths in third dimension")
 
 
 # TODO: Refactor and add more unit tests. See #328

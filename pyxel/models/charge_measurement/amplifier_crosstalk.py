@@ -247,12 +247,10 @@ def dc_crosstalk(
         raise ValueError(
             "Can't split detector array horizontally for a given number of amplifiers."
         )
-    if len(ch_matrix.shape) > 1:
-        if detector.geometry.col % ch_matrix.shape[1] != 0:
-            raise ValueError(
-                "Can't split detector array vertically "
-                "for a given number of amplifiers."
-            )
+    if len(ch_matrix.shape) > 1 and detector.geometry.col % ch_matrix.shape[1] != 0:
+        raise ValueError(
+            "Can't split detector array vertically " "for a given number of amplifiers."
+        )
     if ch_matrix.size != directions.size:
         raise ValueError(
             "Channel matrix and readout directions arrays not the same size."
@@ -316,12 +314,10 @@ def ac_crosstalk(
         raise ValueError(
             "Can't split detector array horizontally for a given number of amplifiers."
         )
-    if len(ch_matrix.shape) > 1:
-        if detector.geometry.col % ch_matrix.shape[1] != 0:
-            raise ValueError(
-                "Can't split detector array vertically "
-                "for a given number of amplifiers."
-            )
+    if len(ch_matrix.shape) > 1 and detector.geometry.col % ch_matrix.shape[1] != 0:
+        raise ValueError(
+            "Can't split detector array vertically " "for a given number of amplifiers."
+        )
     if ch_matrix.size != directions.size:
         raise ValueError(
             "Channel matrix and readout directions arrays not the same size."

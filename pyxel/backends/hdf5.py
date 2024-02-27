@@ -138,7 +138,7 @@ def _load(
 
     if isinstance(dataset, h5.Group):
         dct = {}
-        for key, _ in h5file[name].items():
+        for key in h5file[name]:
             result = _load(h5file, name=f"{name}/{key}")
 
             dct[key] = result

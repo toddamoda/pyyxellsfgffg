@@ -425,7 +425,6 @@ class PlottingCosmix:
             + r"\cosmix\data\validation\G4_app_results_20180425\cosmix-e_num_lst_per_event.npy",
         ]
         labels = ["Gaia BAM CCD data", "GRAS simulation", "CosmiX (Pyxel) simulation"]
-        i = 0
 
         hist_bins = 250
         hist_range = (1, 15e3)
@@ -434,7 +433,7 @@ class PlottingCosmix:
         ax = plt.axes()
 
         plt.title("Charges deposited per single event")
-        for filename in hist_names:
+        for i, filename in enumerate(hist_names):
             histogram = np.load(str(Path(path, filename)))
 
             if i == 0:
@@ -466,8 +465,6 @@ class PlottingCosmix:
                     color=col,
                 )
 
-            i += 1
-
         plt.axis(xmin=0, xmax=15e3, ymin=0, ymax=3.0e-4)
 
         plt.xlabel("Number of electrons")
@@ -488,14 +485,13 @@ class PlottingCosmix:
             "10000 events from random protons CREME96 (step=0.5)(16-08-2016_15h56)",  # 40 um BAM
         ]
         labels = ["TARS data (Lionel), SM (16um)", "TARS data (Lionel), BAM (40um)"]
-        i = 0
 
         hist_bins = 500
         hist_range = (1, 15e3)
 
         plt.figure()
         plt.title("Number of electrons per event")
-        for filename in hist_names:
+        for i, filename in enumerate(hist_names):
             histogram = np.load(
                 str(
                     Path(
@@ -524,8 +520,6 @@ class PlottingCosmix:
                     histogram, bins=hist_bins, range=hist_range, label=labels[i], fc=col
                 )
 
-            i += 1
-
         # plt.axis([0, 15e3, 0, 0.0001])
         # plt.axis([0, 15e3, 0, 3E3])
 
@@ -542,14 +536,13 @@ class PlottingCosmix:
             "Gaia_CCD_study-20180404T115340Z-001/Gaia_CCD_study/Data/CRs_from_BAM_Gaia_CCDs.npy",
         ]
         labels = ["GAIA SM (16um) data", "GAIA BAM (40um) data"]
-        i = 0
 
         hist_bins = 500
         hist_range = (1, 15e3)
 
         plt.figure()
         plt.title("Number of electrons per event")
-        for filename in hist_names:
+        for i, filename in enumerate(hist_names):
             histogram = np.load(str(Path(path, filename)))
 
             if i == 0:
@@ -570,8 +563,6 @@ class PlottingCosmix:
                 plt.hist(
                     histogram, bins=hist_bins, range=hist_range, label=labels[i], fc=col
                 )
-
-            i += 1
 
         # plt.axis([0, 15e3, 0, 0.0001])
         # plt.axis([0, 15e3, 0, 3E3])
@@ -607,9 +598,8 @@ class PlottingCosmix:
         plt.figure()
         plt.title(title)
 
-        if isinstance(data1, str):
-            if data1.endswith(".npy"):
-                data1 = np.load(data1)
+        if isinstance(data1, str) and data1.endswith(".npy"):
+            data1 = np.load(data1)
 
         # data1 = data1[data1 > ]
         # data1 = data1[data1 < 15000]
