@@ -196,12 +196,10 @@ def illumination(
         Flux of photon per pixel.
     option : str
         A string indicating the type of illumination:
-        - ``uniform``
-        Uniformly fill the entire array with photon. (Default)
-        - ``elliptic``
-        Mask with elliptic object.
-        - ``rectangular``
-        Mask with rectangular object.
+
+        - ``uniform``: Uniformly fill the entire array with photon. (Default)
+        - ``elliptic``: Mask with elliptic object.
+        - ``rectangular``: Mask with rectangular object.
     object_size : list or tuple, optional
         List or tuple of length 2, integers defining the diameters of the elliptic or rectangular object
         in vertical and horizontal directions.
