@@ -26,6 +26,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
   (See [!868](https://gitlab.com/esa/pyxel/-/merge_requests/868)).
 * Bump 'versioneer' from 0.28 to 0.29.
   (See [!869](https://gitlab.com/esa/pyxel/-/merge_requests/869)).
+* Add more rules in 'ruff'.
+  (See [!870](https://gitlab.com/esa/pyxel/-/merge_requests/870)).
 
 ## 2.0 / 2024-02-22
 
