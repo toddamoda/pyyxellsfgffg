@@ -247,7 +247,7 @@
           "enum": [
             "single",
             "exponential",
-            "binominal",
+            "binomial",
             "sbx"
           ],
           "type": "string"

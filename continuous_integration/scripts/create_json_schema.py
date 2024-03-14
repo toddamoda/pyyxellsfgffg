@@ -628,7 +628,7 @@ def generate_detectors() -> Iterator[str]:
     yield "    m: float = 0.02"
     yield "    param_m: float = 1.0"
     yield "    param_s: int = 2"
-    yield "    crossover: Literal['single', 'exponential', 'binominal', 'sbx'] = 'exponential'"
+    yield "    crossover: Literal['single', 'exponential', 'binomial', 'sbx'] = 'exponential'"
     yield "    mutation: Literal['uniform', 'gaussian', 'polynomial'] = 'polynomial'"
     yield "    selection: Literal['tournament', 'truncated'] = 'tournament'"
 
