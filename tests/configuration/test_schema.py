@@ -6,6 +6,7 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 import json
+from importlib import resources
 from pathlib import Path
 
 import pytest
@@ -20,8 +21,7 @@ jsonschema = pytest.importorskip(
 
 @pytest.fixture
 def schema(request: pytest.FixtureRequest) -> dict:
-    filename: Path = request.path.parent / "../../static/pyxel_schema.json"
-    full_filename = filename.resolve(strict=True)
+    full_filename: Path = resources.files("pyxel.static").joinpath("pyxel_schema.json")
 
     with full_filename.open() as fh:
         content = json.load(fh)
