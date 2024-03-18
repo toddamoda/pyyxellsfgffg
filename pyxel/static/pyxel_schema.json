@@ -5319,7 +5319,7 @@
             },
             "option": {
               "default": "uniform",
-              "description": "A string indicating the type of illumination: - ``uniform`` Uniformly fill the entire array with photon. (Default) - ``elliptic`` Mask with elliptic object. - ``rectangular`` Mask with rectangular object.",
+              "description": "A string indicating the type of illumination:  - ``uniform``: Uniformly fill the entire array with photon. (Default) - ``elliptic``: Mask with elliptic object. - ``rectangular``: Mask with rectangular object.",
               "enum": [
                 "uniform",
                 "rectangular",
