@@ -277,7 +277,7 @@ def _retrieve_objects_from_gaia(
         data_structure = "COMBINED"
 
         # Get all sources
-        source_ids: "Column" = result["source_id"]
+        source_ids: "Column" = result["SOURCE_ID"]
         if len(source_ids) > 5000:
             # TODO: Fix this
             raise NotImplementedError("Cannot retrieve more than 5000 sources")
@@ -380,7 +380,12 @@ def retrieve_from_gaia(
     )
 
     # Convert data from Gaia into a dataset
-    positions: xr.Dataset = positions_table.to_pandas(index="source_id").to_xarray()
+    positions: xr.Dataset = (
+        positions_table.to_pandas()
+        .rename(columns={"SOURCE_ID": "source_id"})
+        .set_index("source_id")
+        .to_xarray()
+    )
     spectra: xr.Dataset = xr.concat(
         [
             spectrum_table.to_pandas(index="wavelength")
@@ -388,7 +393,7 @@ def retrieve_from_gaia(
             .assign_coords(source_id=source_id)
             for source_id, spectrum_table in spectra_dct.items()
         ],
-        dim="source_id",
+        dim="SOURCE_ID",
     )
 
     ds: xr.Dataset = xr.merge([positions, spectra])
