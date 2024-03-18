@@ -20,6 +20,8 @@ This release brings a number of bugfixes and improvements.
   (See [!873](https://gitlab.com/esa/pyxel/-/merge_requests/873)).
 
 ### Documentation
+* Add more documentation.
+  (See [!876](https://gitlab.com/esa/pyxel/-/merge_requests/876)).
 
 ### Models
 * Add kTC noise only to the frame acquired right after reset.
