@@ -3591,7 +3591,7 @@
           "additionalProperties": false,
           "properties": {
             "dark_rate": {
-              "description": "Dark current, in electrons/pixel/second, which is the way manufacturers typically report it.",
+              "description": "Dark current, in e\u207b/pixel/second, which is the way manufacturers typically report it.",
               "title": "dark_rate",
               "type": "number"
             },
