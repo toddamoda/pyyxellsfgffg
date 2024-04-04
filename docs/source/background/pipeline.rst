@@ -11,7 +11,7 @@ Each model's input parameters can be configured using the ``YAML`` configuration
 Inside the pipeline the :ref:`models <models_explanation>` are grouped into different
 levels per detector type mirroring the operational principles of the detector, for example
 in case of a :term:`CCD` the model groups are :ref:`scene generation <scene_generation>`,
-:ref:`photon collection <photon_collection>`, :ref:`charge <charge_transfer>`, :ref:`generation <charge_generation>`,
+:ref:`photon collection <photon_collection>`, :ref:`charge generation <charge_generation>`,
 :ref:`charge collection <charge_collection>`, :ref:`charge transfer <charge_transfer>`,
 :ref:`charge measurement <charge_measurement>`, :ref:`readout electronics <readout_electronics>`
 and :ref:`data processing <data_processing>` in this order.
