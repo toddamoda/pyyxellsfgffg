@@ -11,119 +11,130 @@ from typing import Optional
 
 import numpy as np
 from astropy import constants as const
+from astropy.units import Quantity, Unit
 
 from pyxel.detectors import APD, Detector
 from pyxel.util import set_random_seed
 
 
 def calculate_band_gap(
-    band_gap_0: float, alpha: float, beta: float, temperature: float
-) -> float:
+    band_gap_0: Quantity,
+    alpha: Quantity,
+    beta: Quantity,
+    temperature: Quantity,
+) -> Quantity:
     """Return band gap based on Varshni empirical expression.
 
     Parameters
     ----------
-    band_gap_0 : float
+    band_gap_0 : Quantity
         Parameter E_0. Unit: eV
-    alpha : float
+    alpha : Quantity
         Alpha parameter. Unit: eV/K
-    beta : float
+    beta : Quantity
         Beta parameter. Unit: K
-    temperature :
+    temperature : Quantity
         Temperature. Unit K
 
     Returns
     -------
-    float
+    Quantity
         Band gap value. Unit: eV
     """
 
     gap = band_gap_0 - (alpha * temperature**2) / (temperature + beta)
 
-    return gap
+    return gap.to("eV")
 
 
-def band_gap_silicon(temperature: float) -> float:
+def band_gap_silicon(temperature: Quantity) -> Quantity:
     """Return band gap in Silicon based on Varshni empirical expression.
 
     Parameters
     ----------
-    temperature : float
+    temperature : Quantity
         Temperature. Unit: K
 
     Returns
     -------
-    float
+    Quantity
         Band gap value. Unit: eV
     """
 
-    band_gap_0 = 1.1557  # eV
-    alpha = 7.021e-4  # ev/K
-    beta = 1108.0  # K
+    band_gap_0 = Quantity(1.1557, unit="eV")
+    alpha = Quantity(7.021e-4, unit="eV / K")
+    beta = Quantity(1108.0, unit="K")
 
     return calculate_band_gap(
-        band_gap_0=band_gap_0, alpha=alpha, beta=beta, temperature=temperature
+        band_gap_0=band_gap_0,
+        alpha=alpha,
+        beta=beta,
+        temperature=temperature,
     )
 
 
 def average_dark_current(
-    temperature: float,
-    pixel_area: float,
-    figure_of_merit: float,
-    band_gap: float,
-    band_gap_room_temperature: float,
-) -> float:
+    temperature: Quantity,  # [PhysicalType("temperature")],
+    pixel_area: Quantity,
+    figure_of_merit: Quantity,
+    band_gap: Quantity,
+    band_gap_room_temperature: Quantity,
+) -> Quantity:
     """Compute average dark current.
 
     Parameters
     ----------
-    temperature : float
+    temperature : Quantity
         Temperature. Unit: K
-    pixel_area
+    pixel_area : Quantity
         Pixel area. Unit: cm^2
-    figure_of_merit : float
+    figure_of_merit : Quantity
         Dark current figure of merit. Unit: nA/cm^2
-    band_gap : float
+    band_gap : Quantity
         Semiconductor band_gap. Unit: eV
-    band_gap_room_temperature : float
+    band_gap_room_temperature : Quantity
         Semiconductor band gap at 300K. If none, the one for silicon is used. Unit: eV
 
     Returns
     -------
-    float
+    Quantity
         Average dark current. Unit: e-/pixel/s
     """
 
-    k_b = const.k_B.value
-    e_0 = const.e.value
+    # boltzmann constant (in J / K)
+    k_b: Quantity = Quantity(const.k_B)
 
-    room_temperature = 300
+    # electron charge (in C / electron)
+    e_0: Quantity = Quantity(const.e) / Unit("electron")
 
-    room_temperature_factor = room_temperature ** (3 / 2) * np.exp(
-        -band_gap_room_temperature * e_0 / (2 * k_b * room_temperature)
+    room_temperature = Quantity(300, unit="K")
+
+    room_temperature_factor: Quantity = room_temperature ** (3 / 2) * np.exp(
+        -band_gap_room_temperature / (2 * k_b * room_temperature)
+    )  # unit: K^{3/2}
+    temperature_factor: Quantity = temperature ** (3 / 2) * np.exp(
+        -band_gap / (2 * k_b * temperature)
+    )  # unit: K^{3/2}
+
+    cste_dark_signal: Quantity = ((figure_of_merit * pixel_area) / e_0).to(
+        "electron / s"
     )
 
-    avg_dark_current = (
-        pixel_area  # in cm^2
-        * figure_of_merit  # in nA/cm^2
-        * 1e-9  # conversion to A/cm^2
-        * (1 / e_0)  # conversion to e-/s/cm^2
-        * temperature ** (3 / 2)
-        * np.exp(-band_gap * e_0 / (2 * k_b * temperature))
-        * (1 / room_temperature_factor)
-    )  # Unit: e-/s/pixel
+    avg_dark_current: Quantity = (
+        cste_dark_signal * temperature_factor / room_temperature_factor
+    )  # unit: electron / s
 
-    return avg_dark_current
+    return avg_dark_current.to("electron / s")
 
 
 def compute_dark_current(
     shape: tuple[int, int],
-    time_step: float,
-    temperature: float,
-    pixel_area: float,
-    figure_of_merit: float,
-    band_gap: float,
-    band_gap_room_temperature: float,
+    time_step: Quantity,
+    temperature: Quantity,
+    pixel_area: Quantity,
+    figure_of_merit: Quantity,
+    band_gap: Quantity,
+    band_gap_room_temperature: Quantity,
     spatial_noise_factor: Optional[float] = None,
     temporal_noise: bool = True,
 ) -> np.ndarray:
@@ -138,17 +149,17 @@ def compute_dark_current(
     ----------
     shape : tuple
         Output array shape.
-    time_step : float
+    time_step : Quantity
         Time step. Unit: s
-    temperature : float
+    temperature : Quantity
         Temperature. Unit: K
     pixel_area
         Pixel area. Unit: cm^2
-    figure_of_merit : float
+    figure_of_merit : Quantity
         Dark current figure of merit. Unit: nA/cm^2
-    band_gap : float
+    band_gap : Quantity
         Semiconductor band_gap. Unit: eV
-    band_gap_room_temperature : float
+    band_gap_room_temperature : Quantity
         Semiconductor band gap at 300K. If none, the one for silicon is used. Unit: eV
     spatial_noise_factor: float
         Dark current fixed pattern noise factor.
@@ -161,33 +172,36 @@ def compute_dark_current(
         Dark current values. Unit: e-
     """
 
-    avg_dark_current = average_dark_current(
+    avg_dark_current: Quantity = average_dark_current(
         temperature=temperature,
         pixel_area=pixel_area,
         figure_of_merit=figure_of_merit,
         band_gap=band_gap,
         band_gap_room_temperature=band_gap_room_temperature,
-    )
+    )  # unit: electron / s
+
+    dark_signal_2d: Quantity = (
+        np.ones(shape) * avg_dark_current * time_step
+    )  # unit: electron
 
     if temporal_noise:
-        dark_signal_2d = np.ones(shape) * avg_dark_current * time_step
-        dark_current_shot_noise_2d = np.random.poisson(
-            dark_signal_2d
-        )  # dark current shot noise
-        dark_current_2d = dark_current_shot_noise_2d.astype(float)
+        # dark current shot noise
+        dark_current_shot_noise_2d = np.random.poisson(np.asarray(dark_signal_2d))
+        dark_current_2d = Quantity(dark_current_shot_noise_2d, unit="electron")
     else:
-        dark_signal_2d = np.ones(shape) * avg_dark_current * time_step
         dark_current_2d = dark_signal_2d
 
     if spatial_noise_factor is not None:
-        dark_current_fpn_sigma = (
-            time_step * avg_dark_current * spatial_noise_factor
-        )  # sigma of fpn distribution
+        # sigma of fixed pattern noise distribution
+        dark_current_fpn_sigma = time_step * avg_dark_current * spatial_noise_factor
 
         with np.errstate(all="ignore"):
-            dark_current_2d = np.multiply(
-                dark_current_2d,
-                (1 + np.random.lognormal(sigma=dark_current_fpn_sigma, size=shape)),
+            dark_current_2d = dark_current_2d * (
+                1
+                + np.random.lognormal(
+                    sigma=np.asarray(dark_current_fpn_sigma),
+                    size=shape,
+                )
             )
 
     if np.isinf(dark_current_2d).any():
@@ -241,38 +255,45 @@ def dark_current(
     :external+pyxel_data:doc:`examples/models/dark_current/dark_current_Si`.
     """
     geo = detector.geometry
-    pixel_area = geo.pixel_vert_size * 1e-4 * geo.pixel_horz_size * 1e-4  # in cm^2
-    temperature = detector.environment.temperature
-    time_step = detector.time_step
+    pixel_vert_size = Quantity(geo.pixel_vert_size, unit="um")
+    pixel_horz_size = Quantity(geo.pixel_horz_size, unit="um")
+
+    pixel_area = pixel_vert_size * pixel_horz_size  # in um^2
+    temperature = Quantity(detector.environment.temperature, unit="K")
+    time_step = Quantity(detector.time_step, unit="s")
 
     if band_gap and band_gap_room_temperature:
-        final_band_gap = band_gap
-        final_band_gap_room_temperature = band_gap_room_temperature
+        final_band_gap = Quantity(band_gap, unit="eV")
+        final_band_gap_room_temperature = Quantity(band_gap_room_temperature, unit="eV")
     elif band_gap or band_gap_room_temperature:
         raise ValueError(
             "Both parameters band_gap and band_gap_room_temperature have to be defined."
         )
     else:
-        final_band_gap = band_gap_silicon(temperature)
-        final_band_gap_room_temperature = band_gap_silicon(temperature=300)
+        room_temperature = Quantity(300, unit="K")
+
+        final_band_gap = band_gap_silicon(temperature)  # unit: eV
+        final_band_gap_room_temperature = band_gap_silicon(
+            temperature=room_temperature
+        )  # unit: eV
 
     with set_random_seed(seed):
         with warnings.catch_warnings():
             warnings.filterwarnings(action="ignore", category=RuntimeWarning)
 
-            dark_current_array = compute_dark_current(
+            dark_current_2d = compute_dark_current(
                 shape=geo.shape,
                 time_step=time_step,
                 temperature=temperature,
                 pixel_area=pixel_area,
-                figure_of_merit=figure_of_merit,
+                figure_of_merit=Quantity(figure_of_merit, unit="nA / cm2"),
                 band_gap=final_band_gap,
                 band_gap_room_temperature=final_band_gap_room_temperature,
                 spatial_noise_factor=spatial_noise_factor,
                 temporal_noise=temporal_noise,
-            )
+            )  # unit: electron
 
-    detector.charge.add_charge_array(dark_current_array)
+    detector.charge.add_charge_array(np.asarray(dark_current_2d))
 
 
 def calculate_simple_dark_current(
@@ -287,7 +308,7 @@ def calculate_simple_dark_current(
     num_cols : int
         Number of columns for the generated image.
     current : float
-        Dark current, in electrons/pixel/second
+        Dark current, in e⁻/pixel/second
     exposure_time : float
         Length of the simulated exposure, in seconds.
 
@@ -315,7 +336,7 @@ def simple_dark_current(
     detector : Detector
         Any detector object.
     dark_rate : float
-        Dark current, in electrons/pixel/second, which is the way
+        Dark current, in e⁻/pixel/second, which is the way
         manufacturers typically report it.
     seed : int, optional
     """
