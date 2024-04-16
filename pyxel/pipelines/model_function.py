@@ -57,7 +57,7 @@ class Arguments(MutableMapping):
     """
 
     def __init__(self, input_arguments: dict[str, Any]):
-        self._arguments: dict[str, Any] = input_arguments
+        self._arguments: dict[str, Any] = dict(input_arguments)
 
     def __setitem__(self, key, value):
         if key not in self._arguments:
