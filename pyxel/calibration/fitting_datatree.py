@@ -443,7 +443,9 @@ class ModelFittingDataTree(ProblemSingleObjective):
 
         except Exception:
             logging.exception(
-                "Catch an exception in 'fitness' for ModelFitting: %r.", self
+                "Catch an exception in 'fitness' for ModelFitting: %r with decision vector: %r.",
+                self,
+                decision_vector_1d,
             )
             raise
 
@@ -477,7 +479,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
 
         return parameters
 
-    def apply_parameters(
+    def _apply_parameters(
         self, processor: Processor, parameter: np.ndarray
     ) -> "DataTree":
         """Create a new ``Processor`` with new parameters."""
@@ -496,17 +498,19 @@ class ModelFittingDataTree(ProblemSingleObjective):
         self, parameters: "xr.DataArray"
     ) -> pd.DataFrame:
         """TBW."""
-        assert "island" in parameters.dims
-        assert "param_id" in parameters.dims
+        if "island" not in parameters.dims:
+            raise KeyError("Missing dimension 'island'")
+        if "param_id" not in parameters.dims:
+            raise KeyError("Missing dimension 'param_id'")
 
         lst = []
         for id_processor, processor in enumerate(self.param_processor_list):
             delayed_processor = delayed(processor)
 
             for idx_island, params_array in parameters.groupby("island"):
-                params: np.ndarray = params_array.data  # type
+                params: np.ndarray = params_array.to_numpy()
 
-                result_datatree: DataTree = delayed(self.apply_parameters)(
+                result_datatree: DataTree = delayed(self._apply_parameters)(
                     processor=delayed_processor, parameter=params
                 )
 
