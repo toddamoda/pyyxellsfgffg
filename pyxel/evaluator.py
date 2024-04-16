@@ -19,14 +19,23 @@ __all__ = ["evaluate_reference", "eval_range", "eval_entry"]
 
 
 def evaluate_reference(reference_str: str) -> Callable:
-    """Evaluate a module's class, function, or constant.
+    """Evaluate a reference to a module's class or function.
 
-    :param str reference_str: the python expression to
-        evaluate or retrieve the module attribute reference to.
+    Parameters
+    ----------
+    reference_str : str
+        The python expression to evaluate or retrieve the module attribute reference to.
         This is usually a reference to a class or a function.
-    :return: the module attribute or object.
-    :rtype: object
-    :raises ModuleNotFoundError: if reference_str cannot be evaluated to a callable.
+
+    Returns
+    -------
+    Callable
+        A reference to the class or function.
+
+    Raises
+    ------
+    ModuleNotFoundError
+        raised if reference_str cannot be evaluated to a callable.
     """
     if not reference_str:
         raise ImportError("Empty string cannot be evaluated")
@@ -40,15 +49,14 @@ def evaluate_reference(reference_str: str) -> Callable:
         module = importlib.import_module(module_str)
 
         reference: Callable = getattr(module, function_str)
-        assert callable(reference)
+        if not callable(reference):
+            raise TypeError(f"{reference_str!r} is not a callable")
 
         # if isinstance(reference, type):
         #     # this is a class type, instantiate it using default arguments.
         #     reference = reference()
     except ModuleNotFoundError as exc:
-        raise ModuleNotFoundError(
-            f"Cannot import module: {module_str!r}. exc: {exc}"
-        ) from exc
+        raise ModuleNotFoundError(f"Cannot import module: {module_str!r}.") from exc
     except AttributeError as ex:
         raise ImportError(
             f"Module: {module_str!r}, does not contain {function_str!r}"
