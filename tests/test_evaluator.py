@@ -7,7 +7,7 @@
 
 import pytest
 
-from pyxel.evaluator import eval_range
+from pyxel.evaluator import eval_range, evaluate_reference
 
 
 @pytest.mark.parametrize(
@@ -51,3 +51,33 @@ def test_eval_range_failing(expr: str, exp_exc: Exception, exp_msg: str):
     """Test function 'eval_range' with bad inputs."""
     with pytest.raises(exp_exc, match=exp_msg):
         _ = eval_range(expr)
+
+
+def test_evaluate_reference():
+    """Test function 'evaluate_reference'."""
+    ref = evaluate_reference("pyxel.evaluator.evaluate_reference")
+    assert ref == evaluate_reference
+
+
+@pytest.mark.parametrize(
+    "reference, exp_exc, exp_msg",
+    [
+        ("", ImportError, r"Empty string cannot be evaluated"),
+        ("foo", ImportError, r"Missing module path"),
+        (
+            "unknown_module.my_func",
+            ModuleNotFoundError,
+            r"Cannot import module: 'unknown_module'",
+        ),
+        (
+            "pyxel.evaluator.unknown_func",
+            ImportError,
+            r"Module: 'pyxel.evaluator', does not contain 'unknown_func",
+        ),
+        ("pyxel.__version__", TypeError, "'pyxel.__version__' is not a callable"),
+    ],
+)
+def test_evaluate_reference_with_bad_inputs(reference, exp_exc, exp_msg):
+    """Test function 'evaluate_reference' with invalid parameters."""
+    with pytest.raises(exp_exc, match=exp_msg):
+        _ = evaluate_reference(reference)
