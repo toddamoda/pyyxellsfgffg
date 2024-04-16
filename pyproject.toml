@@ -234,12 +234,15 @@ exclude_lines = [
     "pragma: no cover",
     "debug",
     "raise NotImplementedError",
+    "if TYPE_CHECKING:",
 ]
 
 [tool.coverage.run]
 omit = [
     "pyxel/models/charge_measurement/nghxrg/nghxrg_beta.py",
     "pyxel/models/charge_generation/tars/plotting.py",
+    "pyxel/_version.py",
+    "tests/*",
 ]
 
 [tool.ruff.lint]
