@@ -7,6 +7,7 @@
 
 """TBW."""
 import inspect
+import sys
 import warnings
 from collections.abc import Mapping, MutableMapping
 from typing import TYPE_CHECKING, Any, Callable, Optional
@@ -172,6 +173,7 @@ class ModelFunction:
         arguments: Optional[dict] = None,
         enabled: bool = True,
     ):
+        # TODO: Remove this !
         if inspect.isclass(func):
             raise AttributeError("Cannot pass a class to ModelFunction.")
 
@@ -210,7 +212,13 @@ class ModelFunction:
     def func(self) -> Callable:
         """TBW."""
         if self._func is None:
-            self._func = evaluate_reference(self._func_name)
+            try:
+                self._func = evaluate_reference(self._func_name)
+            except Exception as exc:
+                if sys.version_info >= (3, 11):
+                    exc.add_note(f"Cannot retrieve function from {self._func_name!r}'")
+
+                raise
 
         if hasattr(self._func, "__deprecated__"):
             # This will be visible by the user
