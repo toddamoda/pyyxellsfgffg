@@ -52,17 +52,17 @@ class ParameterValues:
         # TODO: maybe use numpy to check multi-dimensional input lists
         # Check YAML input (not real values yet) and define parameter type
         if values == "_":
-            self.type: ParameterType = ParameterType("multi")
+            self.type: ParameterType = ParameterType.Multi
         elif isinstance(values, str) and "numpy" in values:
-            self.type = ParameterType("simple")
+            self.type = ParameterType.Simple
         elif isinstance(values, abc.Sequence) and any(
             [(el == "_" or isinstance(el, abc.Sequence)) for el in values]
         ):
-            self.type = ParameterType("multi")
+            self.type = ParameterType.Multi
         elif isinstance(values, abc.Sequence) and all(
             [isinstance(el, (Number, str)) for el in values]
         ):
-            self.type = ParameterType("simple")
+            self.type = ParameterType.Simple
         else:
             raise ValueError("Parameter values cannot be initiated with those values.")
 
