@@ -155,11 +155,12 @@ class Environment:
     def to_dict(self) -> Mapping:
         """Get the attributes of this instance as a `dict`."""
         if self._wavelength is None:
-            wavelength_dict = {}
+            wavelength_dict: dict[str, Union[int, float, dict]] = {}
         elif isinstance(self._wavelength, (int, float)):
             wavelength_dict = {"wavelength": self._wavelength}
         else:
             wavelength_dict = {"wavelength": self._wavelength.to_dict()}
+
         return {"temperature": self._temperature} | wavelength_dict
 
     @classmethod
