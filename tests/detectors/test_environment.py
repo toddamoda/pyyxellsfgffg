@@ -6,32 +6,122 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 from copy import deepcopy
+from typing import Optional
 
 import pytest
 
-from pyxel.detectors import Environment
+from pyxel.detectors import Environment, WavelengthHandling
 
 
+@pytest.mark.parametrize("temperature", [None, 0.1, 1000.0])
 @pytest.mark.parametrize(
-    "temperature ",
-    [0.0, 1000.0],
+    "wavelength",
+    [None, 1.0, 1000.0, WavelengthHandling(cut_on=1.0, cut_off=5.0, resolution=2)],
 )
-def test_create_environment(temperature: float):
+def test_environment(temperature, wavelength):
     """Test when creating a valid `Environment` object."""
-    _ = Environment(temperature=temperature)
+    obj = Environment(temperature=temperature, wavelength=wavelength)
+
+    # Test __repr__
+    assert repr(obj).startswith("Environment(")
+
+    # Test property 'numbytes'
+    _ = obj.numbytes
+
+    # Test getter 'Environment.temperature'
+    if temperature is None:
+        with pytest.raises(
+            ValueError, match=r"'temperature' not specified in detector environment"
+        ):
+            _ = obj.temperature
+    else:
+        assert obj.temperature == temperature
+
+    # Test getter 'Environment.wavelength'
+    if wavelength is None:
+        with pytest.raises(
+            ValueError, match=r"'wavelength' not specified in detector environment"
+        ):
+            _ = obj.wavelength
+    else:
+        assert obj.wavelength == wavelength
 
 
 @pytest.mark.parametrize(
-    "temperature, exp_exc, exp_error",
+    "temperature, wavelength, exp_exc, exp_error",
     [
-        pytest.param(-0.1, ValueError, r"\'temperature\'"),
-        pytest.param(1001, ValueError, r"\'temperature\'"),
+        pytest.param(-0.1, None, ValueError, r"\'temperature\' must be between"),
+        pytest.param(1001, None, ValueError, r"\'temperature\' must be between"),
+        pytest.param(None, 0, ValueError, r"'wavelength' must be strictly positive"),
+        pytest.param(None, -1.0, ValueError, r"'wavelength' must be strictly positive"),
     ],
 )
-def test_create_invalid_environment(temperature: float, exp_exc, exp_error):
+def test_invalid_environment(
+    temperature: Optional[float],
+    wavelength: Optional[float],
+    exp_exc: type[Exception],
+    exp_error: str,
+):
     """Test when creating an invalid `Environment` object."""
     with pytest.raises(exp_exc, match=exp_error):
-        _ = Environment(temperature=temperature)
+        _ = Environment(temperature=temperature, wavelength=wavelength)
+
+
+@pytest.mark.parametrize("temperature", [0.1, 1000.0])
+def test_temperature_setter(temperature):
+    """Test setter 'Environment.temperature'."""
+    obj = Environment()
+
+    obj.temperature = temperature
+    assert obj.temperature == temperature
+
+
+@pytest.mark.parametrize(
+    "temperature, exp_exc, exp_msg",
+    [
+        (-1, ValueError, r"'temperature' must be between 0.0 and 1000.0"),
+        (0.0, ValueError, r"'temperature' must be between 0.0 and 1000.0"),
+        (1001.0, ValueError, r"'temperature' must be between 0.0 and 1000.0"),
+    ],
+)
+def test_temperature_setter_wrong_inputs(
+    temperature, exp_exc: type[Exception], exp_msg: str
+):
+    """Test setter 'Environment.temperature'."""
+    obj = Environment()
+
+    with pytest.raises(exp_exc, match=exp_msg):
+        obj.temperature = temperature
+
+
+@pytest.mark.parametrize(
+    "wavelength",
+    [0.1, 1000.0, WavelengthHandling(cut_on=1.0, cut_off=5.0, resolution=2)],
+)
+def test_wavelength_setter(wavelength):
+    """Test setter 'Environment.wavelength'."""
+    obj = Environment()
+
+    obj.wavelength = wavelength
+    assert obj.wavelength == wavelength
+
+
+@pytest.mark.parametrize(
+    "wavelength, exp_exc, exp_msg",
+    [
+        (-1, ValueError, r"'wavelength' must be strictly positive"),
+        (0.0, ValueError, r"'wavelength' must be strictly positive"),
+        (None, TypeError, r"A WavelengthHandling object or a float must be provided"),
+    ],
+)
+def test_wavelength_setter_wrong_inputs(
+    wavelength, exp_exc: type[Exception], exp_msg: str
+):
+    """Test setter 'Environment.wavelength'."""
+    obj = Environment()
+
+    with pytest.raises(exp_exc, match=exp_msg):
+        obj.wavelength = wavelength
 
 
 @pytest.mark.parametrize(
@@ -55,10 +145,23 @@ def test_is_equal(other_obj, is_equal):
 @pytest.mark.parametrize(
     "obj, exp_dict",
     [
+        (Environment(), {"temperature": None}),
+        (Environment(temperature=100.1), {"temperature": 100.1}),
+        (Environment(wavelength=200.0), {"temperature": None, "wavelength": 200.0}),
         (
-            Environment(temperature=100.1),
-            {"temperature": 100.1},
-        )
+            Environment(temperature=100.1, wavelength=200.0),
+            {"temperature": 100.1, "wavelength": 200.0},
+        ),
+        (
+            Environment(
+                temperature=100.1,
+                wavelength=WavelengthHandling(cut_on=1.0, cut_off=5.0, resolution=2),
+            ),
+            {
+                "temperature": 100.1,
+                "wavelength": {"cut_on": 1.0, "cut_off": 5.0, "resolution": 2},
+            },
+        ),
     ],
 )
 def test_to_and_from_dict(obj, exp_dict):
