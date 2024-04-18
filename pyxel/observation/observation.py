@@ -89,7 +89,13 @@ def _get_short_name_with_model(name: str) -> str:
     return f"{model_name}.{param_name}"
 
 
-def _get_final_short_name(name: str, param_type: ParameterType) -> str:
+def _get_final_short_name(
+    name: str, param_type: ParameterType
+) -> str:  # pragma: no cover
+    warnings.warn(
+        "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
+    )
+
     if param_type == ParameterType.Simple:
         return name
     elif param_type == ParameterType.Multi:
@@ -98,7 +104,9 @@ def _get_final_short_name(name: str, param_type: ParameterType) -> str:
         raise NotImplementedError
 
 
-def _get_short_dimension_names(types: Mapping[str, ParameterType]) -> Mapping[str, str]:
+def _get_short_dimension_names(
+    types: Mapping[str, ParameterType]
+) -> Mapping[str, str]:  # pragma: no cover
     warnings.warn(
         "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
     )
@@ -235,7 +243,7 @@ class Observation:
     @result_type.setter
     def result_type(self, value: ResultId) -> None:
         """TBW."""
-        self._result_type = value
+        self._result_type = get_result_id(value)
 
     @property
     def pipeline_seed(self) -> Optional[int]:
@@ -385,7 +393,7 @@ class Observation:
                 parameter_dict.update({key: value})
             yield indices, parameter_dict
 
-    def _parameter_it(self) -> Iterator[tuple]:
+    def _parameter_it(self) -> Iterator[tuple]:  # pragma: no cover
         """Return the method for generating parameters based on parametric mode."""
         warnings.warn(
             "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
@@ -448,7 +456,7 @@ class Observation:
 
     def _processors_it(
         self, processor: "Processor"
-    ) -> Iterator[tuple["Processor", Union[int, tuple[int]], dict]]:
+    ) -> Iterator[tuple["Processor", Union[int, tuple[int]], dict]]:  # pragma: no cover
         """Generate processors with different product parameters.
 
         Parameters
@@ -482,7 +490,7 @@ class Observation:
 
     def _run_debug_mode_deprecated(
         self, processor: "Processor"
-    ) -> tuple[list["Processor"], "xr.Dataset"]:
+    ) -> tuple[list["Processor"], "xr.Dataset"]:  # pragma: no cover
         """Run observation pipelines in debug mode and return list of processors and parameter logs.
 
         Parameters
@@ -572,7 +580,9 @@ class Observation:
                 )
 
     # ruff: noqa: C901
-    def _run_observation_deprecated(self, processor: "Processor") -> ObservationResult:
+    def _run_observation_deprecated(
+        self, processor: "Processor"
+    ) -> ObservationResult:  # pragma: no cover
         """Run the observation pipelines.
 
         Parameters
@@ -862,7 +872,7 @@ class Observation:
         y: range,
         times: np.ndarray,
         types: Mapping[str, ParameterType],
-    ) -> "xr.Dataset":
+    ) -> "xr.Dataset":  # pragma: no cover
         warnings.warn(
             "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
         )
@@ -963,7 +973,7 @@ class Observation:
         x: range,
         y: range,
         times: np.ndarray,
-    ):
+    ):  # pragma: no cover
         warnings.warn(
             "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
         )
@@ -1012,7 +1022,7 @@ class Observation:
         y: range,
         times: np.ndarray,
         types: Mapping[str, ParameterType],
-    ):
+    ):  # pragma: no cover
         warnings.warn(
             "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
         )
@@ -1080,8 +1090,12 @@ def create_new_processor(
     return new_processor
 
 
-def _id(s: str) -> str:
+def _id(s: str) -> str:  # pragma: no cover
     """Add _id to the end of a string."""
+    warnings.warn(
+        "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
+    )
+
     out = s + "_id"
     return out
 
@@ -1092,7 +1106,9 @@ def short(s: str) -> str:
     return out
 
 
-def log_parameters(processor_id: int, parameter_dict: dict) -> "xr.Dataset":
+def log_parameters(
+    processor_id: int, parameter_dict: dict
+) -> "xr.Dataset":  # pragma: no cover
     """Return parameters in the current processor in a xarray dataset.
 
     Parameters
@@ -1127,7 +1143,7 @@ def parameter_to_dataset(
     dimension_names: Mapping[str, str],
     index: int,
     coordinate_name: str,
-) -> "xr.Dataset":
+) -> "xr.Dataset":  # pragma: no cover
     """Return a specific parameter dataset from a parameter dictionary.
 
     Parameters
@@ -1170,7 +1186,9 @@ def parameter_to_dataset(
     return parameter_ds
 
 
-def _add_custom_parameters_deprecated(ds: "xr.Dataset", index: int) -> "xr.Dataset":
+def _add_custom_parameters_deprecated(
+    ds: "xr.Dataset", index: int
+) -> "xr.Dataset":  # pragma: no cover
     """Add coordinate "index" to the dataset.
 
     Parameters
@@ -1242,7 +1260,7 @@ def _add_sequential_parameters_deprecated(
     index: int,
     coordinate_name: str,
     types: Mapping[str, ParameterType],
-) -> "xr.Dataset":
+) -> "xr.Dataset":  # pragma: no cover
     """Add true coordinates or index to sequential mode dataset.
 
     Parameters
@@ -1276,13 +1294,13 @@ def _add_sequential_parameters_deprecated(
     return ds
 
 
-def _add_product_parameters_deprecated(
+def _add_product_parameters_deprecated(  # pragma: no cover
     ds: "xr.Dataset",
     parameter_dict: ParametersType,
     dimension_names: Mapping[str, str],
     indices: tuple[int, ...],
     types: Mapping[str, ParameterType],
-) -> "xr.Dataset":
+) -> "xr.Dataset":  # pragma: no cover
     """Add true coordinates or index to product mode dataset.
 
     Parameters
@@ -1319,7 +1337,11 @@ def _add_product_parameters_deprecated(
     return ds
 
 
-def to_tuples(data: Iterable) -> tuple:
+def to_tuples(data: Iterable) -> tuple:  # pragma: no cover
+    warnings.warn(
+        "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
+    )
+
     lst: list = []
     for el in data:
         if isinstance(el, Iterable) and not isinstance(el, str):
@@ -1403,7 +1425,7 @@ def compute_final_sequential_dataset(
     list_of_index_and_parameter: list,
     list_of_datasets: list,
     dimension_names: Mapping[str, str],
-) -> dict[str, "xr.Dataset"]:
+) -> dict[str, "xr.Dataset"]:  # pragma: no cover
     """Return a dictionary of result datasets where keys are different parameters.
 
     Parameters
