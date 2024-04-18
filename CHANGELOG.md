@@ -24,7 +24,9 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 * Add more unit tests.
   (See [!883](https://gitlab.com/esa/pyxel/-/merge_requests/883),
   [!884](https://gitlab.com/esa/pyxel/-/merge_requests/884),
-  [!886](https://gitlab.com/esa/pyxel/-/merge_requests/886)).
+  [!885](https://gitlab.com/esa/pyxel/-/merge_requests/885),
+  [!886](https://gitlab.com/esa/pyxel/-/merge_requests/886),
+
 
 ## 2.1.1 / 2024-03-19
 
