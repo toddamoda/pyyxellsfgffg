@@ -27,8 +27,17 @@ class WavelengthHandling:
     resolution: int
 
     def __post_init__(self):
-        assert 0 < self.cut_on <= self.cut_off
-        assert self.resolution > 0
+        if self.cut_on <= 0:
+            raise ValueError(f"'cut_on' must be > 0. {self.cut_on=}")
+
+        if self.cut_on > self.cut_off:
+            raise ValueError(
+                "'cut_off' must be bigger than 'cut_on'. "
+                f"{self.cut_on=}, {self.cut_off=}"
+            )
+
+        if self.resolution <= 0:
+            raise ValueError(f"'resolution' must be > 0. {self.resolution=}")
 
     def to_dict(self) -> dict:
         return {
