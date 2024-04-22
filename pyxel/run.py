@@ -39,7 +39,7 @@ def exposure_mode(
     exposure: "Exposure",
     detector: Detector,
     pipeline: "DetectionPipeline",
-) -> "xr.Dataset":
+) -> "xr.Dataset":  # pragma: no cover
     """Run an 'exposure' pipeline.
 
     .. deprecated:: 1.14
@@ -193,7 +193,7 @@ def observation_mode(
     observation: "Observation",
     detector: Detector,
     pipeline: "DetectionPipeline",
-) -> "ObservationResult":
+) -> "ObservationResult":  # pragma: no cover
     """Run an 'observation' pipeline.
 
     .. deprecated:: 1.14
@@ -262,7 +262,7 @@ def calibration_mode(
     detector: Detector,
     pipeline: "DetectionPipeline",
     compute_and_save: bool = True,
-) -> tuple["xr.Dataset", pd.DataFrame, pd.DataFrame, Sequence]:
+) -> tuple["xr.Dataset", pd.DataFrame, pd.DataFrame, Sequence]:  # pragma: no cover
     """Run a 'calibration' pipeline.
 
     .. deprecated:: 1.14

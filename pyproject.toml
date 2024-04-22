@@ -235,6 +235,7 @@ exclude_lines = [
     "debug",
     "raise NotImplementedError",
     "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
 ]
 
 [tool.coverage.run]
