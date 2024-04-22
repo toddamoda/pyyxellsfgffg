@@ -361,7 +361,7 @@ class Calibration:
         self,
         processor: Processor,
         output_dir: Optional[Path],
-    ) -> ModelFitting:
+    ) -> ModelFitting:  # pragma: no cover
         """Convert a 'processor' object into a Pygmo Problem.
 
         Examples
@@ -377,6 +377,10 @@ class Calibration:
         Compute fitness
         >>> problem.fitness(decision_vector)
         """
+        warnings.warn(
+            "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
+        )
+
         problem = ModelFitting(
             processor=processor,
             variables=self.parameters,
@@ -405,7 +409,7 @@ class Calibration:
         processor: Processor,
         output_dir: Optional[Path],
         with_progress_bar: bool = True,
-    ) -> tuple["xr.Dataset", "pd.DataFrame", "pd.DataFrame"]:
+    ) -> tuple["xr.Dataset", "pd.DataFrame", "pd.DataFrame"]:  # pragma: no cover
         """Run calibration pipeline."""
         warnings.warn(
             "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
@@ -555,7 +559,7 @@ class Calibration:
         ds: "xr.Dataset",
         df_processors: "pd.DataFrame",
         output: Optional["CalibrationOutputs"],
-    ) -> Sequence[Delayed]:
+    ) -> Sequence[Delayed]:  # pragma: no cover
         warnings.warn(
             "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
         )

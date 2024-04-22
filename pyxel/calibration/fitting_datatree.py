@@ -325,6 +325,12 @@ class ModelFittingDataTree(ProblemSingleObjective):
         if not isinstance(simulated_data, xr.DataArray):
             raise TypeError("Expected a 'DataArray'")
 
+        if "y" not in simulated_data.dims or "x" not in simulated_data.dims:
+            raise ValueError(
+                f"Missing dimensions 'y' or 'x' in container '{self.sim_output:s}'. "
+                f"{simulated_data=}"
+            )
+
         if self.sim_fit_range is not None:
             simulated_data = simulated_data.isel(indexers=self.sim_fit_range.to_dict())
 
@@ -441,12 +447,17 @@ class ModelFittingDataTree(ProblemSingleObjective):
                     weighting=weighting,  # TODO: 'weighting' should be a 'DataArray'
                 )
 
-        except Exception:
+        except Exception as exc:
             logging.exception(
                 "Catch an exception in 'fitness' for ModelFitting: %r with decision vector: %r.",
                 self,
                 decision_vector_1d,
             )
+            print(f"--- 3 - {exc=}, {exc.__notes__}")
+            # logging.warning('--- 3.1')
+            # logging.error('--- 3.1')
+            # logging.handlers[0].flush()
+
             raise
 
         return [overall_fitness]

@@ -207,6 +207,7 @@ ignore_missing_imports = true
 addopts = [
     "--showlocals",
     "--capture=no",
+    "--log-cli-level=ERROR",
     "-vv",
     "--ignore=old_code"
 ]
