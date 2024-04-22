@@ -407,9 +407,9 @@ def champion_heatmap(
     ds: "xr.Dataset",
     num_bins: int = 100,
     logx: bool = False,
-    parameter_range: Optional[list] = None,
-    island_range: Optional[list] = None,
-    ind_range: Optional[list] = None,
+    parameter_range: Optional[tuple[int, int]] = None,
+    island_range: Optional[tuple[int, int]] = None,
+    ind_range: Optional[tuple[int, int]] = None,
 ) -> "hv.Points":
     """Plot a heatmap of champion parameters vs fitness.
 
