@@ -7,6 +7,7 @@
 
 """Sub-package to create 'archipelagos'."""
 import logging
+import warnings
 from collections.abc import Mapping, Sequence
 from concurrent.futures.thread import ThreadPoolExecutor
 from timeit import default_timer as timer
@@ -31,10 +32,14 @@ if TYPE_CHECKING:
 
 
 # TODO: Deprecate this class ?
-class ArchipelagoLogs:
+class ArchipelagoLogs:  # pragma: no cover
     """Keep log information from all algorithms in an archipelago."""
 
     def __init__(self, algo_type: AlgorithmType, num_generations: int):
+        warnings.warn(
+            "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
+        )
+
         try:
             import pygmo as pg
         except ModuleNotFoundError as exc:
@@ -118,8 +123,12 @@ def extract_data_3d(
     cols: int,
     times: int,
     readout_times: np.ndarray,
-) -> xr.Dataset:
+) -> xr.Dataset:  # pragma: no cover
     """Extract 'photon', 'charge', 'pixel', 'signal' and 'image' arrays from several delayed dynamic results."""
+    warnings.warn(
+        "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
+    )
+
     lst: list[xr.Dataset] = []
     for _, row in df_results.iterrows():
         island: int = row["island"]
@@ -185,7 +194,7 @@ def extract_data_3d(
 
 
 # TODO: Rename to PyxelArchipelago. See #335
-class MyArchipelago:
+class MyArchipelago:  # pragma: no cover
     """User-defined Archipelago."""
 
     def __init__(
@@ -201,6 +210,10 @@ class MyArchipelago:
         parallel: bool = True,
         with_bar: bool = False,
     ):
+        warnings.warn(
+            "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
+        )
+
         try:
             import pygmo as pg
         except ModuleNotFoundError as exc:
