@@ -242,6 +242,7 @@ exclude_lines = [
 
 [tool.coverage.run]
 omit = [
+    "pyxel/models/phasing/mkid_models/*",
     "pyxel/models/charge_measurement/nghxrg/nghxrg_beta.py",
     "pyxel/models/charge_generation/tars/plotting.py",
     "pyxel/_version.py",
