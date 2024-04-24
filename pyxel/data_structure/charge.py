@@ -167,34 +167,22 @@ class Charge:
 
         return pd.DataFrame(new_charges)
 
-    def convert_df_to_array(self):
+    def convert_df_to_array(self) -> np.ndarray:
         """Convert charge dataframe to an array.
 
         Charge in the detector volume is collected and assigned to the nearest pixel.
         """
         # Late import to speedup start-up time
-        import numba
+        from numba import njit
 
-        @numba.jit(nopython=True)
+        @njit
         def df_to_array(
             array: np.ndarray,
-            charge_per_pixel: list,
-            pixel_index_ver: list,
-            pixel_index_hor: list,
-        ) -> np.ndarray:
-            """Assign charge in dataframe to nearest pixel.
-
-            Parameters
-            ----------
-            array: ndarray
-            charge_per_pixel: list
-            pixel_index_ver: list
-            pixel_index_hor:list
-
-            Returns
-            -------
-            ndarray
-            """
+            charge_per_pixel: np.ndarray,
+            pixel_index_ver: np.ndarray,
+            pixel_index_hor: np.ndarray,
+        ) -> np.ndarray:  # pragma: no cover
+            """Assign charges in dataframe to nearest pixel."""
             for i, charge_value in enumerate(charge_per_pixel):
                 array[pixel_index_ver[i], pixel_index_hor[i]] += charge_value
             return array
@@ -214,7 +202,12 @@ class Charge:
 
         # Changing = to += since charge dataframe is reset, the pixel array need to be
         # incremented, we can't do the whole operation on each iteration
-        return df_to_array(array, charge_per_pixel, pixel_index_ver, pixel_index_hor)
+        return df_to_array(
+            array=array,
+            charge_per_pixel=charge_per_pixel,
+            pixel_index_ver=pixel_index_ver,
+            pixel_index_hor=pixel_index_hor,
+        )
 
     @staticmethod
     def convert_array_to_df(

@@ -12,6 +12,7 @@ from typing import Literal
 import numpy as np
 import pandas as pd
 import pytest
+import xarray as xr
 
 from pyxel.data_structure import Charge
 from pyxel.detectors import Geometry
@@ -20,7 +21,11 @@ from pyxel.detectors import Geometry
 @pytest.fixture
 def geo() -> Geometry:
     return Geometry(
-        row=10, col=10, total_thickness=10.0, pixel_horz_size=1.0, pixel_vert_size=1.0
+        row=4,
+        col=5,
+        total_thickness=10.0,
+        pixel_horz_size=1.0,
+        pixel_vert_size=1.0,
     )
 
 
@@ -96,6 +101,56 @@ def test_add_one_charge(geo: Geometry):
 
     assert charge.nextid == 1
     pd.testing.assert_frame_equal(charge.frame, exp_df_charges)
+
+
+def test_eq(geo: Geometry):
+    """Test method 'Charge.__eq__'."""
+    charge1 = Charge(geo)
+    charge2 = Charge(geo)
+    assert charge1 == charge2
+
+    # Add particles to 'charge1'
+    charge1.add_charge(
+        particle_type="e",
+        particles_per_cluster=np.array([1]),
+        init_energy=np.array([0.1]),
+        init_ver_position=np.array([1.1]),
+        init_hor_position=np.array([2.2]),
+        init_z_position=np.array([3.3]),
+        init_ver_velocity=np.array([4.4]),
+        init_hor_velocity=np.array([-5.5]),
+        init_z_velocity=np.array([6.6]),
+    )
+    assert charge1 != charge2
+
+    # Add same particles to 'charge2'
+    charge2.add_charge(
+        particle_type="e",
+        particles_per_cluster=np.array([1]),
+        init_energy=np.array([0.1]),
+        init_ver_position=np.array([1.1]),
+        init_hor_position=np.array([2.2]),
+        init_z_position=np.array([3.3]),
+        init_ver_velocity=np.array([4.4]),
+        init_hor_velocity=np.array([-5.5]),
+        init_z_velocity=np.array([6.6]),
+    )
+    assert charge1 == charge2
+
+    # Add different particles to 'charge3'
+    charge3 = Charge(geo)
+    charge3.add_charge(
+        particle_type="e",
+        particles_per_cluster=np.array([2]),
+        init_energy=np.array([0.1]),
+        init_ver_position=np.array([1.1]),
+        init_hor_position=np.array([2.2]),
+        init_z_position=np.array([3.3]),
+        init_ver_velocity=np.array([4.4]),
+        init_hor_velocity=np.array([-5.5]),
+        init_z_velocity=np.array([6.6]),
+    )
+    assert charge1 != charge3
 
 
 def test_add_one_hole(geo: Geometry):
@@ -364,6 +419,300 @@ def test_add_two_charges_one_hole(geo: Geometry):
     pd.testing.assert_frame_equal(charge.frame, exp_df_charges)
 
 
+def test_add_charge_array_empty(geo: Geometry):
+    """Test method 'Charge.add_charge_array'."""
+    # No charges
+    charge = Charge(geo=geo)
+
+    data_2d = np.array(
+        [
+            [0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 3.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0],
+        ],
+        dtype=float,
+    )
+    charge.add_charge_array(array=data_2d)
+
+
+def test_add_charge_array_not_empty(geo: Geometry):
+    """Test method 'Charge.add_charge_array'."""
+    charge = Charge(geo=geo)
+    charge.add_charge(
+        particle_type="e",
+        particles_per_cluster=np.array([1, 2]),
+        init_energy=np.array([0.1, 0.2]),
+        init_ver_position=np.array([1.11, 1.12]),
+        init_hor_position=np.array([2.21, 2.22]),
+        init_z_position=np.array([3.31, 3.32]),
+        init_ver_velocity=np.array([4.41, 4.42]),
+        init_hor_velocity=np.array([-5.51, 5.52]),
+        init_z_velocity=np.array([6.61, 6.62]),
+    )
+
+    data_2d = np.array(
+        [
+            [0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 3.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0],
+        ],
+        dtype=float,
+    )
+    charge.add_charge_array(array=data_2d)
+
+
+def test_array(geo: Geometry):
+    """Test property 'Charge.array'."""
+    data_2d = np.array(
+        [
+            [0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 3.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0],
+        ],
+        dtype=float,
+    )
+
+    charge = Charge(geo=geo)
+    charge.add_charge_array(array=data_2d.copy())
+
+    value = charge.array
+    assert isinstance(value, np.ndarray)
+    np.testing.assert_allclose(data_2d, value)
+
+
+@pytest.mark.parametrize(
+    "array, exp_error, exp_msg",
+    [
+        (
+            [
+                [0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 3.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0],
+            ],
+            TypeError,
+            r"Charge array should be a numpy.ndarray",
+        ),
+        (
+            np.array(
+                [
+                    [0, 0, 0, 0, 0],
+                    [0, 0, 3, 0, 0],
+                    [0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0],
+                ],
+                dtype=int,
+            ),
+            TypeError,
+            r"Expected type of Charge array is ",
+        ),
+        (
+            np.array(
+                [
+                    [0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 3.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0],
+                ],
+                dtype=float,
+            ),
+            ValueError,
+            r"Expected Charge array is \(4, 5\)",
+        ),
+    ],
+)
+def test_array_wrong_input(geo: Geometry, array, exp_error, exp_msg):
+    """Test property 'Charge.array'."""
+    charge = Charge(geo=geo)
+
+    with pytest.raises(exp_error, match=exp_msg):
+        charge.add_charge_array(array=array)
+
+
+def test_array_with_df(geo: Geometry):
+    """Test property 'Charge.array'."""
+    charge = Charge(geo=geo)
+    charge.add_charge(
+        particle_type="e",
+        particles_per_cluster=np.array([1, 2]),
+        init_energy=np.array([0.1, 0.2]),
+        init_ver_position=np.array([1.11, 1.12]),
+        init_hor_position=np.array([2.21, 2.22]),
+        init_z_position=np.array([3.31, 3.32]),
+        init_ver_velocity=np.array([4.41, 4.42]),
+        init_hor_velocity=np.array([-5.51, 5.52]),
+        init_z_velocity=np.array([6.61, 6.62]),
+    )
+
+    value = charge.array
+    assert isinstance(value, np.ndarray)
+
+    exp_value = np.array(
+        [
+            [0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 3.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0],
+        ],
+        dtype=float,
+    )
+    np.testing.assert_allclose(value, exp_value)
+
+
+def test_to_xarray(geo: Geometry):
+    """Test method 'Charge.to_xarray'."""
+    charge = Charge(geo=geo)
+    charge.add_charge(
+        particle_type="e",
+        particles_per_cluster=np.array([1, 2]),
+        init_energy=np.array([0.1, 0.2]),
+        init_ver_position=np.array([1.11, 1.12]),
+        init_hor_position=np.array([2.21, 2.22]),
+        init_z_position=np.array([3.31, 3.32]),
+        init_ver_velocity=np.array([4.41, 4.42]),
+        init_hor_velocity=np.array([-5.51, 5.52]),
+        init_z_velocity=np.array([6.61, 6.62]),
+    )
+
+    data_array = charge.to_xarray()
+    assert isinstance(data_array, xr.DataArray)
+
+    exp_data_array = xr.DataArray(
+        np.array(
+            [
+                [0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 3.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0],
+            ],
+            dtype=float,
+        ),
+        dims=["y", "x"],
+        coords={"y": [0, 1, 2, 3], "x": [0, 1, 2, 3, 4]},
+        attrs={"units": "e⁻", "long_name": "Charge"},
+    )
+    xr.testing.assert_equal(data_array, exp_data_array)
+
+
+def test__array__(geo: Geometry):
+    """Test method 'Charge.__array__'."""
+    data_2d = np.array(
+        [
+            [0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 3.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0],
+        ],
+        dtype=float,
+    )
+
+    charge = Charge(geo=geo)
+    charge.add_charge_array(data_2d.copy())
+
+    value = np.array(charge)
+    np.testing.assert_equal(value, data_2d)
+
+
+def test_frame(geo: Geometry):
+    """Test property 'Charge.frame'."""
+    charge = Charge(geo=geo)
+    charge.add_charge(
+        particle_type="e",
+        particles_per_cluster=np.array([1, 2]),
+        init_energy=np.array([0.1, 0.2]),
+        init_ver_position=np.array([1.11, 1.12]),
+        init_hor_position=np.array([2.21, 2.22]),
+        init_z_position=np.array([3.31, 3.32]),
+        init_ver_velocity=np.array([4.41, 4.42]),
+        init_hor_velocity=np.array([-5.51, 5.52]),
+        init_z_velocity=np.array([6.61, 6.62]),
+    )
+
+    df = charge.frame
+    assert isinstance(df, pd.DataFrame)
+
+
+def test_empty(geo: Geometry):
+    """Test method 'Charge.empty'."""
+    charge = Charge(geo=geo)
+    assert charge.frame_empty() is True
+
+    # Add charges
+    charge.add_charge(
+        particle_type="e",
+        particles_per_cluster=np.array([1, 2]),
+        init_energy=np.array([0.1, 0.2]),
+        init_ver_position=np.array([1.11, 1.12]),
+        init_hor_position=np.array([2.21, 2.22]),
+        init_z_position=np.array([3.31, 3.32]),
+        init_ver_velocity=np.array([4.41, 4.42]),
+        init_hor_velocity=np.array([-5.51, 5.52]),
+        init_z_velocity=np.array([6.61, 6.62]),
+    )
+    assert charge.frame_empty() is False
+
+    # Remove everything
+    charge.empty()
+    assert charge.frame_empty() is True
+
+
+def test_convert_df_to_array(geo: Geometry):
+    """Test method 'Charge.convert_df_to_array."""
+    charge = Charge(geo=geo)
+
+    # Add 2 charges
+    charge.add_charge(
+        particle_type="e",
+        particles_per_cluster=np.array([1, 2]),
+        init_energy=np.array([0.1, 0.2]),
+        init_ver_position=np.array([1.11, 1.12]),
+        init_hor_position=np.array([2.21, 2.22]),
+        init_z_position=np.array([3.31, 3.32]),
+        init_ver_velocity=np.array([4.41, 4.42]),
+        init_hor_velocity=np.array([-5.51, 5.52]),
+        init_z_velocity=np.array([6.61, 6.62]),
+    )
+
+    # Test 'Charge.convert_df_to_array'
+    result_2d = charge.convert_df_to_array()
+    assert isinstance(result_2d, np.ndarray)
+
+    exp_2d = np.array(
+        [
+            [0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 3.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0],
+        ],
+        dtype=float,
+    )
+    np.testing.assert_allclose(result_2d, exp_2d)
+
+
+def test_convert_array_to_df(geo: Geometry):
+    """Test method 'Charge.convert_array_to_df'."""
+    data_2d = np.array(
+        [
+            [0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 3.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0],
+        ],
+        dtype=float,
+    )
+
+    df = Charge.convert_array_to_df(
+        array=data_2d,
+        num_rows=geo.row,
+        num_cols=geo.col,
+        pixel_vertical_size=geo.pixel_vert_size,
+        pixel_horizontal_size=geo.pixel_horz_size,
+    )
+    assert isinstance(df, pd.DataFrame)
+
+
 def test_invalid_add_charge_dataframe(geo: Geometry):
     """Test method `Charge.add_charge_dataframe` with an invalid input."""
     charge = Charge(geo=geo)
@@ -394,3 +743,73 @@ def test_invalid_add_charge_dataframe(geo: Geometry):
         r"'velocity_ver', 'velocity_hor', 'velocity_z'",
     ):
         charge.add_charge_dataframe(new_charges=df)
+
+
+def test_get_frame_values(geo: Geometry):
+    """Test method 'Charge.get_frame_values'."""
+    charge = Charge(geo=geo)
+
+    # Add 2 charges
+    charge.add_charge(
+        particle_type="e",
+        particles_per_cluster=np.array([1, 2]),
+        init_energy=np.array([0.1, 0.2]),
+        init_ver_position=np.array([1.11, 1.12]),
+        init_hor_position=np.array([2.21, 2.22]),
+        init_z_position=np.array([3.31, 3.32]),
+        init_ver_velocity=np.array([4.41, 4.42]),
+        init_hor_velocity=np.array([-5.51, 5.52]),
+        init_z_velocity=np.array([6.61, 6.62]),
+    )
+
+    value = charge.get_frame_values(quantity="charge")
+    np.testing.assert_equal(value, np.array([-1, -1]))
+
+    value = charge.get_frame_values(quantity="energy")
+    np.testing.assert_equal(value, np.array([0.1, 0.2]))
+
+
+def test_set_frame_values(geo: Geometry):
+    """Test method 'Charge.set_frame_values'."""
+    charge = Charge(geo=geo)
+
+    # Add 2 charges
+    charge.add_charge(
+        particle_type="e",
+        particles_per_cluster=np.array([1, 2]),
+        init_energy=np.array([0.1, 0.2]),
+        init_ver_position=np.array([1.11, 1.12]),
+        init_hor_position=np.array([2.21, 2.22]),
+        init_z_position=np.array([3.31, 3.32]),
+        init_ver_velocity=np.array([4.41, 4.42]),
+        init_hor_velocity=np.array([-5.51, 5.52]),
+        init_z_velocity=np.array([6.61, 6.62]),
+    )
+
+    charge.set_frame_values(quantity="energy", new_value_list=[1.1, 1.2])
+
+    value = charge.get_frame_values(quantity="energy")
+    np.testing.assert_equal(value, np.array([1.1, 1.2]))
+
+
+def test_remove_from_frame(geo: Geometry):
+    """Test method 'Charge.remove_from_frame'."""
+    charge = Charge(geo=geo)
+
+    # Add 2 charges
+    charge.add_charge(
+        particle_type="e",
+        particles_per_cluster=np.array([1, 2]),
+        init_energy=np.array([0.1, 0.2]),
+        init_ver_position=np.array([1.11, 1.12]),
+        init_hor_position=np.array([2.21, 2.22]),
+        init_z_position=np.array([3.31, 3.32]),
+        init_ver_velocity=np.array([4.41, 4.42]),
+        init_hor_velocity=np.array([-5.51, 5.52]),
+        init_z_velocity=np.array([6.61, 6.62]),
+    )
+
+    charge.remove_from_frame(id_list=[0])
+
+    value = charge.get_frame_values(quantity="energy")
+    np.testing.assert_equal(value, np.array([0.2]))
