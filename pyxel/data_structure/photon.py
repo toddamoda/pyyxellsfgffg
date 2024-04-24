@@ -521,7 +521,7 @@ pipeline:
 
             return data_3d
 
-    def plot(self, robust: bool = True) -> None:
+    def plot(self, robust: bool = True):
         """Plot the array using Matplotlib.
 
         Parameters
