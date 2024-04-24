@@ -62,6 +62,26 @@ def test_empty_photon():
     assert photon.shape == ()
     assert photon.ndim == 0
 
+    # Test 'Photon.__repr__'
+    value = repr(photon)
+    assert value == "Photon<UNINITIALIZED, shape=(2, 3)>"
+
+    # Test 'Photon.dtype'
+    with pytest.raises(ValueError, match="Not initialized"):
+        _ = photon.dtype
+
+    # Test 'Photon.array_3d'
+    with pytest.raises(
+        ValueError, match=r"The '.array_3d' attribute cannot be retrieved"
+    ):
+        _ = photon.array_3d
+
+    # Test 'Photon.numbytes'
+    assert photon.numbytes == 0
+
+    # Test 'Photon.to_dict'
+    assert photon.to_dict() == {}
+
 
 @pytest.mark.parametrize("dtype", [float, np.float64, np.float32, np.float16])
 def test_valid_array_2d(dtype):
@@ -72,8 +92,8 @@ def test_valid_array_2d(dtype):
     copied_data_2d = data_2d.copy()
 
     # Test properties 'Photon.array'
-    photon.array = data_2d
-    new_data_2d = photon.array
+    photon.array_2d = data_2d
+    new_data_2d = photon.array_2d
 
     data_2d *= 2
 
@@ -88,6 +108,32 @@ def test_valid_array_2d(dtype):
     # Test 'Photon.shape'
     assert photon.shape == copied_data_2d.shape
     assert photon.ndim == copied_data_2d.ndim
+
+    # Test 'Photon.__repr__'
+    value = repr(photon)
+    assert value.startswith("Photon<shape=(2, 3), dtype=")
+
+    # Test 'Photon.dtype'
+    assert photon.dtype == dtype
+
+    # Test 'Photon.array_3d'
+    with pytest.raises(TypeError, match=r"Cannot get a 3D array"):
+        _ = photon.array_3d
+
+    # Test 'Photon.numbytes'
+    if dtype in (float, np.float64):
+        assert photon.numbytes == 192
+    elif dtype == np.float32:
+        assert photon.numbytes == 168
+    elif dtype == np.float16:
+        assert photon.numbytes == 160
+
+    # Test 'Photon.plot'
+    photon.plot()
+
+    # Test 'Photon.empty'
+    photon.empty()
+    assert photon._array is None
 
 
 @pytest.mark.parametrize("dtype", [float, np.float64, np.float32, np.float16])
@@ -120,6 +166,23 @@ def test_valid_array_3d(dtype):
     # Test 'Photon.shape'
     assert photon.shape == copied_data_3d.shape
     assert photon.ndim == copied_data_3d.ndim
+
+    # Test 'Photon.__repr__'
+    value = repr(photon)
+    assert value == "Photon<wavelength: 2, y: 2, x: 3>"
+
+    # Test 'Photon.dtype'
+    assert photon.dtype == dtype
+
+    # Test 'Photon.array'
+    with pytest.raises(
+        TypeError, match=r"Cannot get a 2D array. A 3D array is already defined "
+    ):
+        _ = photon.array
+
+    # Test 'Photon.empty'
+    photon.empty()
+    assert photon._array is None
 
 
 @pytest.mark.parametrize("dtype", [float, np.float64, np.float32, np.float16])
@@ -305,7 +368,7 @@ def test_invalid_array_2d(data, exp_exc: Exception, exp_msg: str):
         ),
     ],
 )
-def test_invalid_array_3d(data, exp_exc: Exception, exp_msg: str):
+def test_invalid_array_3d(data, exp_exc: type[Exception], exp_msg: str):
     """Test with invalid data and empty 'Photon'."""
     photon = Photon(geo=Geometry(row=2, col=3))
 
@@ -343,6 +406,7 @@ def test_set_array_2d_after_3d(photon_3d: Photon):
 
 def test_eq(empty_photon: Photon, photon_2d: Photon, photon_3d: Photon):
     """Test method 'Photon.__eq__'."""
+    assert photon_2d != np.array([[0, 1, 2], [4, 5, 6]], dtype=float)
 
     assert empty_photon == deepcopy(empty_photon)
     assert empty_photon != photon_2d
@@ -355,6 +419,70 @@ def test_eq(empty_photon: Photon, photon_2d: Photon, photon_3d: Photon):
     assert photon_3d != empty_photon
     assert photon_3d != photon_2d
     assert photon_3d == deepcopy(photon_3d)
+
+
+def test_add(empty_photon: Photon, photon_2d: Photon, photon_3d: Photon):
+    """Test method 'Photon.__add__'."""
+    data_2d = np.array([[0, 1, 2], [4, 5, 6]], dtype=float)
+    data_3d = xr.DataArray(
+        np.array(
+            [
+                [[0, 1, 2], [4, 5, 6]],
+                [[12, 13, 14], [16, 17, 18]],
+            ],
+            dtype=float,
+        ),
+        dims=["wavelength", "y", "x"],
+        coords={"wavelength": [300.0, 350.0]},
+    )
+
+    photon1: Photon = empty_photon + data_2d
+    assert isinstance(photon1, Photon)
+
+    photon2 = photon_2d + data_2d
+    assert isinstance(photon2, Photon)
+
+    with pytest.raises(TypeError, match="Must be a 2D numpy array"):
+        _ = photon_2d + data_3d
+
+    photon3 = photon_3d + data_3d
+    assert isinstance(photon3, Photon)
+
+    with pytest.raises(TypeError, match="Must be a 3D DataArray"):
+        _ = photon_3d + data_2d
+
+
+def test_iadd(empty_photon: Photon, photon_2d: Photon, photon_3d: Photon):
+    """Test method 'Photon.__add__'."""
+    data_2d = np.array([[0, 1, 2], [4, 5, 6]], dtype=float)
+    data_3d = xr.DataArray(
+        np.array(
+            [
+                [[0, 1, 2], [4, 5, 6]],
+                [[12, 13, 14], [16, 17, 18]],
+            ],
+            dtype=float,
+        ),
+        dims=["wavelength", "y", "x"],
+        coords={"wavelength": [300.0, 350.0]},
+    )
+
+    photon1 = deepcopy(empty_photon)
+    photon1 += data_2d
+
+    photon2 = deepcopy(photon_2d)
+    photon2 += data_2d
+
+    photon3 = deepcopy(photon_3d)
+    photon3 += data_3d
+
+    photon4 = deepcopy(photon_2d)
+    with pytest.raises(TypeError, match=r"data must be a 2D Numpy array"):
+        photon4 += data_3d
+
+    photon5 = deepcopy(photon_3d)
+    with pytest.raises(TypeError, match=r"data must be a 3D DataArray"):
+        photon5 += data_2d
 
 
 def test_to_xarray_empty(empty_photon: Photon):

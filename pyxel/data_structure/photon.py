@@ -538,7 +538,7 @@ pipeline:
         """
         arr: xr.DataArray = self.to_xarray()
 
-        return arr.plot(robust=robust)
+        return arr.plot.pcolormesh(robust=robust)
 
     def empty(self) -> None:
         """Empty the data container."""
