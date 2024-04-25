@@ -27,7 +27,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
   [!885](https://gitlab.com/esa/pyxel/-/merge_requests/885),
   [!886](https://gitlab.com/esa/pyxel/-/merge_requests/886),
   [!887](https://gitlab.com/esa/pyxel/-/merge_requests/887),
-  [!882](https://gitlab.com/esa/pyxel/-/merge_requests/882))
+  [!882](https://gitlab.com/esa/pyxel/-/merge_requests/882),
+  [!888](https://gitlab.com/esa/pyxel/-/merge_requests/888))
 * Fix issues found by 'mypy 1.10'.
   (See [!889](https://gitlab.com/esa/pyxel/-/merge_requests/889)).
 
