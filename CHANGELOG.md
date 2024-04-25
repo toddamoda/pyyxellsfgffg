@@ -12,9 +12,13 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 
 ## UNRELEASED
 
+This release brings a number of bugfixes and improvements.
+
 ### Core
 
 ### Documentation
+* Possible bug in dark current calculation.
+  (See [!880](https://gitlab.com/esa/pyxel/-/merge_requests/880)).
 
 ### Models
 
