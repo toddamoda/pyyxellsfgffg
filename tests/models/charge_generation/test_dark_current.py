@@ -20,11 +20,7 @@ from pyxel.detectors import (
     Environment,
     ReadoutProperties,
 )
-from pyxel.models.charge_generation import (
-    dark_current,
-    dark_current_saphira,
-    simple_dark_current,
-)
+from pyxel.models.charge_generation import dark_current, dark_current_saphira
 from pyxel.models.charge_generation.dark_current import calculate_band_gap
 
 
@@ -81,11 +77,6 @@ def apd_5x5() -> APD:
     )
     detector._readout_properties = ReadoutProperties(times=[1.0])
     return detector
-
-
-def test_simple_dark_current_valid(ccd_10x10: CCD):
-    """Test model 'simple_dark_current' with valid inputs."""
-    simple_dark_current(detector=ccd_10x10, dark_rate=1.0)
 
 
 def test_dark_current_valid(ccd_10x10: CCD):

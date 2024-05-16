@@ -13,8 +13,9 @@ from .dark_current_rule07 import dark_current_rule07
 from .load_charge import load_charge
 from .photoelectrons import simple_conversion, conversion_with_qe_map
 from .cosmix.cosmix import cosmix
+from .simple_dark_current import simple_dark_current
 from .dark_current_induced import radiation_induced_dark_current
-from .dark_current import dark_current, simple_dark_current, dark_current_saphira
+from .dark_current import dark_current, dark_current_saphira
 from .apd_gain import apd_gain
 from .charge_deposition import charge_deposition
 from .charge_deposition import charge_deposition_in_mct
