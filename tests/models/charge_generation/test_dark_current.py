@@ -32,6 +32,18 @@ def test_band_gap_silicon():
     allclose(result, exp)
 
 
+@pytest.mark.parametrize(
+    "temperature, material, exp_error, exp_msg",
+    [
+        (Quantity(300, unit="Kelvin"), "unknown", ValueError, r"Unknown \'material\'"),
+    ],
+)
+def test_band_gap_silicon_wrong_inputs(temperature, material, exp_error, exp_msg):
+    """Test function 'band_gap_silicon'. with wrong inputs."""
+    with pytest.raises(exp_error, match=exp_msg):
+        _ = calculate_band_gap(temperature=temperature, material=material)
+
+
 @pytest.fixture
 def ccd_10x10() -> CCD:
     """Create a valid CCD detector."""
@@ -56,6 +68,25 @@ def test_dark_current_valid(ccd_10x10: CCD):
         detector=ccd_10x10,
         figure_of_merit=1.0,
         spatial_noise_factor=0.4,
+    )
+
+
+@pytest.mark.parametrize(
+    "band_gap, band_gap_room_temperature, temporal_noise",
+    [[None, None, False], [1.1342, 1.1108, True]],
+)
+def test_dark_current_with_parameters(
+    ccd_10x10: CCD, band_gap, band_gap_room_temperature, temporal_noise
+):
+    """Test model 'dark_current' with valid inputs."""
+    # TODO: Check output(s)
+    dark_current(
+        detector=ccd_10x10,
+        figure_of_merit=1.0,
+        spatial_noise_factor=0.4,
+        band_gap=band_gap,
+        band_gap_room_temperature=band_gap_room_temperature,
+        temporal_noise=temporal_noise,
     )
 
 

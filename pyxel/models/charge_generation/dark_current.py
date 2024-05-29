@@ -96,7 +96,7 @@ def calculate_band_gap(
         alpha = Quantity(7.021e-4, unit="eV / K")
         beta = Quantity(1108.0, unit="K")
     else:
-        raise ValueError(f"Unknown 'material': {material:r}")
+        raise ValueError(f"Unknown 'material': {material!r}")
 
     # Calculate band gap using Varshni empirical expression
     return calculate_band_gap_varshni(
