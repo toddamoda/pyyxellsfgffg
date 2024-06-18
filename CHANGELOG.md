@@ -9,6 +9,14 @@ Minor releases include updated stdlib stubs from typeshed.
 
 Pyxel doesn't use SemVer anymore, since most minor releases have at least minor backward incompatible changes.
 
+## 2.2.1 / 2024-06-19
+
+This release brings a number of bugfixes and improvements.
+
+### Core
+
+* Add option to generate a new model directly in the console with 'pyxel -m create-model'.
+  (See [!894](https://gitlab.com/esa/pyxel/-/merge_requests/894)).
 
 ## 2.2 / 2024-05-29
 
