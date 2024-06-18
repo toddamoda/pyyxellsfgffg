@@ -197,7 +197,14 @@ You can install all dependencies as well:
 
     python -m pip install ".[all]"
 
-For more information see :ref:`contributing.dev_env` from the page :ref:`contributing`.
+
+Or do a developer install by using the ``-e`` flag (For more information
+see :ref:`contributing.dev_env` from the page :ref:`contributing`)
+
+.. code-block:: bash
+
+    python -m pip install -e .
+
 
 Verify the installation
 =======================
