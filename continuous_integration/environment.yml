@@ -70,6 +70,7 @@ dependencies:
   - pympler
   - pillow
   - scikit-image
+  - rich
 # Code formatting
   - black>=20
   - isort>=5
