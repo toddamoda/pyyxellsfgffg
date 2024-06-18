@@ -77,6 +77,7 @@ dependencies = [
     "specutils",
     "synphot",
     "diskcache",
+    "rich",
 ]
 dynamic = ["version"]
 
