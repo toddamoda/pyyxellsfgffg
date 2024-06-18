@@ -137,7 +137,7 @@ def my_model(detector: Detector, arg1: float, arg2: str):
 
     # Get the 'photon' bucket
     photon_2d = detector.photon.array
-   
+
     # dummy operation and write into the 'photon' bucket
     detector.photon.array = photon_2d * arg1
 ```
