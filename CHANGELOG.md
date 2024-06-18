@@ -15,12 +15,14 @@ This release brings a number of bugfixes and improvements.
 
 ### Core
 
-* Add option to generate a new model directly in the console with 'pyxel -m create-model'.
+* Add option to generate a new model directly in the console with `pyxel -m create-model`.
   (See [!894](https://gitlab.com/esa/pyxel/-/merge_requests/894)).
 
 ### Documentation
 * Fix issue with netcdf4 version 1.7.1.
   (See [!896](https://gitlab.com/esa/pyxel/-/merge_requests/896)).
+* Add more documentation about 'developer install'.
+  (See [!895](https://gitlab.com/esa/pyxel/-/merge_requests/895)).
 
 ### Others
 * Add a [code of conduct](https://gitlab.com/esa/pyxel/-/blob/master/CODE_OF_CONDUCT.md).
