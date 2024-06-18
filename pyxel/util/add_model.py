@@ -99,3 +99,64 @@ def get_name_and_location(newmodel: str) -> tuple[str, str]:
         """
         )
     return location, model_name
+
+
+def create_model_to_console() -> None:
+    """Display snippets of code in the console on how to create a new model.
+
+    Examples
+    --------
+    From the command line
+
+    $ python -m pyxel create-model
+    Example of new model ....
+
+    From a notebook
+
+    !python -m pyxel create-model
+    Example of new model ...
+    """
+    from rich.console import Console
+    from rich.markdown import Markdown
+
+    content = """## Example of creating a new model called `my_model` directly in Jupyter Notebook**
+
+**Step 1: Create a new model directly in Jupyter Notebook**
+
+Copy and paste the following snippet in your current notebook:
+```python
+from pyxel.detectors import Detector
+
+def my_model(detector: Detector, arg1: float, arg2: str):
+
+    # Access the detector's data buckets
+    # photon = detector.photon.array
+    # pixel = detector.pixel.array
+    # signal = detector.signal.array
+    # image = detector.image.array
+
+    # Get the 'photon' bucket
+    photon_2d = detector.photon.array
+   
+    # dummy operation and write into the 'photon' bucket
+    detector.photon.array = photon_2d * arg1
+```
+
+**Step 2: Integrate the model in your YAML configuration file**
+
+Copy and paste the following snippet into your YAML file:
+```
+- name: new_model
+  func: __main__.my_model
+  enabled: true
+  arguments:
+    arg1: 2.0
+    arg2: hello
+```
+"""
+
+    console = Console()
+
+    # List of 'code_theme': https://pygments.org/styles/
+    markdown = Markdown(content, code_theme="zenburn")
+    console.print(markdown)
