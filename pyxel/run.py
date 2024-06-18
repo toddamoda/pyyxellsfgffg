@@ -25,7 +25,7 @@ from pyxel.detectors import APD, CCD, CMOS, MKID, Detector
 from pyxel.exposure import Exposure
 from pyxel.observation import Observation, ObservationResult
 from pyxel.pipelines import DetectionPipeline, Processor
-from pyxel.util import create_model, download_examples
+from pyxel.util import create_model, create_model_to_console, download_examples
 
 if TYPE_CHECKING:
     import xarray as xr
@@ -919,14 +919,17 @@ def download_pyxel_examples(folder, force: bool):
 
 
 @main.command(name="create-model")
-@click.argument("model_name", type=str)
-def create_new_model(model_name: str):
+@click.argument("model_name", type=str, required=False)
+def create_new_model(model_name: Optional[str]):
     """Create a new model.
 
     Use: arg1/arg2. Create a new module in ``pyxel/models/arg1/arg2`` using a template
     (``pyxel/templates/MODELTEMPLATE.py``)
     """
-    create_model(newmodel=model_name)
+    if model_name is None:
+        create_model_to_console()
+    else:
+        create_model(newmodel=model_name)
 
 
 @main.command(name="run")
