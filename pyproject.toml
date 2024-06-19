@@ -40,6 +40,8 @@ dependencies = [
     "xarray>=2022.06",
     "xarray-datatree>=0.0.12",
 
+    "poppy>=1.1.0",
+
     # Plotting
     "matplotlib>=3.1",
     "seaborn",
@@ -91,7 +93,6 @@ tracker = "https://gitlab.com/esa/pyxel/issues"
 [project.optional-dependencies]
 calibration = [ "pygmo>=2.16.1" ]
 model = [
-    "poppy>=1.1.0",
     "lacosmic",
     "sep",    # 'sep' is not available for Python 3.11+ via PyPi (only with conda)
 ]
