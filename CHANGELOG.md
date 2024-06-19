@@ -9,6 +9,15 @@ Minor releases include updated stdlib stubs from typeshed.
 
 Pyxel doesn't use SemVer anymore, since most minor releases have at least minor backward incompatible changes.
 
+## Unreleased
+
+This minor release brings a number of bugfixes and improvements.
+
+### Others
+* `poppy` is installed by default with Pyxel
+  (See [!899](https://gitlab.com/esa/pyxel/-/merge_requests/899)).
+
+
 ## 2.3 / 2024-06-19
 
 This release brings a number of bugfixes and improvements.
