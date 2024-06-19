@@ -11,29 +11,30 @@ import xarray as xr
 # Import 'DataTree'
 try:
     from xarray.core.datatree import DataTree
+    from xarray.testing import assert_identical
 except ImportError:
     from datatree import DataTree  # pip install xarray-datatree
 
+    try:
+        from datatree.testing import assert_identical
+    except ImportError:
+        # Hack for xarray version '2023.12.0'
+        def assert_identical(
+            actual: DataTree,
+            desired: DataTree,
+            from_root: bool = True,
+        ):
+            assert isinstance(actual, DataTree)
+            assert isinstance(desired, DataTree)
+
+            from datatree.formatting import diff_tree_repr
+
+            assert actual.identical(desired, from_root=from_root), diff_tree_repr(
+                actual, desired, "identical"
+            )
+
 
 from pyxel.data_structure import Scene
-
-try:
-    from datatree.testing import assert_identical
-except ImportError:
-    # Hack for xarray version '2023.12.0'
-    def assert_identical(
-        actual: DataTree,
-        desired: DataTree,
-        from_root: bool = True,
-    ):
-        assert isinstance(actual, DataTree)
-        assert isinstance(desired, DataTree)
-
-        from datatree.formatting import diff_tree_repr
-
-        assert actual.identical(desired, from_root=from_root), diff_tree_repr(
-            actual, desired, "identical"
-        )
 
 
 @pytest.fixture
