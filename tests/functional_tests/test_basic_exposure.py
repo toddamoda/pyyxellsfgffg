@@ -9,7 +9,13 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from datatree import DataTree
+
+# Import 'DataTree'
+try:
+    from xarray.core.datatree import DataTree
+except ImportError:
+    from datatree import DataTree  # pip install xarray-datatree
+
 
 import pyxel
 from pyxel import Configuration

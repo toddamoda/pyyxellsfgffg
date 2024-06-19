@@ -23,7 +23,12 @@ from pyxel import __version__ as version
 
 if TYPE_CHECKING:
     import xarray as xr
-    from datatree import DataTree
+
+    # Import 'DataTree'
+    try:
+        from xarray.core.datatree import DataTree
+    except ImportError:
+        from datatree import DataTree  # pip install xarray-datatree
 
     from pyxel.detectors import Detector
     from pyxel.pipelines import Processor
