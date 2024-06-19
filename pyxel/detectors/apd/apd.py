@@ -105,7 +105,12 @@ class APD(Detector):
         # TODO: This is a simplistic implementation. Improve this.
         import numpy as np
         import xarray as xr
-        from datatree import DataTree
+
+        # Import 'DataTree'
+        try:
+            from xarray.core.datatree import DataTree
+        except ImportError:
+            from datatree import DataTree  # pip install xarray-datatree
 
         from pyxel.data_structure import Photon, Scene
         from pyxel.detectors import APDCharacteristics, APDGeometry, Environment

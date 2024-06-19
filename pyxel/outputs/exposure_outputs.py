@@ -16,7 +16,12 @@ from pyxel.outputs import Outputs, ValidFormat, ValidName
 
 if TYPE_CHECKING:
     import xarray as xr
-    from datatree import DataTree
+
+    # Import 'DataTree'
+    try:
+        from xarray.core.datatree import DataTree
+    except ImportError:
+        from datatree import DataTree  # pip install xarray-datatree
 
     class SaveToFile(Protocol):
         """TBW."""

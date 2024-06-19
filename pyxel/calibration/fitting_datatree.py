@@ -38,7 +38,13 @@ from pyxel.observation import ParameterValues
 from pyxel.pipelines import Processor, ResultId
 
 if TYPE_CHECKING:
-    from datatree import DataTree
+
+    # Import 'DataTree'
+    try:
+        from xarray.core.datatree import DataTree
+    except ImportError:
+        from datatree import DataTree  # pip install xarray-datatree
+
     from numpy.typing import ArrayLike, NDArray
 
     from pyxel.exposure import Readout

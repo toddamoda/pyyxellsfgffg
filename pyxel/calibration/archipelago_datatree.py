@@ -16,7 +16,13 @@ import dask.array as da
 import numpy as np
 import pandas as pd
 import xarray as xr
-from datatree import DataTree
+
+# Import 'DataTree'
+try:
+    from xarray.core.datatree import DataTree
+except ImportError:
+    from datatree import DataTree  # pip install xarray-datatree
+
 from tqdm.auto import tqdm
 
 from pyxel.calibration import Algorithm, IslandProtocol

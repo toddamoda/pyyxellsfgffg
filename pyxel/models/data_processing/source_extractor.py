@@ -12,7 +12,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import xarray as xr
-from datatree import DataTree
+
+# Import 'DataTree'
+try:
+    from xarray.core.datatree import DataTree
+except ImportError:
+    from datatree import DataTree  # pip install xarray-datatree
+
 from matplotlib.patches import Ellipse
 
 from pyxel.detectors import Detector
