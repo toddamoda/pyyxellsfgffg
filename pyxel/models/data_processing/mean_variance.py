@@ -16,7 +16,6 @@ try:
 except ImportError:
     from datatree import DataTree  # pip install xarray-datatree
 
-
 from pyxel.detectors import Detector
 
 if TYPE_CHECKING:
