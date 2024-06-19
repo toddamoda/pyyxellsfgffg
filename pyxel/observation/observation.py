@@ -200,6 +200,7 @@ def merge(*objects: Iterable["DataTree"]) -> "DataTree":
     _merge_datatree: Callable[..., "DataTree"] = datatree.map_over_subtree(
         _merge_dataset
     )
+
     return _merge_datatree(*objects)
 
 
