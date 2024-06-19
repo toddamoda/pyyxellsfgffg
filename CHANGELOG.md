@@ -14,6 +14,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 This release brings a number of bugfixes and improvements.
 
 ### Core
+* Use `DataTree` from module `xarray.core.datatree` when possible.
+  (See [!897](https://gitlab.com/esa/pyxel/-/merge_requests/897)).
 
 ### Documentation
 
