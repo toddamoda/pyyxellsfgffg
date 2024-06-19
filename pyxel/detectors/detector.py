@@ -29,8 +29,12 @@ from pyxel.util import get_size, memory_usage_details, resolve_path
 
 if TYPE_CHECKING:
     import xarray as xr
-    from datatree import DataTree
 
+    # Import 'DataTree'
+    try:
+        from xarray.core.datatree import DataTree
+    except ImportError:
+        from datatree import DataTree  # pip install xarray-datatree
 
 __all__ = ["Detector"]
 
@@ -249,7 +253,12 @@ class Detector:
 
     def _initialize(self) -> None:
         """Initialize data buckets."""
-        from datatree import DataTree
+
+        # Import 'DataTree'
+        try:
+            from xarray.core.datatree import DataTree
+        except ImportError:
+            from datatree import DataTree  # pip install xarray-datatree
 
         self._scene = Scene()
         self._photon = Photon(geo=self.geometry)

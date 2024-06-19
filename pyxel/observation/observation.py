@@ -32,7 +32,12 @@ from pyxel.pipelines import ResultId, get_result_id
 
 if TYPE_CHECKING:
     import xarray as xr
-    from datatree import DataTree
+
+    # Import 'DataTree'
+    try:
+        from xarray.core.datatree import DataTree
+    except ImportError:
+        from datatree import DataTree  # pip install xarray-datatree
 
     from pyxel.outputs import ObservationOutputs
     from pyxel.pipelines import Processor
