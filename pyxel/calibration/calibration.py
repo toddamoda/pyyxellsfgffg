@@ -37,7 +37,12 @@ from pyxel.pipelines import FitnessFunction, Processor, ResultId, get_result_id
 if TYPE_CHECKING:
     import pandas as pd
     import xarray as xr
-    from datatree import DataTree
+
+    # Import 'DataTree'
+    try:
+        from xarray.core.datatree import DataTree
+    except ImportError:
+        from datatree import DataTree  # pip install xarray-datatree
 
     from pyxel.outputs import CalibrationOutputs
 

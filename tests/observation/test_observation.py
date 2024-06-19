@@ -8,7 +8,13 @@
 from pathlib import Path
 
 import pytest
-from datatree import DataTree
+
+# Import 'DataTree'
+try:
+    from xarray.core.datatree import DataTree
+except ImportError:
+    from datatree import DataTree  # pip install xarray-datatree
+
 
 from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
 from pyxel.observation import Observation, ParameterValues
