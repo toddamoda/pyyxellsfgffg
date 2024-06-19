@@ -17,6 +17,8 @@ This release brings a number of bugfixes and improvements.
 
 * Add option to generate a new model directly in the console with `pyxel -m create-model`.
   (See [!894](https://gitlab.com/esa/pyxel/-/merge_requests/894)).
+* Use `DataTree` from module `xarray.core.datatree` when possible.
+  (See [!897](https://gitlab.com/esa/pyxel/-/merge_requests/897)).
 
 ### Documentation
 * Fix issue with netcdf4 version 1.7.1.
