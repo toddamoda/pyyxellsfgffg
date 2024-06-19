@@ -29,7 +29,12 @@ from pyxel.util import create_model, create_model_to_console, download_examples
 
 if TYPE_CHECKING:
     import xarray as xr
-    from datatree import DataTree
+
+    # Import 'DataTree'
+    try:
+        from xarray.core.datatree import DataTree
+    except ImportError:
+        from datatree import DataTree  # pip install xarray-datatree
 
     from pyxel.calibration import Calibration
     from pyxel.outputs import CalibrationOutputs, ExposureOutputs, ObservationOutputs

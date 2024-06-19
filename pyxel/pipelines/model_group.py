@@ -100,7 +100,12 @@ class ModelGroup:
             # TODO: Refactor
             if debug:
                 import xarray as xr
-                from datatree import DataTree
+
+                # Import 'DataTree'
+                try:
+                    from xarray.core.datatree import DataTree
+                except ImportError:
+                    from datatree import DataTree  # pip install xarray-datatree
 
                 # Get current absolute time
                 absolute_time = xr.DataArray(
