@@ -16,6 +16,8 @@ This release brings a number of bugfixes and improvements.
 ### Core
 * Add new parameter `working_directory` in YAML configuration files.
   (See [!838](https://gitlab.com/esa/pyxel/-/merge_requests/838)).
+* Use `DataTree` from module `xarray.core.datatree` when possible.
+  (See [!897](https://gitlab.com/esa/pyxel/-/merge_requests/897)).
 
 ### Documentation
 * Fix typo in documentation for model `charge_deposition` from `Charge Generation`.
