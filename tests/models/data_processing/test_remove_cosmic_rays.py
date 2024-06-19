@@ -7,7 +7,13 @@
 import numpy as np
 import pytest
 import xarray as xr
-from datatree import DataTree
+
+# Import 'DataTree'
+try:
+    from xarray.core.datatree import DataTree
+except ImportError:
+    from datatree import DataTree  # pip install xarray-datatree
+
 from skimage.draw import line_aa
 
 from pyxel.detectors import (

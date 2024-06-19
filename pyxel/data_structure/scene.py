@@ -13,7 +13,13 @@ from typing import TYPE_CHECKING
 
 import xarray as xr
 from astropy.units import Quantity
-from datatree import DataTree
+
+# Import 'DataTree'
+try:
+    from xarray.core.datatree import DataTree
+except ImportError:
+    from datatree import DataTree  # pip install xarray-datatree
+
 from typing_extensions import Self
 
 if TYPE_CHECKING:
