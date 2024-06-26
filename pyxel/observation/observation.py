@@ -191,7 +191,12 @@ def _get_short_dimension_names_new(
 # TODO: or 'datatree.merge' when it will be possible
 def merge(*objects: Iterable["DataTree"]) -> "DataTree":
     """Merge any number of DataTree into a single DataTree."""
-    import datatree
+    # Import 'datatree'
+    try:
+        from xarray.core import datatree
+    except ImportError:
+        import datatree  # pip install xarray-datatree
+
     import xarray as xr
 
     def _merge_dataset(*args: xr.Dataset) -> xr.Dataset:
