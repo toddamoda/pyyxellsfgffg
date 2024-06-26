@@ -105,7 +105,7 @@ class ModelGroup:
                 try:
                     from xarray.core.datatree import DataTree
                 except ImportError:
-                    from datatree import DataTree  # pip install xarray-datatree
+                    from datatree import DataTree  # type: ignore[assignment]
 
                 # Get current absolute time
                 absolute_time = xr.DataArray(

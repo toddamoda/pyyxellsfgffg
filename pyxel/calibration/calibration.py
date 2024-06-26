@@ -41,7 +41,7 @@ if TYPE_CHECKING:
     try:
         from xarray.core.datatree import DataTree
     except ImportError:
-        from datatree import DataTree  # pip install xarray-datatree
+        from datatree import DataTree  # type: ignore[assignment]
 
     from pyxel.outputs import CalibrationOutputs
 
