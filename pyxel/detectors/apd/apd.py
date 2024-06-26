@@ -110,7 +110,7 @@ class APD(Detector):
         try:
             from xarray.core.datatree import DataTree
         except ImportError:
-            from datatree import DataTree  # pip install xarray-datatree
+            from datatree import DataTree  # type: ignore[assignment]
 
         from pyxel.data_structure import Photon, Scene
         from pyxel.detectors import APDCharacteristics, APDGeometry, Environment
