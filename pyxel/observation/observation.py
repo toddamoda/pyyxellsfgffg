@@ -37,7 +37,7 @@ if TYPE_CHECKING:
     try:
         from xarray.core.datatree import DataTree
     except ImportError:
-        from datatree import DataTree  # pip install xarray-datatree
+        from datatree import DataTree  # type: ignore[assignment]
 
     from pyxel.outputs import ObservationOutputs
     from pyxel.pipelines import Processor
@@ -195,7 +195,7 @@ def merge(*objects: Iterable["DataTree"]) -> "DataTree":
     try:
         from xarray.core import datatree
     except ImportError:
-        import datatree  # pip install xarray-datatree
+        import datatree  # type: ignore[no-redef]
 
     import xarray as xr
 
