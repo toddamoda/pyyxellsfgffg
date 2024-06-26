@@ -11,30 +11,13 @@ import xarray as xr
 # Import 'DataTree'
 try:
     from xarray.core.datatree import DataTree
+    from xarray.testing import assert_equal
 except ImportError:
     from datatree import DataTree  # pip install xarray-datatree
-
+    from datatree.testing import assert_equal
 
 from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
 from pyxel.models.data_processing import mean_variance
-
-try:
-    from datatree.testing import assert_equal
-except ImportError:
-    # Hack for xarray version '2023.12.0'
-    def assert_equal(
-        actual: DataTree,
-        desired: DataTree,
-        from_root: bool = True,
-    ):
-        assert isinstance(actual, DataTree)
-        assert isinstance(desired, DataTree)
-
-        from datatree.formatting import diff_tree_repr
-
-        assert actual.equals(desired, from_root=from_root), diff_tree_repr(
-            actual, desired, "identical"
-        )
 
 
 def test_mean_variance():
