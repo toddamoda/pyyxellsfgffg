@@ -12,7 +12,7 @@ import time
 import warnings
 from collections.abc import Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 import click
 import dask
@@ -112,8 +112,7 @@ def exposure_mode(
 
 def _run_exposure_mode(
     exposure: "Exposure",
-    detector: Detector,
-    pipeline: "DetectionPipeline",
+    processor: Processor,
     debug: bool,
 ) -> "DataTree":
     """Run an 'exposure' pipeline.
@@ -123,8 +122,7 @@ def _run_exposure_mode(
     Parameters
     ----------
     exposure : Exposure
-    detector : Detector
-    pipeline : DetectionPipeline
+    processor : Detector
     debug : bool
 
     Returns
@@ -175,8 +173,6 @@ def _run_exposure_mode(
     """
 
     logging.info("Mode: Exposure")
-
-    processor = Processor(detector=detector, pipeline=pipeline)
 
     # Create an output folder
     outputs: Optional[ExposureOutputs] = exposure.outputs
@@ -423,16 +419,9 @@ def calibration_mode(
 
 def _run_calibration_mode(
     calibration: "Calibration",
-    detector: Detector,
-    pipeline: "DetectionPipeline",
+    processor: Processor,
 ) -> "DataTree":
     """Run a 'Calibration' pipeline.
-
-    Parameters
-    ----------
-    calibration : Calibration
-    detector : Detector
-    pipeline : DetectionPipeline
 
     Notes
     -----
@@ -496,8 +485,6 @@ def _run_calibration_mode(
     """
     logging.info("Mode: Calibration")
 
-    processor = Processor(detector=detector, pipeline=pipeline)
-
     # Create an output folder
     outputs: Optional[CalibrationOutputs] = calibration.outputs
     if outputs:
@@ -513,12 +500,9 @@ def _run_calibration_mode(
 
 def _run_observation_mode(
     observation: Observation,
-    detector: Detector,
-    pipeline: DetectionPipeline,
+    processor: Processor,
 ) -> "DataTree":
     logging.info("Mode: Observation")
-
-    processor = Processor(detector=detector, pipeline=pipeline)
 
     # Create an output folder
     outputs: Optional[ObservationOutputs] = observation.outputs
@@ -541,6 +525,7 @@ def run_mode(
     mode: Union[Exposure, Observation, "Calibration"],
     detector: Detector,
     pipeline: DetectionPipeline,
+    override_dct: Optional[Mapping[str, Any]],
     debug: bool = False,
 ) -> "DataTree":
     """Run a pipeline.
@@ -798,19 +783,23 @@ def run_mode(
             "Parameter 'debug' is only implemented for 'Exposure' mode."
         )
 
+    processor = Processor(detector=detector, pipeline=pipeline)
+    if override_dct is not None:
+        # TODO: Use ExceptionGroup
+        for key, value in override_dct.items():
+            processor.set(key=key, value=value)
+
     if isinstance(mode, Exposure):
         data_tree = _run_exposure_mode(
             exposure=mode,
-            detector=detector,
-            pipeline=pipeline,
+            processor=processor,
             debug=debug,
         )
 
     elif isinstance(mode, Observation):
         data_tree = _run_observation_mode(
             observation=mode,
-            detector=detector,
-            pipeline=pipeline,
+            processor=processor,
         )
 
     else:
@@ -821,8 +810,7 @@ def run_mode(
         if isinstance(mode, Calibration):
             data_tree = _run_calibration_mode(
                 calibration=mode,
-                detector=detector,
-                pipeline=pipeline,
+                processor=processor,
             )
         else:
             raise TypeError("Please provide a valid simulation mode !")
@@ -850,7 +838,11 @@ def output_directory(configuration: Configuration) -> Optional[Path]:
     return None
 
 
-def run(input_filename: Union[str, Path], random_seed: Optional[int] = None) -> None:
+def run(
+    input_filename: Union[str, Path],
+    override: Optional[Sequence[str]] = None,
+    random_seed: Optional[int] = None,
+) -> None:
     """Run a YAML configuration file.
 
     For more information, see :ref:`running_modes`.
@@ -858,6 +850,7 @@ def run(input_filename: Union[str, Path], random_seed: Optional[int] = None) -> 
     Parameters
     ----------
     input_filename : str or Path
+    override : list of str
     random_seed : int, optional
 
     Examples
@@ -878,7 +871,19 @@ def run(input_filename: Union[str, Path], random_seed: Optional[int] = None) -> 
     detector: Union[CCD, CMOS, MKID, APD] = configuration.detector
     running_mode: Union[Exposure, Observation, Calibration] = configuration.running_mode
 
-    _ = run_mode(mode=running_mode, detector=detector, pipeline=pipeline)
+    # Extract the parameters to override
+    override_dct = {}
+    if override is not None:
+        for element in override:
+            key, value = element.split("=")
+            override_dct[key] = value
+
+    _ = run_mode(
+        mode=running_mode,
+        detector=detector,
+        pipeline=pipeline,
+        override_dct=override_dct,
+    )
 
     output_dir: Optional[Path] = output_directory(configuration)
 
@@ -939,6 +944,7 @@ def create_new_model(model_name: Optional[str]):
 
 @main.command(name="run")
 @click.argument("config", type=click.Path(exists=True))
+@click.option("--override", multiple=True)
 @click.option(
     "-v",
     "--verbosity",
@@ -946,7 +952,7 @@ def create_new_model(model_name: Optional[str]):
     show_default=True,
     help="Increase output verbosity (-v/-vv/-vvv)",
 )
-def run_config(config: str, verbosity: int):
+def run_config(config: str, override: Sequence[str], verbosity: int):
     """Run Pyxel with a ``YAML`` configuration file."""
     logging_level = [logging.ERROR, logging.WARNING, logging.INFO, logging.DEBUG][
         min(verbosity, 3)
@@ -966,7 +972,7 @@ def run_config(config: str, verbosity: int):
     stream_stdout.setFormatter(logging.Formatter(log_format))
     logging.getLogger().addHandler(stream_stdout)
 
-    run(input_filename=config)
+    run(input_filename=config, override=override)
 
 
 if __name__ == "__main__":
