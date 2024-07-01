@@ -958,35 +958,42 @@ def run(
         for key, value in override_dct.items():
             processor.set(key=key, value=value)
 
-    if isinstance(running_mode, Exposure):
-        _run_exposure_mode_without_datatree(
-            exposure=running_mode,
-            processor=processor,
-        )
+    working_directory: Optional[Path] = running_mode.working_directory
 
-    elif isinstance(running_mode, Observation):
-        _run_observation_mode_without_datatree(
-            observation=running_mode,
-            processor=processor,
-        )
+    ctx: nullcontext[None] | set_options = nullcontext()
+    if working_directory is not None:
+        ctx = set_options(working_directory=working_directory)
 
-    else:
-        # Late import.
-        # Importing 'Calibration' can take up to 3 s !
-        from pyxel.calibration import Calibration
-
-        if isinstance(running_mode, Calibration):
-            _run_calibration_mode_without_datatree(
-                calibration=running_mode, processor=processor
+    with ctx:
+        if isinstance(running_mode, Exposure):
+            _run_exposure_mode_without_datatree(
+                exposure=running_mode,
+                processor=processor,
             )
+
+        elif isinstance(running_mode, Observation):
+            _run_observation_mode_without_datatree(
+                observation=running_mode,
+                processor=processor,
+            )
+
         else:
-            raise TypeError("Please provide a valid simulation mode !")
+            # Late import.
+            # Importing 'Calibration' can take up to 3 s !
+            from pyxel.calibration import Calibration
 
-    output_dir: Optional[Path] = output_directory(configuration)
+            if isinstance(running_mode, Calibration):
+                _run_calibration_mode_without_datatree(
+                    calibration=running_mode, processor=processor
+                )
+            else:
+                raise TypeError("Please provide a valid simulation mode !")
 
-    # TODO: Fix this, see issue #728
-    if output_dir:
-        copy_config_file(input_filename=input_filename, output_dir=output_dir)
+        output_dir: Optional[Path] = output_directory(configuration)
+
+        # TODO: Fix this, see issue #728
+        if output_dir:
+            copy_config_file(input_filename=input_filename, output_dir=output_dir)
 
     logging.info("Pipeline completed.")
     logging.info("Running time: %.3f seconds", (time.time() - start_time))
