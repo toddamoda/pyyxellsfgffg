@@ -7,7 +7,7 @@
 
 """TBW."""
 
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Iterator, Sequence
 from typing import Optional
 
 from pyxel.pipelines import ModelFunction, ModelGroup
@@ -197,3 +197,19 @@ class DetectionPipeline:
                     if name == model.name:
                         return model
         raise AttributeError("Model has not been found.")
+
+    def describe(self) -> Iterator[str]:
+        for model_group_name in self.MODEL_GROUPS:
+            models_grp: Optional[ModelGroup] = getattr(self, model_group_name)
+            if not models_grp:
+                continue
+
+            yield f"Group: {models_grp._name}"
+
+            model: ModelFunction
+            for model in models_grp:
+                yield f"  Func: {model.func.__module__}.{model.func.__name__}"
+                yield f"  name: {model.name}"
+
+                for key, value in model.arguments.items():
+                    yield f"    {key}: {value}"
