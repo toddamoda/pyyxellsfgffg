@@ -32,6 +32,8 @@ if TYPE_CHECKING:
     except ImportError:
         from datatree import DataTree  # type: ignore[assignment]
 
+    from astropy.io import fits
+
     from pyxel.detectors import Detector
     from pyxel.pipelines import Processor
 
@@ -177,6 +179,7 @@ class Outputs:
         name: str,
         with_auto_suffix: bool = True,
         run_number: Optional[int] = None,
+        header: Optional["fits.Header"] = None,
     ) -> Path:
         """Write array to :term:`FITS` file."""
         name = name.replace(".", "_")
@@ -199,8 +202,12 @@ class Outputs:
 
         from astropy.io import fits  # Late import to speed-up general import time
 
-        hdu = fits.PrimaryHDU(data)
-        hdu.header["PYXEL_V"] = (version, "Pyxel version")
+        if header is None:
+            header = fits.Header()
+
+        header["PYXEL_V"] = (version, "Pyxel version")
+
+        hdu = fits.PrimaryHDU(data, header=header)
         hdu.writeto(full_filename, overwrite=False, output_verify="exception")
 
         return full_filename
@@ -522,8 +529,50 @@ class Outputs:
                         )
                         filenames.append(full_image_filename)
 
+                    elif out_format == "fits":
+
+                        # Create FITS header
+                        from astropy.io import fits
+
+                        header = fits.Header()
+
+                        line: str
+                        for line in processor.pipeline.describe():
+                            header.add_history(line)
+
+                        filename: Path = self.save_to_fits(
+                            data=data,
+                            name=name,
+                            with_auto_suffix=with_auto_suffix,
+                            run_number=run_number,
+                            header=header,
+                        )
+
+                        filenames.append(filename)
+
+                    elif out_format == "fits":
+
+                        # Create FITS header
+                        from astropy.io import fits
+
+                        header = fits.Header()
+
+                        line: str
+                        for line in processor.pipeline.describe():
+                            header.add_history(line)
+
+                        filename: Path = self.save_to_fits(
+                            data=data,
+                            name=name,
+                            with_auto_suffix=with_auto_suffix,
+                            run_number=run_number,
+                            header=header,
+                        )
+
+                        filenames.append(filename)
+
                     else:
-                        filename: Path = func(
+                        filename = func(
                             data=data,
                             name=name,
                             with_auto_suffix=with_auto_suffix,
