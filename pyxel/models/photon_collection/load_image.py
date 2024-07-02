@@ -10,6 +10,7 @@
 from typing import Literal, Optional
 
 from pyxel.detectors import Detector
+from pyxel.inputs import load_header
 from pyxel.util import load_cropped_and_aligned_image
 
 
@@ -78,3 +79,8 @@ def load_image(
     photon_array = photon_array * (detector.time_step / time_scale) * multiplier
 
     detector.photon.array = photon_array
+
+    # Try to extract the Header from 'image_file'
+    header = load_header(image_file)
+    if header is not None:
+        detector._headers["detector.image.array"] = header
