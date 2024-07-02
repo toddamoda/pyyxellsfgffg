@@ -9,6 +9,7 @@
 """TBW."""
 # flake8: noqa
 from .loader import (
+    load_header,
     load_image,
     load_table,
     load_datacube,

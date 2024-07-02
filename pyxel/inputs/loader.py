@@ -12,7 +12,7 @@ from collections.abc import Sequence
 from contextlib import suppress
 from io import BytesIO, StringIO
 from pathlib import Path
-from typing import Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 import fsspec
 import numpy as np
@@ -23,6 +23,21 @@ from PIL import Image
 
 from pyxel.options import global_options
 from pyxel.util import complete_path
+
+if TYPE_CHECKING:
+    from astropy.io import fits
+
+
+def load_header(filename: Union[str, Path]) -> Optional["fits.Header"]:
+    from astropy.io import fits
+
+    if Path(filename).suffix == ".fits":
+        header: fits.Header = fits.getheader(filename)
+
+        return header
+
+    else:
+        return None
 
 
 def load_image(filename: Union[str, Path]) -> np.ndarray:
