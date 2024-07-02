@@ -110,6 +110,37 @@ def exposure_mode(
     return result
 
 
+def _run_exposure_mode_without_datatree(
+    exposure: "Exposure",
+    processor: Processor,
+) -> None:
+    """Run an 'exposure' pipeline.
+
+    For more information, see :ref:`exposure_mode`.
+
+    Parameters
+    ----------
+    exposure : Exposure
+    processor : Detector
+
+    Returns
+    -------
+    None
+    """
+
+    logging.info("Mode: Exposure")
+
+    # Create an output folder
+    outputs: Optional[ExposureOutputs] = exposure.outputs
+    if outputs:
+        outputs.create_output_folder()
+
+    _ = exposure.run_exposure(
+        processor=processor,
+        debug=False,
+    )
+
+
 def _run_exposure_mode(
     exposure: "Exposure",
     processor: Processor,
@@ -417,6 +448,25 @@ def calibration_mode(
     return result
 
 
+def _run_calibration_mode_without_datatree(
+    calibration: "Calibration",
+    processor: Processor,
+) -> None:
+    """Run a 'Calibration' pipeline."""
+    logging.info("Mode: Calibration")
+
+    # Create an output folder
+    outputs: Optional[CalibrationOutputs] = calibration.outputs
+    if outputs:
+        outputs.create_output_folder()
+
+    # TODO: Improve this
+    calibration.run_calibration(
+        processor=processor,
+        output_dir=outputs.current_output_folder if outputs else None,
+    )
+
+
 def _run_calibration_mode(
     calibration: "Calibration",
     processor: Processor,
@@ -496,6 +546,20 @@ def _run_calibration_mode(
     )
 
     return data_tree
+
+
+def _run_observation_mode_without_datatree(
+    observation: Observation,
+    processor: Processor,
+) -> None:
+    logging.info("Mode: Observation")
+
+    # Create an output folder
+    outputs: Optional[ObservationOutputs] = observation.outputs
+    if outputs:
+        outputs.create_output_folder()
+
+    observation.run_observation_without_datatree(processor=processor)
 
 
 def _run_observation_mode(
@@ -869,7 +933,9 @@ def run(
 
     pipeline: DetectionPipeline = configuration.pipeline
     detector: Union[CCD, CMOS, MKID, APD] = configuration.detector
-    running_mode: Union[Exposure, Observation, Calibration] = configuration.running_mode
+    running_mode: Union[Exposure, Observation, "Calibration"] = (
+        configuration.running_mode
+    )
 
     # Extract the parameters to override
     override_dct = {}
@@ -878,12 +944,35 @@ def run(
             key, value = element.split("=")
             override_dct[key] = value
 
-    _ = run_mode(
-        mode=running_mode,
-        detector=detector,
-        pipeline=pipeline,
-        override_dct=override_dct,
-    )
+    processor = Processor(detector=detector, pipeline=pipeline)
+    if override_dct is not None:
+        # TODO: Use ExceptionGroup
+        for key, value in override_dct.items():
+            processor.set(key=key, value=value)
+
+    if isinstance(running_mode, Exposure):
+        _run_exposure_mode_without_datatree(
+            exposure=running_mode,
+            processor=processor,
+        )
+
+    elif isinstance(running_mode, Observation):
+        _run_observation_mode_without_datatree(
+            observation=running_mode,
+            processor=processor,
+        )
+
+    else:
+        # Late import.
+        # Importing 'Calibration' can take up to 3 s !
+        from pyxel.calibration import Calibration
+
+        if isinstance(running_mode, Calibration):
+            _run_calibration_mode_without_datatree(
+                calibration=running_mode, processor=processor
+            )
+        else:
+            raise TypeError("Please provide a valid simulation mode !")
 
     output_dir: Optional[Path] = output_directory(configuration)
 
