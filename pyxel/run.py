@@ -525,7 +525,7 @@ def run_mode(
     mode: Union[Exposure, Observation, "Calibration"],
     detector: Detector,
     pipeline: DetectionPipeline,
-    override_dct: Optional[Mapping[str, Any]],
+    override_dct: Optional[Mapping[str, Any]] = None,
     debug: bool = False,
 ) -> "DataTree":
     """Run a pipeline.
