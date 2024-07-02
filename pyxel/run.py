@@ -10,7 +10,7 @@ import logging
 import sys
 import time
 import warnings
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, Union
 
@@ -525,7 +525,7 @@ def run_mode(
     mode: Union[Exposure, Observation, "Calibration"],
     detector: Detector,
     pipeline: DetectionPipeline,
-    override_dct: Optional[Mapping[str, Any]],
+    override_dct: Optional[Mapping[str, Any]] = None,
     debug: bool = False,
 ) -> "DataTree":
     """Run a pipeline.
