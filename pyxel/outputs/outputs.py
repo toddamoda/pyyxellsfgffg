@@ -540,6 +540,20 @@ class Outputs:
                         for line in processor.pipeline.describe():
                             header.add_history(line)
 
+                        previous_header: Optional[fits.Header] = (
+                            processor.detector._headers.get(obj)
+                        )
+                        if previous_header is not None:
+                            for card in previous_header.cards:
+                                key, *_ = card
+
+                                if key in ("SIMPLE", "BITPIX") or key.startswith(
+                                    "NAXIS"
+                                ):
+                                    continue
+
+                                header.append(card)
+
                         filename: Path = self.save_to_fits(
                             data=data,
                             name=name,

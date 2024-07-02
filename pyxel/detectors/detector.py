@@ -29,6 +29,7 @@ from pyxel.util import get_size, memory_usage_details, resolve_path
 
 if TYPE_CHECKING:
     import xarray as xr
+    from astropy.io import fits
 
     # Import 'DataTree'
     try:
@@ -77,6 +78,8 @@ class Detector:
         # TODO: This variable is used to store the name of the current model executed
         #       A better interface to access this information must be provided
         self.current_running_model_name: str = ""
+
+        self._headers: dict[str, "fits.Header"] = {}
 
     def __eq__(self, other) -> bool:
         return (
