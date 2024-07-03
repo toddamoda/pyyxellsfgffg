@@ -25,6 +25,7 @@ import pandas as pd
 import toolz
 from tqdm.auto import tqdm
 
+import pyxel
 from pyxel.exposure import Readout, _run_exposure_pipeline_deprecated, run_pipeline
 from pyxel.observation.parameter_values import ParameterType, ParameterValues
 from pyxel.pipelines import ResultId, get_result_id
@@ -221,8 +222,10 @@ class Observation:
         )
         self._parameters: Sequence[ParameterValues] = parameters
 
+        # Set 'working_directory'
+        pyxel.set_options(working_directory=self.working_directory)
+
         # Specific to mode 'custom'
-        # TODO: implement working_dir
         self._custom_file: Optional[str] = from_file
         self._custom_data: Optional[pd.DataFrame] = None
         self._custom_columns: Optional[slice] = (
@@ -234,7 +237,6 @@ class Observation:
         self._result_type: ResultId = get_result_id(result_type)
         self._pipeline_seed = pipeline_seed
 
-        # TODO: implement working_dir
         if self.parameter_mode == ParameterMode.Custom:
             self._load_custom_parameters()
 

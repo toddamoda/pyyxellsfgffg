@@ -25,7 +25,7 @@ from pyxel.data_structure import (
     SimplePersistence,
 )
 from pyxel.detectors import Environment, ReadoutProperties
-from pyxel.util import get_size, memory_usage_details
+from pyxel.util import get_size, memory_usage_details, resolve_path
 
 if TYPE_CHECKING:
     import xarray as xr
@@ -494,8 +494,7 @@ class Detector:
         ValueError
             If the extension of filename is not recognized.
         """
-        # TODO: implement working_dir
-        full_filename = Path(filename).resolve()
+        full_filename = Path(resolve_path(filename)).resolve()
         if not full_filename.exists():
             raise FileNotFoundError(f"Filename '{filename}' does not exist !")
 
@@ -520,8 +519,7 @@ class Detector:
         ValueError
             If the extension of filename is not recognized.
         """
-        # TODO: implement working_dir
-        full_filename = Path(filename).resolve()
+        full_filename = Path(resolve_path(filename)).resolve()
         extension: str = full_filename.suffix
 
         if extension in (".h5", ".hdf5", ".hdf"):
