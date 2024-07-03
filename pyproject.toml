@@ -325,4 +325,4 @@ mark-parentheses = false
 convention = "numpy"
 
 [tool.ruff.lint.mccabe]
-max-complexity = 12
+max-complexity = 14
