@@ -22,7 +22,7 @@ from numpy.typing import DTypeLike
 from PIL import Image
 
 from pyxel.options import global_options
-from pyxel.util import complete_path
+from pyxel.util import resolve_path
 
 if TYPE_CHECKING:
     from astropy.io import fits
@@ -31,8 +31,10 @@ if TYPE_CHECKING:
 def load_header(filename: Union[str, Path]) -> Optional["fits.Header"]:
     from astropy.io import fits
 
-    if Path(filename).suffix == ".fits":
-        header: fits.Header = fits.getheader(filename)
+    full_filename = resolve_path(filename)
+
+    if Path(full_filename).suffix == ".fits":
+        header: fits.Header = fits.getheader(full_filename)
 
         return header
 
@@ -76,9 +78,7 @@ def load_image(filename: Union[str, Path]) -> np.ndarray:
     >>> load_image("rgb_frame.jpg")
     array([[234, 211, ...]])
     """
-    filename = complete_path(
-        filename=filename, working_dir=global_options.working_directory
-    )
+    filename = resolve_path(filename=filename)
     # Extract suffix (e.g. '.txt', '.fits'...)
     suffix: str = Path(filename).suffix.lower()
 
@@ -146,9 +146,7 @@ def load_image_v2(
     rename_dims: dict,
     data_path: Union[str, int, None] = None,
 ) -> xr.DataArray:
-    filename = complete_path(
-        filename=filename, working_dir=global_options.working_directory
-    )
+    filename = resolve_path(filename=filename)
     # Extract suffix (e.g. '.txt', '.fits'...)
     suffix: str = Path(filename).suffix.lower()
 
@@ -236,9 +234,7 @@ def load_table(
     # Late import to speedup start-up time
     import pandas as pd
 
-    filename = complete_path(
-        filename=filename, working_dir=global_options.working_directory
-    )
+    filename = resolve_path(filename=filename)
     suffix: str = Path(filename).suffix.lower()
 
     if isinstance(filename, Path):
@@ -319,9 +315,7 @@ def load_table_v2(
     data_path: Union[str, int, None] = None,
     header: bool = False,
 ) -> pd.DataFrame:
-    filename = complete_path(
-        filename=filename, working_dir=global_options.working_directory
-    )
+    filename = resolve_path(filename=filename)
     suffix: str = Path(filename).suffix.lower()
 
     if isinstance(filename, Path):
@@ -426,9 +420,7 @@ def load_dataarray(filename: Union[str, Path]) -> "xr.DataArray":
     FileNotFoundError
         If an image is not found.
     """
-    filename = complete_path(
-        filename=filename, working_dir=global_options.working_directory
-    )
+    filename = resolve_path(filename=filename)
     if isinstance(filename, Path):
         full_filename: Path = filename.expanduser().resolve()
         if not full_filename.exists():
@@ -476,9 +468,7 @@ def load_datacube(filename: Union[str, Path]) -> np.ndarray:
     ValueError
         When the extension of the filename is unknown or separator is not found.
     """
-    filename = complete_path(
-        filename=filename, working_dir=global_options.working_directory
-    )
+    filename = resolve_path(filename=filename)
     # Extract suffix (e.g. '.txt', '.fits'...)
     suffix: str = Path(filename).suffix.lower()
 
