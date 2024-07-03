@@ -20,6 +20,7 @@ import xarray as xr
 from datatree import DataTree
 from tqdm.auto import tqdm
 
+import pyxel
 from pyxel import __version__
 from pyxel.data_structure import Charge, Image, Photon, Pixel, Scene, Signal
 from pyxel.pipelines import Processor, ResultId, get_result_id, result_keys
@@ -49,6 +50,9 @@ class Exposure:
         )
         self._result_type: ResultId = get_result_id(result_type)
         self._pipeline_seed = pipeline_seed
+
+        # Set 'working_directory'
+        pyxel.set_options(working_directory=self.working_directory)
 
     def __repr__(self) -> str:
         cls_name: str = self.__class__.__name__
