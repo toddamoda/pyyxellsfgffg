@@ -605,10 +605,10 @@ def apply_run_number(template_filename: Path, run_number: Optional[int] = None) 
 # TODO: the log file should directly write in 'output_dir'
 def save_log_file(output_dir: Path) -> None:
     """Move log file to the outputs directory of the simulation."""
-    log_file: Path = Path("pyxel.log").resolve(strict=True)
-
-    new_log_filename = output_dir.joinpath(log_file.name)
-    log_file.rename(new_log_filename)
+    log_file: Path = Path("pyxel.log").resolve()
+    if log_file.exists():
+        new_log_filename = output_dir.joinpath("pyxel.log")
+        log_file.rename(new_log_filename)
 
 
 def create_output_directory(
