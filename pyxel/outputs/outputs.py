@@ -550,27 +550,6 @@ class Outputs:
 
                         filenames.append(filename)
 
-                    elif out_format == "fits":
-
-                        # Create FITS header
-                        from astropy.io import fits
-
-                        header = fits.Header()
-
-                        line: str
-                        for line in processor.pipeline.describe():
-                            header.add_history(line)
-
-                        filename: Path = self.save_to_fits(
-                            data=data,
-                            name=name,
-                            with_auto_suffix=with_auto_suffix,
-                            run_number=run_number,
-                            header=header,
-                        )
-
-                        filenames.append(filename)
-
                     else:
                         filename = func(
                             data=data,
