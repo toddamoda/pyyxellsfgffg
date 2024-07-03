@@ -50,7 +50,7 @@ def fpn_from_file(
     """
     position_y, position_x = position
 
-    folder_path = resolve_path(Path(filename).expanduser().resolve())
+    folder_path = Path(resolve_path(filename)).expanduser().resolve()
 
     if not folder_path.exists():
         raise FileNotFoundError(f"Cannot find folder '{folder_path}' !")

@@ -102,7 +102,7 @@ def load_histogram_data(
 
 
 def read_data(file_name: Path) -> np.ndarray:
-    full_path = resolve_path(file_name).resolve()
+    full_path = file_name.resolve()
     if not full_path.exists():
         raise FileNotFoundError(f"Cannot find file '{full_path}' !")
 

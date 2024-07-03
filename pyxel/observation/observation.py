@@ -26,7 +26,6 @@ import toolz
 from tqdm.auto import tqdm
 
 import pyxel
-from pyxel import options_wrapper
 from pyxel.exposure import Readout, _run_exposure_pipeline_deprecated, run_pipeline
 from pyxel.observation.parameter_values import ParameterType, ParameterValues
 from pyxel.pipelines import ResultId, get_result_id

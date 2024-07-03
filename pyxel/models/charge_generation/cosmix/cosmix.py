@@ -134,7 +134,7 @@ def cosmix(
         # cosmix.set_particle_number(particle_number)            # -
         # cosmix.set_incident_angles(incident_angles)            # rad
         # cosmix.set_starting_position(starting_position)        # um
-        cosmix.set_particle_spectrum(Path(resolve_path(spectrum_file)))
+        cosmix.set_particle_spectrum(Path(spectrum_file))
 
         if running_mode == "stepsize":
             cosmix.set_stepsize()
@@ -250,7 +250,7 @@ class Cosmix:
         file_name : Path
             Path of the file containing the spectrum.
         """
-        spectrum = read_data(file_name)  # nuc/m2*s*sr*MeV
+        spectrum = read_data(resolve_path(file_name))  # nuc/m2*s*sr*MeV
         geo = self.sim_obj.detector.geometry
         detector_area = geo.vert_dimension * geo.horz_dimension * 1.0e-8  # cm2
 
