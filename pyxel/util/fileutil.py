@@ -29,9 +29,11 @@ def is_path_relative(filename: Union[str, Path]) -> bool:
     if isinstance(filename, PurePath):
         return not filename.is_absolute()
 
-    if ":" in filename or filename.startswith("\\") or filename.startswith("/"):
-        return False
-    return True
+    return (
+        ":" not in filename
+        and not filename.startswith("\\")
+        and not filename.startswith("/")
+    )
 
 
 @overload
