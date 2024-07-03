@@ -51,6 +51,19 @@ def complete_path(
 
     The returned type will be the same as the `filename` type.
 
+    Parameters
+    ----------
+    filename : str or Path
+        The filename or path that needs to be completed. This can be a string or a Path object.
+    working_dir :str or Path. Optional
+        The working directory to prefix to the filename if it is relative. This can be a string, a Path object, or None.
+        If None, the function will return the filename unchanged.
+
+    Returns
+    -------
+    str or Path
+        The completed path.
+
     Examples
     --------
     >>> from pathlib import Path
@@ -70,3 +83,48 @@ def complete_path(
         return Path(working_dir).joinpath(filename)
 
     return str(working_dir) + "/" + filename
+
+
+@overload
+def resolve_path(
+    filename: str,
+) -> str: ...
+
+
+@overload
+def resolve_path(filename: Path) -> Path: ...
+
+
+def resolve_path(filename: Union[str, Path]) -> Union[str, Path]:
+    """Make the given path absolute using the global working directory.
+
+    This function uses a global working directory specified in the global options to
+    make the given filename absolute.
+
+    Parameters
+    ----------
+    filename : str or Path
+       The filename or path that needs to be resolved to an absolute path.
+
+    Returns
+    -------
+    str or Path
+       The absolute path of the given filename. The return type will match the type of the input `filename`.
+
+
+    Examples
+    --------
+    >>> resolve_path("file.fits")
+    'file.fits'
+
+    >>> from pyxel import set_options
+    >>> set_options(working_directory="my_folder")
+    >>> resolve_path(Path("file.fits"))
+    Path('my_folder/file.fits')
+    """
+    from pyxel.options import global_options
+
+    return complete_path(
+        filename,
+        working_dir=global_options.working_directory,
+    )

@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Any, Literal, Optional, Union
 import numpy as np
 from dask.delayed import Delayed
 
+import pyxel
 from pyxel.calibration import (
     Algorithm,
     ArchipelagoDataTree,
@@ -112,6 +113,9 @@ class Calibration:
             Path(working_directory) if working_directory else None
         )
 
+        # Set 'working_directory'
+        pyxel.set_options(working_directory=self.working_directory)
+
         self._calibration_mode = CalibrationMode(mode)
 
         self._result_type: ResultId = get_result_id(result_type)
@@ -123,7 +127,6 @@ class Calibration:
         )
 
         # TODO: Write functional tests
-        # TODO: implement working_dir
         try:
             target_data_full_path: Sequence[Path] = to_path_list(target_data_path)
         except FileNotFoundError as exc:
