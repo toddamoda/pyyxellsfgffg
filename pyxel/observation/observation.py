@@ -851,7 +851,9 @@ class Observation:
 
         if self.with_dask:
             datatree_bag: db.Bag = db.from_sequence(parameters).map(
-                self._apply_exposure_pipeline_without_datatree,
+                options_wrapper(working_directory=self.working_directory)(
+                    self._apply_exposure_pipeline_without_datatree
+                ),
                 dimension_names=dim_names,
                 processor=processor,
                 types=types,
@@ -882,10 +884,13 @@ class Observation:
         )
 
         if self.with_dask:
+
             datatree_bag: db.Bag = (
                 db.from_sequence(parameters)
                 .map(
-                    self._apply_exposure_pipeline,
+                    options_wrapper(working_directory=self.working_directory)(
+                        self._apply_exposure_pipeline
+                    ),
                     dimension_names=dim_names,
                     processor=processor,
                     types=types,
