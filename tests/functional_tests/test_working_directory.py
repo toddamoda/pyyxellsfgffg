@@ -22,7 +22,7 @@ from pyxel.util import complete_path
 
 @contextmanager
 def chdir(folder: Path):
-    current_folder = Path().resolve()
+    current_folder = Path().cwd()
 
     try:
         os.chdir(folder)
