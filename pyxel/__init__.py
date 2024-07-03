@@ -13,6 +13,7 @@ from . import _version
 __version__: str = _version.get_versions()["version"]
 
 from .options import SetOptions as set_options
+from .options import options_wrapper
 from .show_versions import show_versions
 from .inputs import load_image, load_table, load_datacube
 from .configuration import load, loads, copy_config_file, Configuration
