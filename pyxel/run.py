@@ -25,6 +25,7 @@ from pyxel.detectors import APD, CCD, CMOS, MKID, Detector
 from pyxel.exposure import Exposure
 from pyxel.observation import Observation, ObservationResult
 from pyxel.pipelines import DetectionPipeline, Processor
+from pyxel.pipelines.processor import _get_obj_att
 from pyxel.util import create_model, create_model_to_console, download_examples
 
 if TYPE_CHECKING:
@@ -849,9 +850,11 @@ def run_mode(
 
     processor = Processor(detector=detector, pipeline=pipeline)
     if override_dct is not None:
-        # TODO: Use ExceptionGroup
-        for key, value in override_dct.items():
-            processor.set(key=key, value=value)
+        apply_overrides(
+            overrides=override_dct,
+            processor=processor,
+            mode=mode,
+        )
 
     if isinstance(mode, Exposure):
         data_tree = _run_exposure_mode(
@@ -938,7 +941,7 @@ def run(
     )
 
     # Extract the parameters to override
-    override_dct = {}
+    override_dct: dict[str, Any] = {}
     if override is not None:
         for element in override:
             key, value = element.split("=")
@@ -946,9 +949,11 @@ def run(
 
     processor = Processor(detector=detector, pipeline=pipeline)
     if override_dct is not None:
-        # TODO: Use ExceptionGroup
-        for key, value in override_dct.items():
-            processor.set(key=key, value=value)
+        apply_overrides(
+            overrides=override_dct,
+            processor=processor,
+            mode=running_mode,
+        )
 
     if isinstance(running_mode, Exposure):
         _run_exposure_mode_without_datatree(
@@ -992,6 +997,63 @@ def run(
     from matplotlib import pyplot as plt
 
     plt.close()
+
+
+# TODO: Use ExceptionGroup
+# TODO: Add unit tests
+def apply_overrides(
+    overrides: Mapping[str, Any],
+    processor: Processor,
+    mode: Union[Exposure, Observation, "Calibration"],
+) -> None:
+    """Override attributes to a specified processor / running_mode.
+
+    Parameters
+    ----------
+    overrides : Mapping[str, Any]
+        A dictionary containing the override key(s) and value(s) to be applied.
+    processor
+    mode
+
+    Notes
+    -----
+    'processor' and 'mode' are modified !
+
+    Raises
+    ------
+    AttributeError
+        If an attribute specified in the overrides does not exist in the given mode.
+
+    Examples
+    --------
+    >>> overrides = {
+    ...     "observation.outputs.output_folder": "my_folder",
+    ...     "pipeline.photon_collection.load_image.arguments.image_file": "image.fits",
+    ... }
+    >>> apply_overrides(overrides=overrides, processor=processor, mode=mode)
+    """
+    for key, value in overrides.items():
+        # Check if 'key' is specified for a running mode (exposure, observation or calibration)
+        if (
+            key.startswith("exposure.")
+            or key.startswith("observation.")
+            or key.startswith("calibration.")
+        ):
+            # Modify 'key' and apply it to 'running_mode'
+            new_key: str = (
+                key.removeprefix("exposure.")
+                .removeprefix("observation.")
+                .removeprefix("calibration.")
+            )
+
+            obj, att = _get_obj_att(obj=mode, key=new_key)
+            if hasattr(obj, att):
+                setattr(obj, att, value)
+            else:
+                raise AttributeError(f"Object {mode!r} has no attribute {new_key!r}")
+
+        else:
+            processor.set(key=key, value=value)
 
 
 # TODO: Add an option to display colors ?
