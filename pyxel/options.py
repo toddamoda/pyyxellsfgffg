@@ -8,8 +8,9 @@
 """Subpackage to define options in Pyxel."""
 
 from collections.abc import Mapping
+from functools import wraps
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Callable, Optional, Union
 
 import attrs
 
@@ -105,7 +106,9 @@ global_options = GlobalOptions()
 
 
 class SetOptions:
-    """Set options for Pyxel in a controlled context.
+    """Set options for Pyxel within a controlled context.
+
+    This class allows you to set global options for Pyxel, either globally or within a context.
 
     Currently supported options:
 
@@ -139,3 +142,40 @@ class SetOptions:
 
     def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
         _ = global_options.update(self._previous_params)
+
+
+def options_wrapper(**kwargs):
+    """Define decorator to temporarily set option(s) for a function call.
+
+    This decorator allows you to specify options that will be applied during the
+    execution of the decorated function. After the function execution, the options
+    are reverted to their previous values.
+
+    Parameters
+    ----------
+    kwargs
+
+    Returns
+    -------
+    Callable
+        The decorated function with the specified options applied during its execution.
+
+    Examples
+    --------
+    >>> @options_wrapper(cache_enabled=True, cache_folder="/tmp")
+    ... def my_function():
+    ...     print("Function execution with custom options")
+    ...
+
+    >>> my_function()
+    """
+
+    def _decorator(func: Callable):
+        @wraps(func)
+        def _wrapper(*arguments, **kw_arguments):
+            with SetOptions(**kwargs):
+                return func(*arguments, **kw_arguments)
+
+        return _wrapper
+
+    return _decorator
