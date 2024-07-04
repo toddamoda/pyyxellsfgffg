@@ -18,6 +18,8 @@ This release brings a number of bugfixes and improvements.
   (See [!838](https://gitlab.com/esa/pyxel/-/merge_requests/838)).
 * Use `DataTree` from module `xarray.core.datatree` when possible.
   (See [!897](https://gitlab.com/esa/pyxel/-/merge_requests/897)).
+* Add an option to override parameters from `pyxel -m run`.
+  (See [!903](https://gitlab.com/esa/pyxel/-/merge_requests/903)).
 
 ### Documentation
 * Fix typo in documentation for model `charge_deposition` from `Charge Generation`.
