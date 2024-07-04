@@ -20,6 +20,8 @@ This release brings a number of bugfixes and improvements.
   (See [!897](https://gitlab.com/esa/pyxel/-/merge_requests/897)).
 * Add an option to override parameters from `pyxel -m run`.
   (See [!903](https://gitlab.com/esa/pyxel/-/merge_requests/903)).
+* Function `pyxel.run_mode` does not generate DataTree internally.
+  (See [!906](https://gitlab.com/esa/pyxel/-/merge_requests/906)).
 
 ### Documentation
 * Fix typo in documentation for model `charge_deposition` from `Charge Generation`.
