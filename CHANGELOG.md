@@ -26,6 +26,8 @@ This release brings a number of bugfixes and improvements.
   (See [!904](https://gitlab.com/esa/pyxel/-/merge_requests/904)).
 * Reinject FITS header of inputs file(s) into output file(s).
   (See [!905](https://gitlab.com/esa/pyxel/-/merge_requests/905)).
+* Cannot access attribute `observation` from processor.
+  (See [!907](https://gitlab.com/esa/pyxel/-/merge_requests/907)).
 
 ### Documentation
 * Fix typo in documentation for model `charge_deposition` from `Charge Generation`.
