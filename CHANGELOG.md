@@ -22,6 +22,8 @@ This release brings a number of bugfixes and improvements.
   (See [!903](https://gitlab.com/esa/pyxel/-/merge_requests/903)).
 * Function `pyxel.run_mode` does not generate DataTree internally.
   (See [!906](https://gitlab.com/esa/pyxel/-/merge_requests/906)).
+* Add more info in the header of generated FITS files.
+  (See [!904](https://gitlab.com/esa/pyxel/-/merge_requests/904)).
 
 ### Documentation
 * Fix typo in documentation for model `charge_deposition` from `Charge Generation`.
