@@ -14,6 +14,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 This release brings a number of bugfixes and improvements.
 
 ### Core
+* Add new parameter `working_directory` in YAML configuration files.
+  (See [!838](https://gitlab.com/esa/pyxel/-/merge_requests/838)).
 
 ### Documentation
 * Fix typo in documentation for model `charge_deposition` from `Charge Generation`.
