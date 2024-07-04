@@ -146,7 +146,7 @@ def load_image(filename: Union[str, Path]) -> np.ndarray:
     except Exception as exc:
         if sys.version_info >= (3, 11):
             exc.add_note(
-                f"Raised when trying to load file '{filename:s}' and "
+                f"Raised when trying to load file '{filename}' and "
                 f"{global_options.working_directory=}"
             )
         raise
