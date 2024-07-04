@@ -37,6 +37,7 @@ For details, see :ref:`running_modes`. Example for exposure mode can be seen bel
 .. code-block:: yaml
 
     exposure:
+      working_directory: my_folder   # This parameter is optional
 
       readout:
         times: [1., 5., 7.]
@@ -48,6 +49,27 @@ For details, see :ref:`running_modes`. Example for exposure mode can be seen bel
           - detector.image.array: ["fits"]
         save_exposure_data:
           - dataset: ["nc"]
+
+.. note::
+    The **optional** parameter ``working_directory`` is used to define the current working directory.
+    By default, the current working directory is directory where the YAML file is located.
+
+    This ``working_directory`` will be used as the parent directory for **all** relative paths
+    defined in the YAML file.
+
+    Example:
+
+    .. code-block:: yaml
+
+        working_directory: ~/my_folder     # <== define working directory to `~/my_folder` (optional)
+        simulation:
+          mode: calibration
+          calibration:
+            target_data_path: ['CTI/input/data.fits']  # <== will be converted as `~/my_folder/CTI/input/data.fits`
+                                +-----------------+                                +---------+
+                                        |                                               |
+                                    relative path                            from 'working_directory'
+
 
 Detector
 --------
