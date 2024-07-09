@@ -24,12 +24,12 @@ See the following example:
 working_directory: ~/my_folder     # <== define working directory to `~/my_folder` (optional)
 simulation:
   mode: calibration
-  calibration:                  
-    target_data_path: ['CTI/input/data.fits']  # <==      will be converted as 
-                        +-----------------+    #    `~/my_folder/CTI/input/data.fits`
-                                |                    +---------+
-                            relative path                 |
-                                                from 'working_directory'
+  calibration:
+    target_data_path: ['CTI/input/data.fits']  # <==      will be converted as
+#                       +-----------------+         `~/my_folder/CTI/input/data.fits`
+#                               |                    +---------+
+#                           relative path                 |
+#                                               from 'working_directory'
 ```
 
 A new **optional** parameter `--override` in 
@@ -47,10 +47,8 @@ $ python -m pyxel run configuration.yaml --override exposure.outputs.output_fold
 from this YAML configuration file:
 ```yaml
 exposure:
-  ...
   outputs:
      output_folder: old_folder
-     ...
 
 pipeline:
   photon_collection:
@@ -59,8 +57,6 @@ pipeline:
       enabled: true
       arguments:
         image_file: data/Pleiades_HST.fits
-
-  ...
 ```
 
 ### Updated dependencies
@@ -106,7 +102,8 @@ The minimum versions of some dependencies were changed:
   model [`simple_conversion`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_generation_models.html#simple-photoconversion) 
   in group [`Charge Generation`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_generation_models.html#charge-generation).
   (See [!909](https://gitlab.com/esa/pyxel/-/merge_requests/909)).
-* Add possibility to provide external files with incident energy for model 'Cosmix' in group 'Charge Generation'.
+* Add possibility to provide external files with incident energy for model [`Cosmix`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_generation_models.html#cosmix-cosmic-ray-model)
+  in group [`Charge Generation`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_generation_models.html#charge-generation).
   (See [!919](https://gitlab.com/esa/pyxel/-/merge_requests/919)).
 * Fix bug with 'thermal_velocity' in model CDM in group 'Charge Transfer'.
   (See [!920](https://gitlab.com/esa/pyxel/-/merge_requests/920)).
