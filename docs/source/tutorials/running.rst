@@ -43,6 +43,12 @@ Usage:
       Run Pyxel with a YAML configuration file.
 
     Options:
+      --override TEXT  Override entries from the YAML configuration file. This
+                        parameter can be repeated.
+
+                        Example:
+
+                        --override exposure.outputs.output_folder=new_folder
       -v, --verbosity     Increase output verbosity (-v/-vv/-vvv)  [default: 0]
       -s, --seed INTEGER  Random seed for the framework.
       --help              Show this message and exit.
