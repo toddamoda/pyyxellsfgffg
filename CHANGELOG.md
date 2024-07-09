@@ -24,12 +24,12 @@ See the following example:
 working_directory: ~/my_folder     # <== define working directory to `~/my_folder` (optional)
 simulation:
   mode: calibration
-  calibration:                  
-    target_data_path: ['CTI/input/data.fits']  # <==      will be converted as 
-                        +-----------------+    #    `~/my_folder/CTI/input/data.fits`
-                                |                    +---------+
-                            relative path                 |
-                                                from 'working_directory'
+  calibration:
+    target_data_path: ['CTI/input/data.fits']  # <==      will be converted as
+#                       +-----------------+         `~/my_folder/CTI/input/data.fits`
+#                               |                    +---------+
+#                           relative path                 |
+#                                               from 'working_directory'
 ```
 
 A new **optional** parameter `--override` in 
@@ -47,10 +47,8 @@ $ python -m pyxel run configuration.yaml --override exposure.outputs.output_fold
 from this YAML configuration file:
 ```yaml
 exposure:
-  ...
   outputs:
      output_folder: old_folder
-     ...
 
 pipeline:
   photon_collection:
@@ -59,8 +57,6 @@ pipeline:
       enabled: true
       arguments:
         image_file: data/Pleiades_HST.fits
-
-  ...
 ```
 
 
