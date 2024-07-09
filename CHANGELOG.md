@@ -9,9 +9,59 @@ Minor releases include updated stdlib stubs from typeshed.
 
 Pyxel doesn't use SemVer anymore, since most minor releases have at least minor backward incompatible changes.
 
-## UNRELEASED
+## 2.4 / 2024-07-10
 
 This release brings a number of bugfixes and improvements.
+
+A new **optional** parameter [`working_directory`](https://esa.gitlab.io/pyxel/doc/stable/background/yaml.html#running-mode)
+has been added in the YAML configuration files.
+This parameter defines the current working directory, which will be used ad the
+base directory for all relative paths used in the YAML configuration file.
+
+See the following example:
+
+```yaml
+working_directory: ~/my_folder     # <== define working directory to `~/my_folder` (optional)
+simulation:
+  mode: calibration
+  calibration:                  
+    target_data_path: ['CTI/input/data.fits']  # <==      will be converted as 
+                        +-----------------+    #    `~/my_folder/CTI/input/data.fits`
+                                |                    +---------+
+                            relative path                 |
+                                                from 'working_directory'
+```
+
+A new **optional** parameter `--override` in 
+the [`pyxel run`](https://esa.gitlab.io/pyxel/doc/stable/tutorials/running.html#running-pyxel-from-command-line) 
+command line tool allows users to override specific configuration parameters from a YAML configuration file. 
+
+This can be particularly useful for making quick adjustments to the configuration without modifying the original YAML file
+
+Example of running the configuration `configuration.yaml` and overriding its parameters `exposure.outputs.output_folder` and `pipeline.photon_collection.load_image.arguments.image_file`
+```bash
+$ python -m pyxel run configuration.yaml --override exposure.outputs.output_folder=new_folder \
+                                         --override pipeline.photon_collection.load_image.arguments.image_file=new_image.fits
+```
+
+from this YAML configuration file:
+```yaml
+exposure:
+  ...
+  outputs:
+     output_folder: old_folder
+     ...
+
+pipeline:
+  photon_collection:
+    - name: load_image
+      func: pyxel.models.photon_collection.load_image
+      enabled: true
+      arguments:
+        image_file: data/Pleiades_HST.fits
+
+  ...
+```
 
 ### Updated dependencies
 
@@ -21,15 +71,16 @@ The minimum versions of some dependencies were changed:
   |---------|-----|----------|
   | hvplot  |     | **0.9+** |
 
-
 ### Core
 * Add new parameter `working_directory` in YAML configuration files.
   (See [!838](https://gitlab.com/esa/pyxel/-/merge_requests/838)).
 * Use `DataTree` from module `xarray.core.datatree` when possible.
   (See [!897](https://gitlab.com/esa/pyxel/-/merge_requests/897)).
-* Add an option to override parameters from `pyxel -m run`.
+* Add an option to override parameter(s) 
+  from [`pyxel -m run`](https://esa.gitlab.io/pyxel/doc/stable/tutorials/running.html#running-pyxel-from-command-line).
   (See [!903](https://gitlab.com/esa/pyxel/-/merge_requests/903)).
-* Function `pyxel.run_mode` does not generate DataTree internally.
+* Function [`pyxel.run_mode`](https://esa.gitlab.io/pyxel/doc/stable/tutorials/running.html#running-pyxel-from-command-line)
+  does not generate DataTree internally.
   (See [!906](https://gitlab.com/esa/pyxel/-/merge_requests/906)).
 * Add more info in the header of generated FITS files.
   (See [!904](https://gitlab.com/esa/pyxel/-/merge_requests/904)).
@@ -41,14 +92,19 @@ The minimum versions of some dependencies were changed:
   (See [!912](https://gitlab.com/esa/pyxel/-/merge_requests/912)).
 
 ### Documentation
-* Fix typo in documentation for model `charge_deposition` from `Charge Generation`.
+* Fix typo in documentation for 
+  model [`charge_deposition`](https://esa.gitlab.io/pyxel/doc/latest/references/model_groups/charge_generation_models.html#charge-deposition-model) 
+  from [`Charge Generation`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_generation_models.html#charge-generation).
   (See [!908](https://gitlab.com/esa/pyxel/-/merge_requests/908)).
 
 ### Models
 * Replace deprecated `scipy.integrate.cumtrapz` by `scipy.integrate.cumulative_trapezoid`
-  in model `wavelength_dependence_airs` in group 'Photon Collection'.
+  in model [`wavelength_dependence_airs`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/photon_collection_models.html#wavelength-dependence-airs) 
+  in group [`Photon Collection`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/photon_collection_models.html).
   (See [!900](https://gitlab.com/esa/pyxel/-/merge_requests/900)).
-* Better error message when no photons are provided in model 'simple_conversion' in group 'Charge Generation'.
+* Better error message when no photons are provided in
+  model [`simple_conversion`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_generation_models.html#simple-photoconversion) 
+  in group [`Charge Generation`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_generation_models.html#charge-generation).
   (See [!909](https://gitlab.com/esa/pyxel/-/merge_requests/909)).
 * Add possibility to provide external files with incident energy for model 'Cosmix' in group 'Charge Generation'.
   (See [!919](https://gitlab.com/esa/pyxel/-/merge_requests/919)).
@@ -61,7 +117,7 @@ The minimum versions of some dependencies were changed:
 * Fix issues found by ruff 0.5.
   (See [!902](https://gitlab.com/esa/pyxel/-/merge_requests/902) and 
   [!915](https://gitlab.com/esa/pyxel/-/merge_requests/915)).
-* Add unit tests for class `APDCharacteristics`.
+* Add unit tests for class [`APDCharacteristics`](https://esa.gitlab.io/pyxel/doc/stable/references/api/detectorproperties.html#pyxel.detectors.APDCharacteristics).
   (See [!910](https://gitlab.com/esa/pyxel/-/merge_requests/910)).
 * Add compatibility with Numpy 2.
   (See [!913](https://gitlab.com/esa/pyxel/-/merge_requests/913)).
