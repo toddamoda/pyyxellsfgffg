@@ -24,8 +24,8 @@ See the following example:
 working_directory: ~/my_folder     # <== define working directory to `~/my_folder` (optional)
 simulation:
   mode: calibration
-  calibration:                  
-    target_data_path: ['CTI/input/data.fits']  # <==      will be converted as 
+  calibration:
+    target_data_path: ['CTI/input/data.fits']  # <==      will be converted as
                         +-----------------+    #    `~/my_folder/CTI/input/data.fits`
                                 |                    +---------+
                             relative path                 |
