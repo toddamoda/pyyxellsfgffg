@@ -34,7 +34,7 @@ keywords = ["ESA", "data modeling", "sensors", "calibration", "CCD",
 dependencies = [
     # Scientific computing
     "numba",
-    "numpy>=1.21,<2",
+    "numpy>=1.23",
     "pandas",
     "scipy",
     "xarray>=2022.06",
