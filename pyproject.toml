@@ -58,12 +58,10 @@ dependencies = [
     "astropy>=4.3",
     "fsspec>=2021",
     "aiohttp",  # for fsspec
-    "h5py",
     "h5netcdf",
     "pyyaml",
     "xlrd",
     "openpyxl",
-    "netcdf4<1.7.1",
 
     # Others
     "attrs>=21.3.0",
