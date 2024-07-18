@@ -24,7 +24,7 @@ include:
 
 before_script:
   - python -V
-  - pip install tox
+  - pip install tox-uv
   - export TZ=Europe/Amsterdam
   - date
 
