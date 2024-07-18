@@ -10,3 +10,4 @@ sphinx-inline-tabs
 myst-nb
 sphinx-copybutton
 faqtory
+setuptools  # For 'pkg_resources'
