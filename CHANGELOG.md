@@ -13,6 +13,15 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 
 This release brings a number of bugfixes and improvements.
 
+#### Updated dependencies
+
+The minimum versions of some dependencies were changed:
+
+  | Package | Old | New      |
+  |---------|-----|----------|
+  | hvplot  |     | **0.9+** |
+
+
 ### Core
 * Add new parameter `working_directory` in YAML configuration files.
   (See [!838](https://gitlab.com/esa/pyxel/-/merge_requests/838)).
@@ -54,6 +63,8 @@ This release brings a number of bugfixes and improvements.
   (See [!913](https://gitlab.com/esa/pyxel/-/merge_requests/913)).
 * Fix some issues in some tests.
   (See [!916](https://gitlab.com/esa/pyxel/-/merge_requests/916)).
+* Bump `hvplot` to version 0.9.
+  (See [!917](https://gitlab.com/esa/pyxel/-/merge_requests/917)).
 
 
 ## 2.3 / 2024-06-19
