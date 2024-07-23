@@ -15,6 +15,7 @@ from typing import Literal, Optional, Union
 import numpy as np
 import pandas as pd
 from tqdm.auto import tqdm
+from typing_extensions import TypedDict
 
 from pyxel.detectors import Detector
 
@@ -25,6 +26,30 @@ from pyxel.util import resolve_path, set_random_seed
 
 # from astropy import units as u
 # TODO: write basic test to check inputs, private function, documentation
+
+
+# TODO: This will be use when issue #794 is fixed
+class StepSize(TypedDict):
+    """Define structure of a Step size for different particle types in the CosmiX model.
+
+    Parameters
+    ----------
+    type: "proton", "ion", "alpha", "beta", "electron", "gamma", "x-ray"
+        Specify the type of particle.
+    energy : float
+        The energy of the particle. Unit: MeV
+    thickness : float
+        The tickness of the material the particle interacts with. Unit: um
+    filename : str
+        Filename to the file containing the step size data for the specified particle type, energy and material
+        thickness.
+
+    """
+
+    type: Literal["proton", "ion", "alpha", "beta", "electron", "gamma", "x-ray"]
+    energy: float  # in MeV
+    thickness: float  # in um
+    filename: str
 
 
 # @validators.validate
@@ -48,6 +73,7 @@ def cosmix(
     seed: Optional[int] = None,
     ionization_energy: float = 3.6,
     progressbar: bool = True,
+    stepsize: Optional[list[dict]] = None,  # TODO: replace by Optional[list[StepSize]]
 ) -> None:
     """Apply CosmiX model.
 
@@ -77,6 +103,8 @@ def cosmix(
         Mean ionization energy of the semiconductor lattice.
     progressbar : bool
         Progressbar.
+    stepsize : optional, list of dict
+        Define the different step sizes. Only for running mode 'stepsize'
 
     Notes
     -----
@@ -137,7 +165,7 @@ def cosmix(
         cosmix.set_particle_spectrum(Path(spectrum_file))
 
         if running_mode == "stepsize":
-            cosmix.set_stepsize()
+            cosmix.set_stepsize(stepsize)
         elif running_mode == "geant4":
             cosmix.set_geant4()
         else:
@@ -271,55 +299,65 @@ class Cosmix:
         self.sim_obj.energy_loss_data = "stopping"
         self.sim_obj.stopping_power = read_data(stopping_file)
 
-    def set_stepsize(self) -> None:
+    def set_stepsize(
+        self,
+        stepsizes: Optional[
+            list[dict]
+        ] = None,  # TODO: Replace by  Optional[list[StepSize]]
+    ) -> None:
         self.sim_obj.energy_loss_data = "stepsize"
-        self.create_data_library()
+
+        if stepsizes is None:
+            # Get default values
+            folder: Path = Path(__file__).parent.joinpath("data", "inputs")
+            stepsizes = [
+                {
+                    "type": "proton",
+                    "energy": 100.0,
+                    "thickness": 40.0,
+                    "filename": str(
+                        folder / "stepsize_proton_100MeV_40um_Si_10k.ascii"
+                    ),
+                },
+                {
+                    "type": "proton",
+                    "energy": 100.0,
+                    "thickness": 50.0,
+                    "filename": str(
+                        folder / "stepsize_proton_100MeV_50um_Si_10k.ascii"
+                    ),
+                },
+                {
+                    "type": "proton",
+                    "energy": 100.0,
+                    "thickness": 60.0,
+                    "filename": str(
+                        folder / "stepsize_proton_100MeV_60um_Si_10k.ascii"
+                    ),
+                },
+                {
+                    "type": "proton",
+                    "energy": 100.0,
+                    "thickness": 70.0,
+                    "filename": str(
+                        folder / "stepsize_proton_100MeV_70um_Si_10k.ascii"
+                    ),
+                },
+                {
+                    "type": "proton",
+                    "energy": 100.0,
+                    "thickness": 100.0,
+                    "filename": str(
+                        folder / "stepsize_proton_100MeV_100um_Si_10k.ascii"
+                    ),
+                },
+            ]
+
+        df = pd.DataFrame(stepsizes)
+        self.sim_obj.data_library = df  # TODO: Concatenate or replace ?
 
     def set_geant4(self) -> None:
         self.sim_obj.energy_loss_data = "geant4"
-
-    def create_data_library(self) -> None:
-        self.sim_obj.data_library = pd.DataFrame(
-            columns=["type", "energy", "thickness", "path"]
-        )
-
-        # mat_list = ['Si']
-
-        type_list = [
-            "proton"
-        ]  # , 'ion', 'alpha', 'beta', 'electron', 'gamma', 'x-ray']
-        energy_list = [100.0]  # MeV
-        thick_list = [40.0, 50.0, 60.0, 70.0, 100.0]  # um
-
-        # TODO: Fix this. See issue #152
-        path = Path(__file__).parent.joinpath("data", "inputs")
-        filename_list = [
-            "stepsize_proton_100MeV_40um_Si_10k.ascii",
-            "stepsize_proton_100MeV_50um_Si_10k.ascii",
-            "stepsize_proton_100MeV_60um_Si_10k.ascii",
-            "stepsize_proton_100MeV_70um_Si_10k.ascii",
-            "stepsize_proton_100MeV_100um_Si_10k.ascii",
-        ]
-
-        i = 0
-        for pt in type_list:
-            for en in energy_list:
-                for th in thick_list:
-                    data_dict = {
-                        "type": pt,
-                        "energy": en,
-                        "thickness": th,
-                        "path": str(Path(path, filename_list[i])),
-                    }
-                    new_df = pd.DataFrame(data_dict, index=[0])
-
-                    if self.sim_obj.data_library.empty:
-                        self.sim_obj.data_library = new_df
-                    else:
-                        self.sim_obj.data_library = pd.concat(
-                            [self.sim_obj.data_library, new_df], ignore_index=True
-                        )
-                    i += 1
 
     def run(self) -> None:
         # print("CosmiX - simulation processing...\n")
