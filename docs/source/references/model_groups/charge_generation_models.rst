@@ -350,7 +350,7 @@ CosmiX model is described in detail in :cite:p:`2020:cosmix`.
     CosmiX cosmix ray model
 
 
-Example of the configuration file using default `running_mode: stepsize` with step size files,
+Example of the configuration file using default ``running_mode: stepsize`` with step size files,
 all with the same incident energy of 100 MeV and for 5 different thicknesses of 40 µm, 50 µm, 60 µm, 70 µm and 100 µm.
 
 .. code-block:: yaml
@@ -377,7 +377,7 @@ all with the same incident energy of 100 MeV and for 5 different thicknesses of 
     * :external+pyxel_data:doc:`use_cases/HxRG/h2rg`
 
 
-Another example of the configuration file using default `running_mode: stepsize` with defined step size files.
+Another example of the configuration file using default ``running_mode: stepsize`` with defined step size files.
 
 .. code-block:: yaml
 
