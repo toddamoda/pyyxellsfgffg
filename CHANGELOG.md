@@ -13,6 +13,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 
 This release brings a number of bugfixes and improvements.
 
+**New parameter `working_directory` for the YAML file**
+
 A new **optional** parameter [`working_directory`](https://esa.gitlab.io/pyxel/doc/stable/background/yaml.html#running-mode)
 has been added in the YAML configuration files.
 This parameter defines the current working directory, which will be used ad the
@@ -31,6 +33,8 @@ simulation:
 #                           relative path                 |
 #                                               from 'working_directory'
 ```
+
+**New parameter `--override` for the command line tool**
 
 A new **optional** parameter `--override` in 
 the [`pyxel run`](https://esa.gitlab.io/pyxel/doc/stable/tutorials/running.html#running-pyxel-from-command-line) 
@@ -57,6 +61,52 @@ pipeline:
       enabled: true
       arguments:
         image_file: data/Pleiades_HST.fits
+```
+
+**New parameter ``stepsize`` for model CosmiX**
+
+A new optional parameter ``stepsize`` has been added for model 
+[`Cosmix`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_generation_models.html#cosmix-cosmic-ray-model)
+in group [`Charge Generation`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_generation_models.html#charge-generation).
+
+This parameter allows adding defined step size files when ``running_mode: stepsize`` is enabled.
+
+Example of a YAML configuration file to use this parameter: 
+```yaml
+- name: cosmix
+  func: pyxel.models.charge_generation.cosmix
+  enabled: true
+  arguments:
+    simulation_mode: cosmic_ray
+    running_mode: "stepsize"
+    particle_type: proton
+    initial_energy: 100.          # MeV
+    particles_per_second: 100
+    incident_angles:
+    starting_position:
+    spectrum_file: 'data/proton_L2_solarMax_11mm_Shielding.txt'
+    seed: 4321
+    stepsize:
+      - type: proton
+        energy:    100.0  # MeV
+        thickness: 40.0   # um
+        filename:  pyxel/models/charge_generation/cosmix/data/stepsize_proton_100MeV_40um_Si_10k.ascii
+      - type: proton
+        energy:    100.0  # MeV
+        thickness: 50.0   # um
+        filename:  pyxel/models/charge_generation/cosmix/data/stepsize_proton_100MeV_50um_Si_10k.ascii
+      - type: proton
+        energy:    100.0  # MeV
+        thickness: 60.0   # um
+        filename:  pyxel/models/charge_generation/cosmix/data/stepsize_proton_100MeV_60um_Si_10k.ascii
+      - type: proton
+        energy:    100.0  # MeV
+        thickness: 70.0   # um
+        filename:  pyxel/models/charge_generation/cosmix/data/stepsize_proton_100MeV_70um_Si_10k.ascii
+      - type: proton
+        energy:    100.0  # MeV
+        thickness: 100.0   # um
+        filename:  pyxel/models/charge_generation/cosmix/data/stepsize_proton_100MeV_100um_Si_10k.ascii
 ```
 
 ### Updated dependencies
@@ -105,7 +155,8 @@ The minimum versions of some dependencies were changed:
 * Add possibility to provide external files with incident energy for model [`Cosmix`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_generation_models.html#cosmix-cosmic-ray-model)
   in group [`Charge Generation`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_generation_models.html#charge-generation).
   (See [!919](https://gitlab.com/esa/pyxel/-/merge_requests/919)).
-* Fix bug with 'thermal_velocity' in model CDM in group 'Charge Transfer'.
+* Fix bug with ``thermal_velocity`` in model [`CDM`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_transfer_models.html#charge-distortion-model-cdm)
+  in group [`Charge Transfer`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_transfer_models.html#charge-transfer).
   (See [!920](https://gitlab.com/esa/pyxel/-/merge_requests/920)).
 
 ### Others
