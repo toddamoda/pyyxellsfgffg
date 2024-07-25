@@ -129,7 +129,8 @@ def cdm(
     if len(trap_release_times) == 0:
         raise ValueError("Expecting inputs for at least one trap species.")
 
-    e_thermal_velocity = np.sqrt(
+    # Use factor 100 to convert to m/s to cm/s
+    e_thermal_velocity = 100.0 * np.sqrt(
         3 * const.k_B.value * detector.environment.temperature / e_effective_mass
     )
 

@@ -351,7 +351,9 @@ def test_run_cdm_parallel(with_numba: bool):
     sigma = np.array([1e-10, 1e-10])  # unit: cm2 / electron
 
     e_effective_mass = electron_effective_mass * constants.m_e.value
-    e_thermal_velocity = np.sqrt(
+
+    # Use factor 100 to convert to m/s to cm/s
+    e_thermal_velocity = 100.0 * np.sqrt(
         3 * constants.k_B.value * temperature / e_effective_mass
     )
 
