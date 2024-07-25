@@ -52,6 +52,8 @@ The minimum versions of some dependencies were changed:
   (See [!909](https://gitlab.com/esa/pyxel/-/merge_requests/909)).
 * Add possibility to provide external files with incident energy for model 'Cosmix' in group 'Charge Generation'.
   (See [!919](https://gitlab.com/esa/pyxel/-/merge_requests/919)).
+* Fix bug with 'thermal_velocity' in model CDM in group 'Charge Transfer'.
+  (See [!920](https://gitlab.com/esa/pyxel/-/merge_requests/920)).
 
 ### Others
 * Remove dependency to `netcdf4`.
