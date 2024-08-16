@@ -22,7 +22,7 @@ The minimum versions of some dependencies were changed:
   | pandas       |        | **1.5+**       | 
   | scikit-image |        | **0.20.0+**    |
   | scipy        |        | **1.10+**      |
-  | xarray       | 2022.6 | **2022.09.0+** |  
+  | xarray       | 2022.6 | **2023.12.0+** |  
 
 
 ### Core
