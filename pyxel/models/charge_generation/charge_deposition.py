@@ -257,10 +257,16 @@ def simulate_charge_deposition(
     energy_spectrum_sampling: Literal["linear", "log"] = "log",
     ehpair_creation: float = 3.65,
     material_density: float = 2.3290,
+    material_density_shield: float = 2.7,
     particle_direction: Literal["isotropic", "orthogonal"] = "isotropic",
     stopping_power_curve: Union[str, Path, None] = None,
+    stopping_power_curve_shield: Union[str, Path, None] = None,
 ) -> list:
-    """Simulate charge deposition of incident ionizing particles inside a detector.
+    """Simulate charge deposition of incident ionizing particles within a detector, taking into account the possibility of a shielding material.
+
+    This function takes into account the possibility of a shielding material.
+    This function models the energy deposition process as particles
+    interact with both the shielding and the detector material, based on provided stopping power curves.
 
     Parameters
     ----------
@@ -269,40 +275,75 @@ def simulate_charge_deposition(
     exposure : float
         the detector exposure duration in s (how long it takes to take one readout)
     x_lim : float
-        the maximum dimension of the sensor in the x direction
+        the maximum dimension of the sensor in the x-direction (length) in centimeter
     y_lim : float
-        the maximum dimension of the sensor in the y direction
+        the maximum dimension of the sensor in the y-direction (width) in centimeter.
     z_lim : float
-        the maximum dimension of the sensor in the z direction (thickness)
-    step_size : float
-        the size of the considered unitary step in unit length along which energy is deposited
-    energy_mean : float
-        the mean energy of the incoming ionizing particles
-    energy_spread : float
-        the spread in energy of the incoming ionizing particles
-    energy_spectrum : str
+        the maximum dimension of the sensor in the z-direction (thickness) in centimeter
+    step_size : float, optional
+        the size of the considered unitary step in unit length (in cm) along which energy is deposited.
+        Default is 1.0 cm.
+    energy_mean : float, optional
+        the mean energy of the incoming ionizing particles, in MeV. Default is 1.0 MeV.
+    energy_spread : float, optional
+        the spread in energy of the incoming ionizing particles, in MeV. Default is 0.1 MeV.
+    energy_spectrum : str, optional
         the location of the file describing the energy spectrum of incident particles
         if no spectrum is provided energies are randomly drawn from a normal distribution
         with mean and spread defined above
         note that the energy spectrum is assumed to be a txt file with two columns [energy, flux]
-        with the energy in MeV
-    energy_spectrum_sampling : str. Default: 'log'
-        "log" : the energy spectrum is sampled in log space
-        "linear" : the energy spectrum is sampled in linear space
-    ehpair_creation : float
-        the energy required to generate a electron-hole pair in eV
-        by default the Si value at room temperature is parsed i.e. 3.65 eV
-    material_density : float
-        the material density in g/cm3
-        by default he Si value at room temperature is parsed i.e. 2.3290 g/cm3
-    particle_direction : str
-        "isotropic" : particles are coming from all directions (outside of the sensor)
-        "orthogonal" : particles are coming from the top of the sensor (thickness = 0) and orthogonal to its surface
-    stopping_power_curve : str
-        the location of the file describing the total massive stopping power
-        energetic loss per mass of material and per unit path length versus particle energy
-        note that the the stopping power curve is assumed to be a csv file with two columns [energy, stopping power]
-        energy in MeV, stopping power in MeV cm2/g
+        with the energy in MeV. Default is None.
+    energy_spectrum_sampling : 'linear' or 'log'. Default: 'log'
+        Determines how the energy spectrum is samples:
+        - "log" : the energy spectrum is sampled in log space
+        - "linear" : the energy spectrum is sampled in linear space
+    ehpair_creation : float, optional
+        the energy required to generate a electron-hole pair in the detector material, in eV.
+        Default is 3.65 eV, which is typical for silicon value at room temperature.
+    material_density : float, optional
+        The density of the detector material, in g/cm³.
+        Default is 2.3290 g/cm³, typical for silicon at room temperature.
+    material_density_shield : float, optional
+        The density of the shielding material, in g/cm³.
+        Default is 2.7 g/cm³, typical for aluminium.
+    particle_direction : 'isotropic' or 'orthogonal', optional. Default: 'isotropic'
+        Specifies the direction of incoming particles:
+        - "isotropic" : particles are coming from all directions (outside of the sensor)
+        - "orthogonal" : particles are coming from the top of the sensor (thickness = 0) and orthogonal to its surface
+    stopping_power_curve : str, optional
+        The location of the file describing the total massive stopping power
+        energetic loss per mass of material and per unit path length versus particle energy.
+        The file should contain two columns: [energy, stopping power], where energy is in MeV and
+        stopping power us in MeV cm²/g
+    stopping_power_curve_shield : str, optional
+        The path to a file containing the stopping power curve for the shielding material.
+        The file should contain two columns: [energy, stopping power], where energy is in MeV and
+        stopping power us in MeV cm²/g.
+        If None, no shielding is assumed. Default is None.
+
+    Returns
+    -------
+    list
+        A list of tracks, where each track is a tuple containing:
+        - vc: np.ndarray of charge created at each step along the track.
+        - vx: np.ndarray of x-coordinates of the particle along the track.
+        - vy: np.ndarray of y-coordinates of the particle along the track.
+        - vz: np.ndarray of z-coordinates of the particle along the track.
+
+    Raises
+    ------
+    ValueError
+        If the number of particles generated is less than or equal to 0.
+        If any of the detector dimensions (x_lim, y_lim, z_lim) are less than or equal to 0.
+        If no stopping power curve for the detector material is provided.
+
+    Notes
+    -----
+    - This function assumes the stopping power curves for the detector and shield are provided as CSV files.
+    - Energy is calculated in eV, with initial conversion from MeV.
+    - The function accounts for energy deposition both in the shield (if provided) and in the detector.
+    - Particle tracks are simulated by randomly generating particle positions and directions, then calculating
+      energy deposition along each track.
     """
 
     # determine the total number of ionizing particles to simulate based on flux and exposure duration
@@ -327,18 +368,52 @@ def simulate_charge_deposition(
     if stopping_power_curve is None:
         raise ValueError("No stopping power curve has been parsed.")
 
-    stopping_power_data = np.genfromtxt(
+    stopping_power_data: np.ndarray = np.genfromtxt(
         resolve_path(stopping_power_curve),
         skip_header=1,
         delimiter=",",
     )
-    stopping_power_data[:, 0] *= 1.0e6  # from MeV to eV
-    stopping_power_data[:, 1] *= (
-        material_density * 1.0e2 * step_size
-    )  # from MeV cm2/g to eV
-    deposited_energies = np.interp(
-        p_energies, stopping_power_data[:, 0], stopping_power_data[:, 1]
-    )
+
+    # from MeV to eV (column: 'energy')
+    stopping_power_data[:, 0] *= 1.0e6
+
+    # from MeV cm2/g to eV (column: 'stopping power')
+    stopping_power_data[:, 1] *= material_density * 1.0e2 * step_size
+
+    if stopping_power_curve_shield is None:
+        deposited_energies: np.ndarray = np.interp(
+            x=p_energies,
+            xp=stopping_power_data[:, 0],  # column: 'energy'
+            fp=stopping_power_data[:, 1],  # column: 'stopping power'
+        )
+    else:
+        stopping_power_data_shield: np.ndarray = np.genfromtxt(
+            resolve_path(stopping_power_curve_shield),
+            skip_header=1,
+            delimiter=",",
+        )
+
+        # from MeV to eV (column: 'energy')
+        stopping_power_data_shield[:, 0] *= 1.0e6
+
+        # from MeV cm2/g to eV (column: 'stopping power')
+        stopping_power_data_shield[:, 1] *= material_density_shield * 1.0e2 * step_size
+
+        deposited_energies_shield = np.interp(
+            x=p_energies,
+            xp=stopping_power_data_shield[:, 0],  # column: 'energy'
+            fp=stopping_power_data_shield[:, 1],  # column: 'stopping power'
+        )
+
+        if deposited_energies_shield >= p_energies:
+            deposited_energies = 0
+        else:
+            p_energies -= deposited_energies_shield
+            deposited_energies = np.interp(
+                x=p_energies,
+                xp=stopping_power_data[:, 0],  # column: 'energy'
+                fp=stopping_power_data[:, 1],  # column: 'stopping power'
+            )
 
     tracks = []
     # for each particle generate and store the energy deposition track
