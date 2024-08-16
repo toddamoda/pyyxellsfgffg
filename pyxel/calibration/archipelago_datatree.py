@@ -362,30 +362,36 @@ class ArchipelagoDataTree:
             all_data_fit_range["target"] = self.problem.all_target_data
 
         data_tree: DataTree = DataTree()
-        data_tree["champion_fitness"] = champions["champion_fitness"]
-        data_tree["champion_decision"] = champions["champion_decision"]
-        data_tree["champion_parameters"] = champions["champion_parameters"]
+        data_tree["/champion/fitness"] = champions["champion_fitness"]
+        data_tree["/champion/decision"] = champions["champion_decision"]
+        data_tree["/champion/parameters"] = champions["champion_parameters"]
 
         if "best_fitness" in champions:
-            data_tree["best_fitness"] = champions["best_fitness"]
+            data_tree["/best/fitness"] = champions["best_fitness"]
         if "best_decision" in champions:
-            data_tree["best_decision"] = champions["best_decision"]
+            data_tree["/best/decision"] = champions["best_decision"]
         if "best_parameters" in champions:
-            data_tree["best_parameters"] = champions["best_parameters"]
+            data_tree["/best/parameters"] = champions["best_parameters"]
 
-        data_tree["simulated_photon"] = all_data_fit_range["simulated_photon"]
-        data_tree["simulated_charge"] = all_data_fit_range["simulated_charge"]
-        data_tree["simulated_pixel"] = all_data_fit_range["simulated_pixel"]
-        data_tree["simulated_signal"] = all_data_fit_range["simulated_signal"]
-        data_tree["simulated_image"] = all_data_fit_range["simulated_image"]
-        data_tree["target"] = all_data_fit_range["target"]
+        data_tree["/simulated/photon"] = all_data_fit_range["simulated_photon"]
+        data_tree["/simulated/charge"] = all_data_fit_range["simulated_charge"]
+        data_tree["/simulated/pixel"] = all_data_fit_range["simulated_pixel"]
+        data_tree["/simulated/signal"] = all_data_fit_range["simulated_signal"]
+        data_tree["/simulated/image"] = all_data_fit_range["simulated_image"]
+        data_tree["/simulated/target"] = all_data_fit_range["target"]
 
-        data_tree["full_size/simulated_photon"] = all_simulated_full["simulated_photon"]
-        data_tree["full_size/simulated_charge"] = all_simulated_full["simulated_charge"]
-        data_tree["full_size/simulated_pixel"] = all_simulated_full["simulated_pixel"]
-        data_tree["full_size/simulated_signal"] = all_simulated_full["simulated_signal"]
-        data_tree["full_size/simulated_image"] = all_simulated_full["simulated_image"]
-        data_tree["full_size/target"] = self.problem.target_full_scale
+        data_tree["/full_size/simulated_photon"] = all_simulated_full[
+            "simulated_photon"
+        ]
+        data_tree["/full_size/simulated_charge"] = all_simulated_full[
+            "simulated_charge"
+        ]
+        data_tree["/full_size/simulated_pixel"] = all_simulated_full["simulated_pixel"]
+        data_tree["/full_size/simulated_signal"] = all_simulated_full[
+            "simulated_signal"
+        ]
+        data_tree["/full_size/simulated_image"] = all_simulated_full["simulated_image"]
+        data_tree["/full_size/target"] = self.problem.target_full_scale
 
         data_tree.attrs["num_islands"] = self.num_islands
         data_tree.attrs["population_size"] = self.algorithm.population_size
