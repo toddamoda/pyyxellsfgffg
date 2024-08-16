@@ -37,7 +37,7 @@ dependencies = [
     "numpy>=1.23",
     "pandas",
     "scipy",
-    "xarray>=2022.6,<2024.7.0",
+    "xarray>=2022.6",
     "xarray-datatree>=0.0.12",
 
     # Plotting
