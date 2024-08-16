@@ -119,7 +119,7 @@ def compute_nghxrg(
     else:
         window_mode = "WINDOW"
 
-    data_hxrg_2d: np.ndarray = np.asarray(pixel_2d.copy(), dtype=float)
+    data_hxrg_2d: np.ndarray = np.array(pixel_2d, dtype=float)
 
     ng: HXRGNoise = HXRGNoise(
         n_out=num_outputs,
@@ -139,7 +139,7 @@ def compute_nghxrg(
         verbose=True,
     )
 
-    final_data_2d = np.zeros(shape=window_size)
+    final_data_2d = np.zeros(shape=detector_shape)
 
     item: NoiseType
     for item in noise:
@@ -169,7 +169,7 @@ def compute_nghxrg(
             data = ng.add_pca_zero_noise(pca0_amp=item.pca0_amp)
 
         else:
-            raise TypeError(f"Unknown item: {item!r} !")
+            raise NotImplementedError
 
         data_2d: np.ndarray = ng.format_result(data)
         if data_2d.any():
