@@ -466,7 +466,7 @@ class ModelFitting(ProblemSingleObjective):
             delayed_processor = delayed(processor)
 
             for idx_island, params_array in parameters.groupby("island"):
-                params: np.ndarray = params_array.data  # type
+                params: np.ndarray = params_array.squeeze().to_numpy()
 
                 result_processor = delayed(self.apply_parameters)(
                     processor=delayed_processor, parameter=params

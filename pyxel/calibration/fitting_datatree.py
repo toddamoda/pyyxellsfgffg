@@ -524,8 +524,10 @@ class ModelFittingDataTree(ProblemSingleObjective):
         for id_processor, processor in enumerate(self.param_processor_list):
             delayed_processor = delayed(processor)
 
+            idx_island: int
+            params_array: "xr.DataArray"
             for idx_island, params_array in parameters.groupby("island"):
-                params: np.ndarray = params_array.to_numpy()
+                params: np.ndarray = params_array.squeeze().to_numpy()
 
                 result_datatree: DataTree = delayed(self._apply_parameters)(
                     processor=delayed_processor, parameter=params
