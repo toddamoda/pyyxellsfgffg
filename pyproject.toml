@@ -34,14 +34,14 @@ keywords = ["ESA", "data modeling", "sensors", "calibration", "CCD",
 dependencies = [
     # Scientific computing
     "numba",
-    "numpy>=1.23",
-    "pandas",
-    "scipy",
-    "xarray>=2022.6",
+    "numpy>=1.24",
+    "pandas>=1.5",
+    "scipy>=1.10",
+    "xarray>=2022.9.0",
     "xarray-datatree>=0.0.12",
 
     # Plotting
-    "matplotlib>=3.1",
+    "matplotlib>=3.6",
     "seaborn",
     "hvplot>=0.9",
     "bokeh>=3.3.0",
@@ -70,7 +70,7 @@ dependencies = [
     "typing-extensions>=4.5",
     "pympler",
     "pillow",
-    "scikit-image",
+    "scikit-image>=0.20.0",
     "astroquery",
     "specutils",
     "synphot",

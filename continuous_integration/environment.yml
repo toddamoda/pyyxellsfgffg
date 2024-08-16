@@ -26,17 +26,17 @@ dependencies:
   - pip
 # Scientific computing
   - numba
-  - numpy>=1.21
-  - pandas
-  - scipy
-  - xarray>=2022.06
+  - numpy>=1.24
+  - pandas>=1.5
+  - scipy>=1.10
+  - xarray>=2022.9.0
   - sep
   - xarray-datatree>=0.0.12
   - poppy>=1.1.0
   - specutils
   - synphot
   # Plotting
-  - matplotlib-base>=3.1
+  - matplotlib-base>=3.6
   - seaborn
   - hvplot
   - bokeh>=3.3.0
@@ -67,7 +67,7 @@ dependencies:
   - pygmo>=2.16.1
   - pympler
   - pillow
-  - scikit-image
+  - scikit-image>=0.20.0
   - rich
 # Code formatting
   - black>=20
