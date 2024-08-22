@@ -319,12 +319,12 @@ def persistence(
             allow_smaller_array=False,
         )
 
-        trap_capacities_2d[np.where(trap_capacities_2d < 0)] = 0
+        trap_densities_2d = trap_densities_2d.clip(a_min=0)
 
     else:
         trap_capacities_2d = None
 
-    trap_densities_2d[np.where(trap_densities_2d < 0)] = 0
+    trap_densities_2d = trap_densities_2d.clip(a_min=0)
     trap_densities_2d = np.nan_to_num(
         trap_densities_2d, nan=0.0, posinf=0.0, neginf=0.0
     )
