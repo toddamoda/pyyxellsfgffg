@@ -315,9 +315,14 @@ def nghxrg(
     geo: CMOSGeometry = detector.geometry
 
     if window_position is None:
-        window_position = (0, 0)
+        window_pos_y, window_pos_x = (0, 0)
+    else:
+        window_pos_y, window_pos_x = window_position
+
     if window_size is None:
-        window_size = (geo.row, geo.col)
+        window_nrows, window_ncols = geo.row, geo.col
+    else:
+        window_nrows, window_ncols = window_size
 
     if detector.is_dynamic:
         time_step: int = int(detector.time / detector.time_step)
@@ -330,8 +335,8 @@ def nghxrg(
             pixel_2d=detector.pixel.array,
             noise=params,
             detector_shape=(geo.row, geo.col),
-            window_pos=window_position,
-            window_size=window_size,
+            window_pos=(window_pos_y, window_pos_x),
+            window_size=(window_nrows, window_ncols),
             num_outputs=n_output,
             time_step=time_step,
             num_rows_overhead=n_row_overhead,
