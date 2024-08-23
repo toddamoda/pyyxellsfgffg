@@ -40,6 +40,10 @@ The minimum versions of some dependencies were changed:
   with model [`load_charge`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_generation_models.html#load-charge) 
   from [`Charge Generation`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_generation_models.html).
   (See [!931](https://gitlab.com/esa/pyxel/-/merge_requests/931)).
+* Fix bug with incorrect window_mode 
+  with model [`nghxrg`(https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_measurement_models.html#hxrg-noise-generator) 
+  from [`Charge Measurement`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_measurement_models.html#charge-measurement-models)
+  (See [!930](https://gitlab.com/esa/pyxel/-/merge_requests/930)).
 
 ### Others
 
