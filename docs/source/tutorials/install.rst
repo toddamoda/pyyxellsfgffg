@@ -228,16 +228,16 @@ Pyxel has the following **mandatory** dependencies:
 Package                                                                             Minimum supported version Notes
 =================================================================================== ========================= ===================================
 `python <https://www.python.org>`_                                                  3.9
-`numpy <https://numpy.org>`_                                                        1.21
-`xarray <http://xarray.pydata.org/>`_                                               2022.06                   API for N-dimensional data
+`numpy <https://numpy.org>`_                                                        1.24
+`xarray <http://xarray.pydata.org/>`_                                               2023.12.0                 API for N-dimensional data
 `xarray-datatree <https://xarray-datatree.readthedocs.io/en/stable/index.html>`_    0.0.12
 `astropy <https://www.astropy.org>`_                                                4.3
-`pandas <https://pandas.pydata.org>`_
+`pandas <https://pandas.pydata.org>`_                                               1.5
 `numba <https://numba.pydata.org>`_
-`scipy <https://scipy.org>`_                                                                                  Miscellaneous statistical functions
+`scipy <https://scipy.org>`_                                                        1.10                      Miscellaneous statistical functions
 `holoviews <https://holoviews.org>`_                                                1.15
-`matplotlib <https://matplotlib.org>`_                                              3.1                       Plotting library
-`bokeh <http://bokeh.org>`_
+`matplotlib <https://matplotlib.org>`_                                              3.6                       Plotting library
+`bokeh <http://bokeh.org>`_                                                         3.3.0
 `dask <https://dask.org>`_
 `tqdm <https://tqdm.github.io>`_
 =================================================================================== ========================= ===================================
