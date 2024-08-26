@@ -22,8 +22,8 @@ if TYPE_CHECKING:
     from pyxel.data_structure import Image, Photon, Pixel, Signal
 
 
-def compute_mean_variance(data_array: xr.DataArray) -> xr.DataArray:
-    """Compute mean-variance into a DataArray.
+def compute_mean_variance(data_array: xr.DataArray) -> xr.Dataset:
+    """Compute mean-variance into a Dataset.
 
     Parameters
     ----------
@@ -31,7 +31,7 @@ def compute_mean_variance(data_array: xr.DataArray) -> xr.DataArray:
 
     Returns
     -------
-    DataArray
+    Dataset
 
     Examples
     --------
@@ -53,27 +53,25 @@ def compute_mean_variance(data_array: xr.DataArray) -> xr.DataArray:
 
     >>> mean_variance = compute_mean_variance(data_array)
     >>> mean_variance
-    <xarray.DataArray 'variance' (mean: 1)>
-    array([2130.03464796])
-    Coordinates:
-      * mean     (mean) float64 1.043e+04
-    Attributes:
-        units:    adu^2
+    <xarray.Dataset> Size: 16B
+    Dimensions:   ()
+    Data variables:
+        mean      float64 8B 1.177
+        variance  float64 8B 2.719
 
     Notes
     -----
     For more information, you can find an example here:
     :external+pyxel_data:doc:`examples/models/data_processing/source_extractor/SEP_exposure`.
     """
-    mean = data_array.mean(dim=["y", "x"])
-    variance = data_array.var(dim=["y", "x"])
+    mean_variance = xr.Dataset()
+    mean_variance["mean"] = data_array.mean(dim=["y", "x"])
+    mean_variance["variance"] = data_array.var(dim=["y", "x"])
 
-    mean_variance: xr.DataArray = variance.expand_dims(mean=[mean])
-    mean_variance.name = "variance"
-
-    if unit := data_array.attrs.get("units"):
+    if "units" in data_array.attrs:
+        unit = data_array.attrs["units"]
         mean_variance["mean"].attrs["units"] = unit
-        mean_variance.attrs["units"] = f"{unit}^2"
+        mean_variance["variance"].attrs["units"] = f"{unit}^2"
 
     return mean_variance
 
@@ -149,8 +147,8 @@ def mean_variance(
     data_array: xr.DataArray = data_bucket.to_xarray(dtype=float)
 
     # Get Mean-Variance data
-    mean_variance: xr.DataArray = compute_mean_variance(data_array)
-
+    mean_variance_1d: xr.Dataset = compute_mean_variance(data_array)
+    mean_variance = mean_variance_1d.expand_dims(pipeline_idx=[detector.pipeline_count])
     parent: str = "/mean_variance"
     parent_partial: str = f"{parent}/partial"
     key: str = f"{parent}/{name}"
