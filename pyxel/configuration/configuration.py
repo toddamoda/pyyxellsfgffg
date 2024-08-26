@@ -79,6 +79,37 @@ class Configuration:
                 " 'mkid_detector' or 'apd_detector'."
             )
 
+    def __repr__(self) -> str:
+        cls_name: str = self.__class__.__name__
+
+        params: list[str] = [f"pipeline={self.pipeline!r}"]
+
+        # Get mode
+        if self.exposure is not None:
+            params.append(f"exposure={self.exposure!r}")
+        elif self.observation is not None:
+            params.append(f"observation={self.observation!r}")
+        elif self.calibration is not None:
+            params.append(f"calibration={self.calibration!r}")
+        else:
+            # Do nothing
+            pass
+
+        # Get detector
+        if self.ccd_detector is not None:
+            params.append(f"ccd_detector={self.ccd_detector!r}")
+        elif self.cmos_detector is not None:
+            params.append(f"cmos_detector={self.cmos_detector!r}")
+        elif self.mkid_detector is not None:
+            params.append(f"mkid_detector={self.mkid_detector!r}")
+        elif self.apd_detector is not None:
+            params.append(f"apd_detector={self.apd_detector!r}")
+        else:
+            # Do nothing
+            pass
+
+        return f"{cls_name}({', '.join(params)})"
+
     @property
     def running_mode(self) -> Union[Exposure, Observation, "Calibration"]:
         """Get current running mode."""

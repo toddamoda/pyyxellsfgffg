@@ -7,7 +7,7 @@
 
 """TBW."""
 
-from collections.abc import Iterable, Iterator, Sequence
+from collections.abc import Iterator, Sequence
 from typing import Optional
 
 from pyxel.pipelines import ModelFunction, ModelGroup
@@ -43,10 +43,7 @@ class DetectionPipeline:
         signal_transfer: Optional[Sequence[ModelFunction]] = None,
         readout_electronics: Optional[Sequence[ModelFunction]] = None,
         data_processing: Optional[Sequence[ModelFunction]] = None,
-        doc: Optional[str] = None,
     ):
-        self.doc = doc
-
         self._scene_generation: Optional[ModelGroup] = (
             ModelGroup(scene_generation, name="scene_generation")
             if scene_generation
@@ -107,9 +104,10 @@ class DetectionPipeline:
 
     def __repr__(self) -> str:
         cls_name: str = self.__class__.__name__
-        return f"{cls_name}<doc={self.doc!r}>"
 
-    def __iter__(self) -> Iterable[ModelFunction]:
+        return f"{cls_name}<{len(list(self))} model(s)>"
+
+    def __iter__(self) -> Iterator[ModelFunction]:
         for model in self.MODEL_GROUPS:
             models_grp: Optional[ModelGroup] = getattr(self, model)
             if models_grp:
