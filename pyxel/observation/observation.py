@@ -7,6 +7,7 @@
 
 """Parametric mode class and helper functions."""
 import itertools
+import sys
 import warnings
 from collections import Counter
 from collections.abc import Iterable, Iterator, Mapping, MutableMapping, Sequence
@@ -1015,14 +1016,25 @@ class Observation:
             parameter_dict=param_item.parameters,
         )
 
-        # run the pipeline
-        data_tree: "DataTree" = run_pipeline(
-            processor=new_processor,
-            readout=self.readout,
-            result_type=self.result_type,
-            pipeline_seed=self.pipeline_seed,
-            debug=False,  # Not supported in Observation mode
-        )
+        # Run a single pipeline
+        try:
+            data_tree: "DataTree" = run_pipeline(
+                processor=new_processor,
+                readout=self.readout,
+                result_type=self.result_type,
+                pipeline_seed=self.pipeline_seed,
+                debug=False,  # Not supported in Observation mode
+            )
+        except Exception as exc:
+            if sys.version_info >= (3, 11):
+                exc.add_note(
+                    "This error occurred in 'Observation' mode with the following parameters:"
+                )
+
+                for key, value in param_item.parameters.items():
+                    exc.add_note(f"  - {key!r}: {value!r}")
+
+            raise
 
         if self.outputs:
             _ = self.outputs.save_to_file(
