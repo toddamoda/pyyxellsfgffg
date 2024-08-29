@@ -254,7 +254,7 @@ class Observation:
 
     def __repr__(self):
         cls_name: str = self.__class__.__name__
-        return f"{cls_name}<mode={self.parameter_mode!s}>"
+        return f"{cls_name}<mode={self.parameter_mode!s}, num_parameters={len(self._parameters)}>"
 
     @property
     def result_type(self) -> ResultId:
