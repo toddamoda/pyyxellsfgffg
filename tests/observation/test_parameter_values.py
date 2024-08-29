@@ -52,6 +52,28 @@ def test_parameter_values_numpy():
     np.testing.assert_allclose(params.boundaries, np.array([4, 5], dtype=float))
 
 
+def test_parameter_values_simple_str():
+    params = ParameterValues(
+        key="pipeline.charge_collection.fixed_pattern_noise.arguments.filename",
+        values=["noise_64x64.npy", "no_noise_64x64.npy"],
+    )
+
+    assert params.enabled is True
+    assert params.logarithmic is False
+    assert params.current is None
+
+    assert (
+        params.key
+        == "pipeline.charge_collection.fixed_pattern_noise.arguments.filename"
+    )
+    assert params.short_name == "filename"
+    assert params.type is ParameterType.Simple
+
+    assert len(params) == 2
+    assert list(params) == ["noise_64x64.npy", "no_noise_64x64.npy"]
+    assert params.values == ["noise_64x64.npy", "no_noise_64x64.npy"]
+
+
 def test_parameter_values_multi():
     params = ParameterValues(
         key="XX.sampling.start_time",
