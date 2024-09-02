@@ -28,6 +28,10 @@ before_script:
   - export TZ=Europe/Amsterdam
   - date
 
+after_script:
+  # Minimize 'uv' cache
+  - uv cache prune --ci
+
 # Use for temporary storage for project dependencies(e.g. pypi packages...)
 cache:
   paths:
