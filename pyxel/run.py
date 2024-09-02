@@ -474,6 +474,7 @@ def _run_calibration_mode_without_datatree(
 def _run_calibration_mode(
     calibration: "Calibration",
     processor: Processor,
+    with_buckets_separated: bool,
 ) -> "DataTree":
     """Run a 'Calibration' pipeline.
 
@@ -547,6 +548,7 @@ def _run_calibration_mode(
     data_tree: "DataTree" = calibration.run_calibration(
         processor=processor,
         output_dir=outputs.current_output_folder if outputs else None,
+        with_buckets_separated=with_buckets_separated,
     )
 
     return data_tree
@@ -887,6 +889,7 @@ def run_mode(
             data_tree = _run_calibration_mode(
                 calibration=mode,
                 processor=processor,
+                with_buckets_separated=with_buckets_separated,
             )
         else:
             raise TypeError("Please provide a valid simulation mode !")
