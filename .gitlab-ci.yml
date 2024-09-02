@@ -9,6 +9,9 @@ variables:
   # Change pip's cache directory to be inside the project directory.
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache"
 
+  # Configure a constant location for the uv cache
+  UV_CACHE_DIR: "$CI_PROJECT_DIR/.uv-cache"
+
   # Set tags for docker images
   DOCKER_TEST_IMAGE: "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA"
   DOCKER_RELEASE_IMAGE: "$CI_REGISTRY_IMAGE:latest"
@@ -27,6 +30,10 @@ before_script:
   - pip install tox-uv
   - export TZ=Europe/Amsterdam
   - date
+
+after_script:
+  # Minimize 'uv' cache
+  - uv cache prune --ci
 
 # Use for temporary storage for project dependencies(e.g. pypi packages...)
 cache:
