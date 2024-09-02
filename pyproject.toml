@@ -33,7 +33,7 @@ keywords = ["ESA", "data modeling", "sensors", "calibration", "CCD",
     "CMOS", "active sensors", "electronics"]
 dependencies = [
     # Scientific computing
-    "numba",
+    "numba>=0.56.4",
     "numpy>=1.24",
     "pandas>=1.5",
     "scipy>=1.10",

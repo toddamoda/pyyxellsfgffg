@@ -233,7 +233,7 @@ Package                                                                         
 `xarray-datatree <https://xarray-datatree.readthedocs.io/en/stable/index.html>`_    0.0.12
 `astropy <https://www.astropy.org>`_                                                4.3
 `pandas <https://pandas.pydata.org>`_
-`numba <https://numba.pydata.org>`_
+`numba <https://numba.pydata.org>`_                                                 0.56.4                    Performance using a JIT compiler
 `scipy <https://scipy.org>`_                                                                                  Miscellaneous statistical functions
 `holoviews <https://holoviews.org>`_                                                1.15
 `matplotlib <https://matplotlib.org>`_                                              3.1                       Plotting library
