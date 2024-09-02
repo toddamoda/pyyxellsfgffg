@@ -423,6 +423,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
                     readout=self.readout,
                     pipeline_seed=self.pipeline_seed,
                     debug=False,  # Not supported in Observation mode
+                    with_buckets_separated=True,
                 )
 
                 logger.setLevel(prev_log_level)  # TODO: Fix this. See issue #81
@@ -507,6 +508,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
             readout=self.readout,
             pipeline_seed=self.pipeline_seed,
             debug=False,  # Not supported in Observation mode
+            with_buckets_separated=True,
         )
 
         return data_tree
