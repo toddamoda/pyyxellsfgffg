@@ -37,10 +37,15 @@ def test_mean_variance():
     expected_mean = photons.mean(dim=["y", "x"])
 
     expected_mean_variance = xr.Dataset()
+    expected_mean_variance["mean"] = xr.DataArray(
+        expected_mean.to_numpy(),
+        dims=["pipeline_idx"],
+        coords={"pipeline_idx": [0, 1, 2]},
+    )
     expected_mean_variance["variance"] = xr.DataArray(
         expected_variance.to_numpy(),
-        dims=["mean"],
-        coords={"mean": expected_mean.to_numpy()},
+        dims=["pipeline_idx"],
+        coords={"pipeline_idx": [0, 1, 2]},
     )
 
     # Create fake CCD detector
@@ -52,28 +57,35 @@ def test_mean_variance():
     detector.set_readout(times=[1.0, 2.0, 3.0])
 
     # Step 1
+    detector.pipeline_count = 0
     detector.photon.array = photons.isel(time=0).to_numpy()
     mean_variance(detector, data_structure="photon")
 
     expected_photon_step1 = DataTree().from_dict(
-        {"mean_variance/partial/photon": expected_mean_variance.isel(mean=[0])}
+        {"mean_variance/partial/photon": expected_mean_variance.isel(pipeline_idx=[0])}
     )
     assert_equal(detector.data, expected_photon_step1)
 
     # Step 2
+    detector.pipeline_count = 1
     detector.photon.array = photons.isel(time=1).to_numpy()
     mean_variance(detector, data_structure="photon")
 
     expected_photon_step2 = DataTree().from_dict(
-        {"mean_variance/partial/photon": expected_mean_variance.isel(mean=[1, 0])}
+        {
+            "mean_variance/partial/photon": expected_mean_variance.isel(
+                pipeline_idx=[0, 1]
+            )
+        }
     )
     assert_equal(detector.data, expected_photon_step2)
 
     # Step 3
+    detector.pipeline_count = 2
     detector.photon.array = photons.isel(time=2).to_numpy()
     mean_variance(detector, data_structure="photon")
 
     expected_photon_step3 = DataTree().from_dict(
-        {"mean_variance/partial/photon": expected_mean_variance.isel(mean=[2, 1, 0])}
+        {"mean_variance/photon": expected_mean_variance.isel(pipeline_idx=[2, 1, 0])}
     )
     assert_equal(detector.data, expected_photon_step3)
