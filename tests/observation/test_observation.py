@@ -151,7 +151,9 @@ def test_observation_product(
         parameters=product_parameter_values_lst, mode="product", result_type=result_type
     )
 
-    assert repr(observation) == "Observation<mode=ParameterMode.Product>"
+    assert (
+        repr(observation) == "Observation<mode=ParameterMode.Product, num_parameters=3>"
+    )
 
 
 @pytest.mark.parametrize(
