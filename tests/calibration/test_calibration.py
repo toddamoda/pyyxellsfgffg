@@ -171,5 +171,9 @@ def test_run_calibration(
 ):
     """Test method 'Calibration.run_calibration'."""
     caplog.set_level(logging.INFO)
-    dt = calibration.run_calibration(processor=processor, output_dir=tmp_path)
+    dt = calibration.run_calibration(
+        processor=processor,
+        output_dir=tmp_path,
+        with_buckets_separated=False,
+    )
     assert isinstance(dt, DataTree)
