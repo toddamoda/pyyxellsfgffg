@@ -130,6 +130,7 @@ class Exposure:
         self,
         processor: Processor,
         debug: bool,
+        with_buckets_separated: bool,
     ) -> DataTree:
         """Run an exposure pipeline.
 
@@ -153,6 +154,7 @@ class Exposure:
             result_type=self.result_type,
             pipeline_seed=self.pipeline_seed,
             debug=debug,
+            with_buckets_separated=with_buckets_separated,
         )
 
         data_tree.attrs["running mode"] = "Exposure"
@@ -281,8 +283,10 @@ def _run_exposure_pipeline_deprecated(
     return processor
 
 
-def _extract_datatree(detector: "Detector", keys: Sequence[ResultId]) -> DataTree:
-    """Extract data from a detector object into a `DataTree`.
+def _extract_datatree_2d(detector: "Detector", keys: Sequence[ResultId]) -> DataTree:
+    """Extract 2D data from a detector object into a `DataTree`.
+
+    The buckets 'data' and 'scene' are skipped.
 
     Parameters
     ----------
@@ -300,7 +304,7 @@ def _extract_datatree(detector: "Detector", keys: Sequence[ResultId]) -> DataTre
 
     Examples
     --------
-    >>> _extract_datatree(
+    >>> _extract_datatree_2d(
     ...     detector=detector,
     ...     keys=["photon", "charge", "pixel", "signal", "image", "data"],
     ... )
@@ -334,7 +338,7 @@ def _extract_datatree(detector: "Detector", keys: Sequence[ResultId]) -> DataTre
             )
 
         data_array: xr.DataArray = obj.to_xarray()
-        data_array.name = "value"
+        data_array.name = "value"  # TODO: Is is necessary ?
 
         dataset[key] = data_array
 
@@ -357,6 +361,7 @@ def run_pipeline(
     processor: Processor,
     readout: "Readout",
     debug: bool,
+    with_buckets_separated: bool,
     outputs: Optional["ExposureOutputs"] = None,
     progressbar: bool = False,
     result_type: ResultId = ResultId("all"),  # noqa: B008
@@ -405,7 +410,7 @@ def run_pipeline(
         # Example: keys = ['photon', 'charge', 'pixel', 'signal', 'image', 'data']
         keys: Sequence[ResultId] = result_keys(result_type)
 
-        data_tree: DataTree = DataTree()
+        buckets_data_tree: DataTree = DataTree()
 
         i: int
         time: float
@@ -431,38 +436,54 @@ def run_pipeline(
                 outputs.save_to_file(processor)
 
             # Extract data from 'detector' into a 'DataTree'
-            partial_datatree: DataTree = _extract_datatree(detector=detector, keys=keys)
+            partial_datatree_2d: DataTree = _extract_datatree_2d(
+                detector=detector,
+                keys=keys,
+            )
 
-            # Concatenate all 'partialtree'
-            if data_tree.is_empty:
-                data_tree = partial_datatree
+            # Concatenate all 'partial_datatree'
+            if buckets_data_tree.is_empty:
+                buckets_data_tree = partial_datatree_2d
             else:
-                data_tree = data_tree.combine_first(partial_datatree)
+                buckets_data_tree = buckets_data_tree.combine_first(partial_datatree_2d)
 
                 # Fix dtype of container 'image'. See #652
-                image_dtype: np.dtype = data_tree["image"].dtype
+                image_dtype: np.dtype = buckets_data_tree["image"].dtype
                 exp_dtype: np.dtype = detector.image.dtype
 
                 if image_dtype != exp_dtype:
-                    new_image: xr.DataArray = data_tree["image"].astype(dtype=exp_dtype)
-                    data_tree["image"] = new_image
+                    buckets_data_tree["image"] = buckets_data_tree["image"].astype(
+                        dtype=exp_dtype
+                    )
 
             if progressbar:
                 pbar.update(1)
 
-        if debug:
-            # Remove temporary data_tree '/last'
-            datatree_intermediate: DataTree = detector.intermediate
-            del datatree_intermediate["last"]
+        dct: dict[str, Union[xr.Dataset, xr.DataArray, DataTree, None]] = {}
 
-            data_tree["/intermediate"] = detector.intermediate
+        if with_buckets_separated:
+            dct["/bucket"] = buckets_data_tree
+        else:
+            dct["/"] = buckets_data_tree
+
+        if debug:
+            datatree_intermediate: DataTree = detector.intermediate
+
+            # Remove temporary data_tree '/last' from 'datatree_intermediate'
+            dct["/intermediate"] = datatree_intermediate.drop_nodes(
+                "last", errors="ignore"
+            )
 
         if "scene" in keys:
-            data_tree["/scene"] = detector.scene.data
+            if with_buckets_separated:
+                dct["/bucket/scene"] = detector.scene.data
+            else:
+                dct["/scene"] = detector.scene.data
 
         if "data" in keys:
-            data_tree["/data"] = detector.data
+            dct["/data"] = detector.data
 
+        data_tree = DataTree.from_dict(dct)
         data_tree.attrs["pyxel version"] = __version__
 
         if progressbar:
