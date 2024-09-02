@@ -870,7 +870,11 @@ class Observation:
                     types=types,
                 )
 
-    def run_observation_datatree(self, processor: "Processor") -> "DataTree":
+    def run_observation_datatree(
+        self,
+        processor: "Processor",
+        with_buckets_separated: bool,
+    ) -> "DataTree":
         """Run the observation pipelines."""
         # Late import to speedup start-up time
 
@@ -895,6 +899,7 @@ class Observation:
                     dimension_names=dim_names,
                     processor=processor,
                     types=types,
+                    with_buckets_separated=with_buckets_separated,
                 )
                 .fold(binop=merge)
             )
@@ -907,6 +912,7 @@ class Observation:
                     dimension_names=dim_names,
                     processor=processor,
                     types=types,
+                    with_buckets_separated=with_buckets_separated,
                 )
                 for el in tqdm(parameters)
             )
@@ -996,6 +1002,7 @@ class Observation:
             result_type=self.result_type,
             pipeline_seed=self.pipeline_seed,
             debug=False,  # Not supported in Observation mode
+            with_buckets_separated=False,
         )
 
         if self.outputs:
@@ -1010,6 +1017,7 @@ class Observation:
         dimension_names: Mapping[str, str],
         processor: "Processor",
         types: Mapping[str, ParameterType],
+        with_buckets_separated: bool,
     ) -> "DataTree":
         new_processor = create_new_processor(
             processor=processor,
@@ -1024,6 +1032,7 @@ class Observation:
                 result_type=self.result_type,
                 pipeline_seed=self.pipeline_seed,
                 debug=False,  # Not supported in Observation mode
+                with_buckets_separated=with_buckets_separated,
             )
         except Exception as exc:
             if sys.version_info >= (3, 11):
