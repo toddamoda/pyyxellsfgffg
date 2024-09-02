@@ -139,6 +139,7 @@ def _run_exposure_mode_without_datatree(
     _ = exposure.run_exposure(
         processor=processor,
         debug=False,
+        with_buckets_separated=False,
     )
 
 
@@ -146,6 +147,7 @@ def _run_exposure_mode(
     exposure: "Exposure",
     processor: Processor,
     debug: bool,
+    with_buckets_separated: bool,
 ) -> "DataTree":
     """Run an 'exposure' pipeline.
 
@@ -214,6 +216,7 @@ def _run_exposure_mode(
     result: DataTree = exposure.run_exposure(
         processor=processor,
         debug=debug,
+        with_buckets_separated=with_buckets_separated,
     )
 
     if outputs and outputs.save_exposure_data:
@@ -566,6 +569,7 @@ def _run_observation_mode_without_datatree(
 def _run_observation_mode(
     observation: Observation,
     processor: Processor,
+    with_buckets_separated: bool,
 ) -> "DataTree":
     logging.info("Mode: Observation")
 
@@ -574,7 +578,10 @@ def _run_observation_mode(
     if outputs:
         outputs.create_output_folder()
 
-    result: "DataTree" = observation.run_observation_datatree(processor=processor)
+    result: "DataTree" = observation.run_observation_datatree(
+        processor=processor,
+        with_buckets_separated=with_buckets_separated,
+    )
 
     # TODO: Fix this. See issue #723
     if outputs and outputs.save_observation_data:
@@ -592,6 +599,7 @@ def run_mode(
     pipeline: DetectionPipeline,
     override_dct: Optional[Mapping[str, Any]] = None,
     debug: bool = False,
+    with_buckets_separated: bool = False,
 ) -> "DataTree":
     """Run a pipeline.
 
@@ -605,7 +613,6 @@ def run_mode(
         This is the core algorithm of Pyxel. This pipeline contains all the models to run.
     debug : bool, default: False
         Add all intermediate steps into the results as a ``DataTree``. This mode is used for debugging.
-
 
     Notes
     -----
@@ -861,12 +868,14 @@ def run_mode(
             exposure=mode,
             processor=processor,
             debug=debug,
+            with_buckets_separated=with_buckets_separated,
         )
 
     elif isinstance(mode, Observation):
         data_tree = _run_observation_mode(
             observation=mode,
             processor=processor,
+            with_buckets_separated=with_buckets_separated,
         )
 
     else:
