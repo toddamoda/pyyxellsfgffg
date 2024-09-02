@@ -103,12 +103,15 @@ class ModelFittingDataTree(ProblemSingleObjective):
         weights: Optional[Sequence[float]] = None,
         weights_from_file: Optional[Sequence[Path]] = None,
         pipeline_seed: Optional[int] = None,
+        with_buckets_separated: bool = False,
     ):
         self._variables: Sequence[ParameterValues] = variables
 
         self.generations: int = generations
         self.pop: int = population_size
         self.readout: Readout = readout
+
+        self._with_buckets_separated: bool = with_buckets_separated
 
         self.weighting: Optional[np.ndarray] = None
         self.weighting_from_file: Optional[xr.DataArray] = None
@@ -423,7 +426,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
                     readout=self.readout,
                     pipeline_seed=self.pipeline_seed,
                     debug=False,  # Not supported in Observation mode
-                    with_buckets_separated=True,
+                    with_buckets_separated=self._with_buckets_separated,
                 )
 
                 logger.setLevel(prev_log_level)  # TODO: Fix this. See issue #81
