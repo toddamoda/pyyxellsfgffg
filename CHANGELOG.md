@@ -27,12 +27,14 @@ The minimum versions of some dependencies were changed:
 
 
 ### Core
-* Add compatibility to `xarray` 2024.07.0.
-  (See [!929](https://gitlab.com/esa/pyxel/-/merge_requests/929)).
 * Add error message when a YAML file uses `Observation` mode without `parameters`.
   (See [!933](https://gitlab.com/esa/pyxel/-/merge_requests/933)).
+* Add possibility to use strings in the `parameters` fields in a YAML observation file.
+  (See [!936](https://gitlab.com/esa/pyxel/-/merge_requests/936)).
 
 ### Documentation
+* Update documentation about the new dependencies.
+  (See [!934](https://gitlab.com/esa/pyxel/-/merge_requests/934)).
 
 ### Models
 * Fix issue in function `aggregate_multiwavelength` for model 
@@ -49,8 +51,8 @@ The minimum versions of some dependencies were changed:
   (See [!930](https://gitlab.com/esa/pyxel/-/merge_requests/930)).
 
 ### Others
-* Update documentation about the new dependencies.
-  (See [!934](https://gitlab.com/esa/pyxel/-/merge_requests/934)).
+* Add compatibility to `xarray` 2024.07.0.
+  (See [!929](https://gitlab.com/esa/pyxel/-/merge_requests/929)).
 * Improved printable representation of classes `Configuration`, `DetectionPipeline` and `Observation`.
   (See [!935](https://gitlab.com/esa/pyxel/-/merge_requests/935)).
 
