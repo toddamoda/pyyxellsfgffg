@@ -78,6 +78,8 @@ def output_node_linearity_poly(
         array_2d=signal_mean_array, coefficients=coefficients
     )
 
+    signal_non_linear = signal_non_linear.clip(min=0.0)
+
     if np.any(signal_non_linear < 0):
         raise ValueError(
             "Signal array contains negative values after applying non-linearity model!"
