@@ -31,6 +31,8 @@ The minimum versions of some dependencies were changed:
   (See [!933](https://gitlab.com/esa/pyxel/-/merge_requests/933)).
 * Add possibility to use strings in the `parameters` fields in a YAML observation file.
   (See [!936](https://gitlab.com/esa/pyxel/-/merge_requests/936)).
+* Add better error message when a pipeline failed during `Observation` mode.
+  (See [!937](https://gitlab.com/esa/pyxel/-/merge_requests/937)).
 
 ### Documentation
 * Update documentation about the new dependencies.
