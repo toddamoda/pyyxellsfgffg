@@ -51,6 +51,8 @@ The minimum versions of some dependencies were changed:
 ### Others
 * Update documentation about the new dependencies.
   (See [!934](https://gitlab.com/esa/pyxel/-/merge_requests/934)).
+* Improved printable representation of classes `Configuration`, `DetectionPipeline` and `Observation`.
+  (See [!935](https://gitlab.com/esa/pyxel/-/merge_requests/935)).
 
 
 ## 2.4.1 / 2024-07-10
