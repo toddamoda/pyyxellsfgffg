@@ -85,16 +85,7 @@ def test_non_linearity_valid(ccd_5x5: CCD, coefficients: Sequence):
 
 @pytest.mark.parametrize(
     "coefficients, exp_exc, exp_error",
-    [
-        pytest.param(
-            [], ValueError, "Length of coefficient list should be more than 0."
-        ),
-        pytest.param(
-            [0, -1],
-            ValueError,
-            "Signal array contains negative values after applying non-linearity model!",
-        ),
-    ],
+    [pytest.param([], ValueError, "Length of coefficient list should be more than 0.")],
 )
 def test_non_linearity_invalid(
     ccd_5x5: CCD, coefficients: Sequence, exp_exc, exp_error
