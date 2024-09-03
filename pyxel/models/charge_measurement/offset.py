@@ -41,12 +41,16 @@ def dc_offset(detector: Detector, offset: float) -> None:
         DC offset voltage. Unit: V
     """
 
-    if (
-        not min(detector.characteristics.adc_voltage_range)
-        < offset
-        < max(detector.characteristics.adc_voltage_range)
+    if not (
+        min(detector.characteristics.adc_voltage_range)
+        <= offset
+        <= max(detector.characteristics.adc_voltage_range)
     ):
-        raise ValueError("Parameter 'offset' out of bonds of the ADC voltage range.")
+        raise ValueError(
+            f"Parameter '{offset=:.2f}' V out of bonds of the ADC voltage range "
+            f"[{min(detector.characteristics.adc_voltage_range):.2f} V, "
+            f"{max(detector.characteristics.adc_voltage_range):.2f} V]."
+        )
 
     detector.signal += compute_dc_offset(offset, detector.geometry.shape)
 
