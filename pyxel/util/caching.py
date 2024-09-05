@@ -8,14 +8,16 @@
 """Function(s) to get a global caching mechanism."""
 
 import tempfile
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
-from diskcache import Cache
+if TYPE_CHECKING:
+    from diskcache import Cache
 
-_global_cache: Optional[Cache] = None
+
+_global_cache: Optional["Cache"] = None
 
 
-def get_cache(folder: Optional[str] = None) -> Cache:
+def get_cache(folder: Optional[str] = None) -> "Cache":
     """Retrieve a unique global cache instance.
 
     Examples
@@ -33,6 +35,9 @@ def get_cache(folder: Optional[str] = None) -> Cache:
     >>> cache = get_cache()
     >>> cache.clear()
     """
+    # Late import to speedup start-up time
+    from diskcache import Cache
+
     global _global_cache
 
     if _global_cache is None:

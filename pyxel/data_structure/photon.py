@@ -12,12 +12,12 @@ from collections.abc import Hashable, Mapping
 from typing import TYPE_CHECKING, Any, Optional, Union
 
 import numpy as np
-import xarray as xr
 from typing_extensions import Self
 
 from pyxel.util import convert_unit, get_size
 
 if TYPE_CHECKING:
+    import xarray as xr
     from matplotlib.pyplot import AxesImage
 
     from pyxel.detectors import Geometry
@@ -103,12 +103,15 @@ class Photon:
     )
 
     def __init__(self, geo: "Geometry"):
-        self._array: Union[np.ndarray, xr.DataArray, None] = None
+        self._array: Union[np.ndarray, "xr.DataArray", None] = None
 
         self._num_rows: int = geo.row
         self._num_cols: int = geo.col
 
     def __repr__(self) -> str:
+        # Late import to speedup start-up time
+        import xarray as xr
+
         cls_name = self.__class__.__name__
 
         if self._array is None:
@@ -128,6 +131,9 @@ class Photon:
             raise NotImplementedError
 
     def __eq__(self, other) -> bool:
+        # Late import to speedup start-up time
+        import xarray as xr
+
         if type(self) is not type(other):
             return False
 
@@ -148,7 +154,10 @@ class Photon:
 
         return np.asarray(self.array, dtype=dtype)
 
-    def __iadd__(self, other: Union[np.ndarray, xr.DataArray]) -> Self:
+    def __iadd__(self, other: Union[np.ndarray, "xr.DataArray"]) -> Self:
+        # Late import to speedup start-up time
+        import xarray as xr
+
         if isinstance(other, np.ndarray) and isinstance(self._array, xr.DataArray):
             raise TypeError("data must be a 3D DataArray")
 
@@ -161,7 +170,10 @@ class Photon:
             self._array = other
         return self
 
-    def __add__(self, other: Union[np.ndarray, xr.DataArray]) -> Self:
+    def __add__(self, other: Union[np.ndarray, "xr.DataArray"]) -> Self:
+        # Late import to speedup start-up time
+        import xarray as xr
+
         if isinstance(other, np.ndarray) and isinstance(self._array, xr.DataArray):
             raise TypeError("Must be a 3D DataArray")
 
@@ -289,6 +301,9 @@ pipeline:
         array([[1., 2., 3.],
               [4., 5., 6.]])
         """
+        # Late import to speedup start-up time
+        import xarray as xr
+
         if self._array is None:
             msg: str = self._get_uninitialized_2d_error_message()
             raise ValueError(msg)
@@ -354,7 +369,7 @@ pipeline:
         self.array = value
 
     @property
-    def array_3d(self) -> xr.DataArray:
+    def array_3d(self) -> "xr.DataArray":
         """Three-dimensional numpy array storing the data.
 
         Only accepts an array with the right type and shape.
@@ -374,7 +389,10 @@ pipeline:
         return self._array
 
     @array_3d.setter
-    def array_3d(self, value: xr.DataArray) -> None:
+    def array_3d(self, value: "xr.DataArray") -> None:
+        # Late import to speedup start-up time
+        import xarray as xr
+
         cls_name: str = self.__class__.__name__
 
         if not isinstance(value, xr.DataArray):
@@ -440,6 +458,9 @@ pipeline:
         return get_size(self._array)
 
     def to_dict(self) -> dict:
+        # Late import to speedup start-up time
+        import xarray as xr
+
         dct: dict = {}
         if self._array is None:
             # Do nothing
@@ -461,6 +482,9 @@ pipeline:
 
     @classmethod
     def from_dict(cls, geometry: "Geometry", data: Mapping[str, Any]) -> Self:
+        # Late import to speedup start-up time
+        import xarray as xr
+
         obj = cls(geo=geometry)
 
         if "array_2d" in data:
@@ -476,7 +500,10 @@ pipeline:
 
         return obj
 
-    def to_xarray(self, dtype: Optional[np.typing.DTypeLike] = None) -> xr.DataArray:
+    def to_xarray(self, dtype: Optional[np.typing.DTypeLike] = None) -> "xr.DataArray":
+        # Late import to speedup start-up time
+        import xarray as xr
+
         if self._array is None:
             return xr.DataArray()
 
@@ -538,7 +565,7 @@ pipeline:
 
         .. image:: _static/photon_plot.png
         """
-        arr: xr.DataArray = self.to_xarray()
+        arr: "xr.DataArray" = self.to_xarray()
 
         return arr.plot.imshow(robust=robust)
 

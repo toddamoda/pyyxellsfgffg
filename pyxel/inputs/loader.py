@@ -15,17 +15,15 @@ from io import BytesIO, StringIO
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Union
 
-import fsspec
 import numpy as np
-import pandas as pd
-import xarray as xr
 from numpy.typing import DTypeLike
-from PIL import Image
 
 from pyxel.options import global_options
 from pyxel.util import resolve_path
 
 if TYPE_CHECKING:
+    import pandas as pd
+    import xarray as xr
     from astropy.io import fits
 
 
@@ -79,6 +77,9 @@ def load_image(filename: Union[str, Path]) -> np.ndarray:
     >>> load_image("rgb_frame.jpg")
     array([[234, 211, ...]])
     """
+    # Late import to speedup start-up time
+    import fsspec
+
     try:
         filename = resolve_path(filename=filename)
         # Extract suffix (e.g. '.txt', '.fits'...)
@@ -107,9 +108,8 @@ def load_image(filename: Union[str, Path]) -> np.ndarray:
         if suffix.startswith(".fits"):
             # with fits.open(url_path, use_fsspec=True, fsspec_kwargs=extras) as file_handler:
             with fsspec.open(url_path, mode="rb", **extras) as file_handler:
-                from astropy.io import (
-                    fits,  # Late import to speed-up general import time
-                )
+                # Late import to speed-up general import time
+                from astropy.io import fits
 
                 with BytesIO(file_handler.read()) as content:
                     data_2d: np.ndarray = fits.getdata(content)
@@ -131,6 +131,9 @@ def load_image(filename: Union[str, Path]) -> np.ndarray:
 
         elif suffix.startswith((".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif")):
             with fsspec.open(url_path, mode="rb", **extras) as file_handler:
+                # Late import to speedup start-up time
+                from PIL import Image
+
                 image_2d = Image.open(file_handler)
                 image_2d_converted = image_2d.convert(
                     "LA"
@@ -162,7 +165,10 @@ def load_image_v2(
     filename: Union[str, Path],
     rename_dims: dict,
     data_path: Union[str, int, None] = None,
-) -> xr.DataArray:
+) -> "xr.DataArray":
+    # Late import to speedup start-up time
+    import xarray as xr
+
     filename = resolve_path(filename=filename)
     # Extract suffix (e.g. '.txt', '.fits'...)
     suffix: str = Path(filename).suffix.lower()
@@ -214,6 +220,9 @@ def load_image_v2(
 
     elif suffix.startswith((".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif")):
         with open(url_path, mode="rb") as file_handler:
+            # Late import to speedup start-up time
+            from PIL import Image
+
             image_2d = Image.open(file_handler)
             image_2d_converted = image_2d.convert("LA")  # RGB to grayscale conversion
             data_array = xr.DataArray(image_2d_converted, dims=["y", "x"])
@@ -249,6 +258,7 @@ def load_table(
         When the extension of the filename is unknown or separator is not found.
     """
     # Late import to speedup start-up time
+    import fsspec
     import pandas as pd
 
     filename = resolve_path(filename=filename)
@@ -331,7 +341,10 @@ def load_table_v2(
     rename_cols: Optional[dict] = None,
     data_path: Union[str, int, None] = None,
     header: bool = False,
-) -> pd.DataFrame:
+) -> "pd.DataFrame":
+    # Late import to speedup start-up time
+    import pandas as pd
+
     filename = resolve_path(filename=filename)
     suffix: str = Path(filename).suffix.lower()
 
@@ -437,6 +450,9 @@ def load_dataarray(filename: Union[str, Path]) -> "xr.DataArray":
     FileNotFoundError
         If an image is not found.
     """
+    # Late import to speedup start-up time
+    import fsspec
+
     filename = resolve_path(filename=filename)
     if isinstance(filename, Path):
         full_filename: Path = filename.expanduser().resolve()
@@ -485,6 +501,9 @@ def load_datacube(filename: Union[str, Path]) -> np.ndarray:
     ValueError
         When the extension of the filename is unknown or separator is not found.
     """
+    # Late import to speedup start-up time
+    import fsspec
+
     filename = resolve_path(filename=filename)
     # Extract suffix (e.g. '.txt', '.fits'...)
     suffix: str = Path(filename).suffix.lower()

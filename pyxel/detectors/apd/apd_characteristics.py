@@ -33,7 +33,6 @@ from collections.abc import Mapping
 from typing import Optional
 
 import numpy as np
-from toolz import dicttoolz
 
 from pyxel.util import get_size
 
@@ -421,6 +420,9 @@ class APDCharacteristics:
     @classmethod
     def from_dict(cls, dct: Mapping):
         """Create a new instance from a `dict`."""
+        # Late import to speedup start-up time
+        from toolz import dicttoolz
+
         new_dct: Mapping = dicttoolz.dissoc(dct, "adc_voltage_range")
         adc_voltage_range = dct["adc_voltage_range"]
 

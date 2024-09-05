@@ -9,13 +9,15 @@
 
 from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 import numpy as np
-import xarray as xr
 from typing_extensions import Self
 
 from pyxel.util import get_size
+
+if TYPE_CHECKING:
+    import xarray as xr
 
 
 @dataclass
@@ -54,7 +56,10 @@ class WavelengthHandling:
             resolution=data["resolution"],
         )
 
-    def get_wavelengths(self) -> xr.DataArray:
+    def get_wavelengths(self) -> "xr.DataArray":
+        # Late import to speedup start-up time
+        import xarray as xr
+
         return xr.DataArray(
             np.arange(self.cut_on, self.cut_off, self.resolution),
             dims="wavelength",

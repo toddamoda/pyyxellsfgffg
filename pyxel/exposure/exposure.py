@@ -16,15 +16,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Union
 
 import numpy as np
-import xarray as xr
-
-# Import 'DataTree'
-try:
-    from xarray.core.datatree import DataTree
-except ImportError:
-    from datatree import DataTree  # type: ignore[assignment]
-
-from tqdm.auto import tqdm
 
 import pyxel
 from pyxel import __version__
@@ -33,9 +24,16 @@ from pyxel.pipelines import Processor, ResultId, get_result_id, result_keys
 from pyxel.util import set_random_seed
 
 if TYPE_CHECKING:
+    import xarray as xr
+
     from pyxel.detectors import Detector
     from pyxel.exposure import Readout
     from pyxel.outputs import CalibrationOutputs, ExposureOutputs, ObservationOutputs
+
+    try:
+        from xarray.core.datatree import DataTree
+    except ImportError:
+        from datatree import DataTree  # type: ignore[assignment]
 
 
 class Exposure:
@@ -115,7 +113,7 @@ class Exposure:
             pipeline_seed=self.pipeline_seed,
         )
 
-        ds: xr.Dataset = processor.result_to_dataset(
+        ds: "xr.Dataset" = processor.result_to_dataset(
             x=x,
             y=y,
             times=times,
@@ -131,7 +129,7 @@ class Exposure:
         processor: Processor,
         debug: bool,
         with_inherited_coords: bool,
-    ) -> DataTree:
+    ) -> "DataTree":
         """Run an exposure pipeline.
 
         Parameters
@@ -146,7 +144,7 @@ class Exposure:
         progressbar = self.readout._num_steps != 1
 
         # Unpure changing of processor
-        data_tree: DataTree = run_pipeline(
+        data_tree: "DataTree" = run_pipeline(
             processor=processor,
             readout=self.readout,
             outputs=self.outputs,
@@ -192,6 +190,9 @@ def _run_exposure_pipeline_deprecated(
     -------
     processor: Processor
     """
+    # Late import to speedup start-up time
+    from tqdm.auto import tqdm
+
     # if isinstance(detector, CCD):
     #    dynamic.non_destructive_readout = False
     warnings.warn(
@@ -283,7 +284,7 @@ def _run_exposure_pipeline_deprecated(
     return processor
 
 
-def _extract_datatree_2d(detector: "Detector", keys: Sequence[ResultId]) -> DataTree:
+def _extract_datatree_2d(detector: "Detector", keys: Sequence[ResultId]) -> "DataTree":
     """Extract 2D data from a detector object into a `DataTree`.
 
     The buckets 'data' and 'scene' are skipped.
@@ -322,6 +323,14 @@ def _extract_datatree_2d(detector: "Detector", keys: Sequence[ResultId]) -> Data
             signal   (time, y, x) float64 0.04545 0.04776 0.04634 ... 0.04862 0.04862
             image    (time, y, x) uint32 298 314 304 304 304 314 ... 339 339 328 319 319
     """
+    # Late import to speedup start-up time
+    import xarray as xr
+
+    try:
+        from xarray.core.datatree import DataTree
+    except ImportError:
+        from datatree import DataTree  # type: ignore[assignment]
+
     dataset: xr.Dataset = xr.Dataset()
 
     key: ResultId
@@ -366,7 +375,7 @@ def run_pipeline(
     progressbar: bool = False,
     result_type: ResultId = ResultId("all"),  # noqa: B008
     pipeline_seed: Optional[int] = None,
-) -> DataTree:
+) -> "DataTree":
     """Run standalone exposure pipeline.
 
     Parameters
@@ -393,6 +402,14 @@ def run_pipeline(
     -------
     DataTree
     """
+    # Late import to speedup start-up time
+    from tqdm.auto import tqdm
+
+    try:
+        from xarray.core.datatree import DataTree
+    except ImportError:
+        from datatree import DataTree  # type: ignore[assignment]
+
     # if isinstance(detector, CCD):
     #    dynamic.non_destructive_readout = False
 

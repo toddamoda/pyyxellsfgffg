@@ -11,9 +11,6 @@ import shutil
 from pathlib import Path
 from zipfile import ZipFile
 
-import requests
-from tqdm import tqdm
-
 
 def download_examples(foldername: str = "pyxel-examples", force: bool = False) -> None:
     """Download and save examples from Pyxel Data Gitlab repository in the working directory.
@@ -23,6 +20,10 @@ def download_examples(foldername: str = "pyxel-examples", force: bool = False) -
     foldername: str
     force: bool
     """
+    # Late import to speedup start-up time
+    import requests
+    from tqdm import tqdm
+
     folder: Path = Path(foldername).resolve()
 
     if folder.is_dir():

@@ -20,11 +20,7 @@ from numbers import Number
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Literal, NamedTuple, Optional, Union
 
-import dask.bag as db
 import numpy as np
-import pandas as pd
-import toolz
-from tqdm.auto import tqdm
 
 import pyxel
 from pyxel import options_wrapper
@@ -33,6 +29,7 @@ from pyxel.observation.parameter_values import ParameterType, ParameterValues
 from pyxel.pipelines import ResultId, get_result_id
 
 if TYPE_CHECKING:
+    import pandas as pd
     import xarray as xr
 
     # Import 'DataTree'
@@ -240,7 +237,7 @@ class Observation:
 
         # Specific to mode 'custom'
         self._custom_file: Optional[str] = from_file
-        self._custom_data: Optional[pd.DataFrame] = None
+        self._custom_data: Optional["pd.DataFrame"] = None
         self._custom_columns: Optional[slice] = (
             slice(*column_range) if column_range else None
         )
@@ -292,8 +289,8 @@ class Observation:
             raise ValueError("File for custom parametric mode not specified!")
 
         # Read the file without forcing its data type
-        all_data: pd.DataFrame = load_table(self._custom_file, dtype=None)
-        filtered_data: pd.DataFrame = all_data.loc[:, self._custom_columns]
+        all_data: "pd.DataFrame" = load_table(self._custom_file, dtype=None)
+        filtered_data: "pd.DataFrame" = all_data.loc[:, self._custom_columns]
 
         # Sanity check
         num_columns = len(filtered_data.columns)
@@ -322,6 +319,9 @@ class Observation:
         index: int
         parameter_dict: dict
         """
+        # Late import to speedup start-up time
+        import pandas as pd
+
         if not isinstance(self._custom_data, pd.DataFrame):
             raise TypeError("Custom parameters not loaded from file.")
 
@@ -434,6 +434,9 @@ class Observation:
     def _get_parameters_item(
         self, processor: "Processor"
     ) -> Sequence[Union[ParameterItem, CustomParameterItem]]:
+        # Late import to speedup start-up time
+        import toolz
+
         if self.parameter_mode == ParameterMode.Product:
             params_it: Iterator = self._product_parameters()
 
@@ -532,6 +535,7 @@ class Observation:
 
         # Late import to speedup start-up time
         import xarray as xr
+        from tqdm.auto import tqdm
 
         processors = []
         logs: list[xr.Dataset] = []
@@ -622,7 +626,9 @@ class Observation:
         )
 
         # Late import to speedup start-up time
+        import dask.bag as db
         import xarray as xr
+        from tqdm.auto import tqdm
 
         # validation
         self.validate_steps(processor)
@@ -839,6 +845,8 @@ class Observation:
     def run_observation_without_datatree(self, processor: "Processor") -> None:
         """Run the observation pipelines."""
         # Late import to speedup start-up time
+        import dask.bag as db
+        from tqdm.auto import tqdm
 
         # validation
         self.validate_steps(processor)
@@ -877,6 +885,8 @@ class Observation:
     ) -> "DataTree":
         """Run the observation pipelines and return a `DataTree` object."""
         # Late import to speedup start-up time
+        import dask.bag as db
+        from tqdm.auto import tqdm
 
         # Validate the processor steps before running the pipeline
         self.validate_steps(processor)
@@ -1349,6 +1359,7 @@ def _add_custom_parameters(
     -------
     DataTree
     """
+    # Late import to speedup start-up time
     import pandas as pd
     import xarray as xr
 
