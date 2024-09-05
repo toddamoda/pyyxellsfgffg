@@ -14,16 +14,14 @@ from glob import glob
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Optional, Protocol, Union
 
-import h5py as h5
 import numpy as np
-import pandas as pd
-from PIL import Image
 
 from pyxel import __version__ as version
 from pyxel.options import global_options
 from pyxel.util import complete_path
 
 if TYPE_CHECKING:
+    import pandas as pd
     import xarray as xr
 
     # Import 'DataTree'
@@ -220,6 +218,9 @@ class Outputs:
         run_number: Optional[int] = None,
     ) -> Path:
         """Write detector object to HDF5 file."""
+        # Late import to speedup start-up time
+        import h5py as h5
+
         name = name.replace(".", "_")
 
         current_output_folder: Path = complete_path(
@@ -290,7 +291,7 @@ class Outputs:
 
     def save_to_csv(
         self,
-        data: pd.DataFrame,
+        data: "pd.DataFrame",
         name: str,
         with_auto_suffix: bool = True,
         run_number: Optional[int] = None,
@@ -358,6 +359,9 @@ class Outputs:
         run_number: Optional[int] = None,
     ) -> Path:
         """Write Numpy array to a PNG image file."""
+        # Late import to speedup start-up time
+        from PIL import Image
+
         name = name.replace(".", "_")
 
         current_output_folder: Path = complete_path(
@@ -391,6 +395,9 @@ class Outputs:
         run_number: Optional[int] = None,
     ) -> Path:
         """Write Numpy array to a JPEG image file."""
+        # Late import to speedup start-up time
+        from PIL import Image
+
         name = name.replace(".", "_")
 
         current_output_folder: Path = complete_path(
@@ -424,6 +431,9 @@ class Outputs:
         run_number: Optional[int] = None,
     ) -> Path:
         """Write Numpy array to a JPG image file."""
+        # Late import to speedup start-up time
+        from PIL import Image
+
         name = name.replace(".", "_")
 
         current_output_folder: Path = complete_path(

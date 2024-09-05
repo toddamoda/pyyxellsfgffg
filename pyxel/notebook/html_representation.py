@@ -8,8 +8,6 @@
 
 from typing import TYPE_CHECKING, Callable, Union
 
-from jinja2 import Template
-
 from pyxel.pipelines import ModelFunction, ModelGroup
 
 if TYPE_CHECKING:
@@ -31,6 +29,7 @@ def display_html(obj: Union[Callable, ModelFunction, ModelGroup]) -> "HTML":
     """
     # Late import to speedup start-up time
     from IPython.core.display import HTML
+    from jinja2 import Template
 
     if isinstance(obj, ModelGroup):
         return display_model_group_html(obj)
@@ -82,6 +81,7 @@ def display_model_html(mf: "ModelFunction") -> "HTML":
     """
     # Late import to speedup start-up time
     from IPython.core.display import HTML
+    from jinja2 import Template
 
     d = {
         key: [
@@ -151,6 +151,7 @@ def display_model_group_html(mg: "ModelGroup") -> "HTML":
     """
     # Late import to speedup start-up time
     from IPython.core.display import HTML
+    from jinja2 import Template
 
     d = {
         key: [

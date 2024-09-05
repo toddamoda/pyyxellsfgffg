@@ -13,13 +13,12 @@ from enum import Enum
 from typing import TYPE_CHECKING, Optional, Union
 
 import numpy as np
-import pandas as pd
-from bokeh.models import PrintfTickFormatter
 
 from pyxel import load_image
 
 if TYPE_CHECKING:
     import holoviews as hv
+    import pandas as pd
     import xarray as xr
 
     from pyxel.calibration import Calibration
@@ -381,7 +380,7 @@ def display_evolution(ds: "xr.Dataset") -> "hv.Layout":
     return plot
 
 
-def optimal_parameters(ds: "xr.Dataset") -> pd.DataFrame:
+def optimal_parameters(ds: "xr.Dataset") -> "pd.DataFrame":
     """Return a dataframe of best parameters.
 
     Parameters
@@ -435,7 +434,9 @@ def champion_heatmap(
     """
     # Late import to speedup start-up time
     import holoviews as hv
+    import pandas as pd
     import xarray as xr
+    from bokeh.models import PrintfTickFormatter
 
     # Apply an extension to Holoviews (if needed)
     if not hv.Store.renderers:

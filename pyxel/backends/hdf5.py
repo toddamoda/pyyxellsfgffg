@@ -11,14 +11,16 @@ from collections import abc
 from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
-import h5py as h5
 import numpy as np
-import pandas as pd
-import xarray as xr
 
 from pyxel import __version__
+
+if TYPE_CHECKING:
+    import h5py as h5
+    import pandas as pd
+    import xarray as xr
 
 ATTRIBUTES: Mapping[str, Mapping[str, str]] = {
     "photon": {"name": "Photon", "unit": "photon/s"},
@@ -30,10 +32,11 @@ ATTRIBUTES: Mapping[str, Mapping[str, str]] = {
 
 
 def _store(
-    h5file: h5.File,
+    h5file: "h5.File",
     name: str,
     dct: Mapping[
-        str, Union[int, float, pd.DataFrame, pd.Series, xr.Dataset, np.ndarray, dict]
+        str,
+        Union[int, float, "pd.DataFrame", "pd.Series", "xr.Dataset", np.ndarray, dict],
     ],
     attributes: Optional[Mapping[str, Mapping[str, str]]] = None,
 ) -> None:
@@ -50,6 +53,10 @@ def _store(
     attributes : dict
         Attributes to store.
     """
+    # Late import to speedup start-up time
+    import pandas as pd
+    import xarray as xr
+
     for key, value in dct.items():
         key = key.removeprefix("/")
 
@@ -59,7 +66,7 @@ def _store(
             if value is None:
                 value = np.nan
 
-            dataset: h5.Dataset = h5file.create_dataset(
+            dataset: "h5.Dataset" = h5file.create_dataset(
                 name=new_name, data=value, shape=()
             )
 
@@ -99,6 +106,9 @@ def _store(
 
 def to_hdf5(filename: Union[str, Path], dct: Mapping[str, Any]) -> None:
     """Write data to a HDF5 file."""
+    # Late import to speedup start-up time
+    import h5py as h5
+
     if dct["version"] != 1:
         raise NotImplementedError
 
@@ -118,8 +128,8 @@ def to_hdf5(filename: Union[str, Path], dct: Mapping[str, Any]) -> None:
 
 
 def _load(
-    h5file: h5.File, name: str
-) -> Union[None, int, float, str, Mapping[str, Any], np.ndarray, pd.DataFrame]:
+    h5file: "h5.File", name: str
+) -> Union[None, int, float, str, Mapping[str, Any], np.ndarray, "pd.DataFrame"]:
     """Write data from a HDF5 group.
 
     Parameters
@@ -134,6 +144,10 @@ def _load(
     dict
         Data to read from a HDF5 dataset.
     """
+    # Late import to speedup start-up time
+    import h5py as h5
+    import pandas as pd
+
     dataset: Union[h5.Dataset, h5.Group] = h5file[name]
 
     if isinstance(dataset, h5.Group):
@@ -175,6 +189,9 @@ def _load(
 @contextmanager
 def from_hdf5(filename: Union[str, Path]) -> Iterator[Mapping[str, Any]]:
     """Read data from a HDF5 file."""
+    # Late import to speedup start-up time
+    import h5py as h5
+
     dct = {}
     with h5.File(filename, mode="r") as h5file:
         # Read main attributes
