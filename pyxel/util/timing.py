@@ -12,14 +12,15 @@ import timeit
 from typing import TYPE_CHECKING, Optional
 
 import numpy as np
-import pandas as pd
 
 if TYPE_CHECKING:
+    import pandas as pd
+
     from pyxel.detectors import Detector
     from pyxel.pipelines import DetectionPipeline, ModelFunction, ModelGroup
 
 
-def _list_of_times_to_dataframe(times: list, model_names: list) -> pd.DataFrame:
+def _list_of_times_to_dataframe(times: list, model_names: list) -> "pd.DataFrame":
     """Convert a list of model times to a dataframe.
 
     Parameters
@@ -31,6 +32,8 @@ def _list_of_times_to_dataframe(times: list, model_names: list) -> pd.DataFrame:
     -------
     df: pd.DataFrame
     """
+    # Late import to speedup start-up time
+    import pandas as pd
 
     times_array = np.array(times) * 1000  # to milliseconds
     times_sum = np.sum(times_array)
@@ -47,7 +50,9 @@ def _list_of_times_to_dataframe(times: list, model_names: list) -> pd.DataFrame:
     return df
 
 
-def time_pipeline(detector: "Detector", pipeline: "DetectionPipeline") -> pd.DataFrame:
+def time_pipeline(
+    detector: "Detector", pipeline: "DetectionPipeline"
+) -> "pd.DataFrame":
     """Time a single pipeline.
 
     Parameters

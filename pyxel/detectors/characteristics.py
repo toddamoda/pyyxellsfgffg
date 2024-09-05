@@ -11,7 +11,6 @@ from collections.abc import Iterable, Mapping, Sequence
 from typing import Optional
 
 import numpy as np
-from toolz import dicttoolz
 
 from pyxel.util import get_size
 
@@ -234,8 +233,10 @@ class Characteristics:
     @classmethod
     def from_dict(cls, dct: Mapping):
         """Create a new instance from a `dict`."""
-        # TODO: This is a simplistic implementation. Improve this.
+        # Late import to speedup start-up time
+        from toolz import dicttoolz
 
+        # TODO: This is a simplistic implementation. Improve this.
         # Extract param 'adc_voltage_range'
         param: Optional[Iterable[float]] = dct.get("adc_voltage_range")
         new_dct: Mapping = dicttoolz.dissoc(dct, "adc_voltage_range")

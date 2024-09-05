@@ -11,19 +11,17 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-import xarray as xr
-from astropy.units import Quantity
-
-# Import 'DataTree'
-try:
-    from xarray.core.datatree import DataTree
-except ImportError:
-    from datatree import DataTree  # type: ignore[assignment]
-
 from typing_extensions import Self
 
 if TYPE_CHECKING:
+    import xarray as xr
+    from astropy.units import Quantity
     from scopesim import Source
+
+    try:
+        from xarray.core.datatree import DataTree
+    except ImportError:
+        from datatree import DataTree  # type: ignore[assignment]
 
 
 @dataclass
@@ -40,12 +38,12 @@ class SceneCoordinates:
         The field of view of the scene in degree.
     """
 
-    right_ascension: Quantity
-    declination: Quantity
-    fov: Quantity
+    right_ascension: "Quantity"
+    declination: "Quantity"
+    fov: "Quantity"
 
     @classmethod
-    def from_dataset(cls, ds: xr.Dataset) -> Self:
+    def from_dataset(cls, ds: "xr.Dataset") -> Self:
         """Create a `SceneCoordinates` object from an xarray Dataset.
 
         Parameters
@@ -80,6 +78,8 @@ class SceneCoordinates:
         >>> SceneCoordinates.from_dataset(ds)
         SceneCoordinates(right_ascension=<Quantity 56.75 deg>, declination=<Quantity 24.1167 deg>, fov=<Quantity 0.5 deg>)
         """
+        # Late import to speedup start-up time
+        from astropy.units import Quantity
 
         right_ascension_key = "right_ascension"
         declination_key = "declination"
@@ -153,6 +153,12 @@ class Scene:
     """
 
     def __init__(self):
+        # Late import to speedup start-up time
+        try:
+            from xarray.core.datatree import DataTree
+        except ImportError:
+            from datatree import DataTree  # type: ignore[assignment]
+
         self._source: DataTree = DataTree(name="scene")
 
     def __repr__(self) -> str:
@@ -168,7 +174,7 @@ class Scene:
     def __eq__(self, other) -> bool:
         return type(self) is type(other) and self.data.identical(other.data)
 
-    def add_source(self, source: xr.Dataset) -> None:
+    def add_source(self, source: "xr.Dataset") -> None:
         """Add a source to the current scene.
 
         Parameters
@@ -222,6 +228,14 @@ class Scene:
                         declination:      24.1167 deg
                         fov_radius:       0.5 deg
         """
+        # Late import to speedup start-up time
+        import xarray as xr
+
+        try:
+            from xarray.core.datatree import DataTree
+        except ImportError:
+            from datatree import DataTree  # type: ignore[assignment]
+
         if not isinstance(source, xr.Dataset):
             raise TypeError("Expecting a Dataset object for source")
 
@@ -253,16 +267,22 @@ class Scene:
         if source_idx != 0:
             raise NotImplementedError
 
-        sub_scene: xr.Dataset = self.data[f"/list/{source_idx}"].to_dataset()
+        sub_scene: "xr.Dataset" = self.data[f"/list/{source_idx}"].to_dataset()
         return SceneCoordinates.from_dataset(sub_scene)
 
     @property
-    def data(self) -> DataTree:
+    def data(self) -> "DataTree":
         """Get a multi-wavelength object."""
         return self._source
 
     def empty(self):
         """Create a new empty source."""
+        # Late import to speedup start-up time
+        try:
+            from xarray.core.datatree import DataTree
+        except ImportError:
+            from datatree import DataTree  # type: ignore[assignment]
+
         self._source = DataTree(name="scene")
 
     def from_scopesim(self, source: "Source") -> None:
@@ -324,6 +344,14 @@ class Scene:
     @classmethod
     def from_dict(cls, dct: Mapping) -> "Scene":
         """Create a new instance of a `Scene` object from a `dict`."""
+        # Late import to speedup start-up time
+        import xarray as xr
+
+        try:
+            from xarray.core.datatree import DataTree
+        except ImportError:
+            from datatree import DataTree  # type: ignore[assignment]
+
         data: Mapping[str, xr.Dataset] = {
             key: xr.Dataset.from_dict(value) for key, value in dct.items()
         }
@@ -333,7 +361,7 @@ class Scene:
 
         return scene
 
-    def to_xarray(self) -> xr.Dataset:
+    def to_xarray(self) -> "xr.Dataset":
         """Convert current scene to a xarray Dataset.
 
         Returns
@@ -378,6 +406,14 @@ class Scene:
         Attributes:
             units:    ph / (cm2 nm s)
         """
+        # Late import to speedup start-up time
+        import xarray as xr
+
+        try:
+            from xarray.core.datatree import DataTree
+        except ImportError:
+            from datatree import DataTree  # type: ignore[assignment]
+
         if "list" not in self.data:
             return xr.Dataset()
 

@@ -12,8 +12,6 @@ from pathlib import Path
 from shutil import copy2
 from typing import IO, TYPE_CHECKING, Any, Optional, Union
 
-import yaml
-
 from pyxel import __version__ as version
 from pyxel.detectors import (
     APD,
@@ -156,6 +154,9 @@ def loads(yaml_string: str) -> Configuration:
 
 def load_yaml(stream: Union[str, IO]) -> Any:
     """Load a ``YAML`` document."""
+    # Late import to speedup start-up time
+    import yaml
+
     result = yaml.load(stream, Loader=yaml.SafeLoader)
     return result
 
