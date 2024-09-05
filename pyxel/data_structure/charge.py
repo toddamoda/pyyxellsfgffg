@@ -11,7 +11,6 @@ from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING, Literal, Optional, Union
 
 import numpy as np
-import pandas as pd
 
 from pyxel.detectors.geometry import (
     get_horizontal_pixel_center_pos,
@@ -20,6 +19,7 @@ from pyxel.detectors.geometry import (
 from pyxel.util import convert_unit
 
 if TYPE_CHECKING:
+    import pandas as pd
     import xarray as xr
 
     from pyxel.detectors import Geometry
@@ -41,6 +41,9 @@ class Charge:
     )
 
     def __init__(self, geo: "Geometry"):
+        # Late import to speedup start-up time
+        import pandas as pd
+
         self._array: np.ndarray = np.zeros((geo.row, geo.col), dtype=self.EXP_TYPE)
         self._geo = geo
         self.nextid: int = 0
@@ -85,7 +88,7 @@ class Charge:
         init_ver_velocity: np.ndarray,
         init_hor_velocity: np.ndarray,
         init_z_velocity: np.ndarray,
-    ) -> pd.DataFrame:
+    ) -> "pd.DataFrame":
         """Create new charge(s) or group of charge(s) as a `DataFrame`.
 
         Parameters
@@ -106,6 +109,9 @@ class Charge:
         DataFrame
             Charge(s) stored in a ``DataFrame``.
         """
+        # Late import to speedup start-up time
+        import pandas as pd
+
         if not (
             len(particles_per_cluster)
             == len(init_energy)
@@ -216,7 +222,7 @@ class Charge:
         num_cols: int,
         pixel_vertical_size: float,
         pixel_horizontal_size: float,
-    ) -> pd.DataFrame:
+    ) -> "pd.DataFrame":
         """Convert charge array to a dataframe placing charge packets in pixels to the center and on top of pixels.
 
         Parameters
@@ -264,7 +270,7 @@ class Charge:
             init_z_velocity=np.zeros(size),
         )
 
-    def add_charge_dataframe(self, new_charges: pd.DataFrame) -> None:
+    def add_charge_dataframe(self, new_charges: "pd.DataFrame") -> None:
         """Add new charge(s) or group of charge(s) to the charge dataframe.
 
         Parameters
@@ -272,6 +278,9 @@ class Charge:
         new_charges : DataFrame
             Charges as a `DataFrame`
         """
+        # Late import to speedup start-up time
+        import pandas as pd
+
         if set(new_charges.columns) != set(self.columns):
             expected_columns: str = ", ".join(map(repr, self.columns))
             raise ValueError(f"Expected columns: {expected_columns}")
@@ -323,7 +332,7 @@ class Charge:
         init_z_velocity : array
         """
         # Create charge(s)
-        new_charges: pd.DataFrame = Charge.create_charges(
+        new_charges: "pd.DataFrame" = Charge.create_charges(
             particle_type=particle_type,
             particles_per_cluster=particles_per_cluster,
             init_energy=init_energy,
@@ -401,8 +410,11 @@ class Charge:
         return np.asarray(self._array, dtype=dtype)
 
     @property
-    def frame(self) -> pd.DataFrame:
+    def frame(self) -> "pd.DataFrame":
         """Get charge in a pandas dataframe."""
+        # Late import to speedup start-up time
+        import pandas as pd
+
         if not isinstance(self._frame, pd.DataFrame):
             raise TypeError("Charge data frame not initialized.")
         return self._frame
@@ -458,7 +470,7 @@ class Charge:
         array
         """
         if id_list:
-            df: pd.DataFrame = self._frame.query(f"index in {id_list}")
+            df: "pd.DataFrame" = self._frame.query(f"index in {id_list}")
         else:
             df = self._frame
 
@@ -480,6 +492,9 @@ class Charge:
         id_list : Sequence of int
             List of particle ids: ``[0, 12, 321]``
         """
+        # Late import to speedup start-up time
+        import pandas as pd
+
         new_df = pd.DataFrame({quantity: new_value_list}, index=id_list)
         self._frame.update(new_df)
 

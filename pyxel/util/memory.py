@@ -11,7 +11,6 @@
 from typing import Any
 
 import numpy as np
-from pympler.asizeof import asizeof
 
 
 def get_size(obj: Any) -> int:
@@ -27,6 +26,9 @@ def get_size(obj: Any) -> int:
     int
         Object size in bytes.
     """
+    # Late import to speedup start-up time
+    from pympler.asizeof import asizeof
+
     return int(asizeof(obj))
 
 
