@@ -15,8 +15,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, Union
 
 import click
-import dask
-import pandas as pd
 
 from pyxel import Configuration
 from pyxel import __version__ as version
@@ -29,6 +27,7 @@ from pyxel.pipelines.processor import _get_obj_att
 from pyxel.util import create_model, create_model_to_console, download_examples
 
 if TYPE_CHECKING:
+    import pandas as pd
     import xarray as xr
 
     # Import 'DataTree'
@@ -298,7 +297,7 @@ def calibration_mode(
     detector: Detector,
     pipeline: "DetectionPipeline",
     compute_and_save: bool = True,
-) -> tuple["xr.Dataset", pd.DataFrame, pd.DataFrame, Sequence]:  # pragma: no cover
+) -> tuple["xr.Dataset", "pd.DataFrame", Sequence]:  # pragma: no cover
     """Run a 'calibration' pipeline.
 
     .. deprecated:: 1.14
@@ -384,6 +383,8 @@ def calibration_mode(
     []
     """
     # Late import to speedup start-up time
+    import dask
+
     warnings.warn("Use function 'pyxel.run_mode'", FutureWarning, stacklevel=1)
 
     from pyxel.calibration import CalibrationResult

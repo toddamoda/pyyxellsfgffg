@@ -12,13 +12,14 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, Protocol, Union
 
-import pandas as pd
-from dask.delayed import Delayed, delayed
+if TYPE_CHECKING:
+    import pandas as pd
 
 from pyxel.outputs import Outputs, ValidFormat, ValidName
 
 if TYPE_CHECKING:
     import xarray as xr
+    from dask.delayed import Delayed
 
     class SaveToFile(Protocol):
         """TBW."""
@@ -67,9 +68,12 @@ class CalibrationOutputs(Outputs):
         ] = save_calibration_data
 
     def _save_processors_deprecated(
-        self, processors: pd.DataFrame
-    ) -> Sequence[Delayed]:
+        self, processors: "pd.DataFrame"
+    ) -> Sequence["Delayed"]:
         """TBW."""
+        # Late import to speedup start-up time
+        from dask.delayed import Delayed, delayed
+
         warnings.warn(
             "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
         )
@@ -93,7 +97,7 @@ class CalibrationOutputs(Outputs):
         return lst
 
     def _save_calibration_outputs_deprecated(
-        self, dataset: "xr.Dataset", logs: pd.DataFrame
+        self, dataset: "xr.Dataset", logs: "pd.DataFrame"
     ) -> None:
         """Save the calibration outputs such as dataset and logs.
 
