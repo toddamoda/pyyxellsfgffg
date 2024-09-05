@@ -904,6 +904,89 @@ class Observation:
 
         if self.with_dask:
             # If Dask is enabled, use it for parallel processing
+
+            # TODO: Move this somewhere else
+            # Convert 'parameters' into a DataArray
+            lst: list[xr.Dataset] = []
+            lst_index: list = []
+
+            parameter: ParameterItem
+            for parameter in parameters:
+                lst.append(
+                    xr.Dataset(parameter.parameters)
+                    .expand_dims("run_index")
+                    .assign_coords(run_index=[parameter.run_index])
+                )
+
+                lst_index.append(
+                    xr.DataArray(list(parameter.index), dims=["param_id"])
+                    .expand_dims("run_index")
+                    .assign_coords(run_index=[parameter.run_index])
+                )
+
+            ds_parameters = xr.concat(lst, dim="run_index")
+            ds_index = xr.concat(lst_index, dim="run_index")
+
+            # First run
+            first_param_item: ParameterItem = parameters[0]
+            first_param_dct: Mapping[str, Optional[xr.DataArray]] = (
+                self._apply_exposure_to_dict(
+                    param_item=first_param_item,
+                    dimension_names=dim_names,
+                    processor=processor,
+                    types=types,
+                    with_buckets_separated=with_buckets_separated,
+                )
+            )
+
+            # TODO: Refactor this
+            output_sizes: dict[str, int] = {}
+
+            dataarray: Optional[xr.DataArray]
+            for dataarray in first_param_dct.values():
+                if dataarray is None:
+                    continue
+
+                dimension_sizes: Mapping[str, int] = dataarray.sizes
+                output_sizes.update(dimension_sizes)
+
+            # TODO: Refactor this
+            output_dtypes: Sequence[np.dtype] = [
+                value.dtype if value is not None else np.dtype(float)
+                for value in first_param_dct.values()
+            ]
+
+            output_core_dims: Mapping[tuple[str, ...]] = [
+                value.dims if value is not None else tuple()
+                for value in first_param_dct.values()
+            ]
+            # TODO: Get the dimensions names from all DataSet from 'first_dct'
+            #       Then rename them and keep track of all the coordinates
+
+            results: tuple[xr.DataArray, ...] = xr.apply_ufunc(
+                self._apply_exposure_to_array,
+                ds_parameters.to_dataarray().chunk(run_index=1),  # First parameter
+                ds_index,  # .chunk(run_index=1), # Second parameter
+                ds_parameters["run_index"],  # Third parameter
+                input_core_dims=[["variable"], ["param_id"], []],
+                output_core_dims=output_core_dims,
+                kwargs={
+                    "dimension_names": dim_names,
+                    "processor": processor,
+                    "types": types,
+                    "with_buckets_separated": with_buckets_separated,
+                },
+                vectorize=True,
+                dask="parallelized",
+                dask_gufunc_kwargs={
+                    # "output_dtypes": output_dtypes,
+                    "output_sizes": output_sizes,
+                },
+                output_dtypes=output_dtypes,  # TODO: This should be moved to 'dask_gufunc_kwargs'
+            )
+
+            foo = dask.compute(*results)
+
             datatree_bag: db.Bag = (
                 db.from_sequence(parameters)
                 .map(
@@ -1028,6 +1111,107 @@ class Observation:
                 processor=new_processor,
                 run_number=param_item.run_index,
             )
+
+    def _apply_exposure_to_dict(
+        self,
+        param_item: ParameterItem,
+        dimension_names: Mapping[str, str],
+        processor: "Processor",
+        types: Mapping[str, ParameterType],
+        with_buckets_separated: bool,
+    ) -> Mapping[str, Optional["xr.DataArray"]]:
+
+        with pyxel.set_options(working_directory=self.working_directory):
+            result_datatree: "DataTree" = self._apply_exposure_pipeline(
+                param_item=param_item,
+                dimension_names=dimension_names,
+                processor=processor,
+                types=types,
+                with_buckets_separated=True,
+            )
+
+        # result_dct: Mapping[str, "xr.DataArray"] = {
+        #     node_name: (
+        #         dataset.to_dataarray().rename(
+        #             {dim: f"{idx}_{dim}" for dim in dataset.dims}
+        #         )
+        #         if dataset.data_vars
+        #         else None
+        #     )
+        #     for idx, (node_name, dataset) in enumerate(
+        #         result_datatree.to_dict().items()
+        #     )
+        # }
+
+        # TODO: Create a function that convert a 'Datatree' to a dict
+        # Convert 'datatree' to a dict of DataArray
+        result_dct: Mapping[str, Optional["xr.DataArray"]] = {}
+
+        node_name: str
+        dataset: "xr.Dataset"
+        for idx, (node_name, dataset) in enumerate(result_datatree.to_dict().items()):
+            if not dataset.data_vars:
+                result_dct[node_name] = None
+            else:
+                dataarray: "xr.DataArray" = dataset.to_dataarray()
+                renamed_dimensions: Mapping[str, str] = {
+                    dim: f"{idx}_{dim}" for dim in dataarray.dims
+                }
+
+                result_dct[node_name] = dataarray.rename(renamed_dimensions)
+
+        return result_dct
+
+    def _apply_exposure_to_array(
+        self,
+        param_arr_1d: np.ndarray,
+        idx_1d: np.ndarray,
+        run_index,
+        dimension_names: Mapping[str, str],
+        processor: "Processor",
+        types: Mapping[str, ParameterType],
+        with_buckets_separated: bool,
+    ) -> tuple[np.ndarray, ...]:
+        # TODO: Fix this
+        if param_arr_1d.shape == (1,):
+            raise NotImplementedError
+            # return param_arr_1d
+
+        param_item = ParameterItem(
+            index=tuple(idx_1d),
+            parameters=dict(zip(types, param_arr_1d)),
+            run_index=run_index,
+        )
+
+        result_dct: Mapping[str, Optional["xr.DataArray"]] = (
+            self._apply_exposure_to_dict(
+                param_item=param_item,
+                dimension_names=dimension_names,
+                processor=processor,
+                types=types,
+                with_buckets_separated=with_buckets_separated,
+            )
+        )
+
+        # print("Hello World")
+        result_tuple: tuple[np.ndarray, ...] = tuple(
+            [
+                data.to_numpy() if data is not None else np.array([])
+                for data in result_dct.values()
+            ]
+        )
+
+        assert len(result_tuple) == 6
+        assert result_tuple[0].ndim == 0
+        assert result_tuple[1].ndim == 9
+        assert result_tuple[2].ndim == 0
+        assert result_tuple[3].ndim == 0
+        assert result_tuple[4].ndim == 0
+        assert result_tuple[5].ndim == 7
+
+        return result_tuple
+
+        # return param_item
 
     def _apply_exposure_pipeline(
         self,
@@ -1533,10 +1717,10 @@ def _add_product_parameters(
                 shape_0, shape_1 = data.shape
                 data_array = xr.DataArray(
                     data,
-                    dims=[f"dim_{dim_idx}", f"dim_{dim_idx+1}"],
+                    dims=[f"dim_{dim_idx}", f"dim_{dim_idx + 1}"],
                     coords={
                         f"dim_{dim_idx}": range(shape_0),
-                        f"dim_{dim_idx+1}": range(shape_1),
+                        f"dim_{dim_idx + 1}": range(shape_1),
                     },
                 ).expand_dims(dim={f"{short_name}_id": [index]})
 
