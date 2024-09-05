@@ -103,6 +103,7 @@ all = [
 
 [project.scripts]
 pyxel = "pyxel.run:main"
+pyxel-sim = "pyxel.run:main"
 
 [tool.versioneer]
 VCS = "git"
