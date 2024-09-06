@@ -103,7 +103,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
         weights: Optional[Sequence[float]] = None,
         weights_from_file: Optional[Sequence[Path]] = None,
         pipeline_seed: Optional[int] = None,
-        with_buckets_separated: bool = False,
+        with_hiearchical_format: bool = False,
     ):
         self._variables: Sequence[ParameterValues] = variables
 
@@ -111,7 +111,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
         self.pop: int = population_size
         self.readout: Readout = readout
 
-        self._with_buckets_separated: bool = with_buckets_separated
+        self._with_hiearchical_format: bool = with_hiearchical_format
 
         self.weighting: Optional[np.ndarray] = None
         self.weighting_from_file: Optional[xr.DataArray] = None
@@ -426,7 +426,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
                     readout=self.readout,
                     pipeline_seed=self.pipeline_seed,
                     debug=False,  # Not supported in Observation mode
-                    with_buckets_separated=self._with_buckets_separated,
+                    with_hiearchical_format=self._with_hiearchical_format,
                 )
 
                 logger.setLevel(prev_log_level)  # TODO: Fix this. See issue #81
@@ -511,7 +511,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
             readout=self.readout,
             pipeline_seed=self.pipeline_seed,
             debug=False,  # Not supported in Observation mode
-            with_buckets_separated=True,
+            with_hiearchical_format=True,
         )
 
         return data_tree

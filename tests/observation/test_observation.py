@@ -280,7 +280,7 @@ def test_observation_datatree_no_custom(
             outputs=ObservationOutputs(output_folder=tmp_path),
         )
 
-    dt = observation.run_observation_datatree(processor, with_buckets_separated=False)
+    dt = observation._run_observation_datatree(processor, with_hiearchical_format=False)
     assert isinstance(dt, DataTree)
 
 
@@ -326,5 +326,5 @@ def test_observation_datatree_with_custom(
             outputs=ObservationOutputs(output_folder=tmp_path),
         )
 
-    dt = observation.run_observation_datatree(processor, with_buckets_separated=False)
+    dt = observation._run_observation_datatree(processor, with_hiearchical_format=False)
     assert isinstance(dt, DataTree)
