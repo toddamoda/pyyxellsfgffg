@@ -9,7 +9,6 @@
 
 import shutil
 from pathlib import Path
-from zipfile import ZipFile
 
 
 def download_examples(foldername: str = "pyxel-examples", force: bool = False) -> None:
@@ -21,6 +20,8 @@ def download_examples(foldername: str = "pyxel-examples", force: bool = False) -
     force: bool
     """
     # Late import to speedup start-up time
+    from zipfile import ZipFile
+
     import requests
     from tqdm import tqdm
 
