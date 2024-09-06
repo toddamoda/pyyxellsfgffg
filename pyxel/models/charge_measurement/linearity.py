@@ -79,12 +79,6 @@ def output_node_linearity_poly(
     )
 
     signal_non_linear = signal_non_linear.clip(min=0.0)
-
-    if np.any(signal_non_linear < 0):
-        raise ValueError(
-            "Signal array contains negative values after applying non-linearity model!"
-        )
-
     detector.signal.array = signal_non_linear
 
 
@@ -136,13 +130,14 @@ def compute_simple_physical_non_linearity(
     index = np.where(e_g_calculated > e_g_targeted)[0][0]
     x_cd = xcd[index]  # Targeted cadmium concentration in the HgCdTe alloy
 
-    if not (0.2 <= x_cd <= 0.6):
-        raise ValueError(
-            "Hansen bangap expression used out of its nominal application range. "
-            "x_cd must be between 0.2 and 0.6"
-        )
-
+    # Calculate the effective band-gap value at the temperature at which simulations are performed.
     ni = ni_hansen(x_cd=x_cd, temperature=temperature)
+
+    if np.isclose(ni, 0.0):
+        raise ValueError(
+            "Intrinsic carrier concentration is equal to zero "
+            f"with {x_cd=} and {temperature=}"
+        )
 
     # Build in potential
     vbi = (
@@ -266,22 +261,25 @@ def compute_physical_non_linearity(
     # Here we are considering the case where the detector is operated at its nominal temperature,
     # it might not be always the case
     e_g_targeted = 1.24 / cutoff  # cutoff is um and Eg in eV
-    xcd = np.linspace(0.2, 0.6, 1000)
+    xcd = np.linspace(start=0.2, stop=0.6, num=1000)
     targeted_operating_temperature = temperature
+
+    # Expected band-gap
     e_g_calculated = hgcdte_bandgap(
-        xcd, targeted_operating_temperature
-    )  # Expected band-gap
+        x_cd=xcd, temperature=targeted_operating_temperature
+    )
+
     index = np.where(e_g_calculated > e_g_targeted)[0][0]
     x_cd = xcd[index]  # Targeted cadmium concentration in the HgCdTe alloy
 
-    if not (0.2 <= x_cd <= 0.6):
-        raise ValueError(
-            "Hansen bangap expression used out of its nominal application range. "
-            "x_cd must be between 0.2 and 0.6"
-        )
-
     # Calculate the effective band-gap value at the temperature at which simulations are performed.
     ni = ni_hansen(x_cd=x_cd, temperature=temperature)
+
+    if np.isclose(ni, 0.0):
+        raise ValueError(
+            "Intrinsic carrier concentration is equal to zero "
+            f"with {x_cd=} and {temperature=}"
+        )
 
     # Build in potential
     vbi = (
@@ -445,19 +443,13 @@ def compute_physical_non_linearity_with_saturation(
     # Here we are considering the case where the detector is operated at its nominal temperature,
     # it might not be always the case
     e_g_targeted = 1.24 / cutoff  # cutoff is um and Eg in eV
-    xcd = np.linspace(0.2, 0.6, 1000)
+    xcd = np.linspace(start=0.2, stop=0.6, num=1000)
+
     # targeted_operating_temperature = temperature
     e_g_calculated = hgcdte_bandgap(xcd, temperature)  # Expected bandgap
     index = np.where(e_g_calculated > e_g_targeted)[0][0]
     x_cd = xcd[index]  # Targeted cadmium concentration in the HgCdTe alloy
     # Calculate the effective bandgap value at the temperature at which simulations are performed.
-
-    if not (0.2 <= x_cd <= 0.6):
-        raise ValueError(
-            "Hansen bangap expression used out of its nominal application range. "
-            "x_cd must be between 0.2 and 0.6"
-        )
-
     row, col = signal_array_2d.shape
 
     phi_implant = phi_implant * 1e-6  # in m
