@@ -192,6 +192,11 @@ def ni_hansen(x_cd: float, temperature: float) -> float:
     float
         intrinsic carrier concentration
     """
+    if not (0.2 <= x_cd <= 0.6):
+        raise ValueError(
+            "Hansen bangap expression used out of its nominal application range. "
+            "x_cd must be between 0.2 and 0.6"
+        )
 
     const = Constants()
 
