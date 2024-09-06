@@ -66,17 +66,20 @@ def cmos_5x5() -> CMOS:
 
 @pytest.mark.parametrize(
     "coefficients",
-    [
-        pytest.param([0, 1, 0.9]),
-        pytest.param([5, 0.5, 0.9, 0.8]),
-        pytest.param([3]),
-        pytest.param([0, 3]),
-    ],
+    [[0, 1, 0.9], [5, 0.5, 0.9, 0.8], [3], [0, 3], [0, 1, -0.5]],
 )
 def test_non_linearity_valid(ccd_5x5: CCD, coefficients: Sequence):
     """Test model 'non_linearity' with valid inputs."""
     detector = ccd_5x5
-    detector.signal.array = np.ones(detector.signal.shape)
+    detector.signal.array = np.array(
+        [
+            [0.09, 0.05, 0.04, 0.06, 0.06],
+            [0.05, 0.17, 0.06, 0.08, 0.05],
+            [0.07, 0.09, 0.15, 0.07, 0.11],
+            [2.04, 0.07, 0.06, 0.14, 0.1],
+            [0.06, 0.05, 0.12, 0.04, 0.21],
+        ]
+    )
     output_node_linearity_poly(detector=detector, coefficients=coefficients)
 
 
