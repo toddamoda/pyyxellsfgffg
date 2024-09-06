@@ -95,12 +95,12 @@ def test_offset(
         pytest.param(
             20.0,
             ValueError,
-            "Parameter 'offset' out of bonds of the ADC voltage range.",
+            "Parameter offset=(.*) V out of bonds of the ADC voltage range.",
         ),
         pytest.param(
             -1.0,
             ValueError,
-            "Parameter 'offset' out of bonds of the ADC voltage range.",
+            "Parameter offset=(.*) V out of bonds of the ADC voltage range.",
         ),
     ],
 )
