@@ -297,7 +297,7 @@ def calibration_mode(
     detector: Detector,
     pipeline: "DetectionPipeline",
     compute_and_save: bool = True,
-) -> tuple["xr.Dataset", "pd.DataFrame", Sequence]:  # pragma: no cover
+) -> tuple["xr.Dataset", "pd.DataFrame", "pd.DataFrame", Sequence]:  # pragma: no cover
     """Run a 'calibration' pipeline.
 
     .. deprecated:: 1.14
