@@ -174,6 +174,6 @@ def test_run_calibration(
     dt = calibration.run_calibration(
         processor=processor,
         output_dir=tmp_path,
-        with_hiearchical_format=False,
+        with_inherited_coords=False,
     )
     assert isinstance(dt, DataTree)

@@ -130,7 +130,7 @@ class Exposure:
         self,
         processor: Processor,
         debug: bool,
-        with_hiearchical_format: bool,
+        with_inherited_coords: bool,
     ) -> DataTree:
         """Run an exposure pipeline.
 
@@ -154,7 +154,7 @@ class Exposure:
             result_type=self.result_type,
             pipeline_seed=self.pipeline_seed,
             debug=debug,
-            with_hiearchical_format=with_hiearchical_format,
+            with_inherited_coords=with_inherited_coords,
         )
 
         data_tree.attrs["running mode"] = "Exposure"
@@ -361,7 +361,7 @@ def run_pipeline(
     processor: Processor,
     readout: "Readout",
     debug: bool,
-    with_hiearchical_format: bool,
+    with_inherited_coords: bool,
     outputs: Optional["ExposureOutputs"] = None,
     progressbar: bool = False,
     result_type: ResultId = ResultId("all"),  # noqa: B008
@@ -377,7 +377,7 @@ def run_pipeline(
         destructive readout behavior.
     debug : bool
         If True, captures intermediate data for debugging purposes.
-    with_hiearchical_format : bool
+    with_inherited_coords : bool
         If True, the results are formatted hierarchically in the returned `DataTree`.
     outputs : ExposureOutputs, optional
         If provided, enables saving of data to files during the pipeline run.
@@ -475,7 +475,7 @@ def run_pipeline(
         dct: dict[str, Union[xr.Dataset, xr.DataArray, DataTree, None]] = {}
 
         # Add the final buckets data to the tree.
-        if with_hiearchical_format:
+        if with_inherited_coords:
             dct["/bucket"] = buckets_data_tree
         else:
             dct["/"] = buckets_data_tree
@@ -491,7 +491,7 @@ def run_pipeline(
 
         # Add additional data based on the requested result types.
         if "scene" in keys:
-            if with_hiearchical_format:
+            if with_inherited_coords:
                 dct["/bucket/scene"] = detector.scene.data
             else:
                 dct["/scene"] = detector.scene.data

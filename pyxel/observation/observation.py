@@ -873,7 +873,7 @@ class Observation:
     def _run_observation_datatree(
         self,
         processor: "Processor",
-        with_hiearchical_format: bool,
+        with_inherited_coords: bool,
     ) -> "DataTree":
         """Run the observation pipelines and return a `DataTree` object."""
         # Late import to speedup start-up time
@@ -901,7 +901,7 @@ class Observation:
                     dimension_names=dim_names,
                     processor=processor,
                     types=types,
-                    with_hiearchical_format=with_hiearchical_format,
+                    with_inherited_coords=with_inherited_coords,
                 )
                 .fold(binop=merge)
             )
@@ -916,7 +916,7 @@ class Observation:
                     dimension_names=dim_names,
                     processor=processor,
                     types=types,
-                    with_hiearchical_format=with_hiearchical_format,
+                    with_inherited_coords=with_inherited_coords,
                 )
                 for el in tqdm(parameters)
             )
@@ -1008,7 +1008,7 @@ class Observation:
             result_type=self.result_type,
             pipeline_seed=self.pipeline_seed,
             debug=False,  # Not supported in Observation mode
-            with_hiearchical_format=False,
+            with_inherited_coords=False,
         )
 
         if self.outputs:
@@ -1023,7 +1023,7 @@ class Observation:
         dimension_names: Mapping[str, str],
         processor: "Processor",
         types: Mapping[str, ParameterType],
-        with_hiearchical_format: bool,
+        with_inherited_coords: bool,
     ) -> "DataTree":
         """Run a single exposure pipeline for a given parameter item."""
         # Create a new processor using the given parameters
@@ -1040,7 +1040,7 @@ class Observation:
                 result_type=self.result_type,
                 pipeline_seed=self.pipeline_seed,
                 debug=False,  # Not supported in Observation mode
-                with_hiearchical_format=with_hiearchical_format,
+                with_inherited_coords=with_inherited_coords,
             )
         except Exception as exc:
             # In Python 3.11+, add context notes to the exception

@@ -492,7 +492,7 @@ class Calibration:
         self,
         processor: Processor,
         output_dir: Optional[Path],
-        with_hiearchical_format: bool,
+        with_inherited_coords: bool,
         with_progress_bar: bool = True,
     ) -> "DataTree":
         """Run calibration pipeline."""
@@ -526,7 +526,7 @@ class Calibration:
             input_arguments=self.result_input_arguments,
             weights=self.weights,
             weights_from_file=self.weights_from_file,
-            with_hiearchical_format=with_hiearchical_format,
+            with_inherited_coords=with_inherited_coords,
         )
 
         # Create an archipelago

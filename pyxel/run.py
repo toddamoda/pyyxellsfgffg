@@ -139,7 +139,7 @@ def _run_exposure_mode_without_datatree(
     _ = exposure.run_exposure(
         processor=processor,
         debug=False,
-        with_hiearchical_format=False,
+        with_inherited_coords=False,
     )
 
 
@@ -147,7 +147,7 @@ def _run_exposure_mode(
     exposure: "Exposure",
     processor: Processor,
     debug: bool,
-    with_hiearchical_format: bool,
+    with_inherited_coords: bool,
 ) -> "DataTree":
     """Run an 'exposure' pipeline.
 
@@ -216,7 +216,7 @@ def _run_exposure_mode(
     result: DataTree = exposure.run_exposure(
         processor=processor,
         debug=debug,
-        with_hiearchical_format=with_hiearchical_format,
+        with_inherited_coords=with_inherited_coords,
     )
 
     if outputs and outputs.save_exposure_data:
@@ -469,14 +469,14 @@ def _run_calibration_mode_without_datatree(
     calibration.run_calibration(
         processor=processor,
         output_dir=outputs.current_output_folder if outputs else None,
-        with_hiearchical_format=with_buckets_separated,
+        with_inherited_coords=with_buckets_separated,
     )
 
 
 def _run_calibration_mode(
     calibration: "Calibration",
     processor: Processor,
-    with_hiearchical_format: bool,
+    with_inherited_coords: bool,
 ) -> "DataTree":
     """Run a 'Calibration' pipeline.
 
@@ -550,7 +550,7 @@ def _run_calibration_mode(
     data_tree: "DataTree" = calibration.run_calibration(
         processor=processor,
         output_dir=outputs.current_output_folder if outputs else None,
-        with_hiearchical_format=with_hiearchical_format,
+        with_inherited_coords=with_inherited_coords,
     )
 
     return data_tree
@@ -573,7 +573,7 @@ def _run_observation_mode_without_datatree(
 def _run_observation_mode(
     observation: Observation,
     processor: Processor,
-    with_hiearchical_format: bool,
+    with_inherited_coords: bool,
 ) -> "DataTree":
     """Run the observation mode."""
     logging.info("Mode: Observation")
@@ -586,7 +586,7 @@ def _run_observation_mode(
     # Run the observation mode
     result: "DataTree" = observation._run_observation_datatree(
         processor=processor,
-        with_hiearchical_format=with_hiearchical_format,
+        with_inherited_coords=with_inherited_coords,
     )
 
     # TODO: Fix this. See issue #723
@@ -605,7 +605,7 @@ def run_mode(
     pipeline: DetectionPipeline,
     override_dct: Optional[Mapping[str, Any]] = None,
     debug: bool = False,
-    with_hiearchical_format: bool = False,
+    with_inherited_coords: bool = False,
 ) -> "DataTree":
     """Run a pipeline.
 
@@ -621,7 +621,7 @@ def run_mode(
         A dictionary of parameter(s) to override during processing.
     debug : bool, default: False
         Add all intermediate steps into the results as a ``DataTree``. This mode is used for debugging.
-    with_hiearchical_format : bool, default: False
+    with_inherited_coords : bool, default: False
         Return the results a DataTree with better hierarchical format. This parameter is provisional.
 
     Notes
@@ -650,7 +650,7 @@ def run_mode(
     ...     mode=config.exposure,
     ...     detector=config.detector,
     ...     pipeline=config.pipeline,
-    ...     with_hiearchical_format=True,  # with the new 'provisional' parameter
+    ...     with_inherited_coords=True,  # with the new 'provisional' parameter
     ...     override={  # optional
     ...         "exposure.outputs.output_folder": "new_folder",
     ...         "pipeline.photon_collection.load_image.arguments.image_file": "new_image.fits",
@@ -889,14 +889,14 @@ def run_mode(
             exposure=mode,
             processor=processor,
             debug=debug,
-            with_hiearchical_format=with_hiearchical_format,
+            with_inherited_coords=with_inherited_coords,
         )
 
     elif isinstance(mode, Observation):
         data_tree = _run_observation_mode(
             observation=mode,
             processor=processor,
-            with_hiearchical_format=with_hiearchical_format,
+            with_inherited_coords=with_inherited_coords,
         )
 
     else:
@@ -908,7 +908,7 @@ def run_mode(
             data_tree = _run_calibration_mode(
                 calibration=mode,
                 processor=processor,
-                with_hiearchical_format=with_hiearchical_format,
+                with_inherited_coords=with_inherited_coords,
             )
         else:
             raise TypeError("Please provide a valid simulation mode !")
