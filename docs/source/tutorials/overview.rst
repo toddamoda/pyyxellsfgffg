@@ -47,15 +47,88 @@ and avoid duplication of work. For instance, detector models
 developed for a certain project could be reused by
 other projects as well, making knowledge transfer easier.
 
+
 Quickstart Setup
 ================
 
 The best way to get started and learn Pyxel are the :doc:`examples`.
 
+
+🚀 Quickstart Setup with quick installation (recommended) with `uv <https://docs.astral.sh/uv/>`_ 🚀
+====================================================================================================
+
+The fastest way to install and try Pyxel is to use `uv <https://docs.astral.sh/uv/>`_, an extremely fast Python package
+and project manager.
+
+.. warning::
+
+    With this method, it is not possible to install Pyxel with Calibration mode feature on Windows and Mac.
+    Please install Pyxel with 'miniconda' (see below).
+
+
+**There is no need to create a Python virtual environment or Conda Environment and install Python**,
+`uv <https://docs.astral.sh/uv/>`_ will handle this transparently for you.
+
+First install `uv` (see `here <https://docs.astral.sh/uv/#highlights>`_) from the command line with
+the official standalone installer:
+
+.. tab:: macOS and Linux
+
+    .. code-block:: bash
+
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+
+.. tab:: Windows
+
+    .. code-block:: bash
+
+        powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+
+Then restart or open a new command line terminal.
+
+
+The second step is to download the Pyxel tutorial notebooks with the following commands:
+
+.. code-block:: bash
+
+    $ uvx pyxel-sim download-examples
+    Downloading examples: 388MB [00:08, 47.9MB/s]
+    Done in folder /../pyxel-examples.
+
+
+Then you can start a Jupyter Lab server with the latest version of Pyxel:
+
+.. code-block:: bash
+
+    $ cd pyxel-examples
+    $ uvx --with pyxel-sim[model] --from jupyterlab jupyter-lab
+
+
+or with Python `Spyder IDE <https://www.spyder-ide.org>`_:
+
+.. code-block:: bash
+
+    $ cd pyxel-examples
+    $ uvx --with pyxel-sim[model] spyder
+
+
+or with a Jupyter Lab and a pre-defined version of Pyxel:
+
+.. code-block:: bash
+
+    $ cd pyxel-examples
+    $ uvx --with "pyxel-sim[model]==2.4.1" --from jupyterlab jupyter-lab
+
+
+
+🐌 Quickstart Setup with 'normal' installation with `Miniconda <https://docs.anaconda.com/miniconda>`_ 🐌
+==========================================================================================================
+
 For convenience we provide a pre-defined conda environment file,
 so you can get additional useful packages together with Pyxel in a virtual isolated environment.
 
-First install `Miniconda <https://docs.conda.io/en/latest/miniconda.html>`_ and then just execute the following
+First install `Miniconda <https://docs.anaconda.com/miniconda>`_ and then just execute the following
 commands in the terminal:
 
 .. tip::
