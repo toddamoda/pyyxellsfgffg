@@ -69,4 +69,4 @@ def download_examples(foldername: str = "pyxel-examples", force: bool = False) -
     pyxel_data_folder.rmdir()
     examples_filename.unlink()
 
-    print("Done.")
+    print(f"Done in folder '{folder}'.")
