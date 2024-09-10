@@ -13,6 +13,26 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 
 This release brings a number of bugfixes and improvements.
 
+**🚀 New way to quickly install and use Pyxel 🚀**
+
+There is a new quickstart setup guide to explain how to quickly install and use Pyxel using `uv <https://docs.astral.sh/uv/>`.
+
+You must first install `uv <https://docs.astral.sh/uv/>`
+(see the installation guide [here](https://docs.astral.sh/uv/#highlights)).
+
+Then you can use the following commands to download the Pyxel tutorial notebooks (~200 MB) and 
+use them with Jupyter Lab:
+```bash
+$ uvx pyxel-sim download-examples
+Downloading examples: 388MB [00:08, 47.9MB/s]
+Done in folder /.../pyxel-examples.
+
+$ cd pyxel-examples
+$ uvx --with pyxel-sim[model] --from jupyterlab jupyter-lab
+[Server App] Jupyter Server is running at:
+[Server App] http://localhost:8888/lab?token=...
+```
+
 **New parameter `with_inherited_coords` for function `pyxel.run_mode`**
 
 A new **optional** parameter `with_inherited_coords` has been added to the `pyxel.run_mode` 
@@ -127,6 +147,8 @@ The minimum versions of some dependencies were changed:
   (See [!935](https://gitlab.com/esa/pyxel/-/merge_requests/935)).
 * Speed import time for pyxel.
   (See [!943](https://gitlab.com/esa/pyxel/-/merge_requests/943)).
+* Add Python script `pyxel-sim`.
+  (See [!944](https://gitlab.com/esa/pyxel/-/merge_requests/944)).
 
 
 ## 2.4.1 / 2024-07-10
