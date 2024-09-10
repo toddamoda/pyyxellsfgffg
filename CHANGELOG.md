@@ -13,6 +13,58 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 
 This release brings a number of bugfixes and improvements.
 
+**New parameter `with_inherited_coords` for function `pyxel.run_mode`**
+
+A new **optional** parameter `with_inherited_coords` has been added to the `pyxel.run_mode` 
+function to ensure coordinate inheritance in the DataTree.
+Coordinate inheritance makes the hierarchical structure easier to understand and 
+reduces data repetition
+(see [issue #9077](https://github.com/pydata/xarray/issues/9077) from Xarray).
+
+Example:
+```python
+>>> import pyxel
+>>> cfg = pyxel.load('configuration.yaml')
+
+>>> result = pyxel.run_mode(
+...     mode=cfg.running_mode,
+...     detector=cfg.detector,
+...     pipeline=cfg.pipeline,
+...     with_inherited_coords=True,    # <== Use parameter 'with_inherited_coords'
+... )        
+>>> result
+<xarray.DataTree>
+Group: /
+│   Dimensions:  ()
+│   Data variables:
+│       *empty*
+│   Attributes:
+│       pyxel version:  2.4.1+37.gff6da221.dirty
+│       running mode:   Exposure
+├── Group: /bucket
+│   │   Dimensions:  (time: 100, y: 64, x: 64)
+│   │   Coordinates:
+│   │     * y        (y) int64 512B 0 1 2 3 4 5 6 7 8 9 ... 55 56 57 58 59 60 61 62 63
+│   │     * x        (x) int64 512B 0 1 2 3 4 5 6 7 8 9 ... 55 56 57 58 59 60 61 62 63
+│   │     * time     (time) float64 800B 0.0001 0.0001103 0.0001216 ... 1.437 1.585
+│   │   Data variables:
+│   │       photon   (time, y, x) float64 3MB 98.0 101.0 97.0 ... 1.465e+05 1.478e+05
+|   |       ...
+│   │       image    (time, y, x) uint16 819kB 79 76 73 74 ... 63018 62978 62896 63024
+│   └── Group: /bucket/scene
+└── Group: /data
+    └── Group: /data/mean_variance
+        └── Group: /data/mean_variance/image
+                Dimensions:       (pipeline_idx: 100)
+                Coordinates:
+                  * pipeline_idx  (pipeline_idx) int64 800B 1 2 3 4 5 6 7 ... 94 95 96 97 98 99
+                Data variables:
+                    mean          (pipeline_idx) float64 800B 7.316 8.086 ... 6.299e+04
+                    variance      (pipeline_idx) float64 800B 12.17 13.45 ... 1.348e+03
+```
+
+
+
 The minimum versions of some dependencies were changed:
 
   | Package      | Old    | New            |
@@ -33,6 +85,8 @@ The minimum versions of some dependencies were changed:
   (See [!936](https://gitlab.com/esa/pyxel/-/merge_requests/936)).
 * Add better error message when a pipeline failed during `Observation` mode.
   (See [!937](https://gitlab.com/esa/pyxel/-/merge_requests/937)).
+* Add new parameter `with_inherited_coords` into function `pyxel.run_mode`.
+  (See [!939](https://gitlab.com/esa/pyxel/-/merge_requests/939)).
 
 ### Documentation
 * Update documentation about the new dependencies.
