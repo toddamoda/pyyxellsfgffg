@@ -116,6 +116,9 @@ The minimum versions of some dependencies were changed:
 * Fix bug in model [`dc_offset`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_measurement_models.html#dc-offset)
   in [`Charge Measurement`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_measurement_models.html#charge-measurement-models).
   (See [!940](https://gitlab.com/esa/pyxel/-/merge_requests/940)).
+* Fix bug in model [`output_node_linearity_poly`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_measurement_models.html#non-linearity-polynomial)
+  in [`Charge Measurement`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_measurement_models.html#charge-measurement-models).
+  (See [!942](https://gitlab.com/esa/pyxel/-/merge_requests/942)).
 
 ### Others
 * Add compatibility to `xarray` 2024.07.0.
