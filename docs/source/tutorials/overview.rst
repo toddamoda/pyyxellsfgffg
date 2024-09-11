@@ -72,7 +72,7 @@ and project manager.
 **There is no need to create a Python virtual environment or Conda Environment and install Python**,
 `uv <https://docs.astral.sh/uv/>`_ will handle this transparently for you.
 
-First install `uv <https://docs.astral.sh/uv/>`_ (see `here <https://docs.astral.sh/uv/#highlights>`_)
+First install `uv <https://docs.astral.sh/uv/>`_ (see `here <https://docs.astral.sh/uv/#getting-started>`_)
 from the command line with the official standalone installer:
 
 .. tab:: macOS and Linux
@@ -91,7 +91,7 @@ Then restart or open a new command line terminal.
 
 .. tip::
 
-    To update `uv`, you can enter the following from the command line:
+    To update `uv <https://docs.astral.sh/uv/>`_, you can enter the following from the command line:
 
     .. code-block:: bash
 
@@ -139,7 +139,7 @@ or with a Jupyter Lab server, a pre-defined version of Pyxel and Python:
     $ cd pyxel-examples
     $ uvx --python 3.11 --with "pyxel-sim[model]==2.5" --from jupyterlab jupyter-lab
 
-.. info::
+.. note::
 
     You can also run Pyxel with Python `Spyder IDE <https://www.spyder-ide.org>`_:
 
