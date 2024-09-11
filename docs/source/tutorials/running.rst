@@ -16,6 +16,10 @@ Pyxel can be run either from command line or used as a library, for example in J
 
        python -m pyxel download-examples
 
+       or
+
+       uvx pyxel-sim download-examples
+
 
     These examples will be saved in a new sub-folder ``pyxel-examples``.
     You can find more information in :doc:`examples`.
@@ -33,6 +37,10 @@ To run Pyxel on your local computer, simply run it from the command-line:
     or
 
     python -m pyxel run input.yaml
+
+    or
+
+    uvx --from pyxel-sim[model] pyxel-sim run input.yaml
 
 Usage:
 
