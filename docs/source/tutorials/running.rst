@@ -17,6 +17,14 @@ Pyxel can be run either from command line or used as a library, for example in J
        python -m pyxel download-examples
 
 
+    You can also run Pyxel with `uv <https://docs.astral.sh/uv/>`_,
+    see the installation guide `here <https://docs.astral.sh/uv/#getting-started>`_
+
+    .. code-block:: bash
+
+       uvx pyxel-sim download-examples
+
+
     These examples will be saved in a new sub-folder ``pyxel-examples``.
     You can find more information in :doc:`examples`.
 
@@ -28,11 +36,19 @@ To run Pyxel on your local computer, simply run it from the command-line:
 
 .. code-block:: bash
 
-    pyxel run input.yaml
+    $ pyxel run input.yaml
 
     or
 
-    python -m pyxel run input.yaml
+    $ python -m pyxel run input.yaml
+
+
+Or with `uv <https://docs.astral.sh/uv/>`_ (see `here <https://docs.astral.sh/uv/#highlights>`_)
+
+.. code-block:: bash
+
+    $ uvx --with pyxel-sim[model] pyxel-sim run input.yaml
+
 
 Usage:
 
