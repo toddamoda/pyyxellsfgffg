@@ -54,26 +54,27 @@ Quickstart Setup
 The best way to get started and learn Pyxel are the :doc:`examples`.
 
 
-🚀 Quickstart Setup with quick installation (recommended) with `uv <https://docs.astral.sh/uv/>`_ 🚀
-----------------------------------------------------------------------------------------------------
+🚀 Recommended Quickstart Setup using `uv <https://docs.astral.sh/uv/>`_ 🚀
+---------------------------------------------------------------------------
 
 1. Install `uv <https://docs.astral.sh/uv/>`_
 `````````````````````````````````````````````
 
-The fastest way to install and try Pyxel is to use `uv <https://docs.astral.sh/uv/>`_, an extremely fast Python package
+The quickest way to install and start Pyxel is to use `uv <https://docs.astral.sh/uv/>`_, an extremely fast Python package
 and project manager.
 
 .. warning::
 
-    With this method, it is not possible to install Pyxel with Calibration mode feature on Windows and Mac.
-    Please install Pyxel with 'miniconda' (see below).
+    This installation method does not support Pyxel's Calibration Mode feature on Windows or MacOS.
+    For this, use the 'miniconda' installation method detailed below.
 
 
-**There is no need to create a Python virtual environment or Conda Environment and install Python**,
-`uv <https://docs.astral.sh/uv/>`_ will handle this transparently for you.
+**`uv <https://docs.astral.sh/uv>`_ eliminated the need to manually download Python, set up a Python virtual environment,
+and to install Pyxel on it.
+It handled everything for you automatically.**
 
-First install `uv <https://docs.astral.sh/uv/>`_ (see `here <https://docs.astral.sh/uv/#highlights>`_)
-from the command line with the official standalone installer:
+To get started, install `uv <https://docs.astral.sh/uv/>`_ using the official standalone installer
+(see instructions `here <https://docs.astral.sh/uv/#getting-started>`_)
 
 .. tab:: macOS and Linux
 
@@ -87,21 +88,21 @@ from the command line with the official standalone installer:
 
         powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 
-Then restart or open a new command line terminal.
+After installation, restart or open a new command line terminal.
 
 .. tip::
 
-    To update `uv`, you can enter the following from the command line:
+    To update `uv <https://docs.astral.sh/uv/>`_, run the following command:
 
     .. code-block:: bash
 
         $ uv self update
 
 
-2. Get the current version of the last release of Pyxel
-```````````````````````````````````````````````````````
+2. Verify Pyxel installation with `uv <https://docs.astral.sh/uv/>`_
+````````````````````````````````````````````````````````````````````
 
-Enter the following in the command line:
+Check the current version of the latest Pyxel release by entering:
 
 .. code-block:: bash
 
@@ -110,10 +111,11 @@ Enter the following in the command line:
     Python (CPython) 3.11.9
 
 
-3. Download the tutorial notebooks
+3. Download the Tutorial Notebooks
 ``````````````````````````````````
 
-Then you can download the Pyxel tutorial notebooks in folder `pyxel-examples` with the following commands:
+Then you can download the Pyxel Tutorial Notebooks into the `pyxel-examples` folder with
+the following commands:
 
 .. code-block:: bash
 
@@ -132,30 +134,30 @@ Then you can start a Jupyter Lab server with the latest version of Pyxel:
     $ cd pyxel-examples
     $ uvx --with pyxel-sim[model] --from jupyterlab jupyter-lab
 
-or with a Jupyter Lab server, a pre-defined version of Pyxel and Python:
+Alternatively, start Jupyter Lab server with a specific version of Pyxel and Python:
 
 .. code-block:: bash
 
     $ cd pyxel-examples
     $ uvx --python 3.11 --with "pyxel-sim[model]==2.5" --from jupyterlab jupyter-lab
 
-.. info::
+.. note::
 
-    You can also run Pyxel with Python `Spyder IDE <https://www.spyder-ide.org>`_:
+    You can also run Pyxel with `Spyder IDE <https://www.spyder-ide.org>`_:
 
     .. code-block:: bash
 
         $ cd pyxel-examples
         $ uvx --with pyxel-sim[model] spyder
 
-    of from `IPython <https://ipython.readthedocs.io>`_
+    or with `IPython <https://ipython.readthedocs.io>`_:
 
      .. code-block:: bash
 
         $ cd pyxel-examples
         $ uvx --with pyxel-sim[model] ipython
 
-    or directly from the command line
+    or directly from the command line:
 
     .. code-block:: bash
 
