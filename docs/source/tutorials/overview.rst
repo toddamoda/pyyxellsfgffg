@@ -55,7 +55,10 @@ The best way to get started and learn Pyxel are the :doc:`examples`.
 
 
 🚀 Quickstart Setup with quick installation (recommended) with `uv <https://docs.astral.sh/uv/>`_ 🚀
-====================================================================================================
+----------------------------------------------------------------------------------------------------
+
+1. Install `uv <https://docs.astral.sh/uv/>`_
+`````````````````````````````````````````````
 
 The fastest way to install and try Pyxel is to use `uv <https://docs.astral.sh/uv/>`_, an extremely fast Python package
 and project manager.
@@ -69,8 +72,8 @@ and project manager.
 **There is no need to create a Python virtual environment or Conda Environment and install Python**,
 `uv <https://docs.astral.sh/uv/>`_ will handle this transparently for you.
 
-First install `uv` (see `here <https://docs.astral.sh/uv/#highlights>`_) from the command line with
-the official standalone installer:
+First install `uv <https://docs.astral.sh/uv/>`_ (see `here <https://docs.astral.sh/uv/#highlights>`_)
+from the command line with the official standalone installer:
 
 .. tab:: macOS and Linux
 
@@ -84,11 +87,33 @@ the official standalone installer:
 
         powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 
-
 Then restart or open a new command line terminal.
 
+.. tip::
 
-The second step is to download the Pyxel tutorial notebooks with the following commands:
+    To update `uv`, you can enter the following from the command line:
+
+    .. code-block:: bash
+
+        $ uv self update
+
+
+2. Get the current version of the last release of Pyxel
+```````````````````````````````````````````````````````
+
+Enter the following in the command line:
+
+.. code-block:: bash
+
+    $ uvx pyxel-sim --version
+    pyxel-sim, version 2.5
+    Python (CPython) 3.11.9
+
+
+3. Download the tutorial notebooks
+``````````````````````````````````
+
+Then you can download the Pyxel tutorial notebooks in folder `pyxel-examples` with the following commands:
 
 .. code-block:: bash
 
@@ -97,6 +122,9 @@ The second step is to download the Pyxel tutorial notebooks with the following c
     Done in folder /../pyxel-examples.
 
 
+4. Run Pyxel with Jupyter lab
+`````````````````````````````
+
 Then you can start a Jupyter Lab server with the latest version of Pyxel:
 
 .. code-block:: bash
@@ -104,26 +132,40 @@ Then you can start a Jupyter Lab server with the latest version of Pyxel:
     $ cd pyxel-examples
     $ uvx --with pyxel-sim[model] --from jupyterlab jupyter-lab
 
-
-or with Python `Spyder IDE <https://www.spyder-ide.org>`_:
-
-.. code-block:: bash
-
-    $ cd pyxel-examples
-    $ uvx --with pyxel-sim[model] spyder
-
-
-or with a Jupyter Lab and a pre-defined version of Pyxel:
+or with a Jupyter Lab server, a pre-defined version of Pyxel and Python:
 
 .. code-block:: bash
 
     $ cd pyxel-examples
-    $ uvx --with "pyxel-sim[model]==2.4.1" --from jupyterlab jupyter-lab
+    $ uvx --python 3.11 --with "pyxel-sim[model]==2.5" --from jupyterlab jupyter-lab
 
+.. info::
+
+    You can also run Pyxel with Python `Spyder IDE <https://www.spyder-ide.org>`_:
+
+    .. code-block:: bash
+
+        $ cd pyxel-examples
+        $ uvx --with pyxel-sim[model] spyder
+
+    of from `IPython <https://ipython.readthedocs.io>`_
+
+     .. code-block:: bash
+
+        $ cd pyxel-examples
+        $ uvx --with pyxel-sim[model] ipython
+
+    or directly from the command line
+
+    .. code-block:: bash
+
+        $ cd pyxel-examples
+        $ cd tutorial
+        $ uvx pyxel-sim run exposure.yaml
 
 
 🐌 Quickstart Setup with 'normal' installation with `Miniconda <https://docs.anaconda.com/miniconda>`_ 🐌
-==========================================================================================================
+---------------------------------------------------------------------------------------------------------
 
 For convenience we provide a pre-defined conda environment file,
 so you can get additional useful packages together with Pyxel in a virtual isolated environment.
@@ -149,22 +191,22 @@ commands in the terminal:
 
     .. code-block:: bash
 
-        curl -O https://esa.gitlab.io/pyxel/doc/latest/pyxel-2.4.1-environment.yaml
-        conda env create -f pyxel-2.4.1-environment.yaml
+        curl -O https://esa.gitlab.io/pyxel/doc/latest/pyxel-2.5-environment.yaml
+        conda env create -f pyxel-2.5-environment.yaml
 
 .. tab:: Windows (Powershell)
 
     .. code-block:: bash
 
-        wget https://esa.gitlab.io/pyxel/doc/latest/pyxel-2.4.1-environment.yaml -outfile "pyxel-2.4.1-environment.yaml"
-        conda env create -f pyxel-2.4.1-environment.yaml
+        wget https://esa.gitlab.io/pyxel/doc/latest/pyxel-2.5-environment.yaml -outfile "pyxel-2.5-environment.yaml"
+        conda env create -f pyxel-2.5-environment.yaml
 
 
 Once the conda environment has been created you can active it using:
 
 .. code-block:: bash
 
-    conda activate pyxel-2.4.1
+    conda activate pyxel-2.5
 
 You can now proceed to download the Pyxel tutorial notebooks.
 The total size to download is ~200 MB.

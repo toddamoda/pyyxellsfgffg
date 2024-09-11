@@ -9,15 +9,16 @@ Minor releases include updated stdlib stubs from typeshed.
 
 Pyxel doesn't use SemVer anymore, since most minor releases have at least minor backward incompatible changes.
 
-## UNRELEASED
+## 2.5 / 2024-09-11
 
 This release brings a number of bugfixes and improvements.
 
 **🚀 New way to quickly install and use Pyxel 🚀**
 
-There is a new quickstart setup guide to explain how to quickly install and use Pyxel using `uv <https://docs.astral.sh/uv/>`.
+There is a new [quickstart setup guide](https://esa.gitlab.io/pyxel/doc/stable/tutorials/overview.html#quickstart-setup-with-quick-installation-recommended-with-uv)
+to explain how to quickly install and use Pyxel using [uv](https://docs.astral.sh/uv).
 
-You must first install `uv <https://docs.astral.sh/uv/>`
+You must first install [uv](https://docs.astral.sh/uv)
 (see the installation guide [here](https://docs.astral.sh/uv/#highlights)).
 
 Then you can use the following commands to download the Pyxel tutorial notebooks (~200 MB) and 
