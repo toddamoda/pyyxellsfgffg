@@ -18,6 +18,7 @@ This release brings a number of bugfixes and improvements.
 ### Documentation
 
 ### Models
+* Fix unit bug with ``trap_densities`` in model [`CDM`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_transfer_models.html#charge-distortion-model-cdm)
 
 ### Others
 
