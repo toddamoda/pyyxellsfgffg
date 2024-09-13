@@ -212,7 +212,8 @@ def run_cdm_parallel(
     ydim, xdim = array.shape  # full signal array we want to apply cdm for
     kdim_p = len(nt)
     # np.clip(s, 0., fwc, s)      # full well capacity
-    nt = nt / vg  # parallel trap density (traps / cm**3)
+    # BUGFIX 20240913 line removed below. nt is already in units of  traps / cm^-3
+    # nt = nt / vg  # serial trap density (traps / cm**3)
     # nt_p *= rdose             # absolute trap density [per cm**3]
 
     # IMAGING (non-TDI) MODE
