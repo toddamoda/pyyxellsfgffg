@@ -9,7 +9,7 @@
 
 import sys
 from collections import Counter
-from collections.abc import Iterable, Iterator, Mapping, Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, Literal, Optional, Union
 
@@ -321,7 +321,7 @@ class Observation:
                 )
 
             # If Dask is not enabled, process each parameter sequentially
-            datatree_list: Sequence["DataTree"] = (
+            datatree_list: Sequence["DataTree"] = [
                 self._run_single_pipeline(
                     el,
                     dimension_names=dim_names,

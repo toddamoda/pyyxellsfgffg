@@ -219,6 +219,7 @@ def _run_pipelines_array_to_datatree(
         pipeline_seed=pipeline_seed,
         debug=False,  # Not supported in Observation mode
         with_inherited_coords=with_inherited_coords,
+        progressbar=True,
     )
 
     return data_tree
@@ -276,6 +277,76 @@ def _run_pipelines_tuple_to_array(
             output_data.append(data_tree[f"{path}/{key}"].to_numpy())  # noqa: PERF401
 
     return tuple(output_data)
+
+
+def _rebuild_datatree_from_dask(
+    dask_dataarrays: tuple["xr.DataArray", ...],
+    all_metadata: Mapping[str, DatasetMetadata],
+) -> Mapping[str, Union["xr.Dataset", "DataTree"]]:
+    """Re-build a dictionary of Dask `Dataset` from a tuple of Dask `DataArrays`.
+
+    Parameters
+    ----------
+    dask_dataarrays : tuple[DataArray, ...]
+        A tuple of Dask-backed Xarray DataArrays which contain the (future) computed results.
+    all_metadata : dict[str, DatasetMetaData]
+        A dict that contains the metadata for each DataArrays. This includes dimensions, data variables,
+        coordinates and attributes for each DataArrays in the structure.
+
+    Returns
+    -------
+    dict[str, Union[Dataset, DataTree]]
+        A dictionary where keys are paths and values are either Xarray Datasets or DataTree objects,
+        rebuilt from the provided Dask DataArrays and metadata.
+    """
+    # Late import to speedup start-up time
+    import xarray as xr
+
+    # Import 'DataTree'
+    try:
+        from xarray.core.datatree import DataTree
+    except ImportError:
+        from datatree import DataTree  # type: ignore[assignment]
+
+    # Rebuild the DataTree from 'all_dataarrays'
+    dct: dict[str, Union[xr.Dataset, DataTree]] = {}
+    idx = 0
+    path: str
+
+    partial_metadata: DatasetMetadata
+    for path, partial_metadata in all_metadata.items():
+        if not partial_metadata.data_vars:
+            # TODO: Use this ?
+            # assert not partial_metadata.dims
+            # assert not partial_metadata.coords
+
+            empty_data_tree: DataTree = DataTree()
+            empty_data_tree.attrs = dict(partial_metadata.attrs)
+
+            dct[path] = empty_data_tree
+
+        else:
+            assert partial_metadata.dims
+            assert partial_metadata.coords
+
+            data_set = xr.Dataset(attrs=partial_metadata.attrs)
+
+            var_name: str
+            metadata_vars: VariableMetadata
+            for var_name, metadata_vars in partial_metadata.data_vars.items():
+                data_set[var_name] = (
+                    dask_dataarrays[idx]
+                    .rename(var_name)
+                    .assign_attrs(metadata_vars.attrs)
+                )
+
+                idx += 1
+                assert idx <= len(dask_dataarrays)
+
+            coords: Mapping[Hashable, xr.DataArray] = partial_metadata.to_coords()
+            dct[path] = data_set.assign_coords(coords)
+
+    return dct
 
 
 def run_pipelines(
@@ -351,44 +422,10 @@ def run_pipelines(
         output_dtypes=output_dtypes,  # TODO: Move this to 'dask_gufunc_kwargs'
     )
 
-    # Rebuild the DataTree from 'all_dataarrays'
-    dct: dict[str, Union[xr.Dataset, DataTree]] = {}
-
-    idx = 0
-
-    path: str
-    partial_metadata: DatasetMetadata
-    for path, partial_metadata in all_metadata.items():
-        if not partial_metadata.data_vars:
-            # TODO: Use this ?
-            # assert not partial_metadata.dims
-            # assert not partial_metadata.coords
-
-            empty_data_tree: DataTree = DataTree()
-            empty_data_tree.attrs = dict(partial_metadata.attrs)
-
-            dct[path] = empty_data_tree
-
-        else:
-            assert partial_metadata.dims
-            assert partial_metadata.coords
-
-            data_set = xr.Dataset(attrs=partial_metadata.attrs)
-
-            var_name: str
-            metadata_vars: VariableMetadata
-            for var_name, metadata_vars in partial_metadata.data_vars.items():
-                data_set[var_name] = (
-                    dask_dataarrays[idx]
-                    .rename(var_name)
-                    .assign_attrs(metadata_vars.attrs)
-                )
-
-                idx += 1
-                assert idx <= len(dask_dataarrays)
-
-            coords: Mapping[Hashable, xr.DataArray] = partial_metadata.to_coords()
-            dct[path] = data_set.assign_coords(coords)
+    dct: Mapping[str, Union[xr.Dataset, DataTree]] = _rebuild_datatree_from_dask(
+        dask_dataarrays=dask_dataarrays,
+        all_metadata=all_metadata,
+    )
 
     if xr.__version__ <= "2024.9.0":
         final_datatree = DataTree.from_dict(deepcopy(dct))  # type: ignore[arg-type]
