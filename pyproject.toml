@@ -214,6 +214,7 @@ addopts = [
 ]
 markers = [
     "deprecated: marks tests as deprecated (deselect with '-m \"not deprecated\"')",
+    "fix_this: fix (deselect with '-m \"not fix_this\"')",
 ]
 [tool.pydocstyle]
 convention = "numpy"

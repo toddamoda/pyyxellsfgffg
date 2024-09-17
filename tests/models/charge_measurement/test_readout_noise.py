@@ -208,8 +208,6 @@ def test_output_node_noise_readout_noise_low_charge_to_volt():
         seed=12345,
     )
 
-    return detector
-
 
 def test_output_node_noise_invalid_noise(cmos_2x3: CMOS):
     """Test model 'output_node_noise_ccd' with a 'CCD'."""
