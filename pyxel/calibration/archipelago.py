@@ -6,6 +6,7 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 """Sub-package to create 'archipelagos'."""
+
 import logging
 import warnings
 from collections.abc import Mapping, Sequence

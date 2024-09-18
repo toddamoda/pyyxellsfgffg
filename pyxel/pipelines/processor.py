@@ -6,15 +6,17 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 """TBW."""
+
 import logging
 import operator
 import warnings
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from copy import deepcopy
 from numbers import Number
 from typing import TYPE_CHECKING, Any, Callable, NewType, Optional, Union
 
 import numpy as np
+from typing_extensions import Self
 
 from pyxel import __version__
 from pyxel.evaluator import eval_entry
@@ -241,7 +243,7 @@ class Processor:
         if convert_value:  # and value:
             # TODO: Refactor this
             # convert the string based value to a number
-            if isinstance(value, list):
+            if isinstance(value, Sequence) and not isinstance(value, str):
                 new_value_lst: list[Union[str, Number, np.ndarray]] = []
 
                 val: Union[str, Number, np.ndarray]
@@ -253,10 +255,12 @@ class Processor:
                     str, Number, np.ndarray, Sequence[Union[str, Number, np.ndarray]]
                 ] = new_value_lst
 
-            elif isinstance(value, (str, Number, np.ndarray)):
+            elif isinstance(value, str):
                 converted_value: Union[str, Number, np.ndarray] = eval_entry(value)
-
                 new_value = converted_value
+
+            elif isinstance(value, (Number, np.ndarray)):
+                new_value = value
 
             else:
                 raise TypeError
@@ -393,3 +397,10 @@ class Processor:
         """
         self._numbytes = get_size(self)
         return self._numbytes
+
+    def replace(self, changes: Mapping[str, Any]) -> Self:
+        new_processor = deepcopy(self)
+        for key, value in changes.items():
+            new_processor.set(key=key, value=value)
+
+        return new_processor

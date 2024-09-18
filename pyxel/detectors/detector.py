@@ -6,6 +6,7 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 """Detector class."""
+
 import collections
 from collections.abc import Mapping, Sequence
 from pathlib import Path

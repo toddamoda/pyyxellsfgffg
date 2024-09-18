@@ -6,6 +6,7 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 """Avalanche gain model."""
+
 from pyxel.detectors import APD
 
 

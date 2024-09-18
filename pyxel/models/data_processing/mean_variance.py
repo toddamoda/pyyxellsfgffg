@@ -6,6 +6,7 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 """Model to compute Mean-Variance."""
+
 from typing import TYPE_CHECKING, Literal, Optional, Union
 
 import xarray as xr

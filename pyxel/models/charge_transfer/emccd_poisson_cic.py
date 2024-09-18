@@ -19,6 +19,7 @@
 # SOFTWARE.
 
 """Model for replicating the gain register in an EMCCD, including clock-induced-charge (CIC)."""
+
 import numba
 import numpy as np
 

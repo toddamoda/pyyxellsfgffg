@@ -145,10 +145,9 @@ def linear_regression(
             detector.data[f"/linear_regression/{name}/r2"] = r2
             detector.data[f"/linear_regression/{name}/slope_std"] = slope_std
             detector.data[f"/linear_regression/{name}/intercept_std"] = intercept_std
-
-            detector.data[f"/linear_regression/{name}"].attrs[
-                "long_name"
-            ] = f"Linear regression: {name}"
+            detector.data[f"/linear_regression/{name}"].attrs = {
+                "long_name": f"Linear regression: {name}"
+            }
 
             # Remove '/linear_regression/partial
             detector.data[f"/linear_regression/{name}/partial"].orphan()

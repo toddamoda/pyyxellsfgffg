@@ -80,7 +80,6 @@ def test_exposure_output(
 
     # Change the current directory
     with chdir(tmp_path):
-
         # Check that 'tmp_path' is empty
         assert list(tmp_path.glob("*")) == []
 

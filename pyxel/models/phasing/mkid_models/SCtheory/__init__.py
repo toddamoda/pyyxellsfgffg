@@ -57,18 +57,18 @@ def cinduct(hw, D, kbT):
     """Mattis-Bardeen equations."""
 
     def integrand11(E, hw, D, kbT):
-        nume = 2 * (f(E, kbT) - f(E + hw, kbT)) * np.abs(E ** 2 + D ** 2 + hw * E)
-        deno = hw * ((E ** 2 - D ** 2) * ((E + hw) ** 2 - D ** 2)) ** 0.5
+        nume = 2 * (f(E, kbT) - f(E + hw, kbT)) * np.abs(E**2 + D**2 + hw * E)
+        deno = hw * ((E**2 - D**2) * ((E + hw) ** 2 - D**2)) ** 0.5
         return nume / deno
 
     def integrand12(E, hw, D, kbT):
-        nume = (1 - 2 * f(E + hw, kbT)) * np.abs(E ** 2 + D ** 2 + hw * E)
-        deno = hw * ((E ** 2 - D ** 2) * ((E + hw) ** 2 - D ** 2)) ** 0.5
+        nume = (1 - 2 * f(E + hw, kbT)) * np.abs(E**2 + D**2 + hw * E)
+        deno = hw * ((E**2 - D**2) * ((E + hw) ** 2 - D**2)) ** 0.5
         return nume / deno
 
     def integrand2(E, hw, D, kbT):
-        nume = (1 - 2 * f(E + hw, kbT)) * np.abs(E ** 2 + D ** 2 + hw * E)
-        deno = hw * ((D ** 2 - E ** 2) * ((E + hw) ** 2 - D ** 2)) ** 0.5
+        nume = (1 - 2 * f(E + hw, kbT)) * np.abs(E**2 + D**2 + hw * E)
+        deno = hw * ((D**2 - E**2) * ((E + hw) ** 2 - D**2)) ** 0.5
         return nume / deno
 
     s1 = integrate.quad(integrand11, D, np.inf, args=(hw, D, kbT))[0]
@@ -80,7 +80,7 @@ def cinduct(hw, D, kbT):
 
 def D(kbT, SC):
     """Calculates the thermal average energy gap, Delta. Tries to load Ddata,
-    but calculates from scratch otherwise. Then, it cannot handle arrays.  """
+    but calculates from scratch otherwise. Then, it cannot handle arrays."""
     Ddata = SC.Ddata
     if Ddata is not None:
         Dspl = interpolate.splrep(Ddata[0, :], Ddata[1, :], s=0)
@@ -93,7 +93,7 @@ def D(kbT, SC):
         )
 
         def integrandD(E, D, kbT, SC):
-            return SC.N0 * SC.Vsc * (1 - 2 * f(E, kbT)) / np.sqrt(E ** 2 - D ** 2)
+            return SC.N0 * SC.Vsc * (1 - 2 * f(E, kbT)) / np.sqrt(E**2 - D**2)
 
         def dint(D, kbT, SC):
             return np.abs(
@@ -116,15 +116,15 @@ def nqp(kbT, D, SC):
     else:
 
         def integrand(E, kbT, D, SC):
-            return 4 * SC.N0 * E / np.sqrt(E ** 2 - D ** 2) * f(E, kbT)
+            return 4 * SC.N0 * E / np.sqrt(E**2 - D**2) * f(E, kbT)
 
         if any(
-                [
-                    type(kbT) is float,
-                    type(D) is float,
-                    type(kbT) is np.float64,
-                    type(D) is np.float64,
-                ]
+            [
+                type(kbT) is float,
+                type(D) is float,
+                type(kbT) is np.float64,
+                type(D) is np.float64,
+            ]
         ):  # make sure it can deal with kbT,D arrays
             return integrate.quad(integrand, D, np.inf, args=(kbT, D, SC))[0]
         else:
@@ -139,13 +139,13 @@ def nqp(kbT, D, SC):
 
 def kbTeff(nqp_value, SC):
     """Calculates the effective temperature (in µeV) at a certain
-   quasiparticle density."""
+    quasiparticle density."""
     Ddata = SC.Ddata
     if Ddata is not None:
-        kbTspl = interpolate.splrep(Ddata[2, :], Ddata[0, :],
-                                    s=0, k=1)
+        kbTspl = interpolate.splrep(Ddata[2, :], Ddata[0, :], s=0, k=1)
         return interpolate.splev(nqp_value, kbTspl)
     else:
+
         def minfunc(kbT, nqp_value, SC):
             Dt = D(kbT, SC)
             return np.abs(nqp(kbT, Dt, SC) - nqp_value)
@@ -162,14 +162,14 @@ def kbTeff(nqp_value, SC):
 
 
 def Zs(hw, kbT, SCsheet):
-    '''The surface impendance of a superconducting sheet with arbitrary
-    thickness. Unit is µOhm'''
+    """The surface impendance of a superconducting sheet with arbitrary
+    thickness. Unit is µOhm"""
     D_ = D(kbT, SCsheet.SC)
     s1, s2 = cinduct(hw, D_, kbT) / SCsheet.SC.rhon
     omega = hw / (const.hbar * 1e12 / const.e)
-    return (np.sqrt(1j * const.mu_0 * 1e6 * omega / (s1 - 1j * s2))
-            / np.tanh(np.sqrt(1j * omega * const.mu_0 * 1e6 * (s1 - 1j * s2)) * SCsheet.d)
-            )
+    return np.sqrt(1j * const.mu_0 * 1e6 * omega / (s1 - 1j * s2)) / np.tanh(
+        np.sqrt(1j * omega * const.mu_0 * 1e6 * (s1 - 1j * s2)) * SCsheet.d
+    )
 
 
 def beta(kbT, D, SCsheet):
@@ -237,16 +237,16 @@ def calc_Nwsg(kbT, D, e, V):
 
     def integrand(E, kbT, V):
         return (
-                3
-                * V
-                * E ** 2
-                / (
-                        2
-                        * np.pi
-                        * (const.hbar / const.e * 1e12) ** 2
-                        * (6.3e3) ** 3
-                        * (np.exp(E / kbT) - 1)
-                )
+            3
+            * V
+            * E**2
+            / (
+                2
+                * np.pi
+                * (const.hbar / const.e * 1e12) ** 2
+                * (6.3e3) ** 3
+                * (np.exp(E / kbT) - 1)
+            )
         )
 
     return integrate.quad(integrand, e + D, 2 * D, args=(kbT, V))[0]
@@ -257,12 +257,12 @@ def kbTbeff(tqpstar, SCsheet, plot=False):
     quasiparticle lifetime."""
     SC = SCsheet.SC
     nqp_0 = (
-            SC.t0
-            * SC.N0
-            * SC.kbTc ** 3
-            / (2 * SC.D0 ** 2 * tqpstar)
-            * (1 + SCsheet.tesc / SC.tpb)
-            / 2
+        SC.t0
+        * SC.N0
+        * SC.kbTc**3
+        / (2 * SC.D0**2 * tqpstar)
+        * (1 + SCsheet.tesc / SC.tpb)
+        / 2
     )
     return kbTeff(nqp_0, SC)
 
@@ -271,8 +271,8 @@ def nqpfromtau(tau, SCsheet):
     """Calculates the density of quasiparticles from the quasiparticle lifetime."""
     SC = SCsheet.SC
     return (
-            SC.t0
-            * SC.N0
-            * SC.kbTc ** 3
-            / (2 * SC.D0 ** 2 * 2 * tau / (1 + SCsheet.tesc / SC.tpb))
+        SC.t0
+        * SC.N0
+        * SC.kbTc**3
+        / (2 * SC.D0**2 * 2 * tau / (1 + SCsheet.tesc / SC.tpb))
     )

@@ -6,6 +6,7 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 """Wrapper to create simple graphs using the source extractor package."""
+
 import warnings
 
 import matplotlib.pyplot as plt

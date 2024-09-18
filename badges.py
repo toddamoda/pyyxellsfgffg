@@ -8,6 +8,7 @@
 """Badge creator script.
 by David Lucsanyi
 """
+
 import argparse
 import subprocess
 

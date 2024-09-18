@@ -230,8 +230,6 @@ Observation
 .. autosummary::
 
     Observation
-    ObservationResult
-    log_parameters
 
 Calibration
 -----------

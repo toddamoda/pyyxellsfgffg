@@ -6,6 +6,7 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 """Sub-package to create 'archipelagos'."""
+
 import logging
 from collections.abc import Sequence
 from concurrent.futures.thread import ThreadPoolExecutor

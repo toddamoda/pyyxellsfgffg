@@ -28,6 +28,26 @@ class ParameterType(Enum):
     Multi = "multi"
 
 
+# TODO: Add unit tests
+def convert_values(
+    values,
+    parameter_type: ParameterType,
+) -> Union[
+    Literal["_"],
+    Sequence[Literal["_"]],
+    Sequence[Number],
+    Sequence[str],
+    Sequence[tuple[Number, ...]],
+]:
+    if parameter_type is ParameterType.Simple or values == "_":
+        return values
+
+    return [
+        (tuple(el) if (isinstance(el, Sequence) and not isinstance(el, str)) else el)
+        for el in values
+    ]
+
+
 # TODO: Add unit tests. See #336
 class ParameterValues:
     """Contains keys and values of parameters in a parametric step."""
@@ -82,8 +102,12 @@ class ParameterValues:
         # unique identifier to the step. example: 'detector.geometry.row'
         self._key: str = key
         self._values: Union[
-            Literal["_"], Sequence[Literal["_"]], Sequence[Number], Sequence[str]
-        ] = values
+            Literal["_"],
+            Sequence[Literal["_"]],
+            Sequence[Number],
+            Sequence[str],
+            Sequence[tuple[Number, ...]],
+        ] = convert_values(values, parameter_type=self.type)
 
         # short  name identifier: 'row'
         self._short_name = key.split(".")[-1]
@@ -112,7 +136,9 @@ class ParameterValues:
 
         self._boundaries: Optional[NDArray[np.float64]] = boundaries_array
 
-        self._current: Optional[Union[Literal["_"], Number, str]] = None
+        self._current: Optional[
+            Union[Literal["_"], Number, tuple[Number, ...], str]
+        ] = None
 
     def __repr__(self) -> str:
         cls_name: str = self.__class__.__name__
@@ -150,7 +176,13 @@ class ParameterValues:
     @property
     def values(
         self,
-    ) -> Union[Literal["_"], Sequence[Literal["_"]], Sequence[Number], Sequence[str]]:
+    ) -> Union[
+        Literal["_"],
+        Sequence[Literal["_"]],
+        Sequence[Number],
+        Sequence[str],
+        Sequence[tuple[Number, ...]],
+    ]:
         """TBW."""
         return self._values
 
@@ -160,12 +192,14 @@ class ParameterValues:
         return self._enabled
 
     @property
-    def current(self) -> Optional[Union[Literal["_"], Number, str]]:
+    def current(self) -> Optional[Union[Literal["_"], Number, tuple[Number, ...], str]]:
         """TBW."""
         return self._current
 
     @current.setter
-    def current(self, value: Union[Literal["_"], str, Number]) -> None:
+    def current(
+        self, value: Union[Literal["_"], str, Number, tuple[Number, ...]]
+    ) -> None:
         """TBW."""
         self._current = value
 

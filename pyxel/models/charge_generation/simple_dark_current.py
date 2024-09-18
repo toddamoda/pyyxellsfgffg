@@ -6,6 +6,7 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 """Model to generate charges due to simple dark current process."""
+
 from typing import Optional
 
 import numpy as np

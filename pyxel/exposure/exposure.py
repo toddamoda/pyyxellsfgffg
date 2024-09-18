@@ -30,6 +30,7 @@ if TYPE_CHECKING:
     from pyxel.exposure import Readout
     from pyxel.outputs import CalibrationOutputs, ExposureOutputs, ObservationOutputs
 
+    # Import 'DataTree'
     try:
         from xarray.core.datatree import DataTree
     except ImportError:
@@ -489,7 +490,7 @@ def run_pipeline(
                 pbar.update(1)
 
         # Prepare the final dictionary to construct the `DataTree`.
-        dct: dict[str, Union[xr.Dataset, xr.DataArray, DataTree, None]] = {}
+        dct: dict[str, Union[xr.Dataset, DataTree, None]] = {}
 
         # Add the final buckets data to the tree.
         if with_inherited_coords:

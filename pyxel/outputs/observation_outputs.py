@@ -14,11 +14,11 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, Protocol, Union
 
-from pyxel.observation import ParameterMode
 from pyxel.outputs import Outputs, ValidFormat, ValidName
 
 if TYPE_CHECKING:
-    from pyxel.observation import ObservationResult
+    from pyxel.observation import CustomMode, ProductMode, SequentialMode
+    from pyxel.observation.deprecated import ObservationResult
 
     class SaveToFile(Protocol):
         """TBW."""
@@ -66,7 +66,9 @@ class ObservationOutputs(Outputs):
         )
 
     def _save_observation_datasets_deprecated(
-        self, result: "ObservationResult", mode: "ParameterMode"
+        self,
+        result: "ObservationResult",
+        mode: Union["ProductMode", "SequentialMode", "CustomMode"],
     ) -> None:
         """Save the result datasets from parametric mode on disk.
 
@@ -78,6 +80,8 @@ class ObservationOutputs(Outputs):
         warnings.warn(
             "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
         )
+
+        from pyxel.observation import SequentialMode
 
         dataset_names = ("dataset", "parameters", "logs")
 
@@ -95,7 +99,7 @@ class ObservationOutputs(Outputs):
                         " 'parameters', 'logs')."
                     )
 
-                if mode == ParameterMode.Sequential and obj == "dataset":
+                if isinstance(mode, SequentialMode) and obj == "dataset":
                     dct = operator.attrgetter(obj)(result)
                     for key, value in dct.items():
                         if format_list is not None:

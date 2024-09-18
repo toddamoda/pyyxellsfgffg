@@ -7,7 +7,6 @@
 
 """Phase-pulse processing model."""
 
-
 import astropy.constants as const
 import numpy as np
 

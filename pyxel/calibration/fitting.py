@@ -9,6 +9,7 @@
 
 https://esa.github.io/pagmo2/index.html
 """
+
 import copy
 import logging
 import math
@@ -142,7 +143,9 @@ class ModelFitting(ProblemSingleObjective):
                 for step in input_arguments:
                     assert step.values != "_"
 
-                    value: Union[Literal["_"], str, Number] = step.values[i]
+                    value: Union[Literal["_"], str, Number, tuple[Number, ...]] = (
+                        step.values[i]
+                    )
 
                     step.current = value
                     new_processor.set(key=step.key, value=step.current)

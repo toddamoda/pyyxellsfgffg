@@ -7,6 +7,7 @@
 
 
 """Voltage offset model tests."""
+
 import numpy as np
 import pytest
 

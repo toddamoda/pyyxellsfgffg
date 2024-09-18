@@ -6,6 +6,7 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 """Subpackage used to display the versions of all dependencies."""
+
 import importlib
 import locale
 import os

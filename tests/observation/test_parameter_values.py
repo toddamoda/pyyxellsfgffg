@@ -100,7 +100,7 @@ def test_parameter_values_multi():
 def test_parameter_values_multi2():
     params = ParameterValues(
         key="foo",
-        values=[["_", "_"], ["_", "_"], ["_", "_"]],
+        values=[("_", "_"), ("_", "_"), ("_", "_")],
         boundaries=[(0, 4), (5, 8), (10, 20)],
     )
 
@@ -113,8 +113,8 @@ def test_parameter_values_multi2():
     assert params.type is ParameterType.Multi
 
     assert len(params) == 3
-    assert list(params) == [["_", "_"], ["_", "_"], ["_", "_"]]
-    assert params.values == [["_", "_"], ["_", "_"], ["_", "_"]]
+    assert list(params) == [("_", "_"), ("_", "_"), ("_", "_")]
+    assert params.values == [("_", "_"), ("_", "_"), ("_", "_")]
     np.testing.assert_allclose(
         params.boundaries, np.array([[0, 4], [5, 8], [10, 20]], dtype=float)
     )

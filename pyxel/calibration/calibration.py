@@ -6,6 +6,7 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 """TBW."""
+
 import logging
 import sys
 import warnings

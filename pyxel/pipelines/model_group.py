@@ -6,6 +6,7 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 """TBW."""
+
 import logging
 import sys
 from collections.abc import Iterator, Mapping, Sequence
@@ -139,25 +140,23 @@ class ModelGroup:
                 # TODO: Refactor
                 pipeline_key: str = f"time_idx_{detector.pipeline_count}"
                 if pipeline_key not in datatree_intermediate:
-                    datatree_single_time: DataTree = DataTree(
-                        name=pipeline_key,
-                        parent=datatree_intermediate,
-                    )
+
+                    datatree_single_time: DataTree = DataTree()
                     datatree_single_time.attrs = {
                         "long_name": "Pipeline for one unique time",
                         "pipeline_count": detector.pipeline_count,
                         "time": f"{detector.absolute_time} s",
                     }
+
+                    datatree_intermediate[pipeline_key] = datatree_single_time
+
                 else:
                     datatree_single_time = datatree_intermediate[pipeline_key]  # type: ignore
 
                 # TODO: Refactor
                 model_group_key: str = self._name
                 if model_group_key not in datatree_single_time:
-                    datatree_group: DataTree = DataTree(
-                        name=model_group_key,
-                        parent=datatree_single_time,
-                    )
+                    datatree_group: DataTree = DataTree()
 
                     # TODO: Refactor this ?
                     # Convert a model group's name to a better string representation
@@ -166,20 +165,21 @@ class ModelGroup:
                         map(str.capitalize, self._name.split("_"))
                     )
                     datatree_group.attrs = {"long_name": f"Model group: {group_name}"}
+                    datatree_single_time[model_group_key] = datatree_group
                 else:
                     datatree_group = datatree_single_time[model_group_key]  # type: ignore
 
                 # TODO: Refactor
                 model_key: str = model.name
                 if model_key not in datatree_group:
-                    datatree_model: DataTree = DataTree(
-                        name=model_key,
-                        parent=datatree_group,
-                    )
+                    datatree_model: DataTree = DataTree()
                     datatree_model.attrs = {
                         "long_name": f"Model name: {model.name!r}",
                         "function_name": f"Model function: {model.func.__name__!r}",
                     }
+
+                    datatree_group[model_key] = datatree_model
+
                 else:
                     datatree_model = datatree_group[model_key]  # type: ignore
 

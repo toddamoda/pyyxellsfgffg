@@ -13,7 +13,7 @@ from pyxel.calibration import Algorithm, Calibration, CalibrationMode
 from pyxel.data_structure import Charge, Image, Pixel, Signal
 from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
 from pyxel.exposure import Exposure
-from pyxel.observation import Observation, ParameterMode
+from pyxel.observation import Observation, SequentialMode
 from pyxel.outputs.calibration_outputs import CalibrationOutputs
 from pyxel.outputs.exposure_outputs import ExposureOutputs
 from pyxel.outputs.observation_outputs import ObservationOutputs
@@ -46,7 +46,7 @@ def test_yaml_load(yaml_file):
         assert isinstance(cfg.calibration.calibration_mode, CalibrationMode)
     elif isinstance(cfg.observation, Observation):
         assert isinstance(cfg.observation.outputs, ObservationOutputs)
-        assert isinstance(cfg.observation.parameter_mode, ParameterMode)
+        assert isinstance(cfg.observation.parameter_mode, SequentialMode)
 
     assert isinstance(cfg.ccd_detector, CCD)
     assert isinstance(cfg.ccd_detector.geometry, CCDGeometry)

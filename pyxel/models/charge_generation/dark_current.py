@@ -6,6 +6,7 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 """Models to generate charge due to dark current process."""
+
 import warnings
 from typing import Literal, Optional
 

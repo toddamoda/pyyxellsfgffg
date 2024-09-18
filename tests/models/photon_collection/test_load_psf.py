@@ -6,6 +6,7 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 """Tests for load psf model."""
+
 from pathlib import Path
 
 import numpy as np

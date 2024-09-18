@@ -7,6 +7,7 @@
 
 
 """Utility functions for mercury cadmium telluride alloy material properties."""
+
 import numpy as np
 
 

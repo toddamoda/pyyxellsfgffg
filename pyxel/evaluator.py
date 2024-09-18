@@ -6,6 +6,7 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 """TBW."""
+
 import importlib
 from ast import literal_eval
 from collections import abc

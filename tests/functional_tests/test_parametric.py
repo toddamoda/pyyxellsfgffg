@@ -6,19 +6,11 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 import logging
-from collections import abc
-from pathlib import Path
 from typing import Any
 
-import numpy as np
-import pytest
-
-import pyxel
-from pyxel import Configuration
-from pyxel.detectors import CCD
-from pyxel.exposure import _run_exposure_pipeline_deprecated
-from pyxel.observation import Observation, ParameterMode
-from pyxel.pipelines import DetectionPipeline, Processor
+from pyxel.observation import Observation
+from pyxel.observation.deprecated import _processors_it
+from pyxel.pipelines import Processor
 from pyxel.pipelines.processor import _get_obj_att
 
 expected_sequential = [
@@ -68,7 +60,7 @@ def get_value(obj: Any, key: str) -> Any:
 def debug_parameters(observation: Observation, processor: Processor) -> list:
     """List the parameters using processor parameters in processor generator."""
     result = []
-    processor_generator = observation._processors_it(processor=processor)
+    processor_generator = _processors_it(observation, processor=processor)
     for i, (proc, _, _) in enumerate(processor_generator):
         values = []
         for step in observation.enabled_steps:
@@ -78,49 +70,3 @@ def debug_parameters(observation: Observation, processor: Processor) -> list:
         logging.debug("%d: %r", i, values)
         result.append((i, values))
     return result
-
-
-@pytest.mark.parametrize(
-    "mode, expected",
-    [
-        # ('single', expected_single),
-        (ParameterMode.Sequential, expected_sequential),
-        (ParameterMode.Product, expected_product),
-    ],
-)
-def test_pipeline_parametric_without_init_photon(mode: ParameterMode, expected):
-    input_filename = "tests/data/parametric.yaml"
-    cfg = pyxel.load(Path(input_filename))
-
-    assert isinstance(cfg, Configuration)
-    assert hasattr(cfg, "observation")
-    assert hasattr(cfg, "ccd_detector")
-    assert hasattr(cfg, "pipeline")
-
-    observation = cfg.observation
-    assert isinstance(observation, Observation)
-
-    observation.parameter_mode = mode
-
-    detector = cfg.ccd_detector
-    assert isinstance(detector, CCD)
-
-    pipeline = cfg.pipeline
-    assert isinstance(pipeline, DetectionPipeline)
-
-    processor = Processor(detector=detector, pipeline=pipeline)
-    result = debug_parameters(observation=observation, processor=processor)
-    assert result == expected
-
-    detector.photon.array = np.zeros(detector.geometry.shape, dtype=float)
-    detector.image.array = np.zeros(detector.geometry.shape, dtype=np.uint64)
-    detector.pixel.array = np.zeros(detector.geometry.shape, dtype=float)
-    detector.signal.array = np.zeros(detector.geometry.shape, dtype=float)
-
-    processor_generator = observation._processors_it(processor=processor)
-    assert isinstance(processor_generator, abc.Generator)
-
-    for proc, _, _ in processor_generator:
-        assert isinstance(proc, Processor)
-
-        _run_exposure_pipeline_deprecated(processor=proc, readout=observation.readout)

@@ -9,7 +9,7 @@
 
 from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 from typing_extensions import Self
 
@@ -357,7 +357,7 @@ class Scene:
         }
 
         scene = cls()
-        scene._source = DataTree.from_dict(data, name="scene")  # type: ignore
+        scene._source = DataTree.from_dict(data, name="scene")
 
         return scene
 
@@ -423,7 +423,7 @@ class Scene:
         last_ref: int = 0
         lst: list[xr.Dataset] = []
 
-        partial_scene: DataTree
+        partial_scene: Union[xr.DataArray, DataTree]
         for partial_scene in scene_dt.values():
             ds: xr.Dataset = partial_scene.to_dataset()
 

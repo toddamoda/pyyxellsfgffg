@@ -6,6 +6,7 @@
 #   the terms contained in the file ‘LICENCE.txt’.
 
 """Convert scene to photon with simple collection model."""
+
 from typing import Optional, Union
 
 import astropy.units as u
@@ -377,7 +378,6 @@ def _extract_wavelength(
 ) -> xr.DataArray:
     """Extract wavelength."""
     if filter_band is not None:
-
         first_band, last_band = filter_band
         if not (0 < first_band < last_band):
             raise ValueError(
@@ -400,7 +400,6 @@ def _extract_wavelength(
             step_size = default_wavelength_handling.resolution
 
     else:
-
         if resolution is not None:
             if resolution <= 0.0:
                 raise ValueError(f"Expected 'resolution' > 0. Got: {resolution!r}")

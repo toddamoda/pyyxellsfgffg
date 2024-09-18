@@ -102,7 +102,6 @@ https://sphinx-rtd-theme.readthedocs.io/en/latest/index.html
 
 """
 
-
 # One or the other
 from pyxel.detectors import CCD
 

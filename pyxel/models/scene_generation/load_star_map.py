@@ -616,7 +616,6 @@ def load_objects_from_gaia(
         )
 
         if with_caching:
-
             # Store dataset in the cache
             cache[key_cache] = ds
 

@@ -35,6 +35,7 @@ Non-linearity models utility functions.
 
 @author: tpichon
 """
+
 import numpy as np
 from numba import float64, njit
 from numba.experimental import jitclass

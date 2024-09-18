@@ -19,7 +19,6 @@ from pyxel.util import load_cropped_and_aligned_image, set_random_seed
 
 # TODO: move this function in class Photon
 def integrate_photon(photon: xr.DataArray) -> xr.DataArray:
-
     # integrate flux along coordinate wavelength
     integrated_photon = photon.integrate(coord="wavelength")
 

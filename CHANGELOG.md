@@ -14,6 +14,10 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 This release brings a number of bugfixes and improvements.
 
 ### Core
+* Improved Observation mode with `dask` enabled.
+  (See [!951](https://gitlab.com/esa/pyxel/-/merge_requests/951)).
+* Add compatibility with xarray 2024.09.0.
+  (See [!953](https://gitlab.com/esa/pyxel/-/merge_requests/953)).
 
 ### Documentation
 
@@ -21,7 +25,8 @@ This release brings a number of bugfixes and improvements.
 * Fix unit bug with ``trap_densities`` in model [`CDM`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_transfer_models.html#charge-distortion-model-cdm)
 
 ### Others
-
+* Apply `ruff format` on the source code.
+  (See [!950](https://gitlab.com/esa/pyxel/-/merge_requests/950)).
 
 
 ## 2.5.1 / 2024-09-12

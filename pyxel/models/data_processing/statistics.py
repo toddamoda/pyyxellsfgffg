@@ -6,6 +6,7 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 """Simple model to compute basic statistics."""
+
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Literal, Union
 

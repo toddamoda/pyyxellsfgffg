@@ -13,13 +13,3 @@ Observation
     :undoc-members:
     :show-inheritance:
     :exclude-members:
-
-
-.. autoclass:: ObservationResult
-    :members:
-    :inherited-members:
-    :undoc-members:
-    :show-inheritance:
-    :exclude-members:
-
-.. autofunction:: log_parameters

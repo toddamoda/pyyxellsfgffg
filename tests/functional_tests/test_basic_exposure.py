@@ -136,3 +136,14 @@ def test_simple_adc_dtype(readout_times, valid_config_filename: Path):
 
     assert detector.image.dtype == np.uint16
     assert result["image"].dtype == np.uint16
+
+
+def test_with_debug(valid_config_filename: Path):
+    """Test 'pyxel.run_mode' with parameter 'debug' enabled."""
+    cfg = pyxel.load(valid_config_filename)
+
+    data_tree = pyxel.run_mode(
+        mode=cfg.running_mode, detector=cfg.detector, pipeline=cfg.pipeline, debug=True
+    )
+
+    assert isinstance(data_tree, DataTree)

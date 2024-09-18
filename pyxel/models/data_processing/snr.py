@@ -5,6 +5,7 @@
 #   this file, may be copied, modified, propagated, or distributed except according to
 #   the terms contained in the file ‘LICENCE.txt’.
 """Simple model to compute signal-to-noise-ratio."""
+
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Literal, Union
 

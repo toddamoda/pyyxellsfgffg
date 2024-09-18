@@ -7,6 +7,7 @@
 
 
 """Utility functions for images."""
+
 import sys
 from enum import Enum
 from functools import lru_cache

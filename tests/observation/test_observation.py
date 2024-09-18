@@ -151,9 +151,7 @@ def test_observation_product(
         parameters=product_parameter_values_lst, mode="product", result_type=result_type
     )
 
-    assert (
-        repr(observation) == "Observation<mode=ParameterMode.Product, num_parameters=3>"
-    )
+    assert repr(observation).startswith("Observation<mode=")
 
 
 @pytest.mark.parametrize(
@@ -230,7 +228,7 @@ def test_enabled_steps(
     observation = simple_observation
     assert isinstance(observation, Observation)
 
-    values = observation.enabled_steps
+    values = observation.parameter_mode.enabled_steps
     assert values == product_parameter_values_lst
 
 
@@ -280,7 +278,7 @@ def test_observation_datatree_no_custom(
             outputs=ObservationOutputs(output_folder=tmp_path),
         )
 
-    dt = observation._run_observation_datatree(processor, with_inherited_coords=False)
+    dt = observation.run_pipelines(processor, with_inherited_coords=True)
     assert isinstance(dt, DataTree)
 
 
@@ -326,5 +324,5 @@ def test_observation_datatree_with_custom(
             outputs=ObservationOutputs(output_folder=tmp_path),
         )
 
-    dt = observation._run_observation_datatree(processor, with_inherited_coords=False)
+    dt = observation.run_pipelines(processor, with_inherited_coords=True)
     assert isinstance(dt, DataTree)

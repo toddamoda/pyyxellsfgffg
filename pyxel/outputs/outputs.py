@@ -6,6 +6,7 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 """Classes for creating outputs."""
+
 import logging
 import re
 from collections.abc import Mapping, Sequence
@@ -540,7 +541,6 @@ class Outputs:
                         filenames.append(full_image_filename)
 
                     elif out_format == "fits":
-
                         # Create FITS header
                         from astropy.io import fits
 
