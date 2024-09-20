@@ -18,6 +18,8 @@ This release brings a number of bugfixes and improvements.
   (See [!951](https://gitlab.com/esa/pyxel/-/merge_requests/951)).
 * Add compatibility with xarray 2024.09.0.
   (See [!953](https://gitlab.com/esa/pyxel/-/merge_requests/953)).
+* Use method `xarray.drop_vars` instead of `xarray.drop`.
+  (See [!955](https://gitlab.com/esa/pyxel/-/merge_requests/955)).
 
 ### Documentation
 
