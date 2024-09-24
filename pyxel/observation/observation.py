@@ -8,6 +8,7 @@
 """Parametric mode class and helper functions."""
 
 import sys
+import warnings
 from collections import Counter
 from collections.abc import Mapping, Sequence
 from pathlib import Path
@@ -29,7 +30,7 @@ from pyxel.observation import (
     SequentialMode,
     _get_short_name_with_model,
     create_new_processor,
-    run_pipelines,
+    run_pipelines_with_dask,
     short,
 )
 from pyxel.pipelines import ResultId, get_result_id
@@ -300,11 +301,17 @@ class Observation:
         dim_names: Mapping[str, str] = _get_short_dimension_names_new(types)
 
         if self.with_dask:
-            final_datatree = run_pipelines(
+            if with_inherited_coords is False:
+                warnings.warn(
+                    "Parameter 'with_inherited_coords' is forced to True !",
+                    stacklevel=1,
+                )
+
+            final_datatree = run_pipelines_with_dask(
                 dim_names=dim_names,
                 parameter_mode=self.parameter_mode,
                 processor=processor,
-                with_inherited_coords=with_inherited_coords,
+                with_inherited_coords=True,
                 readout=self.readout,
                 result_type=self.result_type,
                 pipeline_seed=self.pipeline_seed,

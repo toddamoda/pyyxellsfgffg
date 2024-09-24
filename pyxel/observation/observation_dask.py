@@ -201,6 +201,7 @@ def _run_pipelines_array_to_datatree(
     readout: Readout,
     result_type: ResultId,
     pipeline_seed: Optional[int],
+    progressbar: bool,
 ) -> "DataTree":
     # TODO: Fix this
     if with_inherited_coords is False:
@@ -219,7 +220,7 @@ def _run_pipelines_array_to_datatree(
         pipeline_seed=pipeline_seed,
         debug=False,  # Not supported in Observation mode
         with_inherited_coords=with_inherited_coords,
-        progressbar=True,
+        progressbar=progressbar,
     )
 
     return data_tree
@@ -242,6 +243,7 @@ def _build_metadata(
         readout=readout,
         result_type=result_type,
         pipeline_seed=pipeline_seed,
+        progressbar=True,
     )
 
     return build_metadata(data_tree)
@@ -266,6 +268,7 @@ def _run_pipelines_tuple_to_array(
         readout=readout,
         result_type=result_type,
         pipeline_seed=pipeline_seed,
+        progressbar=False,
     )
 
     # Convert the result from 'DataTree' to a tuple of numpy array(s)
@@ -349,7 +352,7 @@ def _rebuild_datatree_from_dask(
     return dct
 
 
-def run_pipelines(
+def run_pipelines_with_dask(
     dim_names: Mapping[str, str],
     parameter_mode: Union[ProductMode, SequentialMode, CustomMode],
     processor: "Processor",

@@ -20,5 +20,5 @@ from .misc import (
     ParameterEntry,
     CustomParameterEntry,
 )
-from .observation_dask import run_pipelines
+from .observation_dask import run_pipelines_with_dask
 from .observation import Observation
