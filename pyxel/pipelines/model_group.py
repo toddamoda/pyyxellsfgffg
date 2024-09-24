@@ -100,6 +100,7 @@ class ModelGroup:
 
             # TODO: Refactor
             if debug:
+                import numpy as np
                 import xarray as xr
 
                 # Import 'DataTree'
@@ -116,30 +117,23 @@ class ModelGroup:
                 )
 
                 # Get current Dataset
-                # absolute_time = xr.DataArray(absolute_time, attrs={"units": "s"})
                 ds: xr.Dataset = detector.to_xarray().assign_coords(time=absolute_time)
 
                 # TODO: Fix this dirty hack
                 if detector._intermediate is None:
-                    detector._intermediate = DataTree()
-
-                # Get datatree parent 'intermediate'
-                datatree_intermediate = detector.intermediate
-
-                if not datatree_intermediate:
-                    datatree_intermediate.name = "intermediate"
-                    datatree_intermediate.attrs = {
+                    new_datatree = DataTree()
+                    new_datatree.name = "intermediate"
+                    new_datatree.attrs = {
                         "long_name": (
                             "Store all intermediate results "
                             "modified along a pipeline"
                         )
                     }
-                else:
-                    datatree_intermediate = detector.intermediate
+                    detector._intermediate = new_datatree
 
                 # TODO: Refactor
                 pipeline_key: str = f"time_idx_{detector.pipeline_count}"
-                if pipeline_key not in datatree_intermediate:
+                if pipeline_key not in detector.intermediate:
 
                     datatree_single_time: DataTree = DataTree()
                     datatree_single_time.attrs = {
@@ -148,14 +142,11 @@ class ModelGroup:
                         "time": f"{detector.absolute_time} s",
                     }
 
-                    datatree_intermediate[pipeline_key] = datatree_single_time
-
-                else:
-                    datatree_single_time = datatree_intermediate[pipeline_key]  # type: ignore
+                    detector.intermediate[pipeline_key] = datatree_single_time
 
                 # TODO: Refactor
                 model_group_key: str = self._name
-                if model_group_key not in datatree_single_time:
+                if model_group_key not in detector.intermediate[pipeline_key]:
                     datatree_group: DataTree = DataTree()
 
                     # TODO: Refactor this ?
@@ -165,39 +156,44 @@ class ModelGroup:
                         map(str.capitalize, self._name.split("_"))
                     )
                     datatree_group.attrs = {"long_name": f"Model group: {group_name}"}
-                    datatree_single_time[model_group_key] = datatree_group
-                else:
-                    datatree_group = datatree_single_time[model_group_key]  # type: ignore
+                    detector.intermediate[f"{pipeline_key}/{model_group_key}"] = (
+                        datatree_group
+                    )
 
                 # TODO: Refactor
                 model_key: str = model.name
-                if model_key not in datatree_group:
+                if (
+                    model_key
+                    not in detector.intermediate[f"{pipeline_key}/{model_group_key}"]
+                ):
                     datatree_model: DataTree = DataTree()
                     datatree_model.attrs = {
                         "long_name": f"Model name: {model.name!r}",
                         "function_name": f"Model function: {model.func.__name__!r}",
                     }
 
-                    datatree_group[model_key] = datatree_model
-
-                else:
-                    datatree_model = datatree_group[model_key]  # type: ignore
+                    detector.intermediate[
+                        f"{pipeline_key}/{model_group_key}/{model_key}"
+                    ] = datatree_model
 
                 # TODO: Refactor. Is 'last' needed ?
                 last_key: str = "last"
-                if last_key not in datatree_intermediate:
+                if last_key not in detector.intermediate:
                     last_full_ds: xr.Dataset = xr.zeros_like(ds)
                 else:
-                    last_full_ds = datatree_intermediate[last_key]  # type: ignore
+                    last_full_ds = detector.intermediate[last_key]  # type: ignore
 
                 for name, data_array in ds.data_vars.items():
                     if name in last_full_ds:
                         previous_data_array = last_full_ds[name]
 
-                        if not data_array.equals(previous_data_array):
-                            datatree_model[name] = data_array
+                        if not np.allclose(data_array, previous_data_array):
+                            detector.intermediate[
+                                f"{pipeline_key}/{model_group_key}/{model_key}/{name}"
+                            ] = data_array
                     else:
-                        datatree_model[name] = data_array
+                        detector.intermediate[
+                            f"{pipeline_key}/{model_group_key}/{model_key}/{name}"
+                        ] = data_array
 
-                # datatree_model
-                datatree_intermediate[last_key] = DataTree(ds.copy(deep=True))
+                detector.intermediate[last_key] = DataTree(ds.copy(deep=True))
