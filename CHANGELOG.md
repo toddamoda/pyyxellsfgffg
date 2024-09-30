@@ -25,6 +25,8 @@ This release brings a number of bugfixes and improvements.
 * Fix bug when using parameter `debug` with 
   [`pyxel.run_mode`](https://esa.gitlab.io/pyxel/doc/stable/references/api/run.html#pyxel.run_mode).
   (See [!957](https://gitlab.com/esa/pyxel/-/merge_requests/957)).
+* Remove progress bar when running Observation mode with Dask enabled.
+  (See [!958](https://gitlab.com/esa/pyxel/-/merge_requests/958)).
 
 ### Documentation
 
