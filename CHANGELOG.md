@@ -18,11 +18,24 @@ This release brings a number of bugfixes and improvements.
   (See [!951](https://gitlab.com/esa/pyxel/-/merge_requests/951)).
 * Add compatibility with xarray 2024.09.0.
   (See [!953](https://gitlab.com/esa/pyxel/-/merge_requests/953)).
+* Use method `xarray.drop_vars` instead of `xarray.drop`.
+  (See [!955](https://gitlab.com/esa/pyxel/-/merge_requests/955)).
+* Fix bug when using function `load_table` with data containing only a single column.
+  (See [!954](https://gitlab.com/esa/pyxel/-/merge_requests/954)).
 
 ### Documentation
 
 ### Models
+* Model [`dark_current_rule07`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_generation_models.html#dark-current-rule07)
+  from [`Charge Generation`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_generation_models.html)
+  can also be used with CCDs.
+  (See [!956](https://gitlab.com/esa/pyxel/-/merge_requests/956)).
+* Model [`radiation_induced_dark_current`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_generation_models.html#radiation-induced-dark-current)
+  from [`Charge Generation`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_generation_models.html)
+  can also be used with CCDs.
+  (See [!956](https://gitlab.com/esa/pyxel/-/merge_requests/956)).
 * Fix unit bug with ``trap_densities`` in model [`CDM`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_transfer_models.html#charge-distortion-model-cdm)
+  (See [!949](https://gitlab.com/esa/pyxel/-/merge_requests/949)).
 
 ### Others
 * Apply `ruff format` on the source code.

@@ -261,17 +261,17 @@ def load_table(
     import fsspec
     import pandas as pd
 
-    filename = resolve_path(filename=filename)
-    suffix: str = Path(filename).suffix.lower()
+    resolved_filename = resolve_path(filename=filename)
+    suffix: str = Path(resolved_filename).suffix.lower()
 
-    if isinstance(filename, Path):
-        full_filename = Path(filename).expanduser().resolve()
+    if isinstance(resolved_filename, Path):
+        full_filename = Path(resolved_filename).expanduser().resolve()
         if not full_filename.exists():
             raise FileNotFoundError(f"Input file '{full_filename}' can not be found.")
 
         url_path: str = str(full_filename)
     else:
-        url_path = filename
+        url_path = resolved_filename
 
     # Define extra parameters to use with 'fsspec'
     extras = {}
@@ -304,29 +304,42 @@ def load_table(
         # Find a delimiter
         try:
             dialect = csv.Sniffer().sniff(data, delimiters=valid_delimiters_str)
-        except csv.Error as exc:
-            raise ValueError("Cannot find the separator") from exc
+        except csv.Error:
+            delimiter: Optional[str] = None
+        else:
+            delimiter = dialect.delimiter
 
-        delimiter: str = dialect.delimiter
-
-        if delimiter not in valid_delimiters:
-            raise ValueError(f"Cannot find the separator. {delimiter=!r}")
+            if delimiter not in valid_delimiters:
+                raise ValueError(f"Cannot find the separator. {delimiter=!r}")
 
         with StringIO(data) as file_handler:
-            if suffix.startswith("csv"):
-                table = pd.read_csv(
-                    file_handler,
-                    delimiter=delimiter,
-                    header=0 if header else None,
-                    dtype=dtype,
-                )
-            else:
-                table = pd.read_table(
-                    file_handler,
-                    delimiter=delimiter,
-                    header=0 if header else None,
-                    dtype=dtype,
-                )
+            try:
+                if suffix.startswith(".csv"):
+                    table = pd.read_csv(
+                        file_handler,
+                        delimiter=delimiter,
+                        header=0 if header else None,
+                        dtype=dtype,
+                    )
+                else:
+                    table = pd.read_table(
+                        file_handler,
+                        delimiter=delimiter,
+                        header=0 if header else None,
+                        dtype=dtype,
+                    )
+            except ValueError as exc:
+                if delimiter is None:
+                    raise ValueError(
+                        f"Cannot find the separator. {delimiter=!r}"
+                    ) from exc
+
+                raise
+
+    elif suffix.startswith(".fits"):
+        from astropy.table import Table
+
+        table = Table.read(url_path).to_pandas()
 
     else:
         raise ValueError("Only .npy, .xlsx, .csv, .txt and .data implemented.")

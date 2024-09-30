@@ -34,12 +34,12 @@ dark current distribution of neutron irradiated CMOS image sensors," Opt. Expres
 """
 
 import warnings
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 from astropy import constants as const
 
-from pyxel.detectors import CMOS
+from pyxel.detectors import CCD, CMOS
 from pyxel.util import set_random_seed
 
 warnings.filterwarnings("once", category=RuntimeWarning, append=True)
@@ -183,7 +183,8 @@ def compute_radiation_induced_dark_current(
 
     # Assign a number of interactions for each pixel of the frame
     interactions_array = np.random.poisson(
-        mu_dark, size=(number_of_rows, number_of_columns)
+        mu_dark,
+        size=(number_of_rows, number_of_columns),
     )
 
     for i in range(1, np.max(interactions_array)):
@@ -228,7 +229,7 @@ def compute_radiation_induced_dark_current(
 
 
 def radiation_induced_dark_current(
-    detector: CMOS,
+    detector: Union[CCD, CMOS],
     depletion_volume: float,
     annealing_time: float,
     displacement_dose: float,

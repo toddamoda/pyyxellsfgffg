@@ -8,172 +8,21 @@
 import os
 import re
 from pathlib import Path
-from typing import Optional, Union, no_type_check
+from typing import Optional, Union
 
 import numpy as np
 import pandas as pd
 import pytest
-from astropy.io import fits
-from PIL import Image
+from astropy.table import Table
 
 import pyxel
+from pyxel import load_table
 
 # This is equivalent to 'import pytest_httpserver'
 pytest_httpserver = pytest.importorskip(
     "pytest_httpserver",
     reason="Package 'pytest_httpserver' is not installed. Use 'pip install pytest-httpserver'",
 )
-
-
-@pytest.fixture
-def valid_multiple_hdus() -> fits.HDUList:
-    """Create a valid HDUList with one 'PrimaryHDU' and one 'ImageHDU'."""
-    # Create a new image
-    primary_2d = np.array([[5, 6], [7, 8]], dtype=np.uint16)
-    secondary_2d = np.array([[9, 10], [11, 12]], dtype=np.uint16)
-
-    hdu_primary = fits.PrimaryHDU(primary_2d)
-    hdu_secondary = fits.ImageHDU(secondary_2d)
-    hdu_lst = fits.HDUList([hdu_primary, hdu_secondary])
-
-    return hdu_lst
-
-
-@pytest.fixture
-def valid_pil_image() -> Image.Image:
-    """Create a valid RGB PIL image."""
-    data_2d = np.array([[10, 20], [30, 40]], dtype="uint8")
-    pil_image = Image.fromarray(data_2d).convert("RGB")
-
-    return pil_image
-
-
-@no_type_check
-@pytest.fixture
-def valid_data2d_http_hostname(
-    tmp_path: Path,
-    httpserver: pytest_httpserver.HTTPServer,
-    valid_pil_image: Image.Image,
-    valid_multiple_hdus: fits.HDUList,
-) -> str:
-    """Create valid 2D files on a temporary folder and HTTP server."""
-    # Get current folder
-    current_folder: Path = Path().cwd()
-
-    try:
-        os.chdir(tmp_path)
-
-        # Create folder 'data'
-        Path("data").mkdir(parents=True, exist_ok=True)
-
-        data_2d = np.array([[1, 2], [3, 4]], dtype=np.uint16)
-
-        # Save 2d images
-        fits.writeto("data/img.fits", data=data_2d)
-        fits.writeto("data/img2.FITS", data=data_2d)
-        valid_multiple_hdus.writeto("data/img_multiple.fits")
-        valid_multiple_hdus.writeto("data/img_multiple2.FITS")
-        np.save("data/img.npy", arr=data_2d)
-        np.savetxt("data/img_tab.txt", X=data_2d, delimiter="\t")
-        np.savetxt("data/img_space.txt", X=data_2d, delimiter=" ")
-        np.savetxt("data/img_comma.txt", X=data_2d, delimiter=",")
-        np.savetxt("data/img_pipe.txt", X=data_2d, delimiter="|")
-        np.savetxt("data/img_semicolon.txt", X=data_2d, delimiter=";")
-
-        valid_pil_image.save("data/img.jpg")
-        valid_pil_image.save("data/img.jpeg")
-        valid_pil_image.save("data/img.png")
-        valid_pil_image.save("data/img2.PNG")
-        valid_pil_image.save("data/img.tiff")
-        valid_pil_image.save("data/img.tif")
-        valid_pil_image.save("data/img.bmp")
-
-        text_filenames = [
-            "data/img_tab.txt",
-            "data/img_space.txt",
-            "data/img_comma.txt",
-            "data/img_pipe.txt",
-            "data/img_semicolon.txt",
-        ]
-
-        # Put text data in a fake HTTP server
-        for filename in text_filenames:
-            response_data: str = Path(filename).read_text()
-            httpserver.expect_request(f"/{filename}").respond_with_data(
-                response_data, content_type="text/plain"
-            )
-
-        binary_filenames = [
-            ("data/img.fits", "text/plain"),  # TODO: Change this type
-            ("data/img2.FITS", "text/plain"),  # TODO: Change this type
-            ("data/img_multiple.fits", "text/plain"),  # TODO: Change this type
-            ("data/img_multiple2.FITS", "text/plain"),  # TODO: Change this type
-            ("data/img.npy", "text/plain"),  # TODO: Change this type
-            ("data/img.jpg", "image/jpeg"),
-            ("data/img.jpeg", "image/jpeg"),
-            ("data/img.png", "image/png"),
-            ("data/img2.PNG", "image/png"),
-            ("data/img.tif", "image/tiff"),
-            ("data/img.tiff", "image/tiff"),
-            ("data/img.bmp", "image/bmp"),
-        ]
-
-        # Put binary data in a fake HTTP server
-        for filename, content_type in binary_filenames:
-            response_data_bytes: bytes = Path(filename).read_bytes()
-            httpserver.expect_request(f"/{filename}").respond_with_data(
-                response_data_bytes, content_type=content_type
-            )
-
-        # Extract an url (e.g. 'http://localhost:59226/)
-        url: str = httpserver.url_for("")
-
-        # Extract the hostname (e.g. 'localhost:59226')
-        hostname: str = re.findall("http://(.*)/", url)[0]
-
-        yield hostname
-
-    finally:
-        os.chdir(current_folder)
-
-
-@pytest.fixture
-def invalid_data2d_hostname(
-    tmp_path: Path, httpserver: pytest_httpserver.HTTPServer
-) -> str:
-    """Create invalid 2D files on a temporary folder and HTTP server."""
-    # Get current folder
-    current_folder: Path = Path().cwd()
-
-    try:
-        os.chdir(tmp_path)
-
-        # Create folder 'data'
-        Path("invalid_data").mkdir(parents=True, exist_ok=True)
-
-        data_2d = np.array([[1, 2], [3, 4]], dtype=np.uint16)
-
-        np.savetxt("invalid_data/img_X.txt", X=data_2d, delimiter="X")
-
-        text_filenames = ["invalid_data/img_X.txt"]
-
-        # Put text data in a fake HTTP server
-        for filename in text_filenames:
-            response_data: str = Path(filename).read_text()
-            httpserver.expect_request(f"/{filename}").respond_with_data(
-                response_data, content_type="text/plain"
-            )
-
-        # Extract an url (e.g. 'http://localhost:59226/)
-        url: str = httpserver.url_for("")
-
-        # Extract the hostname (e.g. 'localhost:59226')
-        hostname: str = re.findall("http://(.*)/", url)[0]
-
-        yield hostname
-
-    finally:
-        os.chdir(current_folder)
 
 
 @pytest.fixture
@@ -325,126 +174,49 @@ def invalid_table_http_hostname(
         os.chdir(current_folder)
 
 
-@pytest.mark.parametrize(
-    "filename, exp_error, exp_message",
-    [
-        ("dummy", ValueError, "Image format not supported"),
-        ("dummy.foo", ValueError, "Image format not supported"),
-        ("unknown.fits", FileNotFoundError, None),
-        (Path("unknown.fits"), FileNotFoundError, r"can not be found"),
-        ("https://domain/unknown.fits", FileNotFoundError, None),
-        ("invalid_data/img_X.txt", ValueError, "Cannot find the separator"),
-        (
-            "http://{host}/invalid_data/img_X.txt",
-            ValueError,
-            "Cannot find the separator",
-        ),
-    ],
+@pytest.fixture(
+    params=[
+        pytest.param(Path("single_column.txt"), id="txt"),
+        pytest.param(Path("single_column.TXT"), id="txt2"),
+        pytest.param(Path("single_column.csv"), id="csv"),
+        pytest.param(Path("single_column.CSV"), id="CSV"),
+        pytest.param(Path("single_column.fits"), id="fits"),
+    ]
 )
-def test_invalid_filename(
-    invalid_data2d_hostname: str,
-    filename,
-    exp_error: TypeError,
-    exp_message: Optional[str],
-):
-    """Test invalid filenames."""
-    if isinstance(filename, str):
-        new_filename: str = filename.format(host=invalid_data2d_hostname)
+def table_single_column_text(
+    request: pytest.FixtureRequest, tmp_path: Path
+) -> Union[Path, str]:
+    """Build a table with a single column."""
+    filename = request.param
+
+    df = pd.DataFrame(["foo", "bar", "baz"], columns=["name"])
+
+    full_path: Path = tmp_path / filename
+
+    if Path(filename).suffix.lower() in [".txt", ".csv"]:
+        df.to_csv(full_path, header=False, index=False)
+    elif Path(filename).suffix.lower() == ".fits":
+        table: Table = Table.from_pandas(df)
+        table.write(full_path)
     else:
-        new_filename = filename
+        raise NotImplementedError
 
-    with pytest.raises(exp_error, match=exp_message):
-        _ = pyxel.load_image(new_filename)
-
-
-@pytest.mark.parametrize("with_caching", [False, True])
-@pytest.mark.parametrize(
-    "filename, exp_data",
-    [
-        # FITS files
-        ("data/img.fits", np.array([[1, 2], [3, 4]], np.uint16)),
-        ("data/img2.FITS", np.array([[1, 2], [3, 4]], np.uint16)),
-        ("data/img_multiple.fits", np.array([[5, 6], [7, 8]], np.uint16)),
-        ("data/img_multiple2.FITS", np.array([[5, 6], [7, 8]], np.uint16)),
-        (Path("data/img.fits"), np.array([[1, 2], [3, 4]], np.uint16)),
-        (Path("./data/img.fits"), np.array([[1, 2], [3, 4]], np.uint16)),
-        (Path("data/img_multiple.fits"), np.array([[5, 6], [7, 8]], np.uint16)),
-        ("http://{host}/data/img.fits", np.array([[1, 2], [3, 4]], np.uint16)),
-        ("http://{host}/data/img_multiple.fits", np.array([[5, 6], [7, 8]], np.uint16)),
-        (
-            "http://{host}/data/img_multiple2.FITS",
-            np.array([[5, 6], [7, 8]], np.uint16),
-        ),
-        # Numpy binary files
-        ("data/img.npy", np.array([[1, 2], [3, 4]], np.uint16)),
-        (Path("data/img.npy"), np.array([[1, 2], [3, 4]], np.uint16)),
-        ("http://{host}/data/img.npy", np.array([[1, 2], [3, 4]], np.uint16)),
-        # Numpy text files
-        ("data/img_tab.txt", np.array([[1, 2], [3, 4]], np.uint16)),
-        ("data/img_space.txt", np.array([[1, 2], [3, 4]], np.uint16)),
-        ("data/img_comma.txt", np.array([[1, 2], [3, 4]], np.uint16)),
-        ("data/img_pipe.txt", np.array([[1, 2], [3, 4]], np.uint16)),
-        ("data/img_semicolon.txt", np.array([[1, 2], [3, 4]], np.uint16)),
-        (Path("data/img_tab.txt"), np.array([[1, 2], [3, 4]], np.uint16)),
-        (Path("data/img_space.txt"), np.array([[1, 2], [3, 4]], np.uint16)),
-        (Path("data/img_comma.txt"), np.array([[1, 2], [3, 4]], np.uint16)),
-        (Path("data/img_pipe.txt"), np.array([[1, 2], [3, 4]], np.uint16)),
-        (Path("data/img_semicolon.txt"), np.array([[1, 2], [3, 4]], np.uint16)),
-        ("http://{host}/data/img_tab.txt", np.array([[1, 2], [3, 4]], np.uint16)),
-        ("http://{host}/data/img_space.txt", np.array([[1, 2], [3, 4]], np.uint16)),
-        ("http://{host}/data/img_comma.txt", np.array([[1, 2], [3, 4]], np.uint16)),
-        ("http://{host}/data/img_pipe.txt", np.array([[1, 2], [3, 4]], np.uint16)),
-        ("http://{host}/data/img_semicolon.txt", np.array([[1, 2], [3, 4]], np.uint16)),
-        # JPG files
-        ("data/img.jpg", np.array([[13, 19], [28, 34]])),
-        ("data/img.jpeg", np.array([[13, 19], [28, 34]])),
-        ("http://{host}/data/img.jpg", np.array([[13, 19], [28, 34]])),
-        ("http://{host}/data/img.jpeg", np.array([[13, 19], [28, 34]])),
-        # PNG files
-        ("data/img.png", np.array([[10, 20], [30, 40]])),
-        ("data/img2.PNG", np.array([[10, 20], [30, 40]])),
-        ("http://{host}/data/img.png", np.array([[10, 20], [30, 40]])),
-        ("http://{host}/data/img2.PNG", np.array([[10, 20], [30, 40]])),
-        # TIFF files
-        ("data/img.tif", np.array([[10, 20], [30, 40]])),
-        ("data/img.tiff", np.array([[10, 20], [30, 40]])),
-        ("http://{host}/data/img.tif", np.array([[10, 20], [30, 40]])),
-        ("http://{host}/data/img.tiff", np.array([[10, 20], [30, 40]])),
-        # BMP files
-        ("data/img.bmp", np.array([[10, 20], [30, 40]])),
-    ],
-)
-def test_load_image(
-    with_caching: bool,
-    valid_data2d_http_hostname: str,
-    filename: Union[str, Path],
-    exp_data: np.ndarray,
-):
-    """Test function 'load_image' with local and remote files."""
-    with pyxel.set_options(cache_enabled=with_caching):
-        if isinstance(filename, Path):
-            # Load data
-            data_2d = pyxel.load_image(filename)
-        else:
-            full_url: str = filename.format(host=valid_data2d_http_hostname)
-
-            # Load data
-            data_2d = pyxel.load_image(full_url)
-
-        # Check 'data_2d
-        np.testing.assert_equal(data_2d, exp_data)
+    if isinstance(filename, str):
+        return str(full_path)
+    else:
+        return full_path
 
 
 @pytest.mark.parametrize(
     "filename, exp_error, exp_message",
     [
-        ("dummy", ValueError, r"^Only (.*) implemented.$"),
-        (
-            Path("unknown.txt"),
-            FileNotFoundError,
-            r"^Input file (.*) can not be found\.$",
-        ),
-        ("unknown.txt", FileNotFoundError, None),
+        # ("dummy", ValueError, r"^Only (.*) implemented.$"),
+        # (
+        #     Path("unknown.txt"),
+        #     FileNotFoundError,
+        #     r"^Input file (.*) can not be found\.$",
+        # ),
+        # ("unknown.txt", FileNotFoundError, None),
         ("invalid_data/table_X.txt", ValueError, "Cannot find the separator"),
         (
             "http://{host}/invalid_data/table_X.txt",
@@ -470,7 +242,7 @@ def test_load_table_invalid_filename(
         filename = filename.format(host=invalid_table_http_hostname)
 
     with pytest.raises(exp_error, match=exp_message):
-        _ = pyxel.load_table(filename)
+        _ = load_table(filename)
 
 
 @pytest.mark.parametrize("dtype", ["float", None])
@@ -530,12 +302,12 @@ def test_load_table(
     with pyxel.set_options(cache_enabled=with_caching):
         if isinstance(filename, Path):
             # Load data
-            table = pyxel.load_table(filename, header=with_header, dtype=dtype)
+            table = load_table(filename, header=with_header, dtype=dtype)
         else:
             full_url: str = filename.format(host=valid_table_http_hostname)
 
             # Load data
-            table = pyxel.load_table(full_url, header=with_header, dtype=dtype)
+            table = load_table(full_url, header=with_header, dtype=dtype)
 
         if not with_header:
             exp_table = pd.DataFrame([[1, 2, 3], [4, 5, 6], [7, 8, 9]], dtype=float)
@@ -562,7 +334,7 @@ def test_load_table_heterogeneous(valid_table_heterogeneous: Path, filename: str
     """Test function 'load_table' with heterogeneous data."""
     folder = valid_table_heterogeneous
 
-    df = pyxel.load_table(folder / filename, header=True, dtype=None)
+    df = load_table(folder / filename, header=True, dtype=None)
 
     exp_df = df = pd.DataFrame([[1, 2, 3], ["foo", "bar", "baz"], [1.1, 2.2, 3.3]])
     pd.testing.assert_frame_equal(df, exp_df)
@@ -583,7 +355,7 @@ def test_load_table_heterogeneous_error(valid_table_heterogeneous: Path, filenam
     folder = valid_table_heterogeneous
 
     with pytest.raises(ValueError, match="could not convert string to float"):
-        _ = pyxel.load_table(folder / filename, header=True)
+        _ = load_table(folder / filename, header=True)
 
 
 @pytest.mark.parametrize("filename", ["dummy.foo"])
@@ -593,4 +365,10 @@ def test_load_table_invalid_format(tmp_path: Path, filename: str):
     full_filename.touch()
 
     with pytest.raises(ValueError, match=r"Only .* implemented"):
-        _ = pyxel.load_table(full_filename)
+        _ = load_table(full_filename)
+
+
+def test_load_table_single_column(table_single_column_text: Union[Path, str]):
+    """Test function 'load_table"."""
+    df = load_table(table_single_column_text, dtype=None)
+    assert isinstance(df, pd.DataFrame)

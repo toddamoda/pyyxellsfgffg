@@ -358,7 +358,7 @@ def display_evolution(ds: "xr.Dataset") -> "hv.Layout":
         hv.extension("bokeh")
 
     output_champions = xr.Dataset()
-    output_champions["fitness"] = ds["champion_fitness"].drop(labels="evolution")  # type: ignore
+    output_champions["fitness"] = ds["champion_fitness"].drop_vars("evolution")
     output_champions["parameters"] = ds["champion_parameters"].assign_coords(
         {"param_id": range(len(ds.param_id))}
     )
@@ -396,7 +396,7 @@ def optimal_parameters(ds: "xr.Dataset") -> "pd.DataFrame":
 
     best = (
         ds.champion_parameters.isel(evolution=-1)
-        .isel(island=ds.champion_fitness.isel(evolution=-1).argmin())
+        .isel(island=ds.champion_fitness.isel(evolution=-1).argmin(dim="island"))
         .to_dataframe()
     )
     return best
@@ -457,7 +457,7 @@ def champion_heatmap(
 
     if "best_fitness" in ds:
         individuals = xr.Dataset()
-        individuals["fitness"] = ds["best_fitness"].drop(labels="evolution")  # type: ignore
+        individuals["fitness"] = ds["best_fitness"].drop_vars("evolution")
         individuals["parameters"] = ds["best_parameters"].assign_coords(
             {"param_id": range(len(ds.param_id))}
         )
@@ -465,7 +465,7 @@ def champion_heatmap(
         ind_id = individuals.coords["individual"].values
 
     output_champions = xr.Dataset()
-    output_champions["fitness"] = ds["champion_fitness"].drop(labels="evolution")  # type: ignore
+    output_champions["fitness"] = ds["champion_fitness"].drop_vars("evolution")
     output_champions["parameters"] = ds["champion_parameters"].assign_coords(
         {"param_id": range(len(ds.param_id))}
     )

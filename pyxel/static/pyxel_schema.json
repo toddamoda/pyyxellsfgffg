@@ -3284,7 +3284,7 @@
     },
     "ModelChargeGenerationDarkCurrentRule07": {
       "additionalProperties": false,
-      "description": "Generate charge from dark current process.",
+      "description": "Generate charge from dark current process based on the Rule07 model.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
@@ -3297,12 +3297,13 @@
           "properties": {
             "cutoff_wavelength": {
               "default": 2.5,
-              "description": "Cutoff wavelength. Unit: um",
+              "description": "The wavelength cut-off for the detector (default is 2.5 \u00b5m). Unit: \u00b5m",
               "title": "cutoff_wavelength",
               "type": "number"
             },
             "seed": {
               "default": null,
+              "description": "Seed for random number generation to allow reproducibility of noise patterns.",
               "title": "seed",
               "type": [
                 "integer",
@@ -3311,7 +3312,7 @@
             },
             "spatial_noise_factor": {
               "default": null,
-              "description": "Dark current fixed pattern noise factor.",
+              "description": "Factor for introducing spatial noise (fixed pattern noise) in the dark current.",
               "title": "spatial_noise_factor",
               "type": [
                 "number",
@@ -3320,7 +3321,7 @@
             },
             "temporal_noise": {
               "default": true,
-              "description": "Shot noise.",
+              "description": "If True, shot noise (Poisson noise) is added to the dark current.",
               "title": "temporal_noise",
               "type": "boolean"
             }

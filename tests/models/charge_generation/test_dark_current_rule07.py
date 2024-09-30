@@ -8,37 +8,58 @@
 
 """Tests for dark current models."""
 
-from typing import Optional
+from typing import Optional, Union
 
+import numpy as np
 import pytest
 
 from pyxel.detectors import (
     CCD,
     CMOS,
+    MKID,
     CCDGeometry,
     Characteristics,
     CMOSGeometry,
     Environment,
+    MKIDGeometry,
     ReadoutProperties,
 )
 from pyxel.models.charge_generation import dark_current_rule07
 
 
-@pytest.fixture
-def cmos_10x10() -> CMOS:
-    """Create a valid CCD detector."""
-    detector = CMOS(
-        geometry=CMOSGeometry(
-            row=10,
-            col=10,
-            total_thickness=40.0,
-            pixel_vert_size=10.0,
-            pixel_horz_size=10.0,
-        ),
-        environment=Environment(temperature=273.15),
-        characteristics=Characteristics(),
-    )
-    detector._readout_properties = ReadoutProperties(times=[1.0])
+@pytest.fixture(params=["ccd", "cmos"])
+def detector_4x3(request: pytest.FixtureRequest) -> Union[CCD, CMOS]:
+    """Create a valid CCD or CMOS detector."""
+    if request.param == "cmos":
+        detector = CMOS(
+            geometry=CMOSGeometry(
+                row=4,
+                col=3,
+                total_thickness=40.0,
+                pixel_vert_size=10.0,
+                pixel_horz_size=10.0,
+            ),
+            environment=Environment(temperature=273.15),
+            characteristics=Characteristics(),
+        )
+
+    elif request.param == "ccd":
+        detector = CCD(
+            geometry=CCDGeometry(
+                row=4,
+                col=3,
+                total_thickness=40.0,
+                pixel_vert_size=10.0,
+                pixel_horz_size=10.0,
+            ),
+            environment=Environment(temperature=273.15),
+            characteristics=Characteristics(),
+        )
+
+    else:
+        raise NotImplementedError
+
+    detector._readout_properties = ReadoutProperties(times=[0.1])
     return detector
 
 
@@ -51,25 +72,63 @@ def cmos_10x10() -> CMOS:
     ],
 )
 def test_dark_current_rule07_valid(
-    cmos_10x10: CMOS,
+    detector_4x3: Union[CCD, CMOS],
     cutoff_wavelength: Optional[float],
     spatial_noise_factor: Optional[float],
     temporal_noise: bool,
 ):
     """Test model 'dark_current_rule07' with valid inputs."""
+    detector = detector_4x3
+
     if cutoff_wavelength is None:
         dark_current_rule07(
-            detector=cmos_10x10,
+            detector=detector,
             spatial_noise_factor=spatial_noise_factor,
             temporal_noise=temporal_noise,
+            seed=123456,
         )
+
+        exp_array = np.array(
+            [
+                [73984001.0, 73987171.0, 73989033.0],
+                [73978696.0, 73987076.0, 73979049.0],
+                [73999108.0, 73983027.0, 73992523.0],
+                [74000480.0, 73979893.0, 73992006.0],
+            ]
+        )
+
+        charge_arrays = detector.charge.array
+        np.testing.assert_allclose(charge_arrays, exp_array)
     else:
         dark_current_rule07(
-            detector=cmos_10x10,
+            detector=detector,
             cutoff_wavelength=cutoff_wavelength,
             spatial_noise_factor=spatial_noise_factor,
             temporal_noise=temporal_noise,
+            seed=123456,
         )
+
+        if temporal_noise:
+            exp_array = np.array(
+                [
+                    [82360.0, np.inf, np.inf],
+                    [np.inf, 82463.0, 82194.0],
+                    [82865.0, 82327.0, 82645.0],
+                    [np.inf, np.inf, 82627.0],
+                ]
+            )
+        else:
+            exp_array = np.array(
+                [
+                    [8.88795759e14, 8.88795759e14, 8.88795759e14],
+                    [8.88795759e14, 8.88795759e14, 8.88795759e14],
+                    [8.88795759e14, 8.88795759e14, 8.88795759e14],
+                    [8.88795759e14, 8.88795759e14, 8.88795759e14],
+                ]
+            )
+
+        charge_arrays = detector.charge.array
+        np.testing.assert_allclose(charge_arrays, exp_array)
 
 
 @pytest.mark.parametrize(
@@ -80,17 +139,23 @@ def test_dark_current_rule07_valid(
     ],
 )
 def test_dark_current_rule07_invalid(
-    cmos_10x10: CMOS, cutoff_wavelength, exp_exc, exp_msg
+    detector_4x3: Union[CCD, CMOS],
+    cutoff_wavelength,
+    exp_exc,
+    exp_msg,
 ):
     """Test model 'dark_current_rule07' with invalid inputs."""
     with pytest.raises(exp_exc, match=exp_msg):
-        dark_current_rule07(detector=cmos_10x10, cutoff_wavelength=cutoff_wavelength)
+        dark_current_rule07(
+            detector=detector_4x3,
+            cutoff_wavelength=cutoff_wavelength,
+        )
 
 
-def test_dark_current_rule07_with_ccd():
-    """Test model 'dark_current_rule07' with a `CCD` detector."""
-    detector = CCD(
-        geometry=CCDGeometry(
+def test_dark_current_rule07_invalid_detector():
+    """Test model 'dark_current_rule07' with an invalid detector."""
+    detector = MKID(
+        geometry=MKIDGeometry(
             row=10,
             col=10,
             total_thickness=40.0,
@@ -101,5 +166,5 @@ def test_dark_current_rule07_with_ccd():
         characteristics=Characteristics(),
     )
 
-    with pytest.raises(TypeError, match="Expecting a CMOS object for detector."):
+    with pytest.raises(TypeError, match="Expecting a CCD or CMOS object for detector"):
         dark_current_rule07(detector=detector)
