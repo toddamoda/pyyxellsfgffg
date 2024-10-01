@@ -1,0 +1,74 @@
+exposure:
+
+  outputs:
+    output_folder: "output"
+    save_data_to_file:
+
+ccd_detector:
+
+  geometry:
+
+    row: 450              # pixel
+    col: 450              # pixel
+    total_thickness: 40.  # um
+    pixel_vert_size: 10.  # um
+    pixel_horz_size: 10.  # um
+    pixel_scale: 0.01     # arcsec/pixel
+
+  environment:
+    temperature: 300        # K
+
+  characteristics:
+    quantum_efficiency: 1.                 # -
+    charge_to_volt_conversion: 3.e-6       # V/e
+    pre_amplification: 100                # V/V
+    adc_voltage_range: [0., 10.]
+    adc_bit_resolution: 16
+    full_well_capacity: 100000               # e
+
+pipeline:
+  # photon -> photon
+  photon_collection:
+    - name: load_image
+      func: pyxel.models.photon_collection.illumination
+      enabled: true
+      arguments:
+        level: 1000
+
+    - name: shot_noise
+      func: pyxel.models.photon_collection.shot_noise
+      enabled: true
+
+  # photon -> charge
+  charge_generation:
+    - name: photoelectrons
+      func: pyxel.models.charge_generation.simple_conversion
+      enabled: true
+
+  # charge -> pixel
+  charge_collection:
+    - name: simple_collection
+      func: pyxel.models.charge_collection.simple_collection
+      enabled: true
+
+    - name: full_well
+      func: pyxel.models.charge_collection.simple_full_well
+      enabled: true
+
+  # pixel -> pixel
+  charge_transfer:
+
+  # pixel -> signal
+  charge_measurement:
+    - name: simple_measurement
+      func: pyxel.models.charge_measurement.simple_measurement
+      enabled: true
+
+  # signal -> image
+  readout_electronics:
+    - name: simple_amplifier
+      func: pyxel.models.readout_electronics.simple_amplifier
+      enabled: true
+    - name: simple_adc
+      func: pyxel.models.readout_electronics.simple_adc
+      enabled: true
