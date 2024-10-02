@@ -121,7 +121,7 @@ class ModelGroup:
 
                 # TODO: Fix this dirty hack
                 if detector._intermediate is None:
-                    new_datatree = DataTree()
+                    new_datatree: DataTree = DataTree()
                     new_datatree.name = "intermediate"
                     new_datatree.attrs = {
                         "long_name": (

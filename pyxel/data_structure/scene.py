@@ -357,7 +357,7 @@ class Scene:
         }
 
         scene = cls()
-        scene._source = DataTree.from_dict(data, name="scene")
+        scene._source = DataTree.from_dict(data, name="scene")  # type: ignore[arg-type]
 
         return scene
 

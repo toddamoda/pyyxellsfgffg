@@ -528,7 +528,7 @@ def run_pipeline(
             dct["/data"] = detector.data
 
         # Create the final `DataTree` from the dictionary.
-        data_tree = DataTree.from_dict(dct)
+        data_tree = DataTree.from_dict(dct)  # type: ignore[arg-type]
         data_tree.attrs["pyxel version"] = __version__
 
         if progressbar:

@@ -431,8 +431,8 @@ def run_pipelines_with_dask(
     )
 
     if xr.__version__ <= "2024.9.0":
-        final_datatree = DataTree.from_dict(deepcopy(dct))
+        final_datatree = DataTree.from_dict(deepcopy(dct))  # type: ignore[arg-type]
     else:
-        final_datatree = DataTree.from_dict(dct)
+        final_datatree = DataTree.from_dict(dct)  # type: ignore[arg-type]
 
     return final_datatree
