@@ -96,6 +96,7 @@ model = [
 ]
 io = [ "asdf" ]
 all = [
+    "numpy<2", # 'sep' is not compatible with Numpy 2
     "pyxel-sim[calibration]",
     "pyxel-sim[model]",
     "pyxel-sim[io]",
