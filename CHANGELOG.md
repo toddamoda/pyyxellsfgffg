@@ -53,6 +53,8 @@ This release brings a number of bugfixes and improvements.
 ### Others
 * Apply `ruff format` on the source code.
   (See [!950](https://gitlab.com/esa/pyxel/-/merge_requests/950)).
+* Add more tests for command line tool `pyxel-sim`.
+  (See [!964](https://gitlab.com/esa/pyxel/-/merge_requests/964)).
 
 
 ## 2.5.1 / 2024-09-12
