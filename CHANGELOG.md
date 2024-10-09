@@ -29,6 +29,8 @@ This release brings a number of bugfixes and improvements.
   (See [!958](https://gitlab.com/esa/pyxel/-/merge_requests/958)).
 * Force parameter 'with_inherited_coords' to True if 'Scene' is not empty.
   (See [!962](https://gitlab.com/esa/pyxel/-/merge_requests/962)).
+* Add new module 'plotting'.
+  (See [!966](https://gitlab.com/esa/pyxel/-/merge_requests/966)).
 
 ### Documentation
 * Add more documentation for model [`mean_variance`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/data_processing_models.html#mean-variance)
