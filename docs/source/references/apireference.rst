@@ -149,6 +149,15 @@ Fitness functions
     sum_of_squared_residuals
     reduced_chi_squared
 
+Plotting
+========
+
+.. currentmodule:: pyxel.plotting
+
+.. autosummary::
+
+    plot_plc
+
 Notebook
 ========
 
