@@ -9,9 +9,18 @@ Minor releases include updated stdlib stubs from typeshed.
 
 Pyxel doesn't use SemVer anymore, since most minor releases have at least minor backward incompatible changes.
 
-## UNRELEASED
+## 2.6 / 2024-10-11
 
-This release brings a number of bugfixes and improvements.
+This release brings a number of bug fixes and improvements.
+
+### 📈 Plotting utilities 📈
+
+A new plotting utilities library has been added in
+[`pyxel.plotting`](https://esa.gitlab.io/pyxel/doc/stable/references/api/plotting.html).
+
+The first plot is the function [`pyxel.plotting.plot_ptc`](https://esa.gitlab.io/pyxel/doc/stable/references/api/plotting.html#pyxel.plotting.plot_ptc)
+to plot a Photon Transfer Curve (PTC) on log-log scale using Matplotlib.
+
 
 ### Core
 * Improved Observation mode with `dask` enabled.
@@ -27,7 +36,9 @@ This release brings a number of bugfixes and improvements.
   (See [!957](https://gitlab.com/esa/pyxel/-/merge_requests/957)).
 * Remove progress bar when running Observation mode with Dask enabled.
   (See [!958](https://gitlab.com/esa/pyxel/-/merge_requests/958)).
-* Force parameter 'with_inherited_coords' to True if 'Scene' is not empty.
+* Force parameter `with_inherited_coords` in
+  [`pyxel.run_mode`](https://esa.gitlab.io/pyxel/doc/stable/references/api/run.html#pyxel.run_mode) to True
+  if 'Scene' is not empty.
   (See [!962](https://gitlab.com/esa/pyxel/-/merge_requests/962)).
 * Fix bug in [Observation mode](https://esa.gitlab.io/pyxel/doc/stable/background/running_modes/observation_mode.html).
   (See [!967](https://gitlab.com/esa/pyxel/-/merge_requests/967)).
