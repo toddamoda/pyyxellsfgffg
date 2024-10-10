@@ -9,11 +9,11 @@ Minor releases include updated stdlib stubs from typeshed.
 
 Pyxel doesn't use SemVer anymore, since most minor releases have at least minor backward incompatible changes.
 
-## UNRELEASED
+## 2.6 / 2024-10-11
 
 This release brings a number of bug fixes and improvements.
 
-### 📈 Plotting utilities 📈
+### 📈Plotting utilities
 
 A new plotting utilities library has been added in
 [`pyxel.plotting`](https://esa.gitlab.io/pyxel/doc/stable/references/api/plotting.html).
@@ -21,7 +21,7 @@ A new plotting utilities library has been added in
 The first plot is the function [`pyxel.plotting.plot_ptc`](https://esa.gitlab.io/pyxel/doc/stable/references/api/plotting.html#pyxel.plotting.plot_ptc)
 to plot a Photon Transfer Curve (PTC) on log-log scale using Matplotlib.
 
-### Observation mode with `dask` enabled
+### 💪Observation mode with `dask` enabled
 
 When using Observation mode with `with_dask` enabled in
 [`pyxel.run_mode`](https://esa.gitlab.io/pyxel/doc/stable/references/api/run.html#pyxel.run_mode), 
