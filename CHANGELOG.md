@@ -104,12 +104,12 @@ Downloading examples: 388MB [00:08, 47.9MB/s]
 Done in folder /.../pyxel-examples.
 
 $ cd pyxel-examples
-$ uvx --with pyxel-sim[model] --from jupyterlab jupyter-lab
+$ uvx --with pyxel-sim[model] jupyter lab
 [Server App] Jupyter Server is running at:
 [Server App] http://localhost:8888/lab?token=...
 ```
 
-This streamlined process makes it simplet to get Pyxel up and running quickly !
+This streamlined process makes it simpler to get Pyxel up and running quickly !
 
 ### **New parameter `with_inherited_coords` for `pyxel.run_mode` function**
 
