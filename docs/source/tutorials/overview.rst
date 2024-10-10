@@ -131,14 +131,23 @@ Then you can start a Jupyter Lab server with the latest version of Pyxel:
 .. code-block:: bash
 
     $ cd pyxel-examples
-    $ uvx --with pyxel-sim[model] --from jupyterlab jupyter-lab
+    $ uvx --with pyxel-sim[model] jupyter lab
 
 Alternatively, start Jupyter Lab server with a specific version of Pyxel and Python:
 
 .. code-block:: bash
 
     $ cd pyxel-examples
-    $ uvx --python 3.11 --with "pyxel-sim[model]==2.6" --from jupyterlab jupyter-lab
+    $ uvx --python 3.11 --with "pyxel-sim[model]==2.6" jupyter lab
+
+
+or with the current Pyxel development code in Gitlab
+
+.. code-block:: bash
+
+    $ cd pyxel-examples
+    $ uvx --python 3.11 --with git+https://gitlab.com/esa/pyxel.git[model] jupyter lab
+
 
 .. note::
 
