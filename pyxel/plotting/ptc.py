@@ -26,6 +26,24 @@ def plot_ptc(
     The PTC plot provides information about different noise regimes (read noise, shot noise, fixed pattern noise,
     and full well capacity) by calculating logarithmic slopes at key points and then
     plots these regimes along with the PTC on a log-log scale.
+    You can find more information in :cite:p:`Janesick2007`
+
+    **The four noise regimes**:
+
+    1. **Read Noise Regime** (slope = 0): This regime occurs in total darkness or low illumination. It is characterized
+    by random noise, which includes contributions such as thermal noise and darj current. Read noise dominates
+    at very low signal levels.
+    2. **Shot Noise Regime** (slope = ½): As the light levels increase, photon shot noise becomes the dominant form of noise.
+    This regime appears as a linear segment in a log-log plot with a slope of 1/2.
+    Shot noise is a natural consequence of the random arrival of photons, and its magnitude increases with the
+    square root of the signal level.
+    3. **Fixed Pattern Noise (FPN) Regime** (slope = 1): At even higher light levels, fixed-pattern noise (FPN) emerges.
+    This noises stems from variations in pixel responses and sensor inhomogeneities.
+    In this regime, the noise scales linearly with the signal, resulting in a slope of 1 in the PTC.
+    FPN becomes more prominent as the pixel responses begin to diverge due to non-uniformities in the sensor.
+    4. **Full-Well Saturation Regime** (slope = ∞): In the final regime, the subarray of pixels reaches saturation,
+    referred to as the full-well regime. Here noise levels generally decrease as the pixels become saturated.
+    A sharp deviation in noise from the expected 1/2 or 1 slope signals that the full-well condition has been reached.
 
     Returns
     -------
@@ -52,6 +70,11 @@ def plot_ptc(
             variance      (pipeline_idx) float64 800B 3.684 3.908 ... 8.099e+04
 
     >>> plot_ptc(data_tree["/data/mean_variance/image"])
+
+    .. figure:: _static/ptc_plot.png
+        :scale: 70%
+        :alt: Linear Regression Slope
+        :align: center
     """
 
     data: xr.DataArray = (
