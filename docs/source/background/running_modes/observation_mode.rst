@@ -153,9 +153,17 @@ as well as ``logs`` and ``parameters`` in NetCDF format.
 Using parallel computing
 ========================
 
-For large amounts of parameters and in the case of slow pipeline,
-it is possible to run observation mode using parallel computing by utilizing library ``dask``.
-Parallel computing can be switched on by setting the ``with_dask`` argument to ``true`` in the configuration file.
+For scenarios where there are large sets of parameters, the pipelines run slowly, or the result cannot fit in memory,
+it is possible to run observation mode using the library ``dask``.
+
+By enabling ``dask``, it also allows the system to efficiently manage data larger
+than the available memory, enabling parallel computations and efficient memory usage on large-scale datasets.
+
+Enabling ``dask``
+-----------------
+
+To enable parallel computing in Observation mode, set the ``with_dask`` option to ``true`` in the
+YAML configuration file.
 
 .. code-block:: yaml
 
@@ -168,14 +176,71 @@ Parallel computing can be switched on by setting the ``with_dask`` argument to `
         values:   [1, 2, 3]
         enabled:  true
 
-Pipelines with different parameters are grouped into dask bags (https://docs.dask.org/en/stable/bag.html)
-and results are computed in parallel. Default scheduler for dask bags is ``dask.multiprocessing``.
-When using Jupyter notebooks, we recommend using the ``dask.distributed`` scheduler in combination with threads,
-this way user is also provided with the dask dashboard and useful insights for tracking progress.
-The ``distributed`` scheduler in Jupyter notebooks is set in the following way:
+
+With this configuration, the pipelines with different parameters are grouped into
+Dask Arrays (https://docs.dask.org/en/stable/array.html) and results are computed in parallel.
+By default, ``dask`` uses the ``multiprocessing`` scheduler for parallelism.
+
+Choosing the right scheduler
+----------------------------
+
+For optimal performance, especially when working in Jupyter notebooks, it is recommended to use the
+``dask.distributed`` scheduler in combination with threads.
+This allow the user to track the progress with the dask dashboard.
+
+Here's how to configure the ``dask.distributed`` scheduler in Jupyter notebooks:
 
 .. code-block:: python
 
     from distributed import Client
 
-    client = Client(processes=False)
+    client = Client()
+
+
+Example of running and Observation mode with ``dask``
+-----------------------------------------------------
+
+Example of running the Observation mode.
+At this level, the results are not yet computed or loaded in memory.
+
+.. code-block:: python
+
+    import pyxel
+    from distributed import Client
+
+    client = Client()  # Optional
+    print(f"{client=}")
+
+    # Load YAML configuration file
+    config = pyxel.load("observation_with_dask.yaml")
+
+    # Run observation mode
+    data_tree = pyxel.run_mode(
+        mode=config.running_mode,
+        detector=config.detector,
+        pipeline=config.pipeline,
+    )
+
+
+Compute the results and load them into memory.
+Beware, the results may not fit in memory !
+
+.. code-block:: python
+
+    data_tree.load()
+
+
+Compute the results and save them into a NetCDF file.
+
+.. code-block:: python
+
+    data_tree.to_netcdf("result.nc", engine="h5netcdf")
+
+
+And load the results back.
+
+.. code-block:: python
+
+    from xarray.backends.api import open_datatree
+
+    new_data_tree = open_datatree("result.nc")
