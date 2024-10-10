@@ -21,6 +21,51 @@ A new plotting utilities library has been added in
 The first plot is the function [`pyxel.plotting.plot_ptc`](https://esa.gitlab.io/pyxel/doc/stable/references/api/plotting.html#pyxel.plotting.plot_ptc)
 to plot a Photon Transfer Curve (PTC) on log-log scale using Matplotlib.
 
+### Observation mode with `dask` enabled
+
+When using Observation mode with `with_dask` enabled in
+[`pyxel.run_mode`](https://esa.gitlab.io/pyxel/doc/stable/references/api/run.html#pyxel.run_mode), 
+the output is a [DataTree](https://docs.xarray.dev/en/latest/user-guide/data-structures.html#datatree)
+containing [Dask Arrays](https://docs.dask.org/en/stable/array.html) instead of 
+[Numpy Arrays](https://numpy.org/doc/stable/reference/arrays.html).
+With the [Dask Arrays](https://docs.dask.org/en/stable/array.html), the resulting
+[DataTree](https://docs.xarray.dev/en/latest/user-guide/data-structures.html#datatree) can handle data larger than the 
+available memory. This allows for efficient processing and computation on large-scale data without memory constraints.
+
+More information on how to work with [Xarray](https://xarray.dev) and [Dask](https://www.dask.org),
+check out the [Xarray tutorial with Dask](https://tutorial.xarray.dev/intermediate/xarray_and_dask.html).
+
+Example of YAML file with `with_dask` enabled:
+```YAML
+observation:
+  with_dask: true
+  ...
+```
+
+and how to use it:
+```python
+>>> import pyxel
+>>> config = pyxel.load('observation.yaml')
+>>> data_tree = pyxel.run_mode(
+...     mode=config.running_mode,
+...     detector=config.detector,
+...     pipeline=config.pipeline,
+... )
+
+>>> data_tree['/bucket']
+<xarray.DataArray 'bucket'>
+Group: /bucket
+    ...
+    Data variables:
+        photon         (temperature, ..., time, y, x)  dask.array<chunksize=(1, ..., 100, 256, 256)>
+        ...
+        image          (temperature, ..., time, y, x)  dask.array<chunksize=(1, ..., 100, 256, 256)>
+
+>>> data_tree['/bucket'].compute()
+...
+```
+
+
 ### Core
 * Improved Observation mode with `dask` enabled.
   (See [!951](https://gitlab.com/esa/pyxel/-/merge_requests/951)).
@@ -55,6 +100,9 @@ to plot a Photon Transfer Curve (PTC) on log-log scale using Matplotlib.
   (See [!965](https://gitlab.com/esa/pyxel/-/merge_requests/965)).
 * Add more documentation for function [`pyxel.plotting`](https://esa.gitlab.io/pyxel/doc/stable/references/api/plotting.html).
   (See [!970](https://gitlab.com/esa/pyxel/-/merge_requests/970)).
+* Add more documentation for [Observation mode](https://esa.gitlab.io/pyxel/doc/stable/background/running_modes/observation_mode.html#using-parallel-computing)
+  when using dask.
+  (See [!971](https://gitlab.com/esa/pyxel/-/merge_requests/971)).
 
 ### Models
 * Model [`dark_current_rule07`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_generation_models.html#dark-current-rule07)
