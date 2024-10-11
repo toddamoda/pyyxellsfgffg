@@ -54,10 +54,33 @@ def plot_ptc(
     referred to as the full-well regime. Here noise levels generally decrease as the pixels become saturated.
     A sharp deviation in noise from the expected 1/2 or 1 slope signals that the full-well condition has been reached.
 
+    Parameters
+    ----------
+    dataset : Dataset or DataTree
+        The dataset to plot. This dataset must contain a 'mean' and 'variance' variable.
+        The dataset must also be 1D, containing only one dimension (e.g. 'time')
+
+    text_base_fontsize : int, optional. Default is 8.
+        Base font size used for text annotations on the plot
+
+    alpha_rectangle : float, optional. Default is 0.05.
+        Alpha transparency for the shaded rectangles that highlight different noise regimes.
+
+    ax : Optional[plt.Axes], optional. Default is None.
+        A pre-existing matplotlib axes object. If None, a new one is created.
+
     Returns
     -------
     matplotlib Figure
         The figure object of the PTC plot with labeled noise regimes.
+
+    Raises
+    ------
+    TypeError
+        If the provided 'dataset' is neither a `Dataset` nor a `DataTree`.
+    ValueErorr
+        If 'dataset' does not contain 'mean' and 'variance' variables or
+        if 'dataset' is not 1D (i.e., contains more than one dimension)
 
     Examples
     --------
@@ -85,24 +108,36 @@ def plot_ptc(
         :alt: Linear Regression Slope
         :align: center
     """
+    # Ensure that the data is of the correct type
     if not isinstance(dataset, (xr.Dataset, DataTree)):
         raise TypeError(
             "Expecting a 'Dataset' or 'DataTree' object for parameter 'dataset'."
         )
 
+    # Ensure that the dataset contains variables 'mean' and 'variance'
     if "mean" not in dataset:
         raise ValueError("Missing data variable 'mean' in 'dataset'.")
     if "variance" not in dataset:
         raise ValueError("Missing data variable 'variance' in 'dataset'.")
 
+    # Ensure the that dataset is 1D
+    if len(dataset.dims) != 1:
+        raise ValueError(
+            f"Expecting a 1D 'dataset', got the following dimensions: {list(dataset.dims)!r}."
+        )
+
+    dim_name, *_ = list(dataset.dims)
     data: xr.DataArray = (
-        dataset["variance"]
-        .assign_coords(pipeline_idx=dataset["mean"])
-        .rename(pipeline_idx="mean")
+        dataset.drop_vars(dim_name)  # Drop core dimension (e.g. 'time')
+        .rename({dim_name: "mean"})  # Rename core dimension to 'mean'
+        .set_coords("mean")["variance"]  # Set 'mean' as a coordinate
     )
 
+    # Sort by 'variance'
+    sorted_data: xr.DataArray = data.sortby(data)
+
     data_log10 = xr.Dataset()
-    data_log10["variance"] = np.log10(data).assign_coords(mean=np.log10(data["mean"]))  # type: ignore[attr-defined]
+    data_log10["variance"] = np.log10(sorted_data).assign_coords(mean=np.log10(sorted_data["mean"]))  # type: ignore[attr-defined]
     data_log10["slope"] = data_log10["variance"].differentiate(coord="mean")
 
     ###############################
