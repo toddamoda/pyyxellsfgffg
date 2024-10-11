@@ -100,6 +100,9 @@ Group: /bucket
   (See [!965](https://gitlab.com/esa/pyxel/-/merge_requests/965)).
 * Add more documentation for function [`pyxel.plotting`](https://esa.gitlab.io/pyxel/doc/stable/references/api/plotting.html).
   (See [!970](https://gitlab.com/esa/pyxel/-/merge_requests/970)).
+* Add more documentation for [Observation mode](https://esa.gitlab.io/pyxel/doc/stable/background/running_modes/observation_mode.html#using-parallel-computing)
+  when using dask.
+  (See [!971](https://gitlab.com/esa/pyxel/-/merge_requests/971)).
 
 ### Models
 * Model [`dark_current_rule07`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_generation_models.html#dark-current-rule07)
