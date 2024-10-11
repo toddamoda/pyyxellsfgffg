@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     import xarray as xr
 
     from pyxel.detectors import Detector
+    from pyxel.observation import Observation
 
 
 # class ResultType(Enum):
@@ -166,6 +167,7 @@ def _get_obj_att(
 
 
 # TODO: Is this class needed ?
+# TODO: Create a new class 'ProcessorObservation' for Observation Mode ?
 class Processor:
     """Represent a processor that execute pipeline.
 
@@ -179,11 +181,20 @@ class Processor:
         The detection pipeline object defining the sequence of model groups.
     """
 
-    def __init__(self, detector: "Detector", pipeline: DetectionPipeline):
+    def __init__(
+        self,
+        detector: "Detector",
+        pipeline: DetectionPipeline,
+        observation_mode: Optional["Observation"] = None,  # TODO: See #836
+    ):
         self._log = logging.getLogger(__name__)
 
         self.detector = detector
         self.pipeline = pipeline
+
+        # TODO: Use this only in future class 'ProcessorObservation'
+        self.observation: Optional["Observation"] = observation_mode  # TODO: See #836
+
         self._result: Optional[dict] = None  # TODO: Deprecate this variable ?
 
         self._numbytes = 0
@@ -196,6 +207,7 @@ class Processor:
         return Processor(
             detector=deepcopy(self.detector, memo=memodict),
             pipeline=deepcopy(self.pipeline, memo=memodict),
+            observation_mode=deepcopy(self.observation, memo=memodict),  # See #836
         )
 
     # TODO: Could it be renamed '__contains__' ?
