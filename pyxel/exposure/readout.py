@@ -9,6 +9,7 @@
 """TBW."""
 
 from collections.abc import Iterator, Sequence
+from numbers import Number
 from typing import Optional, Union
 
 import numpy as np
@@ -69,7 +70,7 @@ class Readout:
 
     def __init__(
         self,
-        times: Union[Sequence, str, None] = None,
+        times: Union[Number, Sequence, str, None] = None,
         times_from_file: Optional[str] = None,
         start_time: float = 0.0,
         non_destructive: bool = False,
@@ -138,18 +139,31 @@ class Readout:
         return self._times
 
     @times.setter
-    def times(self, value: Union[Sequence, np.ndarray]) -> None:
+    def times(self, value: Union[Number, Sequence, np.ndarray]) -> None:
         """Set readout times.
 
         Parameters
         ----------
         value
         """
-        if value[0] == 0:
+        if isinstance(value, Number):
+            values: np.ndarray = np.array([value])
+        else:
+            values = np.array(value)
+
+        if values.ndim != 1:
+            raise ValueError
+
+        if values.size == 0:
+            raise ValueError
+
+        if values[0] == 0:
             raise ValueError("Readout times should be non-zero values.")
-        elif self._start_time >= value[0]:
+
+        elif self._start_time >= values[0]:
             raise ValueError("Readout times should be greater than start time.")
-        self._times = np.array(value)
+
+        self._times = values
         self._set_steps()
 
     @property
@@ -171,6 +185,17 @@ class Readout:
     def non_destructive(self, value: bool) -> None:
         """Set non-destructive mode."""
         self._non_destructive = value
+
+    def replace(self, **changes) -> "Readout":
+        """Create a new 'Readout' object with modified parameters."""
+        parameters = {
+            "times": self._times,
+            "start_time": self._start_time,
+            "non_destructive": self._non_destructive,
+        }
+
+        new_parameters = {**parameters, **changes}
+        return Readout(**new_parameters)
 
 
 def calculate_steps(times: np.ndarray, start_time: float) -> np.ndarray:

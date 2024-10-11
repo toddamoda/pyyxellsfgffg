@@ -66,7 +66,7 @@ def evaluate_reference(reference_str: str) -> Callable:
     return reference
 
 
-def eval_range(values: Union[str, Sequence]) -> Sequence:
+def eval_range(values: Union[Number, str, Sequence]) -> Sequence:
     """Evaluate a string representation of a list or numpy array.
 
     :param values:
@@ -98,9 +98,11 @@ def eval_range(values: Union[str, Sequence]) -> Sequence:
     elif isinstance(values, abc.Sequence):
         values_lst = list(values)
 
+    elif isinstance(values, Number):
+        values_lst = [values]
+
     else:
-        # values_lst = []
-        raise NotImplementedError
+        raise TypeError(f"Unknown {values=}")
 
     return values_lst
 
