@@ -53,7 +53,11 @@ def _get_short_dimension_names_new(
     # Create potential names for the dimensions
     potential_dim_names: dict[str, str] = {}
     for param_name in types:
-        short_name: str = short(param_name)
+        if param_name == "observation.readout.times":
+            # TODO: Move this to function 'short'
+            short_name: str = "readout_time"  # TODO: See #836
+        else:
+            short_name = short(param_name)
 
         potential_dim_names[param_name] = short_name
 

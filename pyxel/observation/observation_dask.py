@@ -21,6 +21,8 @@ from pyxel.pipelines import ResultId
 if TYPE_CHECKING:
     import xarray as xr
 
+    from pyxel.exposure import Readout
+
     # Import 'DataTree'
     try:
         from xarray.core.datatree import DataTree
@@ -200,7 +202,7 @@ def _run_pipelines_array_to_datatree(
     dimension_names: Mapping[str, str],
     processor: "Processor",
     with_inherited_coords: bool,
-    readout: Readout,
+    readout: "Readout",
     result_type: ResultId,
     pipeline_seed: Optional[int],
     progressbar: bool,
@@ -213,12 +215,21 @@ def _run_pipelines_array_to_datatree(
     if len(dimension_names) != len(params_tuple):
         raise NotImplementedError
 
-    dct = dict(zip(dimension_names, params_tuple))
+    dct: dict[str, tuple] = dict(zip(dimension_names, params_tuple))
     new_processor: Processor = processor.replace(dct)
+
+    # TODO: Move this to 'Processor' ? See #836
+    new_readout: "Readout" = readout
+    for key, value in dct.items():
+        if key.startswith("observation.readout"):
+            if key != "observation.readout.times":
+                raise NotImplementedError(f"{key=}")
+
+            new_readout = new_readout.replace(times=value)
 
     data_tree: "DataTree" = run_pipeline(
         processor=new_processor,
-        readout=readout,
+        readout=new_readout,
         result_type=result_type,
         pipeline_seed=pipeline_seed,
         debug=False,  # Not supported in Observation mode
@@ -234,7 +245,7 @@ def _build_metadata(
     dimension_names: Mapping[str, str],
     processor: "Processor",
     with_inherited_coords: bool,
-    readout: Readout,
+    readout: "Readout",
     result_type: ResultId,
     pipeline_seed: Optional[int],
 ) -> Mapping[str, DatasetMetadata]:
@@ -259,7 +270,7 @@ def _run_pipelines_tuple_to_array(
     all_metadata: Mapping[str, DatasetMetadata],
     processor: "Processor",
     with_inherited_coords: bool,
-    readout: Readout,
+    readout: "Readout",
     result_type: ResultId,
     pipeline_seed: Optional[int],
 ) -> tuple[np.ndarray, ...]:
@@ -361,7 +372,7 @@ def run_pipelines_with_dask(
     parameter_mode: Union[ProductMode, SequentialMode, CustomMode],
     processor: "Processor",
     with_inherited_coords: bool,
-    readout: Readout,
+    readout: "Readout",
     result_type: ResultId,
     pipeline_seed: Optional[int],
 ) -> "DataTree":
@@ -438,5 +449,18 @@ def run_pipelines_with_dask(
         final_datatree = DataTree.from_dict(deepcopy(dct))
     else:
         final_datatree = DataTree.from_dict(dct)
+
+    if "observation.readout.times" in dim_names:
+        # TODO: See #836
+        final_datatree["/bucket"] = (
+            final_datatree["/bucket"]
+            .squeeze("time", drop=True)  # Remove dimension 'time'
+            .rename(readout_time="time")  # Rename dimension 'readout' to 'time
+        )
+
+        final_datatree["/bucket/time"].attrs = {
+            "units": "s",
+            "long_name": "Readout time",
+        }
 
     return final_datatree
