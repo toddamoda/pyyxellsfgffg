@@ -878,7 +878,14 @@ def run_mode(
         )
 
     # Initialize the Processor object with the detector and pipeline.
-    processor = Processor(detector=detector, pipeline=pipeline)
+    if isinstance(mode, Observation):
+        processor = Processor(
+            detector=detector,
+            pipeline=pipeline,
+            observation_mode=mode,  # TODO: See #836
+        )
+    else:
+        processor = Processor(detector=detector, pipeline=pipeline)
 
     # Apply any overrides provided in the 'override_dct' to adjust processor settings.
     if override_dct is not None:
