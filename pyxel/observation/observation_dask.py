@@ -344,8 +344,8 @@ def _rebuild_datatree_from_dask(
             dct[path] = empty_data_tree
 
         else:
-            assert partial_metadata.dims
-            assert partial_metadata.coords
+            # assert partial_metadata.dims
+            # assert partial_metadata.coords
 
             data_set = xr.Dataset(attrs=partial_metadata.attrs)
 

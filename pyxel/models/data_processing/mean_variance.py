@@ -184,8 +184,15 @@ def mean_variance(
 
     # If pipeline is at its final step, clean up partial results and store the full result
     if detector.pipeline_count == (detector.num_steps - 1):
-        detector.data[parent_partial].orphan()
-        detector.data[key] = data_tree.sortby("mean")
+        # TODO: Find better solution (e.g. check if node parent_partial exists)
+        if detector.num_steps == 1:
+            detector.data[key] = data_tree.squeeze(drop=True)
+
+        else:
+            # Detach node parent_partial
+            detector.data[parent_partial].orphan()
+            detector.data[key] = data_tree.sortby("mean")
+
     else:
         # Otherwise, continue storing partial results
         detector.data[key_partial] = data_tree
