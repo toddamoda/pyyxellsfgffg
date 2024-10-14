@@ -24,6 +24,11 @@ This release brings a number of bug fixes since version 2.6
 * Fix bug in function `pyxel.plotting.plot_ptc`.
   (See [!974](https://gitlab.com/esa/pyxel/-/merge_requests/974)).
 
+### Models
+* Fix bug in model [`mean_variance`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/data_processing_models.html#mean-variance) 
+  when only a single readout time is provided.
+  (See [!975](https://gitlab.com/esa/pyxel/-/merge_requests/975)).
+
   
 ## 2.6 / 2024-10-11
 
