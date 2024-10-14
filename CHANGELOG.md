@@ -9,6 +9,17 @@ Minor releases include updated stdlib stubs from typeshed.
 
 Pyxel doesn't use SemVer anymore, since most minor releases have at least minor backward incompatible changes.
 
+## 2.6.1 / 2024-10-xx
+
+This release brings a number of bug fixes since version 2.6
+
+### Core
+* Fix bug when trying to set `observation.readout.times` in 
+  [Observation mode](https://esa.gitlab.io/pyxel/doc/stable/background/running_modes/observation_mode.html#observation-mode).
+  (See [!972](https://gitlab.com/esa/pyxel/-/merge_requests/972)).
+
+
+
 ## 2.6 / 2024-10-11
 
 This release brings a number of bug fixes and improvements.
