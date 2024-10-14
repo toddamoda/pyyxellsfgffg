@@ -19,6 +19,8 @@ This release brings a number of bug fixes since version 2.6
   (See [!972](https://gitlab.com/esa/pyxel/-/merge_requests/972)).
 * Cannot set readout time as a single value.
   (See [!973](https://gitlab.com/esa/pyxel/-/merge_requests/973)).
+* Fix bug in function `pyxel.plotting.plot_ptc`.
+  (See [!974](https://gitlab.com/esa/pyxel/-/merge_requests/974)).
 
   
 ## 2.6 / 2024-10-11
