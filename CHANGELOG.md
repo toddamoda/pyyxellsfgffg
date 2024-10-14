@@ -16,6 +16,9 @@ This release brings a number of bug fixes since version 2.6
 ### Core
 * Cannot set readout time as a single value.
   (See [!973](https://gitlab.com/esa/pyxel/-/merge_requests/973)).
+* Fix bug when trying to set `observation.readout.times` in 
+  [Observation mode](https://esa.gitlab.io/pyxel/doc/stable/background/running_modes/observation_mode.html#observation-mode).
+  (See [!972](https://gitlab.com/esa/pyxel/-/merge_requests/972)).
 
   
 ## 2.6 / 2024-10-11
