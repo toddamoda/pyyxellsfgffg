@@ -7,7 +7,6 @@
 #
 #
 """Model for brighter-fatter-effect."""
-from collections.abc import Sequence
 
 import numba
 import numpy as np
@@ -75,7 +74,7 @@ def simple_bfe(
     # calculate 2D Gaussian kernel
     kernel = Gaussian2DKernel(x_stddev=std, x_size=9)  # , y_size=3)
 
-    # calulate convolution of charge array with kernel
+    # calculate convolution of charge array with kernel
     conv = convolve_fft(
         signal,
         kernel=kernel,
@@ -119,49 +118,25 @@ def simple_bfe(
     if detector.num_steps > 1 and (detector.pipeline_count == (detector.num_steps - 1)):
         detector.data[key_partial].orphan()
 
-    detector.charge.array = conv
+    detector.charge.add_charge_array(conv)
 
 
 @numba.njit(fastmath=False)
-def bfe(
-    data_2d,
-    FWC,
-    a,
-    b,
-    c,
-    alpha: float,
-    beta: float,
-) -> np.ndarray:
-    """
-
-    Parameters
-    ----------
-    detector
-    a
-    b
-    c
-    alpha
-    beta
-
-    Returns
-    -------
-
-    """
-
+def bfe(data_2d, full_well_capacity, a, b, c, alpha: float, beta: float) -> np.ndarray:
     new_data_2d = np.zeros_like(data_2d)
     num_y, num_x = new_data_2d.shape
 
-    mean = np.mean(data_2d)
     # sigma_array = a + b * data_2d + c * data_2d**2
     theta = a + b * data_2d + c * data_2d**2
-    theta_fwc = a + b * FWC + c * FWC**2
+    theta_fwc = a + b * full_well_capacity + c * full_well_capacity**2
     # norm_sigma = (1 / np.max(sigma_array)) * sigma_array
     norm_sigma = alpha + beta * ((1 / theta_fwc) * theta)
     # std = np.mean(norm_sigma)
-    new_data = np.zeros_like(data_2d)
-    for k in range(num_x):
-        for l in range(num_y):
-            sigma = norm_sigma[k, l]
+
+    for col in range(num_x):
+        for row in range(num_y):
+            sigma = norm_sigma[row, col]
+
             size = 3
             # gaussian_2d = np.asarray(Gaussian2DKernel(x_stddev=sigma, x_size=3))
             kernel = np.zeros((size, size))
@@ -171,6 +146,7 @@ def bfe(
                     y = m - (size // 2)
                     kernel[m, n] = np.exp(-(x**2 + y**2) / (2 * sigma**2))
             gaussian_2d = kernel / np.sum(kernel)
+
             # gaussian_2d = np.asarray(get_gaussian_kernel(size=3, sigma=sigma))
             # print(kernel, gaussian_2d)
             # Do this with 2 new for-loops
@@ -233,7 +209,7 @@ def get_bfe(
     data_2d = detector.charge.array
     conv = bfe(
         data_2d=data_2d,
-        FWC=detector.characteristics.full_well_capacity,
+        full_well_capacity=detector.characteristics.full_well_capacity,
         a=a,
         b=b,
         c=c,
@@ -241,7 +217,7 @@ def get_bfe(
         beta=beta,
     )
 
-    detector.charge.array = conv
+    detector.charge.add_charge_array(conv)
 
 
 # @numba.njit(fastmath=False)
