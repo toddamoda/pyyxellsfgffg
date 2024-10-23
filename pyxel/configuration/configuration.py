@@ -6,6 +6,7 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 """Configuration loader."""
 
+import warnings
 from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -185,7 +186,31 @@ def to_exposure(dct: dict) -> Exposure:
 
 def to_observation_outputs(dct: dict) -> ObservationOutputs:
     """Create a ObservationOutputs class from a dictionary."""
-    return ObservationOutputs(**dct)
+    output_folder = dct["output_folder"]
+    custom_dir_name = dct.get("custom_dir_name", "")
+    save_data_to_file = dct.get("save_data_to_file")
+
+    if "save_observation_data" in dct:
+        warnings.warn(
+            "Deprecated. Will be removed in future version",
+            DeprecationWarning,
+            stacklevel=1,
+        )
+
+        save_observation_data = dct.get("save_observation_data")
+
+        return ObservationOutputs(
+            output_folder=output_folder,
+            custom_dir_name=custom_dir_name,
+            save_data_to_file=save_data_to_file,
+            save_observation_data=save_observation_data,
+        )
+    else:
+        return ObservationOutputs(
+            output_folder=output_folder,
+            custom_dir_name=custom_dir_name,
+            save_data_to_file=save_data_to_file,
+        )
 
 
 def to_parameters(dct: Mapping[str, Any]) -> ParameterValues:

@@ -53,7 +53,9 @@ class ObservationOutputs(Outputs):
         save_data_to_file: Optional[
             Sequence[Mapping[ValidName, Sequence[ValidFormat]]]
         ] = None,
-        save_observation_data: Optional[Sequence[Mapping[str, Sequence[str]]]] = None,
+        save_observation_data: Optional[
+            Sequence[Mapping[str, Sequence[str]]]
+        ] = None,  # TODO: This parameter is deprecated
     ):
         super().__init__(
             output_folder=output_folder,
@@ -61,9 +63,19 @@ class ObservationOutputs(Outputs):
             custom_dir_name=custom_dir_name,
         )
 
-        self.save_observation_data: Optional[Sequence[Mapping[str, Sequence[str]]]] = (
+        # TODO: This parameter is deprecated
+        self._save_observation_data: Optional[Sequence[Mapping[str, Sequence[str]]]] = (
             save_observation_data
         )
+
+    @property
+    def save_observation_data(self) -> Optional[Sequence[Mapping[str, Sequence[str]]]]:
+        warnings.warn(
+            "Deprecated. Will be removed in future version",
+            DeprecationWarning,
+            stacklevel=1,
+        )
+        return self._save_observation_data
 
     def _save_observation_datasets_deprecated(
         self,
