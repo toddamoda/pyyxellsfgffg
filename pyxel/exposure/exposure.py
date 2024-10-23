@@ -432,7 +432,6 @@ def run_pipeline(
         detector.empty()
 
         if progressbar:
-
             pbar = tqdm(
                 total=detector.readout_properties.num_steps,
                 desc="Run pipeline: ",

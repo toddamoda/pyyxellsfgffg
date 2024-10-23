@@ -134,7 +134,6 @@ class ModelGroup:
                 # TODO: Refactor
                 pipeline_key: str = f"time_idx_{detector.pipeline_count}"
                 if pipeline_key not in detector.intermediate:
-
                     datatree_single_time: DataTree = DataTree()
                     datatree_single_time.attrs = {
                         "long_name": "Pipeline for one unique time",

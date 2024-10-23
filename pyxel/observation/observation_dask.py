@@ -273,7 +273,6 @@ def _run_pipelines_tuple_to_array(
     result_type: ResultId,
     pipeline_seed: Optional[int],
 ) -> tuple[np.ndarray, ...]:
-
     data_tree: "DataTree" = _run_pipelines_array_to_datatree(
         params_tuple=params_tuple,
         dimension_names=dimension_names,
