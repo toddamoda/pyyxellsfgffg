@@ -243,6 +243,10 @@ def _build_metadata(
     pipeline_seed: Optional[int],
 ) -> Mapping[str, DatasetMetadata]:
     """Build metadata from a single pipeline run."""
+    # TODO: Create a new temporary 'Output' (if needed) and remove it
+    if processor.observation is None:
+        raise NotImplementedError
+
     data_tree: "DataTree" = _run_pipelines_array_to_datatree(
         params_tuple=params_tuple,
         dimension_names=dimension_names,
