@@ -177,10 +177,12 @@ class Outputs:
         self._custom_dir_name = name
 
     def create_output_folder(self) -> None:
+        """Create the output folder."""
         output_folder: Path = complete_path(
             filename=self._output_folder,
             working_dir=global_options.working_directory,
         ).expanduser()
+
         self._current_output_folder = create_output_directory(
             output_folder=output_folder,
             custom_dir_name=self._custom_dir_name,
@@ -480,7 +482,7 @@ class Outputs:
         prefix: Optional[str] = None,
         with_auto_suffix: bool = True,
         run_number: Optional[int] = None,
-    ) -> Sequence[Path]:
+    ) -> Mapping[str, Mapping[str, str]]:
         """Save outputs into file(s).
 
         Parameters
@@ -508,31 +510,34 @@ class Outputs:
 
         filenames: list[Path] = []
 
-        dct: Mapping[ValidName, Sequence[ValidFormat]]
         if self.save_data_to_file:
+            all_filenames: dict[str, dict[str, str]] = {}
+
+            dct: Mapping[ValidName, Sequence[ValidFormat]]
             for dct in self.save_data_to_file:
                 # TODO: Why looking at first entry ? Check this !
                 # Get first entry of `dict` 'item'
                 first_item: tuple[ValidName, Sequence[ValidFormat]]
                 first_item, *_ = dct.items()
 
-                obj: ValidName
+                valid_name: ValidName
                 format_list: Sequence[ValidFormat]
-                obj, format_list = first_item
+                valid_name, format_list = first_item
 
-                data: np.ndarray = np.array(processor.get(obj))
+                data: np.ndarray = np.array(processor.get(valid_name))
 
                 if prefix:
-                    name: str = f"{prefix}_{obj}"
+                    name: str = f"{prefix}_{valid_name}"
                 else:
-                    name = obj
+                    name = valid_name
 
+                partial_filenames: dict[str, str] = {}
                 out_format: ValidFormat
                 for out_format in format_list:
                     func: SaveToFile = save_methods[out_format]
 
                     if out_format in ("png", "jpg", "jpeg"):
-                        if obj != "detector.image.array":
+                        if valid_name != "detector.image.array":
                             raise ValueError(
                                 "Cannot save non-digitized data into image formats."
                             )
@@ -565,7 +570,7 @@ class Outputs:
                             header.add_history(line)
 
                         previous_header: Optional[fits.Header] = (
-                            processor.detector._headers.get(obj)
+                            processor.detector._headers.get(valid_name)
                         )
                         if previous_header is not None:
                             for card in previous_header.cards:
@@ -601,7 +606,11 @@ class Outputs:
                         )
                         filenames.append(full_filename)
 
-        return filenames
+                    partial_filenames[out_format] = filename.name
+
+                all_filenames[valid_name] = partial_filenames
+
+        return all_filenames
 
     def save_to_netcdf(
         self,

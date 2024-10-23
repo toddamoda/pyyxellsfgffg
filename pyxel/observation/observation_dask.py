@@ -9,10 +9,12 @@
 
 from collections.abc import Hashable, Mapping, Sequence
 from dataclasses import dataclass
+from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING, Any, Optional, Union
 
 import numpy as np
 
+import pyxel
 from pyxel.exposure import run_pipeline
 from pyxel.observation import CustomMode, ProductMode, SequentialMode
 from pyxel.pipelines import ResultId
@@ -198,6 +200,7 @@ def _get_output_sizes(
 
 def _run_pipelines_array_to_datatree(
     params_tuple: tuple,
+    params_index: int,
     dimension_names: Mapping[str, str],
     processor: "Processor",
     readout: "Readout",
@@ -231,6 +234,34 @@ def _run_pipelines_array_to_datatree(
         progressbar=progressbar,
     )
 
+    # Save the outputs if configured
+    if (
+        processor.observation
+        and processor.observation.outputs
+        and processor.observation.outputs.save_data_to_file
+    ):
+        import xarray as xr
+
+        # Import 'DataTree'
+        try:
+            from xarray.core.datatree import DataTree
+        except ImportError:
+            from datatree import DataTree  # type: ignore[assignment]
+
+        filenames_dct: Mapping[str, Mapping[str, str]] = (
+            processor.observation.outputs.save_to_file(
+                processor=new_processor,
+                run_number=params_index,
+            )
+        )
+
+        datatree_dct: dict[str, xr.Dataset] = {}
+        for name, partial_dct in filenames_dct.items():
+            for file_formats, filename in partial_dct.items():
+                datatree_dct[name] = xr.Dataset({file_formats: filename})
+
+        data_tree["/output"] = DataTree.from_dict(datatree_dct)
+
     return data_tree
 
 
@@ -247,21 +278,43 @@ def _build_metadata(
     if processor.observation is None:
         raise NotImplementedError
 
-    data_tree: "DataTree" = _run_pipelines_array_to_datatree(
-        params_tuple=params_tuple,
-        dimension_names=dimension_names,
-        processor=processor,
-        readout=readout,
-        result_type=result_type,
-        pipeline_seed=pipeline_seed,
-        progressbar=True,
-    )
+    if processor.observation.outputs:
+
+        # TODO: Create a temporary directory inside the current 'output_folder' ?
+        with pyxel.set_options(working_directory=None):
+            with TemporaryDirectory() as temp_dir:
+                new_processor: "Processor" = deepcopy(processor)
+                new_processor.observation.outputs.output_folder = temp_dir  # type: ignore[union-attr]
+                new_processor.observation.outputs.create_output_folder()  # type: ignore[union-attr]
+
+                data_tree: "DataTree" = _run_pipelines_array_to_datatree(
+                    params_tuple=params_tuple,
+                    params_index=0,
+                    dimension_names=dimension_names,
+                    processor=new_processor,
+                    readout=readout,
+                    result_type=result_type,
+                    pipeline_seed=pipeline_seed,
+                    progressbar=True,
+                )
+    else:
+        data_tree = _run_pipelines_array_to_datatree(
+            params_tuple=params_tuple,
+            params_index=0,
+            dimension_names=dimension_names,
+            processor=processor,
+            readout=readout,
+            result_type=result_type,
+            pipeline_seed=pipeline_seed,
+            progressbar=True,
+        )
 
     return build_metadata(data_tree)
 
 
 def _run_pipelines_tuple_to_array(
     params_tuple: tuple,
+    params_index: int,
     dimension_names: Mapping[str, str],
     all_metadata: Mapping[str, DatasetMetadata],
     processor: "Processor",
@@ -271,6 +324,7 @@ def _run_pipelines_tuple_to_array(
 ) -> tuple[np.ndarray, ...]:
     data_tree: "DataTree" = _run_pipelines_array_to_datatree(
         params_tuple=params_tuple,
+        params_index=params_index,
         dimension_names=dimension_names,
         processor=processor,
         readout=readout,
@@ -415,10 +469,15 @@ def run_pipelines_with_dask(
     # Coerce 'params_dataarray' to a Dask array
     params_dataarray_dask: xr.DataArray = params_dataarray.chunk(1)
 
+    params_indexes: xr.DataArray = xr.zeros_like(params_dataarray)
+    params_indexes[...] = range(params_dataarray.size)
+    params_indexes_dask: xr.DataArray = params_indexes.chunk(1)
+
     # Create 'Dask' data arrays
     dask_dataarrays: tuple[xr.DataArray, ...] = xr.apply_ufunc(
         _run_pipelines_tuple_to_array,  # Function to apply
         params_dataarray_dask,  # Argument 'params_tuple'
+        params_indexes_dask,  # Argument 'params_index'
         kwargs={  # other arguments
             "dimension_names": dim_names,
             "processor": processor,
@@ -427,7 +486,7 @@ def run_pipelines_with_dask(
             "result_type": result_type,
             "pipeline_seed": pipeline_seed,
         },
-        input_core_dims=[[]],
+        input_core_dims=[[], []],
         output_core_dims=output_core_dims,
         vectorize=True,  # loop over non-core dims
         dask="parallelized",
