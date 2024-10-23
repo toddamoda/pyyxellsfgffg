@@ -339,6 +339,14 @@ class CustomMode:
     parameters: Sequence[ParameterValues]
     custom_data: "pd.DataFrame"
 
+    def __repr__(self) -> str:
+        cls_name: str = self.__class__.__name__
+        return (
+            f"{cls_name}(parameters={self.parameters}, "
+            f"custom_data=DataFrame<num_rows={len(self.custom_data)}, "
+            f"num_cols={len(self.custom_data.columns)}>)"
+        )
+
     @property
     def enabled_steps(self) -> Sequence[ParameterValues]:
         """Return a list of enabled ParameterValues."""
