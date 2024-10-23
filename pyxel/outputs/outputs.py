@@ -126,9 +126,23 @@ class Outputs:
         cls_name: str = self.__class__.__name__
 
         if self._current_output_folder is None:
-            return f"{cls_name}<NO OUTPUT DIR>"
+            return (
+                f"{cls_name}<NO OUTPUT DIR, num_files={self.count_files_to_save()!r}>"
+            )
         else:
-            return f"{cls_name}<output_dir='{self.current_output_folder!s}'>"
+            return f"{cls_name}<output_dir='{self.current_output_folder!s}', num_files={self.count_files_to_save()!r}>"
+
+    def count_files_to_save(self) -> int:
+        """Count number of file(s) to be saved."""
+        if self.save_data_to_file is None:
+            return 0
+
+        num_files = 0
+        for dct in self.save_data_to_file:
+            for value in dct.values():
+                num_files += len(value)
+
+        return num_files
 
     @property
     def current_output_folder(self) -> Path:
