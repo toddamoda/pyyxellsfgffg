@@ -124,7 +124,7 @@ def build_parameter_mode(
     custom_filename : str, optional
         Provide a valid filename for 'custom' mode.
     column_range : tuple[int, int], optional
-        Specifu a range of columns (start and end indiced) for 'custom' mode
+        Range of columns for 'custom' mode, defined by a tuple (start, end).
     """
     if mode == "product":
         return ProductMode(parameters)

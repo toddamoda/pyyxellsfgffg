@@ -256,7 +256,7 @@ class Processor:
         value: Union[str, Number, np.ndarray, Sequence[Union[str, Number, np.ndarray]]],
         convert_value: bool = True,
     ) -> None:
-        """TBW.
+        """Set the value of a parameter in the Processor.
 
         Parameters
         ----------
