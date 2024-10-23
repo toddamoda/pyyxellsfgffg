@@ -604,6 +604,53 @@ def _run_observation_mode(
     return result
 
 
+def _run(
+    mode: Union[Exposure, Observation, "Calibration"],
+    processor: Processor,
+    debug: bool,
+    with_inherited_coords: bool,
+) -> "DataTree":
+    # Execute the appropriate processing function based on the mode type.
+    if isinstance(mode, Exposure):
+        return _run_exposure_mode(
+            exposure=mode,
+            processor=processor,
+            debug=debug,
+            with_inherited_coords=with_inherited_coords,
+        )
+
+    elif isinstance(mode, Observation):
+        if debug:
+            raise NotImplementedError(
+                "Parameter 'debug' is not implemented for 'Observation' mode."
+            )
+
+        return _run_observation_mode(
+            observation=mode,
+            processor=processor,
+            with_inherited_coords=with_inherited_coords,
+        )
+
+    else:
+        if debug:
+            raise NotImplementedError(
+                "Parameter 'debug' is not implemented for 'Calibration' mode."
+            )
+
+        # Late import.
+        # Importing 'Calibration' can take up to 3 s !
+        from pyxel.calibration import Calibration
+
+        if isinstance(mode, Calibration):
+            return _run_calibration_mode(
+                calibration=mode,
+                processor=processor,
+                with_inherited_coords=with_inherited_coords,
+            )
+        else:
+            raise TypeError("Please provide a valid simulation mode !")
+
+
 def run_mode(
     mode: Union[Exposure, Observation, "Calibration"],
     detector: Detector,
@@ -870,13 +917,6 @@ def run_mode(
                     Attributes:
                         long_name:  Group: 'simple_adc'
     """
-
-    # Ensure debug mode is only used with Exposure mode.
-    if debug and not isinstance(mode, Exposure):
-        raise NotImplementedError(
-            "Parameter 'debug' is only implemented for 'Exposure' mode."
-        )
-
     # Initialize the Processor object with the detector and pipeline.
     if isinstance(mode, Observation):
         processor = Processor(
@@ -895,57 +935,14 @@ def run_mode(
             mode=mode,
         )
 
-    # Execute the appropriate processing function based on the mode type.
-    if isinstance(mode, Exposure):
-        data_tree = _run_exposure_mode(
-            exposure=mode,
-            processor=processor,
-            debug=debug,
-            with_inherited_coords=with_inherited_coords,
-        )
+    datatree: "DataTree" = _run(
+        mode=mode,
+        processor=processor,
+        debug=debug,
+        with_inherited_coords=with_inherited_coords,
+    )
 
-    elif isinstance(mode, Observation):
-        data_tree = _run_observation_mode(
-            observation=mode,
-            processor=processor,
-            with_inherited_coords=with_inherited_coords,
-        )
-
-    else:
-        # Late import.
-        # Importing 'Calibration' can take up to 3 s !
-        from pyxel.calibration import Calibration
-
-        if isinstance(mode, Calibration):
-            data_tree = _run_calibration_mode(
-                calibration=mode,
-                processor=processor,
-                with_inherited_coords=with_inherited_coords,
-            )
-        else:
-            raise TypeError("Please provide a valid simulation mode !")
-
-    return data_tree
-
-
-def output_directory(configuration: Configuration) -> Optional[Path]:
-    """Return the output directory from the configuration.
-
-    Parameters
-    ----------
-    configuration
-
-    Returns
-    -------
-    output_dir
-    """
-    outputs: Union[
-        "ExposureOutputs", "ObservationOutputs", "CalibrationOutputs", None
-    ] = configuration.running_mode.outputs
-    if outputs:
-        return outputs.current_output_folder
-
-    return None
+    return datatree
 
 
 def run(
@@ -968,8 +965,6 @@ def run(
     >>> import pyxel
     >>> pyxel.run("configuration.yaml")
     """
-    # Late import to speedup start-up time
-
     logging.info("Pyxel version %s", version)
     logging.info("Pipeline started.")
 
@@ -998,50 +993,42 @@ def run(
             mode=running_mode,
         )
 
-    if isinstance(running_mode, Exposure):
-        _run_exposure_mode_without_datatree(
-            exposure=running_mode,
-            processor=processor,
-        )
+    if running_mode.outputs is None:
+        raise RuntimeError
 
-    elif isinstance(running_mode, Observation):
-        _run_observation_mode_without_datatree(
-            observation=running_mode,
-            processor=processor,
-        )
+    if running_mode.outputs.count_files_to_save() == 0:
+        raise RuntimeError
 
-    else:
-        # Late import.
-        # Importing 'Calibration' can take up to 3 s !
-        from pyxel.calibration import Calibration
+    # Create a DataTree
+    datatree: "DataTree" = _run(
+        mode=running_mode,
+        processor=processor,
+        debug=False,
+        with_inherited_coords=True,
+    )
 
-        if isinstance(running_mode, Calibration):
-            _run_calibration_mode_without_datatree(
-                calibration=running_mode,
-                processor=processor,
-                with_buckets_separated=False,
-            )
-        else:
-            raise TypeError("Please provide a valid simulation mode !")
+    # Get the output file(s)
+    if "output" in datatree:
+        filenames: "DataTree" = datatree["/output"]  # type: ignore[assignment]
+        filenames.load()
 
-    output_dir: Optional[Path] = output_directory(configuration)
+        # TODO: Display a progress bar ?
+        # TODO: Special progress bar when a Distributed Client is enabled or any other Dask Scheduler
+        # TODO: Create a CSV file to be stored in 'output_dir' ?
+
+    output_dir: Path = running_mode.outputs.current_output_folder
 
     # TODO: Fix this, see issue #728
-    if output_dir:
-        copy_config_file(input_filename=input_filename, output_dir=output_dir)
+    copy_config_file(input_filename=input_filename, output_dir=output_dir)
 
     logging.info("Pipeline completed.")
     logging.info("Running time: %.3f seconds", (time.time() - start_time))
+
     # Closing the logger in order to be able to move the file in the output dir
     logging.shutdown()
 
     if output_dir:
         outputs.save_log_file(output_dir)
-
-    # Late import to speedup start-up time
-    from matplotlib import pyplot as plt
-
-    plt.close()
 
 
 # TODO: Use ExceptionGroup
