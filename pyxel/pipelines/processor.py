@@ -329,6 +329,12 @@ class Processor:
     @property
     def result(self) -> dict:
         """Return exposure pipeline final result in a dictionary."""
+        warnings.warn(
+            "Deprecated. Will be removed in a future version",
+            DeprecationWarning,
+            stacklevel=1,
+        )
+
         if not self._result:
             raise ValueError("No result saved in the processor.")
         return self._result
@@ -337,6 +343,12 @@ class Processor:
     @result.setter
     def result(self, result_to_save: dict) -> None:
         """Set result."""
+        warnings.warn(
+            "Deprecated. Will be removed in a future version",
+            DeprecationWarning,
+            stacklevel=1,
+        )
+
         self._result = result_to_save
 
     # TODO: Refactor '.result'. See #524
