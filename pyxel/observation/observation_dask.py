@@ -200,17 +200,12 @@ def _run_pipelines_array_to_datatree(
     params_tuple: tuple,
     dimension_names: Mapping[str, str],
     processor: "Processor",
-    with_inherited_coords: bool,
     readout: "Readout",
     result_type: ResultId,
     pipeline_seed: Optional[int],
     progressbar: bool,
 ) -> "DataTree":
     """Execute a single pipeline."""
-    # TODO: Fix this
-    if with_inherited_coords is False:
-        raise NotImplementedError
-
     if len(dimension_names) != len(params_tuple):
         raise NotImplementedError
 
@@ -232,7 +227,7 @@ def _run_pipelines_array_to_datatree(
         result_type=result_type,
         pipeline_seed=pipeline_seed,
         debug=False,  # Not supported in Observation mode
-        with_inherited_coords=with_inherited_coords,
+        with_inherited_coords=True,  # Must be set to True
         progressbar=progressbar,
     )
 
@@ -243,7 +238,6 @@ def _build_metadata(
     params_tuple: tuple,
     dimension_names: Mapping[str, str],
     processor: "Processor",
-    with_inherited_coords: bool,
     readout: "Readout",
     result_type: ResultId,
     pipeline_seed: Optional[int],
@@ -253,7 +247,6 @@ def _build_metadata(
         params_tuple=params_tuple,
         dimension_names=dimension_names,
         processor=processor,
-        with_inherited_coords=with_inherited_coords,
         readout=readout,
         result_type=result_type,
         pipeline_seed=pipeline_seed,
@@ -268,7 +261,6 @@ def _run_pipelines_tuple_to_array(
     dimension_names: Mapping[str, str],
     all_metadata: Mapping[str, DatasetMetadata],
     processor: "Processor",
-    with_inherited_coords: bool,
     readout: "Readout",
     result_type: ResultId,
     pipeline_seed: Optional[int],
@@ -277,7 +269,6 @@ def _run_pipelines_tuple_to_array(
         params_tuple=params_tuple,
         dimension_names=dimension_names,
         processor=processor,
-        with_inherited_coords=with_inherited_coords,
         readout=readout,
         result_type=result_type,
         pipeline_seed=pipeline_seed,
@@ -374,6 +365,10 @@ def run_pipelines_with_dask(
     result_type: ResultId,
     pipeline_seed: Optional[int],
 ) -> "DataTree":
+    # TODO: Add better error message
+    if with_inherited_coords is False:
+        raise NotImplementedError
+
     # Late import to speedup start-up time
     import xarray as xr
 
@@ -399,7 +394,6 @@ def run_pipelines_with_dask(
         params_tuple=first_param,
         dimension_names=dim_names,
         processor=processor,
-        with_inherited_coords=with_inherited_coords,
         readout=readout,
         result_type=result_type,
         pipeline_seed=pipeline_seed,
@@ -425,7 +419,6 @@ def run_pipelines_with_dask(
             "dimension_names": dim_names,
             "processor": processor,
             "all_metadata": all_metadata,
-            "with_inherited_coords": with_inherited_coords,
             "readout": readout,
             "result_type": result_type,
             "pipeline_seed": pipeline_seed,
