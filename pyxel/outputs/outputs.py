@@ -497,6 +497,9 @@ class Outputs:
         list of Path
             TBW.
         """
+        if not self.save_data_to_file:
+            return {}
+
         save_methods: Mapping[ValidFormat, SaveToFile] = {
             "fits": self.save_to_fits,
             "hdf": self.save_to_hdf,
@@ -508,107 +511,89 @@ class Outputs:
             "jpeg": self.save_to_jpeg,
         }
 
-        filenames: list[Path] = []
+        all_filenames: dict[str, dict[str, str]] = {}
 
-        if self.save_data_to_file:
-            all_filenames: dict[str, dict[str, str]] = {}
+        dct: Mapping[ValidName, Sequence[ValidFormat]]
+        for dct in self.save_data_to_file:
+            # TODO: Why looking at first entry ? Check this !
+            # Get first entry of `dict` 'item'
+            first_item: tuple[ValidName, Sequence[ValidFormat]]
+            first_item, *_ = dct.items()
 
-            dct: Mapping[ValidName, Sequence[ValidFormat]]
-            for dct in self.save_data_to_file:
-                # TODO: Why looking at first entry ? Check this !
-                # Get first entry of `dict` 'item'
-                first_item: tuple[ValidName, Sequence[ValidFormat]]
-                first_item, *_ = dct.items()
+            valid_name: ValidName
+            format_list: Sequence[ValidFormat]
+            valid_name, format_list = first_item
 
-                valid_name: ValidName
-                format_list: Sequence[ValidFormat]
-                valid_name, format_list = first_item
+            data: np.ndarray = np.array(processor.get(valid_name))
 
-                data: np.ndarray = np.array(processor.get(valid_name))
+            if prefix:
+                name: str = f"{prefix}_{valid_name}"
+            else:
+                name = valid_name
 
-                if prefix:
-                    name: str = f"{prefix}_{valid_name}"
+            partial_filenames: dict[str, str] = {}
+            out_format: ValidFormat
+            for out_format in format_list:
+                func: SaveToFile = save_methods[out_format]
+
+                if out_format in ("png", "jpg", "jpeg"):
+                    if valid_name != "detector.image.array":
+                        raise ValueError(
+                            "Cannot save non-digitized data into image formats."
+                        )
+                    maximum = (
+                        2**processor.detector.characteristics.adc_bit_resolution - 1
+                    )
+                    rescaled_data = (255.0 / maximum * data).astype(np.uint8)
+
+                    filename: Path = func(
+                        data=rescaled_data,
+                        name=name,
+                        with_auto_suffix=with_auto_suffix,
+                        run_number=run_number,
+                    )
+
+                elif out_format == "fits":
+                    # Create FITS header
+                    from astropy.io import fits
+
+                    header = fits.Header()
+
+                    line: str
+                    for line in processor.pipeline.describe():
+                        header.add_history(line)
+
+                    previous_header: Optional[fits.Header] = (
+                        processor.detector._headers.get(valid_name)
+                    )
+                    if previous_header is not None:
+                        for card in previous_header.cards:
+                            key, *_ = card
+
+                            if key in ("SIMPLE", "BITPIX") or key.startswith("NAXIS"):
+                                continue
+
+                            header.append(card)
+
+                    filename = self.save_to_fits(
+                        data=data,
+                        name=name,
+                        with_auto_suffix=with_auto_suffix,
+                        run_number=run_number,
+                        header=header,
+                    )
+
                 else:
-                    name = valid_name
+                    filename = func(
+                        data=data,
+                        name=name,
+                        with_auto_suffix=with_auto_suffix,
+                        run_number=run_number,
+                    )
 
-                partial_filenames: dict[str, str] = {}
-                out_format: ValidFormat
-                for out_format in format_list:
-                    func: SaveToFile = save_methods[out_format]
+                partial_filenames[out_format] = filename.name
 
-                    if out_format in ("png", "jpg", "jpeg"):
-                        if valid_name != "detector.image.array":
-                            raise ValueError(
-                                "Cannot save non-digitized data into image formats."
-                            )
-                        maximum = (
-                            2**processor.detector.characteristics.adc_bit_resolution - 1
-                        )
-                        rescaled_data = (255.0 / maximum * data).astype(np.uint8)
-
-                        image_filename: Path = func(
-                            data=rescaled_data,
-                            name=name,
-                            with_auto_suffix=with_auto_suffix,
-                            run_number=run_number,
-                        )
-
-                        full_image_filename: Path = complete_path(
-                            filename=image_filename,
-                            working_dir=global_options.working_directory,
-                        )
-                        filenames.append(full_image_filename)
-
-                    elif out_format == "fits":
-                        # Create FITS header
-                        from astropy.io import fits
-
-                        header = fits.Header()
-
-                        line: str
-                        for line in processor.pipeline.describe():
-                            header.add_history(line)
-
-                        previous_header: Optional[fits.Header] = (
-                            processor.detector._headers.get(valid_name)
-                        )
-                        if previous_header is not None:
-                            for card in previous_header.cards:
-                                key, *_ = card
-
-                                if key in ("SIMPLE", "BITPIX") or key.startswith(
-                                    "NAXIS"
-                                ):
-                                    continue
-
-                                header.append(card)
-
-                        filename: Path = self.save_to_fits(
-                            data=data,
-                            name=name,
-                            with_auto_suffix=with_auto_suffix,
-                            run_number=run_number,
-                            header=header,
-                        )
-
-                        filenames.append(filename)
-
-                    else:
-                        filename = func(
-                            data=data,
-                            name=name,
-                            with_auto_suffix=with_auto_suffix,
-                            run_number=run_number,
-                        )
-
-                        full_filename: Path = complete_path(
-                            filename, global_options.working_directory
-                        )
-                        filenames.append(full_filename)
-
-                    partial_filenames[out_format] = filename.name
-
-                all_filenames[valid_name] = partial_filenames
+            all_filenames[valid_name] = partial_filenames
 
         return all_filenames
 
