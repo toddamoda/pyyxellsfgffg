@@ -78,7 +78,7 @@ def load_image(
 
     photon_array = photon_array * (detector.time_step / time_scale) * multiplier
 
-    detector.photon.array = photon_array
+    detector.photon += photon_array
 
     # Try to extract the Header from 'image_file'
     header = load_header(image_file)

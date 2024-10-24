@@ -96,6 +96,52 @@ def test_load_image(
 
 @pytest.mark.parametrize(
     "image_file, position, align, convert_to_photons, multiplier, time_scale,"
+    " bit_resolution",
+    [
+        pytest.param("img.npy", (0, 0), None, True, 1.0, 1.0, 16, id="valid"),
+    ],
+)
+def test_load_image_twice(
+    ccd_10x10: CCD,
+    valid_data2d: str,
+    image_file: str,
+    position: tuple[int, int],
+    align: Optional[
+        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"]
+    ],
+    convert_to_photons: bool,
+    multiplier: float,
+    time_scale: float,
+    bit_resolution: int,
+):
+    """Test input parameters for function 'load_image'."""
+    load_image(
+        detector=ccd_10x10,
+        image_file=f"{valid_data2d}/{image_file}",
+        position=position,
+        align=align,
+        convert_to_photons=convert_to_photons,
+        multiplier=multiplier,
+        time_scale=time_scale,
+        bit_resolution=bit_resolution,
+    )
+    x1 = ccd_10x10.photon.array[1, 1]
+    load_image(
+        detector=ccd_10x10,
+        image_file=f"{valid_data2d}/{image_file}",
+        position=position,
+        align=align,
+        convert_to_photons=convert_to_photons,
+        multiplier=multiplier,
+        time_scale=time_scale,
+        bit_resolution=bit_resolution,
+    )
+    x2 = ccd_10x10.photon.array[1, 1]
+    assert abs(x2 - x1 * 2) < 0.001
+
+
+@pytest.mark.parametrize(
+    "image_file, position, align, convert_to_photons, multiplier, time_scale,"
     " bit_resolution, exp_exc, exp_msg",
     [
         pytest.param(
