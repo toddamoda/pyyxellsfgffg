@@ -48,8 +48,7 @@ dependencies = [
     "panel",
 
     # Parallel computing
-    "dask",
-    "distributed",
+    "dask[complete]",
 
     # Jupyter notebook
     "ipywidgets>=7.5",

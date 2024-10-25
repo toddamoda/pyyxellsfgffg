@@ -8,10 +8,9 @@
 """Classes for creating outputs."""
 
 import logging
-import re
+import warnings
 from collections.abc import Mapping, Sequence
 from datetime import datetime
-from glob import glob
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Optional, Protocol, Union
 
@@ -19,9 +18,12 @@ import numpy as np
 
 from pyxel import __version__ as version
 from pyxel.options import global_options
+from pyxel.outputs import apply_run_number
+from pyxel.outputs.utils import to_csv, to_fits, to_hdf, to_jpg, to_npy, to_png, to_txt
 from pyxel.util import complete_path
 
 if TYPE_CHECKING:
+    import dask.dataframe as dd
     import pandas as pd
     import xarray as xr
 
@@ -37,17 +39,16 @@ if TYPE_CHECKING:
     from pyxel.pipelines import Processor
 
     class SaveToFile(Protocol):
-        """TBW."""
+        """Protocol defining a callable to save data into a file."""
 
         def __call__(
             self,
+            current_output_folder: Path,
             data: Any,
             name: str,
             with_auto_suffix: bool = True,
             run_number: Optional[int] = None,
-        ) -> Path:
-            """TBW."""
-            ...
+        ) -> Path: ...
 
 
 ValidName = Literal[
@@ -58,6 +59,125 @@ ValidName = Literal[
     "detector.image.array",
 ]
 ValidFormat = Literal["fits", "hdf", "npy", "txt", "csv", "png", "jpg", "jpeg"]
+
+
+def _save_data_2d(
+    data_2d: "np.ndarray",
+    run_number,
+    data_formats: Sequence[ValidFormat],
+    current_output_folder: Path,
+    name: str,
+    prefix: Optional[str] = None,
+) -> Union[str, Sequence[str]]:
+    save_methods: Mapping[ValidFormat, "SaveToFile"] = {
+        "fits": to_fits,
+        "hdf": to_hdf,
+        "npy": to_npy,
+        "txt": to_txt,
+        "csv": to_csv,
+        "png": to_png,
+        "jpg": to_jpg,
+        "jpeg": to_jpg,
+    }
+
+    if prefix:
+        full_name: str = f"{prefix}_{name}"
+    else:
+        full_name = name
+
+    filenames: list[str] = []
+    for output_format in data_formats:
+        func = save_methods[output_format]
+
+        filename = func(
+            current_output_folder=current_output_folder,
+            data=data_2d,
+            name=full_name,
+            # with_auto_suffix=with_auto_suffix,
+            run_number=run_number,
+            # header=header,
+        )
+
+        filenames.append(str(filename.relative_to(current_output_folder)))
+
+    if len(data_formats) == 1:
+        return filenames[0]
+        # return np.array(filenames[0], dtype=np.object_)
+    else:
+        return filenames
+        # return np.array(filenames, dtype=np.object_)
+
+
+def save_dataarray(
+    data_array: "xr.DataArray",
+    full_name: str,
+    data_formats: Sequence["ValidFormat"],
+    current_output_folder: Path,
+) -> "dd.DataFrame":
+    # Late import
+    import numpy as np
+    import xarray as xr
+
+    num_elements = int(data_array.isel(y=0, x=0).size)
+
+    output_data_array: xr.DataArray = xr.apply_ufunc(
+        _save_data_2d,
+        data_array,
+        np.arange(num_elements, dtype=int),
+        kwargs={
+            "data_formats": data_formats,
+            "current_output_folder": current_output_folder,
+            "name": full_name,
+        },
+        input_core_dims=[["y", "x"], []],
+        output_core_dims=[[]],
+        vectorize=True,  # loop over non-core dims
+        dask="parallelized",
+        # dask_gufunc_kwargs={"output_sizes": output_sizes},
+        output_dtypes=(
+            [np.object_] * len(data_formats)
+        ),  # TODO: Move this to 'dask_gufunc_kwargs'
+    )
+
+    output_dataframe: "dd.DataFrame" = output_data_array.to_dask_dataframe()
+    return output_dataframe
+
+
+def save_datatree(
+    data_tree: "DataTree",
+    outputs: Sequence[Mapping[ValidName, Sequence[ValidFormat]]],
+    current_output_folder: Path,
+    with_inherited_coords: bool,
+) -> "dd.DataFrame":
+    # Late import
+    import xarray as xr
+
+    dct: Mapping["ValidName", Sequence["ValidFormat"]]
+    for dct in outputs:
+        full_name: "ValidName"
+        data_formats: Sequence["ValidFormat"]
+        for full_name, data_formats in dct.items():
+            name: str = full_name.removeprefix("detector.").removesuffix(".array")
+
+            # Get a node name
+            if with_inherited_coords:
+                node_name: str = f"/bucket/{name}"
+            else:
+                node_name = name
+
+            data_array: Union[xr.DataArray, DataTree] = data_tree[node_name]
+            if not isinstance(data_array, xr.DataArray):
+                raise TypeError
+
+            output_dataframe: "dd.DataFrame" = save_dataarray(
+                data_array=data_array,
+                full_name=full_name,
+                data_formats=data_formats,
+                current_output_folder=current_output_folder,
+            )
+
+    final_df = output_dataframe
+    return final_df
 
 
 # TODO: Create a new class that will contain the parameter 'save_data_to_file'
@@ -197,6 +317,13 @@ class Outputs:
         header: Optional["fits.Header"] = None,
     ) -> Path:
         """Write array to :term:`FITS` file."""
+        warnings.warn(
+            "Deprecated. This will be removed in a future version of Pyxel. "
+            "Please use function 'to_fits'.",
+            DeprecationWarning,
+            stacklevel=1,
+        )
+
         name = name.replace(".", "_")
 
         current_output_folder: Path = complete_path(
@@ -235,6 +362,13 @@ class Outputs:
         run_number: Optional[int] = None,
     ) -> Path:
         """Write detector object to HDF5 file."""
+        warnings.warn(
+            "Deprecated. This will be removed in a future version of Pyxel. "
+            "Please use function 'to_hdf'.",
+            DeprecationWarning,
+            stacklevel=1,
+        )
+
         # Late import to speedup start-up time
         import h5py as h5
 
@@ -286,6 +420,13 @@ class Outputs:
         run_number: Optional[int] = None,
     ) -> Path:
         """Write data to txt file."""
+        warnings.warn(
+            "Deprecated. This will be removed in a future version of Pyxel. "
+            "Please use function 'to_txt'.",
+            DeprecationWarning,
+            stacklevel=1,
+        )
+
         name = name.replace(".", "_")
 
         current_output_folder: Path = complete_path(
@@ -314,6 +455,13 @@ class Outputs:
         run_number: Optional[int] = None,
     ) -> Path:
         """Write Pandas Dataframe or Numpy array to a CSV file."""
+        warnings.warn(
+            "Deprecated. This will be removed in a future version of Pyxel. "
+            "Please use function 'to_csv'.",
+            DeprecationWarning,
+            stacklevel=1,
+        )
+
         name = name.replace(".", "_")
 
         current_output_folder: Path = complete_path(
@@ -345,6 +493,13 @@ class Outputs:
         run_number: Optional[int] = None,
     ) -> Path:
         """Write Numpy array to Numpy binary npy file."""
+        warnings.warn(
+            "Deprecated. This will be removed in a future version of Pyxel. "
+            "Please use function 'to_npy'.",
+            DeprecationWarning,
+            stacklevel=1,
+        )
+
         name = name.replace(".", "_")
 
         current_output_folder: Path = complete_path(
@@ -376,6 +531,13 @@ class Outputs:
         run_number: Optional[int] = None,
     ) -> Path:
         """Write Numpy array to a PNG image file."""
+        warnings.warn(
+            "Deprecated. This will be removed in a future version of Pyxel. "
+            "Please use function 'to_png'.",
+            DeprecationWarning,
+            stacklevel=1,
+        )
+
         # Late import to speedup start-up time
         from PIL import Image
 
@@ -412,6 +574,13 @@ class Outputs:
         run_number: Optional[int] = None,
     ) -> Path:
         """Write Numpy array to a JPEG image file."""
+        warnings.warn(
+            "Deprecated. This will be removed in a future version of Pyxel. "
+            "Please use function 'to_jpg'.",
+            DeprecationWarning,
+            stacklevel=1,
+        )
+
         # Late import to speedup start-up time
         from PIL import Image
 
@@ -448,6 +617,13 @@ class Outputs:
         run_number: Optional[int] = None,
     ) -> Path:
         """Write Numpy array to a JPG image file."""
+        warnings.warn(
+            "Deprecated. This will be removed in a future version of Pyxel. "
+            "Please use function 'to_jpg'.",
+            DeprecationWarning,
+            stacklevel=1,
+        )
+
         # Late import to speedup start-up time
         from PIL import Image
 
@@ -501,14 +677,14 @@ class Outputs:
             return {}
 
         save_methods: Mapping[ValidFormat, SaveToFile] = {
-            "fits": self.save_to_fits,
-            "hdf": self.save_to_hdf,
-            "npy": self.save_to_npy,
-            "txt": self.save_to_txt,
-            "csv": self.save_to_csv,
-            "png": self.save_to_png,
-            "jpg": self.save_to_jpg,
-            "jpeg": self.save_to_jpeg,
+            "fits": to_fits,
+            "hdf": to_hdf,
+            "npy": to_npy,
+            "txt": to_txt,
+            "csv": to_csv,
+            "png": to_png,
+            "jpg": to_jpg,
+            "jpeg": to_jpg,
         }
 
         all_filenames: dict[str, dict[str, str]] = {}
@@ -547,6 +723,7 @@ class Outputs:
                     rescaled_data = (255.0 / maximum * data).astype(np.uint8)
 
                     filename: Path = func(
+                        current_output_folder=self.current_output_folder,
                         data=rescaled_data,
                         name=name,
                         with_auto_suffix=with_auto_suffix,
@@ -575,7 +752,8 @@ class Outputs:
 
                             header.append(card)
 
-                    filename = self.save_to_fits(
+                    filename = func(
+                        current_output_folder=self.current_output_folder,
                         data=data,
                         name=name,
                         with_auto_suffix=with_auto_suffix,
@@ -585,6 +763,7 @@ class Outputs:
 
                 else:
                     filename = func(
+                        current_output_folder=self.current_output_folder,
                         data=data,
                         name=name,
                         with_auto_suffix=with_auto_suffix,
@@ -614,6 +793,13 @@ class Outputs:
         -------
         filename: Path
         """
+        warnings.warn(
+            "Deprecated. This will be removed in a future version of Pyxel. "
+            "Please use function 'to_netcdf'.",
+            DeprecationWarning,
+            stacklevel=1,
+        )
+
         name = name.replace(".", "_")
         current_output_folder: Path = complete_path(
             filename=self.current_output_folder,
@@ -622,49 +808,6 @@ class Outputs:
         filename = current_output_folder.joinpath(name + ".nc")
         data.to_netcdf(filename, engine="h5netcdf")
         return filename
-
-
-# TODO: Refactor this in 'def apply_run_number(folder, template_filename) -> Path'.
-#       See #332.
-def apply_run_number(template_filename: Path, run_number: Optional[int] = None) -> Path:
-    """Convert the file name numeric placeholder to a unique number.
-
-    Parameters
-    ----------
-    template_filename
-    run_number
-
-    Returns
-    -------
-    output_path: Path
-    """
-    template_str = str(template_filename)
-
-    def get_number(string: str) -> int:
-        search = re.search(r"\d+$", string.split(".")[-2])
-        if not search:
-            return 0
-
-        return int(search.group())
-
-    if "?" in template_str:
-        if run_number is not None:
-            path_str = template_str.replace("?", "{}")
-            output_str = path_str.format(run_number + 1)
-        else:
-            path_str_for_glob = template_str.replace("?", "*")
-            dir_list = glob(path_str_for_glob)
-            num_list: list[int] = sorted(get_number(d) for d in dir_list)
-            if num_list:
-                next_num = num_list[-1] + 1
-            else:
-                next_num = 1
-            path_str = template_str.replace("?", "{}")
-            output_str = path_str.format(next_num)
-
-    output_path = Path(output_str)
-
-    return output_path
 
 
 # TODO: the log file should directly write in 'output_dir'

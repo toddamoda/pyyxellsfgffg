@@ -30,6 +30,7 @@ from pyxel.pipelines.processor import _get_obj_att
 from pyxel.util import create_model, create_model_to_console, download_examples
 
 if TYPE_CHECKING:
+    import dask.dataframe as dd
     import pandas as pd
     import xarray as xr
 
@@ -579,8 +580,9 @@ def _run_observation_mode(
     observation: Observation,
     processor: Processor,
     with_inherited_coords: bool,
-) -> "DataTree":
+) -> tuple["DataTree", Optional["dd.DataFrame"]]:
     """Run the observation mode."""
+
     logging.info("Mode: Observation")
 
     # Create an output folder (if needed)
@@ -589,23 +591,40 @@ def _run_observation_mode(
         outputs.create_output_folder()
 
     # Run the observation mode
-    result: "DataTree" = observation.run_pipelines(
+    result_dt: "DataTree" = observation.run_pipelines(
         processor=processor,
         with_inherited_coords=with_inherited_coords,
     )
 
     # TODO: Fix this. See issue #723
+    df: Optional["dd.DataFrame"] = None
+    if outputs and outputs.save_data_to_file:
+        # Late import
+        # TODO: Remove this
+        import dask
+
+        from pyxel.outputs.outputs import save_datatree
+
+        dask.config.set(scheduler="synchronous")
+
+        df = save_datatree(
+            data_tree=result_dt.isel(time=-1),
+            outputs=outputs.save_data_to_file,
+            current_output_folder=outputs.current_output_folder,
+            with_inherited_coords=with_inherited_coords,
+        )
+
     if outputs and outputs.save_observation_data:
         raise NotImplementedError
     #     observation_outputs.save_observation_datasets(
     #         result=result, mode=observation.parameter_mode
     #     )
 
-    return result
+    return result_dt, df
 
 
 def _run(
-    mode: Union[Exposure, Observation, "Calibration"],
+    mode: Union[Exposure, "Calibration"],
     processor: Processor,
     debug: bool,
     with_inherited_coords: bool,
@@ -616,18 +635,6 @@ def _run(
             exposure=mode,
             processor=processor,
             debug=debug,
-            with_inherited_coords=with_inherited_coords,
-        )
-
-    elif isinstance(mode, Observation):
-        if debug:
-            raise NotImplementedError(
-                "Parameter 'debug' is not implemented for 'Observation' mode."
-            )
-
-        return _run_observation_mode(
-            observation=mode,
-            processor=processor,
             with_inherited_coords=with_inherited_coords,
         )
 
@@ -649,6 +656,25 @@ def _run(
             )
         else:
             raise TypeError("Please provide a valid simulation mode !")
+
+
+def _run_observation(
+    mode: Observation,
+    processor: Processor,
+    debug: bool,
+    with_inherited_coords: bool,
+) -> tuple["DataTree", Optional["dd.DataFrame"]]:
+    # Execute the appropriate processing function based on the mode type.
+    if debug:
+        raise NotImplementedError(
+            "Parameter 'debug' is not implemented for 'Observation' mode."
+        )
+
+    return _run_observation_mode(
+        observation=mode,
+        processor=processor,
+        with_inherited_coords=with_inherited_coords,
+    )
 
 
 def run_mode(
@@ -935,14 +961,22 @@ def run_mode(
             mode=mode,
         )
 
-    datatree: "DataTree" = _run(
-        mode=mode,
-        processor=processor,
-        debug=debug,
-        with_inherited_coords=with_inherited_coords,
-    )
+    if isinstance(mode, Observation):
+        data_tree, data_frame = _run_observation(
+            mode=mode,
+            processor=processor,
+            debug=debug,
+            with_inherited_coords=with_inherited_coords,
+        )
+    else:
+        data_tree = _run(
+            mode=mode,
+            processor=processor,
+            debug=debug,
+            with_inherited_coords=with_inherited_coords,
+        )
 
-    return datatree
+    return data_tree
 
 
 def run(
@@ -985,7 +1019,15 @@ def run(
             key, value = element.split("=")
             override_dct[key] = value
 
-    processor = Processor(detector=detector, pipeline=pipeline)
+    if isinstance(running_mode, Observation):
+        processor = Processor(
+            detector=detector,
+            pipeline=pipeline,
+            observation_mode=running_mode,  # TODO: See #836
+        )
+    else:
+        processor = Processor(detector=detector, pipeline=pipeline)
+
     if override_dct is not None:
         apply_overrides(
             overrides=override_dct,
@@ -1000,21 +1042,31 @@ def run(
         raise RuntimeError
 
     # Create a DataTree
-    datatree: "DataTree" = _run(
-        mode=running_mode,
-        processor=processor,
-        debug=False,
-        with_inherited_coords=True,
-    )
+    if isinstance(running_mode, Observation):
+        data_tree, data_frame = _run_observation(
+            mode=running_mode,
+            processor=processor,
+            debug=False,
+            with_inherited_coords=True,
+        )
+    else:
+        data_tree = _run(
+            mode=running_mode,
+            processor=processor,
+            debug=False,
+            with_inherited_coords=True,
+        )
 
     # Get the output file(s)
-    if "output" in datatree:
-        filenames: "DataTree" = datatree["/output"]  # type: ignore[assignment]
-        filenames.load()
+    if "output" not in data_tree:
+        raise NotImplementedError
 
-        # TODO: Display a progress bar ?
-        # TODO: Special progress bar when a Distributed Client is enabled or any other Dask Scheduler
-        # TODO: Create a CSV file to be stored in 'output_dir' ?
+    filenames: "DataTree" = data_tree["/output"]  # type: ignore[assignment]
+    filenames.load()
+
+    # TODO: Display a progress bar ?
+    # TODO: Special progress bar when a Distributed Client is enabled or any other Dask Scheduler
+    # TODO: Create a CSV file to be stored in 'output_dir' ?
 
     output_dir: Path = running_mode.outputs.current_output_folder
 
