@@ -17,6 +17,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
   (See [!979](https://gitlab.com/esa/pyxel/-/merge_requests/979)).
 * Improve representer magic methods for 'Outputs' and 'CustomMode'.
   (See [!980](https://gitlab.com/esa/pyxel/-/merge_requests/980)).
+* Refactor 'ObservationDask'.
+  (See [!981](https://gitlab.com/esa/pyxel/-/merge_requests/981)).
 
 ### Documentation
 
