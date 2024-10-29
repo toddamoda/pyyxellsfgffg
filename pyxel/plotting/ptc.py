@@ -137,9 +137,10 @@ def plot_ptc(
     sorted_data: xr.DataArray = data.sortby(data)
 
     data_log10 = xr.Dataset()
-    data_log10["variance"] = np.log10(sorted_data).assign_coords(
+
+    data_log10["variance"] = np.log10(sorted_data).assign_coords(  # type: ignore[attr-defined]
         mean=np.log10(sorted_data["mean"])
-    )  # type: ignore[attr-defined]
+    )
     data_log10["slope"] = data_log10["variance"].differentiate(coord="mean")
 
     ###############################
