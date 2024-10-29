@@ -15,6 +15,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 ### Core
 * Deprecated more code.
   (See [!979](https://gitlab.com/esa/pyxel/-/merge_requests/979)).
+* Improve representer magic methods for 'Outputs' and 'CustomMode'.
+  (See [!980](https://gitlab.com/esa/pyxel/-/merge_requests/980)).
 
 ### Documentation
 
