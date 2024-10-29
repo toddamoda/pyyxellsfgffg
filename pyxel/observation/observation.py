@@ -8,7 +8,6 @@
 """Parametric mode class and helper functions."""
 
 import sys
-import warnings
 from collections import Counter
 from collections.abc import Mapping, Sequence
 from pathlib import Path
@@ -306,16 +305,12 @@ class Observation:
 
         if self.with_dask:
             if with_inherited_coords is False:
-                warnings.warn(
-                    "Parameter 'with_inherited_coords' is forced to True !",
-                    stacklevel=1,
-                )
+                raise NotImplementedError
 
             final_datatree = run_pipelines_with_dask(
                 dim_names=dim_names,
                 parameter_mode=self.parameter_mode,
                 processor=processor,
-                with_inherited_coords=True,
                 readout=self.readout,
                 result_type=self.result_type,
                 pipeline_seed=self.pipeline_seed,

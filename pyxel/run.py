@@ -597,7 +597,7 @@ def _run_observation_mode(
     )
 
     # TODO: Fix this. See issue #723
-    df: Optional["dd.DataFrame"] = None
+    output_filenames: Optional["dd.DataFrame"] = None
     if outputs and outputs.save_data_to_file:
         # Late import
         # TODO: Remove this
@@ -607,7 +607,7 @@ def _run_observation_mode(
 
         dask.config.set(scheduler="synchronous")
 
-        df = save_datatree(
+        output_filenames = save_datatree(
             data_tree=result_dt.isel(time=-1),
             outputs=outputs.save_data_to_file,
             current_output_folder=outputs.current_output_folder,
@@ -620,7 +620,7 @@ def _run_observation_mode(
     #         result=result, mode=observation.parameter_mode
     #     )
 
-    return result_dt, df
+    return result_dt, output_filenames
 
 
 def _run(
@@ -658,6 +658,7 @@ def _run(
             raise TypeError("Please provide a valid simulation mode !")
 
 
+# TODO:Remove this function ?
 def _run_observation(
     mode: Observation,
     processor: Processor,
@@ -669,6 +670,14 @@ def _run_observation(
         raise NotImplementedError(
             "Parameter 'debug' is not implemented for 'Observation' mode."
         )
+
+    if mode.with_dask and with_inherited_coords is False:
+        warnings.warn(
+            "Parameter 'with_inherited_coords' is forced to True !",
+            stacklevel=1,
+        )
+
+        with_inherited_coords = True
 
     return _run_observation_mode(
         observation=mode,
@@ -1042,33 +1051,55 @@ def run(
         raise RuntimeError
 
     # Create a DataTree
+    filenames_multi_indexes: Optional["pd.DataFrame"] = None
+
     if isinstance(running_mode, Observation):
-        data_tree, data_frame = _run_observation(
+        output_filenames: Optional["dd.DataFrame"]
+        _, output_filenames = _run_observation(
             mode=running_mode,
             processor=processor,
             debug=False,
             with_inherited_coords=True,
         )
+
+        from dask.diagnostics import ProgressBar
+        from dask.distributed import Client, progress
+
+        if output_filenames is None:
+            raise TypeError
+
+        try:
+            _ = Client.current()
+
+            # Start computation in the background
+            output_filenames_background = output_filenames.persist()
+
+            # Watch progress
+            progress(output_filenames_background)
+            filenames: "pd.DataFrame" = output_filenames_background.compute()
+
+        except ValueError:
+            # No client
+            with ProgressBar():
+                filenames = output_filenames.compute()
+
+        columns: Sequence[str] = [
+            col_name for col_name in filenames.columns if col_name != "filename"
+        ]
+        filenames_multi_indexes = filenames.set_index(columns).sort_index()
+
     else:
-        data_tree = _run(
+        _ = _run(
             mode=running_mode,
             processor=processor,
             debug=False,
             with_inherited_coords=True,
         )
-
-    # Get the output file(s)
-    if "output" not in data_tree:
-        raise NotImplementedError
-
-    filenames: "DataTree" = data_tree["/output"]  # type: ignore[assignment]
-    filenames.load()
-
-    # TODO: Display a progress bar ?
-    # TODO: Special progress bar when a Distributed Client is enabled or any other Dask Scheduler
-    # TODO: Create a CSV file to be stored in 'output_dir' ?
 
     output_dir: Path = running_mode.outputs.current_output_folder
+
+    if filenames_multi_indexes is not None:
+        filenames_multi_indexes.to_csv(output_dir / "output_filenames.csv")
 
     # TODO: Fix this, see issue #728
     copy_config_file(input_filename=input_filename, output_dir=output_dir)

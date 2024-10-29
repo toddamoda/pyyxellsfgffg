@@ -8,8 +8,8 @@
 """TBW."""
 
 # flake8: noqa
-from .utils import apply_run_number
-from .outputs import save_log_file, Outputs, ValidName, ValidFormat
+from .utils import apply_run_number, ValidFormat, SaveToFileProtocol
+from .outputs import save_log_file, Outputs, ValidName
 from .observation_outputs import ObservationOutputs
 from .calibration_outputs import CalibrationOutputs
 from .exposure_outputs import ExposureOutputs

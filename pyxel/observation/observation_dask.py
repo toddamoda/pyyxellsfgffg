@@ -418,15 +418,10 @@ def run_pipelines_with_dask(
     dim_names: Mapping[str, str],
     parameter_mode: Union[ProductMode, SequentialMode, CustomMode],
     processor: "Processor",
-    with_inherited_coords: bool,
     readout: "Readout",
     result_type: ResultId,
     pipeline_seed: Optional[int],
 ) -> "DataTree":
-    # TODO: Add better error message
-    if with_inherited_coords is False:
-        raise NotImplementedError
-
     # Late import to speedup start-up time
     import xarray as xr
 

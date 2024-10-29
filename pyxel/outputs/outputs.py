@@ -12,13 +12,13 @@ import warnings
 from collections.abc import Mapping, Sequence
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Optional, Protocol, Union
+from typing import TYPE_CHECKING, Any, Literal, Optional, Union
 
 import numpy as np
 
 from pyxel import __version__ as version
 from pyxel.options import global_options
-from pyxel.outputs import apply_run_number
+from pyxel.outputs import SaveToFileProtocol, ValidFormat, apply_run_number
 from pyxel.outputs.utils import to_csv, to_fits, to_hdf, to_jpg, to_npy, to_png, to_txt
 from pyxel.util import complete_path
 
@@ -38,18 +38,6 @@ if TYPE_CHECKING:
     from pyxel.detectors import Detector
     from pyxel.pipelines import Processor
 
-    class SaveToFile(Protocol):
-        """Protocol defining a callable to save data into a file."""
-
-        def __call__(
-            self,
-            current_output_folder: Path,
-            data: Any,
-            name: str,
-            with_auto_suffix: bool = True,
-            run_number: Optional[int] = None,
-        ) -> Path: ...
-
 
 ValidName = Literal[
     "detector.photon.array",
@@ -58,7 +46,6 @@ ValidName = Literal[
     "detector.signal.array",
     "detector.image.array",
 ]
-ValidFormat = Literal["fits", "hdf", "npy", "txt", "csv", "png", "jpg", "jpeg"]
 
 
 def _save_data_2d(
@@ -68,8 +55,8 @@ def _save_data_2d(
     current_output_folder: Path,
     name: str,
     prefix: Optional[str] = None,
-) -> Union[str, Sequence[str]]:
-    save_methods: Mapping[ValidFormat, "SaveToFile"] = {
+) -> np.ndarray[Any, np.dtype[np.object_]]:
+    save_methods: Mapping[ValidFormat, "SaveToFileProtocol"] = {
         "fits": to_fits,
         "hdf": to_hdf,
         "npy": to_npy,
@@ -100,16 +87,12 @@ def _save_data_2d(
 
         filenames.append(str(filename.relative_to(current_output_folder)))
 
-    if len(data_formats) == 1:
-        return filenames[0]
-        # return np.array(filenames[0], dtype=np.object_)
-    else:
-        return filenames
-        # return np.array(filenames, dtype=np.object_)
+    return np.array(filenames, dtype=np.object_)
 
 
 def save_dataarray(
     data_array: "xr.DataArray",
+    name: str,
     full_name: str,
     data_formats: Sequence["ValidFormat"],
     current_output_folder: Path,
@@ -120,26 +103,38 @@ def save_dataarray(
 
     num_elements = int(data_array.isel(y=0, x=0).size)
 
+    if (
+        "data_format" in data_array.dims
+        or "bucket_name" in data_array.dims
+        or "filename" in data_array.dims
+    ):
+        raise NotImplementedError
+
     output_data_array: xr.DataArray = xr.apply_ufunc(
         _save_data_2d,
-        data_array,
-        np.arange(num_elements, dtype=int),
+        data_array.reset_coords(drop=True).rename("filename"),  # parameter 'data_2d'
+        np.arange(num_elements, dtype=int),  # parameter 'run_number'
         kwargs={
             "data_formats": data_formats,
             "current_output_folder": current_output_folder,
             "name": full_name,
         },
-        input_core_dims=[["y", "x"], []],
-        output_core_dims=[[]],
+        input_core_dims=[
+            ["y", "x"],  # for parameter 'data_2d'
+            [],  # for parameter 'run_number'
+        ],
+        output_core_dims=[["data_format"]],
         vectorize=True,  # loop over non-core dims
         dask="parallelized",
-        # dask_gufunc_kwargs={"output_sizes": output_sizes},
-        output_dtypes=(
-            [np.object_] * len(data_formats)
-        ),  # TODO: Move this to 'dask_gufunc_kwargs'
+        dask_gufunc_kwargs={"output_sizes": {"data_format": len(data_formats)}},
+        output_dtypes=[np.object_],  # TODO: Move this to 'dask_gufunc_kwargs'
     )
 
-    output_dataframe: "dd.DataFrame" = output_data_array.to_dask_dataframe()
+    output_dataframe: "dd.DataFrame" = (
+        output_data_array.expand_dims("bucket_name")
+        .assign_coords(bucket_name=[name], data_format=data_formats)
+        .to_dask_dataframe()
+    )
     return output_dataframe
 
 
@@ -150,7 +145,13 @@ def save_datatree(
     with_inherited_coords: bool,
 ) -> "dd.DataFrame":
     # Late import
+    import dask.dataframe as dd
     import xarray as xr
+
+    if not outputs:
+        raise NotImplementedError
+
+    lst: list[dd.DataFrame] = []
 
     dct: Mapping["ValidName", Sequence["ValidFormat"]]
     for dct in outputs:
@@ -169,15 +170,20 @@ def save_datatree(
             if not isinstance(data_array, xr.DataArray):
                 raise TypeError
 
-            output_dataframe: "dd.DataFrame" = save_dataarray(
+            output_dataframe: dd.DataFrame = save_dataarray(
                 data_array=data_array,
+                name=name,
                 full_name=full_name,
                 data_formats=data_formats,
                 current_output_folder=current_output_folder,
             )
 
-    final_df = output_dataframe
-    return final_df
+            lst.append(output_dataframe)
+
+    if len(lst) == 1:
+        return lst[0]
+    else:
+        return dd.concat(lst)
 
 
 # TODO: Create a new class that will contain the parameter 'save_data_to_file'
@@ -676,7 +682,7 @@ class Outputs:
         if not self.save_data_to_file:
             return {}
 
-        save_methods: Mapping[ValidFormat, SaveToFile] = {
+        save_methods: Mapping[ValidFormat, SaveToFileProtocol] = {
             "fits": to_fits,
             "hdf": to_hdf,
             "npy": to_npy,
@@ -710,7 +716,7 @@ class Outputs:
             partial_filenames: dict[str, str] = {}
             out_format: ValidFormat
             for out_format in format_list:
-                func: SaveToFile = save_methods[out_format]
+                func: SaveToFileProtocol = save_methods[out_format]
 
                 if out_format in ("png", "jpg", "jpeg"):
                     if valid_name != "detector.image.array":

@@ -5,6 +5,7 @@
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
 
+"""General purpose functions to save data."""
 
 import logging
 import re
@@ -14,32 +15,37 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, Protocol
 
 import numpy as np
+from typing_extensions import Literal
 
 from pyxel import __version__ as version
 from pyxel.options import global_options
 from pyxel.util import complete_path
 
 if TYPE_CHECKING:
-
     # Import 'DataTree'
     try:
         from xarray.core.datatree import DataTree
     except ImportError:
-        pass  # type: ignore[assignment]
+        from datatree import DataTree  # type: ignore[assignment]  # noqa: F401
 
     from astropy.io import fits
 
-    class SaveToFile(Protocol):
-        """Protocol defining a callable to save data into a file."""
 
-        def __call__(
-            self,
-            current_output_folder: Path,
-            data: Any,
-            name: str,
-            with_auto_suffix: bool = True,
-            run_number: Optional[int] = None,
-        ) -> Path: ...
+class SaveToFileProtocol(Protocol):
+    """Protocol defining a callable to save data into a file."""
+
+    def __call__(
+        self,
+        current_output_folder: Path,
+        data: Any,
+        name: str,
+        with_auto_suffix: bool = True,
+        run_number: Optional[int] = None,
+        header: Optional[Mapping] = None,
+    ) -> Path: ...
+
+
+ValidFormat = Literal["fits", "hdf", "npy", "txt", "csv", "png", "jpg", "jpeg"]
 
 
 # TODO: Refactor this in 'def apply_run_number(folder, template_filename) -> Path'.
@@ -134,6 +140,7 @@ def to_hdf(
     name: str,
     with_auto_suffix: bool = True,
     run_number: Optional[int] = None,
+    header: Optional[Mapping] = None,
 ) -> Path:
     """Write detector object to HDF5 file."""
     # Late import to speedup start-up time
@@ -191,6 +198,7 @@ def to_npy(
     name: str,
     with_auto_suffix: bool = True,
     run_number: Optional[int] = None,
+    header: Optional[Mapping] = None,
 ) -> Path:
     """Write Numpy array to Numpy binary npy file."""
     if not isinstance(data, np.ndarray):
@@ -226,6 +234,7 @@ def to_txt(
     name: str,
     with_auto_suffix: bool = True,
     run_number: Optional[int] = None,
+    header: Optional[Mapping] = None,
 ) -> Path:
     """Write data to txt file."""
     if not isinstance(data, np.ndarray):
@@ -258,6 +267,7 @@ def to_csv(
     name: str,
     with_auto_suffix: bool = True,
     run_number: Optional[int] = None,
+    header: Optional[Mapping] = None,
 ) -> Path:
     """Write Pandas Dataframe or Numpy array to a CSV file."""
     # Late import
@@ -296,6 +306,7 @@ def to_png(
     name: str,
     with_auto_suffix: bool = True,
     run_number: Optional[int] = None,
+    header: Optional[Mapping] = None,
 ) -> Path:
     """Write Numpy array to a PNG image file."""
     if not isinstance(data, np.ndarray):
@@ -336,6 +347,7 @@ def to_jpg(
     name: str,
     with_auto_suffix: bool = True,
     run_number: Optional[int] = None,
+    header: Optional[Mapping] = None,
 ) -> Path:
     """Write Numpy array to a JPG image file."""
     if not isinstance(data, np.ndarray):
@@ -410,14 +422,14 @@ def to_netcdf(
 
 
 def to_file(
+    out_format: ValidFormat,
     current_output_folder: Path,
     data: Any,
     name: str,
     with_auto_suffix: bool = False,
     run_number: Optional[int] = None,
 ) -> Path:
-
-    func: Mapping["ValidFormat", "SaveToFile"] = {
+    save_methods: Mapping[ValidFormat, SaveToFileProtocol] = {
         "fits": to_fits,
         "hdf": to_hdf,
         "npy": to_npy,
@@ -427,6 +439,8 @@ def to_file(
         "jpg": to_jpg,
         "jpeg": to_jpg,
     }
+
+    func: SaveToFileProtocol = save_methods[out_format]
 
     filename = func(
         current_output_folder=current_output_folder,
