@@ -25,6 +25,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
   (See [!985](https://gitlab.com/esa/pyxel/-/merge_requests/985)).
 * Fix issue with 'Processor.has'.
   (See [!986](https://gitlab.com/esa/pyxel/-/merge_requests/986)).
+* Outputs are not generated with 'run_mode' and Observation mode.
+  (See [!982](https://gitlab.com/esa/pyxel/-/merge_requests/982)).
 
 ### Documentation
 * Fix documentation for model 'crosstalk' by Antoine Kaszczyc.
