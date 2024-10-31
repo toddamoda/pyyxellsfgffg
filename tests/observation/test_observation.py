@@ -15,7 +15,7 @@ try:
 except ImportError:
     from datatree import DataTree  # pip install xarray-datatree
 
-
+from pyxel import run_mode
 from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
 from pyxel.observation import Observation, ParameterValues
 from pyxel.outputs import ObservationOutputs
@@ -257,7 +257,8 @@ def test_validate_steps(simple_observation: Observation, processor: Processor):
 )
 def test_observation_datatree_no_custom(
     product_parameter_values_lst: list[ParameterValues],
-    processor: Processor,
+    ccd_detector: CCD,
+    pipeline: DetectionPipeline,
     tmp_path: Path,
     mode: str,
     with_dask: bool,
@@ -278,7 +279,12 @@ def test_observation_datatree_no_custom(
             outputs=ObservationOutputs(output_folder=tmp_path),
         )
 
-    dt = observation.run_pipelines(processor, with_inherited_coords=True)
+    dt = run_mode(
+        mode=observation,
+        detector=ccd_detector,
+        pipeline=pipeline,
+        with_inherited_coords=True,
+    )
     assert isinstance(dt, DataTree)
 
 
@@ -298,7 +304,8 @@ def test_observation_datatree_no_custom(
 )
 def test_observation_datatree_with_custom(
     custom_parameter_values_lst: list[ParameterValues],
-    processor: Processor,
+    ccd_detector: CCD,
+    pipeline: DetectionPipeline,
     tmp_path: Path,
     with_dask: bool,
     with_outputs: bool,
@@ -324,5 +331,10 @@ def test_observation_datatree_with_custom(
             outputs=ObservationOutputs(output_folder=tmp_path),
         )
 
-    dt = observation.run_pipelines(processor, with_inherited_coords=True)
+    dt = run_mode(
+        mode=observation,
+        detector=ccd_detector,
+        pipeline=pipeline,
+        with_inherited_coords=True,
+    )
     assert isinstance(dt, DataTree)

@@ -19,7 +19,7 @@ observation:
 
 
   outputs:
-    output_folder:  'output'
+#    output_folder:  'output'
 #    save_observation_data:
 #      - detector.image.array:   ['fits', 'jpg']
 

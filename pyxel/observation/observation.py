@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Callable, Literal, Optional, Union
 
 import numpy as np
+from typing_extensions import deprecated
 
 import pyxel
 from pyxel import options_wrapper
@@ -40,6 +41,8 @@ if TYPE_CHECKING:
         from xarray.core.datatree import DataTree
     except ImportError:
         from datatree import DataTree  # type: ignore[assignment]
+
+    import pandas as pd
 
     from pyxel.outputs import ObservationOutputs
     from pyxel.pipelines import Processor
@@ -257,6 +260,7 @@ class Observation:
                     "do not use '_' character in 'values' field"
                 )
 
+    @deprecated("This method will be removed")
     def run_pipelines_without_datatree(self, processor: "Processor") -> None:
         """Run the observation pipelines."""
         # Late import to speedup start-up time
@@ -304,6 +308,9 @@ class Observation:
         dim_names: Mapping[str, str] = _get_short_dimension_names_new(types)
 
         if self.with_dask:
+            # Run observation mode using 'dask' (in parallel)
+            # Note: no output files are generated
+
             if with_inherited_coords is False:
                 raise NotImplementedError
 
@@ -317,6 +324,9 @@ class Observation:
             )
 
         else:
+            # Run observation mode sequentially (not in parallel)
+            # Note: output files are generated at this stage
+
             # TODO: Create new class for 'Sequence[Union[ParameterItem, CustomParameterItem]]'
             # Fetch the observation parameters to be passed to the pipeline
             if isinstance(self.parameter_mode, ProductMode):
@@ -351,6 +361,7 @@ class Observation:
 
         return final_datatree
 
+    # NOTES: This method is only called when running Observation mode sequentially or in parallel (with Dask)
     def _run_single_pipeline_without_datatree(
         self,
         param_item: Union[ParameterEntry, CustomParameterEntry],
@@ -387,7 +398,12 @@ class Observation:
         with_outputs: bool = True,  # TODO: Refactor this
         with_extra_dims: bool = True,  # TODO: Refactor this
     ) -> "DataTree":
-        """Run a single exposure pipeline for a given parameter item."""
+        """Run a single exposure pipeline for a given parameter item.
+
+        Notes
+        -----
+        This method is only called when running Observation mode sequentially (without dask).
+        """
         # Create a new processor using the given parameters
         new_processor = create_new_processor(
             processor=processor,
@@ -416,12 +432,20 @@ class Observation:
 
             raise
 
-        # Save the outputs if configured
+        # Save the outputs (if configured)
         if with_outputs and self.outputs:
-            _ = self.outputs.save_to_file(
+            # Import 'DataTree'
+            try:
+                from xarray.core.datatree import DataTree
+            except ImportError:
+                from datatree import DataTree  # type: ignore[assignment]
+
+            df_output_filenames: "pd.DataFrame" = self.outputs.save_to_file(
                 processor=new_processor,
                 run_number=param_item.run_index,
             )
+
+            data_tree["/output"] = DataTree(df_output_filenames.to_xarray())
 
         if not with_extra_dims:
             return data_tree

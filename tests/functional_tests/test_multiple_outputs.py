@@ -43,7 +43,7 @@ def folder_parent(request: pytest.FixtureRequest) -> Path:
     "config_filename, with_outputs",
     [("data/simple_exposure.yaml", True), ("data/simple_observation.yaml", False)],
 )
-def test_exposure_output(
+def test_exposure_output(  # noqa: C901
     config_filename: str, with_outputs: bool, folder_parent: Path, tmp_path: Path
 ):
     """Test simple mode with different outputs."""
@@ -96,8 +96,11 @@ def test_exposure_output(
         assert list(tmp_path.glob("*")) == []
 
         # Check 'mode.output.output_dir'
-        with pytest.raises(RuntimeError):
-            _ = mode.outputs.current_output_folder
+        if with_outputs:
+            with pytest.raises(RuntimeError):
+                _ = mode.outputs.current_output_folder
+        else:
+            assert mode.outputs is None
 
         #
         # First run
@@ -107,23 +110,28 @@ def test_exposure_output(
 
         # Check if an empty 'output' folder is created
         folder_output_01 = tmp_path / "output"
-        assert folder_output_01.exists()
-        filenames_output: set[Path] = {
-            filename.relative_to(tmp_path) for filename in folder_output_01.glob("*")
-        }
-        assert filenames_output == {Path("output/run_20231219_082000")}
-
-        folder_run_01 = folder_output_01 / "run_20231219_082000"
-        assert folder_run_01.exists()
 
         if with_outputs:
+            assert folder_output_01.exists()
+            filenames_output: set[Path] = {
+                filename.relative_to(tmp_path)
+                for filename in folder_output_01.glob("*")
+            }
+            assert filenames_output == {Path("output/run_20231219_082000")}
+
+            folder_run_01 = folder_output_01 / "run_20231219_082000"
+            assert folder_run_01.exists()
             assert list(folder_run_01.glob("*")) != []
+
         else:
-            assert list(folder_run_01.glob("*")) == []
+            assert not folder_output_01.exists()
 
         # Check 'mode.output.output_dir'
-        output_dir = mode.outputs.current_output_folder
-        assert output_dir == folder_run_01
+        if with_outputs:
+            output_dir = mode.outputs.current_output_folder
+            assert output_dir == folder_run_01
+        else:
+            assert mode.outputs is None
 
         #
         # Second run - same time
@@ -131,26 +139,31 @@ def test_exposure_output(
         with freezegun.freeze_time(date_2023_12_19_08_20):
             _ = pyxel.run_mode(mode=mode, detector=detector, pipeline=pipeline)
 
-        # Check if the folders in 'output'
-        filenames_output: set[Path] = {
-            filename.relative_to(tmp_path) for filename in folder_output_01.glob("*")
-        }
-        assert filenames_output == {
-            Path("output/run_20231219_082000"),
-            Path("output/run_20231219_082000_1"),
-        }
+        if with_outputs:
+            # Check if the folders in 'output'
+            filenames_output: set[Path] = {
+                filename.relative_to(tmp_path)
+                for filename in folder_output_01.glob("*")
+            }
+            assert filenames_output == {
+                Path("output/run_20231219_082000"),
+                Path("output/run_20231219_082000_1"),
+            }
 
         folder_run_02 = folder_output_01 / "run_20231219_082000_1"
-        assert folder_run_02.exists()
 
         if with_outputs:
+            assert folder_run_02.exists()
             assert list(folder_run_02.glob("*")) != []
         else:
-            assert list(folder_run_02.glob("*")) == []
+            assert not folder_run_02.exists()
 
         # Check 'mode.output.output_dir'
-        output_dir = mode.outputs.current_output_folder
-        assert output_dir == folder_run_02
+        if with_outputs:
+            output_dir = mode.outputs.current_output_folder
+            assert output_dir == folder_run_02
+        else:
+            assert mode.outputs is None
 
         #
         # Third run - different time
@@ -162,52 +175,61 @@ def test_exposure_output(
         filenames_output: set[Path] = {
             filename.relative_to(tmp_path) for filename in folder_output_01.glob("*")
         }
-        assert filenames_output == {
-            Path("output/run_20231219_082000"),
-            Path("output/run_20231219_082000_1"),
-            Path("output/run_20231219_083000"),
-        }
-
-        folder_run_03 = folder_output_01 / "run_20231219_083000"
-        assert folder_run_03.exists()
 
         if with_outputs:
-            assert list(folder_run_03.glob("*")) != []
+            assert filenames_output == {
+                Path("output/run_20231219_082000"),
+                Path("output/run_20231219_082000_1"),
+                Path("output/run_20231219_083000"),
+            }
         else:
-            assert list(folder_run_03.glob("*")) == []
+            assert filenames_output == set()
+
+        folder_run_03 = folder_output_01 / "run_20231219_083000"
+
+        if with_outputs:
+            assert folder_run_03.exists()
+            assert list(folder_run_03.glob("*")) != []
 
         # Check 'mode.output.output_dir'
-        output_dir = mode.outputs.current_output_folder
-        assert output_dir == folder_run_03
+        if with_outputs:
+            output_dir = mode.outputs.current_output_folder
+            assert output_dir == folder_run_03
+        else:
+            assert mode.outputs is None
 
         #
         # Fourth run - change 'custom_dir_name'
         #
-        mode.outputs.custom_dir_name = "foo_"
-        with freezegun.freeze_time(date_2023_12_19_08_30):
-            _ = pyxel.run_mode(mode=mode, detector=detector, pipeline=pipeline)
+        if with_outputs:
+            mode.outputs.custom_dir_name = "foo_"
+            with freezegun.freeze_time(date_2023_12_19_08_30):
+                _ = pyxel.run_mode(mode=mode, detector=detector, pipeline=pipeline)
 
         # Check if the folders in 'output'
         filenames_output: set[Path] = {
             filename.relative_to(tmp_path) for filename in folder_output_01.glob("*")
         }
-        assert filenames_output == {
-            Path("output/run_20231219_082000"),
-            Path("output/run_20231219_082000_1"),
-            Path("output/run_20231219_083000"),
-            Path("output/foo_20231219_083000"),
-        }
-        folder_run_04 = folder_output_01 / "foo_20231219_083000"
-        assert folder_run_04.exists()
+
+        if with_outputs:
+            assert filenames_output == {
+                Path("output/run_20231219_082000"),
+                Path("output/run_20231219_082000_1"),
+                Path("output/run_20231219_083000"),
+                Path("output/foo_20231219_083000"),
+            }
+            folder_run_04 = folder_output_01 / "foo_20231219_083000"
+            assert folder_run_04.exists()
 
         if with_outputs:
             assert list(folder_run_04.glob("*")) != []
-        else:
-            assert list(folder_run_04.glob("*")) == []
 
         # Check 'mode.output.output_dir'
-        output_dir = mode.outputs.current_output_folder
-        assert output_dir == folder_run_04
+        if with_outputs:
+            output_dir = mode.outputs.current_output_folder
+            assert output_dir == folder_run_04
+        else:
+            assert mode.outputs is None
 
         #
         # Fifth run - same 'custom_dir_name', same time
@@ -219,15 +241,21 @@ def test_exposure_output(
         filenames_output: set[Path] = {
             filename.relative_to(tmp_path) for filename in folder_output_01.glob("*")
         }
-        assert filenames_output == {
-            Path("output/run_20231219_082000"),
-            Path("output/run_20231219_082000_1"),
-            Path("output/run_20231219_083000"),
-            Path("output/foo_20231219_083000"),
-            Path("output/foo_20231219_083000_1"),
-        }
+
+        if with_outputs:
+            assert filenames_output == {
+                Path("output/run_20231219_082000"),
+                Path("output/run_20231219_082000_1"),
+                Path("output/run_20231219_083000"),
+                Path("output/foo_20231219_083000"),
+                Path("output/foo_20231219_083000_1"),
+            }
+
         folder_run_05 = folder_output_01 / "foo_20231219_083000_1"
-        assert folder_run_05.exists()
+        if with_outputs:
+            assert folder_run_05.exists()
+        else:
+            assert not folder_run_05.exists()
 
         if with_outputs:
             assert list(folder_run_05.glob("*")) != []
@@ -235,34 +263,41 @@ def test_exposure_output(
             assert list(folder_run_05.glob("*")) == []
 
         # Check 'mode.output.output_dir'
-        output_dir = mode.outputs.current_output_folder
-        assert output_dir == folder_run_05
+        if with_outputs:
+            output_dir = mode.outputs.current_output_folder
+            assert output_dir == folder_run_05
+        else:
+            assert mode.outputs is None
 
         #
         # Sixth run - change 'output_folder'
         #
-        mode.outputs.output_folder = "folder1/folder2"
-        folder_output_02 = tmp_path / "folder1/folder2"
-        assert not folder_output_02.exists()
+        if with_outputs:
+            mode.outputs.output_folder = "folder1/folder2"
+            folder_output_02 = tmp_path / "folder1/folder2"
+            assert not folder_output_02.exists()
 
         with freezegun.freeze_time(date_2023_12_19_08_40):
             _ = pyxel.run_mode(mode=mode, detector=detector, pipeline=pipeline)
 
         # Check if the folders in 'output'
-        assert folder_output_02.exists()
+        if with_outputs:
+            assert folder_output_02.exists()
 
-        filenames_output: set[Path] = {
-            filename.relative_to(tmp_path) for filename in folder_output_02.glob("*")
-        }
-        assert filenames_output == {Path("folder1/folder2/foo_20231219_084000")}
-        folder_run_06 = folder_output_02 / "foo_20231219_084000"
-        assert folder_run_06.exists()
+            filenames_output: set[Path] = {
+                filename.relative_to(tmp_path)
+                for filename in folder_output_02.glob("*")
+            }
+            assert filenames_output == {Path("folder1/folder2/foo_20231219_084000")}
+            folder_run_06 = folder_output_02 / "foo_20231219_084000"
+            assert folder_run_06.exists()
 
         if with_outputs:
             assert list(folder_run_06.glob("*")) != []
-        else:
-            assert list(folder_run_06.glob("*")) == []
 
         # Check 'mode.output.output_dir'
-        output_dir = mode.outputs.current_output_folder
-        assert output_dir == folder_run_06
+        if with_outputs:
+            output_dir = mode.outputs.current_output_folder
+            assert output_dir == folder_run_06
+        else:
+            assert mode.outputs is None

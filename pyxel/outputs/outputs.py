@@ -12,7 +12,7 @@ import warnings
 from collections.abc import Mapping, Sequence
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Optional, Union
+from typing import TYPE_CHECKING, Any, Literal, Optional, Union, get_args
 
 import numpy as np
 
@@ -23,7 +23,6 @@ from pyxel.outputs.utils import to_csv, to_fits, to_hdf, to_jpg, to_npy, to_png,
 from pyxel.util import complete_path
 
 if TYPE_CHECKING:
-    import dask.dataframe as dd
     import pandas as pd
     import xarray as xr
 
@@ -96,7 +95,7 @@ def save_dataarray(
     full_name: str,
     data_formats: Sequence["ValidFormat"],
     current_output_folder: Path,
-) -> "dd.DataFrame":
+) -> "xr.Dataset":
     # Late import
     import numpy as np
     import xarray as xr
@@ -110,10 +109,19 @@ def save_dataarray(
     ):
         raise NotImplementedError
 
+    shape_run_number: tuple[int, ...] = tuple(
+        {
+            dim_name: dim_size
+            for dim_name, dim_size in data_array.sizes.items()
+            if dim_name not in ("x", "y")
+        }.values()
+    )
+
+    run_number = np.arange(num_elements, dtype=int).reshape(shape_run_number)
     output_data_array: xr.DataArray = xr.apply_ufunc(
         _save_data_2d,
         data_array.reset_coords(drop=True).rename("filename"),  # parameter 'data_2d'
-        np.arange(num_elements, dtype=int),  # parameter 'run_number'
+        run_number,  # parameter 'run_number'
         kwargs={
             "data_formats": data_formats,
             "current_output_folder": current_output_folder,
@@ -130,12 +138,12 @@ def save_dataarray(
         output_dtypes=[np.object_],  # TODO: Move this to 'dask_gufunc_kwargs'
     )
 
-    output_dataframe: "dd.DataFrame" = (
+    output_dataset: xr.Dataset = (
         output_data_array.expand_dims("bucket_name")
         .assign_coords(bucket_name=[name], data_format=data_formats)
-        .to_dask_dataframe()
+        .to_dataset()
     )
-    return output_dataframe
+    return output_dataset
 
 
 def save_datatree(
@@ -143,15 +151,38 @@ def save_datatree(
     outputs: Sequence[Mapping[ValidName, Sequence[ValidFormat]]],
     current_output_folder: Path,
     with_inherited_coords: bool,
-) -> "dd.DataFrame":
+) -> Optional["xr.Dataset"]:
+    """Save output file(s) from a DataTree.
+
+    Parameters
+    ----------
+    data_tree
+    outputs
+    current_output_folder
+    with_inherited_coords
+
+    Returns
+    -------
+    Dask DataFrame, optional
+
+    Examples
+    --------
+    >>> save_datatree(...)
+    Dask DataFrame Structure:
+                   level coupling_matrix bucket_name data_format filename
+    npartitions=3
+    0              int64          object      object      object   object
+    1                ...             ...         ...         ...      ...
+    2                ...             ...         ...         ...      ...
+    3                ...             ...         ...         ...      ...
+    """
     # Late import
-    import dask.dataframe as dd
     import xarray as xr
 
     if not outputs:
         raise NotImplementedError
 
-    lst: list[dd.DataFrame] = []
+    lst: list[xr.Dataset] = []
 
     dct: Mapping["ValidName", Sequence["ValidFormat"]]
     for dct in outputs:
@@ -166,11 +197,29 @@ def save_datatree(
             else:
                 node_name = name
 
+            # TODO: Create a function 'has_node' ??
+            # Check if 'node_name' exists in 'date_tree'
+            try:
+                partial_path = "/"
+                for partial_node_name in node_name.removeprefix("/").split("/"):
+                    if partial_node_name not in data_tree[partial_path]:
+                        raise KeyError(
+                            f"Cannot find node '{partial_path}/{partial_node_name}'"
+                        )
+
+                    partial_path += partial_node_name
+
+            except KeyError:
+                logging.exception(
+                    "Cannot find node '%s/%s'", partial_path, partial_node_name
+                )
+                continue
+
             data_array: Union[xr.DataArray, DataTree] = data_tree[node_name]
             if not isinstance(data_array, xr.DataArray):
                 raise TypeError
 
-            output_dataframe: dd.DataFrame = save_dataarray(
+            output_dataframe: xr.Dataset = save_dataarray(
                 data_array=data_array,
                 name=name,
                 full_name=full_name,
@@ -180,10 +229,12 @@ def save_datatree(
 
             lst.append(output_dataframe)
 
-    if len(lst) == 1:
+    if not lst:
+        return None
+    elif len(lst) == 1:
         return lst[0]
     else:
-        return dd.concat(lst)
+        return xr.merge(lst)
 
 
 # TODO: Create a new class that will contain the parameter 'save_data_to_file'
@@ -236,6 +287,9 @@ class Outputs:
             Sequence[Mapping[ValidName, Sequence[ValidFormat]]]
         ] = None,
     ):
+        if save_data_to_file is None:
+            save_data_to_file = [{"detector.image.array": ["fits"]}]
+
         self._log = logging.getLogger(__name__)
 
         self._current_output_folder: Optional[Path] = None
@@ -664,7 +718,7 @@ class Outputs:
         prefix: Optional[str] = None,
         with_auto_suffix: bool = True,
         run_number: Optional[int] = None,
-    ) -> Mapping[str, Mapping[str, str]]:
+    ) -> "pd.DataFrame":
         """Save outputs into file(s).
 
         Parameters
@@ -676,11 +730,13 @@ class Outputs:
 
         Returns
         -------
-        list of Path
-            TBW.
+        DataFrame
         """
+        # Late import
+        import pandas as pd
+
         if not self.save_data_to_file:
-            return {}
+            return pd.DataFrame()
 
         save_methods: Mapping[ValidFormat, SaveToFileProtocol] = {
             "fits": to_fits,
@@ -706,7 +762,11 @@ class Outputs:
             format_list: Sequence[ValidFormat]
             valid_name, format_list = first_item
 
-            data: np.ndarray = np.array(processor.get(valid_name))
+            value: Optional[np.ndarray] = processor.get(valid_name, default=None)
+            if value is None:
+                continue
+
+            data: np.ndarray = np.array(value)
 
             if prefix:
                 name: str = f"{prefix}_{valid_name}"
@@ -780,7 +840,26 @@ class Outputs:
 
             all_filenames[valid_name] = partial_filenames
 
-        return all_filenames
+        # TODO: Create a function to generate the DataFrame
+        # run_number...
+        # columns: (all_params) x bucket_name (image,...) x data_format (npy...) x filename
+        all_columns: dict[str, str] = {
+            full_name: full_name.removeprefix("detector.").removesuffix(".array")
+            for full_name in get_args(ValidName)
+        }
+
+        df = (
+            pd.DataFrame(all_filenames)
+            .reset_index(names="data_format")
+            .rename(columns=all_columns)
+            .melt(
+                id_vars=["data_format"], var_name="bucket_name", value_name="filename"
+            )
+            .dropna()
+            .reset_index(drop=True)
+            .rename_axis(index="filename_idx")
+        )
+        return df
 
     def save_to_netcdf(
         self,

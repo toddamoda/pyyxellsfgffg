@@ -38,7 +38,7 @@ def test_outputs(tmp_path: Path):
     assert output.custom_dir_name == ""
 
     # Test 'Outputs.__repr__'
-    assert repr(output) == "Outputs<NO OUTPUT DIR, num_files=0>"
+    assert repr(output) == "Outputs<NO OUTPUT DIR, num_files=1>"
 
     #
     # Test 'Outputs.create_output_folder'
@@ -55,7 +55,7 @@ def test_outputs(tmp_path: Path):
     exp_folder = folder_name / "run_20240425_101018"
     assert output.current_output_folder == exp_folder
 
-    assert repr(output) == f"Outputs<output_dir='{exp_folder!s}', num_files=0>"
+    assert repr(output) == f"Outputs<output_dir='{exp_folder!s}', num_files=1>"
 
 
 @pytest.mark.parametrize("custom_dir_name", [None, "foo_"])

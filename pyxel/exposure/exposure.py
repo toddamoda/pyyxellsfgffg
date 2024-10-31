@@ -24,6 +24,7 @@ from pyxel.pipelines import Processor, ResultId, get_result_id, result_keys
 from pyxel.util import set_random_seed
 
 if TYPE_CHECKING:
+    import pandas as pd
     import xarray as xr
 
     from pyxel.detectors import Detector
@@ -465,10 +466,6 @@ def run_pipeline(
             # Execute the pipeline for this step.
             processor.run_pipeline(debug=debug)
 
-            # Save results in file(s) (if needed)
-            if outputs and detector.read_out:
-                outputs.save_to_file(processor)
-
             # Extract the results from the 'detector' into a partial 'DataTree'
             partial_datatree_2d: DataTree = _extract_datatree_2d(
                 detector=detector,
@@ -506,7 +503,14 @@ def run_pipeline(
                 pbar.set_postfix(size=format_bytes(num_bytes))
 
         # Prepare the final dictionary to construct the `DataTree`.
-        dct: dict[str, Union[xr.Dataset, DataTree, None]] = {}
+        dct: dict[str, Union["xr.Dataset", DataTree, None]] = {}
+
+        # Save results in file(s) (if needed)
+        if outputs:
+            # TODO: This should be called only at the last step
+            # TODO: Add this to DataTree, Not executed during Observation or Calibration mode
+            df_filenames: "pd.DataFrame" = outputs.save_to_file(processor)
+            dct["/output"] = DataTree(df_filenames.to_xarray())
 
         if not detector.scene.data.is_empty and not with_inherited_coords:
             warnings.warn(

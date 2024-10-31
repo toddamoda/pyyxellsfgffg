@@ -126,6 +126,10 @@ def build_metadata(data_tree: "DataTree") -> Mapping[str, DatasetMetadata]:
                     dtype=value.dtype,
                 )
                 for key, value in sub_data_tree.data_vars.items()
+                if (
+                    path != "/bucket"
+                    or (path == "/bucket" and {"y", "x"}.issubset(value.dims))
+                )
             },
             coords={
                 key: CoordinateMetadata(attrs=value.attrs, data=value.data)
@@ -279,25 +283,6 @@ def _build_metadata(
     if processor.observation is None:
         raise NotImplementedError
 
-    # if processor.observation.outputs:
-    #     # TODO: Create a temporary directory inside the current 'output_folder' ?
-    #     with pyxel.set_options(working_directory=None):
-    #         with TemporaryDirectory() as temp_dir:
-    #             new_processor: "Processor" = deepcopy(processor)
-    #             new_processor.observation.outputs.output_folder = temp_dir  # type: ignore[union-attr]
-    #             new_processor.observation.outputs.create_output_folder()  # type: ignore[union-attr]
-    #
-    #             data_tree: "DataTree" = _run_pipelines_array_to_datatree(
-    #                 params_tuple=params_tuple,
-    #                 params_index=0,
-    #                 dimension_names=dimension_names,
-    #                 processor=new_processor,
-    #                 readout=readout,
-    #                 result_type=result_type,
-    #                 pipeline_seed=pipeline_seed,
-    #                 progressbar=True,
-    #             )
-    # else:
     data_tree = _run_pipelines_array_to_datatree(
         params_tuple=params_tuple,
         params_index=0,
@@ -465,7 +450,9 @@ def run_pipelines_with_dask(
     params_dataarray_dask: xr.DataArray = params_dataarray.chunk(1)
 
     params_indexes: xr.DataArray = xr.zeros_like(params_dataarray)
-    params_indexes[...] = range(params_dataarray.size)
+    params_indexes[...] = np.arange(params_dataarray.size, dtype=int).reshape(
+        params_indexes.shape
+    )
     params_indexes_dask: xr.DataArray = params_indexes.chunk(1)
 
     # Create 'Dask' data arrays
@@ -489,6 +476,7 @@ def run_pipelines_with_dask(
         output_dtypes=output_dtypes,  # TODO: Move this to 'dask_gufunc_kwargs'
     )
 
+    # Rebuild a DataTree from 'dask_dataarrays'
     dct: Mapping[str, Union[xr.Dataset, DataTree]] = _rebuild_datatree_from_dask(
         dask_dataarrays=dask_dataarrays,
         all_metadata=all_metadata,

@@ -184,8 +184,11 @@ def to_exposure(dct: dict) -> Exposure:
     return Exposure(**dct)
 
 
-def to_observation_outputs(dct: dict) -> ObservationOutputs:
+def to_observation_outputs(dct: Optional[dict]) -> Optional[ObservationOutputs]:
     """Create a ObservationOutputs class from a dictionary."""
+    if dct is None:
+        return None
+
     output_folder = dct["output_folder"]
     custom_dir_name = dct.get("custom_dir_name", "")
     save_data_to_file = dct.get("save_data_to_file")

@@ -115,12 +115,15 @@ def test_exposure_override_wrong_input():
     assert isinstance(result.exception, AttributeError)
 
 
-def test_observation():
+@pytest.mark.parametrize(
+    "filename", ["data/observation.yaml", "data/observation_dask.yaml"]
+)
+def test_observation(filename: str):
     """Test command with an Observation configuration file."""
-    base_path = Path(__file__).parent
-    filename = Path(f"{base_path}/data/observation.yaml")
+    base_path: Path = Path(__file__).parent
+    full_filename: Path = base_path / filename
+    assert full_filename.exists()
 
     runner = CliRunner()
-    result = runner.invoke(main, ["run", str(filename)])
-    assert result.exit_code == 0
+    result = runner.invoke(main, ["run", str(full_filename)])
     assert result.exit_code == 0
