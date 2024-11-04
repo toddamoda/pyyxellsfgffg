@@ -202,12 +202,13 @@ class DetectionPipeline:
             if not models_grp:
                 continue
 
-            yield f"Group: {models_grp._name}"
+            yield f"PYXEL / Group: {models_grp._name}"
 
             model: ModelFunction
             for model in models_grp:
-                yield f"  Func: {model.func.__module__}.{model.func.__name__}"
-                yield f"  name: {model.name}"
+                yield f"PYXEL /  func: {model.func.__module__}.{model.func.__name__}"
+                yield f"PYXEL /  name: {model.name}"
+                yield "PYXEL /  arguments:"
 
                 for key, value in model.arguments.items():
-                    yield f"    {key}: {value}"
+                    yield f"PYXEL /    {key}: {value}"
