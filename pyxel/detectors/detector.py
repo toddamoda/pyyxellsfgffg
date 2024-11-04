@@ -26,7 +26,7 @@ from pyxel.data_structure import (
     SimplePersistence,
 )
 from pyxel.detectors import Environment, ReadoutProperties
-from pyxel.util import get_size, memory_usage_details, resolve_path
+from pyxel.util import get_size, memory_usage_details, resolve_with_working_directory
 
 if TYPE_CHECKING:
     import xarray as xr
@@ -588,7 +588,7 @@ class Detector:
         >>> detector = Detector()
         >>> detector.load("detector.h5")  # Loads from HDF5 format
         """
-        full_filename = Path(resolve_path(filename)).resolve()
+        full_filename = Path(resolve_with_working_directory(filename)).resolve()
         if not full_filename.exists():
             raise FileNotFoundError(f"Filename '{filename}' does not exist !")
 
@@ -624,7 +624,7 @@ class Detector:
         >>> detector.save("detector.h5")  # Save in HDF5 format
         >>> detector.save("detector.asdf")  # Save in ASDF format
         """
-        full_filename = Path(resolve_path(filename)).resolve()
+        full_filename = Path(resolve_with_working_directory(filename)).resolve()
         extension: str = full_filename.suffix
 
         if extension in (".h5", ".hdf5", ".hdf"):

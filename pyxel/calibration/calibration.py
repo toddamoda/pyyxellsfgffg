@@ -34,7 +34,7 @@ from pyxel.calibration.fitting_datatree import ModelFittingDataTree
 from pyxel.exposure import Readout
 from pyxel.observation import ParameterValues
 from pyxel.pipelines import FitnessFunction, Processor, ResultId, get_result_id
-from pyxel.util import resolve_path
+from pyxel.util import resolve_with_working_directory
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -59,7 +59,7 @@ def to_path_list(filenames: Sequence[Union[str, Path]]) -> Sequence[Path]:
     """
     lst: list[Path] = []
     for filename in filenames:
-        full_filename = Path(resolve_path(filename)).resolve()
+        full_filename = Path(resolve_with_working_directory(filename)).resolve()
 
         if not full_filename.exists():
             raise FileNotFoundError(f"File: {full_filename} does not exist !")
