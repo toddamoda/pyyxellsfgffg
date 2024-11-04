@@ -7,7 +7,7 @@
 
 """Pyxel photon generator models."""
 
-from typing import Literal, Optional
+from typing import Literal, Optional, Union
 
 from pyxel.detectors import Detector
 from pyxel.inputs import load_header
@@ -17,6 +17,8 @@ from pyxel.util import load_cropped_and_aligned_image
 def load_image(
     detector: Detector,
     image_file: str,
+    include_header: bool = False,
+    header_section_index: Union[int, str, None] = None,
     position: tuple[int, int] = (0, 0),
     align: Optional[
         Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"]
@@ -33,6 +35,12 @@ def load_image(
     detector : Detector
     image_file : str
         Path to image file.
+    include_header : bool, optional.
+        If ``True``, extract header metadata from the image file.
+        This parameter is provisional and may be removed.
+    header_section_index : int or str or None, optional
+        Section index or name of the header data to load if `include_header` is enabled.
+        This parameter is provisional and may be removed.
     position : tuple
         Indices of starting row and column, used when fitting image to detector.
     align : Literal
@@ -49,6 +57,14 @@ def load_image(
         Time scale of the photon flux, default is 1 second. 0.001 would be ms.
     bit_resolution : int
         Bit resolution of the loaded image.
+
+    Notes
+    -----
+    The image array is cropped and aligned based on the `shape` and `position` parameters and is
+    scaled by the `multiplier` and `time_scale` before being added to the detector.
+
+    If `include_header` is enabled, the header metadata is extracted from `image_file` and store in the
+    detector`s header storage.
     """
 
     shape = (detector.geometry.row, detector.geometry.col)
@@ -81,6 +97,8 @@ def load_image(
     detector.photon += photon_array
 
     # Try to extract the Header from 'image_file'
-    header = load_header(image_file)
-    if header is not None:
-        detector._headers["detector.image.array"] = header
+    if include_header:
+        header = load_header(image_file, section=header_section_index)
+
+        if header is not None:
+            detector._headers["detector.image.array"] = header
