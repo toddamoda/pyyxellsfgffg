@@ -15,7 +15,7 @@ __version__: str = _version.get_versions()["version"]
 from .options import SetOptions as set_options
 from .options import options_wrapper
 from .show_versions import show_versions
-from .inputs import load_image, load_table, load_datacube
+from .inputs import load_image, load_table, load_datacube, load_header
 from .configuration import load, loads, copy_config_file, Configuration
 from .run import calibration_mode, exposure_mode, observation_mode, run, run_mode
 from .notebook import (

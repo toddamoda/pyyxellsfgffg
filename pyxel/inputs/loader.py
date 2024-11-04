@@ -9,11 +9,11 @@
 
 import csv
 import sys
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from contextlib import suppress
 from io import BytesIO, StringIO
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 import numpy as np
 from numpy.typing import DTypeLike
@@ -24,21 +24,105 @@ from pyxel.util import resolve_path
 if TYPE_CHECKING:
     import pandas as pd
     import xarray as xr
-    from astropy.io import fits
 
 
-def load_header(filename: Union[str, Path]) -> Optional["fits.Header"]:
-    from astropy.io import fits
+def load_header(
+    filename: Union[str, Path],
+    section: Union[int, str, None] = None,
+) -> Optional[Mapping[str, Any]]:
+    """Load and return header information from a file.
 
-    full_filename = resolve_path(filename)
+    Parameters
+    ----------
+       filename : str or Path,
+           Path to the file from which to load the header.
+       section : int, str or None, optional
+           Specifies the section of the file to extract the header.
 
-    if Path(full_filename).suffix == ".fits":
-        header: fits.Header = fits.getheader(full_filename)
+    Returns
+    -------
+       dict or None
+           A dictionary containing header information
 
-        return header
+    Examples
+    --------
+       >>> load_header("image.fits", section="RAW")
+       {'SIMPLE': (True, 'conforms to FITS standard'),
+    'BITPIX': (-32, 'array data type'),
+    'NAXIS': (2, 'number of array dimensions'),
+    'BUNIT': ('ADU', 'Image Units.'),}
+    """
+    # Late import to speedup start-up time
+    import fsspec
 
-    else:
-        return None
+    try:
+        filename = resolve_path(filename)
+        # Extract suffix (e.g. '.txt', '.fits'...)
+        suffix: str = Path(filename).suffix.lower()
+
+        if isinstance(filename, Path):
+            full_filename: Path = filename.expanduser().resolve()
+            if not full_filename.exists():
+                raise FileNotFoundError(
+                    f"Input file '{full_filename}' can not be found."
+                )
+
+            url_path: str = str(full_filename)
+        else:
+            url_path = filename
+
+        # Define extra parameters to use with 'fsspec'
+        extras = {}
+        if global_options.cache_enabled:
+            url_path = f"simplecache::{url_path}"
+
+            if global_options.cache_folder:
+                extras["simplecache"] = {"cache_storage": global_options.cache_folder}
+
+        if suffix.startswith(".fits"):
+            with fsspec.open(url_path, mode="rb", **extras) as file_handler:
+                # Late import to speed-up general import time
+                from astropy.io import fits
+
+                with BytesIO(file_handler.read()) as content:
+                    ext: Optional[int] = None
+                    extname: Optional[str] = None
+
+                    if isinstance(section, int):
+                        ext = section
+                    elif isinstance(section, str):
+                        extname = section
+
+                    header: fits.Header = fits.getheader(
+                        content, ext=ext, extname=extname
+                    )
+
+                    cards: Sequence[Union[tuple[str, Any], tuple[str, Any, str]]] = (
+                        header.cards
+                    )
+
+                    dct = {}
+                    for items in cards:
+                        key, value, *comment = items
+
+                        if comment:
+                            dct[key] = (value, comment[0])
+                        else:
+                            dct[key] = value
+
+                    return dct
+
+        else:
+            # Unknown type
+            return None
+
+    except Exception as exc:
+        if sys.version_info >= (3, 11):
+            exc.add_note(
+                f"Raised when trying to load file '{filename}' and "
+                f"{global_options.working_directory=}"
+            )
+        raise
 
 
 def load_image(filename: Union[str, Path]) -> np.ndarray:
