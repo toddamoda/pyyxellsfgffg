@@ -26,6 +26,15 @@ if TYPE_CHECKING:
     import xarray as xr
 
 
+def resolve_path(filename: Path) -> str:
+    """Resolve the given path."""
+    full_filename: Path = filename.expanduser().resolve()
+    if not full_filename.exists():
+        raise FileNotFoundError(f"Input file '{full_filename}' can not be found.")
+
+    return str(full_filename)
+
+
 def load_header(
     filename: Union[str, Path],
     section: Union[int, str, None] = None,
@@ -61,13 +70,7 @@ def load_header(
         suffix: str = Path(filename).suffix.lower()
 
         if isinstance(filename, Path):
-            full_filename: Path = filename.expanduser().resolve()
-            if not full_filename.exists():
-                raise FileNotFoundError(
-                    f"Input file '{full_filename}' can not be found."
-                )
-
-            url_path: str = str(full_filename)
+            url_path: str = resolve_path(filename)
         else:
             url_path = filename
 
@@ -170,14 +173,7 @@ def load_image(filename: Union[str, Path]) -> np.ndarray:
         suffix: str = Path(filename).suffix.lower()
 
         if isinstance(filename, Path):
-            full_filename: Path = filename.expanduser().resolve()
-            if not full_filename.exists():
-                raise FileNotFoundError(
-                    f"Input file '{full_filename}' can not be found."
-                )
-
-            url_path: str = str(full_filename)
-
+            url_path: str = resolve_path(filename)
         else:
             url_path = filename
 
@@ -258,12 +254,7 @@ def load_image_v2(
     suffix: str = Path(filename).suffix.lower()
 
     if isinstance(filename, Path):
-        full_filename: Path = filename.expanduser().resolve()
-        if not full_filename.exists():
-            raise FileNotFoundError(f"Input file '{full_filename}' can not be found.")
-
-        url_path: str = str(full_filename)
-
+        url_path: str = resolve_path(filename)
     else:
         url_path = filename
 
@@ -349,11 +340,7 @@ def load_table(
     suffix: str = Path(resolved_filename).suffix.lower()
 
     if isinstance(resolved_filename, Path):
-        full_filename = Path(resolved_filename).expanduser().resolve()
-        if not full_filename.exists():
-            raise FileNotFoundError(f"Input file '{full_filename}' can not be found.")
-
-        url_path: str = str(full_filename)
+        url_path: str = resolve_path(resolved_filename)
     else:
         url_path = resolved_filename
 
@@ -446,11 +433,7 @@ def load_table_v2(
     suffix: str = Path(filename).suffix.lower()
 
     if isinstance(filename, Path):
-        full_filename = Path(filename).expanduser().resolve()
-        if not full_filename.exists():
-            raise FileNotFoundError(f"Input file '{full_filename}' can not be found.")
-
-        url_path: str = str(full_filename)
+        url_path: str = resolve_path(filename)
     else:
         url_path = filename
 
@@ -552,12 +535,7 @@ def load_dataarray(filename: Union[str, Path]) -> "xr.DataArray":
 
     filename = resolve_with_working_directory(filename=filename)
     if isinstance(filename, Path):
-        full_filename: Path = filename.expanduser().resolve()
-        if not full_filename.exists():
-            raise FileNotFoundError(f"Input file '{full_filename}' can not be found.")
-
-        url_path: str = str(full_filename)
-
+        url_path: str = resolve_path(filename)
     else:
         url_path = filename
 
@@ -606,12 +584,7 @@ def load_datacube(filename: Union[str, Path]) -> np.ndarray:
     suffix: str = Path(filename).suffix.lower()
 
     if isinstance(filename, Path):
-        full_filename: Path = filename.expanduser().resolve()
-        if not full_filename.exists():
-            raise FileNotFoundError(f"Input file '{full_filename}' can not be found.")
-
-        url_path: str = str(full_filename)
-
+        url_path: str = resolve_path(filename)
     else:
         url_path = filename
 
