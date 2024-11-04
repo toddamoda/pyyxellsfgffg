@@ -152,8 +152,8 @@ def _get_obj_att(
                         f"    func: ...\n"
                     )
                 else:
-                    raise NotImplementedError(
-                        f"obj={obj!r}, key={key!r}, obj_type={obj_type!r}, part={part!r}"
+                    raise AttributeError(  # noqa: TRY004
+                        f"Attribute {key!r} does not exist !"
                     )
 
             if obj_type and isinstance(obj, obj_type):
@@ -221,12 +221,18 @@ class Processor:
         >>> processor.has("pipeline.photon_collection.illumination.arguments.level")
         True
         """
-        found = False
-        obj, att = _get_obj_att(self, key)
+        att: str
+        obj, att = _get_obj_att(obj=self, key=key)
         if isinstance(obj, dict) and att in obj:
+            return True
+
+        try:
+            found = hasattr(obj, att)
+        except AttributeError:
+            found = False
+        except ValueError:
             found = True
-        elif hasattr(obj, att):
-            found = True
+
         return found
 
     # TODO: Could it be renamed '__getitem__' ?
