@@ -19,7 +19,7 @@ import numpy as np
 from numpy.typing import DTypeLike
 
 from pyxel.options import global_options
-from pyxel.util import resolve_path
+from pyxel.util import resolve_with_working_directory
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -56,7 +56,7 @@ def load_header(
     import fsspec
 
     try:
-        filename = resolve_path(filename)
+        filename = resolve_with_working_directory(filename)
         # Extract suffix (e.g. '.txt', '.fits'...)
         suffix: str = Path(filename).suffix.lower()
 
@@ -165,7 +165,7 @@ def load_image(filename: Union[str, Path]) -> np.ndarray:
     import fsspec
 
     try:
-        filename = resolve_path(filename=filename)
+        filename = resolve_with_working_directory(filename=filename)
         # Extract suffix (e.g. '.txt', '.fits'...)
         suffix: str = Path(filename).suffix.lower()
 
@@ -253,7 +253,7 @@ def load_image_v2(
     # Late import to speedup start-up time
     import xarray as xr
 
-    filename = resolve_path(filename=filename)
+    filename = resolve_with_working_directory(filename=filename)
     # Extract suffix (e.g. '.txt', '.fits'...)
     suffix: str = Path(filename).suffix.lower()
 
@@ -345,7 +345,7 @@ def load_table(
     import fsspec
     import pandas as pd
 
-    resolved_filename = resolve_path(filename=filename)
+    resolved_filename = resolve_with_working_directory(filename=filename)
     suffix: str = Path(resolved_filename).suffix.lower()
 
     if isinstance(resolved_filename, Path):
@@ -442,7 +442,7 @@ def load_table_v2(
     # Late import to speedup start-up time
     import pandas as pd
 
-    filename = resolve_path(filename=filename)
+    filename = resolve_with_working_directory(filename=filename)
     suffix: str = Path(filename).suffix.lower()
 
     if isinstance(filename, Path):
@@ -550,7 +550,7 @@ def load_dataarray(filename: Union[str, Path]) -> "xr.DataArray":
     # Late import to speedup start-up time
     import fsspec
 
-    filename = resolve_path(filename=filename)
+    filename = resolve_with_working_directory(filename=filename)
     if isinstance(filename, Path):
         full_filename: Path = filename.expanduser().resolve()
         if not full_filename.exists():
@@ -601,7 +601,7 @@ def load_datacube(filename: Union[str, Path]) -> np.ndarray:
     # Late import to speedup start-up time
     import fsspec
 
-    filename = resolve_path(filename=filename)
+    filename = resolve_with_working_directory(filename=filename)
     # Extract suffix (e.g. '.txt', '.fits'...)
     suffix: str = Path(filename).suffix.lower()
 

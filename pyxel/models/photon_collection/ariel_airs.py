@@ -44,7 +44,7 @@ from astropy.units import Quantity
 from scipy.integrate import cumulative_trapezoid
 
 from pyxel.detectors import Detector
-from pyxel.util import resolve_path
+from pyxel.util import resolve_with_working_directory
 
 
 def read_star_flux_from_file(
@@ -68,7 +68,7 @@ def read_star_flux_from_file(
     """
     extension = Path(filename).suffix
     if extension == ".txt":
-        wavelength, flux = np.loadtxt(resolve_path(filename)).T
+        wavelength, flux = np.loadtxt(resolve_with_working_directory(filename)).T
         # set appropriate unit here um
         wavelength = wavelength * u.micron
         # set appropriate units
@@ -261,7 +261,7 @@ def read_psf_from_fits_file(
         1D array, y position of the PSF at each wavelength.
     """
     # Open fits
-    with fits.open(resolve_path(filename)) as hdu:
+    with fits.open(resolve_with_working_directory(filename)) as hdu:
         psf_datacube, table = hdu[0].data, hdu[1].data
 
         # Position of the PSF on AIRS window along line
