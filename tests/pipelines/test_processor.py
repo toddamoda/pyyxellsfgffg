@@ -112,6 +112,46 @@ def test_get(processor1: Processor, key, exp_result):
 
 
 @pytest.mark.parametrize(
+    "key, exp_result",
+    [
+        ("detector.geometry.row", 10),
+        ("detector.environment.temperature", 238.0),
+        ("detector.characteristics.full_well_capacity", 90_0000),
+        ("pipeline.photon_collection.stripe_pattern.arguments.angle", 5.0),
+        ("detector.photon.array", None),
+    ],
+)
+def test_get_with_default(processor1: Processor, key, exp_result):
+    """Test method 'Processor.get' with a default value."""
+    processor: Processor = processor1
+
+    result = processor.get(key, default=None)
+    assert result == exp_result
+
+
+@pytest.mark.parametrize(
+    "key, exp_exception, exp_error",
+    [
+        ("detector.geometry.foo", AttributeError, r"has no attribute 'foo'"),
+        ("pipeline.foo", AttributeError, r"has no attribute 'foo'"),
+        ("pipeline.photon_collection.foo", AttributeError, r"Cannot find model 'foo'"),
+        (
+            "pipeline.photon_collection.foo.arguments.angle",
+            AttributeError,
+            r"Cannot find model 'foo'",
+        ),
+        ("detector.photon.array", ValueError, "cannot be retrieved"),
+    ],
+)
+def test_get_error(processor1: Processor, key, exp_exception, exp_error):
+    """Test method 'Processor.get' with wrong inputs."""
+    processor: Processor = processor1
+
+    with pytest.raises(exp_exception, match=exp_error):
+        _ = processor.get(key)
+
+
+@pytest.mark.parametrize(
     "key, value",
     [
         ("detector.environment.temperature", 123.0),

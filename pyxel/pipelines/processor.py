@@ -166,6 +166,13 @@ def _get_obj_att(
     return obj, tail
 
 
+class _MISSING_TYPE: ...  # noqa: N801
+
+
+# This is a sentinel object
+MISSING = _MISSING_TYPE()
+
+
 # TODO: Is this class needed ?
 # TODO: Create a new class 'ProcessorObservation' for Observation Mode ?
 class Processor:
@@ -239,7 +246,7 @@ class Processor:
     # TODO: Is it really needed ?
     # TODO: What are the valid keys ? (e.g. 'detector.image.array',
     #       'detector.signal.array' and 'detector.pixel.array')
-    def get(self, key: str) -> Any:
+    def get(self, key: str, default: Any = MISSING) -> Any:
         """Get the current value from a Parameter.
 
         Examples
@@ -251,7 +258,14 @@ class Processor:
         array(0.1)
         """
         func: Callable = operator.attrgetter(key)
-        result = func(self)
+
+        try:
+            result = func(self)
+        except (KeyError, ValueError):
+            if default is not MISSING:
+                return default
+
+            raise
 
         return result
 
