@@ -5426,10 +5426,26 @@
               "title": "convert_to_photons",
               "type": "boolean"
             },
+            "header_section_index": {
+              "default": null,
+              "description": "Section index or name of the header data to load if `include_header` is enabled. This parameter is provisional and may be removed.",
+              "title": "header_section_index",
+              "type": [
+                "integer",
+                "string",
+                "null"
+              ]
+            },
             "image_file": {
               "description": "Path to image file.",
               "title": "image_file",
               "type": "string"
+            },
+            "include_header": {
+              "default": false,
+              "description": "If ``True``, extract header metadata from the image file. This parameter is provisional and may be removed.",
+              "title": "include_header",
+              "type": "boolean"
             },
             "multiplier": {
               "default": 1.0,
