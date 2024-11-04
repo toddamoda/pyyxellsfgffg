@@ -16,7 +16,7 @@ import pandas as pd
 
 from pyxel.data_structure import Charge
 from pyxel.detectors import Detector
-from pyxel.util import materials, resolve_path, set_random_seed
+from pyxel.util import materials, resolve_with_working_directory, set_random_seed
 
 
 def charge_deposition(
@@ -213,7 +213,7 @@ def _generate_random_energies(
     else:
         # from parsed spectrum using either logarithmic or linear sampling
         energy_spectrum_data = np.loadtxt(
-            resolve_path(energy_spectrum), dtype="float", comments="#"
+            resolve_with_working_directory(energy_spectrum), dtype="float", comments="#"
         )
         n_samples = 100000
         if energy_spectrum_sampling == "log":
@@ -328,7 +328,7 @@ def simulate_charge_deposition(
         raise ValueError("No stopping power curve has been parsed.")
 
     stopping_power_data = np.genfromtxt(
-        resolve_path(stopping_power_curve),
+        resolve_with_working_directory(stopping_power_curve),
         skip_header=1,
         delimiter=",",
     )
