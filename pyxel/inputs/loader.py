@@ -35,6 +35,18 @@ def resolve_path(filename: Path) -> str:
     return str(full_filename)
 
 
+def prepare_cache_path(url_path: str) -> tuple[str, dict]:
+    """Prepare and return the cache path and fsspec's configuration extra."""
+    extras = {}
+    if global_options.cache_enabled:
+        url_path = f"simplecache::{url_path}"
+
+        if global_options.cache_folder:
+            extras["simplecache"] = {"cache_storage": global_options.cache_folder}
+
+    return url_path, extras
+
+
 def load_header(
     filename: Union[str, Path],
     section: Union[int, str, None] = None,
@@ -43,20 +55,20 @@ def load_header(
 
     Parameters
     ----------
-       filename : str or Path,
-           Path to the file from which to load the header.
-       section : int, str or None, optional
-           Specifies the section of the file to extract the header.
+    filename : str or Path,
+        Path to the file from which to load the header.
+    section : int, str or None, optional
+        Specifies the section of the file to extract the header.
 
     Returns
     -------
-       dict or None
-           A dictionary containing header information
+    dict or None
+        A dictionary containing header information
 
     Examples
     --------
-       >>> load_header("image.fits", section="RAW")
-       {'SIMPLE': (True, 'conforms to FITS standard'),
+    >>> load_header("image.fits", section="RAW")
+    {'SIMPLE': (True, 'conforms to FITS standard'),
     'BITPIX': (-32, 'array data type'),
     'NAXIS': (2, 'number of array dimensions'),
     'BUNIT': ('ADU', 'Image Units.'),}
@@ -75,12 +87,7 @@ def load_header(
             url_path = filename
 
         # Define extra parameters to use with 'fsspec'
-        extras = {}
-        if global_options.cache_enabled:
-            url_path = f"simplecache::{url_path}"
-
-            if global_options.cache_folder:
-                extras["simplecache"] = {"cache_storage": global_options.cache_folder}
+        url_path, extras = prepare_cache_path(url_path)
 
         if suffix.startswith(".fits"):
             with fsspec.open(url_path, mode="rb", **extras) as file_handler:
@@ -178,12 +185,7 @@ def load_image(filename: Union[str, Path]) -> np.ndarray:
             url_path = filename
 
         # Define extra parameters to use with 'fsspec'
-        extras = {}
-        if global_options.cache_enabled:
-            url_path = f"simplecache::{url_path}"
-
-            if global_options.cache_folder:
-                extras["simplecache"] = {"cache_storage": global_options.cache_folder}
+        url_path, extras = prepare_cache_path(url_path)
 
         if suffix.startswith(".fits"):
             # with fits.open(url_path, use_fsspec=True, fsspec_kwargs=extras) as file_handler:
@@ -345,12 +347,7 @@ def load_table(
         url_path = resolved_filename
 
     # Define extra parameters to use with 'fsspec'
-    extras = {}
-    if global_options.cache_enabled:
-        url_path = f"simplecache::{url_path}"
-
-        if global_options.cache_folder:
-            extras["simplecache"] = {"cache_storage": global_options.cache_folder}
+    url_path, extras = prepare_cache_path(url_path)
 
     if suffix.startswith(".npy"):
         with fsspec.open(url_path, mode="rb", **extras) as file_handler:
@@ -532,6 +529,7 @@ def load_dataarray(filename: Union[str, Path]) -> "xr.DataArray":
     """
     # Late import to speedup start-up time
     import fsspec
+    import xarray as xr
 
     filename = resolve_with_working_directory(filename=filename)
     if isinstance(filename, Path):
@@ -540,14 +538,7 @@ def load_dataarray(filename: Union[str, Path]) -> "xr.DataArray":
         url_path = filename
 
     # Define extra parameters to use with 'fsspec'
-    extras = {}
-    if global_options.cache_enabled:
-        url_path = f"simplecache::{url_path}"
-
-        if global_options.cache_folder:
-            extras["simplecache"] = {"cache_storage": global_options.cache_folder}
-
-    import xarray as xr
+    url_path, extras = prepare_cache_path(url_path)
 
     with fsspec.open(url_path, mode="rb", **extras) as file_handler:
         data_array = xr.load_dataarray(file_handler)
@@ -589,12 +580,7 @@ def load_datacube(filename: Union[str, Path]) -> np.ndarray:
         url_path = filename
 
     # Define extra parameters to use with 'fsspec'
-    extras = {}
-    if global_options.cache_enabled:
-        url_path = f"simplecache::{url_path}"
-
-        if global_options.cache_folder:
-            extras["simplecache"] = {"cache_storage": global_options.cache_folder}
+    url_path, extras = prepare_cache_path(url_path)
 
     if suffix.startswith(".npy"):
         with fsspec.open(url_path, mode="rb", **extras) as file_handler:
