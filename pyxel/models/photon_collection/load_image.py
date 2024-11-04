@@ -7,7 +7,8 @@
 
 """Pyxel photon generator models."""
 
-from typing import Literal, Optional, Union
+from collections.abc import Mapping
+from typing import Any, Literal, Optional, Union
 
 from pyxel.detectors import Detector
 from pyxel.inputs import load_header
@@ -98,7 +99,10 @@ def load_image(
 
     # Try to extract the Header from 'image_file'
     if include_header:
-        header = load_header(image_file, section=header_section_index)
+        header: Optional[Mapping[str, Any]] = load_header(
+            image_file,
+            section=header_section_index,
+        )
 
-        if header is not None:
-            detector._headers["detector.image.array"] = header
+        if header:
+            detector._headers |= header
