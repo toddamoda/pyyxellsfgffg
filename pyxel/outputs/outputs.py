@@ -858,22 +858,23 @@ class Outputs:
                     from astropy.io import fits
 
                     header = fits.Header()
+                    header.update(processor.detector._headers)
 
                     line: str
                     for line in processor.pipeline.describe():
                         header.add_history(line)
 
-                    previous_header: Optional[fits.Header] = (
-                        processor.detector._headers.get(valid_name)
-                    )
-                    if previous_header is not None:
-                        for card in previous_header.cards:
-                            key, *_ = card
-
-                            if key in ("SIMPLE", "BITPIX") or key.startswith("NAXIS"):
-                                continue
-
-                            header.append(card)
+                    # previous_header: Optional[fits.Header] = (
+                    #     processor.detector._headers.get(valid_name)
+                    # )
+                    # if previous_header is not None:
+                    #     for card in previous_header.cards:
+                    #         key, *_ = card
+                    #
+                    #         if key in ("SIMPLE", "BITPIX") or key.startswith("NAXIS"):
+                    #             continue
+                    #
+                    #         header.append(card)
 
                     filename = func(
                         current_output_folder=self.current_output_folder,
