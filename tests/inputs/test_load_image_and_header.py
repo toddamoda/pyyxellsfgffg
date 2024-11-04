@@ -16,7 +16,7 @@ from astropy.io import fits
 from PIL import Image
 
 import pyxel
-from pyxel import load_image
+from pyxel import load_header, load_image
 
 # This is equivalent to 'import pytest_httpserver'
 pytest_httpserver = pytest.importorskip(
@@ -32,8 +32,10 @@ def valid_multiple_hdus() -> fits.HDUList:
     primary_2d = np.array([[5, 6], [7, 8]], dtype=np.uint16)
     secondary_2d = np.array([[9, 10], [11, 12]], dtype=np.uint16)
 
-    hdu_primary = fits.PrimaryHDU(primary_2d)
-    hdu_secondary = fits.ImageHDU(secondary_2d)
+    hdu_primary = fits.PrimaryHDU(primary_2d, header=fits.Header({"hello": "world"}))
+    hdu_secondary = fits.ImageHDU(
+        secondary_2d, header=fits.Header({"foo": "bar"}), name="OTHER_IMAGE"
+    )
     hdu_lst = fits.HDUList([hdu_primary, hdu_secondary])
 
     return hdu_lst
@@ -284,3 +286,124 @@ def test_load_image(
 
         # Check 'data_2d
         np.testing.assert_equal(data_2d, exp_data)
+
+
+@pytest.mark.parametrize("with_caching", [False, True])
+@pytest.mark.parametrize(
+    "filename, section, exp_header",
+    [
+        (
+            "data/img.fits",
+            None,
+            {
+                "BITPIX": (16, "array data type"),
+                "BSCALE": (1, ""),
+                "BZERO": (32768, ""),
+                "EXTEND": (True, ""),
+                "NAXIS": (2, "number of array dimensions"),
+                "NAXIS1": (2, ""),
+                "NAXIS2": (2, ""),
+                "SIMPLE": (True, "conforms to FITS standard"),
+            },
+        ),
+        (
+            "http://{host}/data/img.fits",
+            None,
+            {
+                "BITPIX": (16, "array data type"),
+                "BSCALE": (1, ""),
+                "BZERO": (32768, ""),
+                "EXTEND": (True, ""),
+                "NAXIS": (2, "number of array dimensions"),
+                "NAXIS1": (2, ""),
+                "NAXIS2": (2, ""),
+                "SIMPLE": (True, "conforms to FITS standard"),
+            },
+        ),
+        ("data/img.jpg", None, None),
+        (
+            "data/img_multiple.fits",
+            None,
+            {
+                "BITPIX": (16, "array data type"),
+                "BSCALE": (1, ""),
+                "BZERO": (32768, ""),
+                "EXTEND": (True, ""),
+                "HELLO": ("world", ""),  # Specific for first ext
+                "NAXIS": (2, "number of array dimensions"),
+                "NAXIS1": (2, ""),
+                "NAXIS2": (2, ""),
+                "SIMPLE": (True, "conforms to FITS standard"),
+            },
+        ),
+        (
+            "data/img_multiple.fits",
+            "OTHER_IMAGE",
+            {
+                "BITPIX": (16, "array data type"),
+                "BSCALE": (1, ""),
+                "BZERO": (32768, ""),
+                "EXTNAME": ("OTHER_IMAGE", "extension name"),  # for second ext
+                "FOO": ("bar", ""),
+                "GCOUNT": (1, "number of groups"),
+                "NAXIS": (2, "number of array dimensions"),
+                "NAXIS1": (2, ""),
+                "NAXIS2": (2, ""),
+                "PCOUNT": (0, "number of parameters"),
+                "XTENSION": ("IMAGE", "Image extension"),
+            },
+        ),
+        (
+            "http://{host}/data/img_multiple.fits",
+            None,
+            {
+                "BITPIX": (16, "array data type"),
+                "BSCALE": (1, ""),
+                "BZERO": (32768, ""),
+                "EXTEND": (True, ""),
+                "HELLO": ("world", ""),  # Specific for first ext
+                "NAXIS": (2, "number of array dimensions"),
+                "NAXIS1": (2, ""),
+                "NAXIS2": (2, ""),
+                "SIMPLE": (True, "conforms to FITS standard"),
+            },
+        ),
+        (
+            "http://{host}/data/img_multiple.fits",
+            "OTHER_IMAGE",
+            {
+                "BITPIX": (16, "array data type"),
+                "BSCALE": (1, ""),
+                "BZERO": (32768, ""),
+                "EXTNAME": ("OTHER_IMAGE", "extension name"),  # for second ext
+                "FOO": ("bar", ""),
+                "GCOUNT": (1, "number of groups"),
+                "NAXIS": (2, "number of array dimensions"),
+                "NAXIS1": (2, ""),
+                "NAXIS2": (2, ""),
+                "PCOUNT": (0, "number of parameters"),
+                "XTENSION": ("IMAGE", "Image extension"),
+            },
+        ),
+    ],
+)
+def test_load_header(
+    with_caching: bool,
+    valid_data2d_http_hostname: str,
+    filename: Union[str, Path],
+    section,
+    exp_header,
+):
+    """Test function 'load_header' with local and remote files."""
+    with pyxel.set_options(cache_enabled=with_caching):
+        if isinstance(filename, Path):
+            # Load header
+            header = load_header(filename, section=section)
+        else:
+            full_url: str = filename.format(host=valid_data2d_http_hostname)
+
+            # Load header
+            header = load_header(full_url, section=section)
+
+        # Check
+        assert header == exp_header
