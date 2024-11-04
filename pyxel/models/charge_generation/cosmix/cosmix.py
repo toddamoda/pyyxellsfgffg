@@ -22,7 +22,7 @@ from pyxel.detectors import Detector
 # from pyxel.models.charge_generation.cosmix.plotting import PlottingCosmix
 from pyxel.models.charge_generation.cosmix.simulation import Simulation
 from pyxel.models.charge_generation.cosmix.util import interpolate_data, read_data
-from pyxel.util import resolve_path, set_random_seed
+from pyxel.util import resolve_with_working_directory, set_random_seed
 
 # from astropy import units as u
 # TODO: write basic test to check inputs, private function, documentation
@@ -252,7 +252,9 @@ class Cosmix:
         file_name : Path
             Path of the file containing the spectrum.
         """
-        spectrum = read_data(resolve_path(file_name))  # nuc/m2*s*sr*MeV
+        spectrum = read_data(
+            resolve_with_working_directory(file_name)
+        )  # nuc/m2*s*sr*MeV
         geo = self.sim_obj.detector.geometry
         detector_area = geo.vert_dimension * geo.horz_dimension * 1.0e-8  # cm2
 

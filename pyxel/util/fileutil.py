@@ -86,16 +86,16 @@ def complete_path(
 
 
 @overload
-def resolve_path(
+def resolve_with_working_directory(
     filename: str,
 ) -> str: ...
 
 
 @overload
-def resolve_path(filename: Path) -> Path: ...
+def resolve_with_working_directory(filename: Path) -> Path: ...
 
 
-def resolve_path(filename: Union[str, Path]) -> Union[str, Path]:
+def resolve_with_working_directory(filename: Union[str, Path]) -> Union[str, Path]:
     """Make the given path absolute using the global working directory.
 
     This function uses a global working directory specified in the global options to
@@ -114,12 +114,12 @@ def resolve_path(filename: Union[str, Path]) -> Union[str, Path]:
 
     Examples
     --------
-    >>> resolve_path("file.fits")
+    >>> resolve_with_working_directory("file.fits")
     'file.fits'
 
     >>> from pyxel import set_options
     >>> set_options(working_directory="my_folder")
-    >>> resolve_path(Path("file.fits"))
+    >>> resolve_with_working_directory(Path("file.fits"))
     Path('my_folder/file.fits')
     """
     from pyxel.options import global_options

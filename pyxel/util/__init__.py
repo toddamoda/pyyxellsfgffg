@@ -13,7 +13,7 @@ from .examples import download_examples
 from .timing import time_pipeline
 from .add_model import create_model, create_model_to_console
 from .randomize import set_random_seed
-from .fileutil import is_path_relative, resolve_path, complete_path
+from .fileutil import is_path_relative, resolve_with_working_directory, complete_path
 from .image import fit_into_array, load_cropped_and_aligned_image
 from .caching import get_cache
 from .misc import (
