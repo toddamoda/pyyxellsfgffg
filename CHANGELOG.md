@@ -40,6 +40,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
   (See [!977](https://gitlab.com/esa/pyxel/-/merge_requests/977)).
 * Add a `USAF pattern illumination` model from `Photon Collection`.
   (See [!990](https://gitlab.com/esa/pyxel/-/merge_requests/990)).
+ Add parameters to extract header from model `image_file` in model `load_image` from model group `Photon Collection`.
+  (See [!988](https://gitlab.com/esa/pyxel/-/merge_requests/988)).
 
 ### Others
 * Pin to xarray < 2024.10.0.
