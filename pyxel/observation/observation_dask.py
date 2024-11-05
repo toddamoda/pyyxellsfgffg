@@ -215,6 +215,8 @@ def _run_pipelines_array_to_datatree(
     if len(dimension_names) != len(params_tuple):
         raise NotImplementedError
 
+    # Create a new Processor object with modified parameters from dct
+    # e.g. dct = {'pipeline.photon_collection.load_image.arguments.image_file': 'FITS/00001.fits'}
     dct: dict[str, tuple] = dict(zip(dimension_names, params_tuple))
     new_processor: Processor = processor.replace(dct)
 
@@ -484,6 +486,8 @@ def run_pipelines_with_dask(
         all_metadata=all_metadata,
     )
 
+    # Please note that at this stage the datatree does not contain node '/output'.
+    # This node is added later
     final_datatree = DataTree.from_dict(dct)  # type: ignore[arg-type]
 
     if "observation.readout.times" in dim_names:
