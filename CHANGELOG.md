@@ -27,6 +27,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
   (See [!986](https://gitlab.com/esa/pyxel/-/merge_requests/986)).
 * Outputs are not generated with 'run_mode' and Observation mode.
   (See [!982](https://gitlab.com/esa/pyxel/-/merge_requests/982)).
+* Refactor functions `load_image` and `load_header`.
+  (See [!989](https://gitlab.com/esa/pyxel/-/merge_requests/989)).
 
 ### Documentation
 * Fix documentation for model 'crosstalk' by Antoine Kaszczyc.
