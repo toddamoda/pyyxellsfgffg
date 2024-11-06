@@ -229,8 +229,7 @@ Package                                                                         
 =================================================================================== ========================= ===================================
 `python <https://www.python.org>`_                                                  3.10
 `numpy <https://numpy.org>`_                                                        1.24
-`xarray <http://xarray.pydata.org/>`_                                               2023.12.0                 API for N-dimensional data
-`xarray-datatree <https://xarray-datatree.readthedocs.io/en/stable/index.html>`_    0.0.12
+`xarray <http://xarray.pydata.org/>`_                                               2024.10.0                 API for N-dimensional data
 `astropy <https://www.astropy.org>`_                                                4.3
 `pandas <https://pandas.pydata.org>`_                                               1.5
 `numba <https://numba.pydata.org>`_                                                 0.56.4                    Performance using a JIT compiler

@@ -9,13 +9,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-
-# Import 'DataTree'
-try:
-    from xarray.core.datatree import DataTree
-except ImportError:
-    from datatree import DataTree  # pip install xarray-datatree
-
+import xarray as xr
 
 import pyxel
 from pyxel import Configuration
@@ -58,7 +52,7 @@ def test_basic_exposure_hdf5(valid_config_filename: Path, tmp_path: Path):
         detector=detector,
         pipeline=cfg.pipeline,
     )
-    assert isinstance(data_tree, DataTree)
+    assert isinstance(data_tree, xr.ataTree)
 
     # Save the 'detector' object into a '.hdf5' file
     detector_filename: Path = tmp_path / "detector.hdf5"
@@ -97,7 +91,7 @@ def test_basic_exposure_asdf(valid_config_filename: Path, tmp_path: Path):
         detector=cfg.detector,
         pipeline=cfg.pipeline,
     )
-    assert isinstance(data_tree, DataTree)
+    assert isinstance(data_tree, xr.DataTree)
 
     # Save the 'detector' object into a '.asdf' file
     detector_filename: Path = tmp_path / "detector.asdf"
@@ -146,4 +140,4 @@ def test_with_debug(valid_config_filename: Path):
         mode=cfg.running_mode, detector=cfg.detector, pipeline=cfg.pipeline, debug=True
     )
 
-    assert isinstance(data_tree, DataTree)
+    assert isinstance(data_tree, xr.DataTree)

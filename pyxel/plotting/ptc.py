@@ -13,15 +13,9 @@ import numpy as np
 import xarray as xr
 from matplotlib.patches import Rectangle
 
-# Import 'DataTree'
-try:
-    from xarray.core.datatree import DataTree
-except ImportError:
-    from datatree import DataTree  # type: ignore[assignment]
-
 
 def plot_ptc(
-    dataset: xr.Dataset | DataTree,
+    dataset: xr.Dataset | xr.DataTree,
     text_base_fontsize: int = 8,
     alpha_rectangle: float = 0.05,
     ax: plt.Axes | None = None,
@@ -108,7 +102,7 @@ def plot_ptc(
         :align: center
     """
     # Ensure that the data is of the correct type
-    if not isinstance(dataset, xr.Dataset | DataTree):
+    if not isinstance(dataset, xr.Dataset | xr.DataTree):
         raise TypeError(
             "Expecting a 'Dataset' or 'DataTree' object for parameter 'dataset'."
         )

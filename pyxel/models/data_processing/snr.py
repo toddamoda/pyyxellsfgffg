@@ -11,13 +11,6 @@ from typing import TYPE_CHECKING, Literal
 
 import xarray as xr
 
-# Import 'DataTree'
-try:
-    from xarray.core.datatree import DataTree
-except ImportError:
-    from datatree import DataTree  # type: ignore[assignment]
-
-
 from pyxel.detectors import Detector
 
 if TYPE_CHECKING:
@@ -114,7 +107,7 @@ def signal_to_noise_ratio(
             has_key_partial = True
 
         if not has_key_partial:
-            data_tree: DataTree = DataTree(snr)
+            data_tree: xr.DataTree = xr.DataTree(snr)
         else:
             # Concatenate data
             previous_datatree = detector.data[key_partial]

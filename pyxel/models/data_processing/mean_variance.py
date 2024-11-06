@@ -15,12 +15,6 @@ from typing import TYPE_CHECKING, Literal
 
 import xarray as xr
 
-# Import 'DataTree'
-try:
-    from xarray.core.datatree import DataTree
-except ImportError:  # pragma: no cover
-    from datatree import DataTree  # type: ignore[assignment]
-
 from pyxel.detectors import Detector
 
 if TYPE_CHECKING:
@@ -177,7 +171,7 @@ def mean_variance(
 
     # If no partial data exists, create a new DataTree
     if not has_key_partial:
-        data_tree: DataTree = DataTree(mean_variance)
+        data_tree: xr.DataTree = xr.DataTree(mean_variance)
     else:
         # Concatenate new data with existing partial data
         data_tree = detector.data[key_partial].combine_first(mean_variance)  # type: ignore

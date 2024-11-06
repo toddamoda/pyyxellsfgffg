@@ -104,12 +104,6 @@ class CMOS(Detector):
         import numpy as np
         import xarray as xr
 
-        # Import 'DataTree'
-        try:
-            from xarray.core.datatree import DataTree
-        except ImportError:
-            from datatree import DataTree  # type: ignore[assignment]
-
         from pyxel.data_structure import Photon, Scene
         from pyxel.detectors import Characteristics, CMOSGeometry, Environment
 
@@ -140,7 +134,7 @@ class CMOS(Detector):
         detector.image.update(data.get("image"))
 
         if "data" in data:
-            detector._data = DataTree.from_dict(
+            detector._data = xr.DataTree.from_dict(
                 {
                     key.replace("#", "/"): xr.Dataset.from_dict(value)
                     for key, value in data["data"].items()

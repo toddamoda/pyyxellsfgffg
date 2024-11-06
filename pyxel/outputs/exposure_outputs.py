@@ -17,12 +17,6 @@ from pyxel.outputs import Outputs, ValidFormat, ValidName
 if TYPE_CHECKING:
     import xarray as xr
 
-    # Import 'DataTree'
-    try:
-        from xarray.core.datatree import DataTree
-    except ImportError:
-        from datatree import DataTree  # type: ignore[assignment]
-
     class SaveToFile(Protocol):
         """TBW."""
 
@@ -68,7 +62,9 @@ class ExposureOutputs(Outputs):
             save_exposure_data
         )
 
-    def save_exposure_outputs(self, dataset: Union["xr.Dataset", "DataTree"]) -> None:
+    def save_exposure_outputs(
+        self, dataset: Union["xr.Dataset", "xr.DataTree"]
+    ) -> None:
         """Save the observation outputs such as the dataset.
 
         Parameters

@@ -9,13 +9,6 @@ import numpy as np
 import pytest
 import xarray as xr
 
-# Import 'DataTree'
-try:
-    from xarray.core.datatree import DataTree
-except ImportError:
-    from datatree import DataTree  # pip install xarray-datatree
-
-
 from pyxel.detectors import (
     CCD,
     CCDGeometry,
@@ -54,11 +47,11 @@ def test_statistics(ccd_10x10: CCD):
     statistics(detector=detector)
 
     data = detector.data
-    assert isinstance(data, DataTree)
+    assert isinstance(data, xr.DataTree)
 
     for name in ["pixel", "photon", "signal", "image"]:
         data_statistics = data[f"/statistics/{name}"]
-        assert isinstance(data_statistics, DataTree)
+        assert isinstance(data_statistics, xr.DataTree)
 
         assert "time" in data_statistics.coords
         assert list(data_statistics.coords["time"]) == [0.0]

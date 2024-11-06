@@ -21,12 +21,6 @@ from pyxel.options import global_options
 from pyxel.util import complete_path
 
 if TYPE_CHECKING:
-    # Import 'DataTree'
-    try:
-        from xarray.core.datatree import DataTree
-    except ImportError:
-        from datatree import DataTree  # type: ignore[assignment]  # noqa: F401
-
     from astropy.io import fits
 
 
@@ -403,12 +397,7 @@ def to_netcdf(
     # Late import
     import xarray as xr
 
-    try:
-        from xarray.core.datatree import DataTree
-    except ImportError:
-        from datatree import DataTree  # type: ignore[assignment]
-
-    if not isinstance(data, xr.Dataset | DataTree):
+    if not isinstance(data, xr.Dataset | xr.DataTree):
         raise TypeError
 
     name = name.replace(".", "_")

@@ -34,12 +34,6 @@ if TYPE_CHECKING:
     import pandas as pd
     import xarray as xr
 
-    # Import 'DataTree'
-    try:
-        from xarray.core.datatree import DataTree
-    except ImportError:
-        from datatree import DataTree  # type: ignore[assignment]
-
     from pyxel.calibration import Calibration
     from pyxel.observation.deprecated import ObservationResult
     from pyxel.outputs import CalibrationOutputs, ExposureOutputs, ObservationOutputs
@@ -152,7 +146,7 @@ def _run_exposure_mode(
     processor: Processor,
     debug: bool,
     with_inherited_coords: bool,
-) -> "DataTree":
+) -> "xr.DataTree":
     """Run an 'exposure' pipeline.
 
     For more information, see :ref:`exposure_mode`.
@@ -217,7 +211,7 @@ def _run_exposure_mode(
     if outputs:
         outputs.create_output_folder()
 
-    result: DataTree = exposure.run_exposure(
+    result: xr.DataTree = exposure.run_exposure(
         processor=processor,
         debug=debug,
         with_inherited_coords=with_inherited_coords,
@@ -483,7 +477,7 @@ def _run_calibration_mode(
     calibration: "Calibration",
     processor: Processor,
     with_inherited_coords: bool,
-) -> "DataTree":
+) -> "xr.DataTree":
     """Run a 'Calibration' pipeline.
 
     Notes
@@ -553,7 +547,7 @@ def _run_calibration_mode(
     if outputs:
         outputs.create_output_folder()
 
-    data_tree: "DataTree" = calibration.run_calibration(
+    data_tree: "xr.DataTree" = calibration.run_calibration(
         processor=processor,
         output_dir=outputs.current_output_folder if outputs else None,
         with_inherited_coords=with_inherited_coords,
@@ -582,7 +576,7 @@ def _run_observation_mode(
     processor: Processor,
     with_inherited_coords: bool,
     debug: bool,
-) -> "DataTree":
+) -> "xr.DataTree":
     """Run the observation mode."""
 
     logging.info("Mode: Observation")
@@ -608,7 +602,7 @@ def _run_observation_mode(
     # Run the observation mode
     # Note: When running sequentially (without dask enabled), a new node 'output' is added with the output filename(s)
     #       This node is not added with dask enabled
-    result_dt: "DataTree" = observation.run_pipelines(
+    result_dt: "xr.DataTree" = observation.run_pipelines(
         processor=processor,
         with_inherited_coords=with_inherited_coords,
     )
@@ -624,7 +618,7 @@ def _run_exposure_or_calibration_mode(
     processor: Processor,
     debug: bool,
     with_inherited_coords: bool,
-) -> "DataTree":
+) -> "xr.DataTree":
     # Execute the appropriate processing function based on the mode type.
     if isinstance(mode, Exposure):
         return _run_exposure_mode(
@@ -661,7 +655,7 @@ def run_mode(
     override_dct: Mapping[str, Any] | None = None,
     debug: bool = False,
     with_inherited_coords: bool = False,
-) -> "DataTree":
+) -> "xr.DataTree":
     """Run a pipeline.
 
     Parameters
@@ -956,7 +950,7 @@ def run_mode(
     return data_tree
 
 
-def _datatree_to_dataframe(output_filenames: "DataTree") -> "pd.DataFrame":
+def _datatree_to_dataframe(output_filenames: "xr.DataTree") -> "pd.DataFrame":
     # Late import
     import pandas as pd
 
@@ -1039,7 +1033,7 @@ def run(
         import dask
         import xarray as xr
 
-        data_tree: "DataTree" = _run_observation_mode(
+        data_tree: "xr.DataTree" = _run_observation_mode(
             observation=running_mode,
             processor=processor,
             debug=False,
@@ -1050,12 +1044,12 @@ def run(
         if "output" not in data_tree:
             raise NotImplementedError
 
-        output_filenames: "DataTree" | xr.DataArray = data_tree["/output"]
+        output_filenames: xr.DataTree | xr.DataArray = data_tree["/output"]
         if isinstance(output_filenames, xr.DataArray):
             raise NotImplementedError
 
         # TODO: Refactor this into a dedicated function ?
-        first_leave: "DataTree"
+        first_leave: "xr.DataTree"
         first_leave, *_ = output_filenames.leaves
 
         if dask.is_dask_collection(first_leave["filename"]):
@@ -1068,11 +1062,11 @@ def run(
                 _ = Client.current()
 
                 # Start computation in the background
-                output_filenames_background: "DataTree" = output_filenames.persist()
+                output_filenames_background: "xr.DataTree" = output_filenames.persist()
 
                 # Watch progress
                 progress(output_filenames_background)
-                final_output_filenames: "DataTree" = (
+                final_output_filenames: "xr.DataTree" = (
                     output_filenames_background.compute()
                 )
 
