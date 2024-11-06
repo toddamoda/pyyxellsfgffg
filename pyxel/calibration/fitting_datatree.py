@@ -40,12 +40,6 @@ from pyxel.observation import ParameterValues
 from pyxel.pipelines import Processor, ResultId
 
 if TYPE_CHECKING:
-    # Import 'DataTree'
-    try:
-        from xarray.core.datatree import DataTree
-    except ImportError:
-        from datatree import DataTree  # type: ignore[assignment]
-
     from numpy.typing import ArrayLike, NDArray
 
     from pyxel.exposure import Readout
@@ -151,7 +145,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
         if simulation_output.startswith("data"):
             # Target(s) is/are arrays(s) of unknown number of dimensions.
             # For this reason the file(s) are directly read as 'DataArray' object(s).
-            targets_list: Sequence["xr.DataArray"] = [
+            targets_list: Sequence[xr.DataArray] = [
                 load_dataarray(filename) for filename in target_filenames
             ]
             targets: xr.DataArray = xr.concat(targets_list, dim="processor")
@@ -320,9 +314,9 @@ class ModelFittingDataTree(ProblemSingleObjective):
 
     def _get_simulated_data(
         self,
-        data: "DataTree",
+        data: xr.DataTree,
         with_inherited_coords: bool,
-    ) -> "xr.DataArray":
+    ) -> xr.DataArray:
         """Extract 2D data from a processor."""
         import xarray as xr
 
@@ -362,8 +356,8 @@ class ModelFittingDataTree(ProblemSingleObjective):
 
     def _calculate_fitness(
         self,
-        simulated_data: "xr.DataArray",
-        target_data: "xr.DataArray",
+        simulated_data: xr.DataArray,
+        target_data: xr.DataArray,
         weighting: np.ndarray | None = None,
     ) -> float:
         if self.sim_output.startswith("data"):
@@ -438,7 +432,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
 
                 logger.setLevel(logging.WARNING)  # TODO: Fix this. See issue #81
 
-                data_tree: "DataTree" = run_pipeline(
+                data_tree: xr.DataTree = run_pipeline(
                     processor=processor,
                     readout=self.readout,
                     pipeline_seed=self.pipeline_seed,
@@ -454,7 +448,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
                 else:
                     with_inherited_coords = self._with_inherited_coords
 
-                simulated_data: "xr.DataArray" = self._get_simulated_data(
+                simulated_data: xr.DataArray = self._get_simulated_data(
                     data=data_tree,
                     with_inherited_coords=with_inherited_coords,
                 )
@@ -528,11 +522,11 @@ class ModelFittingDataTree(ProblemSingleObjective):
 
     def _apply_parameters(
         self, processor: Processor, parameter: np.ndarray
-    ) -> "DataTree":
+    ) -> xr.DataTree:
         """Create a new ``Processor`` with new parameters."""
         new_processor = self.update_processor(parameter=parameter, processor=processor)
 
-        data_tree: "DataTree" = run_pipeline(
+        data_tree: xr.DataTree = run_pipeline(
             processor=new_processor,
             readout=self.readout,
             pipeline_seed=self.pipeline_seed,
@@ -542,9 +536,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
 
         return data_tree
 
-    def apply_parameters_to_processors(
-        self, parameters: "xr.DataArray"
-    ) -> pd.DataFrame:
+    def apply_parameters_to_processors(self, parameters: xr.DataArray) -> pd.DataFrame:
         """TBW."""
         if "island" not in parameters.dims:
             raise KeyError("Missing dimension 'island'")
@@ -556,11 +548,11 @@ class ModelFittingDataTree(ProblemSingleObjective):
             delayed_processor = delayed(processor)
 
             idx_island: int
-            params_array: "xr.DataArray"
+            params_array: xr.DataArray
             for idx_island, params_array in parameters.groupby("island"):
                 params: np.ndarray = params_array.squeeze().to_numpy()
 
-                result_datatree: DataTree = delayed(self._apply_parameters)(
+                result_datatree: xr.DataTree = delayed(self._apply_parameters)(
                     processor=delayed_processor, parameter=params
                 )
 

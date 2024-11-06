@@ -9,13 +9,7 @@
 from pathlib import Path
 
 import pytest
-
-# Import 'DataTree'
-try:
-    from xarray.core.datatree import DataTree
-except ImportError:
-    from datatree import DataTree  # pip install xarray-datatree
-
+import xarray as xr
 
 from pyxel.calibration import (
     Algorithm,
@@ -183,4 +177,4 @@ def test_archipelago_datatree(
         num_evolutions=1,
         num_best_decisions=num_best_decisions,
     )
-    assert isinstance(dt, DataTree)
+    assert isinstance(dt, xr.DataTree)

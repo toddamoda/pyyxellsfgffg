@@ -18,11 +18,6 @@ if TYPE_CHECKING:
     from astropy.units import Quantity
     from scopesim import Source
 
-    try:
-        from xarray.core.datatree import DataTree
-    except ImportError:
-        from datatree import DataTree  # type: ignore[assignment]
-
 
 @dataclass
 class SceneCoordinates:
@@ -154,12 +149,9 @@ class Scene:
 
     def __init__(self):
         # Late import to speedup start-up time
-        try:
-            from xarray.core.datatree import DataTree
-        except ImportError:
-            from datatree import DataTree  # type: ignore[assignment]
+        import xarray as xr
 
-        self._source: DataTree = DataTree(name="scene")
+        self._source: xr.DataTree = xr.DataTree(name="scene")
 
     def __repr__(self) -> str:
         cls_name: str = self.__class__.__name__
@@ -231,11 +223,6 @@ class Scene:
         # Late import to speedup start-up time
         import xarray as xr
 
-        try:
-            from xarray.core.datatree import DataTree
-        except ImportError:
-            from datatree import DataTree  # type: ignore[assignment]
-
         if not isinstance(source, xr.Dataset):
             raise TypeError("Expecting a Dataset object for source")
 
@@ -260,7 +247,7 @@ class Scene:
         else:
             key = self.data.width
 
-        self.data[f"/list/{key}"] = DataTree(source)
+        self.data[f"/list/{key}"] = xr.DataTree(source)
 
     def get_pointing_coordinates(self, source_idx: int = 0) -> SceneCoordinates:
         """Get the `SceneCoordinates` from a source in the scene."""
@@ -271,19 +258,16 @@ class Scene:
         return SceneCoordinates.from_dataset(sub_scene)
 
     @property
-    def data(self) -> "DataTree":
+    def data(self) -> "xr.DataTree":
         """Get a multi-wavelength object."""
         return self._source
 
     def empty(self):
         """Create a new empty source."""
         # Late import to speedup start-up time
-        try:
-            from xarray.core.datatree import DataTree
-        except ImportError:
-            from datatree import DataTree  # type: ignore[assignment]
+        import xarray as xr
 
-        self._source = DataTree(name="scene")
+        self._source = xr.DataTree(name="scene")
 
     def from_scopesim(self, source: "Source") -> None:
         """Convert a ScopeSim `Source` object into a `Scene` object.
@@ -347,17 +331,12 @@ class Scene:
         # Late import to speedup start-up time
         import xarray as xr
 
-        try:
-            from xarray.core.datatree import DataTree
-        except ImportError:
-            from datatree import DataTree  # type: ignore[assignment]
-
         data: Mapping[str, xr.Dataset] = {
             key: xr.Dataset.from_dict(value) for key, value in dct.items()
         }
 
         scene = cls()
-        scene._source = DataTree.from_dict(data, name="scene")  # type: ignore[arg-type]
+        scene._source = xr.DataTree.from_dict(data, name="scene")  # type: ignore[arg-type]
 
         return scene
 
@@ -409,21 +388,16 @@ class Scene:
         # Late import to speedup start-up time
         import xarray as xr
 
-        try:
-            from xarray.core.datatree import DataTree
-        except ImportError:
-            from datatree import DataTree  # type: ignore[assignment]
-
         if "list" not in self.data:
             return xr.Dataset()
 
         scene_dt = self.data["/list"]
-        assert isinstance(scene_dt, DataTree)  # TODO: Improve this
+        assert isinstance(scene_dt, xr.DataTree)  # TODO: Improve this
 
         last_ref: int = 0
         lst: list[xr.Dataset] = []
 
-        partial_scene: xr.DataArray | DataTree
+        partial_scene: xr.DataArray | xr.DataTree
         for partial_scene in scene_dt.values():
             ds: xr.Dataset = partial_scene.to_dataset()
 

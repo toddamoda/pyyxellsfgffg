@@ -22,13 +22,6 @@ if TYPE_CHECKING:
 
     from pyxel.exposure import Readout
     from pyxel.outputs import ObservationOutputs
-
-    # Import 'DataTree'
-    try:
-        from xarray.core.datatree import DataTree
-    except ImportError:
-        from datatree import DataTree  # type: ignore[assignment]
-
     from pyxel.pipelines import Processor
 
 
@@ -107,14 +100,14 @@ class DatasetMetadata:
         return dct
 
 
-def build_metadata(data_tree: "DataTree") -> Mapping[str, DatasetMetadata]:
+def build_metadata(data_tree: "xr.DataTree") -> Mapping[str, DatasetMetadata]:
     """Construct metadata from a DataTree."""
     metadata = {}
 
     all_paths: Sequence[str] = sorted(data_tree.groups)
 
     for path in all_paths:
-        sub_data_tree: "DataTree" | xr.DataArray = data_tree[path]
+        sub_data_tree: "xr.DataTree" | "xr.DataArray" = data_tree[path]
 
         dims: tuple[Hashable, ...] = tuple(sub_data_tree.dims)
 
@@ -210,7 +203,7 @@ def _run_pipelines_array_to_datatree(
     result_type: ResultId,
     pipeline_seed: int | None,
     progressbar: bool,
-) -> "DataTree":
+) -> "xr.DataTree":
     """Execute a single pipeline."""
     if len(dimension_names) != len(params_tuple):
         raise NotImplementedError
@@ -229,7 +222,7 @@ def _run_pipelines_array_to_datatree(
 
             new_readout = new_readout.replace(times=value)
 
-    data_tree: "DataTree" = run_pipeline(
+    data_tree: "xr.DataTree" = run_pipeline(
         processor=new_processor,
         readout=new_readout,
         result_type=result_type,
@@ -238,37 +231,6 @@ def _run_pipelines_array_to_datatree(
         with_inherited_coords=True,  # Must be set to True
         progressbar=progressbar,
     )
-
-    # TODO: Remove this ! This should be done in
-    # Save the outputs if configured
-    # if (
-    #     processor.observation
-    #     and processor.observation.outputs
-    #     and processor.observation.outputs.save_data_to_file
-    # ):
-    #     import xarray as xr
-    #
-    #     # Import 'DataTree'
-    #     try:
-    #         from xarray.core.datatree import DataTree
-    #     except ImportError:
-    #         from datatree import DataTree  # type: ignore[assignment]
-    #
-    #     filenames_dct: Mapping[str, Mapping[str, str]] = (
-    #         processor.observation.outputs.save_to_file(
-    #             processor=new_processor,
-    #             run_number=params_index,
-    #         )
-    #     )
-    #
-    #     datatree_dct: dict[str, xr.Dataset] = {}
-    #     for name, partial_dct in filenames_dct.items():
-    #         for file_formats, filename in partial_dct.items():
-    #             datatree_dct[name] = xr.Dataset(
-    #                 {file_formats: np.array(filename, dtype=np.object_)}
-    #             )
-    #
-    #     data_tree["/output"] = DataTree.from_dict(datatree_dct)
 
     return data_tree
 
@@ -310,7 +272,7 @@ def _run_pipelines_tuple_to_array(
     result_type: ResultId,
     pipeline_seed: int | None,
 ) -> tuple[np.ndarray, ...]:
-    data_tree: "DataTree" = _run_pipelines_array_to_datatree(
+    data_tree: "xr.DataTree" = _run_pipelines_array_to_datatree(
         params_tuple=params_tuple,
         params_index=params_index,
         dimension_names=dimension_names,
@@ -335,7 +297,7 @@ def _run_pipelines_tuple_to_array(
 def _rebuild_datatree_from_dask(
     dask_dataarrays: tuple["xr.DataArray", ...],
     all_metadata: Mapping[str, DatasetMetadata],
-) -> Mapping[str, Union["xr.Dataset", "DataTree"]]:
+) -> Mapping[str, Union["xr.Dataset", "xr.DataTree"]]:
     """Re-build a dictionary of Dask `Dataset` from a tuple of Dask `DataArrays`.
 
     Parameters
@@ -355,14 +317,8 @@ def _rebuild_datatree_from_dask(
     # Late import to speedup start-up time
     import xarray as xr
 
-    # Import 'DataTree'
-    try:
-        from xarray.core.datatree import DataTree
-    except ImportError:
-        from datatree import DataTree  # type: ignore[assignment]
-
     # Rebuild the DataTree from 'all_dataarrays'
-    dct: dict[str, xr.Dataset | DataTree] = {}
+    dct: dict[str, xr.Dataset | xr.DataTree] = {}
     idx = 0
     path: str
 
@@ -373,7 +329,7 @@ def _rebuild_datatree_from_dask(
             # assert not partial_metadata.dims
             # assert not partial_metadata.coords
 
-            empty_data_tree: DataTree = DataTree()
+            empty_data_tree: xr.DataTree = xr.DataTree()
             empty_data_tree.attrs = dict(partial_metadata.attrs)
 
             dct[path] = empty_data_tree
@@ -410,15 +366,9 @@ def run_pipelines_with_dask(
     outputs: Optional["ObservationOutputs"],
     result_type: ResultId,
     pipeline_seed: int | None,
-) -> "DataTree":
+) -> "xr.DataTree":
     # Late import to speedup start-up time
     import xarray as xr
-
-    # Import 'DataTree'
-    try:
-        from xarray.core.datatree import DataTree
-    except ImportError:
-        from datatree import DataTree  # type: ignore[assignment]
 
     # Get parameters as a DataArray
     params_dataarray: xr.DataArray = parameter_mode.create_params(dim_names=dim_names)
@@ -481,14 +431,14 @@ def run_pipelines_with_dask(
     )
 
     # Rebuild a DataTree from 'dask_dataarrays'
-    dct: Mapping[str, xr.Dataset | DataTree] = _rebuild_datatree_from_dask(
+    dct: Mapping[str, xr.Dataset | xr.DataTree] = _rebuild_datatree_from_dask(
         dask_dataarrays=dask_dataarrays,
         all_metadata=all_metadata,
     )
 
     # Please note that at this stage the datatree does not contain node '/output'.
     # This node is added later
-    final_datatree = DataTree.from_dict(dct)  # type: ignore[arg-type]
+    final_datatree = xr.DataTree.from_dict(dct)  # type: ignore[arg-type]
 
     if "observation.readout.times" in dim_names:
         # TODO: See #836
@@ -508,7 +458,7 @@ def run_pipelines_with_dask(
         # Late import
         from pyxel.outputs.outputs import save_datatree
 
-        data_tree_filenames: "DataTree" | None = save_datatree(
+        data_tree_filenames: "xr.DataTree" | None = save_datatree(
             data_tree=final_datatree.isel(time=-1),
             outputs=outputs.save_data_to_file,
             current_output_folder=outputs.current_output_folder,

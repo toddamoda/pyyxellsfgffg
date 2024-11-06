@@ -8,12 +8,7 @@
 from pathlib import Path
 
 import pytest
-
-# Import 'DataTree'
-try:
-    from xarray.core.datatree import DataTree
-except ImportError:
-    from datatree import DataTree  # pip install xarray-datatree
+import xarray as xr
 
 from pyxel import run_mode
 from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
@@ -285,7 +280,7 @@ def test_observation_datatree_no_custom(
         pipeline=pipeline,
         with_inherited_coords=True,
     )
-    assert isinstance(dt, DataTree)
+    assert isinstance(dt, xr.DataTree)
 
 
 @pytest.mark.parametrize(
@@ -337,4 +332,4 @@ def test_observation_datatree_with_custom(
         pipeline=pipeline,
         with_inherited_coords=True,
     )
-    assert isinstance(dt, DataTree)
+    assert isinstance(dt, xr.DataTree)

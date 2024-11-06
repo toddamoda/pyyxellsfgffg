@@ -7,32 +7,7 @@
 
 import pytest
 import xarray as xr
-
-# Import 'DataTree'
-try:
-    from xarray.core.datatree import DataTree
-    from xarray.testing import assert_identical
-except ImportError:
-    from datatree import DataTree  # pip install xarray-datatree
-
-    try:
-        from datatree.testing import assert_identical
-    except ImportError:
-        # Hack for xarray version '2023.12.0'
-        def assert_identical(
-            actual: DataTree,
-            desired: DataTree,
-            from_root: bool = True,
-        ):
-            assert isinstance(actual, DataTree)
-            assert isinstance(desired, DataTree)
-
-            from datatree.formatting import diff_tree_repr
-
-            assert actual.identical(desired, from_root=from_root), diff_tree_repr(
-                actual, desired, "identical"
-            )
-
+from xarray.testing import assert_identical
 
 from pyxel.data_structure import Scene
 
@@ -87,8 +62,8 @@ def test_empty_scene():
 
     # Test '.data'
     result = scene.data
-    assert isinstance(result, DataTree)
-    assert_identical(result, DataTree(name="scene"))
+    assert isinstance(result, xr.DataTree)
+    assert_identical(result, xr.DataTree(name="scene"))
 
     # Test __eq__
     other_scene = Scene()
@@ -108,8 +83,8 @@ def test_add_source(source: xr.Dataset):
 
     # Check '.data'
     data = scene.data
-    exp_data = DataTree(name="scene")
-    exp_data["/list/0"] = DataTree(source.copy(deep=True))
+    exp_data = xr.DataTree(name="scene")
+    exp_data["/list/0"] = xr.DataTree(source.copy(deep=True))
 
     assert_identical(data, exp_data)
 
@@ -137,9 +112,9 @@ def test_add_multiple_sources(source: xr.Dataset, other_source: xr.Dataset):
 
     # Check '.data'
     data = scene.data
-    exp_data = DataTree(name="scene")
-    exp_data["/list/0"] = DataTree(source.copy(deep=True))
-    exp_data["/list/1"] = DataTree(other_source.copy(deep=True))
+    exp_data = xr.DataTree(name="scene")
+    exp_data["/list/0"] = xr.DataTree(source.copy(deep=True))
+    exp_data["/list/1"] = xr.DataTree(other_source.copy(deep=True))
 
     assert_identical(data, exp_data)
 
