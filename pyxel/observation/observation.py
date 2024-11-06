@@ -42,8 +42,6 @@ if TYPE_CHECKING:
     except ImportError:
         from datatree import DataTree  # type: ignore[assignment]
 
-    import pandas as pd
-
     from pyxel.outputs import ObservationOutputs
     from pyxel.pipelines import Processor
 
@@ -309,8 +307,6 @@ class Observation:
 
         if self.with_dask:
             # Run observation mode using 'dask' (in parallel)
-            # Note: no output files are generated
-
             if with_inherited_coords is False:
                 raise NotImplementedError
 
@@ -322,6 +318,20 @@ class Observation:
                 result_type=self.result_type,
                 pipeline_seed=self.pipeline_seed,
             )
+
+            # TODO: Fix this. See issue #723
+            if self.outputs and self.outputs.save_data_to_file:
+                # Late import
+                from pyxel.outputs.outputs import save_datatree
+
+                data_tree_filenames: Optional["DataTree"] = save_datatree(
+                    data_tree=final_datatree.isel(time=-1),
+                    outputs=self.outputs.save_data_to_file,
+                    current_output_folder=self.outputs.current_output_folder,
+                    with_inherited_coords=with_inherited_coords,
+                )
+
+                final_datatree["/output"] = data_tree_filenames
 
         else:
             # Run observation mode sequentially (not in parallel)
@@ -434,18 +444,10 @@ class Observation:
 
         # Save the outputs (if configured)
         if with_outputs and self.outputs:
-            # Import 'DataTree'
-            try:
-                from xarray.core.datatree import DataTree
-            except ImportError:
-                from datatree import DataTree  # type: ignore[assignment]
-
-            df_output_filenames: "pd.DataFrame" = self.outputs.save_to_file(
+            data_tree["/output"] = self.outputs.save_to_file(
                 processor=new_processor,
                 run_number=param_item.run_index,
             )
-
-            data_tree["/output"] = DataTree(df_output_filenames.to_xarray())
 
         if not with_extra_dims:
             return data_tree

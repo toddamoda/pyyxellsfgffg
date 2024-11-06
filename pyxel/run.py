@@ -606,31 +606,12 @@ def _run_observation_mode(
         outputs.create_output_folder()
 
     # Run the observation mode
-    # Note: No files are generated as output
+    # Note: When running sequentially (without dask enabled), a new node 'output' is added with the output filename(s)
+    #       This node is not added with dask enabled
     result_dt: "DataTree" = observation.run_pipelines(
         processor=processor,
         with_inherited_coords=with_inherited_coords,
     )
-
-    # TODO: Fix this. See issue #723
-    if observation.with_dask and outputs and outputs.save_data_to_file:
-        # Late import
-        # Import 'DataTree'
-        try:
-            from xarray.core.datatree import DataTree
-        except ImportError:
-            from datatree import DataTree  # type: ignore[assignment]
-
-        from pyxel.outputs.outputs import save_datatree
-
-        output_filenames: Optional["xr.Dataset"] = save_datatree(
-            data_tree=result_dt.isel(time=-1),
-            outputs=outputs.save_data_to_file,
-            current_output_folder=outputs.current_output_folder,
-            with_inherited_coords=with_inherited_coords,
-        )
-
-        result_dt["/output"] = DataTree(output_filenames)
 
     if outputs and outputs.save_observation_data:
         raise NotImplementedError
@@ -1041,40 +1022,67 @@ def run(
     df_filenames: Optional["pd.DataFrame"] = None
 
     if isinstance(running_mode, Observation):
-        data_tree = _run_observation_mode(
+        # Late import
+        import dask
+        import xarray as xr
+
+        data_tree: "DataTree" = _run_observation_mode(
             observation=running_mode,
             processor=processor,
             debug=False,
             with_inherited_coords=True,
         )
 
-        output_filenames: "xr.Dataset" = data_tree["/output"].to_dataset()
+        # TODO: check if data_tree['/output'] exists and if it's a dask array or not (with .chunk ?)
+        if "output" not in data_tree:
+            raise NotImplementedError
 
-        if "filename" in output_filenames and output_filenames["filename"].size > 0:
-            if output_filenames["filename"].chunks is None:
-                df_filenames = output_filenames.to_dataframe()
-            else:
-                # Late import
-                from dask.diagnostics import ProgressBar
-                from dask.distributed import Client, progress
+        output_filenames: Union["DataTree", xr.DataArray] = data_tree["/output"]
+        if isinstance(output_filenames, xr.DataArray):
+            raise NotImplementedError
 
-                # This is a Dask Xarray
-                try:
-                    _ = Client.current()
+        # TODO: Refactor this into a dedicated function ?
+        first_leave: "DataTree"
+        first_leave, *_ = output_filenames.leaves
 
-                    # Start computation in the background
-                    output_filenames_background = output_filenames.persist()
+        if dask.is_dask_collection(first_leave["filename"]):
+            # Late import
+            from dask.diagnostics import ProgressBar
+            from dask.distributed import Client, progress
 
-                    # Watch progress
-                    progress(output_filenames_background)
-                    filenames: "xr.Dataset" = output_filenames_background.compute()
+            # This is a Dask Xarray
+            try:
+                _ = Client.current()
 
-                except ValueError:
-                    # No client
-                    with ProgressBar():
-                        filenames = output_filenames.compute()
+                # Start computation in the background
+                output_filenames_background: "DataTree" = output_filenames.persist()
 
-                df_filenames = filenames.to_dataframe()
+                # Watch progress
+                progress(output_filenames_background)
+                final_output_filenames: "DataTree" = (
+                    output_filenames_background.compute()
+                )
+
+            except ValueError:
+                # No client
+                with ProgressBar():
+                    final_output_filenames = output_filenames.compute()
+        else:
+            final_output_filenames = output_filenames
+
+        def to_datatree(output_filenames: "DataTree") -> "pd.DataFrame":
+            # Late import
+            import pandas as pd
+
+            lst: Sequence[pd.DataFrame] = [
+                partial_dt["filename"].to_dataframe().reset_index()
+                for partial_dt in output_filenames.descendants
+            ]
+            df_filenames: pd.DataFrame = pd.concat(lst, ignore_index=True)
+
+            return df_filenames
+
+        df_filenames = to_datatree(output_filenames=final_output_filenames)
 
     else:
         _ = _run_exposure_or_calibration_mode(

@@ -12,7 +12,7 @@ import warnings
 from collections.abc import Mapping, Sequence
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Optional, Union, get_args
+from typing import TYPE_CHECKING, Any, Literal, Optional, Union
 
 import numpy as np
 
@@ -151,7 +151,7 @@ def save_datatree(
     outputs: Sequence[Mapping[ValidName, Sequence[ValidFormat]]],
     current_output_folder: Path,
     with_inherited_coords: bool,
-) -> Optional["xr.Dataset"]:
+) -> Optional["DataTree"]:
     """Save output file(s) from a DataTree.
 
     Parameters
@@ -168,13 +168,27 @@ def save_datatree(
     Examples
     --------
     >>> save_datatree(...)
-    Dask DataFrame Structure:
-                   level coupling_matrix bucket_name data_format filename
-    npartitions=3
-    0              int64          object      object      object   object
-    1                ...             ...         ...         ...      ...
-    2                ...             ...         ...         ...      ...
-    3                ...             ...         ...         ...      ...
+    <xarray.DataTree>
+    Group: /
+    │   Dimensions:  (id: 6)
+    │   Coordinates:
+    │     * id       (id) int64 48B 0 1 2 3 4 5
+    ├── Group: /image
+    │       Dimensions:      (id: 6, data_format: 2)
+    │       Coordinates:
+    │         * id           (id) int64 48B 0 1 2 3 4 5
+    │           bucket_name  <U5 20B 'image'
+    │         * data_format  (data_format) <U4 32B 'fits' 'npy'
+    │       Data variables:
+    │           filename     (id, data_format) object 96B dask.array<chunksize=(1, 2), meta=np.ndarray>
+    └── Group: /pixel
+            Dimensions:      (id: 6, data_format: 1)
+            Coordinates:
+              * id           (id) int64 48B 0 1 2 3 4 5
+                bucket_name  <U5 20B 'pixel'
+              * data_format  (data_format) <U3 12B 'npy'
+            Data variables:
+                filename     (id, data_format) object 48B dask.array<chunksize=(1, 1), meta=np.ndarray>
     """
     # Late import
     import xarray as xr
@@ -182,7 +196,7 @@ def save_datatree(
     if not outputs:
         raise NotImplementedError
 
-    lst: list[xr.Dataset] = []
+    filenames_ds: list[xr.Dataset] = []
 
     dct: Mapping["ValidName", Sequence["ValidFormat"]]
     for dct in outputs:
@@ -198,7 +212,7 @@ def save_datatree(
                 node_name = name
 
             # TODO: Create a function 'has_node' ??
-            # Check if 'node_name' exists in 'date_tree'
+            # Check if 'node_name' exists in 'data_tree'
             try:
                 partial_path = "/"
                 for partial_node_name in node_name.removeprefix("/").split("/"):
@@ -215,7 +229,7 @@ def save_datatree(
                 )
                 continue
 
-            data_array: Union[xr.DataArray, DataTree] = data_tree[node_name]
+            data_array: Union[xr.DataArray, "DataTree"] = data_tree[node_name]
             if not isinstance(data_array, xr.DataArray):
                 raise TypeError
 
@@ -227,14 +241,37 @@ def save_datatree(
                 current_output_folder=current_output_folder,
             )
 
-            lst.append(output_dataframe)
+            filenames_ds.append(output_dataframe)
 
-    if not lst:
-        return None
-    elif len(lst) == 1:
-        return lst[0]
-    else:
-        return xr.merge(lst)
+    def from_dict_to_datatree(filenames_ds: list[xr.Dataset]) -> Optional["DataTree"]:
+        # Import 'DataTree'
+        try:
+            from xarray.core.datatree import DataTree
+        except ImportError:
+            from datatree import DataTree  # type: ignore[assignment]
+
+        if not filenames_ds:
+            return None
+
+        first_dataset, *_ = filenames_ds
+        dims = [
+            dim
+            for dim in first_dataset.dims
+            if dim not in ("bucket_name", "data_format")
+        ]
+
+        dct = {"/": first_dataset[dims]}
+        for partial_dataset in filenames_ds:
+            bucket_name: str = str(partial_dataset["bucket_name"][0].data)
+
+            dct[f"/{bucket_name}"] = partial_dataset.squeeze("bucket_name")
+
+        final_datatree = DataTree.from_dict(dct)
+
+        return final_datatree
+
+    final_datatree = from_dict_to_datatree(filenames_ds)
+    return final_datatree
 
 
 # TODO: Create a new class that will contain the parameter 'save_data_to_file'
@@ -712,31 +749,16 @@ class Outputs:
 
         return full_filename
 
+    # noqa: C901
     def save_to_file(
         self,
         processor: "Processor",
         prefix: Optional[str] = None,
         with_auto_suffix: bool = True,
         run_number: Optional[int] = None,
-    ) -> "pd.DataFrame":
-        """Save outputs into file(s).
-
-        Parameters
-        ----------
-        run_number
-        prefix
-        with_auto_suffix
-        processor : Processor
-
-        Returns
-        -------
-        DataFrame
-        """
-        # Late import
-        import pandas as pd
-
+    ) -> "DataTree":
         if not self.save_data_to_file:
-            return pd.DataFrame()
+            raise NotImplementedError
 
         save_methods: Mapping[ValidFormat, SaveToFileProtocol] = {
             "fits": to_fits,
@@ -840,26 +862,46 @@ class Outputs:
 
             all_filenames[valid_name] = partial_filenames
 
-        # TODO: Create a function to generate the DataFrame
-        # run_number...
-        # columns: (all_params) x bucket_name (image,...) x data_format (npy...) x filename
-        all_columns: dict[str, str] = {
-            full_name: full_name.removeprefix("detector.").removesuffix(".array")
-            for full_name in get_args(ValidName)
-        }
+        def from_dict_to_datatree2(
+            all_filenames: Mapping[str, Mapping[str, str]],
+        ) -> "DataTree":
+            import xarray as xr
 
-        df = (
-            pd.DataFrame(all_filenames)
-            .reset_index(names="data_format")
-            .rename(columns=all_columns)
-            .melt(
-                id_vars=["data_format"], var_name="bucket_name", value_name="filename"
-            )
-            .dropna()
-            .reset_index(drop=True)
-            .rename_axis(index="filename_idx")
-        )
-        return df
+            # Import 'DataTree'
+            try:
+                from xarray.core.datatree import DataTree
+            except ImportError:
+                from datatree import DataTree  # type: ignore[assignment]
+
+            datatree_dct = {}
+
+            full_bucket_name: str
+            bucket_dct: Mapping[str, str]
+            for full_bucket_name, bucket_dct in all_filenames.items():
+                bucket_name: str = full_bucket_name.removeprefix(
+                    "detector."
+                ).removesuffix(".array")
+
+                datatree_dct[f"/{bucket_name}"] = (
+                    xr.concat(
+                        [
+                            xr.DataArray(
+                                [filename],
+                                dims=["data_format"],
+                                coords={"data_format": [data_format]},
+                            )
+                            for data_format, filename in bucket_dct.items()
+                        ],
+                        dim="data_format",
+                    )
+                    .rename("filename")
+                    .to_dataset()
+                )
+
+            return DataTree.from_dict(datatree_dct)
+
+        datatree: "DataTree" = from_dict_to_datatree2(all_filenames)
+        return datatree
 
     def save_to_netcdf(
         self,
