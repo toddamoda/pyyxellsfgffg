@@ -508,9 +508,7 @@ def run_pipeline(
         # Save results in file(s) (if needed)
         if outputs:
             # TODO: This should be called only at the last step
-            # TODO: Add this to DataTree, Not executed during Observation or Calibration mode
-            df_filenames: "pd.DataFrame" = outputs.save_to_file(processor)
-            dct["/output"] = DataTree(df_filenames.to_xarray())
+            dct["/output"] = outputs.save_to_file(processor)
 
         if not detector.scene.data.is_empty and not with_inherited_coords:
             warnings.warn(
