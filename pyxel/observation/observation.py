@@ -315,23 +315,10 @@ class Observation:
                 parameter_mode=self.parameter_mode,
                 processor=processor,
                 readout=self.readout,
+                outputs=self.outputs,
                 result_type=self.result_type,
                 pipeline_seed=self.pipeline_seed,
             )
-
-            # TODO: Fix this. See issue #723
-            if self.outputs and self.outputs.save_data_to_file:
-                # Late import
-                from pyxel.outputs.outputs import save_datatree
-
-                data_tree_filenames: Optional["DataTree"] = save_datatree(
-                    data_tree=final_datatree.isel(time=-1),
-                    outputs=self.outputs.save_data_to_file,
-                    current_output_folder=self.outputs.current_output_folder,
-                    with_inherited_coords=with_inherited_coords,
-                )
-
-                final_datatree["/output"] = data_tree_filenames
 
         else:
             # Run observation mode sequentially (not in parallel)

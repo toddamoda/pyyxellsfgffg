@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     import xarray as xr
 
     from pyxel.exposure import Readout
+    from pyxel.outputs import ObservationOutputs
 
     # Import 'DataTree'
     try:
@@ -404,6 +405,7 @@ def run_pipelines_with_dask(
     parameter_mode: Union[ProductMode, SequentialMode, CustomMode],
     processor: "Processor",
     readout: "Readout",
+    outputs: Optional["ObservationOutputs"],
     result_type: ResultId,
     pipeline_seed: Optional[int],
 ) -> "DataTree":
@@ -496,5 +498,19 @@ def run_pipelines_with_dask(
             "units": "s",
             "long_name": "Readout time",
         }
+
+    # TODO: Fix this. See issue #723
+    if outputs and outputs.save_data_to_file:
+        # Late import
+        from pyxel.outputs.outputs import save_datatree
+
+        data_tree_filenames: Optional["DataTree"] = save_datatree(
+            data_tree=final_datatree.isel(time=-1),
+            outputs=outputs.save_data_to_file,
+            current_output_folder=outputs.current_output_folder,
+            with_inherited_coords=True,
+        )
+
+        final_datatree["/output"] = data_tree_filenames
 
     return final_datatree

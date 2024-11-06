@@ -146,6 +146,32 @@ def save_dataarray(
     return output_dataset
 
 
+def _datasets_to_datatree(filenames_ds: list["xr.Dataset"]) -> Optional["DataTree"]:
+    # Import 'DataTree'
+    try:
+        from xarray.core.datatree import DataTree
+    except ImportError:
+        from datatree import DataTree  # type: ignore[assignment]
+
+    if not filenames_ds:
+        return None
+
+    first_dataset, *_ = filenames_ds
+    dims = [
+        dim for dim in first_dataset.dims if dim not in ("bucket_name", "data_format")
+    ]
+
+    dct = {"/": first_dataset[dims]}
+    for partial_dataset in filenames_ds:
+        bucket_name: str = str(partial_dataset["bucket_name"][0].data)
+
+        dct[f"/{bucket_name}"] = partial_dataset.squeeze("bucket_name")
+
+    final_datatree = DataTree.from_dict(dct)  # type: ignore[arg-type]
+
+    return final_datatree
+
+
 def save_datatree(
     data_tree: "DataTree",
     outputs: Sequence[Mapping[ValidName, Sequence[ValidFormat]]],
@@ -243,35 +269,44 @@ def save_datatree(
 
             filenames_ds.append(output_dataframe)
 
-    def from_dict_to_datatree(filenames_ds: list[xr.Dataset]) -> Optional["DataTree"]:
-        # Import 'DataTree'
-        try:
-            from xarray.core.datatree import DataTree
-        except ImportError:
-            from datatree import DataTree  # type: ignore[assignment]
-
-        if not filenames_ds:
-            return None
-
-        first_dataset, *_ = filenames_ds
-        dims = [
-            dim
-            for dim in first_dataset.dims
-            if dim not in ("bucket_name", "data_format")
-        ]
-
-        dct = {"/": first_dataset[dims]}
-        for partial_dataset in filenames_ds:
-            bucket_name: str = str(partial_dataset["bucket_name"][0].data)
-
-            dct[f"/{bucket_name}"] = partial_dataset.squeeze("bucket_name")
-
-        final_datatree = DataTree.from_dict(dct)
-
-        return final_datatree
-
-    final_datatree = from_dict_to_datatree(filenames_ds)
+    final_datatree = _datasets_to_datatree(filenames_ds)
     return final_datatree
+
+
+def _dict_to_datatree(all_filenames: Mapping[str, Mapping[str, str]]) -> "DataTree":
+    # Import 'DataTree'
+    try:
+        from xarray.core.datatree import DataTree
+    except ImportError:
+        from datatree import DataTree  # type: ignore[assignment]
+    import xarray as xr
+
+    datatree_dct = {}
+
+    full_bucket_name: str
+    bucket_dct: Mapping[str, str]
+    for full_bucket_name, bucket_dct in all_filenames.items():
+        bucket_name: str = full_bucket_name.removeprefix("detector.").removesuffix(
+            ".array"
+        )
+
+        datatree_dct[f"/{bucket_name}"] = (
+            xr.concat(
+                [
+                    xr.DataArray(
+                        [filename],
+                        dims=["data_format"],
+                        coords={"data_format": [data_format]},
+                    )
+                    for data_format, filename in bucket_dct.items()
+                ],
+                dim="data_format",
+            )
+            .rename("filename")
+            .to_dataset()
+        )
+
+    return DataTree.from_dict(datatree_dct)  # type: ignore[arg-type]
 
 
 # TODO: Create a new class that will contain the parameter 'save_data_to_file'
@@ -749,7 +784,7 @@ class Outputs:
 
         return full_filename
 
-    # noqa: C901
+    # ruff: noqa: C901
     def save_to_file(
         self,
         processor: "Processor",
@@ -862,45 +897,7 @@ class Outputs:
 
             all_filenames[valid_name] = partial_filenames
 
-        def from_dict_to_datatree2(
-            all_filenames: Mapping[str, Mapping[str, str]],
-        ) -> "DataTree":
-            import xarray as xr
-
-            # Import 'DataTree'
-            try:
-                from xarray.core.datatree import DataTree
-            except ImportError:
-                from datatree import DataTree  # type: ignore[assignment]
-
-            datatree_dct = {}
-
-            full_bucket_name: str
-            bucket_dct: Mapping[str, str]
-            for full_bucket_name, bucket_dct in all_filenames.items():
-                bucket_name: str = full_bucket_name.removeprefix(
-                    "detector."
-                ).removesuffix(".array")
-
-                datatree_dct[f"/{bucket_name}"] = (
-                    xr.concat(
-                        [
-                            xr.DataArray(
-                                [filename],
-                                dims=["data_format"],
-                                coords={"data_format": [data_format]},
-                            )
-                            for data_format, filename in bucket_dct.items()
-                        ],
-                        dim="data_format",
-                    )
-                    .rename("filename")
-                    .to_dataset()
-                )
-
-            return DataTree.from_dict(datatree_dct)
-
-        datatree: "DataTree" = from_dict_to_datatree2(all_filenames)
+        datatree: "DataTree" = _dict_to_datatree(all_filenames)
         return datatree
 
     def save_to_netcdf(

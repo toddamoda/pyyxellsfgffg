@@ -956,6 +956,20 @@ def run_mode(
     return data_tree
 
 
+def _datatree_to_dataframe(output_filenames: "DataTree") -> "pd.DataFrame":
+    # Late import
+    import pandas as pd
+
+    lst: Sequence[pd.DataFrame] = [
+        partial_dt["filename"].to_dataframe().reset_index()
+        for partial_dt in output_filenames.descendants
+    ]
+    df_filenames: pd.DataFrame = pd.concat(lst, ignore_index=True)
+
+    return df_filenames
+
+
+# ruff: noqa: C901
 def run(
     input_filename: Union[str, Path],
     override: Optional[Sequence[str]] = None,
@@ -1070,19 +1084,7 @@ def run(
         else:
             final_output_filenames = output_filenames
 
-        def to_datatree(output_filenames: "DataTree") -> "pd.DataFrame":
-            # Late import
-            import pandas as pd
-
-            lst: Sequence[pd.DataFrame] = [
-                partial_dt["filename"].to_dataframe().reset_index()
-                for partial_dt in output_filenames.descendants
-            ]
-            df_filenames: pd.DataFrame = pd.concat(lst, ignore_index=True)
-
-            return df_filenames
-
-        df_filenames = to_datatree(output_filenames=final_output_filenames)
+        df_filenames = _datatree_to_dataframe(output_filenames=final_output_filenames)
 
     else:
         _ = _run_exposure_or_calibration_mode(
