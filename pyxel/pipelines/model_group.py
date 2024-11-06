@@ -103,12 +103,6 @@ class ModelGroup:
                 import numpy as np
                 import xarray as xr
 
-                # Import 'DataTree'
-                try:
-                    from xarray.core.datatree import DataTree
-                except ImportError:
-                    from datatree import DataTree  # type: ignore[assignment]
-
                 # Get current absolute time
                 absolute_time = xr.DataArray(
                     [detector.absolute_time],
@@ -121,7 +115,7 @@ class ModelGroup:
 
                 # TODO: Fix this dirty hack
                 if detector._intermediate is None:
-                    new_datatree: DataTree = DataTree()
+                    new_datatree: xr.DataTree = xr.DataTree()
                     new_datatree.name = "intermediate"
                     new_datatree.attrs = {
                         "long_name": (
@@ -134,7 +128,7 @@ class ModelGroup:
                 # TODO: Refactor
                 pipeline_key: str = f"time_idx_{detector.pipeline_count}"
                 if pipeline_key not in detector.intermediate:
-                    datatree_single_time: DataTree = DataTree()
+                    datatree_single_time: xr.DataTree = xr.DataTree()
                     datatree_single_time.attrs = {
                         "long_name": "Pipeline for one unique time",
                         "pipeline_count": detector.pipeline_count,
@@ -146,7 +140,7 @@ class ModelGroup:
                 # TODO: Refactor
                 model_group_key: str = self._name
                 if model_group_key not in detector.intermediate[pipeline_key]:
-                    datatree_group: DataTree = DataTree()
+                    datatree_group: xr.DataTree = xr.DataTree()
 
                     # TODO: Refactor this ?
                     # Convert a model group's name to a better string representation
@@ -165,7 +159,7 @@ class ModelGroup:
                     model_key
                     not in detector.intermediate[f"{pipeline_key}/{model_group_key}"]
                 ):
-                    datatree_model: DataTree = DataTree()
+                    datatree_model: xr.DataTree = xr.DataTree()
                     datatree_model.attrs = {
                         "long_name": f"Model name: {model.name!r}",
                         "function_name": f"Model function: {model.func.__name__!r}",
@@ -195,4 +189,4 @@ class ModelGroup:
                             f"{pipeline_key}/{model_group_key}/{model_key}/{name}"
                         ] = data_array
 
-                detector.intermediate[last_key] = DataTree(ds.copy(deep=True))
+                detector.intermediate[last_key] = xr.DataTree(ds.copy(deep=True))

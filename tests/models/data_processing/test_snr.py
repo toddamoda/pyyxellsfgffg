@@ -9,13 +9,6 @@ import numpy as np
 import pytest
 import xarray as xr
 
-# Import 'DataTree'
-try:
-    from xarray.core.datatree import DataTree
-except ImportError:
-    from datatree import DataTree  # pip install xarray-datatree
-
-
 from pyxel.detectors import (
     CCD,
     CCDGeometry,
@@ -54,11 +47,11 @@ def test_snr_input(ccd_10x10: CCD):
     signal_to_noise_ratio(detector=detector, data_structure="all")
 
     data = detector.data
-    assert isinstance(data, DataTree)
+    assert isinstance(data, xr.DataTree)
 
     for name in ["pixel", "photon", "signal", "image"]:
         data_snr = data[f"/snr/{name}"]
-        assert isinstance(data_snr, DataTree)
+        assert isinstance(data_snr, xr.DataTree)
 
         assert "time" in data_snr.coords
         assert list(data_snr.coords["time"]) == [0.0]

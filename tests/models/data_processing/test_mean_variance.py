@@ -7,14 +7,7 @@
 
 import numpy as np
 import xarray as xr
-
-# Import 'DataTree'
-try:
-    from xarray.core.datatree import DataTree
-    from xarray.testing import assert_equal
-except ImportError:
-    from datatree import DataTree  # pip install xarray-datatree
-    from datatree.testing import assert_equal
+from xarray.testing import assert_equal
 
 from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
 from pyxel.models.data_processing import mean_variance
@@ -61,7 +54,7 @@ def test_mean_variance():
     detector.photon.array = photons.isel(time=0).to_numpy()
     mean_variance(detector, data_structure="photon")
 
-    expected_photon_step1 = DataTree().from_dict(
+    expected_photon_step1 = xr.DataTree().from_dict(
         {"mean_variance/partial/photon": expected_mean_variance.isel(pipeline_idx=[0])}
     )
     assert_equal(detector.data, expected_photon_step1)
@@ -71,7 +64,7 @@ def test_mean_variance():
     detector.photon.array = photons.isel(time=1).to_numpy()
     mean_variance(detector, data_structure="photon")
 
-    expected_photon_step2 = DataTree().from_dict(
+    expected_photon_step2 = xr.DataTree().from_dict(
         {
             "mean_variance/partial/photon": expected_mean_variance.isel(
                 pipeline_idx=[0, 1]
@@ -85,7 +78,7 @@ def test_mean_variance():
     detector.photon.array = photons.isel(time=2).to_numpy()
     mean_variance(detector, data_structure="photon")
 
-    expected_photon_step3 = DataTree().from_dict(
+    expected_photon_step3 = xr.DataTree().from_dict(
         {"mean_variance/photon": expected_mean_variance.isel(pipeline_idx=[2, 1, 0])}
     )
     assert_equal(detector.data, expected_photon_step3)
