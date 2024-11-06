@@ -103,11 +103,11 @@ def linear_regression(
         detector.data[f"/linear_regression/{name}/partial/sum_x2"] = x * x
         detector.data[f"/linear_regression/{name}/partial/sum_y2"] = y * y
     else:
-        detector.data[f"/linear_regression/{name}/partial/n"] += 1  # type: ignore
-        detector.data[f"/linear_regression/{name}/partial/sum_x"] += x  # type: ignore
+        detector.data[f"/linear_regression/{name}/partial/n"] += 1
+        detector.data[f"/linear_regression/{name}/partial/sum_x"] += x
         detector.data[f"/linear_regression/{name}/partial/sum_y"] += y
         detector.data[f"/linear_regression/{name}/partial/sum_xy"] += x * y
-        detector.data[f"/linear_regression/{name}/partial/sum_x2"] += x * x  # type: ignore
+        detector.data[f"/linear_regression/{name}/partial/sum_x2"] += x * x
         detector.data[f"/linear_regression/{name}/partial/sum_y2"] += y * y
 
         if detector.is_last_readout:
@@ -118,17 +118,17 @@ def linear_regression(
             sum_x2 = detector.data[f"/linear_regression/{name}/partial/sum_x2"]
             sum_y2 = detector.data[f"/linear_regression/{name}/partial/sum_y2"]
 
-            factor_x = n * sum_x2 - sum_x * sum_x  # type: ignore
-            factor_y = n * sum_y2 - sum_y * sum_y  # type: ignore
+            factor_x = n * sum_x2 - sum_x * sum_x
+            factor_y = n * sum_y2 - sum_y * sum_y
 
-            slope = (n * sum_xy - sum_x * sum_y) / factor_x  # type: ignore
+            slope = (n * sum_xy - sum_x * sum_y) / factor_x
             intercept = (sum_y - slope * sum_x) / n
 
             r2 = slope * slope * factor_x / factor_y
 
             factor_var = factor_y - slope * slope * factor_x
-            slope_var = factor_var / ((n - 2) * factor_x)  # type: ignore
-            intercept_var = sum_x2 * factor_var / (n * (n - 2) * factor_x)  # type: ignore
+            slope_var = factor_var / ((n - 2) * factor_x)
+            intercept_var = sum_x2 * factor_var / (n * (n - 2) * factor_x)
 
             slope_std = np.sqrt(slope_var)
             intercept_std = np.sqrt(intercept_var)

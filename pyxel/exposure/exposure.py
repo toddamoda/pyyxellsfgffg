@@ -30,12 +30,6 @@ if TYPE_CHECKING:
     from pyxel.exposure import Readout
     from pyxel.outputs import CalibrationOutputs, ExposureOutputs, ObservationOutputs
 
-    # Import 'DataTree'
-    try:
-        from xarray.core.datatree import DataTree
-    except ImportError:
-        from datatree import DataTree  # type: ignore[assignment]
-
 
 class Exposure:
     """TBW."""
@@ -133,7 +127,7 @@ class Exposure:
         processor: Processor,
         debug: bool,
         with_inherited_coords: bool,
-    ) -> "DataTree":
+    ) -> "xr.DataTree":
         """Run an exposure pipeline.
 
         Parameters
@@ -148,7 +142,7 @@ class Exposure:
         progressbar = self.readout._num_steps != 1
 
         # Unpure changing of processor
-        data_tree: "DataTree" = run_pipeline(
+        data_tree: "xr.DataTree" = run_pipeline(
             processor=processor,
             readout=self.readout,
             outputs=self.outputs,
@@ -292,7 +286,9 @@ def _run_exposure_pipeline_deprecated(
     return processor
 
 
-def _extract_datatree_2d(detector: "Detector", keys: Sequence[ResultId]) -> "DataTree":
+def _extract_datatree_2d(
+    detector: "Detector", keys: Sequence[ResultId]
+) -> "xr.DataTree":
     """Extract 2D data from a detector object into a `DataTree`.
 
     The buckets 'data' and 'scene' are skipped.
@@ -334,11 +330,6 @@ def _extract_datatree_2d(detector: "Detector", keys: Sequence[ResultId]) -> "Dat
     # Late import to speedup start-up time
     import xarray as xr
 
-    try:
-        from xarray.core.datatree import DataTree
-    except ImportError:
-        from datatree import DataTree  # type: ignore[assignment]
-
     dataset: xr.Dataset = xr.Dataset()
 
     key: ResultId
@@ -371,7 +362,7 @@ def _extract_datatree_2d(detector: "Detector", keys: Sequence[ResultId]) -> "Dat
         time=absolute_time
     )
 
-    return DataTree(dataset_with_time)
+    return xr.DataTree(dataset_with_time)
 
 
 def run_pipeline(
@@ -383,7 +374,7 @@ def run_pipeline(
     progressbar: bool = False,
     result_type: ResultId = ResultId("all"),  # noqa: B008
     pipeline_seed: int | None = None,
-) -> "DataTree":
+) -> "xr.DataTree":
     """Run standalone exposure pipeline.
 
     Parameters
@@ -411,13 +402,9 @@ def run_pipeline(
     DataTree
     """
     # Late import to speedup start-up time
+    import xarray as xr
     from dask.utils import format_bytes
     from tqdm.auto import tqdm
-
-    try:
-        from xarray.core.datatree import DataTree
-    except ImportError:
-        from datatree import DataTree  # type: ignore[assignment]
 
     # if isinstance(detector, CCD):
     #    dynamic.non_destructive_readout = False
@@ -446,7 +433,7 @@ def run_pipeline(
         # Example: keys = ['photon', 'charge', 'pixel', 'signal', 'image', 'data']
         keys: Sequence[ResultId] = result_keys(result_type)
 
-        buckets_data_tree: DataTree = DataTree()
+        buckets_data_tree: xr.DataTree = xr.DataTree()
 
         # Iterate over the readout steps (time and step) for processing.
         i: int
@@ -474,7 +461,7 @@ def run_pipeline(
             processor.run_pipeline(debug=debug)
 
             # Extract the results from the 'detector' into a partial 'DataTree'
-            partial_datatree_2d: DataTree = _extract_datatree_2d(
+            partial_datatree_2d: xr.DataTree = _extract_datatree_2d(
                 detector=detector,
                 keys=keys,
             )
@@ -510,7 +497,7 @@ def run_pipeline(
                 pbar.set_postfix(size=format_bytes(num_bytes))
 
         # Prepare the final dictionary to construct the `DataTree`.
-        dct: dict[str, "xr.Dataset" | DataTree | None] = {}
+        dct: dict[str, xr.Dataset | xr.DataTree | None] = {}
 
         # Save results in file(s) (if needed)
         if outputs:
@@ -538,7 +525,7 @@ def run_pipeline(
 
         # If debug is enabled, add intermediate data to the `DataTree`.
         if debug:
-            datatree_intermediate: DataTree = detector.intermediate
+            datatree_intermediate: xr.DataTree = detector.intermediate
 
             # Remove temporary data_tree '/last' from 'datatree_intermediate'
             dct["/intermediate"] = datatree_intermediate.drop_nodes(
@@ -553,7 +540,7 @@ def run_pipeline(
             dct["/data"] = detector.data
 
         # Create the final `DataTree` from the dictionary.
-        data_tree = DataTree.from_dict(dct)  # type: ignore[arg-type]
+        data_tree = xr.DataTree.from_dict(dct)  # type: ignore[arg-type]
         data_tree.attrs["pyxel version"] = __version__
 
         if progressbar:

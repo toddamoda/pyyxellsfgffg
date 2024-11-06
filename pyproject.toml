@@ -46,8 +46,7 @@ dependencies = [
     "numpy>=1.24",
     "pandas>=1.5",
     "scipy>=1.10",
-    "xarray>=2023.12.0,<2024.10.0",
-    "xarray-datatree>=0.0.12",
+    "xarray>=2024.10.0",
 
     # Plotting
     "matplotlib>=3.6",
@@ -198,7 +197,6 @@ module = [
     "IPython.*",
     "scipy.*",
     "scopesim.*",
-    "sep.*",
     "toolz.*",
     "tqdm.*",
     "xarray.*",

@@ -10,13 +10,7 @@ import logging
 from pathlib import Path
 
 import pytest
-
-# Import 'DataTree'
-try:
-    from xarray.core.datatree import DataTree
-except ImportError:
-    from datatree import DataTree  # pip install xarray-datatree
-
+import xarray as xr
 
 from pyxel.calibration import Algorithm, Calibration, sum_of_abs_residuals
 from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
@@ -176,4 +170,4 @@ def test_run_calibration(
         output_dir=tmp_path,
         with_inherited_coords=False,
     )
-    assert isinstance(dt, DataTree)
+    assert isinstance(dt, xr.DataTree)

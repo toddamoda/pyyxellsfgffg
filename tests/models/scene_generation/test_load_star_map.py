@@ -14,17 +14,10 @@ import xarray as xr
 from astropy.table import Table
 from astropy.tests.helper import assert_quantity_allclose
 
-from pyxel.util import get_cache
-
-# Import 'DataTree'
-try:
-    from xarray.core.datatree import DataTree
-except ImportError:
-    from datatree import DataTree  # pip install xarray-datatree
-
 from pyxel.detectors import CCD
 from pyxel.models.scene_generation import load_star_map
 from pyxel.models.scene_generation.load_star_map import GaiaPassBand, retrieve_from_gaia
+from pyxel.util import get_cache
 
 # This is equivalent to 'import pytest_mock'
 pytest_mock = pytest.importorskip(
@@ -233,7 +226,7 @@ def source1_pyxel(
     spectra2: xr.Dataset,
     spectra3: xr.Dataset,
     spectra4: xr.Dataset,
-) -> DataTree:
+) -> xr.DataTree:
     return 0
 
 
@@ -339,7 +332,7 @@ def test_load_star_map(
     spectra_dct: dict[int, Table],
     wavelengths: xr.DataArray,
     source1_gaia,
-    source1_pyxel: DataTree,
+    source1_pyxel: xr.DataTree,
 ):
     """Test model 'load_star_map'."""
 
@@ -369,7 +362,7 @@ def test_load_star_map(
 
     # Check outputs
     scene = detector.scene.data
-    assert isinstance(scene, DataTree)
+    assert isinstance(scene, xr.DataTree)
 
     expected_x = 3600 * source1_gaia["ra"]
     expected_y = 3600 * source1_gaia["dec"]

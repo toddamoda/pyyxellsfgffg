@@ -7,13 +7,6 @@
 import numpy as np
 import pytest
 import xarray as xr
-
-# Import 'DataTree'
-try:
-    from xarray.core.datatree import DataTree
-except ImportError:
-    from datatree import DataTree  # pip install xarray-datatree
-
 from skimage.draw import line_aa
 
 from pyxel.detectors import (
@@ -88,7 +81,7 @@ def test_data_output(ccd_50x50: CCD):
     remove_cosmic_rays(detector=detector)
     data = detector.data
 
-    assert isinstance(data, DataTree)
+    assert isinstance(data, xr.DataTree)
     assert "lacosmic" in data
 
     assert isinstance(data["/lacosmic/cosmic_ray_clean"], xr.DataArray)

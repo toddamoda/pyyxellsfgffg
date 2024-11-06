@@ -19,13 +19,6 @@ References,
 import numpy as np
 import xarray as xr
 
-# Import 'DataTree'
-try:
-    from xarray.core.datatree import DataTree
-except ImportError:
-    from datatree import DataTree  # type: ignore[assignment]
-
-
 from pyxel.detectors import Detector
 
 
@@ -141,7 +134,7 @@ def remove_cosmic_rays(
         has_key_partial = True
 
     if not has_key_partial:
-        data_tree: DataTree = DataTree(dataset)
+        data_tree: xr.DataTree = xr.DataTree(dataset)
     else:
         # Concatenate data
         previous_datatree = detector.data[key_partial]
