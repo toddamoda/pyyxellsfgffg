@@ -49,7 +49,7 @@ def usaf_illumination(
     """
     filename = "https://gitlab.com/esa/pyxel-data/-/raw/master/samples/USAF-1951-optical-calibration-target.png"
 
-    load_image(
+    load_image(  # type: ignore[operator]
         detector=detector,
         image_file=filename,
         position=position,
