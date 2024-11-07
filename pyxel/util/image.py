@@ -183,7 +183,7 @@ def load_cropped_and_aligned_image(
     from pyxel.inputs import load_image
 
     try:
-        image = load_image(filename)
+        image_2d: np.ndarray = load_image(filename)
     except OSError as exc:
         if sys.version_info >= (3, 11):
             exc.add_note(f"Cannot open filename: '{filename}'")
@@ -192,7 +192,7 @@ def load_cropped_and_aligned_image(
             raise OSError(f"Cannot open filename: '{filename}'") from exc
 
     cropped_and_aligned_image: np.ndarray = fit_into_array(
-        array=image,
+        array=image_2d,
         output_shape=shape,
         relative_position=(position_y, position_x),
         align=align,
