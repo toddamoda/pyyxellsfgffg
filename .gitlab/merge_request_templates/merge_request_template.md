@@ -22,11 +22,10 @@ make it apparent that there's nothing to do.
  - [ ] User visible changes (including notable bug fixes and possible deprecations) are 
        documented in `CHANGELOG.md`
  - [ ] Passes in this order
-   - [ ] `isort .` or `pre-commit run -a` (preferred way)
-   - [ ] `black .` or `pre-commit run -a` (preferred way)
-   - [ ] `blackdoc .` or `pre-commit run -a` (preferred way)
-   - [ ] `mypy .` or `tox -e mypy` or `tox -p` (preferred way)
-   - [ ] `flake8 .` or `tox -e flake8` or `tox -p` (preferred way)
+   - [ ] `ruff check`
+   - [ ] `ruff format`
+   - [ ] `pre-commit run -a`
+   - [ ] `mypy .` or `tox -e mypy` (preferred way)
 
 If you have *any* questions of the points above, just **submit and ask**!
 This checklist is here to *help* you, not to deter you from contributing !
