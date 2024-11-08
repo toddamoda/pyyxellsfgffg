@@ -145,6 +145,31 @@ Example of the configuration file:
 
 .. autofunction:: load_image
 
+.. _Usaf illumination:
+
+Usaf illumination
+=================
+
+:guilabel:`Photon` → :guilabel:`Photon`
+
+With this model you can load a standard USAF-1951 illumination pattern to test your detector with.
+It uses the above-mentioned load_image model to load a ``.png`` version of the pattern stored in the pyxel-data repository.
+You can check the arguments specification in :ref:`Load image` for more information on setting up the model.
+
+Example of the configuration file:
+
+.. code-block:: yaml
+
+    - name: usaf_illumination
+      func: pyxel.models.photon_collection.usaf_illumination
+      enabled: true
+      arguments:
+        position: [0,0]
+        convert_to_photons: true
+        bit_resolution: 16
+
+.. autofunction:: usaf_illumination
+
 .. _Simple illumination:
 
 Simple illumination
