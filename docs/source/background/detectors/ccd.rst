@@ -26,6 +26,7 @@ Available models
     * :ref:`photon_collection_create_store_detector`
     * :ref:`simple_collection`
     * :ref:`Load image`
+    * :ref:`Usaf illumination`
     * :ref:`Simple illumination`
     * :ref:`Stripe pattern`
     * :ref:`Shot noise`
