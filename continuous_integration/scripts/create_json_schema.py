@@ -7,6 +7,8 @@
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
 
+# ruff: noqa: D101
+
 import functools
 import importlib
 import inspect
@@ -475,7 +477,7 @@ def create_graph(cls: type, graph: Mapping[Klass, set[Klass]]) -> None:
 
         parameters = {**doc.parameters, **klass_base_doc.parameters}
 
-    for name, parameter in parameters.items():
+    for parameter in parameters.values():
         assert parameter.annotation
 
         klass_param: Klass = create_klass(parameter.annotation)

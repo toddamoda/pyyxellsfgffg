@@ -296,7 +296,11 @@ ignore = [
     "UP037",    # Remove quotes from type annotation
 ]
 
-exclude = ["_TEMPLATE.py", "_version.py"]
+exclude = [
+    "_TEMPLATE.py",
+    "_version.py",
+    "continuous_integration/scripts/auto_generated.py",
+]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = [
