@@ -5,6 +5,8 @@
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
 
+"""Create JSON Schema file for Pyxel."""
+
 import sys
 import typing as t
 

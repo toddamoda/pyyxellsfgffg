@@ -318,6 +318,9 @@ exclude = ["_TEMPLATE.py", "_version.py"]
     "PTH",      # Flake8 use Pathlib
     "UP",       # pyupgrade
 ]
+"continuous_integration/scripts/create_json_schema.py" = [
+    "RUF001",   # String contains ambigyous `'`
+]
 
 [tool.ruff.lint.flake8-pytest-style]
 fixture-parentheses = false
