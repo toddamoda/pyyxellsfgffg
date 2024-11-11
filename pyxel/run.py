@@ -974,7 +974,7 @@ def run(
     input_filename: Union[str, Path],
     override: Optional[Sequence[str]] = None,
     random_seed: Optional[int] = None,
-) -> None:
+) -> Optional["pd.DataFrame"]:
     """Run a YAML configuration file.
 
     For more information, see :ref:`running_modes`.
@@ -1113,6 +1113,8 @@ def run(
 
     if output_dir:
         outputs.save_log_file(output_dir)
+
+    return df_filenames
 
 
 # TODO: Use ExceptionGroup
