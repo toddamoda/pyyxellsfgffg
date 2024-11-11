@@ -45,6 +45,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
   [!992](https://gitlab.com/esa/pyxel/-/merge_requests/992)).
 * Add parameters to extract header from model `image_file` in model `load_image` from model group `Photon Collection`.
   (See [!988](https://gitlab.com/esa/pyxel/-/merge_requests/988)).
+* Fix issue in model `physical_non_linearity_with_saturation` in `Charge Measurement`.
+  (See [!994](https://gitlab.com/esa/pyxel/-/merge_requests/994)).
 
 ### Others
 * Pin to xarray < 2024.10.0.
