@@ -672,7 +672,7 @@ class HXRGNoise:
                 if np.mod(op, 2) == mod_num:
                     result[:, :, wind_x0:x1] += tt
                 else:
-                    result[:, :, wind_x0:x1] += tt[:, :, ::-1]
+                    result[:, :, wind_x0:x1] += tt[:, ::-1]
 
         return result
 
