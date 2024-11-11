@@ -47,6 +47,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
   (See [!988](https://gitlab.com/esa/pyxel/-/merge_requests/988)).
 * Fix issue with model `NG HxRG` when adding pink noise.
   (See [!993](https://gitlab.com/esa/pyxel/-/merge_requests/993)).
+* Fix issue in model `physical_non_linearity_with_saturation` in `Charge Measurement`.
+  (See [!994](https://gitlab.com/esa/pyxel/-/merge_requests/994)).
 
 ### Others
 * Pin to xarray < 2024.10.0.
