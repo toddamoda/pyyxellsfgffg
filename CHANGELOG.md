@@ -10,50 +10,90 @@ Minor releases include updated stdlib stubs from typeshed.
 Pyxel doesn't use SemVer anymore, since most minor releases have at least minor backward incompatible changes.
 
 
-## UNRELEASED
+## 2.7 / 2024-11-12
+
+This release brings a number of bug fixes and improvements.
+
+### Fix memory leak issue with function `pyxel.run` and command `python -m pyxel` in Observation mode
+
+A critical memory leak that occur when running the command `pyxel -m pyxel configuration.yaml` or 
+the python function `pyxel.run('configuration.yaml')` in Observation mode with parameter `with_dask` enabled is fixed.
+
+This fix prevents the computer from running out of memory in Observation mode.
+
+### New feature: return list of output filenames with function `pyxel.run`
+
+The `pyxel.run` command now returns a list of generated output filenames.
+
+Example:
+```python
+>>> import pyxel
+>>> filenames = pyxel.run('observation.yaml')
+>>> filenames
+   id data_format bucket_name                     filename
+0   0        fits       image  detector_image_array_1.fits
+1   1        fits       image  detector_image_array_2.fits
+2   2        fits       image  detector_image_array_3.fits
+3   3        fits       image  detector_image_array_4.fits
+4   4        fits       image  detector_image_array_5.fits
+5   5        fits       image  detector_image_array_6.fits
+```
+
 
 ### Core
 * Deprecated more code.
   (See [!979](https://gitlab.com/esa/pyxel/-/merge_requests/979)).
 * Improve representer magic methods for 'Outputs' and 'CustomMode'.
   (See [!980](https://gitlab.com/esa/pyxel/-/merge_requests/980)).
-* Refactor 'ObservationDask'.
+* Refactor `ObservationDask`.
   (See [!981](https://gitlab.com/esa/pyxel/-/merge_requests/981)).
-* Refactor function 'eval_entry'.
+* Refactor function `eval_entry`.
   (See [!984](https://gitlab.com/esa/pyxel/-/merge_requests/984)).
-* Add unit tests for function 'convert_values'.
+* Add unit tests for function `convert_values`.
   (See [!985](https://gitlab.com/esa/pyxel/-/merge_requests/985)).
-* Fix issue with 'Processor.has'.
+* Fix issue with `Processor.has`.
   (See [!986](https://gitlab.com/esa/pyxel/-/merge_requests/986)).
-* Outputs are not generated with 'run_mode' and Observation mode.
+* Outputs are not generated with [`run_mode`](https://esa.gitlab.io/pyxel/doc/stable/references/api/run.html#pyxel.run_mode)
+  and [Observation mode](https://esa.gitlab.io/pyxel/doc/stable/background/running_modes/observation_mode.html).
   (See [!982](https://gitlab.com/esa/pyxel/-/merge_requests/982)).
-* Refactor functions `load_image` and `load_header`.
+* Refactor functions [`pyxel.load_image`](https://esa.gitlab.io/pyxel/doc/stable/references/api/inputs.html#pyxel.load_image)
+  and [`pyxel.load_header`]((https://esa.gitlab.io/pyxel/doc/stable/references/api/inputs.html#pyxel.load_header)).
   (See [!989](https://gitlab.com/esa/pyxel/-/merge_requests/989)).
 
 ### Documentation
-* Fix documentation for model 'crosstalk' by Antoine Kaszczyc.
+* Fix documentation for model [`AC/DC crosstalks`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_measurement_models.html#dc-crosstalk)
+  from [Charge Measurement](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_measurement_models.html#)
+  model group by Antoine Kaszczyc from CRAL (Centre de Recherche Astrophysique de Lyon).
   (See [!983](https://gitlab.com/esa/pyxel/-/merge_requests/983)).
-* When running 'uvx' force the python version.
+* When running [`uvx`](https://esa.gitlab.io/pyxel/doc/stable/tutorials/overview.html#recommended-quickstart-setup-using-uv)
+  force to use a python version.
   (See [!987](https://gitlab.com/esa/pyxel/-/merge_requests/987)).
 
 ### Models
-* Fix bug in model [`photon_collection.load_image`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/photon_collection_models.html#load-image) where the photon array is now correctly "added to"
+* Fix bug in model [`load_image`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/photon_collection_models.html#load-image)
+  from [Photon Collection](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/photon_collection_models.html#) 
+  group where the photon array is now correctly "added to"
   instead of "replaced by a new one". By Antoine Kaszczyc.
   (See [!977](https://gitlab.com/esa/pyxel/-/merge_requests/977)).
-* Add a `USAF pattern illumination` model from `Photon Collection`.
+* Add a [`USAF pattern illumination`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/photon_collection_models.html#usaf-illumination)
+  model from [Photon Collection](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/photon_collection_models.html#).
   (See [!990](https://gitlab.com/esa/pyxel/-/merge_requests/990) and 
   [!992](https://gitlab.com/esa/pyxel/-/merge_requests/992)).
-* Add parameters to extract header from model `image_file` in model `load_image` from model group `Photon Collection`.
+* Add parameters to extract header from parameter `image_file` in model
+  [`load_image`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/photon_collection_models.html#load-image) from
+  from [Photon Collection](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/photon_collection_models.html#).
   (See [!988](https://gitlab.com/esa/pyxel/-/merge_requests/988)).
-* Fix issue with model `NG HxRG` when adding pink noise.
+* Fix issue with model [`NxRG`](https://esa.gitlab.io/pyxel/doc/latest/references/model_groups/charge_measurement_models.html#hxrg-noise-generator) 
+  from [Charge Measurement](https://esa.gitlab.io/pyxel/doc/latest/references/model_groups/charge_measurement_models.html#) group when adding pink noise.
   (See [!993](https://gitlab.com/esa/pyxel/-/merge_requests/993)).
-* Fix issue in model `physical_non_linearity_with_saturation` in `Charge Measurement`.
+* Fix issue in model [`physical_non_linearity_with_saturation`](https://esa.gitlab.io/pyxel/doc/latest/references/model_groups/charge_measurement_models.html#physical-non-linearity-with-saturation)
+  in [Charge Measurement](https://esa.gitlab.io/pyxel/doc/latest/references/model_groups/charge_measurement_models.html#).
   (See [!994](https://gitlab.com/esa/pyxel/-/merge_requests/994)).
 
 ### Others
 * Pin to xarray < 2024.10.0.
   (See [!978](https://gitlab.com/esa/pyxel/-/merge_requests/978)).
-* Simplify usage of `ruff`.
+* Simplify usage of `ruff check` and `ruff format`.
   (See [!991](https://gitlab.com/esa/pyxel/-/merge_requests/991)).
 
 
