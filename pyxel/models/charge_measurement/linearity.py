@@ -10,6 +10,7 @@
 from collections.abc import Sequence
 
 import numpy as np
+import xarray as xr
 from astropy import constants as const
 
 from pyxel.detectors import CMOS, Detector
@@ -567,7 +568,15 @@ def physical_non_linearity_with_saturation(
         euler_points=euler_points,
     )
 
-    # Update previous value
-    detector.data["/non_linearity_with_saturation/previous"] = signal_non_linear
+    if not detector.is_last_readout:
+        # Update previous value
+        detector.data["/non_linearity_with_saturation/previous"] = xr.DataArray(
+            signal_non_linear,
+            dims=["y", "x"],
+            coords={
+                "y": range(detector.geometry.row),
+                "x": range(detector.geometry.col),
+            },
+        )
 
     detector.signal.array = signal_non_linear
