@@ -135,6 +135,7 @@ Inputs
 .. autosummary::
 
     load_image
+    load_header
     load_table
 
 
