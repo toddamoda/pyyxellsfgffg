@@ -41,6 +41,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 * Add a `USAF pattern illumination` model from `Photon Collection`.
   (See [!990](https://gitlab.com/esa/pyxel/-/merge_requests/990) and 
   [!992](https://gitlab.com/esa/pyxel/-/merge_requests/992)).
+* Fix issue in model `physical_non_linearity_with_saturation` in `Charge Measurement`.
+  (See [!994](https://gitlab.com/esa/pyxel/-/merge_requests/994)).
 
 ### Others
 * Pin to xarray < 2024.10.0.
