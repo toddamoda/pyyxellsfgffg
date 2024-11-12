@@ -336,7 +336,7 @@ class Scene:
         }
 
         scene = cls()
-        scene._source = xr.DataTree.from_dict(data, name="scene")  # type: ignore[arg-type]
+        scene._source = xr.DataTree.from_dict(data, name="scene")
 
         return scene
 
