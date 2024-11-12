@@ -470,7 +470,9 @@ def run_pipeline(
             if buckets_data_tree.is_empty:
                 buckets_data_tree = partial_datatree_2d
             else:
-                buckets_data_tree = buckets_data_tree.combine_first(partial_datatree_2d)
+                buckets_data_tree = xr.map_over_datasets(
+                    lambda *data: xr.merge(data), buckets_data_tree, partial_datatree_2d
+                )
 
                 # Fix the data type of the 'image' container to match the detector's image dtype.
                 # See #652
@@ -540,7 +542,7 @@ def run_pipeline(
             dct["/data"] = detector.data
 
         # Create the final `DataTree` from the dictionary.
-        data_tree = xr.DataTree.from_dict(dct)  # type: ignore[arg-type]
+        data_tree = xr.DataTree.from_dict(dct)
         data_tree.attrs["pyxel version"] = __version__
 
         if progressbar:

@@ -438,7 +438,7 @@ def run_pipelines_with_dask(
 
     # Please note that at this stage the datatree does not contain node '/output'.
     # This node is added later
-    final_datatree = xr.DataTree.from_dict(dct)  # type: ignore[arg-type]
+    final_datatree = xr.DataTree.from_dict(dct)
 
     if "observation.readout.times" in dim_names:
         # TODO: See #836

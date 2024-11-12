@@ -52,7 +52,7 @@ def test_basic_exposure_hdf5(valid_config_filename: Path, tmp_path: Path):
         detector=detector,
         pipeline=cfg.pipeline,
     )
-    assert isinstance(data_tree, xr.ataTree)
+    assert isinstance(data_tree, xr.DataTree)
 
     # Save the 'detector' object into a '.hdf5' file
     detector_filename: Path = tmp_path / "detector.hdf5"

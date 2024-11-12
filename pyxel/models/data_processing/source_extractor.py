@@ -14,13 +14,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import xarray as xr
-
-# Import 'DataTree'
-try:
-    from xarray.core.datatree import DataTree
-except ImportError:
-    from datatree import DataTree  # type: ignore[assignment]
-
 from matplotlib.patches import Ellipse
 
 from pyxel.detectors import Detector
@@ -344,7 +337,7 @@ def source_extractor(
     if np.all(data_2d == 0):
         warnings.warn(f"{array_type} data array is empty", stacklevel=2)
 
-    detector.data["/source_extractor"] = DataTree(
+    detector.data["/source_extractor"] = xr.DataTree(
         extract_sources_to_xarray(data_2d, thresh=thresh, minarea=minarea)
     )
 

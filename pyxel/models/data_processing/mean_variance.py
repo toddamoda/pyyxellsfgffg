@@ -160,21 +160,12 @@ def mean_variance(
     key: str = f"{parent}/{name}"
     key_partial: str = f"{parent_partial}/{name}"
 
-    # Check if partial results exist
-    # TODO: Use 'detector.data.get(...)'
-    try:
-        _ = detector.data[key_partial]
-    except KeyError:
-        has_key_partial = False
-    else:
-        has_key_partial = True
-
     # If no partial data exists, create a new DataTree
-    if not has_key_partial:
+    if key_partial not in detector.data.groups:
         data_tree: xr.DataTree = xr.DataTree(mean_variance)
     else:
         # Concatenate new data with existing partial data
-        data_tree = detector.data[key_partial].combine_first(mean_variance)  # type: ignore
+        data_tree = xr.merge([detector.data[key_partial].to_dataset(), mean_variance])  # type: ignore[assignment]
 
     # If pipeline is at its final step, clean up partial results and store the full result
     if detector.pipeline_count == (detector.num_steps - 1):
