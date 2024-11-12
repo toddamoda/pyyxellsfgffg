@@ -81,23 +81,6 @@ def _get_short_dimension_names_new(
     return potential_dim_names
 
 
-# TODO: Replace this function by 'xr.merge'
-# TODO: or 'datatree.merge' when it will be possible
-def merge(*objects: "xr.DataTree") -> "xr.DataTree":
-    """Merge any number of DataTree into a single DataTree."""
-
-    import xarray as xr
-
-    def _merge_dataset(*args: xr.Dataset) -> xr.Dataset:
-        return xr.merge(args)
-
-    _merge_datatree: Callable[..., xr.DataTree] = xr.DataTree.map_over_datasets(
-        _merge_dataset
-    )
-
-    return _merge_datatree(*objects)
-
-
 def build_parameter_mode(
     mode: Literal["product", "sequential", "custom"],
     parameters: Sequence[ParameterValues],
@@ -287,6 +270,7 @@ class Observation:
     ) -> "xr.DataTree":
         """Run the observation pipelines and return a `DataTree` object."""
         # Late import to speedup start-up time
+        import xarray as xr
         from tqdm.auto import tqdm
 
         # Validate the processor steps before running the pipeline
@@ -337,7 +321,9 @@ class Observation:
             ]
 
             # Merge the sequentially processed DataTrees into the final result
-            final_datatree = merge(*datatree_list)
+            final_datatree = xr.map_over_datasets(
+                lambda *data: xr.merge(data), *datatree_list
+            )
 
         # Assign the running mode to the final DataTree attributes
         parameter_name: str = str(self.parameter_mode.__class__)
@@ -475,21 +461,27 @@ def _add_custom_parameters(
     import pandas as pd
     import xarray as xr
 
-    data_tree = data_tree.expand_dims({"id": [index]})
+    data_tree = data_tree.map_over_datasets(  # type: ignore[assignment]
+        lambda dataset: dataset.expand_dims({"id": [index]})
+    )
 
     for coordinate_name, param_value in parameter_dict.items():
         short_name: str = dimension_names[coordinate_name]
 
         #  assigning the right coordinates based on type
         if types[coordinate_name] == ParameterType.Simple:
-            data_tree = data_tree.assign_coords(
-                {short_name: ("id", pd.Index([param_value]))}
+            data_tree = data_tree.map_over_datasets(  # type: ignore[assignment]
+                lambda dataset: dataset.assign_coords(
+                    {short_name: ("id", pd.Index([param_value]))}
+                )
             )
 
         elif types[coordinate_name] == ParameterType.Multi:
             data = np.array(param_value)
             data_array = xr.DataArray(data).expand_dims({"id": [index]})
-            data_tree = data_tree.assign_coords({short_name: data_array})
+            data_tree = data_tree.map_over_datasets(  # type: ignore[assignment]
+                lambda dataset: dataset.assign_coords({short_name: data_array})
+            )
 
         else:
             raise NotImplementedError
@@ -528,7 +520,9 @@ def _add_product_parameters(
 
         #  assigning the right coordinates based on type
         if types[coordinate_name] == ParameterType.Simple:
-            data_tree = data_tree.expand_dims(dim={short_name: [param_value]})
+            data_tree = data_tree.map_over_datasets(  # type: ignore[assignment]
+                lambda dataset: dataset.expand_dims(dim={short_name: [param_value]})
+            )
 
         elif types[coordinate_name] == ParameterType.Multi:
             data = np.array(param_value)
@@ -558,9 +552,11 @@ def _add_product_parameters(
             else:
                 raise NotImplementedError
 
-            data_tree = data_tree.expand_dims(
-                {f"{short_name}_id": [index]}
-            ).assign_coords({short_name: data_array})
+            data_tree = data_tree.map_over_datasets(  # type: ignore[assignment]
+                lambda dataset: dataset.expand_dims(
+                    {f"{short_name}_id": [index]}
+                ).assign_coords({short_name: data_array})
+            )
 
         else:
             raise NotImplementedError

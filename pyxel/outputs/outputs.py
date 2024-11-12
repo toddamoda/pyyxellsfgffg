@@ -156,7 +156,7 @@ def _datasets_to_datatree(filenames_ds: list["xr.Dataset"]) -> Optional["xr.Data
 
         dct[f"/{bucket_name}"] = partial_dataset.squeeze("bucket_name")
 
-    final_datatree = xr.DataTree.from_dict(dct)  # type: ignore[arg-type]
+    final_datatree = xr.DataTree.from_dict(dct)
 
     return final_datatree
 
@@ -290,7 +290,7 @@ def _dict_to_datatree(all_filenames: Mapping[str, Mapping[str, str]]) -> "xr.Dat
             .to_dataset()
         )
 
-    return xr.DataTree.from_dict(datatree_dct)  # type: ignore[arg-type]
+    return xr.DataTree.from_dict(datatree_dct)
 
 
 # TODO: Create a new class that will contain the parameter 'save_data_to_file'
