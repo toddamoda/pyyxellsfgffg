@@ -287,6 +287,7 @@ select = [
 ]
 ignore = [
     "E501",     # Omit 'Line too long'
+    "B023",     # Function definition does not bind loop variable
     "D102",     # Missing docstring in public method
     "D103",     # Missing docstring in public function
     "D105",     # Missing docstring in magic method
