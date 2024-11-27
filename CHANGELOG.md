@@ -27,6 +27,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
   (See [!998](https://gitlab.com/esa/pyxel/-/merge_requests/998)).
 * Fix issue with ruff 0.8.
   (See [!1000](https://gitlab.com/esa/pyxel/-/merge_requests/1000)).
+* Add support for Python 3.12.
+  (See [!1003](https://gitlab.com/esa/pyxel/-/merge_requests/1003)).
 
 
 ## 2.7 / 2024-11-11
