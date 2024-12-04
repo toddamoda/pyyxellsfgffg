@@ -492,7 +492,7 @@ def exponential_qe(
     if len(charge_array["wavelength"]) == 1:
         # If only one wavelength, squeeze the wavelength dimension
         charges = charge_array.squeeze(dim="wavelength")
-        logging.ingo(
+        logging.info(
             "Single wavelength detected. Skipping integration over wavelength."
         )
     else:
