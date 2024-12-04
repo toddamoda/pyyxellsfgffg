@@ -127,10 +127,10 @@ def exponential_qe(
 
     elif detector.photon.ndim == 3:
         if default_wavelength != "multi":
-            print(
+            logging.info(
                 "Photon array is 3D, but `default_wavelength` is not 'multi'. Proceeding with the existing wavelength data."
             )
-        print("Photon array is 3D. Proceeding normally.")
+        logging.info("Photon array is 3D. Proceeding normally.")
         photon_array_3d = detector.photon.array_3d
 
     else:
@@ -492,11 +492,15 @@ def exponential_qe(
     if len(charge_array["wavelength"]) == 1:
         # If only one wavelength, squeeze the wavelength dimension
         charges = charge_array.squeeze(dim="wavelength")
-        print("Single wavelength detected. Skipping integration over wavelength.")
+        logging.ingo(
+            "Single wavelength detected. Skipping integration over wavelength."
+        )
     else:
         # Otherwise, integrate over the wavelength
         charges = charge_array.integrate(coord="wavelength")
-        print("Multiple wavelengths detected. Performing integration over wavelength.")
+        logging.info(
+            "Multiple wavelengths detected. Performing integration over wavelength."
+        )
 
     # Add charges to the detector
     detector.charge.add_charge_array(np.asarray(charges))
