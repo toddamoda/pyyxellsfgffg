@@ -84,6 +84,38 @@ def apply_run_number(template_filename: Path, run_number: int | None = None) -> 
     return output_path
 
 
+def write_to_fits(
+    filename: Path,
+    data: np.ndarray,
+    header: Optional["fits.Header"],
+    overwrite: bool,
+):
+    if filename.exists() and not overwrite:
+        return
+
+    if data.ndim != 2:
+        raise NotImplementedError
+
+    parent: Path = filename.parent
+    name: str = filename.stem
+
+    new_name = name.replace(".", "_")
+
+    logging.info("Save to FITS - filename: '%s'", filename)
+
+    from astropy.io import fits  # Late import to speed-up general import time
+
+    if header is None:
+        header = fits.Header()
+
+    header["PYXEL_V"] = (version, "Pyxel version")
+
+    hdu = fits.PrimaryHDU(data, header=header)
+    hdu.writeto(full_filename, overwrite=False, output_verify="exception")
+
+    return full_filename
+
+
 def to_fits(
     current_output_folder: Path,
     data: Any,

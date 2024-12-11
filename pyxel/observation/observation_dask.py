@@ -9,6 +9,7 @@
 
 from collections.abc import Hashable, Mapping, Sequence
 from dataclasses import dataclass
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, Union
 
 import numpy as np
@@ -21,7 +22,7 @@ if TYPE_CHECKING:
     import xarray as xr
 
     from pyxel.exposure import Readout
-    from pyxel.outputs import ObservationOutputs
+    from pyxel.outputs import ObservationOutputs, ValidFormat, ValidName
     from pyxel.pipelines import Processor
 
 
@@ -196,6 +197,7 @@ def _get_output_sizes(
 
 def _run_pipelines_array_to_datatree(
     params_tuple: tuple,
+    output_filenames: Sequence[str],
     params_index: int,
     dimension_names: Mapping[str, str],
     processor: "Processor",
@@ -232,11 +234,46 @@ def _run_pipelines_array_to_datatree(
         progressbar=progressbar,
     )
 
+    # TODO: Remove this ! This should be done in
+    # Save the outputs if configured
+    if (
+        processor.observation
+        and processor.observation.outputs
+        and processor.observation.outputs.save_data_to_file
+    ):
+        assert output_filenames  # TODO: improve this
+
+        # TODO: use 'output_filenames' to get 'photon' or 'pixel' or ...
+        # TODO: Get the last DataArray from: data_tree['/bucket/photon']
+        # TODO: USe 'detector._header'
+
+        result = processor.observation.outputs.save_to_files(
+            processor=new_processor,
+            filenames=output_filenames,
+            header=new_processor.detector._header,
+        )
+        filenames_dct: Mapping[str, Mapping[str, str]] = (
+            processor.observation.outputs.save_to_file(
+                processor=new_processor,
+                run_number=params_index,
+            )
+        )
+    #
+    #     datatree_dct: dict[str, xr.Dataset] = {}
+    #     for name, partial_dct in filenames_dct.items():
+    #         for file_formats, filename in partial_dct.items():
+    #             datatree_dct[name] = xr.Dataset(
+    #                 {file_formats: np.array(filename, dtype=np.object_)}
+    #             )
+    #
+    #     data_tree["/output"] = DataTree.from_dict(datatree_dct)
+
     return data_tree
 
 
 def _build_metadata(
     params_tuple: tuple,
+    output_filenames: Sequence[str],
     dimension_names: Mapping[str, str],
     processor: "Processor",
     readout: "Readout",
@@ -250,6 +287,7 @@ def _build_metadata(
 
     data_tree = _run_pipelines_array_to_datatree(
         params_tuple=params_tuple,
+        output_filenames=output_filenames,
         params_index=0,
         dimension_names=dimension_names,
         processor=processor,
@@ -358,6 +396,99 @@ def _rebuild_datatree_from_dask(
     return dct
 
 
+def _build_output_filenames(
+    params_dataarray: "xr.DataArray",
+    outputs: "ObservationOutputs",
+) -> "xr.DataArray":
+    """Generate output filenames as DataArray.
+
+    Parameters
+    ----------
+    params_dataarray : DataArray
+        DataArray containing parameter information for filenames.
+    outputs : ObservationOutputs
+        Object containing output folder and file-saving configuration.
+
+    Returns
+    -------
+    DataArray
+        DataArray with filenames as values and appropriate coordinates.
+
+    Examples
+    --------
+    >>> params_dataarray
+    <xarray.DataArray 'custom_values' (id: 6)> Size: 48B
+    array([0, 1, 2, 3, 4, 5])
+    Coordinates:
+        image_file  (id) object 48B 'FITS/00001.fits' ... 'FITS/00006.fits'
+      * id          (id) int64 48B 0 1 2 3 4 5
+    >>> outputs
+    Out[2]: ObservationOutputs<output_dir='./output/run_20241203_194724', num_files=1>
+
+    >>> _build_output_filenames(params_dataarray=params_dataarray, outputs=outputs)
+    xarray.DataArray (id: 6, name_ext: 1)> Size: 2kB
+    array([['/Users/Frederic.Lemmel/sw/pyxel_dev/atreids/output/run_20241203_194724/detector_image_0.fits'],
+           ['/Users/Frederic.Lemmel/sw/pyxel_dev/atreids/output/run_20241203_194724/detector_image_1.fits'],
+           ['/Users/Frederic.Lemmel/sw/pyxel_dev/atreids/output/run_20241203_194724/detector_image_2.fits'],
+           ['/Users/Frederic.Lemmel/sw/pyxel_dev/atreids/output/run_20241203_194724/detector_image_3.fits'],
+           ['/Users/Frederic.Lemmel/sw/pyxel_dev/atreids/output/run_20241203_194724/detector_image_4.fits'],
+           ['/Users/Frederic.Lemmel/sw/pyxel_dev/atreids/output/run_20241203_194724/detector_image_5.fits']],
+          dtype='<U92')
+    Coordinates:
+      * id        (id) int64 48B 0 1 2 3 4 5
+      * name_ext  (name_ext) <U10 40B 'image_fits'
+    """
+    # Late import to speedup start-up time
+    import xarray as xr
+
+    if outputs.save_data_to_file is None:
+        raise NotImplementedError
+
+    folder: Path = outputs.current_output_folder
+
+    # Generate indices for the filename(s)
+    # indices: xr.DataArray = params_dataarray.reset_coords(drop=True).rename("filename")
+    # indices.values = np.arange(len(params_dataarray)).reshape(params_dataarray.shape)
+    indices = xr.DataArray(
+        np.arange(len(params_dataarray)).reshape(params_dataarray.shape),
+        dims=params_dataarray.dims,
+        coords=params_dataarray.coords,
+        name="filename",
+    )
+
+    # Extract filename components from the outputs configuration
+    filename_components: list[str] = []
+    file_config: Mapping["ValidName", Sequence["ValidFormat"]]
+    for file_config in outputs.save_data_to_file:
+        name: str
+        formats: Sequence[str]
+        for name, formats in file_config.items():
+            base_name: str = name.removeprefix("detector.").removesuffix(".array")
+
+            for value in formats:
+                filename_components.append(f"{base_name}_{value}")
+
+    name_ext = xr.DataArray(
+        filename_components,
+        coords={"name_ext": filename_components},
+    )
+
+    # Define filename generation function
+    def _generate_single_filename(index: int, name_ext: str, folder: str) -> str:
+        bucket_name, extension = name_ext.split("_")
+        return f"{folder}/detector_{bucket_name}_{index}.{extension}"
+
+    # Use apply_ufunc for vectorized filename generation
+    return xr.apply_ufunc(
+        _generate_single_filename,
+        indices,  # input parameter 'index'
+        name_ext,  # input parameter 'name_ext'
+        kwargs={"folder": folder},
+        input_core_dims=[[], []],
+        vectorize=True,
+    )
+
+
 def run_pipelines_with_dask(
     dim_names: Mapping[str, str],
     parameter_mode: ProductMode | SequentialMode | CustomMode,
@@ -373,6 +504,14 @@ def run_pipelines_with_dask(
     # Get parameters as a DataArray
     params_dataarray: xr.DataArray = parameter_mode.create_params(dim_names=dim_names)
 
+    # Get filenames with the same dimension as params_dataarray
+    df_output_filenames: xr.DataArray | None = None
+    if outputs:
+        df_output_filenames = _build_output_filenames(
+            params_dataarray=params_dataarray,
+            outputs=outputs,
+        )
+
     # Get the first parameter
     first_param: tuple = (
         params_dataarray.head(1)  # Get the first parameter
@@ -381,9 +520,21 @@ def run_pipelines_with_dask(
         .tolist()  # Convert to a tuple
     )
 
+    # Get the first output filename
+    first_output_filenames: Sequence[str] = []
+    if df_output_filenames is not None:
+        first_output_filenames = (
+            df_output_filenames.isel(
+                {key: 0 for key in df_output_filenames.dims if key != "name_ext"}
+            )
+            .to_numpy()
+            .tolist()
+        )
+
     # Extract metadata
     all_metadata: Mapping[str, DatasetMetadata] = _build_metadata(
         params_tuple=first_param,
+        output_filenames=first_output_filenames,
         dimension_names=dim_names,
         processor=processor,
         readout=readout,

@@ -519,6 +519,9 @@ def run_pipeline(
             )
             with_inherited_coords = True
 
+        # Add header(s)
+        buckets_data_tree.attrs |= detector._header
+
         # Add the final buckets data to the tree.
         if with_inherited_coords:
             dct["/bucket"] = buckets_data_tree

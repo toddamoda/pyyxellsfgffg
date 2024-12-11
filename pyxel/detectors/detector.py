@@ -10,7 +10,7 @@
 import collections
 from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Optional
 
 import numpy as np
 
@@ -30,7 +30,7 @@ from pyxel.util import get_size, memory_usage_details, resolve_with_working_dire
 
 if TYPE_CHECKING:
     import xarray as xr
-
+    from astropy.io import fits
 
 __all__ = ["Detector"]
 
@@ -107,7 +107,7 @@ class Detector:
         #       A better interface to access this information must be provided
         self.current_running_model_name: str = ""
 
-        self._headers: dict[str, Any] = {}
+        self._header: Optional["fits.Header"] = None
 
     def __eq__(self, other) -> bool:
         return (

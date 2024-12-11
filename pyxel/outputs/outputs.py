@@ -9,17 +9,27 @@
 
 import logging
 import warnings
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Optional, Union
 
 import numpy as np
+from typing_extensions import deprecated
 
 from pyxel import __version__ as version
 from pyxel.options import global_options
 from pyxel.outputs import SaveToFileProtocol, ValidFormat, apply_run_number
-from pyxel.outputs.utils import to_csv, to_fits, to_hdf, to_jpg, to_npy, to_png, to_txt
+from pyxel.outputs.utils import (
+    to_csv,
+    to_fits,
+    to_hdf,
+    to_jpg,
+    to_npy,
+    to_png,
+    to_txt,
+    write_to_fits,
+)
 from pyxel.util import complete_path
 
 if TYPE_CHECKING:
@@ -769,7 +779,42 @@ class Outputs:
 
         return full_filename
 
+    def save_to_files(
+        self,
+        processor: "Processor",
+        filenames: Sequence[str],
+        header: "fits.Header" | None,
+        overwrite: bool = False,
+    ) -> "xr.DataTree":
+        for filename in filenames:
+            full_filename = Path(filename)
+            name, _ = full_filename.name.rsplit("_", maxsplit=1)
+            valid_name: str = name.replace("_", ".")
+
+            data_2d = processor.get(valid_name, default=None)
+            if data_2d is None:
+                raise NotImplementedError
+
+            match full_filename.suffix.removeprefix("."):
+                case "fits":
+                    _ = write_to_fits(
+                        filename=full_filename,
+                        data=data_2d,
+                        header=header,
+                        overwrite=overwrite,
+                    )
+
+                case "hdf" | "npy" | "txt" | "csv" | "png":
+                    raise NotImplementedError
+
+                case "jpg" | "jpeg":
+                    raise NotImplementedError
+
+                case _:
+                    raise NotImplementedError
+
     # ruff: noqa: C901
+    @deprecated("Will be replaced by '.save_to_files'")
     def save_to_file(
         self,
         processor: "Processor",
@@ -843,7 +888,7 @@ class Outputs:
                     from astropy.io import fits
 
                     header = fits.Header()
-                    header.update(processor.detector._headers)
+                    header.update(processor.detector._header)
 
                     line: str
                     for line in processor.pipeline.describe():
