@@ -7,7 +7,7 @@
 """Simple model to compute signal-to-noise-ratio."""
 
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Literal, Union
+from typing import TYPE_CHECKING, Literal
 
 import xarray as xr
 
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 def compute_snr(
     data_array: xr.DataArray,
     absolute_time: xr.DataArray,
-    dimensions: Union[str, Sequence[str]] = ("x", "y"),
+    dimensions: str | Sequence[str] = ("x", "y"),
 ) -> xr.Dataset:
     """Compute signal-to-noise-ratio (SNR) for input array and save it to a Dataset.
 
@@ -88,7 +88,7 @@ def signal_to_noise_ratio(
 
     for name in names:
         # Extract data from 'detector'
-        data_bucket: Union[Pixel, Photon, Signal, Image] = getattr(detector, name)
+        data_bucket: Pixel | Photon | Signal | Image = getattr(detector, name)
         data_array: xr.DataArray = data_bucket.to_xarray(dtype=float)
 
         # Get current absolute time

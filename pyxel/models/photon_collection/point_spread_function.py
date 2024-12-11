@@ -9,7 +9,6 @@
 """Model for loading PSF from file."""
 
 from pathlib import Path
-from typing import Union
 
 import numpy as np
 import xarray as xr
@@ -56,7 +55,7 @@ def apply_psf(
 
 
 def load_psf(
-    detector: Detector, filename: Union[str, Path], normalize_kernel: bool = True
+    detector: Detector, filename: str | Path, normalize_kernel: bool = True
 ) -> None:
     """Load a point spread function from file and convolve the photon array with the PSF.
 
@@ -83,7 +82,7 @@ def load_psf(
 
 def load_wavelength_psf(
     detector: Detector,
-    filename: Union[str, Path],
+    filename: str | Path,
     wavelength_col: str,
     y_col: str,
     x_col: str,

@@ -8,7 +8,7 @@
 """Fix pattern noise model."""
 
 from pathlib import Path
-from typing import Literal, Optional, Union
+from typing import Literal
 
 import numpy as np
 
@@ -22,11 +22,11 @@ from pyxel.util import (
 
 def fpn_from_file(
     geometry: Geometry,
-    filename: Union[Path, str],
+    filename: Path | str,
     position: tuple[int, int] = (0, 0),
-    align: Optional[
-        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"]
-    ] = None,
+    align: (
+        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"] | None
+    ) = None,
 ) -> np.ndarray:
     """Get fixed pattern noise caused by pixel non-uniformity during charge collection from a file.
 
@@ -102,13 +102,13 @@ def compute_simple_prnu(
 
 def fixed_pattern_noise(
     detector: Detector,
-    filename: Union[Path, str, None] = None,
+    filename: Path | str | None = None,
     position: tuple[int, int] = (0, 0),
-    align: Optional[
-        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"]
-    ] = None,
-    fixed_pattern_noise_factor: Optional[float] = None,
-    seed: Optional[int] = None,
+    align: (
+        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"] | None
+    ) = None,
+    fixed_pattern_noise_factor: float | None = None,
+    seed: int | None = None,
 ) -> None:
     """Add fixed pattern noise caused by pixel non-uniformity during charge collection.
 

@@ -37,7 +37,7 @@ st: constant TDI period (serial)
 
 from collections.abc import Sequence
 from enum import Enum
-from typing import Literal, Optional
+from typing import Literal
 
 import astropy.constants as const
 import numba
@@ -60,7 +60,7 @@ def cdm(
     trap_release_times: Sequence[float],
     trap_densities: Sequence[float],
     sigma: Sequence[float],
-    full_well_capacity: Optional[float] = None,
+    full_well_capacity: float | None = None,
     max_electron_volume: float = 0.0,
     transfer_period: float = 0.0,
     charge_injection: bool = False,

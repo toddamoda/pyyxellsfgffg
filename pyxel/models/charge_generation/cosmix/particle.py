@@ -7,7 +7,7 @@
 
 """Pyxel CosmiX model to generate charge by ionization."""
 
-from typing import Literal, Optional, Union
+from typing import Literal
 
 import numpy as np
 
@@ -27,11 +27,11 @@ class Particle:
         particle_type: Literal[
             "proton", "ion", "alpha", "beta", "electron", "gamma", "x-ray"
         ],
-        input_energy: Union[int, float, Literal["random"]],
+        input_energy: int | float | Literal["random"],
         spectrum_cdf: np.ndarray,
-        starting_pos_ver: Union[str, np.ndarray],
-        starting_pos_hor: Union[str, np.ndarray],
-        starting_pos_z: Union[str, np.ndarray],
+        starting_pos_ver: str | np.ndarray,
+        starting_pos_hor: str | np.ndarray,
+        starting_pos_z: str | np.ndarray,
         # input_alpha='random', input_beta='random'
     ):
         """Creation of a particle according to some parameters.
@@ -98,7 +98,7 @@ class Particle:
         # # update direction:
         # self.dir_ver, self.dir_hor, self.dir_z = get_direction_from_angles()
 
-        self.track_length: Optional[float] = None
+        self.track_length: float | None = None
 
         self.dir_ver, self.dir_hor, self.dir_z = isotropic_direction()
 
@@ -131,7 +131,7 @@ class Particle:
 
         if input_energy == "random":
             self.energy: float = sampling_distribution(spectrum_cdf)
-        elif isinstance(input_energy, (int, float)):
+        elif isinstance(input_energy, int | float):
             self.energy = input_energy
         else:
             raise ValueError("Given particle energy could not be read")
@@ -191,8 +191,8 @@ class Particle:
             [self.random_det_pt_vert, self.random_det_pt_horz, self.random_det_pt_z]
         )
 
-        surface_start_point: Optional[np.ndarray] = None  #
-        surface_end_point: Optional[np.ndarray] = None
+        surface_start_point: np.ndarray | None = None  #
+        surface_end_point: np.ndarray | None = None
         for i in range(6):
             intersect_points[i, :] = find_intersection(
                 n=norm_vectors[i], p0=points[i], ls=random_det_point, lv=track_direction
@@ -315,7 +315,7 @@ class Particle:
 
 def find_intersection(
     n: np.ndarray, p0: np.ndarray, ls: np.ndarray, lv: np.ndarray
-) -> Optional[np.ndarray]:
+) -> np.ndarray | None:
     """TBW.
 
     https://en.wikipedia.org/wiki/Line%E2%80%93plane_intersection

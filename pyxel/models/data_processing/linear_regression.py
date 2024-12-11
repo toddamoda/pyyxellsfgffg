@@ -7,7 +7,7 @@
 
 """Model to compute linear regressions."""
 
-from typing import TYPE_CHECKING, Literal, Optional, Union
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 def linear_regression(
     detector: Detector,
     data_structure: Literal["pixel", "photon", "image", "signal"] = "image",
-    name: Optional[str] = None,
+    name: str | None = None,
 ) -> None:
     """Compute a linear regression along 'readout_time' and store it in '.data' bucket.
 
@@ -90,7 +90,7 @@ def linear_regression(
         name = data_structure
 
     # Extract data from 'detector'
-    data_bucket: Union[Pixel, Photon, Image, Signal] = getattr(detector, data_structure)
+    data_bucket: Pixel | Photon | Image | Signal = getattr(detector, data_structure)
 
     x: float = detector.absolute_time
     y: xr.DataArray = data_bucket.to_xarray(dtype=float)

@@ -8,7 +8,7 @@
 
 """Simple ADC model functions."""
 
-from typing import Literal, Optional
+from typing import Literal
 
 import numpy as np
 from numpy.typing import DTypeLike
@@ -77,7 +77,7 @@ def apply_simple_adc(
 
 def simple_adc(
     detector: Detector,
-    data_type: Optional[Literal["uint8", "uint16", "uint32", "uint64"]] = None,
+    data_type: Literal["uint8", "uint16", "uint32", "uint64"] | None = None,
 ) -> None:
     """Apply simple Analog-to-Digital Converter (ADC) to the `signal` bucket from `Detector`.
 

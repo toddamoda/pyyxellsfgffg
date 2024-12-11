@@ -6,7 +6,7 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 from pathlib import Path
-from typing import Literal, Optional
+from typing import Literal
 
 import numpy as np
 import pytest
@@ -73,9 +73,9 @@ def test_load_image(
     valid_data2d: str,
     image_file: str,
     position: tuple[int, int],
-    align: Optional[
-        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"]
-    ],
+    align: (
+        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"] | None
+    ),
     convert_to_photons: bool,
     multiplier: float,
     time_scale: float,
@@ -106,9 +106,9 @@ def test_load_image_twice(
     valid_data2d: str,
     image_file: str,
     position: tuple[int, int],
-    align: Optional[
-        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"]
-    ],
+    align: (
+        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"] | None
+    ),
     convert_to_photons: bool,
     multiplier: float,
     time_scale: float,
@@ -164,9 +164,9 @@ def test_load_image_with_invalid_params(
     valid_data2d: str,
     image_file: str,
     position: tuple[int, int],
-    align: Optional[
-        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"]
-    ],
+    align: (
+        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"] | None
+    ),
     convert_to_photons: bool,
     multiplier: float,
     time_scale: float,

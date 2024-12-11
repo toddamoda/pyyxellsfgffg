@@ -661,7 +661,7 @@ def _run_observation_deprecated(
 
 def _processors_it(
     observation: "Observation", processor: "Processor"
-) -> Iterator[tuple["Processor", Union[int, tuple[int]], dict]]:  # pragma: no cover
+) -> Iterator[tuple["Processor", int | tuple[int], dict]]:  # pragma: no cover
     """Generate processors with different product parameters.
 
     Parameters

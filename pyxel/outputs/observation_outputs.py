@@ -12,7 +12,7 @@ import operator
 import warnings
 from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, Protocol, Union
+from typing import TYPE_CHECKING, Any, Protocol, Union
 
 from pyxel.outputs import Outputs, ValidFormat, ValidName
 
@@ -48,14 +48,14 @@ class ObservationOutputs(Outputs):
 
     def __init__(
         self,
-        output_folder: Union[str, Path],
+        output_folder: str | Path,
         custom_dir_name: str = "",
-        save_data_to_file: Optional[
-            Sequence[Mapping[ValidName, Sequence[ValidFormat]]]
-        ] = None,
-        save_observation_data: Optional[
-            Sequence[Mapping[str, Sequence[str]]]
-        ] = None,  # TODO: This parameter is deprecated
+        save_data_to_file: (
+            Sequence[Mapping[ValidName, Sequence[ValidFormat]]] | None
+        ) = None,
+        save_observation_data: (
+            Sequence[Mapping[str, Sequence[str]]] | None
+        ) = None,  # TODO: This parameter is deprecated
     ):
         super().__init__(
             output_folder=output_folder,
@@ -64,12 +64,12 @@ class ObservationOutputs(Outputs):
         )
 
         # TODO: This parameter is deprecated
-        self._save_observation_data: Optional[Sequence[Mapping[str, Sequence[str]]]] = (
+        self._save_observation_data: Sequence[Mapping[str, Sequence[str]]] | None = (
             save_observation_data
         )
 
     @property
-    def save_observation_data(self) -> Optional[Sequence[Mapping[str, Sequence[str]]]]:
+    def save_observation_data(self) -> Sequence[Mapping[str, Sequence[str]]] | None:
         warnings.warn(
             "Deprecated. Will be removed in future version",
             DeprecationWarning,

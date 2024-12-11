@@ -12,10 +12,9 @@ import re
 from collections.abc import Mapping
 from glob import glob
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, Protocol
+from typing import TYPE_CHECKING, Any, Literal, Optional, Protocol
 
 import numpy as np
-from typing_extensions import Literal
 
 from pyxel import __version__ as version
 from pyxel.options import global_options
@@ -40,8 +39,8 @@ class SaveToFileProtocol(Protocol):
         data: Any,
         name: str,
         with_auto_suffix: bool = True,
-        run_number: Optional[int] = None,
-        header: Optional[Mapping] = None,
+        run_number: int | None = None,
+        header: Mapping | None = None,
     ) -> Path: ...
 
 
@@ -50,7 +49,7 @@ ValidFormat = Literal["fits", "hdf", "npy", "txt", "csv", "png", "jpg", "jpeg"]
 
 # TODO: Refactor this in 'def apply_run_number(folder, template_filename) -> Path'.
 #       See #332.
-def apply_run_number(template_filename: Path, run_number: Optional[int] = None) -> Path:
+def apply_run_number(template_filename: Path, run_number: int | None = None) -> Path:
     """Convert the file name numeric placeholder to a unique number.
 
     Parameters
@@ -96,7 +95,7 @@ def to_fits(
     data: Any,
     name: str,
     with_auto_suffix: bool = True,
-    run_number: Optional[int] = None,
+    run_number: int | None = None,
     header: Optional["fits.Header"] = None,
 ) -> Path:
     """Write array to :term:`FITS` file."""
@@ -139,8 +138,8 @@ def to_hdf(
     data: Any,
     name: str,
     with_auto_suffix: bool = True,
-    run_number: Optional[int] = None,
-    header: Optional[Mapping] = None,
+    run_number: int | None = None,
+    header: Mapping | None = None,
 ) -> Path:
     """Write detector object to HDF5 file."""
     # Late import to speedup start-up time
@@ -181,6 +180,7 @@ def to_hdf(
                     data.charge.frame,
                 ],
                 ["Signal", "Image", "Photon", "Pixel", "Charge"],
+                strict=False,
             ):
                 dataset = detector_grp.create_dataset(name, shape=np.shape(array))
                 dataset[:] = array
@@ -197,8 +197,8 @@ def to_npy(
     data: Any,
     name: str,
     with_auto_suffix: bool = True,
-    run_number: Optional[int] = None,
-    header: Optional[Mapping] = None,
+    run_number: int | None = None,
+    header: Mapping | None = None,
 ) -> Path:
     """Write Numpy array to Numpy binary npy file."""
     if not isinstance(data, np.ndarray):
@@ -233,8 +233,8 @@ def to_txt(
     data: Any,
     name: str,
     with_auto_suffix: bool = True,
-    run_number: Optional[int] = None,
-    header: Optional[Mapping] = None,
+    run_number: int | None = None,
+    header: Mapping | None = None,
 ) -> Path:
     """Write data to txt file."""
     if not isinstance(data, np.ndarray):
@@ -266,8 +266,8 @@ def to_csv(
     data: Any,
     name: str,
     with_auto_suffix: bool = True,
-    run_number: Optional[int] = None,
-    header: Optional[Mapping] = None,
+    run_number: int | None = None,
+    header: Mapping | None = None,
 ) -> Path:
     """Write Pandas Dataframe or Numpy array to a CSV file."""
     # Late import
@@ -305,8 +305,8 @@ def to_png(
     data: Any,
     name: str,
     with_auto_suffix: bool = True,
-    run_number: Optional[int] = None,
-    header: Optional[Mapping] = None,
+    run_number: int | None = None,
+    header: Mapping | None = None,
 ) -> Path:
     """Write Numpy array to a PNG image file."""
     if not isinstance(data, np.ndarray):
@@ -346,8 +346,8 @@ def to_jpg(
     data: Any,
     name: str,
     with_auto_suffix: bool = True,
-    run_number: Optional[int] = None,
-    header: Optional[Mapping] = None,
+    run_number: int | None = None,
+    header: Mapping | None = None,
 ) -> Path:
     """Write Numpy array to a JPG image file."""
     if not isinstance(data, np.ndarray):
@@ -387,7 +387,7 @@ def to_netcdf(
     data: Any,
     name: str,
     with_auto_suffix: bool = False,
-    run_number: Optional[int] = None,
+    run_number: int | None = None,
 ) -> Path:
     """Write Xarray dataset to NetCDF file.
 
@@ -408,7 +408,7 @@ def to_netcdf(
     except ImportError:
         from datatree import DataTree  # type: ignore[assignment]
 
-    if not isinstance(data, (xr.Dataset, DataTree)):
+    if not isinstance(data, xr.Dataset | DataTree):
         raise TypeError
 
     name = name.replace(".", "_")
@@ -427,7 +427,7 @@ def to_file(
     data: Any,
     name: str,
     with_auto_suffix: bool = False,
-    run_number: Optional[int] = None,
+    run_number: int | None = None,
 ) -> Path:
     save_methods: Mapping[ValidFormat, SaveToFileProtocol] = {
         "fits": to_fits,

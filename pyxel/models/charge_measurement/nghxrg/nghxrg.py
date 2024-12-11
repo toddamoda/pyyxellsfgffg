@@ -10,7 +10,7 @@
 import logging
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import Literal, Optional, Union
+from typing import Literal
 
 import numpy as np
 
@@ -65,14 +65,14 @@ class PCAZeroNoise:
 
 
 # Create an alias
-NoiseType = Union[
-    KTCBiasNoise,
-    WhiteReadNoise,
-    CorrPinkNoise,
-    UncorrPinkNoise,
-    AcnNoise,
-    PCAZeroNoise,
-]
+NoiseType = (
+    KTCBiasNoise
+    | WhiteReadNoise
+    | CorrPinkNoise
+    | UncorrPinkNoise
+    | AcnNoise
+    | PCAZeroNoise
+)
 
 
 # TODO: Use function `simcado.nghxrg.HXRGNoise` instead of
@@ -250,14 +250,14 @@ def nghxrg(
             Mapping[str, float],
         ]
     ],
-    window_position: Optional[tuple[int, int]] = None,
-    window_size: Optional[tuple[int, int]] = None,
+    window_position: tuple[int, int] | None = None,
+    window_size: tuple[int, int] | None = None,
     n_output: int = 1,
     n_row_overhead: int = 0,
     n_frame_overhead: int = 0,
     reverse_scan_direction: bool = False,
     reference_pixel_border_width: int = 4,
-    seed: Optional[int] = None,
+    seed: int | None = None,
 ) -> None:
     """Generate fourier noise power spectrum on HXRG detector.
 

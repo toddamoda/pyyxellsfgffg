@@ -10,9 +10,8 @@
 import importlib
 from ast import literal_eval
 from collections import abc
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from numbers import Number
-from typing import Callable, Union
 
 import numpy as np
 
@@ -66,7 +65,7 @@ def evaluate_reference(reference_str: str) -> Callable:
     return reference
 
 
-def eval_range(values: Union[Number, str, Sequence]) -> Sequence:
+def eval_range(values: Number | str | Sequence) -> Sequence:
     """Evaluate a string representation of a list or numpy array.
 
     :param values:
@@ -108,8 +107,8 @@ def eval_range(values: Union[Number, str, Sequence]) -> Sequence:
 
 
 def eval_entry(
-    value: Union[str, Number, np.ndarray, Sequence],
-) -> Union[str, Number, np.ndarray, Sequence]:
+    value: str | Number | np.ndarray | Sequence,
+) -> str | Number | np.ndarray | Sequence:
     """Evaluate a value and try to convert it from a string to its corresponding data type."""
     if not isinstance(value, str):
         return value
@@ -125,6 +124,6 @@ def eval_entry(
             value = '"' + value + '"'
 
     new_value = literal_eval(value)
-    assert isinstance(new_value, (str, Number, Sequence))
+    assert isinstance(new_value, str | Number | Sequence)
 
     return new_value

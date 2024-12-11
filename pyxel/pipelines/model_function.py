@@ -10,8 +10,8 @@
 import inspect
 import sys
 import warnings
-from collections.abc import Mapping, MutableMapping
-from typing import TYPE_CHECKING, Any, Callable, Optional
+from collections.abc import Callable, Mapping, MutableMapping
+from typing import TYPE_CHECKING, Any
 
 from pyxel.evaluator import evaluate_reference
 
@@ -170,7 +170,7 @@ class ModelFunction:
         self,
         func: str,
         name: str,
-        arguments: Optional[dict] = None,
+        arguments: dict | None = None,
         enabled: bool = True,
     ):
         # TODO: Remove this !
@@ -178,7 +178,7 @@ class ModelFunction:
             raise AttributeError("Cannot pass a class to ModelFunction.")
 
         self._func_name: str = func
-        self._func: Optional[Callable] = None
+        self._func: Callable | None = None
 
         self._name: str = name
         self.enabled: bool = enabled
@@ -237,9 +237,9 @@ class ModelFunction:
 class FitnessFunction:
     """Fitness function for model fitting."""
 
-    def __init__(self, func: str, arguments: Optional[Mapping[str, Any]] = None):
+    def __init__(self, func: str, arguments: Mapping[str, Any] | None = None):
         self._func: FittingCallable = evaluate_reference(func)
-        self._arguments: Optional[Mapping[str, Any]] = arguments
+        self._arguments: Mapping[str, Any] | None = arguments
 
     def __call__(
         self,

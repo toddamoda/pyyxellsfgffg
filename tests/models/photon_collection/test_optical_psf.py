@@ -8,7 +8,6 @@
 from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Optional, Union
 
 import numpy as np
 import pytest
@@ -424,10 +423,10 @@ class PhotonType(Enum):
 def test_optical_psf(
     apply_jitter: bool,
     photon_type: PhotonType,
-    env_wavelength: Union[WavelengthHandling, float, None],
-    wavelength: Union[float, tuple[float, float], None],
-    geo_pixel_scale: Optional[float],
-    pixelscale: Optional[float],
+    env_wavelength: WavelengthHandling | float | None,
+    wavelength: float | tuple[float, float] | None,
+    geo_pixel_scale: float | None,
+    pixelscale: float | None,
     optical_system,
     ccd_100x100_no_photon: CCD,
 ):
@@ -475,12 +474,12 @@ class ParamError:
     """Define parameters for 'test_optical_psf_error'."""
 
     photon_type: PhotonType
-    env_wavelength: Union[WavelengthHandling, float, None]
-    wavelength: Union[float, tuple[float, float], None]
-    geo_pixel_scale: Optional[float]
-    pixelscale: Optional[float]
+    env_wavelength: WavelengthHandling | float | None
+    wavelength: float | tuple[float, float] | None
+    geo_pixel_scale: float | None
+    pixelscale: float | None
     fov_arcsec: float
-    optical_system: Optional[list]
+    optical_system: list | None
     exp_exception: type[Exception]
     exp_error: str
 

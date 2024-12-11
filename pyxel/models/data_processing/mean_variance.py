@@ -11,7 +11,7 @@ This module provides functions to calculate and store the mean and variance of d
 The results are stored in xarray Dataset objects, which can be further analyzed or visualized.
 """
 
-from typing import TYPE_CHECKING, Literal, Optional, Union
+from typing import TYPE_CHECKING, Literal
 
 import xarray as xr
 
@@ -87,7 +87,7 @@ def compute_mean_variance(data_array: xr.DataArray) -> xr.Dataset:
 def mean_variance(
     detector: Detector,
     data_structure: Literal["pixel", "photon", "image", "signal"] = "image",
-    name: Optional[str] = None,
+    name: str | None = None,
 ) -> None:
     """Compute the mean and variance and store the result it in '.data' bucket.
 
@@ -153,7 +153,7 @@ def mean_variance(
         name = data_structure
 
     # Extract data from 'detector'
-    data_bucket: Union[Pixel, Photon, Image, Signal] = getattr(detector, data_structure)
+    data_bucket: Pixel | Photon | Image | Signal = getattr(detector, data_structure)
     data_array: xr.DataArray = data_bucket.to_xarray(dtype=float)
 
     # Computer the mean and variance

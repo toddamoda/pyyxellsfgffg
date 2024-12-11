@@ -39,7 +39,7 @@ class Persistence:
                 charge=np.zeros(geometry),
             )
             for time_constant, trap_proportion in sorted(
-                zip(trap_time_constants, trap_proportions)
+                zip(trap_time_constants, trap_proportions, strict=False)
             )
         ]
         self._trap_list = traps
@@ -110,7 +110,7 @@ class SimplePersistence:
                 charge=np.zeros(geometry),
             )
             for time_constant, trap_density in sorted(
-                zip(trap_time_constants, trap_densities)
+                zip(trap_time_constants, trap_densities, strict=False)
             )
         ]
 

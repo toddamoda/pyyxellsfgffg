@@ -9,10 +9,10 @@
 
 import logging
 import warnings
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from concurrent.futures.thread import ThreadPoolExecutor
 from timeit import default_timer as timer
-from typing import TYPE_CHECKING, Callable, Optional, Union
+from typing import TYPE_CHECKING
 
 import dask.array as da
 import numpy as np
@@ -182,7 +182,7 @@ def extract_data_3d(
             ).expand_dims(["island", "id_processor"])
         )
 
-    ds: Union[xr.Dataset, xr.DataArray] = xr.combine_by_coords(lst).assign_coords(
+    ds: xr.Dataset | xr.DataArray = xr.combine_by_coords(lst).assign_coords(
         readout_time=readout_times,
         y=range(rows),
         x=range(cols),
@@ -205,9 +205,9 @@ class MyArchipelago:  # pragma: no cover
         algorithm: Algorithm,
         problem: ModelFitting,
         pop_size: int,
-        bfe: Optional[Callable] = None,
-        topology: Optional[Callable] = None,
-        pygmo_seed: Optional[int] = None,
+        bfe: Callable | None = None,
+        topology: Callable | None = None,
+        pygmo_seed: int | None = None,
         parallel: bool = True,
         with_bar: bool = False,
     ):
@@ -261,7 +261,7 @@ class MyArchipelago:  # pragma: no cover
         disable_bar: bool = not self.with_bar
         start_time: float = timer()
 
-        def create_island(seed: Optional[int] = None) -> pg.island:
+        def create_island(seed: int | None = None) -> pg.island:
             """Create a new island."""
             return pg.island(
                 udi=self.udi,
@@ -274,7 +274,7 @@ class MyArchipelago:  # pragma: no cover
 
         # Create a seed for each island
         if self.pygmo_seed is None:
-            seeds: Sequence[Optional[int]] = [None] * self.num_islands
+            seeds: Sequence[int | None] = [None] * self.num_islands
         else:
             rng: np.random.Generator = np.random.default_rng(seed=self.pygmo_seed)
             max_value: int = np.iinfo(np.uint32).max
@@ -308,7 +308,7 @@ class MyArchipelago:  # pragma: no cover
         self,
         readout: "Readout",
         num_evolutions: int = 1,
-        num_best_decisions: Optional[int] = None,
+        num_best_decisions: int | None = None,
     ) -> tuple[xr.Dataset, pd.DataFrame, pd.DataFrame]:
         """Run evolution(s) several time.
 

@@ -10,7 +10,6 @@
 
 from collections.abc import Iterator, Sequence
 from numbers import Number
-from typing import Optional, Union
 
 import numpy as np
 
@@ -70,8 +69,8 @@ class Readout:
 
     def __init__(
         self,
-        times: Union[Number, Sequence, str, None] = None,
-        times_from_file: Optional[str] = None,
+        times: Number | Sequence | str | None = None,
+        times_from_file: str | None = None,
         start_time: float = 0.0,
         non_destructive: bool = False,
     ):
@@ -118,7 +117,7 @@ class Readout:
 
     def time_step_it(self) -> Iterator[tuple[float, float]]:
         """TBW."""
-        return zip(self._times, self._steps)
+        return zip(self._times, self._steps, strict=False)
 
     @property
     def start_time(self) -> float:
@@ -139,7 +138,7 @@ class Readout:
         return self._times
 
     @times.setter
-    def times(self, value: Union[Number, Sequence, np.ndarray]) -> None:
+    def times(self, value: Number | Sequence | np.ndarray) -> None:
         """Set readout times.
 
         Parameters

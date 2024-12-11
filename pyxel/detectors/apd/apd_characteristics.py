@@ -30,7 +30,6 @@ current status, in Image Sensing Technologies: Materials, Devices, Systems, and 
 
 import math
 from collections.abc import Mapping
-from typing import Optional
 
 import numpy as np
 
@@ -63,17 +62,17 @@ class APDCharacteristics:
     def __init__(
         self,
         roic_gain: float,  # unit: V
-        quantum_efficiency: Optional[float] = None,  # unit: NA
-        full_well_capacity: Optional[float] = None,  # unit: electron
-        adc_bit_resolution: Optional[int] = None,
-        adc_voltage_range: Optional[tuple[float, float]] = None,  # unit: V
-        avalanche_gain: Optional[float] = None,  # unit: electron/electron
-        pixel_reset_voltage: Optional[float] = None,  # unit: V
-        common_voltage: Optional[float] = None,  # unit: V
+        quantum_efficiency: float | None = None,  # unit: NA
+        full_well_capacity: float | None = None,  # unit: electron
+        adc_bit_resolution: int | None = None,
+        adc_voltage_range: tuple[float, float] | None = None,  # unit: V
+        avalanche_gain: float | None = None,  # unit: electron/electron
+        pixel_reset_voltage: float | None = None,  # unit: V
+        common_voltage: float | None = None,  # unit: V
     ):
-        self._original_avalanche_gain: Optional[float] = avalanche_gain
-        self._original_pixel_reset_voltage: Optional[float] = pixel_reset_voltage
-        self._original_common_voltage: Optional[float] = common_voltage
+        self._original_avalanche_gain: float | None = avalanche_gain
+        self._original_pixel_reset_voltage: float | None = pixel_reset_voltage
+        self._original_common_voltage: float | None = common_voltage
 
         if avalanche_gain is not None:
             self._avalanche_gain: float = avalanche_gain
@@ -129,10 +128,10 @@ class APDCharacteristics:
         if full_well_capacity and not (0.0 <= full_well_capacity <= 1.0e7):
             raise ValueError("'full_well_capacity' must be between 0 and 1e7.")
 
-        self._quantum_efficiency: Optional[float] = quantum_efficiency
-        self._full_well_capacity: Optional[float] = full_well_capacity
-        self._adc_voltage_range: Optional[tuple[float, float]] = adc_voltage_range
-        self._adc_bit_resolution: Optional[int] = adc_bit_resolution
+        self._quantum_efficiency: float | None = quantum_efficiency
+        self._full_well_capacity: float | None = full_well_capacity
+        self._adc_voltage_range: tuple[float, float] | None = adc_voltage_range
+        self._adc_bit_resolution: int | None = adc_bit_resolution
         self._node_capacitance: float = self.bias_to_node_capacitance_saphira(
             self.avalanche_bias
         )

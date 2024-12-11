@@ -34,7 +34,6 @@ dark current distribution of neutron irradiated CMOS image sensors," Opt. Expres
 """
 
 import warnings
-from typing import Optional, Union
 
 import numpy as np
 from astropy import constants as const
@@ -229,12 +228,12 @@ def compute_radiation_induced_dark_current(
 
 
 def radiation_induced_dark_current(
-    detector: Union[CCD, CMOS],
+    detector: CCD | CMOS,
     depletion_volume: float,
     annealing_time: float,
     displacement_dose: float,
     shot_noise: bool,
-    seed: Optional[int] = None,
+    seed: int | None = None,
 ) -> None:
     """Model to add dark current induced by radiation to the detector charge.
 

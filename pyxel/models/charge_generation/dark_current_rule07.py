@@ -8,7 +8,6 @@
 """Simple models to generate charge due to dark current process."""
 
 import warnings
-from typing import Optional, Union
 
 import numpy as np
 
@@ -101,7 +100,7 @@ def compute_mct_dark_rule07(
     time_step: float,
     temperature: float,
     cut_off: float,
-    spatial_noise_factor: Optional[float] = None,
+    spatial_noise_factor: float | None = None,
     temporal_noise: bool = True,
 ) -> np.ndarray:
     """Compute the dark current array for a detector using the Rule07 model.
@@ -177,10 +176,10 @@ def compute_mct_dark_rule07(
 
 
 def dark_current_rule07(
-    detector: Union[CCD, CMOS],
+    detector: CCD | CMOS,
     cutoff_wavelength: float = 2.5,  # unit: µm
-    spatial_noise_factor: Optional[float] = None,
-    seed: Optional[int] = None,
+    spatial_noise_factor: float | None = None,
+    seed: int | None = None,
     temporal_noise: bool = True,
 ) -> None:
     """Generate charge from dark current process based on the Rule07 model.
@@ -220,7 +219,7 @@ def dark_current_rule07(
     :external+pyxel_data:doc:`examples/models/dark_current/dark_current_rule07`.
     """
     # TODO: investigate on the knee of rule07 for higher 1/le*T values
-    if not isinstance(detector, (CCD, CMOS)):
+    if not isinstance(detector, CCD | CMOS):
         raise TypeError("Expecting a CCD or CMOS object for detector.")
     if not (1.7 <= cutoff_wavelength <= 15.0):
         raise ValueError("'cutoff' must be between 1.7 and 15.0.")

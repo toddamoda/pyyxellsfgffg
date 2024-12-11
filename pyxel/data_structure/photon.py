@@ -9,7 +9,7 @@
 
 import warnings
 from collections.abc import Hashable, Mapping
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING, Any, Union
 
 import numpy as np
 from typing_extensions import Self
@@ -103,7 +103,7 @@ class Photon:
     )
 
     def __init__(self, geo: "Geometry"):
-        self._array: Union[np.ndarray, "xr.DataArray", None] = None
+        self._array: np.ndarray | "xr.DataArray" | None = None
 
         self._num_rows: int = geo.row
         self._num_cols: int = geo.col
@@ -148,7 +148,7 @@ class Photon:
 
         return False
 
-    def __array__(self, dtype: Optional[np.dtype] = None) -> np.ndarray:
+    def __array__(self, dtype: np.dtype | None = None) -> np.ndarray:
         if self._array is None:
             raise ValueError("Not initialized")
 
@@ -500,7 +500,7 @@ pipeline:
 
         return obj
 
-    def to_xarray(self, dtype: Optional[np.typing.DTypeLike] = None) -> "xr.DataArray":
+    def to_xarray(self, dtype: np.typing.DTypeLike | None = None) -> "xr.DataArray":
         # Late import to speedup start-up time
         import xarray as xr
 

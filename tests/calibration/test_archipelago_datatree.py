@@ -7,7 +7,6 @@
 
 
 from pathlib import Path
-from typing import Optional
 
 import pytest
 
@@ -154,9 +153,9 @@ def model_fitting(
 def test_archipelago_datatree(
     model_fitting: ModelFittingDataTree,
     processor: Processor,
-    seed: Optional[int],
+    seed: int | None,
     parallel: bool,
-    num_best_decisions: Optional[int],
+    num_best_decisions: int | None,
 ):
     """Test class 'ArchipelagoDataTree'."""
     island = DaskIsland()

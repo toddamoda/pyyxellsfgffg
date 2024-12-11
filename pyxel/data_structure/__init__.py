@@ -23,7 +23,7 @@ from .phase import Phase
 from .persistence import Persistence, SimplePersistence
 
 
-def _get_array_if_initialized(obj: Optional[ArrayBase]) -> Optional[np.ndarray]:
+def _get_array_if_initialized(obj: ArrayBase | None) -> np.ndarray | None:
     """Get a copy of the numpy array if the object is fully initialized.
 
     Parameters

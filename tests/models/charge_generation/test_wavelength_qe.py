@@ -6,7 +6,7 @@
 #   the terms contained in the file ‘LICENCE.txt’.
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
@@ -89,7 +89,7 @@ def invalid_qe_dataframe(
     return final_path
 
 
-def test_conversion_with_qe_valid(ccd_5x5: CCD, valid_qe_dataframe: Union[str, Path]):
+def test_conversion_with_qe_valid(ccd_5x5: CCD, valid_qe_dataframe: str | Path):
     detector = ccd_5x5
 
     apply_qe_curve(
@@ -100,9 +100,7 @@ def test_conversion_with_qe_valid(ccd_5x5: CCD, valid_qe_dataframe: Union[str, P
     )
 
 
-def test_simple_conversion_invalid(
-    ccd_5x5: CCD, invalid_qe_dataframe: Union[str, Path]
-):
+def test_simple_conversion_invalid(ccd_5x5: CCD, invalid_qe_dataframe: str | Path):
     with pytest.raises(
         ValueError, match="Quantum efficiency values not between 0 and 1."
     ):

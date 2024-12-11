@@ -7,7 +7,6 @@
 
 
 from pathlib import Path
-from typing import Union
 
 import numpy as np
 import pytest
@@ -217,15 +216,13 @@ def test_simple_conversion_invalid_qe(
         simple_conversion(detector=ccd_5x5, quantum_efficiency=qe)
 
 
-def test_conversion_with_qe_valid(ccd_2d: CCD, valid_qe_map_path: Union[str, Path]):
+def test_conversion_with_qe_valid(ccd_2d: CCD, valid_qe_map_path: str | Path):
     detector = ccd_2d
 
     conversion_with_qe_map(detector=detector, filename=valid_qe_map_path)
 
 
-def test_convertsion_with_qe_invalid(
-    ccd_5x5: CCD, invalid_qe_map_path: Union[str, Path]
-):
+def test_convertsion_with_qe_invalid(ccd_5x5: CCD, invalid_qe_map_path: str | Path):
     with pytest.raises(
         ValueError, match="Quantum efficiency values not between 0 and 1."
     ):

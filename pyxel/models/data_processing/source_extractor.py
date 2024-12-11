@@ -117,7 +117,7 @@ def extract_roi(
         ) from exc
 
     # Detect sources above a specified threshold value in an image
-    sources: Optional[SegmentationImage] = detect_sources(
+    sources: SegmentationImage | None = detect_sources(
         data=image_2d,
         threshold=thresh,
         npixels=minarea,
@@ -202,7 +202,7 @@ def extract_sources_to_xarray(
         ) from exc
 
     # Detect sources above a specified threshold value in an image
-    segmentation_image: Optional[SegmentationImage] = detect_sources(
+    segmentation_image: SegmentationImage | None = detect_sources(
         data=data_2d,
         threshold=thresh,
         npixels=minarea,

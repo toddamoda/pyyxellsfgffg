@@ -7,7 +7,7 @@
 
 """Pyxel Pixel class."""
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -44,7 +44,7 @@ class Pixel(ArrayBase):
         # TODO: Rename this method to '_update' ?
 
     @override
-    def update(self, data: Optional[ArrayLike]) -> None:
+    def update(self, data: ArrayLike | None) -> None:
         """Update 'array' attribute.
 
         This method updates 'array' attribute of this object with new data.

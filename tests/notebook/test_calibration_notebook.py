@@ -7,7 +7,6 @@
 
 
 from pathlib import Path
-from typing import Optional
 
 import holoviews as hv
 import numpy as np
@@ -288,9 +287,9 @@ def test_optimal_parameters(dataset: xr.Dataset):
 @pytest.mark.parametrize("logx", [False, True])
 def test_champion_heatmap(
     dataset: xr.Dataset,
-    parameter_range: Optional[tuple[int, int]],
-    island_range: Optional[tuple[int, int]],
-    ind_range: Optional[tuple[int, int]],
+    parameter_range: tuple[int, int] | None,
+    island_range: tuple[int, int] | None,
+    ind_range: tuple[int, int] | None,
     logx: bool,
 ):
     """Test function 'champion_heatmap'."""

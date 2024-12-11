@@ -8,7 +8,7 @@
 """Create JSON Schema file for Pyxel."""
 
 import sys
-import typing as t
+from collections.abc import Mapping
 from pathlib import Path
 
 import click
@@ -41,7 +41,7 @@ def main(
     environment: str,
     ci_api_v4_url: str,
     ci_project_id: int,
-    private_token: t.Optional[str],
+    private_token: str | None,
 ):
     # Create token
     headers = {}
@@ -72,7 +72,7 @@ def main(
     r.raise_for_status()
 
     rsp = r.json()
-    deployable_dct: t.Mapping = rsp["last_deployment"]["deployable"]
+    deployable_dct: Mapping = rsp["last_deployment"]["deployable"]
     job_id: int = deployable_dct["id"]
     # artifact_filename = deployable_dct["artifacts_file"]["filename"]  # type: str
     artifact_filename: int = "artifacts.zip"

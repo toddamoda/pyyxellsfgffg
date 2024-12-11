@@ -8,8 +8,8 @@
 """Pyxel CosmiX model to generate charge by ionization."""
 
 import bisect
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, Optional
 
 import numpy as np
 import pandas as pd
@@ -72,8 +72,8 @@ def get_yvalue_with_interpolation(function_array, x_value):
 def load_histogram_data(
     file_name: Path,
     hist_type: str,
-    skip_rows: Optional[int] = None,
-    read_rows: Optional[int] = None,
+    skip_rows: int | None = None,
+    read_rows: int | None = None,
 ) -> pd.DataFrame:
     # TODO store count in pandas dataframe as int !!!
 

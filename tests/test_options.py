@@ -6,7 +6,6 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 from pathlib import Path
-from typing import Optional
 
 import pytest
 
@@ -51,9 +50,7 @@ def test_global():
         pytest.param({"cache_folder": 42}, TypeError, None, id="Wrong type"),
     ],
 )
-def test_with_wrong_inputs(
-    dct: dict, exp_error: type[TypeError], exp_msg: Optional[str]
-):
+def test_with_wrong_inputs(dct: dict, exp_error: type[TypeError], exp_msg: str | None):
     """Test with a bad input."""
     with pytest.raises(exp_error, match=exp_msg):
         pyxel.set_options(**dct)

@@ -7,7 +7,6 @@
 
 """Model to generate charges due to simple dark current process."""
 
-from typing import Optional
 
 import numpy as np
 
@@ -49,7 +48,7 @@ def calculate_simple_dark_current(
 
 
 def simple_dark_current(
-    detector: Detector, dark_rate: float, seed: Optional[int] = None
+    detector: Detector, dark_rate: float, seed: int | None = None
 ) -> None:
     """Simulate dark current in a detector.
 

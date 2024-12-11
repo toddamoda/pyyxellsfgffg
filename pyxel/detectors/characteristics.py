@@ -8,7 +8,6 @@
 """TBW."""
 
 from collections.abc import Iterable, Mapping, Sequence
-from typing import Optional
 
 import numpy as np
 
@@ -36,12 +35,12 @@ class Characteristics:
 
     def __init__(
         self,
-        quantum_efficiency: Optional[float] = None,  # unit: NA
-        charge_to_volt_conversion: Optional[float] = None,  # unit: volt/electron
-        pre_amplification: Optional[float] = None,  # unit: V/V
-        full_well_capacity: Optional[float] = None,  # unit: electron
-        adc_bit_resolution: Optional[int] = None,
-        adc_voltage_range: Optional[tuple[float, float]] = None,  # unit: V
+        quantum_efficiency: float | None = None,  # unit: NA
+        charge_to_volt_conversion: float | None = None,  # unit: volt/electron
+        pre_amplification: float | None = None,  # unit: V/V
+        full_well_capacity: float | None = None,  # unit: electron
+        adc_bit_resolution: int | None = None,
+        adc_voltage_range: tuple[float, float] | None = None,  # unit: V
     ):
         if quantum_efficiency is not None and not (0.0 <= quantum_efficiency <= 1.0):
             raise ValueError("'quantum_efficiency' must be between 0.0 and 1.0.")
@@ -71,7 +70,7 @@ class Characteristics:
         self._full_well_capacity = full_well_capacity
 
         if adc_voltage_range is None:
-            volt_range: Optional[tuple[float, float]] = None
+            volt_range: tuple[float, float] | None = None
         else:
             # Force 'volt_range' to be a tuple of 2 elements
             start_volt, end_volt = adc_voltage_range
@@ -238,11 +237,11 @@ class Characteristics:
 
         # TODO: This is a simplistic implementation. Improve this.
         # Extract param 'adc_voltage_range'
-        param: Optional[Iterable[float]] = dct.get("adc_voltage_range")
+        param: Iterable[float] | None = dct.get("adc_voltage_range")
         new_dct: Mapping = dicttoolz.dissoc(dct, "adc_voltage_range")
 
         if param is None:
-            adc_voltage_range: Optional[tuple[float, float]] = None
+            adc_voltage_range: tuple[float, float] | None = None
         else:
             adc_voltage_min, adc_voltage_max = tuple(param)
             adc_voltage_range = adc_voltage_min, adc_voltage_max

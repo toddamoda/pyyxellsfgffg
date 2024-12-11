@@ -8,7 +8,7 @@
 import os
 import re
 from pathlib import Path
-from typing import Optional, Union, no_type_check
+from typing import no_type_check
 
 import numpy as np
 import pytest
@@ -131,7 +131,7 @@ def valid_data2d_http_hostname(
         url: str = httpserver.url_for("")
 
         # Extract the hostname (e.g. 'localhost:59226')
-        hostname: str = re.findall("http://(.*)/", url)[0]
+        hostname: str = re.findall(r"http://(.*)/", url)[0]
 
         yield hostname
 
@@ -170,7 +170,7 @@ def invalid_data2d_hostname(
         url: str = httpserver.url_for("")
 
         # Extract the hostname (e.g. 'localhost:59226')
-        hostname: str = re.findall("http://(.*)/", url)[0]
+        hostname: str = re.findall(r"http://(.*)/", url)[0]
 
         yield hostname
 
@@ -198,7 +198,7 @@ def test_invalid_filename(
     invalid_data2d_hostname: str,
     filename,
     exp_error: TypeError,
-    exp_message: Optional[str],
+    exp_message: str | None,
 ):
     """Test invalid filenames."""
     if isinstance(filename, str):
@@ -270,7 +270,7 @@ def test_invalid_filename(
 def test_load_image(
     with_caching: bool,
     valid_data2d_http_hostname: str,
-    filename: Union[str, Path],
+    filename: str | Path,
     exp_data: np.ndarray,
 ):
     """Test function 'load_image' with local and remote files."""
@@ -390,7 +390,7 @@ def test_load_image(
 def test_load_header(
     with_caching: bool,
     valid_data2d_http_hostname: str,
-    filename: Union[str, Path],
+    filename: str | Path,
     section,
     exp_header,
 ):

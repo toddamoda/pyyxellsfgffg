@@ -12,7 +12,7 @@ import sys
 from enum import Enum
 from functools import lru_cache
 from pathlib import Path
-from typing import Literal, Optional, Union
+from typing import Literal
 
 import numpy as np
 
@@ -66,9 +66,9 @@ def fit_into_array(
     array: np.ndarray,
     output_shape: tuple[int, ...],
     relative_position: tuple[int, int] = (0, 0),
-    align: Optional[
-        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"]
-    ] = None,
+    align: (
+        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"] | None
+    ) = None,
     allow_smaller_array: bool = True,
 ) -> np.ndarray:
     """Fit input array into an output array of specified output shape.
@@ -150,12 +150,12 @@ def fit_into_array(
 @lru_cache(maxsize=128)  # One must add parameter 'maxsize' for Python 3.7
 def load_cropped_and_aligned_image(
     shape: tuple[int, ...],
-    filename: Union[str, Path],
+    filename: str | Path,
     position_x: int = 0,
     position_y: int = 0,
-    align: Optional[
-        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"]
-    ] = None,
+    align: (
+        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"] | None
+    ) = None,
     allow_smaller_array: bool = True,
 ) -> np.ndarray:
     """Load image from file and fit to detector shape.

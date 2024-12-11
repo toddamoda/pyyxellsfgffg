@@ -8,7 +8,6 @@
 """TBW."""
 
 from collections.abc import Iterator, Sequence
-from typing import Optional
 
 from pyxel.pipelines import ModelFunction, ModelGroup
 
@@ -33,70 +32,70 @@ class DetectionPipeline:
     # TODO: develop a ModelGroupList class ? See #333
     def __init__(
         self,  # TODO: Too many instance attributes
-        scene_generation: Optional[Sequence[ModelFunction]] = None,
-        photon_collection: Optional[Sequence[ModelFunction]] = None,
-        phasing: Optional[Sequence[ModelFunction]] = None,
-        charge_generation: Optional[Sequence[ModelFunction]] = None,
-        charge_collection: Optional[Sequence[ModelFunction]] = None,
-        charge_transfer: Optional[Sequence[ModelFunction]] = None,
-        charge_measurement: Optional[Sequence[ModelFunction]] = None,
-        signal_transfer: Optional[Sequence[ModelFunction]] = None,
-        readout_electronics: Optional[Sequence[ModelFunction]] = None,
-        data_processing: Optional[Sequence[ModelFunction]] = None,
+        scene_generation: Sequence[ModelFunction] | None = None,
+        photon_collection: Sequence[ModelFunction] | None = None,
+        phasing: Sequence[ModelFunction] | None = None,
+        charge_generation: Sequence[ModelFunction] | None = None,
+        charge_collection: Sequence[ModelFunction] | None = None,
+        charge_transfer: Sequence[ModelFunction] | None = None,
+        charge_measurement: Sequence[ModelFunction] | None = None,
+        signal_transfer: Sequence[ModelFunction] | None = None,
+        readout_electronics: Sequence[ModelFunction] | None = None,
+        data_processing: Sequence[ModelFunction] | None = None,
     ):
-        self._scene_generation: Optional[ModelGroup] = (
+        self._scene_generation: ModelGroup | None = (
             ModelGroup(scene_generation, name="scene_generation")
             if scene_generation
             else None
         )
 
-        self._photon_collection: Optional[ModelGroup] = (
+        self._photon_collection: ModelGroup | None = (
             ModelGroup(photon_collection, name="photon_collection")
             if photon_collection
             else None
         )
 
-        self._phasing: Optional[ModelGroup] = (
+        self._phasing: ModelGroup | None = (
             ModelGroup(phasing, name="phasing") if phasing else None
         )  # MKID-array
 
-        self._charge_generation: Optional[ModelGroup] = (
+        self._charge_generation: ModelGroup | None = (
             ModelGroup(charge_generation, name="charge_generation")
             if charge_generation
             else None
         )
 
-        self._charge_collection: Optional[ModelGroup] = (
+        self._charge_collection: ModelGroup | None = (
             ModelGroup(charge_collection, name="charge_collection")
             if charge_collection
             else None
         )
 
-        self._charge_measurement: Optional[ModelGroup] = (
+        self._charge_measurement: ModelGroup | None = (
             ModelGroup(charge_measurement, name="charge_measurement")
             if charge_measurement
             else None
         )
 
-        self._readout_electronics: Optional[ModelGroup] = (
+        self._readout_electronics: ModelGroup | None = (
             ModelGroup(readout_electronics, name="readout_electronics")
             if readout_electronics
             else None
         )
 
-        self._charge_transfer: Optional[ModelGroup] = (
+        self._charge_transfer: ModelGroup | None = (
             ModelGroup(charge_transfer, name="charge_transfer")
             if charge_transfer
             else None
         )  # CCD
 
-        self._signal_transfer: Optional[ModelGroup] = (
+        self._signal_transfer: ModelGroup | None = (
             ModelGroup(signal_transfer, name="signal_transfer")
             if signal_transfer
             else None
         )  # CMOS
 
-        self._data_processing: Optional[ModelGroup] = (
+        self._data_processing: ModelGroup | None = (
             ModelGroup(data_processing, name="data_processing")
             if data_processing
             else None
@@ -109,57 +108,57 @@ class DetectionPipeline:
 
     def __iter__(self) -> Iterator[ModelFunction]:
         for model in self.MODEL_GROUPS:
-            models_grp: Optional[ModelGroup] = getattr(self, model)
+            models_grp: ModelGroup | None = getattr(self, model)
             if models_grp:
                 yield from models_grp
 
     @property
-    def scene_generation(self) -> Optional[ModelGroup]:
+    def scene_generation(self) -> ModelGroup | None:
         """Get group 'scene generation'."""
         return self._scene_generation
 
     @property
-    def photon_collection(self) -> Optional[ModelGroup]:
+    def photon_collection(self) -> ModelGroup | None:
         """Get group 'photon collection'."""
         return self._photon_collection
 
     @property
-    def phasing(self) -> Optional[ModelGroup]:
+    def phasing(self) -> ModelGroup | None:
         """Get group 'phasing'."""
         return self._phasing
 
     @property
-    def charge_generation(self) -> Optional[ModelGroup]:
+    def charge_generation(self) -> ModelGroup | None:
         """Get group 'charge generation'."""
         return self._charge_generation
 
     @property
-    def charge_collection(self) -> Optional[ModelGroup]:
+    def charge_collection(self) -> ModelGroup | None:
         """Get group 'charge collection'."""
         return self._charge_collection
 
     @property
-    def charge_transfer(self) -> Optional[ModelGroup]:
+    def charge_transfer(self) -> ModelGroup | None:
         """Get group 'charge transfer'."""
         return self._charge_transfer
 
     @property
-    def charge_measurement(self) -> Optional[ModelGroup]:
+    def charge_measurement(self) -> ModelGroup | None:
         """Get group 'charge measurement'."""
         return self._charge_measurement
 
     @property
-    def signal_transfer(self) -> Optional[ModelGroup]:
+    def signal_transfer(self) -> ModelGroup | None:
         """Get group 'signal transfer'."""
         return self._signal_transfer
 
     @property
-    def readout_electronics(self) -> Optional[ModelGroup]:
+    def readout_electronics(self) -> ModelGroup | None:
         """Get group 'readout electronics'."""
         return self._readout_electronics
 
     @property
-    def data_processing(self) -> Optional[ModelGroup]:
+    def data_processing(self) -> ModelGroup | None:
         """Get group 'data processing'."""
         return self._data_processing
 
@@ -198,7 +197,7 @@ class DetectionPipeline:
 
     def describe(self) -> Iterator[str]:
         for model_group_name in self.MODEL_GROUPS:
-            models_grp: Optional[ModelGroup] = getattr(self, model_group_name)
+            models_grp: ModelGroup | None = getattr(self, model_group_name)
             if not models_grp:
                 continue
 

@@ -11,7 +11,7 @@ import subprocess
 from bisect import bisect
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Literal, Optional, Union
+from typing import Literal
 
 import numpy as np
 import pandas as pd
@@ -44,7 +44,7 @@ class Simulation:
         particle_type: Literal[
             "proton", "ion", "alpha", "beta", "electron", "gamma", "x-ray"
         ],
-        initial_energy: Union[int, float, Literal["random"]],
+        initial_energy: int | float | Literal["random"],
         position_ver: str,
         position_hor: str,
         position_z: str,
@@ -58,12 +58,10 @@ class Simulation:
             "cosmic_ray", "cosmics", "radioactive_decay", "snowflakes"
         ] = simulation_mode
 
-        self.flux_dist: Optional[np.ndarray] = None
-        self.spectrum_cdf: Optional[np.ndarray] = None
+        self.flux_dist: np.ndarray | None = None
+        self.spectrum_cdf: np.ndarray | None = None
 
-        self.energy_loss_data: Optional[Literal["stopping", "stepsize", "geant4"]] = (
-            None
-        )
+        self.energy_loss_data: Literal["stopping", "stepsize", "geant4"] | None = None
 
         self.elec_number_dist = pd.DataFrame()
         self.elec_number_cdf = np.zeros((1, 2))
@@ -74,14 +72,14 @@ class Simulation:
 
         self.data_library = pd.DataFrame()
 
-        self.stopping_power: Optional[np.ndarray] = None
+        self.stopping_power: np.ndarray | None = None
 
-        self.particle: Optional[Particle] = None
+        self.particle: Particle | None = None
 
         self.particle_type: Literal[
             "proton", "ion", "alpha", "beta", "electron", "gamma", "x-ray"
         ] = particle_type
-        self.initial_energy: Union[int, float, Literal["random"]] = initial_energy
+        self.initial_energy: int | float | Literal["random"] = initial_energy
         self.position_ver: str = position_ver
         self.position_hor: str = position_hor
         self.position_z: str = position_z
@@ -391,10 +389,10 @@ class Simulation:
 
         if g4data.shape == (3,):
             # alternative running mode, only all electron number without proton step size data
-            electron_number_vector: Union[list, np.ndarray] = [g4data[0].astype(int)]
+            electron_number_vector: list | np.ndarray = [g4data[0].astype(int)]
             secondaries = g4data[1].astype(int)
             tertiaries = g4data[2].astype(int)
-            step_size_vector: Union[list, np.ndarray] = [0]
+            step_size_vector: list | np.ndarray = [0]
         elif g4data.shape == (0,):
             step_size_vector = []  # um
             electron_number_vector = []

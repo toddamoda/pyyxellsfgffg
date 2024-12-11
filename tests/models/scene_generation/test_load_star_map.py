@@ -184,7 +184,9 @@ def spectra_dct(
 ) -> dict[int, Table]:
     """Return spectra for the four objects as dictionary."""
     dct = {}
-    for source_id, spectra in zip(source_ids, [spectra1, spectra2, spectra3, spectra4]):
+    for source_id, spectra in zip(
+        source_ids, [spectra1, spectra2, spectra3, spectra4], strict=False
+    ):
         table: Table = Table.from_pandas(spectra.to_pandas().reset_index())
         table["wavelength"].unit = u.nm
         table["flux"].unit = u.W / (u.nm * u.m * u.m)
@@ -212,7 +214,9 @@ def source1_gaia(
                 [
                     spectra.assign(source_id=source_id)
                     for source_id, spectra in zip(
-                        source_ids, [spectra1, spectra2, spectra3, spectra4]
+                        source_ids,
+                        [spectra1, spectra2, spectra3, spectra4],
+                        strict=False,
                     )
                 ],
                 dim="source_id",
@@ -302,7 +306,7 @@ def test_compute_flux_compare_to_astropy():
     # Compute new flux using astropy
     new_flux = [
         y.to(u.Unit("ph / (Angstrom s cm2)"), equivalencies=u.spectral_density(x))
-        for x, y in zip(wavelengths, flux)
+        for x, y in zip(wavelengths, flux, strict=False)
     ]
 
     assert_quantity_allclose(actual=new_flux, desired=expected_flux, rtol=1e-5)

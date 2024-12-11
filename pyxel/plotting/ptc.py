@@ -7,7 +7,6 @@
 
 """Plotting functions for Photon Transfer Curve."""
 
-from typing import Optional, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -22,10 +21,10 @@ except ImportError:
 
 
 def plot_ptc(
-    dataset: Union[xr.Dataset, DataTree],
+    dataset: xr.Dataset | DataTree,
     text_base_fontsize: int = 8,
     alpha_rectangle: float = 0.05,
-    ax: Optional[plt.Axes] = None,
+    ax: plt.Axes | None = None,
 ) -> None:
     """Plot Photon Transfer Curve (PTC) from a dataset containing 'mean' and 'variance' data.
 
@@ -109,7 +108,7 @@ def plot_ptc(
         :align: center
     """
     # Ensure that the data is of the correct type
-    if not isinstance(dataset, (xr.Dataset, DataTree)):
+    if not isinstance(dataset, xr.Dataset | DataTree):
         raise TypeError(
             "Expecting a 'Dataset' or 'DataTree' object for parameter 'dataset'."
         )

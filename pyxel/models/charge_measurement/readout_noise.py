@@ -7,7 +7,6 @@
 
 """Readout noise model."""
 
-from typing import Optional
 
 import numpy as np
 
@@ -50,7 +49,7 @@ def create_noise_cmos(
 def output_node_noise(
     detector: Detector,
     std_deviation: float,
-    seed: Optional[int] = None,
+    seed: int | None = None,
 ) -> None:
     """Add noise to signal array of detector output node using normal random distribution.
 
@@ -84,7 +83,7 @@ def output_node_noise_cmos(
     detector: CMOS,
     readout_noise: float,
     readout_noise_std: float,
-    seed: Optional[int] = None,
+    seed: int | None = None,
 ) -> None:
     """Output node noise model for :term:`CMOS` detectors where readout is statistically independent for each pixel.
 
@@ -162,7 +161,7 @@ def readout_noise_saphira(
     detector: APD,
     roic_readout_noise: float,
     controller_noise: float = 0.0,
-    seed: Optional[int] = None,
+    seed: int | None = None,
 ) -> None:
     """Apply Saphira specific readout noise to the APD detector.
 

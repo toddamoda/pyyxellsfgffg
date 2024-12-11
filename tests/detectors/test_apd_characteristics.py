@@ -7,7 +7,6 @@
 
 from contextlib import AbstractContextManager
 from dataclasses import dataclass
-from typing import Optional
 
 import pytest
 
@@ -16,9 +15,9 @@ from pyxel.detectors import APDCharacteristics
 
 @dataclass
 class InputParams:
-    avalanche_gain: Optional[float] = None
-    pixel_reset_voltage: Optional[float] = None
-    common_voltage: Optional[float] = None
+    avalanche_gain: float | None = None
+    pixel_reset_voltage: float | None = None
+    common_voltage: float | None = None
 
 
 @dataclass

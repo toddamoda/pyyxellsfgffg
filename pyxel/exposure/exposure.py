@@ -45,12 +45,12 @@ class Exposure:
         readout: "Readout",
         outputs: Optional["ExposureOutputs"] = None,
         result_type: str = "all",
-        pipeline_seed: Optional[int] = None,
-        working_directory: Optional[str] = None,
+        pipeline_seed: int | None = None,
+        working_directory: str | None = None,
     ):
-        self.outputs: Optional["ExposureOutputs"] = outputs
+        self.outputs: "ExposureOutputs" | None = outputs
         self.readout = readout
-        self.working_directory: Optional[Path] = (
+        self.working_directory: Path | None = (
             Path(working_directory) if working_directory else None
         )
         self._result_type: ResultId = get_result_id(result_type)
@@ -77,12 +77,12 @@ class Exposure:
         self._result_type = value
 
     @property
-    def pipeline_seed(self) -> Optional[int]:
+    def pipeline_seed(self) -> int | None:
         """TBW."""
         return self._pipeline_seed
 
     @pipeline_seed.setter
-    def pipeline_seed(self, value: Optional[int]) -> None:
+    def pipeline_seed(self, value: int | None) -> None:
         """TBW."""
         self._pipeline_seed = value
 
@@ -174,7 +174,7 @@ def _run_exposure_pipeline_deprecated(
     ] = None,
     progressbar: bool = False,
     result_type: ResultId = ResultId("all"),  # noqa: B008
-    pipeline_seed: Optional[int] = None,
+    pipeline_seed: int | None = None,
 ) -> Processor:
     """Run standalone exposure pipeline.
 
@@ -229,7 +229,11 @@ def _run_exposure_pipeline_deprecated(
         time: float
         step: float
         for i, (time, step) in enumerate(
-            zip(detector.readout_properties.times, detector.readout_properties.steps)
+            zip(
+                detector.readout_properties.times,
+                detector.readout_properties.steps,
+                strict=False,
+            )
         ):
             detector.time = time
             detector.time_step = step
@@ -255,12 +259,12 @@ def _run_exposure_pipeline_deprecated(
                 if key in ("data", "scene"):
                     continue
 
-                obj: Union[Scene, Photon, Pixel, Image, Signal, Charge] = getattr(
+                obj: Scene | Photon | Pixel | Image | Signal | Charge = getattr(
                     detector, key
                 )
 
                 # TODO: Is this necessary ?
-                if not isinstance(obj, (Photon, Pixel, Image, Signal, Charge)):
+                if not isinstance(obj, Photon | Pixel | Image | Signal | Charge):
                     raise TypeError(
                         f"Wrong type from attribute 'detector.{key}'. Type: {type(obj)!r}"
                     )
@@ -342,10 +346,10 @@ def _extract_datatree_2d(detector: "Detector", keys: Sequence[ResultId]) -> "Dat
         if key.startswith("data") or key.startswith("scene"):
             continue
 
-        obj: Union[Photon, Pixel, Image, Signal, Charge] = getattr(detector, key)
+        obj: Photon | Pixel | Image | Signal | Charge = getattr(detector, key)
 
         # TODO: Is this necessary ?
-        if not isinstance(obj, (Photon, Pixel, Image, Signal, Charge)):
+        if not isinstance(obj, Photon | Pixel | Image | Signal | Charge):
             raise TypeError(
                 f"Wrong type from attribute 'detector.{key}'. Type: {type(obj)!r}"
             )
@@ -378,7 +382,7 @@ def run_pipeline(
     outputs: Optional["ExposureOutputs"] = None,
     progressbar: bool = False,
     result_type: ResultId = ResultId("all"),  # noqa: B008
-    pipeline_seed: Optional[int] = None,
+    pipeline_seed: int | None = None,
 ) -> "DataTree":
     """Run standalone exposure pipeline.
 
@@ -449,7 +453,11 @@ def run_pipeline(
         time: float
         step: float
         for i, (time, step) in enumerate(
-            zip(detector.readout_properties.times, detector.readout_properties.steps)
+            zip(
+                detector.readout_properties.times,
+                detector.readout_properties.steps,
+                strict=False,
+            )
         ):
             # Update the detector's current time and time step for this iteration.
             detector.readout_properties.time = time
@@ -502,7 +510,7 @@ def run_pipeline(
                 pbar.set_postfix(size=format_bytes(num_bytes))
 
         # Prepare the final dictionary to construct the `DataTree`.
-        dct: dict[str, Union["xr.Dataset", DataTree, None]] = {}
+        dct: dict[str, "xr.Dataset" | DataTree | None] = {}
 
         # Save results in file(s) (if needed)
         if outputs:

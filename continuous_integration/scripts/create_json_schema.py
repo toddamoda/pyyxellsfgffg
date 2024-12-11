@@ -13,6 +13,7 @@ import functools
 import importlib
 import inspect
 import textwrap
+import types
 from collections import defaultdict
 from collections.abc import Callable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
@@ -188,7 +189,7 @@ def generate_class(klass: Klass) -> Iterator[str]:
         yield f"    title={klass.name!r}"
 
     yield ")"
-    yield "@dataclass(kw_only=True)  # Python 3.10+"
+    yield "@dataclass(kw_only=True)"
 
     if klass.base_cls is None:
         yield f"class {klass.cls.__name__}:"
@@ -202,7 +203,7 @@ def generate_class(klass: Klass) -> Iterator[str]:
             if (origin := get_origin(param.annotation)) is not None:
                 args: Sequence = get_args(param.annotation)
 
-                if origin == Union:
+                if origin in (Union, types.UnionType):
                     if len(args) != 2:
                         raise NotImplementedError
 
@@ -441,7 +442,7 @@ def create_klass(cls: type | str) -> Klass:
     if (origin := get_origin(cls)) is not None:
         args: Sequence = get_args(cls)
 
-        if origin == Union:
+        if origin in (Union, types.UnionType):
             if len(args) != 2:
                 raise NotImplementedError
 
@@ -836,9 +837,6 @@ def generate_all_models() -> Iterator[str]:
     yield '     help="Don\'t write the JSON Schema back, just return the status.")'
 
     yield "def create_json_schema(filename: pathlib.Path, check: bool):"
-    yield "    if sys.version_info < (3, 10):"
-    yield "        raise NotImplementedError('This script must run on Python 3.10+')"
-    yield ""
     yield "    # Manually define a 'format' for JSON Schema for 'Path'"
     yield "    schema(format='uri')(Path)"
     yield ""

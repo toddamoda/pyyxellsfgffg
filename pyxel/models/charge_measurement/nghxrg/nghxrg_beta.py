@@ -80,7 +80,7 @@ which returns result numpy array to be able to add to Pyxel detector signal
 """
 
 import logging
-from typing import Literal, Optional
+from typing import Literal
 
 import numpy as np
 from astropy.io import fits
@@ -807,7 +807,7 @@ class HXRGNoise:
 
         return result
 
-    def create_hdu(self, result: np.ndarray, o_file: Optional[str] = None) -> None:
+    def create_hdu(self, result: np.ndarray, o_file: str | None = None) -> None:
         """TBW.
 
         Create HDU file and saving data to it

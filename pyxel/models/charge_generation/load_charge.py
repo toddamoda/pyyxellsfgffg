@@ -8,7 +8,7 @@
 """Simple model to load charge profiles."""
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal, Optional, Union
+from typing import TYPE_CHECKING, Literal
 
 from pyxel.detectors import Detector, Geometry
 from pyxel.util import load_cropped_and_aligned_image
@@ -19,11 +19,11 @@ if TYPE_CHECKING:
 
 def load_charge(
     detector: Detector,
-    filename: Union[str, Path],
+    filename: str | Path,
     position: tuple[int, int] = (0, 0),
-    align: Optional[
-        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"]
-    ] = None,
+    align: (
+        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"] | None
+    ) = None,
     time_scale: float = 1.0,
 ) -> None:
     """Load charge from txt file for detector, mostly for but not limited to :term:`CCDs<CCD>`.

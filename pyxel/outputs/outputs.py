@@ -53,7 +53,7 @@ def _save_data_2d(
     data_formats: Sequence[ValidFormat],
     current_output_folder: Path,
     name: str,
-    prefix: Optional[str] = None,
+    prefix: str | None = None,
 ) -> np.ndarray[Any, np.dtype[np.object_]]:
     save_methods: Mapping[ValidFormat, "SaveToFileProtocol"] = {
         "fits": to_fits,
@@ -255,7 +255,7 @@ def save_datatree(
                 )
                 continue
 
-            data_array: Union[xr.DataArray, "DataTree"] = data_tree[node_name]
+            data_array: xr.DataArray | "DataTree" = data_tree[node_name]
             if not isinstance(data_array, xr.DataArray):
                 raise TypeError
 
@@ -353,26 +353,26 @@ class Outputs:
 
     def __init__(
         self,
-        output_folder: Union[str, Path],
+        output_folder: str | Path,
         custom_dir_name: str = "",
-        save_data_to_file: Optional[
-            Sequence[Mapping[ValidName, Sequence[ValidFormat]]]
-        ] = None,
+        save_data_to_file: (
+            Sequence[Mapping[ValidName, Sequence[ValidFormat]]] | None
+        ) = None,
     ):
         if save_data_to_file is None:
             save_data_to_file = [{"detector.image.array": ["fits"]}]
 
         self._log = logging.getLogger(__name__)
 
-        self._current_output_folder: Optional[Path] = None
+        self._current_output_folder: Path | None = None
 
         self._output_folder: Path = Path(output_folder)
         self._custom_dir_name: str = custom_dir_name
 
         # TODO: Not related to a plot. Use by 'single' and 'parametric' modes.
-        self.save_data_to_file: Optional[
-            Sequence[Mapping[ValidName, Sequence[ValidFormat]]]
-        ] = save_data_to_file
+        self.save_data_to_file: (
+            Sequence[Mapping[ValidName, Sequence[ValidFormat]]] | None
+        ) = save_data_to_file
 
     def __repr__(self):
         cls_name: str = self.__class__.__name__
@@ -409,8 +409,8 @@ class Outputs:
         return self._output_folder
 
     @output_folder.setter
-    def output_folder(self, folder: Union[str, Path]) -> None:
-        if not isinstance(folder, (str, Path)):
+    def output_folder(self, folder: str | Path) -> None:
+        if not isinstance(folder, str | Path):
             raise TypeError(
                 "Wrong type for parameter 'folder'. Expecting 'str' or 'Path'."
             )
@@ -445,7 +445,7 @@ class Outputs:
         data: np.ndarray,
         name: str,
         with_auto_suffix: bool = True,
-        run_number: Optional[int] = None,
+        run_number: int | None = None,
         header: Optional["fits.Header"] = None,
     ) -> Path:
         """Write array to :term:`FITS` file."""
@@ -491,7 +491,7 @@ class Outputs:
         data: "Detector",
         name: str,
         with_auto_suffix: bool = True,
-        run_number: Optional[int] = None,
+        run_number: int | None = None,
     ) -> Path:
         """Write detector object to HDF5 file."""
         warnings.warn(
@@ -534,6 +534,7 @@ class Outputs:
                         data.charge.frame,
                     ],
                     ["Signal", "Image", "Photon", "Pixel", "Charge"],
+                    strict=False,
                 ):
                     dataset = detector_grp.create_dataset(name, shape=np.shape(array))
                     dataset[:] = array
@@ -549,7 +550,7 @@ class Outputs:
         data: np.ndarray,
         name: str,
         with_auto_suffix: bool = True,
-        run_number: Optional[int] = None,
+        run_number: int | None = None,
     ) -> Path:
         """Write data to txt file."""
         warnings.warn(
@@ -584,7 +585,7 @@ class Outputs:
         data: "pd.DataFrame",
         name: str,
         with_auto_suffix: bool = True,
-        run_number: Optional[int] = None,
+        run_number: int | None = None,
     ) -> Path:
         """Write Pandas Dataframe or Numpy array to a CSV file."""
         warnings.warn(
@@ -622,7 +623,7 @@ class Outputs:
         data: np.ndarray,
         name: str,
         with_auto_suffix: bool = True,
-        run_number: Optional[int] = None,
+        run_number: int | None = None,
     ) -> Path:
         """Write Numpy array to Numpy binary npy file."""
         warnings.warn(
@@ -660,7 +661,7 @@ class Outputs:
         data: np.ndarray,
         name: str,
         with_auto_suffix: bool = True,
-        run_number: Optional[int] = None,
+        run_number: int | None = None,
     ) -> Path:
         """Write Numpy array to a PNG image file."""
         warnings.warn(
@@ -703,7 +704,7 @@ class Outputs:
         data: np.ndarray,
         name: str,
         with_auto_suffix: bool = True,
-        run_number: Optional[int] = None,
+        run_number: int | None = None,
     ) -> Path:
         """Write Numpy array to a JPEG image file."""
         warnings.warn(
@@ -746,7 +747,7 @@ class Outputs:
         data: np.ndarray,
         name: str,
         with_auto_suffix: bool = True,
-        run_number: Optional[int] = None,
+        run_number: int | None = None,
     ) -> Path:
         """Write Numpy array to a JPG image file."""
         warnings.warn(
@@ -788,9 +789,9 @@ class Outputs:
     def save_to_file(
         self,
         processor: "Processor",
-        prefix: Optional[str] = None,
+        prefix: str | None = None,
         with_auto_suffix: bool = True,
-        run_number: Optional[int] = None,
+        run_number: int | None = None,
     ) -> "DataTree":
         if not self.save_data_to_file:
             raise NotImplementedError
@@ -819,7 +820,7 @@ class Outputs:
             format_list: Sequence[ValidFormat]
             valid_name, format_list = first_item
 
-            value: Optional[np.ndarray] = processor.get(valid_name, default=None)
+            value: np.ndarray | None = processor.get(valid_name, default=None)
             if value is None:
                 continue
 
@@ -945,7 +946,7 @@ def save_log_file(output_dir: Path) -> None:
 
 
 def create_output_directory(
-    output_folder: Union[str, Path], custom_dir_name: Optional[str] = None
+    output_folder: str | Path, custom_dir_name: str | None = None
 ) -> Path:
     """Create output directory in the output folder.
 

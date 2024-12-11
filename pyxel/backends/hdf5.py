@@ -11,7 +11,7 @@ from collections import abc
 from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING, Any, Union
 
 import numpy as np
 
@@ -38,7 +38,7 @@ def _store(
         str,
         Union[int, float, "pd.DataFrame", "pd.Series", "xr.Dataset", np.ndarray, dict],
     ],
-    attributes: Optional[Mapping[str, Mapping[str, str]]] = None,
+    attributes: Mapping[str, Mapping[str, str]] | None = None,
 ) -> None:
     """Write data into a new HDF5 group.
 
@@ -62,7 +62,7 @@ def _store(
 
         new_name = f"{name}/{key}"
 
-        if isinstance(value, (int, float)) or value is None:
+        if isinstance(value, int | float) or value is None:
             if value is None:
                 value = np.nan
 
@@ -79,7 +79,7 @@ def _store(
 
             _store(h5file, name=new_name, dct=value.to_dict(orient="series"))
 
-        elif isinstance(value, (pd.Series, np.ndarray, abc.Sequence)):
+        elif isinstance(value, pd.Series | np.ndarray | abc.Sequence):
             dataset = h5file.create_dataset(name=new_name, data=value)
 
             if attributes is not None and key in attributes:
@@ -104,7 +104,7 @@ def _store(
             raise NotImplementedError
 
 
-def to_hdf5(filename: Union[str, Path], dct: Mapping[str, Any]) -> None:
+def to_hdf5(filename: str | Path, dct: Mapping[str, Any]) -> None:
     """Write data to a HDF5 file."""
     # Late import to speedup start-up time
     import h5py as h5
@@ -148,7 +148,7 @@ def _load(
     import h5py as h5
     import pandas as pd
 
-    dataset: Union[h5.Dataset, h5.Group] = h5file[name]
+    dataset: h5.Dataset | h5.Group = h5file[name]
 
     if isinstance(dataset, h5.Group):
         dct = {}
@@ -187,7 +187,7 @@ def _load(
 
 
 @contextmanager
-def from_hdf5(filename: Union[str, Path]) -> Iterator[Mapping[str, Any]]:
+def from_hdf5(filename: str | Path) -> Iterator[Mapping[str, Any]]:
     """Read data from a HDF5 file."""
     # Late import to speedup start-up time
     import h5py as h5

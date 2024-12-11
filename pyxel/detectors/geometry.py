@@ -8,7 +8,6 @@
 """Geometry class for detector."""
 
 from collections.abc import Mapping
-from typing import Optional
 
 import numpy as np
 
@@ -62,10 +61,10 @@ class Geometry:
         self,
         row: int,
         col: int,
-        total_thickness: Optional[float] = None,  # unit: um
-        pixel_vert_size: Optional[float] = None,  # unit: um
-        pixel_horz_size: Optional[float] = None,  # unit: um
-        pixel_scale: Optional[float] = None,  # unit: arcsec/pixel
+        total_thickness: float | None = None,  # unit: um
+        pixel_vert_size: float | None = None,  # unit: um
+        pixel_horz_size: float | None = None,  # unit: um
+        pixel_scale: float | None = None,  # unit: arcsec/pixel
     ):
         if row <= 0:
             raise ValueError("'row' must be strictly greater than 0.")
@@ -87,7 +86,7 @@ class Geometry:
         self._total_thickness = total_thickness
         self._pixel_vert_size = pixel_vert_size
         self._pixel_horz_size = pixel_horz_size
-        self._pixel_scale: Optional[float] = pixel_scale
+        self._pixel_scale: float | None = pixel_scale
 
         self._numbytes = 0
 

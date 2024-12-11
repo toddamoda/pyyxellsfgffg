@@ -9,7 +9,7 @@
 
 from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING
 
 import numpy as np
 from typing_extensions import Self
@@ -80,21 +80,21 @@ class Environment:
 
     def __init__(
         self,
-        temperature: Optional[float] = None,
-        wavelength: Union[float, WavelengthHandling, None] = None,
+        temperature: float | None = None,
+        wavelength: float | WavelengthHandling | None = None,
     ):
-        if isinstance(temperature, (int, float)) and not (0.0 < temperature <= 1000.0):
+        if isinstance(temperature, int | float) and not (0.0 < temperature <= 1000.0):
             raise ValueError("'temperature' must be between 0.0 and 1000.0.")
 
-        if isinstance(wavelength, (int, float)) and not (wavelength > 0.0):
+        if isinstance(wavelength, int | float) and not (wavelength > 0.0):
             raise ValueError("'wavelength' must be strictly positive.")
 
-        self._temperature: Optional[float] = (
+        self._temperature: float | None = (
             float(temperature) if temperature is not None else None
         )
 
-        self._wavelength: Union[float, WavelengthHandling, None] = (
-            float(wavelength) if isinstance(wavelength, (int, float)) else wavelength
+        self._wavelength: float | WavelengthHandling | None = (
+            float(wavelength) if isinstance(wavelength, int | float) else wavelength
         )
 
         self._numbytes = 0
@@ -127,7 +127,7 @@ class Environment:
         self._temperature = value
 
     @property
-    def wavelength(self) -> Union[float, WavelengthHandling]:
+    def wavelength(self) -> float | WavelengthHandling:
         """Get wavelength of the detector."""
         if self._wavelength is None:
             raise ValueError("'wavelength' not specified in detector environment.")
@@ -135,9 +135,9 @@ class Environment:
         return self._wavelength
 
     @wavelength.setter
-    def wavelength(self, value: Union[int, float, WavelengthHandling]) -> None:
+    def wavelength(self, value: int | float | WavelengthHandling) -> None:
         """Set wavelength of the detector."""
-        if isinstance(value, (int, float)):
+        if isinstance(value, int | float):
             if value <= 0.0:
                 raise ValueError("'wavelength' must be strictly positive.")
         elif not isinstance(value, WavelengthHandling):
@@ -160,8 +160,8 @@ class Environment:
     def to_dict(self) -> Mapping:
         """Get the attributes of this instance as a `dict`."""
         if self._wavelength is None:
-            wavelength_dict: dict[str, Union[int, float, dict]] = {}
-        elif isinstance(self._wavelength, (int, float)):
+            wavelength_dict: dict[str, int | float | dict] = {}
+        elif isinstance(self._wavelength, int | float):
             wavelength_dict = {"wavelength": self._wavelength}
         else:
             wavelength_dict = {"wavelength": self._wavelength.to_dict()}
@@ -175,8 +175,8 @@ class Environment:
         value = dct.get("wavelength")
 
         if value is None:
-            wavelength: Union[float, WavelengthHandling, None] = None
-        elif isinstance(value, (int, float)):
+            wavelength: float | WavelengthHandling | None = None
+        elif isinstance(value, int | float):
             wavelength = float(value)
         elif isinstance(value, dict):
             wavelength = WavelengthHandling.from_dict(value)

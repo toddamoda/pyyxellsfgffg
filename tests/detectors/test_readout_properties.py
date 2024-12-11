@@ -4,7 +4,6 @@
 #  is part of this Pyxel package. No part of the package, including
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
-from typing import Optional
 
 import numpy as np
 import pytest
@@ -30,7 +29,7 @@ from pyxel.detectors.readout_properties import ReadoutProperties
     ],
 )
 def test_readout_properties(
-    times, start_time: Optional[float], exp_times, exp_steps, exp_is_linear
+    times, start_time: float | None, exp_times, exp_steps, exp_is_linear
 ):
     """Test class 'ReadoutProperties'."""
     if start_time is None:

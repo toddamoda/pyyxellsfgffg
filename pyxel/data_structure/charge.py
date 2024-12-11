@@ -8,7 +8,7 @@
 """Pyxel Charge class to generate electrons or holes inside detector."""
 
 from collections.abc import Mapping, Sequence
-from typing import TYPE_CHECKING, Literal, Optional, Union
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 
@@ -155,7 +155,7 @@ class Charge:
         #     random_direction(1.0)
 
         # Create new charges as a `dict`
-        new_charges: Mapping[str, Union[Sequence, np.ndarray]] = {
+        new_charges: Mapping[str, Sequence | np.ndarray] = {
             "charge": charge,
             "number": particles_per_cluster,
             "init_energy": init_energy,
@@ -404,7 +404,7 @@ class Charge:
             attrs={"units": convert_unit("electron"), "long_name": "Charge"},
         )
 
-    def __array__(self, dtype: Optional[np.dtype] = None):
+    def __array__(self, dtype: np.dtype | None = None):
         if not isinstance(self._array, np.ndarray):
             raise TypeError("Array not initialized.")
         return np.asarray(self._array, dtype=dtype)
@@ -454,7 +454,7 @@ class Charge:
             raise ValueError(f"Expected {cls_name} array is {self._array.shape}.")
 
     def get_frame_values(
-        self, quantity: str, id_list: Optional[list] = None
+        self, quantity: str, id_list: list | None = None
     ) -> np.ndarray:
         """Get quantity values of particles defined with id_list. By default it returns values of all particles.
 
@@ -479,7 +479,7 @@ class Charge:
         return array
 
     def set_frame_values(
-        self, quantity: str, new_value_list: list, id_list: Optional[list] = None
+        self, quantity: str, new_value_list: list, id_list: list | None = None
     ) -> None:
         """Update quantity values of particles defined with id_list. By default it updates all.
 
@@ -498,7 +498,7 @@ class Charge:
         new_df = pd.DataFrame({quantity: new_value_list}, index=id_list)
         self._frame.update(new_df)
 
-    def remove_from_frame(self, id_list: Optional[list] = None) -> None:
+    def remove_from_frame(self, id_list: list | None = None) -> None:
         """Remove particles defined with id_list. By default it removes all particles from DataFrame.
 
         Parameters

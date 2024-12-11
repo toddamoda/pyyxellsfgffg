@@ -15,7 +15,7 @@ import struct
 import sys
 import warnings
 from collections.abc import Mapping
-from typing import Any, Optional
+from typing import Any
 
 from ._version import get_versions
 
@@ -25,7 +25,7 @@ __all__ = ["show_versions"]
 def get_system_info() -> Mapping[str, Any]:
     """Get extra information."""
     # Get git commit hash
-    commit: Optional[str] = get_versions()["full-revisionid"]
+    commit: str | None = get_versions()["full-revisionid"]
     version: str = get_versions()["version"]
 
     size_integer: int = struct.calcsize("P")
@@ -155,7 +155,7 @@ def show_versions():
         "sphinx",
     )
 
-    dependencies: dict[str, Optional[str]] = {}
+    dependencies: dict[str, str | None] = {}
 
     for module_name in dependencies_lst:
         try:

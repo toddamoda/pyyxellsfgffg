@@ -11,7 +11,7 @@ from collections import abc
 from collections.abc import Iterator, Sequence
 from enum import Enum
 from numbers import Number
-from typing import Literal, Optional, Union
+from typing import Literal
 
 import numpy as np
 from numpy.typing import NDArray
@@ -31,13 +31,13 @@ class ParameterType(Enum):
 def convert_values(
     values,
     parameter_type: ParameterType,
-) -> Union[
-    Literal["_"],
-    Sequence[Literal["_"]],
-    Sequence[Number],
-    Sequence[str],
-    Sequence[tuple[Number, ...]],
-]:
+) -> (
+    Literal["_"]
+    | Sequence[Literal["_"]]
+    | Sequence[Number]
+    | Sequence[str]
+    | Sequence[tuple[Number, ...]]
+):
     """Convert a sequence of input values based on a specified parameter type."""
     if parameter_type is ParameterType.Simple or values == "_":
         return values
@@ -59,17 +59,10 @@ class ParameterValues:
     def __init__(
         self,
         key: str,
-        values: Union[
-            Literal["_"],
-            Sequence[Literal["_"]],
-            Sequence[Number],
-            Sequence[str],
-        ],
-        boundaries: Union[
-            tuple[float, float],
-            Sequence[tuple[float, float]],
-            None,
-        ] = None,
+        values: (
+            Literal["_"] | Sequence[Literal["_"]] | Sequence[Number] | Sequence[str]
+        ),
+        boundaries: tuple[float, float] | Sequence[tuple[float, float]] | None = None,
         enabled: bool = True,
         logarithmic: bool = False,
     ):
@@ -93,7 +86,7 @@ class ParameterValues:
             self.type = ParameterType.Multi
 
         elif isinstance(values, abc.Sequence) and all(
-            [isinstance(el, (Number, str)) for el in values]
+            [isinstance(el, Number | str) for el in values]
         ):
             self.type = ParameterType.Simple
 
@@ -105,13 +98,13 @@ class ParameterValues:
 
         # unique identifier to the step. example: 'detector.geometry.row'
         self._key: str = key
-        self._values: Union[
-            Literal["_"],
-            Sequence[Literal["_"]],
-            Sequence[Number],
-            Sequence[str],
-            Sequence[tuple[Number, ...]],
-        ] = convert_values(values, parameter_type=self.type)
+        self._values: (
+            Literal["_"]
+            | Sequence[Literal["_"]]
+            | Sequence[Number]
+            | Sequence[str]
+            | Sequence[tuple[Number, ...]]
+        ) = convert_values(values, parameter_type=self.type)
 
         # short  name identifier: 'row'
         self._short_name = key.split(".")[-1]
@@ -120,7 +113,7 @@ class ParameterValues:
         self._logarithmic: bool = logarithmic
 
         if boundaries is None:
-            boundaries_array: Optional[NDArray[np.float64]] = None
+            boundaries_array: NDArray[np.float64] | None = None
         else:
             boundaries_array = np.array(boundaries, dtype=np.float64)
             if boundaries_array.ndim == 1:
@@ -138,11 +131,9 @@ class ParameterValues:
             else:
                 raise ValueError(f"Wrong format of boundaries. Got {boundaries}.")
 
-        self._boundaries: Optional[NDArray[np.float64]] = boundaries_array
+        self._boundaries: NDArray[np.float64] | None = boundaries_array
 
-        self._current: Optional[
-            Union[Literal["_"], Number, tuple[Number, ...], str]
-        ] = None
+        self._current: Literal["_"] | Number | tuple[Number, ...] | str | None = None
 
     def __repr__(self) -> str:
         cls_name: str = self.__class__.__name__
@@ -180,13 +171,13 @@ class ParameterValues:
     @property
     def values(
         self,
-    ) -> Union[
-        Literal["_"],
-        Sequence[Literal["_"]],
-        Sequence[Number],
-        Sequence[str],
-        Sequence[tuple[Number, ...]],
-    ]:
+    ) -> (
+        Literal["_"]
+        | Sequence[Literal["_"]]
+        | Sequence[Number]
+        | Sequence[str]
+        | Sequence[tuple[Number, ...]]
+    ):
         """TBW."""
         return self._values
 
@@ -196,14 +187,12 @@ class ParameterValues:
         return self._enabled
 
     @property
-    def current(self) -> Optional[Union[Literal["_"], Number, tuple[Number, ...], str]]:
+    def current(self) -> Literal["_"] | Number | tuple[Number, ...] | str | None:
         """TBW."""
         return self._current
 
     @current.setter
-    def current(
-        self, value: Union[Literal["_"], str, Number, tuple[Number, ...]]
-    ) -> None:
+    def current(self, value: Literal["_"] | str | Number | tuple[Number, ...]) -> None:
         """TBW."""
         self._current = value
 
@@ -213,6 +202,6 @@ class ParameterValues:
         return self._logarithmic
 
     @property
-    def boundaries(self) -> Optional[NDArray[np.float64]]:
+    def boundaries(self) -> NDArray[np.float64] | None:
         """TBW."""
         return self._boundaries

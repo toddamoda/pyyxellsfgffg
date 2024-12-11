@@ -43,15 +43,15 @@ class Configuration:
     pipeline: DetectionPipeline
 
     # Running modes
-    exposure: Optional[Exposure] = None
-    observation: Optional[Observation] = None
+    exposure: Exposure | None = None
+    observation: Observation | None = None
     calibration: Optional["Calibration"] = None
 
     # Detectors
-    ccd_detector: Optional[CCD] = None
-    cmos_detector: Optional[CMOS] = None
-    mkid_detector: Optional[MKID] = None
-    apd_detector: Optional[APD] = None
+    ccd_detector: CCD | None = None
+    cmos_detector: CMOS | None = None
+    mkid_detector: MKID | None = None
+    apd_detector: APD | None = None
 
     def __post_init__(self):
         # Sanity checks
@@ -122,7 +122,7 @@ class Configuration:
             raise NotImplementedError
 
     @property
-    def detector(self) -> Union[CCD, CMOS, MKID, APD]:
+    def detector(self) -> CCD | CMOS | MKID | APD:
         """Get current detector."""
         if self.ccd_detector is not None:
             return self.ccd_detector
@@ -136,7 +136,7 @@ class Configuration:
             raise NotImplementedError
 
 
-def load(yaml_file: Union[str, Path]) -> Configuration:
+def load(yaml_file: str | Path) -> Configuration:
     """Load configuration from a ``YAML`` file."""
     filename = Path(yaml_file).resolve()
     if not filename.exists():
@@ -153,7 +153,7 @@ def loads(yaml_string: str) -> Configuration:
     return _build_configuration(dct)
 
 
-def load_yaml(stream: Union[str, IO]) -> Any:
+def load_yaml(stream: str | IO) -> Any:
     """Load a ``YAML`` document."""
     # Late import to speedup start-up time
     import yaml
@@ -167,7 +167,7 @@ def to_exposure_outputs(dct: dict) -> ExposureOutputs:
     return ExposureOutputs(**dct)
 
 
-def to_readout(dct: Optional[dict] = None) -> Readout:
+def to_readout(dct: dict | None = None) -> Readout:
     """Create a Readout class from a dictionary."""
     if dct is None:
         dct = {}
@@ -184,7 +184,7 @@ def to_exposure(dct: dict) -> Exposure:
     return Exposure(**dct)
 
 
-def to_observation_outputs(dct: Optional[dict]) -> Optional[ObservationOutputs]:
+def to_observation_outputs(dct: dict | None) -> ObservationOutputs | None:
     """Create a ObservationOutputs class from a dictionary."""
     if dct is None:
         return None
@@ -260,7 +260,7 @@ def to_algorithm(dct: dict) -> "Algorithm":
 def to_fitness_function(dct: dict) -> FitnessFunction:
     """Create a callable from a dictionary."""
     func: str = dct["func"]
-    arguments: Optional[Mapping[str, Any]] = dct.get("arguments")
+    arguments: Mapping[str, Any] | None = dct.get("arguments")
 
     return FitnessFunction(func=func, arguments=arguments)
 
@@ -306,35 +306,35 @@ def to_apd_geometry(dct: dict) -> APDGeometry:
     return APDGeometry(**dct)
 
 
-def to_environment(dct: Optional[dict]) -> Environment:
+def to_environment(dct: dict | None) -> Environment:
     """Create an Environment class from a dictionary."""
     if dct is None:
         dct = {}
     return Environment.from_dict(dct)
 
 
-def to_ccd_characteristics(dct: Optional[dict]) -> Characteristics:
+def to_ccd_characteristics(dct: dict | None) -> Characteristics:
     """Create a CCDCharacteristics class from a dictionary."""
     if dct is None:
         dct = {}
     return Characteristics(**dct)
 
 
-def to_cmos_characteristics(dct: Optional[dict]) -> Characteristics:
+def to_cmos_characteristics(dct: dict | None) -> Characteristics:
     """Create a CMOSCharacteristics class from a dictionary."""
     if dct is None:
         dct = {}
     return Characteristics(**dct)
 
 
-def to_mkid_characteristics(dct: Optional[dict]) -> Characteristics:
+def to_mkid_characteristics(dct: dict | None) -> Characteristics:
     """Create a MKIDCharacteristics class from a dictionary."""
     if dct is None:
         dct = {}
     return Characteristics(**dct)
 
 
-def to_apd_characteristics(dct: Optional[dict]) -> APDCharacteristics:
+def to_apd_characteristics(dct: dict | None) -> APDCharacteristics:
     """Create a APDCharacteristics class from a dictionary."""
     if dct is None:
         dct = {}
@@ -385,10 +385,10 @@ def to_model_function(dct: dict) -> ModelFunction:
 def to_pipeline(dct: dict) -> DetectionPipeline:
     """Create a DetectionPipeline class from a dictionary."""
     for model_group_name in dct:
-        models_list: Optional[Sequence[dict]] = dct[model_group_name]
+        models_list: Sequence[dict] | None = dct[model_group_name]
 
         if models_list is None:
-            models: Optional[Sequence[ModelFunction]] = None
+            models: Sequence[ModelFunction] | None = None
         else:
             models = [to_model_function(model_dict) for model_dict in models_list]
 
@@ -422,7 +422,7 @@ def _build_configuration(dct: dict) -> Configuration:
         keys = ", ".join(map(repr, keys_detectors))
         raise ValueError(f"Expecting only one detector: {keys}")
 
-    running_mode: dict[str, Union[Exposure, Observation, "Calibration"]] = {}
+    running_mode: dict[str, Exposure | Observation | "Calibration"] = {}
     if "exposure" in dct:
         running_mode["exposure"] = to_exposure(dct["exposure"])
     elif "observation" in dct:
@@ -432,7 +432,7 @@ def _build_configuration(dct: dict) -> Configuration:
     else:
         raise ValueError("No mode configuration provided.")
 
-    detector: dict[str, Union[CCD, CMOS, MKID, APD]] = {}
+    detector: dict[str, CCD | CMOS | MKID | APD] = {}
     if "ccd_detector" in dct:
         detector["ccd_detector"] = to_ccd(dct["ccd_detector"])
     elif "cmos_detector" in dct:
@@ -453,7 +453,7 @@ def _build_configuration(dct: dict) -> Configuration:
     return configuration
 
 
-def copy_config_file(input_filename: Union[str, Path], output_dir: Path) -> Path:
+def copy_config_file(input_filename: str | Path, output_dir: Path) -> Path:
     """Save a copy of the input ``YAML`` file to output directory.
 
     Parameters

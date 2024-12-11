@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from enum import Enum
 from numbers import Integral, Real
 from pathlib import Path
-from typing import Any, NamedTuple, Optional, Union
+from typing import Any, NamedTuple
 
 import numpy as np
 import pandas as pd
@@ -180,8 +180,8 @@ def create_processor_data_array(filenames: Sequence[Path]) -> xr.DataArray:
 
 # TODO: Refactor and add more unit tests. See #327
 def list_to_slice(
-    input_list: Optional[Sequence[int]] = None,
-) -> Union[tuple[slice, slice], tuple[slice, slice, slice]]:
+    input_list: Sequence[int] | None = None,
+) -> tuple[slice, slice] | tuple[slice, slice, slice]:
     if not input_list:
         return slice(None), slice(None)
 
@@ -201,7 +201,7 @@ def list_to_slice(
 
 # TODO: Refactor and add more unit tests. See #327
 def list_to_3d_slice(
-    input_list: Optional[Sequence[int]] = None,
+    input_list: Sequence[int] | None = None,
 ) -> tuple[slice, slice, slice]:
     """TBW.
 
@@ -291,7 +291,7 @@ def check_ranges(
     out_fit_range: Sequence[int],
     rows: int,
     cols: int,
-    readout_times: Optional[int] = None,
+    readout_times: int | None = None,
 ) -> None:
     """TBW."""
     if not target_fit_range:
@@ -356,7 +356,7 @@ class FitRange2D:
     col: slice
 
     @classmethod
-    def from_sequence(cls, data: Sequence[Optional[int]]) -> "FitRange2D":
+    def from_sequence(cls, data: Sequence[int | None]) -> "FitRange2D":
         if not data:
             data = [None] * 4
 
@@ -413,7 +413,7 @@ class FitRange3D:
     col: slice
 
     @classmethod
-    def from_sequence(cls, data: Sequence[Optional[int]]) -> "FitRange3D":
+    def from_sequence(cls, data: Sequence[int | None]) -> "FitRange3D":
         if not data:
             data = [None] * 6
 
@@ -436,7 +436,7 @@ class FitRange3D:
     def to_slices(self) -> tuple[slice, slice, slice]:
         return self.time, self.row, self.col
 
-    def check(self, rows: int, cols: int, readout_times: Optional[int] = None):
+    def check(self, rows: int, cols: int, readout_times: int | None = None):
         if not self.row.stop <= rows:
             raise ValueError("Value of target fit range is wrong")
 
@@ -451,8 +451,8 @@ class FitRange3D:
 
 
 def to_fit_range(
-    input_list: Optional[Sequence[int]] = None,
-) -> Union[FitRange2D, FitRange3D]:
+    input_list: Sequence[int] | None = None,
+) -> FitRange2D | FitRange3D:
     if not input_list:
         return FitRange2D(row=slice(None), col=slice(None))
 
@@ -467,8 +467,8 @@ def to_fit_range(
 
 
 def _check_out_fit_ranges(
-    target_fit_range: Union[FitRange2D, FitRange3D],
-    out_fit_range: Union[FitRange2D, FitRange3D],
+    target_fit_range: FitRange2D | FitRange3D,
+    out_fit_range: FitRange2D | FitRange3D,
 ):
     if (
         isinstance(target_fit_range, FitRange3D)
@@ -488,11 +488,11 @@ def _check_out_fit_ranges(
 
 # TODO: Refactor and add more unit tests. See #328
 def check_fit_ranges(
-    target_fit_range: Union[FitRange2D, FitRange3D, None],
-    out_fit_range: Union[FitRange2D, FitRange3D, None],
+    target_fit_range: FitRange2D | FitRange3D | None,
+    out_fit_range: FitRange2D | FitRange3D | None,
     rows: int,
     cols: int,
-    readout_times: Optional[int] = None,
+    readout_times: int | None = None,
 ) -> None:
     """Check if ``target_fit_range`` and ``out_fit_range`` are valid.
 

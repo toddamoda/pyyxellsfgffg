@@ -6,7 +6,6 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 from pathlib import Path
-from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -27,7 +26,7 @@ from pyxel.inputs import load_table_v2
         pytest.param(("file", "table.fits"), id="fits"),
     ]
 )
-def table_filename(request: pytest.FixtureRequest, tmp_path: Path) -> Union[Path, str]:
+def table_filename(request: pytest.FixtureRequest, tmp_path: Path) -> Path | str:
     """Build a table."""
     param: tuple[str, str] = request.param
     file_type, file_name = param
@@ -69,7 +68,7 @@ def table_filename(request: pytest.FixtureRequest, tmp_path: Path) -> Union[Path
         raise NotImplementedError
 
 
-def test_load_table_v2(table_filename: Union[Path, str]):
+def test_load_table_v2(table_filename: Path | str):
     """Test function 'load_table_v2'."""
     df = load_table_v2(table_filename)
     assert isinstance(df, pd.DataFrame)
@@ -88,7 +87,7 @@ def test_load_table_v2(table_filename: Union[Path, str]):
     pd.testing.assert_frame_equal(df, exp_df)
 
 
-def test_with_rename_cols(table_filename: Union[Path, str]):
+def test_with_rename_cols(table_filename: Path | str):
     """Test function 'load_table_v2'."""
     df = load_table_v2(table_filename, rename_cols={"col1": 0, "col2": 1, "col3": 2})
     assert isinstance(df, pd.DataFrame)

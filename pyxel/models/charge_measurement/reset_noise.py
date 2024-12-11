@@ -8,7 +8,6 @@
 #
 """Reset noise models."""
 
-from typing import Optional
 
 import astropy.constants as const
 import numpy as np
@@ -43,8 +42,8 @@ def compute_ktc_noise(
 
 def ktc_noise(
     detector: Detector,
-    node_capacitance: Optional[float] = None,
-    seed: Optional[int] = None,
+    node_capacitance: float | None = None,
+    seed: int | None = None,
 ) -> None:
     """Apply KTC reset noise to detector signal array.
 

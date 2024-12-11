@@ -7,7 +7,6 @@
 
 import copy
 from pathlib import Path
-from typing import Union
 
 import pytest
 
@@ -45,7 +44,7 @@ asdf = pytest.importorskip(
         "apd_100x120",
     )
 )
-def detector(request) -> Union[CCD, CMOS, MKID, APD]:
+def detector(request) -> CCD | CMOS | MKID | APD:
     """Create a valid detector."""
     if request.param == "ccd_basic":
         return CCD(
@@ -148,7 +147,7 @@ def detector(request) -> Union[CCD, CMOS, MKID, APD]:
         raise NotImplementedError
 
 
-def test_equal(detector: Union[CCD, CMOS, MKID, APD]):
+def test_equal(detector: CCD | CMOS | MKID | APD):
     new_detector = copy.deepcopy(detector)
 
     assert new_detector.geometry is not detector.geometry
@@ -164,7 +163,7 @@ def test_equal(detector: Union[CCD, CMOS, MKID, APD]):
     assert new_detector == detector
 
 
-def test_to_from_hdf5(detector: Union[CCD, CMOS, MKID, APD], tmp_path: Path):
+def test_to_from_hdf5(detector: CCD | CMOS | MKID | APD, tmp_path: Path):
     """Test methods `Detector.to_hdf5' and `Detector.from_hdf5`."""
     filename = tmp_path / f"{detector.__class__.__name__}.h5"
 
@@ -182,7 +181,7 @@ def test_to_from_hdf5(detector: Union[CCD, CMOS, MKID, APD], tmp_path: Path):
     assert new_detector == detector
 
 
-def test_to_from_asdf(detector: Union[CCD, CMOS, MKID, APD], tmp_path: Path):
+def test_to_from_asdf(detector: CCD | CMOS | MKID | APD, tmp_path: Path):
     """Test methods `Detector.to_asdf' and `Detector.from_asdf`."""
     filename = tmp_path / f"{detector.__class__.__name__}.asdf"
 
@@ -210,7 +209,7 @@ def test_to_from_asdf(detector: Union[CCD, CMOS, MKID, APD], tmp_path: Path):
     ],
 )
 def test_to_from_filename(
-    detector: Union[CCD, CMOS, MKID, APD], tmp_path: Path, filename: str
+    detector: CCD | CMOS | MKID | APD, tmp_path: Path, filename: str
 ):
     """Test methods `Detector.load` and `Detector.save`."""
     full_filename: Path = tmp_path / filename

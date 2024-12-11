@@ -101,7 +101,7 @@ def exposure_mode(
     logging.info("Mode: Exposure")
 
     # Create an output folder
-    outputs: Optional[ExposureOutputs] = exposure.outputs
+    outputs: ExposureOutputs | None = exposure.outputs
     if outputs:
         outputs.create_output_folder()
 
@@ -136,7 +136,7 @@ def _run_exposure_mode_without_datatree(
     logging.info("Mode: Exposure")
 
     # Create an output folder
-    outputs: Optional[ExposureOutputs] = exposure.outputs
+    outputs: ExposureOutputs | None = exposure.outputs
     if outputs:
         outputs.create_output_folder()
 
@@ -213,7 +213,7 @@ def _run_exposure_mode(
     logging.info("Mode: Exposure")
 
     # Create an output folder
-    outputs: Optional[ExposureOutputs] = exposure.outputs
+    outputs: ExposureOutputs | None = exposure.outputs
     if outputs:
         outputs.create_output_folder()
 
@@ -276,7 +276,7 @@ def observation_mode(
     logging.info("Mode: Observation")
 
     # Create an output folder
-    outputs: Optional[ObservationOutputs] = observation.outputs
+    outputs: ObservationOutputs | None = observation.outputs
     if outputs:
         outputs.create_output_folder()
 
@@ -397,7 +397,7 @@ def calibration_mode(
     logging.info("Mode: Calibration")
 
     # Create an output folder
-    outputs: Optional[CalibrationOutputs] = calibration.outputs
+    outputs: CalibrationOutputs | None = calibration.outputs
     if outputs:
         outputs.create_output_folder()
 
@@ -467,7 +467,7 @@ def _run_calibration_mode_without_datatree(
     logging.info("Mode: Calibration")
 
     # Create an output folder
-    outputs: Optional[CalibrationOutputs] = calibration.outputs
+    outputs: CalibrationOutputs | None = calibration.outputs
     if outputs:
         outputs.create_output_folder()
 
@@ -549,7 +549,7 @@ def _run_calibration_mode(
     logging.info("Mode: Calibration")
 
     # Create an output folder
-    outputs: Optional[CalibrationOutputs] = calibration.outputs
+    outputs: CalibrationOutputs | None = calibration.outputs
     if outputs:
         outputs.create_output_folder()
 
@@ -570,7 +570,7 @@ def _run_observation_mode_without_datatree(
     logging.info("Mode: Observation")
 
     # Create an output folder
-    outputs: Optional[ObservationOutputs] = observation.outputs
+    outputs: ObservationOutputs | None = observation.outputs
     if outputs:
         outputs.create_output_folder()
 
@@ -601,7 +601,7 @@ def _run_observation_mode(
         with_inherited_coords = True
 
     # Create an output folder (if needed)
-    outputs: Optional[ObservationOutputs] = observation.outputs
+    outputs: ObservationOutputs | None = observation.outputs
     if outputs:
         outputs.create_output_folder()
 
@@ -658,7 +658,7 @@ def run_mode(
     mode: Union[Exposure, Observation, "Calibration"],
     detector: Detector,
     pipeline: DetectionPipeline,
-    override_dct: Optional[Mapping[str, Any]] = None,
+    override_dct: Mapping[str, Any] | None = None,
     debug: bool = False,
     with_inherited_coords: bool = False,
 ) -> "DataTree":
@@ -971,9 +971,9 @@ def _datatree_to_dataframe(output_filenames: "DataTree") -> "pd.DataFrame":
 
 # ruff: noqa: C901
 def run(
-    input_filename: Union[str, Path],
-    override: Optional[Sequence[str]] = None,
-    random_seed: Optional[int] = None,
+    input_filename: str | Path,
+    override: Sequence[str] | None = None,
+    random_seed: int | None = None,
 ) -> Optional["pd.DataFrame"]:
     """Run a YAML configuration file.
 
@@ -998,10 +998,8 @@ def run(
     configuration: Configuration = load(Path(input_filename).expanduser().resolve())
 
     pipeline: DetectionPipeline = configuration.pipeline
-    detector: Union[CCD, CMOS, MKID, APD] = configuration.detector
-    running_mode: Union[Exposure, Observation, "Calibration"] = (
-        configuration.running_mode
-    )
+    detector: CCD | CMOS | MKID | APD = configuration.detector
+    running_mode: Exposure | Observation | "Calibration" = configuration.running_mode
 
     # Extract the parameters to override
     override_dct: dict[str, Any] = {}
@@ -1034,7 +1032,7 @@ def run(
         )
 
     # Create a DataTree
-    df_filenames: Optional["pd.DataFrame"] = None
+    df_filenames: "pd.DataFrame" | None = None
 
     if isinstance(running_mode, Observation):
         # Late import
@@ -1052,7 +1050,7 @@ def run(
         if "output" not in data_tree:
             raise NotImplementedError
 
-        output_filenames: Union["DataTree", xr.DataArray] = data_tree["/output"]
+        output_filenames: "DataTree" | xr.DataArray = data_tree["/output"]
         if isinstance(output_filenames, xr.DataArray):
             raise NotImplementedError
 
@@ -1219,7 +1217,7 @@ def download_pyxel_examples(folder, force: bool):
 
 @main.command(name="create-model")
 @click.argument("model_name", type=str, required=False)
-def create_new_model(model_name: Optional[str]):
+def create_new_model(model_name: str | None):
     """Create a new model.
 
     Use: arg1/arg2. Create a new module in ``pyxel/models/arg1/arg2`` using a template

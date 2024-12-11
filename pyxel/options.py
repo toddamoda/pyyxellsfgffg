@@ -7,10 +7,10 @@
 
 """Subpackage to define options in Pyxel."""
 
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from functools import wraps
 from pathlib import Path
-from typing import Any, Callable, Optional, Union
+from typing import Any
 
 import attrs
 
@@ -23,11 +23,11 @@ class GlobalOptions:
         validator=attrs.validators.instance_of(bool),
         default=False,
     )
-    cache_folder: Optional[Union[str, Path]] = attrs.field(
+    cache_folder: str | Path | None = attrs.field(
         validator=attrs.validators.optional(attrs.validators.instance_of((str, Path))),
         default=None,
     )
-    working_directory: Optional[Union[str, Path]] = attrs.field(
+    working_directory: str | Path | None = attrs.field(
         validator=attrs.validators.optional(attrs.validators.instance_of((str, Path))),
         default=None,
     )

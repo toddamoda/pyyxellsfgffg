@@ -77,7 +77,7 @@ class Algorithm:
         xtol_abs: float = 0.0,
         ftol_rel: float = 0.0,
         ftol_abs: float = 0.0,
-        stopval: Optional[float] = None,
+        stopval: float | None = None,
         local_optimizer: Optional["pg.nlopt"] = None,
         replacement: Literal["best", "worst", "random"] = "best",
         nlopt_selection: Literal["best", "worst", "random"] = "best",
@@ -130,7 +130,7 @@ class Algorithm:
         self._ftol_rel = ftol_rel
         self._ftol_abs = ftol_abs
         self._stopval: float = -math.inf if stopval is None else stopval
-        self._local_optimizer: Optional[pg.nlopt] = local_optimizer
+        self._local_optimizer: pg.nlopt | None = local_optimizer
         self._replacement = replacement
         self._nlopt_selection = nlopt_selection
 

@@ -8,7 +8,6 @@
 """Sampling detector properties class."""
 
 from collections.abc import Sequence
-from typing import Union
 
 import numpy as np
 
@@ -47,7 +46,7 @@ class ReadoutProperties:
 
     def __init__(
         self,
-        times: Union[Sequence[float], np.ndarray],
+        times: Sequence[float] | np.ndarray,
         start_time: float = 0.0,
         non_destructive: bool = False,
     ):

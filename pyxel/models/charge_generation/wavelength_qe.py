@@ -8,7 +8,7 @@
 """Simple model to convert photon into photo-electrons using QE(-map) inside detector."""
 
 from pathlib import Path
-from typing import TYPE_CHECKING, TypeVar, Union
+from typing import TYPE_CHECKING, TypeVar
 
 import numpy as np
 import xarray as xr
@@ -88,9 +88,9 @@ def integrate_charge(input_array: xr.DataArray) -> xr.DataArray:
 
 def apply_qe_curve(
     detector: Detector,
-    filename: Union[str, Path],
-    wavelength_col_name: Union[str, int],
-    qe_col_name: Union[str, int],
+    filename: str | Path,
+    wavelength_col_name: str | int,
+    qe_col_name: str | int,
 ) -> None:
     """Apply wavelength dependent QE with loading a file.
 
@@ -144,7 +144,7 @@ def apply_qe_curve(
 # TODO: unit test to check that file dim and detector are the same
 def conversion_with_3d_qe_map(
     detector: Detector,
-    filename: Union[str, Path],
+    filename: str | Path,
     # position: tuple[int, int] = (0, 0),
     # align: Optional[
     #     Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"]

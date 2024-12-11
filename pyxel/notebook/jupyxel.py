@@ -504,7 +504,7 @@ def display_array(
     cax1.yaxis.set_label_position("left")
     cax1.yaxis.set_ticks_position("left")
     if mini == maxi:
-        bins: Union[int, Sequence] = 50
+        bins: int | Sequence = 50
     else:
         bins = list(np.arange(start=mini, stop=maxi, step=(maxi - mini) / 50))
 
@@ -546,7 +546,7 @@ def display_array(
 # These method are used to display the detector memory
 
 
-def display_persist(persistence: Union[Persistence, SimplePersistence]) -> None:
+def display_persist(persistence: Persistence | SimplePersistence) -> None:
     """Plot all trapped charges using the detector persistence.
 
     Parameters
@@ -581,7 +581,7 @@ def display_persist(persistence: Union[Persistence, SimplePersistence]) -> None:
         )
 
     trapmap: np.ndarray
-    for ax, trapmap, keyw in zip(axes, trapped_charges, labels):
+    for ax, trapmap, keyw in zip(axes, trapped_charges, labels, strict=False):
         display_array(data=trapmap, axes=ax, label=keyw)
 
 

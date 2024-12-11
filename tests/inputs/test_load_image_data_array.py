@@ -6,7 +6,6 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 from pathlib import Path
-from typing import Union
 
 import numpy as np
 import pytest
@@ -42,7 +41,7 @@ def image_filename(
     request: pytest.FixtureRequest,
     tmp_path: Path,
     httpserver: pytest_httpserver.HTTPServer,
-) -> Union[str, Path]:
+) -> str | Path:
     """Build an image."""
     param: tuple[str, str] = request.param
     file_type, file_name = param
@@ -107,7 +106,7 @@ def image_filename(
         raise NotImplementedError
 
 
-def test_load_image_data_array(image_filename: Union[str, Path]):
+def test_load_image_data_array(image_filename: str | Path):
     """Test function 'load_image_v2'."""
     data_array: xr.DataArray = load_image_v2(image_filename, rename_dims={})
     assert isinstance(data_array, xr.DataArray)

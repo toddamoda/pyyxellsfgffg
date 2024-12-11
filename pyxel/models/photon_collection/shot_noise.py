@@ -7,7 +7,7 @@
 
 """Pyxel photon generator models: photon shot noise."""
 
-from typing import Literal, Optional
+from typing import Literal
 
 import numpy as np
 
@@ -80,7 +80,7 @@ def compute_noise(
 def shot_noise(
     detector: Detector,
     type: Literal["poisson", "normal"] = "poisson",  # noqa: A002
-    seed: Optional[int] = None,
+    seed: int | None = None,
 ) -> None:
     """Add shot noise to the flux of photon per pixel. It can be either Poisson noise or Gaussian.
 

@@ -8,12 +8,11 @@
 """General purposes models or routines for all Group Models."""
 
 from pathlib import Path
-from typing import Union
 
 from pyxel.detectors import Detector
 
 
-def load_detector(detector: Detector, filename: Union[str, Path]) -> None:
+def load_detector(detector: Detector, filename: str | Path) -> None:
     """Load a new detector from a file.
 
     Raises
@@ -33,6 +32,6 @@ def load_detector(detector: Detector, filename: Union[str, Path]) -> None:
     detector = new_detector
 
 
-def save_detector(detector: Detector, filename: Union[str, Path]) -> None:
+def save_detector(detector: Detector, filename: str | Path) -> None:
     """Save the current detector into a file."""
     detector.save(filename)

@@ -7,7 +7,6 @@
 
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 import pytest
@@ -59,7 +58,7 @@ def test_outputs(tmp_path: Path):
 
 
 @pytest.mark.parametrize("custom_dir_name", [None, "foo_"])
-def test_create_output_directory(tmp_path: Path, custom_dir_name: Optional[str]):
+def test_create_output_directory(tmp_path: Path, custom_dir_name: str | None):
     """Test method 'Outputs.create_output_folder'."""
     folder_name: Path = tmp_path / "folder"
 
@@ -134,7 +133,7 @@ def test_output_folder_wrong_input(tmp_path: Path, new_folder):
         pytest.param("name", id="with custom name"),
     ],
 )
-def test_custom_dir_name_input(tmp_path: Path, custom_name: Optional[str]):
+def test_custom_dir_name_input(tmp_path: Path, custom_name: str | None):
     """Test property 'Outputs.output_folder'."""
     folder_name: Path = tmp_path / "folder"
 
@@ -150,7 +149,7 @@ def test_custom_dir_name_input(tmp_path: Path, custom_name: Optional[str]):
 
 
 @pytest.mark.parametrize("custom_name", [None, 123, Path("new")])
-def test_custom_dir_name_input_wrong(tmp_path: Path, custom_name: Optional[str]):
+def test_custom_dir_name_input_wrong(tmp_path: Path, custom_name: str | None):
     """Test property 'Outputs.output_folder'."""
     folder_name: Path = tmp_path / "folder"
 
@@ -177,7 +176,7 @@ def test_custom_dir_name_input_wrong(tmp_path: Path, custom_name: Optional[str])
     ],
 )
 def test_save_to_fits(
-    valid_output: Outputs, with_auto_suffix: bool, run_number: Optional[int]
+    valid_output: Outputs, with_auto_suffix: bool, run_number: int | None
 ):
     """Test method 'Outputs.save_to_fits'."""
     data_2d = np.array([[1, 2], [3, 4]], dtype=float)
@@ -319,7 +318,7 @@ def test_save_multiple_files_without_auto_suffix_with_run_number(valid_output: O
     ],
 )
 def test_save_to_txt(
-    valid_output: Outputs, with_auto_suffix: bool, run_number: Optional[int]
+    valid_output: Outputs, with_auto_suffix: bool, run_number: int | None
 ):
     """Test method 'Outputs.save_to_fits'."""
     data_2d = np.array([[1, 2], [3, 4]], dtype=float)
@@ -361,7 +360,7 @@ def test_save_to_txt(
     ],
 )
 def test_save_to_csv(
-    valid_output: Outputs, with_auto_suffix: bool, run_number: Optional[int]
+    valid_output: Outputs, with_auto_suffix: bool, run_number: int | None
 ):
     """Test method 'Outputs.save_to_fits'."""
     data_2d = np.array([[1, 2], [3, 4]], dtype=float)
@@ -403,7 +402,7 @@ def test_save_to_csv(
     ],
 )
 def test_save_to_npy(
-    valid_output: Outputs, with_auto_suffix: bool, run_number: Optional[int]
+    valid_output: Outputs, with_auto_suffix: bool, run_number: int | None
 ):
     """Test method 'Outputs.save_to_fits'."""
     data_2d = np.array([[1, 2], [3, 4]], dtype=float)

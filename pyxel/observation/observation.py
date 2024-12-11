@@ -9,9 +9,9 @@
 
 import sys
 from collections import Counter
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, Literal, Optional, Union
+from typing import TYPE_CHECKING, Literal, Optional
 
 import numpy as np
 from typing_extensions import deprecated
@@ -110,9 +110,9 @@ def merge(*objects: "DataTree") -> "DataTree":
 def build_parameter_mode(
     mode: Literal["product", "sequential", "custom"],
     parameters: Sequence[ParameterValues],
-    custom_filename: Optional[str] = None,
-    column_range: Optional[tuple[int, int]] = None,
-) -> Union[ProductMode, SequentialMode, CustomMode]:
+    custom_filename: str | None = None,
+    column_range: tuple[int, int] | None = None,
+) -> ProductMode | SequentialMode | CustomMode:
     """Build a new parameter mode object.
 
     Parameters
@@ -133,7 +133,7 @@ def build_parameter_mode(
         return SequentialMode(parameters)
 
     elif mode == "custom":
-        custom_columns: Optional[slice] = slice(*column_range) if column_range else None
+        custom_columns: slice | None = slice(*column_range) if column_range else None
         assert custom_filename is not None
 
         return CustomMode.build(
@@ -153,19 +153,19 @@ class Observation:
         self,
         parameters: Sequence[ParameterValues],
         outputs: Optional["ObservationOutputs"] = None,
-        readout: Optional[Readout] = None,
+        readout: Readout | None = None,
         mode: Literal["product", "sequential", "custom"] = "product",
-        from_file: Optional[str] = None,  # Note: Only For 'custom' mode
-        column_range: Optional[tuple[int, int]] = None,  # Note: Only For 'custom' mode
+        from_file: str | None = None,  # Note: Only For 'custom' mode
+        column_range: tuple[int, int] | None = None,  # Note: Only For 'custom' mode
         with_dask: bool = False,
         result_type: str = "all",
-        pipeline_seed: Optional[int] = None,
-        working_directory: Optional[str] = None,
+        pipeline_seed: int | None = None,
+        working_directory: str | None = None,
     ):
-        self.outputs: Optional["ObservationOutputs"] = outputs
+        self.outputs: "ObservationOutputs" | None = outputs
         self.readout: Readout = readout or Readout()
 
-        self.parameter_mode: Union[ProductMode, SequentialMode, CustomMode] = (
+        self.parameter_mode: ProductMode | SequentialMode | CustomMode = (
             build_parameter_mode(
                 mode=mode,
                 parameters=parameters,
@@ -174,7 +174,7 @@ class Observation:
             )
         )
 
-        self.working_directory: Optional[Path] = (
+        self.working_directory: Path | None = (
             Path(working_directory) if working_directory else None
         )
 
@@ -201,7 +201,7 @@ class Observation:
         self._result_type = get_result_id(value)
 
     @property
-    def pipeline_seed(self) -> Optional[int]:
+    def pipeline_seed(self) -> int | None:
         """TBW."""
         return self._pipeline_seed
 
@@ -361,7 +361,7 @@ class Observation:
     # NOTES: This method is only called when running Observation mode sequentially or in parallel (with Dask)
     def _run_single_pipeline_without_datatree(
         self,
-        param_item: Union[ParameterEntry, CustomParameterEntry],
+        param_item: ParameterEntry | CustomParameterEntry,
         processor: "Processor",
     ) -> None:
         new_processor = create_new_processor(
@@ -387,7 +387,7 @@ class Observation:
 
     def _run_single_pipeline(
         self,
-        param_item: Union[ParameterEntry, CustomParameterEntry],
+        param_item: ParameterEntry | CustomParameterEntry,
         dimension_names: Mapping[str, str],
         processor: "Processor",
         types: Mapping[str, ParameterType],
@@ -530,7 +530,9 @@ def _add_product_parameters(
     dim_idx = 0
 
     # TODO: join 'indexes' and 'parameter_dict'
-    for index, (coordinate_name, param_value) in zip(indexes, parameter_dict.items()):
+    for index, (coordinate_name, param_value) in zip(
+        indexes, parameter_dict.items(), strict=False
+    ):
         short_name: str = dimension_names[coordinate_name]
 
         #  assigning the right coordinates based on type

@@ -7,7 +7,7 @@
 
 
 from collections.abc import Sequence
-from typing import Literal, Optional
+from typing import Literal
 
 import numpy as np
 import pytest
@@ -158,7 +158,7 @@ def test_cdm_bad_inputs(
     trap_release_times: Sequence[float],
     trap_densities: Sequence[float],
     sigma: Sequence[float],
-    full_well_capacity: Optional[float],
+    full_well_capacity: float | None,
     max_electron_volume: float,
     transfer_period: float,
     charge_injection: bool,
@@ -247,7 +247,7 @@ def test_cdm_parallel(
     trap_release_times: Sequence[float],
     trap_densities: Sequence[float],
     sigma: Sequence[float],
-    full_well_capacity: Optional[float],
+    full_well_capacity: float | None,
     max_electron_volume: float,
     transfer_period: float,
     charge_injection: bool,
@@ -442,7 +442,7 @@ def test_cdm_serial(
     trap_release_times: Sequence[float],
     trap_densities: Sequence[float],
     sigma: Sequence[float],
-    full_well_capacity: Optional[float],
+    full_well_capacity: float | None,
     max_electron_volume: float,
     transfer_period: float,
     charge_injection: bool,

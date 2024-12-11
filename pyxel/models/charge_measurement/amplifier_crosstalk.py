@@ -9,7 +9,7 @@
 
 from collections.abc import Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any
 
 import numba
 import numpy as np
@@ -90,7 +90,7 @@ def get_channel_slices(
     return slices
 
 
-def get_matrix(coupling_matrix: Union[str, Path, Sequence]) -> np.ndarray:
+def get_matrix(coupling_matrix: str | Path | Sequence) -> np.ndarray:
     """Get the coupling matrix either from configuration input or a file.
 
     Parameters
@@ -103,7 +103,7 @@ def get_matrix(coupling_matrix: Union[str, Path, Sequence]) -> np.ndarray:
     array
         Matrix.
     """
-    if isinstance(coupling_matrix, (str, Path)):
+    if isinstance(coupling_matrix, str | Path):
         return np.array(load_table(coupling_matrix))
 
     return np.array(coupling_matrix)
@@ -210,7 +210,7 @@ def crosstalk_signal_dc(
 
 def dc_crosstalk(
     detector: "Detector",
-    coupling_matrix: Union[str, Path, Sequence],
+    coupling_matrix: str | Path | Sequence,
     channel_matrix: Sequence,
     readout_directions: Sequence,
 ) -> None:
@@ -269,7 +269,7 @@ def dc_crosstalk(
 
 def ac_crosstalk(
     detector: "Detector",
-    coupling_matrix: Union[str, Path, Sequence],
+    coupling_matrix: str | Path | Sequence,
     channel_matrix: Sequence,
     readout_directions: Sequence,
 ) -> None:

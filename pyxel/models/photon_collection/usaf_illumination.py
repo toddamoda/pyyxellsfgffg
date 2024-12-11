@@ -7,7 +7,7 @@
 
 """Pyxel USAF-1951 illumination pattern."""
 
-from typing import Literal, Optional
+from typing import Literal
 
 import pooch
 
@@ -18,13 +18,13 @@ from pyxel.models.photon_collection import load_image
 def usaf_illumination(
     detector: Detector,
     position: tuple[int, int] = (0, 0),
-    align: Optional[
-        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"]
-    ] = None,
+    align: (
+        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"] | None
+    ) = None,
     convert_to_photons: bool = False,
     multiplier: float = 1.0,
     time_scale: float = 1.0,
-    bit_resolution: Optional[int] = None,
+    bit_resolution: int | None = None,
 ) -> None:
     r"""Apply USAF-1951 illumination pattern.
 

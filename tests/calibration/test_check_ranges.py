@@ -5,7 +5,6 @@
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
 
-from typing import Optional
 
 import pytest
 
@@ -60,7 +59,7 @@ def test_check_range_valid(
     out_range: list,
     rows: int,
     cols: int,
-    readout_times: Optional[int],
+    readout_times: int | None,
 ):
     """Test valid values for function 'check_range'."""
     check_ranges(
@@ -225,7 +224,7 @@ def test_check_ranges_invalid(
     out_range: list,
     rows: int,
     cols: int,
-    readout_times: Optional[int],
+    readout_times: int | None,
     exp_error,
 ):
     """Test valid values for function 'check_range'."""

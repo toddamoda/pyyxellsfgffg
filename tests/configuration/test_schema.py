@@ -6,16 +6,11 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 import json
-import sys
+from importlib import resources
 from pathlib import Path
 
 import pytest
 from yaml import safe_load
-
-if sys.version_info < (3, 10):
-    import importlib_resources as resources  # pip install importlib_resources
-else:
-    from importlib import resources
 
 # This is equivalent to 'import jsonschema'
 jsonschema = pytest.importorskip(

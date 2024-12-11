@@ -7,7 +7,6 @@
 
 """Pyxel charge injection functions for CCDs."""
 
-from typing import Optional
 
 import numpy as np
 
@@ -18,7 +17,7 @@ def compute_charge_blocks(
     output_shape: tuple[int, int],
     charge_level: float,
     block_start: int = 0,
-    block_end: Optional[int] = None,
+    block_end: int | None = None,
 ) -> np.ndarray:
     """Compute a block of charges to be injected in the detector.
 
@@ -52,7 +51,7 @@ def charge_blocks(
     detector: CCD,
     charge_level: float,
     block_start: int = 0,
-    block_end: Optional[int] = None,
+    block_end: int | None = None,
 ) -> None:
     """Inject a block of charge into the :term:`CCD` detector.
 

@@ -8,7 +8,7 @@
 """Pyxel photon generator models."""
 
 from collections.abc import Sequence
-from typing import Literal, Optional
+from typing import Literal
 
 import numpy as np
 
@@ -18,8 +18,8 @@ from pyxel.detectors import Detector
 def rectangular(
     shape: tuple[int, int],
     level: float,
-    object_size: Optional[Sequence[int]] = None,
-    object_center: Optional[Sequence[int]] = None,
+    object_size: Sequence[int] | None = None,
+    object_center: Sequence[int] | None = None,
 ) -> np.ndarray:
     """Calculate an image of a rectangular object.
 
@@ -70,8 +70,8 @@ def rectangular(
 def elliptic(
     shape: tuple[int, int],
     level: float,
-    object_size: Optional[Sequence[int]] = None,
-    object_center: Optional[Sequence[int]] = None,
+    object_size: Sequence[int] | None = None,
+    object_center: Sequence[int] | None = None,
 ) -> np.ndarray:
     """Calculate an image of an elliptic object.
 
@@ -125,8 +125,8 @@ def calculate_illumination(
     shape: tuple[int, int],
     level: float,
     option: Literal["uniform", "rectangular", "elliptic"] = "uniform",
-    object_size: Optional[Sequence[int]] = None,
-    object_center: Optional[Sequence[int]] = None,
+    object_size: Sequence[int] | None = None,
+    object_center: Sequence[int] | None = None,
 ) -> np.ndarray:
     """Calculate the array of photons uniformly over the entire array or over a object.
 
@@ -182,8 +182,8 @@ def illumination(
     detector: Detector,
     level: float,
     option: Literal["uniform", "rectangular", "elliptic"] = "uniform",
-    object_size: Optional[Sequence[int]] = None,
-    object_center: Optional[Sequence[int]] = None,
+    object_size: Sequence[int] | None = None,
+    object_center: Sequence[int] | None = None,
     time_scale: float = 1.0,
 ) -> None:
     """Generate photon uniformly over the entire array or over an elliptic or rectangular object.

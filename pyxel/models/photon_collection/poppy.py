@@ -11,7 +11,7 @@ import logging
 import textwrap
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Final, Optional, Union, get_args
+from typing import TYPE_CHECKING, Any, Final, get_args
 
 import numpy as np
 import xarray as xr
@@ -81,7 +81,7 @@ class ThinLens:
 
     nwaves: float
     radius: Quantity
-    reference_wavelength: Optional[Quantity] = None
+    reference_wavelength: Quantity | None = None
     # center wavelength if not provided takes the middle
 
 
@@ -207,21 +207,21 @@ class SineWaveWFE:
 
 
 # Define a type alias
-OpticalParameter = Union[
-    CircularAperture,
-    ThinLens,
-    SquareAperture,
-    RectangleAperture,
-    HexagonAperture,
-    MultiHexagonalAperture,
-    SecondaryObscuration,
-    ZernikeWFE,
-    SineWaveWFE,
-]
+OpticalParameter = (
+    CircularAperture
+    | ThinLens
+    | SquareAperture
+    | RectangleAperture
+    | HexagonAperture
+    | MultiHexagonalAperture
+    | SecondaryObscuration
+    | ZernikeWFE
+    | SineWaveWFE
+)
 
 
 def _create_optical_parameter(
-    dct: Mapping, default_wavelength: Union[Quantity, tuple[Quantity, Quantity]]
+    dct: Mapping, default_wavelength: Quantity | tuple[Quantity, Quantity]
 ) -> OpticalParameter:
     """Create an``OpticalParameter`` based on a dictionary.
 
@@ -379,7 +379,7 @@ def _create_optical_parameter(
 
 def create_optical_item(
     dct: Mapping,
-    default_wavelength: Union[Quantity, tuple[Quantity, Quantity]],
+    default_wavelength: Quantity | tuple[Quantity, Quantity],
 ) -> "op.OpticalElement":
     """Create a poppy ``OpticalElement``.
 
@@ -642,8 +642,8 @@ def optical_psf(
     detector: Detector,
     fov_arcsec: float,
     optical_system: Sequence[Mapping[str, Any]],
-    wavelength: Union[float, tuple[float, float], None] = None,
-    pixel_scale: Optional[float] = None,
+    wavelength: float | tuple[float, float] | None = None,
+    pixel_scale: float | None = None,
     apply_jitter: bool = False,
     jitter_sigma: float = 0.007,
     extract_psf: bool = False,
@@ -715,7 +715,7 @@ def optical_psf(
     if wavelength is None:
         # take wavelength input from detector.environment
         if isinstance(detector.environment._wavelength, float):
-            selected_wavelength: Union[Quantity, tuple[Quantity, Quantity]] = Quantity(
+            selected_wavelength: Quantity | tuple[Quantity, Quantity] = Quantity(
                 detector.environment.wavelength, unit="nm"
             )
 
@@ -730,7 +730,7 @@ def optical_psf(
                 "or as model argument."
             )
     else:
-        if isinstance(wavelength, (int, float)):
+        if isinstance(wavelength, int | float):
             if wavelength <= 0:
                 raise ValueError(
                     "Parameter 'wavelength' must be strictly positive. "
@@ -783,7 +783,7 @@ def optical_psf(
         psf_2d: np.ndarray = psf_3d[0, :, :]
 
         if extract_psf and detector.is_first_readout:
-            optical_elements_attrs: dict[str, Union[str, int]] = {
+            optical_elements_attrs: dict[str, str | int] = {
                 "num_optical_elements": len(optical_elements)
             }
             for idx, element in enumerate(optical_elements):

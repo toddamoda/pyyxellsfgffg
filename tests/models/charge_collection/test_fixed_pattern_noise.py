@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Union
 
 import numpy as np
 import pytest
@@ -51,9 +50,7 @@ def valid_noise_path(
     return final_path
 
 
-def test_fixed_pattern_noise_valid_path(
-    ccd_5x5: CCD, valid_noise_path: Union[str, Path]
-):
+def test_fixed_pattern_noise_valid_path(ccd_5x5: CCD, valid_noise_path: str | Path):
     """Test function fixed_pattern_noise with valid path inputs."""
 
     detector = ccd_5x5
@@ -85,7 +82,7 @@ def test_fixed_pattern_noise_valid(ccd_5x5: CCD):
     fixed_pattern_noise(detector=detector, fixed_pattern_noise_factor=0.01)
 
 
-def test_fpn_raises(ccd_5x5: CCD, valid_noise_path: Union[str, Path]):
+def test_fpn_raises(ccd_5x5: CCD, valid_noise_path: str | Path):
     """Test model fixed_pattern_noise when generating an error."""
     detector = ccd_5x5
     invalid_noise_path = "noise.npy"

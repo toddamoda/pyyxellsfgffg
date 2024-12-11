@@ -8,23 +8,22 @@
 """Pyxel util functions for Particle classes."""
 
 import math
-from typing import Optional, Union
 
 import numpy as np
 
 
-def check_energy(initial_energy: Union[int, float]) -> None:
+def check_energy(initial_energy: int | float) -> None:
     """Check energy of the particle if it is a float or int.
 
     :param initial_energy:
     :return:
     """
-    if not isinstance(initial_energy, (int, float)):
+    if not isinstance(initial_energy, int | float):
         raise TypeError("Given particle energy could not be read")
 
 
 def random_direction(
-    v_abs: float = 1.0, seed: Optional[int] = None
+    v_abs: float = 1.0, seed: int | None = None
 ) -> np.ndarray:  # TODO check random angles and direction
     """Generate random direction for a photon.
 

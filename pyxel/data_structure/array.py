@@ -7,11 +7,10 @@
 
 """Pyxel Array class."""
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, TypeGuard
 
 import numpy as np
 from numpy.typing import ArrayLike
-from typing_extensions import TypeGuard
 
 from pyxel.util import convert_unit, get_size
 
@@ -19,7 +18,7 @@ if TYPE_CHECKING:
     import xarray as xr
 
 
-def _is_array_initialized(data: Optional[np.ndarray]) -> TypeGuard[np.ndarray]:
+def _is_array_initialized(data: np.ndarray | None) -> TypeGuard[np.ndarray]:
     """Check whether the parameter data is a numpy array.
 
     Parameters
@@ -55,7 +54,7 @@ class ArrayBase:
 
     # TODO: Add units ?
     def __init__(self, shape: tuple[int, int]):
-        self._array: Optional[np.ndarray] = None
+        self._array: np.ndarray | None = None
         self._shape = shape
         self._numbytes = 0
 
@@ -118,7 +117,7 @@ class ArrayBase:
         if value.shape != self._shape:
             raise ValueError(f"Expected {cls_name} array is {self._shape}.")
 
-    def __array__(self, dtype: Optional[np.dtype] = None):
+    def __array__(self, dtype: np.dtype | None = None):
         if not isinstance(self._array, np.ndarray):
             raise TypeError("Array not initialized.")
         return np.asarray(self._array, dtype=dtype)
@@ -175,7 +174,7 @@ class ArrayBase:
         self._array = value
 
     # TODO: Rename this method to '_update' ?
-    def update(self, data: Optional[ArrayLike]) -> None:
+    def update(self, data: ArrayLike | None) -> None:
         """Update 'array' attribute.
 
         This method updates 'array' attribute of this object with new data.
@@ -212,7 +211,7 @@ class ArrayBase:
         self._numbytes = get_size(self)
         return self._numbytes
 
-    def to_xarray(self, dtype: Optional[np.typing.DTypeLike] = None) -> "xr.DataArray":
+    def to_xarray(self, dtype: np.typing.DTypeLike | None = None) -> "xr.DataArray":
         """Convert into a 2D `DataArray` object with dimensions 'y' and 'x'.
 
         Parameters

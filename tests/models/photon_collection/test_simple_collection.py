@@ -6,7 +6,6 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 from enum import Enum, auto
-from typing import Optional, Union
 
 import numpy as np
 import pytest
@@ -717,8 +716,8 @@ class PhotonType(Enum):
 def test_simple_collection_error(
     scene_type: SceneType,
     photon_type: PhotonType,
-    env_wavelength: Union[WavelengthHandling, float, None],
-    geo_pixel_scale: Optional[float],
+    env_wavelength: WavelengthHandling | float | None,
+    geo_pixel_scale: float | None,
     aperture,
     filter_band,
     resolution,

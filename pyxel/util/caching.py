@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 _global_cache: Optional["Cache"] = None
 
 
-def get_cache(folder: Optional[str] = None) -> "Cache":
+def get_cache(folder: str | None = None) -> "Cache":
     """Retrieve a unique global cache instance.
 
     Examples

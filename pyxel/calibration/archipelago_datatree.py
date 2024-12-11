@@ -8,10 +8,10 @@
 """Sub-package to create 'archipelagos'."""
 
 import logging
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from concurrent.futures.thread import ThreadPoolExecutor
 from timeit import default_timer as timer
-from typing import TYPE_CHECKING, Callable, Optional, Union
+from typing import TYPE_CHECKING
 
 import dask.array as da
 import numpy as np
@@ -98,7 +98,7 @@ def extract_data_3d(
             ).expand_dims(["island", "id_processor"])
         )
 
-    ds: Union[xr.Dataset, xr.DataArray] = xr.combine_by_coords(lst).assign_coords(
+    ds: xr.Dataset | xr.DataArray = xr.combine_by_coords(lst).assign_coords(
         readout_time=readout_times,
         y=range(rows),
         x=range(cols),
@@ -121,9 +121,9 @@ class ArchipelagoDataTree:
         algorithm: Algorithm,
         problem: ModelFittingDataTree,
         pop_size: int,
-        bfe: Optional[Callable] = None,
-        topology: Optional[Callable] = None,
-        pygmo_seed: Optional[int] = None,
+        bfe: Callable | None = None,
+        topology: Callable | None = None,
+        pygmo_seed: int | None = None,
         parallel: bool = True,
         with_bar: bool = False,
     ):
@@ -173,7 +173,7 @@ class ArchipelagoDataTree:
         disable_bar: bool = not self.with_bar
         start_time: float = timer()
 
-        def create_island(seed: Optional[int] = None) -> pg.island:
+        def create_island(seed: int | None = None) -> pg.island:
             """Create a new island."""
             return pg.island(
                 udi=self.udi,
@@ -186,7 +186,7 @@ class ArchipelagoDataTree:
 
         # Create a seed for each island
         if self.pygmo_seed is None:
-            seeds: Sequence[Optional[int]] = [None] * self.num_islands
+            seeds: Sequence[int | None] = [None] * self.num_islands
         else:
             rng: np.random.Generator = np.random.default_rng(seed=self.pygmo_seed)
             max_value: int = np.iinfo(np.uint32).max
@@ -225,7 +225,7 @@ class ArchipelagoDataTree:
         num_rows: int,
         num_cols: int,
         num_evolutions: int = 1,
-        num_best_decisions: Optional[int] = None,
+        num_best_decisions: int | None = None,
     ) -> DataTree:
         """Run evolution(s) several time.
 

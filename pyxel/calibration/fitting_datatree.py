@@ -18,7 +18,7 @@ from collections.abc import Sequence
 from copy import deepcopy
 from numbers import Number
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal, Optional, Union
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 import pandas as pd
@@ -74,7 +74,7 @@ def build_processors(
         for step in arguments:
             assert step.values != "_"
 
-            value: Union[Literal["_"], str, Number, tuple[Number, ...]] = step.values[i]
+            value: Literal["_"] | str | Number | tuple[Number, ...] = step.values[i]
 
             step.current = value
             new_processor.set(key=step.key, value=step.current)
@@ -96,14 +96,14 @@ class ModelFittingDataTree(ProblemSingleObjective):
         generations: int,
         population_size: int,
         fitness_func: FittingCallable,
-        file_path: Optional[Path],
-        target_fit_range: Union[FitRange2D, FitRange3D],
+        file_path: Path | None,
+        target_fit_range: FitRange2D | FitRange3D,
         out_fit_range: FitRange3D,
         target_filenames: Sequence[Path],
-        input_arguments: Optional[Sequence[ParameterValues]] = None,
-        weights: Optional[Sequence[float]] = None,
-        weights_from_file: Optional[Sequence[Path]] = None,
-        pipeline_seed: Optional[int] = None,
+        input_arguments: Sequence[ParameterValues] | None = None,
+        weights: Sequence[float] | None = None,
+        weights_from_file: Sequence[Path] | None = None,
+        pipeline_seed: int | None = None,
         with_inherited_coords: bool = False,
     ):
         self._variables: Sequence[ParameterValues] = variables
@@ -114,13 +114,13 @@ class ModelFittingDataTree(ProblemSingleObjective):
 
         self._with_inherited_coords: bool = with_inherited_coords
 
-        self.weighting: Optional[np.ndarray] = None
-        self.weighting_from_file: Optional[xr.DataArray] = None
+        self.weighting: np.ndarray | None = None
+        self.weighting_from_file: xr.DataArray | None = None
         self.fitness_func: FittingCallable = fitness_func
         self.sim_output: ResultId = simulation_output
 
-        self.file_path: Optional[Path] = file_path
-        self.pipeline_seed: Optional[int] = pipeline_seed
+        self.file_path: Path | None = file_path
+        self.pipeline_seed: int | None = pipeline_seed
 
         lower_boundaries, upper_boundaries = self._set_bound()
         self._lower_boundaries: Sequence[float] = lower_boundaries
@@ -156,11 +156,11 @@ class ModelFittingDataTree(ProblemSingleObjective):
             ]
             targets: xr.DataArray = xr.concat(targets_list, dim="processor")
 
-            self.targ_fit_range: Union[FitRange2D, FitRange3D, None] = None
-            self.sim_fit_range: Optional[FitRange3D] = None
+            self.targ_fit_range: FitRange2D | FitRange3D | None = None
+            self.sim_fit_range: FitRange3D | None = None
             self.all_target_data: xr.DataArray = targets
 
-            self.target_full_scale: Optional[xr.DataArray] = None
+            self.target_full_scale: xr.DataArray | None = None
 
         else:
             self.targ_fit_range = target_fit_range
@@ -232,8 +232,8 @@ class ModelFittingDataTree(ProblemSingleObjective):
 
     def _configure_weights(
         self,
-        weights: Optional[Sequence[float]] = None,
-        weights_from_file: Optional[Sequence[Path]] = None,
+        weights: Sequence[float] | None = None,
+        weights_from_file: Sequence[Path] | None = None,
     ) -> None:
         """TBW.
 
@@ -364,13 +364,15 @@ class ModelFittingDataTree(ProblemSingleObjective):
         self,
         simulated_data: "xr.DataArray",
         target_data: "xr.DataArray",
-        weighting: Optional[np.ndarray] = None,
+        weighting: np.ndarray | None = None,
     ) -> float:
         if self.sim_output.startswith("data"):
             assert simulated_data.ndim == target_data.ndim
 
             # Create 'simulated_renamed' with the same dimensions as 'target_data'
-            renamed_dimensions = dict(zip(simulated_data.dims, target_data.dims))
+            renamed_dimensions = dict(
+                zip(simulated_data.dims, target_data.dims, strict=False)
+            )
             simulated_renamed: xr.DataArray = simulated_data.rename(renamed_dimensions)
 
             # 'simulated_interpolated' has the same coordinates as 'target_data'
@@ -428,7 +430,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
 
             overall_fitness: float = 0.0
             for processor_id, (processor, target_data) in enumerate(
-                zip(processor_list, self.all_target_data)
+                zip(processor_list, self.all_target_data, strict=False)
             ):
                 processor = self.update_processor(
                     parameter=parameter_1d, processor=processor
@@ -457,7 +459,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
                     with_inherited_coords=with_inherited_coords,
                 )
 
-                weighting: Optional[np.ndarray] = None
+                weighting: np.ndarray | None = None
 
                 if self.weighting is not None:
                     weighting = np.full(

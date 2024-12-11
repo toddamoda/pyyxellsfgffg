@@ -8,7 +8,7 @@
 """Pyxel photon generator models."""
 
 from collections.abc import Mapping
-from typing import Any, Literal, Optional, Union
+from typing import Any, Literal
 
 from pyxel.detectors import Detector
 from pyxel.inputs import load_header
@@ -19,15 +19,15 @@ def load_image(
     detector: Detector,
     image_file: str,
     include_header: bool = False,
-    header_section_index: Union[int, str, None] = None,
+    header_section_index: int | str | None = None,
     position: tuple[int, int] = (0, 0),
-    align: Optional[
-        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"]
-    ] = None,
+    align: (
+        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"] | None
+    ) = None,
     convert_to_photons: bool = False,
     multiplier: float = 1.0,
     time_scale: float = 1.0,
-    bit_resolution: Optional[int] = None,
+    bit_resolution: int | None = None,
 ) -> None:
     r"""Load :term:`FITS` file as a numpy array and add to the detector as input image.
 
@@ -99,7 +99,7 @@ def load_image(
 
     # Try to extract the Header from 'image_file'
     if include_header:
-        header: Optional[Mapping[str, Any]] = load_header(
+        header: Mapping[str, Any] | None = load_header(
             image_file,
             section=header_section_index,
         )

@@ -10,7 +10,7 @@
 
 from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, Protocol, Union
+from typing import TYPE_CHECKING, Any, Protocol, Union
 
 from pyxel.outputs import Outputs, ValidFormat, ValidName
 
@@ -51,12 +51,12 @@ class ExposureOutputs(Outputs):
 
     def __init__(
         self,
-        output_folder: Union[str, Path],
+        output_folder: str | Path,
         custom_dir_name: str = "",
-        save_data_to_file: Optional[
-            Sequence[Mapping[ValidName, Sequence[ValidFormat]]]
-        ] = None,
-        save_exposure_data: Optional[Sequence[Mapping[str, Sequence[str]]]] = None,
+        save_data_to_file: (
+            Sequence[Mapping[ValidName, Sequence[ValidFormat]]] | None
+        ) = None,
+        save_exposure_data: Sequence[Mapping[str, Sequence[str]]] | None = None,
     ):
         super().__init__(
             output_folder=output_folder,
@@ -64,7 +64,7 @@ class ExposureOutputs(Outputs):
             save_data_to_file=save_data_to_file,
         )
 
-        self.save_exposure_data: Optional[Sequence[Mapping[str, Sequence[str]]]] = (
+        self.save_exposure_data: Sequence[Mapping[str, Sequence[str]]] | None = (
             save_exposure_data
         )
 

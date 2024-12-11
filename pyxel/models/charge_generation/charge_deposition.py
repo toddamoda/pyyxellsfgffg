@@ -9,7 +9,7 @@
 
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Literal, Optional, Union
+from typing import Literal
 
 import numpy as np
 import pandas as pd
@@ -25,13 +25,13 @@ def charge_deposition(
     step_size: float = 1.0,
     energy_mean: float = 1.0,
     energy_spread: float = 0.1,
-    energy_spectrum: Union[str, Path, None] = None,
+    energy_spectrum: str | Path | None = None,
     energy_spectrum_sampling: Literal["linear", "log"] = "log",
     ehpair_creation: float = 3.65,
     material_density: float = 2.3290,
     particle_direction: Literal["isotropic", "orthogonal"] = "isotropic",
-    stopping_power_curve: Union[str, Path, None] = None,
-    seed: Optional[int] = None,
+    stopping_power_curve: str | Path | None = None,
+    seed: int | None = None,
 ) -> None:
     """Simulate charge deposition by ionizing particles using a stopping power curve.
 
@@ -99,12 +99,12 @@ def charge_deposition_in_mct(
     step_size: float = 1.0,
     energy_mean: float = 1.0,
     energy_spread: float = 0.1,
-    energy_spectrum: Union[str, Path, None] = None,
+    energy_spectrum: str | Path | None = None,
     energy_spectrum_sampling: Literal["linear", "log"] = "log",
     cutoff_wavelength: float = 2.5,
     particle_direction: Literal["isotropic", "orthogonal"] = "isotropic",
-    stopping_power_curve: Union[str, Path, None] = None,
-    seed: Optional[int] = None,
+    stopping_power_curve: str | Path | None = None,
+    seed: int | None = None,
 ) -> None:
     """Simulate charge deposition by ionizing particles using a stopping power curve.
 
@@ -203,7 +203,7 @@ def tracks_to_charge(tracks: Sequence[float]) -> pd.DataFrame:
 def _generate_random_energies(
     energy_mean: float,
     energy_spread: float,
-    energy_spectrum: Union[str, Path, None],
+    energy_spectrum: str | Path | None,
     energy_spectrum_sampling: Literal["linear", "log"],
     n_p,
 ) -> np.ndarray:
@@ -253,12 +253,12 @@ def simulate_charge_deposition(
     step_size: float = 1.0,
     energy_mean: float = 1.0,
     energy_spread: float = 0.1,
-    energy_spectrum: Union[str, Path, None] = None,
+    energy_spectrum: str | Path | None = None,
     energy_spectrum_sampling: Literal["linear", "log"] = "log",
     ehpair_creation: float = 3.65,
     material_density: float = 2.3290,
     particle_direction: Literal["isotropic", "orthogonal"] = "isotropic",
-    stopping_power_curve: Union[str, Path, None] = None,
+    stopping_power_curve: str | Path | None = None,
 ) -> list:
     """Simulate charge deposition of incident ionizing particles inside a detector.
 
@@ -342,7 +342,7 @@ def simulate_charge_deposition(
 
     tracks = []
     # for each particle generate and store the energy deposition track
-    for e, de in zip(p_energies, deposited_energies):
+    for e, de in zip(p_energies, deposited_energies, strict=False):
         # generate random particle coordinates
         x = np.random.random() * x_lim
         y = np.random.random() * y_lim

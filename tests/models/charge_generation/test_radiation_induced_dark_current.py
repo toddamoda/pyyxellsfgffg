@@ -7,7 +7,6 @@
 
 """Tests for radiation induced dark current model."""
 
-from typing import Union
 
 import pytest
 
@@ -24,7 +23,7 @@ from pyxel.models.charge_generation import radiation_induced_dark_current
 
 
 @pytest.fixture(params=["ccd", "cmos"])
-def detector_5x5(request: pytest.FixtureRequest) -> Union[CCD, CMOS]:
+def detector_5x5(request: pytest.FixtureRequest) -> CCD | CMOS:
     """Create a valid CMOS detector."""
     if request.param == "cmos":
         detector = CMOS(
@@ -59,7 +58,7 @@ def detector_5x5(request: pytest.FixtureRequest) -> Union[CCD, CMOS]:
     return detector
 
 
-def test_radiation_induced_dark_current_valid(detector_5x5: Union[CCD, CMOS]):
+def test_radiation_induced_dark_current_valid(detector_5x5: CCD | CMOS):
     """Test model 'radiation_induced_dark_current' with valid inputs."""
     detector = detector_5x5
 

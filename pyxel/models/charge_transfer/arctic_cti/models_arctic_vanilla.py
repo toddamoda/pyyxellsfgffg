@@ -147,7 +147,9 @@ def arctic_add(
     # Conversion - Create a list of `Trap`
     traps: Sequence[Trap] = [
         Trap(density=density, release_timescale=release_timescale)
-        for density, release_timescale in zip(trap_densities, trap_release_timescales)
+        for density, release_timescale in zip(
+            trap_densities, trap_release_timescales, strict=False
+        )
     ]
 
     if not WITH_ARTICPY:
@@ -264,7 +266,9 @@ def arctic_remove(
     # Conversion
     traps: Sequence[Trap] = [
         Trap(density=density, release_timescale=release_timescale)
-        for density, release_timescale in zip(trap_densities, trap_release_timescales)
+        for density, release_timescale in zip(
+            trap_densities, trap_release_timescales, strict=False
+        )
     ]
 
     if not WITH_ARTICPY:

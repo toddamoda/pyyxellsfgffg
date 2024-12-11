@@ -13,7 +13,7 @@ from collections.abc import Mapping, Sequence
 from contextlib import suppress
 from io import BytesIO, StringIO
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from numpy.typing import DTypeLike
@@ -48,9 +48,9 @@ def prepare_cache_path(url_path: str) -> tuple[str, dict]:
 
 
 def load_header(
-    filename: Union[str, Path],
-    section: Union[int, str, None] = None,
-) -> Optional[Mapping[str, Any]]:
+    filename: str | Path,
+    section: int | str | None = None,
+) -> Mapping[str, Any] | None:
     """Load and return header information from a file.
 
     Parameters
@@ -95,8 +95,8 @@ def load_header(
                 from astropy.io import fits
 
                 with BytesIO(file_handler.read()) as content:
-                    ext: Optional[int] = None
-                    extname: Optional[str] = None
+                    ext: int | None = None
+                    extname: str | None = None
 
                     if isinstance(section, int):
                         ext = section
@@ -107,7 +107,7 @@ def load_header(
                         content, ext=ext, extname=extname
                     )
 
-                    cards: Sequence[Union[tuple[str, Any], tuple[str, Any, str]]] = (
+                    cards: Sequence[tuple[str, Any] | tuple[str, Any, str]] = (
                         header.cards
                     )
 
@@ -135,7 +135,7 @@ def load_header(
         raise
 
 
-def load_image(filename: Union[str, Path]) -> np.ndarray:
+def load_image(filename: str | Path) -> np.ndarray:
     """Load a 2D image.
 
     Parameters
@@ -244,9 +244,9 @@ def load_image(filename: Union[str, Path]) -> np.ndarray:
 # TODO: reduce complexity and remove ruff noqa.
 # ruff: noqa: C901, PTH123
 def load_image_v2(
-    filename: Union[str, Path],
+    filename: str | Path,
     rename_dims: dict,
-    data_path: Union[str, int, None] = None,
+    data_path: str | int | None = None,
 ) -> "xr.DataArray":
     # Late import to speedup start-up time
     import xarray as xr
@@ -308,7 +308,7 @@ def load_image_v2(
 
 
 def load_table(
-    filename: Union[str, Path],
+    filename: str | Path,
     header: bool = False,
     dtype: DTypeLike = "float",
 ) -> "pd.DataFrame":
@@ -373,7 +373,7 @@ def load_table(
         try:
             dialect = csv.Sniffer().sniff(data, delimiters=valid_delimiters_str)
         except csv.Error:
-            delimiter: Optional[str] = None
+            delimiter: str | None = None
         else:
             delimiter = dialect.delimiter
 
@@ -418,9 +418,9 @@ def load_table(
 # TODO: needs tests!
 # TODO: add units
 def load_table_v2(
-    filename: Union[str, Path],
-    rename_cols: Optional[dict] = None,
-    data_path: Union[str, int, None] = None,
+    filename: str | Path,
+    rename_cols: dict | None = None,
+    data_path: str | int | None = None,
     header: bool = False,
 ) -> "pd.DataFrame":
     # Late import to speedup start-up time
@@ -510,7 +510,7 @@ def load_table_v2(
     return table_data
 
 
-def load_dataarray(filename: Union[str, Path]) -> "xr.DataArray":
+def load_dataarray(filename: str | Path) -> "xr.DataArray":
     """Load a ``DataArray`` image.
 
     Parameters
@@ -546,7 +546,7 @@ def load_dataarray(filename: Union[str, Path]) -> "xr.DataArray":
     return data_array
 
 
-def load_datacube(filename: Union[str, Path]) -> np.ndarray:
+def load_datacube(filename: str | Path) -> np.ndarray:
     """Load a 3D datacube.
 
     Parameters

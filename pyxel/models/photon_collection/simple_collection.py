@@ -7,7 +7,6 @@
 
 """Convert scene to photon with simple collection model."""
 
-from typing import Optional, Union
 
 import astropy.units as u
 import numpy as np
@@ -372,9 +371,9 @@ def aggregate_multiwavelength(data: xr.Dataset, rows: int, cols: int) -> xr.Data
 
 # TODO: Add unit tests
 def _extract_wavelength(
-    resolution: Optional[int],
-    filter_band: Optional[tuple[float, float]],
-    default_wavelength_handling: Union[float, WavelengthHandling, None],
+    resolution: int | None,
+    filter_band: tuple[float, float] | None,
+    default_wavelength_handling: float | WavelengthHandling | None,
 ) -> xr.DataArray:
     """Extract wavelength."""
     if filter_band is not None:
@@ -438,9 +437,9 @@ def _extract_wavelength(
 def simple_collection(
     detector: Detector,
     aperture: float,
-    filter_band: Union[tuple[float, float], None] = None,
-    resolution: Optional[int] = None,
-    pixel_scale: Optional[float] = None,
+    filter_band: tuple[float, float] | None = None,
+    resolution: int | None = None,
+    pixel_scale: float | None = None,
     integrate_wavelength: bool = True,
 ):
     """Convert scene in ph/(cm2 nm s) to photon in ph/nm s or ph s.

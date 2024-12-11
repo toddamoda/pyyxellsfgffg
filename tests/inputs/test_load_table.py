@@ -8,7 +8,6 @@
 import os
 import re
 from pathlib import Path
-from typing import Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -104,7 +103,7 @@ def valid_table_http_hostname(
         url: str = httpserver.url_for("")
 
         # Extract the hostname (e.g. 'localhost:59226')
-        hostname: str = re.findall("http://(.*)/", url)[0]
+        hostname: str = re.findall(r"http://(.*)/", url)[0]
 
         yield hostname
 
@@ -166,7 +165,7 @@ def invalid_table_http_hostname(
         url: str = httpserver.url_for("")
 
         # Extract the hostname (e.g. 'localhost:59226')
-        hostname: str = re.findall("http://(.*)/", url)[0]
+        hostname: str = re.findall(r"http://(.*)/", url)[0]
 
         yield hostname
 
@@ -185,7 +184,7 @@ def invalid_table_http_hostname(
 )
 def table_single_column_text(
     request: pytest.FixtureRequest, tmp_path: Path
-) -> Union[Path, str]:
+) -> Path | str:
     """Build a table with a single column."""
     filename = request.param
 
@@ -235,7 +234,7 @@ def test_load_table_invalid_filename(
     invalid_table_http_hostname: str,
     filename,
     exp_error: TypeError,
-    exp_message: Optional[str],
+    exp_message: str | None,
 ):
     """Test function 'load_table' with invalid filenames."""
     if isinstance(filename, str):
@@ -368,7 +367,7 @@ def test_load_table_invalid_format(tmp_path: Path, filename: str):
         _ = load_table(full_filename)
 
 
-def test_load_table_single_column(table_single_column_text: Union[Path, str]):
+def test_load_table_single_column(table_single_column_text: Path | str):
     """Test function 'load_table"."""
     df = load_table(table_single_column_text, dtype=None)
     assert isinstance(df, pd.DataFrame)

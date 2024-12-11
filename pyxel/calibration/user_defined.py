@@ -8,7 +8,7 @@
 """Subpackage containing user defined Island and Batch Fitness evaluator using Dask."""
 
 import logging
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import numpy as np
 from dask import array as da
@@ -75,7 +75,7 @@ class DaskBFE:
     This class is a user-defined batch fitness evaluator based on 'Dask'.
     """
 
-    def __init__(self, chunk_size: Optional[int] = None):
+    def __init__(self, chunk_size: int | None = None):
         self._chunk_size = chunk_size
 
     def __call__(self, prob: "pg.problem", dvs_1d: np.ndarray) -> da.Array:

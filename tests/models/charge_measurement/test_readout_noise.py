@@ -6,8 +6,6 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 
-from typing import Union
-
 import numpy as np
 import pytest
 
@@ -104,7 +102,7 @@ def test_output_node_noise(
 ):
     """Test model 'output_node_noise' with valid inputs."""
     if detector_type == "ccd":
-        detector: Union[CCD, CMOS] = ccd_2x3
+        detector: CCD | CMOS = ccd_2x3
     elif detector_type == "cmos":
         detector = cmos_2x3
     else:
@@ -137,7 +135,7 @@ def test_output_node_noise(
 def test_output_node_noise_bad_std(ccd_2x3: CCD, cmos_2x3: CMOS, detector_type: str):
     """Test model 'output_node_noise' with invalid input(s)."""
     if detector_type == "ccd":
-        detector: Union[CCD, CMOS] = ccd_2x3
+        detector: CCD | CMOS = ccd_2x3
     elif detector_type == "cmos":
         detector = cmos_2x3
     else:

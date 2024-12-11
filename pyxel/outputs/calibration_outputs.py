@@ -11,7 +11,7 @@
 import warnings
 from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, Protocol, Union
+from typing import TYPE_CHECKING, Any, Protocol
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -50,12 +50,12 @@ class CalibrationOutputs(Outputs):
 
     def __init__(
         self,
-        output_folder: Union[str, Path],
+        output_folder: str | Path,
         custom_dir_name: str = "",
-        save_data_to_file: Optional[
-            Sequence[Mapping[ValidName, Sequence[ValidFormat]]]
-        ] = None,
-        save_calibration_data: Optional[Sequence[Mapping[str, Sequence[str]]]] = None,
+        save_data_to_file: (
+            Sequence[Mapping[ValidName, Sequence[ValidFormat]]] | None
+        ) = None,
+        save_calibration_data: Sequence[Mapping[str, Sequence[str]]] | None = None,
     ):
         super().__init__(
             output_folder=output_folder,
@@ -64,9 +64,9 @@ class CalibrationOutputs(Outputs):
         )
 
         # Parameter(s) specific for 'Calibration'
-        self._save_calibration_data_deprecated: Optional[
-            Sequence[Mapping[str, Sequence[str]]]
-        ] = save_calibration_data
+        self._save_calibration_data_deprecated: (
+            Sequence[Mapping[str, Sequence[str]]] | None
+        ) = save_calibration_data
 
     def _save_processors_deprecated(
         self, processors: "pd.DataFrame"

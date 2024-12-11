@@ -17,7 +17,7 @@ from collections.abc import Sequence
 from copy import deepcopy
 from numbers import Number
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal, Optional, Union
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 import pandas as pd
@@ -57,32 +57,32 @@ class ModelFitting(ProblemSingleObjective):
         generations: int,
         population_size: int,
         fitness_func: FittingCallable,
-        file_path: Optional[Path],
-        pipeline_seed: Optional[int] = None,
+        file_path: Path | None,
+        pipeline_seed: int | None = None,
     ):
         self.processor: Processor = processor
         self.variables: Sequence[ParameterValues] = variables
 
         self.calibration_mode: CalibrationMode = calibration_mode
-        self.original_processor: Optional[Processor] = None
+        self.original_processor: Processor | None = None
         self.generations: int = generations
         self.pop: int = population_size
         self.readout: Readout = readout
 
         self.all_target_data: list[np.ndarray] = []
-        self.weighting: Optional[np.ndarray] = None
-        self.weighting_from_file: Optional[Sequence[np.ndarray]] = None
+        self.weighting: np.ndarray | None = None
+        self.weighting_from_file: Sequence[np.ndarray] | None = None
         self.fitness_func: FittingCallable = fitness_func
         self.sim_output: ResultId = simulation_output
         self.param_processor_list: list[Processor] = []
 
-        self.file_path: Optional[Path] = file_path
-        self.pipeline_seed: Optional[int] = pipeline_seed
+        self.file_path: Path | None = file_path
+        self.pipeline_seed: int | None = pipeline_seed
 
-        self.fitness_array: Optional[np.ndarray] = None
-        self.population: Optional[np.ndarray] = None
-        self.champion_f_list: Optional[np.ndarray] = None
-        self.champion_x_list: Optional[np.ndarray] = None
+        self.fitness_array: np.ndarray | None = None
+        self.population: np.ndarray | None = None
+        self.champion_f_list: np.ndarray | None = None
+        self.champion_x_list: np.ndarray | None = None
 
         self.lbd: list[float] = []  # lower boundary
         self.ubd: list[float] = []  # upper boundary
@@ -92,7 +92,7 @@ class ModelFitting(ProblemSingleObjective):
             slice(None),
             slice(None),
         )
-        self.targ_fit_range: Union[tuple[slice, slice], tuple[slice, slice, slice]] = (
+        self.targ_fit_range: tuple[slice, slice] | tuple[slice, slice, slice] = (
             slice(None),
             slice(None),
         )
@@ -115,9 +115,9 @@ class ModelFitting(ProblemSingleObjective):
         target_fit_range: Sequence[int],
         out_fit_range: Sequence[int],
         target_output: Sequence[Path],
-        input_arguments: Optional[Sequence[ParameterValues]] = None,
-        weights: Optional[Sequence[float]] = None,
-        weights_from_file: Optional[Sequence[Path]] = None,
+        input_arguments: Sequence[ParameterValues] | None = None,
+        weights: Sequence[float] | None = None,
+        weights_from_file: Sequence[Path] | None = None,
     ) -> None:
         """TBW."""
         # if self.calibration_mode == 'single_model':           # TODO update
@@ -143,7 +143,7 @@ class ModelFitting(ProblemSingleObjective):
                 for step in input_arguments:
                     assert step.values != "_"
 
-                    value: Union[Literal["_"], str, Number, tuple[Number, ...]] = (
+                    value: Literal["_"] | str | Number | tuple[Number, ...] = (
                         step.values[i]
                     )
 
@@ -211,8 +211,8 @@ class ModelFitting(ProblemSingleObjective):
 
     def _configure_weights(
         self,
-        weights: Optional[Sequence[float]] = None,
-        weights_from_file: Optional[Sequence[Path]] = None,
+        weights: Sequence[float] | None = None,
+        weights_from_file: Sequence[Path] | None = None,
     ) -> None:
         """TBW.
 
@@ -311,7 +311,7 @@ class ModelFitting(ProblemSingleObjective):
         self,
         simulated_data: np.ndarray,
         target_data: np.ndarray,
-        weighting: Optional[np.ndarray] = None,
+        weighting: np.ndarray | None = None,
     ) -> float:
         """TBW.
 
@@ -364,7 +364,7 @@ class ModelFitting(ProblemSingleObjective):
 
             overall_fitness: float = 0.0
             for i, (processor, target_data) in enumerate(
-                zip(processor_list, self.all_target_data)
+                zip(processor_list, self.all_target_data, strict=False)
             ):
                 processor = self.update_processor(
                     parameter=parameter_1d, processor=processor
@@ -387,7 +387,7 @@ class ModelFitting(ProblemSingleObjective):
 
                 simulated_data = self.get_simulated_data(processor=processor)
 
-                weighting: Optional[np.ndarray] = None
+                weighting: np.ndarray | None = None
 
                 if self.weighting is not None:
                     weighting = self.weighting[i] * np.ones(

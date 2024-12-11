@@ -114,7 +114,7 @@ def build_metadata(data_tree: "DataTree") -> Mapping[str, DatasetMetadata]:
     all_paths: Sequence[str] = sorted(data_tree.groups)
 
     for path in all_paths:
-        sub_data_tree: Union["DataTree", xr.DataArray] = data_tree[path]
+        sub_data_tree: "DataTree" | xr.DataArray = data_tree[path]
 
         dims: tuple[Hashable, ...] = tuple(sub_data_tree.dims)
 
@@ -208,7 +208,7 @@ def _run_pipelines_array_to_datatree(
     processor: "Processor",
     readout: "Readout",
     result_type: ResultId,
-    pipeline_seed: Optional[int],
+    pipeline_seed: int | None,
     progressbar: bool,
 ) -> "DataTree":
     """Execute a single pipeline."""
@@ -217,7 +217,7 @@ def _run_pipelines_array_to_datatree(
 
     # Create a new Processor object with modified parameters from dct
     # e.g. dct = {'pipeline.photon_collection.load_image.arguments.image_file': 'FITS/00001.fits'}
-    dct: dict[str, tuple] = dict(zip(dimension_names, params_tuple))
+    dct: dict[str, tuple] = dict(zip(dimension_names, params_tuple, strict=False))
     new_processor: Processor = processor.replace(dct)
 
     # TODO: Move this to 'Processor' ? See #836
@@ -279,7 +279,7 @@ def _build_metadata(
     processor: "Processor",
     readout: "Readout",
     result_type: ResultId,
-    pipeline_seed: Optional[int],
+    pipeline_seed: int | None,
 ) -> Mapping[str, DatasetMetadata]:
     """Build metadata from a single pipeline run."""
     # TODO: Create a new temporary 'Output' (if needed) and remove it
@@ -308,7 +308,7 @@ def _run_pipelines_tuple_to_array(
     processor: "Processor",
     readout: "Readout",
     result_type: ResultId,
-    pipeline_seed: Optional[int],
+    pipeline_seed: int | None,
 ) -> tuple[np.ndarray, ...]:
     data_tree: "DataTree" = _run_pipelines_array_to_datatree(
         params_tuple=params_tuple,
@@ -362,7 +362,7 @@ def _rebuild_datatree_from_dask(
         from datatree import DataTree  # type: ignore[assignment]
 
     # Rebuild the DataTree from 'all_dataarrays'
-    dct: dict[str, Union[xr.Dataset, DataTree]] = {}
+    dct: dict[str, xr.Dataset | DataTree] = {}
     idx = 0
     path: str
 
@@ -404,12 +404,12 @@ def _rebuild_datatree_from_dask(
 
 def run_pipelines_with_dask(
     dim_names: Mapping[str, str],
-    parameter_mode: Union[ProductMode, SequentialMode, CustomMode],
+    parameter_mode: ProductMode | SequentialMode | CustomMode,
     processor: "Processor",
     readout: "Readout",
     outputs: Optional["ObservationOutputs"],
     result_type: ResultId,
-    pipeline_seed: Optional[int],
+    pipeline_seed: int | None,
 ) -> "DataTree":
     # Late import to speedup start-up time
     import xarray as xr
@@ -481,7 +481,7 @@ def run_pipelines_with_dask(
     )
 
     # Rebuild a DataTree from 'dask_dataarrays'
-    dct: Mapping[str, Union[xr.Dataset, DataTree]] = _rebuild_datatree_from_dask(
+    dct: Mapping[str, xr.Dataset | DataTree] = _rebuild_datatree_from_dask(
         dask_dataarrays=dask_dataarrays,
         all_metadata=all_metadata,
     )
@@ -508,7 +508,7 @@ def run_pipelines_with_dask(
         # Late import
         from pyxel.outputs.outputs import save_datatree
 
-        data_tree_filenames: Optional["DataTree"] = save_datatree(
+        data_tree_filenames: "DataTree" | None = save_datatree(
             data_tree=final_datatree.isel(time=-1),
             outputs=outputs.save_data_to_file,
             current_output_folder=outputs.current_output_folder,

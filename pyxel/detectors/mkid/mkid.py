@@ -8,7 +8,7 @@
 """:term:`MKID`-array detector modeling class."""
 
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 from pyxel.data_structure import Phase, _get_array_if_initialized
 from pyxel.detectors import Detector
@@ -34,7 +34,7 @@ class MKID(Detector):
 
         super().__init__(environment=environment)
 
-        self._phase: Optional[Phase] = None
+        self._phase: Phase | None = None
         self._initialize()
 
     def __eq__(self, other) -> bool:

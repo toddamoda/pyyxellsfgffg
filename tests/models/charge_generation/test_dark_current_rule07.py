@@ -8,7 +8,6 @@
 
 """Tests for dark current models."""
 
-from typing import Optional, Union
 
 import numpy as np
 import pytest
@@ -28,7 +27,7 @@ from pyxel.models.charge_generation import dark_current_rule07
 
 
 @pytest.fixture(params=["ccd", "cmos"])
-def detector_4x3(request: pytest.FixtureRequest) -> Union[CCD, CMOS]:
+def detector_4x3(request: pytest.FixtureRequest) -> CCD | CMOS:
     """Create a valid CCD or CMOS detector."""
     if request.param == "cmos":
         detector = CMOS(
@@ -72,9 +71,9 @@ def detector_4x3(request: pytest.FixtureRequest) -> Union[CCD, CMOS]:
     ],
 )
 def test_dark_current_rule07_valid(
-    detector_4x3: Union[CCD, CMOS],
-    cutoff_wavelength: Optional[float],
-    spatial_noise_factor: Optional[float],
+    detector_4x3: CCD | CMOS,
+    cutoff_wavelength: float | None,
+    spatial_noise_factor: float | None,
     temporal_noise: bool,
 ):
     """Test model 'dark_current_rule07' with valid inputs."""
@@ -139,7 +138,7 @@ def test_dark_current_rule07_valid(
     ],
 )
 def test_dark_current_rule07_invalid(
-    detector_4x3: Union[CCD, CMOS],
+    detector_4x3: CCD | CMOS,
     cutoff_wavelength,
     exp_exc,
     exp_msg,

@@ -10,10 +10,10 @@
 import logging
 import operator
 import warnings
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from copy import deepcopy
 from numbers import Number
-from typing import TYPE_CHECKING, Any, Callable, NewType, Optional, Union
+from typing import TYPE_CHECKING, Any, NewType, Optional
 
 import numpy as np
 from typing_extensions import Self
@@ -87,9 +87,7 @@ def result_keys(result_type: ResultId) -> Sequence[ResultId]:
 
 
 # TODO: Refactor this function (e.g. include it in 'Processor')
-def _get_obj_att(
-    obj: Any, key: str, obj_type: Optional[type] = None
-) -> tuple[Any, str]:
+def _get_obj_att(obj: Any, key: str, obj_type: type | None = None) -> tuple[Any, str]:
     """Retrieve an object associated with a specified key.
 
     The function is versatile and can be applied to dictionaries, lists,
@@ -200,9 +198,9 @@ class Processor:
         self.pipeline = pipeline
 
         # TODO: Use this only in future class 'ProcessorObservation'
-        self.observation: Optional["Observation"] = observation_mode  # TODO: See #836
+        self.observation: "Observation" | None = observation_mode  # TODO: See #836
 
-        self._result: Optional[dict] = None  # TODO: Deprecate this variable ?
+        self._result: dict | None = None  # TODO: Deprecate this variable ?
 
         self._numbytes = 0
 
@@ -273,7 +271,7 @@ class Processor:
     def set(
         self,
         key: str,
-        value: Union[str, Number, np.ndarray, Sequence[Union[str, Number, np.ndarray]]],
+        value: str | Number | np.ndarray | Sequence[str | Number | np.ndarray],
         convert_value: bool = True,
     ) -> None:
         """Set the value of a parameter in the Processor.
@@ -288,21 +286,21 @@ class Processor:
             # TODO: Refactor this
             # convert the string based value to a number
             if isinstance(value, Sequence) and not isinstance(value, str):
-                new_value_lst: Sequence[Union[str, Number, np.ndarray, Sequence]] = [
+                new_value_lst: Sequence[str | Number | np.ndarray | Sequence] = [
                     (eval_entry(val) if val else val) for val in value
                 ]
 
-                new_value: Union[
-                    str,
-                    Number,
-                    np.ndarray,
-                    Sequence[Union[str, Number, np.ndarray, Sequence]],
-                ] = new_value_lst
+                new_value: (
+                    str
+                    | Number
+                    | np.ndarray
+                    | Sequence[str | Number | np.ndarray | Sequence]
+                ) = new_value_lst
 
             elif isinstance(value, str):
                 new_value = eval_entry(value)
 
-            elif isinstance(value, (Number, np.ndarray)):
+            elif isinstance(value, Number | np.ndarray):
                 new_value = value
 
             else:
@@ -334,7 +332,7 @@ class Processor:
 
         for group_name in self.pipeline.model_group_names:
             # Get a group of models
-            models_grp: Optional[ModelGroup] = getattr(self.pipeline, group_name)
+            models_grp: ModelGroup | None = getattr(self.pipeline, group_name)
             if not models_grp:
                 continue
 

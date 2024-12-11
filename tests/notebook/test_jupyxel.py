@@ -6,7 +6,7 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 
-from typing import Any, Optional
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -141,7 +141,7 @@ def test_set_modelstate_wrong_input(processor: Processor):
 @pytest.mark.parametrize("new_display", [True, False, None])
 @pytest.mark.parametrize("custom_histogram", [True, False, None])
 def test_display_detector(
-    ccd_detector: CCD, new_display: Optional[bool], custom_histogram: Optional[bool]
+    ccd_detector: CCD, new_display: bool | None, custom_histogram: bool | None
 ):
     """Test function 'display_detector'."""
     ccd_detector.photon.array = np.zeros(shape=(2, 3))

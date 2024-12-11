@@ -10,7 +10,7 @@
 import logging
 import math
 from pathlib import Path
-from typing import Any, Literal, Optional, Union
+from typing import Any, Literal
 
 import numpy as np
 import pandas as pd
@@ -63,26 +63,26 @@ def cosmix(
     particle_type: Literal["proton", "alpha", "ion"],
     particles_per_second: float,
     spectrum_file: str,
-    initial_energy: Optional[
-        Union[int, float, Literal["random"]]
-    ] = "random",  # TODO: Remove 'Optional'
-    incident_angles: Optional[tuple[str, str]] = (
+    initial_energy: (
+        int | float | Literal["random"] | None
+    ) = "random",  # TODO: Remove 'Optional'
+    incident_angles: tuple[str, str] | None = (
         "random",
         "random",
     ),  # TODO: Remove 'Optional'
-    starting_position: Optional[tuple[str, str, str]] = (
+    starting_position: tuple[str, str, str] | None = (
         "random",
         "random",
         "random",
     ),  # TODO: Remove 'Optional'
     # step_size_file: str = None,
     # stopping_file: str = None,
-    seed: Optional[int] = None,
+    seed: int | None = None,
     ionization_energy: float = 3.6,
     progressbar: bool = True,
-    stepsize: Optional[
-        list[dict[str, Any]]
-    ] = None,  # TODO: replace by Optional[list[StepSize]]
+    stepsize: (
+        list[dict[str, Any]] | None
+    ) = None,  # TODO: replace by Optional[list[StepSize]]
 ) -> None:
     """Apply CosmiX model.
 
@@ -207,7 +207,7 @@ class Cosmix:
         particle_type: Literal[
             "proton", "ion", "alpha", "beta", "electron", "gamma", "x-ray"
         ],
-        initial_energy: Union[int, float, Literal["random"]],
+        initial_energy: int | float | Literal["random"],
         particle_number: int,
         incident_angle_alpha: str,
         incident_angle_beta: str,
@@ -277,9 +277,7 @@ class Cosmix:
 
     def set_stepsize(
         self,
-        stepsizes: Optional[
-            list[dict]
-        ] = None,  # TODO: Replace by  Optional[list[StepSize]]
+        stepsizes: list[dict] | None = None,  # TODO: Replace by list[StepSize] | None
     ) -> None:
         self.sim_obj.energy_loss_data = "stepsize"
 

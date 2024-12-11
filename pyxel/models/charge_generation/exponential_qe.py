@@ -10,7 +10,7 @@
 import logging
 import math
 from pathlib import Path
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
@@ -25,10 +25,10 @@ if TYPE_CHECKING:
 # ruff: noqa: C901
 def exponential_qe(
     detector: "Detector",
-    filename: Union[str, Path],
+    filename: str | Path,
     x_epi: float,
     detector_type: str,  # BI: Back-Illuminated, FI: Front-Illuminated
-    default_wavelength: Union[str, float, None] = None,  # User must provide a value
+    default_wavelength: str | float | None = None,  # User must provide a value
     x_poly: float = 0.0,  # Default x_poly to 0.0, change only if the detector is front-illuminated
     delta_t: float = 0.0,  # Temperature difference from 300 K
     cce: float = 1.0,  # Default Charge Collection Efficiency (CCE)
@@ -72,7 +72,7 @@ def exponential_qe(
     valid_wavelength_range = (250.0, 1450.0)  # Range in nm
 
     # Validate default_wavelength for single-wavelength mode
-    if isinstance(default_wavelength, (int, float)) and not (
+    if isinstance(default_wavelength, int | float) and not (
         valid_wavelength_range[0] <= default_wavelength <= valid_wavelength_range[1]
     ):
         raise ValueError("Wavelength is out of the valid range " "for the equation.")
@@ -104,7 +104,7 @@ def exponential_qe(
             raise ValueError(
                 "Photon array is 2D, but you specified 'multi' for `default_wavelength`. Ensure the photon array matches your wavelength input."
             )
-        elif isinstance(default_wavelength, (int, float)):
+        elif isinstance(default_wavelength, int | float):
             logging.info(
                 "Photon array is 2D. Transforming it into a 3D array with a single wavelength slice."
             )

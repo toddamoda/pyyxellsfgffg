@@ -9,7 +9,7 @@
 
 from contextlib import suppress
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
@@ -109,7 +109,7 @@ class PlottingCosmix:
         plt.loglog(lin_energy_range, flux_dist)
         self.save_and_draw("flux_spectrum")
 
-    def plot_spectrum_hist(self, data: Union[str, np.ndarray]) -> None:
+    def plot_spectrum_hist(self, data: str | np.ndarray) -> None:
         plt.figure()
         plt.title("Proton flux spectrum sampled by CosmiX")
         plt.xlabel("Energy (MeV)")
@@ -293,7 +293,7 @@ class PlottingCosmix:
         self.save_and_draw("trajectory_xz")
 
     def plot_track_histogram(
-        self, histogram_data: Union[str, np.ndarray], normalize: bool = False
+        self, histogram_data: str | np.ndarray, normalize: bool = False
     ) -> None:
         hist_bins = 1000
         hist_range = (0, 1000)
@@ -574,9 +574,9 @@ class PlottingCosmix:
 
     def plot_electron_hist(
         self,
-        data1: Union[str, np.ndarray],
-        data2: Optional[np.ndarray] = None,
-        data3: Optional[np.ndarray] = None,
+        data1: str | np.ndarray,
+        data2: np.ndarray | None = None,
+        data3: np.ndarray | None = None,
         title: str = "",
         hist_bins: int = 500,
         hist_range: tuple[int, int] = (0, 15000),
@@ -669,7 +669,7 @@ class PlottingCosmix:
         plt.legend(loc="upper right")
         self.save_and_draw("electron_hist")
 
-    def polar_angle_dist(self, theta: Union[str, np.ndarray]) -> None:
+    def polar_angle_dist(self, theta: str | np.ndarray) -> None:
         if isinstance(theta, str):
             if theta.endswith(".npy"):
                 theta_data: np.ndarray = np.load(theta)

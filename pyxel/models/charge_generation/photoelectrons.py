@@ -8,7 +8,7 @@
 """Simple model to convert photon into photo-electrons inside detector."""
 
 from pathlib import Path
-from typing import Literal, Optional, Union
+from typing import Literal
 
 import numpy as np
 import xarray as xr
@@ -28,7 +28,7 @@ def integrate_photon(photon: xr.DataArray) -> xr.DataArray:
 
 
 def apply_qe(
-    array: np.ndarray, qe: Union[float, np.ndarray], binomial_sampling: bool = True
+    array: np.ndarray, qe: float | np.ndarray, binomial_sampling: bool = True
 ) -> np.ndarray:
     """Apply quantum efficiency to an array.
 
@@ -53,8 +53,8 @@ def apply_qe(
 
 def simple_conversion(
     detector: Detector,
-    quantum_efficiency: Optional[float] = None,
-    seed: Optional[int] = None,
+    quantum_efficiency: float | None = None,
+    seed: int | None = None,
     binomial_sampling: bool = True,
 ) -> None:
     """Generate charge from incident photon via photoelectric effect, simple model.
@@ -99,12 +99,12 @@ def simple_conversion(
 
 def conversion_with_qe_map(
     detector: Detector,
-    filename: Union[str, Path],
+    filename: str | Path,
     position: tuple[int, int] = (0, 0),
-    align: Optional[
-        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"]
-    ] = None,
-    seed: Optional[int] = None,
+    align: (
+        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"] | None
+    ) = None,
+    seed: int | None = None,
     binomial_sampling: bool = True,
 ) -> None:
     """Generate charge from incident photon via photoelectric effect, simple model with custom :term:`QE` map.

@@ -10,7 +10,7 @@
 
 import os
 from enum import Enum
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Union
 
 import numpy as np
 
@@ -406,9 +406,9 @@ def champion_heatmap(
     ds: "xr.Dataset",
     num_bins: int = 100,
     logx: bool = False,
-    parameter_range: Optional[tuple[int, int]] = None,
-    island_range: Optional[tuple[int, int]] = None,
-    ind_range: Optional[tuple[int, int]] = None,
+    parameter_range: tuple[int, int] | None = None,
+    island_range: tuple[int, int] | None = None,
+    ind_range: tuple[int, int] | None = None,
 ) -> "hv.Points":
     """Plot a heatmap of champion parameters vs fitness.
 
@@ -518,7 +518,7 @@ def champion_heatmap(
     # x=x[x>1e-7]
 
     if logx:
-        bins: Union[list, int] = [
+        bins: list | int = [
             np.geomspace(0.9 * np.min(x), 1.1 * np.max(x), num_bins + 1),
             num_bins,
         ]

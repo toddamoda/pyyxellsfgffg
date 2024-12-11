@@ -8,12 +8,11 @@
 """File utility functions to simplify path logic."""
 
 from pathlib import Path, PurePath
-from typing import Union
 
 from typing_extensions import overload
 
 
-def is_path_relative(filename: Union[str, Path]) -> bool:
+def is_path_relative(filename: str | Path) -> bool:
     """Check if the filename is a relative or absolute path.
 
     Examples
@@ -37,16 +36,14 @@ def is_path_relative(filename: Union[str, Path]) -> bool:
 
 
 @overload
-def complete_path(filename: str, working_dir: Union[str, Path, None]) -> str: ...
+def complete_path(filename: str, working_dir: str | Path | None) -> str: ...
 
 
 @overload
-def complete_path(filename: Path, working_dir: Union[str, Path, None]) -> Path: ...
+def complete_path(filename: Path, working_dir: str | Path | None) -> Path: ...
 
 
-def complete_path(
-    filename: Union[str, Path], working_dir: Union[str, Path, None]
-) -> Union[str, Path]:
+def complete_path(filename: str | Path, working_dir: str | Path | None) -> str | Path:
     """Prefix the filename with the working directory.
 
     The returned type will be the same as the `filename` type.
@@ -95,7 +92,7 @@ def resolve_with_working_directory(
 def resolve_with_working_directory(filename: Path) -> Path: ...
 
 
-def resolve_with_working_directory(filename: Union[str, Path]) -> Union[str, Path]:
+def resolve_with_working_directory(filename: str | Path) -> str | Path:
     """Make the given path absolute using the global working directory.
 
     This function uses a global working directory specified in the global options to

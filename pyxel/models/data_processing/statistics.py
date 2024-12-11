@@ -8,7 +8,7 @@
 """Simple model to compute basic statistics."""
 
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Literal, Union
+from typing import TYPE_CHECKING, Literal
 
 import xarray as xr
 
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 def compute_statistics(
     data_array: xr.DataArray,
     absolute_time: xr.DataArray,
-    dimensions: Union[str, Sequence[str]] = ("x", "y"),
+    dimensions: str | Sequence[str] = ("x", "y"),
 ) -> xr.Dataset:
     """Compute basic statistics and save it into a Dataset.
 
@@ -96,7 +96,7 @@ def statistics(
 
     for name in names:
         # Extract data from 'detector'
-        data_bucket: Union[Pixel, Photon, Signal, Image] = getattr(detector, name)
+        data_bucket: Pixel | Photon | Signal | Image = getattr(detector, name)
         data_array: xr.DataArray = data_bucket.to_xarray(dtype=float)
 
         # Get current absolute time

@@ -14,10 +14,10 @@ from copy import deepcopy
 from dataclasses import dataclass
 from itertools import chain, count
 from numbers import Number
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
-from typing_extensions import Literal, Self
+from typing_extensions import Self
 
 from pyxel.observation import ParameterValues
 
@@ -29,12 +29,7 @@ if TYPE_CHECKING:
 
 ParametersType = MutableMapping[
     str,
-    Union[
-        str,
-        Number,
-        np.ndarray,
-        Sequence[Union[str, Number, np.ndarray]],
-    ],
+    str | Number | np.ndarray | Sequence[str | Number | np.ndarray],
 ]
 
 
@@ -93,16 +88,16 @@ class ProductMode:
         all_steps = self.enabled_steps
         keys = [step.key for step in self.enabled_steps]
         for indices, params in zip(
-            self._product_indices(), itertools.product(*all_steps)
+            self._product_indices(), itertools.product(*all_steps), strict=False
         ):
             parameter_dict = {}
-            for key, value in zip(keys, params):
+            for key, value in zip(keys, params, strict=False):
                 parameter_dict.update({key: value})
             yield indices, parameter_dict
 
     def get_parameters_item(
         self,
-    ) -> Sequence[Union[ParameterEntry, CustomParameterEntry]]:
+    ) -> Sequence[ParameterEntry | CustomParameterEntry]:
         params_it: Iterator = self._product_parameters()
 
         return [
@@ -175,7 +170,7 @@ class SequentialMode:
 
     def get_parameters_item(
         self, processor: "Processor"
-    ) -> Sequence[Union[ParameterEntry, CustomParameterEntry]]:
+    ) -> Sequence[ParameterEntry | CustomParameterEntry]:
         # Late import to speedup start-up time
         import toolz
 
@@ -222,7 +217,7 @@ class SequentialMode:
         }
         params_names = [dim_names[key] for key in all_steps]
 
-        params_sequential_list = list(zip(*all_steps.values()))
+        params_sequential_list = list(zip(*all_steps.values(), strict=False))
         params_sequential_with_index = [
             (idx, *el) for idx, el in zip(count(), params_sequential_list)
         ]
@@ -305,7 +300,7 @@ def convert_custom_data(
 
     idx = 0
     params: Sequence[Literal["_"]]
-    for name, params in zip(params_names, params_custom_list):
+    for name, params in zip(params_names, params_custom_list, strict=False):
         if len(params) == 1:
             assert idx < num_columns
             new_custom_data[name] = custom_data[idx]
@@ -358,7 +353,7 @@ class CustomMode:
         cls,
         parameters: Sequence[ParameterValues],
         custom_file: str,
-        custom_columns: Optional[slice],
+        custom_columns: slice | None,
     ) -> Self:
         """Load custom parameters from a file and validate.
 
@@ -460,7 +455,7 @@ class CustomMode:
         index: int
         row_serie: pd.Series
         for index, row_serie in self.custom_data.iterrows():
-            row: Sequence[Union[Number, str]] = row_serie.to_list()
+            row: Sequence[Number | str] = row_serie.to_list()
 
             i: int = 0
             parameter_dict: ParametersType = {}
@@ -483,9 +478,7 @@ class CustomMode:
                             "indicate parameters updated from file in custom mode"
                         )
 
-                    value: Sequence[Union[Number, str]] = row[
-                        i : i + len(values_flattened)
-                    ]
+                    value: Sequence[Number | str] = row[i : i + len(values_flattened)]
                     assert len(value) == len(step.values)
 
                     parameter_dict[key] = value
@@ -499,7 +492,7 @@ class CustomMode:
 
     def get_parameters_item(
         self, processor: "Processor"
-    ) -> Sequence[Union[ParameterEntry, CustomParameterEntry]]:
+    ) -> Sequence[ParameterEntry | CustomParameterEntry]:
         params_it = self._custom_parameters()
 
         return [

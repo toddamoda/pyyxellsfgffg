@@ -8,7 +8,6 @@
 
 """Reset noise model tests."""
 
-from typing import Optional
 
 import numpy as np
 import pytest
@@ -184,7 +183,7 @@ def test_ktc_noise(
 )
 def test_ktc_noise_invalid(
     ccd_2x3: CCD,
-    node_capacitance: Optional[float],
+    node_capacitance: float | None,
     exp_exc,
     exp_error,
 ):

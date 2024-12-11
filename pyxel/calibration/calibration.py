@@ -12,7 +12,7 @@ import sys
 import warnings
 from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Optional, Union
+from typing import TYPE_CHECKING, Any, Literal, Optional
 
 import numpy as np
 from dask.delayed import Delayed
@@ -49,7 +49,7 @@ if TYPE_CHECKING:
     from pyxel.outputs import CalibrationOutputs
 
 
-def to_path_list(filenames: Sequence[Union[str, Path]]) -> Sequence[Path]:
+def to_path_list(filenames: Sequence[str | Path]) -> Sequence[Path]:
     """Convert a sequence of ``Path``-like into a sequence of ``Path``.
 
     Raises
@@ -74,7 +74,7 @@ class Calibration:
 
     def __init__(
         self,
-        target_data_path: Sequence[Union[str, Path]],
+        target_data_path: Sequence[str | Path],
         fitness_function: FitnessFunction,
         algorithm: Algorithm,
         parameters: Sequence[ParameterValues],
@@ -82,29 +82,25 @@ class Calibration:
         readout: Optional["Readout"] = None,
         mode: Literal["pipeline", "single_model"] = "pipeline",
         result_type: Literal["image", "signal", "pixel"] = "image",
-        result_fit_range: Union[
-            tuple[int, int, int, int],
-            tuple[int, int, int, int, int, int],
-            None,
-        ] = None,
-        result_input_arguments: Optional[Sequence[ParameterValues]] = None,
-        target_fit_range: Union[
-            tuple[int, int, int, int],
-            tuple[int, int, int, int, int, int],
-            None,
-        ] = None,
-        pygmo_seed: Optional[int] = None,
-        pipeline_seed: Optional[int] = None,
+        result_fit_range: (
+            tuple[int, int, int, int] | tuple[int, int, int, int, int, int] | None
+        ) = None,
+        result_input_arguments: Sequence[ParameterValues] | None = None,
+        target_fit_range: (
+            tuple[int, int, int, int] | tuple[int, int, int, int, int, int] | None
+        ) = None,
+        pygmo_seed: int | None = None,
+        pipeline_seed: int | None = None,
         num_islands: int = 1,
         num_evolutions: int = 1,
-        num_best_decisions: Optional[int] = None,
+        num_best_decisions: int | None = None,
         topology: Literal["unconnected", "ring", "fully_connected"] = "unconnected",
         type_islands: Literal[
             "multiprocessing", "multithreading", "ipyparallel"
         ] = "multiprocessing",
-        weights_from_file: Optional[Sequence[Union[str, Path]]] = None,
-        weights: Optional[Sequence[float]] = None,
-        working_directory: Optional[str] = None,
+        weights_from_file: Sequence[str | Path] | None = None,
+        weights: Sequence[float] | None = None,
+        working_directory: str | None = None,
     ):
         if pygmo_seed is not None and pygmo_seed not in range(100001):
             raise ValueError("'Pygmo seed' must be between 0 and 100000.")
@@ -114,9 +110,9 @@ class Calibration:
 
         self._log = logging.getLogger(__name__)
 
-        self.outputs: Optional["CalibrationOutputs"] = outputs
+        self.outputs: "CalibrationOutputs" | None = outputs
         self.readout: Readout = readout or Readout()
-        self.working_directory: Optional[Path] = (
+        self.working_directory: Path | None = (
             Path(working_directory) if working_directory else None
         )
 
@@ -160,7 +156,7 @@ class Calibration:
 
         self._num_islands: int = num_islands
         self._num_evolutions: int = num_evolutions
-        self._num_best_decisions: Optional[int] = num_best_decisions
+        self._num_best_decisions: int | None = num_best_decisions
         self._type_islands: Island = Island(type_islands)
         self._pipeline_seed = pipeline_seed
         self._topology: Literal["unconnected", "ring", "fully_connected"] = topology
@@ -171,7 +167,7 @@ class Calibration:
         # TODO: Write functional tests
         # TODO: implement working_dir
         if not weights_from_file:
-            weights_full_path: Optional[Sequence[Path]] = None
+            weights_full_path: Sequence[Path] | None = None
         else:
             try:
                 weights_full_path = to_path_list(weights_from_file)
@@ -185,8 +181,8 @@ class Calibration:
                 else:
                     raise FileNotFoundError(f"{exc}\n{note}") from exc
 
-        self._weights_from_file: Optional[Sequence[Path]] = weights_full_path
-        self._weights: Optional[Sequence[float]] = weights
+        self._weights_from_file: Sequence[Path] | None = weights_full_path
+        self._weights: Sequence[float] | None = weights
 
     @property
     def calibration_mode(self) -> CalibrationMode:
@@ -292,7 +288,7 @@ class Calibration:
         self._pygmo_seed = value
 
     @property
-    def pipeline_seed(self) -> Optional[int]:
+    def pipeline_seed(self) -> int | None:
         """TBW."""
         return self._pipeline_seed
 
@@ -325,12 +321,12 @@ class Calibration:
         self._num_evolutions = value
 
     @property
-    def num_best_decisions(self) -> Optional[int]:
+    def num_best_decisions(self) -> int | None:
         """TBW."""
         return self._num_best_decisions
 
     @num_best_decisions.setter
-    def num_best_decisions(self, value: Optional[int]) -> None:
+    def num_best_decisions(self, value: int | None) -> None:
         """TBW."""
         if isinstance(value, int) and value < 0:
             raise ValueError(
@@ -354,7 +350,7 @@ class Calibration:
         self._topology = value
 
     @property
-    def weights_from_file(self) -> Optional[Sequence[Path]]:
+    def weights_from_file(self) -> Sequence[Path] | None:
         """TBW."""
         return self._weights_from_file
 
@@ -364,7 +360,7 @@ class Calibration:
         self._weights_from_file = value
 
     @property
-    def weights(self) -> Optional[Sequence[float]]:
+    def weights(self) -> Sequence[float] | None:
         """TBW."""
         return self._weights
 
@@ -376,7 +372,7 @@ class Calibration:
     def get_problem(
         self,
         processor: Processor,
-        output_dir: Optional[Path],
+        output_dir: Path | None,
     ) -> ModelFitting:  # pragma: no cover
         """Convert a 'processor' object into a Pygmo Problem.
 
@@ -423,7 +419,7 @@ class Calibration:
     def _run_calibration_deprecated(
         self,
         processor: Processor,
-        output_dir: Optional[Path],
+        output_dir: Path | None,
         with_progress_bar: bool = True,
     ) -> tuple["xr.Dataset", "pd.DataFrame", "pd.DataFrame"]:  # pragma: no cover
         """Run calibration pipeline."""
@@ -492,7 +488,7 @@ class Calibration:
     def run_calibration(
         self,
         processor: Processor,
-        output_dir: Optional[Path],
+        output_dir: Path | None,
         with_inherited_coords: bool,
         with_progress_bar: bool = True,
     ) -> "DataTree":
@@ -606,8 +602,8 @@ class Calibration:
             fitness_function: Mapping,
             algorithm: Mapping,
             parameters: Sequence[Mapping],
-            readout: Optional[Mapping] = None,
-            result_input_arguments: Optional[Sequence[Mapping]] = None,
+            readout: Mapping | None = None,
+            result_input_arguments: Sequence[Mapping] | None = None,
             **kwargs,
         ) -> "Calibration":
             """Create a new object from an unpacked JSON dictionary."""

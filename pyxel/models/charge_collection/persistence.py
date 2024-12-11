@@ -78,7 +78,7 @@ TO DO:
 
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Literal, Optional, Union
+from typing import Literal
 
 import numba
 import numpy as np
@@ -92,7 +92,7 @@ def simple_persistence(
     detector: CMOS,
     trap_time_constants: Sequence[float],
     trap_densities: Sequence[float],
-    trap_capacities: Optional[Sequence[float]] = None,
+    trap_capacities: Sequence[float] | None = None,
 ) -> None:
     """Apply simple persistence model.
 
@@ -167,7 +167,7 @@ def compute_simple_persistence(
     trap_densities: np.ndarray,
     trap_time_constants: np.ndarray,
     delta_t: float,
-    trap_capacities: Optional[np.ndarray] = None,
+    trap_capacities: np.ndarray | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Compute simple persistence.
 
@@ -234,16 +234,16 @@ def persistence(
     detector: CMOS,
     trap_time_constants: Sequence[float],
     trap_proportions: Sequence[float],
-    trap_densities_filename: Union[Path, str],
-    trap_capacities_filename: Optional[Union[Path, str]] = None,
+    trap_densities_filename: Path | str,
+    trap_capacities_filename: Path | str | None = None,
     trap_densities_position: tuple[int, int] = (0, 0),
-    trap_densities_align: Optional[
-        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"]
-    ] = None,
+    trap_densities_align: (
+        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"] | None
+    ) = None,
     trap_capacities_position: tuple[int, int] = (0, 0),
-    trap_capacities_align: Optional[
-        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"]
-    ] = None,
+    trap_capacities_align: (
+        Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"] | None
+    ) = None,
 ) -> None:
     """Apply persistence model.
 
@@ -361,7 +361,7 @@ def compute_persistence(
     trap_time_constants: np.ndarray,
     trap_densities_2d: np.ndarray,
     delta_t: float,
-    trap_capacities_2d: Optional[np.ndarray] = None,
+    trap_capacities_2d: np.ndarray | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Compute persistence.
 
@@ -434,7 +434,7 @@ def clip_trapped_charge(
     pixel: np.ndarray,
     available_traps: np.ndarray,
     pixel_diff: np.ndarray,
-    trap_capacities: Optional[np.ndarray] = None,
+    trap_capacities: np.ndarray | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Clip trapped charge between arrays of max and min value.
 

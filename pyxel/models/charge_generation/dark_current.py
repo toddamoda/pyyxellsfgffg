@@ -8,7 +8,7 @@
 """Models to generate charge due to dark current process."""
 
 import warnings
-from typing import Literal, Optional
+from typing import Literal
 
 import numpy as np
 from astropy import constants as const
@@ -170,7 +170,7 @@ def compute_dark_current(
     figure_of_merit: Quantity,
     band_gap: Quantity,
     band_gap_room_temperature: Quantity,
-    spatial_noise_factor: Optional[float] = None,
+    spatial_noise_factor: float | None = None,
     temporal_noise: bool = True,
 ) -> np.ndarray:
     """Compute dark current.
@@ -255,10 +255,10 @@ def compute_dark_current(
 def dark_current(
     detector: Detector,
     figure_of_merit: float,
-    spatial_noise_factor: Optional[float] = None,
-    band_gap: Optional[float] = None,
-    band_gap_room_temperature: Optional[float] = None,
-    seed: Optional[int] = None,
+    spatial_noise_factor: float | None = None,
+    band_gap: float | None = None,
+    band_gap_room_temperature: float | None = None,
+    seed: int | None = None,
     temporal_noise: bool = True,
 ) -> None:
     """Add dark current to the detector charge.

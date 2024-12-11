@@ -6,7 +6,6 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 from copy import deepcopy
-from typing import Optional
 
 import pytest
 
@@ -57,8 +56,8 @@ def test_environment(temperature, wavelength):
     ],
 )
 def test_invalid_environment(
-    temperature: Optional[float],
-    wavelength: Optional[float],
+    temperature: float | None,
+    wavelength: float | None,
     exp_exc: type[Exception],
     exp_error: str,
 ):

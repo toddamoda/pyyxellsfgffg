@@ -7,7 +7,6 @@
 
 """Model to generate charges in a SAPHIRA APD detector."""
 
-from typing import Optional
 
 import numpy as np
 
@@ -64,7 +63,7 @@ def calculate_dark_current_saphira(
     return dark_im_array_2d
 
 
-def dark_current_saphira(detector: APD, seed: Optional[int] = None) -> None:
+def dark_current_saphira(detector: APD, seed: int | None = None) -> None:
     """Simulate dark current in a Saphira APD detector.
 
     Reference: I. M. Baker et al., Linear-mode avalanche photodiode arrays in HgCdTe at Leonardo, UK: the

@@ -7,7 +7,6 @@
 
 """Pyxel full well models."""
 
-from typing import Optional
 
 import numpy as np
 
@@ -30,7 +29,7 @@ def apply_simple_full_well_capacity(array: np.ndarray, fwc: int) -> np.ndarray:
     return array
 
 
-def simple_full_well(detector: Detector, fwc: Optional[int] = None) -> None:
+def simple_full_well(detector: Detector, fwc: int | None = None) -> None:
     """Limit the amount of charge in pixel due to full well capacity.
 
     Uses full well capacity in the characteristics of the detector object if not overridden by the function argument.

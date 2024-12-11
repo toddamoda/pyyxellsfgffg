@@ -10,7 +10,7 @@
 import collections
 from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -83,28 +83,28 @@ class Detector:
         Directory for output files related to the detector's operations.
     """
 
-    def __init__(self, environment: Optional[Environment] = None):
+    def __init__(self, environment: Environment | None = None):
         self._environment: Environment = environment or Environment()
 
         self.header: dict[str, object] = collections.OrderedDict()
 
-        self._scene: Optional[Scene] = None
-        self._photon: Optional[Photon] = None
-        self._charge: Optional[Charge] = None
-        self._pixel: Optional[Pixel] = None
-        self._signal: Optional[Signal] = None
-        self._image: Optional[Image] = None
-        self._data: Optional[DataTree] = None
+        self._scene: Scene | None = None
+        self._photon: Photon | None = None
+        self._charge: Charge | None = None
+        self._pixel: Pixel | None = None
+        self._signal: Signal | None = None
+        self._image: Image | None = None
+        self._data: DataTree | None = None
 
-        self._intermediate: Optional[DataTree] = None
+        self._intermediate: DataTree | None = None
 
         # This will be the memory of the detector where trapped charges will be saved
         self._memory: dict = {}
-        self._persistence: Optional[Union[Persistence, SimplePersistence]] = None
+        self._persistence: Persistence | SimplePersistence | None = None
 
-        self._output_dir: Optional[Path] = None  # TODO: See #330
+        self._output_dir: Path | None = None  # TODO: See #330
 
-        self._readout_properties: Optional["ReadoutProperties"] = None
+        self._readout_properties: "ReadoutProperties" | None = None
 
         self._numbytes = get_size(self)
 
@@ -285,7 +285,7 @@ class Detector:
 
         ds = xr.Dataset()
         for name in ("photon", "charge", "pixel", "signal", "image"):
-            container: Union[Photon, Charge, Pixel, Signal, Image] = getattr(self, name)
+            container: Photon | Charge | Pixel | Signal | Image = getattr(self, name)
             data_array: xr.DataArray = container.to_xarray()
 
             # TODO: Special case, this will be fixed in issue #692
@@ -346,7 +346,7 @@ class Detector:
 
     def set_readout(
         self,
-        times: Union[Sequence[float], np.ndarray],
+        times: Sequence[float] | np.ndarray,
         start_time: float = 0.0,
         non_destructive: bool = False,
     ) -> None:
@@ -489,7 +489,7 @@ class Detector:
         return self._persistence is not None
 
     @property
-    def persistence(self) -> Union[Persistence, SimplePersistence]:
+    def persistence(self) -> Persistence | SimplePersistence:
         """TBW."""
         if self._persistence is None:
             raise RuntimeError("'persistence' not initialized.")
@@ -497,9 +497,9 @@ class Detector:
         return self._persistence
 
     @persistence.setter
-    def persistence(self, value: Union[Persistence, SimplePersistence]) -> None:
+    def persistence(self, value: Persistence | SimplePersistence) -> None:
         """TBW."""
-        if not isinstance(value, (Persistence, SimplePersistence)):
+        if not isinstance(value, Persistence | SimplePersistence):
             raise TypeError(
                 "Expecting Persistence or SimplePersistence type to set detector"
                 " persistence."
@@ -559,7 +559,7 @@ class Detector:
         )
 
     @classmethod
-    def load(cls, filename: Union[str, Path]) -> "Detector":
+    def load(cls, filename: str | Path) -> "Detector":
         """Load a detector object from a filename.
 
         This is a general-purpose load method that can handle different file formats (e.g., HDF5, ASDF)
@@ -601,7 +601,7 @@ class Detector:
         else:
             raise ValueError(f"Unknown extension {extension!r}.")
 
-    def save(self, filename: Union[str, Path]) -> None:
+    def save(self, filename: str | Path) -> None:
         """Save a detector object into a filename.
 
         This is a general-purpose save method that can use different formats (e.g., HDF5, ASDF)
@@ -635,7 +635,7 @@ class Detector:
             raise ValueError(f"Unknown extension {extension!r}.")
 
     # TODO: Move this to another place. See #241
-    def to_hdf5(self, filename: Union[str, Path]) -> None:
+    def to_hdf5(self, filename: str | Path) -> None:
         """Write the detector content to a :term:`HDF5` file.
 
         The HDF5 file has the following structure:
@@ -704,7 +704,7 @@ class Detector:
         backends.to_hdf5(filename=filename, dct=dct)
 
     @classmethod
-    def from_hdf5(cls, filename: Union[str, Path]) -> "Detector":
+    def from_hdf5(cls, filename: str | Path) -> "Detector":
         """Load a detector object from a :term:`HDF5` file.
 
         Parameters
@@ -722,7 +722,7 @@ class Detector:
             obj: Detector = cls.from_dict(dct)
             return obj
 
-    def to_asdf(self, filename: Union[str, Path]) -> None:
+    def to_asdf(self, filename: str | Path) -> None:
         """Write the detector content to a :term:`ASDF` file.
 
         The ASDF file has the following structure:
@@ -778,7 +778,7 @@ class Detector:
         backends.to_asdf(filename=filename, dct=dct)
 
     @classmethod
-    def from_asdf(cls, filename: Union[str, Path]) -> "Detector":
+    def from_asdf(cls, filename: str | Path) -> "Detector":
         """Load a detector object from a :term:`ASDF` file.
 
         Parameters

@@ -42,7 +42,7 @@ def test_set_algo(yaml):
     cfg = load(yaml)
     calibration = cfg.calibration
     obj = calibration.algorithm.get_algorithm()
-    assert isinstance(obj, (pg.sade, pg.sga, pg.nlopt))
+    assert isinstance(obj, pg.sade | pg.sga, pg.nlopt)
 
 
 @pytest.mark.parametrize(

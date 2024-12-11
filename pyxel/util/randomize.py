@@ -8,13 +8,12 @@
 """Util functions to handle random seeds."""
 
 from contextlib import contextmanager
-from typing import Optional
 
 import numpy as np
 
 
 @contextmanager
-def set_random_seed(seed: Optional[int] = None):
+def set_random_seed(seed: int | None = None):
     """Set temporary seed the random generator.
 
     Examples

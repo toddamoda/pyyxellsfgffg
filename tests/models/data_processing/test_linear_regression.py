@@ -120,7 +120,7 @@ def test_linear_regression(
     steps = detector.readout_properties.steps
     absolute_time = detector.readout_properties.times
 
-    for i, (time, step) in enumerate(zip(absolute_time, steps)):
+    for i, (time, step) in enumerate(zip(absolute_time, steps, strict=False)):
         detector.time = time
         detector.time_step = step
         detector.pipeline_count = i

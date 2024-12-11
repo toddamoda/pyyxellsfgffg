@@ -9,7 +9,7 @@
 """Timing functions."""
 
 import timeit
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -69,7 +69,7 @@ def time_pipeline(
     model_names = []
 
     for group_name in pipeline.model_group_names:
-        models_grp: Optional[ModelGroup] = getattr(pipeline, group_name)
+        models_grp: ModelGroup | None = getattr(pipeline, group_name)
 
         if models_grp:
             model: ModelFunction

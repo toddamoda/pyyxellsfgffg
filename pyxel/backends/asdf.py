@@ -10,14 +10,14 @@
 from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     import pandas as pd
     import xarray as xr
 
 
-def to_asdf(filename: Union[str, Path], dct: Mapping[str, Any]) -> None:
+def to_asdf(filename: str | Path, dct: Mapping[str, Any]) -> None:
     """Write data to a ASDF file."""
     try:
         import asdf
@@ -50,7 +50,7 @@ def to_asdf(filename: Union[str, Path], dct: Mapping[str, Any]) -> None:
 
 
 @contextmanager
-def from_asdf(filename: Union[str, Path]) -> Iterator[Mapping[str, Any]]:
+def from_asdf(filename: str | Path) -> Iterator[Mapping[str, Any]]:
     """Read data from a HDF5 file."""
     import pandas as pd
 
