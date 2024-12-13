@@ -17,6 +17,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
   (See [!999](https://gitlab.com/esa/pyxel/-/merge_requests/999)).
 
 ### Documentation
+* Add more documentation about installing Pyxel and using it with VSCode/PyCharm and `uv`.
+  (See [!1009](https://gitlab.com/esa/pyxel/-/merge_requests/1009)).
 
 ### Models
 * Use `photoutils` instead of `sep` for model `source_extractor` in `Data Processing`.
