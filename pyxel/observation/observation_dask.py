@@ -262,8 +262,14 @@ def _run_pipelines_array_to_datatree(
         output_filenames_dct: Mapping[str, str] = dict(
             zip(output_keys, output_filenames, strict=True)
         )
-        data_tree["/output/filename"] = xr.Dataset(output_filenames_dct).to_dataarray(
-            "name_ext"
+
+        if np.__version__ >= "2":
+            dtype = np.dtypes.StringDType()  # type: ignore[attr-defined]
+        else:
+            dtype = np.object_
+
+        data_tree["/output/filename"] = (
+            xr.Dataset(output_filenames_dct).to_dataarray("name_ext").astype(dtype)
         )
 
     return data_tree
@@ -440,6 +446,7 @@ def _build_output_filenames(
       * name_ext  (name_ext) <U10 40B 'image_fits'
     """
     # Late import to speedup start-up time
+    import numpy as np
     import xarray as xr
 
     if outputs.save_data_to_file is None:
@@ -467,7 +474,7 @@ def _build_output_filenames(
             base_name: str = name.removeprefix("detector.").removesuffix(".array")
 
             for value in formats:
-                filename_components.append(f"{base_name}_{value}")
+                filename_components.append(f"{base_name}_{value}")  # noqa: PERF401
 
     name_ext = xr.DataArray(
         filename_components,
@@ -517,16 +524,6 @@ def run_pipelines_with_dask(
     # Get all parameters to apply as a DataArray
     params_dataarray: xr.DataArray = parameter_mode.create_params(dim_names=dim_names)
 
-    # Get all output filenames with the same dimension as 'params_dataarray'
-    output_filenames_dataarray: xr.DataArray | None = None
-    output_keys: Sequence[str] | None = None
-    if outputs:
-        output_filenames_dataarray = _build_output_filenames(
-            params_dataarray=params_dataarray,
-            outputs=outputs,
-        ).reset_coords(drop=True)
-        output_keys = output_filenames_dataarray.coords["name_ext"].to_numpy().tolist()
-
     # Get the first parameter from 'params_dataarray' as a tuple
     first_param: tuple = (
         params_dataarray.head(1)  # Get the first parameter
@@ -535,15 +532,27 @@ def run_pipelines_with_dask(
         .tolist()  # Convert to a tuple
     )
 
-    # Get the first output filename
-    first_output_filenames: Mapping[str, str] = {}
-    if output_filenames_dataarray is not None:
+    # Get all output filenames with the same dimension as 'params_dataarray'
+    if outputs:
+        output_filenames_dataarray: xr.DataArray = _build_output_filenames(
+            params_dataarray=params_dataarray,
+            outputs=outputs,
+        ).reset_coords(drop=True)
+
+        output_keys = output_filenames_dataarray.coords["name_ext"].to_numpy().tolist()
+
+        # Get the first output filename
         first_index = {
             key: 0 for key in output_filenames_dataarray.dims if key != "name_ext"
         }
-        first_output_filenames = (
+
+        first_output_filenames: Mapping[str, str] = (
             output_filenames_dataarray.isel(first_index).to_pandas().to_dict()
         )
+    else:
+        output_filenames_dataarray = xr.DataArray([], dims=["name_ext"])
+        output_keys = []
+        first_output_filenames = {}
 
     # Extract metadata from 'first_param'
     all_metadata: Mapping[str, DatasetMetadata] = _build_metadata(
@@ -572,7 +581,7 @@ def run_pipelines_with_dask(
     dask_dataarrays: tuple[xr.DataArray, ...] = xr.apply_ufunc(
         _run_pipelines_tuple_to_array,  # Function to apply
         params_dataarray_dask,  # Argument 'params_tuple'
-        output_filenames_dataarray,  # Argument 'output_filenames'
+        output_filenames_dataarray.chunk(1),  # Argument 'output_filenames'
         kwargs={  # other arguments
             "output_keys": output_keys,
             "dimension_names": dim_names,
@@ -582,7 +591,7 @@ def run_pipelines_with_dask(
             "result_type": result_type,
             "pipeline_seed": pipeline_seed,
         },
-        input_core_dims=[[], ["name_ext"], []],
+        input_core_dims=[[], ["name_ext"]],
         output_core_dims=output_core_dims,
         vectorize=True,  # loop over non-core dims
         dask="parallelized",

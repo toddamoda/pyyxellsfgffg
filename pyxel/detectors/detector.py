@@ -10,7 +10,7 @@
 import collections
 from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -107,7 +107,7 @@ class Detector:
         #       A better interface to access this information must be provided
         self.current_running_model_name: str = ""
 
-        self._header: Optional["fits.Header"] = None
+        self._header: "fits.Header" | None = None
 
     def __eq__(self, other) -> bool:
         return (

@@ -787,7 +787,6 @@ class Outputs:
         header: Optional["fits.Header"],
         overwrite: bool = False,
     ) -> None:
-
         for filename in filenames:
             full_filename = Path(filename)
             name, _ = full_filename.name.rsplit("_", maxsplit=1)

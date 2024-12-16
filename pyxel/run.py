@@ -590,9 +590,6 @@ def _run_observation_mode(
         with_inherited_coords=with_inherited_coords,
     )
 
-    if outputs and outputs.save_observation_data:
-        raise NotImplementedError
-
     return result_dt
 
 
@@ -1038,7 +1035,9 @@ def run(
         else:
             final_output_filenames = output_filenames
 
-        df_filenames = final_output_filenames.to_pandas()
+        df_filenames = (
+            final_output_filenames.reset_coords(drop=True).to_dataset().to_dataframe()
+        )
 
     else:
         _ = _run_exposure_or_calibration_mode(
