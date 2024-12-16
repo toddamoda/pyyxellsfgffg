@@ -17,7 +17,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, Union
 
 import click
-from typing_extensions import deprecated
 
 from pyxel import Configuration
 from pyxel import __version__ as version
@@ -25,7 +24,7 @@ from pyxel import copy_config_file, load, outputs
 from pyxel.detectors import APD, CCD, CMOS, MKID, Detector
 from pyxel.exposure import Exposure
 from pyxel.observation import Observation
-from pyxel.observation.deprecated import _run_observation_deprecated
+from pyxel.observation.deprecated import ObservationResult, _run_observation_deprecated
 from pyxel.pipelines import DetectionPipeline, Processor
 from pyxel.pipelines.processor import _get_obj_att
 from pyxel.util import create_model, create_model_to_console, download_examples
@@ -35,7 +34,6 @@ if TYPE_CHECKING:
     import xarray as xr
 
     from pyxel.calibration import Calibration
-    from pyxel.observation.deprecated import ObservationResult
     from pyxel.outputs import CalibrationOutputs, ExposureOutputs, ObservationOutputs
 
 
@@ -227,7 +225,7 @@ def observation_mode(
     observation: "Observation",
     detector: Detector,
     pipeline: "DetectionPipeline",
-) -> "ObservationResult":  # pragma: no cover
+) -> ObservationResult:  # pragma: no cover
     """Run an 'observation' pipeline.
 
     .. deprecated:: 1.14
@@ -554,21 +552,6 @@ def _run_calibration_mode(
     )
 
     return data_tree
-
-
-@deprecated("Please use method '_run_observation_mode'")
-def _run_observation_mode_without_datatree(
-    observation: Observation,
-    processor: Processor,
-) -> None:
-    logging.info("Mode: Observation")
-
-    # Create an output folder
-    outputs: ObservationOutputs | None = observation.outputs
-    if outputs:
-        outputs.create_output_folder()
-
-    observation.run_pipelines_without_datatree(processor=processor)
 
 
 def _run_observation_mode(
