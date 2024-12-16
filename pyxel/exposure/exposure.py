@@ -471,7 +471,9 @@ def run_pipeline(
                 buckets_data_tree = partial_datatree_2d
             else:
                 buckets_data_tree = xr.map_over_datasets(
-                    lambda *data: xr.merge(data), buckets_data_tree, partial_datatree_2d
+                    lambda *data: xr.merge(data),  # func
+                    buckets_data_tree,
+                    partial_datatree_2d,
                 )
 
                 # Fix the data type of the 'image' container to match the detector's image dtype.
@@ -501,11 +503,6 @@ def run_pipeline(
         # Prepare the final dictionary to construct the `DataTree`.
         dct: dict[str, xr.Dataset | xr.DataTree | None] = {}
 
-        # Save results in file(s) (if needed)
-        if outputs:
-            # TODO: This should be called only at the last step
-            dct["/output"] = outputs.save_to_file(processor)
-
         if not detector.scene.data.is_empty and not with_inherited_coords:
             warnings.warn(
                 "The 'Scene' container is not empty.\n"
@@ -518,9 +515,6 @@ def run_pipeline(
                 stacklevel=5,
             )
             with_inherited_coords = True
-
-        # Add header(s)
-        buckets_data_tree.attrs |= detector._header
 
         # Add the final buckets data to the tree.
         if with_inherited_coords:

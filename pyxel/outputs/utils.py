@@ -89,31 +89,54 @@ def write_to_fits(
     data: np.ndarray,
     header: Optional["fits.Header"],
     overwrite: bool,
-):
+) -> None:
+    """Write a 2D numpy array to a FITS file.
+
+    Parameters
+    ----------
+    filename : Path
+        Output filename.
+    data  : np.ndarray
+        The 2D array to write in the file.
+    header : fits.Header, Optional.
+        The FITS header to include in the file.
+    overwrite : bool
+        If True, overwrite the existing file if it exists
+
+    Returns
+    -------
+    ValueError
+        If the input data is not a 2D array
+    """
+    # Check if the file exists
     if filename.exists() and not overwrite:
+        logging.info("File exists and overwrite is set to False")
         return
 
+    # Ensure the data is a 2D array
     if data.ndim != 2:
-        raise NotImplementedError
-
-    parent: Path = filename.parent
-    name: str = filename.stem
-
-    new_name = name.replace(".", "_")
+        raise ValueError(f"Only 2D data arrays are supported. {data.shape=}")
 
     logging.info("Save to FITS - filename: '%s'", filename)
 
     from astropy.io import fits  # Late import to speed-up general import time
 
+    # Create a default header if none is provided
     if header is None:
         header = fits.Header()
 
     header["PYXEL_V"] = (version, "Pyxel version")
 
-    hdu = fits.PrimaryHDU(data, header=header)
-    hdu.writeto(full_filename, overwrite=False, output_verify="exception")
-
-    return full_filename
+    try:
+        fits.writeto(
+            filename=filename,
+            data=data,
+            header=header,
+            output_verify="exception",
+            overwrite=False,
+        )
+    except Exception as exc:
+        raise OSError(f"Failed to write FITS file: '{filename}'") from exc
 
 
 def to_fits(

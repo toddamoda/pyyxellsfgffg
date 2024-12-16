@@ -199,6 +199,8 @@ def _run_pipelines_array_to_datatree(
     params_tuple: tuple,
     output_filenames: Sequence[str],
     params_index: int,
+    *,
+    output_keys: Sequence[str] | None,
     dimension_names: Mapping[str, str],
     processor: "Processor",
     readout: "Readout",
@@ -241,39 +243,31 @@ def _run_pipelines_array_to_datatree(
         and processor.observation.outputs
         and processor.observation.outputs.save_data_to_file
     ):
-        assert output_filenames  # TODO: improve this
+        # Late import
+        import xarray as xr
 
-        # TODO: use 'output_filenames' to get 'photon' or 'pixel' or ...
-        # TODO: Get the last DataArray from: data_tree['/bucket/photon']
-        # TODO: USe 'detector._header'
+        assert output_filenames  # TODO: move 'output_filenames' and 'output_keys' into 'processor.observation.outputs'
+        assert output_keys
 
-        result = processor.observation.outputs.save_to_files(
+        processor.observation.outputs.save_to_files(
             processor=new_processor,
             filenames=output_filenames,
             header=new_processor.detector._header,
         )
-        filenames_dct: Mapping[str, Mapping[str, str]] = (
-            processor.observation.outputs.save_to_file(
-                processor=new_processor,
-                run_number=params_index,
-            )
+
+        output_filenames_dct: Mapping[str, str] = dict(
+            zip(output_keys, output_filenames, strict=True)
         )
-    #
-    #     datatree_dct: dict[str, xr.Dataset] = {}
-    #     for name, partial_dct in filenames_dct.items():
-    #         for file_formats, filename in partial_dct.items():
-    #             datatree_dct[name] = xr.Dataset(
-    #                 {file_formats: np.array(filename, dtype=np.object_)}
-    #             )
-    #
-    #     data_tree["/output"] = DataTree.from_dict(datatree_dct)
+        data_tree["/output/filename"] = xr.Dataset(output_filenames_dct).to_dataarray(
+            "name_ext"
+        )
 
     return data_tree
 
 
 def _build_metadata(
     params_tuple: tuple,
-    output_filenames: Sequence[str],
+    output_filenames: Mapping[str, str],
     dimension_names: Mapping[str, str],
     processor: "Processor",
     readout: "Readout",
@@ -287,8 +281,9 @@ def _build_metadata(
 
     data_tree = _run_pipelines_array_to_datatree(
         params_tuple=params_tuple,
-        output_filenames=output_filenames,
+        output_filenames=list(output_filenames.values()),
         params_index=0,
+        output_keys=list(output_filenames),
         dimension_names=dimension_names,
         processor=processor,
         readout=readout,
@@ -302,7 +297,10 @@ def _build_metadata(
 
 def _run_pipelines_tuple_to_array(
     params_tuple: tuple,
+    output_filenames: Sequence[str],
     params_index: int,
+    *,
+    output_keys: Sequence[str] | None,
     dimension_names: Mapping[str, str],
     all_metadata: Mapping[str, DatasetMetadata],
     processor: "Processor",
@@ -312,7 +310,9 @@ def _run_pipelines_tuple_to_array(
 ) -> tuple[np.ndarray, ...]:
     data_tree: "xr.DataTree" = _run_pipelines_array_to_datatree(
         params_tuple=params_tuple,
+        output_filenames=output_filenames,
         params_index=params_index,
+        output_keys=output_keys,
         dimension_names=dimension_names,
         processor=processor,
         readout=readout,
@@ -489,6 +489,18 @@ def _build_output_filenames(
     )
 
 
+def _build_params_index(params_dataarray: "xr.DataArray") -> "xr.DataArray":
+    # Late import to speedup start-up time
+    import xarray as xr
+
+    params_indexes: xr.DataArray = xr.zeros_like(params_dataarray)
+    params_indexes[...] = np.arange(params_dataarray.size, dtype=int).reshape(
+        params_indexes.shape
+    )
+    params_indexes_dask: xr.DataArray = params_indexes.chunk(1)
+    return params_indexes_dask
+
+
 def run_pipelines_with_dask(
     dim_names: Mapping[str, str],
     parameter_mode: ProductMode | SequentialMode | CustomMode,
@@ -501,18 +513,20 @@ def run_pipelines_with_dask(
     # Late import to speedup start-up time
     import xarray as xr
 
-    # Get parameters as a DataArray
+    # Get all parameters to apply as a DataArray
     params_dataarray: xr.DataArray = parameter_mode.create_params(dim_names=dim_names)
 
-    # Get filenames with the same dimension as params_dataarray
-    df_output_filenames: xr.DataArray | None = None
+    # Get all output filenames with the same dimension as 'params_dataarray'
+    output_filenames_dataarray: xr.DataArray | None = None
+    output_keys: Sequence[str] | None = None
     if outputs:
-        df_output_filenames = _build_output_filenames(
+        output_filenames_dataarray = _build_output_filenames(
             params_dataarray=params_dataarray,
             outputs=outputs,
-        )
+        ).reset_coords(drop=True)
+        output_keys = output_filenames_dataarray.coords["name_ext"].to_numpy().tolist()
 
-    # Get the first parameter
+    # Get the first parameter from 'params_dataarray' as a tuple
     first_param: tuple = (
         params_dataarray.head(1)  # Get the first parameter
         .squeeze()  # Remove all dimensions of length 1
@@ -521,17 +535,16 @@ def run_pipelines_with_dask(
     )
 
     # Get the first output filename
-    first_output_filenames: Sequence[str] = []
-    if df_output_filenames is not None:
+    first_output_filenames: Mapping[str, str] = {}
+    if output_filenames_dataarray is not None:
+        first_index = {
+            key: 0 for key in output_filenames_dataarray.dims if key != "name_ext"
+        }
         first_output_filenames = (
-            df_output_filenames.isel(
-                {key: 0 for key in df_output_filenames.dims if key != "name_ext"}
-            )
-            .to_numpy()
-            .tolist()
+            output_filenames_dataarray.isel(first_index).to_pandas().to_dict()
         )
 
-    # Extract metadata
+    # Extract metadata from 'first_param'
     all_metadata: Mapping[str, DatasetMetadata] = _build_metadata(
         params_tuple=first_param,
         output_filenames=first_output_filenames,
@@ -554,18 +567,17 @@ def run_pipelines_with_dask(
     # Coerce 'params_dataarray' to a Dask array
     params_dataarray_dask: xr.DataArray = params_dataarray.chunk(1)
 
-    params_indexes: xr.DataArray = xr.zeros_like(params_dataarray)
-    params_indexes[...] = np.arange(params_dataarray.size, dtype=int).reshape(
-        params_indexes.shape
-    )
-    params_indexes_dask: xr.DataArray = params_indexes.chunk(1)
+    # Prepare argument 'params_index'
+    params_indexes_dask = _build_params_index(params_dataarray)
 
     # Create 'Dask' data arrays
     dask_dataarrays: tuple[xr.DataArray, ...] = xr.apply_ufunc(
         _run_pipelines_tuple_to_array,  # Function to apply
         params_dataarray_dask,  # Argument 'params_tuple'
+        output_filenames_dataarray,  # Argument 'output_filenames'
         params_indexes_dask,  # Argument 'params_index'
         kwargs={  # other arguments
+            "output_keys": (output_keys),
             "dimension_names": dim_names,
             "processor": processor,
             "all_metadata": all_metadata,
@@ -573,7 +585,7 @@ def run_pipelines_with_dask(
             "result_type": result_type,
             "pipeline_seed": pipeline_seed,
         },
-        input_core_dims=[[], []],
+        input_core_dims=[[], ["name_ext"], []],
         output_core_dims=output_core_dims,
         vectorize=True,  # loop over non-core dims
         dask="parallelized",
@@ -603,19 +615,5 @@ def run_pipelines_with_dask(
             "units": "s",
             "long_name": "Readout time",
         }
-
-    # TODO: Fix this. See issue #723
-    if outputs and outputs.save_data_to_file:
-        # Late import
-        from pyxel.outputs.outputs import save_datatree
-
-        data_tree_filenames: "xr.DataTree" | None = save_datatree(
-            data_tree=final_datatree.isel(time=-1),
-            outputs=outputs.save_data_to_file,
-            current_output_folder=outputs.current_output_folder,
-            with_inherited_coords=True,
-        )
-
-        final_datatree["/output"] = data_tree_filenames
 
     return final_datatree

@@ -9,7 +9,7 @@
 
 import logging
 import warnings
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Mapping, Sequence
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Optional, Union
@@ -171,6 +171,7 @@ def _datasets_to_datatree(filenames_ds: list["xr.Dataset"]) -> Optional["xr.Data
     return final_datatree
 
 
+@deprecated("This will be removed")
 def save_datatree(
     data_tree: "xr.DataTree",
     outputs: Sequence[Mapping[ValidName, Sequence[ValidFormat]]],
@@ -783,9 +784,10 @@ class Outputs:
         self,
         processor: "Processor",
         filenames: Sequence[str],
-        header: "fits.Header" | None,
+        header: Optional["fits.Header"],
         overwrite: bool = False,
-    ) -> "xr.DataTree":
+    ) -> None:
+
         for filename in filenames:
             full_filename = Path(filename)
             name, _ = full_filename.name.rsplit("_", maxsplit=1)
@@ -797,9 +799,9 @@ class Outputs:
 
             match full_filename.suffix.removeprefix("."):
                 case "fits":
-                    _ = write_to_fits(
+                    write_to_fits(
                         filename=full_filename,
-                        data=data_2d,
+                        data=np.asarray(data_2d),
                         header=header,
                         overwrite=overwrite,
                     )

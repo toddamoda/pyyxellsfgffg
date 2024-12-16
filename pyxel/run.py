@@ -950,19 +950,6 @@ def run_mode(
     return data_tree
 
 
-def _datatree_to_dataframe(output_filenames: "xr.DataTree") -> "pd.DataFrame":
-    # Late import
-    import pandas as pd
-
-    lst: Sequence[pd.DataFrame] = [
-        partial_dt["filename"].to_dataframe().reset_index()
-        for partial_dt in output_filenames.descendants
-    ]
-    df_filenames: pd.DataFrame = pd.concat(lst, ignore_index=True)
-
-    return df_filenames
-
-
 # ruff: noqa: C901
 def run(
     input_filename: str | Path,
@@ -1031,7 +1018,6 @@ def run(
     if isinstance(running_mode, Observation):
         # Late import
         import dask
-        import xarray as xr
 
         data_tree: "xr.DataTree" = _run_observation_mode(
             observation=running_mode,
@@ -1040,19 +1026,13 @@ def run(
             with_inherited_coords=True,
         )
 
-        # TODO: check if data_tree['/output'] exists and if it's a dask array or not (with .chunk ?)
-        if "output" not in data_tree:
-            raise NotImplementedError
+        # TODO: check if data_tree['/output/filename'] exists and if it's a dask array or not (with .chunk ?)
+        assert "output" in data_tree
+        assert "filename" in data_tree["output"]
 
-        output_filenames: xr.DataTree | xr.DataArray = data_tree["/output"]
-        if isinstance(output_filenames, xr.DataArray):
-            raise NotImplementedError
+        output_filenames = data_tree["/output/filename"]
 
-        # TODO: Refactor this into a dedicated function ?
-        first_leave: "xr.DataTree"
-        first_leave, *_ = output_filenames.leaves
-
-        if dask.is_dask_collection(first_leave["filename"]):
+        if dask.is_dask_collection(output_filenames):
             # Late import
             from dask.diagnostics import ProgressBar
             from dask.distributed import Client, progress
@@ -1062,13 +1042,11 @@ def run(
                 _ = Client.current()
 
                 # Start computation in the background
-                output_filenames_background: "xr.DataTree" = output_filenames.persist()
+                output_filenames_background = output_filenames.persist()
 
                 # Watch progress
                 progress(output_filenames_background)
-                final_output_filenames: "xr.DataTree" = (
-                    output_filenames_background.compute()
-                )
+                final_output_filenames = output_filenames_background.compute()
 
             except ValueError:
                 # No client
@@ -1077,7 +1055,7 @@ def run(
         else:
             final_output_filenames = output_filenames
 
-        df_filenames = _datatree_to_dataframe(output_filenames=final_output_filenames)
+        df_filenames = final_output_filenames.to_pandas()
 
     else:
         _ = _run_exposure_or_calibration_mode(
