@@ -8,7 +8,6 @@
 #
 """Reset noise models."""
 
-
 import astropy.constants as const
 import numpy as np
 

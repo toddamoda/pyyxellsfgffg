@@ -7,7 +7,6 @@
 
 """Convert scene to photon with simple collection model."""
 
-
 import astropy.units as u
 import numpy as np
 import xarray as xr

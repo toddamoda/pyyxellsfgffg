@@ -8,7 +8,6 @@
 
 """Tests for dark current models."""
 
-
 import numpy as np
 import pytest
 
