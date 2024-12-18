@@ -7,7 +7,6 @@
 
 """Pyxel charge injection functions for CCDs."""
 
-
 import numpy as np
 
 from pyxel.detectors import CCD

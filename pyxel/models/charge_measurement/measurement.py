@@ -7,7 +7,6 @@
 
 """Charge readout model."""
 
-
 import numpy as np
 
 from pyxel.detectors import Detector
