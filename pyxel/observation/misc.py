@@ -411,6 +411,30 @@ class CustomMode:
         -------
         xr.DataArray
             An xarray DataArray representing the custom parameters.
+
+        Examples
+        --------
+        >>> mode = CustomMode(
+        ...     parameters=[
+        ...         ParameterValues(
+        ...             key="pipeline.photon_collection.load_image.arguments.image_file",
+        ...             values="_",
+        ...         )
+        ...     ],
+        ...     custom_data=DataFrame(...),
+        ... )
+        >>> mode.create_params(
+        ...     {
+        ...         "pipeline.photon_collection.load_image.arguments.image_file": "image_file"
+        ...     }
+        ... )
+        <xarray.DataArray 'custom_values' (id: 6)> Size: 48B
+        array([('FITS/00001.fits',), ('FITS/00002.fits',), ('FITS/00003.fits',),
+               ('FITS/00004.fits',), ('FITS/00005.fits',), ('FITS/00006.fits',)],
+              dtype=object)
+        Coordinates:
+            image_file  (id) object 48B 'FITS/00001.fits' ... 'FITS/00006.fits'
+          * id          (id) int64 48B 0 1 2 3 4 5
         """
         all_steps: Mapping[str, Sequence[Any]] = {
             step.key: list(step) for step in self.enabled_steps
@@ -436,9 +460,7 @@ class CustomMode:
 
         return params_custom_data_array
 
-    def _custom_parameters(
-        self,
-    ) -> Iterator[tuple[int, ParametersType]]:
+    def _custom_parameters(self) -> Iterator[tuple[int, ParametersType]]:
         """Generate custom mode parameters based on input file.
 
         Yields

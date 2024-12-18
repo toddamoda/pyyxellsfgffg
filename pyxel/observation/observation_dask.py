@@ -250,8 +250,9 @@ def _run_pipelines_array_to_datatree(
         # Late import
         import xarray as xr
 
-        assert output_filenames  # TODO: move 'output_filenames' and 'output_keys' into 'processor.observation.outputs'
-        assert output_keys
+        # TODO: move 'output_filenames' and 'output_keys' into 'processor.observation.outputs'        assert (
+        assert output_filenames is not None
+        assert output_keys is not None
 
         processor.observation.outputs.save_to_files(
             processor=new_processor,
@@ -403,6 +404,7 @@ def _rebuild_datatree_from_dask(
     return dct
 
 
+# TODO: Move this to 'ObservationOutputs'
 def _build_output_filenames(
     params_dataarray: "xr.DataArray",
     outputs: "ObservationOutputs",
@@ -434,12 +436,12 @@ def _build_output_filenames(
 
     >>> _build_output_filenames(params_dataarray=params_dataarray, outputs=outputs)
     xarray.DataArray (id: 6, name_ext: 1)> Size: 2kB
-    array([['/Users/Frederic.Lemmel/sw/pyxel_dev/atreids/output/run_20241203_194724/detector_image_0.fits'],
-           ['/Users/Frederic.Lemmel/sw/pyxel_dev/atreids/output/run_20241203_194724/detector_image_1.fits'],
-           ['/Users/Frederic.Lemmel/sw/pyxel_dev/atreids/output/run_20241203_194724/detector_image_2.fits'],
-           ['/Users/Frederic.Lemmel/sw/pyxel_dev/atreids/output/run_20241203_194724/detector_image_3.fits'],
-           ['/Users/Frederic.Lemmel/sw/pyxel_dev/atreids/output/run_20241203_194724/detector_image_4.fits'],
-           ['/Users/Frederic.Lemmel/sw/pyxel_dev/atreids/output/run_20241203_194724/detector_image_5.fits']],
+    array([['./output/run_20241203_194724/detector_image_0.fits'],
+           ['./output/run_20241203_194724/detector_image_1.fits'],
+           ['./output/run_20241203_194724/detector_image_2.fits'],
+           ['./output/run_20241203_194724/detector_image_3.fits'],
+           ['./output/run_20241203_194724/detector_image_4.fits'],
+           ['./output/run_20241203_194724/detector_image_5.fits']],
           dtype='<U92')
     Coordinates:
       * id        (id) int64 48B 0 1 2 3 4 5
@@ -455,8 +457,6 @@ def _build_output_filenames(
     folder: Path = outputs.current_output_folder
 
     # Generate indices for the filename(s)
-    # indices: xr.DataArray = params_dataarray.reset_coords(drop=True).rename("filename")
-    # indices.values = np.arange(len(params_dataarray)).reshape(params_dataarray.shape)
     indices = xr.DataArray(
         np.arange(len(params_dataarray)).reshape(params_dataarray.shape),
         dims=params_dataarray.dims,
@@ -574,14 +574,11 @@ def run_pipelines_with_dask(
     # Get output dtypes
     output_dtypes: Sequence[np.dtype] = _get_output_dtypes(all_metadata)
 
-    # Coerce 'params_dataarray' to a Dask array
-    params_dataarray_dask: xr.DataArray = params_dataarray.chunk(1)
-
     # Create 'Dask' data arrays
     dask_dataarrays: tuple[xr.DataArray, ...] = xr.apply_ufunc(
         _run_pipelines_tuple_to_array,  # Function to apply
-        params_dataarray_dask,  # Argument 'params_tuple'
-        output_filenames_dataarray.chunk(1),  # Argument 'output_filenames'
+        params_dataarray.chunk(1),  # Argument 'params_tuple'
+        output_filenames_dataarray.chunk(name_ext=-1),  # Argument 'output_filenames'
         kwargs={  # other arguments
             "output_keys": output_keys,
             "dimension_names": dim_names,

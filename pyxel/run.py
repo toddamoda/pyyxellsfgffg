@@ -996,9 +996,6 @@ def run(
     df_filenames: "pd.DataFrame" | None = None
 
     if isinstance(running_mode, Observation):
-        # Late import
-        import dask
-
         data_tree: "xr.DataTree" = _run_observation_mode(
             observation=running_mode,
             processor=processor,
@@ -1007,37 +1004,43 @@ def run(
         )
 
         # TODO: check if data_tree['/output/filename'] exists and if it's a dask array or not (with .chunk ?)
-        assert "output" in data_tree
-        assert "filename" in data_tree["output"]
-
-        output_filenames = data_tree["/output/filename"]
-
-        if dask.is_dask_collection(output_filenames):
+        if "output" in data_tree and "filename" in data_tree["output"]:
             # Late import
+            import dask
             from dask.diagnostics import ProgressBar
             from dask.distributed import Client, progress
 
-            # This is a Dask Xarray
-            try:
-                _ = Client.current()
+            output_filenames_data_array: "xr.DataArray" = data_tree[
+                "/output/filename"
+            ].reset_coords(drop=True)
 
-                # Start computation in the background
-                output_filenames_background = output_filenames.persist()
+            if dask.is_dask_collection(output_filenames_data_array):
+                df_output_filenames = output_filenames_data_array.to_dask_dataframe()
 
-                # Watch progress
-                progress(output_filenames_background)
-                final_output_filenames = output_filenames_background.compute()
+                # This is a Dask Xarray
+                try:
+                    _ = Client.current()
 
-            except ValueError:
-                # No client
-                with ProgressBar():
-                    final_output_filenames = output_filenames.compute()
-        else:
-            final_output_filenames = output_filenames
+                    # Start computation in the background
+                    df_output_filenames_background = df_output_filenames.persist()
 
-        df_filenames = (
-            final_output_filenames.reset_coords(drop=True).to_dataset().to_dataframe()
-        )
+                    # Watch progress and block till computation is ready
+                    progress(df_output_filenames_background)
+                    df_final_output_filenames = df_output_filenames_background.compute()
+
+                except ValueError:
+                    # No client
+                    with ProgressBar():
+                        df_final_output_filenames = df_output_filenames.compute()
+            else:
+                df_final_output_filenames = output_filenames_data_array.to_pandas()
+
+            columns = [
+                column
+                for column in df_final_output_filenames.columns
+                if column != "filename"
+            ]
+            df_filenames = df_final_output_filenames.set_index(columns)
 
     else:
         _ = _run_exposure_or_calibration_mode(
@@ -1047,29 +1050,20 @@ def run(
             with_inherited_coords=True,
         )
 
-    if running_mode.outputs is not None:
-        output_dir = running_mode.outputs.current_output_folder
-
-    # Ensure the output directory exists if it's not None
-    if output_dir:
-        output_dir.mkdir(parents=True, exist_ok=True)
-
     if df_filenames is None:
         num_filenames = 0
         logging.warning("No filenames to save. Skipping CSV generation.")
     else:
+        if running_mode.outputs is not None:
+            output_dir = running_mode.outputs.current_output_folder
+
         num_filenames = len(df_filenames)
-        if output_dir:
-            try:
-                # Save the DataFrame to CSV
-                df_filenames.to_csv(output_dir / "output_filenames.csv", index=False)
-            except Exception:
-                logging.exception(
-                    "Failed to save output filenames."
-                )  # Removed redundant `str(e)`
-                raise
-        else:
-            logging.error("Output directory is None. Cannot save the output filenames.")
+        try:
+            # Save the DataFrame to CSV
+            df_filenames.to_csv(output_dir / "output_filenames.csv", index=False)
+        except Exception:
+            logging.exception("Failed to save output filenames.")
+            raise
 
     # TODO: Fix this, see issue #728
     copy_config_file(input_filename=input_filename, output_dir=output_dir)
