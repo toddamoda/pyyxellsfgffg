@@ -29,6 +29,8 @@ from pyxel.outputs.utils import (
     to_png,
     to_txt,
     write_to_fits,
+    write_to_jpg,
+    write_to_npy,
 )
 from pyxel.util import complete_path
 
@@ -50,6 +52,7 @@ ValidName = Literal[
 ]
 
 
+@deprecated("This will be removed")
 def _save_data_2d(
     data_2d: "np.ndarray",
     run_number,
@@ -92,6 +95,7 @@ def _save_data_2d(
     return np.array(filenames, dtype=np.object_)
 
 
+@deprecated("This will be removed")
 def save_dataarray(
     data_array: "xr.DataArray",
     name: str,
@@ -149,6 +153,7 @@ def save_dataarray(
     return output_dataset
 
 
+@deprecated("This will be removed")
 def _datasets_to_datatree(filenames_ds: list["xr.Dataset"]) -> Optional["xr.DataTree"]:
     import xarray as xr
 
@@ -273,6 +278,7 @@ def save_datatree(
     return final_datatree
 
 
+@deprecated("This will be removed")
 def _dict_to_datatree(all_filenames: Mapping[str, Mapping[str, str]]) -> "xr.DataTree":
     import xarray as xr
 
@@ -805,11 +811,22 @@ class Outputs:
                         overwrite=overwrite,
                     )
 
-                case "hdf" | "npy" | "txt" | "csv" | "png":
+                case "npy":
+                    write_to_npy(
+                        filename=full_filename,
+                        data=np.asarray(data_2d),
+                        overwrite=overwrite,
+                    )
+
+                case "hdf" | "txt" | "csv" | "png":
                     raise NotImplementedError
 
                 case "jpg" | "jpeg":
-                    raise NotImplementedError
+                    write_to_jpg(
+                        filename=full_filename,
+                        data=np.asarray(data_2d),
+                        overwrite=overwrite,
+                    )
 
                 case _:
                     raise NotImplementedError

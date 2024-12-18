@@ -139,6 +139,84 @@ def write_to_fits(
         raise OSError(f"Failed to write FITS file: '{filename}'") from exc
 
 
+def write_to_jpg(
+    filename: Path,
+    data: np.ndarray,
+    overwrite: bool,
+) -> None:
+    """Write a 2D numpy array to a JPG file.
+
+    Parameters
+    ----------
+    filename : Path
+        Output filename.
+    data  : np.ndarray
+        The 2D array to write in the file.
+    overwrite : bool
+        If True, overwrite the existing file if it exists
+
+    Returns
+    -------
+    ValueError
+        If the input data is not a 2D array
+    """
+    # Check if the file exists
+    if filename.exists() and not overwrite:
+        logging.info("File exists and overwrite is set to False")
+        return
+
+    # Ensure the data is a 2D array
+    if data.ndim != 2:
+        raise ValueError(f"Only 2D data arrays are supported. {data.shape=}")
+
+    # Late import to speedup start-up time
+    from astropy.visualization import ZScaleInterval
+    from PIL import Image
+
+    zscale = ZScaleInterval()
+
+    rescaled_data = (255 * zscale(data)).astype(np.uint8)
+
+    try:
+        img = Image.fromarray(rescaled_data)
+        img.save(filename)
+    except Exception as exc:
+        raise OSError(f"Failed to write JPG file: '{filename}'") from exc
+
+
+def write_to_npy(
+    filename: Path,
+    data: np.ndarray,
+    overwrite: bool,
+) -> None:
+    """Write a 2D numpy array to a NPY file.
+
+    Parameters
+    ----------
+    filename : Path
+        Output filename.
+    data  : np.ndarray
+        The 2D array to write in the file.
+    overwrite : bool
+        If True, overwrite the existing file if it exists
+
+    Returns
+    -------
+    ValueError
+        If the input data is not a 2D array
+    """
+    # Check if the file exists
+    if filename.exists() and not overwrite:
+        logging.info("File exists and overwrite is set to False")
+        return
+
+    # Ensure the data is a 2D array
+    if data.ndim != 2:
+        raise ValueError(f"Only 2D data arrays are supported. {data.shape=}")
+
+    np.save(filename, arr=data)
+
+
 def to_fits(
     current_output_folder: Path,
     data: Any,
