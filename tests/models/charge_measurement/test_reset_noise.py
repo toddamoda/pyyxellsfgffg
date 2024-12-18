@@ -8,7 +8,6 @@
 
 """Reset noise model tests."""
 
-
 import numpy as np
 import pytest
 

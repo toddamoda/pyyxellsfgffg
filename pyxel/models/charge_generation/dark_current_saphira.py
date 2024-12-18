@@ -7,7 +7,6 @@
 
 """Model to generate charges in a SAPHIRA APD detector."""
 
-
 import numpy as np
 
 from pyxel.detectors import APD

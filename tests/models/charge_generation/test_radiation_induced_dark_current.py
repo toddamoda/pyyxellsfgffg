@@ -7,7 +7,6 @@
 
 """Tests for radiation induced dark current model."""
 
-
 import pytest
 
 from pyxel.detectors import (

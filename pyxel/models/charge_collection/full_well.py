@@ -7,7 +7,6 @@
 
 """Pyxel full well models."""
 
-
 import numpy as np
 
 from pyxel.detectors import Detector

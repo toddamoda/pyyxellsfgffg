@@ -7,7 +7,6 @@
 
 """Model to generate charges due to simple dark current process."""
 
-
 import numpy as np
 
 from pyxel.detectors import Detector
