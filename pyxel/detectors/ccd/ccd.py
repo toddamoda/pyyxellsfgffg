@@ -27,11 +27,12 @@ class CCD(Detector):
         geometry: "CCDGeometry",
         environment: "Environment",
         characteristics: "Characteristics",
+        channel=None,
     ):
         self._geometry: CCDGeometry = geometry
         self._characteristics: Characteristics = characteristics
 
-        super().__init__(environment=environment)
+        super().__init__(environment=environment, channel=channel)
         super()._initialize()
 
     def __eq__(self, other) -> bool:
