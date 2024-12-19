@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, Union
 
 import click
+from typing_extensions import deprecated
 
 from pyxel import Configuration
 from pyxel import __version__ as version
@@ -34,7 +35,12 @@ if TYPE_CHECKING:
     import xarray as xr
 
     from pyxel.calibration import Calibration
-    from pyxel.outputs import CalibrationOutputs, ExposureOutputs, ObservationOutputs
+    from pyxel.outputs import (
+        CalibrationOutputs,
+        ExposureOutputs,
+        ObservationOutputs,
+        Outputs,
+    )
 
 
 def exposure_mode(
@@ -554,6 +560,7 @@ def _run_calibration_mode(
     return data_tree
 
 
+@deprecated("This function will be removed")
 def _run_observation_mode(
     observation: Observation,
     processor: Processor,
@@ -593,6 +600,7 @@ def _run_observation_mode(
     return result_dt
 
 
+@deprecated("This function will be removed")
 def _run_exposure_or_calibration_mode(
     mode: Union[Exposure, "Calibration"],
     processor: Processor,
@@ -894,6 +902,24 @@ def run_mode(
                     Attributes:
                         long_name:  Group: 'simple_adc'
     """
+    # Sanity checks
+    if not isinstance(mode, Exposure) and debug:
+        raise NotImplementedError(
+            "Parameter 'debug' is not implemented for 'Observation' or 'Calibration' mode."
+        )
+
+    if (
+        isinstance(mode, Observation)
+        and mode.with_dask
+        and with_inherited_coords is False
+    ):
+        warnings.warn(
+            "Parameter 'with_inherited_coords' is forced to True !",
+            stacklevel=1,
+        )
+
+        with_inherited_coords = True
+
     # Initialize the Processor object with the detector and pipeline.
     if isinstance(mode, Observation):
         processor = Processor(
@@ -912,20 +938,33 @@ def run_mode(
             mode=mode,
         )
 
-    if isinstance(mode, Observation):
-        data_tree = _run_observation_mode(
-            observation=mode,
-            processor=processor,
-            debug=debug,
-            with_inherited_coords=with_inherited_coords,
-        )
-    else:
-        data_tree = _run_exposure_or_calibration_mode(
-            mode=mode,
-            processor=processor,
-            debug=debug,
-            with_inherited_coords=with_inherited_coords,
-        )
+    # Create an output folder (if needed)
+    outputs: Outputs | None = mode.outputs
+    if outputs:
+        outputs.create_output_folder()
+
+    match mode:
+        case Exposure():
+            data_tree = _run_exposure_mode(
+                exposure=mode,
+                processor=processor,
+                debug=debug,
+                with_inherited_coords=with_inherited_coords,
+            )
+
+        case Observation():
+            data_tree = mode.run_pipelines(
+                processor=processor,
+                with_inherited_coords=with_inherited_coords,
+            )
+
+        case _:
+            # Calibration mode
+            data_tree = _run_calibration_mode(
+                calibration=mode,
+                processor=processor,
+                with_inherited_coords=with_inherited_coords,
+            )
 
     return data_tree
 
@@ -962,93 +1001,83 @@ def run(
     detector: CCD | CMOS | MKID | APD = configuration.detector
     running_mode: Exposure | Observation | "Calibration" = configuration.running_mode
 
-    # Extract the parameters to override
-    override_dct: dict[str, Any] = {}
-    if override is not None:
-        for element in override:
-            key, value = element.split("=")
-            override_dct[key] = value
-
-    if isinstance(running_mode, Observation):
-        processor = Processor(
-            detector=detector,
-            pipeline=pipeline,
-            observation_mode=running_mode,  # TODO: See #836
-        )
-    else:
-        processor = Processor(detector=detector, pipeline=pipeline)
-
-    if override_dct is not None:
-        apply_overrides(
-            overrides=override_dct,
-            processor=processor,
-            mode=running_mode,
-        )
-
-    if running_mode.outputs is None or running_mode.outputs.count_files_to_save() == 0:
-        warnings.warn(
-            "No outputs will be generated for this run. Processing continues.",
-            UserWarning,
-            stacklevel=1,
-        )
+    data_tree: "xr.DataTree" = run_mode(
+        mode=running_mode,
+        detector=detector,
+        pipeline=pipeline,
+    )
+    #
+    # # Extract the parameters to override
+    # override_dct: dict[str, Any] = {}
+    # if override is not None:
+    #     for element in override:
+    #         key, value = element.split("=")
+    #         override_dct[key] = value
+    #
+    # if isinstance(running_mode, Observation):
+    #     processor = Processor(
+    #         detector=detector,
+    #         pipeline=pipeline,
+    #         observation_mode=running_mode,  # TODO: See #836
+    #     )
+    # else:
+    #     processor = Processor(detector=detector, pipeline=pipeline)
+    #
+    # if override_dct is not None:
+    #     apply_overrides(
+    #         overrides=override_dct,
+    #         processor=processor,
+    #         mode=running_mode,
+    #     )
+    #
+    # if running_mode.outputs is None or running_mode.outputs.count_files_to_save() == 0:
+    #     warnings.warn(
+    #         "No outputs will be generated for this run. Processing continues.",
+    #         UserWarning,
+    #         stacklevel=1,
+    #     )
 
     # Create a DataTree
     df_filenames: "pd.DataFrame" | None = None
 
-    if isinstance(running_mode, Observation):
-        data_tree: "xr.DataTree" = _run_observation_mode(
-            observation=running_mode,
-            processor=processor,
-            debug=False,
-            with_inherited_coords=True,
+    # TODO: check if data_tree['/output/filename'] exists and if it's a dask array or not (with .chunk ?)
+    if "output" in data_tree and "filename" in data_tree["output"]:
+        # Late import
+        import dask
+        from dask.diagnostics import ProgressBar
+        from dask.distributed import Client, progress
+
+        filenames: "xr.DataArray" = data_tree["/output/filename"].reset_coords(
+            drop=True
         )
 
-        # TODO: check if data_tree['/output/filename'] exists and if it's a dask array or not (with .chunk ?)
-        if "output" in data_tree and "filename" in data_tree["output"]:
-            # Late import
-            import dask
-            from dask.diagnostics import ProgressBar
-            from dask.distributed import Client, progress
+        if dask.is_dask_collection(filenames):
+            df_output_filenames = filenames.to_dask_dataframe()
 
-            output_filenames_data_array: "xr.DataArray" = data_tree[
-                "/output/filename"
-            ].reset_coords(drop=True)
+            # This is a Dask Xarray
+            try:
+                _ = Client.current()
 
-            if dask.is_dask_collection(output_filenames_data_array):
-                df_output_filenames = output_filenames_data_array.to_dask_dataframe()
+                # Start computation in the background
+                df_output_filenames_background = df_output_filenames.persist()
 
-                # This is a Dask Xarray
-                try:
-                    _ = Client.current()
+                # Watch progress and block till computation is ready
+                progress(df_output_filenames_background)
+                df_final_output_filenames = df_output_filenames_background.compute()
 
-                    # Start computation in the background
-                    df_output_filenames_background = df_output_filenames.persist()
+            except ValueError:
+                # No client
+                with ProgressBar():
+                    df_final_output_filenames = df_output_filenames.compute()
+        else:
+            df_final_output_filenames = filenames.to_pandas()
 
-                    # Watch progress and block till computation is ready
-                    progress(df_output_filenames_background)
-                    df_final_output_filenames = df_output_filenames_background.compute()
-
-                except ValueError:
-                    # No client
-                    with ProgressBar():
-                        df_final_output_filenames = df_output_filenames.compute()
-            else:
-                df_final_output_filenames = output_filenames_data_array.to_pandas()
-
-            columns = [
-                column
-                for column in df_final_output_filenames.columns
-                if column != "filename"
-            ]
-            df_filenames = df_final_output_filenames.set_index(columns)
-
-    else:
-        _ = _run_exposure_or_calibration_mode(
-            mode=running_mode,
-            processor=processor,
-            debug=False,
-            with_inherited_coords=True,
-        )
+        columns = [
+            column
+            for column in df_final_output_filenames.columns
+            if column != "filename"
+        ]
+        df_filenames = df_final_output_filenames.set_index(columns)
 
     if df_filenames is None:
         num_filenames = 0

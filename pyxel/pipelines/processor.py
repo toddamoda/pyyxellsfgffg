@@ -16,7 +16,7 @@ from numbers import Number
 from typing import TYPE_CHECKING, Any, NewType, Optional
 
 import numpy as np
-from typing_extensions import Self
+from typing_extensions import Self, deprecated
 
 from pyxel import __version__
 from pyxel.evaluator import eval_entry
@@ -61,6 +61,7 @@ def get_result_id(name: str) -> ResultId:
     return ResultId(name)
 
 
+@deprecated("This will be removed")
 def result_keys(result_type: ResultId) -> Sequence[ResultId]:
     """Return result keys based on result type.
 

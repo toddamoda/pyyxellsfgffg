@@ -16,7 +16,7 @@ import numpy as np
 
 from pyxel.exposure import Readout, run_pipeline
 from pyxel.observation import CustomMode, ProductMode, SequentialMode
-from pyxel.pipelines import Processor, ResultId
+from pyxel.pipelines import Processor
 
 if TYPE_CHECKING:
     import xarray as xr
@@ -209,7 +209,6 @@ def _run_pipelines_array_to_datatree(
     dimension_names: Mapping[str, str],
     processor: Processor,
     readout: Readout,
-    result_type: ResultId,
     pipeline_seed: int | None,
     progressbar: bool,
 ) -> "xr.DataTree":
@@ -234,7 +233,6 @@ def _run_pipelines_array_to_datatree(
     data_tree: "xr.DataTree" = run_pipeline(
         processor=new_processor,
         readout=new_readout,
-        result_type=result_type,
         pipeline_seed=pipeline_seed,
         debug=False,  # Not supported in Observation mode
         with_inherited_coords=True,  # Must be set to True
@@ -282,7 +280,6 @@ def _build_metadata(
     dimension_names: Mapping[str, str],
     processor: Processor,
     readout: Readout,
-    result_type: ResultId,
     pipeline_seed: int | None,
 ) -> Mapping[str, DatasetMetadata]:
     """Build metadata from a single pipeline run."""
@@ -297,7 +294,6 @@ def _build_metadata(
         dimension_names=dimension_names,
         processor=processor,
         readout=readout,
-        result_type=result_type,
         pipeline_seed=pipeline_seed,
         progressbar=True,
     )
@@ -314,7 +310,6 @@ def _run_pipelines_tuple_to_array(
     all_metadata: Mapping[str, DatasetMetadata],
     processor: Processor,
     readout: Readout,
-    result_type: ResultId,
     pipeline_seed: int | None,
 ) -> tuple[np.ndarray, ...]:
     data_tree: "xr.DataTree" = _run_pipelines_array_to_datatree(
@@ -324,7 +319,6 @@ def _run_pipelines_tuple_to_array(
         dimension_names=dimension_names,
         processor=processor,
         readout=readout,
-        result_type=result_type,
         pipeline_seed=pipeline_seed,
         progressbar=False,
     )
@@ -515,7 +509,6 @@ def run_pipelines_with_dask(
     processor: Processor,
     readout: Readout,
     outputs: Optional["ObservationOutputs"],
-    result_type: ResultId,
     pipeline_seed: int | None,
 ) -> "xr.DataTree":
     # Late import to speedup start-up time
@@ -561,7 +554,6 @@ def run_pipelines_with_dask(
         dimension_names=dim_names,
         processor=processor,
         readout=readout,
-        result_type=result_type,
         pipeline_seed=pipeline_seed,
     )
 
@@ -585,7 +577,6 @@ def run_pipelines_with_dask(
             "processor": processor,
             "all_metadata": all_metadata,
             "readout": readout,
-            "result_type": result_type,
             "pipeline_seed": pipeline_seed,
         },
         input_core_dims=[[], ["name_ext"]],

@@ -260,7 +260,6 @@ class Observation:
                 processor=processor,
                 readout=self.readout,
                 outputs=self.outputs,
-                result_type=self.result_type,
                 pipeline_seed=self.pipeline_seed,
             )
 
@@ -319,7 +318,6 @@ class Observation:
         _ = run_pipeline(
             processor=new_processor,
             readout=self.readout,
-            result_type=self.result_type,
             pipeline_seed=self.pipeline_seed,
             debug=False,  # Not supported in Observation mode
             with_inherited_coords=False,
@@ -358,7 +356,6 @@ class Observation:
             data_tree: "xr.DataTree" = run_pipeline(
                 processor=new_processor,
                 readout=self.readout,
-                result_type=self.result_type,
                 pipeline_seed=self.pipeline_seed,
                 debug=False,  # Not supported in Observation mode
                 with_inherited_coords=with_inherited_coords,
