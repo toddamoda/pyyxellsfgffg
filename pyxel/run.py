@@ -210,19 +210,35 @@ def _run_exposure_mode(
 
     logging.info("Mode: Exposure")
 
-    # Create an output folder
-    outputs: ExposureOutputs | None = exposure.outputs
-    if outputs:
-        outputs.create_output_folder()
-
-    result: xr.DataTree = exposure.run_exposure(
+    result: "xr.DataTree" = exposure.run_exposure(
         processor=processor,
         debug=debug,
         with_inherited_coords=with_inherited_coords,
     )
 
-    if outputs and outputs.save_exposure_data:
-        outputs.save_exposure_outputs(dataset=result)
+    outputs: ExposureOutputs | None = exposure.outputs
+    if outputs:
+        if outputs.save_exposure_data:
+            outputs.save_exposure_outputs(dataset=result)
+
+        if outputs.save_data_to_file:
+            # Late import
+            import numpy as np
+            import xarray as xr
+
+            filenames: Sequence[Path] = outputs.build_filenames()
+            outputs.save_to_files(
+                processor=processor,
+                filenames=filenames,
+                header=processor.detector._header,
+            )
+
+            filenames_dataarray = xr.DataArray(
+                np.array(filenames, dtype=str),
+                dims=["output_id"],
+                coords={"output_id": range(len(filenames))},
+            )
+            result["/output/filename"] = filenames_dataarray
 
     return result
 
@@ -1001,35 +1017,21 @@ def run(
     detector: CCD | CMOS | MKID | APD = configuration.detector
     running_mode: Exposure | Observation | "Calibration" = configuration.running_mode
 
+    # Extract the parameters to override
+    override_dct: dict[str, Any] = {}
+    if override is not None:
+        override_dct = {}
+        for element in override:
+            key, value = element.split("=")
+            override_dct[key] = value
+
     data_tree: "xr.DataTree" = run_mode(
         mode=running_mode,
         detector=detector,
         pipeline=pipeline,
+        override_dct=override_dct,
     )
-    #
-    # # Extract the parameters to override
-    # override_dct: dict[str, Any] = {}
-    # if override is not None:
-    #     for element in override:
-    #         key, value = element.split("=")
-    #         override_dct[key] = value
-    #
-    # if isinstance(running_mode, Observation):
-    #     processor = Processor(
-    #         detector=detector,
-    #         pipeline=pipeline,
-    #         observation_mode=running_mode,  # TODO: See #836
-    #     )
-    # else:
-    #     processor = Processor(detector=detector, pipeline=pipeline)
-    #
-    # if override_dct is not None:
-    #     apply_overrides(
-    #         overrides=override_dct,
-    #         processor=processor,
-    #         mode=running_mode,
-    #     )
-    #
+
     # if running_mode.outputs is None or running_mode.outputs.count_files_to_save() == 0:
     #     warnings.warn(
     #         "No outputs will be generated for this run. Processing continues.",
@@ -1044,6 +1046,7 @@ def run(
     if "output" in data_tree and "filename" in data_tree["output"]:
         # Late import
         import dask
+        import pandas as pd
         from dask.diagnostics import ProgressBar
         from dask.distributed import Client, progress
 
@@ -1063,29 +1066,36 @@ def run(
 
                 # Watch progress and block till computation is ready
                 progress(df_output_filenames_background)
-                df_final_output_filenames = df_output_filenames_background.compute()
+                dataframe_or_serie_filenames: pd.DataFrame | pd.Series = (
+                    df_output_filenames_background.compute()
+                )
 
             except ValueError:
                 # No client
                 with ProgressBar():
-                    df_final_output_filenames = df_output_filenames.compute()
+                    dataframe_or_serie_filenames = df_output_filenames.compute()
         else:
-            df_final_output_filenames = filenames.to_pandas()
+            dataframe_or_serie_filenames = filenames.to_pandas()
 
-        columns = [
-            column
-            for column in df_final_output_filenames.columns
-            if column != "filename"
-        ]
-        df_filenames = df_final_output_filenames.set_index(columns)
+        if isinstance(dataframe_or_serie_filenames, pd.Series):
+            df_filenames = dataframe_or_serie_filenames.to_frame()
+        else:
+            columns = [
+                column
+                for column in dataframe_or_serie_filenames.columns
+                if column != "filename"
+            ]
+            df_filenames = dataframe_or_serie_filenames.set_index(columns)
+
+    if running_mode.outputs is None:
+        output_dir: Path | None = None
+    else:
+        output_dir = running_mode.outputs.current_output_folder
 
     if df_filenames is None:
         num_filenames = 0
         logging.warning("No filenames to save. Skipping CSV generation.")
     else:
-        if running_mode.outputs is not None:
-            output_dir = running_mode.outputs.current_output_folder
-
         num_filenames = len(df_filenames)
         try:
             # Save the DataFrame to CSV
@@ -1095,7 +1105,8 @@ def run(
             raise
 
     # TODO: Fix this, see issue #728
-    copy_config_file(input_filename=input_filename, output_dir=output_dir)
+    if output_dir:
+        copy_config_file(input_filename=input_filename, output_dir=output_dir)
 
     logging.info("Pipeline completed. Generated: %d output file(s)", num_filenames)
     logging.info("Running time: %.3f seconds", (time.time() - start_time))
@@ -1244,7 +1255,17 @@ def run_config(config: str, override: Sequence[str], verbosity: int):
     stream_stdout.setFormatter(logging.Formatter(log_format))
     logging.getLogger().addHandler(stream_stdout)
 
-    run(input_filename=config, override=override)
+    df_filenames: "pd.DataFrame" | None = run(input_filename=config, override=override)
+
+    if df_filenames is None:
+        raise RuntimeError(
+            "No output filename(s) generated.\n"
+            "You must add an 'output_folder' in your YAML configuration file, for example:\n"
+            "\n"
+            "  exposure:  # or 'observation' or 'calibration'\n"
+            "    outputs:\n"
+            "      output_folder: 'output'\n"
+        )
 
 
 if __name__ == "__main__":

@@ -7,7 +7,6 @@
 
 """Detector class."""
 
-import collections
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -80,8 +79,6 @@ class Detector:
 
     def __init__(self, environment: Environment | None = None):
         self._environment: Environment = environment or Environment()
-
-        self.header: dict[str, object] = collections.OrderedDict()
 
         self._scene: Scene | None = None
         self._photon: Photon | None = None

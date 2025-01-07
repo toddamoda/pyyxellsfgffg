@@ -441,6 +441,47 @@ class Outputs:
             custom_dir_name=self._custom_dir_name,
         )
 
+    def build_filenames(self) -> Sequence[Path]:
+        """Generate a list of output filename(s).
+
+        Returns
+        -------
+        >>> output = Outputs(
+        ...     output_folder="output",
+        ...     save_data_to_file=[
+        ...         {"detector.photon.array": ["fits", "hdf"]},
+        ...         {"detector.charge.array": ["png"]},
+        ...     ],
+        ... )
+        >>> output.build_filenames()
+        [
+            Path('./output/run_001/detector_photon.fits'),
+            Path('./output/run_001/detector_photon.hdf'),
+            Path('./output/run_001/detector_charge.png'),
+        ]
+        """
+        parent_folder: Path = self.current_output_folder
+
+        if self.save_data_to_file is None:
+            raise NotImplementedError
+
+        # Extract filenames
+        filenames: list[Path] = []
+
+        file_config: Mapping[ValidName, Sequence[ValidFormat]]
+        for file_config in self.save_data_to_file:
+            name: str
+            formats: Sequence[str]
+            for name, formats in file_config.items():
+                bucket_name: str = name.removeprefix("detector.").removesuffix(".array")
+
+                for extension in formats:
+                    filenames.append(  # noqa: PERF401
+                        parent_folder / f"detector_{bucket_name}.{extension}"
+                    )
+
+        return filenames
+
     def save_to_fits(
         self,
         data: np.ndarray,
@@ -789,19 +830,35 @@ class Outputs:
     def save_to_files(
         self,
         processor: "Processor",
-        filenames: Sequence[str],
+        filenames: Sequence[str | Path],
         header: Optional["fits.Header"],
         overwrite: bool = False,
     ) -> None:
+        """Save processed data to files in specified formats.
+
+        Parameters
+        ----------
+        processor : Processor
+            The processor object used to retrieve the data buckets.
+        filenames : Sequence of str
+            List of filenames specifying where the data should be saved.
+        header : fits.Header, Optional.
+            Header to include when saving files (not specific for FITS files)
+        overwrite : bool, default: False
+            If True, existing files with the same name will be overwritten.
+        """
         for filename in filenames:
             full_filename = Path(filename)
-            name, _ = full_filename.name.rsplit("_", maxsplit=1)
-            valid_name: str = name.replace("_", ".")
 
+            first_arg, second_arg, *_ = full_filename.stem.split("_")
+            valid_name = f"{first_arg}.{second_arg}"
+
+            # Retrieve data from the processor.
             data_2d = processor.get(valid_name, default=None)
             if data_2d is None:
-                raise NotImplementedError
+                raise NotImplementedError(f"Unknown {valid_name=}")
 
+            # Save data to the appropriate format
             match full_filename.suffix.removeprefix("."):
                 case "fits":
                     write_to_fits(
@@ -819,7 +876,9 @@ class Outputs:
                     )
 
                 case "hdf" | "txt" | "csv" | "png":
-                    raise NotImplementedError
+                    raise NotImplementedError(
+                        f"Saving to '{full_filename.suffix}' is not yet implemented."
+                    )
 
                 case "jpg" | "jpeg":
                     write_to_jpg(
@@ -829,7 +888,9 @@ class Outputs:
                     )
 
                 case _:
-                    raise NotImplementedError
+                    raise NotImplementedError(
+                        f"Unsupported file format: '{full_filename.suffix}'."
+                    )
 
     # ruff: noqa: C901
     @deprecated("Will be replaced by '.save_to_files'")

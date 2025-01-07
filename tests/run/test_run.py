@@ -56,6 +56,47 @@ def test_download_examples(tmp_path: Path, mocker: pytest_mock.MockerFixture):
 
 
 @pytest.mark.parametrize("verbosity", [None, "-v", "-vv", "-vvv"])
+def test_exposure_no_outputs(verbosity: str):
+    """Test command with an Exposure configuration file."""
+    base_path = Path(__file__).parent
+
+    filename = Path(f"{base_path}/data/exposure_no_outputs.yaml")
+    assert filename.exists()
+
+    runner = CliRunner()
+
+    args = ["run", str(filename)]
+    if verbosity:
+        args = [*args, verbosity]
+
+    result = runner.invoke(main, args)
+    assert result.exit_code == 1
+
+    assert isinstance(result.exception, RuntimeError)
+
+    msg = result.exception.args
+    assert msg[0].startswith("No output filename(s) generated")
+
+
+@pytest.mark.parametrize("verbosity", [None, "-v", "-vv", "-vvv"])
+def test_exposure_no_outputs_only_folder(verbosity: str):
+    """Test command with an Exposure configuration file."""
+    base_path = Path(__file__).parent
+
+    filename = Path(f"{base_path}/data/exposure_no_outputs_only_folder.yaml")
+    assert filename.exists()
+
+    runner = CliRunner()
+
+    args = ["run", str(filename)]
+    if verbosity:
+        args = [*args, verbosity]
+
+    result = runner.invoke(main, args)
+    assert result.exit_code == 0
+
+
+@pytest.mark.parametrize("verbosity", [None, "-v", "-vv", "-vvv"])
 def test_exposure(verbosity: str):
     """Test command with an Exposure configuration file."""
     base_path = Path(__file__).parent
