@@ -100,17 +100,34 @@ comments/ideas from others.
 .. _contributing.gitlab:
 
 
-Working with the code
-=====================
+Setting up a development environment
+====================================
 
 Now that you have an issue you want to fix, enhancement to add, or
 documentation to improve, you need to learn how to work with GitLab and
 the *Pyxel* code base.
 
+This chapter provides instructions for setting up and configuring development environments.
+
+Preliminaries
+=============
+
+Basic understanding of how to contribute to Open Source
+-------------------------------------------------------
+
+If this is your first open-source contribution, please study one or more of the below resources.
+
+* `How to Get Started with Contributing to Open Source | Video <https://youtu.be/RGd5cOXpCQw>`_
+* `Contributing to Open-Source Projects as a New Python Developer | Video <https://youtu.be/jTTf4oLkvaM>`_
+* `How to Contribute to an Open Source Python Project | Blog post <https://www.educative.io/blog/contribue-open-source-python-project>`_
+
 .. _contributing.version_control:
 
+Git
+---
+
 Version control, Git, and GitLab
---------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To the new user, working with Git is one of the more daunting aspects of
 contributing to *Pyxel*.  It can very quickly become overwhelming, but sticking
@@ -130,22 +147,38 @@ Some great resources for learning Git:
 * Matthew Brett's `Pydagogue <https://matthew-brett.github.io/pydagogue>`_.
 * Turing Way's guide about `Version Control <https://the-turing-way.netlify.app/reproducible-research/vcs.html>`_.
 
-
 Getting started with Git
-------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 `GitLab has instructions <https://docs.gitlab.com/ee/gitlab-basics/start-using-git.html>`_
 for installing git, setting up your SSH key, and configuring git.
 All these steps need to be completed before you can work seamlessly between
 your local repository and GitLab.
 
+uv (Unified Python packaging)
+-----------------------------
+
+Developing all aspects of Pyxel requires a wide range of packages.
+To make this more manageable, `uv <https://docs.astral.sh/uv/>`_ manages the developer experience.
+
+To install `uv <https://docs.astral.sh/uv/>`_,
+follow this `guide <https://docs.astral.sh/uv/getting-started/installation/>`_.
+
+For more information, see this `blog post <https://astral.sh/blog/uv-unified-python-packaging>`_.
+
+Installing the project
+======================
+
 .. _contributing.forking:
 
-Get the source code by forking
-------------------------------
+Fork and clone the repository
+-----------------------------
 
-You will need your own fork to work on the code.
-Go to the `Pyxel project page <https://gitlab.com/esa/pyxel>`_ and
+The source code for Pyxel is hosted in `GitLab <https://gitlab.com/esa/pyxel>`_.
+The first thing you need to do is to fork this repository,
+please `follow this guide from gitlab <https://docs.gitlab.com/ee/user/project/repository/forking_workflow.html>`_
+
+To create your own fork, go to the `Pyxel project page <https://gitlab.com/esa/pyxel>`_ and
 hit the ``Fork`` button (top right, see the following pictures). You have to do this operation only once.
 
 .. figure:: _static/fork_1.png
@@ -188,7 +221,9 @@ A Workflow to keep your fork updated to Pyxel
 ---------------------------------------------
 
 To keep your fork ``https://gitlab.com/YOUR-USER-NAME/pyxel.git`` updated to
-the main repository ``https://gitlab.com/esa/pyxel.git``, you have to:
+the main repository ``https://gitlab.com/esa/pyxel.git``
+follow this `GitLab guide <https://docs.gitlab.com/ee/user/project/repository/forking_workflow.html#update-your-fork>`_
+or do the following:
 
 1. Make sure that you are on your master branch (from your fork) locally, if not, then
 checkout your master branch using this command
@@ -210,6 +245,45 @@ main repository ``https://gitlab.com/esa/pyxel.git``).
 
 This mini-guide is copied from the `workflow to contribute to others project from 'The Turing Way' <https://the-turing-way.netlify.app/reproducible-research/vcs/vcs-github.html?highlight=fork#a-workflow-to-contribute-to-others-github-projects-via-git>`_.
 
+Start developing
+================
+
+With 'uv' (Unified Python packaging)
+------------------------------------
+
+To start developing with `uv <https://docs.astral.sh/uv/>`_, use the following command:
+
+.. code-block:: fish
+
+    uv sync
+
+
+.. note::
+
+    * To install Pyxel for Python 3.12, please run the command:
+
+      .. code-block:: fish
+
+          uv sync --python 3.12
+
+    * And to install Pyxel without including its development packages (e.g. ``pytest``, ``mypy``...), use:
+
+      .. code-block:: fish
+
+          uv sync --no-dev
+
+The first time you execute this, a Python Virtual environment ``.venv`` will be created.
+Please note that Pyxel will automatically be installed in `editable mode <https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs>`_.
+
+**Configuring PyCharm**
+
+If you are using PyCharm, you can set it up to work with ``.venv`` Python virtual environment.
+Follow this `guide to configure a virtual environment <https://www.jetbrains.com/help/pycharm/creating-virtual-environment.html#python_create_virtual_env>`_
+for step-by-step instructions.
+
+
+With 'pip'
+----------
 
 .. _contributing.dev_env:
 

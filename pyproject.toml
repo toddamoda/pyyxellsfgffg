@@ -1,6 +1,16 @@
-# Normal install      : pip install .
-# Development install : pip install -e .
-# Build project       : python -m build . --wheel --sdist
+# With pip
+#   Normal install      : python -m pip install .
+#   Development install : python -m pip install -e .
+#   Build project       : python -m build . --wheel --sdist
+#   Running Pyxel       : python -m pyxel ...
+#
+# With uv (https://docs.astral.sh/uv)
+#   Normal install      : uv sync --no-dev --python 3.12
+#   Development install : uv sync
+#                         uv sync --extra model --extra io
+#   Build project       : uv build
+#   Running scirpt      : uv run pyxel ...
+
 [build-system]
 requires = ["setuptools>=63", "versioneer[toml]==0.29", "wheel"]
 build-backend = "setuptools.build_meta"
@@ -346,3 +356,37 @@ max-complexity = 14
 
 [tool.ruff.format]
 exclude = ["pyxel/models/phasing/mkid_models/*"]
+
+# See PEP 735 – Dependency Groups in pyproject.toml
+[dependency-groups]
+dev = [
+    "black>=24.10.0",
+    "isort>=5.13.2",
+    "pre-commit>=4.0.1",
+    "ruff>=0.8.2",
+    "tox>=4.23.2",
+    { include-group = "test" },
+    { include-group = "static-analysis" },
+    { include-group = "jupyter" },
+]
+test = [
+    "freezegun>=1.5.1",
+    "pytest>=8.3.4",
+    "pytest-cov>=6.0.0",
+    "pytest-httpserver>=1.1.0",
+    "pytest-mock>=3.14.0",
+    "scikit-image>=0.24.0",
+    "statsmodels>=0.14.4",
+]
+static-analysis = [
+    "mypy[faster-cache]>=1.13.0",
+    "types-pyyaml>=6.0.12.20240917",
+    "types-requests>=2.32.0.20241016",
+]
+jupyter = [
+    "dask-labextension>=7.0.0",
+    "ipympl>=0.9.4",
+    "ipywidgets>=8.1.5",
+    "jupyterlab>=4.3.2",
+    "jupyterlab-code-formatter>=3.0.2",
+]
