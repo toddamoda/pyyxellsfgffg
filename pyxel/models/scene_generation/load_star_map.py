@@ -8,6 +8,7 @@
 """Scene generator creates Scopesim Source object."""
 
 import logging
+import sys
 import time
 import warnings
 from collections.abc import Sequence
@@ -259,6 +260,7 @@ def _retrieve_objects_from_gaia(
     Gaia.ROW_LIMIT = -1
     # we get the data from GAIA DR3
     Gaia.MAIN_GAIA_TABLE = "gaiadr3.gaia_source"
+
     try:
         # Query for the catalog to search area with coordinates in FOV of optics.
         job = Gaia.launch_job_async(
@@ -267,21 +269,33 @@ def _retrieve_objects_from_gaia(
             f"WHERE CONTAINS(POINT('ICRS', ra, dec),CIRCLE('ICRS',{right_ascension},{declination},{fov_radius}))=1 "
             "AND has_xp_sampled = 'True'",
         )
+    except requests.HTTPError as exc:
+        my_exception = ConnectionError(
+            "Error when trying to retrieve sources from the Gaia database"
+        )
 
-        # get the results from the query job
-        result: Table = job.get_results()
+        if sys.version_info >= (3, 11):
+            my_exception.add_note(
+                f"Failed to retrieve the spectra with parameters {right_ascension=}, {declination=} and {fov_radius=}"
+            )
 
-        # set parameters to load data from Gaia catalog
-        retrieval_type = "XP_SAMPLED"
-        data_release = "Gaia DR3"
-        data_structure = "COMBINED"
+        raise my_exception from exc
 
-        # Get all sources
-        source_ids: "Column" = result["SOURCE_ID"]
-        if len(source_ids) > 5000:
-            # TODO: Fix this
-            raise NotImplementedError("Cannot retrieve more than 5000 sources")
+    # get the results from the query job
+    result: Table = job.get_results()
 
+    # set parameters to load data from Gaia catalog
+    retrieval_type = "XP_SAMPLED"
+    data_release = "Gaia DR3"
+    data_structure = "COMBINED"
+
+    # Get all sources
+    source_ids: "Column" = result["SOURCE_ID"]
+    if len(source_ids) > 5000:
+        # TODO: Fix this
+        raise NotImplementedError("Cannot retrieve more than 5000 sources")
+
+    try:
         # load spectra from stars
         spectra_dct: dict[str, list[tree.Table]] = Gaia.load_data(
             ids=source_ids,
@@ -291,9 +305,17 @@ def _retrieve_objects_from_gaia(
             format="votable",  # Note: It's not yet possible to use format 'votable_gzip'
         )
     except requests.HTTPError as exc:
-        raise ConnectionError(
-            "Error when trying to communicate with the Gaia database"
-        ) from exc
+        my_exception = ConnectionError(
+            "Error when trying to load data from the Gaia database"
+        )
+
+        if sys.version_info >= (3, 11):
+            my_exception.add_note(
+                f"Failed to retrieve the spectra with parameters {retrieval_type=}, {data_release=} and {data_structure=}"
+            )
+
+        raise my_exception from exc
+
     # save key
     key = f"{retrieval_type}_{data_structure}.xml"
 
