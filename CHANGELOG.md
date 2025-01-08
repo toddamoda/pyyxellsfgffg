@@ -34,6 +34,8 @@ The minimum versions of some dependencies were changed:
 ### Models
 * Use `photoutils` instead of `sep` for model `source_extractor` in `Data Processing`.
   (See [!1002](https://gitlab.com/esa/pyxel/-/merge_requests/1002)).
+* Fix bug in model `load_star_map` due to recent update by the Gaia database.
+  (See [!1010](https://gitlab.com/esa/pyxel/-/merge_requests/1010)).
 
 ### Others
 * Minor refactoring using `ruff check --preview`.
