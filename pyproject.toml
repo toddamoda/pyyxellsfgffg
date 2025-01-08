@@ -219,11 +219,13 @@ addopts = [
     "--capture=no",
     "--log-cli-level=ERROR",
     "-vv",
-    "--ignore=old_code"
+    "--ignore=old_code",
+    "-m not functional_test",
 ]
 markers = [
     "deprecated: marks tests as deprecated (deselect with '-m \"not deprecated\"')",
     "fix_this: fix (deselect with '-m \"not fix_this\"')",
+    "functional_test: for functional testing (select with '-m functional_test')",
 ]
 [tool.pydocstyle]
 convention = "numpy"
