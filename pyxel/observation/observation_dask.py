@@ -7,6 +7,7 @@
 
 """Subpackage for running Observation mode with Dask enabled."""
 
+import collections
 from collections.abc import Hashable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -16,6 +17,7 @@ import numpy as np
 
 from pyxel.exposure import Readout, run_pipeline
 from pyxel.observation import CustomMode, ProductMode, SequentialMode
+from pyxel.outputs.utils import save_to_files
 from pyxel.pipelines import Processor
 
 if TYPE_CHECKING:
@@ -248,24 +250,41 @@ def _run_pipelines_array_to_datatree(
         # Late import
         import xarray as xr
 
-        # TODO: move 'output_filenames' and 'output_keys' into 'processor.observation.outputs'        assert (
+        # TODO: move 'output_filenames' and 'output_keys' into 'processor.observation.outputs'
         assert output_filenames is not None
         assert output_keys is not None
 
-        processor.observation.outputs.save_to_files(
+        save_to_files(
+            folder=processor.observation.outputs.current_output_folder,
             processor=new_processor,
             filenames=output_filenames,
-            header=new_processor.detector._header,
+            header=new_processor.detector.header,
         )
 
-        output_filenames_dct: Mapping[str, str] = dict(
-            zip(output_keys, output_filenames, strict=True)
-        )
+        output_filenames_dct = collections.defaultdict(list)
+        output_filenames_dims = collections.defaultdict(list)
+        for key, filename in zip(output_keys, output_filenames, strict=True):
+            bucket_name, extension = key.split("_")
+
+            output_filenames_dct[bucket_name].append(filename)
+            output_filenames_dims[bucket_name].append(extension)
 
         if np.__version__ >= "2":
             dtype = np.dtypes.StringDType()  # type: ignore[attr-defined]
         else:
             dtype = np.object_
+
+        for bucket_name in output_filenames_dct:
+            xr.DataArray(output_filenames_dct[bucket_name])
+
+        """
+        output
+          image
+            filename: ['image.npy', 'image.fits']
+        """
+
+        # for key, value in output_filenames_dct.items():
+        #     xr.
 
         data_tree["/output/filename"] = (
             xr.Dataset(output_filenames_dct).to_dataarray("name_ext").astype(dtype)
@@ -452,7 +471,7 @@ def _build_output_filenames(
 
     # Generate indices for the filename(s)
     indices = xr.DataArray(
-        np.arange(len(params_dataarray)).reshape(params_dataarray.shape),
+        np.arange(params_dataarray.size).reshape(params_dataarray.shape),
         dims=params_dataarray.dims,
         coords=params_dataarray.coords,
         name="filename",

@@ -20,18 +20,7 @@ from typing_extensions import deprecated
 from pyxel import __version__ as version
 from pyxel.options import global_options
 from pyxel.outputs import SaveToFileProtocol, ValidFormat, apply_run_number
-from pyxel.outputs.utils import (
-    to_csv,
-    to_fits,
-    to_hdf,
-    to_jpg,
-    to_npy,
-    to_png,
-    to_txt,
-    write_to_fits,
-    write_to_jpg,
-    write_to_npy,
-)
+from pyxel.outputs.utils import to_csv, to_fits, to_hdf, to_jpg, to_npy, to_png, to_txt
 from pyxel.util import complete_path
 
 if TYPE_CHECKING:
@@ -360,9 +349,6 @@ class Outputs:
             Sequence[Mapping[ValidName, Sequence[ValidFormat]]] | None
         ) = None,
     ):
-        if save_data_to_file is None:
-            save_data_to_file = [{"detector.image.array": ["fits"]}]
-
         self._log = logging.getLogger(__name__)
 
         self._current_output_folder: Path | None = None
@@ -371,6 +357,9 @@ class Outputs:
         self._custom_dir_name: str = custom_dir_name
 
         # TODO: Not related to a plot. Use by 'single' and 'parametric' modes.
+        if save_data_to_file is None:
+            save_data_to_file = [{"detector.image.array": ["fits"]}]
+
         self.save_data_to_file: (
             Sequence[Mapping[ValidName, Sequence[ValidFormat]]] | None
         ) = save_data_to_file
@@ -455,13 +444,11 @@ class Outputs:
         ... )
         >>> output.build_filenames()
         [
-            Path('./output/run_001/detector_photon.fits'),
-            Path('./output/run_001/detector_photon.hdf'),
-            Path('./output/run_001/detector_charge.png'),
+            Path('detector_photon.fits'),
+            Path('detector_photon.hdf'),
+            Path('detector_charge.png'),
         ]
         """
-        parent_folder: Path = self.current_output_folder
-
         if self.save_data_to_file is None:
             raise NotImplementedError
 
@@ -477,7 +464,7 @@ class Outputs:
 
                 for extension in formats:
                     filenames.append(  # noqa: PERF401
-                        parent_folder / f"detector_{bucket_name}.{extension}"
+                        f"detector_{bucket_name}.{extension}"
                     )
 
         return filenames
@@ -827,73 +814,8 @@ class Outputs:
 
         return full_filename
 
-    def save_to_files(
-        self,
-        processor: "Processor",
-        filenames: Sequence[str | Path],
-        header: Optional["fits.Header"],
-        overwrite: bool = False,
-    ) -> None:
-        """Save processed data to files in specified formats.
-
-        Parameters
-        ----------
-        processor : Processor
-            The processor object used to retrieve the data buckets.
-        filenames : Sequence of str
-            List of filenames specifying where the data should be saved.
-        header : fits.Header, Optional.
-            Header to include when saving files (not specific for FITS files)
-        overwrite : bool, default: False
-            If True, existing files with the same name will be overwritten.
-        """
-        for filename in filenames:
-            full_filename = Path(filename)
-
-            first_arg, second_arg, *_ = full_filename.stem.split("_")
-            valid_name = f"{first_arg}.{second_arg}"
-
-            # Retrieve data from the processor.
-            data_2d = processor.get(valid_name, default=None)
-            if data_2d is None:
-                raise NotImplementedError(f"Unknown {valid_name=}")
-
-            # Save data to the appropriate format
-            match full_filename.suffix.removeprefix("."):
-                case "fits":
-                    write_to_fits(
-                        filename=full_filename,
-                        data=np.asarray(data_2d),
-                        header=header,
-                        overwrite=overwrite,
-                    )
-
-                case "npy":
-                    write_to_npy(
-                        filename=full_filename,
-                        data=np.asarray(data_2d),
-                        overwrite=overwrite,
-                    )
-
-                case "hdf" | "txt" | "csv" | "png":
-                    raise NotImplementedError(
-                        f"Saving to '{full_filename.suffix}' is not yet implemented."
-                    )
-
-                case "jpg" | "jpeg":
-                    write_to_jpg(
-                        filename=full_filename,
-                        data=np.asarray(data_2d),
-                        overwrite=overwrite,
-                    )
-
-                case _:
-                    raise NotImplementedError(
-                        f"Unsupported file format: '{full_filename.suffix}'."
-                    )
-
     # ruff: noqa: C901
-    @deprecated("Will be replaced by '.save_to_files'")
+    @deprecated("Will be replaced by function 'save_to_files'")
     def save_to_file(
         self,
         processor: "Processor",
@@ -967,7 +889,7 @@ class Outputs:
                     from astropy.io import fits
 
                     header = fits.Header()
-                    header.update(processor.detector._header)
+                    header.update(processor.detector.header)
 
                     line: str
                     for line in processor.pipeline.describe():

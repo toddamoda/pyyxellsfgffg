@@ -31,6 +31,7 @@ from pyxel.pipelines.processor import _get_obj_att
 from pyxel.util import create_model, create_model_to_console, download_examples
 
 if TYPE_CHECKING:
+    import dask.dataframe as dd
     import pandas as pd
     import xarray as xr
 
@@ -215,30 +216,6 @@ def _run_exposure_mode(
         debug=debug,
         with_inherited_coords=with_inherited_coords,
     )
-
-    outputs: ExposureOutputs | None = exposure.outputs
-    if outputs:
-        if outputs.save_exposure_data:
-            outputs.save_exposure_outputs(dataset=result)
-
-        if outputs.save_data_to_file:
-            # Late import
-            import numpy as np
-            import xarray as xr
-
-            filenames: Sequence[Path] = outputs.build_filenames()
-            outputs.save_to_files(
-                processor=processor,
-                filenames=filenames,
-                header=processor.detector._header,
-            )
-
-            filenames_dataarray = xr.DataArray(
-                np.array(filenames, dtype=str),
-                dims=["output_id"],
-                coords={"output_id": range(len(filenames))},
-            )
-            result["/output/filename"] = filenames_dataarray
 
     return result
 
@@ -985,6 +962,89 @@ def run_mode(
     return data_tree
 
 
+# TODO: Move this function ?
+def get_all_filenames(
+    data_tree: "xr.DataTree",
+) -> Union["pd.DataFrame", "dd.DataFrame"]:
+    """TBW.
+
+    Parameters
+    ----------
+    data_tree
+
+    Returns
+    -------
+    Pandas or Dask DataFrame
+
+    Examples
+    --------
+    >>> data_tree
+    <xarray.DataTree 'output'>
+    Group: /output
+    │   Dimensions:             (y: 100, x: 100, time: 1, level: 2,
+    │                            coupling_matrix_id: 2, dim_0: 4, dim_1: 4)
+    │   Coordinates:
+    │       coupling_matrix     (coupling_matrix_id, dim_0, dim_1) float64 256B 1.0 ....
+    │   Inherited coordinates:
+    │     * y                   (y) int64 800B 0 1 2 3 4 5 6 7 ... 93 94 95 96 97 98 99
+    │     * x                   (x) int64 800B 0 1 2 3 4 5 6 7 ... 93 94 95 96 97 98 99
+    │     * time                (time) float64 8B 1.0
+    │     * level               (level) int64 16B 1 1000000
+    │     * coupling_matrix_id  (coupling_matrix_id) int64 16B 0 1
+    │     * dim_0               (dim_0) int64 32B 0 1 2 3
+    │     * dim_1               (dim_1) int64 32B 0 1 2 3
+    └── Group: /output/image
+            Dimensions:             (coupling_matrix_id: 2, level: 2, data_format: 1,
+                                     dim_0: 4, dim_1: 4)
+            Coordinates:
+              * data_format         (data_format) <U3 12B 'npy'
+                coupling_matrix     (coupling_matrix_id, dim_0, dim_1) float64 256B 1.0 ....
+            Data variables:
+                filename            (coupling_matrix_id, level, data_format) object 32B '...
+
+    >>> get_all_filenames(data_tree)
+       coupling_matrix_id    level data_format                    filename
+    0                   0        1         npy  detector_image_array_1.npy
+    1                   0  1000000         npy  detector_image_array_3.npy
+    2                   1        1         npy  detector_image_array_2.npy
+    3                   1  1000000         npy  detector_image_array_4.npy
+    """
+
+    # Late import
+    import dask
+    import dask.dataframe as dd
+    import pandas as pd
+
+    lst: list[pd.DataFrame | dd.DataFrame] = []
+    for data_tree_filenames in data_tree.leaves:
+        if "filename" not in data_tree_filenames:
+            raise KeyError(f"Missing key 'filename' in {data_tree_filenames}")
+
+        partial_filenames_data_array: "xr.DataArray" = data_tree_filenames[
+            "filename"
+        ].reset_coords(drop=True)
+
+        if dask.is_dask_collection(partial_filenames_data_array):
+            partial_dask_dataframe: dd.DataFrame = (
+                partial_filenames_data_array.to_dask_dataframe()
+            )
+            lst.append(partial_dask_dataframe)
+        else:
+            partial_dataframe: pd.DataFrame = (
+                partial_filenames_data_array.to_dataframe().reset_index()
+            )
+            lst.append(partial_dataframe)
+
+    if isinstance(lst[0], pd.DataFrame):
+        filenames_dataframe: pd.DataFrame = pd.concat(lst, ignore_index=True)
+
+        return filenames_dataframe
+    else:
+        filenames_dask_dataframe: dd.DataFrame = dd.concat(lst)
+
+        return filenames_dask_dataframe
+
+
 # ruff: noqa: C901
 def run(
     input_filename: str | Path,
@@ -1030,6 +1090,7 @@ def run(
         detector=detector,
         pipeline=pipeline,
         override_dct=override_dct,
+        with_inherited_coords=True,
     )
 
     # if running_mode.outputs is None or running_mode.outputs.count_files_to_save() == 0:
@@ -1042,50 +1103,16 @@ def run(
     # Create a DataTree
     df_filenames: "pd.DataFrame" | None = None
 
-    # TODO: check if data_tree['/output/filename'] exists and if it's a dask array or not (with .chunk ?)
-    if "output" in data_tree and "filename" in data_tree["output"]:
+    if "output" in data_tree:
         # Late import
-        import dask
         import pandas as pd
-        from dask.diagnostics import ProgressBar
-        from dask.distributed import Client, progress
 
-        filenames: "xr.DataArray" = data_tree["/output/filename"].reset_coords(
-            drop=True
-        )
-
-        if dask.is_dask_collection(filenames):
-            df_output_filenames = filenames.to_dask_dataframe()
-
-            # This is a Dask Xarray
-            try:
-                _ = Client.current()
-
-                # Start computation in the background
-                df_output_filenames_background = df_output_filenames.persist()
-
-                # Watch progress and block till computation is ready
-                progress(df_output_filenames_background)
-                dataframe_or_serie_filenames: pd.DataFrame | pd.Series = (
-                    df_output_filenames_background.compute()
-                )
-
-            except ValueError:
-                # No client
-                with ProgressBar():
-                    dataframe_or_serie_filenames = df_output_filenames.compute()
-        else:
-            dataframe_or_serie_filenames = filenames.to_pandas()
-
-        if isinstance(dataframe_or_serie_filenames, pd.Series):
-            df_filenames = dataframe_or_serie_filenames.to_frame()
-        else:
-            columns = [
-                column
-                for column in dataframe_or_serie_filenames.columns
-                if column != "filename"
+        df_filenames = pd.concat(
+            [
+                data_tree_leave.dataset.to_dataframe().reset_index()
+                for data_tree_leave in data_tree["/output"].leaves
             ]
-            df_filenames = dataframe_or_serie_filenames.set_index(columns)
+        )
 
     if running_mode.outputs is None:
         output_dir: Path | None = None

@@ -9,7 +9,8 @@
 
 import logging
 import re
-from collections.abc import Mapping
+from collections import defaultdict
+from collections.abc import Mapping, Sequence
 from glob import glob
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Optional, Protocol
@@ -21,7 +22,10 @@ from pyxel.options import global_options
 from pyxel.util import complete_path
 
 if TYPE_CHECKING:
+    import xarray as xr
     from astropy.io import fits
+
+    from pyxel.pipelines import Processor
 
 
 class SaveToFileProtocol(Protocol):
@@ -215,6 +219,124 @@ def write_to_npy(
         raise ValueError(f"Only 2D data arrays are supported. {data.shape=}")
 
     np.save(filename, arr=data)
+
+
+def save_to_files(
+    folder: Path,
+    processor: "Processor",
+    filenames: Sequence[str | Path],
+    header: Optional["fits.Header"],
+    overwrite: bool = False,
+) -> "xr.DataTree":
+    """Save processed data to files in specified formats.
+
+    Parameters
+    ----------
+    folder : Path
+    processor : Processor
+        The processor object used to retrieve the data buckets.
+    filenames : Sequence of str
+        List of filenames specifying where the data should be saved.
+    header : fits.Header, Optional.
+        Header to include when saving files (not specific for FITS files)
+    overwrite : bool, default: False
+        If True, existing files with the same name will be overwritten.
+
+    Examples
+    --------
+    >>> save_to_files(
+    ...     folder=Path("./output/run_20250109_174315"),
+    ...     processor=...,
+    ...     filenames=[
+    ...         "detector_image.fits",
+    ...         "detector_image.jpg",
+    ...         "detector_pixel.npy",
+    ...     ],
+    ... )
+    <xarray.DataTree>
+    Group: /
+    ├── Group: /image
+    │       Dimensions:    (extension: 2)
+    │       Coordinates:
+    │         * extension  (extension) <U4 32B 'fits' 'jpg'
+    │       Data variables:
+    │           filename   (extension) StringDType() 32B ...
+    └── Group: /pixel
+            Dimensions:    (extension: 1)
+            Coordinates:
+              * extension  (extension) <U3 12B 'npy'
+            Data variables:
+                filename   (extension) StringDType() 16B ...
+    """
+    # Late import
+    import xarray as xr
+
+    dct: Mapping[str, list[xr.DataArray]] = defaultdict(list)
+
+    for filename in filenames:
+        full_filename: Path = folder.joinpath(filename).resolve()
+
+        first_arg, bucket_name, *_ = full_filename.stem.split("_")
+        valid_name = f"{first_arg}.{bucket_name}"
+
+        # Retrieve data from the processor.
+        data_2d = processor.get(valid_name, default=None)
+        if data_2d is None:
+            raise NotImplementedError(f"Unknown {valid_name=}")
+
+        # Save data to the appropriate format
+        extension: str = full_filename.suffix.removeprefix(".")
+
+        match extension:
+            case "fits":
+                write_to_fits(
+                    filename=full_filename,
+                    data=np.asarray(data_2d),
+                    header=header,
+                    overwrite=overwrite,
+                )
+
+            case "npy":
+                write_to_npy(
+                    filename=full_filename,
+                    data=np.asarray(data_2d),
+                    overwrite=overwrite,
+                )
+
+            case "hdf" | "txt" | "csv" | "png":
+                raise NotImplementedError(
+                    f"Saving to '{full_filename.suffix}' is not yet implemented."
+                )
+
+            case "jpg" | "jpeg":
+                write_to_jpg(
+                    filename=full_filename,
+                    data=np.asarray(data_2d),
+                    overwrite=overwrite,
+                )
+
+            case _:
+                raise NotImplementedError(
+                    f"Unsupported file format: '{full_filename.suffix}'."
+                )
+
+        filename_dataarray = xr.DataArray(
+            str(full_filename), coords={"extension": extension}
+        )
+
+        dct[bucket_name].append(filename_dataarray)
+
+    if np.__version__ >= "2":
+        dtype = np.dtypes.StringDType()  # type: ignore[attr-defined]
+    else:
+        dtype = np.object_
+
+    dct_datasets: Mapping[str, xr.Dataset] = {
+        key: xr.concat(value, dim="extension").astype(dtype).to_dataset(name="filename")
+        for key, value in dct.items()
+    }
+
+    return xr.DataTree.from_dict(dct_datasets)
 
 
 def to_fits(

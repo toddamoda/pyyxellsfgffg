@@ -20,6 +20,7 @@ import numpy as np
 import pyxel
 from pyxel import __version__
 from pyxel.data_structure import Charge, Image, Photon, Pixel, Scene, Signal
+from pyxel.outputs.utils import save_to_files
 from pyxel.pipelines import Processor, ResultId, get_result_id, result_keys
 from pyxel.util import set_random_seed
 
@@ -134,6 +135,7 @@ class Exposure:
         ----------
         processor : Processor
         debug : bool
+        with_inherited_coords : bool
 
         Returns
         -------
@@ -145,6 +147,7 @@ class Exposure:
         data_tree: "xr.DataTree" = run_pipeline(
             processor=processor,
             readout=self.readout,
+            outputs=self.outputs,
             progressbar=progressbar,
             pipeline_seed=self.pipeline_seed,
             debug=debug,
@@ -370,6 +373,7 @@ def run_pipeline(
     readout: "Readout",
     debug: bool,
     with_inherited_coords: bool,
+    outputs: Union["ExposureOutputs", "ObservationOutputs", None] = None,
     progressbar: bool = False,
     pipeline_seed: int | None = None,
 ) -> "xr.DataTree":
@@ -516,6 +520,17 @@ def run_pipeline(
             dct["/intermediate"] = datatree_intermediate.drop_nodes(
                 "last", errors="ignore"
             )
+
+        if outputs and outputs.save_data_to_file:
+            filenames: Sequence[Path] = outputs.build_filenames()
+            outputs_datatree: "xr.DataTree" = save_to_files(
+                folder=outputs.current_output_folder,
+                processor=processor,
+                filenames=filenames,
+                header=processor.detector.header,
+            )
+
+            dct["/output"] = outputs_datatree
 
         # Add additional data
         dct["/scene"] = detector.scene.data

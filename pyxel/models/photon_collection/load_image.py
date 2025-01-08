@@ -106,7 +106,7 @@ def load_image(
         )
 
         if header:
-            if detector._header is None:
-                detector._header = header
+            if detector.header is None:
+                detector.header = header
             else:
-                detector._header.update(header)
+                detector.header.update(header)

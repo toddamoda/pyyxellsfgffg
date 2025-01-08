@@ -104,7 +104,7 @@ class Detector:
         #       A better interface to access this information must be provided
         self.current_running_model_name: str = ""
 
-        self._header: "fits.Header" | None = None
+        self.header: "fits.Header" | None = None
 
     def __eq__(self, other) -> bool:
         return (

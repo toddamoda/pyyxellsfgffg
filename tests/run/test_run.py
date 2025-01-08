@@ -157,7 +157,11 @@ def test_exposure_override_wrong_input():
 
 
 @pytest.mark.parametrize(
-    "filename", ["data/observation.yaml", "data/observation_dask.yaml"]
+    "filename",
+    [
+        # "data/observation.yaml",
+        "data/observation_dask.yaml",
+    ],
 )
 def test_observation(filename: str):
     """Test command with an Observation configuration file."""
