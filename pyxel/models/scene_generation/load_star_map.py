@@ -287,7 +287,7 @@ def _retrieve_objects_from_gaia(
     # set parameters to load data from Gaia catalog
     retrieval_type = "XP_SAMPLED"
     data_release = "Gaia DR3"
-    data_structure = "COMBINED"
+    data_structure = "INDIVIDUAL"
 
     # Get all sources
     source_ids: "Column" = result["SOURCE_ID"]
@@ -316,16 +316,19 @@ def _retrieve_objects_from_gaia(
 
         raise my_exception from exc
 
-    # save key
-    key = f"{retrieval_type}_{data_structure}.xml"
-
+    # Extract and combine the spectra
     spectra: dict[int, Table] = {}
-    for spectrum in spectra_dct[key]:
-        # Get 'table' from the Gaia testbench
-        table: Table = spectrum.to_table()
+    for xml_filename, all_spectra in spectra_dct.items():
+        try:
+            for spectrum in all_spectra:
+                source_id = int(spectrum.get_field_by_id("source_id").value)
+                spectra[source_id] = spectrum.to_table()
 
-        source_id = int(spectrum.get_field_by_id("source_id").value)
-        spectra[source_id] = table
+        except Exception as exc:
+            if sys.version_info >= (3, 11):
+                exc.add_note(f"Cannot extract spectra from {xml_filename=}")
+
+            raise
 
     return result, spectra
 
