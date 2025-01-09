@@ -40,12 +40,6 @@ if TYPE_CHECKING:
     import pandas as pd
     import xarray as xr
 
-    # Import 'DataTree'
-    try:
-        from xarray.core.datatree import DataTree
-    except ImportError:
-        from datatree import DataTree  # type: ignore[assignment]
-
     from pyxel.outputs import CalibrationOutputs
 
 
@@ -491,7 +485,7 @@ class Calibration:
         output_dir: Path | None,
         with_inherited_coords: bool,
         with_progress_bar: bool = True,
-    ) -> "DataTree":
+    ) -> "xr.DataTree":
         """Run calibration pipeline."""
         try:
             import pygmo as pg
@@ -554,7 +548,7 @@ class Calibration:
         )
 
         # Run several evolutions in the archipelago
-        data_tree: "DataTree" = archipelago.run_evolve(
+        data_tree: "xr.DataTree" = archipelago.run_evolve(
             readout=self.readout,
             num_rows=processor.detector.geometry.row,
             num_cols=processor.detector.geometry.col,

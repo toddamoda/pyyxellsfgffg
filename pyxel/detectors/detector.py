@@ -31,11 +31,6 @@ from pyxel.util import get_size, memory_usage_details, resolve_with_working_dire
 if TYPE_CHECKING:
     import xarray as xr
 
-    # Import 'DataTree'
-    try:
-        from xarray.core.datatree import DataTree
-    except ImportError:
-        from datatree import DataTree  # type: ignore[assignment]
 
 __all__ = ["Detector"]
 
@@ -94,9 +89,9 @@ class Detector:
         self._pixel: Pixel | None = None
         self._signal: Signal | None = None
         self._image: Image | None = None
-        self._data: DataTree | None = None
+        self._data: xr.DataTree | None = None
 
-        self._intermediate: DataTree | None = None
+        self._intermediate: xr.DataTree | None = None
 
         # This will be the memory of the detector where trapped charges will be saved
         self._memory: dict = {}
@@ -244,7 +239,7 @@ class Detector:
         self.image.array = obj.array
 
     @property
-    def data(self) -> "DataTree":
+    def data(self) -> "xr.DataTree":
         """Get the structured ata from the detector's processing."""
         if self._data is None:
             raise RuntimeError("'data' not initialized.")
@@ -252,7 +247,7 @@ class Detector:
         return self._data
 
     @property
-    def intermediate(self) -> "DataTree":
+    def intermediate(self) -> "xr.DataTree":
         """Get the intermediate data used during processing."""
         if self._intermediate is None:
             raise RuntimeError("'intermediate' not initialized.")
@@ -313,11 +308,7 @@ class Detector:
     def _initialize(self) -> None:
         """Initialize data buckets."""
 
-        # Import 'DataTree'
-        try:
-            from xarray.core.datatree import DataTree
-        except ImportError:
-            from datatree import DataTree  # type: ignore[assignment]
+        import xarray as xr
 
         self._scene = Scene()
         self._photon = Photon(geo=self.geometry)
@@ -328,7 +319,7 @@ class Detector:
         self._signal = Signal(geo=self.geometry)
         self._image = Image(geo=self.geometry)
 
-        self._data = DataTree()
+        self._data = xr.DataTree()
 
     # TODO: refactor to split up to empty and reset.
     def empty(self, reset: bool = True) -> None:

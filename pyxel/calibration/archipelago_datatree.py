@@ -17,13 +17,6 @@ import dask.array as da
 import numpy as np
 import pandas as pd
 import xarray as xr
-
-# Import 'DataTree'
-try:
-    from xarray.core.datatree import DataTree
-except ImportError:
-    from datatree import DataTree  # type: ignore[assignment]
-
 from tqdm.auto import tqdm
 
 from pyxel.calibration import Algorithm, IslandProtocol
@@ -226,7 +219,7 @@ class ArchipelagoDataTree:
         num_cols: int,
         num_evolutions: int = 1,
         num_best_decisions: int | None = None,
-    ) -> DataTree:
+    ) -> xr.DataTree:
         """Run evolution(s) several time.
 
         Parameters
@@ -362,7 +355,7 @@ class ArchipelagoDataTree:
             all_data_fit_range = all_simulated_full
             all_data_fit_range["target"] = self.problem.all_target_data
 
-        data_tree: DataTree = DataTree()
+        data_tree: xr.DataTree = xr.DataTree()
         data_tree["/champion/fitness"] = champions["champion_fitness"]
         data_tree["/champion/decision"] = champions["champion_decision"]
         data_tree["/champion/parameters"] = champions["champion_parameters"]

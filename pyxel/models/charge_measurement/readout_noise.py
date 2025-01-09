@@ -7,7 +7,6 @@
 
 """Readout noise model."""
 
-
 import numpy as np
 
 from pyxel.detectors import APD, CMOS, Detector

@@ -12,13 +12,6 @@ from typing import TYPE_CHECKING, Literal
 
 import xarray as xr
 
-# Import 'DataTree'
-try:
-    from xarray.core.datatree import DataTree
-except ImportError:
-    from datatree import DataTree  # type: ignore[assignment]
-
-
 from pyxel.detectors import Detector
 
 if TYPE_CHECKING:
@@ -114,19 +107,12 @@ def statistics(
         key: str = f"{parent}/{name}"
         key_partial: str = f"{parent_partial}/{name}"
 
-        try:
-            _ = detector.data[key_partial]
-        except KeyError:
-            has_key_partial = False
-        else:
-            has_key_partial = True
-
-        if not has_key_partial:
-            data_tree: DataTree = DataTree(statistics)
+        if key_partial not in detector.data.groups:
+            data_tree: xr.DataTree = xr.DataTree(statistics)
         else:
             # Concatenate data
-            previous_datatree = detector.data[key_partial]
-            data_tree = previous_datatree.combine_first(statistics)  # type: ignore
+            previous_datatree: xr.DataTree = detector.data[key_partial]  # type: ignore[assignment]
+            data_tree = xr.merge([previous_datatree.to_dataset(), statistics])  # type: ignore[assignment]
 
         if detector.pipeline_count == (detector.num_steps - 1):
             detector.data[key] = data_tree

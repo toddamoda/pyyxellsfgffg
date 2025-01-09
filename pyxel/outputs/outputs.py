@@ -25,13 +25,6 @@ from pyxel.util import complete_path
 if TYPE_CHECKING:
     import pandas as pd
     import xarray as xr
-
-    # Import 'DataTree'
-    try:
-        from xarray.core.datatree import DataTree
-    except ImportError:
-        from datatree import DataTree  # type: ignore[assignment]
-
     from astropy.io import fits
 
     from pyxel.detectors import Detector
@@ -146,12 +139,8 @@ def save_dataarray(
     return output_dataset
 
 
-def _datasets_to_datatree(filenames_ds: list["xr.Dataset"]) -> Optional["DataTree"]:
-    # Import 'DataTree'
-    try:
-        from xarray.core.datatree import DataTree
-    except ImportError:
-        from datatree import DataTree  # type: ignore[assignment]
+def _datasets_to_datatree(filenames_ds: list["xr.Dataset"]) -> Optional["xr.DataTree"]:
+    import xarray as xr
 
     if not filenames_ds:
         return None
@@ -167,17 +156,17 @@ def _datasets_to_datatree(filenames_ds: list["xr.Dataset"]) -> Optional["DataTre
 
         dct[f"/{bucket_name}"] = partial_dataset.squeeze("bucket_name")
 
-    final_datatree = DataTree.from_dict(dct)  # type: ignore[arg-type]
+    final_datatree = xr.DataTree.from_dict(dct)
 
     return final_datatree
 
 
 def save_datatree(
-    data_tree: "DataTree",
+    data_tree: "xr.DataTree",
     outputs: Sequence[Mapping[ValidName, Sequence[ValidFormat]]],
     current_output_folder: Path,
     with_inherited_coords: bool,
-) -> Optional["DataTree"]:
+) -> Optional["xr.DataTree"]:
     """Save output file(s) from a DataTree.
 
     Parameters
@@ -255,7 +244,7 @@ def save_datatree(
                 )
                 continue
 
-            data_array: xr.DataArray | "DataTree" = data_tree[node_name]
+            data_array: xr.DataArray | xr.DataTree = data_tree[node_name]
             if not isinstance(data_array, xr.DataArray):
                 raise TypeError
 
@@ -273,12 +262,7 @@ def save_datatree(
     return final_datatree
 
 
-def _dict_to_datatree(all_filenames: Mapping[str, Mapping[str, str]]) -> "DataTree":
-    # Import 'DataTree'
-    try:
-        from xarray.core.datatree import DataTree
-    except ImportError:
-        from datatree import DataTree  # type: ignore[assignment]
+def _dict_to_datatree(all_filenames: Mapping[str, Mapping[str, str]]) -> "xr.DataTree":
     import xarray as xr
 
     datatree_dct = {}
@@ -306,7 +290,7 @@ def _dict_to_datatree(all_filenames: Mapping[str, Mapping[str, str]]) -> "DataTr
             .to_dataset()
         )
 
-    return DataTree.from_dict(datatree_dct)  # type: ignore[arg-type]
+    return xr.DataTree.from_dict(datatree_dct)
 
 
 # TODO: Create a new class that will contain the parameter 'save_data_to_file'
@@ -792,7 +776,7 @@ class Outputs:
         prefix: str | None = None,
         with_auto_suffix: bool = True,
         run_number: int | None = None,
-    ) -> "DataTree":
+    ) -> "xr.DataTree":
         if not self.save_data_to_file:
             raise NotImplementedError
 
@@ -899,12 +883,12 @@ class Outputs:
 
             all_filenames[valid_name] = partial_filenames
 
-        datatree: "DataTree" = _dict_to_datatree(all_filenames)
+        datatree: "xr.DataTree" = _dict_to_datatree(all_filenames)
         return datatree
 
     def save_to_netcdf(
         self,
-        data: Union["xr.Dataset", "DataTree"],
+        data: Union["xr.Dataset", "xr.DataTree"],
         name: str,
         with_auto_suffix: bool = False,
     ) -> Path:

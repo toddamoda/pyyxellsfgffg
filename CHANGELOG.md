@@ -12,9 +12,20 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 
 ## UNRELEASED
 
+### Breaking changes
+
+The minimum versions of some dependencies were changed:
+
+  | Package | Old       | New            |
+  |---------|-----------|----------------|
+  | xarray  | 2023.12.0 | **2024.10.0+** |  
+
+
 ### Core
 * Add compatibility with ASDF version 4.
   (See [!999](https://gitlab.com/esa/pyxel/-/merge_requests/999)).
+* Support [`DataTree`](https://docs.xarray.dev/en/stable/api.html#datatree) from `xarray` >= 2024.10.0.
+  (See [!1008](https://gitlab.com/esa/pyxel/-/merge_requests/1008)).
 
 ### Documentation
 * Add more documentation about installing Pyxel and using it with VSCode/PyCharm and `uv`.

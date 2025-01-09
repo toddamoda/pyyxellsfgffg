@@ -9,7 +9,7 @@
 
 import sys
 from collections import Counter
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal, Optional
 
@@ -36,11 +36,7 @@ from pyxel.observation import (
 from pyxel.pipelines import ResultId, get_result_id
 
 if TYPE_CHECKING:
-    # Import 'DataTree'
-    try:
-        from xarray.core.datatree import DataTree
-    except ImportError:
-        from datatree import DataTree  # type: ignore[assignment]
+    import xarray as xr
 
     from pyxel.outputs import ObservationOutputs
     from pyxel.pipelines import Processor
@@ -83,28 +79,6 @@ def _get_short_dimension_names_new(
         return dim_names
 
     return potential_dim_names
-
-
-# TODO: Replace this function by 'xr.merge'
-# TODO: or 'datatree.merge' when it will be possible
-def merge(*objects: "DataTree") -> "DataTree":
-    """Merge any number of DataTree into a single DataTree."""
-    # Import 'datatree'
-    try:
-        from xarray.core import datatree
-    except ImportError:
-        import datatree  # type: ignore[no-redef]
-
-    import xarray as xr
-
-    def _merge_dataset(*args: xr.Dataset) -> xr.Dataset:
-        return xr.merge(args)
-
-    _merge_datatree: Callable[..., "DataTree"] = datatree.map_over_subtree(
-        _merge_dataset
-    )
-
-    return _merge_datatree(*objects)
 
 
 def build_parameter_mode(
@@ -293,9 +267,10 @@ class Observation:
         self,
         processor: "Processor",
         with_inherited_coords: bool,
-    ) -> "DataTree":
+    ) -> "xr.DataTree":
         """Run the observation pipelines and return a `DataTree` object."""
         # Late import to speedup start-up time
+        import xarray as xr
         from tqdm.auto import tqdm
 
         # Validate the processor steps before running the pipeline
@@ -334,7 +309,7 @@ class Observation:
                 )
 
             # If Dask is not enabled, process each parameter sequentially
-            datatree_list: Sequence["DataTree"] = [
+            datatree_list: Sequence["xr.DataTree"] = [
                 self._run_single_pipeline(
                     el,
                     dimension_names=dim_names,
@@ -346,7 +321,9 @@ class Observation:
             ]
 
             # Merge the sequentially processed DataTrees into the final result
-            final_datatree = merge(*datatree_list)
+            final_datatree = xr.map_over_datasets(
+                lambda *data: xr.merge(data), *datatree_list
+            )
 
         # Assign the running mode to the final DataTree attributes
         parameter_name: str = str(self.parameter_mode.__class__)
@@ -394,7 +371,7 @@ class Observation:
         with_inherited_coords: bool,
         with_outputs: bool = True,  # TODO: Refactor this
         with_extra_dims: bool = True,  # TODO: Refactor this
-    ) -> "DataTree":
+    ) -> "xr.DataTree":
         """Run a single exposure pipeline for a given parameter item.
 
         Notes
@@ -409,7 +386,7 @@ class Observation:
 
         # Run a single pipeline for the given parameters
         try:
-            data_tree: "DataTree" = run_pipeline(
+            data_tree: "xr.DataTree" = run_pipeline(
                 processor=new_processor,
                 readout=self.readout,
                 result_type=self.result_type,
@@ -463,12 +440,12 @@ class Observation:
 
 
 def _add_custom_parameters(
-    data_tree: "DataTree",
+    data_tree: "xr.DataTree",
     parameter_dict: ParametersType,
     index: int,
     dimension_names: Mapping[str, str],
     types: Mapping[str, ParameterType],
-) -> "DataTree":
+) -> "xr.DataTree":
     """Add coordinate "index" to the dataset.
 
     Parameters
@@ -484,21 +461,27 @@ def _add_custom_parameters(
     import pandas as pd
     import xarray as xr
 
-    data_tree = data_tree.expand_dims({"id": [index]})
+    data_tree = data_tree.map_over_datasets(  # type: ignore[assignment]
+        lambda dataset: dataset.expand_dims({"id": [index]})
+    )
 
     for coordinate_name, param_value in parameter_dict.items():
         short_name: str = dimension_names[coordinate_name]
 
         #  assigning the right coordinates based on type
         if types[coordinate_name] == ParameterType.Simple:
-            data_tree = data_tree.assign_coords(
-                {short_name: ("id", pd.Index([param_value]))}
+            data_tree = data_tree.map_over_datasets(  # type: ignore[assignment]
+                lambda dataset: dataset.assign_coords(
+                    {short_name: ("id", pd.Index([param_value]))}
+                )
             )
 
         elif types[coordinate_name] == ParameterType.Multi:
             data = np.array(param_value)
             data_array = xr.DataArray(data).expand_dims({"id": [index]})
-            data_tree = data_tree.assign_coords({short_name: data_array})
+            data_tree = data_tree.map_over_datasets(  # type: ignore[assignment]
+                lambda dataset: dataset.assign_coords({short_name: data_array})
+            )
 
         else:
             raise NotImplementedError
@@ -507,12 +490,12 @@ def _add_custom_parameters(
 
 
 def _add_product_parameters(
-    data_tree: "DataTree",
+    data_tree: "xr.DataTree",
     parameter_dict: ParametersType,
     indexes: tuple[int, ...],
     dimension_names: Mapping[str, str],
     types: Mapping[str, ParameterType],
-) -> "DataTree":
+) -> "xr.DataTree":
     """Add true coordinates or index to product mode dataset.
 
     Parameters
@@ -537,7 +520,9 @@ def _add_product_parameters(
 
         #  assigning the right coordinates based on type
         if types[coordinate_name] == ParameterType.Simple:
-            data_tree = data_tree.expand_dims(dim={short_name: [param_value]})
+            data_tree = data_tree.map_over_datasets(  # type: ignore[assignment]
+                lambda dataset: dataset.expand_dims(dim={short_name: [param_value]})
+            )
 
         elif types[coordinate_name] == ParameterType.Multi:
             data = np.array(param_value)
@@ -567,9 +552,11 @@ def _add_product_parameters(
             else:
                 raise NotImplementedError
 
-            data_tree = data_tree.expand_dims(
-                {f"{short_name}_id": [index]}
-            ).assign_coords({short_name: data_array})
+            data_tree = data_tree.map_over_datasets(  # type: ignore[assignment]
+                lambda dataset: dataset.expand_dims(
+                    {f"{short_name}_id": [index]}
+                ).assign_coords({short_name: data_array})
+            )
 
         else:
             raise NotImplementedError
