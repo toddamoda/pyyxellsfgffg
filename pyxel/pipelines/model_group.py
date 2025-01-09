@@ -119,8 +119,7 @@ class ModelGroup:
                     new_datatree.name = "intermediate"
                     new_datatree.attrs = {
                         "long_name": (
-                            "Store all intermediate results "
-                            "modified along a pipeline"
+                            "Store all intermediate results modified along a pipeline"
                         )
                     }
                     detector._intermediate = new_datatree

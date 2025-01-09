@@ -75,7 +75,7 @@ def exponential_qe(
     if isinstance(default_wavelength, int | float) and not (
         valid_wavelength_range[0] <= default_wavelength <= valid_wavelength_range[1]
     ):
-        raise ValueError("Wavelength is out of the valid range " "for the equation.")
+        raise ValueError("Wavelength is out of the valid range for the equation.")
 
     # Validate detector_type
     if detector_type not in ["BI", "FI"]:

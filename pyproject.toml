@@ -288,6 +288,7 @@ select = [
     "PLE",      # Pylint Error
 ]
 ignore = [
+    "A005",     # Module ... shadows a Python standard-library module
     "E501",     # Omit 'Line too long'
     "B023",     # Function definition does not bind loop variable
     "D102",     # Missing docstring in public method

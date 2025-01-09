@@ -40,8 +40,9 @@ The minimum versions of some dependencies were changed:
 ### Others
 * Minor refactoring using `ruff check --preview`.
   (See [!998](https://gitlab.com/esa/pyxel/-/merge_requests/998)).
-* Fix issue with ruff 0.8.
-  (See [!1000](https://gitlab.com/esa/pyxel/-/merge_requests/1000)).
+* Fix issue with ruff 0.8 and 0.9.
+  (See [!1000](https://gitlab.com/esa/pyxel/-/merge_requests/1000)
+  and [!1001](https://gitlab.com/esa/pyxel/-/merge_requests/1001)).
 * Remove support of Python 3.9.
   (See [!1007](https://gitlab.com/esa/pyxel/-/merge_requests/1007)).
 * Add support for Python 3.12.
