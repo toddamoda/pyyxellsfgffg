@@ -44,6 +44,8 @@ The minimum versions of some dependencies were changed:
   (See [!1000](https://gitlab.com/esa/pyxel/-/merge_requests/1000)).
 * Remove support of Python 3.9.
   (See [!1007](https://gitlab.com/esa/pyxel/-/merge_requests/1007)).
+* Add support for Python 3.12.
+  (See [!1003](https://gitlab.com/esa/pyxel/-/merge_requests/1003)).
 
 
 ## 2.7 / 2024-11-11
