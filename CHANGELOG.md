@@ -26,6 +26,8 @@ The minimum versions of some dependencies were changed:
   (See [!999](https://gitlab.com/esa/pyxel/-/merge_requests/999)).
 * Support [`DataTree`](https://docs.xarray.dev/en/stable/api.html#datatree) from `xarray` >= 2024.10.0.
   (See [!1008](https://gitlab.com/esa/pyxel/-/merge_requests/1008)).
+* Use 'fsspec' capability with Astropy 5.2+.
+  (See [!1013](https://gitlab.com/esa/pyxel/-/merge_requests/1013)).
 
 ### Documentation
 * Add more documentation about installing Pyxel and using it with VSCode/PyCharm and `uv`.

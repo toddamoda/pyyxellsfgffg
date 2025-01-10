@@ -64,7 +64,7 @@ dependencies = [
     "ipywidgets>=7.5",
 
     # Input/Output
-    "astropy>=4.3",
+    "astropy>=5.2",
     "fsspec[http]>=2021",
     "h5netcdf",
     "pyyaml",

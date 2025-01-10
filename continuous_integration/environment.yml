@@ -47,7 +47,7 @@ dependencies:
   - jupyterlab
   - ipympl              # Interactive Matplotlib in Jupyter
 # Input/Output
-  - astropy>=4.3
+  - astropy>=5.2
   - astroquery
   - fsspec>=2021
   - aiohttp             # For fsspec

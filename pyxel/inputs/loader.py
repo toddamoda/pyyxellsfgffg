@@ -9,11 +9,11 @@
 
 import csv
 import sys
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 from contextlib import suppress
-from io import BytesIO, StringIO
+from io import StringIO
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Optional
 
 import numpy as np
 from numpy.typing import DTypeLike
@@ -24,6 +24,7 @@ from pyxel.util import resolve_with_working_directory
 if TYPE_CHECKING:
     import pandas as pd
     import xarray as xr
+    from astropy.io import fits
 
 
 def resolve_path(filename: Path) -> str:
@@ -50,7 +51,7 @@ def prepare_cache_path(url_path: str) -> tuple[str, dict]:
 def load_header(
     filename: str | Path,
     section: int | str | None = None,
-) -> Mapping[str, Any] | None:
+) -> Optional["fits.Header"]:
     """Load and return header information from a file.
 
     Parameters
@@ -68,13 +69,12 @@ def load_header(
     Examples
     --------
     >>> load_header("image.fits", section="RAW")
-    {'SIMPLE': (True, 'conforms to FITS standard'),
-    'BITPIX': (-32, 'array data type'),
-    'NAXIS': (2, 'number of array dimensions'),
-    'BUNIT': ('ADU', 'Image Units.'),}
+    CRPIX1  =      1024.6657050959 / Pixel coordinate of reference point
+    CRPIX2  =      1024.6657050959 / Pixel coordinate of reference point
+    PC1_1   =                 -1.0 / Coordinate transformation matrix element
     """
     # Late import to speedup start-up time
-    import fsspec
+    from astropy.io import fits
 
     try:
         filename = resolve_with_working_directory(filename)
@@ -90,37 +90,35 @@ def load_header(
         url_path, extras = prepare_cache_path(url_path)
 
         if suffix.startswith(".fits"):
-            with fsspec.open(url_path, mode="rb", **extras) as file_handler:
-                # Late import to speed-up general import time
-                from astropy.io import fits
-
-                with BytesIO(file_handler.read()) as content:
-                    ext: int | None = None
-                    extname: str | None = None
-
-                    if isinstance(section, int):
-                        ext = section
-                    elif isinstance(section, str):
-                        extname = section
-
-                    header: fits.Header = fits.getheader(
-                        content, ext=ext, extname=extname
+            match section:
+                case int():
+                    header = fits.getheader(
+                        url_path, ext=section, use_fsspec=True, fsspec_kwargsdict=extras
                     )
 
-                    cards: Sequence[tuple[str, Any] | tuple[str, Any, str]] = (
-                        header.cards
+                case str():
+                    header = fits.getheader(
+                        url_path,
+                        extname=section,
+                        use_fsspec=True,
+                        fsspec_kwargsdict=extras,
                     )
 
-                    dct = {}
-                    for items in cards:
-                        key, value, *comment = items
+                case _:
+                    header = fits.getheader(
+                        url_path, use_fsspec=True, fsspec_kwargsdict=extras
+                    )
 
-                        if comment:
-                            dct[key] = (value, comment[0])
-                        else:
-                            dct[key] = value
+            keys_to_remove = [
+                key
+                for key in header
+                if key in {"SIMPLE", "BITPIX"} or key.startswith("NAXIS")
+            ]
+            new_header = fits.Header(header)
+            for key in keys_to_remove:
+                del new_header[key]
 
-                    return dct
+            return new_header
 
         else:
             # Unknown type
@@ -188,13 +186,12 @@ def load_image(filename: str | Path) -> np.ndarray:
         url_path, extras = prepare_cache_path(url_path)
 
         if suffix.startswith(".fits"):
-            # with fits.open(url_path, use_fsspec=True, fsspec_kwargs=extras) as file_handler:
-            with fsspec.open(url_path, mode="rb", **extras) as file_handler:
-                # Late import to speed-up general import time
-                from astropy.io import fits
+            # Late import to speed-up general import time
+            from astropy.io import fits
 
-                with BytesIO(file_handler.read()) as content:
-                    data_2d: np.ndarray = fits.getdata(content)
+            data_2d: np.ndarray = fits.getdata(
+                url_path, use_fsspec=True, fsspec_kwargs=extras
+            )
 
         elif suffix.startswith(".npy"):
             with fsspec.open(url_path, mode="rb", **extras) as file_handler:
