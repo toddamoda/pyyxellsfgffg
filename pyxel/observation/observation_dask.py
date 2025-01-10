@@ -7,23 +7,20 @@
 
 """Subpackage for running Observation mode with Dask enabled."""
 
-import collections
 from collections.abc import Hashable, Mapping, Sequence
 from dataclasses import dataclass
-from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, Union
 
 import numpy as np
 
 from pyxel.exposure import Readout, run_pipeline
 from pyxel.observation import CustomMode, ProductMode, SequentialMode
-from pyxel.outputs.utils import save_to_files
 from pyxel.pipelines import Processor
 
 if TYPE_CHECKING:
     import xarray as xr
 
-    from pyxel.outputs import ObservationOutputs, ValidFormat, ValidName
+    from pyxel.outputs import ObservationOutputs
 
 
 @dataclass
@@ -205,16 +202,73 @@ def _get_output_sizes(
 
 def _run_pipelines_array_to_datatree(
     params_tuple: tuple,
-    output_filenames: Sequence[str],
+    output_filename_suffix: int | str | None,
     *,
-    output_keys: Sequence[str] | None,
     dimension_names: Mapping[str, str],
     processor: Processor,
     readout: Readout,
+    outputs: Optional["ObservationOutputs"],
     pipeline_seed: int | None,
     progressbar: bool,
 ) -> "xr.DataTree":
-    """Execute a single pipeline."""
+    """Execute a single pipeline.
+
+    Parameters
+    ----------
+    params_tuple
+    output_filename_suffix
+    dimension_names
+    processor
+    readout
+    outputs
+    pipeline_seed
+    progressbar
+
+    Returns
+    -------
+    DataTree
+
+    Examples
+    --------
+    >>> _run_pipelines_array_to_datatree(
+    ...     params=(
+    ...         0.3,  # parameter 'beta'
+    ...         (3, 5, 6, 4),  # parameter 'trap_densitities'
+    ...     ),
+    ...     dimension_names={
+    ...         "pipeline.charge_transfer.cdm.arguments.beta": "beta",
+    ...         "pipeline.charge_transfer.cdm.arguments.trap_densities": "trap_densities",
+    ...     },
+    ...     processor=Processor(...),
+    ...     readout=Readout(...),
+    ...     outputs=ObservationOutputs(...),
+    ... )
+    <xarray.DataTree>
+    Group: /
+    │   Attributes:
+    │       pyxel version:  2.7+73.ge610114e.dirty
+    ├── Group: /bucket
+    │       Dimensions:  (y: 100, x: 100, time: 1)
+    │       Coordinates:
+    │         * y        (y) int64 800B 0 1 2 3 4 5 6 7 8 9 ... 91 92 93 94 95 96 97 98 99
+    │         * x        (x) int64 800B 0 1 2 3 4 5 6 7 8 9 ... 91 92 93 94 95 96 97 98 99
+    │         * time     (time) float64 8B 1.0
+    │       Data variables:
+    │           photon   (time, y, x) float64 80kB 7.376e+03 7.088e+03 ... 8.056e+03
+    │           charge   (time, y, x) float64 80kB 7.376e+03 7.088e+03 ... 8.056e+03
+    │           pixel    (time, y, x) float64 80kB 7.376e+03 7.088e+03 ... 8.056e+03
+    │           signal   (time, y, x) float64 80kB 0.7376 0.7088 0.6624 ... 0.8056 0.8056
+    │           image    (time, y, x) uint16 20kB 4833 4645 4341 4341 ... 5127 5279 5279
+    ├── Group: /output
+    │   └── Group: /output/image
+    │           Dimensions:    (extension: 1)
+    │           Coordinates:
+    │             * extension  (extension) <U4 16B 'fits'
+    │           Data variables:
+    │               filename   (extension) StringDType() 16B ...
+    ├── Group: /scene
+    └── Group: /data
+    """
     if len(dimension_names) != len(params_tuple):
         raise NotImplementedError
 
@@ -235,70 +289,23 @@ def _run_pipelines_array_to_datatree(
     data_tree: "xr.DataTree" = run_pipeline(
         processor=new_processor,
         readout=new_readout,
+        outputs=outputs,
+        output_filename_suffix=output_filename_suffix,
         pipeline_seed=pipeline_seed,
         debug=False,  # Not supported in Observation mode
         with_inherited_coords=True,  # Must be set to True
         progressbar=progressbar,
     )
 
-    # Save the outputs if configured
-    if (
-        processor.observation
-        and processor.observation.outputs
-        and processor.observation.outputs.save_data_to_file
-    ):
-        # Late import
-        import xarray as xr
-
-        # TODO: move 'output_filenames' and 'output_keys' into 'processor.observation.outputs'
-        assert output_filenames is not None
-        assert output_keys is not None
-
-        save_to_files(
-            folder=processor.observation.outputs.current_output_folder,
-            processor=new_processor,
-            filenames=output_filenames,
-            header=new_processor.detector.header,
-        )
-
-        output_filenames_dct = collections.defaultdict(list)
-        output_filenames_dims = collections.defaultdict(list)
-        for key, filename in zip(output_keys, output_filenames, strict=True):
-            bucket_name, extension = key.split("_")
-
-            output_filenames_dct[bucket_name].append(filename)
-            output_filenames_dims[bucket_name].append(extension)
-
-        if np.__version__ >= "2":
-            dtype = np.dtypes.StringDType()  # type: ignore[attr-defined]
-        else:
-            dtype = np.object_
-
-        for bucket_name in output_filenames_dct:
-            xr.DataArray(output_filenames_dct[bucket_name])
-
-        """
-        output
-          image
-            filename: ['image.npy', 'image.fits']
-        """
-
-        # for key, value in output_filenames_dct.items():
-        #     xr.
-
-        data_tree["/output/filename"] = (
-            xr.Dataset(output_filenames_dct).to_dataarray("name_ext").astype(dtype)
-        )
-
     return data_tree
 
 
 def _build_metadata(
     params_tuple: tuple,
-    output_filenames: Mapping[str, str],
     dimension_names: Mapping[str, str],
     processor: Processor,
     readout: Readout,
+    outputs: Optional["ObservationOutputs"],
     pipeline_seed: int | None,
 ) -> Mapping[str, DatasetMetadata]:
     """Build metadata from a single pipeline run."""
@@ -308,11 +315,11 @@ def _build_metadata(
 
     data_tree = _run_pipelines_array_to_datatree(
         params_tuple=params_tuple,
-        output_filenames=list(output_filenames.values()),
-        output_keys=list(output_filenames),
+        output_filename_suffix=None,
         dimension_names=dimension_names,
         processor=processor,
         readout=readout,
+        outputs=outputs,  # TODO: Create a new temporary outputs only for here
         pipeline_seed=pipeline_seed,
         progressbar=True,
     )
@@ -322,22 +329,22 @@ def _build_metadata(
 
 def _run_pipelines_tuple_to_array(
     params_tuple: tuple,
-    output_filenames: Sequence[str],
+    output_filename_suffixes: int,
     *,
-    output_keys: Sequence[str] | None,
     dimension_names: Mapping[str, str],
     all_metadata: Mapping[str, DatasetMetadata],
     processor: Processor,
     readout: Readout,
+    outputs: Optional["ObservationOutputs"],
     pipeline_seed: int | None,
 ) -> tuple[np.ndarray, ...]:
     data_tree: "xr.DataTree" = _run_pipelines_array_to_datatree(
         params_tuple=params_tuple,
-        output_filenames=output_filenames,
-        output_keys=output_keys,
         dimension_names=dimension_names,
         processor=processor,
         readout=readout,
+        outputs=outputs,
+        output_filename_suffix=output_filename_suffixes,
         pipeline_seed=pipeline_seed,
         progressbar=False,
     )
@@ -417,111 +424,6 @@ def _rebuild_datatree_from_dask(
     return dct
 
 
-# TODO: Move this to 'ObservationOutputs'
-def _build_output_filenames(
-    params_dataarray: "xr.DataArray",
-    outputs: "ObservationOutputs",
-) -> "xr.DataArray":
-    """Generate output filenames as DataArray.
-
-    Parameters
-    ----------
-    params_dataarray : DataArray
-        DataArray containing parameter information for filenames.
-    outputs : ObservationOutputs
-        Object containing output folder and file-saving configuration.
-
-    Returns
-    -------
-    DataArray
-        DataArray with filenames as values and appropriate coordinates.
-
-    Examples
-    --------
-    >>> params_dataarray
-    <xarray.DataArray 'custom_values' (id: 6)> Size: 48B
-    array([0, 1, 2, 3, 4, 5])
-    Coordinates:
-        image_file  (id) object 48B 'FITS/00001.fits' ... 'FITS/00006.fits'
-      * id          (id) int64 48B 0 1 2 3 4 5
-    >>> outputs
-    Out[2]: ObservationOutputs<output_dir='./output/run_20241203_194724', num_files=1>
-
-    >>> _build_output_filenames(params_dataarray=params_dataarray, outputs=outputs)
-    xarray.DataArray (id: 6, name_ext: 1)> Size: 2kB
-    array([['./output/run_20241203_194724/detector_image_0.fits'],
-           ['./output/run_20241203_194724/detector_image_1.fits'],
-           ['./output/run_20241203_194724/detector_image_2.fits'],
-           ['./output/run_20241203_194724/detector_image_3.fits'],
-           ['./output/run_20241203_194724/detector_image_4.fits'],
-           ['./output/run_20241203_194724/detector_image_5.fits']],
-          dtype='<U92')
-    Coordinates:
-      * id        (id) int64 48B 0 1 2 3 4 5
-      * name_ext  (name_ext) <U10 40B 'image_fits'
-    """
-    # Late import to speedup start-up time
-    import numpy as np
-    import xarray as xr
-
-    if outputs.save_data_to_file is None:
-        raise NotImplementedError
-
-    folder: Path = outputs.current_output_folder
-
-    # Generate indices for the filename(s)
-    indices = xr.DataArray(
-        np.arange(params_dataarray.size).reshape(params_dataarray.shape),
-        dims=params_dataarray.dims,
-        coords=params_dataarray.coords,
-        name="filename",
-    )
-
-    # Extract filename components from the outputs configuration
-    filename_components: list[str] = []
-    file_config: Mapping["ValidName", Sequence["ValidFormat"]]
-    for file_config in outputs.save_data_to_file:
-        name: str
-        formats: Sequence[str]
-        for name, formats in file_config.items():
-            base_name: str = name.removeprefix("detector.").removesuffix(".array")
-
-            for value in formats:
-                filename_components.append(f"{base_name}_{value}")  # noqa: PERF401
-
-    name_ext = xr.DataArray(
-        filename_components,
-        coords={"name_ext": filename_components},
-    )
-
-    # Define filename generation function
-    def _generate_single_filename(index: int, name_ext: str, folder: str) -> str:
-        bucket_name, extension = name_ext.split("_")
-        return f"{folder}/detector_{bucket_name}_{index}.{extension}"
-
-    # Use apply_ufunc for vectorized filename generation
-    return xr.apply_ufunc(
-        _generate_single_filename,
-        indices,  # input parameter 'index'
-        name_ext,  # input parameter 'name_ext'
-        kwargs={"folder": folder},
-        input_core_dims=[[], []],
-        vectorize=True,
-    )
-
-
-def _build_params_index(params_dataarray: "xr.DataArray") -> "xr.DataArray":
-    # Late import to speedup start-up time
-    import xarray as xr
-
-    params_indexes: xr.DataArray = xr.zeros_like(params_dataarray)
-    params_indexes[...] = np.arange(params_dataarray.size, dtype=int).reshape(
-        params_indexes.shape
-    )
-    params_indexes_dask: xr.DataArray = params_indexes.chunk(1)
-    return params_indexes_dask
-
-
 def run_pipelines_with_dask(
     dim_names: Mapping[str, str],
     parameter_mode: ProductMode | SequentialMode | CustomMode,
@@ -544,35 +446,13 @@ def run_pipelines_with_dask(
         .tolist()  # Convert to a tuple
     )
 
-    # Get all output filenames with the same dimension as 'params_dataarray'
-    if outputs:
-        output_filenames_dataarray: xr.DataArray = _build_output_filenames(
-            params_dataarray=params_dataarray,
-            outputs=outputs,
-        ).reset_coords(drop=True)
-
-        output_keys = output_filenames_dataarray.coords["name_ext"].to_numpy().tolist()
-
-        # Get the first output filename
-        first_index = {
-            key: 0 for key in output_filenames_dataarray.dims if key != "name_ext"
-        }
-
-        first_output_filenames: Mapping[str, str] = (
-            output_filenames_dataarray.isel(first_index).to_pandas().to_dict()
-        )
-    else:
-        output_filenames_dataarray = xr.DataArray([], dims=["name_ext"])
-        output_keys = []
-        first_output_filenames = {}
-
     # Extract metadata from 'first_param'
     all_metadata: Mapping[str, DatasetMetadata] = _build_metadata(
         params_tuple=first_param,
-        output_filenames=first_output_filenames,
         dimension_names=dim_names,
         processor=processor,
         readout=readout,
+        outputs=outputs,
         pipeline_seed=pipeline_seed,
     )
 
@@ -585,20 +465,36 @@ def run_pipelines_with_dask(
     # Get output dtypes
     output_dtypes: Sequence[np.dtype] = _get_output_dtypes(all_metadata)
 
-    # Create 'Dask' data arrays
+    # Get all output filename suffixes
+    if not outputs:
+        output_filename_indices: xr.DataArray | None = None
+    else:
+        # Generate indices for the filename(s)
+        output_filename_indices = (
+            xr.DataArray(
+                np.arange(params_dataarray.size).reshape(params_dataarray.shape),
+                dims=params_dataarray.dims,
+                coords=params_dataarray.coords,
+                name="filename",
+            )
+            .reset_coords(drop=True)
+            .chunk(1)
+        )
+
+    # Run '_run_pipelines_tuple_to_array' as a vectorized function and create new 'Dask' DataArrays
     dask_dataarrays: tuple[xr.DataArray, ...] = xr.apply_ufunc(
         _run_pipelines_tuple_to_array,  # Function to apply
         params_dataarray.chunk(1),  # Argument 'params_tuple'
-        output_filenames_dataarray.chunk(name_ext=-1),  # Argument 'output_filenames'
+        output_filename_indices,  # Argument 'output_filename_suffixes'
         kwargs={  # other arguments
-            "output_keys": output_keys,
             "dimension_names": dim_names,
             "processor": processor,
+            "outputs": outputs,
             "all_metadata": all_metadata,
             "readout": readout,
             "pipeline_seed": pipeline_seed,
         },
-        input_core_dims=[[], ["name_ext"]],
+        input_core_dims=[[], []],
         output_core_dims=output_core_dims,
         vectorize=True,  # loop over non-core dims
         dask="parallelized",

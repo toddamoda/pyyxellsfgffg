@@ -284,6 +284,10 @@ def save_to_files(
         if data_2d is None:
             raise NotImplementedError(f"Unknown {valid_name=}")
 
+        if data_2d._array is None:
+            # TODO: Improve error message
+            raise ValueError(f"Bucket {data_2d=} is uninitialized !")
+
         # Save data to the appropriate format
         extension: str = full_filename.suffix.removeprefix(".")
 

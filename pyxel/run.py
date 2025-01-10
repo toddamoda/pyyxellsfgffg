@@ -1124,18 +1124,24 @@ def run(
         logging.warning("No filenames to save. Skipping CSV generation.")
     else:
         num_filenames = len(df_filenames)
-        try:
-            # Save the DataFrame to CSV
-            df_filenames.to_csv(output_dir / "output_filenames.csv", index=False)
-        except Exception:
-            logging.exception("Failed to save output filenames.")
-            raise
+
+        if output_dir:
+            try:
+                # Save the DataFrame to CSV
+                df_filenames.to_csv(output_dir / "output_filenames.csv", index=False)
+            except Exception:
+                logging.exception("Failed to save output filenames.")
+                raise
 
     # TODO: Fix this, see issue #728
     if output_dir:
         copy_config_file(input_filename=input_filename, output_dir=output_dir)
 
-    logging.info("Pipeline completed. Generated: %d output file(s)", num_filenames)
+    logging.info(
+        "Pipeline completed. Generated: %d output file(s) in folder %s",
+        num_filenames,
+        output_dir,
+    )
     logging.info("Running time: %.3f seconds", (time.time() - start_time))
 
     # Closing the logger in order to be able to move the file in the output dir

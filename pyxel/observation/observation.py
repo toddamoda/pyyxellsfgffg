@@ -185,7 +185,14 @@ class Observation:
         self._pipeline_seed = value
 
     def _get_parameter_types(self) -> Mapping[str, ParameterType]:
-        """Check for each step if parameters can be used as dataset coordinates (1D, simple) or not (multi)."""
+        """Check for each step if parameters can be used as dataset coordinates (1D, simple) or not (multi).
+
+        Examples
+        --------
+        >>> observation._get_parameter_types()
+        {'pipeline.charge_transfer.cdm.arguments.beta': <ParameterType.Multi: 'multi'>,
+         'pipeline.charge_transfer.cdm.arguments.trap_densities': <ParameterType.Multi: 'multi'>}
+        """
         for step in self.parameter_mode.enabled_steps:
             self.parameter_types.update({step.key: step.type})
         return self.parameter_types
@@ -245,7 +252,7 @@ class Observation:
         # Validate the processor steps before running the pipeline
         self.validate_steps(processor)
 
-        # Retrieve the types of parameters and assign short dimension names
+        # Extract the types of parameters and assign short dimension names
         types: Mapping[str, ParameterType] = self._get_parameter_types()
         dim_names: Mapping[str, str] = _get_short_dimension_names_new(types)
 
@@ -254,7 +261,7 @@ class Observation:
             if with_inherited_coords is False:
                 raise NotImplementedError
 
-            final_datatree = run_pipelines_with_dask(
+            final_datatree: "xr.DataTree" = run_pipelines_with_dask(
                 dim_names=dim_names,
                 parameter_mode=self.parameter_mode,
                 processor=processor,
@@ -303,32 +310,6 @@ class Observation:
 
         return final_datatree
 
-    # NOTES: This method is only called when running Observation mode sequentially or in parallel (with Dask)
-    def _run_single_pipeline_without_datatree(
-        self,
-        param_item: ParameterEntry | CustomParameterEntry,
-        processor: Processor,
-    ) -> None:
-        new_processor = create_new_processor(
-            processor=processor,
-            parameter_dict=param_item.parameters,
-        )
-
-        # run the pipeline
-        _ = run_pipeline(
-            processor=new_processor,
-            readout=self.readout,
-            pipeline_seed=self.pipeline_seed,
-            debug=False,  # Not supported in Observation mode
-            with_inherited_coords=False,
-        )
-
-        if self.outputs:
-            _ = self.outputs.save_to_file(
-                processor=new_processor,
-                run_number=param_item.run_index,
-            )
-
     def _run_single_pipeline(
         self,
         param_item: ParameterEntry | CustomParameterEntry,
@@ -356,6 +337,7 @@ class Observation:
             data_tree: "xr.DataTree" = run_pipeline(
                 processor=new_processor,
                 readout=self.readout,
+                outputs=self.outputs,
                 pipeline_seed=self.pipeline_seed,
                 debug=False,  # Not supported in Observation mode
                 with_inherited_coords=with_inherited_coords,

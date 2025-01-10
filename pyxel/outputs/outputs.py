@@ -430,7 +430,10 @@ class Outputs:
             custom_dir_name=self._custom_dir_name,
         )
 
-    def build_filenames(self) -> Sequence[Path]:
+    def build_filenames(
+        self,
+        filename_suffix: int | str | None = None,
+    ) -> Sequence[Path]:
         """Generate a list of output filename(s).
 
         Returns
@@ -463,9 +466,14 @@ class Outputs:
                 bucket_name: str = name.removeprefix("detector.").removesuffix(".array")
 
                 for extension in formats:
-                    filenames.append(  # noqa: PERF401
-                        f"detector_{bucket_name}.{extension}"
-                    )
+                    if filename_suffix is None:
+                        filename = Path(f"detector_{bucket_name}.{extension}")
+                    else:
+                        filename = Path(
+                            f"detector_{bucket_name}_{filename_suffix}.{extension}"
+                        )
+
+                    filenames.append(filename)
 
         return filenames
 

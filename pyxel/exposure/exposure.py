@@ -371,9 +371,10 @@ def _extract_datatree_2d(detector: "Detector") -> "xr.DataTree":
 def run_pipeline(
     processor: Processor,
     readout: "Readout",
+    outputs: Union["ExposureOutputs", "ObservationOutputs", None],
     debug: bool,
     with_inherited_coords: bool,
-    outputs: Union["ExposureOutputs", "ObservationOutputs", None] = None,
+    output_filename_suffix: int | str | None = None,
     progressbar: bool = False,
     pipeline_seed: int | None = None,
 ) -> "xr.DataTree":
@@ -522,7 +523,9 @@ def run_pipeline(
             )
 
         if outputs and outputs.save_data_to_file:
-            filenames: Sequence[Path] = outputs.build_filenames()
+            filenames: Sequence[Path] = outputs.build_filenames(
+                filename_suffix=output_filename_suffix
+            )
             outputs_datatree: "xr.DataTree" = save_to_files(
                 folder=outputs.current_output_folder,
                 processor=processor,
