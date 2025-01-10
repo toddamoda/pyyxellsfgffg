@@ -7,7 +7,6 @@
 
 """Detector class."""
 
-import collections
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -30,7 +29,7 @@ from pyxel.util import get_size, memory_usage_details, resolve_with_working_dire
 
 if TYPE_CHECKING:
     import xarray as xr
-
+    from astropy.io import fits
 
 __all__ = ["Detector"]
 
@@ -81,8 +80,6 @@ class Detector:
     def __init__(self, environment: Environment | None = None):
         self._environment: Environment = environment or Environment()
 
-        self.header: dict[str, object] = collections.OrderedDict()
-
         self._scene: Scene | None = None
         self._photon: Photon | None = None
         self._charge: Charge | None = None
@@ -107,7 +104,7 @@ class Detector:
         #       A better interface to access this information must be provided
         self.current_running_model_name: str = ""
 
-        self._headers: dict[str, Any] = {}
+        self.header: "fits.Header" | None = None
 
     def __eq__(self, other) -> bool:
         return (

@@ -43,7 +43,7 @@ class ObservationOutputs(Outputs):
         is the data format (e.g. 'fits').
 
         Example:
-        {'detector.photon.array': 'fits', 'detector.charge.array': 'hdf', 'detector.image.array':'png'}
+        {'detector.photon.array': ['fits'], 'detector.charge.array': ['hdf'], 'detector.image.array':['png']}
     """
 
     def __init__(

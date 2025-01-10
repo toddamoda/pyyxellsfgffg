@@ -14,10 +14,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Literal, Optional
 
 import numpy as np
-from typing_extensions import deprecated
 
 import pyxel
-from pyxel import options_wrapper
 from pyxel.exposure import Readout, run_pipeline
 from pyxel.observation import (
     CustomMode,
@@ -33,13 +31,12 @@ from pyxel.observation import (
     run_pipelines_with_dask,
     short,
 )
-from pyxel.pipelines import ResultId, get_result_id
+from pyxel.pipelines import Processor, ResultId, get_result_id
 
 if TYPE_CHECKING:
     import xarray as xr
 
     from pyxel.outputs import ObservationOutputs
-    from pyxel.pipelines import Processor
 
 
 # TODO: Add unit tests
@@ -100,24 +97,27 @@ def build_parameter_mode(
     column_range : tuple[int, int], optional
         Range of columns for 'custom' mode, defined by a tuple (start, end).
     """
-    if mode == "product":
-        return ProductMode(parameters)
+    match mode:
+        case "product":
+            return ProductMode(parameters)
 
-    elif mode == "sequential":
-        return SequentialMode(parameters)
+        case "sequential":
+            return SequentialMode(parameters)
 
-    elif mode == "custom":
-        custom_columns: slice | None = slice(*column_range) if column_range else None
-        assert custom_filename is not None
+        case "custom":
+            custom_columns: slice | None = (
+                slice(*column_range) if column_range else None
+            )
+            assert custom_filename is not None
 
-        return CustomMode.build(
-            parameters,
-            custom_file=custom_filename,
-            custom_columns=custom_columns,
-        )
+            return CustomMode.build(
+                parameters,
+                custom_file=custom_filename,
+                custom_columns=custom_columns,
+            )
 
-    else:
-        raise NotImplementedError
+        case _:
+            raise NotImplementedError
 
 
 class Observation:
@@ -185,12 +185,19 @@ class Observation:
         self._pipeline_seed = value
 
     def _get_parameter_types(self) -> Mapping[str, ParameterType]:
-        """Check for each step if parameters can be used as dataset coordinates (1D, simple) or not (multi)."""
+        """Check for each step if parameters can be used as dataset coordinates (1D, simple) or not (multi).
+
+        Examples
+        --------
+        >>> observation._get_parameter_types()
+        {'pipeline.charge_transfer.cdm.arguments.beta': <ParameterType.Multi: 'multi'>,
+         'pipeline.charge_transfer.cdm.arguments.trap_densities': <ParameterType.Multi: 'multi'>}
+        """
         for step in self.parameter_mode.enabled_steps:
             self.parameter_types.update({step.key: step.type})
         return self.parameter_types
 
-    def validate_steps(self, processor: "Processor") -> None:
+    def validate_steps(self, processor: Processor) -> None:
         """Validate enabled parameter steps in processor before running the pipelines.
 
         Parameters
@@ -232,40 +239,9 @@ class Observation:
                     "do not use '_' character in 'values' field"
                 )
 
-    @deprecated("This method will be removed")
-    def run_pipelines_without_datatree(self, processor: "Processor") -> None:
-        """Run the observation pipelines."""
-        # Late import to speedup start-up time
-        import dask.bag as db
-        from tqdm.auto import tqdm
-
-        # validation
-        self.validate_steps(processor)
-
-        if isinstance(self.parameter_mode, ProductMode):
-            parameters = self.parameter_mode.get_parameters_item()
-        else:
-            parameters = self.parameter_mode.get_parameters_item(processor=processor)
-
-        if self.with_dask:
-            datatree_bag: db.Bag = db.from_sequence(parameters).map(
-                options_wrapper(working_directory=self.working_directory)(
-                    self._run_single_pipeline_without_datatree
-                ),
-                processor=processor,
-            )
-
-            _ = datatree_bag.compute()
-        else:
-            for el in tqdm(parameters):
-                self._run_single_pipeline_without_datatree(
-                    el,
-                    processor=processor,
-                )
-
     def run_pipelines(
         self,
-        processor: "Processor",
+        processor: Processor,
         with_inherited_coords: bool,
     ) -> "xr.DataTree":
         """Run the observation pipelines and return a `DataTree` object."""
@@ -276,7 +252,7 @@ class Observation:
         # Validate the processor steps before running the pipeline
         self.validate_steps(processor)
 
-        # Retrieve the types of parameters and assign short dimension names
+        # Extract the types of parameters and assign short dimension names
         types: Mapping[str, ParameterType] = self._get_parameter_types()
         dim_names: Mapping[str, str] = _get_short_dimension_names_new(types)
 
@@ -285,13 +261,12 @@ class Observation:
             if with_inherited_coords is False:
                 raise NotImplementedError
 
-            final_datatree = run_pipelines_with_dask(
+            final_datatree: "xr.DataTree" = run_pipelines_with_dask(
                 dim_names=dim_names,
                 parameter_mode=self.parameter_mode,
                 processor=processor,
                 readout=self.readout,
                 outputs=self.outputs,
-                result_type=self.result_type,
                 pipeline_seed=self.pipeline_seed,
             )
 
@@ -335,38 +310,11 @@ class Observation:
 
         return final_datatree
 
-    # NOTES: This method is only called when running Observation mode sequentially or in parallel (with Dask)
-    def _run_single_pipeline_without_datatree(
-        self,
-        param_item: ParameterEntry | CustomParameterEntry,
-        processor: "Processor",
-    ) -> None:
-        new_processor = create_new_processor(
-            processor=processor,
-            parameter_dict=param_item.parameters,
-        )
-
-        # run the pipeline
-        _ = run_pipeline(
-            processor=new_processor,
-            readout=self.readout,
-            result_type=self.result_type,
-            pipeline_seed=self.pipeline_seed,
-            debug=False,  # Not supported in Observation mode
-            with_inherited_coords=False,
-        )
-
-        if self.outputs:
-            _ = self.outputs.save_to_file(
-                processor=new_processor,
-                run_number=param_item.run_index,
-            )
-
     def _run_single_pipeline(
         self,
         param_item: ParameterEntry | CustomParameterEntry,
         dimension_names: Mapping[str, str],
-        processor: "Processor",
+        processor: Processor,
         types: Mapping[str, ParameterType],
         with_inherited_coords: bool,
         with_outputs: bool = True,  # TODO: Refactor this
@@ -389,7 +337,7 @@ class Observation:
             data_tree: "xr.DataTree" = run_pipeline(
                 processor=new_processor,
                 readout=self.readout,
-                result_type=self.result_type,
+                outputs=self.outputs,
                 pipeline_seed=self.pipeline_seed,
                 debug=False,  # Not supported in Observation mode
                 with_inherited_coords=with_inherited_coords,

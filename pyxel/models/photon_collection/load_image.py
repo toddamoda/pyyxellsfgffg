@@ -7,12 +7,14 @@
 
 """Pyxel photon generator models."""
 
-from collections.abc import Mapping
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Literal
 
 from pyxel.detectors import Detector
 from pyxel.inputs import load_header
 from pyxel.util import load_cropped_and_aligned_image
+
+if TYPE_CHECKING:
+    from astropy.io import fits
 
 
 def load_image(
@@ -99,10 +101,12 @@ def load_image(
 
     # Try to extract the Header from 'image_file'
     if include_header:
-        header: Mapping[str, Any] | None = load_header(
-            image_file,
-            section=header_section_index,
+        header: "fits.Header" | None = load_header(
+            image_file, section=header_section_index
         )
 
         if header:
-            detector._headers |= header
+            if detector.header is None:
+                detector.header = header
+            else:
+                detector.header.update(header)

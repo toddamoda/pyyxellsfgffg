@@ -58,6 +58,7 @@ class ExposureOutputs(Outputs):
             save_data_to_file=save_data_to_file,
         )
 
+        # TODO: This parameter should be removed
         self.save_exposure_data: Sequence[Mapping[str, Sequence[str]]] | None = (
             save_exposure_data
         )

@@ -6,7 +6,7 @@
 #  the terms contained in the file ‘LICENCE.txt’.
 
 import os
-from contextlib import contextmanager
+import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -15,22 +15,27 @@ import pytest
 import pyxel
 from pyxel import Configuration
 
+if sys.version_info < (3, 11):
+    from contextlib import contextmanager
+
+    @contextmanager
+    def chdir(folder: Path):
+        current_folder = Path.cwd()
+
+        try:
+            os.chdir(folder)
+            yield
+        finally:
+            os.chdir(current_folder)
+
+else:
+    from contextlib import chdir
+
 # This is equivalent to 'import freezegun'
 freezegun = pytest.importorskip(
     "freezegun",
     reason="Package 'freezegun' is not installed. Use 'pip install freezegun'",
 )
-
-
-@contextmanager
-def chdir(folder: Path):
-    current_folder = Path.cwd()
-
-    try:
-        os.chdir(folder)
-        yield
-    finally:
-        os.chdir(current_folder)
 
 
 @pytest.fixture
@@ -41,7 +46,12 @@ def folder_parent(request: pytest.FixtureRequest) -> Path:
 
 @pytest.mark.parametrize(
     "config_filename, with_outputs",
-    [("data/simple_exposure.yaml", True), ("data/simple_observation.yaml", False)],
+    [
+        ("data/simple_exposure.yaml", True),
+        ("data/simple_exposure_no_outputs.yaml", False),
+        ("data/simple_observation.yaml", True),
+        ("data/simple_observation_no_outputs.yaml", False),
+    ],
 )
 def test_exposure_output(  # noqa: C901
     config_filename: str, with_outputs: bool, folder_parent: Path, tmp_path: Path
@@ -49,34 +59,10 @@ def test_exposure_output(  # noqa: C901
     """Test simple mode with different outputs."""
     full_config_filename = folder_parent.joinpath(config_filename).resolve(strict=True)
 
-    date_2023_12_18_08_20 = datetime(
-        year=2023,
-        month=12,
-        day=18,
-        hour=8,
-        minute=20,
-    )
-    date_2023_12_19_08_20 = datetime(
-        year=2023,
-        month=12,
-        day=19,
-        hour=8,
-        minute=20,
-    )
-    date_2023_12_19_08_30 = datetime(
-        year=2023,
-        month=12,
-        day=19,
-        hour=8,
-        minute=30,
-    )
-    date_2023_12_19_08_40 = datetime(
-        year=2023,
-        month=12,
-        day=19,
-        hour=8,
-        minute=40,
-    )
+    date_2023_12_18_08_20 = datetime(year=2023, month=12, day=18, hour=8, minute=20)
+    date_2023_12_19_08_20 = datetime(year=2023, month=12, day=19, hour=8, minute=20)
+    date_2023_12_19_08_30 = datetime(year=2023, month=12, day=19, hour=8, minute=30)
+    date_2023_12_19_08_40 = datetime(year=2023, month=12, day=19, hour=8, minute=40)
 
     # Change the current directory
     with chdir(tmp_path):

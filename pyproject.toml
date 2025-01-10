@@ -57,7 +57,7 @@ dependencies = [
     "panel",
 
     # Parallel computing
-    "dask",
+    "dask[dataframe]",
     "distributed",
 
     # Jupyter notebook

@@ -25,18 +25,23 @@ from pyxel import copy_config_file, load, outputs
 from pyxel.detectors import APD, CCD, CMOS, MKID, Detector
 from pyxel.exposure import Exposure
 from pyxel.observation import Observation
-from pyxel.observation.deprecated import _run_observation_deprecated
+from pyxel.observation.deprecated import ObservationResult, _run_observation_deprecated
 from pyxel.pipelines import DetectionPipeline, Processor
 from pyxel.pipelines.processor import _get_obj_att
 from pyxel.util import create_model, create_model_to_console, download_examples
 
 if TYPE_CHECKING:
+    import dask.dataframe as dd
     import pandas as pd
     import xarray as xr
 
     from pyxel.calibration import Calibration
-    from pyxel.observation.deprecated import ObservationResult
-    from pyxel.outputs import CalibrationOutputs, ExposureOutputs, ObservationOutputs
+    from pyxel.outputs import (
+        CalibrationOutputs,
+        ExposureOutputs,
+        ObservationOutputs,
+        Outputs,
+    )
 
 
 def exposure_mode(
@@ -206,19 +211,11 @@ def _run_exposure_mode(
 
     logging.info("Mode: Exposure")
 
-    # Create an output folder
-    outputs: ExposureOutputs | None = exposure.outputs
-    if outputs:
-        outputs.create_output_folder()
-
-    result: xr.DataTree = exposure.run_exposure(
+    result: "xr.DataTree" = exposure.run_exposure(
         processor=processor,
         debug=debug,
         with_inherited_coords=with_inherited_coords,
     )
-
-    if outputs and outputs.save_exposure_data:
-        outputs.save_exposure_outputs(dataset=result)
 
     return result
 
@@ -227,7 +224,7 @@ def observation_mode(
     observation: "Observation",
     detector: Detector,
     pipeline: "DetectionPipeline",
-) -> "ObservationResult":  # pragma: no cover
+) -> ObservationResult:  # pragma: no cover
     """Run an 'observation' pipeline.
 
     .. deprecated:: 1.14
@@ -556,21 +553,7 @@ def _run_calibration_mode(
     return data_tree
 
 
-@deprecated("Please use method '_run_observation_mode'")
-def _run_observation_mode_without_datatree(
-    observation: Observation,
-    processor: Processor,
-) -> None:
-    logging.info("Mode: Observation")
-
-    # Create an output folder
-    outputs: ObservationOutputs | None = observation.outputs
-    if outputs:
-        outputs.create_output_folder()
-
-    observation.run_pipelines_without_datatree(processor=processor)
-
-
+@deprecated("This function will be removed")
 def _run_observation_mode(
     observation: Observation,
     processor: Processor,
@@ -607,12 +590,10 @@ def _run_observation_mode(
         with_inherited_coords=with_inherited_coords,
     )
 
-    if outputs and outputs.save_observation_data:
-        raise NotImplementedError
-
     return result_dt
 
 
+@deprecated("This function will be removed")
 def _run_exposure_or_calibration_mode(
     mode: Union[Exposure, "Calibration"],
     processor: Processor,
@@ -914,6 +895,24 @@ def run_mode(
                     Attributes:
                         long_name:  Group: 'simple_adc'
     """
+    # Sanity checks
+    if not isinstance(mode, Exposure) and debug:
+        raise NotImplementedError(
+            "Parameter 'debug' is not implemented for 'Observation' or 'Calibration' mode."
+        )
+
+    if (
+        isinstance(mode, Observation)
+        and mode.with_dask
+        and with_inherited_coords is False
+    ):
+        warnings.warn(
+            "Parameter 'with_inherited_coords' is forced to True !",
+            stacklevel=1,
+        )
+
+        with_inherited_coords = True
+
     # Initialize the Processor object with the detector and pipeline.
     if isinstance(mode, Observation):
         processor = Processor(
@@ -932,35 +931,118 @@ def run_mode(
             mode=mode,
         )
 
-    if isinstance(mode, Observation):
-        data_tree = _run_observation_mode(
-            observation=mode,
-            processor=processor,
-            debug=debug,
-            with_inherited_coords=with_inherited_coords,
-        )
-    else:
-        data_tree = _run_exposure_or_calibration_mode(
-            mode=mode,
-            processor=processor,
-            debug=debug,
-            with_inherited_coords=with_inherited_coords,
-        )
+    # Create an output folder (if needed)
+    outputs: Outputs | None = mode.outputs
+    if outputs:
+        outputs.create_output_folder()
+
+    match mode:
+        case Exposure():
+            data_tree = _run_exposure_mode(
+                exposure=mode,
+                processor=processor,
+                debug=debug,
+                with_inherited_coords=with_inherited_coords,
+            )
+
+        case Observation():
+            data_tree = mode.run_pipelines(
+                processor=processor,
+                with_inherited_coords=with_inherited_coords,
+            )
+
+        case _:
+            # Calibration mode
+            data_tree = _run_calibration_mode(
+                calibration=mode,
+                processor=processor,
+                with_inherited_coords=with_inherited_coords,
+            )
 
     return data_tree
 
 
-def _datatree_to_dataframe(output_filenames: "xr.DataTree") -> "pd.DataFrame":
+# TODO: Move this function ?
+def get_all_filenames(
+    data_tree: "xr.DataTree",
+) -> Union["pd.DataFrame", "dd.DataFrame"]:
+    """TBW.
+
+    Parameters
+    ----------
+    data_tree
+
+    Returns
+    -------
+    Pandas or Dask DataFrame
+
+    Examples
+    --------
+    >>> data_tree
+    <xarray.DataTree 'output'>
+    Group: /output
+    │   Dimensions:             (y: 100, x: 100, time: 1, level: 2,
+    │                            coupling_matrix_id: 2, dim_0: 4, dim_1: 4)
+    │   Coordinates:
+    │       coupling_matrix     (coupling_matrix_id, dim_0, dim_1) float64 256B 1.0 ....
+    │   Inherited coordinates:
+    │     * y                   (y) int64 800B 0 1 2 3 4 5 6 7 ... 93 94 95 96 97 98 99
+    │     * x                   (x) int64 800B 0 1 2 3 4 5 6 7 ... 93 94 95 96 97 98 99
+    │     * time                (time) float64 8B 1.0
+    │     * level               (level) int64 16B 1 1000000
+    │     * coupling_matrix_id  (coupling_matrix_id) int64 16B 0 1
+    │     * dim_0               (dim_0) int64 32B 0 1 2 3
+    │     * dim_1               (dim_1) int64 32B 0 1 2 3
+    └── Group: /output/image
+            Dimensions:             (coupling_matrix_id: 2, level: 2, data_format: 1,
+                                     dim_0: 4, dim_1: 4)
+            Coordinates:
+              * data_format         (data_format) <U3 12B 'npy'
+                coupling_matrix     (coupling_matrix_id, dim_0, dim_1) float64 256B 1.0 ....
+            Data variables:
+                filename            (coupling_matrix_id, level, data_format) object 32B '...
+
+    >>> get_all_filenames(data_tree)
+       coupling_matrix_id    level data_format                    filename
+    0                   0        1         npy  detector_image_array_1.npy
+    1                   0  1000000         npy  detector_image_array_3.npy
+    2                   1        1         npy  detector_image_array_2.npy
+    3                   1  1000000         npy  detector_image_array_4.npy
+    """
+
     # Late import
+    import dask
+    import dask.dataframe as dd
     import pandas as pd
 
-    lst: Sequence[pd.DataFrame] = [
-        partial_dt["filename"].to_dataframe().reset_index()
-        for partial_dt in output_filenames.descendants
-    ]
-    df_filenames: pd.DataFrame = pd.concat(lst, ignore_index=True)
+    lst: list[pd.DataFrame | dd.DataFrame] = []
+    for data_tree_filenames in data_tree.leaves:
+        if "filename" not in data_tree_filenames:
+            raise KeyError(f"Missing key 'filename' in {data_tree_filenames}")
 
-    return df_filenames
+        partial_filenames_data_array: "xr.DataArray" = data_tree_filenames[
+            "filename"
+        ].reset_coords(drop=True)
+
+        if dask.is_dask_collection(partial_filenames_data_array):
+            partial_dask_dataframe: dd.DataFrame = (
+                partial_filenames_data_array.to_dask_dataframe()
+            )
+            lst.append(partial_dask_dataframe)
+        else:
+            partial_dataframe: pd.DataFrame = (
+                partial_filenames_data_array.to_dataframe().reset_index()
+            )
+            lst.append(partial_dataframe)
+
+    if isinstance(lst[0], pd.DataFrame):
+        filenames_dataframe: pd.DataFrame = pd.concat(lst, ignore_index=True)
+
+        return filenames_dataframe
+    else:
+        filenames_dask_dataframe: dd.DataFrame = dd.concat(lst)
+
+        return filenames_dask_dataframe
 
 
 # ruff: noqa: C901
@@ -998,123 +1080,68 @@ def run(
     # Extract the parameters to override
     override_dct: dict[str, Any] = {}
     if override is not None:
+        override_dct = {}
         for element in override:
             key, value = element.split("=")
             override_dct[key] = value
 
-    if isinstance(running_mode, Observation):
-        processor = Processor(
-            detector=detector,
-            pipeline=pipeline,
-            observation_mode=running_mode,  # TODO: See #836
-        )
-    else:
-        processor = Processor(detector=detector, pipeline=pipeline)
+    data_tree: "xr.DataTree" = run_mode(
+        mode=running_mode,
+        detector=detector,
+        pipeline=pipeline,
+        override_dct=override_dct,
+        with_inherited_coords=True,
+    )
 
-    if override_dct is not None:
-        apply_overrides(
-            overrides=override_dct,
-            processor=processor,
-            mode=running_mode,
-        )
-
-    if running_mode.outputs is None or running_mode.outputs.count_files_to_save() == 0:
-        warnings.warn(
-            "No outputs will be generated for this run. Processing continues.",
-            UserWarning,
-            stacklevel=1,
-        )
+    # if running_mode.outputs is None or running_mode.outputs.count_files_to_save() == 0:
+    #     warnings.warn(
+    #         "No outputs will be generated for this run. Processing continues.",
+    #         UserWarning,
+    #         stacklevel=1,
+    #     )
 
     # Create a DataTree
     df_filenames: "pd.DataFrame" | None = None
 
-    if isinstance(running_mode, Observation):
+    if "output" in data_tree:
         # Late import
-        import dask
-        import xarray as xr
+        import pandas as pd
 
-        data_tree: "xr.DataTree" = _run_observation_mode(
-            observation=running_mode,
-            processor=processor,
-            debug=False,
-            with_inherited_coords=True,
+        df_filenames = pd.concat(
+            [
+                data_tree_leave.dataset.to_dataframe().reset_index()
+                for data_tree_leave in data_tree["/output"].leaves
+            ]
         )
 
-        # TODO: check if data_tree['/output'] exists and if it's a dask array or not (with .chunk ?)
-        if "output" not in data_tree:
-            raise NotImplementedError
-
-        output_filenames: xr.DataTree | xr.DataArray = data_tree["/output"]
-        if isinstance(output_filenames, xr.DataArray):
-            raise NotImplementedError
-
-        # TODO: Refactor this into a dedicated function ?
-        first_leave: "xr.DataTree"
-        first_leave, *_ = output_filenames.leaves
-
-        if dask.is_dask_collection(first_leave["filename"]):
-            # Late import
-            from dask.diagnostics import ProgressBar
-            from dask.distributed import Client, progress
-
-            # This is a Dask Xarray
-            try:
-                _ = Client.current()
-
-                # Start computation in the background
-                output_filenames_background: "xr.DataTree" = output_filenames.persist()
-
-                # Watch progress
-                progress(output_filenames_background)
-                final_output_filenames: "xr.DataTree" = (
-                    output_filenames_background.compute()
-                )
-
-            except ValueError:
-                # No client
-                with ProgressBar():
-                    final_output_filenames = output_filenames.compute()
-        else:
-            final_output_filenames = output_filenames
-
-        df_filenames = _datatree_to_dataframe(output_filenames=final_output_filenames)
-
+    if running_mode.outputs is None:
+        output_dir: Path | None = None
     else:
-        _ = _run_exposure_or_calibration_mode(
-            mode=running_mode,
-            processor=processor,
-            debug=False,
-            with_inherited_coords=True,
-        )
-
-    if running_mode.outputs is not None:
         output_dir = running_mode.outputs.current_output_folder
-
-    # Ensure the output directory exists if it's not None
-    if output_dir:
-        output_dir.mkdir(parents=True, exist_ok=True)
 
     if df_filenames is None:
         num_filenames = 0
         logging.warning("No filenames to save. Skipping CSV generation.")
     else:
         num_filenames = len(df_filenames)
+
         if output_dir:
             try:
                 # Save the DataFrame to CSV
                 df_filenames.to_csv(output_dir / "output_filenames.csv", index=False)
             except Exception:
-                logging.exception(
-                    "Failed to save output filenames."
-                )  # Removed redundant `str(e)`
+                logging.exception("Failed to save output filenames.")
                 raise
-        else:
-            logging.error("Output directory is None. Cannot save the output filenames.")
 
     # TODO: Fix this, see issue #728
-    copy_config_file(input_filename=input_filename, output_dir=output_dir)
+    if output_dir:
+        copy_config_file(input_filename=input_filename, output_dir=output_dir)
 
-    logging.info("Pipeline completed. Generated: %d output file(s)", num_filenames)
+    logging.info(
+        "Pipeline completed. Generated: %d output file(s) in folder %s",
+        num_filenames,
+        output_dir,
+    )
     logging.info("Running time: %.3f seconds", (time.time() - start_time))
 
     # Closing the logger in order to be able to move the file in the output dir
@@ -1261,7 +1288,17 @@ def run_config(config: str, override: Sequence[str], verbosity: int):
     stream_stdout.setFormatter(logging.Formatter(log_format))
     logging.getLogger().addHandler(stream_stdout)
 
-    run(input_filename=config, override=override)
+    df_filenames: "pd.DataFrame" | None = run(input_filename=config, override=override)
+
+    if df_filenames is None:
+        raise RuntimeError(
+            "No output filename(s) generated.\n"
+            "You must add an 'output_folder' in your YAML configuration file, for example:\n"
+            "\n"
+            "  exposure:  # or 'observation' or 'calibration'\n"
+            "    outputs:\n"
+            "      output_folder: 'output'\n"
+        )
 
 
 if __name__ == "__main__":

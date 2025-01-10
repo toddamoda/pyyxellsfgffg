@@ -67,7 +67,27 @@ class ProductMode:
 
     @property
     def enabled_steps(self) -> Sequence[ParameterValues]:
-        """Return a list of enabled ParameterValues."""
+        """Return a list of enabled `ParameterValues`.
+
+        Examples
+        --------
+        >>> product_mode = ProductMode(
+        ...     [
+        ...         ParameterValues(
+        ...             key="pipeline.charge_transfer.cdm.arguments.beta",
+        ...             values="_",
+        ...             enabled=True,
+        ...         ),
+        ...         ParameterValues(
+        ...             key="pipeline.charge_transfer.cdm.arguments.trap_densities",
+        ...             values=["_", "_", "_", "_"],
+        ...             enabled=False,
+        ...         ),
+        ...     ]
+        ... )
+        >>> product_mode.enabled_steps
+        [ParameterValues<key='pipeline.charge_transfer.cdm.arguments.beta', values='_', enabled=True>]
+        """
         out = [step for step in self.parameters if step.enabled]
         return out
 
@@ -116,8 +136,46 @@ class ProductMode:
 
         Returns
         -------
-        xr.DataArray
+        DataArray
             An xarray DataArray representing the parameter combinations.
+
+        Examples
+        --------
+        >>> product_mode = ProductMode(
+        ...     [
+        ...         ParameterValues(
+        ...             key="pipeline.charge_transfer.cdm.arguments.beta",
+        ...             values="_",
+        ...             enabled=True,
+        ...         ),
+        ...         ParameterValues(
+        ...             key="pipeline.charge_transfer.cdm.arguments.trap_densities",
+        ...             values=["_", "_", "_", "_"],
+        ...             enabled=False,
+        ...         ),
+        ...     ]
+        ... )
+        >>> product_mode.create_params(
+        ...     dim_names={
+        ...         "pipeline.charge_transfer.cdm.arguments.beta": "beta",
+        ...         "pipeline.charge_transfer.cdm.arguments.trap_densities": "trap_densities",
+        ...     }
+        ... )
+        <xarray.DataArray 'custom_values' (id: 20)> Size: 160B
+        array([(0.3, (3, 5, 6, 4)), (0.3, (5, 7, 8, 6)), (0.3, (7, 9, 10, 8)),
+               (0.3, (9, 11, 12, 10)), (0.3, (11, 13, 14, 12)),
+               (0.3, (13, 15, 16, 14)), (0.3, (15, 17, 18, 16)),
+               (0.3, (17, 19, 20, 18)), (0.3, (19, 21, 22, 20)),
+               (0.3, (21, 23, 24, 22)), (0.3, (23, 25, 26, 24)),
+               (0.3, (25, 27, 28, 26)), (0.3, (27, 29, 30, 28)),
+               (0.3, (29, 31, 32, 30)), (0.3, (31, 33, 34, 32)),
+               (0.3, (33, 35, 36, 34)), (0.3, (35, 37, 38, 36)),
+               (0.3, (37, 39, 40, 38)), (0.3, (39, 41, 42, 40)),
+               (0.3, (41, 43, 44, 42))], dtype=object)
+        Coordinates:
+            beta            (id) float64 160B 0.3 0.3 0.3 0.3 0.3 ... 0.3 0.3 0.3 0.3
+            trap_densities  (id) object 160B (3, 5, 6, 4) ... (41, 43, 44, 42)
+          * id              (id) int64 160B 0 1 2 3 4 5 6 7 ... 12 13 14 15 16 17 18 19
         """
         # Late import to speedup start-up time
         import pandas as pd
@@ -411,6 +469,30 @@ class CustomMode:
         -------
         xr.DataArray
             An xarray DataArray representing the custom parameters.
+
+        Examples
+        --------
+        >>> mode = CustomMode(
+        ...     parameters=[
+        ...         ParameterValues(
+        ...             key="pipeline.photon_collection.load_image.arguments.image_file",
+        ...             values="_",
+        ...         )
+        ...     ],
+        ...     custom_data=DataFrame(...),
+        ... )
+        >>> mode.create_params(
+        ...     {
+        ...         "pipeline.photon_collection.load_image.arguments.image_file": "image_file"
+        ...     }
+        ... )
+        <xarray.DataArray 'custom_values' (id: 6)> Size: 48B
+        array([('FITS/00001.fits',), ('FITS/00002.fits',), ('FITS/00003.fits',),
+               ('FITS/00004.fits',), ('FITS/00005.fits',), ('FITS/00006.fits',)],
+              dtype=object)
+        Coordinates:
+            image_file  (id) object 48B 'FITS/00001.fits' ... 'FITS/00006.fits'
+          * id          (id) int64 48B 0 1 2 3 4 5
         """
         all_steps: Mapping[str, Sequence[Any]] = {
             step.key: list(step) for step in self.enabled_steps
@@ -436,9 +518,7 @@ class CustomMode:
 
         return params_custom_data_array
 
-    def _custom_parameters(
-        self,
-    ) -> Iterator[tuple[int, ParametersType]]:
+    def _custom_parameters(self) -> Iterator[tuple[int, ParametersType]]:
         """Generate custom mode parameters based on input file.
 
         Yields

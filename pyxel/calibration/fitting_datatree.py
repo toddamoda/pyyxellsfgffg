@@ -435,6 +435,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
                 data_tree: xr.DataTree = run_pipeline(
                     processor=processor,
                     readout=self.readout,
+                    outputs=None,
                     pipeline_seed=self.pipeline_seed,
                     debug=False,  # Not supported in Observation mode
                     with_inherited_coords=self._with_inherited_coords,
@@ -529,6 +530,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
         data_tree: xr.DataTree = run_pipeline(
             processor=new_processor,
             readout=self.readout,
+            outputs=None,
             pipeline_seed=self.pipeline_seed,
             debug=False,  # Not supported in Observation mode
             with_inherited_coords=True,

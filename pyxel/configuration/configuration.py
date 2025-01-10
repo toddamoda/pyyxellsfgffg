@@ -174,8 +174,11 @@ def to_readout(dct: dict | None = None) -> Readout:
     return Readout(**dct)
 
 
-def to_exposure(dct: dict) -> Exposure:
+def to_exposure(dct: dict | None) -> Exposure:
     """Create a Exposure class from a dictionary."""
+    if dct is None:
+        dct = {}
+
     if "outputs" in dct:
         dct.update({"outputs": to_exposure_outputs(dct["outputs"])})
 

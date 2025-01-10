@@ -13,16 +13,14 @@ from typing import TYPE_CHECKING, Any, Optional, Union
 
 import numpy as np
 
-from pyxel.exposure import run_pipeline
+from pyxel.exposure import Readout, run_pipeline
 from pyxel.observation import CustomMode, ProductMode, SequentialMode
-from pyxel.pipelines import ResultId
+from pyxel.pipelines import Processor
 
 if TYPE_CHECKING:
     import xarray as xr
 
-    from pyxel.exposure import Readout
     from pyxel.outputs import ObservationOutputs
-    from pyxel.pipelines import Processor
 
 
 @dataclass
@@ -92,7 +90,7 @@ class DatasetMetadata:
         meta_coord: CoordinateMetadata
         for coord_name, meta_coord in self.coords.items():
             dct[coord_name] = xr.DataArray(
-                meta_coord.data,
+                meta_coord.data,  # The actual coordinate data
                 dims=[coord_name],
                 attrs=meta_coord.attrs,
             )
@@ -101,7 +99,13 @@ class DatasetMetadata:
 
 
 def build_metadata(data_tree: "xr.DataTree") -> Mapping[str, DatasetMetadata]:
-    """Construct metadata from a DataTree."""
+    """Construct metadata for each dataset in a given DataTree.
+
+    Parameters
+    ----------
+    data_tree : DataTree
+        An Xarray DataTree containing datasets, data variables, and coordinates.
+    """
     metadata = {}
 
     all_paths: Sequence[str] = sorted(data_tree.groups)
@@ -138,6 +142,7 @@ def build_metadata(data_tree: "xr.DataTree") -> Mapping[str, DatasetMetadata]:
 def _get_output_core_dimensions(
     all_metadata: Mapping[str, DatasetMetadata],
 ) -> Sequence[tuple]:
+    """Retrieve the core dimension(s) of all data variables from the metadata."""
     lst = []
 
     metadata: DatasetMetadata
@@ -155,6 +160,7 @@ def _get_output_core_dimensions(
 def _get_output_dtypes(
     all_metadata: Mapping[str, DatasetMetadata],
 ) -> Sequence[np.dtype]:
+    """Retrieve the data type(s) of all data variables for the metadata."""
     lst = []
 
     metadata: DatasetMetadata
@@ -196,15 +202,73 @@ def _get_output_sizes(
 
 def _run_pipelines_array_to_datatree(
     params_tuple: tuple,
-    params_index: int,
+    output_filename_suffix: int | str | None,
+    *,
     dimension_names: Mapping[str, str],
-    processor: "Processor",
-    readout: "Readout",
-    result_type: ResultId,
+    processor: Processor,
+    readout: Readout,
+    outputs: Optional["ObservationOutputs"],
     pipeline_seed: int | None,
     progressbar: bool,
 ) -> "xr.DataTree":
-    """Execute a single pipeline."""
+    """Execute a single pipeline.
+
+    Parameters
+    ----------
+    params_tuple
+    output_filename_suffix
+    dimension_names
+    processor
+    readout
+    outputs
+    pipeline_seed
+    progressbar
+
+    Returns
+    -------
+    DataTree
+
+    Examples
+    --------
+    >>> _run_pipelines_array_to_datatree(
+    ...     params=(
+    ...         0.3,  # parameter 'beta'
+    ...         (3, 5, 6, 4),  # parameter 'trap_densitities'
+    ...     ),
+    ...     dimension_names={
+    ...         "pipeline.charge_transfer.cdm.arguments.beta": "beta",
+    ...         "pipeline.charge_transfer.cdm.arguments.trap_densities": "trap_densities",
+    ...     },
+    ...     processor=Processor(...),
+    ...     readout=Readout(...),
+    ...     outputs=ObservationOutputs(...),
+    ... )
+    <xarray.DataTree>
+    Group: /
+    │   Attributes:
+    │       pyxel version:  2.7+73.ge610114e.dirty
+    ├── Group: /bucket
+    │       Dimensions:  (y: 100, x: 100, time: 1)
+    │       Coordinates:
+    │         * y        (y) int64 800B 0 1 2 3 4 5 6 7 8 9 ... 91 92 93 94 95 96 97 98 99
+    │         * x        (x) int64 800B 0 1 2 3 4 5 6 7 8 9 ... 91 92 93 94 95 96 97 98 99
+    │         * time     (time) float64 8B 1.0
+    │       Data variables:
+    │           photon   (time, y, x) float64 80kB 7.376e+03 7.088e+03 ... 8.056e+03
+    │           charge   (time, y, x) float64 80kB 7.376e+03 7.088e+03 ... 8.056e+03
+    │           pixel    (time, y, x) float64 80kB 7.376e+03 7.088e+03 ... 8.056e+03
+    │           signal   (time, y, x) float64 80kB 0.7376 0.7088 0.6624 ... 0.8056 0.8056
+    │           image    (time, y, x) uint16 20kB 4833 4645 4341 4341 ... 5127 5279 5279
+    ├── Group: /output
+    │   └── Group: /output/image
+    │           Dimensions:    (extension: 1)
+    │           Coordinates:
+    │             * extension  (extension) <U4 16B 'fits'
+    │           Data variables:
+    │               filename   (extension) StringDType() 16B ...
+    ├── Group: /scene
+    └── Group: /data
+    """
     if len(dimension_names) != len(params_tuple):
         raise NotImplementedError
 
@@ -214,7 +278,7 @@ def _run_pipelines_array_to_datatree(
     new_processor: Processor = processor.replace(dct)
 
     # TODO: Move this to 'Processor' ? See #836
-    new_readout: "Readout" = readout
+    new_readout: Readout = readout
     for key, value in dct.items():
         if key.startswith("observation.readout"):
             if key != "observation.readout.times":
@@ -225,7 +289,8 @@ def _run_pipelines_array_to_datatree(
     data_tree: "xr.DataTree" = run_pipeline(
         processor=new_processor,
         readout=new_readout,
-        result_type=result_type,
+        outputs=outputs,
+        output_filename_suffix=output_filename_suffix,
         pipeline_seed=pipeline_seed,
         debug=False,  # Not supported in Observation mode
         with_inherited_coords=True,  # Must be set to True
@@ -238,9 +303,9 @@ def _run_pipelines_array_to_datatree(
 def _build_metadata(
     params_tuple: tuple,
     dimension_names: Mapping[str, str],
-    processor: "Processor",
-    readout: "Readout",
-    result_type: ResultId,
+    processor: Processor,
+    readout: Readout,
+    outputs: Optional["ObservationOutputs"],
     pipeline_seed: int | None,
 ) -> Mapping[str, DatasetMetadata]:
     """Build metadata from a single pipeline run."""
@@ -250,11 +315,11 @@ def _build_metadata(
 
     data_tree = _run_pipelines_array_to_datatree(
         params_tuple=params_tuple,
-        params_index=0,
+        output_filename_suffix=None,
         dimension_names=dimension_names,
         processor=processor,
         readout=readout,
-        result_type=result_type,
+        outputs=outputs,  # TODO: Create a new temporary outputs only for here
         pipeline_seed=pipeline_seed,
         progressbar=True,
     )
@@ -264,21 +329,22 @@ def _build_metadata(
 
 def _run_pipelines_tuple_to_array(
     params_tuple: tuple,
-    params_index: int,
+    output_filename_suffixes: int,
+    *,
     dimension_names: Mapping[str, str],
     all_metadata: Mapping[str, DatasetMetadata],
-    processor: "Processor",
-    readout: "Readout",
-    result_type: ResultId,
+    processor: Processor,
+    readout: Readout,
+    outputs: Optional["ObservationOutputs"],
     pipeline_seed: int | None,
 ) -> tuple[np.ndarray, ...]:
     data_tree: "xr.DataTree" = _run_pipelines_array_to_datatree(
         params_tuple=params_tuple,
-        params_index=params_index,
         dimension_names=dimension_names,
         processor=processor,
         readout=readout,
-        result_type=result_type,
+        outputs=outputs,
+        output_filename_suffix=output_filename_suffixes,
         pipeline_seed=pipeline_seed,
         progressbar=False,
     )
@@ -361,19 +427,18 @@ def _rebuild_datatree_from_dask(
 def run_pipelines_with_dask(
     dim_names: Mapping[str, str],
     parameter_mode: ProductMode | SequentialMode | CustomMode,
-    processor: "Processor",
-    readout: "Readout",
+    processor: Processor,
+    readout: Readout,
     outputs: Optional["ObservationOutputs"],
-    result_type: ResultId,
     pipeline_seed: int | None,
 ) -> "xr.DataTree":
     # Late import to speedup start-up time
     import xarray as xr
 
-    # Get parameters as a DataArray
+    # Get all parameters to apply as a DataArray
     params_dataarray: xr.DataArray = parameter_mode.create_params(dim_names=dim_names)
 
-    # Get the first parameter
+    # Get the first parameter from 'params_dataarray' as a tuple
     first_param: tuple = (
         params_dataarray.head(1)  # Get the first parameter
         .squeeze()  # Remove all dimensions of length 1
@@ -381,13 +446,13 @@ def run_pipelines_with_dask(
         .tolist()  # Convert to a tuple
     )
 
-    # Extract metadata
+    # Extract metadata from 'first_param'
     all_metadata: Mapping[str, DatasetMetadata] = _build_metadata(
         params_tuple=first_param,
         dimension_names=dim_names,
         processor=processor,
         readout=readout,
-        result_type=result_type,
+        outputs=outputs,
         pipeline_seed=pipeline_seed,
     )
 
@@ -400,26 +465,33 @@ def run_pipelines_with_dask(
     # Get output dtypes
     output_dtypes: Sequence[np.dtype] = _get_output_dtypes(all_metadata)
 
-    # Coerce 'params_dataarray' to a Dask array
-    params_dataarray_dask: xr.DataArray = params_dataarray.chunk(1)
+    # Get all output filename suffixes
+    if not outputs:
+        output_filename_indices: xr.DataArray | None = None
+    else:
+        # Generate indices for the filename(s)
+        output_filename_indices = (
+            xr.DataArray(
+                np.arange(params_dataarray.size).reshape(params_dataarray.shape),
+                dims=params_dataarray.dims,
+                coords=params_dataarray.coords,
+                name="filename",
+            )
+            .reset_coords(drop=True)
+            .chunk(1)
+        )
 
-    params_indexes: xr.DataArray = xr.zeros_like(params_dataarray)
-    params_indexes[...] = np.arange(params_dataarray.size, dtype=int).reshape(
-        params_indexes.shape
-    )
-    params_indexes_dask: xr.DataArray = params_indexes.chunk(1)
-
-    # Create 'Dask' data arrays
+    # Run '_run_pipelines_tuple_to_array' as a vectorized function and create new 'Dask' DataArrays
     dask_dataarrays: tuple[xr.DataArray, ...] = xr.apply_ufunc(
         _run_pipelines_tuple_to_array,  # Function to apply
-        params_dataarray_dask,  # Argument 'params_tuple'
-        params_indexes_dask,  # Argument 'params_index'
+        params_dataarray.chunk(1),  # Argument 'params_tuple'
+        output_filename_indices,  # Argument 'output_filename_suffixes'
         kwargs={  # other arguments
             "dimension_names": dim_names,
             "processor": processor,
+            "outputs": outputs,
             "all_metadata": all_metadata,
             "readout": readout,
-            "result_type": result_type,
             "pipeline_seed": pipeline_seed,
         },
         input_core_dims=[[], []],
@@ -452,19 +524,5 @@ def run_pipelines_with_dask(
             "units": "s",
             "long_name": "Readout time",
         }
-
-    # TODO: Fix this. See issue #723
-    if outputs and outputs.save_data_to_file:
-        # Late import
-        from pyxel.outputs.outputs import save_datatree
-
-        data_tree_filenames: "xr.DataTree" | None = save_datatree(
-            data_tree=final_datatree.isel(time=-1),
-            outputs=outputs.save_data_to_file,
-            current_output_folder=outputs.current_output_folder,
-            with_inherited_coords=True,
-        )
-
-        final_datatree["/output"] = data_tree_filenames
 
     return final_datatree

@@ -7,6 +7,7 @@
 
 from pathlib import Path
 
+import dask
 import pytest
 import xarray as xr
 
@@ -79,7 +80,7 @@ def simple_observation(
 @pytest.fixture
 def ccd_detector() -> CCD:
     return CCD(
-        geometry=CCDGeometry(row=835, col=1),
+        geometry=CCDGeometry(row=10, col=2),
         environment=Environment(temperature=238.0),
         characteristics=Characteristics(full_well_capacity=90_0000),
     )
@@ -271,15 +272,19 @@ def test_observation_datatree_no_custom(
             parameters=product_parameter_values_lst,
             mode=mode,
             with_dask=with_dask,
-            outputs=ObservationOutputs(output_folder=tmp_path),
+            outputs=ObservationOutputs(
+                output_folder=tmp_path,
+                save_data_to_file=[{"detector.photon.array": ["fits"]}],
+            ),
         )
 
-    dt = run_mode(
-        mode=observation,
-        detector=ccd_detector,
-        pipeline=pipeline,
-        with_inherited_coords=True,
-    )
+    with dask.config.set(scheduler="synchronous"):
+        dt = run_mode(
+            mode=observation,
+            detector=ccd_detector,
+            pipeline=pipeline,
+            with_inherited_coords=True,
+        )
     assert isinstance(dt, xr.DataTree)
 
 
@@ -323,13 +328,17 @@ def test_observation_datatree_with_custom(
             from_file=folder / "data/densities.txt",
             column_range=(0, 3),
             with_dask=with_dask,
-            outputs=ObservationOutputs(output_folder=tmp_path),
+            outputs=ObservationOutputs(
+                output_folder=tmp_path,
+                save_data_to_file=[{"detector.photon.array": ["fits"]}],
+            ),
         )
 
-    dt = run_mode(
-        mode=observation,
-        detector=ccd_detector,
-        pipeline=pipeline,
-        with_inherited_coords=True,
-    )
+    with dask.config.set(scheduler="synchronous"):
+        dt = run_mode(
+            mode=observation,
+            detector=ccd_detector,
+            pipeline=pipeline,
+            with_inherited_coords=True,
+        )
     assert isinstance(dt, xr.DataTree)

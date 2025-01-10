@@ -20,6 +20,7 @@ import numpy as np
 import pyxel
 from pyxel import __version__
 from pyxel.data_structure import Charge, Image, Photon, Pixel, Scene, Signal
+from pyxel.outputs.utils import save_to_files
 from pyxel.pipelines import Processor, ResultId, get_result_id, result_keys
 from pyxel.util import set_random_seed
 
@@ -134,6 +135,7 @@ class Exposure:
         ----------
         processor : Processor
         debug : bool
+        with_inherited_coords : bool
 
         Returns
         -------
@@ -147,7 +149,6 @@ class Exposure:
             readout=self.readout,
             outputs=self.outputs,
             progressbar=progressbar,
-            result_type=self.result_type,
             pipeline_seed=self.pipeline_seed,
             debug=debug,
             with_inherited_coords=with_inherited_coords,
@@ -286,9 +287,7 @@ def _run_exposure_pipeline_deprecated(
     return processor
 
 
-def _extract_datatree_2d(
-    detector: "Detector", keys: Sequence[ResultId]
-) -> "xr.DataTree":
+def _extract_datatree_2d(detector: "Detector") -> "xr.DataTree":
     """Extract 2D data from a detector object into a `DataTree`.
 
     The buckets 'data' and 'scene' are skipped.
@@ -296,8 +295,6 @@ def _extract_datatree_2d(
     Parameters
     ----------
     detector : Detector
-    keys:
-        Bucket(s) to extract (e.g. ["photon", "charge", "pixel", "signal", "image", "data"])
 
     Returns
     -------
@@ -309,10 +306,7 @@ def _extract_datatree_2d(
 
     Examples
     --------
-    >>> _extract_datatree_2d(
-    ...     detector=detector,
-    ...     keys=["photon", "charge", "pixel", "signal", "image", "data"],
-    ... )
+    >>> _extract_datatree_2d(detector=detector)
     DataTree('None', parent=None)
         Dimensions:  (time: 1, y: 100, x: 100, wavelength: 201)
         Coordinates:
@@ -332,7 +326,16 @@ def _extract_datatree_2d(
 
     dataset: xr.Dataset = xr.Dataset()
 
-    key: ResultId
+    keys: Sequence[str] = (
+        "scene",
+        "photon",
+        "charge",
+        "pixel",
+        "signal",
+        "image",
+        "data",
+    )
+
     for key in keys:
         if key.startswith("data") or key.startswith("scene"):
             continue
@@ -368,11 +371,11 @@ def _extract_datatree_2d(
 def run_pipeline(
     processor: Processor,
     readout: "Readout",
+    outputs: Union["ExposureOutputs", "ObservationOutputs", None],
     debug: bool,
     with_inherited_coords: bool,
-    outputs: Optional["ExposureOutputs"] = None,
+    output_filename_suffix: int | str | None = None,
     progressbar: bool = False,
-    result_type: ResultId = ResultId("all"),  # noqa: B008
     pipeline_seed: int | None = None,
 ) -> "xr.DataTree":
     """Run standalone exposure pipeline.
@@ -387,13 +390,8 @@ def run_pipeline(
         If True, captures intermediate data for debugging purposes.
     with_inherited_coords : bool
         If True, the results are formatted hierarchically in the returned `DataTree`.
-    outputs : ExposureOutputs, optional
-        If provided, enables saving of data to files during the pipeline run.
     progressbar : bool
         If True, displays a progress bar indicating the readout progress of the detector.
-    result_type : ResultId
-        Specifies the type of results to extract from the detector after processing each step.
-        Examples include 'photon', 'charge', 'pixel', 'signal', etc.
     pipeline_seed : int
         An optional random seed to ensure reproducibility of the pipeline.
 
@@ -429,10 +427,6 @@ def run_pipeline(
                 postfix={"size": format_bytes(0)},
             )
 
-        # Get attributes to extract from 'detector'
-        # Example: keys = ['photon', 'charge', 'pixel', 'signal', 'image', 'data']
-        keys: Sequence[ResultId] = result_keys(result_type)
-
         buckets_data_tree: xr.DataTree = xr.DataTree()
 
         # Iterate over the readout steps (time and step) for processing.
@@ -461,17 +455,16 @@ def run_pipeline(
             processor.run_pipeline(debug=debug)
 
             # Extract the results from the 'detector' into a partial 'DataTree'
-            partial_datatree_2d: xr.DataTree = _extract_datatree_2d(
-                detector=detector,
-                keys=keys,
-            )
+            partial_datatree_2d: xr.DataTree = _extract_datatree_2d(detector=detector)
 
             # Concatenate all 'partial_datatree'
             if buckets_data_tree.is_empty:
                 buckets_data_tree = partial_datatree_2d
             else:
                 buckets_data_tree = xr.map_over_datasets(
-                    lambda *data: xr.merge(data), buckets_data_tree, partial_datatree_2d
+                    lambda *data: xr.merge(data),  # function
+                    buckets_data_tree,
+                    partial_datatree_2d,
                 )
 
                 # Fix the data type of the 'image' container to match the detector's image dtype.
@@ -501,11 +494,6 @@ def run_pipeline(
         # Prepare the final dictionary to construct the `DataTree`.
         dct: dict[str, xr.Dataset | xr.DataTree | None] = {}
 
-        # Save results in file(s) (if needed)
-        if outputs:
-            # TODO: This should be called only at the last step
-            dct["/output"] = outputs.save_to_file(processor)
-
         if not detector.scene.data.is_empty and not with_inherited_coords:
             warnings.warn(
                 "The 'Scene' container is not empty.\n"
@@ -534,12 +522,22 @@ def run_pipeline(
                 "last", errors="ignore"
             )
 
-        # Add additional data based on the requested result types.
-        if "scene" in keys:
-            dct["/scene"] = detector.scene.data
+        if outputs and outputs.save_data_to_file:
+            filenames: Sequence[Path] = outputs.build_filenames(
+                filename_suffix=output_filename_suffix
+            )
+            outputs_datatree: "xr.DataTree" = save_to_files(
+                folder=outputs.current_output_folder,
+                processor=processor,
+                filenames=filenames,
+                header=processor.detector.header,
+            )
 
-        if "data" in keys:
-            dct["/data"] = detector.data
+            dct["/output"] = outputs_datatree
+
+        # Add additional data
+        dct["/scene"] = detector.scene.data
+        dct["/data"] = detector.data
 
         # Create the final `DataTree` from the dictionary.
         data_tree = xr.DataTree.from_dict(dct)

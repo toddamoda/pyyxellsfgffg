@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Optional, Union
 
 import numpy as np
+from typing_extensions import deprecated
 
 from pyxel import __version__ as version
 from pyxel.options import global_options
@@ -40,6 +41,7 @@ ValidName = Literal[
 ]
 
 
+@deprecated("This will be removed")
 def _save_data_2d(
     data_2d: "np.ndarray",
     run_number,
@@ -82,6 +84,7 @@ def _save_data_2d(
     return np.array(filenames, dtype=np.object_)
 
 
+@deprecated("This will be removed")
 def save_dataarray(
     data_array: "xr.DataArray",
     name: str,
@@ -139,6 +142,7 @@ def save_dataarray(
     return output_dataset
 
 
+@deprecated("This will be removed")
 def _datasets_to_datatree(filenames_ds: list["xr.Dataset"]) -> Optional["xr.DataTree"]:
     import xarray as xr
 
@@ -161,6 +165,7 @@ def _datasets_to_datatree(filenames_ds: list["xr.Dataset"]) -> Optional["xr.Data
     return final_datatree
 
 
+@deprecated("This will be removed")
 def save_datatree(
     data_tree: "xr.DataTree",
     outputs: Sequence[Mapping[ValidName, Sequence[ValidFormat]]],
@@ -262,6 +267,7 @@ def save_datatree(
     return final_datatree
 
 
+@deprecated("This will be removed")
 def _dict_to_datatree(all_filenames: Mapping[str, Mapping[str, str]]) -> "xr.DataTree":
     import xarray as xr
 
@@ -343,9 +349,6 @@ class Outputs:
             Sequence[Mapping[ValidName, Sequence[ValidFormat]]] | None
         ) = None,
     ):
-        if save_data_to_file is None:
-            save_data_to_file = [{"detector.image.array": ["fits"]}]
-
         self._log = logging.getLogger(__name__)
 
         self._current_output_folder: Path | None = None
@@ -354,6 +357,9 @@ class Outputs:
         self._custom_dir_name: str = custom_dir_name
 
         # TODO: Not related to a plot. Use by 'single' and 'parametric' modes.
+        if save_data_to_file is None:
+            save_data_to_file = [{"detector.image.array": ["fits"]}]
+
         self.save_data_to_file: (
             Sequence[Mapping[ValidName, Sequence[ValidFormat]]] | None
         ) = save_data_to_file
@@ -423,6 +429,50 @@ class Outputs:
             output_folder=output_folder,
             custom_dir_name=self._custom_dir_name,
         )
+
+    def build_filenames(
+        self,
+        filename_suffix: int | str | None = None,
+    ) -> Sequence[Path]:
+        """Generate a list of output filename(s).
+
+        Examples
+        --------
+        >>> output = Outputs(
+        ...     output_folder="output",
+        ...     save_data_to_file=[
+        ...         {"detector.photon.array": ["fits", "hdf"]},
+        ...         {"detector.charge.array": ["png"]},
+        ...     ],
+        ... )
+
+        >>> output.build_filenames()
+        [Path('detector_photon.fits'), Path('detector_photon.hdf'),  Path('detector_charge.png')]
+        """
+        if self.save_data_to_file is None:
+            raise NotImplementedError
+
+        # Extract filenames
+        filenames: list[Path] = []
+
+        file_config: Mapping[ValidName, Sequence[ValidFormat]]
+        for file_config in self.save_data_to_file:
+            name: str
+            formats: Sequence[str]
+            for name, formats in file_config.items():
+                bucket_name: str = name.removeprefix("detector.").removesuffix(".array")
+
+                for extension in formats:
+                    if filename_suffix is None:
+                        filename = Path(f"detector_{bucket_name}.{extension}")
+                    else:
+                        filename = Path(
+                            f"detector_{bucket_name}_{filename_suffix}.{extension}"
+                        )
+
+                    filenames.append(filename)
+
+        return filenames
 
     def save_to_fits(
         self,
@@ -770,6 +820,7 @@ class Outputs:
         return full_filename
 
     # ruff: noqa: C901
+    @deprecated("Will be replaced by function 'save_to_files'")
     def save_to_file(
         self,
         processor: "Processor",
@@ -843,7 +894,7 @@ class Outputs:
                     from astropy.io import fits
 
                     header = fits.Header()
-                    header.update(processor.detector._headers)
+                    header.update(processor.detector.header)
 
                     line: str
                     for line in processor.pipeline.describe():
