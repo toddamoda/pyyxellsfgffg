@@ -42,8 +42,9 @@ The minimum versions of some dependencies were changed:
   (See [!1010](https://gitlab.com/esa/pyxel/-/merge_requests/1010)
   and [!1015](https://gitlab.com/esa/pyxel/-/merge_requests/1015)).
 * New model `Absorption Model` from `Charge Generation`.
-  (See [!1005](https://gitlab.com/esa/pyxel/-/merge_requests/1005)
-  and [!1014](https://gitlab.com/esa/pyxel/-/merge_requests/1014)).
+  (See [!1005](https://gitlab.com/esa/pyxel/-/merge_requests/1005), 
+  [!1014](https://gitlab.com/esa/pyxel/-/merge_requests/1014)
+  and [!1017](https://gitlab.com/esa/pyxel/-/merge_requests/1017)).
 
 ### Others
 * Minor refactoring using `ruff check --preview`.
