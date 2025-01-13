@@ -12,6 +12,8 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol, Union
 
+from typing_extensions import deprecated
+
 from pyxel.outputs import Outputs, ValidFormat, ValidName
 
 if TYPE_CHECKING:
@@ -63,6 +65,7 @@ class ExposureOutputs(Outputs):
             save_exposure_data
         )
 
+    @deprecated("This method will be removed")
     def save_exposure_outputs(
         self, dataset: Union["xr.Dataset", "xr.DataTree"]
     ) -> None:

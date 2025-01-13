@@ -8,10 +8,13 @@
 """Subpackage for running Observation mode with Dask enabled."""
 
 from collections.abc import Hashable, Mapping, Sequence
+from copy import deepcopy
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Optional, Union
+from tempfile import TemporaryDirectory
+from typing import TYPE_CHECKING, Optional
 
 import numpy as np
+from toolz import dicttoolz
 
 from pyxel.exposure import Readout, run_pipeline
 from pyxel.observation import CustomMode, ProductMode, SequentialMode
@@ -24,180 +27,64 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class VariableMetadata:
-    """Store metadata for a Xarray data variable.
+class OutputDimension:
+    """Represent metadata for the output dimensions used by 'xarray.apply_ufunc'.
 
     Parameters
     ----------
-    dims
-        The dimensions of the data variable.
-    attrs
-        The attributes associated with the data variable.
-    dtype
-        The data type of the data variable.
+    path : str
+        Path of the output variable in the DataTree.
+    prefix_name : str
+        Prefix used for naming dimensions.
+    core_dimensions : tuple[str, ...]
+        Core dimension(s) for the output.
+    sizes : dict[str, int]
+        Sizes of each dimension.
+    dtype : numpy.dtype
+        Data type of the output variable
+
+    Notes
+    -----
+    The `OutputDimensions` objects are created by function 'get_gufunc_info'.
     """
 
-    dims: tuple[Hashable, ...]
-    attrs: Mapping[str, Any]
+    path: str
+    prefix_name: str
+    core_dimensions: tuple[str, ...]
+    sizes: Mapping[str, int]
     dtype: np.dtype
 
 
-@dataclass
-class CoordinateMetadata:
-    """Store metadata for a coordinate in an Xarray Dataset.
+def get_gufunc_info(data_tree: "xr.DataTree") -> Sequence[OutputDimension]:
+    """Extract metadata for the output dimensions used by 'xarray.apply_ufunc'."""
+    lst: list[OutputDimension] = []
 
-    Parameters
-    ----------
-    data
-        The data associated with the coordinates
-    attrs
-        The attributes of the coordinates
-    """
+    sub_data_tree: "xr.DataTree"
+    for sub_data_tree in data_tree.subtree:
+        if not sub_data_tree.has_data:
+            continue
 
-    data: np.ndarray
-    attrs: Mapping[str, Any]
+        sub_path: str = sub_data_tree.path.removeprefix("/").replace("/", "_")
 
-
-@dataclass
-class DatasetMetadata:
-    """Store metadata for a Xarray dataset.
-
-    It includes its dimensions, data variables, coordinates and attributes.
-
-    Parameters
-    ----------
-    dims
-        The dimension(s) of the dataset.
-    data_vars
-        Metadata for the data variables within the dataset.
-    coords
-        Metadata for the coordinates within the dataset.
-    attrs
-        Attributes associates with dataset.
-    """
-
-    dims: tuple[Hashable, ...]
-    data_vars: Mapping[str, VariableMetadata]
-    coords: Mapping[Hashable, CoordinateMetadata]
-    attrs: Mapping[Hashable, Any]
-
-    def to_coords(self) -> Mapping[Hashable, "xr.DataArray"]:
-        # Late import to speedup start-up time
-        import xarray as xr
-
-        dct: dict[Hashable, xr.DataArray] = {}
-
-        meta_coord: CoordinateMetadata
-        for coord_name, meta_coord in self.coords.items():
-            dct[coord_name] = xr.DataArray(
-                meta_coord.data,  # The actual coordinate data
-                dims=[coord_name],
-                attrs=meta_coord.attrs,
+        data_name: str
+        data_variable: "xr.DataArray"
+        for data_name, data_variable in sub_data_tree.data_vars.items():
+            output_dimension = OutputDimension(
+                path=f"{sub_data_tree.path}/{data_name}",
+                prefix_name=sub_path,
+                core_dimensions=tuple(
+                    [f"{sub_path}_{var_name}" for var_name in data_variable.dims]
+                ),
+                sizes={
+                    f"{sub_path}_{var_name}": var_size
+                    for var_name, var_size in sub_data_tree.sizes.items()
+                },
+                dtype=data_variable.dtype,
             )
 
-        return dct
-
-
-def build_metadata(data_tree: "xr.DataTree") -> Mapping[str, DatasetMetadata]:
-    """Construct metadata for each dataset in a given DataTree.
-
-    Parameters
-    ----------
-    data_tree : DataTree
-        An Xarray DataTree containing datasets, data variables, and coordinates.
-    """
-    metadata = {}
-
-    all_paths: Sequence[str] = sorted(data_tree.groups)
-
-    for path in all_paths:
-        sub_data_tree: "xr.DataTree" | "xr.DataArray" = data_tree[path]
-
-        dims: tuple[Hashable, ...] = tuple(sub_data_tree.dims)
-
-        metadata[path] = DatasetMetadata(
-            dims=dims,
-            data_vars={
-                key: VariableMetadata(
-                    dims=value.dims,
-                    attrs=value.attrs,
-                    dtype=value.dtype,
-                )
-                for key, value in sub_data_tree.data_vars.items()
-                if (
-                    path != "/bucket"
-                    or (path == "/bucket" and {"y", "x"}.issubset(value.dims))
-                )
-            },
-            coords={
-                key: CoordinateMetadata(attrs=value.attrs, data=value.data)
-                for key, value in sub_data_tree.coords.items()
-            },
-            attrs=sub_data_tree.attrs,
-        )
-
-    return metadata
-
-
-def _get_output_core_dimensions(
-    all_metadata: Mapping[str, DatasetMetadata],
-) -> Sequence[tuple]:
-    """Retrieve the core dimension(s) of all data variables from the metadata."""
-    lst = []
-
-    metadata: DatasetMetadata
-    for metadata in all_metadata.values():
-        if not metadata.data_vars:
-            continue
-
-        data_variable: VariableMetadata
-        for data_variable in metadata.data_vars.values():
-            lst.append(data_variable.dims)  # noqa: PERF401
+            lst.append(output_dimension)
 
     return lst
-
-
-def _get_output_dtypes(
-    all_metadata: Mapping[str, DatasetMetadata],
-) -> Sequence[np.dtype]:
-    """Retrieve the data type(s) of all data variables for the metadata."""
-    lst = []
-
-    metadata: DatasetMetadata
-    for metadata in all_metadata.values():
-        if not metadata.data_vars:
-            continue
-
-        data_variable: VariableMetadata
-        for data_variable in metadata.data_vars.values():
-            lst.append(data_variable.dtype)  # noqa: PERF401
-
-    return lst
-
-
-def _get_output_sizes(
-    all_metadata: Mapping[str, DatasetMetadata],
-) -> Mapping[Hashable, int]:
-    """Retrieve the sizes our the output variables' dimensions from the metadata."""
-    result: dict[Hashable, int] = {}
-
-    metadata: DatasetMetadata
-    for metadata_key, metadata in all_metadata.items():
-        if not metadata.data_vars:
-            continue
-
-        coord_sizes: Mapping[Hashable, int] = {
-            coord_key: len(meta_coords.data)
-            for coord_key, meta_coords in metadata.coords.items()
-        }
-
-        for coord_key in coord_sizes:
-            if coord_key in result and coord_sizes[coord_key] != coord_sizes[coord_key]:
-                raise NotImplementedError(f"{metadata_key=}, {coord_key=}")
-
-        result.update(coord_sizes)
-
-    return result
 
 
 def _run_pipelines_array_to_datatree(
@@ -211,7 +98,7 @@ def _run_pipelines_array_to_datatree(
     pipeline_seed: int | None,
     progressbar: bool,
 ) -> "xr.DataTree":
-    """Execute a single pipeline.
+    """Execute a single pipeline to generate a DataTree output.
 
     Parameters
     ----------
@@ -233,7 +120,7 @@ def _run_pipelines_array_to_datatree(
     >>> _run_pipelines_array_to_datatree(
     ...     params=(
     ...         0.3,  # parameter 'beta'
-    ...         (3, 5, 6, 4),  # parameter 'trap_densitities'
+    ...         (3, 5, 6, 4),  # parameter 'trap_densities'
     ...     ),
     ...     dimension_names={
     ...         "pipeline.charge_transfer.cdm.arguments.beta": "beta",
@@ -277,6 +164,7 @@ def _run_pipelines_array_to_datatree(
     dct: dict[str, tuple] = dict(zip(dimension_names, params_tuple, strict=False))
     new_processor: Processor = processor.replace(dct)
 
+    # Adjust readout configuration if required
     # TODO: Move this to 'Processor' ? See #836
     new_readout: Readout = readout
     for key, value in dct.items():
@@ -286,45 +174,19 @@ def _run_pipelines_array_to_datatree(
 
             new_readout = new_readout.replace(times=value)
 
+    # Run a single pipeline with the adjusted configurations
     data_tree: "xr.DataTree" = run_pipeline(
         processor=new_processor,
         readout=new_readout,
         outputs=outputs,
         output_filename_suffix=output_filename_suffix,
         pipeline_seed=pipeline_seed,
-        debug=False,  # Not supported in Observation mode
-        with_inherited_coords=True,  # Must be set to True
+        debug=False,  # Debug not supported in Observation mode
+        with_inherited_coords=True,  # Ensure inherited coordinates
         progressbar=progressbar,
     )
 
     return data_tree
-
-
-def _build_metadata(
-    params_tuple: tuple,
-    dimension_names: Mapping[str, str],
-    processor: Processor,
-    readout: Readout,
-    outputs: Optional["ObservationOutputs"],
-    pipeline_seed: int | None,
-) -> Mapping[str, DatasetMetadata]:
-    """Build metadata from a single pipeline run."""
-    # TODO: Create a new temporary 'Output' (if needed) and remove it
-    if processor.observation is None:
-        raise NotImplementedError
-
-    data_tree = _run_pipelines_array_to_datatree(
-        params_tuple=params_tuple,
-        output_filename_suffix=None,
-        dimension_names=dimension_names,
-        processor=processor,
-        readout=readout,
-        outputs=outputs,  # TODO: Create a new temporary outputs only for here
-        pipeline_seed=pipeline_seed,
-        progressbar=True,
-    )
-
-    return build_metadata(data_tree)
 
 
 def _run_pipelines_tuple_to_array(
@@ -332,12 +194,13 @@ def _run_pipelines_tuple_to_array(
     output_filename_suffixes: int,
     *,
     dimension_names: Mapping[str, str],
-    all_metadata: Mapping[str, DatasetMetadata],
+    output_dimensions: Sequence[OutputDimension],
     processor: Processor,
     readout: Readout,
     outputs: Optional["ObservationOutputs"],
     pipeline_seed: int | None,
 ) -> tuple[np.ndarray, ...]:
+    """Execute a single pipeline and generate a tuple of numpy arrays instead of a DataTree."""
     data_tree: "xr.DataTree" = _run_pipelines_array_to_datatree(
         params_tuple=params_tuple,
         dimension_names=dimension_names,
@@ -349,79 +212,49 @@ def _run_pipelines_tuple_to_array(
         progressbar=False,
     )
 
-    # Convert the result from 'DataTree' to a tuple of numpy array(s)
-    output_data: list[np.ndarray] = []
-
-    metadata: DatasetMetadata
-    for path, metadata in all_metadata.items():
-        for key in metadata.data_vars:
-            output_data.append(data_tree[f"{path}/{key}"].to_numpy())  # noqa: PERF401
+    # Extract numpy arrays from the DataTree
+    output_data: list[np.ndarray] = [
+        data_tree[output_dim.path].to_numpy() for output_dim in output_dimensions
+    ]
 
     return tuple(output_data)
 
 
-def _rebuild_datatree_from_dask(
-    dask_dataarrays: tuple["xr.DataArray", ...],
-    all_metadata: Mapping[str, DatasetMetadata],
-) -> Mapping[str, Union["xr.Dataset", "xr.DataTree"]]:
-    """Re-build a dictionary of Dask `Dataset` from a tuple of Dask `DataArrays`.
-
-    Parameters
-    ----------
-    dask_dataarrays : tuple[DataArray, ...]
-        A tuple of Dask-backed Xarray DataArrays which contain the (future) computed results.
-    all_metadata : dict[str, DatasetMetaData]
-        A dict that contains the metadata for each DataArrays. This includes dimensions, data variables,
-        coordinates and attributes for each DataArrays in the structure.
-
-    Returns
-    -------
-    dict[str, Union[Dataset, DataTree]]
-        A dictionary where keys are paths and values are either Xarray Datasets or DataTree objects,
-        rebuilt from the provided Dask DataArrays and metadata.
-    """
-    # Late import to speedup start-up time
+def _build_data_tree(
+    data_array_lst: Sequence["xr.DataArray"],
+    output_dimensions: Sequence[OutputDimension],
+    output_data_tree_reference: "xr.DataTree",
+) -> "xr.DataTree":
+    """Build a DataTree from a sequence of DataArrays."""
+    # Late import
     import xarray as xr
 
-    # Rebuild the DataTree from 'all_dataarrays'
-    dct: dict[str, xr.Dataset | xr.DataTree] = {}
-    idx = 0
-    path: str
+    final_datatree = xr.DataTree()
 
-    partial_metadata: DatasetMetadata
-    for path, partial_metadata in all_metadata.items():
-        if not partial_metadata.data_vars:
-            # TODO: Use this ?
-            # assert not partial_metadata.dims
-            # assert not partial_metadata.coords
+    for output_dim, data_array in zip(output_dimensions, data_array_lst, strict=False):
+        path: str = output_dim.path
 
-            empty_data_tree: xr.DataTree = xr.DataTree()
-            empty_data_tree.attrs = dict(partial_metadata.attrs)
+        data_array_reference: xr.DataArray = output_data_tree_reference[path]  # type: ignore[assignment]
 
-            dct[path] = empty_data_tree
+        prefix_dim = f"{output_dim.prefix_name}_"
 
-        else:
-            # assert partial_metadata.dims
-            # assert partial_metadata.coords
+        dims_to_rename: Mapping[str, str] = {
+            dim: dim.removeprefix(prefix_dim) for dim in output_dim.core_dimensions
+        }
+        new_coords: Mapping[str, xr.DataArray] = {
+            new_dimension: data_array_reference.coords[new_dimension]
+            for new_dimension in dims_to_rename.values()
+        }
 
-            data_set = xr.Dataset(attrs=partial_metadata.attrs)
+        new_data_array: xr.DataArray = (
+            data_array.rename(dims_to_rename)
+            .assign_coords(new_coords)
+            .assign_attrs(**data_array_reference.attrs)
+        )
 
-            var_name: str
-            metadata_vars: VariableMetadata
-            for var_name, metadata_vars in partial_metadata.data_vars.items():
-                data_set[var_name] = (
-                    dask_dataarrays[idx]
-                    .rename(var_name)
-                    .assign_attrs(metadata_vars.attrs)
-                )
-
-                idx += 1
-                assert idx <= len(dask_dataarrays)
-
-            coords: Mapping[Hashable, xr.DataArray] = partial_metadata.to_coords()
-            dct[path] = data_set.assign_coords(coords)
-
-    return dct
+        final_datatree[path] = new_data_array
+    final_datatree["/"].attrs = output_data_tree_reference["/"].attrs
+    return final_datatree
 
 
 def run_pipelines_with_dask(
@@ -432,14 +265,15 @@ def run_pipelines_with_dask(
     outputs: Optional["ObservationOutputs"],
     pipeline_seed: int | None,
 ) -> "xr.DataTree":
+    """Run observation pipelines using Dask for parallelized computation."""
     # Late import to speedup start-up time
     import xarray as xr
 
-    # Get all parameters to apply as a DataArray
+    # Generate parameters for the pipelines (as a DataArray)
     params_dataarray: xr.DataArray = parameter_mode.create_params(dim_names=dim_names)
 
-    # Get the first parameter from 'params_dataarray' as a tuple
-    first_param: tuple = (
+    # Run the pipeline for the first parameter set to extract metadata
+    first_param_tuple: tuple = (
         params_dataarray.head(1)  # Get the first parameter
         .squeeze()  # Remove all dimensions of length 1
         .to_numpy()  # Convert to a numpy array
@@ -447,28 +281,50 @@ def run_pipelines_with_dask(
     )
 
     # Extract metadata from 'first_param'
-    all_metadata: Mapping[str, DatasetMetadata] = _build_metadata(
-        params_tuple=first_param,
-        dimension_names=dim_names,
-        processor=processor,
-        readout=readout,
-        outputs=outputs,
-        pipeline_seed=pipeline_seed,
+    with TemporaryDirectory() as temp_folder:
+        # Late import
+        from pyxel.outputs import ObservationOutputs
+
+        # Create new temporary outputs
+        temp_outputs: ObservationOutputs | None = None
+        if outputs:
+            temp_outputs = ObservationOutputs(
+                output_folder=temp_folder,
+                save_data_to_file=deepcopy(outputs.save_data_to_file),
+            )
+
+            temp_outputs.create_output_folder()
+
+        first_data_tree: xr.DataTree = _run_pipelines_array_to_datatree(
+            params_tuple=first_param_tuple,
+            output_filename_suffix=None,
+            dimension_names=dim_names,
+            processor=processor,
+            readout=readout,
+            outputs=temp_outputs,  # TODO: Create a new temporary outputs only for here
+            pipeline_seed=pipeline_seed,
+            progressbar=True,
+        )
+
+    # Extract output dimensions metadata
+    output_dimensions: Sequence[OutputDimension] = get_gufunc_info(first_data_tree)
+
+    # Define core dimensions, data types, and sizes for the output
+    output_core_dims: Sequence[tuple[str, ...]] = [
+        output_dim.core_dimensions for output_dim in output_dimensions
+    ]
+
+    output_dtypes: Sequence[np.dtype] = [
+        output_dim.dtype for output_dim in output_dimensions
+    ]
+
+    output_sizes: Mapping[Hashable, int] = dicttoolz.merge(
+        *[output_dim.sizes for output_dim in output_dimensions]
     )
 
-    # Get the output core dimensions
-    output_core_dims: Sequence[tuple] = _get_output_core_dimensions(all_metadata)
-
-    # Get output sizes
-    output_sizes: Mapping[Hashable, int] = _get_output_sizes(all_metadata)
-
-    # Get output dtypes
-    output_dtypes: Sequence[np.dtype] = _get_output_dtypes(all_metadata)
-
-    # Get all output filename suffixes
-    if not outputs:
-        output_filename_indices: xr.DataArray | None = None
-    else:
+    # Prepare filename suffix indices for outputs
+    output_filename_indices: xr.DataArray | None = None
+    if outputs:
         # Generate indices for the filename(s)
         output_filename_indices = (
             xr.DataArray(
@@ -481,16 +337,16 @@ def run_pipelines_with_dask(
             .chunk(1)
         )
 
-    # Run '_run_pipelines_tuple_to_array' as a vectorized function and create new 'Dask' DataArrays
+    # Apply the pipeline function using Dask for parallelization
     dask_dataarrays: tuple[xr.DataArray, ...] = xr.apply_ufunc(
         _run_pipelines_tuple_to_array,  # Function to apply
         params_dataarray.chunk(1),  # Argument 'params_tuple'
         output_filename_indices,  # Argument 'output_filename_suffixes'
         kwargs={  # other arguments
             "dimension_names": dim_names,
+            "output_dimensions": output_dimensions,
             "processor": processor,
             "outputs": outputs,
-            "all_metadata": all_metadata,
             "readout": readout,
             "pipeline_seed": pipeline_seed,
         },
@@ -502,16 +358,14 @@ def run_pipelines_with_dask(
         output_dtypes=output_dtypes,  # TODO: Move this to 'dask_gufunc_kwargs'
     )
 
-    # Rebuild a DataTree from 'dask_dataarrays'
-    dct: Mapping[str, xr.Dataset | xr.DataTree] = _rebuild_datatree_from_dask(
-        dask_dataarrays=dask_dataarrays,
-        all_metadata=all_metadata,
+    # Rebuild the DataTree from the Dask DataArrays
+    final_datatree: "xr.DataTree" = _build_data_tree(
+        data_array_lst=dask_dataarrays,
+        output_dimensions=output_dimensions,
+        output_data_tree_reference=first_data_tree,
     )
 
-    # Please note that at this stage the datatree does not contain node '/output'.
-    # This node is added later
-    final_datatree = xr.DataTree.from_dict(dct)
-
+    # Post-process the DataTree to adjust readout time attributes
     if "observation.readout.times" in dim_names:
         # TODO: See #836
         final_datatree["/bucket"] = (

@@ -9,10 +9,11 @@
 """TBW."""
 
 import operator
-import warnings
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol, Union
+
+from typing_extensions import deprecated
 
 from pyxel.outputs import Outputs, ValidFormat, ValidName
 
@@ -69,14 +70,11 @@ class ObservationOutputs(Outputs):
         )
 
     @property
+    @deprecated("This property will be removed")
     def save_observation_data(self) -> Sequence[Mapping[str, Sequence[str]]] | None:
-        warnings.warn(
-            "Deprecated. Will be removed in future version",
-            DeprecationWarning,
-            stacklevel=1,
-        )
         return self._save_observation_data
 
+    @deprecated("This method will be removed")
     def _save_observation_datasets_deprecated(
         self,
         result: "ObservationResult",
@@ -89,10 +87,6 @@ class ObservationOutputs(Outputs):
         result: Result
         mode: ParameterMode
         """
-        warnings.warn(
-            "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
-        )
-
         from pyxel.observation import SequentialMode
 
         dataset_names = ("dataset", "parameters", "logs")

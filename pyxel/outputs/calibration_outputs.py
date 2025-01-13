@@ -8,10 +8,11 @@
 
 """TBW."""
 
-import warnings
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol
+
+from typing_extensions import deprecated
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -68,16 +69,13 @@ class CalibrationOutputs(Outputs):
             Sequence[Mapping[str, Sequence[str]]] | None
         ) = save_calibration_data
 
+    @deprecated("This method will be removed")
     def _save_processors_deprecated(
         self, processors: "pd.DataFrame"
     ) -> Sequence["Delayed"]:
         """TBW."""
         # Late import to speedup start-up time
         from dask.delayed import Delayed, delayed
-
-        warnings.warn(
-            "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
-        )
 
         lst: list[Delayed] = []
 
@@ -97,6 +95,7 @@ class CalibrationOutputs(Outputs):
 
         return lst
 
+    @deprecated("This method will be removed")
     def _save_calibration_outputs_deprecated(
         self, dataset: "xr.Dataset", logs: "pd.DataFrame"
     ) -> None:
@@ -107,12 +106,6 @@ class CalibrationOutputs(Outputs):
         dataset: Dataset
         logs: DataFrame
         """
-        warnings.warn(
-            "Deprecated. Will be removed in Pyxel 2.0",
-            DeprecationWarning,
-            stacklevel=1,
-        )
-
         save_methods: dict[str, SaveToFile] = {"nc": self.save_to_netcdf}
 
         if self._save_calibration_data_deprecated is not None:

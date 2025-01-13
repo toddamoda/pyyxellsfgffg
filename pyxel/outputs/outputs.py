@@ -474,6 +474,7 @@ class Outputs:
 
         return filenames
 
+    @deprecated("Please use function 'to_fits'.")
     def save_to_fits(
         self,
         data: np.ndarray,
@@ -483,13 +484,6 @@ class Outputs:
         header: Optional["fits.Header"] = None,
     ) -> Path:
         """Write array to :term:`FITS` file."""
-        warnings.warn(
-            "Deprecated. This will be removed in a future version of Pyxel. "
-            "Please use function 'to_fits'.",
-            DeprecationWarning,
-            stacklevel=1,
-        )
-
         name = name.replace(".", "_")
 
         current_output_folder: Path = complete_path(
@@ -520,6 +514,7 @@ class Outputs:
 
         return full_filename
 
+    @deprecated("Please use function 'to_hdf'.")
     def save_to_hdf(
         self,
         data: "Detector",
@@ -528,13 +523,6 @@ class Outputs:
         run_number: int | None = None,
     ) -> Path:
         """Write detector object to HDF5 file."""
-        warnings.warn(
-            "Deprecated. This will be removed in a future version of Pyxel. "
-            "Please use function 'to_hdf'.",
-            DeprecationWarning,
-            stacklevel=1,
-        )
-
         # Late import to speedup start-up time
         import h5py as h5
 
@@ -579,6 +567,7 @@ class Outputs:
                 # dataset[:] = data
         return filename
 
+    @deprecated("Please use function 'to_txt'.")
     def save_to_txt(
         self,
         data: np.ndarray,
@@ -587,13 +576,6 @@ class Outputs:
         run_number: int | None = None,
     ) -> Path:
         """Write data to txt file."""
-        warnings.warn(
-            "Deprecated. This will be removed in a future version of Pyxel. "
-            "Please use function 'to_txt'.",
-            DeprecationWarning,
-            stacklevel=1,
-        )
-
         name = name.replace(".", "_")
 
         current_output_folder: Path = complete_path(
@@ -652,6 +634,7 @@ class Outputs:
 
         return full_filename
 
+    @deprecated("Please use function 'to_npy'.")
     def save_to_npy(
         self,
         data: np.ndarray,
@@ -660,13 +643,6 @@ class Outputs:
         run_number: int | None = None,
     ) -> Path:
         """Write Numpy array to Numpy binary npy file."""
-        warnings.warn(
-            "Deprecated. This will be removed in a future version of Pyxel. "
-            "Please use function 'to_npy'.",
-            DeprecationWarning,
-            stacklevel=1,
-        )
-
         name = name.replace(".", "_")
 
         current_output_folder: Path = complete_path(
@@ -690,6 +666,7 @@ class Outputs:
         np.save(file=full_filename, arr=data)
         return full_filename
 
+    @deprecated("Please use function 'to_png'.")
     def save_to_png(
         self,
         data: np.ndarray,
@@ -698,13 +675,6 @@ class Outputs:
         run_number: int | None = None,
     ) -> Path:
         """Write Numpy array to a PNG image file."""
-        warnings.warn(
-            "Deprecated. This will be removed in a future version of Pyxel. "
-            "Please use function 'to_png'.",
-            DeprecationWarning,
-            stacklevel=1,
-        )
-
         # Late import to speedup start-up time
         from PIL import Image
 
@@ -733,6 +703,7 @@ class Outputs:
 
         return full_filename
 
+    @deprecated("Please use function 'to_jpg'.")
     def save_to_jpeg(
         self,
         data: np.ndarray,
@@ -741,13 +712,6 @@ class Outputs:
         run_number: int | None = None,
     ) -> Path:
         """Write Numpy array to a JPEG image file."""
-        warnings.warn(
-            "Deprecated. This will be removed in a future version of Pyxel. "
-            "Please use function 'to_jpg'.",
-            DeprecationWarning,
-            stacklevel=1,
-        )
-
         # Late import to speedup start-up time
         from PIL import Image
 
@@ -776,6 +740,7 @@ class Outputs:
 
         return full_filename
 
+    @deprecated("Please use function 'to_jpg'.")
     def save_to_jpg(
         self,
         data: np.ndarray,
@@ -784,13 +749,6 @@ class Outputs:
         run_number: int | None = None,
     ) -> Path:
         """Write Numpy array to a JPG image file."""
-        warnings.warn(
-            "Deprecated. This will be removed in a future version of Pyxel. "
-            "Please use function 'to_jpg'.",
-            DeprecationWarning,
-            stacklevel=1,
-        )
-
         # Late import to speedup start-up time
         from PIL import Image
 
@@ -937,6 +895,7 @@ class Outputs:
         datatree: "xr.DataTree" = _dict_to_datatree(all_filenames)
         return datatree
 
+    @deprecated("Please use function 'to_netcdf'.")
     def save_to_netcdf(
         self,
         data: Union["xr.Dataset", "xr.DataTree"],
@@ -954,13 +913,6 @@ class Outputs:
         -------
         filename: Path
         """
-        warnings.warn(
-            "Deprecated. This will be removed in a future version of Pyxel. "
-            "Please use function 'to_netcdf'.",
-            DeprecationWarning,
-            stacklevel=1,
-        )
-
         name = name.replace(".", "_")
         current_output_folder: Path = complete_path(
             filename=self.current_output_folder,

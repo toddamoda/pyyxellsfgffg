@@ -28,6 +28,8 @@ The minimum versions of some dependencies were changed:
   (See [!1008](https://gitlab.com/esa/pyxel/-/merge_requests/1008)).
 * Use 'fsspec' capability with Astropy 5.2+.
   (See [!1013](https://gitlab.com/esa/pyxel/-/merge_requests/1013)).
+* Refactor and simplify code for Observation mode with Dask enabled.
+  (See [!1016](https://gitlab.com/esa/pyxel/-/merge_requests/1016)).
 
 ### Documentation
 * Add more documentation about installing Pyxel and using it with VSCode/PyCharm and `uv`.

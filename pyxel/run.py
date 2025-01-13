@@ -1045,6 +1045,30 @@ def get_all_filenames(
         return filenames_dask_dataframe
 
 
+def get_output_filenames(
+    data_tree_output: "xr.DataTree",
+    output_dir: Path,
+) -> "pd.DataFrame":
+    # Late import
+    import pandas as pd
+
+    df_filenames = pd.concat(
+        [
+            data_tree_leave.dataset.to_dataframe().reset_index()
+            for data_tree_leave in data_tree_output.leaves
+        ]
+    )
+
+    filenames: "pd.Series" = df_filenames["filename"].apply(
+        lambda filename: Path(filename).relative_to(output_dir)
+    )
+
+    del df_filenames["filename"]
+    df_filenames["filename"] = filenames
+
+    return df_filenames
+
+
 # ruff: noqa: C901
 def run(
     input_filename: str | Path,
@@ -1085,72 +1109,73 @@ def run(
             key, value = element.split("=")
             override_dct[key] = value
 
-    data_tree: "xr.DataTree" = run_mode(
-        mode=running_mode,
-        detector=detector,
-        pipeline=pipeline,
-        override_dct=override_dct,
-        with_inherited_coords=True,
-    )
-
-    # if running_mode.outputs is None or running_mode.outputs.count_files_to_save() == 0:
-    #     warnings.warn(
-    #         "No outputs will be generated for this run. Processing continues.",
-    #         UserWarning,
-    #         stacklevel=1,
-    #     )
-
-    # Create a DataTree
-    df_filenames: "pd.DataFrame" | None = None
-
-    if "output" in data_tree:
+    try:
         # Late import
-        import pandas as pd
+        import xarray as xr
 
-        df_filenames = pd.concat(
-            [
-                data_tree_leave.dataset.to_dataframe().reset_index()
-                for data_tree_leave in data_tree["/output"].leaves
-            ]
+        data_tree: xr.DataTree = run_mode(
+            mode=running_mode,
+            detector=detector,
+            pipeline=pipeline,
+            override_dct=override_dct,
+            with_inherited_coords=True,
         )
 
-    if running_mode.outputs is None:
-        output_dir: Path | None = None
-    else:
+        # if running_mode.outputs is None or running_mode.outputs.count_files_to_save() == 0:
+        #     warnings.warn(
+        #         "No outputs will be generated for this run. Processing continues.",
+        #         UserWarning,
+        #         stacklevel=1,
+        #     )
+
+        if not running_mode.outputs:
+            logging.info("Pipeline completed. No output folder.")
+            return None
+
         output_dir = running_mode.outputs.current_output_folder
 
-    if df_filenames is None:
-        num_filenames = 0
-        logging.warning("No filenames to save. Skipping CSV generation.")
-    else:
-        num_filenames = len(df_filenames)
-
-        if output_dir:
-            try:
-                # Save the DataFrame to CSV
-                df_filenames.to_csv(output_dir / "output_filenames.csv", index=False)
-            except Exception:
-                logging.exception("Failed to save output filenames.")
-                raise
-
-    # TODO: Fix this, see issue #728
-    if output_dir:
+        # TODO: Fix this, see issue #728
         copy_config_file(input_filename=input_filename, output_dir=output_dir)
 
-    logging.info(
-        "Pipeline completed. Generated: %d output file(s) in folder %s",
-        num_filenames,
-        output_dir,
-    )
-    logging.info("Running time: %.3f seconds", (time.time() - start_time))
+        if "output" not in data_tree:
+            logging.info("Pipeline completed. No output filenames.")
+            return None
 
-    # Closing the logger in order to be able to move the file in the output dir
-    logging.shutdown()
+        output_dt: xr.DataTree | xr.DataArray = data_tree["/output"]
+        if not isinstance(output_dt, xr.DataTree):
+            raise TypeError
 
-    if output_dir:
-        outputs.save_log_file(output_dir)
+        df_output_filenames: "pd.DataFrame" = get_output_filenames(
+            data_tree_output=output_dt, output_dir=output_dir
+        )
 
-    return df_filenames
+        try:
+            # Save the DataFrame to CSV
+            df_output_filenames.to_csv(output_dir / "output_filenames.csv", index=False)
+        except Exception:
+            logging.exception(
+                "Failed to save output filenames in folder %s.", output_dir
+            )
+            raise
+
+        logging.info(
+            "Pipeline completed. Generated: %d output file(s) in folder %s.",
+            len(df_output_filenames),
+            output_dir,
+        )
+
+        return df_output_filenames
+
+    finally:
+        logging.info("Running time: %.3f seconds", (time.time() - start_time))
+
+        # Closing the logger in order to be able to move the file in the output dir
+        logging.shutdown()
+
+        if running_mode.outputs and running_mode.outputs._current_output_folder:
+            output_dir = running_mode.outputs.current_output_folder
+            if output_dir:
+                outputs.save_log_file(output_dir)
 
 
 # TODO: Use ExceptionGroup
