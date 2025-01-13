@@ -217,7 +217,7 @@ Exponential absorption law
 :guilabel:`Photon` → :guilabel:`Charge`
 
 With this model you can create and add charge to :py:class:`~pyxel.detectors.Detector` via photoelectric effect by estimating the
-QE of your detector through an exponential absorption law (:cite:p:'2001:janesick').
+QE of your detector through an exponential absorption law (:cite:p:`2001:janesick`).
 
 The QE calculation depends on the detector type (**Back-Illuminated** or **Front-Illuminated**) and incorporates
 various parameters. The equations are as follows:
@@ -263,8 +263,7 @@ With:
 
 The embedded conversion coefficient :math:`c` is wavelength and temperature-specific.
 
-"""
-2. ** User-specified coefficients **
+**User-specified coefficients**
 
 In case you want to operate with your own conversion coefficients, you can add an additional column to the ``.csv`` file, with a :math:`c` value for each working wavelength.
 
