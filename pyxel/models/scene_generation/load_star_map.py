@@ -19,7 +19,6 @@ import numpy as np
 import requests
 import xarray as xr
 from astropy.units import Quantity
-from astroquery.gaia import Gaia
 from specutils import Spectrum1D
 from synphot import SourceSpectrum
 
@@ -256,6 +255,9 @@ def _retrieve_objects_from_gaia(
         1018.0 1.3888942e-17 4.2265315e-18
         1020.0  1.344579e-17 4.1775913e-18
     """
+    # Late import
+    from astroquery.gaia import Gaia
+
     # Unlimited rows.
     Gaia.ROW_LIMIT = -1
     # we get the data from GAIA DR3
