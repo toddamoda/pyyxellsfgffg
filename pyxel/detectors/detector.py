@@ -77,7 +77,7 @@ class Detector:
         Directory for output files related to the detector's operations.
     """
 
-    def __init__(self, environment: Environment | None = None, channel=None):
+    def __init__(self, environment: Environment | None = None, channels=None):
         self._environment: Environment = environment or Environment()
 
         self._scene: Scene | None = None
@@ -90,7 +90,7 @@ class Detector:
 
         self._intermediate: xr.DataTree | None = None
 
-        self.channel = channel
+        self.channels = channels
 
         # This will be the memory of the detector where trapped charges will be saved
         self._memory: dict = {}
