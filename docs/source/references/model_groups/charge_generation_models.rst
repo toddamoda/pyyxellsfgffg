@@ -230,11 +230,11 @@ The QE for a Back-Illuminated detector is given by:
 
    QE = CCE \cdot (1 - R) \cdot \left(1 - e^{- \frac{x_{\text{epi}}}{\alpha}} \right)
 
-Where:
-- :math:`CCE`: Charge collection efficiency (fraction, between 0 and 1)
-- :math:`R`: Reflectivity (fraction, between 0 and 1)
-- :math:`x_{\text{epi}}`: Thickness of the epitaxial layer (in cm)
-- :math:`\alpha`: Absorptivity (in :math:`\text{cm}^{-1}`)
+With:
+:math:`CCE`: charge collection efficiency (fraction, between 0 and 1);
+:math:`R`: reflectivity (fraction, between 0 and 1);
+:math:`x_{\text{epi}}`: thickness of the epitaxial layer (in cm);
+:math:`\alpha`: absorptivity (in :math:`\text{cm}^{-1}`).
 
 2. **Front-Illuminated (FI) Detector**
 
@@ -244,9 +244,8 @@ For a Front-Illuminated detector, the QE calculation includes the additional eff
 
    QE = CCE \cdot (1 - R) \cdot e^{- \frac{x_{\text{poly}}}{\alpha}} \cdot \left(1 - e^{- \frac{x_{\text{epi}}}{\alpha}} \right)
 
-Where:
-- :math:`x_{\text{poly}}`: Thickness of the poly layer (in cm)
-- Other terms are as defined above.
+With:
+:math:`x_{\text{poly}}`: thickness of the poly layer (in cm), and the other terms as defined above.
 
 **Temperature-Dependent Absorptivity Correction**
 
@@ -256,11 +255,11 @@ The absorptivity, :math:`\alpha`, is corrected for temperature changes using the
 
    \alpha' = \alpha \cdot e^{c \cdot \Delta T}
 
-Where:
-- :math:`\alpha'`: Adjusted absorptivity at the new temperature.
-- :math:`\alpha`: Absorptivity at the reference temperature (300 K).
-- :math:`c`: Temperature correction coefficient (in :math:`1/\text{K}`).
-- :math:`\Delta T`: Temperature difference from the reference temperature (in :math:`\text{K}`).
+With:
+:math:`\alpha'`: adjusted absorptivity at the new temperature;
+:math:`\alpha`: absorptivity at the reference temperature (300 K);
+:math:`c`: temperature correction coefficient (in :math:`1/\text{K}`).
+:math:`\Delta T`: temperature difference from the reference temperature (in :math:`\text{K}`).
 
 The embedded conversion coefficient :math:`c` is wavelength and temperature-specific.
 

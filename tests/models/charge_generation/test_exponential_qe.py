@@ -41,6 +41,26 @@ def ccd_5x5() -> CCD:
 
 
 @pytest.fixture
+def ccd_5x5_noenv() -> CCD:
+    """Create a valid CCD detector without temperature."""
+    detector = CCD(
+        geometry=CCDGeometry(
+            row=5,
+            col=5,
+            total_thickness=40.0,
+            pixel_vert_size=10.0,
+            pixel_horz_size=10.0,
+        ),
+        environment=Environment(),
+        characteristics=Characteristics(),
+    )
+
+    detector.photon.array = np.zeros(shape=(5, 5), dtype=float)
+
+    return detector
+
+
+@pytest.fixture
 def valid_qe_csv(tmp_path: Path) -> str:
     import pandas as pd
 
@@ -144,7 +164,6 @@ def test_exponential_qe_negative(ccd_5x5: CCD, negative_qe_csv: str):
             filename=negative_qe_csv,
             x_epi=0.0002,
             detector_type="BI",
-            delta_t=-150.0,
             cce=0.9,
             default_wavelength=450.0,
         )
@@ -161,7 +180,6 @@ def test_exponential_qe_missing(ccd_5x5: CCD, missing_qe_csv: str):
             filename=missing_qe_csv,
             x_epi=0.0002,
             detector_type="BI",
-            delta_t=-150.0,
             cce=0.9,
             default_wavelength=450.0,
         )
@@ -180,7 +198,6 @@ def test_exponential_qe_nan_values(ccd_5x5, nan_qe_csv):
             filename=nan_qe_csv,
             x_epi=0.0002,
             detector_type="BI",
-            delta_t=-150.0,
             cce=1.0,
             default_wavelength=450.0,
         )
@@ -197,7 +214,6 @@ def test_exponential_qe_nan_in_c_column(ccd_5x5, nan_c_column_csv):
             filename=nan_c_column_csv,
             x_epi=0.0002,
             detector_type="BI",
-            delta_t=-150.0,
             cce=1.0,
             default_wavelength=450.0,
         )
@@ -214,7 +230,6 @@ def test_exponential_qe_invalid_wavelength(ccd_5x5: CCD, valid_qe_csv: str):
             filename=valid_qe_csv,
             x_epi=0.0002,
             detector_type="BI",
-            delta_t=-150.0,
             cce=0.9,
             default_wavelength=None,  # Invalid input
         )
@@ -234,7 +249,6 @@ def test_exponential_qe_invalid_wavelength_range(ccd_5x5: CCD, valid_qe_csv: str
             filename=valid_qe_csv,
             x_epi=0.0002,
             detector_type="BI",
-            delta_t=-150.0,
             cce=0.9,
             default_wavelength=invalid_wavelength,
         )
@@ -255,26 +269,43 @@ def test_exponential_qe_invalid_wavelength_range2(ccd_5x5: CCD, valid_qe_csv: st
             filename=valid_qe_csv,
             x_epi=0.0002,
             detector_type="BI",
-            delta_t=-150.0,
             cce=0.9,
             default_wavelength=invalid_wavelength_high,
         )
 
 
-def test_exponential_qe_invalid_temperature(ccd_5x5: CCD, valid_qe_csv: str):
-    """Test that ValueError is raised when the model temperature is not matching with the environment."""
-    detector = ccd_5x5
+# def test_exponential_qe_invalid_temperature(ccd_5x5: CCD, valid_qe_csv: str):
+#     """Test that ValueError is raised when the model temperature is not matching with the environment."""
+#     detector = ccd_5x5
+#
+#     with pytest.raises(
+#         ValueError,
+#         match="The temperature provided does not match with the environment.",
+#     ):
+#         exponential_qe(
+#             detector=detector,
+#             filename=valid_qe_csv,
+#             x_epi=0.0002,
+#             detector_type="BI",
+#             temperature=280,
+#             cce=0.9,
+#             default_wavelength=1200.0,
+#         )
+
+
+def test_exponential_qe_missing_temperature(ccd_5x5_noenv: CCD, valid_qe_csv: str):
+    """Test that ValueError is raised when the temperature is not defined in the environment."""
+    detector = ccd_5x5_noenv
 
     with pytest.raises(
         ValueError,
-        match="The temperature provided does not match with the environment.",
+        match="Missing temperature information. This model cannot be used.",
     ):
         exponential_qe(
             detector=detector,
             filename=valid_qe_csv,
             x_epi=0.0002,
             detector_type="BI",
-            delta_t=-20.0,
             cce=0.9,
             default_wavelength=1200.0,
         )
@@ -295,7 +326,6 @@ def test_exponential_qe_invalid_detector_type(ccd_5x5: CCD, valid_qe_csv: str):
             filename=valid_qe_csv,
             x_epi=0.0002,
             detector_type="TI",
-            delta_t=-150.0,
             cce=0.9,
             default_wavelength=1200.0,
         )
@@ -314,7 +344,6 @@ def test_exponential_qe_invalid_x_epi(ccd_5x5: CCD, valid_qe_csv: str):
             filename=valid_qe_csv,
             x_epi=0.02,
             detector_type="BI",
-            delta_t=-150.0,
             cce=0.9,
             default_wavelength=1200.0,
         )
@@ -345,7 +374,6 @@ def test_exponential_qe_random_x_epi_x_poly(ccd_5x5, valid_qe_csv):
                 x_epi=x_epi,
                 x_poly=x_poly,
                 detector_type="FI",
-                delta_t=-150.0,
                 cce=1.0,
                 default_wavelength=450.0,
             )
@@ -357,7 +385,6 @@ def test_exponential_qe_random_x_epi_x_poly(ccd_5x5, valid_qe_csv):
             x_epi=x_epi,
             x_poly=x_poly,
             detector_type="FI",
-            delta_t=-150.0,
             cce=1.0,
             default_wavelength=450.0,
         )
@@ -379,7 +406,6 @@ def test_photon_array_2d_with_multi(ccd_5x5, valid_qe_csv):
             filename=valid_qe_csv,
             x_epi=0.0002,
             detector_type="BI",
-            delta_t=-150.0,
             cce=1.0,
             default_wavelength="multi",  # Invalid for a 2D array
         )

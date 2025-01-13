@@ -38,6 +38,9 @@ The minimum versions of some dependencies were changed:
   (See [!1002](https://gitlab.com/esa/pyxel/-/merge_requests/1002)).
 * Fix bug in model `load_star_map` due to recent update by the Gaia database.
   (See [!1010](https://gitlab.com/esa/pyxel/-/merge_requests/1010)).
+* New model `Absorption Model` from `Charge Generation`.
+  (See [!1005](https://gitlab.com/esa/pyxel/-/merge_requests/1005)
+  and [!1014](https://gitlab.com/esa/pyxel/-/merge_requests/1014)).
 
 ### Others
 * Minor refactoring using `ruff check --preview`.

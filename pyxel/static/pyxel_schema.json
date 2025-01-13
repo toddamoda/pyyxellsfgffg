@@ -3421,12 +3421,6 @@
                 "null"
               ]
             },
-            "delta_t": {
-              "default": 0.0,
-              "description": "Temperature difference from 300 K (default: 0.0).",
-              "title": "delta_t",
-              "type": "number"
-            },
             "detector_type": {
               "description": "Type of detector (\"BI\" for Back-Illuminated, \"FI\" for Front-Illuminated).",
               "title": "detector_type",
@@ -3444,6 +3438,15 @@
               ],
               "description": "Path to the CSV file containing reflectivity, absorptivity, and c.",
               "title": "filename"
+            },
+            "name": {
+              "default": null,
+              "description": "Name to use for the result.",
+              "title": "name",
+              "type": [
+                "string",
+                "null"
+              ]
             },
             "x_epi": {
               "description": "Thickness of the epitaxial layer in cm.",
