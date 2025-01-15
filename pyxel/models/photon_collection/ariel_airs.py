@@ -263,16 +263,17 @@ def read_psf_from_fits_file(
     """
     # Open fits
     with fits.open(resolve_with_working_directory(filename)) as hdu:
-        psf_datacube, table = hdu[0].data, hdu[1].data
+        psf_datacube = hdu[0].data
+        table = hdu[1].data
 
-        # Position of the PSF on AIRS window along line
-        line_psf_pos = (table["x_centers"]).astype(int)
+    # Position of the PSF on AIRS window along line
+    line_psf_pos = (table["x_centers"]).astype(int)
 
-        # Position of the PSF on AIRS window along col
-        col_psf_pos = (table["y_centers"]).astype(int)
+    # Position of the PSF on AIRS window along col
+    col_psf_pos = (table["y_centers"]).astype(int)
 
-        # Wavelength
-        psf_wavelength = table["waves"] * u.micron
+    # Wavelength
+    psf_wavelength = table["waves"] * u.micron
 
     logging.debug(
         "PSF Datacube %r %r %r",

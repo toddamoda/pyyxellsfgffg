@@ -9,13 +9,13 @@
 
 import logging
 import sys
-import warnings
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Optional
 
 import numpy as np
 from dask.delayed import Delayed
+from typing_extensions import deprecated
 
 import pyxel
 from pyxel.calibration import (
@@ -363,6 +363,7 @@ class Calibration:
         """TBW."""
         self._weights = value
 
+    @deprecated("This method will be removed")
     def get_problem(
         self,
         processor: Processor,
@@ -383,10 +384,6 @@ class Calibration:
         Compute fitness
         >>> problem.fitness(decision_vector)
         """
-        warnings.warn(
-            "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
-        )
-
         problem = ModelFitting(
             processor=processor,
             variables=self.parameters,
@@ -410,6 +407,7 @@ class Calibration:
 
         return problem
 
+    @deprecated("This method will be removed")
     def _run_calibration_deprecated(
         self,
         processor: Processor,
@@ -417,10 +415,6 @@ class Calibration:
         with_progress_bar: bool = True,
     ) -> tuple["xr.Dataset", "pd.DataFrame", "pd.DataFrame"]:  # pragma: no cover
         """Run calibration pipeline."""
-        warnings.warn(
-            "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
-        )
-
         try:
             import pygmo as pg
         except ModuleNotFoundError as exc:
@@ -562,16 +556,13 @@ class Calibration:
         self._log.info("Calibration ended.")
         return data_tree
 
+    @deprecated("This method will be removed")
     def _post_processing(
         self,
         ds: "xr.Dataset",
         df_processors: "pd.DataFrame",
         output: Optional["CalibrationOutputs"],
     ) -> Sequence[Delayed]:  # pragma: no cover
-        warnings.warn(
-            "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
-        )
-
         if output:
             filenames: Sequence[Delayed] = output._save_processors_deprecated(
                 processors=df_processors

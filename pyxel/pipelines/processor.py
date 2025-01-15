@@ -370,6 +370,7 @@ class Processor:
         self._result = result_to_save
 
     # TODO: Refactor '.result'. See #524
+    @deprecated("This method will be removed")
     def result_to_dataset(
         self,
         y: range,
@@ -378,10 +379,6 @@ class Processor:
         result_type: ResultId,
     ) -> "xr.Dataset":
         """Return the result in a xarray dataset."""
-        warnings.warn(
-            "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
-        )
-
         # Late import to speedup start-up time
         import xarray as xr
 

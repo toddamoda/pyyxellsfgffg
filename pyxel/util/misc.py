@@ -8,7 +8,6 @@
 """Miscellaneous functions."""
 
 import logging
-from collections.abc import Callable
 
 import numpy as np
 
@@ -46,41 +45,6 @@ class LogFilter(logging.Filter):
         return bool(
             record.threadName == "MainThread" or record.threadName.endswith("-0")
         )
-
-
-def deprecated(msg: str) -> Callable:
-    """Deprecate a function.
-
-    This decorator is based on (future ?) PEP 702.
-
-    Examples
-    --------
-    >>> deprecated("Use 'new_function'")
-    >>> def old_function(a, b):
-    ...     return a + b
-    ...
-
-    >>> old_function.__deprecated__
-    'Use new_function'
-    >>> old_function(1, 2)
-    DeprecationWarning: Use 'new_function'
-      old_function(1, 2)
-    """
-
-    def _decorator(func: Callable) -> Callable:
-        import warnings
-        from functools import wraps
-
-        @wraps(func)
-        def _wrapper(*args, **kwargs):
-            warnings.warn(msg, DeprecationWarning, stacklevel=2)
-            return func(*args, **kwargs)
-
-        # Add a new attribute '__deprecated__' to retrieve the error message (e.g. in 'ModelFunction')
-        _wrapper.__deprecated__ = msg  # type: ignore
-        return _wrapper
-
-    return _decorator
 
 
 def convert_unit(name: str) -> str:

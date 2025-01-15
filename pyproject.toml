@@ -76,7 +76,7 @@ dependencies = [
     "attrs>=21.3.0",
     "click!=8.1.4,!=8.1.5",
     "tqdm",
-    "typing-extensions>=4.5",
+    "typing-extensions>=4.9",
     "pympler",
     "pillow",
     "scikit-image>=0.20.0",
@@ -251,6 +251,7 @@ exclude_lines = [
     "if TYPE_CHECKING:",
     "class .*\\bProtocol\\):",
     "if not hv.Store.renderers",
+    "@deprecated",
 ]
 
 [tool.coverage.run]

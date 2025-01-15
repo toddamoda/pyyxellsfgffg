@@ -16,9 +16,10 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 
 The minimum versions of some dependencies were changed:
 
-  | Package | Old       | New            |
-  |---------|-----------|----------------|
-  | xarray  | 2023.12.0 | **2024.10.0+** |  
+  | Package           | Old       | New            |
+  |-------------------|-----------|----------------|
+  | typing-extensions | 4.5       | **4.9+**       |
+  | xarray            | 2023.12.0 | **2024.10.0+** |
 
 
 ### Core
@@ -56,6 +57,8 @@ The minimum versions of some dependencies were changed:
   (See [!1007](https://gitlab.com/esa/pyxel/-/merge_requests/1007)).
 * Add support for Python 3.12.
   (See [!1003](https://gitlab.com/esa/pyxel/-/merge_requests/1003)).
+* Use decorator `@typing_extensions.deprecated` to deprecated 'old' code
+  (See [!1018](https://gitlab.com/esa/pyxel/-/merge_requests/1018)).
 
 
 ## 2.7 / 2024-11-11

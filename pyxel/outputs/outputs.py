@@ -8,7 +8,6 @@
 """Classes for creating outputs."""
 
 import logging
-import warnings
 from collections.abc import Mapping, Sequence
 from datetime import datetime
 from pathlib import Path
@@ -596,6 +595,7 @@ class Outputs:
 
         return full_filename
 
+    @deprecated("Please use function 'to_csv'")
     def save_to_csv(
         self,
         data: "pd.DataFrame",
@@ -604,13 +604,6 @@ class Outputs:
         run_number: int | None = None,
     ) -> Path:
         """Write Pandas Dataframe or Numpy array to a CSV file."""
-        warnings.warn(
-            "Deprecated. This will be removed in a future version of Pyxel. "
-            "Please use function 'to_csv'.",
-            DeprecationWarning,
-            stacklevel=1,
-        )
-
         name = name.replace(".", "_")
 
         current_output_folder: Path = complete_path(

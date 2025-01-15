@@ -15,6 +15,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from matplotlib.patches import Ellipse
+from typing_extensions import deprecated
 
 from pyxel.detectors import Detector
 
@@ -342,6 +343,7 @@ def source_extractor(
     )
 
 
+@deprecated("Use model 'source_extractor'")
 def extract_roi_to_xarray(
     detector: Detector,
     array_type: str = "pixel",
@@ -372,10 +374,6 @@ def extract_roi_to_xarray(
     For more information, you can find an example here:
     :external+pyxel_data:doc:`examples/models/data_processing/source_extractor/SEP_exposure`.
     """
-    warnings.warn(
-        "Deprecated. Use model 'source_extractor'", DeprecationWarning, stacklevel=1
-    )
-
     source_extractor(
         detector=detector, array_type=array_type, thresh=thresh, minarea=minarea
     )

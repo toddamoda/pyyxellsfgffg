@@ -7,12 +7,12 @@
 
 """Subpackage for deprecated functions for Observation mode."""
 
-import warnings
 from collections import Counter
 from collections.abc import Iterable, Iterator, Mapping, Sequence
 from typing import TYPE_CHECKING, NamedTuple, Union
 
 import numpy as np
+from typing_extensions import deprecated
 
 from pyxel.exposure import _run_exposure_pipeline_deprecated
 from pyxel.observation import (
@@ -41,16 +41,14 @@ class ObservationResult(NamedTuple):
     logs: "xr.Dataset"
 
 
+@deprecated("This function will be removed")
 def _id(s: str) -> str:  # pragma: no cover
     """Add _id to the end of a string."""
-    warnings.warn(
-        "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
-    )
-
     out = s + "_id"
     return out
 
 
+@deprecated("This function will be removed")
 def parameter_to_dataset(
     parameter_dict: dict,
     dimension_names: Mapping[str, str],
@@ -70,11 +68,6 @@ def parameter_to_dataset(
     -------
     Dataset
     """
-    warnings.warn(
-        "Deprecated. Will be removed in Pyxel 2.0",
-        DeprecationWarning,
-        stacklevel=1,
-    )
 
     # Late import to speedup start-up time
     import xarray as xr
@@ -99,6 +92,7 @@ def parameter_to_dataset(
     return parameter_ds
 
 
+@deprecated("This function will be removed")
 def _add_custom_parameters_deprecated(
     ds: "xr.Dataset", index: int
 ) -> "xr.Dataset":  # pragma: no cover
@@ -113,23 +107,16 @@ def _add_custom_parameters_deprecated(
     -------
     Dataset
     """
-    warnings.warn(
-        "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
-    )
-
     ds = ds.assign_coords({"id": index})
     ds = ds.expand_dims(dim="id")
 
     return ds
 
 
+@deprecated("This function will be removed")
 def _get_final_short_name(
     name: str, param_type: ParameterType
 ) -> str:  # pragma: no cover
-    warnings.warn(
-        "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
-    )
-
     if param_type == ParameterType.Simple:
         return name
     elif param_type == ParameterType.Multi:
@@ -138,12 +125,10 @@ def _get_final_short_name(
         raise NotImplementedError
 
 
+@deprecated("This function will be removed")
 def _get_short_dimension_names(
     types: Mapping[str, ParameterType],
 ) -> Mapping[str, str]:  # pragma: no cover
-    warnings.warn(
-        "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
-    )
     # Create potential names for the dimensions
     potential_dim_names: dict[str, str] = {}
     for param_name, param_type in types.items():
@@ -179,6 +164,7 @@ def _get_short_dimension_names(
     return potential_dim_names
 
 
+@deprecated("This function will be removed")
 def log_parameters(
     processor_id: int, parameter_dict: dict
 ) -> "xr.Dataset":  # pragma: no cover
@@ -193,12 +179,6 @@ def log_parameters(
     -------
     Dataset
     """
-    warnings.warn(
-        "Deprecated. Will be removed in Pyxel 2.0",
-        DeprecationWarning,
-        stacklevel=1,
-    )
-
     # Late import to speedup start-up time
     import xarray as xr
 
@@ -211,6 +191,7 @@ def log_parameters(
     return out
 
 
+@deprecated("This function will be removed")
 def _add_sequential_parameters_deprecated(
     ds: "xr.Dataset",
     parameter_dict: ParametersType,
@@ -234,10 +215,6 @@ def _add_sequential_parameters_deprecated(
     -------
     Dataset
     """
-    warnings.warn(
-        "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
-    )
-
     #  assigning the right coordinates based on type
     short_name: str = dimension_names[coordinate_name]
 
@@ -252,6 +229,7 @@ def _add_sequential_parameters_deprecated(
     return ds
 
 
+@deprecated("This function will be removed")
 def _add_product_parameters_deprecated(  # pragma: no cover
     ds: "xr.Dataset",
     parameter_dict: ParametersType,
@@ -272,10 +250,6 @@ def _add_product_parameters_deprecated(  # pragma: no cover
     -------
     Dataset
     """
-    warnings.warn(
-        "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
-    )
-
     # TODO: Implement for coordinate 'multi'
     for i, (coordinate_name, param_value) in enumerate(parameter_dict.items()):
         short_name: str = dimension_names[coordinate_name]
@@ -295,11 +269,8 @@ def _add_product_parameters_deprecated(  # pragma: no cover
     return ds
 
 
+@deprecated("This function will be removed")
 def to_tuples(data: Iterable) -> tuple:  # pragma: no cover
-    warnings.warn(
-        "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
-    )
-
     lst: list = []
     for el in data:
         if isinstance(el, Iterable) and not isinstance(el, str):
@@ -310,6 +281,7 @@ def to_tuples(data: Iterable) -> tuple:  # pragma: no cover
     return tuple(lst)
 
 
+@deprecated("This function will be removed")
 def compute_final_sequential_dataset(
     list_of_index_and_parameter: list,
     list_of_datasets: list,
@@ -327,12 +299,6 @@ def compute_final_sequential_dataset(
     -------
     dict
     """
-    warnings.warn(
-        "Deprecated. Will be removed in Pyxel 2.0",
-        DeprecationWarning,
-        stacklevel=1,
-    )
-
     # Late import to speedup start-up time
     import xarray as xr
 
@@ -360,6 +326,7 @@ def compute_final_sequential_dataset(
     return final_datasets
 
 
+@deprecated("This function will be removed")
 def _run_debug_mode_deprecated(
     observation: "Observation", processor: "Processor"
 ) -> tuple[list["Processor"], "xr.Dataset"]:  # pragma: no cover
@@ -374,12 +341,6 @@ def _run_debug_mode_deprecated(
     processors: list
     final_logs: Dataset
     """
-    warnings.warn(
-        "Deprecated. Will be removed in Pyxel 2.0",
-        DeprecationWarning,
-        stacklevel=1,
-    )
-
     # Late import to speedup start-up time
     import xarray as xr
     from tqdm.auto import tqdm
@@ -411,6 +372,7 @@ def _run_debug_mode_deprecated(
 
 
 # ruff: noqa: C901
+@deprecated("This function will be removed")
 def _run_observation_deprecated(
     observation: "Observation", processor: "Processor"
 ) -> ObservationResult:  # pragma: no cover
@@ -424,12 +386,6 @@ def _run_observation_deprecated(
     -------
     Result
     """
-    warnings.warn(
-        "Deprecated. Will be removed in Pyxel 2.0",
-        DeprecationWarning,
-        stacklevel=1,
-    )
-
     # Late import to speedup start-up time
     import dask.bag as db
     import xarray as xr
@@ -659,6 +615,7 @@ def _run_observation_deprecated(
         raise TypeError("Parametric mode not specified.")
 
 
+@deprecated("This function will be removed")
 def _processors_it(
     observation: "Observation", processor: "Processor"
 ) -> Iterator[tuple["Processor", int | tuple[int], dict]]:  # pragma: no cover
@@ -674,12 +631,6 @@ def _processors_it(
     index: tuple of int
     parameter_dict: dict
     """
-    warnings.warn(
-        "Deprecated. Will be removed in Pyxel 2.0",
-        DeprecationWarning,
-        stacklevel=1,
-    )
-
     for index, parameter_dict in _parameter_it(observation):
         new_processor = create_new_processor(
             processor=processor,
@@ -688,11 +639,9 @@ def _processors_it(
         yield new_processor, index, parameter_dict
 
 
+@deprecated("This function will be removed")
 def _parameter_it(observation: "Observation") -> Iterator[tuple]:  # pragma: no cover
     """Return the method for generating parameters based on parametric mode."""
-    warnings.warn(
-        "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
-    )
     if isinstance(observation.parameter_mode, ProductMode):
         yield from observation.parameter_mode._product_parameters()
 
@@ -705,6 +654,7 @@ def _parameter_it(observation: "Observation") -> Iterator[tuple]:  # pragma: no 
         raise NotImplementedError
 
 
+@deprecated("This function will be removed")
 def _apply_exposure_pipeline_product(
     observation: "Observation",
     index_and_parameter: tuple[
@@ -719,10 +669,6 @@ def _apply_exposure_pipeline_product(
     times: np.ndarray,
     types: Mapping[str, ParameterType],
 ) -> "xr.Dataset":  # pragma: no cover
-    warnings.warn(
-        "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
-    )
-
     index, parameter_dict, n = index_and_parameter
 
     new_processor = create_new_processor(
@@ -761,6 +707,7 @@ def _apply_exposure_pipeline_product(
     return ds
 
 
+@deprecated("This function will be removed")
 def _apply_exposure_pipeline_custom(
     observation: "Observation",
     index_and_parameter: tuple[
@@ -773,10 +720,6 @@ def _apply_exposure_pipeline_custom(
     y: range,
     times: np.ndarray,
 ):  # pragma: no cover
-    warnings.warn(
-        "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
-    )
-
     index, parameter_dict, n = index_and_parameter
 
     new_processor = create_new_processor(
@@ -809,6 +752,7 @@ def _apply_exposure_pipeline_custom(
     return ds
 
 
+@deprecated("This function will be removed")
 def _apply_exposure_pipeline_sequential(
     observation: "Observation",
     index_and_parameter: tuple[
@@ -823,10 +767,6 @@ def _apply_exposure_pipeline_sequential(
     times: np.ndarray,
     types: Mapping[str, ParameterType],
 ):  # pragma: no cover
-    warnings.warn(
-        "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
-    )
-
     index, parameter_dict, n = index_and_parameter
 
     new_processor = create_new_processor(

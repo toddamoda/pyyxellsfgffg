@@ -8,7 +8,6 @@
 """Sub-package to create 'archipelagos'."""
 
 import logging
-import warnings
 from collections.abc import Callable, Mapping, Sequence
 from concurrent.futures.thread import ThreadPoolExecutor
 from timeit import default_timer as timer
@@ -19,6 +18,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from tqdm.auto import tqdm
+from typing_extensions import deprecated
 
 from pyxel.calibration import Algorithm, AlgorithmType, IslandProtocol
 from pyxel.calibration.fitting import ModelFitting
@@ -33,14 +33,11 @@ if TYPE_CHECKING:
 
 
 # TODO: Deprecate this class ?
+@deprecated("This class will be removed")
 class ArchipelagoLogs:  # pragma: no cover
     """Keep log information from all algorithms in an archipelago."""
 
     def __init__(self, algo_type: AlgorithmType, num_generations: int):
-        warnings.warn(
-            "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
-        )
-
         try:
             import pygmo as pg
         except ModuleNotFoundError as exc:
@@ -118,6 +115,7 @@ class ArchipelagoLogs:  # pragma: no cover
         ]
 
 
+@deprecated("This function will be removed")
 def extract_data_3d(
     df_results: pd.DataFrame,
     rows: int,
@@ -126,10 +124,6 @@ def extract_data_3d(
     readout_times: np.ndarray,
 ) -> xr.Dataset:  # pragma: no cover
     """Extract 'photon', 'charge', 'pixel', 'signal' and 'image' arrays from several delayed dynamic results."""
-    warnings.warn(
-        "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
-    )
-
     lst: list[xr.Dataset] = []
     for _, row in df_results.iterrows():
         island: int = row["island"]
@@ -195,6 +189,7 @@ def extract_data_3d(
 
 
 # TODO: Rename to PyxelArchipelago. See #335
+@deprecated("This class will be removed")
 class MyArchipelago:  # pragma: no cover
     """User-defined Archipelago."""
 
@@ -211,10 +206,6 @@ class MyArchipelago:  # pragma: no cover
         parallel: bool = True,
         with_bar: bool = False,
     ):
-        warnings.warn(
-            "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
-        )
-
         try:
             import pygmo as pg
         except ModuleNotFoundError as exc:

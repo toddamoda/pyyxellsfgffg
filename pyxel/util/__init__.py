@@ -20,7 +20,6 @@ from .misc import (
     round_convert_to_int,
     convert_to_int,
     LogFilter,
-    deprecated,
     convert_unit,
     get_dtype,
 )

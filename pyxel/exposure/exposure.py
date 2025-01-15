@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Union
 
 import numpy as np
+from typing_extensions import deprecated
 
 import pyxel
 from pyxel import __version__
@@ -82,6 +83,7 @@ class Exposure:
         self._pipeline_seed = value
 
     # TODO: This function will be deprecated
+    @deprecated("This method will be removed")
     def _run_exposure_deprecated(self, processor: Processor) -> "xr.Dataset":
         """Run an observation pipeline.
 
@@ -93,10 +95,6 @@ class Exposure:
         -------
         Dataset
         """
-        warnings.warn(
-            "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
-        )
-
         progressbar = self.readout._num_steps != 1
         y = range(processor.detector.geometry.row)
         x = range(processor.detector.geometry.col)
@@ -161,6 +159,7 @@ class Exposure:
 
 # TODO: This function will be deprecated
 # ruff: noqa: C901
+@deprecated("This function will be removed")
 def _run_exposure_pipeline_deprecated(
     processor: Processor,
     readout: "Readout",
@@ -194,10 +193,6 @@ def _run_exposure_pipeline_deprecated(
 
     # if isinstance(detector, CCD):
     #    dynamic.non_destructive_readout = False
-    warnings.warn(
-        "Deprecated. Will be removed in Pyxel 2.0", DeprecationWarning, stacklevel=1
-    )
-
     with set_random_seed(seed=pipeline_seed):
         num_steps = readout._num_steps
         readout._times[-1]
