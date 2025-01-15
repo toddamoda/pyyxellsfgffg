@@ -10,40 +10,102 @@ Minor releases include updated stdlib stubs from typeshed.
 Pyxel doesn't use SemVer anymore, since most minor releases have at least minor backward incompatible changes.
 
 
-## UNRELEASED
+## 2.8 / 2025-01-15
+
+This release introduces significant updates and new features.
+
+### 🆕 New model `exponential_qe` in `Charge Generation`
+Model [`exponential_qe`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_generation_models.html#exponential-absorption-law) 
+from [`Charge Generation`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_generation_models.html#exponential-absorption-law) has been added.
+
+This model computes the Quantum Efficiency (QE) of a detector based on key characteristics such as:
+* Front/Back Illumination
+* Charge Collection Efficiency
+* Absorption coefficient
+* Reflectivity
+* Epilayer thickness
+* Poly gate thickness
+
+
+### 🆕 FITS Header Propagation
+
+It is now possible to propagate the [FITS header](https://docs.astropy.org/en/latest/io/fits/usage/headers.html), read using model 
+the [`load_image`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/photon_collection_models.html#load-image) 
+from [`Photon Collection`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/photon_collection_models.html#) 
+with a [FITS Image data](https://docs.astropy.org/en/latest/io/fits/usage/image.html) file into the FITS output file(s).
+
+For example, if the FITS file `my_image.fits` contains a FITS header into its HDU (Header Data Unit) 'RAW', you 
+can extract and store it into an output FITS file by using the following YAML configuration:
+
+```yaml
+observation:   # or 'exposure'
+  outputs:
+    output_folder: 'output'             # <== output FITS file(s) will be save in this folder
+    save_data_to_file:
+      - detector.image.array: ['fits']  # <== generate at least one FITS file
+
+cmos_detector:
+  ...
+
+pipeline:
+  photon_collection:
+    func: pyxel.models.photon_collection.load_image
+    enabled: true
+    arguments:
+      image_file: my_image.fits         # <== input FITS filename
+      convert_to_photons: false
+      include_header: true
+      header_section_index: 'RAW'       # <== HDU where to retrieve the FITS header (optional)
+
+   ...
+```
+
+### ⌨️ Add more instructions for setting a development environment with `uv`
+
+Add additional instructions in the [contribution guide](https://esa.gitlab.io/pyxel/doc/stable/references/contributing.html#with-uv-unified-python-packaging)
+on how to set up a development environment using `uv` (Unified Python Packaging).
 
 ### Breaking changes
 
-The minimum versions of some dependencies were changed:
+Support for Python 3.9 has been dropped.
+
+The minimum versions of some dependencies were also changed:
 
   | Package           | Old       | New            |
   |-------------------|-----------|----------------|
+  | astropy           | 4.3       | **5.2+**       | 
   | typing-extensions | 4.5       | **4.9+**       |
   | xarray            | 2023.12.0 | **2024.10.0+** |
 
 
 ### Core
-* Add compatibility with ASDF version 4.
+* Add compatibility with[`ASDF`](https://asdf.readthedocs.io) version 4.
   (See [!999](https://gitlab.com/esa/pyxel/-/merge_requests/999)).
 * Support [`DataTree`](https://docs.xarray.dev/en/stable/api.html#datatree) from `xarray` >= 2024.10.0.
   (See [!1008](https://gitlab.com/esa/pyxel/-/merge_requests/1008)).
-* Use 'fsspec' capability with Astropy 5.2+.
+* Use `fsspec` capability with `Astropy` 5.2+.
   (See [!1013](https://gitlab.com/esa/pyxel/-/merge_requests/1013)).
 * Refactor and simplify code for Observation mode with Dask enabled.
   (See [!1016](https://gitlab.com/esa/pyxel/-/merge_requests/1016)).
 
 ### Documentation
-* Add more documentation about installing Pyxel and using it with VSCode/PyCharm and `uv`.
+* Add more documentation about [installing Pyxel](https://esa.gitlab.io/pyxel/doc/stable/references/contributing.html#start-developing)
+  and using it with VSCode/PyCharm and `uv`.
   (See [!1009](https://gitlab.com/esa/pyxel/-/merge_requests/1009)).
 
 ### Models
-* Use `photoutils` instead of `sep` for model `source_extractor` in `Data Processing`.
+* Use [`photutils`](https://photutils.readthedocs.io) instead of [`sep`](https://github.com/sep-developers/sep)
+  for model [`source_extractor`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/data_processing_models.html#extract-roi) 
+  in [`Data Processing`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/data_processing_models.html#).
   (See [!1002](https://gitlab.com/esa/pyxel/-/merge_requests/1002)).
-* Fix bug in model `load_star_map` due to recent update by the Gaia database.
+* Fix bug in model [`load_star_map`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/scene_generation_models.html#load-star-map)
+  in [`Scene Generation`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/scene_generation_models.html)
+  due to recent update by the Gaia database.
   (See [!1010](https://gitlab.com/esa/pyxel/-/merge_requests/1010)
   and [!1015](https://gitlab.com/esa/pyxel/-/merge_requests/1015)).
-* New model `Absorption Model` from `Charge Generation`.
-  (See [!1005](https://gitlab.com/esa/pyxel/-/merge_requests/1005), 
+* New model [`Exponential QE`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_generation_models.html#exponential-absorption-law) 
+  from [`Charge Generation`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_generation_models.html#exponential-absorption-law).
+  (See [!1005](https://gitlab.com/esa/pyxel/-/merge_requests/1005),
   [!1014](https://gitlab.com/esa/pyxel/-/merge_requests/1014)
   and [!1017](https://gitlab.com/esa/pyxel/-/merge_requests/1017)).
 

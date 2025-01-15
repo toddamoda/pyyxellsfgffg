@@ -90,9 +90,6 @@ GitLab release notes, blog, etc.
 
 13. Create a new 'wheel' package for the new release:
     ```fish
-    # Remove previous build(s)
-    $ rm -rf dist
-    
     # Create a wheel and a source package
     $ tox -e build
     $ ls dist
@@ -101,9 +98,6 @@ GitLab release notes, blog, etc.
 14. Send the new release 'pyxel-sim' to the Python Package Index (PyPI) repository with
     the following commands:
        ```fish
-       # Send the package to https://test.pypi.org (only for testing)
-       $ tox -e release -- --repository testpypi
-
        # Send the package to https://pypi.org
        $ tox -e release
        ```
