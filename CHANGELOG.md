@@ -10,9 +10,11 @@ Minor releases include updated stdlib stubs from typeshed.
 Pyxel doesn't use SemVer anymore, since most minor releases have at least minor backward incompatible changes.
 
 
-## UNRELEASED
+## 2.8.1 / 2025-01-16
 
-This release introduces significant updates and new features.
+This is a quicker release is to fix a bug in model [`load_star_map`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/scene_generation_models.html#load-star-map)
+in [`Scene Generation`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/scene_generation_models.html)
+with [`astroquery`](https://astroquery.readthedocs.io) version 0.4.8+
 
 ### Core
 
