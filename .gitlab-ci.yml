@@ -150,7 +150,7 @@ test_scene_generation:
   parallel:
     matrix:
       - PYTHON: ["3.12"]
-      - EXPRESSION: ["multi_wavelength"]
+        EXPRESSION: ["multi_wavelength"]
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
 

@@ -23,6 +23,8 @@ This release introduces significant updates and new features.
 ### Others
 * Add new CI/CD pipelines to check functional tests.
   (See [!1021](https://gitlab.com/esa/pyxel/-/merge_requests/1021)).
+* Remove references to Python 3.9 and 'xarray-datatree'.
+  (See [!1022](https://gitlab.com/esa/pyxel/-/merge_requests/1022)).
 
 
 

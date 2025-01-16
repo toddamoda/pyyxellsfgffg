@@ -82,7 +82,7 @@ napoleon_type_aliases = {
     # XArray
     "DataArray": "~xarray.DataArray",
     "Dataset": "~xarray.Dataset",
-    "DataTree": "~datatree.DataTree",
+    "DataTree": "~xarray.DataTree",
     # Pandas
     "DataFrame": "~pandas.DataFrame",
     # Numpy
@@ -239,7 +239,6 @@ intersphinx_mapping = {
     # "rasterio": ("https://rasterio.readthedocs.io/en/latest", None),
     "xarray": ("https://docs.xarray.dev/en/stable/", None),
     "holoviews": ("https://holoviews.org/", None),
-    "datatree": ("https://xarray-datatree.readthedocs.io/en/latest/", None),
     "pyxel_data": ("https://esa.gitlab.io/pyxel-data/", None),
 }
 
