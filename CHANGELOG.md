@@ -19,6 +19,9 @@ This release introduces significant updates and new features.
 ### Documentation
 
 ### Models
+* Fix bug in model [`load_star_map`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/scene_generation_models.html#load-star-map)
+  in [`Scene Generation`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/scene_generation_models.html) when using 'astroquery' version 0.4.8+.
+  (See [!1024](https://gitlab.com/esa/pyxel/-/merge_requests/1024)).
 
 ### Others
 * Add new CI/CD pipelines to check functional tests.

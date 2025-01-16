@@ -292,7 +292,18 @@ def _retrieve_objects_from_gaia(
     data_structure = "INDIVIDUAL"
 
     # Get all sources
-    source_ids: "Column" = result["SOURCE_ID"]
+    # ruff: noqa: SIM118
+    if "SOURCE_ID" in result.keys():
+        source_key = "SOURCE_ID"
+    elif "source_id" in result.keys():
+        # This change in 'astroquery' 0.4.8+
+        source_key = "source_id"
+    else:
+        raise ValueError(
+            "Expecting row 'SOURCE_ID' or 'source_id' in 'result'. Got these keys: {result.keys()}"
+        )
+
+    source_ids: "Column" = result[source_key]
     if len(source_ids) > 5000:
         # TODO: Fix this
         raise NotImplementedError("Cannot retrieve more than 5000 sources")
@@ -503,7 +514,7 @@ def _load_objects_from_gaia(
         flux        (ref, wavelength) float64 2.228e-16 2.432e-16 ... 3.693e-15
     """
     # TODO: Fix this. See issue #81
-    logging.getLogger("astroquery").setLevel(logging.WARNING)
+    # logging.getLogger("astroquery").setLevel(logging.WARNING)
 
     # Get all sources and spectrum in one Dataset
     ds_from_gaia: xr.Dataset = retrieve_from_gaia(
