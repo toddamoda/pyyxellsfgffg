@@ -141,12 +141,12 @@ gemnasium-dependency_scanning:
 #   Functional Tests Stage  #
 #############################
 
-test_scene_generation:
+functional_tests:
   image: python:${PYTHON}
   stage: functional tests
   needs: []
   script:
-    - tox -e functional_tests -k ${EXPRESSION}
+    - tox -e functional_tests -- -k ${EXPRESSION}
   parallel:
     matrix:
       - PYTHON: ["3.12"]
