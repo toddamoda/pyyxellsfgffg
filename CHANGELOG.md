@@ -21,6 +21,8 @@ This release introduces significant updates and new features.
 ### Models
 
 ### Others
+* Add new CI/CD pipelines to check functional tests.
+  (See [!1021](https://gitlab.com/esa/pyxel/-/merge_requests/1021)).
 
 
 

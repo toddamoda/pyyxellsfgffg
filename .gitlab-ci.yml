@@ -15,6 +15,8 @@ variables:
 
 stages:
   - test
+  - functional tests
+  - long
   - static analysis
   - build
   - deploy
@@ -42,9 +44,9 @@ workflow:
     - if: $CI_COMMIT_BRANCH         # Execute jobs if changes are pushed to any branch
     - if: $CI_COMMIT_TAG            # Execute jobs if changes are pushed for a tag
 
-# ###########################
-# Test Stage
-# ###########################
+#############################
+#        Test Stage         #
+#############################
 
 # Run pytest for Python 3.10 without anaconda
 python310:
@@ -135,9 +137,27 @@ gemnasium-dependency_scanning:
 #    - if: $CI_COMMIT_BRANCH         # Execute jobs if changes are pushed to any branch
 #    - if: $CI_COMMIT_TAG            # Execute jobs if changes are pushed for a tag
 
-# ###########################
-# Build stage
-# ###########################
+#############################
+#   Functional Tests Stage  #
+#############################
+
+test_scene_generation:
+  image: python:${PYTHON}
+  stage: functional tests
+  needs: []
+  script:
+    - tox -e functional_tests -k ${EXPRESSION}
+  parallel:
+    matrix:
+      - PYTHON: ["3.12"]
+      - EXPRESSION: ["multi_wavelength"]
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+
+
+#############################
+#        Build Stage        #
+#############################
 
 # Run pytest + coverage
 coverage:
@@ -230,9 +250,9 @@ build:
     paths:
       - dist/
 
-# ###########################
-# Deploy Stage
-# ###########################
+#############################
+#        Deploy Stage       #
+#############################
 
 # Create the pages
 pages:
