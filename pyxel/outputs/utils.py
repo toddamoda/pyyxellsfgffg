@@ -331,9 +331,9 @@ def save_to_files(
         dct[bucket_name].append(filename_dataarray)
 
     if np.__version__ >= "2":
-        dtype = np.dtypes.StringDType()  # type: ignore[attr-defined]
+        dtype = np.dtypes.StringDType()  # type: ignore[attr-defined,unused-ignore]
     else:
-        dtype = np.object_
+        dtype = np.object_  # type: ignore[assignment,unused-ignore]
 
     dct_datasets: Mapping[str, xr.Dataset] = {
         key: xr.concat(value, dim="extension").astype(dtype).to_dataset(name="filename")
