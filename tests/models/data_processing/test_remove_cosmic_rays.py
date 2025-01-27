@@ -97,9 +97,28 @@ def test_data_output(ccd_50x50: CCD):
 def test_ray_removal(ccd_50x50: CCD):
     """Test ray tracing removal."""
     detector = ccd_50x50
+
     pixels = create_image_with_cosmics()  # 2d array
     detector.pixel.array = pixels
+
+    ###################
+    # First iteration #
+    ###################
+    detector.readout_properties.time = 0.0
+    detector.readout_properties.time_step = 1.0
+    detector.readout_properties.pipeline_count = 0
+
     remove_cosmic_rays(detector=detector)
+
+    ####################
+    # Second iteration #
+    ####################
+    detector.readout_properties.time = 1.0
+    detector.readout_properties.time_step = 1.0
+    detector.readout_properties.pipeline_count = 1
+
+    remove_cosmic_rays(detector=detector)
+
     data = detector.data
 
     assert np.sum(data["/lacosmic/cosmic_ray_mask"].data) > 0

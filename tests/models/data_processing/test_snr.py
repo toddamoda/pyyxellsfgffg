@@ -37,13 +37,36 @@ def ccd_10x10() -> CCD:
     detector.pixel.array = np.zeros(detector.geometry.shape, dtype=float)
     detector.photon.array = np.zeros(detector.geometry.shape, dtype=float)
     detector.image.array = np.zeros(detector.geometry.shape, dtype=np.uint64)
-    detector._readout_properties = ReadoutProperties(times=[1.0])
+    detector._readout_properties = ReadoutProperties(times=[1.0, 2.0])
     return detector
 
 
 def test_snr_input(ccd_10x10: CCD):
     """Test input parameters for function 'signal_to_noise_ratio'."""
     detector = ccd_10x10
+
+    ###################
+    # First iteration #
+    ###################
+    detector.readout_properties.time = 0.0
+    detector.readout_properties.time_step = 1.0
+    detector.readout_properties.pipeline_count = 0
+
+    signal_to_noise_ratio(detector=detector, data_structure="all")
+    assert "snr" in detector.data
+    assert "partial" in detector.data["snr"]
+    assert "pixel" in detector.data["snr/partial"]
+    assert "photon" in detector.data["snr/partial"]
+    assert "signal" in detector.data["snr/partial"]
+    assert "image" in detector.data["snr/partial"]
+
+    ####################
+    # Second iteration #
+    ####################
+    detector.readout_properties.time = 1.0
+    detector.readout_properties.time_step = 1.0
+    detector.readout_properties.pipeline_count = 1
+
     signal_to_noise_ratio(detector=detector, data_structure="all")
 
     data = detector.data
@@ -54,10 +77,10 @@ def test_snr_input(ccd_10x10: CCD):
         assert isinstance(data_snr, xr.DataTree)
 
         assert "time" in data_snr.coords
-        assert list(data_snr.coords["time"]) == [0.0]
+        assert list(data_snr.coords["time"]) == [0.0, 1.0]
 
         dataset = data_snr.to_dataset()
         assert isinstance(dataset, xr.Dataset)
 
         assert "time" in dataset.coords
-        assert list(dataset.coords["time"]) == [0.0]
+        assert list(dataset.coords["time"]) == [0.0, 1.0]

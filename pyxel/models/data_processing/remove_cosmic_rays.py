@@ -118,10 +118,10 @@ def remove_cosmic_rays(
         dims=["time"],
         attrs={"units": "s"},
     )
-    dataset = xr.Dataset()
-    dataset["cosmic_ray_mask"] = xr.DataArray(cr_mask, dims=["y", "x"])
-    dataset["cosmic_ray_clean"] = detector.pixel.to_xarray()
-    dataset = dataset.expand_dims(dim="time").assign_coords(time=absolute_time)
+    cosmic_rays = xr.Dataset()
+    cosmic_rays["cosmic_ray_mask"] = xr.DataArray(cr_mask, dims=["y", "x"])
+    cosmic_rays["cosmic_ray_clean"] = detector.pixel.to_xarray()
+    cosmic_rays = cosmic_rays.expand_dims(dim="time").assign_coords(time=absolute_time)
 
     key = "lacosmic"
     key_partial = "lacosmic_partial"
@@ -134,16 +134,16 @@ def remove_cosmic_rays(
         has_key_partial = True
 
     if not has_key_partial:
-        data_tree: xr.DataTree = xr.DataTree(dataset)
+        data_set: xr.Dataset = cosmic_rays
     else:
         # Concatenate data
         previous_datatree = detector.data[key_partial]
-        data_tree = previous_datatree.combine_first(dataset)  # type: ignore
+        data_set = xr.merge([previous_datatree.to_dataset(), cosmic_rays])
 
     if detector.pipeline_count == (detector.num_steps - 1):
-        detector.data[key] = data_tree
+        detector.data[key] = data_set
     else:
-        detector.data[key_partial] = data_tree
+        detector.data[key_partial] = data_set
 
     # This is the last step and there is at least two steps
     if detector.num_steps > 1 and (detector.pipeline_count == (detector.num_steps - 1)):

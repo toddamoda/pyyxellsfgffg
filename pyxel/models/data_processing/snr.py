@@ -107,16 +107,16 @@ def signal_to_noise_ratio(
             has_key_partial = True
 
         if not has_key_partial:
-            data_tree: xr.DataTree = xr.DataTree(snr)
+            data_set: xr.Dataset = snr
         else:
             # Concatenate data
             previous_datatree = detector.data[key_partial]
-            data_tree = previous_datatree.combine_first(snr)  # type: ignore
+            data_set = xr.merge([previous_datatree.to_dataset(), snr])
 
         if detector.pipeline_count == (detector.num_steps - 1):
-            detector.data[key] = data_tree
+            detector.data[key] = data_set
         else:
-            detector.data[key_partial] = data_tree
+            detector.data[key_partial] = data_set
 
     # This is the last step and there is at least two steps
     if detector.num_steps > 1 and (detector.pipeline_count == (detector.num_steps - 1)):
