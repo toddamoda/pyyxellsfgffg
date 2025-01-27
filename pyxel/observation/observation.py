@@ -11,7 +11,7 @@ import sys
 from collections import Counter
 from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal, Optional
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 
@@ -126,7 +126,7 @@ class Observation:
     def __init__(
         self,
         parameters: Sequence[ParameterValues],
-        outputs: Optional["ObservationOutputs"] = None,
+        outputs: "ObservationOutputs | None" = None,
         readout: Readout | None = None,
         mode: Literal["product", "sequential", "custom"] = "product",
         from_file: str | None = None,  # Note: Only For 'custom' mode

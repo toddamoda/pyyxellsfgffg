@@ -13,7 +13,7 @@ import warnings
 from collections import defaultdict
 from collections.abc import Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Union
 
 import numpy as np
 from typing_extensions import deprecated
@@ -39,7 +39,7 @@ class Exposure:
     def __init__(
         self,
         readout: "Readout",
-        outputs: Optional["ExposureOutputs"] = None,
+        outputs: "ExposureOutputs | None" = None,
         result_type: str = "all",
         pipeline_seed: int | None = None,
         working_directory: str | None = None,

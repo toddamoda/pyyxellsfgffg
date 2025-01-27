@@ -11,7 +11,7 @@ from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from shutil import copy2
-from typing import IO, TYPE_CHECKING, Any, Optional, Union
+from typing import IO, TYPE_CHECKING, Any, Union
 
 from pyxel import __version__ as version
 from pyxel.detectors import (
@@ -45,7 +45,7 @@ class Configuration:
     # Running modes
     exposure: Exposure | None = None
     observation: Observation | None = None
-    calibration: Optional["Calibration"] = None
+    calibration: "Calibration | None" = None
 
     # Detectors
     ccd_detector: CCD | None = None

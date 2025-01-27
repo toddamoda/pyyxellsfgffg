@@ -72,8 +72,8 @@ class Calibration:
         fitness_function: FitnessFunction,
         algorithm: Algorithm,
         parameters: Sequence[ParameterValues],
-        outputs: Optional["CalibrationOutputs"] = None,
-        readout: Optional["Readout"] = None,
+        outputs: "CalibrationOutputs | None",
+        readout: "Readout | None",
         mode: Literal["pipeline", "single_model"] = "pipeline",
         result_type: Literal["image", "signal", "pixel"] = "image",
         result_fit_range: (
