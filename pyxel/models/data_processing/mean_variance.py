@@ -162,22 +162,22 @@ def mean_variance(
 
     # If no partial data exists, create a new DataTree
     if key_partial not in detector.data.groups:
-        data_tree: xr.DataTree = xr.DataTree(mean_variance)
+        data_set: xr.Dataset = mean_variance
     else:
         # Concatenate new data with existing partial data
-        data_tree = xr.merge([detector.data[key_partial].to_dataset(), mean_variance])  # type: ignore[assignment]
+        data_set = xr.merge([detector.data[key_partial].to_dataset(), mean_variance])
 
     # If pipeline is at its final step, clean up partial results and store the full result
     if detector.pipeline_count == (detector.num_steps - 1):
         # TODO: Find better solution (e.g. check if node parent_partial exists)
         if detector.num_steps == 1:
-            detector.data[key] = data_tree.squeeze(drop=True)
+            detector.data[key] = data_set.squeeze(drop=True)
 
         else:
             # Detach node parent_partial
             detector.data[parent_partial].orphan()
-            detector.data[key] = data_tree.sortby("mean")
+            detector.data[key] = data_set.sortby("mean")
 
     else:
         # Otherwise, continue storing partial results
-        detector.data[key_partial] = data_tree
+        detector.data[key_partial] = data_set

@@ -17,11 +17,12 @@ from [`Data Processing`](https://esa.gitlab.io/pyxel/doc/stable/references/model
 
 ### Models
 * Fix issues with models 
-  [`signal_to_noise_ratio`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/data_processing_models.html#signal-to-noise-ratio)
-  and [`remove_cosmic_rays`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/data_processing_models.html#remove-cosmic-rays)
+  [`signal_to_noise_ratio`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/data_processing_models.html#signal-to-noise-ratio),
+  [`remove_cosmic_rays`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/data_processing_models.html#remove-cosmic-rays) and
+  [`mean variance`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/data_processing_models.html#mean-variance)
   from [`Data Processing`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/data_processing_models.html#).
-  (See [!1027](https://gitlab.com/esa/pyxel/-/merge_requests/1027)).
-
+  (See [!1027](https://gitlab.com/esa/pyxel/-/merge_requests/1027)
+  [!1028](https://gitlab.com/esa/pyxel/-/merge_requests/1028)).
 
 ## 2.8.1 / 2025-01-16
 

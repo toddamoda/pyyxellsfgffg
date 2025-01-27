@@ -370,6 +370,7 @@ def run_pipelines_with_dask(
         # TODO: See #836
         final_datatree["/bucket"] = (
             final_datatree["/bucket"]
+            .to_dataset()
             .squeeze("time", drop=True)  # Remove dimension 'time'
             .rename(readout_time="time")  # Rename dimension 'readout' to 'time
         )
