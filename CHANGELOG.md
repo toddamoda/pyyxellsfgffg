@@ -10,26 +10,24 @@ Minor releases include updated stdlib stubs from typeshed.
 Pyxel doesn't use SemVer anymore, since most minor releases have at least minor backward incompatible changes.
 
 
-## UNRELEASED
+## 2.8.2 / 2025-01-27
 
-### Core
-
-### Documentation
+This release fixes two models 
+from [`Data Processing`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/data_processing_models.html#).
 
 ### Models
-
-### Others
+* Fix issues with models 
+  [`signal_to_noise_ratio`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/data_processing_models.html#signal-to-noise-ratio)
+  and [`remove_cosmic_rays`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/data_processing_models.html#remove-cosmic-rays)
+  from [`Data Processing`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/data_processing_models.html#).
+  (See [!1027](https://gitlab.com/esa/pyxel/-/merge_requests/1027)).
 
 
 ## 2.8.1 / 2025-01-16
 
-This is a quicker release is to fix a bug in model [`load_star_map`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/scene_generation_models.html#load-star-map)
+This is a quick release to fix a bug in model [`load_star_map`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/scene_generation_models.html#load-star-map)
 in [`Scene Generation`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/scene_generation_models.html)
 with [`astroquery`](https://astroquery.readthedocs.io) version 0.4.8+
-
-### Core
-
-### Documentation
 
 ### Models
 * Fix bug in model [`load_star_map`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/scene_generation_models.html#load-star-map)
