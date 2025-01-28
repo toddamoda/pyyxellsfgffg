@@ -285,7 +285,6 @@ Basic example of YAML configuration model for monochromatic pipeline:
           x_epi: 0.0002
           detector_type: "BI" #or "FI"
           default_wavelength: 750.0 #in nm
-          delta_t: -200.0 #optional, from the reference 300K
           x_poly: 0.0001 #only in case of "FI" detector
 
 Basic example of YAML configuration model for multi-wavelength pipeline:
@@ -300,7 +299,6 @@ Basic example of YAML configuration model for multi-wavelength pipeline:
           x_epi: 0.0002
           detector_type: "BI" #or "FI"
           default_wavelength: 'multi'
-          delta_t: -200.0 #optional, from the reference 300K
           x_poly: 0.0001 #only in case of "FI" detector
 
 .. autofunction:: exponential_qe
