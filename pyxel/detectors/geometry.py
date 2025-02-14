@@ -284,6 +284,9 @@ class Geometry:
             pixel_horizontal_size=self.pixel_horz_size,
         )
 
+    def get_channel_coord(self, channels: int | str) -> tuple[slice, slice]:
+        raise NotImplementedError
+
     @property
     def numbytes(self) -> int:
         """Recursively calculates object size in bytes using Pympler library.
