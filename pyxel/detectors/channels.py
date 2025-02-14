@@ -124,9 +124,7 @@ class Channels:
     #                 f"The product of the divisions ({expected_output_count}) must match the number of outputs provided ({len(self.output)})."
     #             )
 
-    def get_channel_coord(self, channel) -> tuple[slice, slice]:
-        raise NotImplementedError
-
+    # TODO: Move
     def build_mask(self) -> np.ndarray:
         # Should save n array, one for each channel? Or should it have a well-defined structure to identify the channels?
         raise NotImplementedError
