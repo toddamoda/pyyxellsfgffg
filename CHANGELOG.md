@@ -10,6 +10,19 @@ Minor releases include updated stdlib stubs from typeshed.
 Pyxel doesn't use SemVer anymore, since most minor releases have at least minor backward incompatible changes.
 
 
+## UNRELEASED
+
+### Core
+
+### Documentation
+
+### Models
+
+### Others
+* Fix issue with sphinx 8.2.
+  (See [!1031](https://gitlab.com/esa/pyxel/-/merge_requests/1031)).
+
+
 ## 2.8.2 / 2025-01-27
 
 This release fixes two models 
@@ -40,7 +53,6 @@ with [`astroquery`](https://astroquery.readthedocs.io) version 0.4.8+
   (See [!1021](https://gitlab.com/esa/pyxel/-/merge_requests/1021)).
 * Remove references to Python 3.9 and 'xarray-datatree'.
   (See [!1022](https://gitlab.com/esa/pyxel/-/merge_requests/1022)).
-
 
 
 ## 2.8 / 2025-01-15

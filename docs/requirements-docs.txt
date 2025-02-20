@@ -1,6 +1,6 @@
 # Pyxel additional requirements for generating documentation
 
-sphinx>=5
+sphinx>=5,<8.2        # See https://github.com/sphinx-doc/sphinx/issues/13366
 sphinx-book-theme>=1
 pydata-sphinx-theme
 sphinxcontrib-bibtex
