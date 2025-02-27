@@ -20,7 +20,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 
 ### Others
 * Fix issue with sphinx 8.2.
-  (See [!1031](https://gitlab.com/esa/pyxel/-/merge_requests/1031)).
+  (See [!1031](https://gitlab.com/esa/pyxel/-/merge_requests/1031)
+  and [!1032](https://gitlab.com/esa/pyxel/-/merge_requests/1032)).
 
 
 ## 2.8.2 / 2025-01-27
