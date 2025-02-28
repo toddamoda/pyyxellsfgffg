@@ -213,6 +213,10 @@ module = [
 ignore_errors = true
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = "pyxel.models.*"
+disable_error_code = [ "attr-defined" ]
+
 [tool.pytest.ini_options]
 addopts = [
     "--showlocals",

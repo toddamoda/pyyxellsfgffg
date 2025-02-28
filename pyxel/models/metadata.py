@@ -7,7 +7,6 @@
 
 """Sub-package for metadata."""
 
-from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Literal
 
@@ -39,14 +38,32 @@ class MetadataModel:
 
 
 @dataclass(frozen=True, slots=True)
+class History:
+    version: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
 class Metadata:
-    version: str
-    status: Literal["draft", "validated", "deprecated"]
-    model: MetadataModel
-    detector: list[str] | str | None = None
+    name: str
+    model_group: Literal[
+        "Scene Generation",
+        "Photon Collection",
+        "Charge Generation",
+        "Charge Collection",
+        "Phasing",
+        "Charge Transfer",
+        "Charge Measurement",
+        "Readout Electronics",
+        "Data Processing",
+    ]
+    version: str | None = None
+    detector: list[str] | str = "all"
+    status: Literal["draft", "validated", "deprecated"] | None = None
+    model: MetadataModel | None = None
     authors: list[str] | str | None = None
-    notebooks: list[str] | None = None
+    notebooks: list[str] | str | None = None
     references: list[str] | None = None
+    history: list[History] | None = None
 
 
 class ModelCallable(Protocol):
@@ -61,22 +78,3 @@ class ModelCallableWithMetaData(Protocol):
     meta: Metadata | None = None
 
     def __call__(self, detector: Detector, **kwargs) -> None: ...
-
-
-def attach_metadata(func: Callable) -> ModelCallableWithMetaData:
-    """Define a decorator to add metadata to a model.
-
-    Examples
-    --------
-    >>> from pyxel.detectors import Detector
-    >>> from pyxel.models import attach_metadata, Metadata
-
-    >>> def my_model(detector: Detector, param1: int, param2: str) -> None:
-    ...     pass  # Do something
-
-    >>> my_model.meta = Metadata(description="foo", config="bar")
-    """
-    meta: Metadata | None = None
-
-    func.meta = meta  # type: ignore[attr-defined]
-    return func  # type: ignore[return-value]

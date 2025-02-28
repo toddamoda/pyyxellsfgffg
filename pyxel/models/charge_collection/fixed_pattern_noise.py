@@ -13,6 +13,7 @@ from typing import Literal
 import numpy as np
 
 from pyxel.detectors import Detector, Geometry
+from pyxel.models import Metadata, MetadataModel
 from pyxel.util import (
     load_cropped_and_aligned_image,
     resolve_with_working_directory,
@@ -158,3 +159,34 @@ def fixed_pattern_noise(
                 "Either filename or fixed_pattern_noise_factor has to be defined."
             )
     detector.pixel.array *= prnu_2d
+
+
+fixed_pattern_noise.meta = Metadata(
+    name="fixed_pattern_noise",
+    model_group="Charge Collection",
+    detector="all",
+    status=None,
+    model=MetadataModel(
+        description="""With this model you can multiply :py:class:`~pyxel.data_structure.Pixel` array with
+fixed pattern noise caused by pixel non-uniformity during charge collection.
+User has to provide a ``filename`` or a fixed-pattern nise factor to model arguments.
+Accepted file formats for the noise are ``.npy``, ``.fits``, ``.txt``, ``.data``, ``.jpg``, ``.jpeg``, ``.bmp``,
+``.png`` and ``.tiff``. Use argument ``position`` to set the offset from (0,0) pixel
+and set where the noise is placed onto detector. You can set preset positions with argument ``align``.
+Values outside of detector shape will be cropped.
+Read more about placement in the documentation of function :py:func:`~pyxel.util.fit_into_array`.
+If the user provides a value for the ``fixed_pattern_noise_factor`` instead of a filename,
+the model will use a simple calculation of the PRNU. In the simple calculation the ``fixed_pattern_noise_factor``
+will be multiplied with the quantum_efficiency, given by the detector characteristics, and applied to the pixel array
+through a lognormal distribution. The ``fixed_pattern_noise_factor`` is typically between 0.01 and 0.02 for a given sensor,
+but varies from one sensor to another :cite:p:`Konnik:noises`.""",
+        config="""
+                                        - name: fixed_pattern_noise
+func: pyxel.models.charge_collection.fixed_pattern_noise
+enabled: true
+arguments:
+  filename: "noise.fits"
+  #fixed_pattern_noise_factor: 0.01
+""",
+    ),
+)
