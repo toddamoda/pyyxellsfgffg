@@ -10,6 +10,7 @@
 import numpy as np
 
 from pyxel.detectors import Detector
+from pyxel.models import Metadata, MetadataModel
 
 
 def apply_simple_full_well_capacity(array: np.ndarray, fwc: int) -> np.ndarray:
@@ -51,3 +52,29 @@ def simple_full_well(detector: Detector, fwc: int | None = None) -> None:
     )
 
     detector.pixel.array = charge_array
+
+
+simple_full_well.meta = Metadata(
+    name="simple_full_well",
+    model_group="Charge Collection",
+    detector="all",
+    status=None,
+    model=MetadataModel(
+        description="""This model can be used to limit the amount of charge in :py:class:`~pyxel.data_structure.Pixel` array
+due to full well capacity. Values will be clipped to the value of the full well capacity.
+The model uses full well capacity value specified in :py:class:`~pyxel.detectors.Characteristics` of the
+:py:class:`~pyxel.detectors.Detector`, unless providing an argument ``fwc`` directly as the model argument.
+""",
+        config="""
+- name: simple_full_well
+  func: pyxel.models.charge_collection.simple_full_well
+  enabled: true
+  arguments:
+      fwc: 1000  # optional
+""",
+        notebooks=[
+            "examples/models/inter_pixel_capacitance/ipc",
+            "use_cases/HxRG/h2rg",
+        ],
+    ),
+)

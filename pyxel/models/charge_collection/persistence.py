@@ -85,6 +85,7 @@ import numpy as np
 
 from pyxel.data_structure import Persistence, SimplePersistence
 from pyxel.detectors import CMOS
+from pyxel.models import Metadata, MetadataModel
 from pyxel.util import load_cropped_and_aligned_image
 
 
@@ -158,6 +159,34 @@ def simple_persistence(
 
     detector.pixel.array = new_pixel_array
     detector.persistence.trapped_charge_array = new_all_trapped_charge
+
+
+simple_persistence.meta = Metadata(
+    name="simple_persistence",
+    model_group="Charge Collection",
+    detector="all",
+    status=None,
+    model=MetadataModel(
+        description="""With this model you can simulate the effect of persistence changing :py:class:`~pyxel.data_structure.Pixel` array.
+The simple model takes as input a list of trap time constants together with a list of trap densities
+and assuming the trap densities are uniform over the whole detector area.
+Additionally user can also specify trap full well capacities using the ``trap_capacities`` parameter.
+At each iteration of the pipeline, the model  will compute the amount of trapped charges in this iteration, add it
+to the memory of the detector and then remove this amount from the pixel array.
+More on the persistence model can be found in  :cite:p:`2019:persistence`.
+""",
+        config="""
+- name: simple_persistence
+  func: pyxel.models.charge_collection.simple_persistence
+  enabled: true
+  arguments:
+    trap_time_constants: [1., 10.]  # Two different traps
+    trap_densities: [0.307, 0.175]
+    trap_capacities: [100., 100.]  # optional
+    """,
+        notebooks=["use_cases/HxRG/h2rg"],
+    ),
+)
 
 
 @numba.njit(fastmath=True)
@@ -351,6 +380,46 @@ def persistence(
 
     detector.pixel.array = new_pixel_array
     detector.persistence.trapped_charge_array = new_all_trapped_charge
+
+
+persistence.meta = Metadata(
+    name="persistence",
+    model_group="Charge Collection",
+    detector="all",
+    status=None,
+    model=MetadataModel(
+        description="""With this model you can simulate the effect of persistence changing :py:class:`~pyxel.data_structure.Pixel` array.
+The more advanced model takes as input a list of trap time constants together with a list of trap proportions.
+For trap densities user has to provide a 2D map of densities.
+This model assumes trap density distribution over the detector area is the same for all traps
+and the trap densities are computed using the map and trap proportions.
+Additionally user can also specify trap full well capacity map.
+At each iteration of the pipeline, the model  will compute the amount of trapped charges in this iteration, add it
+to the memory of the detector and then remove this amount from the pixel array.
+More on the persistence model can be found in  :cite:p:`2019:persistence`.
+
+Use arguments ``trap_densities_position`` and ``trap_capacities_position`` to set the maps offset from (0,0) pixel
+and set where the input map is placed onto detector.
+You can set preset positions with arguments ``trap_densities_align`` and ``trap_capacities_align``.
+Values outside of detector shape will be cropped.
+Read more about placement in the documentation of function :py:func:`~pyxel.util.fit_into_array`.
+""",
+        config="""
+- name: persistence
+  func: pyxel.models.charge_collection.persistence
+  enabled: true
+  arguments:
+    trap_time_constants: [1, 10, 100, 1000, 10000]
+    trap_proportions: [0.307, 0.175, 0.188, 0.136, 0.194]
+    trap_densities_filename: trap_densities.fits
+    trap_capacities_filename: trap_capacities.fits  # optional
+""",
+        notebooks=[
+            "examples/exposure/exposure_persistence-H4RG",
+            "use_cases/HxRG/h2rg",
+        ],
+    ),
+)
 
 
 @numba.njit(fastmath=True)
