@@ -9,6 +9,7 @@
 
 from collections.abc import Callable
 from dataclasses import dataclass
+from typing import Literal
 
 from typing_extensions import Protocol
 
@@ -16,7 +17,7 @@ from pyxel.detectors import Detector
 
 
 @dataclass(frozen=True, slots=True)
-class Metadata:
+class MetadataModel:
     """Store metadata information for the models.
 
     Attributes
@@ -35,6 +36,17 @@ class Metadata:
     config: str
     references: list[str] | None = None
     notebooks: list[str] | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class Metadata:
+    version: str
+    status: Literal["draft", "validated", "deprecated"]
+    model: MetadataModel
+    detector: list[str] | str | None = None
+    authors: list[str] | str | None = None
+    notebooks: list[str] | None = None
+    references: list[str] | None = None
 
 
 class ModelCallable(Protocol):
