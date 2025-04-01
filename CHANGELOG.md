@@ -13,6 +13,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 ## UNRELEASED
 
 ### Core
+* Add `Channels`.
+  (See [!1033](https://gitlab.com/esa/pyxel/-/merge_requests/1033)).
 
 ### Documentation
 
