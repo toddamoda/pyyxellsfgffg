@@ -38,12 +38,12 @@ class MetadataModel:
 
 
 @dataclass(frozen=True, slots=True)
-class History:
+class History:  # noqa: D101
     version: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
-class Metadata:
+class Metadata:  # noqa: D101
     name: str
     model_group: Literal[
         "Scene Generation",
