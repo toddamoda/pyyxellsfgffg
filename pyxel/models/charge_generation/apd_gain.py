@@ -8,6 +8,7 @@
 """Avalanche gain model."""
 
 from pyxel.detectors import APD
+from pyxel.models import Metadata, MetadataModel
 
 
 def apd_gain(detector: APD) -> None:
@@ -38,3 +39,23 @@ def apd_gain(detector: APD) -> None:
         detector.charge.empty()
         frame_copy.number *= detector.characteristics.avalanche_gain
         detector.charge.add_charge_dataframe(new_charges=frame_copy)
+
+
+apd_gain.meta = Metadata(
+    name="apd_gain",
+    model_group="Charge Collection",
+    detector="APD",
+    status=None,
+    model=MetadataModel(
+        """With this model you can apply APD gain to the a :py:class:`~pyxel.detectors.APD` object.
+Model simply multiplies the values of charge with the avalanche gain,
+which should be specified in the detector characteristics.""",
+        notes="This model is specific to the :term:`APD` detector.",
+        config="""
+- name: apd_gain
+  func: pyxel.models.charge_generation.apd_gain
+  enabled: true
+""",
+        notebooks=[":external+pyxel_data:doc:`use_cases/APD/saphira`"],
+    ),
+)

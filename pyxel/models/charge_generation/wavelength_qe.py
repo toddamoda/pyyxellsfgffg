@@ -15,6 +15,7 @@ import xarray as xr
 
 from pyxel.detectors import Detector
 from pyxel.inputs.loader import load_dataarray, load_table_v2
+from pyxel.models import Metadata, MetadataModel
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -140,6 +141,34 @@ def apply_qe_curve(
     detector.charge.add_charge_array(new_charge)
 
 
+apply_qe_curve.meta = Metadata(
+    name="apply_qe_curve",
+    model_group="Charge Collection",
+    detector="all",
+    status=None,
+    model=MetadataModel(
+        description="""With this model you can create and add charge to
+:py:class:`~pyxel.detectors.Detector` via photoelectric effect by converting photons in charge.
+Loading QE vs wavelength values from a file to apply the QE to the photon array.
+Accepted file formats are ``.npy``, ``.fits``, ``.txt``, ``.data`` and ``.csv``.
+The column containing wavelength information should be in nanometers.
+After the photoconversion from photon to charge, applying the QE values to the photon array
+takes places and finally integrating along the wavelength dimension to get a 2D charge array as output.
+""",
+        notes="This model operates multi-wavelength photons.",
+        config="""
+- name: load_qe_curve
+  func: pyxel.models.charge_generation.apply_qe_curve
+  enabled: false
+  arguments:
+    filename: "qe_curve.csv"
+    wavelength_col_name: "corrected lambda / nm"
+    qe_col_name: "QE"
+""",
+    ),
+)
+
+
 # TODO: refactor with 2d and give option of wavelength to go for 3d
 # TODO: unit test to check that file dim and detector are the same
 def conversion_with_3d_qe_map(
@@ -184,3 +213,31 @@ def conversion_with_3d_qe_map(
     new_charge: np.ndarray = np.asarray(integrated_charge)
 
     detector.charge.add_charge_array(new_charge)
+
+
+conversion_with_3d_qe_map.meta = Metadata(
+    name="conversion_with_3d_qe_map",
+    model_group="Charge Collection",
+    detector="all",
+    status=None,
+    model=MetadataModel(
+        description="""With this model you can create and add charge to
+:py:class:`~pyxel.detectors.Detector` via photoelectric effect by converting photons in charge.
+Loading QE values from a file to apply the QE to the photon array.
+Loading a 3D QE map from a file containing one QE map in the size of the detector per wavelength to apply the QE
+to the photon array. The file format must be netCDF, so ending with ``.nc`` to be able to read in.
+The file loaded will be interpreted as :py:class:`xarray.DataArray` and should have the "wavelength" as coordinate, such that the
+wavelength resolution of the QE map data can be interpolated to match to the resolution of the wavelength used in
+the photon array. After that the photoconversion from photon to charge, applying the QE values to the photon array
+takes places and finally integrating along the wavelength dimension to get a 2D charge array as output.
+""",
+        notes="This model operates multi-wavelength photons.",
+        config="""
+- name: conversion_with_3d_qe_map
+  func: pyxel.models.charge_generation.conversion_with_3d_qe_map
+  enabled: true
+  arguments:
+    filename: "qe_map.nc
+    """,
+    ),
+)

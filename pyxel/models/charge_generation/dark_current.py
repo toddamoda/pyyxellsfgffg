@@ -15,6 +15,7 @@ from astropy import constants as const
 from astropy.units import Quantity, Unit
 
 from pyxel.detectors import Detector
+from pyxel.models import Metadata, MetadataModel
 from pyxel.util import set_random_seed
 
 
@@ -331,3 +332,62 @@ def dark_current(
             )  # unit: electron / pix
 
     detector.charge.add_charge_array(np.asarray(dark_current_2d))
+
+
+dark_current.meta = Metadata(
+    name="dark_current",
+    model_group="Charge Collection",
+    detector="all",
+    status=None,
+    model=MetadataModel(
+        description=r"""With this model you can add a temperature dependent dark current to charge data,
+stored in the a :py:class:`~pyxel.detectors.Detector` object.
+The model follows the description in :cite:p:`Konnik:noises`.
+The average dark current rate (in :math:`\mathit{e^-/s/pixel}`) is:
+
+:math:`D_R = \frac{D_{FM}P_{S}}{q}\frac{T^\frac{3}{2}e^{-\frac{E_{gap}}{2k_{B}T}}}{T_{room}^\frac{3}{2}e^{-\frac{E_{g,room}}{2k_{B}T_{room}}}}`
+
+where
+
+:math:`T` is temperature (in :math:`K`), :math:`T_{room}` room temperature (:math:`\mathit{300 K}`), :math:`E_{g}` band gap (in :math:`eV`),
+:math:`k_B` Boltzmann constant, :math:`D_{FM}` dark current figure of merit (in :math:`nA/cm^{2}`),
+:math:`P_S` pixel area (in :math:`cm^{2}`), :math:`q` charge of an electron (in :math:`C`)and :math:`E_{g, room}` band gap at room temperature.
+The entire dark current during exposure is:
+
+:math:`I_{dark}=\mathcal{P}\big(t_{exp}D_R\big)\bigg(1+\mathcal{lnN}\big(0, \sigma^2_{fpn}\big)\bigg)`,
+
+where :math:`\sigma_{fpn}=t_{exp} D_R D_N`, :math:`\mathcal{P}` Poisson distribution,
+:math:`\mathcal{lnN}` log-normal distribution, :math:`D_N` the dark current spatial noise factor
+and :math:`t_{exp}` exposure time (in :math:`s`).
+
+To use the model,
+user has to provide arguments ``figure_of_merit`` in :math:`\mathit{nA/cm^2}` (:math:`D_{FM}`),
+``band_gap`` in :math:`\mathit{eV}`, ``band_gap_room_temperature`` in :math:`\mathit{eV}`, ``spatial_noise_factor`` (:math:`D_N`)
+and ``temporal_noise``.
+If ``temporal_noise`` is true, shot noise will be included.
+The ``spatial_noise_factor`` is typically between 0.1 and 0.4 for CCD and CMOS sensors :cite:p:`Konnik:noises`.
+
+Parameter ``temperature`` in :math:`\mathit{K}` is taken from detector :py:class:`~pyxel.detectors.Environment`.
+If arguments ``band_gap`` and ``band_gap_room_temperature`` are not provided,
+the model will use the Varshni empirical formula (see :cite:p:`VARSHNI1967149`) with parameters for Silicon by default:
+
+:math:`E_{gap}(T) = E_{gap}(0) - \frac{\alpha T^2}{T+\beta}`.
+
+For Silicon, material constants are :math:`E_{gap}(0)=1.1577\mathit{[eV]}`, :math:`\alpha=7.021\times10^{-4}\mathit{[eV/K]}`,
+and :math:`\beta=1108\mathit{[K]}`.""",
+        notes="""You can find an example of this model used in this Jupyter Notebook
+:external+pyxel_data:doc:`examples/models/dark_current/dark_current_Si`
+from `Pyxel Data <https://esa.gitlab.io/pyxel-data>`_.""",
+        config="""
+- name: dark_current
+  func: pyxel.models.charge_generation.dark_current
+  enabled: true
+  arguments:
+    figure_of_merit: 1.  # nA/cm^2
+    band_gap: 1.2  # eV, optional
+    band_gap_room_temperature: 1.2  # eV, optional
+    spatial_noise_factor: 0.1
+    temporal_noise: false
+""",
+    ),
+)

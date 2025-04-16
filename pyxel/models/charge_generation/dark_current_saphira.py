@@ -10,6 +10,7 @@
 import numpy as np
 
 from pyxel.detectors import APD
+from pyxel.models import Metadata, MetadataModel
 from pyxel.util import set_random_seed
 
 
@@ -101,3 +102,29 @@ def dark_current_saphira(detector: APD, seed: int | None = None) -> None:
         ).astype(float)
 
     detector.charge.add_charge_array(dark_current_array)
+
+
+dark_current_saphira.meta = Metadata(
+    name="dark_current_saphira",
+    model_group="Charge Collection",
+    detector="APD",
+    status=None,
+    model=MetadataModel(
+        description="""With this empirical model you can add dark current to a :py:class:`~pyxel.detectors.APD` object.
+The model is an approximation the dark current vs. gain vs. temp plot in :cite:p:`2019:baker`, Fig. 3.
+We can split it into three linear 'regimes': 1) low-gain, low dark current; 2) nominal; and 3) trap-assisted tunneling.
+The model ignores the first one for now since this only applies at gains less than ~2.
+All the necessary arguments are provided through the detector characteristics.
+The model works best for ``temperature`` less than 100 and ``avalanche gain`` more than 2.""",
+        notes=[
+            "This model is specific to the :term:`APD` detector.",
+            "Dark current calculated with this model already takes into account the avalanche gain.",
+        ],
+        config="""
+- name: dark_current_saphira
+  func: pyxel.models.charge_generation.dark_current_saphira
+  enabled: true
+""",
+        notebooks=[":external+pyxel_data:doc:`use_cases/APD/saphira`"],
+    ),
+)

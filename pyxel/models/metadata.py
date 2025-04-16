@@ -31,6 +31,9 @@ ModelGroupsType: TypeAlias = Literal[
     "Data Processing",
 ]
 
+# Define all allowed Detectors
+DetectorType: TypeAlias = Literal["all", "CCD", "CMOS", "APD", "MKID"]
+
 # Global registry that stores all registered model metadata, grouped by model type
 REGISTERED_METADATA: Mapping[ModelGroupsType, list["Metadata"]] = defaultdict(list)
 
@@ -164,6 +167,14 @@ class MetadataAll(Mapping[ModelGroupsType, MetadataGroup]):
 
 
 @dataclass(frozen=True, slots=True)
+class YAMLConfig:
+    """Store information about the YAML Config file."""
+
+    config: str
+    description: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
 class MetadataModel:
     """Store metadata information for the models.
 
@@ -180,7 +191,9 @@ class MetadataModel:
     """
 
     description: str
-    config: str
+    config: str | list[YAMLConfig] | YAMLConfig
+    warnings: str | list[str] | None = None
+    notes: str | list[str] | None = None
     references: list[str] | None = None
     notebooks: list[str] | None = None
 
@@ -199,7 +212,7 @@ class Metadata:
     name: str
     model_group: ModelGroupsType
     version: str | None = None
-    detector: list[str] | str = "all"
+    detector: list[DetectorType] | DetectorType = "all"
     status: Literal["draft", "validated", "deprecated"] | None = None
     model: MetadataModel | None = None
     authors: list[str] | str | None = None

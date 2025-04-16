@@ -10,6 +10,7 @@
 import numpy as np
 
 from pyxel.detectors import Detector
+from pyxel.models import Metadata, MetadataModel
 from pyxel.util import set_random_seed
 
 
@@ -73,3 +74,21 @@ def simple_dark_current(
         ).astype(float)
 
     detector.charge.add_charge_array(dark_current_array)
+
+
+simple_dark_current.meta = Metadata(
+    name="simple_dark_current",
+    model_group="Charge Collection",
+    detector="all",
+    status=None,
+    model=MetadataModel(
+        description="""With this model you can add dark current to a :py:class:`~pyxel.detectors.Detector` object.""",
+        config="""
+- name: simple_dark_current
+  func: pyxel.models.charge_generation.simple_dark_current
+  enabled: true
+  arguments:
+    dark_rate: 10.0
+""",
+    ),
+)

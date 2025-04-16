@@ -8,5 +8,5 @@
 """TBW."""
 
 # flake8: noqa
-from .metadata import Metadata, MetadataModel, History, MetadataAll
+from .metadata import Metadata, MetadataModel, History, MetadataAll, YAMLConfig
 from .util import load_detector, save_detector

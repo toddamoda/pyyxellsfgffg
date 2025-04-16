@@ -18,6 +18,7 @@ from tqdm.auto import tqdm
 from typing_extensions import TypedDict
 
 from pyxel.detectors import Detector
+from pyxel.models import Metadata, MetadataModel, YAMLConfig
 
 # from pyxel.models.charge_generation.cosmix.plotting import PlottingCosmix
 from pyxel.models.charge_generation.cosmix.simulation import Simulation
@@ -193,6 +194,104 @@ def cosmix(
         #     plot_obj.show()
         # else:
         #     raise ValueError
+
+
+cosmix.meta = Metadata(
+    name="cosmix",
+    model_group="Charge Collection",
+    detector="all",
+    status=None,
+    authors="David Lucsanyi, ESA",
+    model=MetadataModel(
+        description="""A cosmic ray event simulator was the first model added to Pyxel.
+Initially it was a simple, semi-analytical model in Fortran using the stopping
+power curve of protons to optimize the on-board source detection algorithm
+of the Gaia telescope to discriminate between stars and cosmic rays. Then it
+was reimplemented in Python as TARS (Tools for Astronomical Radiation
+Simulations) and later as CosmiX.
+
+With this model you can add the effect of cosmic rays to the :py:class:`~pyxel.data_structure.Charge` data structure.
+See the documentation below for descriptions of parameters.
+CosmiX model is described in detail in :cite:p:`2020:cosmix`.
+
+* Developed by: David Lucsanyi, ESA
+
+.. figure:: _static/cosmix.png
+    :scale: 50%
+    :alt: Poppy
+    :align: center
+
+    CosmiX cosmix ray model
+
+
+Example of the configuration file using default ``running_mode: stepsize`` with step size files,
+all with the same incident energy of 100 MeV and for 5 different thicknesses of 40 µm, 50 µm, 60 µm, 70 µm and 100 µm.
+""",
+        config=[
+            YAMLConfig(
+                config="""
+- name: cosmix
+  func: pyxel.models.charge_generation.cosmix
+  enabled: true
+  arguments:
+    simulation_mode: cosmic_ray
+    running_mode: "stepsize"
+    particle_type: proton
+    initial_energy: 100.          # MeV
+    particles_per_second: 100
+    incident_angles:
+    starting_position:
+    spectrum_file: 'data/proton_L2_solarMax_11mm_Shielding.txt'
+    seed: 4321
+"""
+            ),
+            YAMLConfig(
+                description="Another example of the configuration file using default ``running_mode: stepsize`` with defined step size files.",
+                config="""
+- name: cosmix
+  func: pyxel.models.charge_generation.cosmix
+  enabled: true
+  arguments:
+    simulation_mode: cosmic_ray
+    running_mode: "stepsize"
+    particle_type: proton
+    initial_energy: 100.          # MeV
+    particles_per_second: 100
+    incident_angles:
+    starting_position:
+    spectrum_file: 'data/proton_L2_solarMax_11mm_Shielding.txt'
+    seed: 4321
+    stepsize:
+      - type: proton
+        energy:    100.0  # MeV
+        thickness: 40.0   # um
+        filename:  pyxel/models/charge_generation/cosmix/data/stepsize_proton_100MeV_40um_Si_10k.ascii
+      - type: proton
+        energy:    100.0  # MeV
+        thickness: 50.0   # um
+        filename:  pyxel/models/charge_generation/cosmix/data/stepsize_proton_100MeV_50um_Si_10k.ascii
+      - type: proton
+        energy:    100.0  # MeV
+        thickness: 60.0   # um
+        filename:  pyxel/models/charge_generation/cosmix/data/stepsize_proton_100MeV_60um_Si_10k.ascii
+      - type: proton
+        energy:    100.0  # MeV
+        thickness: 70.0   # um
+        filename:  pyxel/models/charge_generation/cosmix/data/stepsize_proton_100MeV_70um_Si_10k.ascii
+      - type: proton
+        energy:    100.0  # MeV
+        thickness: 100.0   # um
+        filename:  pyxel/models/charge_generation/cosmix/data/stepsize_proton_100MeV_100um_Si_10k.ascii
+""",
+            ),
+        ],
+        notebooks=[
+            ":external+pyxel_data:doc:`use_cases/CCD/ccd`",
+            ":external+pyxel_data:doc:`use_cases/CMOS/cmos`",
+            ":external+pyxel_data:doc:`use_cases/HxRG/h2rg`",
+        ],
+    ),
+)
 
 
 class Cosmix:

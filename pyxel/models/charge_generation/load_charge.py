@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
 from pyxel.detectors import Detector, Geometry
+from pyxel.models import Metadata, MetadataModel
 from pyxel.util import load_cropped_and_aligned_image
 
 if TYPE_CHECKING:
@@ -79,3 +80,29 @@ def load_charge(
 
     # Add charges in 'detector'
     detector.charge.add_charge_array(new_charges)
+
+
+load_charge.meta = Metadata(
+    name="load_charge",
+    model_group="Charge Collection",
+    detector="all",
+    status=None,
+    model=MetadataModel(
+        description="""With this model you can add charge to :py:class:`~pyxel.detectors.Detector`
+by loading charge values from a file.
+Accepted file formats are ``.npy``, ``.fits``, ``.txt``, ``.data``, ``.jpg``, ``.jpeg``, ``.bmp``,
+``.png`` and ``.tiff``. Use argument ``position`` to set the offset from (0,0) pixel
+and set where the input charge is placed onto detector. You can set preset positions with argument ``align``.
+Values outside of detector shape will be cropped.
+Read more about placement in the documentation of function :py:func:`~pyxel.util.fit_into_array`.
+Use argument ``time_scale`` to set the time scale of the input charge, default is 1 second.""",
+        config="""
+- name: load_charge
+  func: pyxel.models.charge_generation.load_charge
+  enabled: true
+  arguments:
+    filename: data/charge.npy
+    position: [0,0]
+""",
+    ),
+)

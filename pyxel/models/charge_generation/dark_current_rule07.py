@@ -12,6 +12,7 @@ import warnings
 import numpy as np
 
 from pyxel.detectors import CCD, CMOS
+from pyxel.models import Metadata, MetadataModel
 from pyxel.util import set_random_seed
 
 warnings.filterwarnings("once", category=RuntimeWarning, append=True)
@@ -243,3 +244,36 @@ def dark_current_rule07(
 
     # Add the generated dark current charge to the detector's charge array
     detector.charge.add_charge_array(dark_current_array_rule07)
+
+
+dark_current_rule07.meta = Metadata(
+    name="dark_current_rule07",
+    model_group="Charge Collection",
+    detector=["CCD", "CMOS"],
+    status=None,
+    model=MetadataModel(
+        description="""With this model you can add dark current to
+:py:class:`~pyxel.data_structure.Charge` following the model described in :cite:p:`Tennant2008MBEHT`.
+This model is only valid for :term:`MCT` hybridised array (:term:`MCT`).
+If ``temporal_noise`` is true, shot noise will be included.
+The model has one extra argument: ``cut-off wavelength``, and also takes some values from
+:py:class:`~pyxel.detectors.Detector` object, to be precise: ``temperature``, ``pixel size`` (assuming it is square),
+and ``time step`` since last read-out.
+Please make sure the detector :py:class:`~pyxel.detectors.Environment`, :py:class:`~pyxel.detectors.Geometry` and
+:py:class:`~pyxel.detectors.Characteristics` are properly set in the ``YAML`` configuration file.
+""",
+        notes="This model is specific for the :term:`MCT` detector.",
+        config="""
+- name: dark_current
+  func: pyxel.models.charge_generation.dark_current_rule07
+  enabled: true
+  arguments:
+    cutoff_wavelength: 2.5
+    spatial_noise_factor: 0.1
+    temporal_noise: true
+""",
+        notebooks=[
+            ":external+pyxel_data:doc:`examples/models/dark_current/dark_current_rule07`"
+        ],
+    ),
+)

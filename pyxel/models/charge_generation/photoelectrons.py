@@ -14,6 +14,7 @@ import numpy as np
 import xarray as xr
 
 from pyxel.detectors import Detector
+from pyxel.models import Metadata, MetadataModel
 from pyxel.util import load_cropped_and_aligned_image, set_random_seed
 
 
@@ -97,6 +98,34 @@ def simple_conversion(
     detector.charge.add_charge_array(detector_charge)
 
 
+simple_conversion.meta = Metadata(
+    name="simple_conversion",
+    model_group="Charge Generation",
+    detector="all",
+    status=None,
+    model=MetadataModel(
+        description="""With this model you can create and add charge to :py:class:`~pyxel.detectors.Detector` via
+photoelectric effect by converting photons to charge.
+This model supports both monochromatic and multiwavelength photons, converting either a 2D photon array or
+3D photon array to the 2D charge array.
+If the previous model group :ref:`photon collection <photon_collection>` returns a 3D photon array, the
+photon array will be integrated along the wavelength dimension before applying the quantum efficiency (:term:`QE`).
+
+Binomial sampling of incoming Poisson distributed photons is used in the conversion by default,
+with probability :term:`QE`. It can be turned off by setting the argument ``binomial_sampling`` to ``False``.
+User can provide an optional quantum efficiency (``quantum_efficiency``) parameter.
+If not provided, quantum efficiency from detector :py:class:`~pyxel.detectors.Characteristics` is used.
+It is also possible to set the seed of the random generator with the argument ``seed``.""",
+        config="""
+- name: simple_conversion
+  func: pyxel.models.charge_generation.simple_conversion
+  enabled: true
+  arguments:
+    quantum_efficiency: 0.8  # optional""",
+    ),
+)
+
+
 def conversion_with_qe_map(
     detector: Detector,
     filename: str | Path,
@@ -149,3 +178,33 @@ def conversion_with_qe_map(
             array=detector.photon.array, qe=qe, binomial_sampling=binomial_sampling
         )
     detector.charge.add_charge_array(detector_charge)
+
+
+conversion_with_qe_map.meta = Metadata(
+    name="conversion_with_qe_map",
+    model_group="Charge Generation",
+    detector="all",
+    status=None,
+    model=MetadataModel(
+        description="""With this model you can create and add charge to
+:py:class:`~pyxel.detectors.Detector` via photoelectric effect by converting photons in charge.
+Binomial sampling of incoming Poisson distributed photons is used in the conversion by default,
+with probability :term:`QE`. It can be turned off by setting the argument ``binomial_sampling`` to ``False``.
+Besides that, user can input a custom quantum efficiency map by providing a ``filename`` of the :term:`QE` map.
+Accepted file formats for :term:`QE` map are ``.npy``, ``.fits``, ``.txt``, ``.data``, ``.jpg``, ``.jpeg``, ``.bmp``,
+``.png`` and ``.tiff``. Use argument ``position`` to set the offset from (0,0) pixel
+and set where the input :term:`QE` map is placed onto detector. You can set preset positions with argument ``align``.
+Values outside of detector shape will be cropped.
+Read more about placement in the documentation of function :py:func:`~pyxel.util.fit_into_array`.
+""",
+        warnings="Model assumes shot noise model was applied to photon array when using binomial sampling.",
+        config="""
+- name: conversion_with_qe_map
+  func: pyxel.models.charge_generation.conversion_with_qe_map
+  enabled: true
+  arguments:
+    filename: data/qe_map.npy
+""",
+        notebooks=[":external+pyxel_data:doc:`use_cases/HxRG/h2rg`"],
+    ),
+)

@@ -10,6 +10,7 @@
 import numpy as np
 
 from pyxel.detectors import CCD
+from pyxel.models import Metadata, MetadataModel
 
 
 def compute_charge_blocks(
@@ -85,3 +86,25 @@ def charge_blocks(
     )
 
     detector.charge.add_charge_array(charge)
+
+
+charge_blocks.meta = Metadata(
+    name="charge_blocks",
+    model_group="Charge Collection",
+    detector="CCD",
+    status=None,
+    model=MetadataModel(
+        description="""With this model you can inject arbitrary charge block into rows of a
+:py:class:`~pyxel.detectors.CCD` detector.
+Charge will be injected uniformly from row number ``block_start`` to row number ``block_end``.""",
+        notes="This model is specific for the :term:`CCD` detector.",
+        config="""
+- name: charge_blocks
+  func: pyxel.models.charge_generation.charge_blocks
+  enabled: true
+  arguments:
+    charge_level: 100
+    block_start: 10
+    block_end: 50""",
+    ),
+)

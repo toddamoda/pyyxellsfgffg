@@ -39,6 +39,7 @@ import numpy as np
 from astropy import constants as const
 
 from pyxel.detectors import CCD, CMOS
+from pyxel.models import Metadata, MetadataModel
 from pyxel.util import set_random_seed
 
 warnings.filterwarnings("once", category=RuntimeWarning, append=True)
@@ -281,3 +282,34 @@ def radiation_induced_dark_current(
             shot_noise=shot_noise,
         )
     detector.charge.add_charge_array(dark_signal_frame)
+
+
+radiation_induced_dark_current.meta = Metadata(
+    name="radiation_induced_dark_current",
+    model_group="Charge Collection",
+    detector=["CCD", "CMOS"],
+    authors=[
+        "Vincent Goiffon, ISAE-SUPAERO <vincent.goiffon@isae-supaero.fr>",
+        "Florian MORIOUSEF, ISAE-SUPAERO",
+        "Alexandre LE ROCH, ISAE-SUPAERO",
+        "Aubin ANTONSANTI, ISAE-SUPAERO",
+    ],
+    status=None,
+    model=MetadataModel(
+        description="""This model adds dark current induced by radiation. A more detailed description of the models can be found in
+:cite:p:`RadiationLeRoch2019` and :cite:p:`Belloir:16`.""",
+        config="""
+- name: radiation_induced_dark_current
+  func: pyxel.models.charge_generation.radiation_induced_dark_current
+  enabled: true
+  arguments:
+    depletion_volume: 64 # µm3
+    annealing_time: 0.1 # weeks
+    displacement_dose:  50  # TeV/g
+    shot_noise: false
+""",
+        notebooks=[
+            ":external+pyxel_data:doc:`examples/models/dark_current_induced/dark_current_induced`"
+        ],
+    ),
+)

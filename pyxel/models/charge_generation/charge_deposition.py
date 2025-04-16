@@ -16,6 +16,7 @@ import pandas as pd
 
 from pyxel.data_structure import Charge
 from pyxel.detectors import Detector
+from pyxel.models import Metadata, MetadataModel
 from pyxel.util import materials, resolve_with_working_directory, set_random_seed
 
 
@@ -93,6 +94,41 @@ def charge_deposition(
     detector.charge.add_charge_dataframe(tracks_to_charge(tracks))
 
 
+charge_deposition.meta = Metadata(
+    name="charge_deposition",
+    model_group="Charge Collection",
+    detector="all",
+    status=None,
+    model=MetadataModel(
+        description="""With this model it is possible to simulate the deposition of charge in the
+detector by ionized particles using user-provided stopping power curves.
+It is possible to simulate mono-energetic beams (with a certain spread in energy) or provide an energy distribution
+(e.g., representative of the radiation environment).
+Stopping power curves for protons in silicon and for protons in MCT alloy are provided.
+Similarly, the proton energy distribution at L2 with and without 11-mm aluminium shielding is provided within Pyxel.
+This model is not as realistic as CosmiX but it is faster and easier to apply to a wide range of material and particles.
+In particular due to its simplistic nature, it fails at reproducing the deposition of only a small amount of charge.
+""",
+        config="""
+- name: charge_deposition
+  func: pyxel.models.charge_generation.charge_deposition
+  enabled: true
+  arguments:
+    flux: 100
+    step_size: 1.
+    energy_mean: 1.
+    energy_spread: .1
+    energy_spectrum: data/proton_L2_solarMax_NoShielding.txt
+    energy_spectrum_sampling: log
+    ehpair_creation: 3.6
+    material_density: 2.33
+    particle_direction: isotropic
+    stopping_power_curve: data/protons-in-silicon_stopping-power.csv
+""",
+    ),
+)
+
+
 def charge_deposition_in_mct(
     detector: Detector,
     flux: float,
@@ -167,6 +203,34 @@ def charge_deposition_in_mct(
         )
 
     detector.charge.add_charge_dataframe(tracks_to_charge(tracks))
+
+
+charge_deposition_in_mct.meta = Metadata(
+    name="charge_deposition",
+    model_group="Charge Collection",
+    detector="all",
+    status=None,
+    model=MetadataModel(
+        description="""This model is the same as charge deposition model but is specific to
+MCT material. It computes the e-h pair creation (assuming it is 3 times the bandgap) and
+the alloy density based on the detector temperature and cut-off wavelength.""",
+        config="""
+- name: charge_deposition
+  func: pyxel.models.charge_generation.charge_deposition_in_mct
+  enabled: true
+  arguments:
+    flux: 100
+    step_size: 1.
+    energy_mean: 1.
+    energy_spread: .1
+    energy_spectrum: data/proton_L2_solarMax_NoShielding.txt
+    energy_spectrum_sampling: log
+    cutoff_wavelength: 2.5
+    particle_direction: isotropic
+    stopping_power_curve: data/mct-stopping-power.csv
+""",
+    ),
+)
 
 
 def tracks_to_charge(tracks: Sequence[float]) -> pd.DataFrame:
