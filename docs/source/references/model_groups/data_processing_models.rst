@@ -78,9 +78,9 @@ The calculated statistics can then be accessed via ``detector.data.statistics``.
 .. code-block:: yaml
 
     data_processing:
-    - name: statistics
-      func: pyxel.models.data_processing.statistics
-      enabled: true
+      - name: statistics
+        func: pyxel.models.data_processing.statistics
+        enabled: true
 
 .. note::
     You can find examples of this model in these Jupyter Notebooks from `Pyxel Data <https://esa.gitlab.io/pyxel-data>`_:

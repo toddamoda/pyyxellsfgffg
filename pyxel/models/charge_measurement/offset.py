@@ -11,6 +11,7 @@
 import numpy as np
 
 from pyxel.detectors import APD, Detector
+from pyxel.models import Metadata, MetadataModel
 
 
 def compute_dc_offset(offset: float, shape: tuple[int, int]) -> np.ndarray:
@@ -53,6 +54,24 @@ def dc_offset(detector: Detector, offset: float) -> None:
         )
 
     detector.signal += compute_dc_offset(offset, detector.geometry.shape)
+
+
+dc_offset.meta = Metadata(
+    name="dc_offset",
+    model_group="Charge Measurement",
+    detector="all",
+    status=None,
+    model=MetadataModel(
+        description="Add a DC offset to signal array of detector.",
+        config="""
+- name: dc_offset
+  func: pyxel.models.charge_measurement.dc_offset
+  enabled: true
+  arguments:
+    offset: 0.1
+""",
+    ),
+)
 
 
 def compute_output_pixel_reset_voltage_apd(
@@ -124,3 +143,23 @@ def output_pixel_reset_voltage_apd(detector: APD, roic_drop: float) -> None:
         )
 
     detector.signal += max(ch.adc_voltage_range) - offset
+
+
+output_pixel_reset_voltage_apd.meta = Metadata(
+    name="output_pixel_reset_voltage_apd",
+    model_group="Charge Measurement",
+    detector="APD",
+    status=None,
+    model=MetadataModel(
+        description="Add output pixel reset voltage to the signal array of the :term:`APD` detector.",
+        config="""
+- name: output_pixel_reset_voltage_apd
+  func: pyxel.models.charge_measurement.output_pixel_reset_voltage_apd
+  enabled: true
+  arguments:
+    roic_drop: 3.3
+""",
+        notes="This model is specific to the :term:`APD` detector.",
+        notebooks=[":external+pyxel_data:doc:`use_cases/APD/saphira`"],
+    ),
+)

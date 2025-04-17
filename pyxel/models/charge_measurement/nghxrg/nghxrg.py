@@ -15,6 +15,7 @@ from typing import Literal
 import numpy as np
 
 from pyxel.detectors import CMOS, CMOSGeometry
+from pyxel.models import Metadata, MetadataModel
 from pyxel.models.charge_measurement.nghxrg.nghxrg_beta import HXRGNoise
 from pyxel.util import set_random_seed
 
@@ -349,6 +350,72 @@ def nghxrg(
     detector.pixel += result_2d
 
 
+nghxrg.meta = Metadata(
+    name="nghxrg",
+    model_group="Charge Measurement",
+    detector="CMOS",
+    status=None,
+    model=MetadataModel(
+        description="""With this model you can add noise to :py:class:`~pyxel.data_structure.Pixel` array,
+before converting to :py:class:`~pyxel.data_structure.Signal` array in the charge measurement part of the pipeline.
+
+It is a near-infrared :term:`CMOS` noise generator (ngHxRG) developed for the
+James Webb Space Telescope (JWST) Near Infrared Spectrograph (NIRSpec)
+described in :cite:p:`2015:rauscher`. It simulates many important noise
+components including white read noise, residual bias drifts, pink 1/f
+noise, alternating column noise and picture frame noise.
+
+The model reproduces most of the Fourier noise
+power spectrum seen in real data, and includes uncorrelated, correlated,
+stationary and non-stationary noise components.
+The model can simulate noise for HxRG detectors of
+Teledyne Imaging Sensors with and without the SIDECAR ASIC IR array
+controller.
+
+* Developed by: Bernard J. Rauscher, NASA
+* Developed for: James Webb Space Telescope
+* Site: https://jwst.nasa.gov/publications.html
+
+
+.. figure:: _static/nghxrg.png
+    :scale: 50%
+    :alt: nghxrg
+    :align: center
+
+    ngHxRG Noise Generator
+""",
+        config="""
+- name: nghxrg
+  func: pyxel.models.charge_measurement.nghxrg
+  enabled: true
+  arguments:
+    noise:
+      - ktc_bias_noise:
+          ktc_noise: 1
+          bias_offset: 2
+          bias_amp: 2
+      - white_read_noise:
+          rd_noise: 1
+          ref_pixel_noise_ratio: 2
+      - corr_pink_noise:
+          c_pink: 1.
+      - uncorr_pink_noise:
+          u_pink: 1.
+      - acn_noise:
+          acn: 1.
+      - pca_zero_noise:
+          pca0_amp: 1.
+    window_position: [0, 0]   # Optional
+    window_size: [100, 100]   # Optional
+    n_output: 1
+    n_row_overhead: 0
+    n_frame_overhead: 0
+    reverse_scan_direction: False
+    reference_pixel_border_width: 4
+""",
+        notebooks=[":external+pyxel_data:doc:`use_cases/HxRG/h2rg`"],
+    ),
+)
 # TODO: This generates plot. It should be in class `Output`
 # def display_noisepsd(
 #     array: np.ndarray,

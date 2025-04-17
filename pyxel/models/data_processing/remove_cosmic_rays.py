@@ -20,6 +20,7 @@ import numpy as np
 import xarray as xr
 
 from pyxel.detectors import Detector
+from pyxel.models import Metadata, MetadataModel
 
 
 def compute_cosmic_rays(
@@ -149,6 +150,28 @@ def remove_cosmic_rays(
     if detector.num_steps > 1 and (detector.pipeline_count == (detector.num_steps - 1)):
         detector.data[key_partial].orphan()
 
+
+remove_cosmic_rays.meta = Metadata(
+    name="remove_cosmic_rays",
+    model_group="Charge Measurement",
+    detector="all",
+    status=None,
+    model=MetadataModel(
+        description="Removes cosmic rays from the pixel array using LACosmic package.",
+        config="""
+data_processing:
+- name: remove_cosmic_rays
+  func: pyxel.models.data_processing.remove_cosmic_rays
+  enabled: true
+  arguments:
+    contrast: 1.0
+    cr_threshold: 50.0
+    neighbor_threshold: 50.0
+    effective_gain: 1.0
+    readnoise: 0.0
+""",
+    ),
+)
 
 # TODO: document the parameters and reference lacosmic
 # TODO: investigate if astroscrappy can be used. It's provided with anaconda.

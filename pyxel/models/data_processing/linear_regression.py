@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Literal
 import numpy as np
 
 from pyxel.detectors import Detector
+from pyxel.models import Metadata, MetadataModel
 
 if TYPE_CHECKING:
     import xarray as xr
@@ -151,3 +152,25 @@ def linear_regression(
 
             # Remove '/linear_regression/partial
             detector.data[f"/linear_regression/{name}/partial"].orphan()
+
+
+linear_regression.meta = Metadata(
+    name="linear_regression",
+    model_group="Charge Measurement",
+    detector="all",
+    status=None,
+    model=MetadataModel(
+        description="Compute a linear regression along readout time.",
+        config="""
+data_processing:
+  - name: linear_regression
+    func: pyxel.models.data_processing.linear_regression
+    enabled: true
+    arguments:
+      data_structure: image
+""",
+        notebooks=[
+            ":external+pyxel_data:doc:`examples/models/data_processing/data_analysis/data_processing-obs`"
+        ],
+    ),
+)

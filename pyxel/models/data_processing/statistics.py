@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, Literal
 import xarray as xr
 
 from pyxel.detectors import Detector
+from pyxel.models import Metadata, MetadataModel
 
 if TYPE_CHECKING:
     from pyxel.data_structure import Image, Photon, Pixel, Signal
@@ -122,3 +123,27 @@ def statistics(
     # This is the last step and there is at least two steps
     if detector.num_steps > 1 and (detector.pipeline_count == (detector.num_steps - 1)):
         detector.data[parent_partial].orphan()
+
+
+statistics.meta = Metadata(
+    name="statistics",
+    model_group="Charge Measurement",
+    detector="all",
+    status=None,
+    model=MetadataModel(
+        description="""The model :ref:`statistics` can be used to do simple statistics computations,
+giving the ``var``, ``mean``, ``min``, ``max`` and ``count`` of the data buckets
+photon, pixel, signal and image of the detector.
+The calculated statistics can then be accessed via ``detector.data.statistics``.""",
+        config="""
+data_processing:
+  - name: statistics
+    func: pyxel.models.data_processing.statistics
+    enabled: true
+""",
+        notebooks=[
+            ":external+pyxel_data:doc:`examples/models/dark_current/dark_current_Si`",
+            ":external+pyxel_data:doc:`examples/models/data_processing/data_analysis/data_processing-obs`",
+        ],
+    ),
+)

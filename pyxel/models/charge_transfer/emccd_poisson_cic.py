@@ -24,6 +24,7 @@ import numba
 import numpy as np
 
 from pyxel.detectors import CCD
+from pyxel.models import Metadata, MetadataModel
 
 
 def multiplication_register_cic(
@@ -65,6 +66,34 @@ def multiplication_register_cic(
         pcic_rate=pcic_rate,
         scic_rate=scic_rate,
     ).astype(float)
+
+
+multiplication_register_cic.meta = Metadata(
+    name="multiplication_register_cic",
+    model_group="Charge Measurement",
+    detector="CCD",
+    status=None,
+    model=MetadataModel(
+        description="""Clock Induced Charge (CIC), can be included with ``multiplication_register_cic``.
+Here a parallel CIC rate, ``pcic_rate``, and serial CIC rate ``scic_rate`` are specified,
+and added to the :py:class:`~pyxel.data_structure.Pixel` array.
+Each ``gain_elements`` has possibility to introduce a serial CIC event.
+Serial and parallel CIC is assumed to be Poisson distributed.""",
+        config="""
+- name: multiplication_register_cic
+  func: pyxel.models.charge_transfer.multiplication_register_cic
+  enabled: true
+  arguments:
+    gain_elements: 100
+    total_gain: 1000
+    pcic_rate: 0.01
+    scic_rate: 0.005
+""",
+        notebooks=[
+            ":external+pyxel_data:doc:`examples/models/multiplication_register/emccd_obs`"
+        ],
+    ),
+)
 
 
 @numba.njit

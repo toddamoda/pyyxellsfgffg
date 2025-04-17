@@ -194,6 +194,7 @@ class MetadataModel:
     config: str | list[YAMLConfig] | YAMLConfig
     warnings: str | list[str] | None = None
     notes: str | list[str] | None = None
+    hints: str | None = None
     references: list[str] | None = None
     notebooks: list[str] | None = None
 

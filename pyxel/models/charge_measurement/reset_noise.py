@@ -12,6 +12,7 @@ import astropy.constants as const
 import numpy as np
 
 from pyxel.detectors import Detector
+from pyxel.models import Metadata, MetadataModel
 from pyxel.util import set_random_seed
 
 
@@ -89,3 +90,26 @@ def ktc_noise(
         )
 
     detector.signal += noise_2d
+
+
+ktc_noise.meta = Metadata(
+    name="ktc_noise",
+    model_group="Charge Measurement",
+    detector="all",
+    status=None,
+    model=MetadataModel(
+        description="Add kTC reset noise to the signal array of the detector object.",
+        config="""
+- name: ktc_noise
+  func: pyxel.models.charge_measurement.ktc_noise
+  enabled: true
+  arguments:
+    node_capacitance: 30.e-15
+""",
+        notes="When using with the :term:`APD` detector, node capacitance is calculated from detector characteristics.",
+        notebooks=[
+            ":external+pyxel_data:doc:`use_cases/CMOS/cmos`",
+            ":external+pyxel_data:doc:`use_cases/APD/saphira`",
+        ],
+    ),
+)

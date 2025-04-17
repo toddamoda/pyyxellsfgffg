@@ -11,6 +11,7 @@ import astropy.constants as const
 import numpy as np
 
 from pyxel.detectors import MKID
+from pyxel.models import Metadata, MetadataModel
 
 
 def convert_to_phase(
@@ -183,3 +184,30 @@ def pulse_processing(
     _gaussian_samples = np.random.normal(
         mu, sigma, detector.phase.array[0][0]
     )  # To be continued...
+
+
+pulse_processing.meta = Metadata(
+    name="pulse_processing",
+    model_group="Charge Measurement",
+    detector="all",
+    status=None,
+    model=MetadataModel(
+        description=r"""This model only applies to the :py:class:`~pyxel.detectors.MKID` detector.
+
+When a photon impinges upon an MKID, it generates a phase pulse in its input probe signal, on top of the background
+phase-height noise (from two-level-system states and amplifier noise). Each MKID has a phase-height responsivity
+:math:`r = \frac{\lambda}{\phi}`; where :math:`\lambda` is the wavelength associated with the photons under study and
+:math:`\phi` is the mean phase height.
+
+This model is derived from :cite:p:`Dodkins`; more information can be found on the website :cite:p:`Mazin`.""",
+        config="""
+- name: pulse_processing
+  func: pyxel.models.phasing.pulse_processing
+  enabled: true
+  arguments:
+    wavelength:
+    responsivity:
+    scaling_factor: 2.5e2
+""",
+    ),
+)

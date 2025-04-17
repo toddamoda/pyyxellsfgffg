@@ -11,6 +11,7 @@ import numba
 import numpy as np
 
 from pyxel.detectors import CCD
+from pyxel.models import Metadata, MetadataModel
 
 
 def multiplication_register(
@@ -39,6 +40,36 @@ def multiplication_register(
         total_gain=total_gain,
         gain_elements=gain_elements,
     ).astype(float)
+
+
+multiplication_register.meta = Metadata(
+    name="multiplication_register",
+    model_group="Charge Measurement",
+    detector="CCD",
+    status=None,
+    model=MetadataModel(
+        description="""The Electron Multiplying CCD (EMCCD) model for the :term:`CCD` detector includes
+a ``multiplication_register``.
+This register takes each pixel, and applies a Poisson distribution, centered around the ``total_gain``.
+Each pixel is inputted and iterated through the number of ``gain_elements`` with probability of
+multiplication :math:`P`:
+
+:math:`P = {G}^(\frac{1}{N_E}) - 1`
+
+:math:`G` is the total gain, and :math:`N_E` is the number of gain elements.
+
+The output is a :py:class:`~pyxel.data_structure.Pixel` array, with
+each pixel having gone through a multiplication register.""",
+        config="""
+- name: multiplication_register
+  func: pyxel.models.charge_transfer.multiplication_register
+  enabled: true
+  arguments:
+    gain_elements: 100
+    total_gain: 1000
+""",
+    ),
+)
 
 
 @numba.njit

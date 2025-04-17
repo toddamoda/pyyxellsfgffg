@@ -10,6 +10,7 @@
 import numpy as np
 
 from pyxel.detectors import Detector
+from pyxel.models import Metadata, MetadataModel
 
 
 def apply_gain(pixel_2d: np.ndarray, gain: float) -> np.ndarray:
@@ -72,3 +73,22 @@ def simple_measurement(detector: Detector, gain: float | None = None) -> None:
         detector.signal.array = np.asarray(detector.pixel.array * gain, dtype=float)
 
     # Apply a gain (in V/e-) to a pixel array (in e-)
+
+
+simple_measurement.meta = Metadata(
+    name="simple_measurement",
+    model_group="Charge Measurement",
+    detector="all",
+    status=None,
+    model=MetadataModel(
+        description="Convert the pixels array to the signal array.",
+        config="""
+- name: simple_measurement
+  func: pyxel.models.charge_measurement.simple_measurement
+  enabled: true
+  arguments:
+    noise:
+      - gain: 1.    # Optional
+""",
+    ),
+)

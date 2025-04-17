@@ -10,6 +10,7 @@
 import numpy as np
 
 from pyxel.detectors import APD, CMOS, Detector
+from pyxel.models import Metadata, MetadataModel
 from pyxel.util import set_random_seed
 
 
@@ -57,6 +58,7 @@ def create_noise_cmos(
     return noise_2d
 
 
+# TODO: Is this model for all detectors or only CCD ?
 def output_node_noise(
     detector: Detector,
     std_deviation: float,
@@ -88,6 +90,24 @@ def output_node_noise(
         )
 
     detector.signal.array += noise_2d
+
+
+output_node_noise.meta = Metadata(
+    name="output_node_noise",
+    model_group="Charge Measurement",
+    detector="all",
+    status=None,
+    model=MetadataModel(
+        description="Add noise to signal array of detector output node using normal random distribution.",
+        config="""
+- name: output_noise
+  func: pyxel.models.charge_measurement.output_node_noise
+  enabled: true
+  arguments:
+    std_deviation: 1.0
+    """,
+    ),
+)
 
 
 def output_node_noise_cmos(
@@ -144,6 +164,26 @@ def output_node_noise_cmos(
         )
 
     detector.signal.array += noise_2d
+
+
+output_node_noise_cmos.meta = Metadata(
+    name="output_node_noise_cmos",
+    model_group="Charge Measurement",
+    detector="CMOS",
+    status=None,
+    model=MetadataModel(
+        description="Output node noise model for :term:`CMOS` detectors where readout is statistically independent for each pixel.",
+        config="""
+- name: output_noise
+  func: pyxel.models.charge_measurement.output_node_noise
+  enabled: true
+  arguments:
+    readout_noise: 1.0
+    readout_noise_std: 2.0
+""",
+        notes="This model is specific to the :term:`CMOS` detector.",
+    ),
+)
 
 
 def compute_readout_noise_saphira(
@@ -217,3 +257,27 @@ def readout_noise_saphira(
         )
 
     detector.signal += noise_2d
+
+
+readout_noise_saphira.meta = Metadata(
+    name="readout_noise_saphira",
+    model_group="Charge Measurement",
+    detector="APD",
+    status=None,
+    model=MetadataModel(
+        description="""Empirical noise for adding noise to the signal array of the :term:`APD` detector using
+normal random distribution.
+Additional noise factor for `roic_readout_noise` is computed from detector characteristic `avalanche gain` in the model.
+Noise factor based on a figure from :cite:p:`2015:rauscher` for temperature of 90K.""",
+        notes="This model is specific to the :term:`APD` detector.",
+        config="""
+- name: readout_noise_saphira
+  func: pyxel.models.charge_measurement.readout_noise_saphira
+  enabled: true
+  arguments:
+    roic_readout_noise: 0.15
+    controller_noise: 0.1, optional
+""",
+        notebooks=[":external+pyxel_data:doc:`use_cases/APD/saphira`"],
+    ),
+)

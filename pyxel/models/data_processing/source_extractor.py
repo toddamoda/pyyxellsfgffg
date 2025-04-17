@@ -18,6 +18,7 @@ from matplotlib.patches import Ellipse
 from typing_extensions import deprecated
 
 from pyxel.detectors import Detector
+from pyxel.models import Metadata, MetadataModel
 
 if TYPE_CHECKING:
     from photutils.segmentation import SegmentationImage
@@ -341,6 +342,34 @@ def source_extractor(
     detector.data["/source_extractor"] = xr.DataTree(
         extract_sources_to_xarray(data_2d, thresh=thresh, minarea=minarea)
     )
+
+
+source_extractor.meta = Metadata(
+    name="source_extractor",
+    model_group="Charge Measurement",
+    detector="all",
+    status=None,
+    model=MetadataModel(
+        description="""Extracts the source data of the final pixel array and output in the form of an xarray dataset.
+The models makes use of the `Photutils library <https://photutils.readthedocs.io/en/stable/>`_  and configured it into a library of
+stand-alone functions and classes.
+
+The `Photutils library <https://photutils.readthedocs.io/en/stable/>`_ is a useful post-processing tool capable of
+calculating statistics of a given array.""",
+        config="""
+data_processing:
+  - name: source_extractor
+    func: pyxel.models.data_processing.source_extractor
+    arguments:
+      thresh: 80
+      minarea: 5
+    enabled: true
+""",
+        notebooks=[
+            ":external+pyxel_data:doc:`examples/models/data_processing/source_extractor/SEP_exposure`"
+        ],
+    ),
+)
 
 
 @deprecated("Use model 'source_extractor'")

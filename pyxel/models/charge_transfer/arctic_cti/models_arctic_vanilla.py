@@ -18,6 +18,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from pyxel.detectors import CCD
+from pyxel.models import Metadata, MetadataModel
 
 try:
     import arcticpy as ac
@@ -169,6 +170,34 @@ def arctic_add(
     detector.pixel.array = image_cti_added_2d
 
 
+arctic_add.meta = Metadata(
+    name="arctic_add",
+    model_group="Charge Measurement",
+    detector="CCD",
+    status=None,
+    model=MetadataModel(
+        description="""Add image trails due to charge transfer inefficiency in :term:`CCD` detectors by modelling the
+trapping, releasing, and moving of charge along pixels.
+
+The primary inputs are the initial image followed by the properties of the :term:`CCD`,
+readout electronics and trap species for serial clocking.
+
+More information about adding :term:`CTI` trailing is described
+in section 2.1 in :cite:p:`2010:massey`.""",
+        config="""
+- name: arctic_add
+  func: pyxel.models.charge_transfer.arctic_add
+  enabled: true
+  arguments:
+    well_fill_power: 10.
+    trap_densities: [1., 2., 3.]                # Add three traps
+    trap_release_timescales: [10., 20., 30.]
+    express: 0
+""",
+    ),
+)
+
+
 def compute_arctic_remove(
     image_2d: np.ndarray,
     full_well_depth: float,
@@ -287,3 +316,28 @@ def arctic_remove(
     )
 
     detector.pixel.array = image_2d_cti_removed
+
+
+arctic_remove.meta = Metadata(
+    name="arctic_remove",
+    model_group="Charge Measurement",
+    detector="CCD",
+    status=None,
+    model=MetadataModel(
+        description="""Remove :term:`CTI` trails is done by iteratively modelling the addition of :term:`CTI`, as described
+in :cite:p:`2010:massey` section 3.2 and Table 1.""",
+        config="""
+- name: arctic_remove
+  func: pyxel.models.charge_transfer.arctic_remove
+  enabled: true
+  arguments:
+    well_fill_power: 10.
+    instant_traps:                      # Add two traps
+      - density: 1.0
+        release_timescale: 10.0
+      - density: 2.0
+        release_timescale: 20.0
+    express: 0
+""",
+    ),
+)

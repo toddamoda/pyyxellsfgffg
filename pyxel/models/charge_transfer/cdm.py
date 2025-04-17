@@ -44,6 +44,7 @@ import numba
 import numpy as np
 
 from pyxel.detectors import CCD
+from pyxel.models import Metadata, MetadataModel
 
 
 class CDMdirection(Enum):
@@ -161,6 +162,59 @@ def cdm(
             nt=np.array(trap_densities),
             sigma=np.array(sigma),
         )
+
+
+cdm.meta = Metadata(
+    name="cdm",
+    model_group="Charge Measurement",
+    detector="CCD",
+    status=None,
+    model=MetadataModel(
+        description="""The Charge Distortion Model - CDM :cite:p:`2013:short` describes the effects of the radiation
+damage causing charge deferral and image shape distortion. The analytical
+model is physically realistic, yet fast enough. It was developed specifically
+for the Gaia CCD operating mode, implemented in Fortran and Python. However,
+a generalized version has already been applied in a broader context, for
+example to investigate the impact of radiation damage on the Euclid mission.
+This generalized version has been included and used in Pyxel.
+
+Use this model to add radiation induced :term:`CTI` effects to :py:class:`~pyxel.data_structure.Pixel` array of the
+to :py:class:`~pyxel.detectors.CCD` detector. Argument ``direction`` should be set as either ``"parallel"``
+for parallel direction :term:`CTI` or ``"serial"`` for serial register :term:`CTI`.
+User should also set arguments ``trap_release_times``, ``trap_densities`` and ``sigma``
+as lists for an arbitrary number of trap species. See below for descriptions.
+Other arguments include ``max_electron_volume``, ``transfer_period``,
+``charge injection`` for parallel mode and ``full_well_capacity`` to override the one set in
+detector :py:class:`~pyxel.detectors.Characteristics`.
+
+.. figure:: _static/cdm.png
+    :scale: 50%
+    :alt: Poppy
+    :align: center
+
+    CDM (Charge Distortion Model)""",
+        config="""
+- name: cdm
+  func: pyxel.models.charge_transfer.cdm
+  enabled: true
+  arguments:
+    direction: "parallel"
+    trap_release_times: [0.1, 1.]
+    trap_densities: [0.307, 0.175]
+    sigma: [1.e-15, 1.e-15]
+    beta: 0.3
+    max_electron_volume: 1.e-10,
+    transfer_period: float = 1.e-4,
+    charge_injection: true  # only used for parallel mode
+    full_well_capacity: 1000.  # optional (otherwise one from detector characteristics is used)
+""",
+        notebooks=[
+            ":external+pyxel_data:doc:`exposure`",
+            ":external+pyxel_data:doc:`examples/observation/product`",
+        ],
+        notes="This model is specific for the :term:`CCD` detector.",
+    ),
+)
 
 
 @numba.njit(nogil=True)

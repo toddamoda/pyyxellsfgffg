@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Literal
 import xarray as xr
 
 from pyxel.detectors import Detector
+from pyxel.models import Metadata, MetadataModel
 
 if TYPE_CHECKING:
     from pyxel.data_structure import Image, Photon, Pixel, Signal
@@ -121,3 +122,26 @@ def signal_to_noise_ratio(
     # This is the last step and there is at least two steps
     if detector.num_steps > 1 and (detector.pipeline_count == (detector.num_steps - 1)):
         detector.data[parent_partial].orphan()
+
+
+signal_to_noise_ratio.meta = Metadata(
+    name="signal_to_noise_ratio",
+    model_group="Charge Measurement",
+    detector="all",
+    status=None,
+    model=MetadataModel(
+        description="""The model :ref:`snr` can be used to get the signal-to-noise-ratio (SNR) along the time for of the data buckets
+photon, pixel, signal and image of the detector. The ``data_structure`` "signal" is the one selected by default.""",
+        config="""
+data_processing:
+  - name: snr
+    func: pyxel.models.data_processing.signal_to_noise_ratio
+    enabled: true
+    arguments:
+      data_structure: "signal"
+""",
+        notebooks=[
+            ":external+pyxel_data:doc:`examples/models/data_processing/data_analysis/data_processing-obs`"
+        ],
+    ),
+)

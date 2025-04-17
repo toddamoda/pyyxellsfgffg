@@ -15,6 +15,7 @@ import numba
 import numpy as np
 
 from pyxel import load_table
+from pyxel.models import Metadata, MetadataModel
 
 if TYPE_CHECKING:
     from pyxel.detectors import Detector
@@ -267,6 +268,26 @@ def dc_crosstalk(
     detector.signal.array = signal_2d
 
 
+dc_crosstalk.meta = Metadata(
+    name="dc_crosstalk",
+    model_group="Charge Measurement",
+    detector="all",
+    status=None,
+    model=MetadataModel(
+        description="Apply DC crosstalk signal to detector signal.",
+        config="""
+- name: dc_crosstalk
+  func: pyxel.models.charge_measurement.dc_crosstalk
+  enabled: true
+  arguments:
+    coupling_matrix: [[1, 0.5, 0, 0], [0.5, 1, 0, 0], [0, 0, 1, 0.5], [0, 0, 0.5, 1]]
+    channel_matrix: [1,2,3,4]
+    readout_directions: [1,2,1,2]
+""",
+    ),
+)
+
+
 def ac_crosstalk(
     detector: "Detector",
     coupling_matrix: str | Path | Sequence,
@@ -332,3 +353,28 @@ def ac_crosstalk(
     )
 
     detector.signal.array = signal_2d
+
+
+ac_crosstalk.meta = Metadata(
+    name="ac_crosstalk",
+    model_group="Charge Measurement",
+    detector="all",
+    status=None,
+    model=MetadataModel(
+        description="Apply AC crosstalk signal to detector signal.",
+        config="""
+- name: ac_crosstalk
+  func: pyxel.models.charge_measurement.ac_crosstalk
+  enabled: true
+  arguments:
+    coupling_matrix: [[1, 0.5, 0, 0], [0.5, 1, 0, 0], [0, 0, 1, 0.5], [0, 0, 0.5, 1]]
+    channel_matrix: [1,2,3,4]
+    readout_directions: [1,2,1,2]
+""",
+        notebooks=[
+            ":external+pyxel_data:doc:`examples/models/amplifier_crosstalk/crosstalk`",
+            ":external+pyxel_data:doc:`use_cases/HxRG/h2rg`",
+            ":external+pyxel_data:doc:`examples/observation/sequential`",
+        ],
+    ),
+)
