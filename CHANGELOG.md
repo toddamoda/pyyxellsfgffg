@@ -13,6 +13,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 ## UNRELEASED
 
 ### Core
+* Add better error message when parameter `characteristics.pre_amplification` is not provided.
+  (See [!1043](https://gitlab.com/esa/pyxel/-/merge_requests/1043)).
 
 ### Documentation
 
