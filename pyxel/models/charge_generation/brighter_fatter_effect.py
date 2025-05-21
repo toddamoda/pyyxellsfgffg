@@ -12,7 +12,6 @@ import numba
 import numpy as np
 import xarray as xr
 from astropy.convolution import Gaussian2DKernel, convolve_fft
-from datatree import DataTree
 
 from pyxel.detectors import Detector
 
@@ -103,7 +102,7 @@ def simple_bfe(
         has_key_partial = True
 
     if not has_key_partial:
-        data_tree: DataTree = DataTree(dataset)
+        data_tree = xr.DataTree(dataset)
     else:
         # Concatenate data
         previous_datatree = detector.data[key_partial]
