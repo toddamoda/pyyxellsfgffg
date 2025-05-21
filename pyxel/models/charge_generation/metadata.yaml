@@ -516,3 +516,13 @@ models:
           shot_noise: false
     notebooks:
       - examples/models/dark_current_induced/dark_current_induced
+
+  - name: simple_bfe
+    full_name: Simple Brighter-Fatter Effect (BFE)
+    detector: all
+    status: not validated
+
+  - name: get_bfe
+    full_name: Brighter-Fatter Effect (BFE)
+    detector: all
+    status: not validated
