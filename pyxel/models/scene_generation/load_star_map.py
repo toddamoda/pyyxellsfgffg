@@ -19,7 +19,8 @@ import numpy as np
 import requests
 import xarray as xr
 from astropy.units import Quantity
-from specutils import Spectrum
+from astroquery.vizier import Vizier
+from specutils import Spectrum1D
 from synphot import SourceSpectrum
 
 from pyxel import util
@@ -221,7 +222,7 @@ def _retrieve_objects_from_gaia(
     Notes
     -----
     More information about the GAIA catalog at these links:
-    * https://gea.esac.esa.int/archive/documentation/GDR3/
+    *
     * https://gea.esac.esa.int/archive/documentation/GDR3/Gaia_archive/chap_datamodel/sec_dm_main_source_catalogue/ssec_dm_gaia_source.html
 
     Examples
