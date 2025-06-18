@@ -29,7 +29,7 @@ current status, in Image Sensing Technologies: Materials, Devices, Systems, and 
 """
 
 import math
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -73,6 +73,9 @@ class APDCharacteristics:
         avalanche_gain: float | None = None,  # unit: electron/electron
         pixel_reset_voltage: float | None = None,  # unit: V
         common_voltage: float | None = None,  # unit: V
+        gain_to_bias_func: Callable[[float], float] | None = None,
+        bias_to_gain_func: Callable[[float], float] | None = None,
+        bias_to_node_func: Callable[[float], float] | None = None,
     ):
         self._original_avalanche_gain: float | None = avalanche_gain
         self._original_pixel_reset_voltage: float | None = pixel_reset_voltage
@@ -292,20 +295,36 @@ class APDCharacteristics:
         return self._roic_gain
 
     @property
-    def node_capacitance(self) -> float:
+    def node_capacitance_saphira(self) -> float:
         """Get node capacitance."""
-        self._node_capacitance = self.bias_to_node_capacitance_saphira(
+        self._node_capacitance_saphira = self.bias_to_node_capacitance_saphira(
             self.avalanche_bias
         )
-        return self._node_capacitance
+        return self._node_capacitance_saphira
 
     @property
-    def charge_to_volt_conversion(self) -> float:
-        """Get charge to voltage conversion factor."""
-        self._charge_to_volt_conversion = self.detector_gain_saphira(
-            capacitance=self.node_capacitance, roic_gain=self.roic_gain
+    def node_capacitance_lapd(self) -> float:
+        """Get node capacitance."""
+        self._node_capacitance_lapd = self.bias_to_node_capacitance_lapd(
+            self.avalanche_bias
         )
-        return self._charge_to_volt_conversion
+        return self._node_capacitance_lapd
+
+    @property
+    def charge_to_volt_conversion_saphira(self) -> float:
+        """Get charge to voltage conversion factor."""
+        self._charge_to_volt_conversion_saphira = self.detector_gain_saphira(
+            capacitance=self.node_capacitance_saphira, roic_gain=self.roic_gain
+        )
+        return self._charge_to_volt_conversion_saphira
+
+    @property
+    def charge_to_volt_conversion_lapd(self) -> float:
+        """Get charge to voltage conversion factor."""
+        self._charge_to_volt_conversion_lapd = self.detector_gain_saphira(
+            capacitance=self.node_capacitance_lapd, roic_gain=self.roic_gain
+        )
+        return self._charge_to_volt_conversion_lapd
 
     @property
     def adc_bit_resolution(self) -> int:
@@ -368,12 +387,20 @@ class APDCharacteristics:
     @property
     def system_gain(self) -> float:
         """Get system gain."""
-        return (
-            self.quantum_efficiency
-            * self.avalanche_gain
-            * self.charge_to_volt_conversion
-            * 2**self.adc_bit_resolution
-        ) / (max(self.adc_voltage_range) - min(self.adc_voltage_range))
+        if self.charge_to_volt_conversion_saphira:
+            return (
+                self.quantum_efficiency
+                * self.avalanche_gain
+                * self.charge_to_volt_conversion_saphira
+                * 2**self.adc_bit_resolution
+            ) / (max(self.adc_voltage_range) - min(self.adc_voltage_range))
+        else:
+            return (
+                self.quantum_efficiency
+                * self.avalanche_gain
+                * self.charge_to_volt_conversion_lapd
+                * 2**self.adc_bit_resolution
+            ) / (max(self.adc_voltage_range) - min(self.adc_voltage_range))
 
     @property
     def numbytes(self) -> int:
@@ -418,7 +445,62 @@ class APDCharacteristics:
         return output_capacitance * 1.0e-15
 
     @staticmethod
+    def bias_to_node_capacitance_lapd(bias: float) -> float:
+        """Pixel integrating node capacitance in F.
+
+        The provided data set is coming from our result at 2 V of bias (24 fF), applying the same exponential fit as shown from the Saphira.
+        Note that
+        Node C = Charge Gain / Voltage Gain
+        So a new value can be calculated by measuring V gain (varying PRV) and chg gain (PTC); see [2]
+
+        Parameters
+        ----------
+        bias: float
+
+        Returns
+        -------
+        output_capacitance: float
+        """
+        if bias < 1:
+            raise ValueError(
+                "Warning! Node capacitance calculation is inaccurate for bias voltages"
+                " <1 V!"
+            )
+
+        # From [2] (Mk13 ME1000; data supplied by Leonardo):
+        bias_list = [1, 1.5, 2, 3, 4, 5, 6, 7, 8, 10]
+        capacitance = [27.2, 25.3, 24, 22.3, 21.2, 20.3, 19.7, 19.1, 18.7, 17.9]
+
+        output_capacitance = float(np.interp(x=bias, xp=bias_list, fp=capacitance))
+
+        return output_capacitance * 1.0e-15
+
+    @staticmethod
     def bias_to_gain_saphira(bias: float) -> float:
+        """Calculate gain from bias.
+
+        The formula ignores the soft knee between the linear and unity gain ranges,
+        but should be close enough. [2] (Mk13 ME1000)
+
+        Parameters
+        ----------
+        bias : float
+
+        Returns
+        -------
+        float
+            gain
+        """
+
+        gain = 2 ** ((bias - 2.65) / 2.17)
+
+        if gain < 1.0:
+            gain = 1.0  # Unity gain is lowest
+
+        return gain
+
+    @staticmethod
+    def bias_to_gain_lapd(bias: float) -> float:
         """Calculate gain from bias.
 
         The formula ignores the soft knee between the linear and unity gain ranges,
