@@ -18,7 +18,7 @@ def valid_minimalist_exposure_config(request) -> str:
     assert isinstance(detector_name, str)
 
     if detector_name in ["ccd_detector", "cmos_detector", "mkid_detector"]:
-        return f"""
+        return f"""# Add unicode: µm, e⁻
 exposure:
   readout:
     times: [1., 3., 5.]
@@ -34,7 +34,7 @@ exposure:
   # No 'environment' and 'characteristics'
 """
     elif detector_name == "apd_detector":
-        return """
+        return """# Add unicode: µm, e⁻
 exposure:
   readout:
     times: [1., 3., 5.]
