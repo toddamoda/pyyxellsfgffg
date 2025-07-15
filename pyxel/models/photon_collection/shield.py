@@ -10,68 +10,23 @@ This module is used in photon_collection
 +--------------+----------------------------------+---------------------------+
 | Author       | Name                             | Creation                  |
 +--------------+----------------------------------+---------------------------+
-| You          | shield                        | Thu Jul  3 16:21:15 2025                   |
+| Zach Clare   | shield                           | Thu Jul  3 16:21:15 2025  |
 +--------------+----------------------------------+---------------------------+
 
 +-----------------+-------------------------------------+---------------------+
 | Contributor     | Name                                | Creation            |
 +-----------------+-------------------------------------+---------------------+
-| Name            | filename                            | 06/21/2019          |
+| Zach Clare      | shield.py                           | 07/03/2025          |
 +-----------------+-------------------------------------+---------------------+
 
-This is a documentation template for the shield module.
-This docstring can be used for automatic doc generation and explain more
-in detail what the shield module does in PyXel.
+This module will draw a light shield in a specified place of the photon array
+allowing zero photons to pass through. All later stages of processing will
+still happen. This allows the simuation of dark regions to contextualise
+science results.
 
-This module can be found in pyxel/models/photon_collection.
-Please modify the docstrings accordingly to provide the users a simple and
-detailed explanation of your algorithm for this module.
-
-Table examples
-==============
-
-===============  ==============================================================
-Table entries    Table values
-===============  ==============================================================
-Entry 1          Value 1
-Entry 2          Value 2
-Entry 3          Value 3
-
-Entry 4          Value 4
-
-Entry 5          Value 5
-===============  ==============================================================
-
-+------------------------+------------+----------+----------+
-| Header row, column 1   | Header 2   | Header 3 | Header 4 |
-| (header rows optional) |            |          |          |
-+========================+============+==========+==========+
-| body row 1, column 1   | column 2   | column 3 | column 4 |
-+------------------------+------------+----------+----------+
-| body row 2             | Cells may span columns.          |
-+------------------------+------------+---------------------+
-| body row 3             | Cells may  | - Table cells       |
-+------------------------+ span rows. | - contain           |
-| body row 4             |            | - body elements.    |
-+------------------------+------------+----------+----------+
-| body row 5             | Cells may also be     |          |
-|                        | empty: ``-->``        |          |
-+------------------------+-----------------------+----------+
-
-Code example
-============
-
-.. code-block:: python
-
-    import sys
-
-    print("Hello world...")
-
-
-.. literalinclude:: pyxel/models/photon_collection/shield.py
-    :language: python
-    :linenos:
-    :lines: 84-87
+Note that widths and box sizes are inclusive. For example, if you want a 3x3
+box shield starting on pixel (60,50), pass shield_start=(60,50) and
+shield_end=(62,52).
 
 Model reference in the YAML config file
 =======================================
@@ -80,15 +35,20 @@ Model reference in the YAML config file
 
     pipeline:
 
-      # Small comment on what it does
-      photon_collection:
-        - name: shield
-          func: pyxel.models.photon_collection.shield.model
-          enabled: true
-          arguments:
-            arg1: data/fits/Pleiades_HST.fits
-            arg2: true
-            arg3: 42
+      # Add shield border around image on all sides 8px deep
+      - name: shield_border
+        func: pyxel.models.photon_collection.shield_border
+        enabled: true
+        arguments:
+          width: 8
+
+      # Add shield box in specific rectangle of image
+      - name: shield_box
+        func: pyxel.models.photon_collection.shield_box
+        enabled: false
+        arguments:
+          shield_start: [20, 20]
+          shield_end: [30, 50]
 
 Useful links
 ============
@@ -98,7 +58,7 @@ https://sphinx-rtd-theme.readthedocs.io/en/latest/index.html
 
 .. todo::
 
-   Write the documentation for shield
+   Think about what we missed
 
 """
 
@@ -128,21 +88,6 @@ def get_mask_shape_box(
     -------
     np.array
     """
-    # Do operation on one of those arrays and return None.
-
-    # Done!
-
-    ## detector.photon += 1
-    # photon = detector.photon.array
-    # photon_2d = detector.photon.array_2d
-    # for i in range(0, len(detector.photon.array)):
-    #     if i >= shield_start[0] and i <= shield_end[0]:
-    #         for j in range(0, len(detector.photon.array[i])):
-    #             if j >= shield_start[1] and j <= shield_end[1]:
-    #                 photon[i, j] = 0
-    #                 photon_2d[i, j] = 0
-    #     i = i + 1
-
     # A very similar proceedure to the border mask calculations, but we start
     # with ones and create zeros, rather than starting with zeros and creating
     # ones
@@ -201,14 +146,6 @@ def shield_border(
     None
     """
 
-    # Access the detector
-    """
-    photon = detector.photon.array
-    pixel = detector.pixel.array
-    signal = detector.signal.array
-    image = detector.image.array
-    """
-
     photon = detector.photon.array
     mask = get_mask_shape_border(photon.shape, width)
 
@@ -221,10 +158,11 @@ def shield_box(
         shield_start: tuple[int, int],
         shield_end: tuple[int, int]
 ) -> None:
-    """Add a light shield all around the image `width` pixels wide/deep.
+    """Add a light shield box from shield_start to shield_end (inclusive).
 
     Parameters
     ----------
+    detector: Detector
     shield_start: tuple[int, int]
     shield_end: tuple[int, int]
 
