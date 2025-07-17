@@ -60,6 +60,7 @@ docs/source/howto/*.h5
 .env
 .venv/
 venv/
+virtualenv
 
 # Pipenv
 Pipfile
@@ -74,5 +75,5 @@ dask-scratch-space/
 # Tests
 tests/temp/
 
-# Examples
+# Temporary
 pyxel-examples
