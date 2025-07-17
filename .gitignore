@@ -73,3 +73,6 @@ dask-scratch-space/
 
 # Tests
 tests/temp/
+
+# Examples
+pyxel-examples
