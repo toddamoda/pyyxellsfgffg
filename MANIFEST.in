@@ -6,6 +6,7 @@ include pyxel/static/*.json
 
 include pyxel/templates/*.py
 
+include pyxel/models/scene_generation/data/*.parquet
 include pyxel/models/charge_generation/cosmix/data/inputs/*.ascii
 include pyxel/models/charge_generation/data/*.txt
 include pyxel/models/charge_generation/data/*.csv
