@@ -1,5 +1,5 @@
 #  Copyright (c) European Space Agency, 2020.
-#  #
+#
 #   This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #   is part of this Pyxel package. No part of the package, including
 #   this file, may be copied, modified, propagated, or distributed except according to
@@ -17,10 +17,11 @@ from typing import TYPE_CHECKING, Literal
 
 import astropy.units as u
 import numpy as np
+import pandas as pd
 import requests
 import xarray as xr
 from astropy.coordinates import SkyCoord
-from astropy.table import Column, Table
+from astropy.table import Table
 from astropy.units import Quantity
 from specutils import Spectrum
 from synphot import SourceSpectrum
@@ -217,6 +218,7 @@ def _retrieve_objects_from_gaia(
     right_ascension: float,
     declination: float,
     fov_radius: float,
+    get_all_sources: bool,
 ) -> tuple["Table", dict[int, "Table"]]:
     """Retrieve objects from GAIA Catalog for giver coordinates and FOV.
 
@@ -286,21 +288,29 @@ def _retrieve_objects_from_gaia(
         1020.0  1.344579e-17 4.1775913e-18
     """
     # Late import
+    from astropy.table import Table
     from astroquery.gaia import Gaia
+
+    from pyxel.models.scene_generation.utils import get_vega_a0v_spectrum
 
     # Unlimited rows.
     Gaia.ROW_LIMIT = -1
     # we get the data from GAIA DR3
     Gaia.MAIN_GAIA_TABLE = "gaiadr3.gaia_source"
 
+    # Prepare the query
+    query = (
+        "SELECT source_id, ra, dec, has_xp_sampled, phot_bp_mean_mag, phot_g_mean_mag, phot_rp_mean_mag "
+        "FROM gaiadr3.gaia_source "
+        f"WHERE CONTAINS(POINT('ICRS', ra, dec),CIRCLE('ICRS',{right_ascension},{declination},{fov_radius}))=1"
+    )
+
+    if not get_all_sources:
+        query += " AND has_xp_sampled = 'True'"
+
     try:
         # Query for the catalog to search area with coordinates in FOV of optics.
-        job = Gaia.launch_job_async(
-            "SELECT source_id, ra, dec, has_xp_sampled, phot_bp_mean_mag, phot_g_mean_mag, phot_rp_mean_mag "
-            "FROM gaiadr3.gaia_source "
-            f"WHERE CONTAINS(POINT('ICRS', ra, dec),CIRCLE('ICRS',{right_ascension},{declination},{fov_radius}))=1 "
-            "AND has_xp_sampled = 'True'",
-        )
+        job = Gaia.launch_job_async(query)
     except requests.HTTPError as exc:
         my_exception = ConnectionError(
             "Error when trying to retrieve sources from the Gaia database"
@@ -308,13 +318,15 @@ def _retrieve_objects_from_gaia(
 
         if sys.version_info >= (3, 11):
             my_exception.add_note(
-                f"Failed to retrieve the spectra with parameters {right_ascension=}, {declination=} and {fov_radius=}"
+                f"Failed to retrieve the spectra with parameters {right_ascension=}, {declination=}, {fov_radius=}"
             )
+            my_exception.add_note(f"{query=}")
 
         raise my_exception from exc
 
     # get the results from the query job
-    result: Table = job.get_results()
+    results_table: Table = job.get_results()
+    df: pd.DataFrame = results_table.to_pandas()
 
     # set parameters to load data from Gaia catalog
     retrieval_type = "XP_SAMPLED"
@@ -322,26 +334,83 @@ def _retrieve_objects_from_gaia(
     data_structure = "INDIVIDUAL"
 
     # Get all sources
-    # ruff: noqa: SIM118
-    if "SOURCE_ID" in result.keys():
+    if "SOURCE_ID" in df.columns:
         source_key = "SOURCE_ID"
-    elif "source_id" in result.keys():
+    elif "source_id" in df.columns:
         # This change in 'astroquery' 0.4.8+
         source_key = "source_id"
     else:
         raise ValueError(
-            "Expecting row 'SOURCE_ID' or 'source_id' in 'result'. Got these keys: {result.keys()}"
+            f"Expecting row 'SOURCE_ID' or 'source_id' in 'result'. Got these keys: {df.columns=}"
         )
 
-    source_ids: "Column" = result[source_key]
-    if len(source_ids) > 5000:
+    #########################################################################################
+    # Get source(s) without spectrum                                                        #
+    # Columns:                                                                              #
+    #   - 'phot_bp_mean_mag': integrated Blue Photometer (330 nm to 680 nm) mean magnitude  #
+    #   - 'phot_g_mean_mag': integrated Gaia band (330 nm to 1050 nm) mean magnitude        #
+    #   - 'phot_rp_mean_mag': integrated Red Photometer (640 nm to 1050 nm) mean magnitude  #
+    #########################################################################################
+    df_without_spectra: pd.DataFrame = df.query("has_xp_sampled == False")[
+        [source_key, "phot_g_mean_mag"]
+    ]
+
+    # Compute weight (= flux / flux_vega)
+    # The Vega magnitude for column 'phot_g_mean_mag' is computed with this formula:
+    #   m = -2.5 * log10(flux / flux_vega)
+    # Therefore:
+    #   flux / flux_vega = 10 ** (m / -2.5) = 10 ** (-0.4 * m)
+    df_without_spectra["weight"] = df_without_spectra["phot_g_mean_mag"].map(
+        lambda x: 10 ** (-0.4 * x)
+    )
+
+    # Get A0V spectrum
+    start_wavelength, stop_wavelength = 336.0, 1020
+    step_wavelength = 2.0
+
+    a0v_dataarray: xr.DataArray = get_vega_a0v_spectrum()
+
+    wavelengths_1d = np.arange(
+        start=start_wavelength,
+        stop=stop_wavelength + step_wavelength,
+        step=step_wavelength,
+    )
+    wavelengths = xr.DataArray(
+        wavelengths_1d,
+        dims="wavelength",
+        coords={"wavelength": wavelengths_1d},
+        attrs={"units": a0v_dataarray["wavelength"].units},
+    )
+
+    a0v_spectra: xr.DataArray = a0v_dataarray.interp(wavelength=wavelengths).rename(
+        "flux"
+    )
+    a0v_spectra["wavelength"].attrs = {"units": wavelengths.units}
+    a0v_table: Table = Table.from_pandas(
+        a0v_spectra.to_pandas().reset_index(),
+        units={
+            "wavelength": a0v_spectra["wavelength"].units,
+            "flux": a0v_spectra.units,
+        },
+    )
+
+    spectra_extrapolated: dict = {
+        source_id: a0v_table for source_id in df_without_spectra[source_key]
+    }
+
+    #####################################
+    # Get source(s) with spectrum       #
+    #####################################
+    # Get the unique source identifiers (unique within a particular data release)
+    source_ids_with_spectra: pd.Series = df.query("has_xp_sampled == True")[source_key]
+    if len(source_ids_with_spectra) > 5000:
         # TODO: Fix this
         raise NotImplementedError("Cannot retrieve more than 5000 sources")
 
     try:
         # load spectra from stars
         spectra_dct: dict[str, list[tree.Table]] = Gaia.load_data(
-            ids=source_ids,
+            ids=source_ids_with_spectra,
             retrieval_type=retrieval_type,
             data_release=data_release,
             data_structure=data_structure,
@@ -373,13 +442,14 @@ def _retrieve_objects_from_gaia(
 
             raise
 
-    return result, spectra
+    return results_table, spectra | spectra_extrapolated
 
 
 def retrieve_from_gaia(
     right_ascension: float,
     declination: float,
     fov_radius: float,
+    get_all_sources: bool,
 ) -> xr.Dataset:
     """Retrieve objects from GAIA Catalog for giver coordinates and FOV.
 
@@ -445,6 +515,7 @@ def retrieve_from_gaia(
         right_ascension=right_ascension,
         declination=declination,
         fov_radius=fov_radius,
+        get_all_sources=get_all_sources,
     )
 
     # Convert data from Gaia into a dataset
@@ -499,6 +570,7 @@ def _load_objects_from_gaia(
     right_ascension: float,
     declination: float,
     fov_radius: float,
+    get_all_sources: bool,
 ) -> xr.Dataset:
     """Load objects from GAIA Catalog for given coordinates and FOV.
 
@@ -543,6 +615,7 @@ def _load_objects_from_gaia(
         right_ascension=right_ascension,
         declination=declination,
         fov_radius=fov_radius,
+        get_all_sources=get_all_sources,
     )
 
     with warnings.catch_warnings():
@@ -598,6 +671,7 @@ def load_objects_from_gaia(
     right_ascension: float,
     declination: float,
     fov_radius: float,
+    get_all_sources: bool,
     with_caching: bool = True,
 ) -> xr.Dataset:
     """Load objects from GAIA Catalog for given coordinates and FOV.
@@ -638,7 +712,7 @@ def load_objects_from_gaia(
         flux        (ref, wavelength) float64 2.228e-16 2.432e-16 ... 3.693e-15
     """
     # Define a unique key to find/retrieve data in the cache
-    key_cache = (__name__, right_ascension, declination, fov_radius)
+    key_cache = (__name__, right_ascension, declination, fov_radius, get_all_sources)
 
     start_time: float = time.perf_counter()
 
@@ -658,6 +732,7 @@ def load_objects_from_gaia(
             right_ascension=right_ascension,
             declination=declination,
             fov_radius=fov_radius,
+            get_all_sources=get_all_sources,
         )
 
         if with_caching:
@@ -909,6 +984,7 @@ def load_star_map(
     right_ascension: float,
     declination: float,
     fov_radius: float,
+    get_all_sources: bool = True,
     catalog: Literal["gaia", "tycho", "hipparcos"] = "gaia",
     with_caching: bool = True,
 ):
@@ -953,6 +1029,7 @@ def load_star_map(
                 right_ascension=right_ascension,
                 declination=declination,
                 fov_radius=fov_radius,
+                get_all_sources=get_all_sources,
                 with_caching=with_caching,
             )
 
