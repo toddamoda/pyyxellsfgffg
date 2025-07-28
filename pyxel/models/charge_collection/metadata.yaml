@@ -43,6 +43,26 @@ models:
         arguments:
             fwc: 1000  # optional
 
+  - name: simple_full_well_user_array
+    full_name: Simple full well user array
+    detector: all
+    status: draft
+    description: >
+      This model can be used to limit the amount of charge in :py:class:`~pyxel.data_structure.Pixel` array
+      due to full well capacity. Values will be clipped to the value of the corresponding user-supplied full
+      well capacity. The model uses a user-supplied full well capacity array specified in the model argument.
+      Accepted file formats for the full well capacity  are ``.npy``, ``.fits``, ``.txt``, ``.data``, ``.jpg``,
+      ``.jpeg``, ``.bmp``, ``.png`` and ``.tiff``. Use argument ``position`` to set the offset from (0,0) pixel
+      and set where the noise is placed onto detector. You can set preset positions with argument ``align``.
+      Values outside of detector shape will be cropped.
+      Read more about placement in the documentation of function :py:func:`~pyxel.util.fit_into_array`.
+    config: >
+      - name: simple_full_well_user_array
+        func: pyxel.models.charge_collection.simple_full_well_user_array
+        enabled: true
+        arguments:
+            path: temp/fwc.npy
+
   - name: fixed_pattern_noise
     full_name: Fixed pattern noise
     detector: all

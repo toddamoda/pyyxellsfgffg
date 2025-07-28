@@ -82,6 +82,74 @@ def output_node_linearity_poly(
     signal_non_linear = signal_non_linear.clip(min=0.0)
     detector.signal.array = signal_non_linear
 
+def compute_poly_linearity_user_array(
+    array_2d: np.ndarray,
+    coefficients: Sequence[Sequence[float]],
+) -> np.ndarray:
+    """Add non-linearity to an array of values following a polynomial function.
+
+    Parameters
+    ----------
+    array_2d : ndarray
+        Input array.
+    coefficients : list of float
+        Coefficients of the polynomial function.
+
+    Returns
+    -------
+    np.ndarray
+        Signal.
+    """
+    # for every set of coefficients, create the polynomial function
+    signal = []
+    for i in range(0, len(coefficients)):
+        row = []
+        for j in range(0, len(coefficients[i])):
+            polynomial_function = np.polynomial.polynomial.Polynomial(coefficients[i][j])
+            row.append(polynomial_function(array_2d[i][j]))
+        signal.append(row)
+
+    return np.array(list(signal)) # honestly I have no clue if this will work
+
+def output_node_linearity_poly_user_array(
+    detector: Detector,
+    path: str,
+) -> None:
+    """Add non-linearity to signal array to simulate the non-linearity of the output node circuit.
+
+    The non-linearity is simulated by a polynomial function. The user specifies the polynomial coefficients.
+
+    detector Signal unit: Volt
+
+    Parameters
+    ----------
+    detector : Detector
+        Pyxel Detector object.
+    coefficients : list of float
+        Coefficient of the polynomial function.
+
+    Notes
+    -----
+    For more information, you can find examples here:
+
+    * :external+pyxel_data:doc:`use_cases/CCD/euclid_prnu`
+    * :external+pyxel_data:doc:`use_cases/HxRG/h2rg`
+    * :external+pyxel_data:doc:`workshops/leiden_university_workshop/ptc`
+    """
+    # parse the user array
+    try:
+        array = np.load(path)
+    except:
+        raise ValueError("Invalid path given.")
+
+    signal_mean_array = detector.signal.array.astype("float64")
+    signal_non_linear = compute_poly_linearity_user_array(
+        array_2d=signal_mean_array, coefficients=array
+    )
+
+    signal_non_linear = signal_non_linear.clip(min=0.0)
+    detector.signal.array = signal_non_linear
+
 
 def compute_simple_physical_non_linearity(
     array_2d: np.ndarray,

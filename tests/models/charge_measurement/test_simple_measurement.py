@@ -10,7 +10,7 @@ import pytest
 
 from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
 from pyxel.detectors.channels import Channels, Matrix, ReadoutPosition
-from pyxel.models.charge_measurement import simple_measurement
+from pyxel.models.charge_measurement import simple_measurement, simple_measurement_user_array
 
 
 @pytest.fixture
@@ -131,3 +131,11 @@ def test_simple_measurement_with_channels(ccd_2x2_with_channels: CCD, gain):
 
     signal = detector.signal.array
     np.testing.assert_allclose(actual=signal, desired=exp_signal, rtol=1e-6)
+
+def test_simple_measurement_user_array(ccd_5x10: CCD):
+    """Test fixed pattern gain for simple measurement."""
+    # filename 
+
+    # how do we test this? Do we need to create a .npy file in the temp directory and pass the filename?
+
+    pass

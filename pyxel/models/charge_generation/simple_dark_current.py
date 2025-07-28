@@ -7,10 +7,17 @@
 
 """Model to generate charges due to simple dark current process."""
 
+from pathlib import Path
+from typing import Literal
+
 import numpy as np
 
 from pyxel.detectors import Detector
-from pyxel.util import set_random_seed
+from pyxel.util import (
+    load_cropped_and_aligned_image,
+    resolve_with_working_directory,
+    set_random_seed
+)
 
 
 def calculate_simple_dark_current(
@@ -73,3 +80,39 @@ def simple_dark_current(
         ).astype(float)
 
     detector.charge.add_charge_array(dark_current_array)
+
+def dark_current_user_array(
+        detector: Detector,
+        filename: str,
+        position: tuple[int, int] = (0, 0),
+        align: (
+            Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"] | None
+        ) = None,
+) -> None:
+    """Add dark current to the detector charge using a fixed array.
+
+    Parameters
+    ----------
+    detector : Detector
+        Pyxel detector object.
+    filename : str
+        Path to the array or image
+    # figure_of_merit : float
+    #     Dark current figure of merit.
+    position: tuple[int, int]
+        Starting row and column of the fixed dark current.
+    align: Literal
+        Keyword to align the noise to detector. Can be any from:
+        ("center", "top_left", "top_right", "bottom_left", "bottom_right")
+    
+    """
+
+    dr_2d = load_cropped_and_aligned_image(
+        shape=(detector.geometry.row,detector.geometry.col),
+        filename=filename,
+        position_x=position[0],
+        position_y=position[1],
+        align=align,
+    )
+
+    detector.charge.add_charge_array(dr_2d)

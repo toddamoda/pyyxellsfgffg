@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pyxel.util import get_size, get_uninitialized_error
+from pyxel.util import get_size, get_uninitialized_error, image
 
 if TYPE_CHECKING:
     from pyxel.detectors import Geometry
@@ -27,6 +27,8 @@ class Characteristics:
         Quantum efficiency.
     charge_to_volt_conversion : float, optional
         Sensitivity of charge readout. Unit: V/e-
+    gain_array_path : str, optional
+        Path to gain array file
     pre_amplification : float, optional
         Gain of pre-amplifier. Unit: V/V
     full_well_capacity : float, optional
@@ -43,6 +45,7 @@ class Characteristics:
         charge_to_volt_conversion: (
             float | dict[str, float] | None
         ) = None,  # unit: volt/electron
+        gain_array_path: str | None = None,
         pre_amplification: float | None = None,  # unit: V/V
         full_well_capacity: float | None = None,  # unit: electron
         adc_bit_resolution: int | None = None,
@@ -74,6 +77,8 @@ class Characteristics:
         self._charge_to_volt_conversion: float | dict[str, float] | None = (
             charge_to_volt_conversion
         )
+
+        self._gain_array_path = gain_array_path
 
         # TODO: This variable is available in class 'Characteristics' and 'APDCharacteristics'
         #       Refactor this
@@ -154,13 +159,33 @@ class Characteristics:
             raise TypeError(
                 "Invalid type for 'charge_to_volt_conversion'; expected float or dict."
             )
+        
+    def _build_gain_array(self, path: str):
+        try: # gain array needs access to detector geometry
+            self._gain_array = image.load_cropped_and_aligned_image(
+                (self._geometry.row, self._geometry.col),
+                path
+            )
+        except:
+            raise ValueError("Invalid gain array path supplied.")
 
+    def _build_charge_to_volt_conversion_array(self):
+        self.charge_to_volt_conversion_array = (
+            (self.adc_voltage_range[1] - self.adc_voltage_range[0]) /
+            (2 ** self.adc_bit_resolution)
+        ) / self.gain_array
+        
     # TODO: This method is similar in 'APDCharacteristics and 'Characteristics'
     #       Refactor these methods
     def initialize(self, geometry: "Geometry"):
         self._geometry = geometry
 
+        if self._gain_array_path is not None:
+            self._build_gain_array(path=self._gain_array_path)
+            self._build_charge_to_volt_conversion_array()
+        
         self._build_channels_gain(value=self._charge_to_volt_conversion)
+            
 
     @property
     def quantum_efficiency(self) -> float:
@@ -339,6 +364,42 @@ class Characteristics:
             raise ValueError("'full_well_capacity' must be between 0 and 1e+7.")
 
         self._full_well_capacity = value
+
+    @property
+    def gain_array_path(self) -> float:
+        """Get gain array path."""
+        if self._gain_array_path is None:
+            raise ValueError(
+                get_uninitialized_error(
+                    name="gain_array_path",
+                    parent_name="characteristics",
+                )
+            )
+
+        return self._gain_array_path
+
+    @gain_array_path.setter
+    def gain_array_path(self, value: str) -> None:
+        """Set gain array path."""
+        # if not (0 <= value <= 10_000_000):
+        #     raise ValueError("'gain_array_path' must be between 0 and 1e+7.")
+
+        ## Check for correct file path, or initialise gain_array proper.
+
+        self._gain_array_path = value
+
+    @property
+    def gain_array(self) -> float:
+        """Get gain array."""
+        if self._gain_array is None:
+            raise ValueError(
+                get_uninitialized_error(
+                    name="gain_array",
+                    parent_name="characteristics",
+                )
+            )
+
+        return self._gain_array
 
     @property
     def system_gain(self) -> float | np.ndarray:
