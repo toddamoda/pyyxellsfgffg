@@ -96,7 +96,7 @@ def dark_current_user_array(
     detector : Detector
         Pyxel detector object.
     filename : str
-        Path to the array or image
+        Path to the array or image.
     position: tuple[int, int]
         Starting row and column of the fixed dark current.
     align: Literal

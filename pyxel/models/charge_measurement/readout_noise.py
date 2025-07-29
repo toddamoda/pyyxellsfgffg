@@ -7,6 +7,8 @@
 
 """Readout noise model."""
 
+from typing import Literal
+
 import numpy as np
 
 from pyxel.detectors import APD, CMOS, Detector
@@ -221,23 +223,41 @@ def readout_noise_saphira(
 
     detector.signal += noise_2d
 
-def apply_fixed_noise(
+def apply_noise_user_array(
         detector: Detector,
         noise: np.array
 ) -> None:
     detector.signal += noise
 
-def fixed_readout_noise(
+def readout_noise_user_array(
         detector: Detector,
-        filename: str 
+        filename: str,
+        position: tuple[int, int] = (0,0),
+        align: (
+            Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"] | None
+        ) = None,
 ) -> None:
-    # load the data into a numpy array
-    try:
-        fixed_noise = np.fromfile(filename, sep=",").reshape(detector.geometry.shape)
-    except FileNotFoundError:
-        raise FileNotFoundError("Fixed noise file not found.")
-    except ValueError:
-        raise ValueError("Noise file is incorrect format. Use single-line C-style comma-separated floats.")
+    """Apply the user-supplied readout noise array to the signal array.
 
-    # and pass it of to a more "pure" function that does the actual application
-    apply_fixed_noise(detector, fixed_noise)
+    Parameters
+    ----------
+    detector : Detctor
+        Detector object.
+    filename : str
+        Path to the array or image.
+    position: tuple[int, int]
+        Starting row and column of the fixed dark current.
+    align: Literal
+        Keyword to align the noise to detector. Can be any from:
+        ("center", "top_left", "top_right", "bottom_left", "bottom_right")
+    """
+    noise_user_array = load_cropped_and_aligned_image(
+        shape=(detector.geometry.row,detector.geometry.col),
+        filename=filename,
+        position_x=position[0],
+        position_y=position[1],
+        align=align,
+    )
+
+    # and pass it of to the "pure" function that does the actual application
+    apply_noise_user_array(detector, noise_user_array)

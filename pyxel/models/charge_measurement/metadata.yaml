@@ -385,12 +385,12 @@ models:
       - use_cases/HxRG/h2rg
       - examples/observation/sequential
 
-  - name: fixed_readout_noise
-    full_name: Fixed Readout Noise
+  - name: readout_noise_user_array
+    full_name: Readout Noise User Array
     config: >
-      - name: fixed_readout_noise
-        func: pyxel.models.charge_measurement.fixed_readout_noise
-        enabled: false
+      - name: readout_noise_user_array
+        func: pyxel.models.charge_measurement.readout_noise_user_array
+        enabled: true
         arguments:
-          filename: /home/zc/code/Pyxel/noise_dump.txt
+          filename: "readout_noise.npy"
         

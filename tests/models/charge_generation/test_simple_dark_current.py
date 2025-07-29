@@ -64,7 +64,7 @@ def test_simple_dark_current_valid(ccd_10x10: CCD):
 def valid_noise_path(
     tmp_path: Path,
 ) -> str:
-    """Create valid 2D file on a temporary folder."""
+    """Create valid 2D file in a temporary folder."""
     data_2d = (
         np.array(
             [
