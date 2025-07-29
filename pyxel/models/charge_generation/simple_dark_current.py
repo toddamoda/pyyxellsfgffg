@@ -97,8 +97,6 @@ def dark_current_user_array(
         Pyxel detector object.
     filename : str
         Path to the array or image
-    # figure_of_merit : float
-    #     Dark current figure of merit.
     position: tuple[int, int]
         Starting row and column of the fixed dark current.
     align: Literal

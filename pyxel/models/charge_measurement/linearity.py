@@ -84,16 +84,18 @@ def output_node_linearity_poly(
 
 def compute_poly_linearity_user_array(
     array_2d: np.ndarray,
-    coefficients: Sequence[Sequence[float]],
+    coefficients: np.ndarray,
 ) -> np.ndarray:
-    """Add non-linearity to an array of values following a polynomial function.
+    """Add non-linearity to an array of values following an array of polynomial
+    coeffieicents. This will create and then apply the functions.
 
     Parameters
     ----------
     array_2d : ndarray
         Input array.
-    coefficients : list of float
-        Coefficients of the polynomial function.
+    coefficients : 2D np array of floats
+        List of coefficients of each polynomial function arranged by row and
+        column.
 
     Returns
     -------
@@ -109,7 +111,7 @@ def compute_poly_linearity_user_array(
             row.append(polynomial_function(array_2d[i][j]))
         signal.append(row)
 
-    return np.array(list(signal)) # honestly I have no clue if this will work
+    return np.array(signal)
 
 def output_node_linearity_poly_user_array(
     detector: Detector,
@@ -117,7 +119,8 @@ def output_node_linearity_poly_user_array(
 ) -> None:
     """Add non-linearity to signal array to simulate the non-linearity of the output node circuit.
 
-    The non-linearity is simulated by a polynomial function. The user specifies the polynomial coefficients.
+    The non-linearity is simulated by a polynomial function per pixel. The user specifies the
+    polynomial coefficients with each array element.
 
     detector Signal unit: Volt
 
@@ -125,8 +128,8 @@ def output_node_linearity_poly_user_array(
     ----------
     detector : Detector
         Pyxel Detector object.
-    coefficients : list of float
-        Coefficient of the polynomial function.
+    path : str
+        Path to file containing coefficients for each of the polynomial functions.
 
     Notes
     -----

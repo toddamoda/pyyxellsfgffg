@@ -156,3 +156,17 @@ models:
           data_structure: "signal"
     notebooks:
       - examples/models/data_processing/data_analysis/data_processing-obs
+      
+  - name: apply_gain
+    full_name: Apply gain
+    detector: all
+    description: >
+      This model applies the gain array defined in the detector characteristics.
+      The array is parsed during `Characteristics.initialize()` and saved to
+      `detector.characteristics.gain_array`. If that is unset, this method will
+      result in an error.
+    config: >
+      data_processing:
+        - name: apply_gain
+          func: pyxel.models.data_processing.apply_gain
+          enabled: true

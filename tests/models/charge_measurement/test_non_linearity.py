@@ -8,6 +8,7 @@
 
 from collections.abc import Sequence
 from contextlib import nullcontext
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -26,6 +27,7 @@ from pyxel.models.charge_measurement import (
     physical_non_linearity,
     physical_non_linearity_with_saturation,
     simple_physical_non_linearity,
+    output_node_linearity_poly_user_array,
 )
 from pyxel.models.charge_measurement.non_linearity_calculation import ni_hansen
 
@@ -433,7 +435,6 @@ def test_physical_non_linearity_with_temperature(
             fixed_capacitance=5.0e-15,
         )
 
-
 def test_physical_non_linearity_with_saturation_with_ccd(ccd_5x5: CCD):
     """Test model 'physical_non_linearity_with_saturation' with a 'CCD'."""
     detector = ccd_5x5
@@ -453,3 +454,79 @@ def test_physical_non_linearity_with_saturation_with_ccd(ccd_5x5: CCD):
             fixed_capacitance=5.0e-15,
             euler_points=100,
         )
+
+@pytest.fixture
+def valid_non_linearity_path(
+    tmp_path: Path,
+) -> str:
+    """Create valid 2D file on a temporary folder."""
+    array = [
+        [
+            [1.1, 1.2],
+            [0.9, 1.0],
+            [1.0, 0.85],
+            [0.95, 1.02],
+            [1.08, 1.09]
+        ],
+        [
+            [1.1, 1.2],
+            [0.7, 0.9],
+            [1.0, 1.0],
+            [0.95, 1.02],
+            [1.21, 1.09]
+        ],
+        [
+            [1.1, 1.2],
+            [0.9, 1.0],
+            [1.0, 1.0],
+            [0.95, 1.02],
+            [0.96, 1.02]
+        ],
+        [
+            [1.1, 1.2],
+            [0.7, 0.9],
+            [1.0, 0.96],
+            [0.95, 1.02],
+            [1.04, 1.01]
+        ],
+        [
+            [1.1, 1.2],
+            [0.9, 1.0],
+            [1.0, 1.0],
+            [0.95, 1.02],
+            [0.98, 1.16]
+        ]
+    ]
+
+    final_path = f"{tmp_path}/non_linearity.npy"
+    np.save(final_path, arr=array)
+
+    return final_path
+
+def test_output_node_linearity_poly_user_array_valid(ccd_5x5: CCD, valid_non_linearity_path: str):
+    ## so we have a valid npy file, we want to send this in
+    # do we need to initialise the signal array at all?
+
+    ccd_5x5.signal.array = np.ones((ccd_5x5.geometry.row, ccd_5x5.geometry.col))
+    output_node_linearity_poly_user_array(ccd_5x5, valid_non_linearity_path)
+
+    expected = np.array(
+        [
+            np.array([2.3 , 1.9 , 1.85, 1.97, 2.17], np.float64),
+            np.array([2.3 , 1.6 , 2.  , 1.97, 2.3 ], np.float64),
+            np.array([2.3 , 1.9 , 2.  , 1.97, 1.98], np.float64),
+            np.array([2.3 , 1.6 , 1.96, 1.97, 2.05], np.float64),
+            np.array([2.3 , 1.9 , 2.  , 1.97, 2.14], np.float64)
+        ]
+    )
+
+    # We gt floating point issues here, so use pytest.approx()
+    for i in range(0, len(ccd_5x5.signal.array)):
+        for j in range(0, len(ccd_5x5.signal.array[i])):
+            assert ccd_5x5.signal.array[i][j] == pytest.approx(expected[i][j])
+
+def test_output_node_linearity_poly_user_array_invalid(ccd_5x5: CCD):
+    path = "invalid_nonlinearity_path.npy"
+
+    with pytest.raises(ValueError):
+        output_node_linearity_poly_user_array(ccd_5x5, path)
