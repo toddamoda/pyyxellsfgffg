@@ -5,7 +5,7 @@
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
 
-
+import os
 import numpy as np
 import pytest
 
@@ -26,6 +26,7 @@ from pyxel.models.charge_measurement import (
     output_node_noise,
     output_node_noise_cmos,
     readout_noise_saphira,
+    fixed_readout_noise
 )
 
 
@@ -307,3 +308,101 @@ def test_readout_noise_saphira(apd_2x3: APD):
         roic_readout_noise=0.1,
         controller_noise=0.1,
     )
+
+def test_fixed_readout_noise(cmos_2x3: CMOS):
+    """Test 'fixed_readout_noise' with a 2x3 'CMOS' and a valid noise file"""
+
+    filename = "test_fixed_readout_noise.txt"
+    seed = 12345
+    rng = np.random.default_rng(seed=seed)
+
+    # set detector signal array with predictable values
+    detector = cmos_2x3
+    detector.signal.array = rng.random(size=(2, 3), dtype=float)
+
+    # define the fixed noise array to see if it applies correctly
+    noise = np.array([
+        0.00011344897101509484,
+        -0.00019597840677601492,
+        -3.055019262471055e-05,
+        0.0003243648264931221,
+        8.574005489058888e-05,
+        0.00023433405048968554
+    ])
+    noise.tofile(filename, sep=",") # and kick it to a file
+
+    # This is the predictable signal array modified by the noise array that we would expect
+    exp_signal = np.array([
+        [0.22744947143818475, 0.3165623613029769, 0.7973349071401095],
+        [0.6765790355774677, 0.3911952906567996, 0.3330482619168742],
+    ])
+
+    # Test func
+    fixed_readout_noise(
+        detector=detector,
+        filename=filename
+    )
+    new_signal = detector.signal.array # retireve result
+
+    os.remove(filename) # delete the temporary noise file
+
+    np.testing.assert_allclose(actual=new_signal, desired=exp_signal, rtol=1e-5)
+
+def test_fixed_readout_noise_invalid_file(cmos_2x3: CMOS):
+    """Test 'fixed_readout_noise' with a 2x3 'CMOS' and an invalid noise file"""
+
+    filename = "test_fixed_readout_noise.txt"
+    seed = 12345
+    rng = np.random.default_rng(seed=seed)
+
+    # set detector signal array with predictable values
+    detector = cmos_2x3
+    detector.signal.array = rng.random(size=(2, 3), dtype=float)
+
+    # ensure that the file doesn't actually exist rather than just assume it doesn't
+    if os.path.isfile(filename):
+        os.remove(filename)
+
+    # Test func with non-existant noise file
+    with pytest.raises(FileNotFoundError, match="Fixed noise file not found."):
+        fixed_readout_noise(
+            detector=detector,
+            filename=filename
+        )
+
+def test_fixed_readout_noise_malformed_file(cmos_2x3: CMOS):
+    """Test 'fixed_readout_noise' with a 2x3 'CMOS' and a malformed/invalid noise file"""
+
+    filename = "test_fixed_readout_noise.txt"
+    seed = 12345
+    rng = np.random.default_rng(seed=seed)
+
+    # set detector signal array with predictable values
+    detector = cmos_2x3
+    detector.signal.array = rng.random(size=(2, 3), dtype=float)
+
+    # define the fixed noise array to see if it applies correctly
+    noise = np.array([
+        0.00011344897101509484,
+        -0.00019597840677601492,
+        -3.055019262471055e-05,
+        0.0003243648264931221,
+        8.574005489058888e-05,
+        0.00023433405048968554
+    ])
+    noise.tofile(filename, sep="/") # and kick it to a file using the incorrect separator
+
+    # This is the predictable signal array modified by the noise array that we would expect
+    exp_signal = np.array([
+        [0.22744947143818475, 0.3165623613029769, 0.7973349071401095],
+        [0.6765790355774677, 0.3911952906567996, 0.3330482619168742],
+    ])
+
+    # Test func
+    with pytest.raises(ValueError, match="Noise file is incorrect format. Use single-line C-style comma-separated floats."):
+        fixed_readout_noise(
+            detector=detector,
+            filename=filename
+        )
+
+    os.remove(filename)

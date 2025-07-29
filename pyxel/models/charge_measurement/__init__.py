@@ -13,6 +13,7 @@ from .readout_noise import (
     output_node_noise,
     output_node_noise_cmos,
     readout_noise_saphira,
+    fixed_readout_noise,
 )
 from .nghxrg.nghxrg import nghxrg
 from .linearity import (

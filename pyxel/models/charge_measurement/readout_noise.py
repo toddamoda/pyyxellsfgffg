@@ -10,7 +10,10 @@
 import numpy as np
 
 from pyxel.detectors import APD, CMOS, Detector
-from pyxel.util import set_random_seed
+from pyxel.util import (
+    load_cropped_and_aligned_image,
+    set_random_seed,
+)
 
 
 def create_noise_cmos(
@@ -217,3 +220,24 @@ def readout_noise_saphira(
         )
 
     detector.signal += noise_2d
+
+def apply_fixed_noise(
+        detector: Detector,
+        noise: np.array
+) -> None:
+    detector.signal += noise
+
+def fixed_readout_noise(
+        detector: Detector,
+        filename: str 
+) -> None:
+    # load the data into a numpy array
+    try:
+        fixed_noise = np.fromfile(filename, sep=",").reshape(detector.geometry.shape)
+    except FileNotFoundError:
+        raise FileNotFoundError("Fixed noise file not found.")
+    except ValueError:
+        raise ValueError("Noise file is incorrect format. Use single-line C-style comma-separated floats.")
+
+    # and pass it of to a more "pure" function that does the actual application
+    apply_fixed_noise(detector, fixed_noise)

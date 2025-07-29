@@ -384,3 +384,13 @@ models:
       - examples/models/amplifier_crosstalk/crosstalk
       - use_cases/HxRG/h2rg
       - examples/observation/sequential
+
+  - name: fixed_readout_noise
+    full_name: Fixed Readout Noise
+    config: >
+      - name: fixed_readout_noise
+        func: pyxel.models.charge_measurement.fixed_readout_noise
+        enabled: false
+        arguments:
+          filename: /home/zc/code/Pyxel/noise_dump.txt
+        
