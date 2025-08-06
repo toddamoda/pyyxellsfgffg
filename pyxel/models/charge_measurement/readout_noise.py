@@ -7,7 +7,7 @@
 
 """Readout noise model."""
 
-from typing import Literal
+from typing import Literal, Tuple
 
 import numpy as np
 
@@ -261,3 +261,68 @@ def readout_noise_user_array(
 
     # and pass it of to the "pure" function that does the actual application
     apply_noise_user_array(detector, noise_user_array)
+
+def create_output_node_noise_cmos_user_array(
+    shape : Tuple[int, int],
+    sigma : np.ndarray,
+    offset : np.ndarray,
+    seed: np.random.Generator
+) -> np.ndarray:
+
+    # loop through shape and draw single sample from each
+    # according to row and column (nested array)
+    noise = []
+    for i in range(0, shape[0]):
+        row = []
+        for j in range(0, shape[1]):
+            # normal() returns an array, so we need the [0] to do array -> float
+            row.append(seed.normal(loc=offset[i][j], scale=sigma[i][j], size=1)[0])
+        noise.append(row)
+    
+    # no negative values
+    noise = np.array(noise).clip(min=0)
+    return noise
+
+def output_node_noise_cmos_user_array(
+    detector: CMOS,
+    sigma_path: str,
+    offset_path: str,
+    seed: np.random.Generator = np.random.default_rng
+) -> None :
+    """Applies readout noise with a normal distribution. Each pixel has its own
+    sigma and offset (mean). Noise will be clipped at min=0.
+    
+    Parameters
+    ----------
+    detector: CMOS
+        Detector object.
+    sigma_path : str
+        Path to 2d array of sigma values for each pixel
+    offset_path : str
+        Path to 2d array of offset (mean) values for each pixel
+    """
+
+    try: # valid sigma array?
+        sigma = np.load(sigma_path)
+    except:
+        raise ValueError("Sigma array is invalid.")
+    
+    try: # valid offset array?
+        offset = np.load(offset_path)
+    except:
+        raise ValueError("Offset array is invalid.")
+    
+    if sigma.shape != offset.shape: # The arrays need to match up
+        raise ValueError("Sigma and Offset arrays are different shapes.")
+    
+    if sigma.shape != detector.geometry.shape: # and they should be the same shape as the detector
+        raise ValueError("Sigma array shape does not match detector geometry.")
+    
+    noise = create_output_node_noise_cmos_user_array(
+        shape=detector.geometry.shape,
+        sigma=sigma,
+        offset=offset,
+        seed=seed
+    )
+    
+    detector.signal.array += noise

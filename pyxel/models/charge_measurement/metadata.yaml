@@ -394,3 +394,12 @@ models:
         arguments:
           filename: "readout_noise.npy"
         
+  - name: output_node_noise_cmos_user_array
+    full_name: Output Node Noise User Array
+    config: >
+      - name: ron_user_array
+        func: pyxel.models.charge_measurement.output_node_noise_cmos_user_array
+        enabled: true
+        arguments:
+          sigma_path: "sigma.npy"
+          offset_path: "offset.npy"
