@@ -266,8 +266,16 @@ def create_output_node_noise_cmos_user_array(
     shape : Tuple[int, int],
     sigma : np.ndarray,
     offset : np.ndarray,
+    charge_readout_sensitivity: float | np.ndarray,
     seed: np.random.Generator
 ) -> np.ndarray:
+    
+    # Create an array for sensitivities that matches the detector's shape
+    if not isinstance(charge_readout_sensitivity, np.ndarray):
+        sensitivity_2d = np.full(shape=shape, fill_value=charge_readout_sensitivity)
+    else:
+        sensitivity_2d = charge_readout_sensitivity
+
 
     # loop through shape and draw single sample from each
     # according to row and column (nested array)
@@ -276,11 +284,12 @@ def create_output_node_noise_cmos_user_array(
         row = []
         for j in range(0, shape[1]):
             # normal() returns an array, so we need the [0] to do array -> float
-            row.append(seed.normal(loc=offset[i][j], scale=sigma[i][j], size=1)[0])
+            row.append(seed.normal(
+                loc=offset[i][j] * sensitivity_2d[i][j],
+                scale=sigma[i][j] * sensitivity_2d[i][j],
+                size=1)[0])
         noise.append(row)
     
-    # no negative values
-    noise = np.array(noise).clip(min=0)
     return noise
 
 def output_node_noise_cmos_user_array(
@@ -290,7 +299,7 @@ def output_node_noise_cmos_user_array(
     seed: np.random.Generator = np.random.default_rng
 ) -> None :
     """Applies readout noise with a normal distribution. Each pixel has its own
-    sigma and offset (mean). Noise will be clipped at min=0.
+    sigma and offset (mean).
     
     Parameters
     ----------
@@ -318,10 +327,13 @@ def output_node_noise_cmos_user_array(
     if sigma.shape != detector.geometry.shape: # and they should be the same shape as the detector
         raise ValueError("Sigma array shape does not match detector geometry.")
     
+    charge_readout_sensitivity = detector.characteristics.charge_to_volt_conversion
+    
     noise = create_output_node_noise_cmos_user_array(
         shape=detector.geometry.shape,
         sigma=sigma,
         offset=offset,
+        charge_readout_sensitivity=charge_readout_sensitivity,
         seed=seed
     )
     

@@ -387,11 +387,11 @@ def test_output_node_noise_cmos_user_array(cmos_2x3: CMOS, valid_ones_path_2x3: 
     output_node_noise_cmos_user_array(cmos_2x3, valid_ones_path_2x3, valid_ones_path_2x3, rng)
 
     expected = np.array([
-        [1.        , 3.26372846, 1.12933826],
-        [1.74082677, 1.92465669, 1.25911535]
+        [0.99576175, 1.02263728, 1.00129338],
+        [1.00740827, 1.00924657, 1.00259115]
     ])
 
-    # We gt floating point issues here, so use pytest.approx()
+    # We get floating point issues here, so use pytest.approx()
     for i in range(0, len(cmos_2x3.signal.array)):
         for j in range(0, len(cmos_2x3.signal.array[i])):
             assert cmos_2x3.signal.array[i][j] == pytest.approx(expected[i][j])
