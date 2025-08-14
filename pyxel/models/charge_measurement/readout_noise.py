@@ -328,6 +328,8 @@ def output_node_noise_cmos_user_array(
         raise ValueError("Sigma array shape does not match detector geometry.")
     
     charge_readout_sensitivity = detector.characteristics.charge_to_volt_conversion
+
+    seed = np.random.default_rng()
     
     noise = create_output_node_noise_cmos_user_array(
         shape=detector.geometry.shape,

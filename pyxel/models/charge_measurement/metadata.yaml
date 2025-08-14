@@ -387,6 +387,9 @@ models:
 
   - name: readout_noise_user_array
     full_name: Readout Noise User Array
+    description: >
+      Adds a fixed-value readout noise dictated by the input array. The input
+      array size must match the size of the detector.
     config: >
       - name: readout_noise_user_array
         func: pyxel.models.charge_measurement.readout_noise_user_array
@@ -396,8 +399,13 @@ models:
         
   - name: output_node_noise_cmos_user_array
     full_name: Output Node Noise User Array
+    description: >
+      Adds readout noise according to the "sigma" and "offset" input arrays. 
+      The readout noise for each pixel is sampled from the pixel-specific
+      distribution denoted by these two arrays. The size of the input arrays
+      must match the size of the detector. 
     config: >
-      - name: ron_user_array
+      - name: output_node_noise_cmos_user_array
         func: pyxel.models.charge_measurement.output_node_noise_cmos_user_array
         enabled: true
         arguments:
