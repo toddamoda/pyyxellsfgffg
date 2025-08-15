@@ -21,7 +21,7 @@ def ccd_3x3() -> CCD:
         characteristics=Characteristics(
             adc_bit_resolution=14,
             adc_voltage_range=[0.,2.],
-            gain_array_path="tests/data/inputs/test_gain_array.data"
+            gain_array_path="tests/data/test_gain_array.data"
         ),
     )
 
