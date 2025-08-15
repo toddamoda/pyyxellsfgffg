@@ -9,7 +9,86 @@ Minor releases include updated stdlib stubs from typeshed.
 
 Pyxel doesn't use SemVer anymore, since most minor releases have at least minor backward incompatible changes.
 
-## 2.111.2 / 2025-06-23
+## UNRELEASED
+
+### Core
+
+### Documentation
+
+### Models
+
+### Others
+
+
+## 2.12 / 2025-07-31
+
+This release includes various bug fixes and feature enhancements to improve usability and flexibility.
+
+### Improved `load_star_map` model
+
+Model [`load_star_map`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/scene_generation_models.html#load-star-map)
+from [Scene Generation](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/scene_generation_models.html#)
+now supports additional source catalogs: ESA Gaia DR3 catalog, ESA Hipparcos and ESA Tycho-2.
+ 
+Example of YAML file to retrieve sources from the three catalogs
+```yaml
+  scene_generation:
+    - name: scene_generator_gaia
+      func: pyxel.models.scene_generation.load_star_map
+      enabled: true
+      arguments:
+        right_ascension: 88.8
+        declination: 7.4
+        fov_radius: 3
+        catalog: "gaia"
+    
+    - name: scene_generator_hipparcos
+      func: pyxel.models.scene_generation.load_star_map
+      enabled: true
+      arguments:
+        right_ascension: 88.8
+        declination: 7.4
+        fov_radius: 3
+        catalog: "hipparcos"
+
+    - name: scene_generator_tycho
+      func: pyxel.models.scene_generation.load_star_map
+      enabled: true
+      arguments:
+        right_ascension: 88.8
+        declination: 7.4
+        fov_radius: 3
+        catalog: "tycho"
+```
+
+
+### Models
+* [`Cosmix`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_generation_models.html#cosmix-cosmic-ray-model)
+   model in [Charge Generation](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/charge_generation_models.html#)
+   model groups incorrectly checks if particle within detector.
+  See issue [#836](https://gitlab.com/esa/pyxel/-/issues/936).
+  (See [!1079](https://gitlab.com/esa/pyxel/-/merge_requests/1079)).
+* Add option to retrieve all source objects from 
+  [`load_star_map`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/scene_generation_models.html#load-star-map)
+  from [Scene Generation](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/scene_generation_models.html#)
+  model groups.
+  (See [!1080](https://gitlab.com/esa/pyxel/-/merge_requests/1080)
+  and [!1081](https://gitlab.com/esa/pyxel/-/merge_requests/1081)).
+* Add more catalogs (e.g. Hipparcos, Tycho2) for model 
+  [`load_star_map`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/scene_generation_models.html#load-star-map)
+  from [Scene Generation](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/scene_generation_models.html#).
+  (See [!1083](https://gitlab.com/esa/pyxel/-/merge_requests/1083)).
+* Fix bugs in model [`load_star_map`](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/scene_generation_models.html#load-star-map)
+  from [Scene Generation](https://esa.gitlab.io/pyxel/doc/stable/references/model_groups/scene_generation_models.html#).
+  (See [!1085](https://gitlab.com/esa/pyxel/-/merge_requests/1085)).
+
+### Others
+* Add compatibility with `lacosmic` 1.3+.
+  (See [!1077](https://gitlab.com/esa/pyxel/-/merge_requests/1077)
+  and [!1078](https://gitlab.com/esa/pyxel/-/merge_requests/1078).
+
+
+## 2.11.2 / 2025-06-23
 
 This is a major bug fix release.
 
