@@ -1,5 +1,5 @@
 #  Copyright (c) European Space Agency, 2020.
-#  #
+#
 #   This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
 #   is part of this Pyxel package. No part of the package, including
 #   this file, may be copied, modified, propagated, or distributed except according to
@@ -12,51 +12,156 @@ import sys
 import time
 import warnings
 from collections.abc import Sequence
-from enum import Enum
-from typing import TYPE_CHECKING, Literal
+from pathlib import Path
+from typing import TYPE_CHECKING, Final, Literal
 
 import numpy as np
 import requests
 import xarray as xr
-from astropy.units import Quantity
+from astropy.coordinates import SkyCoord
+from astropy.table import Table
+from astropy.units import Quantity, spectral_density
+from astroquery.vizier import Vizier
 from specutils import Spectrum
 from synphot import SourceSpectrum
+from tqdm.auto import tqdm
 
 from pyxel import util
 from pyxel.detectors import Detector
 
 if TYPE_CHECKING:
+    import pandas as pd
     from astropy.io.votable import tree
-    from astropy.table import Column, Table
+
+# Define constants for the Catalog Identifiers
+HIPPARCOS_ID: Final[str] = "I/239/hip_main"
+TYCHO2_ID: Final[str] = "I/259/tyc2"
 
 
-class GaiaPassBand(Enum):
-    """Define different type of magnitude provided by the Gaia database.
+def get_vega_spectrum_photon(
+    start_wavelength: float = 336.0,
+    stop_wavelength: float = 1020.0,
+    step_wavelength: float = 2.0,
+) -> xr.DataArray:
+    """Return the Vega reference spectrum as a photon flux.
 
-    More information available here: https://www.cosmos.esa.int/web/gaia/iow_20180316
+    Parameters
+    ----------
+    start_wavelength : float, optional
+        The starting wavelength of the spectrum in nm. Default: 336.0
+    stop_wavelength : float, optional
+        The ending wavelength of the spectrum in nm. Default: 1020.0
+    step_wavelength : float, optional
+        The sampling interval between wavelengths in nm. Default: 2.0
+
+    Returns
+    -------
+    DataArray
+        1D data array of photon flux density in units of ph / (nm s cm²).
+
+    Examples
+    --------
+    >>> get_vega_spectrum_photon()
+    <xarray.DataArray 'flux' (wavelength: 343)> Size: 3kB
+    array([ 5522.11342341,  5550.45099356,  5649.40530857,  5628.69094514,
+    ...
+            3119.89074473,  3133.26425759,  3128.21804433])
+    Coordinates:
+      * wavelength  (wavelength) float64 3kB 336.0 338.0 ... 1.018e+03 1.02e+03
+    Attributes:
+        units:    ph / (nm s cm2)
     """
+    # Late import
+    import numpy as np
+    import xarray as xr
+    from synphot import SourceSpectrum
 
-    BluePhotometer = "blue_photometer"  # Wavelength from 330 nm to 680 nm
-    GaiaBand = "gaia_band"  # Wavelength from 330 nm to 1050 nm
-    RedPhotometer = "red_photometer"  # Wavelength from 640 nm to 1050 nm
+    # Get the wavelengths in nm
+    wavelengths_1d = Quantity(
+        np.arange(
+            start=start_wavelength,
+            stop=stop_wavelength + step_wavelength,
+            step=step_wavelength,
+        ),
+        unit="nm",
+    )
 
-    def get_magnitude_key(self) -> str:
-        """Return the Gaia magnitude keyword.
+    wavelengths = xr.DataArray(
+        np.array(wavelengths_1d),
+        dims="wavelength",
+        coords={"wavelength": np.array(wavelengths_1d)},
+        attrs={"units": str(wavelengths_1d.unit)},
+    )
 
-        Examples
-        --------
-        >>> band = GaiaPassBand.BluePhotometer
-        >>> band.get_magnitude_key()
-        'phot_bp_mean_map'
-        """
-        if self is GaiaPassBand.BluePhotometer:
-            return "phot_bp_mean_mag"
-        elif self is GaiaPassBand.GaiaBand:
-            return "phot_g_mean_mag"
-        elif self is GaiaPassBand.RedPhotometer:
-            return "phot_rp_mean_mag"
-        else:
-            raise NotImplementedError
+    # Load Vega spectrum
+    vega = SourceSpectrum.from_vega()
+
+    # Convert the Vega spectrum from "PHOTLAM" ("ph / (Angstrom s cm2)") to "ph / (nm s cm2)"
+    spectrum_1d: Quantity = vega(wavelengths_1d).to("ph / (nm s cm2)")
+
+    return xr.DataArray(
+        np.array(spectrum_1d),
+        dims="wavelength",
+        coords={"wavelength": wavelengths},
+        name="flux",
+        attrs={"units": str(spectrum_1d.unit)},
+    )
+
+
+def get_vega_spectrum_flux(
+    start_wavelength: float = 336.0,
+    stop_wavelength: float = 1020.0,
+    step_wavelength: float = 2.0,
+) -> xr.DataArray:
+    """Return the Vega reference spectrum as an energy flux.
+
+    Parameters
+    ----------
+    start_wavelength : float, optional
+        The starting wavelength of the spectrum in nm. Default: 336.0
+    stop_wavelength : float, optional
+        The ending wavelength of the spectrum in nm. Default: 1020.0
+    step_wavelength : float, optional
+        The sampling interval between wavelengths in nm. Default: 2.0
+
+    Returns
+    -------
+    DataArray
+        1D data array of energy flux density in units of W / (nm m²),
+
+    Examples
+    --------
+    >>> spectrum = get_vega_spectrum_flux()
+    <xarray.DataArray 'flux' (wavelength: 343)> Size: 3kB
+    array([3.26469623e-11, 3.26203266e-11, 3.30065817e-11, 3.26932451e-11,
+    ...
+           6.09989571e-12, 6.11400767e-12, 6.09219194e-12])
+    Coordinates:
+    * wavelength  (wavelength) float64 3kB 336.0 338.0 ... 1.018e+03 1.02e+03
+    Attributes:
+        units:    W / (nm m2)
+    """
+    spectrum = get_vega_spectrum_photon(
+        start_wavelength=start_wavelength,
+        stop_wavelength=stop_wavelength,
+        step_wavelength=step_wavelength,
+    )
+
+    wavelengths_1d = Quantity(spectrum["wavelength"], unit=spectrum["wavelength"].units)
+
+    # Convert the Vega spectrum from "ph / (nm s cm2)") to "W / (nm m2)"
+    spectrum_1d: Quantity = Quantity(spectrum, unit=spectrum.units).to(
+        "W / (nm m2)",
+        equivalencies=spectral_density(wavelengths_1d),
+    )
+
+    return xr.DataArray(
+        np.array(spectrum_1d),
+        dims="wavelength",
+        coords={"wavelength": spectrum["wavelength"]},
+        name="flux",
+        attrs={"units": str(spectrum_1d.unit)},
+    )
 
 
 def compute_flux(wavelength: Quantity, flux: Quantity) -> Quantity:
@@ -187,8 +292,15 @@ def _retrieve_objects_from_gaia(
     right_ascension: float,
     declination: float,
     fov_radius: float,
-) -> tuple["Table", dict[int, "Table"]]:
-    """Retrieve objects from GAIA Catalog for giver coordinates and FOV.
+    extrapolated_spectra: bool,
+) -> tuple["Table", dict[int, tuple["Table", float]]]:
+    """Query the GAIA Catalog to retrieve sources and their spectra near given sky coordinates.
+
+    The function performs a cone search around a specified right ascension (RA), declination (DEC),
+    and field-of-view (FOV) radius using the Gaia archive.
+
+    If `extrapolated_spectra` is `True`, sources without Gaia XP spectra will be assigned an extrapolated A0V spectrum
+    scaled by their G-band magnitude.
 
     Columns description:
     * ``source_id``: Unique source identifier of the source
@@ -202,11 +314,14 @@ def _retrieve_objects_from_gaia(
     Parameters
     ----------
     right_ascension: float
-        RA coordinate in degree.
+        Right ascension (RA) of the center of the search cone, in degrees.
     declination: float
-        DEC coordinate in degree.
+        Declination (DEC) of the center of the search cone, in degrees.
     fov_radius: float
-        FOV radius of telescope optics.
+        Radius of the search cone (field-of-view), in degrees.
+    extrapolated_spectra : bool
+        If True, generates extrapolated A0V spectra for sources without Gaia XP spectra.
+        If False, only sources with XP spectra will be included.
 
     Returns
     -------
@@ -226,7 +341,7 @@ def _retrieve_objects_from_gaia(
 
     Examples
     --------
-    >>> positions, spectra = _retrieve_objects_from_gaia(
+    >>> positions, (spectra, weight) = _retrieve_objects_from_gaia(
     ...     right_ascension=56.75,
     ...     declination=24.1167,
     ...     fov_radius=0.05,
@@ -256,6 +371,7 @@ def _retrieve_objects_from_gaia(
         1020.0  1.344579e-17 4.1775913e-18
     """
     # Late import
+    from astropy.table import Table
     from astroquery.gaia import Gaia
 
     # Unlimited rows.
@@ -263,14 +379,19 @@ def _retrieve_objects_from_gaia(
     # we get the data from GAIA DR3
     Gaia.MAIN_GAIA_TABLE = "gaiadr3.gaia_source"
 
+    # Prepare the query
+    query = (
+        "SELECT source_id, ra, dec, has_xp_sampled, phot_bp_mean_mag, phot_g_mean_mag, phot_rp_mean_mag "
+        "FROM gaiadr3.gaia_source "
+        f"WHERE CONTAINS(POINT('ICRS', ra, dec),CIRCLE('ICRS',{right_ascension},{declination},{fov_radius}))=1"
+    )
+
+    if not extrapolated_spectra:
+        query += " AND has_xp_sampled = 'True'"
+
     try:
         # Query for the catalog to search area with coordinates in FOV of optics.
-        job = Gaia.launch_job_async(
-            "SELECT source_id, ra, dec, has_xp_sampled, phot_bp_mean_mag, phot_g_mean_mag, phot_rp_mean_mag "
-            "FROM gaiadr3.gaia_source "
-            f"WHERE CONTAINS(POINT('ICRS', ra, dec),CIRCLE('ICRS',{right_ascension},{declination},{fov_radius}))=1 "
-            "AND has_xp_sampled = 'True'",
-        )
+        job = Gaia.launch_job_async(query)
     except requests.HTTPError as exc:
         my_exception = ConnectionError(
             "Error when trying to retrieve sources from the Gaia database"
@@ -278,13 +399,15 @@ def _retrieve_objects_from_gaia(
 
         if sys.version_info >= (3, 11):
             my_exception.add_note(
-                f"Failed to retrieve the spectra with parameters {right_ascension=}, {declination=} and {fov_radius=}"
+                f"Failed to retrieve the spectra with parameters {right_ascension=}, {declination=}, {fov_radius=}"
             )
+            my_exception.add_note(f"{query=}")
 
         raise my_exception from exc
 
     # get the results from the query job
-    result: Table = job.get_results()
+    results_table: Table = job.get_results()
+    df: pd.DataFrame = results_table.to_pandas()
 
     # set parameters to load data from Gaia catalog
     retrieval_type = "XP_SAMPLED"
@@ -292,31 +415,88 @@ def _retrieve_objects_from_gaia(
     data_structure = "INDIVIDUAL"
 
     # Get all sources
-    # ruff: noqa: SIM118
-    if "SOURCE_ID" in result.keys():
+    if "SOURCE_ID" in df.columns:
         source_key = "SOURCE_ID"
-    elif "source_id" in result.keys():
+    elif "source_id" in df.columns:
         # This change in 'astroquery' 0.4.8+
         source_key = "source_id"
     else:
         raise ValueError(
-            "Expecting row 'SOURCE_ID' or 'source_id' in 'result'. Got these keys: {result.keys()}"
+            f"Expecting row 'SOURCE_ID' or 'source_id' in 'result'. Got these keys: {df.columns=}"
         )
 
-    source_ids: "Column" = result[source_key]
-    if len(source_ids) > 5000:
-        # TODO: Fix this
-        raise NotImplementedError("Cannot retrieve more than 5000 sources")
+    #########################################################################################
+    # Get source(s) without spectrum                                                        #
+    # Columns:                                                                              #
+    #   - 'phot_bp_mean_mag': integrated Blue Photometer (330 nm to 680 nm) mean magnitude  #
+    #   - 'phot_g_mean_mag': integrated Gaia band (330 nm to 1050 nm) mean magnitude        #
+    #   - 'phot_rp_mean_mag': integrated Red Photometer (640 nm to 1050 nm) mean magnitude  #
+    #########################################################################################
+    df_without_spectra: pd.DataFrame = df.query("has_xp_sampled == False")[
+        [source_key, "phot_g_mean_mag"]
+    ]
+
+    # Compute weight (= flux / flux_vega)
+    # The Vega magnitude for column 'phot_g_mean_mag' is computed with this formula:
+    #   m = -2.5 * log10(flux / flux_vega)
+    # Therefore:
+    #   flux / flux_vega = 10 ** (m / -2.5) = 10 ** (-0.4 * m)
+    df_without_spectra["weight"] = df_without_spectra["phot_g_mean_mag"].map(
+        lambda x: 10 ** (-0.4 * x)
+    )
+
+    vega_dataarray: xr.DataArray = get_vega_spectrum_flux(
+        start_wavelength=336.0,
+        stop_wavelength=1020.0,
+        step_wavelength=2.0,
+    )
+
+    vega_table: Table = Table.from_pandas(
+        vega_dataarray.to_pandas().reset_index("wavelength"),
+        units={
+            "wavelength": vega_dataarray["wavelength"].units,
+            "flux": vega_dataarray.units,
+        },
+    )
+
+    # TODO: Build a Dataset with
+    #       - weight   (ref)
+    #       - flux     (ref, wavelength)
+    spectra_extrapolated: dict[int, tuple[Table, float]] = {
+        int(row[source_key]): (vega_table, float(row["weight"]))
+        for _, row in df_without_spectra.iterrows()
+    }
+
+    #####################################
+    # Get source(s) with spectrum       #
+    #####################################
+    # Get the unique source identifiers (unique within a particular data release)
+    source_ids_with_spectra: pd.Series = df.query("has_xp_sampled == True")[source_key]
 
     try:
-        # load spectra from stars
-        spectra_dct: dict[str, list[tree.Table]] = Gaia.load_data(
-            ids=source_ids,
-            retrieval_type=retrieval_type,
-            data_release=data_release,
-            data_structure=data_structure,
-            format="votable",  # Note: It's not yet possible to use format 'votable_gzip'
-        )
+        spectra_dct: dict[str, list[tree.Table]] = {}
+
+        num_sources_with_spectra = len(source_ids_with_spectra)
+        chunk_size = 500
+
+        for idx in tqdm(
+            range(0, num_sources_with_spectra, chunk_size), desc="Get Spectra"
+        ):
+            source_ids_with_spectra_chunk = source_ids_with_spectra.iloc[
+                idx : idx + chunk_size
+            ]
+
+            # load spectra from stars
+            spectra_dct_partial: dict[str, list[tree.Table]] = Gaia.load_data(
+                ids=source_ids_with_spectra_chunk,
+                retrieval_type=retrieval_type,
+                data_release=data_release,
+                data_structure=data_structure,
+                format="votable",  # Note: It's not yet possible to use format 'votable_gzip'
+            )
+
+            spectra_dct |= spectra_dct_partial
+
     except requests.HTTPError as exc:
         my_exception = ConnectionError(
             "Error when trying to load data from the Gaia database"
@@ -330,12 +510,12 @@ def _retrieve_objects_from_gaia(
         raise my_exception from exc
 
     # Extract and combine the spectra
-    spectra: dict[int, Table] = {}
-    for xml_filename, all_spectra in spectra_dct.items():
+    spectra: dict[int, tuple[Table, float]] = {}
+    for xml_filename, all_spectra in tqdm(spectra_dct.items(), desc="Combine spectra"):
         try:
             for spectrum in all_spectra:
                 source_id = int(spectrum.get_field_by_id("source_id").value)
-                spectra[source_id] = spectrum.to_table()
+                spectra[source_id] = (spectrum.to_table(), 1.0)
 
         except Exception as exc:
             if sys.version_info >= (3, 11):
@@ -343,15 +523,22 @@ def _retrieve_objects_from_gaia(
 
             raise
 
-    return result, spectra
+    return results_table, spectra | spectra_extrapolated
 
 
 def retrieve_from_gaia(
     right_ascension: float,
     declination: float,
     fov_radius: float,
+    extrapolated_spectra: bool,
 ) -> xr.Dataset:
-    """Retrieve objects from GAIA Catalog for giver coordinates and FOV.
+    """Query the GAIA Catalog to retrieve sources and their spectra near given sky coordinates.
+
+    The function performs a cone search around a specified right ascension (RA), declination (DEC),
+    and field-of-view (FOV) radius using the Gaia archive.
+
+    If `extrapolated_spectra` is `True`, sources without Gaia XP spectra will be assigned an extrapolated A0V spectrum
+    scaled by their G-band magnitude.
 
     Data variable/coordinates description:
     * ``source_id``: Unique source identifier of the source
@@ -365,11 +552,14 @@ def retrieve_from_gaia(
     Parameters
     ----------
     right_ascension: float
-        RA coordinate in degree.
+        Right ascension (RA) of the center of the search cone, in degrees.
     declination: float
-        DEC coordinate in degree.
+        Declination (DEC) of the center of the search cone, in degrees.
     fov_radius: float
-        FOV radius of telescope optics.
+        Radius of the search cone (field-of-view), in degrees.
+    extrapolated_spectra : bool
+        If True, generates extrapolated A0V spectra for sources without Gaia XP spectra.
+        If False, only sources with XP spectra will be included.
 
     Returns
     -------
@@ -410,11 +600,12 @@ def retrieve_from_gaia(
         flux_error        (source_id, wavelength) float32 7.737e-17 ... 2.783e-16
     """
     positions_table: Table
-    spectra_dct: dict[int, Table]
+    spectra_dct: dict[int, tuple[Table, float]]
     positions_table, spectra_dct = _retrieve_objects_from_gaia(
         right_ascension=right_ascension,
         declination=declination,
         fov_radius=fov_radius,
+        extrapolated_spectra=extrapolated_spectra,
     )
 
     # Convert data from Gaia into a dataset
@@ -429,7 +620,8 @@ def retrieve_from_gaia(
             spectrum_table.to_pandas(index="wavelength")
             .to_xarray()
             .assign_coords(source_id=source_id)
-            for source_id, spectrum_table in spectra_dct.items()
+            .assign(weight=weight)
+            for source_id, (spectrum_table, weight) in spectra_dct.items()
         ],
         dim="source_id",
     )
@@ -437,29 +629,21 @@ def retrieve_from_gaia(
     ds: xr.Dataset = xr.merge([positions, spectra])
 
     # Add units
-    first_spectrum: Table = next(iter(spectra_dct.values()))
+    first_spectrum: Table
+    first_spectrum, _ = next(iter(spectra_dct.values()))
 
     ds["wavelength"].attrs = {"units": str(first_spectrum["wavelength"].unit)}
     ds["flux"].attrs = {"units": str(first_spectrum["flux"].unit)}
-    ds["flux_error"].attrs = {"units": str(first_spectrum["flux_error"].unit)}
-    # ds["flux_photlam"].attrs = {"units": str(first_spectrum["flux_photlam"].unit)}
 
     ds["ra"].attrs = {
         "name": "Right Ascension",
         "units": str(positions_table["ra"].unit),
     }
     ds["dec"].attrs = {"name": "Declination", "units": str(positions_table["dec"].unit)}
-    ds["phot_bp_mean_mag"].attrs = {
-        "name": "Mean magnitude in the integrated BP band (from 330 nm to 680 nm)",
-        "units": str(positions_table["phot_bp_mean_mag"].unit),
-    }
+
     ds["phot_g_mean_mag"].attrs = {
         "name": "Mean magnitude in the G band (from 330 nm to 1050 nm)",
         "units": str(positions_table["phot_g_mean_mag"].unit),
-    }
-    ds["phot_rp_mean_mag"].attrs = {
-        "name": "Mean magnitude in the integrated RP band (from 640 nm to 1050 nm)",
-        "units": str(positions_table["phot_rp_mean_mag"].unit),
     }
 
     return ds
@@ -469,25 +653,21 @@ def _load_objects_from_gaia(
     right_ascension: float,
     declination: float,
     fov_radius: float,
-    band: GaiaPassBand = GaiaPassBand.BluePhotometer,
+    extrapolated_spectra: bool,
 ) -> xr.Dataset:
     """Load objects from GAIA Catalog for given coordinates and FOV.
 
     Parameters
     ----------
-    right_ascension : float
-        RA coordinate in degree.
-    declination : float
-        DEC coordinate in degree.
-    fov_radius : float
-        FOV radius of telescope optics.
-    band : GaiaPassBand
-        Define the passband to select.
-        Available values:
-
-        * 'GaiaPassBand.BluePhotometer' is the band from 330 nm to 680 nm
-        * 'GaiaPassBand.GaiaBand' is the band from 330 nm to 1050 nm
-        * 'GaiaPassBand.RedPhotometer' is the band from 640 nm to 1050 nm
+    right_ascension: float
+        Right ascension (RA) of the center of the search cone, in degrees.
+    declination: float
+        Declination (DEC) of the center of the search cone, in degrees.
+    fov_radius: float
+        Radius of the search cone (field-of-view), in degrees.
+    extrapolated_spectra : bool
+        If True, generates extrapolated A0V spectra for sources without Gaia XP spectra.
+        If False, only sources with XP spectra will be included.
 
     Returns
     -------
@@ -521,6 +701,7 @@ def _load_objects_from_gaia(
         right_ascension=right_ascension,
         declination=declination,
         fov_radius=fov_radius,
+        extrapolated_spectra=extrapolated_spectra,
     )
 
     with warnings.catch_warnings():
@@ -537,9 +718,6 @@ def _load_objects_from_gaia(
     x: Quantity = ra_arcsec  # - ra_arcsec.mean()
     y: Quantity = dec_arcsec  # - dec_arcsec.mean()
 
-    # Get weights
-    weights_from_gaia: xr.DataArray = ds_from_gaia[band.get_magnitude_key()]
-
     num_sources = len(ds_from_gaia["source_id"])
     ref_sequence: Sequence[int] = range(num_sources)
 
@@ -547,15 +725,9 @@ def _load_objects_from_gaia(
     ds["x"] = xr.DataArray(np.asarray(x), dims="ref", attrs={"units": str(x.unit)})
     ds["y"] = xr.DataArray(np.asarray(y), dims="ref", attrs={"units": str(y.unit)})
     ds["weight"] = xr.DataArray(
-        np.asarray(weights_from_gaia, dtype=float),
+        np.asarray(ds_from_gaia["weight"], dtype=float),
         dims="ref",
-        attrs={
-            "units": weights_from_gaia.attrs["units"],
-            "name": weights_from_gaia.attrs.get(
-                "name",
-                "Weight",  # default value
-            ),
-        },
+        attrs={"units": "", "name": "weight"},
     )
     ds["flux"] = xr.DataArray(
         np.asarray(flux_converted, dtype=float),
@@ -565,6 +737,7 @@ def _load_objects_from_gaia(
     )
 
     ds.attrs = {
+        "catalog": "Gaia DR3",
         "right_ascension": str(Quantity(right_ascension, unit="deg")),
         "declination": str(Quantity(declination, unit="deg")),
         "fov_radius": str(Quantity(fov_radius, unit="deg")),
@@ -582,26 +755,22 @@ def load_objects_from_gaia(
     right_ascension: float,
     declination: float,
     fov_radius: float,
-    band_pass: GaiaPassBand = GaiaPassBand.BluePhotometer,
+    extrapolated_spectra: bool,
     with_caching: bool = True,
 ) -> xr.Dataset:
     """Load objects from GAIA Catalog for given coordinates and FOV.
 
     Parameters
     ----------
-    right_ascension : float
-        RA coordinate in degree.
-    declination : float
-        DEC coordinate in degree.
-    fov_radius : float
-        FOV radius of telescope optics.
-    band_pass : GaiaPassBand
-        Define the passband to select.
-        Available values:
-
-        * 'GaiaPassBand.BluePhotometer' is the band from 330 nm to 680 nm
-        * 'GaiaPassBand.GaiaBand' is the band from 330 nm to 1050 nm
-        * 'GaiaPassBand.RedPhotometer' is the band from 640 nm to 1050 nm
+    right_ascension: float
+        Right ascension (RA) of the center of the search cone, in degrees.
+    declination: float
+        Declination (DEC) of the center of the search cone, in degrees.
+    fov_radius: float
+        Radius of the search cone (field-of-view), in degrees.
+    extrapolated_spectra : bool
+        If True, generates extrapolated A0V spectra for sources without Gaia XP spectra.
+        If False, only sources with XP spectra will be included.
     with_caching : bool
         Enable/Disable caching request to GAIA catalog.
 
@@ -630,11 +799,20 @@ def load_objects_from_gaia(
         flux        (ref, wavelength) float64 2.228e-16 2.432e-16 ... 3.693e-15
     """
     # Define a unique key to find/retrieve data in the cache
-    key_cache = (__name__, right_ascension, declination, fov_radius, band_pass)
+    key_cache = (
+        __name__,
+        right_ascension,
+        declination,
+        fov_radius,
+        extrapolated_spectra,
+    )
 
     start_time: float = time.perf_counter()
 
-    if with_caching and key_cache in (cache := util.get_cache()):
+    # TODO: Improve this !
+    folder_cache = Path.home().joinpath(".cache/pyxel-sim").as_posix()
+
+    if with_caching and key_cache in (cache := util.get_cache(folder_cache)):
         # Retrieve cached dataset
         ds: xr.Dataset = cache[key_cache]
 
@@ -650,7 +828,7 @@ def load_objects_from_gaia(
             right_ascension=right_ascension,
             declination=declination,
             fov_radius=fov_radius,
-            band=band_pass,
+            extrapolated_spectra=extrapolated_spectra,
         )
 
         if with_caching:
@@ -667,50 +845,376 @@ def load_objects_from_gaia(
     return ds
 
 
+def retrieve_from_vizier_catalog(
+    ra: float,
+    dec: float,
+    radius: float,
+    catalog_id: str,
+    row_limit: int = -1,
+) -> Table:
+    """Retrieve sources from a Vizier catalog given coordinates and FOV.
+
+    Parameters
+    ----------
+    ra : float
+        Right Ascension in degrees.
+    dec : float
+        Declination in degrees.
+    radius : float
+        Search radius in degrees.
+    catalog_id : str
+        Official identifiers used in the VizieR catalog database.
+        E.g. "I/239/hip_main" or "I/259/tyc2"
+    row_limit : int
+        Maximum number of rows to return. Use -1 for unlimited.
+
+    Returns
+    -------
+    Table
+        Astropy Table with source data.
+
+    Raises
+    ------
+    ValueError
+        If no results are found or required columns are missing.
+    """
+    # Initialize the VizieR query interface
+    # From Hipparcos catalog (I/239/hip_main)
+    # More here: https://heasarc.gsfc.nasa.gov/w3browse/all/hipparcos.html
+    #   - Hip: Identifier
+    #   - RAhms: Right ascension
+    #   - DEdms: Declination
+    #   - Vmag: Magnitude in Johnson V (not used)
+    #   - Hpmag: Median magnitude in Hipparcos system from 500 nm to 600 nm (TBC)
+    #   - SpType: Spectral type (e.g. 'A0V', ...)
+    #
+    # From Tycho2 catalog (I/259/tyc2)
+    # More here: https://heasarc.gsfc.nasa.gov/w3browse/all/tycho2.html
+    #   - Hip: Identifier
+    #   - RA(ICRS): Observed Tycho-2 Right Ascension
+    #   - DE(ICRS): Observed Tycho-2 Declination
+    #   - BT_Mag: Tycho B-band (blue) magnitude from 420 nm to 490 nm (TBC)
+    #   - VT_Mag: Tycho V-band (visible) magnitude from 500 nm to 600 nm (TBC)
+    vizier = Vizier(
+        columns=[
+            "*",  # TODO: Is it still useful ?
+            "Hip",
+            # For Hipparcos
+            "RAhms",
+            "DEdms",
+            "Vmag",
+            "Hpmag",
+            "SpType",
+            # For Tycho2
+            "RA(ICRS)",
+            "DE(ICRS)",
+            "BT_Mag",
+            "VT_Mag",
+        ]
+    )
+    vizier.ROW_LIMIT = row_limit
+
+    # Perform the region query
+    coord = SkyCoord(ra=ra, dec=dec, unit="deg")
+    result = vizier.query_region(
+        coord,
+        radius=Quantity(radius, unit="deg"),
+        catalog=catalog_id,
+    )
+
+    if not result:
+        raise ValueError(
+            f"No sources found in catalog '{catalog_id}' at given coordinates."
+        )
+
+    table: Table = result[0]
+
+    if len(table) == 0:
+        raise ValueError(f"Catalog '{catalog_id}' returned an empty table.")
+
+    return table
+
+
+# TODO: Keep only data variables 'ra', 'dec' and 'mag' ?
+def normalize_vizier_dataset(ds: xr.Dataset) -> xr.Dataset:
+    """
+    Normalize field names in a Vizier-derived xarray.Dataset.
+
+    This function renames common coordinate/magnitude fields to standard names
+    used across different catalogs.
+
+    Parameters
+    ----------
+    ds : xr.Dataset
+        Dataset from Vizier query.
+
+    Returns
+    -------
+    xr.Dataset
+        Dataset with normalized variable names: 'ra', 'dec', 'mag'...
+    """
+    rename_map = {}
+
+    # Coordinate fields (most common variants)
+    for ra_candidate in [
+        "RAICRS",  # From Hipparcos
+        "RA(ICRS)",  # From Tyccho
+    ]:
+        if ra_candidate in ds:
+            rename_map[ra_candidate] = "ra"
+            break
+
+    for dec_candidate in [
+        "DEICRS",  # From Hipparcos
+        "DE(ICRS)",  # From Tyccho
+    ]:
+        if dec_candidate in ds:
+            rename_map[dec_candidate] = "dec"
+            break
+
+    # Magnitude fields (often named differently)
+    for mag_candidate in [
+        "Hpmag",  # From Hipparcos
+        "VTmag",  # From Tyccho
+    ]:
+        if mag_candidate in ds:
+            rename_map[mag_candidate] = "mag"
+            break
+
+    return ds.rename(rename_map)
+
+
+# TODO: This could be a more general function to convert from a Table to a Dataset
+def convert_vizier_table_to_dataset(table: "Table") -> xr.Dataset:
+    """
+    Convert an Astropy Table (from Vizier) into an xarray.Dataset.
+
+    Parameters
+    ----------
+    table : Table
+        Astropy Table returned by Vizier.
+
+    Returns
+    -------
+    Dataset
+        Dataset with all columns and metadata from the table.
+    """
+    df: pd.DataFrame = table.to_pandas().reset_index(drop=True)
+    ds = df.to_xarray()
+
+    # Copy units and description (if present) from the Table to Dataset attrs
+    for col in table.colnames:
+        if table[col].unit:
+            ds[col].attrs["units"] = str(table[col].unit)
+
+        if table[col].description:
+            ds[col].attrs["long_name"] = table[col].description
+
+    return ds
+
+
+def load_objects_from_vizier(
+    right_ascension: float,
+    declination: float,
+    fov_radius: float,
+    catalog_id: str,
+    with_caching: bool = True,
+) -> xr.Dataset:
+    """Load objects from Vizier Catalog for given coordinates and FOV.
+
+    Parameters
+    ----------
+    right_ascension: float
+        Right ascension (RA) of the center of the search cone, in degrees.
+    declination: float
+        Declination (DEC) of the center of the search cone, in degrees.
+    fov_radius: float
+        Radius of the search cone (field-of-view), in degrees.
+    catalog_id
+    with_caching : bool
+        Enable/Disable caching request to GAIA catalog.
+
+    Returns
+    -------
+    Dataset
+    """
+    # Define a unique key to find/retrieve data in the cache
+    key_cache = (__name__, right_ascension, declination, fov_radius, catalog_id)
+
+    start_time: float = time.perf_counter()
+
+    # TODO: Improve this !
+    folder_cache = Path.home().joinpath(".cache/pyxel-sim").as_posix()
+
+    if with_caching and key_cache in (cache := util.get_cache(folder_cache)):
+        # Retrieve cached dataset
+        ds: xr.Dataset = cache[key_cache]
+
+        end_time: float = time.perf_counter()
+        logging.info(
+            "Retrieve 'dataset' for model 'load_star_map' from cache '%r' in %f s",
+            cache.directory,
+            end_time - start_time,
+        )
+    else:
+        ds = _load_objects_from_vizier(
+            right_ascension=right_ascension,
+            declination=declination,
+            fov_radius=fov_radius,
+            catalog_id=catalog_id,
+        )
+
+        if with_caching:
+            # Store dataset in the cache
+            cache[key_cache] = ds
+
+            end_time = time.perf_counter()
+            logging.info(
+                "Store 'dataset' for model 'load_star_map' in cache '%r' in %f s",
+                cache.directory,
+                end_time - start_time,
+            )
+
+    return ds
+
+
+def _load_objects_from_vizier(
+    right_ascension: float,
+    declination: float,
+    fov_radius: float,
+    catalog_id: str,
+) -> xr.Dataset:
+    """Load objects from Vizier Catalog for given coordinates and FOV.
+
+    Parameters
+    ----------
+    right_ascension: float
+        Right ascension (RA) of the center of the search cone, in degrees.
+    declination: float
+        Declination (DEC) of the center of the search cone, in degrees.
+    fov_radius: float
+        Radius of the search cone (field-of-view), in degrees.
+    catalog_id
+
+    Returns
+    -------
+    Dataset
+    """
+    table: Table = retrieve_from_vizier_catalog(
+        ra=right_ascension,
+        dec=declination,
+        radius=fov_radius,
+        catalog_id=catalog_id,
+    )
+
+    ds = convert_vizier_table_to_dataset(table)
+    ds = normalize_vizier_dataset(ds)
+
+    # TODO: Get source type from 'SpType'
+    mag_1d: xr.DataArray = ds["mag"].rename(index="ref")
+    weight_1d: xr.DataArray = 10 ** (-0.4 * mag_1d)
+
+    # TODO: Get flux from 'Vega' ? or A0V ...?
+    ds_vega_1d: xr.DataArray = get_vega_spectrum_photon(
+        start_wavelength=500.0,
+        stop_wavelength=600.0,
+        step_wavelength=1.0,
+    )
+
+    ref_1d: xr.DataArray = weight_1d["ref"]
+    flux_2d = xr.ones_like(ref_1d) * ds_vega_1d
+
+    ra = Quantity(ds["ra"], unit=ds["ra"].units).to("arcsec")
+    dec = Quantity(ds["dec"], unit=ds["dec"].units).to("arcsec")
+
+    dataset = xr.Dataset(
+        data_vars={
+            "x": xr.DataArray(np.array(ra), dims="ref", attrs={"units": str(ra.unit)}),
+            "y": xr.DataArray(
+                np.array(dec), dims="ref", attrs={"units": str(dec.unit)}
+            ),
+            "weight": weight_1d.assign_attrs({"units": ""}),
+            "flux": flux_2d.assign_attrs({"units": ds_vega_1d.units}),
+        },
+        attrs={
+            "catalog": catalog_id,
+            "right_ascension": str(Quantity(right_ascension, "deg")),
+            "declination": str(Quantity(declination, "deg")),
+            "fov_radius": str(Quantity(fov_radius, "deg")),
+        },
+    )
+
+    return dataset
+
+
 def load_star_map(
     detector: Detector,
     right_ascension: float,
     declination: float,
     fov_radius: float,
-    band: Literal["blue_photometer", "gaia_band", "red_photometer"] = "blue_photometer",
+    extrapolated_spectra: bool = True,
+    catalog: Literal["gaia", "tycho", "hipparcos"] = "gaia",
     with_caching: bool = True,
 ):
-    """Generate scene from scopesim Source object loading stars from the GAIA catalog.
+    """Generate scene loading stars from the selected catalog.
+
+    This model populates ``detector.scene`` with sources retrieved from one of the supported
+    astronomical catalogs: **Gaia**, **Hipparcos** or **Tycho-2** based on a given sky position and
+    field-of-view radius.
 
     Parameters
     ----------
     detector : Detector
         Pyxel Detector object.
     right_ascension : float
-        RA coordinate in degree.
+        Right ascension (RA) of the pointing center in degree.
     declination : float
-        DEC coordinate in degree.
+        Declination (DEC) of the pointing center in degree.
     fov_radius : float
-        FOV radius of telescope optics.
-    band : 'blue_photometer', 'gaia_band' or 'red_photometer'
-        Define the band to use.
-        Available values:
+        Radius of the field of view (FOV) around the pointing center in degree.
+    extrapolated_spectra : bool, optional
+        If True (default), extrapolates Vega spectra for Gaia sources that lack XP spectra.
+        (e.g. for Gaia sources lacking a spectra)
+    catalog : 'gaia', 'hipparcos' or 'tycho', optional. Default: 'gaia'
+        The source catalog to query:
 
-        * 'blue_photometer' is the band from 330 nm to 680 nm
-        * 'gaia_band' is the band from 330 nm to 1050 nm
-        * 'red_photometer' is the band from 640 nm to 1050 nm
+            - ``gaia``: ESA Gaia DR3 catalog
+            - ``hipparcos``: ESA Hipparcos main catalog (VizieR: I/239/hip_main)
+            - ``tycho``: Tycho-2 catalog (VizieR: I/259/tyc2)
     with_caching : bool
-        Enable/Disable caching request to GAIA catalog.
+        Enable/Disable caching queries.
 
     Notes
     -----
     For more information, you can find an example here:
     :external+pyxel_data:doc:`examples/models/scene_generation/tutorial_example_scene_generation`.
     """
-    band_pass: GaiaPassBand = GaiaPassBand(band)
+    # Load data
+    match catalog:
+        case "gaia":
+            ds = load_objects_from_gaia(
+                right_ascension=right_ascension,
+                declination=declination,
+                fov_radius=fov_radius,
+                extrapolated_spectra=extrapolated_spectra,
+                with_caching=with_caching,
+            )
 
-    ds: xr.Dataset = load_objects_from_gaia(
-        right_ascension=right_ascension,
-        declination=declination,
-        fov_radius=fov_radius,
-        band_pass=band_pass,
-        with_caching=with_caching,
-    )
+        case "hipparcos" | "tycho":
+            if catalog == "hipparcos":
+                catalog_id = HIPPARCOS_ID
+            else:
+                catalog_id = TYCHO2_ID
 
-    # Check that there are no other scene
+            ds = load_objects_from_vizier(
+                right_ascension=right_ascension,
+                declination=declination,
+                fov_radius=fov_radius,
+                catalog_id=catalog_id,
+                with_caching=with_caching,
+            )
+
+        case _:
+            raise ValueError
+
     detector.scene.add_source(ds)

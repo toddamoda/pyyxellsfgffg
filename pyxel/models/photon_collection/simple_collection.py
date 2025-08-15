@@ -523,7 +523,7 @@ def simple_collection(
             converted_flux_2d, dims="ref", attrs={"units": str(converted_flux_2d.unit)}
         )
 
-        photon_projected: xr.Dataset = project_objects_to_detector(
+        photon_projected = project_objects_to_detector(
             scene_data=scene_data,
             pixel_scale=pixel_scale_arcsec,
             rows=detector.geometry.row,
@@ -540,11 +540,15 @@ def simple_collection(
 
     else:
         # get flux in ph/(s nm cm^2)
-        flux = Quantity(np.asarray(scene_data["flux"]), unit=scene_data["flux"].units)
+        flux_with_weight: xr.DataArray = scene_data["flux"] * scene_data["weight"]
+
+        flux = Quantity(flux_with_weight, unit=scene_data["flux"].units)
 
         # get flux converted to ph/nm
         converted_flux_3d: Quantity = convert_flux(
-            flux=flux, t_exp=time, aperture=aperture
+            flux=flux,
+            t_exp=time,
+            aperture=aperture,
         )
 
         # load converted flux to scene_data dataset
@@ -553,6 +557,11 @@ def simple_collection(
             dims=["ref", "wavelength"],
             attrs={"units": str(converted_flux_3d.unit)},
         )
+        # min_x, max_x = scene_data["x"].min().item(), scene_data["x"].max().item()
+        # min_y, max_y = scene_data["y"].min().item(), scene_data["y"].max().item()
+        # print(f"Scene x range: {min_x} to {max_x}")
+        # print(f"Scene y range: {min_y} to {max_y}")
+        # print("Scene attributes:", scene_data.attrs)
 
         photon_projected = project_objects_to_detector(
             scene_data=scene_data,
