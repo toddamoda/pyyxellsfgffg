@@ -381,8 +381,7 @@ def valid_ones_path_3x3(
 def test_output_node_noise_cmos_user_array(cmos_2x3: CMOS, valid_ones_path_2x3: str):
     cmos_2x3.signal.array = np.ones(cmos_2x3.geometry.shape)
 
-    seed = 12345
-    rng = np.random.default_rng(seed=seed)
+    rng = np.random.default_rng(seed=12345)
 
     output_node_noise_cmos_user_array(cmos_2x3, valid_ones_path_2x3, valid_ones_path_2x3, rng)
 

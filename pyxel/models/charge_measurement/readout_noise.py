@@ -276,19 +276,9 @@ def create_output_node_noise_cmos_user_array(
     else:
         sensitivity_2d = charge_readout_sensitivity
 
-
-    # loop through shape and draw single sample from each
-    # according to row and column (nested array)
-    noise = []
-    for i in range(0, shape[0]):
-        row = []
-        for j in range(0, shape[1]):
-            # normal() returns an array, so we need the [0] to do array -> float
-            row.append(seed.normal(
-                loc=offset[i][j] * sensitivity_2d[i][j],
-                scale=sigma[i][j] * sensitivity_2d[i][j],
-                size=1)[0])
-        noise.append(row)
+    # Draws a value for each pixel
+    # Assumes offset, scale, and sensitivity are same size of array
+    noise = seed.normal(loc=offset*sensitivity_2d, scale=sigma*sensitivity_2d)
     
     return noise
 
@@ -329,7 +319,7 @@ def output_node_noise_cmos_user_array(
     
     charge_readout_sensitivity = detector.characteristics.charge_to_volt_conversion
 
-    seed = np.random.default_rng()
+    # seed = np.random.default_rng()
     
     noise = create_output_node_noise_cmos_user_array(
         shape=detector.geometry.shape,
