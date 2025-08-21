@@ -18,7 +18,7 @@ from pyxel.detectors import (
     Environment,
     ReadoutProperties,
 )
-from pyxel.models.charge_generation import simple_dark_current, dark_current_user_array
+from pyxel.models.charge_generation import simple_dark_current, simple_dark_current_user_array
 
 
 @pytest.fixture
@@ -80,16 +80,16 @@ def valid_noise_path(
 
     return final_path
 
-def test_dark_current_user_array(ccd_3x3: CCD, valid_noise_path: str):
+def test_simple_dark_current_user_array(ccd_3x3: CCD, valid_noise_path: str):
     """Test dark current with fixed array input"""
 
     ccd_3x3.charge.add_charge_array(np.ones(shape=(3,3)))
-    dark_current_user_array(ccd_3x3, valid_noise_path)
+    simple_dark_current_user_array(ccd_3x3, valid_noise_path, seed=1)
 
     expected = [
-        [2.0, 3.0, 4.0],
-        [5.0, 6.0, 7.0],
-        [8.0, 9.0, 10.0]
+        [ 2.,  1.,  2.],
+        [ 2.,  6.,  6.],
+        [ 9., 11., 11.]
     ]
 
     # we'll need to cast the array to a list for this to work

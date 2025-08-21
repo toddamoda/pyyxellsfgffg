@@ -21,7 +21,7 @@ from pyxel.util import (
 
 
 def calculate_simple_dark_current(
-    num_rows: int, num_cols: int, current: float, exposure_time: float
+    num_rows: int, num_cols: int, current: float|np.ndarray, exposure_time: float
 ) -> np.ndarray:
     """Simulate dark current in a :term:`CCD`.
 
@@ -33,7 +33,7 @@ def calculate_simple_dark_current(
         Number of rows for the generated image.
     num_cols : int
         Number of columns for the generated image.
-    current : float
+    current : float | np.ndarray
         Dark current, in e⁻/pixel/second
     exposure_time : float
         Length of the simulated exposure, in seconds.
@@ -81,13 +81,14 @@ def simple_dark_current(
 
     detector.charge.add_charge_array(dark_current_array)
 
-def dark_current_user_array(
+def simple_dark_current_user_array(
         detector: Detector,
         filename: str,
         position: tuple[int, int] = (0, 0),
         align: (
             Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"] | None
         ) = None,
+        seed = None
 ) -> None:
     """Add dark current to the detector charge using a fixed array.
 
@@ -113,4 +114,12 @@ def dark_current_user_array(
         align=align,
     )
 
-    detector.charge.add_charge_array(dr_2d)
+    with set_random_seed(seed):
+        dark_current_array = calculate_simple_dark_current(
+            detector.geometry.row,
+            num_cols=detector.geometry.col,
+            current=dr_2d,
+            exposure_time=detector.time_step
+        ).astype(float)
+
+    detector.charge.add_charge_array(dark_current_array)

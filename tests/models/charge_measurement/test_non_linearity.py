@@ -62,7 +62,7 @@ def cmos_5x5() -> CMOS:
             pixel_horz_size=10.0,
         ),
         environment=Environment(temperature=80),
-        characteristics=Characteristics(),
+        characteristics=Characteristics(charge_to_volt_conversion=1.0e-5),
     )
     detector._readout_properties = ReadoutProperties(times=[1.0, 2.0])
     return detector
@@ -503,30 +503,30 @@ def valid_non_linearity_path(
 
     return final_path
 
-def test_output_node_linearity_poly_user_array_valid(ccd_5x5: CCD, valid_non_linearity_path: str):
+def test_output_node_linearity_poly_user_array_valid(cmos_5x5: CCD, valid_non_linearity_path: str):
     ## so we have a valid npy file, we want to send this in
     # do we need to initialise the signal array at all?
 
-    ccd_5x5.signal.array = np.ones((ccd_5x5.geometry.row, ccd_5x5.geometry.col))
-    output_node_linearity_poly_user_array(ccd_5x5, valid_non_linearity_path)
+    cmos_5x5.signal.array = np.ones((cmos_5x5.geometry.row, cmos_5x5.geometry.col))
+    output_node_linearity_poly_user_array(cmos_5x5, valid_non_linearity_path)
 
     expected = np.array(
         [
-            np.array([2.3 , 1.9 , 1.85, 1.97, 2.17], np.float64),
-            np.array([2.3 , 1.6 , 2.  , 1.97, 2.3 ], np.float64),
-            np.array([2.3 , 1.9 , 2.  , 1.97, 1.98], np.float64),
-            np.array([2.3 , 1.6 , 1.96, 1.97, 2.05], np.float64),
-            np.array([2.3 , 1.9 , 2.  , 1.97, 2.14], np.float64)
+            np.array([2.3e-5 , 1.9e-5 , 1.85e-5, 1.97e-5, 2.17e-5], np.float64),
+            np.array([2.3e-5 , 1.6e-5 , 2.e-5, 1.97e-5, 2.3e-5 ], np.float64),
+            np.array([2.3e-5 , 1.9e-5 , 2.e-5, 1.97e-5, 1.98e-5], np.float64),
+            np.array([2.3e-5 , 1.6e-5 , 1.96e-5, 1.97e-5, 2.05e-5], np.float64),
+            np.array([2.3e-5 , 1.9e-5 , 2.e-5, 1.97e-5, 2.14e-5], np.float64)
         ]
     )
 
     # We gt floating point issues here, so use pytest.approx()
-    for i in range(0, len(ccd_5x5.signal.array)):
-        for j in range(0, len(ccd_5x5.signal.array[i])):
-            assert ccd_5x5.signal.array[i][j] == pytest.approx(expected[i][j])
+    for i in range(0, len(cmos_5x5.signal.array)):
+        for j in range(0, len(cmos_5x5.signal.array[i])):
+            assert cmos_5x5.signal.array[i][j] == pytest.approx(expected[i][j])
 
-def test_output_node_linearity_poly_user_array_invalid(ccd_5x5: CCD):
+def test_output_node_linearity_poly_user_array_invalid(cmos_5x5: CMOS):
     path = "invalid_nonlinearity_path.npy"
 
     with pytest.raises(ValueError):
-        output_node_linearity_poly_user_array(ccd_5x5, path)
+        output_node_linearity_poly_user_array(cmos_5x5, path)

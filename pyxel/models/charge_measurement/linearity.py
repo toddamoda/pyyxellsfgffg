@@ -144,6 +144,11 @@ def output_node_linearity_poly_user_array(
         array = np.load(path)
     except:
         raise ValueError("Invalid path given.")
+    
+    try:
+        array = array * detector.characteristics.gain_array
+    except AttributeError:
+        array = array * detector.characteristics.charge_to_volt_conversion
 
     signal_mean_array = detector.signal.array.astype("float64")
     signal_non_linear = compute_poly_linearity_user_array(

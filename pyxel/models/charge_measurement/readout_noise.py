@@ -286,7 +286,7 @@ def output_node_noise_cmos_user_array(
     detector: CMOS,
     sigma_path: str,
     offset_path: str,
-    seed: np.random.Generator = np.random.default_rng
+    seed: np.random.Generator = None
 ) -> None :
     """Applies readout noise with a normal distribution. Each pixel has its own
     sigma and offset (mean).
@@ -317,9 +317,14 @@ def output_node_noise_cmos_user_array(
     if sigma.shape != detector.geometry.shape: # and they should be the same shape as the detector
         raise ValueError("Sigma array shape does not match detector geometry.")
     
-    charge_readout_sensitivity = detector.characteristics.charge_to_volt_conversion
+    # use gain array. If no gain array, use charge to volt conv value
+    if detector.characteristics.gain_array is not None:
+        charge_readout_sensitivity = detector.characteristics.gain_array
+    else:
+        charge_readout_sensitivity = detector.characteristics.charge_to_volt_conversion
 
-    # seed = np.random.default_rng()
+    if seed is None:
+        seed = np.random.default_rng()
     
     noise = create_output_node_noise_cmos_user_array(
         shape=detector.geometry.shape,
