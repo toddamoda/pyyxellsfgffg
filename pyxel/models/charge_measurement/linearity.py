@@ -146,7 +146,12 @@ def output_node_linearity_poly_user_array(
         raise ValueError("Invalid path given.")
     
     try:
-        array = array * detector.characteristics.gain_array
+        vr_min = detector.characteristics.adc_voltage_range[0]
+        vr_max = detector.characteristics.adc_voltage_range[1]
+        gain_array = detector.characteristics.gain_array
+        bit_res = detector.characteristics.adc_bit_resolution
+        # save as shorter names for readability
+        array = array * ((vr_max - vr_min) / (2**bit_res) / gain_array)
     except AttributeError:
         array = array * detector.characteristics.charge_to_volt_conversion
 
