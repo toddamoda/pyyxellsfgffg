@@ -15,7 +15,7 @@ loud and keeping a trail for future‑me (and anyone else who finds it useful).
 - Contributing guide: https://esa.gitlab.io/pyxel/doc/stable/references/contributing.html
 - Issues: https://gitlab.com/esa/pyxel/-/issues
 
-—
+---
 
 ## 🌳 How I organize branches
 - Personal notes branch: `doby-notes` (never used for merge requests).
