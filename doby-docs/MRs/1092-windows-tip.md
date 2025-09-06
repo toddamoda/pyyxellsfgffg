@@ -1,6 +1,5 @@
 # MR 1092 — Windows tip for fast local preview; tidy wording
 
----
 
 Scope: `docs(install)`  
 Status: Open
@@ -8,7 +7,7 @@ Status: Open
 ---
 
 ## Why
----
+
 
 Windows contributors hit notebook-execution errors locally. A quick tip to skip execution
 makes text-only edits easy and welcoming.
@@ -23,6 +22,6 @@ makes text-only edits easy and welcoming.
   <br><em>Figure: My local Sphinx build after adding the Windows tip.</em>
 </p>
 
----
+
 
 
