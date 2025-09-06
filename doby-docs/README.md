@@ -7,7 +7,7 @@ loud and keeping a trail for future‑me (and anyone else who finds it useful).
 
 ⚠️ Not official ESA documentation. Just my notes and iterations.
 
-—
+---
 
 ## Quick links:
 - Upstream repo: https://gitlab.com/esa/pyxel
@@ -33,7 +33,7 @@ Start a small docs change:
 git switch -c docs-<short-topic>
 ```
 
-—
+---
 
 ## 💻 Local docs workflow (Windows)
 
@@ -52,14 +52,14 @@ Fast preview afterwards (skip notebook execution; rebuild from source):
 start "" docs\html\index.html
 ```
 
-—
+---
 
 ## 🧰 Windows tips I keep bumping into
 - In CMD, `#` is NOT a comment and `< >` are redirection operators. Don’t paste comment lines;
   replace placeholders like `<topic>` with real names (e.g., `docs-windows-tips`).
 - If `sphinx-build` isn’t found, use the one inside `.tox\docs\Scripts\`.
 
-—
+---
 
 ## 🪐 Contribution log (living)
 Format I use:
@@ -72,7 +72,7 @@ Example:
 2025-09-06 — Installation — Add Windows tip for fast local preview; tidy wording — MR #1092 — Open
 ```
 
-—
+---
 
 ## 📙 MR description template (docs-only)
 ```
@@ -85,7 +85,8 @@ Docs-only change.
 No code changes.
 ```
 
-—
+---
+
 ## 👾 Commit message style (mine)
 - `docs: <summary>` (general docs)
 - `docs(<section>): <summary>` (scoped to a page/section)
@@ -96,7 +97,7 @@ docs(install): add Windows tip for fast local preview; tidy wording
 docs(get-help): clarify link to issue tracker and support channels
 ```
 
-—
+---
 
 ## ✅ Pre-push sanity checklist
 - Built locally and previewed the exact page.
@@ -105,7 +106,7 @@ docs(get-help): clarify link to issue tracker and support channels
 - Links work.
 - New pages (if any) are included in the correct `toctree`.
 
-—
+---
 
 ## 🚀 Roadmap / ideas (growing list)
 - Add a short “Windows placeholders” note near the Installation tip.
@@ -113,6 +114,6 @@ docs(get-help): clarify link to issue tracker and support channels
 - Improve **Get Help** with “what to include in a docs issue”.
 - Tiny glossary for new readers (model, pipeline, detector).
 
-—
+---
 
 Thank you for being here!🌈☀️
