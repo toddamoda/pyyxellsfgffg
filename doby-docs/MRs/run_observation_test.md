@@ -85,6 +85,3 @@ python run_observation_test.py
 
 ---
 
-## 🧡 Notes
-
-You can include this in your `MRs/` folder or reference it in your merge request to help reviewers quickly understand the context and test your changes manually.
