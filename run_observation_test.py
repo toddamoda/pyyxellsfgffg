@@ -1,31 +1,41 @@
 from pyxel.observation.observation import Observation
+from pyxel.observation import ParameterValues
 from pyxel.pipelines.processor import Processor
 import yaml
 
-# Load your YAML file
+
 with open("invalid_parameter_test.yaml", "r") as f:
     config = yaml.safe_load(f)
 
-parameters = config["observation"]["parameters"]
+
+raw_parameters = config["observation"]["parameters"]
+parameters = [ParameterValues(**param) for param in raw_parameters]
 
 
-class FakeProcessor(Processor):
-    def __init__(self):
-        super().__init__(steps=[])
-        self.steps["cfg.pipeline.charge_generation.exponential_qe.arguments.energy_levels"] = lambda: None
+class FakeDetector:
+    pass
 
-    def has(self, key):
-        return key in self.steps
-
-    def get(self, key):
-        return True  
+fake_pipeline = {}
 
 
-processor = FakeProcessor()
+processor = Processor(
+    detector=FakeDetector(),
+    pipeline=fake_pipeline,
+)
+
+
+processor.steps = {
+    "cfg.pipeline.charge_generation.exponential_qe.arguments.energy_levels": lambda: None
+}
+
+processor.has = lambda key: key in processor.steps
+processor.get = lambda key: True 
+
 
 obs = Observation(
     parameters=parameters,
     mode="product",
 )
+
 
 obs.validate_steps(processor)
