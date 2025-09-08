@@ -1,5 +1,8 @@
 # Doby’s ESA Pyxel Notes (living) 🌙✨
-======================================
+
+---
+
+<img src="assets/pyxel-badge.png" alt="pyxel" width="350"/> 
 
 These are my personal, evolving notes while I contribute to the **ESA Pyxel** project —
 mostly documentation, clarity, accessibility, and Windows onboarding. I’m learning out
@@ -11,7 +14,7 @@ loud and keeping a trail for future‑me (and anyone else who finds it useful).
 
 ## Quick links:
 - Upstream repo: https://gitlab.com/esa/pyxel
-- My fork: https://gitlab.com/dobybaxter127/pyxel
+- My fork: https://gitlab.com/dobybaxter127/pyxel/-/tree/doby-notes
 - Contributing guide: https://esa.gitlab.io/pyxel/doc/stable/references/contributing.html
 - Issues: https://gitlab.com/esa/pyxel/-/issues
 
@@ -113,6 +116,7 @@ docs(get-help): clarify link to issue tracker and support channels
 - Audit Tutorials for Windows-specific caveats (paths, shells).
 - Improve **Get Help** with “what to include in a docs issue”.
 - Tiny glossary for new readers (model, pipeline, detector).
+- Contributing to yaml, py and other files. 
 
 ---
 
