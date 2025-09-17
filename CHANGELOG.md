@@ -9,7 +9,24 @@ Minor releases include updated stdlib stubs from typeshed.
 
 Pyxel doesn't use SemVer anymore, since most minor releases have at least minor backward incompatible changes.
 
-## UNRELEASED
+## 2.13 / 2025-09-19
+
+This release includes a various bug fixes and feature enhancements
+
+### Improved error message
+
+Better error message when using a non-existing parameter in 
+[Observation mode](https://esa.gitlab.io/pyxel/doc/stable/background/running_modes/observation_mode.html)
+thanks to the contribution of Doby Baxter.
+
+```python
+>>> import pyxel
+>>> pyxel.run_mode_dataset(...)
+KeyError: "Missing parameter: 'pipeline.charge_generation.dark_current.arguments.temperature' in steps."
+Missing parameter: 'pipeline.charge_generation.dark_current.arguments.temperature'
+                                                            ^^^^^^^^^
+                                                            Non-existing parameter
+```
 
 ### Core
 * Progress bar should displayed only the number of readout time.
@@ -19,18 +36,13 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 * Improve error message when using a wrong 'parameter' in Observation mode.
   (See [!1097](https://gitlab.com/esa/pyxel/-/merge_requests/1097)).
 
-### Documentation
-
-### Models
-
 ### Others
 * Add more unit tests for function `retrieve_from_gaia`.
-  (See [!1089](https://gitlab.com/esa/pyxel/-/merge_requests/1089)).
+  (See [!1089](https://gitlab.com/esa/pyxel/-/merge_requests/1089),
+  [!1091](https://gitlab.com/esa/pyxel/-/merge_requests/1091)
+  and [!1095](https://gitlab.com/esa/pyxel/-/merge_requests/1095)).
 * Fix issues found by mypy with XArray 2025.9.0.
   (See [!1090](https://gitlab.com/esa/pyxel/-/merge_requests/1090)).
-* Improved unit test `test_retrieve_from_gaia`.
-  (See [!1091](https://gitlab.com/esa/pyxel/-/merge_requests/1091)
-  and [!1095](https://gitlab.com/esa/pyxel/-/merge_requests/1095)).
 * Fix issues with ruff 0.13+.
   (See [!1096](https://gitlab.com/esa/pyxel/-/merge_requests/1096)).
 * New method `Processor.iter_parameters`.
