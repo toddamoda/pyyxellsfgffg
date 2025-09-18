@@ -148,6 +148,7 @@
           "enum": [
             "draft",
             "validated",
+            "not validated",
             null
           ],
           "type": [
