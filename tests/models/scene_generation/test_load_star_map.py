@@ -668,9 +668,10 @@ def test_retrieve_vizier_sources_within_radius():
     separations = center.separation(sources)
 
     # Assert all sources fall within the desired angular radius
-    assert all(
-        separations <= Quantity(radius_deg, unit="deg")
-    ), "Some sources are outside the requested search radius."
+    assert (
+        all(separations <= Quantity(radius_deg, unit="deg")),
+        ("Some sources are outside the requested search radius."),
+    )
 
 
 def test_retrieve_vizier_large_radius():

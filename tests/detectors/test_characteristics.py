@@ -396,9 +396,10 @@ def test_charge_to_volt_conversion_invalid_values():
         }
 
     # Check if the error message is correct
-    assert "must be between 0.0 and 100.0" in str(
-        exc_info.value
-    ), "The error message for out of range values is incorrect or missing"
+    assert (
+        "must be between 0.0 and 100.0" in str(exc_info.value),
+        ("The error message for out of range values is incorrect or missing"),
+    )
 
 
 def test_channel_gain_mismatch():
