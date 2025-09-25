@@ -1,0 +1,65 @@
+exposure:
+  readout:
+    times: [1.0]
+    start_time: 0.0
+    non_destructive: false
+  outputs:
+    output_folder: "outputs/general_image_test"
+  result_type: all
+  working_directory: "."
+
+ccd_detector:
+  geometry:
+    row: 100
+    col: 100
+    total_thickness: 40.0
+    pixel_vert_size: 12.0
+    pixel_horz_size: 12.0
+    pixel_scale: 1.0
+  environment:
+    temperature: 150
+    wavelength: 600
+  characteristics:
+    quantum_efficiency: 0.8
+    charge_to_volt_conversion: 1.0e-06
+    pre_amplification: 100.0
+    full_well_capacity: 100000
+    adc_bit_resolution: 16
+    adc_voltage_range: [0.0, 10.0]
+
+pipeline:
+  photon_collection:
+    # --- First test: PNG image ---
+    - name: load_general_image_png
+      func: pyxel.models.photon_collection.load_general_image
+      enabled: true
+      arguments:
+        image_file: "tests/data/andromeda.png"
+        convert_to_photons: true
+        bit_resolution: 16
+        return_as: "xarray"
+
+    - name: plot_png_result
+      func: pyxel.outputs.plot_image
+      enabled: true
+      arguments:
+        what: "photon.array"
+        filename: "png_result.png"
+
+    # --- Second test: FITS image ---
+    - name: load_general_image_fits
+      func: pyxel.models.photon_collection.load_general_image
+      enabled: true
+      arguments:
+        image_file: "tests/data/andromeda.fits"
+        hdu: 0
+        convert_to_photons: true
+        bit_resolution: 16
+        return_as: "xarray"
+
+    - name: plot_fits_result
+      func: pyxel.outputs.plot_image
+      enabled: true
+      arguments:
+        what: "photon.array"
+        filename: "fits_result.png"
