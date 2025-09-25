@@ -7,6 +7,7 @@
 
 """Pyxel photon generator models."""
 
+<<<<<<< HEAD
 from typing import TYPE_CHECKING, Literal
 
 from pyxel.detectors import Detector
@@ -15,6 +16,14 @@ from pyxel.util import load_cropped_and_aligned_image
 
 if TYPE_CHECKING:
     from astropy.io import fits
+=======
+from typing import Literal
+import numpy as np
+from pyxel.detectors import Detector
+from pyxel.inputs import load_header
+from pyxel.util import load_cropped_and_aligned_image
+from astropy.io import fits
+>>>>>>> 3100880b (Add load_general_image function with tests and YAML example)
 
 
 def load_image(
@@ -23,14 +32,19 @@ def load_image(
     include_header: bool = False,
     header_section_index: int | str | None = None,
     position: tuple[int, int] = (0, 0),
+<<<<<<< HEAD
     align: (
         Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"] | None
     ) = None,
+=======
+    align: Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"] | None = None,
+>>>>>>> 3100880b (Add load_general_image function with tests and YAML example)
     convert_to_photons: bool = False,
     multiplier: float = 1.0,
     time_scale: float = 1.0,
     bit_resolution: int | None = None,
 ) -> None:
+<<<<<<< HEAD
     r"""Load :term:`FITS` file as a numpy array and add to the detector as input image.
 
     Parameters
@@ -70,6 +84,10 @@ def load_image(
     detector`s header storage.
     """
     # TODO: Add units
+=======
+    r"""Load FITS file as a numpy array and add it to the detector as input image."""
+
+>>>>>>> 3100880b (Add load_general_image function with tests and YAML example)
     shape = (detector.geometry.row, detector.geometry.col)
     position_y, position_x = position
 
@@ -86,6 +104,7 @@ def load_image(
     if convert_to_photons:
         if not bit_resolution:
             raise ValueError(
+<<<<<<< HEAD
                 "Bit resolution of the input image has to be specified for converting"
                 " to photons."
             )
@@ -93,20 +112,94 @@ def load_image(
         cht = detector.characteristics
         adc_multiplier = 2**cht.adc_bit_resolution / 2**bit_resolution
 
+=======
+                "Bit resolution of the input image must be specified for photon conversion."
+            )
+        cht = detector.characteristics
+        adc_multiplier = 2**cht.adc_bit_resolution / 2**bit_resolution
+>>>>>>> 3100880b (Add load_general_image function with tests and YAML example)
         photon_array = photon_array * adc_multiplier / cht.system_gain
 
     photon_array = photon_array * (detector.time_step / time_scale) * multiplier
 
     detector.photon += photon_array
 
+<<<<<<< HEAD
     # Try to extract the Header from 'image_file'
     if include_header:
         header: "fits.Header" | None = load_header(
             image_file, section=header_section_index
         )
 
+=======
+    if include_header:
+        header = load_header(image_file, section=header_section_index)
+>>>>>>> 3100880b (Add load_general_image function with tests and YAML example)
         if header:
             if detector.header is None:
                 detector.header = header
             else:
                 detector.header.update(header)
+<<<<<<< HEAD
+=======
+
+
+def load_general_image(
+    detector: Detector,
+    image_file: str,
+    hdu: int | str | None = 0,
+    include_header: bool = False,
+    position: tuple[int, int] = (0, 0),
+    align: Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"] | None = None,
+    convert_to_photons: bool = False,
+    multiplier: float = 1.0,
+    time_scale: float = 1.0,
+    bit_resolution: int | None = None,
+    return_as: Literal["numpy", "xarray"] = "xarray",
+):
+    r"""Load a general image file (FITS, PNG, JPG, etc.) and add it to the detector."""
+
+    shape = (detector.geometry.row, detector.geometry.col)
+    position_y, position_x = position
+
+    if image_file.lower().endswith((".fits", ".fit")):
+        with fits.open(image_file) as hdul:
+            data = hdul[hdu].data.astype(np.float32)
+    else:
+        data = load_cropped_and_aligned_image(
+            filename=image_file,
+            shape=shape,
+            align=align,
+            position_x=position_x,
+            position_y=position_y,
+        )
+
+    photon_array = data
+
+    if convert_to_photons:
+        if not bit_resolution:
+            raise ValueError("Bit resolution must be specified for photon conversion.")
+        cht = detector.characteristics
+        adc_multiplier = 2**cht.adc_bit_resolution / 2**bit_resolution
+        photon_array = photon_array * adc_multiplier / cht.system_gain
+
+    photon_array = photon_array * (detector.time_step / time_scale) * multiplier
+
+    # Ensure detector buckets are initialized
+    detector.photon.array[:, :] = photon_array
+    detector.data_2d = photon_array
+
+    if include_header and image_file.lower().endswith((".fits", ".fit")):
+        header = load_header(image_file, section=hdu)
+        if header:
+            if detector.header is None:
+                detector.header = header
+            else:
+                detector.header.update(header)
+
+    if return_as == "xarray":
+        import xarray as xr
+        return xr.DataArray(photon_array, dims=["y", "x"])
+    else:
+        return photon_array
+>>>>>>> 3100880b (Add load_general_image function with tests and YAML example)
