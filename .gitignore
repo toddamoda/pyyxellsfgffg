@@ -73,3 +73,7 @@ dask-scratch-space/
 
 # Tests
 tests/temp/
+
+# Personal notes folder
+doby docs/
+
