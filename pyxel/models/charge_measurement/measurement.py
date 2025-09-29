@@ -41,7 +41,7 @@ def simple_measurement(detector: Detector, gain: float | None = None) -> None:
     Parameters
     ----------
     detector : Detector
-        Pyxel Detector object.
+        PyxelRead Detector object.
     gain : float, optional
         Gain factor to apply. If not provided, the default is ``detector.characteristics.charge_to_volt_conversion``. Unit: V/e-
     """
