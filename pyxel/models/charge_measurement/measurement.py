@@ -33,7 +33,7 @@ def apply_gain(pixel_2d: np.ndarray, gain: float) -> np.ndarray:
 
 
 def simple_measurement(detector: Detector, gain: float | None = None) -> None:
-    """Convert the pixel array into signal array.
+    """Convert the pixel_read array into signal array.
 
     Notes
     -----
@@ -43,17 +43,17 @@ def simple_measurement(detector: Detector, gain: float | None = None) -> None:
     Parameters
     ----------
     detector : Detector
-        Pyxel Detector object.
+        PyxelRead Detector object.
     gain : float, optional
         Gain to apply. By default, this is the sensitivity of charge readout. Unit: V/e-
     """
     if gain is None:
-        detector.signal.array = np.zeros_like(detector.pixel.array, dtype=float)
+        detector.signal.array = np.zeros_like(detector.pixel_read.array, dtype=float)
 
         # If _channels_gain is a single float, apply it uniformly
         if isinstance(detector.characteristics._charge_to_volt_conversion, float | int):
             detector.signal.array = (
-                detector.pixel.array
+                detector.pixel_read.array
                 * detector.characteristics._charge_to_volt_conversion
             )
         else:
@@ -65,10 +65,10 @@ def simple_measurement(detector: Detector, gain: float | None = None) -> None:
                 slice_y, slice_x = detector.geometry.get_channel_coord(channel)
                 # Apply gain to specific pixels based on the channel coordinates
                 detector.signal.array[slice_y, slice_x] = (
-                    detector.pixel.array[slice_y, slice_x] * gain
+                    detector.pixel_read.array[slice_y, slice_x] * gain
                 )
     else:
         gain = float(gain)
-        detector.signal.array = np.asarray(detector.pixel.array * gain, dtype=float)
+        detector.signal.array = np.asarray(detector.pixel_read.array * gain, dtype=float)
 
-    # Apply a gain (in V/e-) to a pixel array (in e-)
+    # Apply a gain (in V/e-) to a pixel_read array (in e-)
