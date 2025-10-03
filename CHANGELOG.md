@@ -18,6 +18,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 ### Documentation
 
 ### Models
+* Add capability to use a 2D PSF for a 3D photon object.
+  (See [!1108](https://gitlab.com/esa/pyxel/-/merge_requests/1108)).
 
 ### Others
 * In 'metadata.schema.json' add possibility to use 'status: to_review'.
