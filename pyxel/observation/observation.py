@@ -39,6 +39,29 @@ if TYPE_CHECKING:
     from pyxel.outputs import ObservationOutputs
 
 
+def explain_invalid_key(invalid_key: str, valid_keys: list[str]) -> str:
+    parts = invalid_key.split(".")
+    path_so_far = []
+
+    for part in parts:
+        path_so_far.append(part)
+        current = ".".join(path_so_far)
+        if not any(key.startswith(current) for key in valid_keys):
+            pointer_pos = (
+                len("Missing parameter: '")
+                + len(".".join(path_so_far[:-1]))
+                + (1 if path_so_far[:-1] else 0)
+            )
+            pointer_line = " " * pointer_pos + "^" * len(part)
+            return (
+                f"Missing parameter: '{invalid_key}'\n"
+                f"{pointer_line}\n"
+                f"{' ' * pointer_pos}Non-existing parameter"
+            )
+
+    return f"Missing parameter: '{invalid_key}'"
+
+
 # TODO: Add unit tests
 def _get_short_dimension_names_new(
     types: Mapping[str, ParameterType],
@@ -215,7 +238,21 @@ class Observation:
         for step in self.parameter_mode.enabled_steps:
             key: str = step.key
             if not processor.has(key):
-                raise KeyError(f"Missing parameter: {key!r} in steps.")
+                exc = KeyError(f"Missing parameter: {key!r} in steps.")
+
+                # In Python 3.11+, add context notes to the exception
+                if sys.version_info >= (3, 11):
+                    # TODO: Write a function to retrieve all possible valid parameters
+
+                    valid_keys: list[str] = list(processor.iter_parameters())
+                    message: str = explain_invalid_key(
+                        invalid_key=key, valid_keys=valid_keys
+                    )
+
+                    for msg in message.split("\n"):
+                        exc.add_note(msg)
+
+                raise exc
 
             # TODO: the string literal expressions are difficult to maintain.
             #     Example: 'pipeline.', '.arguments', '.enabled'
@@ -297,7 +334,8 @@ class Observation:
 
             # Merge the sequentially processed DataTrees into the final result
             final_datatree = xr.map_over_datasets(
-                lambda *data: xr.merge(data), *datatree_list
+                lambda *data: xr.merge(data, join="outer", compat="no_conflicts"),
+                *datatree_list,
             )
 
         # Assign the running mode to the final DataTree attributes
@@ -409,7 +447,7 @@ def _add_custom_parameters(
     import pandas as pd
     import xarray as xr
 
-    data_tree = data_tree.map_over_datasets(  # type: ignore[assignment]
+    data_tree = data_tree.map_over_datasets(
         lambda dataset: dataset.expand_dims({"id": [index]})
     )
 
@@ -418,7 +456,7 @@ def _add_custom_parameters(
 
         #  assigning the right coordinates based on type
         if types[coordinate_name] == ParameterType.Simple:
-            data_tree = data_tree.map_over_datasets(  # type: ignore[assignment]
+            data_tree = data_tree.map_over_datasets(
                 lambda dataset: dataset.assign_coords(
                     {short_name: ("id", pd.Index([param_value]))}
                 )
@@ -427,7 +465,7 @@ def _add_custom_parameters(
         elif types[coordinate_name] == ParameterType.Multi:
             data = np.array(param_value)
             data_array = xr.DataArray(data).expand_dims({"id": [index]})
-            data_tree = data_tree.map_over_datasets(  # type: ignore[assignment]
+            data_tree = data_tree.map_over_datasets(
                 lambda dataset: dataset.assign_coords({short_name: data_array})
             )
 
@@ -468,7 +506,7 @@ def _add_product_parameters(
 
         #  assigning the right coordinates based on type
         if types[coordinate_name] == ParameterType.Simple:
-            data_tree = data_tree.map_over_datasets(  # type: ignore[assignment]
+            data_tree = data_tree.map_over_datasets(
                 lambda dataset: dataset.expand_dims(dim={short_name: [param_value]})
             )
 
@@ -500,7 +538,7 @@ def _add_product_parameters(
             else:
                 raise NotImplementedError
 
-            data_tree = data_tree.map_over_datasets(  # type: ignore[assignment]
+            data_tree = data_tree.map_over_datasets(
                 lambda dataset: dataset.expand_dims(
                     {f"{short_name}_id": [index]}
                 ).assign_coords({short_name: data_array})

@@ -94,7 +94,7 @@ def get_vega_spectrum_photon(
     )
 
     # Load Vega spectrum
-    vega = SourceSpectrum.from_vega()
+    vega = SourceSpectrum.from_vega(cache=True)
 
     # Convert the Vega spectrum from "PHOTLAM" ("ph / (Angstrom s cm2)") to "ph / (nm s cm2)"
     spectrum_1d: Quantity = vega(wavelengths_1d).to("ph / (nm s cm2)")
@@ -488,7 +488,7 @@ def _retrieve_objects_from_gaia(
 
             # load spectra from stars
             spectra_dct_partial: dict[str, list[tree.Table]] = Gaia.load_data(
-                ids=source_ids_with_spectra_chunk,
+                ids=list(source_ids_with_spectra_chunk),
                 retrieval_type=retrieval_type,
                 data_release=data_release,
                 data_structure=data_structure,

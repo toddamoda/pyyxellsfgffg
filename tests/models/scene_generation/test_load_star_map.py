@@ -5,11 +5,15 @@
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
 import sys
+from unittest.mock import Mock, patch
 
 import numpy as np
 import pytest
+import requests
 import xarray as xr
 from astropy import constants
+from astropy.io.votable import from_table
+from astropy.io.votable.tree import Param
 from astropy.table import Table
 from astropy.tests.helper import assert_quantity_allclose
 from astropy.units import Quantity, Unit, spectral_density
@@ -19,6 +23,7 @@ from pyxel.models.scene_generation import load_star_map
 from pyxel.models.scene_generation.load_star_map import (
     HIPPARCOS_ID,
     TYCHO2_ID,
+    get_vega_spectrum_flux,
     retrieve_from_gaia,
     retrieve_from_vizier_catalog,
 )
@@ -239,33 +244,180 @@ def source1_pyxel(
 
 
 @pytest.mark.skipif(sys.version_info < (3, 11), reason="Requires Python 3.11+")
+@pytest.mark.parametrize("extrapolated_spectra", [True, False])
+@patch(target="astroquery.gaia.Gaia.launch_job_async")
+@patch(target="astroquery.gaia.Gaia.load_data")
 def test_retrieve_from_gaia(
-    mocker: pytest_mock.MockerFixture,
-    positions_table: Table,
-    spectra_dct: dict[int, Table],
-    source1_pyxel: xr.Dataset,
-    source1_gaia: xr.Dataset,
+    mock_load_data: Mock,  # Note: order is important !
+    mock_launch_job_async: Mock,  # Note: order is important !
+    extrapolated_spectra: bool,
 ):
     """Test function 'retrieve_from_gaia'."""
-    # Mock function 'pyxel.models.scene_generation.load_star_map.retrieve_objects_from_gaia'
-    # When this function will be called (with any parameters), it will always return this tuple
-    # (positions_table, spectra_dct)
-    mocker.patch(
-        target=(
-            "pyxel.models.scene_generation.load_star_map._retrieve_objects_from_gaia"
-        ),
-        return_value=(positions_table, spectra_dct),
+
+    # Mock function 'astroquery.gaia.Gaia.launch_job_async'
+    class FakeJob:
+        def get_results(self):
+            table = Table(
+                names=[
+                    "source_id",
+                    "ra",
+                    "dec",
+                    "has_xp_sampled",
+                    "phot_bp_mean_mag",
+                    "phot_g_mean_mag",
+                    "phot_rp_mean_mag",
+                ],
+                dtype=[int, float, float, bool, float, float, float],
+            )
+            table.add_row(
+                [
+                    66504343062472704,
+                    Quantity(57.148003186750714, unit="deg"),
+                    Quantity(23.81913615534774, unit="deg"),
+                    True,
+                    11.489057,
+                    10.664621,
+                    9.781835,
+                ]
+            )
+            table.add_row(
+                [
+                    66715410636984192,
+                    Quantity(56.79197187528736, unit="deg"),
+                    Quantity(24.131100390060347, unit="deg"),
+                    False,
+                    20.105223,
+                    19.483833,
+                    18.774532,
+                ]
+            )
+
+            return table
+
+    mock_launch_job_async.return_value = FakeJob()
+
+    table_load_data = Table(
+        {
+            "wavelength": Quantity([336.0, 1020.0], unit="nm"),
+            "flux": Quantity(
+                [2.2282904e-16, 1.6213707e-15], unit="W / (nm m2)", dtype=np.float32
+            ),
+            "flux_error": Quantity(
+                [7.737149e-17, 4.5590877e-17], unit="W / (nm m2)", dtype=np.float32
+            ),
+        }
     )
+    votable_load_data = from_table(table_load_data)
+    table_element_load_data = votable_load_data.get_first_table()
+
+    param_load_data = Param(
+        votable=votable_load_data,
+        ID="source_id",
+        value="66504343062472704",
+        datatype="long",
+    )
+    table_element_load_data.params.append(param_load_data)
+
+    mock_load_data.return_value = {
+        "XP_SAMPLED-Gaia DR3 66715410636984192.xml": [table_element_load_data]
+    }
 
     ds = retrieve_from_gaia(
-        right_ascension=0.0,  # This parameter is not important
-        declination=0.0,  # This parameter is not important
-        fov_radius=0.0,  # This parameter is not important
-        extrapolated_spectra=False,
+        right_ascension=56.75,  # This parameter is not important
+        declination=24.1167,  # This parameter is not important
+        fov_radius=0.5,  # This parameter is not important
+        extrapolated_spectra=extrapolated_spectra,
     )
 
-    expected_ds = source1_gaia
-    xr.testing.assert_equal(ds, expected_ds)
+    assert list(ds) == [
+        "ra",
+        "dec",
+        "has_xp_sampled",
+        "phot_bp_mean_mag",
+        "phot_g_mean_mag",
+        "phot_rp_mean_mag",
+        "flux",
+        "flux_error",
+        "weight",
+    ]
+    assert dict(ds.dims) == {"source_id": 2, "wavelength": 343}
+
+
+@patch(target="astroquery.gaia.Gaia.launch_job_async")
+@patch(target="astroquery.gaia.Gaia.load_data")
+def test_retrieve_from_gaia_load_data_error(
+    mock_launch_job_async: Mock,
+    mock_load_data: Mock,
+):
+    """Test function 'retrieve_from_gaia' with an error."""
+
+    # Mock function 'astroquery.gaia.Gaia.launch_job_async'
+    class FakeJob:
+        def get_results(self):
+            table = Table(
+                names=[
+                    "source_id",
+                    "ra",
+                    "dec",
+                    "has_xp_sampled",
+                    "phot_bp_mean_mag",
+                    "phot_g_mean_mag",
+                    "phot_rp_mean_mag",
+                ],
+                dtype=[int, float, float, bool, float, float, float],
+            )
+            table.add_row(
+                [
+                    66504343062472704,
+                    Quantity(57.148003186750714, unit="deg"),
+                    Quantity(23.81913615534774, unit="deg"),
+                    True,
+                    11.489057,
+                    10.664621,
+                    9.781835,
+                ]
+            )
+            table.add_row(
+                [
+                    66715410636984192,
+                    Quantity(56.79197187528736, unit="deg"),
+                    Quantity(24.131100390060347, unit="deg"),
+                    False,
+                    20.105223,
+                    19.483833,
+                    18.774532,
+                ]
+            )
+
+            return table
+
+    mock_launch_job_async.return_value = FakeJob()
+    mock_load_data.side_effect = requests.HTTPError()
+
+    with pytest.raises(
+        ConnectionError,
+        match=r"Error when trying to retrieve sources from the Gaia database",
+    ):
+        _ = retrieve_from_gaia(
+            right_ascension=56.75,  # This parameter is not important
+            declination=24.1167,  # This parameter is not important
+            fov_radius=0.5,  # This parameter is not important
+            extrapolated_spectra=True,
+        )
+
+
+@patch(target="astroquery.gaia.Gaia.launch_job_async")
+def test_retrieve_from_gaia_launch_job_async_error(mock_launch_job_async: Mock):
+    """Test function 'retrieve_from_gaia' with an error."""
+    mock_launch_job_async.side_effect = requests.HTTPError()
+
+    with pytest.raises(ConnectionError):
+        _ = retrieve_from_gaia(
+            right_ascension=56.75,  # This parameter is not important
+            declination=24.1167,  # This parameter is not important
+            fov_radius=0.5,  # This parameter is not important
+            extrapolated_spectra=False,  # This parameter is not important
+        )
 
 
 def test_compute_flux_compare_to_astropy():
@@ -309,8 +461,11 @@ def test_compute_flux_compare_to_manual_conversion():
 
 
 @pytest.mark.skipif(sys.version_info < (3, 11), reason="Requires Python 3.11+")
+@patch(
+    target=("pyxel.models.scene_generation.load_star_map._retrieve_objects_from_gaia")
+)
 def test_load_star_map(
-    mocker: pytest_mock.MockerFixture,  # Fixture
+    mock_retrieve_objects_from_gaia: Mock,
     ccd_10x10: CCD,  # Fixture
     positions_table: Table,  # Fixture
     spectra_dct: dict[int, Table],  # Fixture
@@ -323,12 +478,7 @@ def test_load_star_map(
     # Mock function 'pyxel.models.scene_generation.load_star_map.retrieve_objects_from_gaia'
     # When this function will be called (with any parameters), it will always return this tuple
     # (positions_table, spectra_dct)
-    mocker.patch(
-        target=(
-            "pyxel.models.scene_generation.load_star_map._retrieve_objects_from_gaia"
-        ),
-        return_value=(positions_table, spectra_dct),
-    )
+    mock_retrieve_objects_from_gaia.return_value = (positions_table, spectra_dct)
 
     # Run model
     detector: CCD = ccd_10x10
@@ -534,3 +684,12 @@ def test_retrieve_vizier_large_radius():
 
     assert isinstance(table, Table)
     assert len(table) > 50  # Adjust based on catalog density
+
+
+def test_get_vega_spectrum_flux():
+    """Test function 'get_vega_spectrum_flux'."""
+    data = get_vega_spectrum_flux()
+
+    assert isinstance(data, xr.DataArray)
+    assert data.ndim == 1
+    assert data.attrs.get("units") == "W / (nm m2)"
