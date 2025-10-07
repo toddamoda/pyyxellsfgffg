@@ -355,7 +355,7 @@ class Detector:
         self._charge = Charge(geo=self.geometry)
 
         self._pixel = Pixel(geo=self.geometry)
-        
+
         self._pixel_read = PixelRead(geo=self.geometry)
         self._signal = Signal(geo=self.geometry)
         self._image = Image(geo=self.geometry)
