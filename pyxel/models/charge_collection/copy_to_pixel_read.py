@@ -15,7 +15,6 @@ import numpy as np
 def copy_to_pixel_read(
     detector: Detector,
 ) -> None:
-    """Copy `pixel` array to `pixel_read` array.
-    """
+    """Copy `pixel` array to `pixel_read` array."""
 
     detector.pixel_read.array = np.copy(detector.pixel)
