@@ -1631,6 +1631,9 @@
           "items": {
             "anyOf": [
               {
+                "$ref": "#/definitions/ModelChargeCollectionCopyToPixelRead"
+              },
+              {
                 "$ref": "#/definitions/ModelChargeCollectionFixedPatternNoise"
               },
               {
@@ -2306,6 +2309,35 @@
         "col"
       ],
       "title": "MKIDGeometry",
+      "type": "object"
+    },
+    "ModelChargeCollectionCopyToPixelRead": {
+      "additionalProperties": false,
+      "description": "Copy `pixel` array to `pixel_read` array.",
+      "properties": {
+        "arguments": {
+          "additionalProperties": false,
+          "default": {},
+          "title": "Parameters",
+          "type": "object"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "func": {
+          "const": "pyxel.models.charge_collection.copy_to_pixel_read",
+          "default": "pyxel.models.charge_collection.copy_to_pixel_read",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Model 'copy_to_pixel_read'",
       "type": "object"
     },
     "ModelChargeCollectionFixedPatternNoise": {
@@ -4842,7 +4874,7 @@
     },
     "ModelChargeMeasurementSimpleMeasurement": {
       "additionalProperties": false,
-      "description": "Convert the pixel array into signal array.",
+      "description": "Convert the pixel_read array into signal array.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
