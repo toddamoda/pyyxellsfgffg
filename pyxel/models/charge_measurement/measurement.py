@@ -51,10 +51,9 @@ def simple_measurement(detector: Detector, gain: float | None = None) -> None:
         detector.signal.array = np.zeros_like(detector.pixel.array, dtype=float)
 
         # If _channels_gain is a single float, apply it uniformly
-        if isinstance(detector.characteristics._charge_to_volt_conversion, float | int):
+        if isinstance(detector.characteristics._charge_to_volt.factor, float | int):
             detector.signal.array = (
-                detector.pixel.array
-                * detector.characteristics._charge_to_volt_conversion
+                detector.pixel.array * detector.characteristics._charge_to_volt.factor
             )
         else:
             # Apply channel-specific gains using coordinates
