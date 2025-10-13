@@ -102,7 +102,7 @@ def avalanche(
         charge_array_2d=np.array(detector.pixel),
         init_apd_bias=detector.characteristics.avalanche_settings.avalanche_gain,
         charge_to_volt_conversion=detector.characteristics.charge_to_volt_conversion,
-        bias_to_gain=detector.characteristics.avalanche_settings._bias_to_gain,
+        bias_to_gain=detector.characteristics.avalanche_settings.bias_to_gain,
     )
 
     array_copy = detector.charge.array.copy()
