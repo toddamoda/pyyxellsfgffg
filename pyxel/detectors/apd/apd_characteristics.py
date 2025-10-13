@@ -539,6 +539,8 @@ class APDCharacteristics:
     avalanche_settings : AvalancheSettings
     quantum_efficiency : float, optional
         Quantum efficiency.
+    pre_amplification : float, optional
+        Gain of pre-amplifier. Unit: V/V
     full_well_capacity : float, optional
         Full well capacity. Unit: e-
     adc_bit_resolution : int, optional
@@ -556,6 +558,7 @@ class APDCharacteristics:
         # Common parameters #
         #####################
         quantum_efficiency: float | None = None,  # unit: NA
+        pre_amplification: float | None = None,  # unit: V/V
         full_well_capacity: float | None = None,  # unit: electron
         adc_bit_resolution: int | None = None,
         adc_voltage_range: tuple[float, float] | None = None,  # unit: V
@@ -567,7 +570,8 @@ class APDCharacteristics:
 
         if quantum_efficiency and not (0.0 <= quantum_efficiency <= 1.0):
             raise ValueError("'quantum_efficiency' must be between 0.0 and 1.0.")
-
+        if pre_amplification is not None and not (0.0 <= pre_amplification <= 10_000.0):
+            raise ValueError("'pre_amplification' must be between 0.0 and 10000.0.")
         if adc_bit_resolution and not (4 <= adc_bit_resolution <= 64):
             raise ValueError("'adc_bit_resolution' must be between 4 and 64.")
         if adc_voltage_range and not len(adc_voltage_range) == 2:
@@ -576,6 +580,7 @@ class APDCharacteristics:
             raise ValueError("'full_well_capacity' must be between 0 and 1e7.")
 
         self._quantum_efficiency: float | None = quantum_efficiency
+        self._pre_amplification: float | None = pre_amplification
         self._full_well_capacity: float | None = full_well_capacity
         self._adc_voltage_range: tuple[float, float] | None = adc_voltage_range
         self._adc_bit_resolution: int | None = adc_bit_resolution
@@ -606,6 +611,7 @@ class APDCharacteristics:
             and self._bias_to_node == other._bias_to_node
             and self._avalanche_settings == other._avalanche_settings
             and self._quantum_efficiency == other._quantum_efficiency
+            and self._pre_amplification == other._pre_amplification
             and self._full_well_capacity == other._full_well_capacity
             and self._adc_bit_resolution == other._adc_bit_resolution
             and self._adc_voltage_range == other._adc_voltage_range
@@ -689,6 +695,27 @@ class APDCharacteristics:
             raise ValueError("'quantum_efficiency' values must be between 0.0 and 1.0.")
 
         self._quantum_efficiency = value
+
+    @property
+    def pre_amplification(self) -> float:
+        """Get voltage pre-amplification gain."""
+        if self._pre_amplification is None:
+            raise ValueError(
+                get_uninitialized_error(
+                    name="pre_amplification",
+                    parent_name="characteristics",
+                )
+            )
+
+        return self._pre_amplification
+
+    @pre_amplification.setter
+    def pre_amplification(self, value: float) -> None:
+        """Set voltage pre-amplification gain.."""
+        if not (0.0 <= value <= 10_000.0):
+            raise ValueError("'pre_amplification' must be between 0.0 and 10000.0.")
+
+        self._pre_amplification = value
 
     @property
     def avalanche_settings(self) -> AvalancheSettings:
@@ -856,6 +883,7 @@ class APDCharacteristics:
             "bias_to_node": self._bias_to_node.to_dict(),  # TODO: FIx this
             "avalanche_settings": self._avalanche_settings.to_dict(),
             "quantum_efficiency": self._quantum_efficiency,
+            "pre_amplification": self._pre_amplification,
             "full_well_capacity": self._full_well_capacity,
             "adc_bit_resolution": self._adc_bit_resolution,
             "adc_voltage_range": self._adc_voltage_range,
