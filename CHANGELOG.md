@@ -16,6 +16,9 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
   (See [!1106](https://gitlab.com/esa/pyxel/-/merge_requests/1106)).
 * Improve compatibility of containers 'Photon', 'Pixel', ... with Astropy Quantity.
   (See [!1118](https://gitlab.com/esa/pyxel/-/merge_requests/1118)).
+* In Characteristics, parameter 'pre_amplification' should be applied to channels instead of 
+  parameter 'charge_to_volt_conversion'.
+  (See [!1117](https://gitlab.com/esa/pyxel/-/merge_requests/1117)).
 
 ### Documentation
 
