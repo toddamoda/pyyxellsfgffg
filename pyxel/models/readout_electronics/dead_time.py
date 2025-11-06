@@ -26,12 +26,9 @@ def apply_dead_time_filter(phase_2d: np.ndarray, maximum_count: float) -> np.nda
     -------
     ndarray
     """
-    phase_clipped_2d = np.clip(phase_2d, a_min=None, a_max=maximum_count)
-
-    return phase_clipped_2d
+    return np.clip(phase_2d, a_min=None, a_max=maximum_count)
 
 
-# TODO: more documentation (Enrico). See #324.
 def dead_time_filter(
     detector: MKID,
     tau_0: float = 4.4 * 1.0e-7,
@@ -43,36 +40,13 @@ def dead_time_filter(
     tau_esc: float = 1.4 * 1.0e-10,
     tau_sat: float = 1.0e-3,
 ) -> None:
-    """Dead time filter.
+    """Apply a dead-time filter to the MKID detector phase array.
 
-    The underlying physics of this model is described in :cite:p:`PhysRevB.104.L180506`;
-    more information can be found on the website :cite:p:`Mazin`.
-
-    Parameters
-    ----------
-    detector : MKID
-        Pyxel Detector :term:`MKID` object.
-    tau_0 : float
-        Material dependent characteristic time for the electron-phonon coupling. Unit: s
-    n_0 : float
-        Material dependent single spin density of states at
-        the Fermi-level. Unit: um^-3 eV^-1
-    t_c : float
-        Material dependent critical temperature. Unit: K
-    v : float
-        Superconducting volume. Unit: um^3
-    t_op : float
-        Temperature. Unit: K
-    tau_pb : float
-        Phonon pair-breaking time. Unit: s
-    tau_esc : float
-        Phonon escape time. Unit: s
-    tau_sat : float
-        Saturation time. Unit: s
+    Supports both static (2D) and time-dependent (3D) phase data if `readout_times`
+    are available in the detector.
     """
-    # Validation phase
+    # Validation
     if not isinstance(detector, MKID):
-        # Later, this will be checked in when YAML configuration file is parsed
         raise TypeError("Expecting an `MKID` object for 'detector'.")
 
     # Boltzmann's constant [eV K^-1]
@@ -81,8 +55,7 @@ def dead_time_filter(
     # Compute superconducting gap energy
     delta: float = 1.76 * boltzmann_cst * t_c
 
-    # Compute number of quasiparticles in a superconducting volume V
-    # TODO: check that T << (delta / boltzmann_cst)
+    # Compute number of quasiparticles in the superconducting volume V
     n_qp: float = (
         2.0
         * v
@@ -96,22 +69,48 @@ def dead_time_filter(
         tau_0 * n_0 * (boltzmann_cst * t_c) ** 3
     )
 
-    # Compute intrinsic quasiparticle lifetime with respect to recombination
+    # Compute intrinsic quasiparticle lifetime
     tau_qp: float = v / (recombination_cst * n_qp)
 
-    # Compute apparent quasi-particle lifetime, without saturation lifetime
-    # tau_apparent = 1. / (2. / (tau_qp * (1. + (char.tau_esc / char.tau_pb))))
-
-    # Compute apparent quasi-particle lifetime, including saturation lifetime
+    # Compute apparent quasi-particle lifetime (including saturation)
     tau_apparent_sat: float = 1.0 / (
         2.0 / (tau_qp * (1.0 + (tau_esc / tau_pb))) + (1.0 / tau_sat)
     )
 
     dead_time = tau_apparent_sat
+    max_count = 1.0 / dead_time
 
-    phase_2d = apply_dead_time_filter(
-        phase_2d=detector.phase.array,
-        maximum_count=1.0 / dead_time,
-    )
+    # --- NEW: handle time-dependent MKID data ---
+    if hasattr(detector, "readout_times") and detector.readout_times is not None:
+        readout_times = np.asarray(detector.readout_times)
+        n_t = len(readout_times)
+        phase_data = detector.phase.array
 
-    detector.phase.array = phase_2d
+        # Expect shape (n_t, y, x) or (y, x)
+        if phase_data.ndim == 2:
+            # No time dimension → fallback to legacy 2D
+            filtered_phase = apply_dead_time_filter(phase_data, maximum_count=max_count)
+            detector.phase.array = filtered_phase
+
+        elif phase_data.ndim == 3 and phase_data.shape[0] == n_t:
+            # Apply dead-time filter for each time slice
+            filtered = np.empty_like(phase_data)
+            for i in range(n_t):
+                filtered[i, :, :] = apply_dead_time_filter(
+                    phase_data[i, :, :], maximum_count=max_count
+                )
+            detector.phase.array = filtered
+
+        else:
+            raise ValueError(
+                f"Unexpected phase array shape {phase_data.shape}. "
+                f"Expected (y, x) or ({n_t}, y, x) to match readout_times."
+            )
+
+    else:
+        # Legacy path — single static phase image
+        phase_2d = detector.phase.array
+        detector.phase.array = apply_dead_time_filter(
+            phase_2d=phase_2d,
+            maximum_count=max_count,
+        )
