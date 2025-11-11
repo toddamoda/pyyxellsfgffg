@@ -278,6 +278,36 @@ class ArchipelagoDataTree:
                 #         .set_index(["num_generations", "num_evaluations"])
                 #         .to_xarray()
                 #     )
+                # TODO: use get_best_individuals
+                # TODO: Save all the population (optional)
+                # TODO: Create a function for this
+                lst = []
+                for island_id, island in enumerate(self._pygmo_archi):
+                    population: pg.population = island.get_population()
+
+                    # Get the decision vectors: num_individuals x size_decision_vector
+                    decision_vectors_2d: np.ndarray = population.get_x()
+
+                    # Convert the decision vectors to parameters:
+                    #   num_individuals x size_decision_vector
+                    parameters_2d = self.problem.convert_to_parameters(
+                        decision_vectors_2d
+                    )
+
+                    island_population = xr.Dataset(coords={"island": island_id})
+                    # island_population['fitness'] = xr.DataArray(population.get_f(), dims=['individual', 'objective'])
+                    island_population["decision"] = xr.DataArray(
+                        decision_vectors_2d, dims=["individual", "param_id"]
+                    )
+                    island_population["parameters"] = xr.DataArray(
+                        parameters_2d, dims=["individual", "param_id"]
+                    )
+
+                    lst.append(island_population)
+
+                all_islands_population = xr.concat(lst, dim="island")
+                # TODO: Save this into 'output' folder
+                # TODO: Send to Grafana ? bokeh ? ZMQ ?
 
                 progress.update(self.algorithm.generations)
 
