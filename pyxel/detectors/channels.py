@@ -324,3 +324,12 @@ class Channels:
             readout_position=ReadoutPosition(dct["readout_position"]),
         )
         return obj
+
+    # TODO: slices for any geometry
+    @staticmethod
+    def get_channel_slices(detector_shape, channels_shape, chanx: int, chany: int) -> tuple[slice]:
+        slice_x = slice((detector_shape[0] // channels_shape[0]) * chanx,
+                        (detector_shape[0] // channels_shape[0]) * (chanx + 1))
+        slice_y = slice((detector_shape[1] // channels_shape[1]) * chany,
+                        (detector_shape[1] // channels_shape[1]) * (chany + 1))
+        return (slice_x, slice_y)

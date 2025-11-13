@@ -12,8 +12,9 @@ import numpy as np
 from astropy.units import Quantity
 
 from pyxel.detectors import CMOS
+from pyxel.detectors.channels import Channels
 from pyxel.util import set_random_seed
-
+from collections.abc import Sequence
 
 def create_noise_cmos(
     shape: tuple[int, int],
@@ -56,11 +57,27 @@ def create_noise_cmos(
 
     return Quantity(noise_2d, unit="V")
 
+def create_noise_cmos_bychan(
+    shape: tuple[int, int],
+    readout_noise_bychan: np.ndarray[Quantity],
+    readout_noise_std: Quantity,
+    sensitivity_2d: Quantity,
+) -> np.ndarray:
+    noise_2d = np.zeros(shape)
+    for x in range(readout_noise_bychan.shape[0]):
+        for y in range(readout_noise_bychan.shape[1]):
+            (slice_x, slice_y) = Channels.get_channel_slices(
+                shape, readout_noise_bychan.shape, x, y)
+            view_chan = noise_2d[slice_x, slice_y]
+            view_chan[:,:] = create_noise_cmos(
+                view_chan.shape, readout_noise_bychan[x,y],
+                readout_noise_std, sensitivity_2d)
+    return noise_2d
 
 def output_node_noise_cmos(
     detector: CMOS,
-    readout_noise: float,
-    readout_noise_std: float,
+    readout_noise: float | Sequence[Sequence[float]],
+    readout_noise_std: float | Sequence[Sequence[float]],
     seed: int | None = None,
 ) -> None:
     """Output node noise model for :term:`CMOS` detectors where readout is statistically independent for each pixel.
@@ -86,6 +103,14 @@ def output_node_noise_cmos(
     if not isinstance(detector, CMOS):
         raise TypeError("Expecting a 'CMOS' detector object.")
 
+    if isinstance(readout_noise, float):
+        readout_noise_bychan = np.ndarray(detector.geometry.channels.matrix.shape)
+        readout_noise_bychan.fill(readout_noise)
+    else:
+        readout_noise_bychan = np.array(readout_noise)
+
+    readout_noise_bychan = Quantity(readout_noise_bychan, unit="electron")
+
     if readout_noise_std < 0.0:
         raise ValueError("'readout_noise_std' must be positive.")
 
@@ -93,22 +118,11 @@ def output_node_noise_cmos(
         detector.characteristics.charge_to_volt_conversion,
         unit="V/electron",
     )
-    # if isinstance(detector.characteristics.charge_to_volt_conversion, (float, int)):
-    #     charge_readout_sensitivity[:] = detector.characteristics.charge_to_volt_conversion
-    # elif isinstance(detector.characteristics.charge_to_volt_conversion, dict):
-    #     # Apply channel-specific sensitivities
-    #     for channel, gain in detector.characteristics.charge_to_volt_conversion.items():
-    #         slice_y, slice_x = detector.geometry.get_channel_coord(channel)
-    #         charge_readout_sensitivity[slice_y, slice_x] = gain
-    # else:
-    #     raise NotImplementedError(
-    #         "Expecting a float or dict for charge_to_volt_conversion; got unexpected type."
-    #     )
 
     with set_random_seed(seed):
-        noise_2d: Quantity = create_noise_cmos(
+        noise_2d: Quantity = create_noise_cmos_bychan(
             shape=detector.signal.shape,
-            readout_noise=Quantity(readout_noise, unit="electron"),
+            readout_noise_bychan=readout_noise_bychan,
             readout_noise_std=Quantity(readout_noise_std, unit="electron"),
             sensitivity_2d=charge_readout_sensitivity,
         )
