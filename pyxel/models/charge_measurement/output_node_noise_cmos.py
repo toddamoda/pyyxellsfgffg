@@ -70,7 +70,7 @@ def create_noise_cmos_bychan(
         this_chan_view[:,:] = create_noise_cmos(
             this_chan_view.shape, readout_noise_bychan[chan_label],
             readout_noise_std_bychan[chan_label], sensitivity_2d)
-    return noise_2d
+    return Quantity(noise_2d, unit="V")
 
 def output_node_noise_cmos(
     detector: CMOS,
