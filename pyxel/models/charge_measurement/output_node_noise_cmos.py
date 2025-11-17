@@ -15,6 +15,7 @@ from pyxel.detectors import CMOS
 from pyxel.detectors.channels import Channels
 from pyxel.util import set_random_seed
 from collections.abc import Sequence
+from numbers import Number
 
 def create_noise_cmos(
     shape: tuple[int, int],
@@ -120,8 +121,8 @@ def output_node_noise_cmos(
         readout_noise_bychan     = dict()
         readout_noise_std_bychan = dict()
         for chan_label in list(detector.geometry.channels):
-            ro = readout_noise if isinstance(readout_noise, float) else readout_noise[chan_label]
-            ros = readout_noise_std if isinstance(readout_noise_std, float) else readout_noise_std[chan_label]
+            ro = readout_noise if isinstance(readout_noise, Number) else readout_noise[chan_label]
+            ros = readout_noise_std if isinstance(readout_noise_std, Number) else readout_noise_std[chan_label]
             if ros < 0.0:
                 raise ValueError("'readout_noise_std' must be positive.")
             readout_noise_bychan[chan_label] = Quantity(ro, unit="electron")
