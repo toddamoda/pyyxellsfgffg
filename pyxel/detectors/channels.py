@@ -121,10 +121,10 @@ class Matrix:
         """Number of dimension(s) of the matrix."""
         return self._data.ndim
 
-    def get_coords_of_label(self, chanlabel: str) -> tuple[int,int]:
+    def get_coords_of_label(self, chanlabel: str) -> tuple[int, int]:
         for icol in range(self.shape[1]):
             for irow in range(self.shape[0]):
-                if self._data[irow,icol] == chanlabel:
+                if self._data[irow, icol] == chanlabel:
                     return (irow, icol)
         raise ValueError("channel label not found")
 
@@ -317,15 +317,19 @@ class Channels:
         (nb_chans_y, nb_chans_x) = self.matrix.shape
         (this_chan_y, this_chan_x) = self.matrix.get_coords_of_label(chan_label)
 
-        lower_x  = (detector_ncols // nb_chans_x) * (this_chan_x    )       # included
-        higher_x = (detector_ncols // nb_chans_x) * (this_chan_x + 1) - 1   # included
+        lower_x = (detector_ncols // nb_chans_x) * (this_chan_x)  # included
+        higher_x = (detector_ncols // nb_chans_x) * (this_chan_x + 1) - 1  # included
 
         # for y, it is slightly different,
         # because `this_chan_y == 0` correspond to the physical top of the
         # detector, whereas the row `0` on the detector is at the bottom.
 
-        lower_y  = (detector_nrows // nb_chans_y) * (nb_chans_y - this_chan_y - 1)      # included
-        higher_y = (detector_nrows // nb_chans_y) * (nb_chans_y - this_chan_y    ) - 1  # included
+        lower_y = (detector_nrows // nb_chans_y) * (
+            nb_chans_y - this_chan_y - 1
+        )  # included
+        higher_y = (detector_nrows // nb_chans_y) * (
+            nb_chans_y - this_chan_y
+        ) - 1  # included
 
         # now the slice depends on the readout direction
         ro_pos = self.readout_position.positions[chan_label]
@@ -370,4 +374,3 @@ class Channels:
             readout_position=ReadoutPosition(dct["readout_position"]),
         )
         return obj
-

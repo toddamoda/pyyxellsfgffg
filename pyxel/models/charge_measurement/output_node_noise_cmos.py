@@ -8,13 +8,15 @@
 
 """Readout noise model."""
 
+from numbers import Number
+
 import numpy as np
 from astropy.units import Quantity
 
 from pyxel.detectors import CMOS
 from pyxel.detectors.channels import Channels
 from pyxel.util import set_random_seed
-from collections.abc import Sequence
+
 
 def create_noise_cmos(
     shape: tuple[int, int],
@@ -57,6 +59,7 @@ def create_noise_cmos(
 
     return Quantity(noise_2d, unit="V")
 
+
 def create_noise_cmos_bychan(
     channels: Channels,
     detector_shape: tuple[int, int],
@@ -66,11 +69,17 @@ def create_noise_cmos_bychan(
 ) -> np.ndarray:
     noise_2d = np.zeros(detector_shape)
     for chan_label in list(channels):
-        this_chan_view = noise_2d[channels.get_channel_slices(detector_shape, chan_label)]
-        this_chan_view[:,:] = create_noise_cmos(
-            this_chan_view.shape, readout_noise_bychan[chan_label],
-            readout_noise_std_bychan[chan_label], sensitivity_2d)
+        this_chan_view = noise_2d[
+            channels.get_channel_slices(detector_shape, chan_label)
+        ]
+        this_chan_view[:, :] = create_noise_cmos(
+            this_chan_view.shape,
+            readout_noise_bychan[chan_label],
+            readout_noise_std_bychan[chan_label],
+            sensitivity_2d,
+        )
     return Quantity(noise_2d, unit="V")
+
 
 def output_node_noise_cmos(
     detector: CMOS,
@@ -117,11 +126,19 @@ def output_node_noise_cmos(
                 sensitivity_2d=charge_readout_sensitivity,
             )
     else:
-        readout_noise_bychan     = dict()
+        readout_noise_bychan = dict()
         readout_noise_std_bychan = dict()
         for chan_label in list(detector.geometry.channels):
-            ro = readout_noise if isinstance(readout_noise, float) else readout_noise[chan_label]
-            ros = readout_noise_std if isinstance(readout_noise_std, float) else readout_noise_std[chan_label]
+            ro = (
+                readout_noise
+                if isinstance(readout_noise, Number)
+                else readout_noise[chan_label]
+            )
+            ros = (
+                readout_noise_std
+                if isinstance(readout_noise_std, Number)
+                else readout_noise_std[chan_label]
+            )
             if ros < 0.0:
                 raise ValueError("'readout_noise_std' must be positive.")
             readout_noise_bychan[chan_label] = Quantity(ro, unit="electron")
