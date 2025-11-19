@@ -8,7 +8,6 @@
 
 """Readout noise model."""
 
-from numbers import Number
 
 import numpy as np
 from astropy.units import Quantity
@@ -126,17 +125,21 @@ def output_node_noise_cmos(
                 sensitivity_2d=charge_readout_sensitivity,
             )
     else:
+        if not detector.geometry.channels:
+            raise ValueError
+
         readout_noise_bychan = dict()
         readout_noise_std_bychan = dict()
+
         for chan_label in list(detector.geometry.channels):
             ro = (
                 readout_noise
-                if isinstance(readout_noise, Number)
+                if isinstance(readout_noise, (int, float))
                 else readout_noise[chan_label]
             )
             ros = (
                 readout_noise_std
-                if isinstance(readout_noise_std, Number)
+                if isinstance(readout_noise_std, (int, float))
                 else readout_noise_std[chan_label]
             )
             if ros < 0.0:
@@ -145,7 +148,7 @@ def output_node_noise_cmos(
             readout_noise_std_bychan[chan_label] = Quantity(ros, unit="electron")
 
         with set_random_seed(seed):
-            noise_2d: Quantity = create_noise_cmos_bychan(
+            noise_2d = create_noise_cmos_bychan(
                 channels=detector.geometry.channels,
                 detector_shape=detector.geometry.shape,
                 readout_noise_bychan=readout_noise_bychan,

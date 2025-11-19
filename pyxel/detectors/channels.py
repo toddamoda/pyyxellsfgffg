@@ -311,7 +311,9 @@ class Channels:
             "readout_position": dict(self.readout_position.positions),
         }
 
-    def get_channel_slices(self, detector_shape, chan_label: str) -> tuple[slice]:
+    def get_channel_slices(
+        self, detector_shape, chan_label: str
+    ) -> tuple[slice, slice]:
 
         (detector_nrows, detector_ncols) = detector_shape
         (nb_chans_y, nb_chans_x) = self.matrix.shape
