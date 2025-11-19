@@ -12,8 +12,10 @@ import numpy as np
 from astropy.units import Quantity
 
 from pyxel.detectors import CMOS
+from pyxel.detectors.channels import Channels
 from pyxel.util import set_random_seed
-
+from collections.abc import Sequence
+from numbers import Number
 
 def create_noise_cmos(
     shape: tuple[int, int],
@@ -56,11 +58,25 @@ def create_noise_cmos(
 
     return Quantity(noise_2d, unit="V")
 
+def create_noise_cmos_bychan(
+    channels: Channels,
+    detector_shape: tuple[int, int],
+    readout_noise_bychan: dict,
+    readout_noise_std_bychan: dict,
+    sensitivity_2d: Quantity,
+) -> np.ndarray:
+    noise_2d = np.zeros(detector_shape)
+    for chan_label in list(channels):
+        this_chan_view = noise_2d[channels.get_channel_slices(detector_shape, chan_label)]
+        this_chan_view[:,:] = create_noise_cmos(
+            this_chan_view.shape, readout_noise_bychan[chan_label],
+            readout_noise_std_bychan[chan_label], sensitivity_2d)
+    return Quantity(noise_2d, unit="V")
 
 def output_node_noise_cmos(
     detector: CMOS,
-    readout_noise: float,
-    readout_noise_std: float,
+    readout_noise: float | dict,
+    readout_noise_std: float | dict,
     seed: int | None = None,
 ) -> None:
     """Output node noise model for :term:`CMOS` detectors where readout is statistically independent for each pixel.
@@ -86,31 +102,39 @@ def output_node_noise_cmos(
     if not isinstance(detector, CMOS):
         raise TypeError("Expecting a 'CMOS' detector object.")
 
-    if readout_noise_std < 0.0:
-        raise ValueError("'readout_noise_std' must be positive.")
-
     charge_readout_sensitivity = Quantity(
         detector.characteristics.charge_to_volt_conversion,
         unit="V/electron",
     )
-    # if isinstance(detector.characteristics.charge_to_volt_conversion, (float, int)):
-    #     charge_readout_sensitivity[:] = detector.characteristics.charge_to_volt_conversion
-    # elif isinstance(detector.characteristics.charge_to_volt_conversion, dict):
-    #     # Apply channel-specific sensitivities
-    #     for channel, gain in detector.characteristics.charge_to_volt_conversion.items():
-    #         slice_y, slice_x = detector.geometry.get_channel_coord(channel)
-    #         charge_readout_sensitivity[slice_y, slice_x] = gain
-    # else:
-    #     raise NotImplementedError(
-    #         "Expecting a float or dict for charge_to_volt_conversion; got unexpected type."
-    #     )
 
-    with set_random_seed(seed):
-        noise_2d: Quantity = create_noise_cmos(
-            shape=detector.signal.shape,
-            readout_noise=Quantity(readout_noise, unit="electron"),
-            readout_noise_std=Quantity(readout_noise_std, unit="electron"),
-            sensitivity_2d=charge_readout_sensitivity,
-        )
+    if isinstance(readout_noise, float) and isinstance(readout_noise_std, float):
+        if readout_noise_std < 0.0:
+            raise ValueError("'readout_noise_std' must be positive.")
+        with set_random_seed(seed):
+            noise_2d: Quantity = create_noise_cmos(
+                shape=detector.geometry.shape,
+                readout_noise=Quantity(readout_noise, unit="electron"),
+                readout_noise_std=Quantity(readout_noise_std, unit="electron"),
+                sensitivity_2d=charge_readout_sensitivity,
+            )
+    else:
+        readout_noise_bychan     = dict()
+        readout_noise_std_bychan = dict()
+        for chan_label in list(detector.geometry.channels):
+            ro = readout_noise if isinstance(readout_noise, Number) else readout_noise[chan_label]
+            ros = readout_noise_std if isinstance(readout_noise_std, Number) else readout_noise_std[chan_label]
+            if ros < 0.0:
+                raise ValueError("'readout_noise_std' must be positive.")
+            readout_noise_bychan[chan_label] = Quantity(ro, unit="electron")
+            readout_noise_std_bychan[chan_label] = Quantity(ros, unit="electron")
+
+        with set_random_seed(seed):
+            noise_2d: Quantity = create_noise_cmos_bychan(
+                channels=detector.geometry.channels,
+                detector_shape=detector.geometry.shape,
+                readout_noise_bychan=readout_noise_bychan,
+                readout_noise_std_bychan=readout_noise_std_bychan,
+                sensitivity_2d=charge_readout_sensitivity,
+            )
 
     detector.signal += noise_2d
