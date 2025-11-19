@@ -114,7 +114,9 @@ def output_node_noise_cmos(
         unit="V/electron",
     )
 
-    if isinstance(readout_noise, float) and isinstance(readout_noise_std, float):
+    if isinstance(readout_noise, (int, float)) and isinstance(
+        readout_noise_std, (int, float)
+    ):
         if readout_noise_std < 0.0:
             raise ValueError("'readout_noise_std' must be positive.")
         with set_random_seed(seed):
