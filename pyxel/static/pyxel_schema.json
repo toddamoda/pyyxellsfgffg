@@ -4649,14 +4649,34 @@
           "additionalProperties": false,
           "properties": {
             "readout_noise": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "additionalProperties": {
+                    "type": "number"
+                  },
+                  "type": "object"
+                }
+              ],
               "description": "Mean readout noise for the array in units of electrons. Unit: electron",
-              "title": "readout_noise",
-              "type": "number"
+              "title": "readout_noise"
             },
             "readout_noise_std": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "additionalProperties": {
+                    "type": "number"
+                  },
+                  "type": "object"
+                }
+              ],
               "description": "Readout noise standard deviation in units of electrons. Unit: electron",
-              "title": "readout_noise_std",
-              "type": "number"
+              "title": "readout_noise_std"
             },
             "seed": {
               "default": null,

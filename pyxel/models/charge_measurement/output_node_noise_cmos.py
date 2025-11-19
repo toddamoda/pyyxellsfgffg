@@ -82,8 +82,8 @@ def create_noise_cmos_bychan(
 
 def output_node_noise_cmos(
     detector: CMOS,
-    readout_noise: float | dict,
-    readout_noise_std: float | dict,
+    readout_noise: float | dict[str, float],
+    readout_noise_std: float | dict[str, float],
     seed: int | None = None,
 ) -> None:
     """Output node noise model for :term:`CMOS` detectors where readout is statistically independent for each pixel.
@@ -144,6 +144,7 @@ def output_node_noise_cmos(
             )
             if ros < 0.0:
                 raise ValueError("'readout_noise_std' must be positive.")
+
             readout_noise_bychan[chan_label] = Quantity(ro, unit="electron")
             readout_noise_std_bychan[chan_label] = Quantity(ros, unit="electron")
 
