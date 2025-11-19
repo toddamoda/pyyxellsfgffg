@@ -18,6 +18,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 ### Models
 * Fix usage of `pixel.volatile` and `pixel.non_volatile` for models `simple_full_well`, `simple_ipc` and `nghxrg`.
   (See [!1125](https://gitlab.com/esa/pyxel/-/merge_requests/1125)).
+* Model `output_node_noise_cmos` extended to channels.
+  (See [!1129](https://gitlab.com/esa/pyxel/-/merge_requests/1129)).
 
 ### Others
 * Fix issues with Xarray >=2025.11.0.

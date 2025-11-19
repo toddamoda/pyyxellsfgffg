@@ -121,6 +121,14 @@ class Matrix:
         """Number of dimension(s) of the matrix."""
         return self._data.ndim
 
+    def get_coords_of_label(self, chanlabel: str) -> tuple[int, int]:
+        """Y and X coordinate of the given channel, inside the channel matrix."""
+        for icol in range(self.shape[1]):
+            for irow in range(self.shape[0]):
+                if self._data[irow, icol] == chanlabel:
+                    return (irow, icol)
+        raise ValueError("channel label not found")
+
 
 # TODO: Implement using Abstract Class 'Mapping'
 class ReadoutPosition:
@@ -303,6 +311,52 @@ class Channels:
             "matrix": np.asarray(self.matrix).tolist(),
             "readout_position": dict(self.readout_position.positions),
         }
+
+    def get_channel_slices(
+        self, detector_shape, chan_label: str
+    ) -> tuple[slice, slice]:
+        """Y and X slices of a channel on the detector's matrix, in reading order of the pixels."""
+
+        (detector_nrows, detector_ncols) = detector_shape
+        (nb_chans_y, nb_chans_x) = self.matrix.shape
+        (this_chan_y, this_chan_x) = self.matrix.get_coords_of_label(chan_label)
+
+        lower_x = (detector_ncols // nb_chans_x) * (this_chan_x)  # included
+        higher_x = (detector_ncols // nb_chans_x) * (this_chan_x + 1) - 1  # included
+
+        # for y, it is slightly different,
+        # because `this_chan_y == 0` correspond to the physical top of the
+        # detector, whereas the row `0` on the detector is at the bottom.
+
+        lower_y = (detector_nrows // nb_chans_y) * (
+            nb_chans_y - this_chan_y - 1
+        )  # included
+        higher_y = (detector_nrows // nb_chans_y) * (
+            nb_chans_y - this_chan_y
+        ) - 1  # included
+
+        # now the slice depends on the readout direction
+        ro_pos = self.readout_position.positions[chan_label]
+
+        # remember, the second bound given to function `slice` is an excluded index
+
+        if ro_pos == "top-left":
+            slice_x = slice(lower_x, higher_x + 1, +1)
+            slice_y = slice(higher_y, lower_y - 1, -1)
+
+        elif ro_pos == "top-right":
+            slice_x = slice(higher_x, lower_x - 1, -1)
+            slice_y = slice(higher_y, lower_y - 1, -1)
+
+        elif ro_pos == "bottom-right":
+            slice_x = slice(higher_x, lower_x - 1, -1)
+            slice_y = slice(lower_y, higher_y + 1, +1)
+
+        elif ro_pos == "bottom-left":
+            slice_x = slice(lower_x, higher_x + 1, +1)
+            slice_y = slice(lower_y, higher_y + 1, +1)
+
+        return (slice_y, slice_x)
 
     @classmethod
     def from_dict(cls, dct: Mapping) -> Self:
