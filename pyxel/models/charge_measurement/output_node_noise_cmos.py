@@ -86,16 +86,23 @@ def output_node_noise_cmos(
     readout_noise_std: float | dict[str, float],
     seed: int | None = None,
 ) -> None:
-    """Output node noise model for :term:`CMOS` detectors where readout is statistically independent for each pixel.
+    """Apply an output-node readout noise model for :term:`CMOS` detectors where readout is statistically independent for each pixel.
+
+    The noise can be provided either as scalar values (uniform across the entire detector) or as dictionaries mapping
+    channel labels to per-channel values.
 
     Parameters
     ----------
     detector : CMOS
         Pyxel :term:`CMOS` object.
-    readout_noise : float
-        Mean readout noise for the array in units of electrons. Unit: electron
+    readout_noise : float or dict of float
+        Mean readout noise for the array in units of electrons in electron:
+        - If as float is provided, the value is applied uniformly to all pixels.
+        - If a dict is provided, each key must correspond to a channel label in ``detector.geometry.channels``.
     readout_noise_std : float
-        Readout noise standard deviation in units of electrons. Unit: electron
+        Standard deviation of the readout noise in electron (must be non-negative):
+        - If as float is provided, the value is applied uniformly to all pixels.
+        - If a dict is provided, each key must correspond to a channel label in ``detector.geometry.channels``.
     seed : int, optional
         Random seed.
 
@@ -117,8 +124,12 @@ def output_node_noise_cmos(
     if isinstance(readout_noise, (int, float)) and isinstance(
         readout_noise_std, (int, float)
     ):
+        ##########################################
+        # Uniform noise across the full detector #
+        ##########################################
         if readout_noise_std < 0.0:
             raise ValueError("'readout_noise_std' must be positive.")
+
         with set_random_seed(seed):
             noise_2d: Quantity = create_noise_cmos(
                 shape=detector.geometry.shape,
@@ -127,8 +138,15 @@ def output_node_noise_cmos(
                 sensitivity_2d=charge_readout_sensitivity,
             )
     else:
+        ##########################################
+        # Noise per-channel                      #
+        ##########################################
+
         if not detector.geometry.channels:
-            raise ValueError
+            raise ValueError(
+                "Per-channel readout noise was provided, but the detector "
+                "does not define any geometry channels."
+            )
 
         readout_noise_bychan = dict()
         readout_noise_std_bychan = dict()

@@ -4643,7 +4643,7 @@
     },
     "ModelChargeMeasurementOutputNodeNoiseCmos": {
       "additionalProperties": false,
-      "description": "Output node noise model for :term:`CMOS` detectors where readout is statistically independent for each pixel.",
+      "description": "Apply an output-node readout noise model for :term:`CMOS` detectors where readout is statistically independent for each pixel.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
@@ -4660,7 +4660,7 @@
                   "type": "object"
                 }
               ],
-              "description": "Mean readout noise for the array in units of electrons. Unit: electron",
+              "description": "Mean readout noise for the array in units of electrons in electron: - If as float is provided, the value is applied uniformly to all pixels. - If a dict is provided, each key must correspond to a channel label in ``detector.geometry.channels``.",
               "title": "readout_noise"
             },
             "readout_noise_std": {
@@ -4675,7 +4675,7 @@
                   "type": "object"
                 }
               ],
-              "description": "Readout noise standard deviation in units of electrons. Unit: electron",
+              "description": "Standard deviation of the readout noise in electron (must be non-negative): - If as float is provided, the value is applied uniformly to all pixels. - If a dict is provided, each key must correspond to a channel label in ``detector.geometry.channels``.",
               "title": "readout_noise_std"
             },
             "seed": {
