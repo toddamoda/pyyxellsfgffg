@@ -122,6 +122,7 @@ class Matrix:
         return self._data.ndim
 
     def get_coords_of_label(self, chanlabel: str) -> tuple[int, int]:
+        """Y and X coordinate of the given channel, inside the channel matrix."""
         for icol in range(self.shape[1]):
             for irow in range(self.shape[0]):
                 if self._data[irow, icol] == chanlabel:
@@ -314,6 +315,7 @@ class Channels:
     def get_channel_slices(
         self, detector_shape, chan_label: str
     ) -> tuple[slice, slice]:
+        """Y and X slices of a channel on the detector's matrix, in reading order of the pixels."""
 
         (detector_nrows, detector_ncols) = detector_shape
         (nb_chans_y, nb_chans_x) = self.matrix.shape

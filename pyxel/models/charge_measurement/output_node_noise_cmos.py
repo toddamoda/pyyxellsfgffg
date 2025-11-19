@@ -62,10 +62,30 @@ def create_noise_cmos(
 def create_noise_cmos_bychan(
     channels: Channels,
     detector_shape: tuple[int, int],
-    readout_noise_bychan: dict,
-    readout_noise_std_bychan: dict,
+    readout_noise_bychan: dict[str, float],
+    readout_noise_std_bychan: dict[str, float],
     sensitivity_2d: Quantity,
 ) -> np.ndarray:
+    """Create noise to signal array for :term:`CMOS` detectors, with different parameters per-channel.
+
+    Parameters
+    ----------
+    channels : Channels
+        Channels of the detector
+    detector_shape : tuple[int, int]
+        The shape of the detector array (rows, columns).
+    readout_noise_bychan : dict[str, float]
+        The mean readout noise level per pixel, per-channel.
+    readout_noise_std_bychan : dict[str, float]
+        The standard deviation of the readout noise, per-channel.
+    sensitivity_2d : float
+        Charge readout sensitivity could be a scalar or a 2D array.
+
+    Returns
+    -------
+    ndarray
+        The generated 2D noise array.
+    """
     noise_2d = np.zeros(detector_shape)
     for chan_label in list(channels):
         this_chan_view = noise_2d[
