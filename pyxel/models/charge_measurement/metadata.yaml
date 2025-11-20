@@ -138,6 +138,23 @@ models:
       - use_cases/HxRG/h2rg
       - workshops/leiden_university_workshop/ptc
 
+  - name: output_node_linearity_poly_user_array
+    full_name: Non-linearity (polynomial) with User Array
+    detector: all
+    status: draft
+    description: >
+      With this model you can add per-pixel non-linearity to:py:class:`~pyxel.data_structure.Signal`
+      array to simulate the non-linearity of the output node circuit.
+      The non-linearity is simulated by a polynomial function for each pixel.
+      The user specifies the path to the file containing the polynomial coefficients with the argument
+      ``path``: str to pickled numpy file. See ``output_node_linearity_poly`` description for the poynomial coeffecient explaination.
+    config: >
+      - name: linearity_user_array
+        func: pyxel.models.charge_measurement.output_node_linearity_poly_user_array
+        enabled: true
+        arguments:
+          path: "non_linearity_array.npy"
+
   - name: simple_physical_non_linearity
     full_name: Simple physical non-linearity
     detector: all
@@ -367,3 +384,32 @@ models:
       - examples/models/amplifier_crosstalk/crosstalk
       - use_cases/HxRG/h2rg
       - examples/observation/sequential
+
+  - name: readout_noise_user_array
+    full_name: Readout Noise User Array
+    status: draft
+    description: >
+      Adds a fixed-value readout noise dictated by the input array. The input
+      array size must match the size of the detector.
+    config: >
+      - name: readout_noise_user_array
+        func: pyxel.models.charge_measurement.readout_noise_user_array
+        enabled: true
+        arguments:
+          filename: "readout_noise.npy"
+        
+  - name: output_node_noise_cmos_user_array
+    full_name: Output Node Noise User Array
+    status: draft
+    description: >
+      Adds readout noise according to the "sigma" and "offset" input arrays. 
+      The readout noise for each pixel is sampled from the pixel-specific
+      distribution denoted by these two arrays. The size of the input arrays
+      must match the size of the detector. 
+    config: >
+      - name: output_node_noise_cmos_user_array
+        func: pyxel.models.charge_measurement.output_node_noise_cmos_user_array
+        enabled: true
+        arguments:
+          sigma_path: "sigma.npy"
+          offset_path: "offset.npy"

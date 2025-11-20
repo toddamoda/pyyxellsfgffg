@@ -16,12 +16,13 @@ from pyxel.detectors.channels import Matrix, ReadoutPosition
 
 @pytest.mark.parametrize(
     "quantum_efficiency, charge_to_volt_conversion, pre_amplification, "
-    "full_well_capacity, adc_voltage_range, adc_bit_resolution",
+    "full_well_capacity, adc_voltage_range, adc_bit_resolution, gain_array_path",
     [
-        (None, None, None, None, None, None),
-        (0.0, 0, 0, 0, None, None),
-        (1.0, 1.0, 100.0, 10_000_000, None, None),
-        (0.5, 1.0, 100.0, 10_000_000, [0.0, 3.0], 16),
+        (None, None, None, None, None, None, None),
+        (0.0, 0, 0, 0, None, None, None),
+        (1.0, 1.0, 100.0, 10_000_000, None, None, None),
+        (0.5, 1.0, 100.0, 10_000_000, [0.0, 3.0], 16, None),
+        (0.5, None, 100.0, 10_000_000, [0.0, 3.0], 16, "tests/data/gain_array.npy"),
     ],
 )
 def test_characteristics(
@@ -31,6 +32,7 @@ def test_characteristics(
     full_well_capacity,
     adc_voltage_range,
     adc_bit_resolution,
+    gain_array_path
 ):
     """Test 'Characteristics.__init__'."""
     obj = Characteristics(
@@ -40,6 +42,7 @@ def test_characteristics(
         full_well_capacity=full_well_capacity,
         adc_voltage_range=adc_voltage_range,
         adc_bit_resolution=adc_bit_resolution,
+        gain_array_path=gain_array_path
     )
 
     # Test property 'numbytes'
@@ -104,6 +107,16 @@ def test_characteristics(
             _ = obj.full_well_capacity
     else:
         assert obj.full_well_capacity == full_well_capacity
+
+    # Test getter 'Characteristics.gain_array_path'
+    if gain_array_path is None:
+        with pytest.raises(
+            ValueError,
+            match=r"Missing required parameter 'gain_array_path' in 'characteristics'",
+        ):
+            _ = obj.gain_array_path
+    else:
+        assert obj.gain_array_path == gain_array_path
 
 
 @pytest.mark.parametrize(
@@ -433,6 +446,38 @@ def test_channel_gain_mismatch():
         "Mismatch between the defined channels in geometry and provided channel gains"
         in str(exc_info.value)
     )
+
+def test_gain_array_parse_valid():
+    """Test the gain_array is correctly parsed with a valid file"""
+    # Setup the detector with geometry and characteristics
+    detector = CCD(
+        geometry=CCDGeometry(
+            row=3,
+            col=3
+        ),
+        environment=Environment(),
+        characteristics=Characteristics(
+            adc_bit_resolution=14,
+            adc_voltage_range=[0.,2.],
+            gain_array_path="tests/data/test_gain_array.npy"
+        ),
+    )
+
+    # Initialize detector with geometry to build the gain array from the 
+    # provided file
+    detector.characteristics.initialize(detector.geometry)
+
+    # This is the array inside the test file
+    expected = np.array(
+        [
+            [1.1, 1.2, 1.3],
+            [0.9, 1.0, 1.1],
+            [1.0, 1.0, 1.0]
+        ]
+    )
+
+    # Test they have been parsed correctly
+    assert (detector.characteristics.gain_array == expected).all()
 
 
 @pytest.mark.parametrize(

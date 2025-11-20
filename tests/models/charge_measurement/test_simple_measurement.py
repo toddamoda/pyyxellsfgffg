@@ -7,14 +7,15 @@
 
 import numpy as np
 import pytest
+from pathlib import Path
 
 from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
 from pyxel.detectors.channels import Channels, Matrix, ReadoutPosition
-from pyxel.models.charge_measurement import simple_measurement
+from pyxel.models.charge_measurement import simple_measurement, simple_measurement_user_array
 
 
 @pytest.fixture
-def ccd_5x10() -> CCD:
+def ccd_2x3() -> CCD:
     """Create a valid CCD detector."""
     detector = CCD(
         geometry=CCDGeometry(
@@ -30,15 +31,14 @@ def ccd_5x10() -> CCD:
     detector.signal.array = np.zeros(detector.geometry.shape, dtype=float)
     return detector
 
-
 @pytest.mark.parametrize("gain", [None, 0.8])
-def test_simple_measurement(ccd_5x10: CCD, gain):
+def test_simple_measurement(ccd_2x3: CCD, gain):
     """Test model 'simple_measurement."""
     pixel_2d = np.array(
         [[0.22733602, 0.31675834, 0.79736546], [0.67625467, 0.39110955, 0.33281393]],
     )
 
-    detector = ccd_5x10
+    detector = ccd_2x3
     detector.pixel.array = pixel_2d.copy()
     detector.characteristics.charge_to_volt_conversion = 0.5
 
@@ -124,3 +124,36 @@ def test_simple_measurement_with_channels(ccd_2x2_with_channels: CCD, gain):
 
     signal = detector.signal.array
     np.testing.assert_allclose(actual=signal, desired=exp_signal, rtol=1e-6)
+
+@pytest.fixture
+def valid_gain_path(
+    tmp_path: Path,
+) -> str:
+    """Create valid 2D file in a temporary folder."""
+    data_2d = np.array(
+        [
+            [1.0, 2.0, 3.0],
+            [4.0, 5.0, 6.0]
+        ]
+    )
+
+    final_path = f"{tmp_path}/readout_noise.npy"
+    np.save(final_path, arr=data_2d)
+
+    return final_path
+
+def test_simple_measurement_user_array(ccd_2x3: CCD, valid_gain_path: str):
+    """Test gain with user array for simple measurement."""
+
+    ccd_2x3.pixel.array = np.ones((ccd_2x3.geometry.row, ccd_2x3.geometry.col)) + 1 #array of 2s
+
+    simple_measurement_user_array(ccd_2x3, valid_gain_path)
+
+    expected = np.array(
+        [
+            [2.0, 4.0, 6.0],
+            [8.0, 10.0, 12.0]
+        ]
+    )
+
+    assert (ccd_2x3.signal.array == expected).all()

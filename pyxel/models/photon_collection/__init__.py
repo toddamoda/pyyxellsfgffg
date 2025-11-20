@@ -18,3 +18,4 @@ from .point_spread_function import load_psf, load_wavelength_psf
 from .ariel_airs import wavelength_dependence_airs
 from .simple_collection import simple_collection
 from .usaf_illumination import usaf_illumination
+from .shield import shield_box, shield_border

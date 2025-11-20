@@ -7,14 +7,21 @@
 
 """Model to generate charges due to simple dark current process."""
 
+from pathlib import Path
+from typing import Literal
+
 import numpy as np
 
 from pyxel.detectors import Detector
-from pyxel.util import set_random_seed
+from pyxel.util import (
+    load_cropped_and_aligned_image,
+    resolve_with_working_directory,
+    set_random_seed
+)
 
 
 def calculate_simple_dark_current(
-    num_rows: int, num_cols: int, current: float, exposure_time: float
+    num_rows: int, num_cols: int, current: float|np.ndarray, exposure_time: float
 ) -> np.ndarray:
     """Simulate dark current in a :term:`CCD`.
 
@@ -26,7 +33,7 @@ def calculate_simple_dark_current(
         Number of rows for the generated image.
     num_cols : int
         Number of columns for the generated image.
-    current : float
+    current : float | np.ndarray
         Dark current, in e⁻/pixel/second
     exposure_time : float
         Length of the simulated exposure, in seconds.
@@ -70,6 +77,49 @@ def simple_dark_current(
             num_cols=geo.col,
             current=dark_rate,
             exposure_time=exposure_time,
+        ).astype(float)
+
+    detector.charge.add_charge_array(dark_current_array)
+
+def simple_dark_current_user_array(
+        detector: Detector,
+        filename: str,
+        position: tuple[int, int] = (0, 0),
+        align: (
+            Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"] | None
+        ) = None,
+        seed = None
+) -> None:
+    """Add dark current to the detector charge using a fixed array.
+
+    Parameters
+    ----------
+    detector : Detector
+        Pyxel detector object.
+    filename : str
+        Path to the array or image.
+    position: tuple[int, int]
+        Starting row and column of the fixed dark current.
+    align: Literal
+        Keyword to align the noise to detector. Can be any from:
+        ("center", "top_left", "top_right", "bottom_left", "bottom_right")
+    
+    """
+
+    dr_2d = load_cropped_and_aligned_image(
+        shape=(detector.geometry.row,detector.geometry.col),
+        filename=filename,
+        position_x=position[0],
+        position_y=position[1],
+        align=align,
+    )
+
+    with set_random_seed(seed):
+        dark_current_array = calculate_simple_dark_current(
+            detector.geometry.row,
+            num_cols=detector.geometry.col,
+            current=dr_2d,
+            exposure_time=detector.time_step
         ).astype(float)
 
     detector.charge.add_charge_array(dark_current_array)

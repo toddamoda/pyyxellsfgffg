@@ -7,9 +7,13 @@
 
 """Charge readout model."""
 
+from typing import Literal
+
 from astropy.units import Quantity
+import numpy as np
 
 from pyxel.detectors import Detector
+from pyxel.util import load_cropped_and_aligned_image
 
 
 def apply_gain(pixel_2d: Quantity, gain: Quantity) -> Quantity:
@@ -56,3 +60,40 @@ def simple_measurement(detector: Detector, gain: float | None = None) -> None:
         gain_to_apply = Quantity(gain, unit="V/electron")
 
     detector.signal = apply_gain(pixel_2d=Quantity(detector.pixel), gain=gain_to_apply)
+    # Apply a gain (in V/e-) to a pixel array (in e-)
+
+def simple_measurement_user_array(
+        detector: Detector,
+        filename: str,
+        position: tuple[int, int] = (0, 0),
+        align: (
+            Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"] | None
+        ) = None,
+) -> None:
+    """Convert the pixel array into a signal array using a fixed pattern of gain.
+
+    Parameters
+    ----------
+    detector : Detector
+        Pyxel detector object.
+    filename : str
+        Path to the array or image.
+    # figure_of_merit : float
+    #     Gain figure of merit.
+    position: tuple[int, int]
+        Starting row and column of the fixed pattern.
+    align: Literal
+        Keyword to align the noise to detector. Can be any from:
+        ("center", "top_left", "top_right", "bottom_left", "bottom_right")
+    
+    """
+
+    gain_2d = load_cropped_and_aligned_image(
+        shape=(detector.geometry.row,detector.geometry.col),
+        filename=filename,
+        position_x=position[0],
+        position_y=position[1],
+        align=align,
+    )
+
+    detector.signal.array = np.asarray(detector.pixel.array * gain_2d, dtype=float)
