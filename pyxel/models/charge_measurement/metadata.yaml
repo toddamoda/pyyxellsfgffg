@@ -387,6 +387,7 @@ models:
 
   - name: readout_noise_user_array
     full_name: Readout Noise User Array
+    status: draft
     description: >
       Adds a fixed-value readout noise dictated by the input array. The input
       array size must match the size of the detector.
@@ -399,6 +400,7 @@ models:
         
   - name: output_node_noise_cmos_user_array
     full_name: Output Node Noise User Array
+    status: draft
     description: >
       Adds readout noise according to the "sigma" and "offset" input arrays. 
       The readout noise for each pixel is sampled from the pixel-specific

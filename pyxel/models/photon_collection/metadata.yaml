@@ -304,7 +304,8 @@ models:
     detector: CMOS
     status: draft
     description: >
-      This model adds capability to shield the detector from photons, allowing for a Dark Reference (DR) during science. The Light Shield will be in the shape of a box defined by the arguments specifying coordinates (inclusive).
+      This model adds capability to shield the detector from photons, allowing for a Dark Reference (DR) for science
+      purposes. The Light Shield will be in the shape of a box defined by the arguments specifying coordinates (inclusive).
     config: >
       - name: shield
         func: pyxel.models.photon_collection.shield
@@ -318,7 +319,8 @@ models:
     detector: CMOS
     status: draft
     description: >
-      This model adds capability to shield the detector from photons, allowing for a Dark Reference (DR) during science. The light shield will be around the edges of the images, with the width of the border specified by argument.
+      This model adds capability to shield the detector from photons, allowing for a Dark Reference (DR) for science
+      purposes. The light shield will be around the edges of the images, with the width of the border specified by argument.
     config: >
       - name: shield_border
         func: pyxel.models.photon_collection.shield_border

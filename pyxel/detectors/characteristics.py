@@ -163,7 +163,7 @@ class Characteristics:
         
     def _build_gain_array(self, path: str):
         try: # gain array needs access to detector geometry
-            self._gain_array = image.load_cropped_and_aligned_image(
+            self.gain_array = image.load_cropped_and_aligned_image(
                 (self._geometry.row, self._geometry.col),
                 path
             )
@@ -173,7 +173,7 @@ class Characteristics:
     def _build_charge_to_volt_conversion_array(self):
         self.charge_to_volt_conversion_array = (
             (self.adc_voltage_range[1] - self.adc_voltage_range[0]) /
-            (2 ** self.adc_bit_resolution)
+            (2 ** self.adc_bit_resolution - 1)
         ) / self.gain_array
         
     # TODO: This method is similar in 'APDCharacteristics and 'Characteristics'

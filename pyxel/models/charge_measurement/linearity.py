@@ -131,13 +131,6 @@ def output_node_linearity_poly_user_array(
     path : str
         Path to file containing coefficients for each of the polynomial functions.
 
-    Notes
-    -----
-    For more information, you can find examples here:
-
-    * :external+pyxel_data:doc:`use_cases/CCD/euclid_prnu`
-    * :external+pyxel_data:doc:`use_cases/HxRG/h2rg`
-    * :external+pyxel_data:doc:`workshops/leiden_university_workshop/ptc`
     """
     # parse the user array
     try:

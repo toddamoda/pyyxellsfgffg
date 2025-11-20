@@ -43,19 +43,20 @@ from pyxel.detectors import Detector
 
 
 def apply_gain(detector: Detector) -> None:
-    """Apply the gain array specified in the detector's characteristics. The array
-    is loaded in ``Characteristics.Initialze()``, which is called automatically
-    when the `.yaml` congifuration file is loaded.
+	"""Apply the gain array specified in the detector's characteristics. The array
+	is loaded in ``Characteristics.Initialze()``, which is called automatically
+	when the `.yaml` congifuration file is loaded.
+	Parameters
+	----------
+	detector: Detector
+	Returns
+	-------
+	None
+	"""
 
-    Parameters
-    ----------
-    detector: Detector
-
-    Returns
-    -------
-    None
-    """
-
-    detector.data["n_array"] = detector.image.array * detector.characteristics.gain_array
-
-    return None
+	try:
+		detector.data["n_array"] = detector.image.array * detector.characteristics.gain_array
+	except AttributeError as e:
+		raise AttributeError("Ensure 'gain_array_path' is specified in the Detector's characteristics.") from e
+	
+	return None

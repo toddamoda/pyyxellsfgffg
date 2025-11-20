@@ -318,14 +318,15 @@ def output_node_noise_cmos_user_array(
         raise ValueError("Sigma array shape does not match detector geometry.")
     
     # use gain array. If no gain array, use charge to volt conv value
-    if detector.characteristics.gain_array is not None:
-        vr_min = detector.characteristics.adc_voltage_range[0]
-        vr_max = detector.characteristics.adc_voltage_range[1]
-        gain_array = detector.characteristics.gain_array
-        bit_res = detector.characteristics.adc_bit_resolution
-        # save as shorter names for readability
-        charge_readout_sensitivity = ((vr_max - vr_min) / (2**bit_res) / gain_array)
-    else:
+    try:
+        if detector.characteristics.gain_array is not None:
+            vr_min = detector.characteristics.adc_voltage_range[0]
+            vr_max = detector.characteristics.adc_voltage_range[1]
+            gain_array = detector.characteristics.gain_array
+            bit_res = detector.characteristics.adc_bit_resolution
+            # save as shorter names for readability
+            charge_readout_sensitivity = ((vr_max - vr_min) / (2**bit_res) / gain_array)
+    except AttributeError:
         charge_readout_sensitivity = detector.characteristics.charge_to_volt_conversion
 
     if seed is None:
