@@ -548,8 +548,6 @@ def _run_calibration_mode(
 
     # Create an output folder
     outputs: CalibrationOutputs | None = calibration.outputs
-    if outputs:
-        outputs.create_output_folder()
 
     data_tree: "xr.DataTree" = calibration.run_calibration(
         processor=processor,
@@ -974,6 +972,7 @@ def run_mode(
     if outputs:
         outputs.create_output_folder()
 
+    # TODO: Add a LocalCluster/Client + Performance report
     match mode:
         case Exposure():
             data_tree = mode.run_exposure(
@@ -1246,31 +1245,54 @@ def run(
             logging.info("Pipeline completed. No output folder.")
             return None
 
-        output_dir = running_mode.outputs.current_output_folder
+        output_dir: Path = running_mode.outputs.current_output_folder
 
         # TODO: Fix this, see issue #728
         copy_config_file(input_filename=input_filename, output_dir=output_dir)
 
-        if "output" not in data_tree:
-            logging.info("Pipeline completed. No output filenames.")
-            return None
+        if isinstance(running_mode, (Exposure, Observation)):
+            if "output" not in data_tree:
+                logging.info("Pipeline completed. No output filenames.")
+                return None
 
-        output_dt: xr.DataTree | xr.DataArray = data_tree["/output"]
-        if not isinstance(output_dt, xr.DataTree):
-            raise TypeError
+            output_dt: xr.DataTree | xr.DataArray = data_tree["/output"]
+            if not isinstance(output_dt, xr.DataTree):
+                raise TypeError
 
-        df_output_filenames: "pd.DataFrame" = get_output_filenames(
-            data_tree_output=output_dt, output_dir=output_dir
-        )
-
-        try:
-            # Save the DataFrame to CSV
-            df_output_filenames.to_csv(output_dir / "output_filenames.csv", index=False)
-        except Exception:
-            logging.exception(
-                "Failed to save output filenames in folder %s.", output_dir
+            df_output_filenames: "pd.DataFrame" = get_output_filenames(
+                data_tree_output=output_dt, output_dir=output_dir
             )
-            raise
+
+            try:
+                # Save the DataFrame to CSV
+                df_output_filenames.to_csv(
+                    output_dir / "output_filenames.csv", index=False
+                )
+            except Exception:
+                logging.exception(
+                    "Failed to save output filenames in folder %s.", output_dir
+                )
+                raise
+        else:
+            # Calibration mode
+            # Late import
+            import pandas as pd
+
+            from pyxel.outputs.utils import to_netcdf
+
+            ds_champion = data_tree["champion"].to_dataset()
+            ds_best = data_tree["best"].to_dataset()
+
+            filename_champion: Path = to_netcdf(
+                current_output_folder=output_dir, data=ds_champion, name="champion"
+            ).relative_to(output_dir)
+            filename_best: Path = to_netcdf(
+                current_output_folder=output_dir, data=ds_best, name="best"
+            ).relative_to(output_dir)
+
+            df_output_filenames = pd.DataFrame(
+                {"filename": [filename_champion, filename_best]}
+            )
 
         logging.info(
             "Pipeline completed. Generated: %d output file(s) in folder %s.",

@@ -29,7 +29,7 @@ class DaskBFE:
     def __init__(self, chunk_size: int | None = None):
         self._chunk_size = chunk_size
 
-    def __call__(self, prob: "pg.problem", dvs_1d: np.ndarray) -> da.Array:
+    def __call__(self, prob: "pg.problem", dvs_1d: np.ndarray) -> np.ndarray:
         """Call operator to run the batch fitness evaluator.
 
         Parameters

@@ -10,6 +10,7 @@
 import logging
 from collections.abc import Callable, Sequence
 from concurrent.futures.thread import ThreadPoolExecutor
+from pathlib import Path
 from timeit import default_timer as timer
 from typing import TYPE_CHECKING
 
@@ -115,6 +116,7 @@ class ArchipelagoDataTree:
         algorithm: Algorithm,
         problem: ModelFittingDataTree,
         pop_size: int,
+        output_folder: Path | None = None,
         bfe: Callable | None = None,
         topology: Callable | None = None,
         pygmo_seed: int | None = None,
@@ -137,6 +139,7 @@ class ArchipelagoDataTree:
         self.algorithm: Algorithm = algorithm
         self.problem: ModelFittingDataTree = problem
         self.pop_size = pop_size
+        self._output_folder: Path | None = output_folder
         self.bfe = bfe
         self.topology = topology
         self.pygmo_seed = pygmo_seed
@@ -238,6 +241,9 @@ class ArchipelagoDataTree:
         -------
         DataTree
         """
+        # Late import
+        from pyxel.outputs.utils import to_netcdf
+
         self._log.info("Run %i evolutions", num_evolutions)
 
         total_num_generations = num_evolutions * self.algorithm.generations
@@ -273,9 +279,14 @@ class ArchipelagoDataTree:
                     num_best_decisions=num_best_decisions,
                     full_population=True,
                 )
-                if ds_full_population:
+                if ds_full_population and self._output_folder:
                     # Save the population into a netcdf file, send to grafana, bokeh, ...
-                    pass
+                    filename = to_netcdf(
+                        current_output_folder=self._output_folder,
+                        data=ds_full_population,
+                        name=f"population_{id_evolution:02d}",
+                    )
+                    self._log.info("Population saved in %s", filename)
 
                 champions_lst.append(
                     champions_partial.assign_coords(evolution=id_evolution)
