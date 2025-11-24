@@ -431,7 +431,7 @@ class ModelFittingDataTree(ProblemSingleObjective):
                     readout=self.readout,
                     outputs=None,
                     pipeline_seed=self.pipeline_seed,
-                    debug=False,  # Not supported in Observation mode
+                    debug=False,  # Not supported in Observation and Calibration mode
                     with_inherited_coords=self._with_inherited_coords,
                 )
 
