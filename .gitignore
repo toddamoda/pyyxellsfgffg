@@ -75,6 +75,3 @@ dask-scratch-space/
 # Tests
 tests/temp/
 !tests/data/*.data
-
-# Temporary
-pyxel-examples
