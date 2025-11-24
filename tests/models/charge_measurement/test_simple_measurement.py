@@ -7,11 +7,10 @@
 
 import numpy as np
 import pytest
-from pathlib import Path
 
 from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
 from pyxel.detectors.channels import Channels, Matrix, ReadoutPosition
-from pyxel.models.charge_measurement import simple_measurement, simple_measurement_user_array
+from pyxel.models.charge_measurement import simple_measurement
 
 
 @pytest.fixture
@@ -124,36 +123,3 @@ def test_simple_measurement_with_channels(ccd_2x2_with_channels: CCD, gain):
 
     signal = detector.signal.array
     np.testing.assert_allclose(actual=signal, desired=exp_signal, rtol=1e-6)
-
-@pytest.fixture
-def valid_gain_path(
-    tmp_path: Path,
-) -> str:
-    """Create valid 2D file in a temporary folder."""
-    data_2d = np.array(
-        [
-            [1.0, 2.0, 3.0],
-            [4.0, 5.0, 6.0]
-        ]
-    )
-
-    final_path = f"{tmp_path}/readout_noise.npy"
-    np.save(final_path, arr=data_2d)
-
-    return final_path
-
-def test_simple_measurement_user_array(ccd_2x3: CCD, valid_gain_path: str):
-    """Test gain with user array for simple measurement."""
-
-    ccd_2x3.pixel.array = np.ones((ccd_2x3.geometry.row, ccd_2x3.geometry.col)) + 1 #array of 2s
-
-    simple_measurement_user_array(ccd_2x3, valid_gain_path)
-
-    expected = np.array(
-        [
-            [2.0, 4.0, 6.0],
-            [8.0, 10.0, 12.0]
-        ]
-    )
-
-    assert (ccd_2x3.signal.array == expected).all()

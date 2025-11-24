@@ -338,42 +338,6 @@ class Characteristics:
 
         self._full_well_capacity = value
 
-    # @property
-    # def gain_array_path(self) -> float:
-    #     """Get gain array path."""
-    #     if self._gain_array_path is None:
-    #         raise ValueError(
-    #             get_uninitialized_error(
-    #                 name="gain_array_path",
-    #                 parent_name="characteristics",
-    #             )
-    #         )
-
-    #     return self._gain_array_path
-
-    # @gain_array_path.setter
-    # def gain_array_path(self, value: str) -> None:
-    #     """Set gain array path."""
-    #     # if not (0 <= value <= 10_000_000):
-    #     #     raise ValueError("'gain_array_path' must be between 0 and 1e+7.")
-
-    #     ## Check for correct file path, or initialise gain_array proper.
-
-    #     self._gain_array_path = value
-
-    # @property
-    # def gain_array(self) -> float:
-    #     """Get gain array."""
-    #     if self._gain_array is None:
-    #         raise ValueError(
-    #             get_uninitialized_error(
-    #                 name="gain_array",
-    #                 parent_name="characteristics",
-    #             )
-    #         )
-
-    #     return self._gain_array
-
     @property
     def system_gain(self) -> float | np.ndarray:
         """Get system gain."""

@@ -8,22 +8,25 @@
 """TBW."""
 
 # flake8: noqa
-from .measurement import simple_measurement, simple_measurement_user_array
+from .measurement import simple_measurement
+from .measurement_user_array import simple_measurement_user_array
 from .output_node_noise_cmos import output_node_noise_cmos
 from .readout_noise import (
     output_node_noise,
-    readout_noise_saphira,
+    readout_noise_saphira
+)
+from .readout_noise_user_array import (
     readout_noise_user_array,
-    output_node_noise_cmos_user_array,
+    output_node_noise_cmos_user_array
 )
 from .nghxrg.nghxrg import nghxrg
 from .linearity import (
     output_node_linearity_poly,
-    output_node_linearity_poly_user_array,
     simple_physical_non_linearity,
     physical_non_linearity,
     physical_non_linearity_with_saturation,
 )
+from .linearity_user_array import output_node_linearity_poly_user_array
 from .offset import dc_offset, output_pixel_reset_voltage_apd
 from .reset_noise import ktc_noise
 from .amplifier_crosstalk import dc_crosstalk, ac_crosstalk
