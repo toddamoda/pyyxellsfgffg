@@ -1,3 +1,10 @@
+#  Copyright (c) University College London, 2025.
+#
+#  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
+#  is part of this Pyxel package. No part of the package, including
+#  this file, may be copied, modified, propagated, or distributed except according to
+#  the terms contained in the file ‘LICENCE.txt’.
+
 import pytest
 
 import numpy as np
@@ -93,7 +100,7 @@ def test_light_shield_box_applied(
     ones = np.count_nonzero(ccd_100x100.photon.array)
     zeros = total - ones
 
-    # for this shape of detector and shield width, there should be 3600 zeros
+    # for this shape of detector and shield width, there should be 288 zeros
     assert zeros == 288
 
     # let's check the shape is correct also

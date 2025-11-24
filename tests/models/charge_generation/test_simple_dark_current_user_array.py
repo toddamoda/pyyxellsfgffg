@@ -21,7 +21,7 @@ from pyxel.models.charge_generation import simple_dark_current_user_array
 
 @pytest.fixture
 def ccd_3x3() -> CCD:
-    """Create a valid CCD detector."""
+    """Create a valid 3x3 CCD detector."""
     detector = CCD(
         geometry=CCDGeometry(
             row=3,
