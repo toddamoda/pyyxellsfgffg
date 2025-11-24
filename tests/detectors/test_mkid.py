@@ -11,7 +11,14 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pyxel.detectors import MKID, Characteristics, Detector, Environment, MKIDGeometry
+from pyxel.detectors import (
+    MKID,
+    Characteristics,
+    ChargeToVoltSettings,
+    Detector,
+    Environment,
+    MKIDGeometry,
+)
 
 
 @pytest.fixture
@@ -29,7 +36,7 @@ def valid_mkid() -> MKID:
         environment=Environment(temperature=100.1),
         characteristics=Characteristics(
             quantum_efficiency=0.1,
-            charge_to_volt_conversion=0.2,
+            charge_to_volt=ChargeToVoltSettings(value=0.2),
             pre_amplification=3.3,
         ),
     )
@@ -77,7 +84,7 @@ def valid_mkid() -> MKID:
                 environment=Environment(temperature=100.1),
                 characteristics=Characteristics(
                     quantum_efficiency=0.1,
-                    charge_to_volt_conversion=0.2,
+                    charge_to_volt=ChargeToVoltSettings(value=0.2),
                     pre_amplification=3.3,
                 ),
             ),
@@ -119,7 +126,7 @@ def test_is_equal_with_arrays(valid_mkid: MKID):
     phase: np.ndarray = np.random.random(size=shape)
 
     valid_mkid.photon.array = photon.copy()
-    valid_mkid.pixel.array = pixel.copy()
+    valid_mkid.pixel.non_volatile.array = pixel.copy()
     valid_mkid.signal.array = signal.copy()
     valid_mkid.image.array = image.copy()
     valid_mkid.phase.array = phase.copy()
@@ -131,7 +138,7 @@ def test_is_equal_with_arrays(valid_mkid: MKID):
     )
 
     other_detector.photon.array = photon.copy()
-    other_detector.pixel.array = pixel.copy()
+    other_detector.pixel.non_volatile.array = pixel.copy()
     other_detector.signal.array = signal.copy()
     other_detector.image.array = image.copy()
     other_detector.phase.array = phase.copy()
@@ -210,7 +217,7 @@ def comparison(dct, other_dct):
                     "environment": {"temperature": None},
                     "characteristics": {
                         "quantum_efficiency": None,
-                        "charge_to_volt_conversion": None,
+                        "charge_to_volt": None,
                         "pre_amplification": None,
                         "full_well_capacity": None,
                         "adc_bit_resolution": None,
@@ -220,7 +227,7 @@ def comparison(dct, other_dct):
                 "data": {
                     "photon": {},
                     "scene": None,
-                    "pixel": None,
+                    "pixel": {},
                     "signal": None,
                     "image": None,
                     "phase": None,
@@ -263,7 +270,7 @@ def comparison(dct, other_dct):
                 environment=Environment(temperature=100.1),
                 characteristics=Characteristics(
                     quantum_efficiency=0.1,
-                    charge_to_volt_conversion=0.2,
+                    charge_to_volt=ChargeToVoltSettings(value=0.2),
                     pre_amplification=3.3,
                     adc_bit_resolution=16,
                     adc_voltage_range=(0.0, 10.0),
@@ -285,7 +292,7 @@ def comparison(dct, other_dct):
                     "environment": {"temperature": 100.1},
                     "characteristics": {
                         "quantum_efficiency": 0.1,
-                        "charge_to_volt_conversion": 0.2,
+                        "charge_to_volt": {"value": 0.2},
                         "pre_amplification": 3.3,
                         "full_well_capacity": None,
                         "adc_bit_resolution": 16,
@@ -295,7 +302,7 @@ def comparison(dct, other_dct):
                 "data": {
                     "photon": {},
                     "scene": None,
-                    "pixel": None,
+                    "pixel": {},
                     "signal": None,
                     "image": None,
                     "phase": None,

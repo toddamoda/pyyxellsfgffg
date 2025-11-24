@@ -15,12 +15,12 @@ from pyxel.models.charge_collection import simple_full_well
 
 
 @pytest.fixture
-def ccd_10x10() -> CCD:
-    """Create a valid 10x10 CCD detector."""
+def ccd_2x3() -> CCD:
+    """Create a valid CCD detector."""
     return CCD(
         geometry=CCDGeometry(
-            row=10,
-            col=10,
+            row=2,
+            col=3,
             total_thickness=40.0,
             pixel_vert_size=10.0,
             pixel_horz_size=10.0,
@@ -41,18 +41,34 @@ def ccd_10x10() -> CCD:
     ],
 )
 def test_full_well(
-    ccd_10x10: CCD,
+    ccd_2x3: CCD,
     fwc: int,
 ):
     """Test model 'simple_full_well' with valid inputs."""
 
-    detector = ccd_10x10
+    detector = ccd_2x3
     detector.characteristics.full_well_capacity = 10
-    detector.pixel.array = np.ones((detector.geometry.row, detector.geometry.col)) * 50
 
-    simple_full_well(detector=ccd_10x10, fwc=fwc)
+    detector.pixel.non_volatile.array = np.array(
+        [[5, 7, 9.9], [10.1, 11, 20]],
+        dtype=float,
+    )
 
-    assert np.max(detector.pixel.array <= 10)
+    # Check before applying the model
+    with pytest.raises(ValueError, match=r"not initialized"):
+        _ = detector.pixel.volatile.array
+
+    # Apply model
+    simple_full_well(detector=ccd_2x3, fwc=fwc)
+
+    # Check outputs
+    exp_non_volatile = np.array([[5, 7, 9.9], [10, 10, 10]], dtype=float)
+
+    with pytest.raises(ValueError, match=r"not initialized"):
+        _ = detector.pixel.volatile.array
+
+    np.testing.assert_equal(detector.pixel.non_volatile, exp_non_volatile)
+    np.testing.assert_equal(detector.pixel, exp_non_volatile)
 
 
 @pytest.mark.parametrize(
@@ -66,11 +82,11 @@ def test_full_well(
     ],
 )
 def test_full_well_bad_inputs(
-    ccd_10x10: CCD,
+    ccd_2x3: CCD,
     fwc: int,
     exp_exc,
     exp_error,
 ):
     """Test model 'simple_full_well' with bad inputs."""
     with pytest.raises(exp_exc, match=exp_error):
-        simple_full_well(detector=ccd_10x10, fwc=fwc)
+        simple_full_well(detector=ccd_2x3, fwc=fwc)

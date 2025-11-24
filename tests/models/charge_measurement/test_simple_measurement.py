@@ -8,7 +8,13 @@
 import numpy as np
 import pytest
 
-from pyxel.detectors import CCD, CCDGeometry, Characteristics, Environment
+from pyxel.detectors import (
+    CCD,
+    CCDGeometry,
+    Characteristics,
+    ChargeToVoltSettings,
+    Environment,
+)
 from pyxel.detectors.channels import Channels, Matrix, ReadoutPosition
 from pyxel.models.charge_measurement import simple_measurement
 
@@ -86,7 +92,7 @@ def ccd_2x2_with_channels() -> CCD:
         ),
         environment=Environment(),
         characteristics=Characteristics(
-            charge_to_volt_conversion=1e-6,
+            charge_to_volt=ChargeToVoltSettings(value=1e-6),
             pre_amplification={"OP9": 1.0, "OP13": 2.0, "OP1": 3.0, "OP5": 4.0},
         ),
     )
@@ -102,7 +108,7 @@ def test_simple_measurement_with_channels(ccd_2x2_with_channels: CCD, gain):
     )
 
     detector = ccd_2x2_with_channels
-    detector.pixel.array = pixel_2d.copy()
+    detector.pixel.non_volatile.array = pixel_2d.copy()
     detector.characteristics.charge_to_volt_conversion = (
         detector.characteristics.charge_to_volt_conversion
     )

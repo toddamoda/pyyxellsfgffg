@@ -148,6 +148,19 @@
           ],
           "title": "bias_to_node"
         },
+        "charge_to_volt": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ChargeToVoltSettings"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Sensitivity of charge readout. Unit: V/e-",
+          "title": "charge_to_volt"
+        },
         "full_well_capacity": {
           "default": null,
           "description": "Full well capacity. Unit: e-",
@@ -156,6 +169,25 @@
             "number",
             "null"
           ]
+        },
+        "pre_amplification": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "additionalProperties": {
+                "type": "number"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Gain of pre-amplifier. Unit: V/V",
+          "title": "pre_amplification"
         },
         "quantum_efficiency": {
           "default": null,
@@ -1089,14 +1121,18 @@
             "null"
           ]
         },
-        "charge_to_volt_conversion": {
+        "charge_to_volt": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ChargeToVoltSettings"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": null,
           "description": "Sensitivity of charge readout. Unit: V/e-",
-          "title": "charge_to_volt_conversion",
-          "type": [
-            "number",
-            "null"
-          ]
+          "title": "charge_to_volt"
         },
         "full_well_capacity": {
           "default": null,
@@ -1137,6 +1173,29 @@
         }
       },
       "title": "Characteristics",
+      "type": "object"
+    },
+    "ChargeToVoltSettings": {
+      "additionalProperties": false,
+      "description": "Settings for ChargeToVolt",
+      "properties": {
+        "capacitance": {
+          "default": null,
+          "type": [
+            "number",
+            "string",
+            "null"
+          ]
+        },
+        "value": {
+          "default": null,
+          "type": [
+            "number",
+            "string",
+            "null"
+          ]
+        }
+      },
       "type": "object"
     },
     "Configuration_Calibration_APD": {
@@ -1673,6 +1732,9 @@
               },
               {
                 "$ref": "#/definitions/ModelChargeGenerationApplyQeCurve"
+              },
+              {
+                "$ref": "#/definitions/ModelChargeGenerationAvalancheGain"
               },
               {
                 "$ref": "#/definitions/ModelChargeGenerationChargeBlocks"
@@ -2615,7 +2677,7 @@
     },
     "ModelChargeCollectionSimpleFullWell": {
       "additionalProperties": false,
-      "description": "Limit the amount of charge in pixel due to full well capacity.",
+      "description": "Apply the full well capacity limit to detector `pixel` bucket.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
@@ -2625,6 +2687,7 @@
           "properties": {
             "fwc": {
               "default": null,
+              "description": "Full well capacity (in electrons). If not provided, the value is read from ``detector.characteristics.full_well_capacity``.",
               "title": "fwc",
               "type": [
                 "integer",
@@ -2656,22 +2719,25 @@
     },
     "ModelChargeCollectionSimpleIpc": {
       "additionalProperties": false,
-      "description": "Convolve pixel array with the IPC kernel.",
+      "description": "Apply a simple Inter-Pixel Capacitance (IPC) model to a CMOS detector.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
           "properties": {
             "anisotropic_coupling": {
               "default": 0.0,
+              "description": "Difference between horizontal and vertical coupling. Default is 0.0.",
               "title": "anisotropic_coupling",
               "type": "number"
             },
             "coupling": {
+              "description": "Coupling coefficient for direct neighbors.",
               "title": "coupling",
               "type": "number"
             },
             "diagonal_coupling": {
               "default": 0.0,
+              "description": "Coupling coefficient for diagonal neighbors. Default is 0.0.",
               "title": "diagonal_coupling",
               "type": "number"
             }
@@ -2857,6 +2923,55 @@
         "arguments"
       ],
       "title": "Model 'apply_qe_curve'",
+      "type": "object"
+    },
+    "ModelChargeGenerationAvalancheGain": {
+      "additionalProperties": false,
+      "description": "Apply Avalanche multiplication gain to the charge array of the detector.",
+      "properties": {
+        "arguments": {
+          "additionalProperties": false,
+          "default": {
+            "excess_noise_factor": 1.0,
+            "seed": null
+          },
+          "properties": {
+            "excess_noise_factor": {
+              "default": 1.0,
+              "description": "Multiplication excess noise factor. When equal to 1.0, the avalanche gain is deterministic. When > 1.0, gain fluctuations are modeled using a Gamma distribution.",
+              "title": "excess_noise_factor",
+              "type": "number"
+            },
+            "seed": {
+              "default": null,
+              "description": "Random seed used when simulating stochastic gain variations.",
+              "title": "seed",
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          },
+          "title": "Parameters",
+          "type": "object"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "func": {
+          "const": "pyxel.models.charge_generation.avalanche_gain",
+          "default": "pyxel.models.charge_generation.avalanche_gain",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Model 'avalanche_gain'",
       "type": "object"
     },
     "ModelChargeGenerationChargeBlocks": {
@@ -4256,7 +4371,7 @@
           "properties": {
             "node_capacitance": {
               "default": null,
-              "description": "Node capacitance. Unit: F",
+              "description": "Node capacitance. Unit: F If not provided, it is retrieved from ``detector.characteristics.node_capacitance``.",
               "title": "node_capacitance",
               "type": [
                 "number",
@@ -4528,20 +4643,40 @@
     },
     "ModelChargeMeasurementOutputNodeNoiseCmos": {
       "additionalProperties": false,
-      "description": "Output node noise model for :term:`CMOS` detectors where readout is statistically independent for each pixel.",
+      "description": "Apply an output-node readout noise model for :term:`CMOS` detectors where readout is statistically independent for each pixel.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
           "properties": {
             "readout_noise": {
-              "description": "Mean readout noise for the array in units of electrons. Unit: electron",
-              "title": "readout_noise",
-              "type": "number"
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "additionalProperties": {
+                    "type": "number"
+                  },
+                  "type": "object"
+                }
+              ],
+              "description": "Mean readout noise for the array in units of electrons in electron: - If as float is provided, the value is applied uniformly to all pixels. - If a dict is provided, each key must correspond to a channel label in ``detector.geometry.channels``.",
+              "title": "readout_noise"
             },
             "readout_noise_std": {
-              "description": "Readout noise standard deviation in units of electrons. Unit: electron",
-              "title": "readout_noise_std",
-              "type": "number"
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "additionalProperties": {
+                    "type": "number"
+                  },
+                  "type": "object"
+                }
+              ],
+              "description": "Standard deviation of the readout noise in electron (must be non-negative): - If as float is provided, the value is applied uniformly to all pixels. - If a dict is provided, each key must correspond to a channel label in ``detector.geometry.channels``.",
+              "title": "readout_noise_std"
             },
             "seed": {
               "default": null,
@@ -4842,7 +4977,7 @@
     },
     "ModelChargeMeasurementSimpleMeasurement": {
       "additionalProperties": false,
-      "description": "Convert detector Pixel charge values (in electron) into Signal values (in Volt) using a specified gain.",
+      "description": "Convert detector PixelRead charge values (in electron) into Signal values (in Volt) using a specified gain.",
       "properties": {
         "arguments": {
           "additionalProperties": false,
