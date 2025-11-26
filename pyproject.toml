@@ -69,6 +69,7 @@ dependencies = [
     "pillow",
     "diskcache",
     "rich",
+    "annotated-types",
 ]
 dynamic = ["version"]
 
