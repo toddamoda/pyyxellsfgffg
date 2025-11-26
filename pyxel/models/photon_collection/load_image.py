@@ -9,6 +9,8 @@
 
 from typing import TYPE_CHECKING, Literal
 
+from astropy.units import Quantity
+
 from pyxel.detectors import Detector
 from pyxel.inputs import load_header
 from pyxel.util import load_cropped_and_aligned_image
@@ -95,8 +97,6 @@ def load_image(
         position_y=position_y,
     )
 
-    photon_array = image
-
     if convert_to_photons:
         if not bit_resolution:
             raise ValueError(
@@ -107,9 +107,20 @@ def load_image(
         cht = detector.characteristics
         adc_multiplier = 2**cht.adc_bit_resolution / 2**bit_resolution
 
-        photon_array = photon_array * adc_multiplier / cht.system_gain
+        photon_array = (
+            Quantity(image, unit="adu")
+            * adc_multiplier
+            / Quantity(cht.system_gain, unit="adu/electron")
+        )
+        photon_array *= Quantity(1, unit="photon/electron")  # TODO: is it correct ?
+    else:
+        photon_array = Quantity(image, unit="photon")
 
-    photon_array = photon_array * (detector.time_step / time_scale) * multiplier
+    photon_array = (
+        photon_array
+        * (Quantity(detector.time_step, unit="s") / Quantity(time_scale, unit="s"))
+        * multiplier
+    )
 
     detector.photon += photon_array
 
