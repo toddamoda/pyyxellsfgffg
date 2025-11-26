@@ -320,41 +320,34 @@ class Channels:
         (detector_nrows, detector_ncols) = detector_shape
         (nb_chans_y, nb_chans_x) = self.matrix.shape
         (this_chan_y, this_chan_x) = self.matrix.get_coords_of_label(chan_label)
+        ro_pos = self.readout_position.positions[chan_label]
 
-        lower_x = (detector_ncols // nb_chans_x) * (this_chan_x)  # included
-        higher_x = (detector_ncols // nb_chans_x) * (this_chan_x + 1) - 1  # included
+        if ro_pos in ("bottom-left", "top-left"):
+            start_x = (detector_ncols // nb_chans_x) * (this_chan_x)
+            stop_x = (detector_ncols // nb_chans_x) * (this_chan_x + 1)
+            slice_x = slice(start_x, stop_x)
+
+        elif ro_pos in ("bottom-right", "top-right"):
+            start_x = (detector_ncols // nb_chans_x) * (this_chan_x + 1) - 1
+            stop_x = (detector_ncols // nb_chans_x) * (this_chan_x) - 1
+            slice_x = slice(start_x, None if this_chan_x == 0 else stop_x, -1)
+            # We must use `None` because `-1` would point to the higher x index
 
         # for y, it is slightly different,
         # because `this_chan_y == 0` correspond to the physical top of the
         # detector, whereas the row `0` on the detector is at the bottom.
+        if ro_pos in ("bottom-left", "bottom-right"):
+            start_y = (detector_nrows // nb_chans_y) * (nb_chans_y - this_chan_y - 1)
+            stop_y = (detector_nrows // nb_chans_y) * (nb_chans_y - this_chan_y)
+            slice_y = slice(start_y, stop_y)
 
-        lower_y = (detector_nrows // nb_chans_y) * (
-            nb_chans_y - this_chan_y - 1
-        )  # included
-        higher_y = (detector_nrows // nb_chans_y) * (
-            nb_chans_y - this_chan_y
-        ) - 1  # included
-
-        # now the slice depends on the readout direction
-        ro_pos = self.readout_position.positions[chan_label]
-
-        # remember, the second bound given to function `slice` is an excluded index
-
-        if ro_pos == "top-left":
-            slice_x = slice(lower_x, higher_x + 1, +1)
-            slice_y = slice(higher_y, lower_y - 1, -1)
-
-        elif ro_pos == "top-right":
-            slice_x = slice(higher_x, lower_x - 1, -1)
-            slice_y = slice(higher_y, lower_y - 1, -1)
-
-        elif ro_pos == "bottom-right":
-            slice_x = slice(higher_x, lower_x - 1, -1)
-            slice_y = slice(lower_y, higher_y + 1, +1)
-
-        elif ro_pos == "bottom-left":
-            slice_x = slice(lower_x, higher_x + 1, +1)
-            slice_y = slice(lower_y, higher_y + 1, +1)
+        elif ro_pos in ("top-left", "top-right"):
+            start_y = (detector_nrows // nb_chans_y) * (nb_chans_y - this_chan_y) - 1
+            stop_y = (detector_nrows // nb_chans_y) * (nb_chans_y - this_chan_y - 1) - 1
+            slice_y = slice(
+                start_y, None if this_chan_y == nb_chans_y - 1 else stop_y, -1
+            )
+            # We must use `None` because `-1` would point to the higher y index
 
         return (slice_y, slice_x)
 
