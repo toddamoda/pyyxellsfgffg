@@ -7,9 +7,10 @@
 
 """Pyxel USAF-1951 illumination pattern."""
 
-from typing import Literal
+from typing import Annotated, Literal
 
 import pooch
+from annotated_types import Gt
 
 from pyxel.detectors import Detector
 from pyxel.models.photon_collection import load_image
@@ -17,14 +18,17 @@ from pyxel.models.photon_collection import load_image
 
 def usaf_illumination(
     detector: Detector,
-    position: tuple[int, int] = (0, 0),
+    position: tuple[
+        Annotated[int, Gt(0)],
+        Annotated[int, Gt(0)],
+    ] = (0, 0),
     align: (
         Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"] | None
     ) = None,
     convert_to_photons: bool = False,
-    multiplier: float = 1.0,
-    time_scale: float = 1.0,
-    bit_resolution: int | None = None,
+    multiplier: Annotated[float, Gt(0.0)] = 1.0,
+    time_scale: Annotated[float, Gt(0.0)] = 1.0,
+    bit_resolution: Annotated[int, Gt(0)] | None = None,
 ) -> None:
     r"""Apply USAF-1951 illumination pattern.
 
@@ -34,22 +38,17 @@ def usaf_illumination(
     position : tuple
         Indices of starting row and column, used when fitting image to detector.
     align : Literal
-        Keyword to align the image to detector. Can be any from:
-        ("center", "top_left", "top_right", "bottom_left", "bottom_right")
+        Keyword to align the image to detector.
     convert_to_photons : bool
-        If ``True``, the model converts the values of loaded image array from ADU to
-        photon numbers for each pixel using the Photon Transfer Function:
-        :math:`\mathit{PTF} = \mathit{quantum\_efficiency} \cdot \mathit{charge\_to\_voltage\_conversion}
-        \cdot \mathit{pre\_amplification} \cdot \mathit{adc\_factor}`.
+        If ``True``, the model converts ADU to photon numbers.
     multiplier : float
         Multiply photon array level with a custom number.
     time_scale : float
-        Time scale of the photon flux, default is 1 second. 0.001 would be ms.
+        Time scale of photon flux.
     bit_resolution : int
         Bit resolution of the loaded image.
     """
     # Download the PNG file and save it locally.
-    # Running this again will not cause a download
     filename: str = pooch.retrieve(
         url="https://gitlab.com/esa/pyxel-data/-/raw/master/samples/USAF-1951-optical-calibration-target.png",
         known_hash="md5:0a62eda6187aded13aca0e453db60665",
