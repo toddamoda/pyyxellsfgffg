@@ -363,13 +363,14 @@ class Characteristics:
         gain: Quantity = (
             self.quantum_efficiency
             * Quantity(self.pre_amplification_map, unit="V/V")
+            * Quantity(self.charge_to_volt_conversion, unit="V/electron")  # NEW
             * Quantity(2**self.adc_bit_resolution, unit="adu")
         ) / (
             np.max(Quantity(self.adc_voltage_range, unit="V"))
             - np.min(Quantity(self.adc_voltage_range, unit="V"))
         )
 
-        return float(gain.to("adu/V").value)
+        return float(gain.to_value("adu/electron"))
 
     @property
     def numbytes(self) -> int:
