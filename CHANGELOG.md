@@ -12,6 +12,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
 ## UNRELEASED
 
 ### Core
+* Fix big when getting slices from the channels.
+  (See [!1134](https://gitlab.com/esa/pyxel/-/merge_requests/1134)).
 
 ### Documentation
 
