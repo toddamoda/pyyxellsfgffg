@@ -718,3 +718,41 @@ def test_channels_from_dict_bad_inputs(dct, exp_exc, exp_msg: str):
     """Test method 'Channels.from_dict' with bad inputs."""
     with pytest.raises(exp_exc, match=exp_msg):
         _ = Channels.from_dict(dct)
+
+
+@pytest.mark.parametrize(
+    "channel_label, exp_slice_y, exp_slice_x",
+    [
+        pytest.param("OP9", slice(5, 2, -1), slice(0, 2), id="OP9"),
+        pytest.param("OP13", slice(5, 2, -1), slice(3, 1, -1), id="OP13"),
+        pytest.param("OP1", slice(0, 3), slice(0, 2), id="OP1"),
+        pytest.param("OP5", slice(0, 3), slice(3, 1, -1), id="OP1"),
+    ],
+)
+def test_get_channel_slices(channel_label, exp_slice_y, exp_slice_x):
+    """Test method '.get_channel_slices'"""
+    channels = Channels(
+        matrix=Matrix(
+            [
+                ["OP9", "OP13"],
+                ["OP1", "OP5"],
+            ]
+        ),
+        readout_position=ReadoutPosition(
+            {
+                "OP9": "top-left",
+                "OP13": "top-right",
+                "OP1": "bottom-left",
+                "OP5": "bottom-right",
+            }
+        ),
+    )
+
+    detector_shape = (6, 4)
+    slice_y, slice_x = channels.get_channel_slices(
+        detector_shape=detector_shape,
+        chan_label=channel_label,
+    )
+
+    assert slice_y == exp_slice_y
+    assert slice_x == exp_slice_x
