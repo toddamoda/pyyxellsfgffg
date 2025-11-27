@@ -7,9 +7,10 @@
 
 """Pyxel USAF-1951 illumination pattern."""
 
-from typing import Literal
+from typing import Annotated, Literal
 
 import pooch
+from annotated_types import Gt
 
 from pyxel.detectors import Detector
 from pyxel.models.photon_collection import load_image
@@ -17,14 +18,17 @@ from pyxel.models.photon_collection import load_image
 
 def usaf_illumination(
     detector: Detector,
-    position: tuple[int, int] = (0, 0),
+    position: tuple[
+        Annotated[int, Gt(0)],
+        Annotated[int, Gt(0)],
+    ] = (0, 0),
     align: (
         Literal["center", "top_left", "top_right", "bottom_left", "bottom_right"] | None
     ) = None,
     convert_to_photons: bool = False,
-    multiplier: float = 1.0,
-    time_scale: float = 1.0,
-    bit_resolution: int | None = None,
+    multiplier: Annotated[float, Gt(0.0)] = 1.0,
+    time_scale: Annotated[float, Gt(0.0)] = 1.0,
+    bit_resolution: Annotated[int, Gt(0)] | None = None,
 ) -> None:
     r"""Apply USAF-1951 illumination pattern.
 

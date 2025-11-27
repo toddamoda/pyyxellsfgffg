@@ -20,6 +20,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
   (See [!1125](https://gitlab.com/esa/pyxel/-/merge_requests/1125)).
 * Model `output_node_noise_cmos` extended to channels.
   (See [!1129](https://gitlab.com/esa/pyxel/-/merge_requests/1129)).
+* Add Annotated metadata to USAF illumination & Rule07 models.
+  (See [!1133](https://gitlab.com/esa/pyxel/-/merge_requests/1133)).
 
 ### Others
 * Fix issues with Xarray >=2025.11.0.
