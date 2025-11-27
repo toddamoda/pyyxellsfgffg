@@ -8,8 +8,10 @@
 """Simple models to generate charge due to dark current process."""
 
 import warnings
+from typing import Annotated
 
 import numpy as np
+from annotated_types import Ge, Interval, Unit
 
 from pyxel.detectors import CCD, CMOS
 from pyxel.util import set_random_seed
@@ -177,8 +179,12 @@ def compute_mct_dark_rule07(
 
 def dark_current_rule07(
     detector: CCD | CMOS,
-    cutoff_wavelength: float = 2.5,  # unit: µm
-    spatial_noise_factor: float | None = None,
+    cutoff_wavelength: Annotated[
+        float,
+        Interval(ge=1.7, le=15.0),
+        Unit("um"),
+    ] = 2.5,
+    spatial_noise_factor: Annotated[float, Ge(0.0)] | None = None,
     seed: int | None = None,
     temporal_noise: bool = True,
 ) -> None:
