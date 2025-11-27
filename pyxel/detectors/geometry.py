@@ -12,7 +12,7 @@ from collections.abc import Mapping
 import numpy as np
 from typing_extensions import Self
 
-from pyxel.detectors import Channels
+from pyxel.detectors import Channels, ReferenceGeometry
 from pyxel.util import get_size, get_uninitialized_error
 
 
@@ -70,6 +70,9 @@ class Geometry:
         pixel_horz_size: float | None = None,  # unit: um
         pixel_scale: float | None = None,  # unit: arcsec/pixel
         channels: Channels | None = None,
+        #TODO: Move reference_pixels in CMOS and APD
+        reference_pixels: ReferenceGeometry | None = None,
+        masked_pixels: ReferenceGeometry | None = None
     ):
         if row <= 0:
             raise ValueError("'row' must be strictly greater than 0.")
@@ -116,6 +119,8 @@ class Geometry:
         #     channels.validate(geometry=self)
 
         self.channels: Channels | None = channels
+        self.reference_pixels = reference_pixels
+        self.masked_pixels = masked_pixels
 
         self._numbytes = 0
 
