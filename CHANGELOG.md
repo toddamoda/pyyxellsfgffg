@@ -30,6 +30,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
   (See [!1133](https://gitlab.com/esa/pyxel/-/merge_requests/1133)).
 * Fix bug in model `output_node_noise_cmos` in 'Charge Measurement'.
   (See [!1138](https://gitlab.com/esa/pyxel/-/merge_requests/1138)).
+* Fix issue with 'system_gain' in model `load_image` from 'Photon Collection'.
+  (See [!1137](https://gitlab.com/esa/pyxel/-/merge_requests/1137)).
 
 ### Others
 * Fix issues with Xarray >=2025.11.0.
