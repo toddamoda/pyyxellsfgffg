@@ -84,22 +84,22 @@ def simple_conversion(
         raise ValueError("Quantum efficiency not between 0 and 1.")
 
     if detector.photon.ndim == 3:
-        if detector.geometry.masked_pixels
+        if detector.geometry.masked_pixels:
             raise NotImplementedError
         else:
-            photon_2d: np.ndarray = integrate_photon(detector.photon.array_3d).to_numpy()
+            photon_2d: np.ndarray = integrate_photon(
+                detector.photon.array_3d
+            ).to_numpy()
     elif detector.geometry.masked_pixels:
-        mask_2d = np.full_like(detector.photon.array_2d, fill_value= False)
+        mask_2d = np.full_like(detector.photon.array_2d, fill_value=False)
 
         # TODO: Move this into 'ReferenceGeometry'?
         if detector.geometry.masked_pixels.row:
             for row in detector.geometry.masked_pixels.row:
-                mask_2d[row,:] = True
+                mask_2d[row, :] = True
         if detector.geometry.masked_pixels.col:
             for col in detector.geometry.masked_pixels.col:
                 mask_2d[:, col] = True
-
-
 
         photon_2d = np.where(mask_2d, 0.0, detector.photon.array_2d)
     else:

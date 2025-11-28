@@ -59,6 +59,8 @@ class Geometry:
         Dimension of how much of the sky is covered by one pixel. Unit: arcsec/pixel
     channels : Channels, None
         Channel layout for the detector, including number of channels, position, and readout direction.
+    reference_pixels : ReferenceGeometry
+    masked_pixels : ReferenceGeometry
     """
 
     def __init__(
@@ -70,9 +72,9 @@ class Geometry:
         pixel_horz_size: float | None = None,  # unit: um
         pixel_scale: float | None = None,  # unit: arcsec/pixel
         channels: Channels | None = None,
-        #TODO: Move reference_pixels in CMOS and APD
+        # TODO: Move reference_pixels in CMOS and APD
         reference_pixels: ReferenceGeometry | None = None,
-        masked_pixels: ReferenceGeometry | None = None
+        masked_pixels: ReferenceGeometry | None = None,
     ):
         if row <= 0:
             raise ValueError("'row' must be strictly greater than 0.")
@@ -119,10 +121,10 @@ class Geometry:
         #     channels.validate(geometry=self)
 
         self.channels: Channels | None = channels
-        self.reference_pixels = reference_pixels
-        self.masked_pixels = masked_pixels
+        self.reference_pixels: ReferenceGeometry | None = reference_pixels
+        self.masked_pixels: ReferenceGeometry | None = masked_pixels
 
-        self._numbytes = 0
+        self._numbytes: int = 0
 
     def __repr__(self) -> str:
         cls_name: str = self.__class__.__name__
@@ -144,6 +146,8 @@ class Geometry:
             self._pixel_horz_size,
             self._pixel_scale,
             self.channels,
+            self.reference_pixels,
+            self.masked_pixels,
         ) == (
             other.row,
             other.col,
@@ -152,6 +156,8 @@ class Geometry:
             other._pixel_horz_size,
             other._pixel_scale,
             other.channels,
+            other.reference_pixels,
+            other.masked_pixels,
         )
 
     # def _repr_html_(self):
@@ -359,6 +365,12 @@ class Geometry:
             "pixel_horz_size": self._pixel_horz_size,
             "pixel_scale": self._pixel_scale,
             "channels": self.channels.to_dict() if self.channels else None,
+            "reference_pixels": (
+                self.reference_pixels.to_dict() if self.reference_pixels else None
+            ),
+            "masked_pixels": (
+                self.masked_pixels.to_dict() if self.masked_pixels else None
+            ),
         }
 
     @classmethod
@@ -367,14 +379,33 @@ class Geometry:
         # TODO: This is a simplistic implementation. Improve this.
         new_dct: dict = dct.copy()
 
-        if "channels" in new_dct and new_dct["channels"] is not None:
-            channels_dct: Mapping = new_dct.pop("channels")
+        channels: Channels | None = None
+        if "channels" in new_dct:
+            channels_dct: Mapping | None = new_dct.pop("channels")
 
-            channels: Channels = Channels.from_dict(channels_dct)
-            return cls(**new_dct, channels=channels)
+            if channels_dct is not None:
+                channels = Channels.from_dict(channels_dct)
 
-        else:
-            return cls(**new_dct)
+        reference: ReferenceGeometry | None = None
+        if "reference_pixels" in new_dct:
+            reference_dct: Mapping | None = new_dct.pop("reference_pixels")
+
+            if reference_dct is not None:
+                reference = ReferenceGeometry.from_dict(reference_dct)
+
+        mask: ReferenceGeometry | None = None
+        if "masked_pixels" in new_dct:
+            mask_dct: Mapping = new_dct.pop("masked_pixels")
+
+            if mask_dct is not None:
+                mask = ReferenceGeometry.from_dict(mask_dct)
+
+        return cls(
+            **new_dct,
+            channels=channels,
+            reference_pixels=reference,
+            masked_pixels=mask,
+        )
 
     def dump(self) -> dict[str, int | float | None]:
         return {

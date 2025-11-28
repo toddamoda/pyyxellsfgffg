@@ -10,6 +10,7 @@
 # flake8: noqa
 # Warning: Import order matters
 from .channels import Channels, Matrix, ReadoutPosition
+from .reference_pixels import ReferenceGeometry
 from .readout_properties import ReadoutProperties
 from .environment import Environment, WavelengthHandling
 from .charge_to_volt_settings import ChargeToVoltSettings

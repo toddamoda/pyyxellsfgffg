@@ -140,6 +140,8 @@ def test_is_equal(other_obj, is_equal):
                 "pixel_vert_size": 34.5,
                 "pixel_scale": 1.5,
                 "channels": None,
+                "masked_pixels": None,
+                "reference_pixels": None,
             },
         ),
     ],

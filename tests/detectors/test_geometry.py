@@ -427,6 +427,8 @@ def test_get_channel_coord_bad_channel(channel):
                 "pixel_vert_size": 34.5,
                 "pixel_scale": 1.5,
                 "channels": None,
+                "masked_pixels": None,
+                "reference_pixels": None,
             },
         ),
     ],

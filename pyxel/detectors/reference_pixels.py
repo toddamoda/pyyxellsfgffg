@@ -38,13 +38,11 @@ The corresponding YAML definition could be:
         - OP5:  bottom-left
 """
 
-import difflib
-from collections.abc import Hashable, Iterator, Mapping, Sequence
-from typing import Literal
+from collections.abc import Mapping, Sequence
+from dataclasses import asdict, dataclass
 
-import numpy as np
 from typing_extensions import Self
-from dataclasses import dataclass
+
 
 @dataclass
 class ReferenceGeometry:
@@ -63,8 +61,15 @@ class ReferenceGeometry:
     ['OP9', 'OP13', 'OP1', 'OP5']
     """
 
-    row: list[int] | None = None
-    col: list[int] | None = None
+    row: Sequence[int] | None = None  # TODO: Use 'tuple' ?
+    col: Sequence[int] | None = None
 
+    @classmethod
+    def from_dict(cls, dct: Mapping) -> Self:
+        row: Sequence[int] | None = dct.get("row")
+        col: Sequence[int] | None = dct.get("col")
 
+        return cls(row=row, col=col)
 
+    def to_dict(self) -> Mapping:
+        return asdict(self)
