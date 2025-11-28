@@ -173,7 +173,7 @@ def test_output_node_noise_cmos(cmos_2x3: CMOS):
     rng = np.random.default_rng(seed=seed)
 
     detector = cmos_2x3
-    detector.signal.array = rng.random(size=(2, 3), dtype=float)
+    detector.signal.array = 10 * rng.random(size=(2, 3), dtype=float)
 
     output_node_noise_cmos(
         detector=detector,
@@ -185,7 +185,10 @@ def test_output_node_noise_cmos(cmos_2x3: CMOS):
     new_signal = detector.signal.array
 
     exp_signal = np.array(
-        [[0.228246, 0.319711, 0.804656], [0.688026, 0.403161, 0.318046]]
+        [
+            [4.54763051, 6.3381192, 15.95459991],
+            [13.53686508, 7.83424282, 6.64151018],
+        ]
     )
     np.testing.assert_allclose(actual=new_signal, desired=exp_signal, rtol=1e-5)
 
@@ -233,8 +236,10 @@ def test_output_node_noise_cmos_with_channels(cmos_2x3_with_channels: CMOS):
     seed = 12345
 
     detector = cmos_2x3_with_channels
+
     # Create a test pattern based on channel-specific gains:
     test_pattern = np.array([[1, 1, 1], [1, 1, 1]])
+
     # Apply gains to the initial test pattern:
     for channel, gain in detector.characteristics.pre_amplification.items():
         slice_y, slice_x = detector.geometry.get_channel_coord(channel)
@@ -251,7 +256,7 @@ def test_output_node_noise_cmos_with_channels(cmos_2x3_with_channels: CMOS):
     new_signal = detector.signal.array
 
     exp_signal = np.array(
-        [[1.00000009, 1.5000003, 2.00000073], [2.50000118, 3.00000121, 3.49999852]],
+        [[2.00000009, 3.0000003, 4.00000073], [5.00000118, 6.00000121, 6.99999852]]
     )
     np.testing.assert_allclose(actual=new_signal, desired=exp_signal, rtol=1e-5)
 
