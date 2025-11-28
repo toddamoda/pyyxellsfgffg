@@ -240,6 +240,10 @@ def generate_class(klass: Klass) -> Iterator[str]:
                     "pyxel.detectors.charge_to_volt_settings.ChargeToVoltSettings",
                     "ChargeToVoltSettings",
                 )
+                .replace(
+                    "pyxel.detectors.reference_pixels.ReferenceGeometry",
+                    "ReferenceGeometry",
+                )
             )  # TODO: Fix this. See issue #727
 
             yield f"    {name}: {annotation} = field("
@@ -599,6 +603,13 @@ def generate_detectors() -> Iterator[str]:
     # yield "  param: Capacitance | Factor"
     yield "  value: float | str | None = None"
     yield "  capacitance: float | str | None = None"
+
+    yield "@schema(description='TBW.')"
+    yield "@dataclass(kw_only=True)"
+    yield "class ReferenceGeometry:"
+    yield "    row: Sequence[int] | None = None"
+    yield "    col: Sequence[int] | None = None"
+    yield ""
 
     # Generate code based on the dependency graph
     ts = TopologicalSorter(graph)

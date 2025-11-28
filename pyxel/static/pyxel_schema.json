@@ -234,6 +234,18 @@
           "title": "col",
           "type": "integer"
         },
+        "masked_pixels": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ReferenceGeometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "masked_pixels"
+        },
         "pixel_horz_size": {
           "default": null,
           "description": "Horizontal dimension of pixel. Unit: um",
@@ -260,6 +272,18 @@
             "number",
             "null"
           ]
+        },
+        "reference_pixels": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ReferenceGeometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "reference_pixels"
         },
         "row": {
           "description": "Number of pixel rows.",
@@ -659,6 +683,18 @@
           "title": "col",
           "type": "integer"
         },
+        "masked_pixels": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ReferenceGeometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "masked_pixels"
+        },
         "pixel_horz_size": {
           "default": null,
           "description": "Horizontal dimension of pixel. Unit: um",
@@ -685,6 +721,18 @@
             "number",
             "null"
           ]
+        },
+        "reference_pixels": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ReferenceGeometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "reference_pixels"
         },
         "row": {
           "description": "Number of pixel rows.",
@@ -770,6 +818,18 @@
           "title": "col",
           "type": "integer"
         },
+        "masked_pixels": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ReferenceGeometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "masked_pixels"
+        },
         "pixel_horz_size": {
           "default": null,
           "description": "Horizontal dimension of pixel. Unit: um",
@@ -796,6 +856,18 @@
             "number",
             "null"
           ]
+        },
+        "reference_pixels": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ReferenceGeometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "reference_pixels"
         },
         "row": {
           "description": "Number of pixel rows.",
@@ -2321,6 +2393,18 @@
           "title": "col",
           "type": "integer"
         },
+        "masked_pixels": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ReferenceGeometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "masked_pixels"
+        },
         "pixel_horz_size": {
           "default": null,
           "description": "Horizontal dimension of pixel. Unit: um",
@@ -2347,6 +2431,18 @@
             "number",
             "null"
           ]
+        },
+        "reference_pixels": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ReferenceGeometry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "reference_pixels"
         },
         "row": {
           "description": "Number of pixel rows.",
@@ -7469,6 +7565,33 @@
           "default": null,
           "type": [
             "string",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "ReferenceGeometry": {
+      "additionalProperties": false,
+      "description": "TBW.",
+      "properties": {
+        "col": {
+          "default": null,
+          "items": {
+            "type": "integer"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "row": {
+          "default": null,
+          "items": {
+            "type": "integer"
+          },
+          "type": [
+            "array",
             "null"
           ]
         }
