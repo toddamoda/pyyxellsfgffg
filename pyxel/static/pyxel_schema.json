@@ -3736,6 +3736,8 @@
             "cutoff_wavelength": {
               "default": 2.5,
               "description": "The wavelength cut-off for the detector (default is 2.5 \u00b5m). Unit: \u00b5m",
+              "maximum": 15.0,
+              "minimum": 1.7,
               "title": "cutoff_wavelength",
               "type": "number"
             },
@@ -6630,6 +6632,7 @@
             "multiplier": {
               "default": 1.0,
               "description": "Multiply photon array level with a custom number.",
+              "exclusiveMinimum": 0.0,
               "title": "multiplier",
               "type": "number"
             },
@@ -6664,6 +6667,7 @@
             "time_scale": {
               "default": 1.0,
               "description": "Time scale of the photon flux, default is 1 second. 0.001 would be ms.",
+              "exclusiveMinimum": 0.0,
               "title": "time_scale",
               "type": "number"
             }
