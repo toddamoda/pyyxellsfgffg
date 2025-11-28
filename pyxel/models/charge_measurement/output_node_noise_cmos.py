@@ -18,27 +18,27 @@ from pyxel.util import set_random_seed
 
 
 def create_noise_cmos(
-    shape: tuple[int, int],
+    signal_2d: Quantity,
     readout_noise: Quantity,
     readout_noise_std: Quantity,
     sensitivity_2d: Quantity,
-) -> np.ndarray:
-    """Create noise to signal array for :term:`CMOS` detectors.
+) -> Quantity:
+    """Add noise to signal array for :term:`CMOS` detectors.
 
     Parameters
     ----------
-    shape : tuple[int, int]
-        The shape of the detector array (rows, columns).
-    readout_noise : float
+    signal_2d : Quantity
+        Input signal in V.
+    readout_noise : Quantity
         The mean readout noise level per pixel.
-    readout_noise_std : float
+    readout_noise_std : Quantity
         The standard deviation of the readout noise
-    sensitivity_2d : float
+    sensitivity_2d : Quantity
         Charge readout sensitivity could be a scalar or a 2D array.
 
     Returns
     -------
-    ndarray
+    Quantity
         The generated 2D noise array.
     """
     # Generate the noise based on the calculated sensitivities
@@ -47,14 +47,13 @@ def create_noise_cmos(
 
     # Generate the noise with Gaussian distribution
     sigma_2d = np.random.normal(
-        loc=noise_mean_2d.to("V").value,
-        scale=noise_std_2d.to("V").value,
-        size=shape,
+        loc=noise_mean_2d.to_value("V"),
+        scale=noise_std_2d.to_value("V"),
+        size=signal_2d.shape,
     )
     sigma_2d = sigma_2d.clip(min=0.0)  # Ensure noise values are non-negative
 
-    # TODO: Is it correct ?
-    noise_2d = np.random.normal(scale=sigma_2d)
+    noise_2d = np.random.normal(loc=signal_2d.to_value("V"), scale=sigma_2d)
 
     return Quantity(noise_2d, unit="V")
 
@@ -152,7 +151,7 @@ def output_node_noise_cmos(
 
         with set_random_seed(seed):
             noise_2d: Quantity = create_noise_cmos(
-                shape=detector.geometry.shape,
+                signal_2d=Quantity(detector.signal),
                 readout_noise=Quantity(readout_noise, unit="electron"),
                 readout_noise_std=Quantity(readout_noise_std, unit="electron"),
                 sensitivity_2d=charge_readout_sensitivity,
