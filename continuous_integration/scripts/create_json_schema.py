@@ -12,6 +12,7 @@
 import functools
 import importlib
 import inspect
+import re
 import textwrap
 import types
 from collections import defaultdict
@@ -19,9 +20,23 @@ from collections.abc import Callable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from graphlib import TopologicalSorter
 from pathlib import Path
-from typing import Any, Union, get_args, get_origin
+from typing import Annotated, Any, Union, get_args, get_origin
 
+import annotated_types
 import click
+from annotated_types import (
+    BaseMetadata,
+    Ge,
+    GroupedMetadata,
+    Gt,
+    Interval,
+    Le,
+    Len,
+    Lt,
+    MaxLen,
+    MinLen,
+    Unit,
+)
 from boltons.strutils import under2camel
 from numpydoc.docscrape import NumpyDocString
 from toolz import dicttoolz
@@ -29,6 +44,40 @@ from tqdm.auto import tqdm
 
 from pyxel import __version__
 from pyxel.pipelines import DetectionPipeline
+
+Constraint = Union[
+    annotated_types.BaseMetadata, slice, "re.Pattern[bytes]", "re.Pattern[str]"
+]
+
+
+def get_constraints(annotation):
+    if isinstance(annotation, str):
+        annotation_type = eval(
+            annotation,
+            {
+                "Annotated": Annotated,
+                "Ge": Ge,
+                "Gt": Gt,
+                "Interval": Interval,
+                "Le": Le,
+                "Lt": Lt,
+                "Len": Len,
+                "MaxLen": MaxLen,
+                "MinLen": MinLen,
+                "Unit": Unit,
+            },
+        )
+    else:
+        annotation_type = annotation
+
+    origin = get_origin(annotation_type)
+    assert origin is Annotated
+
+    for arg in get_args(annotation_type):
+        if isinstance(arg, (BaseMetadata, re.Pattern, slice)):
+            yield arg
+        elif isinstance(arg, GroupedMetadata):
+            yield from arg
 
 
 @dataclass
@@ -272,6 +321,7 @@ def generate_class(klass: Klass) -> Iterator[str]:
     yield ""
 
 
+# ruff: noqa: C901
 def generate_model(
     func: Callable,
     func_name: str,
@@ -304,12 +354,30 @@ def generate_model(
                 param.description, drop_whitespace=False
             )
             if len(description_lst) == 1:
-                yield f"            ,description={description_lst[0]!r}"
+                yield f"            ,description={description_lst[0]!r},"
             elif len(description_lst) > 1:
                 yield "            ,description=("
                 for line in description_lst:
                     yield f"                    {line!r}"
-                yield "                )"
+                yield "                ),"
+
+            if annotation.startswith("Annotated"):
+                for arg in get_constraints(annotation):
+                    match arg:
+                        case Gt(value):
+                            yield f"    exc_min={value},"
+                        case Lt(value):
+                            yield f"    exc_max={value},"
+                        case Ge(value):
+                            yield f"    min={value},"
+                        case Le(value):
+                            yield f"    max={value},"
+                        case Interval(_, _, _, _):
+                            raise NotImplementedError
+                        case Unit(_):
+                            print("Do nothing")
+                        case _:
+                            raise NotImplementedError
 
             yield "        )"
             yield "    )"
@@ -806,6 +874,15 @@ def generate_detectors() -> Iterator[str]:
 
 def generate_all_models() -> Iterator[str]:
     lst = get_model_group_info()
+    yield "# /// script"
+    yield  # requires-python = ">=3.13"'
+    yield "# dependencies = ["
+    yield '#     "annotated-types",'
+    yield '#     "apischema",'
+    yield '#     "click",'
+    yield "# ]"
+    yield "# ///yield"
+    yield ""
     yield "#  Copyright (c) European Space Agency, 2020."
     yield "#"
     yield "#  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which"
@@ -819,7 +896,11 @@ def generate_all_models() -> Iterator[str]:
     yield "######################################"
     yield "# ruff: noqa: D100, D101, N801, RUF001"
     yield ""
-
+    yield "#######################################"
+    yield "# Run the script:                     #"
+    yield "#   uv run --script auto_generated.py #"
+    yield "#######################################"
+    yield ""
     yield "import collections"
     yield "import json"
     yield "import pathlib"
