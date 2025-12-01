@@ -48,13 +48,13 @@ ccd_detector:
   characteristics:
     quantum_efficiency: 0.8
     charge_to_volt:
-      value: 1.0e-06  # Unit: [V / e⁻]
-    pre_amplification: 100.0  # Unit: [V / V]
-    full_well_capacity: 100000  # Unit: [e⁻]
+      value: 5.0e-06  # Unit: [V / e⁻]
+    pre_amplification: 0.8  # Unit: [V / V]
+    full_well_capacity: 80000  # Unit: [e⁻]
     adc_bit_resolution: 16  # Unit: [bit]
     adc_voltage_range:  # Unit: [V]
       - 0.0
-      - 10.0
+      - 3.0
 
 ##########################################################################################
 # Define Pipeline                                                                        #
@@ -76,7 +76,7 @@ pipeline:
           - 0
         convert_to_photons: true
         bit_resolution: 8
-        multiplier: 1000.0
+        multiplier: 1.0
 
     # Convolve photons with a PSF
     - func: pyxel.models.photon_collection.optical_psf
