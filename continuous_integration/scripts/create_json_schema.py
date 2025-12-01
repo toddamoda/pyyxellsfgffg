@@ -874,6 +874,15 @@ def generate_detectors() -> Iterator[str]:
 
 def generate_all_models() -> Iterator[str]:
     lst = get_model_group_info()
+    yield "# /// script"
+    yield  # requires-python = ">=3.13"'
+    yield "# dependencies = ["
+    yield '#     "annotated-types",'
+    yield '#     "apischema",'
+    yield '#     "click",'
+    yield "# ]"
+    yield "# ///yield"
+    yield ""
     yield "#  Copyright (c) European Space Agency, 2020."
     yield "#"
     yield "#  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which"
@@ -887,7 +896,11 @@ def generate_all_models() -> Iterator[str]:
     yield "######################################"
     yield "# ruff: noqa: D100, D101, N801, RUF001"
     yield ""
-
+    yield "#######################################"
+    yield "# Run the script:                     #"
+    yield "#   uv run --script auto_generated.py #"
+    yield "#######################################"
+    yield ""
     yield "import collections"
     yield "import json"
     yield "import pathlib"
