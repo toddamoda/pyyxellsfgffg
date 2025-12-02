@@ -24,3 +24,4 @@ from .linearity import (
 from .offset import dc_offset, output_pixel_reset_voltage_apd
 from .reset_noise import ktc_noise
 from .amplifier_crosstalk import dc_crosstalk, ac_crosstalk
+from .uncorrelated_pink_noise_cmos import uncorrelated_pink_noise_cmos

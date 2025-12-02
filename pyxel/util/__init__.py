@@ -26,3 +26,4 @@ from .misc import (
 from .errors import get_uninitialized_error
 from .metadata import get_schema, get_metadata, clean_text
 from .check_validity import check_validity
+from .pink_noise_generator import PinkNoiseGenerator
