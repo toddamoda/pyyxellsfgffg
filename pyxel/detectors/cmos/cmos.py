@@ -10,8 +10,11 @@
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any
 
+import numpy as np
+
 from pyxel.data_structure import _get_array_if_initialized
 from pyxel.detectors import Detector
+from pyxel.util import PinkNoiseGenerator, set_random_seed
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -33,6 +36,10 @@ class CMOS(Detector):
         self._characteristics: Characteristics = characteristics
         self._characteristics.initialize(self._geometry)
 
+        self._uncorrelated_pink_noise_generators: (
+            dict[str, PinkNoiseGenerator] | None
+        ) = None
+
         super().__init__(environment=environment)
         super()._initialize()
 
@@ -52,6 +59,35 @@ class CMOS(Detector):
     @property
     def characteristics(self) -> "Characteristics":
         return self._characteristics
+
+    @property
+    def uncorrelated_pink_noise_generators(self) -> dict[str, PinkNoiseGenerator]:
+        if self._uncorrelated_pink_noise_generators is None:
+            raise RuntimeError("'uncorrelated_pink_noise_generators' not initialized.")
+        else:
+            return self._uncorrelated_pink_noise_generators
+
+    def set_uncorrelated_pink_noise_generators(self, seed: int | None = None) -> None:
+        if self.geometry.channels:
+            chan_labels = list(self.geometry.channels)
+        else:
+            chan_labels = ["default"]
+        self._uncorrelated_pink_noise_generators = dict()
+        # we use the given seed to provide a different seed to each channel
+        with set_random_seed(seed):
+            for chan_label in chan_labels:
+                sd = np.random.randint(10_000)
+                self._uncorrelated_pink_noise_generators[chan_label] = (
+                    PinkNoiseGenerator(sd)
+                )
+
+    # TODO: refactor to split up to empty and reset.
+    def empty(self, reset: bool = True) -> None:
+        super().empty(reset)
+        if reset:
+            # pixel.non_volatile is emptied when `reset` is `True`,
+            # so it seems noise generator should be nullified too
+            self._uncorrelated_pink_noise_generators = None
 
     # TODO: Refactor this
     def to_dict(self) -> Mapping:
