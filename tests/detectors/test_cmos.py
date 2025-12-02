@@ -13,12 +13,16 @@ import pytest
 
 from pyxel.detectors import (
     CMOS,
+    Channels,
     Characteristics,
     ChargeToVoltSettings,
     CMOSGeometry,
     Detector,
     Environment,
+    Matrix,
+    ReadoutPosition,
 )
+from pyxel.util import PinkNoiseGenerator
 
 
 @pytest.fixture
@@ -347,3 +351,96 @@ def test_to_and_from_dict(klass, obj, exp_dict):
     assert obj == other_obj
     assert obj is not other_obj
     comparison(copied_dct, exp_dict)
+
+
+def test_uncorrelated_pink_noise_generators():
+    ##########################################
+    # no channels                            #
+    ##########################################
+    cmos = CMOS(
+        geometry=CMOSGeometry(
+            row=100,
+            col=120,
+            total_thickness=123.1,
+            pixel_horz_size=12.4,
+            pixel_vert_size=34.5,
+            pixel_scale=1.5,
+        ),
+        environment=Environment(temperature=100.1),
+        characteristics=Characteristics(
+            quantum_efficiency=0.1,
+            charge_to_volt=ChargeToVoltSettings(value=0.2),
+            pre_amplification=3.3,
+            full_well_capacity=4.4,
+            adc_bit_resolution=16,
+            adc_voltage_range=(0.0, 10.0),
+        ),
+    )
+    with pytest.raises(RuntimeError):
+        assert cmos.uncorrelated_pink_noise_generators
+    assert cmos.set_uncorrelated_pink_noise_generators(None) is None
+    assert cmos.set_uncorrelated_pink_noise_generators(1234) is None
+    assert isinstance(cmos.uncorrelated_pink_noise_generators, dict)
+    assert isinstance(
+        cmos.uncorrelated_pink_noise_generators["default"], PinkNoiseGenerator
+    )
+    ##########################################
+    # channels                               #
+    ##########################################
+    cmos = CMOS(
+        geometry=CMOSGeometry(
+            row=100,
+            col=120,
+            total_thickness=123.1,
+            pixel_horz_size=12.4,
+            pixel_vert_size=34.5,
+            pixel_scale=1.5,
+            channels=Channels(
+                matrix=Matrix([["OP9", "OP13"], ["OP1", "OP5"]]),
+                readout_position=ReadoutPosition(
+                    {
+                        "OP9": "top-left",
+                        "OP13": "top-left",
+                        "OP1": "bottom-left",
+                        "OP5": "bottom-left",
+                    }
+                ),
+            ),
+        ),
+        environment=Environment(temperature=100.1),
+        characteristics=Characteristics(
+            quantum_efficiency=0.1,
+            charge_to_volt=ChargeToVoltSettings(value=0.2),
+            pre_amplification=3.3,
+            full_well_capacity=4.4,
+            adc_bit_resolution=16,
+            adc_voltage_range=(0.0, 10.0),
+        ),
+    )
+    with pytest.raises(RuntimeError):
+        assert cmos.uncorrelated_pink_noise_generators
+    assert cmos.set_uncorrelated_pink_noise_generators(None) is None
+    assert cmos.set_uncorrelated_pink_noise_generators(1234) is None
+    assert isinstance(cmos.uncorrelated_pink_noise_generators, dict)
+    # check each channel has been init
+    assert isinstance(
+        cmos.uncorrelated_pink_noise_generators["OP9"], PinkNoiseGenerator
+    )
+    assert isinstance(
+        cmos.uncorrelated_pink_noise_generators["OP13"], PinkNoiseGenerator
+    )
+    assert isinstance(
+        cmos.uncorrelated_pink_noise_generators["OP1"], PinkNoiseGenerator
+    )
+    assert isinstance(
+        cmos.uncorrelated_pink_noise_generators["OP5"], PinkNoiseGenerator
+    )
+    # check non declared channel raises an Error
+    with pytest.raises(KeyError):
+        assert isinstance(
+            cmos.uncorrelated_pink_noise_generators["---"], PinkNoiseGenerator
+        )
+    # check different seed have been attributed
+    assert cmos.uncorrelated_pink_noise_generators["OP5"].get(1) != (
+        cmos.uncorrelated_pink_noise_generators["OP1"].get(1)
+    )
