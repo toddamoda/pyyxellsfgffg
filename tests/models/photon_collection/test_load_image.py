@@ -83,8 +83,10 @@ def test_load_image(
     bit_resolution: int,
 ):
     """Test input parameters for function 'load_image'."""
+    detector = ccd_10x10
+
     load_image(
-        detector=ccd_10x10,
+        detector=detector,
         image_file=f"{valid_data2d}/{image_file}",
         position=position,
         align=align,
@@ -93,6 +95,11 @@ def test_load_image(
         time_scale=time_scale,
         bit_resolution=bit_resolution,
     )
+
+    photon_2d = np.array(detector.photon.array)
+    exp_photon_2d = np.full(shape=(10, 10), fill_value=152.58789062)
+
+    np.testing.assert_allclose(photon_2d, exp_photon_2d)
 
 
 @pytest.mark.parametrize(
