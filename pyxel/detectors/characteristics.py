@@ -20,7 +20,7 @@ import numpy as np
 from typing_extensions import Self
 
 from pyxel.detectors import ChargeToVoltSettings
-from pyxel.util import get_size, get_uninitialized_error
+from pyxel.util import get_size, get_uninitialized_error, image
 
 if TYPE_CHECKING:
     from pyxel.detectors import Geometry
@@ -135,6 +135,8 @@ class Characteristics:
         Quantum efficiency.
     charge_to_volt : ChargeToVoltSettings, optional
         Sensitivity of charge readout. Unit: V/e-
+    gain_array_path : str, optional
+        Path to gain array file
     pre_amplification : float, optional
         Gain of pre-amplifier. Unit: V/V
     full_well_capacity : float, optional

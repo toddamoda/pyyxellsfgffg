@@ -5,7 +5,6 @@
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
 
-
 import numpy as np
 import pytest
 
@@ -27,7 +26,7 @@ from pyxel.detectors.channels import Matrix, ReadoutPosition
 from pyxel.models.charge_measurement import (
     output_node_noise,
     output_node_noise_cmos,
-    readout_noise_saphira,
+    readout_noise_saphira
 )
 
 

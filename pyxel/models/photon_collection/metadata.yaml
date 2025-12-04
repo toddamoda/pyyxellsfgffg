@@ -291,9 +291,39 @@ models:
       - name: wavelength_dependence_airs
         func: pyxel.models.photon_collection.wavelength_dependence_airs
         enabled: true
+        arguments:
           psf_filename: "data/CH1_big_cube_PSFs.fits"
           target_filename: "data/target_flux_SED_00005.dat"
           telescope_diameter_m1: 1.1 #m
           telescope_diameter_m2: 0.7 #m
           expand_factor: 18
           time_scale:  1.0
+
+  - name: shield_box
+    full_name: Light Shield Box
+    detector: CMOS
+    status: draft
+    description: >
+      This model adds capability to shield the detector from photons, allowing for a Dark Reference (DR) for science
+      purposes. The Light Shield will be in the shape of a box defined by the arguments specifying coordinates (inclusive).
+    config: >
+      - name: shield
+        func: pyxel.models.photon_collection.shield
+        enabled: true
+        arguments:
+          shield_start: [20, 20] # measured in pixels
+          shield_end: [30, 50]
+
+  - name: shield_border
+    full_name: Light Shield Border
+    detector: CMOS
+    status: draft
+    description: >
+      This model adds capability to shield the detector from photons, allowing for a Dark Reference (DR) for science
+      purposes. The light shield will be around the edges of the images, with the width of the border specified by argument.
+    config: >
+      - name: shield_border
+        func: pyxel.models.photon_collection.shield_border
+        enabled: true
+        arguments:
+          width: 8

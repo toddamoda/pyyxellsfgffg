@@ -25,7 +25,7 @@ from pyxel.models.charge_measurement import (
     output_node_linearity_poly,
     physical_non_linearity,
     physical_non_linearity_with_saturation,
-    simple_physical_non_linearity,
+    simple_physical_non_linearity
 )
 from pyxel.models.charge_measurement.non_linearity_calculation import ni_hansen
 
@@ -60,7 +60,7 @@ def cmos_5x5() -> CMOS:
             pixel_horz_size=10.0,
         ),
         environment=Environment(temperature=80),
-        characteristics=Characteristics(),
+        characteristics=Characteristics(charge_to_volt_conversion=1.0e-5),
     )
     detector._readout_properties = ReadoutProperties(times=[1.0, 2.0])
     return detector
@@ -432,7 +432,6 @@ def test_physical_non_linearity_with_temperature(
             v_bias=0.1,
             fixed_capacitance=5.0e-15,
         )
-
 
 def test_physical_non_linearity_with_saturation_with_ccd(ccd_5x5: CCD):
     """Test model 'physical_non_linearity_with_saturation' with a 'CCD'."""

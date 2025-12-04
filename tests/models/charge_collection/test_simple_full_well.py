@@ -29,9 +29,21 @@ def ccd_2x3() -> CCD:
         characteristics=Characteristics(),
     )
 
-
-@pytest.mark.parametrize("fwc", [10, None])
-def test_full_well(ccd_2x3: CCD, fwc: int):
+@pytest.mark.parametrize(
+    "fwc",
+    [
+        pytest.param(
+            10,
+        ),
+        pytest.param(
+            None,
+        ),
+    ],
+)
+def test_full_well(
+    ccd_2x3: CCD,
+    fwc: int,
+):
     """Test model 'simple_full_well' with valid inputs."""
 
     detector = ccd_2x3

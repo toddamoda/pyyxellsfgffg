@@ -20,7 +20,7 @@ from pyxel.models.charge_measurement import simple_measurement
 
 
 @pytest.fixture
-def ccd_5x10() -> CCD:
+def ccd_2x3() -> CCD:
     """Create a valid CCD detector."""
     detector = CCD(
         geometry=CCDGeometry(
@@ -36,16 +36,15 @@ def ccd_5x10() -> CCD:
     detector.signal.array = np.zeros(detector.geometry.shape, dtype=float)
     return detector
 
-
 @pytest.mark.parametrize("gain", [None, 0.8])
-def test_simple_measurement(ccd_5x10: CCD, gain):
+def test_simple_measurement(ccd_2x3: CCD, gain):
     """Test model 'simple_measurement."""
     pixel_2d = np.array(
         [[0.22733602, 0.31675834, 0.79736546], [0.67625467, 0.39110955, 0.33281393]],
     )
 
-    detector = ccd_5x10
-    detector.pixel.non_volatile.array = pixel_2d.copy()
+    detector = ccd_2x3
+    detector.pixel.array = pixel_2d.copy()
     detector.characteristics.charge_to_volt_conversion = 0.5
 
     if gain is None:

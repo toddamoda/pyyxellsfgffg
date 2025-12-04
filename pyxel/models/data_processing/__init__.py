@@ -14,3 +14,4 @@ from .source_extractor_model import extract_roi_to_xarray, source_extractor, plo
 from .mean_variance import mean_variance
 from .linear_regression import linear_regression
 from .snr import signal_to_noise_ratio
+from .apply_gain import apply_gain

@@ -453,6 +453,23 @@ models:
         enabled: true
         arguments:
           dark_rate: 10.0
+  
+  - name: dark_current_user_array
+    full_name: Dark current user array
+    detector: all
+    status: draft
+    description: >
+      Adds a user-defined array to the charge array as dark current. `position`
+      and `align` are optional. If the arrays are the same size, these
+      arguments can be ignored.
+    config: >
+      - name: dark_current_user_array
+        func: pyxel.models.charge_generation.dark_current_user_array
+        enabled: true
+        arguments:
+          filename: "dark_current_array.npy"
+          position: (0,0)
+          align: "top_left"
 
   - name: apd_gain
     full_name: APD gain

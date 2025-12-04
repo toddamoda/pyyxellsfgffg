@@ -36,7 +36,6 @@ def ccd_10x10() -> CCD:
     detector._readout_properties = ReadoutProperties(times=[1.0])
     return detector
 
-
 def test_simple_dark_current_valid(ccd_10x10: CCD):
     """Test model 'simple_dark_current' with valid inputs."""
     simple_dark_current(detector=ccd_10x10, dark_rate=1.0)

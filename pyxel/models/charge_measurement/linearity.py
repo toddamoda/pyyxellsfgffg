@@ -82,7 +82,6 @@ def output_node_linearity_poly(
     signal_non_linear = signal_non_linear.clip(min=0.0)
     detector.signal.array = signal_non_linear
 
-
 def compute_simple_physical_non_linearity(
     array_2d: np.ndarray,
     temperature: float,  # Detector operating temperature

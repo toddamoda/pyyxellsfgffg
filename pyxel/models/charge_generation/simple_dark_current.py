@@ -7,14 +7,20 @@
 
 """Model to generate charges due to simple dark current process."""
 
+from pathlib import Path
+from typing import Literal
+
 import numpy as np
 
 from pyxel.detectors import Detector
-from pyxel.util import set_random_seed
+from pyxel.util import (
+    load_cropped_and_aligned_image,
+    set_random_seed
+)
 
 
 def calculate_simple_dark_current(
-    num_rows: int, num_cols: int, current: float, exposure_time: float
+    num_rows: int, num_cols: int, current: float|np.ndarray, exposure_time: float
 ) -> np.ndarray:
     """Simulate dark current in a :term:`CCD`.
 
@@ -26,7 +32,7 @@ def calculate_simple_dark_current(
         Number of rows for the generated image.
     num_cols : int
         Number of columns for the generated image.
-    current : float
+    current : float | np.ndarray
         Dark current, in e⁻/pixel/second
     exposure_time : float
         Length of the simulated exposure, in seconds.

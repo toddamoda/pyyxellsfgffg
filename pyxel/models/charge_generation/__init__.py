@@ -14,6 +14,7 @@ from .load_charge import load_charge
 from .photoelectrons import simple_conversion, conversion_with_qe_map
 from .cosmix.cosmix import cosmix
 from .simple_dark_current import simple_dark_current
+from . simple_dark_current_user_array import  simple_dark_current_user_array
 from .dark_current_induced import radiation_induced_dark_current
 from .dark_current import dark_current
 from .dark_current_saphira import dark_current_saphira
