@@ -10,7 +10,7 @@ from typing import Annotated, Literal
 import pytest
 from annotated_types import Ge, Interval
 
-from pyxel.util.check_validity import check_validity
+from pyxel.util import check_validity
 
 # ---------------------------------------------------------
 # VALID INPUTS (should NOT raise)
