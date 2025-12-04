@@ -5,9 +5,12 @@
 #  this file, may be copied, modified, propagated, or distributed except according to
 #  the terms contained in the file ‘LICENCE.txt’.
 
+"""Type-validation utilities for Pyxel."""
+
 from typing import Annotated, Literal, Union, get_args, get_origin
 
 
+# ruff: noqa: C901
 def check_validity(obj, type_):
     """
     Validate `obj` against `type_`.
@@ -74,7 +77,7 @@ def check_validity(obj, type_):
         if len(obj) != len(args):
             raise ValueError(f"Expecting tuple of length {len(args)}. Got {len(obj)}")
 
-        for elem, elem_type in zip(obj, args):
+        for elem, elem_type in zip(obj, args, strict=True):
             check_validity(elem, elem_type)
 
         return
@@ -87,9 +90,11 @@ def check_validity(obj, type_):
         for sub_type in args:
             try:
                 check_validity(obj, sub_type)
-                return
             except Exception:
                 pass
+            else:
+                # No error(s)/exception(s)
+                return
 
         raise TypeError(f"{obj!r} does not match any allowed type {args}")
 
