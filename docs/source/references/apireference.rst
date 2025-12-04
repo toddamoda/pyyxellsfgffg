@@ -203,6 +203,7 @@ Utility functions
     time_pipeline
     fit_into_array
     get_schema
+    check_validity
 
 Deprecated / Pending deprecation
 ================================
