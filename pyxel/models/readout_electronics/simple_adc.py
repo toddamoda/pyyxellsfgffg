@@ -9,10 +9,8 @@
 """Simple ADC model functions."""
 
 from typing import Literal
-
 import numpy as np
 from numpy.typing import DTypeLike
-
 from pyxel.detectors import Detector
 from pyxel.util import get_dtype
 
@@ -26,7 +24,7 @@ def apply_simple_adc(
 ) -> np.ndarray:
     """Apply a simple Analog-to-Digital Converted (ADC) digitization.
 
-    This functions simulates the behaviour of an ADC by quantizing a continuous signal
+    This function simulates the behaviour of an ADC by quantizing a continuous signal
     to a discrete digital representation based on the provided bit resolution and voltage range.
 
     Parameters
@@ -56,15 +54,7 @@ def apply_simple_adc(
     ...     voltage_max=6.0,
     ...     dtype=np.uint8,
     ... )
-    array([0, 0, 127, 255, 255], dtype=np.uint8
-
-    Notes
-    -----
-    This function performs the following steps:
-    1. Clips the input signal to the specified voltage range [voltage_min, voltage_max].
-    1. Normalizes the clipped signal to the range [0, 2^bit_resolution - 1].
-    1. Rounds the normalized values to the nearest integer using truncation.
-    1. Converts the resulting array to the specified data type (dtype).
+    array([0, 0, 127, 255, 255], dtype=np.uint8)
     """
     output = (
         (np.clip(signal, a_min=voltage_min, a_max=voltage_max) - voltage_min)
@@ -93,6 +83,11 @@ def simple_adc(
         Valid values: 'uint8', 'uint16', 'uint32', 'uint64'
         Invalid values: 'int16', 'int32', 'int64', 'int', 'float'...
     """
+    # Ensure readout times are injected (if not yet done in this process)
+    if hasattr(detector, 'readout_times') and detector.readout_times is not None:
+        readout_times = detector.readout_times
+    else:
+        readout_times = None  # This can default to a single time step if missing
 
     bit_resolution = detector.characteristics.adc_bit_resolution
     voltage_min, voltage_max = detector.characteristics.adc_voltage_range
@@ -110,10 +105,26 @@ def simple_adc(
     else:
         d_type = get_dtype(bit_resolution)
 
-    detector.image.array = apply_simple_adc(
-        signal=detector.signal.array,
-        bit_resolution=bit_resolution,
-        voltage_min=voltage_min,
-        voltage_max=voltage_max,
-        dtype=d_type,
-    )
+    # Handle time-dependent data (if readout times are present)
+    if readout_times is not None:
+        # If readout_times exists, we apply the ADC for each time step in the readout_times
+        for readout_time in readout_times:
+            # Process the signal as needed for this readout_time
+            # Update the signal array by adjusting or modulating based on time
+            # Here we apply the ADC model to the signal at each time step (time-dependent simulation)
+            detector.image.array = apply_simple_adc(
+                signal=detector.signal.array * readout_time,  # Apply modulation for time
+                bit_resolution=bit_resolution,
+                voltage_min=voltage_min,
+                voltage_max=voltage_max,
+                dtype=d_type,
+            )
+    else:
+        # If no time-dependency, just apply the ADC model directly to the signal
+        detector.image.array = apply_simple_adc(
+            signal=detector.signal.array,
+            bit_resolution=bit_resolution,
+            voltage_min=voltage_min,
+            voltage_max=voltage_max,
+            dtype=d_type,
+        )

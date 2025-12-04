@@ -1,9 +1,9 @@
-#   Copyright (c) European Space Agency, 2020.
-#  #
-#   This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
-#   is part of this Pyxel package. No part of the package, including
-#   this file, may be copied, modified, propagated, or distributed except according to
-#   the terms contained in the file ‘LICENCE.txt’.
+#  Copyright (c) European Space Agency, 2020.
+#
+#  This file is subject to the terms and conditions defined in file 'LICENCE.txt', which
+#  is part of this Pyxel package. No part of the package, including
+#  this file, may be copied, modified, propagated, or distributed except according to
+#  the terms contained in the file ‘LICENCE.txt’.
 
 """Convert scene to photon with simple collection model."""
 
@@ -22,101 +22,57 @@ def extract_wavelength(
     scene: Scene,
     wavelengths: xr.DataArray,
 ) -> xr.Dataset:
-    """Extract xarray Dataset of Scene for selected wavelength band.
-
-    Parameters
-    ----------
-    scene : Scene
-        Pyxel scene object.
-    wavelengths : WavelengthHandling
-        Selected wavelength band. Unit: nm.
-
-    Returns
-    -------
-    selected_data : xr.Dataset
-
-    Examples
-    --------
-    >>> scene = Scene(...)
-    >>> extract_wavelength(scene=scene, wavelength_band=[500, 900])
-    <xarray.Dataset>
-    Dimensions:     (ref: 345, wavelength: 201)
-    Coordinates:
-      * ref         (ref) int64 0 1 2 3 4 5 6 7 ... 337 338 339 340 341 342 343 344
-      * wavelength  (wavelength) float64 500.0 502.0 504.0 ... 896.0 898.0 900.0
-    Data variables:
-        x           (ref) float64 2.057e+05 2.058e+05 ... 2.031e+05 2.03e+05
-        y           (ref) float64 8.575e+04 8.58e+04 ... 8.795e+04 8.807e+04
-        weight      (ref) float64 11.49 14.13 15.22 14.56 ... 15.21 11.51 8.727
-        flux        (ref, wavelength) float64 0.2331 0.231 0.2269 ... 2.213 2.212
-    """
-
+    """Extract xarray Dataset of Scene for selected wavelength band."""
     # retrieve scene data, convert it to xarray and interpolate it
     interpolated_wavelengths = scene.to_xarray().interp(wavelength=wavelengths)
-
-    # get dataset with x, y, weight and flux of scene for selected wavelength band.
-    # selected_data: xr.Dataset = data.sel(
-    #     wavelength=interpolated_wavelengths["wavelength"]
-    # )
-
     return interpolated_wavelengths
 
 
 def integrate_flux(
     flux: xr.DataArray,
 ) -> xr.DataArray:
-    """Integrate flux in photon/(s nm cm2) along the wavelength band in nm and return integrated flux in photon/(s cm2).
-
-    Parameters
-    ----------
-    flux : xr.DataArray
-        Flux. Unit: photon/(s nm cm2).
-
-    Returns
-    -------
-    integrated_flux : xr.DataArray
-        Flux integrated alaong wavelangth band. Unit: photon/(s cm2).
-
-    Examples
-    --------
-    >>> flux
-    <xarray.DataArray 'flux' (ref: 345, wavelength: 201)>
-    array([[0.23309256, 0.23099403, 0.22690838, ..., 0.74632666, 0.74254087,
-            0.74107508],
-           [0.02540123, 0.02539306, 0.02532492, ..., 0.02315146, 0.02275346,
-            0.02240911],
-           [0.00848251, 0.00849082, 0.00835927, ..., 0.01687145, 0.01677347,
-            0.01674323],
-           ...,
-           [0.0086873 , 0.00874152, 0.0088429 , ..., 0.01047889, 0.01037253,
-            0.01032473],
-           [0.28250153, 0.27994777, 0.27599212, ..., 0.30550521, 0.30414266,
-            0.30421148],
-           [3.82353376, 3.86376387, 3.88179622, ..., 2.22050587, 2.21307412,
-            2.21216093]])
-    Coordinates:
-      * ref         (ref) int64 0 1 2 3 4 5 6 7 ... 337 338 339 340 341 342 343 344
-      * wavelength  (wavelength) float64 500.0 502.0 504.0 ... 896.0 898.0 900.0
-    Attributes:
-        units:    ph / (cm2 nm s)
-    >>> integrate_flux(flux=flux)
-    <xarray.DataArray 'flux' (ref: 345)>
-    array([2.13684421e+02, 1.01716326e+01, 5.69110647e+00, 1.17371054e+01,
-           2.55767948e+01, 6.91026764e+00, 3.79706245e+00, 1.04048130e+01,
-           ...
-           6.00547211e+00, 6.19314865e+00, 9.97548328e+00, 5.88036380e+00,
-           1.10089431e+01, 1.40244956e+01, 4.23104795e+00, 1.28482189e+02,
-           1.18302668e+03])
-    Coordinates:
-      * ref      (ref) int64 0 1 2 3 4 5 6 7 8 ... 337 338 339 340 341 342 343 344
-    Attributes:
-        units:    ph / (cm2 s)
-    """
-    # integrate flux along coordinate wavelength
+    """Integrate flux in photon/(s nm cm2) along wavelength -> photon/(s cm2)."""
     integrated_flux = flux.integrate(coord="wavelength")
     integrated_flux.attrs["units"] = str(u.Unit(flux.units) * u.nm)
-
     return integrated_flux
+
+
+# ---- NEW: helper to integrate a RATE over readout windows (time) ----------------
+def integrate_rate_over_windows(
+    rate: xr.DataArray,  # units: ph / (s cm2)
+    readout_times: np.ndarray,  # seconds, monotonic increasing
+) -> xr.DataArray:
+    """
+    Integrate photon rate ph/(s cm2) over time windows -> ph/cm2 per window.
+
+    Returns DataArray with dims ('readout_time', *rate.dims_without_time)
+    """
+    if "time" not in rate.dims:
+        raise ValueError("Expected a 'time' dimension for temporal integration.")
+
+    counts_per_window = []
+    for i in range(len(readout_times) - 1):
+        t0, t1 = readout_times[i], readout_times[i + 1]
+        # integrate along time to get ph/cm2 in this interval
+        window_counts = rate.sel(time=slice(t0, t1)).integrate(coord="time")
+        counts_per_window.append(window_counts.expand_dims(readout_time=[i]))
+
+    out = xr.concat(counts_per_window, dim="readout_time")
+    # units: rate.units * s
+    out.attrs["units"] = str(u.Unit(rate.attrs.get("units", "1 / (cm2 s)")) * u.s)
+    return out
+
+
+# ---- NEW: area conversion for counts already integrated in time ----------------
+def convert_counts_area(
+    counts_per_cm2: Quantity,  # ph/cm2
+    aperture: Quantity,  # m
+) -> Quantity:
+    """Convert ph/cm2 to photons by multiplying with collecting area."""
+    col_area = (
+        np.pi * (aperture * 1e2 / 2) ** 2
+    )  # m -> cm (1e2), area of circular aperture
+    return counts_per_cm2 * col_area
 
 
 def convert_flux(
@@ -124,36 +80,11 @@ def convert_flux(
     t_exp: Quantity,
     aperture: Quantity,
 ) -> Quantity:
-    """Convert flux in ph/(s cm2) to ph OR in ph/(s nm cm2) to ph/nm.
-
-    Parameters
-    ----------
-    flux : Quantity
-        Flux. Unit: ph/(s cm2).
-    t_exp : Quantity
-        Exposure time. Unit: s.
-    aperture : Quantity
-        Collecting area of the telescope. Unit: m.
-
-    Returns
-    -------
-    Quantity
-        Converted flux in ph OR ph/nm.
-
-    Examples
-    --------
-    >>> flux
-     <Quantity [0.037690712, 0.041374086, 0.03988154, …,
-     0.79658112, 0.80078535, 0.83254124] ph/s cm2>
-    >>> convert_flux(flux=flux, t_exp=6000 * u.s, aperture=0.1267 * u.m)
-    <Quantity  [1362360.7, 1284980.7, 1188073.3, …,
-    1357639.3, 1371451.7, 1434596.3] ph>
-    """
+    """Convert rate (ph/(s cm2)) to photons (or per-nm), multiplying by exposure and area."""
     # TODO: check aperture factor 1e2 correct?!
     # TODO: add unit test.
     col_area = np.pi * (aperture * 1e2 / 2) ** 2
     flux_converted = flux * t_exp * col_area
-
     return flux_converted
 
 
@@ -165,52 +96,6 @@ def project_objects_to_detector(
 ) -> xr.Dataset:
     """
     Project objects onto detector. Converting scene from arcsec to detector coordinates.
-
-    Parameters
-    ----------
-    scene_data : xr.Dataset
-        Scene dataset with wavelength and flux information to project onto detector.
-    pixel_scale : Quantity
-        Pixel sclae of instrument. Unit: arcsec/pixel.
-    rows : int
-        Rows of detector.
-    cols : int
-        Columns of detector.
-
-    Returns
-    -------
-     projected : Dataset
-        Projected objects in detector coordinates.
-
-    Examples
-    --------
-    >>> scene_data
-    <xarray.Dataset>
-    Dimensions:            (ref: 345, wavelength: 201)
-    Coordinates:
-      * ref                (ref) int64 0 1 2 3 4 5 6 ... 338 339 340 341 342 343 344
-      * wavelength         (wavelength) float64 500.0 502.0 504.0 ... 898.0 900.0
-    Data variables:
-        x                  (ref) float64 2.057e+05 2.058e+05 ... 2.031e+05 2.03e+05
-        y                  (ref) float64 8.575e+04 8.58e+04 ... 8.795e+04 8.807e+04
-        weight             (ref) float64 11.49 14.13 15.22 ... 15.21 11.51 8.727
-        flux               (ref, wavelength) float64 0.2331 0.231 ... 2.213 2.212
-        converted_flux     (ref) float64 1.616e+08 7.695e+06 ... 9.719e+07 8.949e+08
-        detector_coords_x  (ref) float64 1.307e+03 1.252e+03 ... 2.748e+03 2.809e+03
-        detector_coords_y  (ref) float64 1.454e+03 1.487e+03 ... 2.79e+03 2.859e+03
-    >>> project_objects_to_detector(
-    ...     selected_data=selected_data,
-    ...     pixel_scale=Quantity(1.65, unit="arcsec / pix"),
-    ...     rows=4096,
-    ...     cols=4132,
-    ... )
-    array([[0., 0., 0., ..., 0., 0., 0.],
-           [0., 0., 0., ..., 0., 0., 0.],
-           [0., 0., 0., ..., 0., 0., 0.],
-           ...,
-           [0., 0., 0., ..., 0., 0., 0.],
-           [0., 0., 0., ..., 0., 0., 0.],
-           [0., 0., 0., ..., 0., 0., 0.]])
     """
     # we project the stars in the FOV:
     stars_coords = SkyCoord(
@@ -220,53 +105,23 @@ def project_objects_to_detector(
     )
 
     # coordinates of telescope pointing
-    # Extract parameters from 'scene'
     scene_coord: SceneCoordinates = SceneCoordinates.from_dataset(scene_data)
     telescope_ra: Quantity = scene_coord.right_ascension
     telescope_dec: Quantity = scene_coord.declination
-    # fov = scene_coord.fov
-
-    # telescope_ra: Quantity = (scene_data["x"].values * u.arcsec).mean()
-    # telescope_dec: Quantity = (scene_data["y"].values * u.arcsec).mean()
     coords_detector = SkyCoord(ra=telescope_ra, dec=telescope_dec, unit="degree")
 
     # using World Coordinate System (WCS) to convert to pixel
-    # more info: https://heasarc.gsfc.nasa.gov/docs/fcg/standard_dict.html
     w = wcs.WCS(naxis=2)
 
-    # define cdelt: coordinate increment along axis
     cdelt = (np.array([-1.0, 1.0]) * pixel_scale).to("deg / pix")
     w.wcs.cdelt = cdelt
 
-    # define crpix: coordinate system reference pixel
     crpix = Quantity(np.array([rows / 2, cols / 2]), unit="pix")
     w.wcs.crpix = crpix
 
-    # define crval: coordinate system value at reference pixel
     w.wcs.crval = [coords_detector.ra.deg, coords_detector.dec.deg]
-
-    # define crota: coordinate system rotation angle
     w.wcs.crota = [0, -0]
-
-    # define ctype: name of the coordinate axis
     w.wcs.ctype = ["RA---TAN", "DEC--TAN"]
-
-    """
-    # Other possible method to convert to pixel usingscopesim:
-    # https://github.com/AstarVienna/ScopeSim/blob/dev_master/scopesim/optics/image_plane_utils.py#L698
-    # gives different result.
-    # da = cdelt[0]
-    # db = cdelt[1]
-    # x0 = crpix[0]
-    # y0 = crpix[1]
-    # a0 = selected_data["x"].values * u.arcsec
-    # b0 = selected_data["y"].values * u.arcsec
-    # a = float(telescope_ra) * u.deg
-    # b = float(telescope_dec) * u.deg
-    # convert stars coordinate to detector coordinates
-    # detector_coords_x = x0 + 1. / da * (a - a0)
-    # detector_coords_y = y0 + 1. / db * (b - b0)
-    """
 
     detector_coords_x = np.round(
         w.world_to_pixel_values(stars_coords.ra, stars_coords.dec)[0]
@@ -281,7 +136,6 @@ def project_objects_to_detector(
         detector_coords_y, dims="ref", attrs={"units": "pixel"}
     )
 
-    # make sure that only stars inside the detector
     selected_data_query = (
         scene_data.copy(deep=True)
         .query(ref="detector_coords_x > 0")
@@ -296,7 +150,6 @@ def project_objects_to_detector(
             "To resolve this issue you can use function 'pyxel.display_scene'"
         )
 
-    # convert to int
     selected_data_query["detector_coords_x"] = selected_data_query[
         "detector_coords_x"
     ].astype(int)
@@ -308,50 +161,17 @@ def project_objects_to_detector(
 
 
 def aggregate_monochromatic(data: xr.Dataset, rows: int, cols: int) -> np.ndarray:
-    """Aggregate a 3D data array containing fluxes into a 2D array.
-
-    Parameters
-    ----------
-    data : xr.DataArray
-    rows : int
-        The number of rows in the detector.
-    cols : int
-        The number of columns in the detector.
-
-    Returns
-    -------
-    2D array
-    """
-    # get empty array in shape of the detector
+    """Aggregate a 3D data array containing fluxes into a 2D array."""
     projection_2d: np.ndarray = np.zeros([rows, cols])
-
-    # fill in projection of objects in detector coordinates
     for x, group_x in data.groupby("detector_coords_x"):
         for y, group_y in group_x.groupby("detector_coords_y"):
             projection_2d[int(y), int(x)] += group_y["converted_flux"].values.sum()
-
     return projection_2d
 
 
 def aggregate_multiwavelength(data: xr.Dataset, rows: int, cols: int) -> xr.DataArray:
-    """Aggregate a 3D ``DataArray`` containing fluxes into a 3D ``DataArray``.
-
-    Parameters
-    ----------
-    data : xr.DataArray
-    rows : int
-        The number of rows in the detector.
-    cols : int
-        The number of columns in the detector.
-
-    Returns
-    -------
-    3D array
-    """
-    # get empty array in shape of the 3D datacube of the detector
+    """Aggregate a 3D ``DataArray`` containing fluxes into a 3D ``DataArray``."""
     projection = np.zeros([data.wavelength.size, rows, cols])
-
-    # fill in projection of objects in detector coordinates
     for x, group_x in data.groupby("detector_coords_x"):
         for y, group_y in group_x.groupby("detector_coords_y"):
             projection[:, int(y), int(x)] += np.array(
@@ -364,7 +184,27 @@ def aggregate_multiwavelength(data: xr.Dataset, rows: int, cols: int) -> xr.Data
         coords={"wavelength": data.wavelength},
         attrs={"units": data.converted_flux.units},
     )
+    return projection_3d
 
+
+# ---- NEW: aggregate time windows to (readout_time, y, x) -----------------------
+def aggregate_time(data: xr.Dataset, rows: int, cols: int) -> xr.DataArray:
+    """Aggregate per-ref counts into a (readout_time, y, x) cube."""
+    n_t = data.readout_time.size
+    projection = np.zeros([n_t, rows, cols])
+
+    for x, group_x in data.groupby("detector_coords_x"):
+        for y, group_y in group_x.groupby("detector_coords_y"):
+            # sum over ref for each readout_time
+            summed = np.array(group_y["converted_flux"].sum(dim="ref"))
+            projection[:, int(y), int(x)] += summed
+
+    projection_3d: xr.DataArray = xr.DataArray(
+        projection,
+        dims=["readout_time", "y", "x"],
+        coords={"readout_time": data.readout_time},
+        attrs={"units": data.converted_flux.units},
+    )
     return projection_3d
 
 
@@ -385,16 +225,13 @@ def _extract_wavelength(
         if resolution is not None:
             if resolution <= 0.0:
                 raise ValueError(f"Expected 'resolution' > 0. Got: {resolution!r}")
-
             step_size = resolution
-
         else:
             if not isinstance(default_wavelength_handling, WavelengthHandling):
                 raise ValueError(
                     "No 'resolution' provided for model 'simple_collection'. Please provide 'resolution'` "
                     "parameters in the detector environment wavelength or as input into this model directly."
                 )
-
             step_size = default_wavelength_handling.resolution
 
     else:
@@ -411,7 +248,6 @@ def _extract_wavelength(
             first_band = default_wavelength_handling.cut_on
             last_band = default_wavelength_handling.cut_off
             step_size = resolution
-
         else:
             if not isinstance(default_wavelength_handling, WavelengthHandling):
                 raise ValueError(
@@ -440,23 +276,14 @@ def simple_collection(
     resolution: int | None = None,
     pixel_scale: float | None = None,
     integrate_wavelength: bool = True,
+    # ---- NEW OPTIONALS (backward-compatible) ----
+    integrate_time: bool = False,
 ):
     """Convert scene in ph/(cm2 nm s) to photon in ph/nm s or ph s.
 
-    Parameters
-    ----------
-    detector : Detector
-        Pyxel detector object.
-    aperture : float
-        Collecting area of the telescope. Unit: m.
-    filter_band : Union[tuple[float, float], None]
-        Wavelength range of selected filter band, default is None. Unit: nm.
-    resolution : Optional[int]
-        Resolution of provided wavelength range in filter band. Unit: nm.
-    pixel_scale : float, optional
-        Pixel scale of detector, default is None. Unit: arcsec/pixel.
-    integrate_wavelength : bool
-        If true, integrates along the wavelength else multiwavelength, default is True.
+    If the Scene contains a 'time' coordinate and 'integrate_time=True',
+    the model integrates the (wavelength-integrated) photon rate over
+    the provided readout windows to produce a (readout_time, y, x) cube.
     """
     if aperture <= 0.0:
         raise ValueError(f"Expected 'aperture' > 0. Got: {aperture!r}")
@@ -487,7 +314,6 @@ def simple_collection(
     else:
         if pixel_scale <= 0.0:
             raise ValueError(f"Expected 'pixel_scale' > 0. Got: {pixel_scale!r}")
-
         pixel_scale_arcsec = Quantity(pixel_scale, unit="arcsec/pixel")
 
     wavelengths: xr.DataArray = _extract_wavelength(
@@ -505,63 +331,103 @@ def simple_collection(
     # get time in s
     time = Quantity(detector.time_step, unit="s")
     # get aperture in m
-    aperture = Quantity(aperture, unit="m")
+    aperture_q = Quantity(aperture, unit="m")
 
+    # ---- Branch A: wavelength-integrated path (default) ----------------------
     if integrate_wavelength:
-        # integrate flux
-        integrated_flux: xr.DataArray = integrate_flux(flux=scene_data["flux"])
-        # get flux in ph/s/cm^2
-        flux = Quantity(integrated_flux, unit=integrated_flux.units)
+        # integrate along wavelength -> rate ph/(s cm2)
+        integrated_rate: xr.DataArray = integrate_flux(flux=scene_data["flux"])
+        rate = Quantity(integrated_rate, unit=integrated_rate.units)
 
-        # get flux converted to ph
-        converted_flux_2d: Quantity = convert_flux(
-            flux=flux, t_exp=time, aperture=aperture
-        )
+        # ---- If time integration is requested and time coord exists ----------
+        if integrate_time and "time" in scene_data.dims:
+            # Require readout times on detector (set by Observation)
+            if not hasattr(detector, "readout_times"):
+                raise ValueError(
+                    "Time integration requested but 'detector.readout_times' is missing."
+                )
 
-        # load converted flux to selected dataset
-        scene_data["converted_flux"] = xr.DataArray(
-            converted_flux_2d, dims="ref", attrs={"units": str(converted_flux_2d.unit)}
-        )
+            # integrate rate over readout windows -> counts per cm2
+            counts_per_cm2: xr.DataArray = integrate_rate_over_windows(
+                rate=integrated_rate, readout_times=np.asarray(detector.readout_times)
+            )
+            counts_q = Quantity(
+                counts_per_cm2, unit=counts_per_cm2.attrs["units"]
+            )  # ph/cm2
 
-        photon_projected = project_objects_to_detector(
-            scene_data=scene_data,
-            pixel_scale=pixel_scale_arcsec,
-            rows=detector.geometry.row,
-            cols=detector.geometry.col,
-        )
+            # convert to photons using aperture area
+            converted_counts = convert_counts_area(
+                counts_per_cm2=counts_q, aperture=aperture_q
+            )
 
-        photon_projection_2d: np.ndarray = aggregate_monochromatic(
-            data=photon_projected,
-            rows=detector.geometry.row,
-            cols=detector.geometry.col,
-        )
+            # attach to scene_data with dims ('ref','readout_time')
+            scene_data["converted_flux"] = xr.DataArray(
+                converted_counts,
+                dims=["ref", "readout_time"],
+                attrs={"units": str(converted_counts.unit)},
+            )
 
-        detector.photon.array_2d = photon_projection_2d
+            # project and aggregate to (readout_time, y, x)
+            photon_projected = project_objects_to_detector(
+                scene_data=scene_data,
+                pixel_scale=pixel_scale_arcsec,
+                rows=detector.geometry.row,
+                cols=detector.geometry.col,
+            )
 
+            photon_projection_time: xr.DataArray = aggregate_time(
+                data=photon_projected,
+                rows=detector.geometry.row,
+                cols=detector.geometry.col,
+            )
+
+            detector.photon.array_3d = (
+                photon_projection_time  # dims: (readout_time, y, x)
+            )
+
+        else:
+            # Original 2D behaviour: multiply rate by exposure time and area
+            converted_flux_2d: Quantity = convert_flux(
+                flux=rate, t_exp=time, aperture=aperture_q
+            )
+
+            scene_data["converted_flux"] = xr.DataArray(
+                converted_flux_2d,
+                dims="ref",
+                attrs={"units": str(converted_flux_2d.unit)},
+            )
+
+            photon_projected = project_objects_to_detector(
+                scene_data=scene_data,
+                pixel_scale=pixel_scale_arcsec,
+                rows=detector.geometry.row,
+                cols=detector.geometry.col,
+            )
+
+            photon_projection_2d: np.ndarray = aggregate_monochromatic(
+                data=photon_projected,
+                rows=detector.geometry.row,
+                cols=detector.geometry.col,
+            )
+
+            detector.photon.array_2d = photon_projection_2d
+
+    # ---- Branch B: multiwavelength (kept as-is; no time aggregation here) ----
     else:
-        # get flux in ph/(s nm cm^2)
         flux_with_weight: xr.DataArray = scene_data["flux"] * scene_data["weight"]
-
         flux = Quantity(flux_with_weight, unit=scene_data["flux"].units)
 
-        # get flux converted to ph/nm
         converted_flux_3d: Quantity = convert_flux(
             flux=flux,
             t_exp=time,
-            aperture=aperture,
+            aperture=aperture_q,
         )
 
-        # load converted flux to scene_data dataset
         scene_data["converted_flux"] = xr.DataArray(
             converted_flux_3d,
             dims=["ref", "wavelength"],
             attrs={"units": str(converted_flux_3d.unit)},
         )
-        # min_x, max_x = scene_data["x"].min().item(), scene_data["x"].max().item()
-        # min_y, max_y = scene_data["y"].min().item(), scene_data["y"].max().item()
-        # print(f"Scene x range: {min_x} to {max_x}")
-        # print(f"Scene y range: {min_y} to {max_y}")
-        # print("Scene attributes:", scene_data.attrs)
 
         photon_projected = project_objects_to_detector(
             scene_data=scene_data,
