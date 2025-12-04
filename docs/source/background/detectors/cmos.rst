@@ -68,6 +68,7 @@ Available models
     * :ref:`Physical non-linearity`
     * :ref:`Physical non-linearity with saturation`
     * :ref:`HxRG noise generator`
+    * :ref:`Uncorrelated Pink Noise CMOS`
 * Readout electronics:
     * :ref:`readout_electronics_create_store_detector`
     * :ref:`Simple ADC`
