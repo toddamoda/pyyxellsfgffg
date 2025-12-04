@@ -20,6 +20,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
   (See [!1141](https://gitlab.com/esa/pyxel/-/merge_requests/1141)).
 
 ### Documentation
+* Migrate development workflow to Pixi.
+  (See [!1130](https://gitlab.com/esa/pyxel/-/merge_requests/1130)).
 
 ### Models
 * Fix usage of `pixel.volatile` and `pixel.non_volatile` for models `simple_full_well`, `simple_ipc` and `nghxrg`.

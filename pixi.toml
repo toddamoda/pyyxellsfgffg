@@ -1,0 +1,128 @@
+###############################################
+# Pixi                                        #
+# https://pixi.sh/                            #
+#                                             #
+# Conda environment installed in: ./pixi/envs #
+###############################################
+
+#   $ pixi self-update
+#   $ pixi update
+#   $ pixi add --pypi xxx
+#   $ pixi add yyy
+#   $ pixi import --format conda-env environment.yml
+
+#   $ pixi info
+#   $ pixi list
+#   $ pixi tree
+
+#   $ pixi shell
+#   $ pixi run python
+
+[workspace]
+name = "pyxel-dev"
+channels = ["conda-forge"]
+platforms = ["win-64", "linux-64", "osx-64", "osx-arm64"]
+
+[dependencies]
+#############################
+# Python                    #
+#############################
+python = ">=3.10,<3.13"
+
+#############################
+# Scientific computing      #
+#############################
+numba = ">=0.56.4"
+pandas = ">=2.1,<3"
+scipy = ">=1.12"
+xarray = ">=2024.10.0"
+photutils = "*"
+poppy = ">=1.1.0"
+specutils = ">=1.2"
+synphot = "*"
+
+#############################
+# Plotting                  #
+#############################
+matplotlib-base = ">=3.6"
+seaborn = "*"
+hvplot = "*"
+
+#############################
+# Parallel computing        #
+#############################
+dask = ">=2.9"
+dask-labextension = "*"
+
+#############################
+# Jupyter notebook          #
+#############################
+ipywidgets = ">=7.5"
+jupyterlab = "*"
+ipympl = "*"
+
+#############################
+# Input/Output              #
+#############################
+"astropy" = ">=5.2"
+"astroquery" = "<0.4.11"
+"fsspec" = ">=2021"
+"aiohttp" = "*"             # For fsspec
+"h5py" = "*"
+"pyyaml" = "*"
+"xlrd" = "*"
+"openpyxl" = "*"
+"h5netcdf" = "*"
+"asdf" = "*"
+"pooch" = ">=1.1.0"
+
+#############################
+# Others                    #
+#############################
+"attrs" = "*"
+"click" = "*"
+"diskcache" = "*"
+"tqdm" = "*"
+"typing-extensions" = ">=4.9"
+"pygmo" = ">=2.16.1"
+"pympler" = "*"
+"pillow" = "*"
+"scikit-image" = ">=0.23.0"
+"rich" = "*"
+"annotated-types" = ">=0.7.0"
+
+#############################
+# Code formatting           #
+#############################
+"black" = ">=20"
+"isort" = ">=5"
+"jupyterlab_code_formatter" = "*"
+
+#############################
+# Development               #
+#############################
+"ruff" = "*"
+"mypy" = "*"
+"pre-commit" = "*"
+"pytest" = "*"
+"pytest-httpserver" = "*"
+"pytest-mock" = "*"
+"tox" = "*"
+"tryceratops" = "*"
+"freezegun" = "*"
+"codespell" = "*"
+
+#############################
+# Profiling                 #
+#############################
+"pyinstrument" = "*"
+
+#############################
+# For IDEs                  #
+#############################
+pixi-pycharm = "*"              # For PyCharm
+
+[pypi-dependencies]
+pyxel-sim = { path = ".", editable = true }
+lacosmic = "*"
+
