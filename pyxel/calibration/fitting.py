@@ -22,6 +22,7 @@ from typing import TYPE_CHECKING, Literal
 import numpy as np
 import pandas as pd
 from dask.delayed import delayed
+from typing_extensions import deprecated
 
 from pyxel.calibration import (
     CalibrationMode,
@@ -47,6 +48,7 @@ if TYPE_CHECKING:
 class ModelFitting(ProblemSingleObjective):
     """Pygmo problem class to fit data with any model in Pyxel."""
 
+    @deprecated("This method will be removed")
     def __init__(
         self,
         processor: Processor,
@@ -99,6 +101,7 @@ class ModelFitting(ProblemSingleObjective):
 
         self.match: dict[int, list[str]] = {}
 
+    @deprecated("This method will be removed")
     def get_bounds(self) -> tuple[Sequence[float], Sequence[float]]:
         """Get the box bounds of the problem (lower_boundary, upper_boundary).
 
@@ -110,6 +113,7 @@ class ModelFitting(ProblemSingleObjective):
         """
         return self.lbd, self.ubd
 
+    @deprecated("This method will be removed")
     def configure(
         self,
         target_fit_range: Sequence[int],
@@ -209,6 +213,7 @@ class ModelFitting(ProblemSingleObjective):
                 weights=weights, weights_from_file=weights_from_file
             )
 
+    @deprecated("This method will be removed")
     def _configure_weights(
         self,
         weights: Sequence[float] | None = None,
@@ -239,6 +244,7 @@ class ModelFitting(ProblemSingleObjective):
         elif weights is not None:
             self.weighting = np.array(weights)
 
+    @deprecated("This method will be removed")
     def set_bound(self) -> None:
         """TBW."""
         self.lbd = []
@@ -294,6 +300,7 @@ class ModelFitting(ProblemSingleObjective):
                     "indicate variables need to be calibrated"
                 )
 
+    @deprecated("This method will be removed")
     def get_simulated_data(self, processor: Processor) -> np.ndarray:
         """Extract 2D data from a processor."""
         if self.sim_output not in ("image", "signal", "pixel"):
@@ -307,6 +314,7 @@ class ModelFitting(ProblemSingleObjective):
 
         return simulated_data
 
+    @deprecated("This method will be removed")
     def calculate_fitness(
         self,
         simulated_data: np.ndarray,
@@ -335,6 +343,7 @@ class ModelFitting(ProblemSingleObjective):
         return fitness
 
     # TODO: If possible, use 'numba' for this method
+    @deprecated("This method will be removed")
     def fitness(self, decision_vector_1d: np.ndarray) -> Sequence[float]:
         """Call the fitness function, elements of parameter array could be logarithmic values.
 
@@ -415,6 +424,7 @@ class ModelFitting(ProblemSingleObjective):
 
         return [overall_fitness]
 
+    @deprecated("This method will be removed")
     def convert_to_parameters(self, decisions_vector: "ArrayLike") -> np.ndarray:
         """Convert a decision version from Pygmo2 to parameters.
 
@@ -443,6 +453,7 @@ class ModelFitting(ProblemSingleObjective):
 
         return parameters
 
+    @deprecated("This method will be removed")
     def apply_parameters(
         self, processor: Processor, parameter: np.ndarray
     ) -> Processor:
@@ -457,6 +468,7 @@ class ModelFitting(ProblemSingleObjective):
 
         return new_processor
 
+    @deprecated("This method will be removed")
     def apply_parameters_to_processors(
         self, parameters: "xr.DataArray"
     ) -> pd.DataFrame:
@@ -487,6 +499,7 @@ class ModelFitting(ProblemSingleObjective):
 
         return df
 
+    @deprecated("This method will be removed")
     def update_processor(
         self, parameter: np.ndarray, processor: Processor
     ) -> Processor:

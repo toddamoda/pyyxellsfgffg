@@ -20,55 +20,6 @@ if TYPE_CHECKING:
 __all__ = ["DaskBFE", "DaskIsland"]
 
 
-class ProblemSerializable:
-    """Create a 'problem' with a serializable fitness method.
-
-    Method '.fitness' from a ``pg.problem`` is not serializable with 'cloudpickle'.
-    Method ``ProblemSerializable.fitness`` is seriablizable with 'cloudpickle'.
-
-    Examples
-    --------
-    Create a new pygmo problem and serializable problem
-    >>> import pygmo as pg
-    >>> prob = pg.problem(...)
-    >>> prob_serial = ProblemSerializable(prob)
-
-    Fitness function is working for the pygmo and serializable problem
-    >>> import numpy as np
-    >>> dvs = np.array([...])
-    >>> np.array_equal(prob.fitness(dvs), prob_serial(dvs))
-    True
-
-    Serialization is not working for method 'prob.fitness' with 'cloudpickle'
-    >>> import cloudpickle
-    >>> _ = cloudpickle.dumps(prob.fitness)
-    TypeError: cannot pickle 'PyCapsule' object
-
-    Serialization is working with method 'prob_serial.fitness' with 'cloudpickle'
-    >>> _ = cloudpickle.dumps(prob_serial.fitness)  # It's working !
-    """
-
-    def __init__(self, prob):
-        self._prob = prob
-
-    def fitness(self, *args, **kwargs):
-        """Compute fitness."""
-        return self._prob.fitness(*args, **kwargs)
-
-
-class AlgoSerializable:
-    """Create an 'algorithm' with a serializable evolve method."""
-
-    def __init__(self, algo):
-        self._algo = algo
-
-    def evolve(self, *args, **kwargs):
-        """Compute 'evolve'."""
-        pop = self._algo.evolve(*args, **kwargs)
-
-        return self._algo, pop
-
-
 class DaskBFE:
     """User defined Batch Fitness Evaluator using `Dask`.
 
@@ -78,7 +29,7 @@ class DaskBFE:
     def __init__(self, chunk_size: int | None = None):
         self._chunk_size = chunk_size
 
-    def __call__(self, prob: "pg.problem", dvs_1d: np.ndarray) -> da.Array:
+    def __call__(self, prob: "pg.problem", dvs_1d: np.ndarray) -> np.ndarray:
         """Call operator to run the batch fitness evaluator.
 
         Parameters
@@ -92,6 +43,7 @@ class DaskBFE:
             A 1d array with the fitness parameters.
         """
         try:
+            # Get dimensions of the problem and the fitness
             ndims_dvs: int = prob.get_nx()
             num_fitness: int = prob.get_nf()
 
@@ -115,12 +67,9 @@ class DaskBFE:
 
             logging.info("DaskBFE: %i, %i, %r", len(dvs_1d), ndims_dvs, dvs_2d.shape)
 
-            # Create a new problem with a serializable method '.fitness'
-            problem_pickable = ProblemSerializable(prob)
-
             # Create a generalized function to run a 2D input with 'prob.fitness'
             fitness_func = da.gufunc(
-                problem_pickable.fitness,
+                prob.fitness,
                 signature="(i)->(j)",
                 output_dtypes=float,
                 output_sizes={"j": num_fitness},
@@ -130,12 +79,14 @@ class DaskBFE:
             fitness_2d: da.Array = fitness_func(dvs_2d)
             fitness_1d: da.Array = fitness_2d.ravel()
 
+            final_fitness_1d = np.array(fitness_1d)
+
         except Exception:
             logging.exception("Caught an exception in 'fitness' for ModelFitting.")
             raise
 
         else:
-            return fitness_1d
+            return final_fitness_1d
 
     def get_name(self) -> str:
         """Return name of this evaluator."""
@@ -171,21 +122,12 @@ class DaskIsland:
         """
         logging.info("Run evolve %r, %r", pop, algo)
 
-        # Create a new algorithm with a serializable method '.evolve'
-        algo_pickable = AlgoSerializable(algo)
-
         # Run 'algo.evolve' with `Dask`
         delayed_pop: Delayed = delayed(pop)
-        delayed_result: Delayed = delayed(algo_pickable.evolve, nout=2)(delayed_pop)
+        delayed_result: Delayed = delayed(algo.evolve)(delayed_pop)
 
-        new_algo: pg.algo
-        new_pop: pg.population
-        (
-            new_algo,
-            new_pop,
-        ) = delayed_result.compute()
-
-        return new_algo, new_pop
+        new_pop: pg.population = delayed_result.compute()
+        return algo, new_pop
 
     def get_name(self) -> str:
         """Return Island's name."""

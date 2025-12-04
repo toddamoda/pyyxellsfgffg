@@ -24,6 +24,61 @@ class AlgorithmType(Enum):
     Nlopt = "nlopt"
 
 
+# This algo is serializable
+class SerializableSade:
+    def __init__(
+        self,
+        gen: int = 10,
+        variant: int = 2,
+        variant_adptv: int = 1,
+        ftol: float = 1e-6,
+        xtol: float = 1e-6,
+        memory: bool = False,
+        seed: int = 294195201,
+    ):
+        self.gen = gen
+        self.variant = variant
+        self.variant_adptv = variant_adptv
+        self.ftol = ftol
+        self.xtol = xtol
+        self.memory = memory
+        self.seed = seed
+
+        self._verbosity = None
+        self._algo = None
+
+    def get_name(self) -> str:
+        return "saDE: Self-adaptive Differential Evolution"
+
+    def get_log(self):
+        raise NotImplementedError
+
+    def get_seed(self):
+        return self.seed
+
+    def set_verbosity(self, verbosity):
+        self._verbosity = verbosity
+
+    def evolve(self, pop):
+        import pygmo as pg
+
+        algo = pg.sade(
+            gen=self.gen,
+            variant=self.variant,
+            variant_adptv=self.variant_adptv,
+            ftol=self.ftol,
+            xtol=self.xtol,
+            memory=self.memory,
+            seed=self.seed,
+        )
+
+        embedded_algo = pg.algorithm(algo)
+        embedded_algo.set_verbosity(self._verbosity)
+
+        new_pop = embedded_algo.evolve(pop)
+        return new_pop
+
+
 # TODO: Use a class `Sade`, `SGA` and `NLOPT`. See #334
 class Algorithm:
     """TBW."""
@@ -479,7 +534,7 @@ class Algorithm:
     # NLOPT #####
 
     # TODO: This could be refactored for each if-statement. See #334
-    def get_algorithm(self) -> Union["pg.sade", "pg.sga", "pg.nlopt"]:
+    def get_algorithm(self) -> Union[SerializableSade, "pg.sga", "pg.nlopt"]:
         """TBW."""
         try:
             import pygmo as pg
@@ -491,7 +546,7 @@ class Algorithm:
             ) from exc
 
         if self.type is AlgorithmType.Sade:
-            sade_algorithm: pg.sade = pg.sade(
+            sade_algorithm: SerializableSade = SerializableSade(
                 gen=self.generations,
                 variant=self.variant,
                 variant_adptv=self.variant_adptv,

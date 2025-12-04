@@ -514,7 +514,7 @@ class MyArchipelago:  # pragma: no cover
 
         lst = []
         for island_idx, island in enumerate(self._pygmo_archi):
-            population: pg.population = island.get_population()
+            population: pg.population = island.get_population_per_island()
 
             # Get the decision vectors: num_individuals x size_decision_vector
             decision_vectors_2d: np.ndarray = population.get_x()

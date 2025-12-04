@@ -10,6 +10,7 @@
 import logging
 from collections.abc import Callable, Sequence
 from concurrent.futures.thread import ThreadPoolExecutor
+from pathlib import Path
 from timeit import default_timer as timer
 from typing import TYPE_CHECKING
 
@@ -18,6 +19,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from tqdm.auto import tqdm
+from typing_extensions import deprecated
 
 from pyxel.calibration import Algorithm, IslandProtocol
 from pyxel.calibration.fitting_datatree import ModelFittingDataTree
@@ -114,6 +116,7 @@ class ArchipelagoDataTree:
         algorithm: Algorithm,
         problem: ModelFittingDataTree,
         pop_size: int,
+        output_folder: Path | None = None,
         bfe: Callable | None = None,
         topology: Callable | None = None,
         pygmo_seed: int | None = None,
@@ -136,6 +139,7 @@ class ArchipelagoDataTree:
         self.algorithm: Algorithm = algorithm
         self.problem: ModelFittingDataTree = problem
         self.pop_size = pop_size
+        self._output_folder: Path | None = output_folder
         self.bfe = bfe
         self.topology = topology
         self.pygmo_seed = pygmo_seed
@@ -237,6 +241,9 @@ class ArchipelagoDataTree:
         -------
         DataTree
         """
+        # Late import
+        from pyxel.outputs.utils import to_netcdf
+
         self._log.info("Run %i evolutions", num_evolutions)
 
         total_num_generations = num_evolutions * self.algorithm.generations
@@ -248,6 +255,8 @@ class ArchipelagoDataTree:
             disable=not self.with_bar,
         ) as progress:
             champions_lst: list[xr.Dataset] = []
+            best_population_lst: list[xr.Dataset] = []
+
             # Run an evolution im the archipelago several times
             for id_evolution in range(num_evolutions):
                 # If the evolution on this archipelago was already run before, then
@@ -260,49 +269,37 @@ class ArchipelagoDataTree:
                 # that was encountered
                 self._pygmo_archi.wait_check()
 
-                # island: pg.island
-                # for id_island, island in enumerate(self._pygmo_archi):
-                #     algo: pg.algorithm = island.get_algorithm().extract(pg.sade)
-                #     logs: list[tuple] = algo.get_log()
-                #     columns = (
-                #         "num_generations",  # Generation number
-                #         "num_evaluations",  # Number of functions evaluation made
-                #         "best_fitness",  # The best fitness currently in the population
-                #         "f",
-                #         "cr",
-                #         "dx",
-                #         "df",
-                #     )
-                #     df = (
-                #         pd.DataFrame(logs, columns=columns)
-                #         .set_index(["num_generations", "num_evaluations"])
-                #         .to_xarray()
-                #     )
-
                 progress.update(self.algorithm.generations)
 
                 # Get partial champions for this evolution
-                partial_champions: xr.Dataset = self._get_champions()
+                champions_partial: xr.Dataset = self._get_champions()
 
-                # Get best population from the islands
-                if num_best_decisions:
-                    best_individuals: xr.Dataset = self.get_best_individuals(
-                        num_best_decisions=num_best_decisions
-                    )
-
-                    all_champions = xr.merge([partial_champions, best_individuals])
-                else:
-                    all_champions = partial_champions
-
-                num_params_id = len(all_champions["param_id"])
-                champions_lst.append(
-                    all_champions.expand_dims(
-                        evolution=[id_evolution], axis=1
-                    ).assign_coords(param_id=range(num_params_id))
+                # Get full and best population from all islands
+                ds_full_population, ds_best_population = self._get_population(
+                    num_best_decisions=num_best_decisions,
+                    full_population=True,
                 )
+                if ds_full_population and self._output_folder:
+                    # Save the population into a netcdf file, send to grafana, bokeh, ...
+                    filename = to_netcdf(
+                        current_output_folder=self._output_folder,
+                        data=ds_full_population,
+                        name=f"population_{id_evolution:02d}",
+                    )
+                    self._log.info("Population saved in %s", filename)
+
+                champions_lst.append(
+                    champions_partial.assign_coords(evolution=id_evolution)
+                )
+
+                if ds_best_population:
+                    best_population_lst.append(
+                        ds_best_population.assign_coords(evolution=id_evolution)
+                    )
 
         # Get all champions
         champions: xr.Dataset = xr.concat(champions_lst, dim="evolution")
+        best_population: xr.Dataset = xr.concat(best_population_lst, dim="evolution")
 
         # Get the champions in a `Dataset`
         last_champions = champions.isel(evolution=-1)
@@ -312,14 +309,14 @@ class ArchipelagoDataTree:
             parameters=last_champions["champion_parameters"],
         )
 
-        no_times = len(readout.times)
+        num_times = len(readout.times)
 
         # Extract simulated 'image', 'signal' and 'pixel' from the processors
         all_simulated_full: xr.Dataset = extract_data_3d(
             df_results=df_results,
             rows=num_rows,
             cols=num_cols,
-            times=no_times,
+            times=num_times,
             readout_times=readout.times,
         ).rename(id_processor="processor")
 
@@ -355,36 +352,14 @@ class ArchipelagoDataTree:
             all_data_fit_range = all_simulated_full
             all_data_fit_range["target"] = self.problem.all_target_data
 
-        data_tree: xr.DataTree = xr.DataTree()
-        data_tree["/champion/fitness"] = champions["champion_fitness"]
-        data_tree["/champion/decision"] = champions["champion_decision"]
-        data_tree["/champion/parameters"] = champions["champion_parameters"]
-
-        if "best_fitness" in champions:
-            data_tree["/best/fitness"] = champions["best_fitness"]
-        if "best_decision" in champions:
-            data_tree["/best/decision"] = champions["best_decision"]
-        if "best_parameters" in champions:
-            data_tree["/best/parameters"] = champions["best_parameters"]
-
-        data_tree["/simulated/photon"] = all_data_fit_range["simulated_photon"]
-        data_tree["/simulated/charge"] = all_data_fit_range["simulated_charge"]
-        data_tree["/simulated/pixel"] = all_data_fit_range["simulated_pixel"]
-        data_tree["/simulated/signal"] = all_data_fit_range["simulated_signal"]
-        data_tree["/simulated/image"] = all_data_fit_range["simulated_image"]
-        data_tree["/simulated/target"] = all_data_fit_range["target"]
-
-        data_tree["/full_size/simulated_photon"] = all_simulated_full[
-            "simulated_photon"
-        ]
-        data_tree["/full_size/simulated_charge"] = all_simulated_full[
-            "simulated_charge"
-        ]
-        data_tree["/full_size/simulated_pixel"] = all_simulated_full["simulated_pixel"]
-        data_tree["/full_size/simulated_signal"] = all_simulated_full[
-            "simulated_signal"
-        ]
-        data_tree["/full_size/simulated_image"] = all_simulated_full["simulated_image"]
+        data_tree: xr.DataTree = xr.DataTree.from_dict(
+            {
+                "/champion": champions,
+                "/best": best_population,
+                "/simulated": all_data_fit_range,
+                "/full_size": all_simulated_full,
+            }
+        )
         data_tree["/full_size/target"] = self.problem.target_full_scale
 
         data_tree.attrs["num_islands"] = self.num_islands
@@ -415,7 +390,7 @@ class ArchipelagoDataTree:
         """
         # Get fitness and decision vectors of the num_islands' champions
         champions_1d_fitness: ArrayLike = self._pygmo_archi.get_champions_f()
-        champions_1d_decision: ArrayLike = self._pygmo_archi.get_champions_x()
+        champions_2d_decision: ArrayLike = self._pygmo_archi.get_champions_x()
 
         # Get the champions as a Dataset
         champions = xr.Dataset()
@@ -423,15 +398,80 @@ class ArchipelagoDataTree:
             np.ravel(champions_1d_fitness), dims="island"
         )
         champions["champion_decision"] = xr.DataArray(
-            champions_1d_decision, dims=["island", "param_id"]
+            champions_2d_decision, dims=["island", "param_id"]
         )
         champions["champion_parameters"] = xr.DataArray(
             self.problem.convert_to_parameters(champions["champion_decision"]),
             dims=["island", "param_id"],
         )
 
-        return champions
+        num_islands, num_params = champions["champion_decision"].shape
 
+        return champions.assign_coords(
+            island=range(num_islands), param_id=range(num_params)
+        )
+
+    def get_population_per_island(self, island: "pg.island") -> xr.Dataset:
+        population: pg.population = island.get_population()
+
+        # Get the decision vectors: num_individuals x size_decision_vector
+        decision_2d: np.ndarray = population.get_x()
+
+        # Get the fitness vectors: num_individuals x 1
+        fitness_2d: np.ndarray = population.get_f()
+
+        # Convert the decision vectors to parameters:
+        #   num_individuals x size_decision_vector
+        parameters_2d = self.problem.convert_to_parameters(decision_2d)
+
+        # Get the full population
+        ds = xr.Dataset()
+        ds["decision"] = xr.DataArray(decision_2d, dims=["individual", "param_id"])
+        ds["parameters"] = xr.DataArray(parameters_2d, dims=["individual", "param_id"])
+        ds["fitness"] = xr.DataArray(fitness_2d.flatten(), dims=["individual"])
+
+        num_individuals, num_params_id = decision_2d.shape
+
+        return ds.assign_coords(
+            individual=range(num_individuals), param_id=range(num_params_id)
+        )
+
+    def _get_population(
+        self,
+        num_best_decisions: int | None,
+        full_population: bool,
+    ) -> tuple[xr.Dataset, xr.Dataset]:
+        full_population_lst: list[xr.Dataset] = []
+        best_population_lst: list[xr.Dataset] = []
+
+        if not num_best_decisions and not full_population:
+            return xr.Dataset(), xr.Dataset()
+
+        for island_idx, island in enumerate(self._pygmo_archi):
+            ds_full_population = self.get_population_per_island(island).assign_coords(
+                island=island_idx
+            )
+
+            if full_population:
+                full_population_lst.append(ds_full_population)
+
+            if num_best_decisions is not None and num_best_decisions > 1:
+                best_population_lst.append(
+                    ds_full_population.sortby("fitness")
+                    .isel(individual=slice(num_best_decisions))
+                    .assign_coords(individual=range(num_best_decisions))
+                )
+
+        ds_full_population = xr.concat(full_population_lst, dim="island")
+
+        if num_best_decisions == -1:
+            ds_best_population = ds_full_population
+        else:
+            ds_best_population = xr.concat(best_population_lst, dim="island")
+
+        return ds_full_population, ds_best_population
+
+    @deprecated("This method will be removed")
     def get_best_individuals(self, num_best_decisions: int) -> xr.Dataset:
         """Get the best decision vectors and fitness from the island of an archipelago.
 
@@ -473,42 +513,17 @@ class ArchipelagoDataTree:
 
         lst = []
         for island_idx, island in enumerate(self._pygmo_archi):
-            population: pg.population = island.get_population()
+            # Get the population of the whole island
+            ds_population: xr.Dataset = self.get_population_per_island(island)
 
-            # Get the decision vectors: num_individuals x size_decision_vector
-            decision_vectors_2d: np.ndarray = population.get_x()
-
-            # Get the fitness vectors: num_individuals x 1
-            fitness_vectors_2d: np.ndarray = population.get_f()
-
-            # Convert the decision vectors to parameters:
-            #   num_individuals x size_decision_vector
-            parameters_2d = self.problem.convert_to_parameters(decision_vectors_2d)
-
-            # Add the vectors into a Dataset
-            island_population = xr.Dataset()
-            island_population["best_decision"] = xr.DataArray(
-                decision_vectors_2d, dims=["individual", "param_id"]
-            )
-            island_population["best_parameters"] = xr.DataArray(
-                parameters_2d, dims=["individual", "param_id"]
-            )
-            island_population["best_fitness"] = xr.DataArray(
-                fitness_vectors_2d.flatten(), dims=["individual"]
+            # Get the best 'num_best_decisions'
+            ds_best_individuals = (
+                ds_population.sortby(ds_population["fitness"])
+                .isel(individual=slice(num_best_decisions))
+                .assign_coords(island=island_idx)
             )
 
-            # Get the indexes for the best fitness vectors
-            # and extract the 'num_besnum_best_decisionst_decisions' individuals
-            all_indexes_sorted = island_population["best_fitness"].argsort()
-            first_indexes_sorted = all_indexes_sorted[:num_best_decisions]
-
-            # Use the indexes to get the best elements
-            island_best_population = island_population.sel(
-                individual=first_indexes_sorted
-            )
-
-            # Append the result and add a new coordinate 'island'
-            lst.append(island_best_population.assign_coords(island=island_idx))
+            lst.append(ds_best_individuals)
 
         # Create a new dataset
         best_individuals_no_coordinates = xr.concat(lst, dim="island")

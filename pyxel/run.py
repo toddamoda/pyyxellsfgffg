@@ -13,6 +13,7 @@ import sys
 import time
 import warnings
 from collections.abc import Mapping, Sequence
+from contextlib import nullcontext
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, Union
 
@@ -548,8 +549,6 @@ def _run_calibration_mode(
 
     # Create an output folder
     outputs: CalibrationOutputs | None = calibration.outputs
-    if outputs:
-        outputs.create_output_folder()
 
     data_tree: "xr.DataTree" = calibration.run_calibration(
         processor=processor,
@@ -636,6 +635,92 @@ def _run_exposure_or_calibration_mode(
             raise TypeError("Please provide a valid simulation mode !")
 
 
+def _run_processor(
+    mode: Union[Exposure, Observation, "Calibration"],
+    processor: Processor,
+    debug: bool,
+) -> "xr.DataTree":
+    """Run a `Processor` for a given mode (Exposure, Observation or Calibration)."""
+    match mode:
+        case Exposure():
+            # Exposure mode
+            data_tree = mode.run_exposure(
+                processor=processor,
+                debug=debug,
+                with_inherited_coords=True,
+            )
+
+        case Observation():
+            # Observation mode
+            data_tree = mode.run_pipelines(
+                processor=processor,
+                with_inherited_coords=True,
+            )
+
+        case _:
+            # Calibration mode
+            data_tree = _run_calibration_mode(
+                calibration=mode,
+                processor=processor,
+                with_inherited_coords=True,
+            )
+
+    return data_tree
+
+
+def _run_processor_with_dask(
+    mode: Union[Exposure, Observation, "Calibration"],
+    processor: Processor,
+    output_folder: Path | None = None,
+    debug: bool = False,
+    # For Dask
+    create_dask_cluster: bool = False,
+    generate_dask_report: bool = False,
+) -> "xr.DataTree":
+    """Run a `Processor`."""
+    if generate_dask_report and not create_dask_cluster:
+        create_dask_cluster = True
+
+    if output_folder is None:
+        output_folder = Path()
+
+    from dask.distributed import Client, LocalCluster, performance_report
+
+    if create_dask_cluster:
+        cluster = LocalCluster()
+        client = Client(cluster)
+
+    elif generate_dask_report:
+        try:
+            client = Client.current()
+        except ValueError:
+            cluster = LocalCluster()
+            client = Client(cluster)
+
+    else:
+        client = nullcontext()
+
+    with client:
+        if not isinstance(client, nullcontext):
+            logging.info("Client: %r", client)
+
+        if generate_dask_report:
+            from dask.distributed import Client, LocalCluster, performance_report
+
+            filename = output_folder / "dask-report.html"
+            report = performance_report(filename=filename)
+        else:
+            report = nullcontext()
+
+        with report:
+            data_tree = _run_processor(mode=mode, processor=processor, debug=debug)
+
+        if not isinstance(report, nullcontext):
+            logging.info("Dask report generated !")
+
+    return data_tree
+
+
 def run_mode(
     config: Configuration | None = None,
     mode: Union[Exposure, Observation, "Calibration"] | None = None,
@@ -645,6 +730,9 @@ def run_mode(
     override_dct: Mapping[str, Any] | None = None,
     debug: bool = False,
     with_inherited_coords: bool = True,
+    # Specific for Dask
+    create_dask_cluster: bool = False,
+    generate_dask_report: bool = False,
 ) -> "xr.DataTree":
     """Execute a Pyxel simulation pipeline.
 
@@ -974,29 +1062,14 @@ def run_mode(
     if outputs:
         outputs.create_output_folder()
 
-    match mode:
-        case Exposure():
-            data_tree = mode.run_exposure(
-                processor=processor,
-                debug=debug,
-                with_inherited_coords=with_inherited_coords,
-            )
-
-        case Observation():
-            data_tree = mode.run_pipelines(
-                processor=processor,
-                with_inherited_coords=with_inherited_coords,
-            )
-
-        case _:
-            # Calibration mode
-            data_tree = _run_calibration_mode(
-                calibration=mode,
-                processor=processor,
-                with_inherited_coords=with_inherited_coords,
-            )
-
-    return data_tree
+    return _run_processor_with_dask(
+        mode=mode,
+        processor=processor,
+        output_folder=outputs.current_output_folder if outputs else None,
+        create_dask_cluster=create_dask_cluster,
+        generate_dask_report=generate_dask_report,
+        debug=debug,
+    )
 
 
 def run_mode_dataset(
@@ -1187,6 +1260,7 @@ def get_output_filenames(
 def run(
     input_filename: str | Path,
     override: Sequence[str] | None = None,
+    dask_report: bool = False,
     random_seed: int | None = None,
 ) -> Optional["pd.DataFrame"]:
     """Run a YAML configuration file.
@@ -1233,6 +1307,7 @@ def run(
             pipeline=pipeline,
             override_dct=override_dct,
             with_inherited_coords=True,
+            generate_dask_report=dask_report,
         )
 
         # if running_mode.outputs is None or running_mode.outputs.count_files_to_save() == 0:
@@ -1246,31 +1321,54 @@ def run(
             logging.info("Pipeline completed. No output folder.")
             return None
 
-        output_dir = running_mode.outputs.current_output_folder
+        output_dir: Path = running_mode.outputs.current_output_folder
 
         # TODO: Fix this, see issue #728
         copy_config_file(input_filename=input_filename, output_dir=output_dir)
 
-        if "output" not in data_tree:
-            logging.info("Pipeline completed. No output filenames.")
-            return None
+        if isinstance(running_mode, (Exposure, Observation)):
+            if "output" not in data_tree:
+                logging.info("Pipeline completed. No output filenames.")
+                return None
 
-        output_dt: xr.DataTree | xr.DataArray = data_tree["/output"]
-        if not isinstance(output_dt, xr.DataTree):
-            raise TypeError
+            output_dt: xr.DataTree | xr.DataArray = data_tree["/output"]
+            if not isinstance(output_dt, xr.DataTree):
+                raise TypeError
 
-        df_output_filenames: "pd.DataFrame" = get_output_filenames(
-            data_tree_output=output_dt, output_dir=output_dir
-        )
-
-        try:
-            # Save the DataFrame to CSV
-            df_output_filenames.to_csv(output_dir / "output_filenames.csv", index=False)
-        except Exception:
-            logging.exception(
-                "Failed to save output filenames in folder %s.", output_dir
+            df_output_filenames: "pd.DataFrame" = get_output_filenames(
+                data_tree_output=output_dt, output_dir=output_dir
             )
-            raise
+
+            try:
+                # Save the DataFrame to CSV
+                df_output_filenames.to_csv(
+                    output_dir / "output_filenames.csv", index=False
+                )
+            except Exception:
+                logging.exception(
+                    "Failed to save output filenames in folder %s.", output_dir
+                )
+                raise
+        else:
+            # Calibration mode
+            # Late import
+            import pandas as pd
+
+            from pyxel.outputs.utils import to_netcdf
+
+            ds_champion = data_tree["champion"].to_dataset()
+            ds_best = data_tree["best"].to_dataset()
+
+            filename_champion: Path = to_netcdf(
+                current_output_folder=output_dir, data=ds_champion, name="champion"
+            ).relative_to(output_dir)
+            filename_best: Path = to_netcdf(
+                current_output_folder=output_dir, data=ds_best, name="best"
+            ).relative_to(output_dir)
+
+            df_output_filenames = pd.DataFrame(
+                {"filename": [filename_champion, filename_best]}
+            )
 
         logging.info(
             "Pipeline completed. Generated: %d output file(s) in folder %s.",
@@ -1406,6 +1504,7 @@ def create_new_model(model_name: str | None):
     Example:\f
     --override exposure.outputs.output_folder=new_folder""",
 )
+@click.option("--dask-report", is_flag=True, help="Generate a Dask report")
 @click.option(
     "-v",
     "--verbosity",
@@ -1413,7 +1512,7 @@ def create_new_model(model_name: str | None):
     show_default=True,
     help="Increase output verbosity (-v/-vv/-vvv)",
 )
-def run_config(config: str, override: Sequence[str], verbosity: int):
+def run_config(config: str, override: Sequence[str], verbosity: int, dask_report: bool):
     """Run Pyxel with a ``YAML`` configuration file."""
     logging_level = [logging.ERROR, logging.WARNING, logging.INFO, logging.DEBUG][
         min(verbosity, 3)
@@ -1433,7 +1532,9 @@ def run_config(config: str, override: Sequence[str], verbosity: int):
     stream_stdout.setFormatter(logging.Formatter(log_format))
     logging.getLogger().addHandler(stream_stdout)
 
-    df_filenames: "pd.DataFrame" | None = run(input_filename=config, override=override)
+    df_filenames: "pd.DataFrame" | None = run(
+        input_filename=config, override=override, dask_report=dask_report
+    )
 
     if df_filenames is None:
         raise RuntimeError(
