@@ -574,3 +574,30 @@ Example of the configuration file:
     * :external+pyxel_data:doc:`examples/observation/sequential`
 
 .. autofunction:: ac_crosstalk
+
+.. _Uncorrelated Pink Noise CMOS:
+
+Uncorrelated Pink Noise CMOS
+============================
+
+:guilabel:`Signal` → :guilabel:`Signal`
+
+Add uncorrelated pink (1/f) readout noise.
+This model simulates pink noise that depends on the detector's readout order
+and optionally includes overhead pixel and rows reads.
+These simulated overhead reads ensure that the internal state of the pink-noise
+generators evolves realistically.
+
+Example of the configuration file:
+
+.. code-block:: yaml
+
+    - name: uncorrelated_pink_noise_cmos
+      func: pyxel.models.charge_measurement.uncorrelated_pink_noise_cmos
+      enabled: true
+      arguments:
+        nb_pixels_overhead_after_row: 0   # default value
+        nb_rows_overhead_after_frame: 0   # default value
+        std: 1.0                          # default value
+
+.. autofunction:: uncorrelated_pink_noise_cmos
