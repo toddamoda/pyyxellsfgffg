@@ -15,6 +15,7 @@ make it apparent that there's nothing to do.
  - [ ] **If a model is added/updated/removed** then
    - [ ] Update the [**metadata.yaml**](https://esa.gitlab.io/pyxel/doc/stable/howto/metadata.html) file linked to this model
    - [ ] Update documentation [**references/models**](https://esa.gitlab.io/pyxel/doc/stable/references/models.html)
+   - [ ] Update documentation [**references/model_groups/xxx_models.rst**](https://gitlab.com/esa/pyxel/-/tree/master/docs/source/references/model_groups)
    - [ ] Update documentation [**background/detectors/CCD**](https://esa.gitlab.io/pyxel/doc/stable/background/detectors/ccd.html)
    - [ ] Update documentation [**background/detectors/CMOS**](https://esa.gitlab.io/pyxel/doc/stable/background/detectors/cmos.html)
    - [ ] Update the JSON Schema of Pyxel by typing ``tox -e json_schema``.
