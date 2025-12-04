@@ -16,6 +16,8 @@ Pyxel doesn't use SemVer anymore, since most minor releases have at least minor 
   (See [!1134](https://gitlab.com/esa/pyxel/-/merge_requests/1134)).
 * Integrate additional typing/validation rules into JSON Schema.
   (See [!1139](https://gitlab.com/esa/pyxel/-/merge_requests/1139)).
+* Add `check_validity` function and basic tests.
+  (See [!1141](https://gitlab.com/esa/pyxel/-/merge_requests/1141)).
 
 ### Documentation
 
