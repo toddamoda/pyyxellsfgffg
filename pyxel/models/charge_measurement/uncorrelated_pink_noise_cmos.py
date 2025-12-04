@@ -94,8 +94,27 @@ def uncorrelated_pink_noise_cmos(
     For uncorrelated pink noise, each channel has its own generator. The noise is
     read order dependent, and some overhead reads are simulated. Generators states
     are stored inside `CMOS` (`Detector`) object.
-    """
 
+    Parameters
+    ----------
+    detector : CMOS
+    nb_pixels_overhead_after_row : int, optional
+        Number of overhead pixels to simulate after each row read.
+        Used to advance the pink-noise generators consistently.
+        Default is ``0``.
+    nb_rows_overhead_after_frame : int, optional
+        Number of overhead rows to simulate after each frame read.
+        Default is ``0``.
+    std : float or dict of float, optional
+        Standard deviation of the pink noise in electrons:
+          - If a scalar is provided, it is applied identically to all channels.
+          - If a dictionary is provided, keys must match channel labels defined in ``detector.geometry.channels``.
+
+        All provided values must be positive. Default is ``1.0``.
+    seed : int or None, optional
+        Random seed used for initializing the pink-noise generators.
+        Only applied during the first invocation. Default is ``None``.
+    """
     # init the pink noise generators with the seed (only the first time)
     try:
         _ = detector.uncorrelated_pink_noise_generators

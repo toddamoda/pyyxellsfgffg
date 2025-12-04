@@ -1842,6 +1842,9 @@
                 "$ref": "#/definitions/ModelChargeMeasurementSimplePhysicalNonLinearity"
               },
               {
+                "$ref": "#/definitions/ModelChargeMeasurementUncorrelatedPinkNoiseCmos"
+              },
+              {
                 "$ref": "#/definitions/ModelLoadDetector"
               },
               {
@@ -5080,6 +5083,79 @@
         "arguments"
       ],
       "title": "Model 'simple_physical_non_linearity'",
+      "type": "object"
+    },
+    "ModelChargeMeasurementUncorrelatedPinkNoiseCmos": {
+      "additionalProperties": false,
+      "description": "Add Uncorrelated pink noise into `pixel.volatile` array.",
+      "properties": {
+        "arguments": {
+          "additionalProperties": false,
+          "default": {
+            "nb_pixels_overhead_after_row": 0,
+            "nb_rows_overhead_after_frame": 0,
+            "seed": null,
+            "std": 1.0
+          },
+          "properties": {
+            "nb_pixels_overhead_after_row": {
+              "default": 0,
+              "description": "Number of overhead pixels to simulate after each row read. Used to advance the pink-noise generators consistently. Default is ``0``.",
+              "title": "nb_pixels_overhead_after_row",
+              "type": "integer"
+            },
+            "nb_rows_overhead_after_frame": {
+              "default": 0,
+              "description": "Number of overhead rows to simulate after each frame read. Default is ``0``.",
+              "title": "nb_rows_overhead_after_frame",
+              "type": "integer"
+            },
+            "seed": {
+              "default": null,
+              "description": "Random seed used for initializing the pink-noise generators. Only applied during the first invocation. Default is ``None``.",
+              "title": "seed",
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "std": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "additionalProperties": {
+                    "type": "number"
+                  },
+                  "type": "object"
+                }
+              ],
+              "default": 1.0,
+              "description": "Standard deviation of the pink noise in electrons:   - If a scalar is provided, it is applied identically to all channels.   - If a dictionary is provided, keys must match channel labels defined in ``detector.geometry.channels``.  All provided values must be positive. Default is ``1.0``.",
+              "title": "std"
+            }
+          },
+          "title": "Parameters",
+          "type": "object"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "func": {
+          "const": "pyxel.models.charge_measurement.uncorrelated_pink_noise_cmos",
+          "default": "pyxel.models.charge_measurement.uncorrelated_pink_noise_cmos",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Model 'uncorrelated_pink_noise_cmos'",
       "type": "object"
     },
     "ModelChargeTransferArcticAdd": {
