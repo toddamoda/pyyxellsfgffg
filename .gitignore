@@ -60,6 +60,7 @@ docs/source/howto/*.h5
 .env
 .venv/
 venv/
+.pixi/*
 
 # Pipenv
 Pipfile
