@@ -17,45 +17,51 @@ from pyxel.util.check_validity import check_validity
 # ---------------------------------------------------------
 
 
-def test_valid_basic():
-    check_validity(3.0, float)
-    check_validity(3, int)
-    check_validity("Hello", str)
-    check_validity(True, bool)
-    check_validity((0, 0), tuple[int, int])
-    check_validity("top_left", Literal["top_left", "top_right"])
+@pytest.mark.parametrize(
+    "value, exp_type",
+    [
+        pytest.param(3.0, float, id="float"),
+        pytest.param(3, int, id="int"),
+        pytest.param("Hello", str, id="str"),
+        pytest.param(True, bool, id="bool"),
+        pytest.param((0, 0), tuple[int, int], id="tuple 2 elements"),
+        pytest.param("top_left", Literal["top_left", "top_right"], id="literal"),
+        pytest.param(3.0, Annotated[float, Ge(0.0)], id="Annotated, >= 0.0"),
+        pytest.param(10, Annotated[int, Ge(0)], id="Annotated, > 0"),
+        pytest.param(
+            (0, 0),
+            tuple[Annotated[int, Ge(0)], Annotated[int, Ge(0)]],
+            id="Annotated, tuple",
+        ),
+    ],
+)
+def test_valid_basic(value, exp_type):
+    """Test valid inputs."""
+    check_validity(value, exp_type)
 
 
-def test_valid_annotated():
-    check_validity(3.0, Annotated[float, Ge(0.0)])
-    check_validity(10, Annotated[int, Ge(0)])
-    check_validity((0, 0), tuple[Annotated[int, Ge(0)], Annotated[int, Ge(0)]])
-
-
-# ---------------------------------------------------------
-# INVALID TYPES (TypeError)
-# ---------------------------------------------------------
-
-
-def test_invalid_type_simple():
-    with pytest.raises(TypeError):
-        check_validity(3.14, int)
-
-    with pytest.raises(TypeError):
-        check_validity("a", float)
-
-    with pytest.raises(TypeError):
-        check_validity([1, 2], tuple[int, int])
-
-
-# ---------------------------------------------------------
-# INVALID VALUES (ValueError)
-# ---------------------------------------------------------
-
-
-def test_invalid_values_annotated():
-    with pytest.raises(ValueError):
-        check_validity(3.0, Annotated[float, Interval(ge=10.0, le=20.0)])
-
-    with pytest.raises(ValueError):
-        check_validity(3, Annotated[int, Ge(4)])
+@pytest.mark.parametrize(
+    "value, exp_type, exp_exc, exp_msg",
+    [
+        # ---------------------------------------------------------
+        # INVALID TYPES (TypeError)
+        # ---------------------------------------------------------
+        (3.14, int, TypeError, r"Expecting a \'int\'"),
+        ("a", float, TypeError, r"Expecting a \'float\'"),
+        ([1, 2], tuple[int, int], TypeError, r"Expecting a tuple"),
+        # ---------------------------------------------------------
+        # INVALID VALUES (ValueError)
+        # ---------------------------------------------------------
+        (
+            3.0,
+            Annotated[float, Interval(ge=10.0, le=20.0)],
+            ValueError,
+            r"Value 3\.0 is less",
+        ),
+        (3, Annotated[int, Ge(4)], ValueError, r"Value 3 is less"),
+    ],
+)
+def test_invalid_type(value, exp_type, exp_exc, exp_msg):
+    """Test invalid inputs."""
+    with pytest.raises(exp_exc, match=exp_msg):
+        check_validity(value, exp_type)
