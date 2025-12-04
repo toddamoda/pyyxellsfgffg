@@ -54,9 +54,79 @@ Quickstart Setup
 
 The best way to get started and learn Pyxel are the :doc:`examples`.
 
+The different methods to quickly try Pyxel:
 
-🚀 Recommended Quickstart Setup using `uv <https://docs.astral.sh/uv/>`_ 🚀
----------------------------------------------------------------------------
+.. grid:: 1 2 2 2
+    :gutter: 4
+
+    .. grid-item-card::
+        :text-align: center
+        :link: quick_installation_uv
+        :link-type: ref
+
+        **With uv**
+        ^^^^^^^^^^^
+
+        The quickest way to install Pyxel from **Pypi** and to start it.
+
+        +++
+
+        .. button-ref:: introduction
+            :ref-type: ref
+            :click-parent:
+            :color: primary
+            :outline:
+            :expand:
+
+            Quickstart with uv
+
+    .. grid-item-card::
+        :text-align: center
+        :link: quick_installation_pixi
+        :link-type: ref
+
+        **With pixi**
+        ^^^^^^^^^^^^^
+
+        The quickest way to install Pyxel from **Conda Forge** and to start it.
+
+        +++
+
+        .. button-ref:: introduction
+            :ref-type: ref
+            :click-parent:
+            :color: primary
+            :outline:
+            :expand:
+
+            Quickstart with pixi
+
+    .. grid-item-card::
+        :text-align: center
+        :link: quick_installation_miniconda
+        :link-type: ref
+
+        **With miniconda**
+        ^^^^^^^^^^^^^^^^^^
+
+        Install Pyxel with miniconda.
+
+        +++
+
+        .. button-ref:: introduction
+            :ref-type: ref
+            :click-parent:
+            :color: primary
+            :outline:
+            :expand:
+
+            Quickstart with Miniconda
+
+
+.. _quick_installation_uv:
+
+🚀 Recommended Quickstart Setup using `uv <https://docs.astral.sh/uv/>`_ (alternative for `pip`) 🚀
+---------------------------------------------------------------------------------------------------
 
 1. Install `uv <https://docs.astral.sh/uv/>`_
 `````````````````````````````````````````````
@@ -204,6 +274,105 @@ or directly from the command line:
     $ uvx pyxel-sim run exposure.yaml
 
 
+.. _quick_installation_pixi:
+
+🚀 Alternative recommended Quickstart Setup using `pixi <https://pixi.sh>`_ (alternative for `conda`) 🚀
+--------------------------------------------------------------------------------------------------------
+
+1. Install `pixi`
+`````````````````
+
+.. tip::
+
+    With this installation method you can use the Pyxel's Calibration mode
+    on Windows, MacOS and Linux.
+
+
+To install `pixi` you can run the following command in your terminal
+(see instructions `at this link <https://pixi.sh/latest/installation/>`_):
+
+.. tab:: macOS and Linux
+
+    .. code-block:: bash
+
+        curl -fsSL https://pixi.sh/install.sh | sh
+
+.. tab:: Windows
+
+    .. code-block:: bash
+
+        powershell -ExecutionPolicy Bypass -c "irm -useb https://pixi.sh/install.ps1 | iex"
+
+After installation, restart or open a new command line terminal.
+
+.. tip::
+
+    To update `pixi`, run the following command:
+
+    .. code-block:: bash
+
+        $ pixi self-update
+
+
+2. Install Pyxel with `pixi`
+````````````````````````````
+
+Once `pixi` is installed, you can install Pyxel 2.14 directly from the command line:
+
+
+.. tab:: Linux, MacOS, Windows (WSL)
+
+    .. code-block:: bash
+
+        cd my_folder
+        curl -O https://esa.gitlab.io/pyxel/doc/latest/pyxel-2.14-environment.yaml
+        pixi init --import pyxel-2.14-environment.yaml
+
+.. tab:: Windows (Powershell)
+
+    .. code-block:: bash
+
+        cd my_folder
+        wget https://esa.gitlab.io/pyxel/doc/latest/pyxel-2.14-environment.yaml -outfile "pyxel-2.14-environment.yaml"
+        pixi init --import pyxel-2.14-environment.yaml
+
+
+The activate the (conda) environment with this command:
+
+.. code-block:: bash
+
+    pixi shell
+
+
+Then check that Pyxel is correctly installed with:
+
+.. code-block:: bash
+
+    pyxel-sim --version
+
+You can now proceed to download the Pyxel tutorial notebooks.
+The total size to download is ~200 MB.
+
+.. code-block:: bash
+
+    pyxel-sim download-examples
+
+You can run Pyxel as a package if running it as a script does not work:
+
+.. code-block:: bash
+
+    python -m pyxel-sim download-examples
+
+Finally start a notebook server by executing:
+
+.. code-block:: bash
+
+    cd pyxel-examples
+    jupyter lab
+
+
+.. _quick_installation_miniconda:
+
 🐌 Quickstart Setup with 'normal' installation with `Miniconda <https://docs.anaconda.com/miniconda>`_ 🐌
 ---------------------------------------------------------------------------------------------------------
 
@@ -256,13 +425,13 @@ proceed with the following command to download them in folder ``pyxel-examples``
 
 .. code-block:: bash
 
-    pyxel download-examples
+    pyxel-sim download-examples
 
 You can run Pyxel as a package if running it as a script does not work:
 
 .. code-block:: bash
 
-    python -m pyxel download-examples
+    python -m pyxel-sim download-examples
 
 Finally start a notebook server by executing:
 
