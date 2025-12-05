@@ -1,7 +1,6 @@
 # Copyright or © or Copr. Antoine Kaszczyc and Aurelien Jarno, Centre de Recherche Astrophysique de Lyon (CRAL)  (2025)
 #
 # Antoine Kaszczyc <antoine.kaszczyc@univ-lyon1.fr>
-# Aurelien Jarno <aurelien.jarno@univ-lyon1.fr>
 #
 # This file is part of the Pyxel general simulator framework.
 #
@@ -34,6 +33,7 @@
 import numpy as np
 from astropy.units import Quantity
 
+import pyxel
 from pyxel.detectors import (
     CMOS,
     Channels,
@@ -49,7 +49,7 @@ from pyxel.models.charge_measurement.uncorrelated_pink_noise_cmos import (
     create_uncorrelated_pink_noise_cmos_by_chan,
     uncorrelated_pink_noise_cmos,
 )
-from pyxel.util import PinkNoiseGenerator
+from pyxel.util import PinkNoiseGenerator, set_random_seed
 
 
 def test_create_pink_noise_cmos():
@@ -177,3 +177,55 @@ def test_uncorrelated_pink_noise_cmos():
     assert np.all(c[slop1] != c[slop13])
     assert np.all(c[slop1] != c[slop5])
     assert np.all(c[slop5] != c[slop13])
+
+
+def test_exposure_uncorrelated_pink_noise_cmos():
+    s = """
+exposure:
+  readout:
+    times: [1,2,3]
+    non_destructive:  true
+cmos_detector:
+  geometry:
+    row: 4 # [px]
+    col: 4 # [px]
+  characteristics:
+    charge_to_volt_conversion: 1.0e-6 # [V/e]
+    adc_voltage_range: [0,6] # [V,V]
+    adc_bit_resolution: 16   # [bit]
+    quantum_efficiency: 1
+pipeline:
+  photon_collection:
+    - name: illumination
+      func: pyxel.models.photon_collection.illumination
+      arguments:
+        level: 0
+  charge_generation:
+    - name: simple_conversion
+      func: pyxel.models.charge_generation.simple_conversion
+  charge_collection:
+    - name: simple_collection
+      func: pyxel.models.charge_collection.simple_collection
+  charge_measurement:
+    - name: uncorrelated_pink_noise_cmos
+      func: pyxel.models.charge_measurement.uncorrelated_pink_noise_cmos
+      arguments:
+        nb_pixels_overhead_after_row: 0
+        nb_rows_overhead_after_frame: 0
+        seed: 1234
+"""
+    config = pyxel.loads(s)
+    result = pyxel.run_mode(config)
+    configseed = (
+        config.pipeline.charge_measurement.uncorrelated_pink_noise_cmos.arguments.seed
+    )
+    configrow = config.detector.geometry.row
+    configcol = config.detector.geometry.col
+    configtimes = config.exposure.readout.times
+    with set_random_seed(configseed):
+        sd = np.random.randint(10_000)
+        refgen = PinkNoiseGenerator(sd)
+        lennoise = configrow * configcol * len(configtimes)
+        refnoise = refgen.get(lennoise)
+        # test that the 3 samples combined is equal to the noise sequence
+        assert np.all(np.ravel(result.bucket.pixel.data) == refnoise)
