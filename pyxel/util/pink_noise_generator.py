@@ -1,6 +1,5 @@
-# Copyright or © or Copr. Antoine Kaszczyc and Aurelien Jarno, Centre de Recherche Astrophysique de Lyon (CRAL)  (2025)
+# Copyright or © or Copr. Aurelien Jarno, Centre de Recherche Astrophysique de Lyon (CRAL)  (2025)
 #
-# Antoine Kaszczyc <antoine.kaszczyc@univ-lyon1.fr>
 # Aurelien Jarno <aurelien.jarno@univ-lyon1.fr>
 #
 # This file is part of the Pyxel general simulator framework.
